@@ -1,0 +1,55 @@
+{
+  "@@locale": "en",
+  "appTitle": "BaroEase",
+  "@appTitle": {
+    "description": "Application name shown in the OS task switcher"
+  },
+  "navLog": "Log",
+  "@navLog": {
+    "description": "Bottom navigation label for the attack logging tab"
+  },
+  "navHistory": "History",
+  "@navHistory": {
+    "description": "Bottom navigation label for the history tab"
+  },
+  "navInsights": "Insights",
+  "@navInsights": {
+    "description": "Bottom navigation label for the insights tab"
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Bottom navigation label for the settings tab"
+  },
+  "logTitle": "Log attack",
+  "@logTitle": {
+    "description": "Title of the logging screen"
+  },
+  "logPlaceholder": "The 3-tap attack log will live here.",
+  "@logPlaceholder": {
+    "description": "Placeholder body text on the logging screen skeleton"
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Title of the history screen"
+  },
+  "historyPlaceholder": "Calendar and attack frequency charts will live here.",
+  "@historyPlaceholder": {
+    "description": "Placeholder body text on the history screen skeleton"
+  },
+  "insightsTitle": "Insights",
+  "@insightsTitle": {
+    "description": "Title of the insights screen"
+  },
+  "insightsPlaceholder": "Pressure correlation and forecast will live here.",
+  "@insightsPlaceholder": {
+    "description": "Placeholder body text on the insights screen skeleton"
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen"
+  },
+  "settingsPlaceholder": "Data export, privacy, and alert settings will live here.",
+  "@settingsPlaceholder": {
+    "description": "Placeholder body text on the settings screen skeleton"
+  }
+}
