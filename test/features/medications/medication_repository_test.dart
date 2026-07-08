@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
-import 'package:migraine_tracker/features/medications/data/drift_medication_repository.dart';
-import 'package:migraine_tracker/features/medications/domain/medication.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 
 void main() {
   late AppDatabase db;

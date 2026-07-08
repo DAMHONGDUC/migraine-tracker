@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
-import '../../features/attacks/data/attack_tables.dart';
-import '../../features/attacks/domain/head_location.dart';
-import '../../features/medications/data/medication_tables.dart';
+import '../../features/attacks/data/tables/attack_tables.dart';
+import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/medications/data/tables/medication_tables.dart';
 import 'converters.dart';
 
-export '../../features/attacks/data/attack_tables.dart';
-export '../../features/medications/data/medication_tables.dart';
+export '../../features/attacks/data/tables/attack_tables.dart';
+export '../../features/medications/data/tables/medication_tables.dart';
 
 part 'app_database.g.dart';
 

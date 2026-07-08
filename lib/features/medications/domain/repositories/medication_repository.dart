@@ -1,4 +1,4 @@
-import 'medication.dart';
+import '../entities/medication.dart';
 
 /// Contract for the user's saved medications.
 abstract interface class MedicationRepository {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../l10n/gen/app_localizations.dart';
+import '../../../../l10n/gen/app_localizations.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});

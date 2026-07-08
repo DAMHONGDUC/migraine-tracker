@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 
-import '../../../core/db/app_database.dart';
-import '../domain/medication.dart';
-import '../domain/medication_repository.dart';
+import '../../../../core/db/app_database.dart';
+import '../../domain/entities/medication.dart';
+import '../../domain/repositories/medication_repository.dart';
 
 /// Drift-backed [MedicationRepository].
 class DriftMedicationRepository implements MedicationRepository {

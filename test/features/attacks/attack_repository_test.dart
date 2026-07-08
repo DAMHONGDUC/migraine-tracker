@@ -1,10 +1,10 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
-import 'package:migraine_tracker/features/attacks/data/drift_attack_repository.dart';
-import 'package:migraine_tracker/features/attacks/domain/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/head_location.dart';
-import 'package:migraine_tracker/features/weather/domain/weather_snapshot.dart';
+import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
+import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 void main() {
   late AppDatabase db;

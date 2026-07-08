@@ -1,5 +1,5 @@
-import '../../weather/domain/weather_snapshot.dart';
-import 'attack.dart';
+import '../../../weather/domain/entities/weather_snapshot.dart';
+import '../entities/attack.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
 /// implementation — the sync phase will decorate it with a cloud-syncing one.

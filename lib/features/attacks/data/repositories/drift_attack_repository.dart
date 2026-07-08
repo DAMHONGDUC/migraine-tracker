@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 
-import '../../../core/db/app_database.dart';
-import '../../weather/domain/weather_snapshot.dart';
-import '../domain/attack.dart';
-import '../domain/attack_repository.dart';
+import '../../../../core/db/app_database.dart';
+import '../../../weather/domain/entities/weather_snapshot.dart';
+import '../../domain/entities/attack.dart';
+import '../../domain/repositories/attack_repository.dart';
 
 /// Drift-backed [AttackRepository]. Returns domain models, never Drift rows.
 class DriftAttackRepository implements AttackRepository {

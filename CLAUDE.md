@@ -22,31 +22,39 @@ Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). N
 
 ## Repo layout
 
-Feature-based clean architecture. Each feature owns its `domain/` (entities,
-repository interfaces — pure Dart, no Flutter imports), `data/` (Drift tables,
-repository impls, API clients), `presentation/` (screens, widgets), and a
-`providers.dart` for Riverpod wiring.
+Feature-based clean architecture. Layers inside every feature use fixed
+subfolder names:
 
 ```
 lib/
-  core/            # cross-cutting only, NO business logic
-    db/            # AppDatabase (composes feature-owned tables), converters
+  core/                  # cross-cutting only, NO business logic
+    db/                  # AppDatabase (composes feature-owned tables), converters
     router/ theme/
-  l10n/            # ARB files (+ generated gen/)
+  l10n/                  # ARB files (+ generated gen/)
   features/
-    attacks/       # core feature: Attack entity, repo, 3-tap log flow
-    medications/   # saved meds for the log flow picker
-    weather/       # WeatherSnapshot entity, API clients (WeatherKit)
-    history/       # calendar + charts (reads attacks domain)
-    insights/      # correlation engine, pressure forecast
-    alerts/        # alert settings, geohash registration
-    auth/          # Google/Apple sign-in (optional, linkWithCredential)
-    sync/          # encrypted attack sync for signed-in users
-    paywall/       # revenuecat
-    settings/      # export, delete, privacy, account deletion
-functions/         # firebase cloud functions (typescript)
-test/features/     # mirrors lib/features
+    <feature>/
+      domain/            # pure Dart, no Flutter imports
+        entities/        # immutable models / value objects
+        enums/
+        repositories/    # abstract repository interfaces
+        services/        # real domain logic (e.g. correlation engine)
+      data/
+        tables/          # Drift table definitions (owned here, composed in core/db)
+        repositories/    # Drift/API implementations of domain interfaces
+        datasources/     # API clients (e.g. WeatherKit) when needed
+      presentation/
+        screens/
+        widgets/
+      providers.dart     # Riverpod wiring for the feature
+functions/               # firebase cloud functions (typescript)
+test/features/           # mirrors lib/features
 ```
+
+Features: `attacks` (Attack entity + 3-tap log), `medications`, `weather`
+(WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
+`alerts`, `auth` (Google/Apple, linkWithCredential), `sync`, `paywall`,
+`settings`. Create a layer folder only when it gets its first file — no empty
+placeholder folders.
 
 Dependency rule: `presentation → domain ← data` inside a feature. Across
 features, import only another feature's `domain/` (or its `providers.dart`),

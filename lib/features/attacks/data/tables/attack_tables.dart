@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-import '../../../core/db/converters.dart';
-import '../domain/head_location.dart';
+import '../../../../core/db/converters.dart';
+import '../../domain/enums/head_location.dart';
 
 @DataClassName('AttackRow')
 class Attacks extends Table {

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/features/attacks/domain/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/head_location.dart';
-import 'package:migraine_tracker/features/insights/domain/correlation_engine.dart';
-import 'package:migraine_tracker/features/insights/domain/correlation_result.dart';
-import 'package:migraine_tracker/features/weather/domain/weather_snapshot.dart';
+import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
+import 'package:migraine_tracker/features/insights/domain/services/correlation_engine.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 Attack attack({
   required int index,
