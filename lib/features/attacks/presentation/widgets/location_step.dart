@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
-import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/head_location.dart';
 
 /// Second tap: where the pain is. Selecting advances immediately.
@@ -20,23 +21,22 @@ class LocationStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return ListView(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.w),
       children: [
         for (final location in HeadLocation.values) ...[
           SizedBox(
-            height: 64,
+            height: 64.h,
             child: FilledButton.tonalIcon(
               onPressed: () => onSelected(location),
               icon: Icon(_icons[location]),
               label: Text(
-                location.label(l10n),
-                style: Theme.of(context).textTheme.titleMedium,
+                location.label(context.l10n),
+                style: context.textTheme.titleMedium,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
         ],
       ],
     );

@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../l10n/gen/app_localizations.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
@@ -21,7 +21,7 @@ class LogScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final step = useState(_LogStep.intensity);
     final intensity = useState<int?>(null);
     final location = useState<HeadLocation?>(null);

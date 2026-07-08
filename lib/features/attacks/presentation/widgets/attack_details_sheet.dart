@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../../l10n/gen/app_localizations.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
@@ -19,7 +20,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final symptomsController = useTextEditingController();
     final triggersController = useTextEditingController();
     final notesController = useTextEditingController();
@@ -39,17 +40,17 @@ class AttackDetailsSheet extends HookConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 24,
+        left: 24.w,
+        right: 24.w,
+        top: 24.h,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 24.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l10n.detailsTitle, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
+          Text(l10n.detailsTitle, style: context.textTheme.titleLarge),
+          SizedBox(height: 16.h),
           TextField(
             controller: symptomsController,
             decoration: InputDecoration(
@@ -57,7 +58,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsSymptomsHint,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           TextField(
             controller: triggersController,
             decoration: InputDecoration(
@@ -65,13 +66,13 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsTriggersHint,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           TextField(
             controller: notesController,
             maxLines: 3,
             decoration: InputDecoration(labelText: l10n.detailsNotesLabel),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           FilledButton(onPressed: save, child: Text(l10n.detailsSave)),
         ],
       ),

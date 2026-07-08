@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../l10n/gen/app_localizations.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
 
@@ -15,7 +16,7 @@ class MedicationStep extends ConsumerWidget {
   final ValueChanged<String?> onSelected;
 
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final controller = TextEditingController();
     final name = await showDialog<String>(
       context: context,
@@ -51,25 +52,25 @@ class MedicationStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final medications = ref.watch(medicationsStreamProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.w),
       children: [
         _OptionTile(
           icon: Icons.close,
           label: l10n.logNoMedication,
           onTap: () => onSelected(null),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         for (final med in medications.value ?? <Medication>[]) ...[
           _OptionTile(
             icon: Icons.medication_outlined,
             label: med.name,
             onTap: () => onSelected(med.name),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
         ],
         _OptionTile(
           icon: Icons.add,
@@ -95,11 +96,11 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64,
+      height: 64.h,
       child: FilledButton.tonalIcon(
         onPressed: onTap,
         icon: Icon(icon),
-        label: Text(label, style: Theme.of(context).textTheme.titleMedium),
+        label: Text(label, style: context.textTheme.titleMedium),
       ),
     );
   }

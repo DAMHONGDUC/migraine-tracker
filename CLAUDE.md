@@ -76,7 +76,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
 4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.
 5. **The 3-tap log flow is sacred**: intensity → head location → medication → saved. Any new required field in this flow needs explicit approval. Optional fields go behind "Add details".
-6. Every user-facing string goes through `intl` ARB files (English only for now, but no hardcoded strings).
+6. Every user-facing string goes through `intl` ARB files. Two locales ship in v1: `app_en.arb` (template, with `@` descriptions) and `app_vi.arb` — every new key must be added to BOTH. Access strings via the `context.l10n` extension (`core/extensions/context_extensions.dart`), never `AppLocalizations.of(context)` directly. The user's language choice lives in `localeControllerProvider` (persisted via shared_preferences; null = follow system).
 7. Pressure math: alerts trigger on **delta** (default ≥5 hPa drop within 24h forecast), not absolute values. Threshold is user-tunable and stored per-user.
 8. GDPR: `settings/` must always keep working "Export all data (JSON/CSV)" and "Delete everything" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist.
 9. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
@@ -85,6 +85,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 ## Code style
 
 - Small widgets, extract at ~80 lines. Prefer composition over config flags.
+- Responsive sizing via `flutter_screenutil` (design size 393×852, `minTextAdapt: true`): use `.w`/`.h` for paddings & spacing, `.r` for square/circular elements, plain `TextTheme` styles for text (screenutil already adapts them via ScreenUtilInit).
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
 - Cloud Functions: idempotent, log with structured JSON, fail loud on weather API errors (retry with backoff), never silently skip a user cohort.

@@ -5,14 +5,21 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
+import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   Future<void> pumpApp(WidgetTester tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
         child: const BaroEaseApp(),
       ),
     );
@@ -55,10 +62,7 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(
-      find.text('Data export, privacy, and alert settings will live here.'),
-      findsOneWidget,
-    );
+    expect(find.text('Language'), findsOneWidget);
 
     await finishTest(tester);
   });

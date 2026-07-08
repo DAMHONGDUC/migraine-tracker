@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../l10n/gen/app_localizations.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import 'attack_details_sheet.dart';
 
 /// Confirmation after the attack is saved. Calm, static — no flashing.
@@ -12,29 +13,28 @@ class SavedStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.check_circle_outline,
-              size: 64,
-              color: theme.colorScheme.primary,
+              size: 64.r,
+              color: context.colorScheme.primary,
             ),
-            const SizedBox(height: 16),
-            Text(l10n.logSavedTitle, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: 8),
+            SizedBox(height: 16.h),
+            Text(l10n.logSavedTitle, style: context.textTheme.headlineSmall),
+            SizedBox(height: 8.h),
             Text(
               l10n.logSavedSubtitle,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: context.textTheme.bodyLarge?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             OutlinedButton(
               onPressed: () => showModalBottomSheet<void>(
                 context: context,
@@ -43,7 +43,7 @@ class SavedStep extends StatelessWidget {
               ),
               child: Text(l10n.logAddDetails),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             FilledButton(onPressed: onDone, child: Text(l10n.logDone)),
           ],
         ),

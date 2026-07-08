@@ -140,8 +140,20 @@
   "@settingsTitle": {
     "description": "Title of the settings screen"
   },
-  "settingsPlaceholder": "Data export, privacy, and alert settings will live here.",
-  "@settingsPlaceholder": {
-    "description": "Placeholder body text on the settings screen skeleton"
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "Settings tile that opens the language picker"
+  },
+  "settingsLanguageSystem": "System default",
+  "@settingsLanguageSystem": {
+    "description": "Language option that follows the device locale"
+  },
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": {
+    "description": "Language option: English (shown in its own language)"
+  },
+  "settingsLanguageVietnamese": "Tiếng Việt",
+  "@settingsLanguageVietnamese": {
+    "description": "Language option: Vietnamese (shown in its own language)"
   }
 }

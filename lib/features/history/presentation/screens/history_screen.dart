@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
-import '../../../../l10n/gen/app_localizations.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 
@@ -12,7 +13,7 @@ class HistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final attacks = ref.watch(attacksStreamProvider);
 
     return Scaffold(
@@ -22,11 +23,10 @@ class HistoryScreen extends ConsumerWidget {
           child: Text(l10n.historyEmpty),
         ),
         AsyncData(value: final list) => ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           itemCount: list.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 8),
-          itemBuilder: (context, index) =>
-              _AttackTile(attack: list[index], l10n: l10n),
+          separatorBuilder: (_, _) => SizedBox(height: 8.h),
+          itemBuilder: (context, index) => _AttackTile(attack: list[index]),
         ),
         AsyncError() => Center(child: Text(l10n.historyEmpty)),
         _ => const Center(child: CircularProgressIndicator()),
@@ -36,27 +36,25 @@ class HistoryScreen extends ConsumerWidget {
 }
 
 class _AttackTile extends StatelessWidget {
-  const _AttackTile({required this.attack, required this.l10n});
+  const _AttackTile({required this.attack});
 
   final Attack attack;
-  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final when = DateFormat.yMMMd()
-        .add_jm()
-        .format(attack.startedAt.toLocal());
+    final when = DateFormat.yMMMd(
+      context.l10n.localeName,
+    ).add_jm().format(attack.startedAt.toLocal());
     return Card(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.18),
+          backgroundColor: context.colorScheme.primary.withValues(alpha: 0.18),
           child: Text(
             '${attack.intensity}',
-            style: theme.textTheme.titleMedium,
+            style: context.textTheme.titleMedium,
           ),
         ),
-        title: Text(attack.location.label(l10n)),
+        title: Text(attack.location.label(context.l10n)),
         subtitle: Text(
           attack.medicationName == null
               ? when
