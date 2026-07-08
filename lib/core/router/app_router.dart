@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../features/attacks/presentation/log_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/insights/presentation/insights_screen.dart';
-import '../../features/logging/presentation/log_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import 'app_shell.dart';
 

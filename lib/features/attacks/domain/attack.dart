@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../weather/domain/weather_snapshot.dart';
 import 'head_location.dart';
-import 'weather_snapshot.dart';
 
 /// A single migraine attack. The three required fields ([intensity],
 /// [location], [medicationName]) mirror the 3-tap log flow; everything else

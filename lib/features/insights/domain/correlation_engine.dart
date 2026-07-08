@@ -1,4 +1,4 @@
-import '../models/attack.dart';
+import '../../attacks/domain/attack.dart';
 import 'correlation_result.dart';
 
 /// Correlation engine v1: what share of attacks happened during a rapid

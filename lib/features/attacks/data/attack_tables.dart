@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/models/head_location.dart';
-import 'converters.dart';
+import '../../../core/db/converters.dart';
+import '../domain/head_location.dart';
 
 @DataClassName('AttackRow')
 class Attacks extends Table {
@@ -39,13 +39,4 @@ class WeatherSnapshots extends Table {
 
   @override
   Set<Column<Object>> get primaryKey => {attackId};
-}
-
-@DataClassName('MedicationRow')
-class Medications extends Table {
-  TextColumn get id => text()();
-  TextColumn get name => text()();
-
-  @override
-  Set<Column<Object>> get primaryKey => {id};
 }

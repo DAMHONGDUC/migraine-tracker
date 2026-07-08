@@ -22,21 +22,36 @@ Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). N
 
 ## Repo layout
 
+Feature-based clean architecture. Each feature owns its `domain/` (entities,
+repository interfaces — pure Dart, no Flutter imports), `data/` (Drift tables,
+repository impls, API clients), `presentation/` (screens, widgets), and a
+`providers.dart` for Riverpod wiring.
+
 ```
 lib/
-  core/          # theme, router, constants, extensions
-  data/          # drift db, repositories, weather api clients
-  domain/        # models, correlation engine (pure dart, no flutter imports)
+  core/            # cross-cutting only, NO business logic
+    db/            # AppDatabase (composes feature-owned tables), converters
+    router/ theme/
+  l10n/            # ARB files (+ generated gen/)
   features/
-    logging/     # 3-tap attack log
-    history/     # calendar + charts
-    insights/    # correlation, pressure forecast
-    alerts/      # alert settings, geohash registration
-    paywall/     # revenuecat
-    settings/    # export, delete, privacy
-functions/       # firebase cloud functions (typescript)
-test/
+    attacks/       # core feature: Attack entity, repo, 3-tap log flow
+    medications/   # saved meds for the log flow picker
+    weather/       # WeatherSnapshot entity, API clients (WeatherKit)
+    history/       # calendar + charts (reads attacks domain)
+    insights/      # correlation engine, pressure forecast
+    alerts/        # alert settings, geohash registration
+    auth/          # Google/Apple sign-in (optional, linkWithCredential)
+    sync/          # encrypted attack sync for signed-in users
+    paywall/       # revenuecat
+    settings/      # export, delete, privacy, account deletion
+functions/         # firebase cloud functions (typescript)
+test/features/     # mirrors lib/features
 ```
+
+Dependency rule: `presentation → domain ← data` inside a feature. Across
+features, import only another feature's `domain/` (or its `providers.dart`),
+never its `data/` or `presentation/`. Drift tables live with their feature;
+`core/db` only composes them.
 
 ## Commands
 
@@ -62,7 +77,7 @@ test/
 ## Code style
 
 - Small widgets, extract at ~80 lines. Prefer composition over config flags.
-- Repositories return domain models, never Drift rows, to features.
+- Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
 - Cloud Functions: idempotent, log with structured JSON, fail loud on weather API errors (retry with backoff), never silently skip a user cohort.
 - Commit style: conventional commits (`feat:`, `fix:`, `chore:`).

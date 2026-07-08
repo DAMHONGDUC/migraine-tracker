@@ -1,16 +1,18 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/models/attack.dart';
-import '../../domain/models/weather_snapshot.dart';
-import '../db/app_database.dart';
+import '../../../core/db/app_database.dart';
+import '../../weather/domain/weather_snapshot.dart';
+import '../domain/attack.dart';
+import '../domain/attack_repository.dart';
 
-/// All reads/writes for attacks. Returns domain models, never Drift rows.
-class AttackRepository {
-  const AttackRepository(this._db);
+/// Drift-backed [AttackRepository]. Returns domain models, never Drift rows.
+class DriftAttackRepository implements AttackRepository {
+  const DriftAttackRepository(this._db);
 
   final AppDatabase _db;
 
   /// All attacks, newest first, with their weather snapshot when present.
+  @override
   Stream<List<Attack>> watchAll() {
     final query =
         _db.select(_db.attacks).join([
@@ -35,6 +37,7 @@ class AttackRepository {
 
   /// Inserts the attack and, if already available, its weather snapshot.
   /// Works fully offline: [Attack.weather] may simply be null.
+  @override
   Future<void> insert(Attack attack) {
     return _db.transaction(() async {
       await _db.into(_db.attacks).insert(_toRow(attack));
@@ -48,6 +51,7 @@ class AttackRepository {
   }
 
   /// Backfills the weather snapshot for an attack logged offline.
+  @override
   Future<void> attachWeather(String attackId, WeatherSnapshot weather) {
     return _db
         .into(_db.weatherSnapshots)
@@ -55,6 +59,7 @@ class AttackRepository {
   }
 
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
+  @override
   Future<List<Attack>> attacksMissingWeather() async {
     final query = _db.select(_db.attacks).join([
       leftOuterJoin(
@@ -70,6 +75,7 @@ class AttackRepository {
   }
 
   /// GDPR wipe. Weather snapshots go with their attacks via cascade.
+  @override
   Future<void> deleteAll() => _db.delete(_db.attacks).go();
 
   Attack _toDomain(AttackRow row, WeatherSnapshotRow? weather) => Attack(

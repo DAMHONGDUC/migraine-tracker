@@ -1,16 +1,16 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/data/db/app_database.dart';
-import 'package:migraine_tracker/data/repositories/medication_repository.dart';
-import 'package:migraine_tracker/domain/models/medication.dart';
+import 'package:migraine_tracker/core/db/app_database.dart';
+import 'package:migraine_tracker/features/medications/data/drift_medication_repository.dart';
+import 'package:migraine_tracker/features/medications/domain/medication.dart';
 
 void main() {
   late AppDatabase db;
-  late MedicationRepository repository;
+  late DriftMedicationRepository repository;
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
-    repository = MedicationRepository(db);
+    repository = DriftMedicationRepository(db);
   });
 
   tearDown(() async {
