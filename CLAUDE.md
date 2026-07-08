@@ -5,16 +5,17 @@ Read `PLAN.md` for full product spec before making architectural decisions.
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
-Local-first data, Firebase backend only for pressure alerts + premium sync.
+Local-first data; Firebase backend for pressure alerts, optional sign-in (Google/Apple), and encrypted attack sync for signed-in users.
 Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). No ads.
 
 ## Tech stack
 
 - **Flutter** (stable channel), Dart 3, iOS first (keep Android compiling, don't polish it yet)
 - **State**: Riverpod (hooks_riverpod). No BLoC, no GetX.
-- **Local DB**: Drift (SQLite). All health data lives on-device. This is a hard rule.
+- **Local DB**: Drift (SQLite). Source of truth for health data is always on-device; cloud is a synced copy, never the only copy.
 - **Navigation**: go_router
-- **Backend**: Firebase — Firestore (region europe-west1), Cloud Functions (TypeScript, Node 20), Cloud Scheduler, FCM, Remote Config, anonymous Auth
+- **Backend**: Firebase — Firestore (region europe-west1), Cloud Functions (TypeScript, Node 20), Cloud Scheduler, FCM, Remote Config
+- **Auth**: anonymous by default (app fully usable without an account). Optional sign-in via Google (`google_sign_in`) and Apple (`sign_in_with_apple`) using `linkWithCredential` so the anonymous UID is upgraded, never replaced. Sign in with Apple is mandatory because Google login is offered (App Store 4.8).
 - **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
 - **Weather**: WeatherKit REST in-app; Open-Meteo in backend cron
 - **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
@@ -47,14 +48,14 @@ test/
 
 ## Hard rules
 
-1. **Health data never leaves the device** in v1. Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. If a task seems to require uploading attack logs, stop and flag it.
+1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it.
 2. **Location**: request While-Using + reduced accuracy only. Never request Always.
 3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
 4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.
 5. **The 3-tap log flow is sacred**: intensity → head location → medication → saved. Any new required field in this flow needs explicit approval. Optional fields go behind "Add details".
 6. Every user-facing string goes through `intl` ARB files (English only for now, but no hardcoded strings).
 7. Pressure math: alerts trigger on **delta** (default ≥5 hPa drop within 24h forecast), not absolute values. Threshold is user-tunable and stored per-user.
-8. GDPR: `settings/` must always keep working "Export all data (JSON/CSV)" and "Delete everything" (local wipe + Firestore doc delete + FCM token revoke).
+8. GDPR: `settings/` must always keep working "Export all data (JSON/CSV)" and "Delete everything" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist.
 9. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
 10. Medical disclaimer must appear in onboarding and App Store description. Never generate copy that promises diagnosis, treatment, or prevention.
 
