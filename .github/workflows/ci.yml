@@ -17,11 +17,18 @@ jobs:
           channel: stable
           cache: true
 
+      # Drift tests open real SQLite databases on the host.
+      - name: Install sqlite3
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate localizations
         run: flutter gen-l10n
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze (zero warnings allowed)
         run: flutter analyze --fatal-infos
