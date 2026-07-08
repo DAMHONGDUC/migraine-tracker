@@ -101,6 +101,30 @@ void main() {
     expect(attacks.single.weather?.pressureDelta24hHpa, -12);
   });
 
+  test('updateDetails fills in the optional fields after the 3-tap save',
+      () async {
+    final bare = Attack(
+      id: 'a3',
+      startedAt: DateTime.utc(2026, 7, 3),
+      intensity: 6,
+      location: HeadLocation.back,
+    );
+    await repository.insert(bare);
+
+    await repository.updateDetails(
+      'a3',
+      symptoms: ['aura'],
+      triggers: ['dehydration', 'heat'],
+      notes: 'started at work',
+    );
+
+    final attack = (await repository.watchAll().first).single;
+    expect(attack.symptoms, ['aura']);
+    expect(attack.triggers, ['dehydration', 'heat']);
+    expect(attack.notes, 'started at work');
+    expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
+  });
+
   test('deleteAll wipes attacks and cascades to weather snapshots', () async {
     await repository.insert(fullAttack());
     await repository.deleteAll();

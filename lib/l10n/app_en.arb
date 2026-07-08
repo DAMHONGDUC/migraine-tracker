@@ -24,17 +24,109 @@
   "@logTitle": {
     "description": "Title of the logging screen"
   },
-  "logPlaceholder": "The 3-tap attack log will live here.",
-  "@logPlaceholder": {
-    "description": "Placeholder body text on the logging screen skeleton"
+  "logIntensityTitle": "How intense is the pain?",
+  "@logIntensityTitle": {
+    "description": "Title above the 1-10 intensity grid, first tap of the log flow"
+  },
+  "logLocationTitle": "Where does it hurt?",
+  "@logLocationTitle": {
+    "description": "Title above the head-location options, second tap of the log flow"
+  },
+  "logMedicationTitle": "Did you take medication?",
+  "@logMedicationTitle": {
+    "description": "Title above the medication picker, third tap of the log flow"
+  },
+  "logNoMedication": "No medication",
+  "@logNoMedication": {
+    "description": "Medication picker option meaning nothing was taken"
+  },
+  "logAddMedication": "Add a medication",
+  "@logAddMedication": {
+    "description": "Medication picker option that opens the add-medication dialog"
+  },
+  "logMedicationNameHint": "Medication name",
+  "@logMedicationNameHint": {
+    "description": "Hint text in the add-medication dialog text field"
+  },
+  "logSavedTitle": "Logged.",
+  "@logSavedTitle": {
+    "description": "Confirmation headline after the attack is saved"
+  },
+  "logSavedSubtitle": "Feel better soon.",
+  "@logSavedSubtitle": {
+    "description": "Gentle message under the saved confirmation"
+  },
+  "logAddDetails": "Add details",
+  "@logAddDetails": {
+    "description": "Button on the saved screen that opens the optional details sheet"
+  },
+  "logDone": "Done",
+  "@logDone": {
+    "description": "Button on the saved screen that resets the log flow"
+  },
+  "detailsTitle": "Details",
+  "@detailsTitle": {
+    "description": "Title of the optional details bottom sheet"
+  },
+  "detailsSymptomsLabel": "Symptoms",
+  "@detailsSymptomsLabel": {
+    "description": "Label for the comma-separated symptoms field"
+  },
+  "detailsSymptomsHint": "aura, nausea, …",
+  "@detailsSymptomsHint": {
+    "description": "Hint for the symptoms field"
+  },
+  "detailsTriggersLabel": "Triggers",
+  "@detailsTriggersLabel": {
+    "description": "Label for the comma-separated triggers field"
+  },
+  "detailsTriggersHint": "stress, red wine, …",
+  "@detailsTriggersHint": {
+    "description": "Hint for the triggers field"
+  },
+  "detailsNotesLabel": "Notes",
+  "@detailsNotesLabel": {
+    "description": "Label for the free-form notes field"
+  },
+  "detailsSave": "Save",
+  "@detailsSave": {
+    "description": "Save button in the details sheet"
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic cancel button"
+  },
+  "commonAdd": "Add",
+  "@commonAdd": {
+    "description": "Generic add/confirm button"
+  },
+  "locationLeft": "Left side",
+  "@locationLeft": {
+    "description": "Head location option: left side"
+  },
+  "locationRight": "Right side",
+  "@locationRight": {
+    "description": "Head location option: right side"
+  },
+  "locationFront": "Front",
+  "@locationFront": {
+    "description": "Head location option: front / forehead"
+  },
+  "locationBack": "Back of head",
+  "@locationBack": {
+    "description": "Head location option: back of head"
+  },
+  "locationWhole": "Whole head",
+  "@locationWhole": {
+    "description": "Head location option: whole head"
   },
   "historyTitle": "History",
   "@historyTitle": {
     "description": "Title of the history screen"
   },
-  "historyPlaceholder": "Calendar and attack frequency charts will live here.",
-  "@historyPlaceholder": {
-    "description": "Placeholder body text on the history screen skeleton"
+  "historyEmpty": "No attacks logged yet.",
+  "@historyEmpty": {
+    "description": "Empty state on the history screen"
   },
   "insightsTitle": "Insights",
   "@insightsTitle": {

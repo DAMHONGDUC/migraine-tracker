@@ -74,6 +74,22 @@ class DriftAttackRepository implements AttackRepository {
         .toList();
   }
 
+  @override
+  Future<void> updateDetails(
+    String id, {
+    required List<String> symptoms,
+    required List<String> triggers,
+    String? notes,
+  }) async {
+    await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+      AttacksCompanion(
+        symptoms: Value(symptoms),
+        triggers: Value(triggers),
+        notes: Value(notes),
+      ),
+    );
+  }
+
   /// GDPR wipe. Weather snapshots go with their attacks via cascade.
   @override
   Future<void> deleteAll() => _db.delete(_db.attacks).go();

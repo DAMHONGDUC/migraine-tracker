@@ -17,6 +17,14 @@ abstract interface class AttackRepository {
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
   Future<List<Attack>> attacksMissingWeather();
 
+  /// Fills in the optional detail fields added after the 3-tap flow saved.
+  Future<void> updateDetails(
+    String id, {
+    required List<String> symptoms,
+    required List<String> triggers,
+    String? notes,
+  });
+
   /// GDPR wipe.
   Future<void> deleteAll();
 }
