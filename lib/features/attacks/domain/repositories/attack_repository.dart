@@ -7,6 +7,9 @@ abstract interface class AttackRepository {
   /// All attacks, newest first, with their weather snapshot when present.
   Stream<List<Attack>> watchAll();
 
+  /// One-shot read of everything [watchAll] would emit (e.g. for export).
+  Future<List<Attack>> getAll();
+
   /// Inserts the attack and, if already available, its weather snapshot.
   /// Works fully offline: [Attack.weather] may simply be null.
   Future<void> insert(Attack attack);

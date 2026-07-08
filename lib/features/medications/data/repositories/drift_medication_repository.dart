@@ -22,6 +22,16 @@ class DriftMedicationRepository implements MedicationRepository {
   }
 
   @override
+  Future<List<Medication>> getAll() async {
+    final query = _db.select(_db.medications)
+      ..orderBy([(m) => OrderingTerm.asc(m.name)]);
+    final rows = await query.get();
+    return rows
+        .map((row) => Medication(id: row.id, name: row.name))
+        .toList();
+  }
+
+  @override
   Future<void> upsert(Medication medication) => _db
       .into(_db.medications)
       .insertOnConflictUpdate(

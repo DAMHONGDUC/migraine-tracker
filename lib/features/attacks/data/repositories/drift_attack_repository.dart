@@ -35,6 +35,28 @@ class DriftAttackRepository implements AttackRepository {
     );
   }
 
+  @override
+  Future<List<Attack>> getAll() async {
+    final query =
+        _db.select(_db.attacks).join([
+            leftOuterJoin(
+              _db.weatherSnapshots,
+              _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
+            ),
+          ])
+          ..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
+
+    final rows = await query.get();
+    return rows
+        .map(
+          (row) => _toDomain(
+            row.readTable(_db.attacks),
+            row.readTableOrNull(_db.weatherSnapshots),
+          ),
+        )
+        .toList();
+  }
+
   /// Inserts the attack and, if already available, its weather snapshot.
   /// Works fully offline: [Attack.weather] may simply be null.
   @override

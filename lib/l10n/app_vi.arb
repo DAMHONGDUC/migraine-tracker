@@ -45,5 +45,13 @@
   "settingsLanguage": "Ngôn ngữ",
   "settingsLanguageSystem": "Theo hệ thống",
   "settingsLanguageEnglish": "English",
-  "settingsLanguageVietnamese": "Tiếng Việt"
+  "settingsLanguageVietnamese": "Tiếng Việt",
+  "settingsExport": "Xuất dữ liệu",
+  "settingsExportJson": "JSON (sao lưu đầy đủ)",
+  "settingsExportCsv": "CSV (bảng cơn đau)",
+  "settingsDelete": "Xóa toàn bộ dữ liệu",
+  "settingsDeleteConfirmTitle": "Xóa tất cả?",
+  "settingsDeleteConfirmBody": "Thao tác này xóa vĩnh viễn toàn bộ cơn đau, dữ liệu thời tiết và thuốc khỏi thiết bị. Không thể hoàn tác.",
+  "settingsDeleteConfirmAction": "Xóa",
+  "settingsDeleteDone": "Đã xóa toàn bộ dữ liệu."
 }

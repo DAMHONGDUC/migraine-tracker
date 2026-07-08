@@ -4,6 +4,9 @@ import '../entities/medication.dart';
 abstract interface class MedicationRepository {
   Stream<List<Medication>> watchAll();
 
+  /// One-shot read (e.g. for export).
+  Future<List<Medication>> getAll();
+
   Future<void> upsert(Medication medication);
 
   Future<void> deleteById(String id);

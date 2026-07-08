@@ -6,6 +6,8 @@ import 'package:migraine_tracker/app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
+import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -37,6 +39,9 @@ Future<PumpedApp> pumpApp(
   WidgetTester tester, {
   Map<String, Object> initialPrefs = const {},
   WeatherSnapshot? weatherSnapshot,
+  // Riverpod 3 no longer exports the `Override` type, so the helper takes
+  // the concrete fakes it knows about instead of a generic override list.
+  ExportSink? exportSink,
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
@@ -50,6 +55,8 @@ Future<PumpedApp> pumpApp(
         databaseProvider.overrideWithValue(db),
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
+        if (exportSink != null)
+          exportSinkProvider.overrideWithValue(exportSink),
       ],
       child: const BaroEaseApp(),
     ),

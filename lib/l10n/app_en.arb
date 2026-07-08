@@ -211,5 +211,37 @@
   "settingsLanguageVietnamese": "Tiếng Việt",
   "@settingsLanguageVietnamese": {
     "description": "Language option: Vietnamese (shown in its own language)"
+  },
+  "settingsExport": "Export data",
+  "@settingsExport": {
+    "description": "Settings tile that opens the export format picker"
+  },
+  "settingsExportJson": "JSON (full backup)",
+  "@settingsExportJson": {
+    "description": "Export format option: structured JSON with everything"
+  },
+  "settingsExportCsv": "CSV (attacks table)",
+  "@settingsExportCsv": {
+    "description": "Export format option: flat CSV of attacks"
+  },
+  "settingsDelete": "Delete all data",
+  "@settingsDelete": {
+    "description": "Settings tile that starts the GDPR delete flow"
+  },
+  "settingsDeleteConfirmTitle": "Delete everything?",
+  "@settingsDeleteConfirmTitle": {
+    "description": "Title of the destructive-delete confirmation dialog"
+  },
+  "settingsDeleteConfirmBody": "This permanently deletes all attacks, weather snapshots, and medications from this device. This cannot be undone.",
+  "@settingsDeleteConfirmBody": {
+    "description": "Body of the destructive-delete confirmation dialog"
+  },
+  "settingsDeleteConfirmAction": "Delete",
+  "@settingsDeleteConfirmAction": {
+    "description": "Confirm button of the delete dialog"
+  },
+  "settingsDeleteDone": "All data deleted.",
+  "@settingsDeleteDone": {
+    "description": "Snackbar shown after a successful wipe"
   }
 }
