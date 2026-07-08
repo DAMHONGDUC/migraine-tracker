@@ -22,6 +22,13 @@ abstract final class AppColors {
   /// Desaturated red for errors — no harsh alarm tones.
   static const Color error = Color(0xFFE5766E);
 
+  /// Chart series color — one step darker than [primary] so it sits inside
+  /// the dark-mode lightness band (validated: contrast ≥3:1 on [surface]).
+  static const Color chartSeries = Color(0xFF9182EC);
+
+  /// Recessive grid lines for charts.
+  static const Color chartGrid = Color(0xFF2C2C2E);
+
   /// Off-white text; never pure white.
   static const Color textPrimary = Color(0xFFE4E2E8);
   static const Color textSecondary = Color(0xFF9E9CA6);

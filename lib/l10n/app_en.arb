@@ -132,9 +132,65 @@
   "@insightsTitle": {
     "description": "Title of the insights screen"
   },
-  "insightsPlaceholder": "Pressure correlation and forecast will live here.",
-  "@insightsPlaceholder": {
-    "description": "Placeholder body text on the insights screen skeleton"
+  "insightsCorrelationTitle": "Pressure correlation",
+  "@insightsCorrelationTitle": {
+    "description": "Title of the correlation insight card"
+  },
+  "insightsInsufficientData": "Log {remaining} more attacks with weather data to unlock this insight.",
+  "@insightsInsufficientData": {
+    "description": "Shown while the user has fewer than the required attacks",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsProgressCaption": "{withWeather} of {required} attacks with weather",
+  "@insightsProgressCaption": {
+    "description": "Progress caption under the insufficient-data message",
+    "placeholders": {
+      "withWeather": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsNoVariation": "The weather across your attacks has been too uniform to draw conclusions.",
+  "@insightsNoVariation": {
+    "description": "Shown when all logged weather is nearly identical"
+  },
+  "insightsDropShareSentence": "of your attacks occurred during rapid pressure drops (≥{threshold} hPa within 24h).",
+  "@insightsDropShareSentence": {
+    "description": "Sentence after the big percentage hero number",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "insightsAnalyzedCaption": "Based on {count} attacks with weather data",
+  "@insightsAnalyzedCaption": {
+    "description": "Sample-size caption under the correlation insight",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyChartTitle": "Attacks per week",
+  "@historyChartTitle": {
+    "description": "Title above the weekly frequency bar chart"
+  },
+  "historyChartTooltip": "{count} attacks",
+  "@historyChartTooltip": {
+    "description": "Tooltip when touching a bar in the weekly chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "settingsTitle": "Settings",
   "@settingsTitle": {

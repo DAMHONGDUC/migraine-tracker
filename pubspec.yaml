@@ -10,6 +10,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   drift: 2.34.0
   drift_flutter: ^0.3.0
+  fl_chart: ^1.2.0
   flutter:
     sdk: flutter
   flutter_hooks: ^0.21.3+1

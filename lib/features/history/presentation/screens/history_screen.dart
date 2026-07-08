@@ -7,6 +7,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
+import '../../domain/services/weekly_buckets.dart';
+import '../widgets/weekly_frequency_chart.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -22,11 +24,18 @@ class HistoryScreen extends ConsumerWidget {
         AsyncData(value: final list) when list.isEmpty => Center(
           child: Text(l10n.historyEmpty),
         ),
-        AsyncData(value: final list) => ListView.separated(
+        AsyncData(value: final list) => ListView(
           padding: EdgeInsets.all(16.w),
-          itemCount: list.length,
-          separatorBuilder: (_, _) => SizedBox(height: 8.h),
-          itemBuilder: (context, index) => _AttackTile(attack: list[index]),
+          children: [
+            WeeklyFrequencyChart(
+              buckets: weeklyBuckets(list, now: DateTime.now()),
+            ),
+            SizedBox(height: 24.h),
+            for (final attack in list) ...[
+              _AttackTile(attack: attack),
+              SizedBox(height: 8.h),
+            ],
+          ],
         ),
         AsyncError() => Center(child: Text(l10n.historyEmpty)),
         _ => const Center(child: CircularProgressIndicator()),
