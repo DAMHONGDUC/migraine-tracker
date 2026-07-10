@@ -63,6 +63,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 
 ## Commands
 
+- `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `flutter analyze` — must pass with zero warnings before considering any task done
 - `flutter test` — run after changes to `domain/` or `data/`
 - `dart run build_runner build --delete-conflicting-outputs` — after editing Drift tables or Riverpod codegen

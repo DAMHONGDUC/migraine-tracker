@@ -7,9 +7,13 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  cloud_firestore: ^6.6.0
   cupertino_icons: ^1.0.8
   drift: 2.34.0
   drift_flutter: ^0.3.0
+  firebase_auth: ^6.5.4
+  firebase_core: ^4.11.0
+  firebase_messaging: ^16.4.1
   fl_chart: ^1.2.0
   flutter:
     sdk: flutter
