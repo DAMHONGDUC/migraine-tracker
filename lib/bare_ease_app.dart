@@ -40,6 +40,7 @@ class BaroEaseApp extends HookConsumerWidget {
         routerConfig: router,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

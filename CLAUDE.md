@@ -88,6 +88,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 
 - Small widgets, extract at ~80 lines. Prefer composition over config flags.
 - No business logic in widgets. View state and orchestration (state machines, save/export/delete flows, filtering) live in a `presentation/controllers/` Notifier or a `Ref`-backed controller; screens are `ConsumerWidget`s that watch state and call controller methods. Dialogs/snackbars stay in the widget.
+- Dialogs: always `showAppDialog` + `AppDialog`/`AppDialogOption` (`core/widgets/app_dialog.dart`) — never raw `showDialog`. Sheets: always `showAppBottomSheet` (`core/widgets/app_bottom_sheet.dart`) — it uses the root navigator so sheets cover the bottom nav; raw `showModalBottomSheet` slides under it.
 - Animations must be calm (fade/scale/slide, ≤400ms, gentle curves). Hard rule 3: never flashing or strobing. Use `core/widgets/PressableScale` for tactile button feedback.
 - Responsive sizing via `flutter_screenutil` (design size 393×852, `minTextAdapt: true`): use `.w`/`.h` for paddings & spacing, `.r` for square/circular elements, plain `TextTheme` styles for text (screenutil already adapts them via ScreenUtilInit).
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.

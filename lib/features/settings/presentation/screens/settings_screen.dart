@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../domain/enums/export_format.dart';
 import '../controllers/settings_controller.dart';
 
@@ -19,35 +20,32 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final current = ref.read(localeControllerProvider);
-    final selected = await showDialog<_LanguageChoice>(
-      context: context,
-      builder: (dialogContext) => SimpleDialog(
-        title: Text(l10n.settingsLanguage),
-        children: [
-          for (final (choice, label) in [
-            (const _LanguageChoice(null), l10n.settingsLanguageSystem),
-            (const _LanguageChoice(Locale('en')), l10n.settingsLanguageEnglish),
-            (
-              const _LanguageChoice(Locale('vi')),
-              l10n.settingsLanguageVietnamese,
-            ),
-          ])
-            SimpleDialogOption(
-              onPressed: () => Navigator.of(dialogContext).pop(choice),
-              child: Row(
-                children: [
-                  Icon(
-                    choice.locale?.languageCode == current?.languageCode
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(label),
-                ],
+    final selected = await showAppDialog<_LanguageChoice>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.settingsLanguage,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (choice, label) in [
+              (const _LanguageChoice(null), l10n.settingsLanguageSystem),
+              (
+                const _LanguageChoice(Locale('en')),
+                l10n.settingsLanguageEnglish,
               ),
-            ),
-        ],
+              (
+                const _LanguageChoice(Locale('vi')),
+                l10n.settingsLanguageVietnamese,
+              ),
+            ])
+              AppDialogOption(
+                label: label,
+                selected:
+                    choice.locale?.languageCode == current?.languageCode,
+                onTap: () => Navigator.of(dialogContext).pop(choice),
+              ),
+          ],
+        ),
       ),
     );
     if (selected != null) {
@@ -57,20 +55,25 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final format = await showDialog<ExportFormat>(
-      context: context,
-      builder: (dialogContext) => SimpleDialog(
-        title: Text(l10n.settingsExport),
-        children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(dialogContext).pop(ExportFormat.json),
-            child: Text(l10n.settingsExportJson),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(dialogContext).pop(ExportFormat.csv),
-            child: Text(l10n.settingsExportCsv),
-          ),
-        ],
+    final format = await showAppDialog<ExportFormat>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.settingsExport,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppDialogOption(
+              icon: Icons.data_object,
+              label: l10n.settingsExportJson,
+              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.json),
+            ),
+            AppDialogOption(
+              icon: Icons.table_chart_outlined,
+              label: l10n.settingsExportCsv,
+              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.csv),
+            ),
+          ],
+        ),
       ),
     );
     if (format == null) return;
@@ -79,11 +82,14 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.settingsDeleteConfirmTitle),
-        content: Text(l10n.settingsDeleteConfirmBody),
+    final confirmed = await showAppDialog<bool>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.settingsDeleteConfirmTitle,
+        content: Text(
+          l10n.settingsDeleteConfirmBody,
+          style: context.textTheme.bodyMedium,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),

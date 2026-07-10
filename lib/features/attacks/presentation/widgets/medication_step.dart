@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
 
@@ -18,10 +19,10 @@ class MedicationStep extends ConsumerWidget {
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.logAddMedication),
+    final name = await showAppDialog<String>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.logAddMedication,
         content: TextField(
           controller: controller,
           autofocus: true,

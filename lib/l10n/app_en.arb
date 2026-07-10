@@ -28,6 +28,18 @@
   "@logIntensityTitle": {
     "description": "Title above the 1-10 intensity grid, first tap of the log flow"
   },
+  "stepIntensity": "Intensity",
+  "@stepIntensity": {
+    "description": "Brief label under step node 1 in the tracking progress bar"
+  },
+  "stepLocation": "Location",
+  "@stepLocation": {
+    "description": "Brief label under step node 2 in the tracking progress bar"
+  },
+  "stepMedication": "Medication",
+  "@stepMedication": {
+    "description": "Brief label under step node 3 in the tracking progress bar"
+  },
   "logLocationTitle": "Where does it hurt?",
   "@logLocationTitle": {
     "description": "Title above the head-location options, second tap of the log flow"

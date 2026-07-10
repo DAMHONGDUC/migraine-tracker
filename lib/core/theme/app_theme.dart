@@ -33,10 +33,31 @@ abstract final class AppTheme {
         elevation: 0,
         centerTitle: false,
       ),
+      // Facebook-style tabs: no M3 indicator pill; the active tab switches
+      // outline → solid (icon/selectedIcon pairs) and tints primary.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: scheme.primary.withValues(alpha: 0.18),
+        indicatorColor: Colors.transparent,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 24,
+            color: states.contains(WidgetState.selected)
+                ? scheme.primary
+                : AppColors.textSecondary,
+          ),
+        ),
+        // Fixed size/weight — only the color changes on tab switch, so
+        // labels never jump.
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: states.contains(WidgetState.selected)
+                ? scheme.primary
+                : AppColors.textSecondary,
+          ),
+        ),
       ),
       cardTheme: const CardThemeData(
         color: AppColors.surface,

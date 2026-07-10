@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../domain/enums/history_period.dart';
 
 String periodLabel(BuildContext context, HistoryPeriod period) =>
@@ -19,9 +20,8 @@ Future<HistoryPeriod?> showHistoryFilterSheet(
   BuildContext context, {
   required HistoryPeriod selected,
 }) {
-  return showModalBottomSheet<HistoryPeriod>(
-    context: context,
-    showDragHandle: true,
+  return showAppBottomSheet<HistoryPeriod>(
+    context,
     builder: (_) => _FilterSheet(selected: selected),
   );
 }
