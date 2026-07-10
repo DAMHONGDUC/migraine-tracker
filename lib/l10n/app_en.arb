@@ -183,6 +183,39 @@
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"
   },
+  "historyFilterToday": "Today",
+  "@historyFilterToday": {
+    "description": "History filter chip: attacks from today"
+  },
+  "historyFilterWeek": "Week",
+  "@historyFilterWeek": {
+    "description": "History filter chip: this calendar week"
+  },
+  "historyFilterMonth": "Month",
+  "@historyFilterMonth": {
+    "description": "History filter chip: this calendar month"
+  },
+  "historyFilterYear": "Year",
+  "@historyFilterYear": {
+    "description": "History filter chip: this calendar year"
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "History filter chip: all attacks ever"
+  },
+  "historyAttackCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "@historyAttackCount": {
+    "description": "Count header above the filtered attack list",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyEmptyFiltered": "No attacks in this period.",
+  "@historyEmptyFiltered": {
+    "description": "Empty state when the selected period has no attacks"
+  },
   "historyChartTooltip": "{count} attacks",
   "@historyChartTooltip": {
     "description": "Tooltip when touching a bar in the weekly chart",
