@@ -26,7 +26,15 @@ const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
  * fail loud, never silently skip a cohort.
  */
 export const pressureAlertJob = onSchedule(
-  { schedule: "every 3 hours", region: REGION, timeZone: "UTC" },
+  {
+    schedule: "every 3 hours",
+    region: REGION,
+    timeZone: "UTC",
+    // Cost ceiling: one sequential run is all this job ever needs.
+    maxInstances: 1,
+    memory: "256MiB",
+    timeoutSeconds: 540,
+  },
   async () => {
     const db = getFirestore();
     const now = new Date();
@@ -147,7 +155,13 @@ export const pressureAlertJob = onSchedule(
  * configured in the RevenueCat dashboard.
  */
 export const revenuecatWebhook = onRequest(
-  { region: REGION, secrets: [revenuecatAuth] },
+  {
+    region: REGION,
+    secrets: [revenuecatAuth],
+    // Cost ceiling: webhook volume is tiny; cap scale-out hard.
+    maxInstances: 2,
+    memory: "256MiB",
+  },
   async (req, res) => {
     if (req.headers.authorization !== revenuecatAuth.value()) {
       res.status(401).send("unauthorized");
