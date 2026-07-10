@@ -44,6 +44,8 @@ Positioning: *"Know your storm before it hits."*
 - [ ] Medication reminders (local notifications)
 - [ ] HealthKit read: sleep hours (premium correlation)
 - [ ] Onboarding: personal threshold setup, location permission (While Using, coarse), privacy explainer
+- [ ] Optional sign-in (Google / Apple) — app fully usable without it; signing in enables encrypted cloud sync of attack history across devices
+- [ ] In-app account deletion (App Store 5.1.1(v))
 - [ ] Paywall + RevenueCat integration
 - [ ] Settings: data export (JSON/CSV), delete all data (GDPR)
 
@@ -62,10 +64,12 @@ Flutter app (local-first)
 ├── HealthKit via `health` package
 ├── RevenueCat via `purchases_flutter`
 └── Firebase
-    ├── Auth (anonymous by default; email link optional for sync)
+    ├── Auth (anonymous by default; optional Google/Apple sign-in via
+    │   linkWithCredential — upgrades the anonymous UID, never replaces it)
     ├── Firestore (region: europe-west1)
     │   ├── users/{uid}: geohash5, alertThreshold, fcmToken, premium, tz
-    │   └── (optional later) encrypted attack sync
+    │   └── users/{uid}/attacks/{attackId}: encrypted attack payload
+    │       (written only when the user signed in and enabled sync)
     ├── Cloud Functions (TypeScript)
     │   ├── cron: pressureAlertJob (every 3h via Cloud Scheduler)
     │   └── webhook: revenuecatWebhook (premium status sync)
@@ -84,9 +88,10 @@ Weather data
 4. Dedupe: max 1 alert per user per 24h window per event.
 
 ### Privacy rules
-- Attack/health data stays on device (Drift). Firestore holds only coarse geohash + token + settings.
-- If cloud sync ships later: field-level encryption, explicit opt-in.
-- GDPR: in-app export + full delete. Firestore region EU. Privacy policy before launch.
+- Local-first: Drift on-device is the source of truth; the app never requires an account.
+- Signed-out users: Firestore holds only coarse geohash + token + settings.
+- Signed-in users: attack history syncs as encrypted payloads, disclosed at sign-in. Encryption design (key management, cross-device recovery) decided in the sync phase.
+- GDPR: in-app export + full delete incl. account deletion (App Store 5.1.1(v)). Firestore region EU. Privacy policy must disclose Google/Apple sign-in data + sync. App Privacy label: account holders' health data is "linked to identity".
 - Medical disclaimer: "Not a substitute for professional medical advice" (App Store requirement for health apps).
 
 ## 6. Milestones
@@ -97,9 +102,10 @@ Weather data
 | 2–3 | Attack logging (3-tap + details), history calendar + charts |
 | 4 | Weather snapshot integration (WeatherKit), correlation engine v1 |
 | 5 | Firebase backend: cron + geohash grouping + FCM alerts; forecast chart |
-| 6 | RevenueCat paywall, PDF export, HealthKit sleep |
-| 7 | Polish, App Store assets (ASO below), privacy policy, TestFlight beta |
-| 8 | Beta feedback from r/migraine recruits → fixes → App Store submission |
+| 6 | Auth (Google/Apple, optional) + encrypted attack sync + account deletion |
+| 7 | RevenueCat paywall, PDF export, HealthKit sleep |
+| 8 | Polish, App Store assets (ASO below), privacy policy, TestFlight beta |
+| 9 | Beta feedback from r/migraine recruits → fixes → App Store submission |
 
 ## 7. ASO / Launch
 

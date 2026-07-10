@@ -1,0 +1,280 @@
+{
+  "@@locale": "en",
+  "appTitle": "BaroEase",
+  "@appTitle": {
+    "description": "Application name shown in the OS task switcher"
+  },
+  "navLog": "Log",
+  "@navLog": {
+    "description": "Bottom navigation label for the attack logging tab"
+  },
+  "navHistory": "History",
+  "@navHistory": {
+    "description": "Bottom navigation label for the history tab"
+  },
+  "navInsights": "Insights",
+  "@navInsights": {
+    "description": "Bottom navigation label for the insights tab"
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Bottom navigation label for the settings tab"
+  },
+  "logTitle": "Log attack",
+  "@logTitle": {
+    "description": "Title of the logging screen"
+  },
+  "logIntensityTitle": "How intense is the pain?",
+  "@logIntensityTitle": {
+    "description": "Title above the 1-10 intensity grid, first tap of the log flow"
+  },
+  "logLocationTitle": "Where does it hurt?",
+  "@logLocationTitle": {
+    "description": "Title above the head-location options, second tap of the log flow"
+  },
+  "logMedicationTitle": "Did you take medication?",
+  "@logMedicationTitle": {
+    "description": "Title above the medication picker, third tap of the log flow"
+  },
+  "logNoMedication": "No medication",
+  "@logNoMedication": {
+    "description": "Medication picker option meaning nothing was taken"
+  },
+  "logAddMedication": "Add a medication",
+  "@logAddMedication": {
+    "description": "Medication picker option that opens the add-medication dialog"
+  },
+  "logMedicationNameHint": "Medication name",
+  "@logMedicationNameHint": {
+    "description": "Hint text in the add-medication dialog text field"
+  },
+  "logSavedTitle": "Logged.",
+  "@logSavedTitle": {
+    "description": "Confirmation headline after the attack is saved"
+  },
+  "logSavedSubtitle": "Feel better soon.",
+  "@logSavedSubtitle": {
+    "description": "Gentle message under the saved confirmation"
+  },
+  "logAddDetails": "Add details",
+  "@logAddDetails": {
+    "description": "Button on the saved screen that opens the optional details sheet"
+  },
+  "logDone": "Done",
+  "@logDone": {
+    "description": "Button on the saved screen that resets the log flow"
+  },
+  "detailsTitle": "Details",
+  "@detailsTitle": {
+    "description": "Title of the optional details bottom sheet"
+  },
+  "detailsSymptomsLabel": "Symptoms",
+  "@detailsSymptomsLabel": {
+    "description": "Label for the comma-separated symptoms field"
+  },
+  "detailsSymptomsHint": "aura, nausea, …",
+  "@detailsSymptomsHint": {
+    "description": "Hint for the symptoms field"
+  },
+  "detailsTriggersLabel": "Triggers",
+  "@detailsTriggersLabel": {
+    "description": "Label for the comma-separated triggers field"
+  },
+  "detailsTriggersHint": "stress, red wine, …",
+  "@detailsTriggersHint": {
+    "description": "Hint for the triggers field"
+  },
+  "detailsNotesLabel": "Notes",
+  "@detailsNotesLabel": {
+    "description": "Label for the free-form notes field"
+  },
+  "detailsSave": "Save",
+  "@detailsSave": {
+    "description": "Save button in the details sheet"
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic cancel button"
+  },
+  "commonAdd": "Add",
+  "@commonAdd": {
+    "description": "Generic add/confirm button"
+  },
+  "locationLeft": "Left side",
+  "@locationLeft": {
+    "description": "Head location option: left side"
+  },
+  "locationRight": "Right side",
+  "@locationRight": {
+    "description": "Head location option: right side"
+  },
+  "locationFront": "Front",
+  "@locationFront": {
+    "description": "Head location option: front / forehead"
+  },
+  "locationBack": "Back of head",
+  "@locationBack": {
+    "description": "Head location option: back of head"
+  },
+  "locationWhole": "Whole head",
+  "@locationWhole": {
+    "description": "Head location option: whole head"
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Title of the history screen"
+  },
+  "historyEmpty": "No attacks logged yet.",
+  "@historyEmpty": {
+    "description": "Empty state on the history screen"
+  },
+  "insightsTitle": "Insights",
+  "@insightsTitle": {
+    "description": "Title of the insights screen"
+  },
+  "insightsCorrelationTitle": "Pressure correlation",
+  "@insightsCorrelationTitle": {
+    "description": "Title of the correlation insight card"
+  },
+  "insightsInsufficientData": "Log {remaining} more attacks with weather data to unlock this insight.",
+  "@insightsInsufficientData": {
+    "description": "Shown while the user has fewer than the required attacks",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsProgressCaption": "{withWeather} of {required} attacks with weather",
+  "@insightsProgressCaption": {
+    "description": "Progress caption under the insufficient-data message",
+    "placeholders": {
+      "withWeather": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsNoVariation": "The weather across your attacks has been too uniform to draw conclusions.",
+  "@insightsNoVariation": {
+    "description": "Shown when all logged weather is nearly identical"
+  },
+  "insightsDropShareSentence": "of your attacks occurred during rapid pressure drops (≥{threshold} hPa within 24h).",
+  "@insightsDropShareSentence": {
+    "description": "Sentence after the big percentage hero number",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "insightsAnalyzedCaption": "Based on {count} attacks with weather data",
+  "@insightsAnalyzedCaption": {
+    "description": "Sample-size caption under the correlation insight",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyChartTitle": "Attacks per week",
+  "@historyChartTitle": {
+    "description": "Title above the weekly frequency bar chart"
+  },
+  "historyFilterToday": "Today",
+  "@historyFilterToday": {
+    "description": "History filter chip: attacks from today"
+  },
+  "historyFilterWeek": "Week",
+  "@historyFilterWeek": {
+    "description": "History filter chip: this calendar week"
+  },
+  "historyFilterMonth": "Month",
+  "@historyFilterMonth": {
+    "description": "History filter chip: this calendar month"
+  },
+  "historyFilterYear": "Year",
+  "@historyFilterYear": {
+    "description": "History filter chip: this calendar year"
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "History filter chip: all attacks ever"
+  },
+  "historyAttackCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "@historyAttackCount": {
+    "description": "Count header above the filtered attack list",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyEmptyFiltered": "No attacks in this period.",
+  "@historyEmptyFiltered": {
+    "description": "Empty state when the selected period has no attacks"
+  },
+  "historyChartTooltip": "{count} attacks",
+  "@historyChartTooltip": {
+    "description": "Tooltip when touching a bar in the weekly chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen"
+  },
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "Settings tile that opens the language picker"
+  },
+  "settingsLanguageSystem": "System default",
+  "@settingsLanguageSystem": {
+    "description": "Language option that follows the device locale"
+  },
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": {
+    "description": "Language option: English (shown in its own language)"
+  },
+  "settingsLanguageVietnamese": "Tiếng Việt",
+  "@settingsLanguageVietnamese": {
+    "description": "Language option: Vietnamese (shown in its own language)"
+  },
+  "settingsExport": "Export data",
+  "@settingsExport": {
+    "description": "Settings tile that opens the export format picker"
+  },
+  "settingsExportJson": "JSON (full backup)",
+  "@settingsExportJson": {
+    "description": "Export format option: structured JSON with everything"
+  },
+  "settingsExportCsv": "CSV (attacks table)",
+  "@settingsExportCsv": {
+    "description": "Export format option: flat CSV of attacks"
+  },
+  "settingsDelete": "Delete all data",
+  "@settingsDelete": {
+    "description": "Settings tile that starts the GDPR delete flow"
+  },
+  "settingsDeleteConfirmTitle": "Delete everything?",
+  "@settingsDeleteConfirmTitle": {
+    "description": "Title of the destructive-delete confirmation dialog"
+  },
+  "settingsDeleteConfirmBody": "This permanently deletes all attacks, weather snapshots, and medications from this device. This cannot be undone.",
+  "@settingsDeleteConfirmBody": {
+    "description": "Body of the destructive-delete confirmation dialog"
+  },
+  "settingsDeleteConfirmAction": "Delete",
+  "@settingsDeleteConfirmAction": {
+    "description": "Confirm button of the delete dialog"
+  },
+  "settingsDeleteDone": "All data deleted.",
+  "@settingsDeleteDone": {
+    "description": "Snackbar shown after a successful wipe"
+  }
+}

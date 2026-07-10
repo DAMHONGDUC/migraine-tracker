@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each user may only touch their own settings doc. Hard rule 1: this
+    // doc holds ONLY geohash5, fcmToken, alertThreshold, tz, premium —
+    // never health data. premium is written exclusively by the RevenueCat
+    // webhook (Admin SDK bypasses rules), so clients must not set it.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && !request.resource.data.diff(resource == null ? {} : resource.data)
+            .affectedKeys()
+            .hasAny(['premium']);
+
+      // Encrypted attack sync for signed-in users (auth/sync phase).
+      match /attacks/{attackId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+  }
+}
