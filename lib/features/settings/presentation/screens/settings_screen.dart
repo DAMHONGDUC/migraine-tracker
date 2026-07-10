@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../attacks/providers.dart';
-import '../../../medications/providers.dart';
-import '../../providers.dart';
+import '../../domain/enums/export_format.dart';
+import '../controllers/settings_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -28,10 +26,7 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           for (final (choice, label) in [
             (const _LanguageChoice(null), l10n.settingsLanguageSystem),
-            (
-              const _LanguageChoice(Locale('en')),
-              l10n.settingsLanguageEnglish,
-            ),
+            (const _LanguageChoice(Locale('en')), l10n.settingsLanguageEnglish),
             (
               const _LanguageChoice(Locale('vi')),
               l10n.settingsLanguageVietnamese,
@@ -62,46 +57,24 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final format = await showDialog<_ExportFormat>(
+    final format = await showDialog<ExportFormat>(
       context: context,
       builder: (dialogContext) => SimpleDialog(
         title: Text(l10n.settingsExport),
         children: [
           SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_ExportFormat.json),
+            onPressed: () => Navigator.of(dialogContext).pop(ExportFormat.json),
             child: Text(l10n.settingsExportJson),
           ),
           SimpleDialogOption(
-            onPressed: () => Navigator.of(dialogContext).pop(_ExportFormat.csv),
+            onPressed: () => Navigator.of(dialogContext).pop(ExportFormat.csv),
             child: Text(l10n.settingsExportCsv),
           ),
         ],
       ),
     );
     if (format == null) return;
-
-    final attacks = await ref.read(attackRepositoryProvider).getAll();
-    final medications = await ref.read(medicationRepositoryProvider).getAll();
-    final service = ref.read(dataExportServiceProvider);
-    final now = DateTime.now();
-    final stamp = DateFormat('yyyy-MM-dd').format(now);
-
-    final (content, filename, mime) = switch (format) {
-      _ExportFormat.json => (
-        service.toJson(attacks, medications, exportedAt: now),
-        'baroease_export_$stamp.json',
-        'application/json',
-      ),
-      _ExportFormat.csv => (
-        service.toCsv(attacks),
-        'baroease_export_$stamp.csv',
-        'text/csv',
-      ),
-    };
-    await ref
-        .read(exportSinkProvider)
-        .share(content: content, filename: filename, mimeType: mime);
+    await ref.read(settingsControllerProvider).export(format);
   }
 
   Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
@@ -129,7 +102,7 @@ class SettingsScreen extends ConsumerWidget {
     );
     if (confirmed != true) return;
 
-    await ref.read(dataWipeServiceProvider).wipeAll();
+    await ref.read(settingsControllerProvider).deleteAll();
     if (context.mounted) {
       ScaffoldMessenger.of(
         context,
@@ -173,8 +146,6 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-
-enum _ExportFormat { json, csv }
 
 /// Wrapper so the dialog can distinguish "picked System (null)" from
 /// "dismissed without picking".
