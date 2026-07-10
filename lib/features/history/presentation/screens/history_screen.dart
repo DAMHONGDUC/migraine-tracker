@@ -105,6 +105,22 @@ class _AttackTile extends StatelessWidget {
     final when = DateFormat.yMMMd(
       context.l10n.localeName,
     ).add_jm().format(attack.startedAt.toLocal());
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, (1 - t) * 8),
+          child: child,
+        ),
+      ),
+      child: _card(context, when),
+    );
+  }
+
+  Widget _card(BuildContext context, String when) {
     return Card(
       child: ListTile(
         leading: CircleAvatar(

@@ -43,7 +43,8 @@ lib/
         repositories/    # Drift/API implementations of domain interfaces
         datasources/     # API clients (e.g. WeatherKit) when needed
       presentation/
-        screens/
+        controllers/     # Riverpod Notifiers holding view state + orchestration
+        screens/         # thin ConsumerWidgets: render state, call controllers
         widgets/
       providers.dart     # Riverpod wiring for the feature
 functions/               # firebase cloud functions (typescript)
@@ -86,6 +87,8 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 ## Code style
 
 - Small widgets, extract at ~80 lines. Prefer composition over config flags.
+- No business logic in widgets. View state and orchestration (state machines, save/export/delete flows, filtering) live in a `presentation/controllers/` Notifier or a `Ref`-backed controller; screens are `ConsumerWidget`s that watch state and call controller methods. Dialogs/snackbars stay in the widget.
+- Animations must be calm (fade/scale/slide, ≤400ms, gentle curves). Hard rule 3: never flashing or strobing. Use `core/widgets/PressableScale` for tactile button feedback.
 - Responsive sizing via `flutter_screenutil` (design size 393×852, `minTextAdapt: true`): use `.w`/`.h` for paddings & spacing, `.r` for square/circular elements, plain `TextTheme` styles for text (screenutil already adapts them via ScreenUtilInit).
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).

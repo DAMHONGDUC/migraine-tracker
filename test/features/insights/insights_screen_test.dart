@@ -60,7 +60,8 @@ void main() {
     }
 
     await openInsights(tester);
-    await tester.pump(const Duration(milliseconds: 100));
+    // Let the count-up hero animation settle on its final value.
+    await tester.pump(const Duration(milliseconds: 800));
 
     expect(find.text('60%'), findsOneWidget);
     expect(find.text('Based on 15 attacks with weather data'), findsOneWidget);

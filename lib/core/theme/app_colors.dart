@@ -32,4 +32,14 @@ abstract final class AppColors {
   /// Off-white text; never pure white.
   static const Color textPrimary = Color(0xFFE4E2E8);
   static const Color textSecondary = Color(0xFF9E9CA6);
+
+  /// Calm, desaturated severity tint for a 1–10 pain intensity. Used as a
+  /// translucent fill + solid text/border, never a bright saturated fill
+  /// (photophobia). Four bands: low → mild → strong → severe.
+  static Color intensity(int value) {
+    if (value <= 3) return const Color(0xFF6FA890); // muted green
+    if (value <= 6) return const Color(0xFFC7A86B); // muted amber
+    if (value <= 8) return const Color(0xFFD98A6C); // muted orange
+    return error; // severe → desaturated red
+  }
 }

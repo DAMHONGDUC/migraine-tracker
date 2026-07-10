@@ -20,10 +20,17 @@ class SavedStep extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.check_circle_outline,
-              size: 64.r,
-              color: context.colorScheme.primary,
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.6, end: 1),
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutBack,
+              builder: (context, scale, child) =>
+                  Transform.scale(scale: scale, child: child),
+              child: Icon(
+                Icons.check_circle_outline,
+                size: 64.r,
+                color: context.colorScheme.primary,
+              ),
             ),
             SizedBox(height: 16.h),
             Text(l10n.logSavedTitle, style: context.textTheme.headlineSmall),

@@ -110,10 +110,15 @@ class _Insight extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${result.dropSharePercent.round()}%',
-          style: context.textTheme.displaySmall?.copyWith(
-            fontWeight: FontWeight.w600,
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: result.dropSharePercent),
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) => Text(
+            '${value.round()}%',
+            style: context.textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         SizedBox(height: 4.h),
