@@ -7,9 +7,11 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
+import '../../domain/enums/history_view_mode.dart';
 import '../../domain/services/weekly_buckets.dart';
 import '../controllers/history_controller.dart';
-import '../widgets/history_filter_bar.dart';
+import '../widgets/history_filter_sheet.dart';
+import '../widgets/history_view_toggle.dart';
 import '../widgets/weekly_frequency_chart.dart';
 
 class HistoryScreen extends ConsumerWidget {
@@ -20,41 +22,57 @@ class HistoryScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final allAttacks = ref.watch(attacksStreamProvider);
     final filtered = ref.watch(filteredAttacksProvider);
+    final mode = ref.watch(historyViewModeProvider);
     final period = ref.watch(historyPeriodProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.historyTitle)),
+      appBar: AppBar(
+        title: Text(l10n.historyTitle),
+        actions: [
+          HistoryViewToggle(
+            mode: mode,
+            onChanged: ref.read(historyViewModeProvider.notifier).select,
+          ),
+          SizedBox(width: 12.w),
+        ],
+      ),
       body: switch (allAttacks) {
         AsyncData(value: final all) when all.isEmpty => Center(
           child: Text(l10n.historyEmpty),
         ),
-        AsyncData(value: final all) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-              child: WeeklyFrequencyChart(
-                buckets: weeklyBuckets(all, now: DateTime.now()),
-              ),
-            ),
-            HistoryFilterBar(
-              selected: period,
-              onSelected: ref.read(historyPeriodProvider.notifier).select,
-            ),
-            SizedBox(height: 12.h),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: _FilteredList(
-                  key: ValueKey(period),
-                  attacks: switch (filtered) {
-                    AsyncData(value: final list) => list,
-                    _ => const [],
-                  },
+        AsyncData() => Builder(
+          builder: (context) {
+            final list = switch (filtered) {
+              AsyncData(value: final value) => value,
+              _ => const <Attack>[],
+            };
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Shared filter, right below the app bar: closed = current
+                // value at a glance, tap = bottom sheet picker.
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+                  child: HistoryFilterChip(
+                    selected: period,
+                    onSelected:
+                        ref.read(historyPeriodProvider.notifier).select,
+                  ),
                 ),
-              ),
-            ),
-          ],
+                Expanded(
+                  // IndexedStack keeps BOTH views alive so switching modes
+                  // preserves state (list scroll position, chart layout).
+                  child: IndexedStack(
+                    index: mode == HistoryViewMode.list ? 0 : 1,
+                    children: [
+                      _AttackList(attacks: list),
+                      _ChartView(attacks: list),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         AsyncError() => Center(child: Text(l10n.historyEmpty)),
         _ => const Center(child: CircularProgressIndicator()),
@@ -63,8 +81,37 @@ class HistoryScreen extends ConsumerWidget {
   }
 }
 
-class _FilteredList extends StatelessWidget {
-  const _FilteredList({required this.attacks, super.key});
+/// Chart mode — same filtered data as the list.
+class _ChartView extends StatelessWidget {
+  const _ChartView({required this.attacks});
+
+  final List<Attack> attacks;
+
+  @override
+  Widget build(BuildContext context) {
+    if (attacks.isEmpty) {
+      return Center(child: Text(context.l10n.historyEmptyFiltered));
+    }
+    return ListView(
+      padding: EdgeInsets.all(16.w),
+      children: [
+        WeeklyFrequencyChart(
+          buckets: weeklyBuckets(attacks, now: DateTime.now()),
+        ),
+        SizedBox(height: 12.h),
+        Text(
+          context.l10n.historyAttackCount(attacks.length),
+          style: context.textTheme.titleSmall?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AttackList extends StatelessWidget {
+  const _AttackList({required this.attacks});
 
   final List<Attack> attacks;
 
@@ -74,7 +121,7 @@ class _FilteredList extends StatelessWidget {
       return Center(child: Text(context.l10n.historyEmptyFiltered));
     }
     return ListView.separated(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      padding: EdgeInsets.all(16.w),
       itemCount: attacks.length + 1,
       separatorBuilder: (_, _) => SizedBox(height: 8.h),
       itemBuilder: (context, index) {
