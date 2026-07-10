@@ -1,94 +1,69 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../domain/entities/attack.dart';
-import '../../domain/enums/head_location.dart';
-import '../../providers.dart';
+import '../controllers/log_controller.dart';
 import '../widgets/intensity_step.dart';
 import '../widgets/location_step.dart';
 import '../widgets/medication_step.dart';
 import '../widgets/saved_step.dart';
 
-enum _LogStep { intensity, location, medication, saved }
-
 /// The sacred 3-tap flow: intensity → head location → medication → saved.
-/// No step may gain a required field without explicit approval.
-class LogScreen extends HookConsumerWidget {
+/// Pure rendering — all state lives in [logControllerProvider].
+class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final step = useState(_LogStep.intensity);
-    final intensity = useState<int?>(null);
-    final location = useState<HeadLocation?>(null);
-    final savedId = useState<String?>(null);
+    final state = ref.watch(logControllerProvider);
+    final controller = ref.read(logControllerProvider.notifier);
 
-    Future<void> save(String? medicationName) async {
-      final attack = Attack(
-        id: const Uuid().v4(),
-        startedAt: DateTime.now().toUtc(),
-        intensity: intensity.value!,
-        location: location.value!,
-        medicationName: medicationName,
-      );
-      await ref.read(attackRepositoryProvider).insert(attack);
-      // Best-effort weather attach — logging never waits for the network.
-      unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
-      savedId.value = attack.id;
-      step.value = _LogStep.saved;
-    }
-
-    void reset() {
-      intensity.value = null;
-      location.value = null;
-      savedId.value = null;
-      step.value = _LogStep.intensity;
-    }
-
-    final title = switch (step.value) {
-      _LogStep.intensity => l10n.logIntensityTitle,
-      _LogStep.location => l10n.logLocationTitle,
-      _LogStep.medication => l10n.logMedicationTitle,
-      _LogStep.saved => l10n.logTitle,
+    final title = switch (state.step) {
+      LogStep.intensity => l10n.logIntensityTitle,
+      LogStep.location => l10n.logLocationTitle,
+      LogStep.medication => l10n.logMedicationTitle,
+      LogStep.saved => l10n.logTitle,
     };
+
+    final showBack =
+        state.step == LogStep.location || state.step == LogStep.medication;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        leading: switch (step.value) {
-          _LogStep.location => BackButton(
-            onPressed: () => step.value = _LogStep.intensity,
-          ),
-          _LogStep.medication => BackButton(
-            onPressed: () => step.value = _LogStep.location,
-          ),
-          _ => null,
-        },
+        leading: showBack ? BackButton(onPressed: controller.back) : null,
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: switch (step.value) {
-          _LogStep.intensity => IntensityStep(
-            onSelected: (value) {
-              intensity.value = value;
-              step.value = _LogStep.location;
-            },
-          ),
-          _LogStep.location => LocationStep(
-            onSelected: (value) {
-              location.value = value;
-              step.value = _LogStep.medication;
-            },
-          ),
-          _LogStep.medication => MedicationStep(onSelected: save),
-          _LogStep.saved => SavedStep(attackId: savedId.value!, onDone: reset),
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final offset = Tween<Offset>(
+            begin: const Offset(0.06, 0),
+            end: Offset.zero,
+          ).animate(animation);
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: offset, child: child),
+          );
         },
+        child: KeyedSubtree(
+          key: ValueKey(state.step),
+          child: switch (state.step) {
+            LogStep.intensity => IntensityStep(
+              onSelected: controller.selectIntensity,
+            ),
+            LogStep.location => LocationStep(
+              onSelected: controller.selectLocation,
+            ),
+            LogStep.medication => MedicationStep(onSelected: controller.save),
+            LogStep.saved => SavedStep(
+              attackId: state.savedId!,
+              onDone: controller.reset,
+            ),
+          },
+        ),
       ),
     );
   }
