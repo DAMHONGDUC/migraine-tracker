@@ -4,10 +4,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../features/attacks/presentation/screens/log_screen.dart';
 import '../../features/history/presentation/screens/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen.dart';
+import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
 
 abstract final class AppRoutes {
+  static const String onboarding = '/onboarding';
   static const String log = '/log';
   static const String history = '/history';
   static const String insights = '/insights';
@@ -17,7 +21,24 @@ abstract final class AppRoutes {
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.log,
+    // First launch lands on onboarding until it's completed; afterwards
+    // /onboarding is never reachable again.
+    redirect: (context, state) {
+      final done =
+          ref
+              .read(sharedPreferencesProvider)
+              .getBool(OnboardingController.completedKey) ??
+          false;
+      final onOnboarding = state.matchedLocation == AppRoutes.onboarding;
+      if (!done && !onOnboarding) return AppRoutes.onboarding;
+      if (done && onOnboarding) return AppRoutes.log;
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),

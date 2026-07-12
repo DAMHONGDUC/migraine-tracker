@@ -6,6 +6,7 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -45,7 +46,12 @@ Future<PumpedApp> pumpApp(
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
-  SharedPreferences.setMockInitialValues(initialPrefs);
+  // Onboarding is considered done by default so existing tests land on the
+  // log tab; pass onboarding_completed: false to exercise onboarding.
+  SharedPreferences.setMockInitialValues({
+    OnboardingController.completedKey: true,
+    ...initialPrefs,
+  });
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
 

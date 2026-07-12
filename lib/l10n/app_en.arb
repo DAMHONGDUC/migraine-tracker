@@ -4,6 +4,59 @@
   "@appTitle": {
     "description": "Application name shown in the OS task switcher"
   },
+  "onboardingWelcomeTitle": "Know your storm before it hits",
+  "@onboardingWelcomeTitle": {
+    "description": "Onboarding page 1 headline"
+  },
+  "onboardingWelcomeBody": "BaroEase tracks your migraines alongside barometric pressure, so you can see what the weather is doing to you.",
+  "@onboardingWelcomeBody": {
+    "description": "Onboarding page 1 body"
+  },
+  "onboardingDisclaimer": "BaroEase is not a substitute for professional medical advice, diagnosis, or treatment. Always talk to your doctor about your migraines.",
+  "@onboardingDisclaimer": {
+    "description": "Medical disclaimer shown in onboarding (App Store requirement)"
+  },
+  "onboardingLocationTitle": "Local pressure, private by design",
+  "@onboardingLocationTitle": {
+    "description": "Onboarding page 2 headline (location permission)"
+  },
+  "onboardingLocationBody": "Your approximate location (about 5 km) is used to fetch local pressure for each attack and power pressure-drop alerts. Attack data never leaves this device unless you turn on sync.",
+  "@onboardingLocationBody": {
+    "description": "Onboarding page 2 body explaining the location permission"
+  },
+  "onboardingLocationAllow": "Enable location",
+  "@onboardingLocationAllow": {
+    "description": "Primary button that triggers the location permission prompt"
+  },
+  "onboardingNotNow": "Not now",
+  "@onboardingNotNow": {
+    "description": "Secondary button to skip the location permission"
+  },
+  "onboardingThresholdTitle": "Your pressure sensitivity",
+  "@onboardingThresholdTitle": {
+    "description": "Onboarding page 3 headline (alert threshold)"
+  },
+  "onboardingThresholdBody": "Get alerted when pressure is forecast to drop at least this much within 24 hours. You can change this later.",
+  "@onboardingThresholdBody": {
+    "description": "Onboarding page 3 body explaining the threshold slider"
+  },
+  "onboardingThresholdValue": "{value} hPa",
+  "@onboardingThresholdValue": {
+    "description": "Threshold value readout above the slider",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Onboarding next-page button"
+  },
+  "onboardingStart": "Start tracking",
+  "@onboardingStart": {
+    "description": "Final onboarding button that enters the app"
+  },
   "navLog": "Log",
   "@navLog": {
     "description": "Bottom navigation label for the attack logging tab"
