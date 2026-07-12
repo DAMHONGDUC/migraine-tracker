@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -19,8 +19,8 @@ class HistoryViewToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    final segmentWidth = 44.w;
-    final height = 34.h;
+    final segmentWidth = AppSpacingConstant.w44;
+    final height = AppSpacingConstant.h34;
 
     return Container(
       width: segmentWidth * 2,
@@ -92,7 +92,7 @@ class _Segment extends StatelessWidget {
         width: width,
         child: Icon(
           icon,
-          size: 20.r,
+          size: AppSpacingConstant.r20,
           color: selected ? scheme.primary : scheme.onSurfaceVariant,
         ),
       ),

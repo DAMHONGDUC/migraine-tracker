@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../controllers/log_controller.dart';
@@ -39,14 +39,14 @@ class LogScreen extends ConsumerWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: context.colorScheme.error,
                 foregroundColor: context.colorScheme.onPrimary,
-                padding: EdgeInsets.symmetric(horizontal: 14.w),
-                minimumSize: Size(0, 34.h),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w14),
+                minimumSize: Size(0, AppSpacingConstant.h34),
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: controller.reset,
               child: Text(l10n.commonCancel),
             ),
-          SizedBox(width: 12.w),
+          SizedBox(width: AppSpacingConstant.w12),
         ],
       ),
       body: Column(
@@ -55,7 +55,7 @@ class LogScreen extends ConsumerWidget {
           // The question, big and readable mid-attack.
           if (question != null)
             Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 8.h),
+              padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h16, AppSpacingConstant.w24, AppSpacingConstant.h8),
               child: Text(
                 question,
                 style: context.textTheme.headlineMedium?.copyWith(

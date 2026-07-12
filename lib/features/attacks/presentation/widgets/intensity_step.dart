@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
@@ -25,7 +25,7 @@ class IntensityStep extends StatelessWidget {
       children: [
         for (var i = startIndex; i <= endIndex; i++) ...[
           _IntensityCircle(value: i, onTap: () => onSelected(i)),
-          if (i < endIndex) HorizontalSpacing(width: 16.w),
+          if (i < endIndex) HorizontalSpacing(width: AppSpacingConstant.w16),
         ],
       ],
     );
@@ -40,17 +40,17 @@ class IntensityStep extends StatelessWidget {
         curve: Curves.easeOut,
         builder: (context, t, child) => Opacity(opacity: t, child: child),
         child: Padding(
-          padding: EdgeInsets.all(24.w),
+          padding: EdgeInsets.all(AppSpacingConstant.w24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _builRowItems(startIndex: 1, endIndex: 3, onSelected: onSelected),
-              VerticalSpacing(height: 16.h),
+              VerticalSpacing(height: AppSpacingConstant.h16),
               _builRowItems(startIndex: 4, endIndex: 6, onSelected: onSelected),
-              VerticalSpacing(height: 16.h),
+              VerticalSpacing(height: AppSpacingConstant.h16),
               _builRowItems(startIndex: 7, endIndex: 8, onSelected: onSelected),
-              VerticalSpacing(height: 16.h),
+              VerticalSpacing(height: AppSpacingConstant.h16),
               _builRowItems(
                 startIndex: 9,
                 endIndex: 10,
@@ -76,8 +76,8 @@ class _IntensityCircle extends StatelessWidget {
     return PressableScale(
       onTap: onTap,
       child: Container(
-        width: 88.r,
-        height: 88.r,
+        width: AppSpacingConstant.r88,
+        height: AppSpacingConstant.r88,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,

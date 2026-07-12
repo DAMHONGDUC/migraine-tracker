@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/entities/correlation_result.dart';
@@ -15,7 +15,7 @@ class CorrelationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(AppSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -23,7 +23,7 @@ class CorrelationCard extends StatelessWidget {
               context.l10n.insightsCorrelationTitle,
               style: context.textTheme.titleMedium,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: AppSpacingConstant.h16),
             switch (result) {
               final CorrelationInsufficientData r => _InsufficientData(
                 result: r,
@@ -54,10 +54,10 @@ class _InsufficientData extends StatelessWidget {
           children: [
             Icon(
               Icons.lock_outline,
-              size: 20.r,
+              size: AppSpacingConstant.r20,
               color: context.colorScheme.onSurfaceVariant,
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: AppSpacingConstant.w8),
             Expanded(
               child: Text(
                 l10n.insightsInsufficientData(remaining),
@@ -66,13 +66,13 @@ class _InsufficientData extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSpacingConstant.h12),
         LinearProgressIndicator(
           value: result.attacksWithWeather / result.requiredAttacks,
-          minHeight: 6.h,
-          borderRadius: BorderRadius.circular(3.r),
+          minHeight: AppSpacingConstant.h6,
+          borderRadius: BorderRadius.circular(AppSpacingConstant.r3),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: AppSpacingConstant.h8),
         Text(
           l10n.insightsProgressCaption(
             result.attacksWithWeather,
@@ -121,12 +121,12 @@ class _Insight extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: AppSpacingConstant.h4),
         Text(
           l10n.insightsDropShareSentence(threshold),
           style: context.textTheme.bodyMedium,
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSpacingConstant.h12),
         Text(
           l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
           style: context.textTheme.bodySmall?.copyWith(

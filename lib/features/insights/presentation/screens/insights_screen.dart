@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../providers.dart';
@@ -17,7 +17,7 @@ class InsightsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(context.l10n.insightsTitle)),
       body: switch (result) {
         AsyncData(value: final value) => ListView(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(AppSpacingConstant.w16),
           children: [CorrelationCard(result: value)],
         ),
         _ => const SizedBox.shrink(),

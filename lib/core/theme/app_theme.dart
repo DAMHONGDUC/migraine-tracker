@@ -37,7 +37,7 @@ abstract final class AppTheme {
       // outline → solid (icon/selectedIcon pairs) and tints primary.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: Colors.transparent,
+        indicatorColor: AppColors.transparent,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(

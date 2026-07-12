@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -33,7 +33,7 @@ class HistoryScreen extends ConsumerWidget {
             mode: mode,
             onChanged: ref.read(historyViewModeProvider.notifier).select,
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: AppSpacingConstant.w12),
         ],
       ),
       body: switch (allAttacks) {
@@ -52,7 +52,7 @@ class HistoryScreen extends ConsumerWidget {
                 // Shared filter, right below the app bar: closed = current
                 // value at a glance, tap = bottom sheet picker.
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+                  padding: EdgeInsets.fromLTRB(AppSpacingConstant.w16, AppSpacingConstant.h8, AppSpacingConstant.w16, AppSpacingConstant.h12),
                   child: HistoryFilterChip(
                     selected: period,
                     onSelected:
@@ -93,12 +93,12 @@ class _ChartView extends StatelessWidget {
       return Center(child: Text(context.l10n.historyEmptyFiltered));
     }
     return ListView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(AppSpacingConstant.w16),
       children: [
         WeeklyFrequencyChart(
           buckets: weeklyBuckets(attacks, now: DateTime.now()),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSpacingConstant.h12),
         Text(
           context.l10n.historyAttackCount(attacks.length),
           style: context.textTheme.titleSmall?.copyWith(
@@ -121,13 +121,13 @@ class _AttackList extends StatelessWidget {
       return Center(child: Text(context.l10n.historyEmptyFiltered));
     }
     return ListView.separated(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(AppSpacingConstant.w16),
       itemCount: attacks.length + 1,
-      separatorBuilder: (_, _) => SizedBox(height: 8.h),
+      separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
-            padding: EdgeInsets.only(bottom: 4.h),
+            padding: EdgeInsets.only(bottom: AppSpacingConstant.h4),
             child: Text(
               context.l10n.historyAttackCount(attacks.length),
               style: context.textTheme.titleSmall?.copyWith(

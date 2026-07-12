@@ -1,0 +1,53 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+/// Single home for every screenutil dimension used in the app — no raw
+/// `16.w` / `12.h` / `20.r` literals in widgets. Getters (not consts)
+/// because screenutil resolves at runtime, after ScreenUtilInit.
+///
+/// Naming: unit prefix + design-size value. `w` = horizontal, `h` =
+/// vertical, `r` = square/circular (radius, icons, fixed boxes),
+/// `sp` = font size.
+abstract final class AppSpacingConstant {
+  // --- Horizontal (.w) ---
+  static double get w2 => 2.w;
+  static double get w4 => 4.w;
+  static double get w6 => 6.w;
+  static double get w8 => 8.w;
+  static double get w12 => 12.w;
+  static double get w14 => 14.w;
+  static double get w16 => 16.w;
+  static double get w20 => 20.w;
+  static double get w24 => 24.w;
+  static double get w28 => 28.w;
+  static double get w32 => 32.w;
+  static double get w44 => 44.w;
+  static double get w48 => 48.w;
+
+  // --- Vertical (.h) ---
+  static double get h4 => 4.h;
+  static double get h6 => 6.h;
+  static double get h8 => 8.h;
+  static double get h12 => 12.h;
+  static double get h16 => 16.h;
+  static double get h20 => 20.h;
+  static double get h22 => 22.h;
+  static double get h24 => 24.h;
+  static double get h32 => 32.h;
+  static double get h34 => 34.h;
+  static double get h64 => 64.h;
+  static double get h160 => 160.h;
+
+  // --- Square / radius (.r) ---
+  static double get r3 => 3.r;
+  static double get r4 => 4.r;
+  static double get r12 => 12.r;
+  static double get r16 => 16.r;
+  static double get r18 => 18.r;
+  static double get r20 => 20.r;
+  static double get r22 => 22.r;
+  static double get r64 => 64.r;
+  static double get r88 => 88.r;
+
+  // --- Font (.sp) ---
+  static double get sp10 => 10.sp;
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -22,11 +22,11 @@ class LocationStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(AppSpacingConstant.w24),
       children: [
         for (final location in HeadLocation.values) ...[
           SizedBox(
-            height: 64.h,
+            height: AppSpacingConstant.h64,
             child: FilledButton.tonalIcon(
               onPressed: () => onSelected(location),
               icon: Icon(_icons[location]),
@@ -36,7 +36,7 @@ class LocationStep extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: AppSpacingConstant.h12),
         ],
       ],
     );

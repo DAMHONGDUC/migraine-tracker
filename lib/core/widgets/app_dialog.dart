@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
@@ -16,7 +16,7 @@ Future<T?> showAppDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withValues(alpha: 0.6),
+    barrierColor: AppColors.barrier,
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (dialogContext, _, _) => builder(dialogContext),
     transitionBuilder: (context, animation, _, child) {
@@ -53,23 +53,23 @@ class AppDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.surfaceElevated,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-      insetPadding: EdgeInsets.symmetric(horizontal: 32.w),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacingConstant.r20)),
+      insetPadding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w32),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(24.w, 22.h, 24.w, 16.h),
+        padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h22, AppSpacingConstant.w24, AppSpacingConstant.h16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(title, style: context.textTheme.titleLarge),
-            if (content != null) ...[SizedBox(height: 16.h), content!],
+            if (content != null) ...[SizedBox(height: AppSpacingConstant.h16), content!],
             if (actions.isNotEmpty) ...[
-              SizedBox(height: 20.h),
+              SizedBox(height: AppSpacingConstant.h20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   for (final (i, action) in actions.indexed) ...[
-                    if (i > 0) SizedBox(width: 8.w),
+                    if (i > 0) SizedBox(width: AppSpacingConstant.w8),
                     action,
                   ],
                 ],
@@ -103,15 +103,15 @@ class AppDialogOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     return InkWell(
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w8, vertical: AppSpacingConstant.h12),
         child: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 20.r, color: scheme.primary),
-              SizedBox(width: 12.w),
+              Icon(icon, size: AppSpacingConstant.r20, color: scheme.primary),
+              SizedBox(width: AppSpacingConstant.w12),
             ],
             Expanded(child: Text(label, style: context.textTheme.bodyLarge)),
             if (selected != null)
@@ -119,7 +119,7 @@ class AppDialogOption extends StatelessWidget {
                 selected!
                     ? Icons.radio_button_checked
                     : Icons.radio_button_off,
-                size: 20.r,
+                size: AppSpacingConstant.r20,
                 color: selected! ? scheme.primary : scheme.onSurfaceVariant,
               ),
           ],

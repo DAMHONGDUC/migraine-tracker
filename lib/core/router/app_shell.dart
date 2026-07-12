@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:step_progress/step_progress.dart';
 
 import '../../features/attacks/presentation/controllers/log_controller.dart';
@@ -97,12 +97,12 @@ class _TrackingProgressBar extends StatelessWidget {
         child: SizedBox(
           height: 68,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48.w),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w48),
             child: Center(
               child: StepProgress(
                 totalSteps: 3,
                 currentStep: currentStep,
-                stepNodeSize: 20.r,
+                stepNodeSize: AppSpacingConstant.r20,
                 nodeTitles: [
                   l10n.stepIntensity,
                   l10n.stepLocation,

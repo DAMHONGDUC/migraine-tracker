@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
@@ -48,25 +48,25 @@ class HistoryFilterChip extends StatelessWidget {
     final scheme = context.colorScheme;
     return Material(
       color: scheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
         onTap: () => _open(context),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w14, vertical: AppSpacingConstant.h8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.filter_list, size: 16.r, color: scheme.primary),
-              SizedBox(width: 6.w),
+              Icon(Icons.filter_list, size: AppSpacingConstant.r16, color: scheme.primary),
+              SizedBox(width: AppSpacingConstant.w6),
               Text(
                 periodLabel(context, selected),
                 style: context.textTheme.labelLarge,
               ),
-              SizedBox(width: 2.w),
+              SizedBox(width: AppSpacingConstant.w2),
               Icon(
                 Icons.expand_more,
-                size: 18.r,
+                size: AppSpacingConstant.r18,
                 color: scheme.onSurfaceVariant,
               ),
             ],
@@ -91,7 +91,7 @@ class _FilterSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 4.h, 24.w, 12.h),
+            padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h4, AppSpacingConstant.w24, AppSpacingConstant.h12),
             child: Text(
               context.l10n.historyFilterSheetTitle,
               style: context.textTheme.titleMedium,
@@ -106,12 +106,12 @@ class _FilterSheet extends StatelessWidget {
                 color: period == selected
                     ? scheme.primary
                     : scheme.onSurfaceVariant,
-                size: 22.r,
+                size: AppSpacingConstant.r22,
               ),
               title: Text(periodLabel(context, period)),
               onTap: () => Navigator.of(context).pop(period),
             ),
-          SizedBox(height: 8.h),
+          SizedBox(height: AppSpacingConstant.h8),
         ],
       ),
     );

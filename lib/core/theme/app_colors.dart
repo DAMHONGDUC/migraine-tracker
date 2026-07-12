@@ -33,6 +33,11 @@ abstract final class AppColors {
   static const Color textPrimary = Color(0xFFE4E2E8);
   static const Color textSecondary = Color(0xFF9E9CA6);
 
+  /// Modal barrier behind dialogs/sheets.
+  static const Color barrier = Color(0x99000000);
+
+  static const Color transparent = Color(0x00000000);
+
   /// Calm, desaturated severity tint for a 1–10 pain intensity. Used as a
   /// translucent fill + solid text/border, never a bright saturated fill
   /// (photophobia). Four bands: low → mild → strong → severe.
