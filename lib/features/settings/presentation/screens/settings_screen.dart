@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
+import '../../../attacks/domain/enums/head_location.dart';
+import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../domain/enums/export_format.dart';
 import '../controllers/settings_controller.dart';
 
@@ -81,6 +86,36 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(settingsControllerProvider).export(format);
   }
 
+  Future<void> _shareDoctorReport(WidgetRef ref) async {
+    // The PDF always renders in English: the base PDF fonts only cover
+    // Latin-1, so Vietnamese labels would fail to encode.
+    final en = lookupAppLocalizations(const Locale('en'));
+    final strings = DoctorReportStrings(
+      title: en.reportTitle,
+      generated: en.reportGenerated(
+        DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      ),
+      period: en.reportPeriod,
+      summaryTitle: en.reportSummaryTitle,
+      totalAttacks: en.reportTotalAttacks,
+      avgIntensity: en.reportAvgIntensity,
+      commonLocation: en.reportCommonLocation,
+      attacksDuringDrops: en.reportAttacksDuringDrops,
+      tableTitle: en.reportTableTitle,
+      colDate: en.reportColDate,
+      colIntensity: en.reportColIntensity,
+      colLocation: en.reportColLocation,
+      colMedication: en.reportColMedication,
+      colPressureDelta: en.reportColPressureDelta,
+      disclaimer: en.onboardingDisclaimer,
+      locationLabels: {
+        for (final location in HeadLocation.values)
+          location: location.label(en),
+      },
+    );
+    await ref.read(settingsControllerProvider).shareDoctorReport(strings);
+  }
+
   Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final confirmed = await showAppDialog<bool>(
@@ -137,6 +172,11 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.ios_share),
             title: Text(l10n.settingsExport),
             onTap: () => _export(context, ref),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf_outlined),
+            title: Text(l10n.settingsDoctorReport),
+            onTap: () => _shareDoctorReport(ref),
           ),
           ListTile(
             leading: Icon(

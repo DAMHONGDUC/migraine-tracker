@@ -2,6 +2,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../attacks/providers.dart';
+import '../../../insights/domain/services/doctor_report_builder.dart';
+import '../../../insights/providers.dart';
 import '../../../medications/providers.dart';
 import '../../domain/enums/export_format.dart';
 import '../../providers.dart';
@@ -36,6 +38,24 @@ class SettingsController {
     await _ref
         .read(exportSinkProvider)
         .share(content: content, filename: filename, mimeType: mime);
+  }
+
+  /// Builds the 90-day doctor report and hands the PDF to the share sheet.
+  /// [strings] must be the ENGLISH labels (base PDF fonts are Latin-only).
+  Future<void> shareDoctorReport(DoctorReportStrings strings) async {
+    final attacks = await _ref.read(attackRepositoryProvider).getAll();
+    final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
+    final now = DateTime.now();
+    final bytes = await const DoctorReportBuilder().build(
+      attacks: attacks,
+      correlation: correlation,
+      strings: strings,
+      now: now,
+    );
+    final stamp = DateFormat('yyyy-MM-dd').format(now);
+    await _ref
+        .read(pdfSharerProvider)
+        .share(bytes: bytes, filename: 'baroease_report_$stamp.pdf');
   }
 
   /// GDPR wipe of all on-device data.

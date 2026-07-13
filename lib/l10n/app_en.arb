@@ -354,6 +354,71 @@
   "@settingsExportCsv": {
     "description": "Export format option: flat CSV of attacks"
   },
+  "settingsDoctorReport": "Doctor report (PDF)",
+  "@settingsDoctorReport": {
+    "description": "Settings tile that generates and shares the PDF report"
+  },
+  "reportTitle": "BaroEase - Migraine report",
+  "@reportTitle": {
+    "description": "PDF report title (PDF renders in English: base PDF fonts are Latin-only)"
+  },
+  "reportGenerated": "Generated {date}",
+  "@reportGenerated": {
+    "description": "PDF subtitle with the generation date",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportPeriod": "Covering the last 90 days",
+  "@reportPeriod": {
+    "description": "PDF subtitle naming the covered period"
+  },
+  "reportSummaryTitle": "Summary",
+  "@reportSummaryTitle": {
+    "description": "PDF section header for the stats block"
+  },
+  "reportTotalAttacks": "Attacks",
+  "@reportTotalAttacks": {
+    "description": "PDF stat label: number of attacks"
+  },
+  "reportAvgIntensity": "Average intensity",
+  "@reportAvgIntensity": {
+    "description": "PDF stat label: mean intensity"
+  },
+  "reportCommonLocation": "Most frequent location",
+  "@reportCommonLocation": {
+    "description": "PDF stat label: modal head location"
+  },
+  "reportAttacksDuringDrops": "During rapid pressure drops",
+  "@reportAttacksDuringDrops": {
+    "description": "PDF stat label: share of attacks during pressure drops"
+  },
+  "reportTableTitle": "Attack log",
+  "@reportTableTitle": {
+    "description": "PDF section header for the attack table"
+  },
+  "reportColDate": "Date",
+  "@reportColDate": {
+    "description": "PDF table column: date"
+  },
+  "reportColIntensity": "Intensity",
+  "@reportColIntensity": {
+    "description": "PDF table column: intensity"
+  },
+  "reportColLocation": "Location",
+  "@reportColLocation": {
+    "description": "PDF table column: head location"
+  },
+  "reportColMedication": "Medication",
+  "@reportColMedication": {
+    "description": "PDF table column: medication"
+  },
+  "reportColPressureDelta": "24h change (hPa)",
+  "@reportColPressureDelta": {
+    "description": "PDF table column: 24h pressure delta"
+  },
   "settingsDelete": "Delete all data",
   "@settingsDelete": {
     "description": "Settings tile that starts the GDPR delete flow"
