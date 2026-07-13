@@ -314,6 +314,34 @@
   "@settingsLanguageVietnamese": {
     "description": "Language option: Vietnamese (shown in its own language)"
   },
+  "alertsToggleTitle": "Pressure-drop alerts",
+  "@alertsToggleTitle": {
+    "description": "Settings switch that registers this device for pressure push alerts"
+  },
+  "alertsToggleSubtitle": "Get a push before a big pressure drop",
+  "@alertsToggleSubtitle": {
+    "description": "Subtitle under the alerts switch"
+  },
+  "alertsThresholdTitle": "Alert threshold",
+  "@alertsThresholdTitle": {
+    "description": "Settings tile that opens the threshold slider dialog"
+  },
+  "alertsErrorNotifications": "Notification permission is required for alerts.",
+  "@alertsErrorNotifications": {
+    "description": "Error when the user denied notification permission"
+  },
+  "alertsErrorLocation": "Location is required to know your local pressure.",
+  "@alertsErrorLocation": {
+    "description": "Error when no location fix is available"
+  },
+  "alertsErrorPush": "Push notifications aren't available on this device.",
+  "@alertsErrorPush": {
+    "description": "Error when no FCM token exists (e.g. iOS simulator)"
+  },
+  "alertsErrorGeneric": "Couldn't update alerts. Please try again.",
+  "@alertsErrorGeneric": {
+    "description": "Fallback error for alert registration"
+  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export format picker"

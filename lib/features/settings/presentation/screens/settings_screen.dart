@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../domain/enums/export_format.dart';
 import '../controllers/settings_controller.dart';
 
@@ -125,6 +126,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         children: [
+          const AlertsSection(),
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.settingsLanguage),
