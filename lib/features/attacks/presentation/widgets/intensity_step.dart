@@ -39,10 +39,11 @@ class IntensityStep extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
         builder: (context, t, child) => Opacity(opacity: t, child: child),
-        child: Padding(
+        // Scrollable so the four rows never overflow on short screens.
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(AppSpacingConstant.w24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _builRowItems(startIndex: 1, endIndex: 3, onSelected: onSelected),

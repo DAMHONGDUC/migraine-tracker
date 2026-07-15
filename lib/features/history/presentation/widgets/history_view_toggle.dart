@@ -32,34 +32,40 @@ class HistoryViewToggle extends StatelessWidget {
       ),
       child: Stack(
         children: [
+          // Thumb: half-width, slides under the selected segment. Fractional
+          // so it fits whatever width the border leaves (no fixed-px overflow).
           AnimatedAlign(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             alignment: mode == HistoryViewMode.list
                 ? AlignmentDirectional.centerStart
                 : AlignmentDirectional.centerEnd,
-            child: Container(
-              width: segmentWidth,
-              height: height,
-              decoration: BoxDecoration(
-                color: scheme.primary.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(height / 2),
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              heightFactor: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(height / 2),
+                ),
               ),
             ),
           ),
           Row(
             children: [
-              _Segment(
-                icon: Icons.list_alt,
-                selected: mode == HistoryViewMode.list,
-                width: segmentWidth,
-                onTap: () => onChanged(HistoryViewMode.list),
+              Expanded(
+                child: _Segment(
+                  icon: Icons.list_alt,
+                  selected: mode == HistoryViewMode.list,
+                  onTap: () => onChanged(HistoryViewMode.list),
+                ),
               ),
-              _Segment(
-                icon: Icons.bar_chart,
-                selected: mode == HistoryViewMode.chart,
-                width: segmentWidth,
-                onTap: () => onChanged(HistoryViewMode.chart),
+              Expanded(
+                child: _Segment(
+                  icon: Icons.bar_chart,
+                  selected: mode == HistoryViewMode.chart,
+                  onTap: () => onChanged(HistoryViewMode.chart),
+                ),
               ),
             ],
           ),
@@ -73,13 +79,11 @@ class _Segment extends StatelessWidget {
   const _Segment({
     required this.icon,
     required this.selected,
-    required this.width,
     required this.onTap,
   });
 
   final IconData icon;
   final bool selected;
-  final double width;
   final VoidCallback onTap;
 
   @override
@@ -88,8 +92,7 @@ class _Segment extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: SizedBox(
-        width: width,
+      child: Center(
         child: Icon(
           icon,
           size: AppSpacingConstant.r20,

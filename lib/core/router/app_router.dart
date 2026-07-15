@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../features/attacks/presentation/screens/log_screen.dart';
 import '../../features/history/presentation/screens/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen.dart';
+import '../../features/medications/presentation/screens/reminders_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
@@ -16,6 +17,7 @@ abstract final class AppRoutes {
   static const String history = '/history';
   static const String insights = '/insights';
   static const String settings = '/settings';
+  static const String reminders = '/reminders';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -38,6 +40,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      // Full-screen, pushed above the shell (no bottom nav).
+      GoRoute(
+        path: AppRoutes.reminders,
+        builder: (context, state) => const RemindersScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

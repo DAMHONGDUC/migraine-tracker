@@ -6,6 +6,9 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
@@ -31,6 +34,26 @@ class FakeWeatherRepository implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
+}
+
+/// No-op scheduler so widget tests never touch the notifications plugin.
+class FakeNotificationScheduler implements NotificationScheduler {
+  @override
+  Future<bool> ensurePermission() async => true;
+
+  @override
+  Future<void> schedule(
+    MedicationReminder reminder, {
+    required String medicationName,
+    required String title,
+    required String bodyTemplate,
+  }) async {}
+
+  @override
+  Future<void> cancel(String reminderId) async {}
+
+  @override
+  Future<void> cancelAll() async {}
 }
 
 class PumpedApp {
@@ -68,6 +91,9 @@ Future<PumpedApp> pumpApp(
         databaseProvider.overrideWithValue(db),
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
+        notificationSchedulerProvider.overrideWithValue(
+          FakeNotificationScheduler(),
+        ),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],

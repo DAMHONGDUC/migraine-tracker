@@ -97,20 +97,27 @@ class _FilterSheet extends StatelessWidget {
               style: context.textTheme.titleMedium,
             ),
           ),
-          for (final period in HistoryPeriod.values)
-            ListTile(
-              leading: Icon(
-                period == selected
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_off,
-                color: period == selected
-                    ? scheme.primary
-                    : scheme.onSurfaceVariant,
-                size: AppSpacingConstant.r22,
-              ),
-              title: Text(periodLabel(context, period)),
-              onTap: () => Navigator.of(context).pop(period),
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                for (final period in HistoryPeriod.values)
+                  ListTile(
+                    leading: Icon(
+                      period == selected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: period == selected
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
+                      size: AppSpacingConstant.r22,
+                    ),
+                    title: Text(periodLabel(context, period)),
+                    onTap: () => Navigator.of(context).pop(period),
+                  ),
+              ],
             ),
+          ),
           SizedBox(height: AppSpacingConstant.h8),
         ],
       ),

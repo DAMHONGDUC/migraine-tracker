@@ -363,6 +363,43 @@
   "@alertsErrorGeneric": {
     "description": "Fallback error for alert registration"
   },
+  "remindersTitle": "Medication reminders",
+  "@remindersTitle": {
+    "description": "Settings tile / screen title for medication reminders"
+  },
+  "remindersEmpty": "No reminders yet.",
+  "@remindersEmpty": {
+    "description": "Empty state on the reminders screen"
+  },
+  "remindersAdd": "Add reminder",
+  "@remindersAdd": {
+    "description": "Button to add a new medication reminder"
+  },
+  "remindersPickMedication": "Which medication?",
+  "@remindersPickMedication": {
+    "description": "Title of the medication picker in the add-reminder flow"
+  },
+  "remindersNoMedications": "Add a medication first (when logging an attack).",
+  "@remindersNoMedications": {
+    "description": "Shown when there are no medications to remind about"
+  },
+  "remindersPermissionDenied": "Notification permission is required for reminders.",
+  "@remindersPermissionDenied": {
+    "description": "Snackbar when notification permission was denied"
+  },
+  "reminderNotificationTitle": "Time for your medication",
+  "@reminderNotificationTitle": {
+    "description": "Title of the scheduled reminder notification"
+  },
+  "reminderNotificationBody": "Take {name}",
+  "@reminderNotificationBody": {
+    "description": "Body of the reminder notification; {name} is the medication",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export format picker"

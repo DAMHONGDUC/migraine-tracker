@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
@@ -162,6 +164,11 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const AlertsSection(),
+          ListTile(
+            leading: const Icon(Icons.alarm),
+            title: Text(l10n.remindersTitle),
+            onTap: () => context.push(AppRoutes.reminders),
+          ),
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.settingsLanguage),

@@ -11,6 +11,7 @@ analyzer:
     - "**/*.drift.dart"
     - "**/*.freezed.dart"
     - build/**
+    - test/db_migration/generated/**
 
 linter:
   rules:

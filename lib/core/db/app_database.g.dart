@@ -1193,6 +1193,339 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
   }
 }
 
+class $MedicationRemindersTable extends MedicationReminders
+    with TableInfo<$MedicationRemindersTable, MedicationReminderRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MedicationRemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _medicationIdMeta = const VerificationMeta(
+    'medicationId',
+  );
+  @override
+  late final GeneratedColumn<String> medicationId = GeneratedColumn<String>(
+    'medication_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES medications (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _minuteOfDayMeta = const VerificationMeta(
+    'minuteOfDay',
+  );
+  @override
+  late final GeneratedColumn<int> minuteOfDay = GeneratedColumn<int>(
+    'minute_of_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    medicationId,
+    minuteOfDay,
+    enabled,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'medication_reminders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MedicationReminderRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('medication_id')) {
+      context.handle(
+        _medicationIdMeta,
+        medicationId.isAcceptableOrUnknown(
+          data['medication_id']!,
+          _medicationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_medicationIdMeta);
+    }
+    if (data.containsKey('minute_of_day')) {
+      context.handle(
+        _minuteOfDayMeta,
+        minuteOfDay.isAcceptableOrUnknown(
+          data['minute_of_day']!,
+          _minuteOfDayMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_minuteOfDayMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MedicationReminderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MedicationReminderRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      medicationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}medication_id'],
+      )!,
+      minuteOfDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}minute_of_day'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+    );
+  }
+
+  @override
+  $MedicationRemindersTable createAlias(String alias) {
+    return $MedicationRemindersTable(attachedDatabase, alias);
+  }
+}
+
+class MedicationReminderRow extends DataClass
+    implements Insertable<MedicationReminderRow> {
+  final String id;
+  final String medicationId;
+
+  /// Local time-of-day, stored as minutes past midnight (0–1439).
+  final int minuteOfDay;
+  final bool enabled;
+  const MedicationReminderRow({
+    required this.id,
+    required this.medicationId,
+    required this.minuteOfDay,
+    required this.enabled,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['medication_id'] = Variable<String>(medicationId);
+    map['minute_of_day'] = Variable<int>(minuteOfDay);
+    map['enabled'] = Variable<bool>(enabled);
+    return map;
+  }
+
+  MedicationRemindersCompanion toCompanion(bool nullToAbsent) {
+    return MedicationRemindersCompanion(
+      id: Value(id),
+      medicationId: Value(medicationId),
+      minuteOfDay: Value(minuteOfDay),
+      enabled: Value(enabled),
+    );
+  }
+
+  factory MedicationReminderRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MedicationReminderRow(
+      id: serializer.fromJson<String>(json['id']),
+      medicationId: serializer.fromJson<String>(json['medicationId']),
+      minuteOfDay: serializer.fromJson<int>(json['minuteOfDay']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'medicationId': serializer.toJson<String>(medicationId),
+      'minuteOfDay': serializer.toJson<int>(minuteOfDay),
+      'enabled': serializer.toJson<bool>(enabled),
+    };
+  }
+
+  MedicationReminderRow copyWith({
+    String? id,
+    String? medicationId,
+    int? minuteOfDay,
+    bool? enabled,
+  }) => MedicationReminderRow(
+    id: id ?? this.id,
+    medicationId: medicationId ?? this.medicationId,
+    minuteOfDay: minuteOfDay ?? this.minuteOfDay,
+    enabled: enabled ?? this.enabled,
+  );
+  MedicationReminderRow copyWithCompanion(MedicationRemindersCompanion data) {
+    return MedicationReminderRow(
+      id: data.id.present ? data.id.value : this.id,
+      medicationId: data.medicationId.present
+          ? data.medicationId.value
+          : this.medicationId,
+      minuteOfDay: data.minuteOfDay.present
+          ? data.minuteOfDay.value
+          : this.minuteOfDay,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MedicationReminderRow(')
+          ..write('id: $id, ')
+          ..write('medicationId: $medicationId, ')
+          ..write('minuteOfDay: $minuteOfDay, ')
+          ..write('enabled: $enabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, medicationId, minuteOfDay, enabled);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MedicationReminderRow &&
+          other.id == this.id &&
+          other.medicationId == this.medicationId &&
+          other.minuteOfDay == this.minuteOfDay &&
+          other.enabled == this.enabled);
+}
+
+class MedicationRemindersCompanion
+    extends UpdateCompanion<MedicationReminderRow> {
+  final Value<String> id;
+  final Value<String> medicationId;
+  final Value<int> minuteOfDay;
+  final Value<bool> enabled;
+  final Value<int> rowid;
+  const MedicationRemindersCompanion({
+    this.id = const Value.absent(),
+    this.medicationId = const Value.absent(),
+    this.minuteOfDay = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MedicationRemindersCompanion.insert({
+    required String id,
+    required String medicationId,
+    required int minuteOfDay,
+    this.enabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       medicationId = Value(medicationId),
+       minuteOfDay = Value(minuteOfDay);
+  static Insertable<MedicationReminderRow> custom({
+    Expression<String>? id,
+    Expression<String>? medicationId,
+    Expression<int>? minuteOfDay,
+    Expression<bool>? enabled,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (medicationId != null) 'medication_id': medicationId,
+      if (minuteOfDay != null) 'minute_of_day': minuteOfDay,
+      if (enabled != null) 'enabled': enabled,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MedicationRemindersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? medicationId,
+    Value<int>? minuteOfDay,
+    Value<bool>? enabled,
+    Value<int>? rowid,
+  }) {
+    return MedicationRemindersCompanion(
+      id: id ?? this.id,
+      medicationId: medicationId ?? this.medicationId,
+      minuteOfDay: minuteOfDay ?? this.minuteOfDay,
+      enabled: enabled ?? this.enabled,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (medicationId.present) {
+      map['medication_id'] = Variable<String>(medicationId.value);
+    }
+    if (minuteOfDay.present) {
+      map['minute_of_day'] = Variable<int>(minuteOfDay.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MedicationRemindersCompanion(')
+          ..write('id: $id, ')
+          ..write('medicationId: $medicationId, ')
+          ..write('minuteOfDay: $minuteOfDay, ')
+          ..write('enabled: $enabled, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1201,6 +1534,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $MedicationsTable medications = $MedicationsTable(this);
+  late final $MedicationRemindersTable medicationReminders =
+      $MedicationRemindersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1209,6 +1544,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     attacks,
     weatherSnapshots,
     medications,
+    medicationReminders,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -1218,6 +1554,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('weather_snapshots', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'medications',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('medication_reminders', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -1960,6 +2303,35 @@ typedef $$MedicationsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
+final class $$MedicationsTableReferences
+    extends BaseReferences<_$AppDatabase, $MedicationsTable, MedicationRow> {
+  $$MedicationsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $MedicationRemindersTable,
+    List<MedicationReminderRow>
+  >
+  _medicationRemindersRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.medicationReminders,
+        aliasName: 'medications__id__medication_reminders__medication_id',
+      );
+
+  $$MedicationRemindersTableProcessedTableManager get medicationRemindersRefs {
+    final manager = $$MedicationRemindersTableTableManager(
+      $_db,
+      $_db.medicationReminders,
+    ).filter((f) => f.medicationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _medicationRemindersRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
 class $$MedicationsTableFilterComposer
     extends Composer<_$AppDatabase, $MedicationsTable> {
   $$MedicationsTableFilterComposer({
@@ -1978,6 +2350,31 @@ class $$MedicationsTableFilterComposer
     column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> medicationRemindersRefs(
+    Expression<bool> Function($$MedicationRemindersTableFilterComposer f) f,
+  ) {
+    final $$MedicationRemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.medicationReminders,
+      getReferencedColumn: (t) => t.medicationId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MedicationRemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.medicationReminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$MedicationsTableOrderingComposer
@@ -2014,6 +2411,32 @@ class $$MedicationsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  Expression<T> medicationRemindersRefs<T extends Object>(
+    Expression<T> Function($$MedicationRemindersTableAnnotationComposer a) f,
+  ) {
+    final $$MedicationRemindersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.medicationReminders,
+          getReferencedColumn: (t) => t.medicationId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MedicationRemindersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.medicationReminders,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$MedicationsTableTableManager
@@ -2027,12 +2450,9 @@ class $$MedicationsTableTableManager
           $$MedicationsTableAnnotationComposer,
           $$MedicationsTableCreateCompanionBuilder,
           $$MedicationsTableUpdateCompanionBuilder,
-          (
-            MedicationRow,
-            BaseReferences<_$AppDatabase, $MedicationsTable, MedicationRow>,
-          ),
+          (MedicationRow, $$MedicationsTableReferences),
           MedicationRow,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool medicationRemindersRefs})
         > {
   $$MedicationsTableTableManager(_$AppDatabase db, $MedicationsTable table)
     : super(
@@ -2059,9 +2479,47 @@ class $$MedicationsTableTableManager
               }) =>
                   MedicationsCompanion.insert(id: id, name: name, rowid: rowid),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MedicationsTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({medicationRemindersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (medicationRemindersRefs) db.medicationReminders,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (medicationRemindersRefs)
+                    await $_getPrefetchedData<
+                      MedicationRow,
+                      $MedicationsTable,
+                      MedicationReminderRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$MedicationsTableReferences
+                          ._medicationRemindersRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$MedicationsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).medicationRemindersRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.medicationId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -2076,12 +2534,329 @@ typedef $$MedicationsTableProcessedTableManager =
       $$MedicationsTableAnnotationComposer,
       $$MedicationsTableCreateCompanionBuilder,
       $$MedicationsTableUpdateCompanionBuilder,
-      (
-        MedicationRow,
-        BaseReferences<_$AppDatabase, $MedicationsTable, MedicationRow>,
-      ),
+      (MedicationRow, $$MedicationsTableReferences),
       MedicationRow,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool medicationRemindersRefs})
+    >;
+typedef $$MedicationRemindersTableCreateCompanionBuilder =
+    MedicationRemindersCompanion Function({
+      required String id,
+      required String medicationId,
+      required int minuteOfDay,
+      Value<bool> enabled,
+      Value<int> rowid,
+    });
+typedef $$MedicationRemindersTableUpdateCompanionBuilder =
+    MedicationRemindersCompanion Function({
+      Value<String> id,
+      Value<String> medicationId,
+      Value<int> minuteOfDay,
+      Value<bool> enabled,
+      Value<int> rowid,
+    });
+
+final class $$MedicationRemindersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $MedicationRemindersTable,
+          MedicationReminderRow
+        > {
+  $$MedicationRemindersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MedicationsTable _medicationIdTable(_$AppDatabase db) => db
+      .medications
+      .createAlias('medication_reminders__medication_id__medications__id');
+
+  $$MedicationsTableProcessedTableManager get medicationId {
+    final $_column = $_itemColumn<String>('medication_id')!;
+
+    final manager = $$MedicationsTableTableManager(
+      $_db,
+      $_db.medications,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_medicationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$MedicationRemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $MedicationRemindersTable> {
+  $$MedicationRemindersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get minuteOfDay => $composableBuilder(
+    column: $table.minuteOfDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MedicationsTableFilterComposer get medicationId {
+    final $$MedicationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.medicationId,
+      referencedTable: $db.medications,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MedicationsTableFilterComposer(
+            $db: $db,
+            $table: $db.medications,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MedicationRemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $MedicationRemindersTable> {
+  $$MedicationRemindersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get minuteOfDay => $composableBuilder(
+    column: $table.minuteOfDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MedicationsTableOrderingComposer get medicationId {
+    final $$MedicationsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.medicationId,
+      referencedTable: $db.medications,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MedicationsTableOrderingComposer(
+            $db: $db,
+            $table: $db.medications,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MedicationRemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MedicationRemindersTable> {
+  $$MedicationRemindersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get minuteOfDay => $composableBuilder(
+    column: $table.minuteOfDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  $$MedicationsTableAnnotationComposer get medicationId {
+    final $$MedicationsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.medicationId,
+      referencedTable: $db.medications,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MedicationsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.medications,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MedicationRemindersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MedicationRemindersTable,
+          MedicationReminderRow,
+          $$MedicationRemindersTableFilterComposer,
+          $$MedicationRemindersTableOrderingComposer,
+          $$MedicationRemindersTableAnnotationComposer,
+          $$MedicationRemindersTableCreateCompanionBuilder,
+          $$MedicationRemindersTableUpdateCompanionBuilder,
+          (MedicationReminderRow, $$MedicationRemindersTableReferences),
+          MedicationReminderRow,
+          PrefetchHooks Function({bool medicationId})
+        > {
+  $$MedicationRemindersTableTableManager(
+    _$AppDatabase db,
+    $MedicationRemindersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MedicationRemindersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MedicationRemindersTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$MedicationRemindersTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> medicationId = const Value.absent(),
+                Value<int> minuteOfDay = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MedicationRemindersCompanion(
+                id: id,
+                medicationId: medicationId,
+                minuteOfDay: minuteOfDay,
+                enabled: enabled,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String medicationId,
+                required int minuteOfDay,
+                Value<bool> enabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MedicationRemindersCompanion.insert(
+                id: id,
+                medicationId: medicationId,
+                minuteOfDay: minuteOfDay,
+                enabled: enabled,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MedicationRemindersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({medicationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (medicationId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.medicationId,
+                                referencedTable:
+                                    $$MedicationRemindersTableReferences
+                                        ._medicationIdTable(db),
+                                referencedColumn:
+                                    $$MedicationRemindersTableReferences
+                                        ._medicationIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$MedicationRemindersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MedicationRemindersTable,
+      MedicationReminderRow,
+      $$MedicationRemindersTableFilterComposer,
+      $$MedicationRemindersTableOrderingComposer,
+      $$MedicationRemindersTableAnnotationComposer,
+      $$MedicationRemindersTableCreateCompanionBuilder,
+      $$MedicationRemindersTableUpdateCompanionBuilder,
+      (MedicationReminderRow, $$MedicationRemindersTableReferences),
+      MedicationReminderRow,
+      PrefetchHooks Function({bool medicationId})
     >;
 
 class $AppDatabaseManager {
@@ -2093,4 +2868,6 @@ class $AppDatabaseManager {
       $$WeatherSnapshotsTableTableManager(_db, _db.weatherSnapshots);
   $$MedicationsTableTableManager get medications =>
       $$MedicationsTableTableManager(_db, _db.medications);
+  $$MedicationRemindersTableTableManager get medicationReminders =>
+      $$MedicationRemindersTableTableManager(_db, _db.medicationReminders);
 }

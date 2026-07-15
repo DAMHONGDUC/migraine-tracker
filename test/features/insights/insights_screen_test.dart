@@ -1,4 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -79,6 +80,11 @@ void main() {
     await tester.tap(find.text('History'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+
+    // History defaults to list mode; switch to chart via the app-bar toggle.
+    await tester.tap(find.byIcon(Icons.bar_chart));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byType(BarChart), findsOneWidget);
     expect(find.text('Attacks per week'), findsOneWidget);
