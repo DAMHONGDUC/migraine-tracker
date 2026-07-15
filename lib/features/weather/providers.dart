@@ -18,3 +18,9 @@ final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
     OpenMeteoDataSource(client),
   );
 });
+
+/// One fetch per screen visit; null = offline / no permission (the card
+/// shows its unavailable state).
+final pressureForecastProvider = FutureProvider.autoDispose(
+  (ref) => ref.watch(weatherRepositoryProvider).pressureForecast(),
+);

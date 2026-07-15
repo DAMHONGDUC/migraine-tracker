@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_snapshot.dart';
 
 /// Fetches hourly pressure/humidity/temperature from Open-Meteo.
@@ -19,6 +20,51 @@ class OpenMeteoDataSource {
 
   /// Nearest hourly sample to the target instant must be within this.
   static const _tolerance = Duration(minutes: 90);
+
+  /// Hourly pressure series for the forecast chart, windowed to
+  /// now−12h … now+48h. Null on any failure (offline, malformed body).
+  Future<List<PressurePoint>?> pressureSeries({
+    required double latitude,
+    required double longitude,
+    required DateTime now,
+  }) async {
+    try {
+      final uri = Uri.https(_host, '/v1/forecast', {
+        'latitude': '$latitude',
+        'longitude': '$longitude',
+        'hourly': 'surface_pressure',
+        'past_days': '1',
+        'forecast_days': '3',
+        'timezone': 'UTC',
+      });
+      final response = await _client.get(uri);
+      if (response.statusCode != 200) return null;
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final hourly = body['hourly'] as Map<String, dynamic>?;
+      if (hourly == null) return null;
+
+      final times = (hourly['time'] as List<Object?>).cast<String>();
+      final pressures = (hourly['surface_pressure'] as List<Object?>)
+          .cast<num?>();
+
+      final start = now.toUtc().subtract(const Duration(hours: 12));
+      final end = now.toUtc().add(const Duration(hours: 48));
+      final points = <PressurePoint>[];
+      for (var i = 0; i < times.length; i++) {
+        final pressure = pressures[i];
+        if (pressure == null) continue;
+        final time = DateTime.parse('${times[i]}Z');
+        if (time.isBefore(start) || time.isAfter(end)) continue;
+        points.add(
+          PressurePoint(time: time, pressureHpa: pressure.toDouble()),
+        );
+      }
+      return points.isEmpty ? null : points;
+    } on Exception {
+      return null;
+    }
+  }
 
   Future<WeatherSnapshot?> snapshotAt({
     required double latitude,

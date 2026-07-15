@@ -9,6 +9,7 @@ import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -22,8 +23,14 @@ class FakeWeatherRepository implements WeatherRepository {
   /// Returned for every request; null simulates offline/no permission.
   WeatherSnapshot? snapshot;
 
+  /// Returned by [pressureForecast]; null simulates offline.
+  PressureForecast? forecast;
+
   @override
   Future<WeatherSnapshot?> snapshotAt(DateTime instant) async => snapshot;
+
+  @override
+  Future<PressureForecast?> pressureForecast() async => forecast;
 }
 
 class PumpedApp {

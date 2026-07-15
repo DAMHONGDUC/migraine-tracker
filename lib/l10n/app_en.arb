@@ -244,6 +244,27 @@
       }
     }
   },
+  "insightsForecastTitle": "48h pressure forecast",
+  "@insightsForecastTitle": {
+    "description": "Title of the pressure forecast line chart card"
+  },
+  "insightsForecastUnavailable": "Forecast unavailable. Check your connection and location permission.",
+  "@insightsForecastUnavailable": {
+    "description": "Shown in the forecast card when no forecast could be fetched"
+  },
+  "insightsForecastNow": "Now",
+  "@insightsForecastNow": {
+    "description": "Label on the vertical 'now' marker in the forecast chart"
+  },
+  "insightsPressureValue": "{value} hPa",
+  "@insightsPressureValue": {
+    "description": "Pressure readout in the forecast tooltip",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "historyChartTitle": "Attacks per week",
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"
