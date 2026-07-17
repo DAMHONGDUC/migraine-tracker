@@ -54,10 +54,8 @@ class HistoryCalendarView extends HookWidget {
           ),
           calendarStyle: CalendarStyle(
             outsideDaysVisible: false,
-            defaultTextStyle:
-                context.textTheme.bodyMedium ?? const TextStyle(),
-            weekendTextStyle:
-                context.textTheme.bodyMedium ?? const TextStyle(),
+            defaultTextStyle: context.textTheme.bodyMedium ?? const TextStyle(),
+            weekendTextStyle: context.textTheme.bodyMedium ?? const TextStyle(),
             todayDecoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
