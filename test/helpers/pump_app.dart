@@ -10,6 +10,7 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
+import 'package:migraine_tracker/features/premium/data/repositories/debug_premium_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
@@ -73,6 +74,8 @@ Future<PumpedApp> pumpApp(
   // Riverpod 3 no longer exports the `Override` type, so the helper takes
   // the concrete fakes it knows about instead of a generic override list.
   ExportSink? exportSink,
+  /// Default free — gating tests must opt in to premium explicitly.
+  bool premium = false,
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
@@ -80,6 +83,7 @@ Future<PumpedApp> pumpApp(
   // log tab; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
     OnboardingController.completedKey: true,
+    if (premium) DebugPremiumRepository.prefsKey: true,
     ...initialPrefs,
   });
   final prefs = await SharedPreferences.getInstance();

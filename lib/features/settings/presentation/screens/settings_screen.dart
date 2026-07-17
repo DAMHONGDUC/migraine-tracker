@@ -12,6 +12,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
+import '../../../premium/presentation/widgets/premium_gate.dart';
 import '../../domain/enums/export_format.dart';
 import '../controllers/settings_controller.dart';
 
@@ -163,7 +164,12 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         children: [
-          const AlertsSection(),
+          PremiumTileGate(
+            icon: Icons.notifications_active_outlined,
+            title: l10n.alertsToggleTitle,
+            lockedMessage: l10n.premiumLockedAlerts,
+            child: const AlertsSection(),
+          ),
           ListTile(
             leading: const Icon(Icons.alarm),
             title: Text(l10n.remindersTitle),
@@ -180,10 +186,15 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.settingsExport),
             onTap: () => _export(context, ref),
           ),
-          ListTile(
-            leading: const Icon(Icons.picture_as_pdf_outlined),
-            title: Text(l10n.settingsDoctorReport),
-            onTap: () => _shareDoctorReport(ref),
+          PremiumTileGate(
+            icon: Icons.picture_as_pdf_outlined,
+            title: l10n.settingsDoctorReport,
+            lockedMessage: l10n.premiumLockedReport,
+            child: ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: Text(l10n.settingsDoctorReport),
+              onTap: () => _shareDoctorReport(ref),
+            ),
           ),
           ListTile(
             leading: Icon(

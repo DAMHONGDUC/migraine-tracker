@@ -27,8 +27,10 @@ Attack seededAttack(int i, {double? pressureDelta}) {
 
 Future<void> openInsights(WidgetTester tester) async {
   await tester.tap(find.text('Insights'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 100));
+  // Real frames so the correlation count-up can run (see premium test note).
+  for (var i = 0; i < 15; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 }
 
 void main() {
@@ -47,10 +49,10 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('with 15+ attacks the drop-share hero number appears', (
-    tester,
-  ) async {
-    final app = await pumpApp(tester);
+  testWidgets(
+    'with 15+ attacks a premium user sees the drop-share hero number',
+    (tester) async {
+    final app = await pumpApp(tester, premium: true);
     final repository = DriftAttackRepository(app.db);
     // 9 during rapid drops, 6 during stable weather → 60%.
     for (var i = 0; i < 9; i++) {
@@ -61,8 +63,6 @@ void main() {
     }
 
     await openInsights(tester);
-    // Let the count-up hero animation settle on its final value.
-    await tester.pump(const Duration(milliseconds: 800));
 
     expect(find.text('60%'), findsOneWidget);
     expect(find.text('Based on 15 attacks with weather data'), findsOneWidget);

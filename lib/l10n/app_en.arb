@@ -414,6 +414,78 @@
       }
     }
   },
+  "premiumBadge": "Premium",
+  "@premiumBadge": {
+    "description": "Small badge marking a premium-only surface"
+  },
+  "premiumUnlock": "Unlock",
+  "@premiumUnlock": {
+    "description": "CTA on a locked premium surface, opens the paywall"
+  },
+  "premiumLockedForecast": "See the pressure forecast 48 hours ahead, so you can plan around it.",
+  "@premiumLockedForecast": {
+    "description": "Locked-state copy on the forecast card"
+  },
+  "premiumLockedAlerts": "Get a push before a big pressure drop hits.",
+  "@premiumLockedAlerts": {
+    "description": "Locked-state copy on the alerts setting"
+  },
+  "premiumLockedReport": "Export a PDF summary of your attacks for your doctor.",
+  "@premiumLockedReport": {
+    "description": "Locked-state copy on the doctor report setting"
+  },
+  "premiumLockedCorrelation": "Unlock to see how much of your pain follows the weather.",
+  "@premiumLockedCorrelation": {
+    "description": "Teaser copy over the blurred correlation percentage"
+  },
+  "paywallTitle": "BaroEase Premium",
+  "@paywallTitle": {
+    "description": "Title of the paywall screen"
+  },
+  "paywallHeadline": "Know your storm before it hits",
+  "@paywallHeadline": {
+    "description": "Paywall headline"
+  },
+  "paywallBenefitAlerts": "Pressure-drop alerts",
+  "@paywallBenefitAlerts": {
+    "description": "Paywall benefit: push alerts"
+  },
+  "paywallBenefitAlertsBody": "A heads-up 24 hours before the pressure falls.",
+  "@paywallBenefitAlertsBody": {
+    "description": "Paywall benefit detail: push alerts"
+  },
+  "paywallBenefitForecast": "48h pressure forecast",
+  "@paywallBenefitForecast": {
+    "description": "Paywall benefit: forecast chart"
+  },
+  "paywallBenefitForecastBody": "See what the air is about to do.",
+  "@paywallBenefitForecastBody": {
+    "description": "Paywall benefit detail: forecast chart"
+  },
+  "paywallBenefitInsights": "Your weather correlation",
+  "@paywallBenefitInsights": {
+    "description": "Paywall benefit: correlation insight"
+  },
+  "paywallBenefitInsightsBody": "How much of your pain really follows the pressure.",
+  "@paywallBenefitInsightsBody": {
+    "description": "Paywall benefit detail: correlation insight"
+  },
+  "paywallBenefitReport": "Doctor report",
+  "@paywallBenefitReport": {
+    "description": "Paywall benefit: PDF report"
+  },
+  "paywallBenefitReportBody": "A clean PDF of your history to bring to appointments.",
+  "@paywallBenefitReportBody": {
+    "description": "Paywall benefit detail: PDF report"
+  },
+  "paywallFreeKeeps": "Logging your attacks stays free, forever.",
+  "@paywallFreeKeeps": {
+    "description": "Reassurance that the core app is free"
+  },
+  "paywallComingSoon": "Purchases aren't available yet.",
+  "@paywallComingSoon": {
+    "description": "Shown while RevenueCat is not wired up yet"
+  },
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Title of the settings screen"

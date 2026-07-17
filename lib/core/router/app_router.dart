@@ -8,6 +8,7 @@ import '../../features/insights/presentation/screens/insights_screen.dart';
 import '../../features/medications/presentation/screens/reminders_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/premium/presentation/screens/paywall_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
@@ -23,6 +24,8 @@ abstract final class AppRoutes {
   /// Detail of one logged attack, pushed from History.
   static const String attack = '/attack/:id';
   static String attackDetail(String id) => '/attack/$id';
+
+  static const String paywall = '/paywall';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -55,6 +58,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.attack,
         builder: (context, state) =>
             AttackDetailScreen(attackId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: AppRoutes.paywall,
+        builder: (context, state) => const PaywallScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
