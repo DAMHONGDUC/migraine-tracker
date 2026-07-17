@@ -13,7 +13,9 @@ part 'app_database.g.dart';
 
 /// The single on-device database. Tables are owned by their features; this
 /// class only composes them into one SQLite file.
-@DriftDatabase(tables: [Attacks, WeatherSnapshots, Medications])
+@DriftDatabase(
+  tables: [Attacks, WeatherSnapshots, Medications, MedicationReminders],
+)
 class AppDatabase extends _$AppDatabase {
   /// Test constructor — pass e.g. `NativeDatabase.memory()`.
   AppDatabase(super.e);
@@ -22,10 +24,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      // v2: daily medication reminders.
+      if (from < 2) {
+        await m.createTable(medicationReminders);
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },

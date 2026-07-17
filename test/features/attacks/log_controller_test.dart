@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -12,6 +13,9 @@ import 'package:migraine_tracker/features/weather/providers.dart';
 class _NoWeather implements WeatherRepository {
   @override
   Future<WeatherSnapshot?> snapshotAt(DateTime instant) async => null;
+
+  @override
+  Future<PressureForecast?> pressureForecast() async => null;
 }
 
 void main() {

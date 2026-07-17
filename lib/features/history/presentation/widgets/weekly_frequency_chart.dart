@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -23,7 +23,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
     final interval = maxCount <= 4 ? 1.0 : (maxCount / 4).ceilToDouble();
     final labelStyle = context.textTheme.bodySmall?.copyWith(
       color: AppColors.textSecondary,
-      fontSize: 10.sp,
+      fontSize: AppSpacingConstant.sp10,
     );
     final weekLabel = DateFormat.Md(context.l10n.localeName);
 
@@ -34,9 +34,9 @@ class WeeklyFrequencyChart extends StatelessWidget {
           context.l10n.historyChartTitle,
           style: context.textTheme.titleMedium,
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSpacingConstant.h12),
         SizedBox(
-          height: 160.h,
+          height: AppSpacingConstant.h160,
           child: BarChart(
             BarChartData(
               maxY: max(maxCount, 1) + 0.5,
@@ -55,7 +55,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: interval,
-                    reservedSize: 28.w,
+                    reservedSize: AppSpacingConstant.w28,
                     getTitlesWidget: (value, meta) => Text(
                       value.toInt().toString(),
                       style: labelStyle,
@@ -65,7 +65,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 24.h,
+                    reservedSize: AppSpacingConstant.h24,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       // Label every other week to avoid collisions.
@@ -73,7 +73,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
                       return Padding(
-                        padding: EdgeInsets.only(top: 6.h),
+                        padding: EdgeInsets.only(top: AppSpacingConstant.h6),
                         child: Text(
                           weekLabel.format(buckets[index].weekStart),
                           style: labelStyle,
@@ -102,10 +102,10 @@ class WeeklyFrequencyChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: bucket.count.toDouble(),
-                        width: 14.w,
+                        width: AppSpacingConstant.w14,
                         color: AppColors.chartSeries,
                         borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(4.r),
+                          top: Radius.circular(AppSpacingConstant.r4),
                         ),
                       ),
                     ],

@@ -5,6 +5,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/attacks/domain/services/weather_attach_service.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 
@@ -20,6 +21,9 @@ class RecordingWeatherRepository implements WeatherRepository {
     requests.add(instant);
     return byInstant[instant];
   }
+
+  @override
+  Future<PressureForecast?> pressureForecast() async => null;
 }
 
 void main() {

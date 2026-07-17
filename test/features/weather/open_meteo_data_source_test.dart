@@ -156,4 +156,51 @@ void main() {
     expect(snapshot!.humidityPercent, isNull);
     expect(snapshot.temperatureCelsius, isNull);
   });
+
+  group('pressureSeries', () {
+    test('windows to now-12h .. now+48h and skips null samples', () async {
+      // 96 hourly samples starting 24h before the instant (past_days=1
+      // + forecast_days=3 shape).
+      final start = instant.subtract(const Duration(hours: 24));
+      final pressures = List<num?>.generate(96, (i) => 1000 + i * 0.1);
+      pressures[30] = null; // inside the window -> skipped
+      final source = sourceReturning(
+        payload(end: start.add(const Duration(hours: 95)), pressures: pressures),
+      );
+
+      final points = await source.pressureSeries(
+        latitude: 21,
+        longitude: 105,
+        now: instant,
+      );
+
+      expect(points, isNotNull);
+      // Window = 61 hourly samples (-12h..+48h inclusive), minus 1 null.
+      expect(points!.length, 60);
+      expect(points.first.time, instant.subtract(const Duration(hours: 12)));
+      expect(points.last.time, instant.add(const Duration(hours: 48)));
+      // Ascending order preserved.
+      for (var i = 1; i < points.length; i++) {
+        expect(points[i].time.isAfter(points[i - 1].time), isTrue);
+      }
+    });
+
+    test('returns null on http errors or when nothing falls in the window',
+        () async {
+      expect(
+        await sourceReturning('{}', status: 500)
+            .pressureSeries(latitude: 0, longitude: 0, now: instant),
+        isNull,
+      );
+      // Series entirely in the past -> empty window -> null.
+      final old = instant.subtract(const Duration(days: 30));
+      final source = sourceReturning(
+        payload(end: old, pressures: List<num?>.filled(24, 1010)),
+      );
+      expect(
+        await source.pressureSeries(latitude: 0, longitude: 0, now: instant),
+        isNull,
+      );
+    });
+  });
 }

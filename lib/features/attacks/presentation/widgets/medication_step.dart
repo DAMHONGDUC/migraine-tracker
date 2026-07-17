@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
 
@@ -18,10 +19,10 @@ class MedicationStep extends ConsumerWidget {
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.logAddMedication),
+    final name = await showAppDialog<String>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.logAddMedication,
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -56,21 +57,21 @@ class MedicationStep extends ConsumerWidget {
     final medications = ref.watch(medicationsStreamProvider);
 
     return ListView(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(AppSpacingConstant.w24),
       children: [
         _OptionTile(
           icon: Icons.close,
           label: l10n.logNoMedication,
           onTap: () => onSelected(null),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: AppSpacingConstant.h12),
         for (final med in medications.value ?? <Medication>[]) ...[
           _OptionTile(
             icon: Icons.medication_outlined,
             label: med.name,
             onTap: () => onSelected(med.name),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: AppSpacingConstant.h12),
         ],
         _OptionTile(
           icon: Icons.add,
@@ -96,7 +97,7 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64.h,
+      height: AppSpacingConstant.h64,
       child: FilledButton.tonalIcon(
         onPressed: onTap,
         icon: Icon(icon),

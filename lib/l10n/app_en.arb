@@ -4,6 +4,59 @@
   "@appTitle": {
     "description": "Application name shown in the OS task switcher"
   },
+  "onboardingWelcomeTitle": "Know your storm before it hits",
+  "@onboardingWelcomeTitle": {
+    "description": "Onboarding page 1 headline"
+  },
+  "onboardingWelcomeBody": "BaroEase tracks your migraines alongside barometric pressure, so you can see what the weather is doing to you.",
+  "@onboardingWelcomeBody": {
+    "description": "Onboarding page 1 body"
+  },
+  "onboardingDisclaimer": "BaroEase is not a substitute for professional medical advice, diagnosis, or treatment. Always talk to your doctor about your migraines.",
+  "@onboardingDisclaimer": {
+    "description": "Medical disclaimer shown in onboarding (App Store requirement)"
+  },
+  "onboardingLocationTitle": "Local pressure, private by design",
+  "@onboardingLocationTitle": {
+    "description": "Onboarding page 2 headline (location permission)"
+  },
+  "onboardingLocationBody": "Your approximate location (about 5 km) is used to fetch local pressure for each attack and power pressure-drop alerts. Attack data never leaves this device unless you turn on sync.",
+  "@onboardingLocationBody": {
+    "description": "Onboarding page 2 body explaining the location permission"
+  },
+  "onboardingLocationAllow": "Enable location",
+  "@onboardingLocationAllow": {
+    "description": "Primary button that triggers the location permission prompt"
+  },
+  "onboardingNotNow": "Not now",
+  "@onboardingNotNow": {
+    "description": "Secondary button to skip the location permission"
+  },
+  "onboardingThresholdTitle": "Your pressure sensitivity",
+  "@onboardingThresholdTitle": {
+    "description": "Onboarding page 3 headline (alert threshold)"
+  },
+  "onboardingThresholdBody": "Get alerted when pressure is forecast to drop at least this much within 24 hours. You can change this later.",
+  "@onboardingThresholdBody": {
+    "description": "Onboarding page 3 body explaining the threshold slider"
+  },
+  "onboardingThresholdValue": "{value} hPa",
+  "@onboardingThresholdValue": {
+    "description": "Threshold value readout above the slider",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Onboarding next-page button"
+  },
+  "onboardingStart": "Start tracking",
+  "@onboardingStart": {
+    "description": "Final onboarding button that enters the app"
+  },
   "navLog": "Log",
   "@navLog": {
     "description": "Bottom navigation label for the attack logging tab"
@@ -27,6 +80,18 @@
   "logIntensityTitle": "How intense is the pain?",
   "@logIntensityTitle": {
     "description": "Title above the 1-10 intensity grid, first tap of the log flow"
+  },
+  "stepIntensity": "Intensity",
+  "@stepIntensity": {
+    "description": "Brief label under step node 1 in the tracking progress bar"
+  },
+  "stepLocation": "Location",
+  "@stepLocation": {
+    "description": "Brief label under step node 2 in the tracking progress bar"
+  },
+  "stepMedication": "Medication",
+  "@stepMedication": {
+    "description": "Brief label under step node 3 in the tracking progress bar"
   },
   "logLocationTitle": "Where does it hurt?",
   "@logLocationTitle": {
@@ -179,6 +244,27 @@
       }
     }
   },
+  "insightsForecastTitle": "48h pressure forecast",
+  "@insightsForecastTitle": {
+    "description": "Title of the pressure forecast line chart card"
+  },
+  "insightsForecastUnavailable": "Forecast unavailable. Check your connection and location permission.",
+  "@insightsForecastUnavailable": {
+    "description": "Shown in the forecast card when no forecast could be fetched"
+  },
+  "insightsForecastNow": "Now",
+  "@insightsForecastNow": {
+    "description": "Label on the vertical 'now' marker in the forecast chart"
+  },
+  "insightsPressureValue": "{value} hPa",
+  "@insightsPressureValue": {
+    "description": "Pressure readout in the forecast tooltip",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "historyChartTitle": "Attacks per week",
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"
@@ -216,6 +302,10 @@
   "@historyEmptyFiltered": {
     "description": "Empty state when the selected period has no attacks"
   },
+  "historyFilterSheetTitle": "Filter by period",
+  "@historyFilterSheetTitle": {
+    "description": "Title of the period filter bottom sheet"
+  },
   "historyChartTooltip": "{count} attacks",
   "@historyChartTooltip": {
     "description": "Tooltip when touching a bar in the weekly chart",
@@ -245,6 +335,71 @@
   "@settingsLanguageVietnamese": {
     "description": "Language option: Vietnamese (shown in its own language)"
   },
+  "alertsToggleTitle": "Pressure-drop alerts",
+  "@alertsToggleTitle": {
+    "description": "Settings switch that registers this device for pressure push alerts"
+  },
+  "alertsToggleSubtitle": "Get a push before a big pressure drop",
+  "@alertsToggleSubtitle": {
+    "description": "Subtitle under the alerts switch"
+  },
+  "alertsThresholdTitle": "Alert threshold",
+  "@alertsThresholdTitle": {
+    "description": "Settings tile that opens the threshold slider dialog"
+  },
+  "alertsErrorNotifications": "Notification permission is required for alerts.",
+  "@alertsErrorNotifications": {
+    "description": "Error when the user denied notification permission"
+  },
+  "alertsErrorLocation": "Location is required to know your local pressure.",
+  "@alertsErrorLocation": {
+    "description": "Error when no location fix is available"
+  },
+  "alertsErrorPush": "Push notifications aren't available on this device.",
+  "@alertsErrorPush": {
+    "description": "Error when no FCM token exists (e.g. iOS simulator)"
+  },
+  "alertsErrorGeneric": "Couldn't update alerts. Please try again.",
+  "@alertsErrorGeneric": {
+    "description": "Fallback error for alert registration"
+  },
+  "remindersTitle": "Medication reminders",
+  "@remindersTitle": {
+    "description": "Settings tile / screen title for medication reminders"
+  },
+  "remindersEmpty": "No reminders yet.",
+  "@remindersEmpty": {
+    "description": "Empty state on the reminders screen"
+  },
+  "remindersAdd": "Add reminder",
+  "@remindersAdd": {
+    "description": "Button to add a new medication reminder"
+  },
+  "remindersPickMedication": "Which medication?",
+  "@remindersPickMedication": {
+    "description": "Title of the medication picker in the add-reminder flow"
+  },
+  "remindersNoMedications": "Add a medication first (when logging an attack).",
+  "@remindersNoMedications": {
+    "description": "Shown when there are no medications to remind about"
+  },
+  "remindersPermissionDenied": "Notification permission is required for reminders.",
+  "@remindersPermissionDenied": {
+    "description": "Snackbar when notification permission was denied"
+  },
+  "reminderNotificationTitle": "Time for your medication",
+  "@reminderNotificationTitle": {
+    "description": "Title of the scheduled reminder notification"
+  },
+  "reminderNotificationBody": "Take {name}",
+  "@reminderNotificationBody": {
+    "description": "Body of the reminder notification; {name} is the medication",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export format picker"
@@ -256,6 +411,71 @@
   "settingsExportCsv": "CSV (attacks table)",
   "@settingsExportCsv": {
     "description": "Export format option: flat CSV of attacks"
+  },
+  "settingsDoctorReport": "Doctor report (PDF)",
+  "@settingsDoctorReport": {
+    "description": "Settings tile that generates and shares the PDF report"
+  },
+  "reportTitle": "BaroEase - Migraine report",
+  "@reportTitle": {
+    "description": "PDF report title (PDF renders in English: base PDF fonts are Latin-only)"
+  },
+  "reportGenerated": "Generated {date}",
+  "@reportGenerated": {
+    "description": "PDF subtitle with the generation date",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportPeriod": "Covering the last 90 days",
+  "@reportPeriod": {
+    "description": "PDF subtitle naming the covered period"
+  },
+  "reportSummaryTitle": "Summary",
+  "@reportSummaryTitle": {
+    "description": "PDF section header for the stats block"
+  },
+  "reportTotalAttacks": "Attacks",
+  "@reportTotalAttacks": {
+    "description": "PDF stat label: number of attacks"
+  },
+  "reportAvgIntensity": "Average intensity",
+  "@reportAvgIntensity": {
+    "description": "PDF stat label: mean intensity"
+  },
+  "reportCommonLocation": "Most frequent location",
+  "@reportCommonLocation": {
+    "description": "PDF stat label: modal head location"
+  },
+  "reportAttacksDuringDrops": "During rapid pressure drops",
+  "@reportAttacksDuringDrops": {
+    "description": "PDF stat label: share of attacks during pressure drops"
+  },
+  "reportTableTitle": "Attack log",
+  "@reportTableTitle": {
+    "description": "PDF section header for the attack table"
+  },
+  "reportColDate": "Date",
+  "@reportColDate": {
+    "description": "PDF table column: date"
+  },
+  "reportColIntensity": "Intensity",
+  "@reportColIntensity": {
+    "description": "PDF table column: intensity"
+  },
+  "reportColLocation": "Location",
+  "@reportColLocation": {
+    "description": "PDF table column: head location"
+  },
+  "reportColMedication": "Medication",
+  "@reportColMedication": {
+    "description": "PDF table column: medication"
+  },
+  "reportColPressureDelta": "24h change (hPa)",
+  "@reportColPressureDelta": {
+    "description": "PDF table column: 24h pressure delta"
   },
   "settingsDelete": "Delete all data",
   "@settingsDelete": {

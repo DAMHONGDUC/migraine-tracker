@@ -1,3 +1,4 @@
+import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_snapshot.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../datasources/location_source.dart';
@@ -18,5 +19,19 @@ class OpenMeteoWeatherRepository implements WeatherRepository {
       longitude: point.longitude,
       instant: instant,
     );
+  }
+
+  @override
+  Future<PressureForecast?> pressureForecast() async {
+    final point = await _location.currentPosition();
+    if (point == null) return null;
+    final now = DateTime.now().toUtc();
+    final points = await _dataSource.pressureSeries(
+      latitude: point.latitude,
+      longitude: point.longitude,
+      now: now,
+    );
+    if (points == null) return null;
+    return PressureForecast(generatedAt: now, points: points);
   }
 }

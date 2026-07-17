@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
+import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,6 +15,22 @@ class IntensityStep extends StatelessWidget {
 
   final ValueChanged<int> onSelected;
 
+  Widget _builRowItems({
+    required void Function(int) onSelected,
+    required int startIndex,
+    required int endIndex,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = startIndex; i <= endIndex; i++) ...[
+          _IntensityCircle(value: i, onTap: () => onSelected(i)),
+          if (i < endIndex) HorizontalSpacing(width: AppSpacingConstant.w16),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -20,17 +38,25 @@ class IntensityStep extends StatelessWidget {
         tween: Tween(begin: 0, end: 1),
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-        builder: (context, t, child) =>
-            Opacity(opacity: t, child: child),
-        child: Padding(
-          padding: EdgeInsets.all(24.w),
-          child: Wrap(
-            spacing: 16.w,
-            runSpacing: 16.h,
-            alignment: WrapAlignment.center,
+        builder: (context, t, child) => Opacity(opacity: t, child: child),
+        // Scrollable so the four rows never overflow on short screens.
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(AppSpacingConstant.w24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              for (var i = 1; i <= 10; i++)
-                _IntensityCircle(value: i, onTap: () => onSelected(i)),
+              _builRowItems(startIndex: 1, endIndex: 3, onSelected: onSelected),
+              VerticalSpacing(height: AppSpacingConstant.h16),
+              _builRowItems(startIndex: 4, endIndex: 6, onSelected: onSelected),
+              VerticalSpacing(height: AppSpacingConstant.h16),
+              _builRowItems(startIndex: 7, endIndex: 8, onSelected: onSelected),
+              VerticalSpacing(height: AppSpacingConstant.h16),
+              _builRowItems(
+                startIndex: 9,
+                endIndex: 10,
+                onSelected: onSelected,
+              ),
             ],
           ),
         ),
@@ -51,8 +77,8 @@ class _IntensityCircle extends StatelessWidget {
     return PressableScale(
       onTap: onTap,
       child: Container(
-        width: 72.r,
-        height: 72.r,
+        width: AppSpacingConstant.r88,
+        height: AppSpacingConstant.r88,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,

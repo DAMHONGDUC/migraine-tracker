@@ -6,11 +6,21 @@ import 'data/datasources/open_meteo_data_source.dart';
 import 'data/repositories/open_meteo_weather_repository.dart';
 import 'domain/repositories/weather_repository.dart';
 
+final locationSourceProvider = Provider<LocationSource>(
+  (ref) => const GeolocatorLocationSource(),
+);
+
 final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
   final client = http.Client();
   ref.onDispose(client.close);
   return OpenMeteoWeatherRepository(
-    const GeolocatorLocationSource(),
+    ref.watch(locationSourceProvider),
     OpenMeteoDataSource(client),
   );
 });
+
+/// One fetch per screen visit; null = offline / no permission (the card
+/// shows its unavailable state).
+final pressureForecastProvider = FutureProvider.autoDispose(
+  (ref) => ref.watch(weatherRepositoryProvider).pressureForecast(),
+);

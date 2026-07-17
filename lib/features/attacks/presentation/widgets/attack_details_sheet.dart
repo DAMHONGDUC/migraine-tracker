@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../providers.dart';
@@ -40,17 +40,17 @@ class AttackDetailsSheet extends HookConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: 24.w,
-        right: 24.w,
-        top: 24.h,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 24.h,
+        left: AppSpacingConstant.w24,
+        right: AppSpacingConstant.w24,
+        top: AppSpacingConstant.h24,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacingConstant.h24,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l10n.detailsTitle, style: context.textTheme.titleLarge),
-          SizedBox(height: 16.h),
+          SizedBox(height: AppSpacingConstant.h16),
           TextField(
             controller: symptomsController,
             decoration: InputDecoration(
@@ -58,7 +58,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsSymptomsHint,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: AppSpacingConstant.h12),
           TextField(
             controller: triggersController,
             decoration: InputDecoration(
@@ -66,13 +66,13 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsTriggersHint,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: AppSpacingConstant.h12),
           TextField(
             controller: notesController,
             maxLines: 3,
             decoration: InputDecoration(labelText: l10n.detailsNotesLabel),
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: AppSpacingConstant.h24),
           FilledButton(onPressed: save, child: Text(l10n.detailsSave)),
         ],
       ),

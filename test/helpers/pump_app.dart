@@ -6,8 +6,13 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/medications/providers.dart';
+import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -21,8 +26,34 @@ class FakeWeatherRepository implements WeatherRepository {
   /// Returned for every request; null simulates offline/no permission.
   WeatherSnapshot? snapshot;
 
+  /// Returned by [pressureForecast]; null simulates offline.
+  PressureForecast? forecast;
+
   @override
   Future<WeatherSnapshot?> snapshotAt(DateTime instant) async => snapshot;
+
+  @override
+  Future<PressureForecast?> pressureForecast() async => forecast;
+}
+
+/// No-op scheduler so widget tests never touch the notifications plugin.
+class FakeNotificationScheduler implements NotificationScheduler {
+  @override
+  Future<bool> ensurePermission() async => true;
+
+  @override
+  Future<void> schedule(
+    MedicationReminder reminder, {
+    required String medicationName,
+    required String title,
+    required String bodyTemplate,
+  }) async {}
+
+  @override
+  Future<void> cancel(String reminderId) async {}
+
+  @override
+  Future<void> cancelAll() async {}
 }
 
 class PumpedApp {
@@ -45,7 +76,12 @@ Future<PumpedApp> pumpApp(
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
-  SharedPreferences.setMockInitialValues(initialPrefs);
+  // Onboarding is considered done by default so existing tests land on the
+  // log tab; pass onboarding_completed: false to exercise onboarding.
+  SharedPreferences.setMockInitialValues({
+    OnboardingController.completedKey: true,
+    ...initialPrefs,
+  });
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
 
@@ -55,6 +91,9 @@ Future<PumpedApp> pumpApp(
         databaseProvider.overrideWithValue(db),
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
+        notificationSchedulerProvider.overrideWithValue(
+          FakeNotificationScheduler(),
+        ),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],

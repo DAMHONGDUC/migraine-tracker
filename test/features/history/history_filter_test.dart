@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -18,8 +19,18 @@ Future<void> openHistory(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Opens the filter bottom sheet from the app bar and picks [period].
+Future<void> selectPeriod(WidgetTester tester, String period) async {
+  await tester.tap(find.byIcon(Icons.filter_list));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.tap(find.text(period));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 void main() {
-  testWidgets('filter chips narrow the list to the selected period', (
+  testWidgets('the filter sheet narrows the list to the selected period', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -34,10 +45,7 @@ void main() {
     // Default = All → both count.
     expect(find.text('2 attacks'), findsOneWidget);
 
-    // Today → only one.
-    await tester.tap(find.text('Today'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await selectPeriod(tester, 'Today');
     expect(find.text('1 attack'), findsOneWidget);
 
     await finishTest(tester);
@@ -53,11 +61,33 @@ void main() {
     );
 
     await openHistory(tester);
-    await tester.tap(find.text('Today'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await selectPeriod(tester, 'Today');
 
     expect(find.text('No attacks in this period.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the app bar toggle switches between list and chart modes', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(
+      app.db,
+    ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
+
+    await openHistory(tester);
+    expect(find.text('1 attack'), findsOneWidget); // list mode default
+
+    await tester.tap(find.byIcon(Icons.bar_chart));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Attacks per week'), findsOneWidget); // chart mode
+
+    await tester.tap(find.byIcon(Icons.list_alt));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('1 attack'), findsOneWidget);
 
     await finishTest(tester);
   });
