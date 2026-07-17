@@ -4,8 +4,10 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/history_view_mode.dart';
 
-/// Custom segmented toggle for list ↔ chart: a pill track with an animated
-/// thumb that slides under the selected segment. Calm 200ms ease — no flash.
+/// Segmented toggle for the History representations: a pill track with an
+/// animated thumb that slides under the selected segment. Driven by
+/// [HistoryViewMode.values], so adding a mode needs no layout maths here.
+/// Calm 200ms ease — no flash.
 class HistoryViewToggle extends StatelessWidget {
   const HistoryViewToggle({
     required this.mode,
@@ -16,14 +18,24 @@ class HistoryViewToggle extends StatelessWidget {
   final HistoryViewMode mode;
   final ValueChanged<HistoryViewMode> onChanged;
 
+  static const _icons = {
+    HistoryViewMode.list: Icons.list_alt,
+    // Not calendar_month — that's the History tab's own icon in the bottom
+    // nav, and one icon must not mean two things.
+    HistoryViewMode.calendar: Icons.calendar_view_month,
+    HistoryViewMode.chart: Icons.bar_chart,
+  };
+
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    final segmentWidth = AppSpacingConstant.w44;
+    final modes = HistoryViewMode.values;
+    final segmentWidth = AppSpacingConstant.w40;
     final height = AppSpacingConstant.h34;
+    final index = modes.indexOf(mode);
 
     return Container(
-      width: segmentWidth * 2,
+      width: segmentWidth * modes.length,
       height: height,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
@@ -32,16 +44,18 @@ class HistoryViewToggle extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Thumb: half-width, slides under the selected segment. Fractional
-          // so it fits whatever width the border leaves (no fixed-px overflow).
+          // Thumb: 1/N wide, aligned to the selected segment. Fractional so
+          // it fits whatever width the border leaves (no fixed-px overflow).
           AnimatedAlign(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
-            alignment: mode == HistoryViewMode.list
-                ? AlignmentDirectional.centerStart
-                : AlignmentDirectional.centerEnd,
+            // Alignment.x spans -1 (start) … 1 (end).
+            alignment: AlignmentDirectional(
+              -1 + 2 * index / (modes.length - 1),
+              0,
+            ),
             child: FractionallySizedBox(
-              widthFactor: 0.5,
+              widthFactor: 1 / modes.length,
               heightFactor: 1,
               child: Container(
                 decoration: BoxDecoration(
@@ -53,20 +67,14 @@ class HistoryViewToggle extends StatelessWidget {
           ),
           Row(
             children: [
-              Expanded(
-                child: _Segment(
-                  icon: Icons.list_alt,
-                  selected: mode == HistoryViewMode.list,
-                  onTap: () => onChanged(HistoryViewMode.list),
+              for (final m in modes)
+                Expanded(
+                  child: _Segment(
+                    icon: _icons[m]!,
+                    selected: m == mode,
+                    onTap: () => onChanged(m),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _Segment(
-                  icon: Icons.bar_chart,
-                  selected: mode == HistoryViewMode.chart,
-                  onTap: () => onChanged(HistoryViewMode.chart),
-                ),
-              ),
             ],
           ),
         ],

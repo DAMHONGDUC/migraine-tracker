@@ -186,7 +186,7 @@ class AttackDetailScreen extends ConsumerWidget {
                 _EditableRow(
                   label: l10n.attackDetailIntensity,
                   value: '${a.intensity}',
-                  valueColor: AppColors.intensity(a.intensity),
+                  swatch: AppColors.intensity(a.intensity),
                   onTap: () => _editIntensity(context, ref, a),
                 ),
                 _EditableRow(
@@ -234,13 +234,15 @@ class _Header extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.20),
-            border: Border.all(color: color.withValues(alpha: 0.55), width: 1.5),
+            color: color.withValues(alpha: 0.45),
+            border: Border.all(color: color, width: 1.5),
           ),
           child: FittedBox(
             child: Text(
               '${attack.intensity}',
-              style: context.textTheme.headlineSmall?.copyWith(color: color),
+              style: context.textTheme.headlineSmall?.copyWith(
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ),
@@ -289,13 +291,16 @@ class _EditableRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onTap,
-    this.valueColor,
+    this.swatch,
   });
 
   final String label;
   final String value;
   final VoidCallback onTap;
-  final Color? valueColor;
+
+  /// Optional colour dot shown *beside* the value — the value itself keeps
+  /// the text token (colour never carries meaning through text).
+  final Color? swatch;
 
   @override
   Widget build(BuildContext context) {
@@ -304,10 +309,15 @@ class _EditableRow extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: context.textTheme.bodyLarge?.copyWith(color: valueColor),
-          ),
+          if (swatch != null) ...[
+            Container(
+              width: AppSpacingConstant.r12,
+              height: AppSpacingConstant.r12,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: swatch),
+            ),
+            SizedBox(width: AppSpacingConstant.w8),
+          ],
+          Text(value, style: context.textTheme.bodyLarge),
           SizedBox(width: AppSpacingConstant.w4),
           Icon(
             Icons.chevron_right,
@@ -509,7 +519,6 @@ class _IntensityDialogState extends State<_IntensityDialog> {
             '${_value.round()}',
             style: context.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w600,
-              color: color,
             ),
           ),
           Slider(

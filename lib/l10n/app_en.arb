@@ -356,6 +356,14 @@
       }
     }
   },
+  "historyCalendarNoAttacks": "No attacks on this day.",
+  "@historyCalendarNoAttacks": {
+    "description": "Shown under the calendar when the selected day is clear"
+  },
+  "historyCalendarLegend": "Colour shows the day's worst attack",
+  "@historyCalendarLegend": {
+    "description": "Caption explaining the calendar day-marker colours"
+  },
   "historyChartTitle": "Attacks per week",
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"

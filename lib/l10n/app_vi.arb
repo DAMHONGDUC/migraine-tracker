@@ -77,6 +77,8 @@
   "insightsForecastUnavailable": "Không có dự báo. Kiểm tra kết nối và quyền vị trí.",
   "insightsForecastNow": "Bây giờ",
   "insightsPressureValue": "{value} hPa",
+  "historyCalendarNoAttacks": "Không có cơn đau nào trong ngày này.",
+  "historyCalendarLegend": "Màu thể hiện cơn đau nặng nhất trong ngày",
   "historyChartTitle": "Số cơn đau mỗi tuần",
   "historyChartTooltip": "{count} cơn đau",
   "historyFilterToday": "Hôm nay",

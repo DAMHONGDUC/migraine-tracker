@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/extensions/head_location_label.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
 import '../../domain/services/weekly_buckets.dart';
 import '../controllers/history_controller.dart';
+import '../widgets/attack_tile.dart';
+import '../widgets/history_calendar_view.dart';
 import '../widgets/history_filter_sheet.dart';
 import '../widgets/history_view_toggle.dart';
 import '../widgets/weekly_frequency_chart.dart';
@@ -42,7 +40,7 @@ class HistoryScreen extends ConsumerWidget {
         AsyncData(value: final all) when all.isEmpty => Center(
           child: Text(l10n.historyEmpty),
         ),
-        AsyncData() => Builder(
+        AsyncData(value: final all) => Builder(
           builder: (context) {
             final list = switch (filtered) {
               AsyncData(value: final value) => value,
@@ -52,22 +50,31 @@ class HistoryScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Shared filter, right below the app bar: closed = current
-                // value at a glance, tap = bottom sheet picker.
-                Padding(
-                  padding: EdgeInsets.fromLTRB(AppSpacingConstant.w16, AppSpacingConstant.h8, AppSpacingConstant.w16, AppSpacingConstant.h12),
-                  child: HistoryFilterChip(
-                    selected: period,
-                    onSelected:
-                        ref.read(historyPeriodProvider.notifier).select,
+                // value at a glance, tap = bottom sheet picker. Hidden in
+                // calendar mode — that view navigates by month itself.
+                if (mode != HistoryViewMode.calendar)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacingConstant.w16,
+                      AppSpacingConstant.h8,
+                      AppSpacingConstant.w16,
+                      AppSpacingConstant.h12,
+                    ),
+                    child: HistoryFilterChip(
+                      selected: period,
+                      onSelected:
+                          ref.read(historyPeriodProvider.notifier).select,
+                    ),
                   ),
-                ),
                 Expanded(
-                  // IndexedStack keeps BOTH views alive so switching modes
-                  // preserves state (list scroll position, chart layout).
+                  // IndexedStack keeps ALL views alive so switching modes
+                  // preserves state (scroll position, selected day, layout).
                   child: IndexedStack(
-                    index: mode == HistoryViewMode.list ? 0 : 1,
+                    index: HistoryViewMode.values.indexOf(mode),
                     children: [
                       _AttackList(attacks: list),
+                      // Calendar ignores the period filter by design.
+                      HistoryCalendarView(attacks: all),
                       _ChartView(attacks: list),
                     ],
                   ),
@@ -138,60 +145,8 @@ class _AttackList extends StatelessWidget {
             ),
           );
         }
-        return _AttackTile(attack: attacks[index - 1]);
+        return AttackTile(attack: attacks[index - 1]);
       },
-    );
-  }
-}
-
-class _AttackTile extends StatelessWidget {
-  const _AttackTile({required this.attack});
-
-  final Attack attack;
-
-  @override
-  Widget build(BuildContext context) {
-    final when = DateFormat.yMMMd(
-      context.l10n.localeName,
-    ).add_jm().format(attack.startedAt.toLocal());
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(
-          offset: Offset(0, (1 - t) * 8),
-          child: child,
-        ),
-      ),
-      child: _card(context, when),
-    );
-  }
-
-  Widget _card(BuildContext context, String when) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: context.colorScheme.primary.withValues(alpha: 0.18),
-          child: Text(
-            '${attack.intensity}',
-            style: context.textTheme.titleMedium,
-          ),
-        ),
-        title: Text(attack.location.label(context.l10n)),
-        subtitle: Text(
-          attack.medicationName == null
-              ? when
-              : '$when · ${attack.medicationName}',
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          size: AppSpacingConstant.r20,
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-        onTap: () => context.push(AppRoutes.attackDetail(attack.id)),
-      ),
     );
   }
 }
