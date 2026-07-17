@@ -15,6 +15,12 @@ final attacksStreamProvider = StreamProvider<List<Attack>>(
   (ref) => ref.watch(attackRepositoryProvider).watchAll(),
 );
 
+/// One attack by id; emits null once it's deleted so the detail screen can
+/// show its gone-state instead of stale data.
+final attackByIdProvider = StreamProvider.autoDispose.family<Attack?, String>(
+  (ref, id) => ref.watch(attackRepositoryProvider).watchById(id),
+);
+
 final weatherAttachServiceProvider = Provider<WeatherAttachService>(
   (ref) => WeatherAttachService(
     ref.watch(attackRepositoryProvider),

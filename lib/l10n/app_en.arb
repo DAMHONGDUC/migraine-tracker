@@ -189,6 +189,97 @@
   "@historyTitle": {
     "description": "Title of the history screen"
   },
+  "attackDetailTitle": "Attack details",
+  "@attackDetailTitle": {
+    "description": "Title of the attack detail screen"
+  },
+  "attackDetailDeleted": "This attack was deleted.",
+  "@attackDetailDeleted": {
+    "description": "Shown if the attack disappears while the detail screen is open"
+  },
+  "attackDetailIntensity": "Intensity",
+  "@attackDetailIntensity": {
+    "description": "Field label: pain intensity"
+  },
+  "attackDetailLocation": "Location",
+  "@attackDetailLocation": {
+    "description": "Field label: head location"
+  },
+  "attackDetailMedication": "Medication",
+  "@attackDetailMedication": {
+    "description": "Field label: medication taken"
+  },
+  "attackDetailWeatherTitle": "Weather at the time",
+  "@attackDetailWeatherTitle": {
+    "description": "Section header for the attached weather snapshot"
+  },
+  "attackDetailNoWeather": "No weather data attached yet.",
+  "@attackDetailNoWeather": {
+    "description": "Shown when the attack was logged offline and not backfilled"
+  },
+  "attackDetailPressure": "Pressure",
+  "@attackDetailPressure": {
+    "description": "Weather field label: absolute pressure"
+  },
+  "attackDetailPressureDelta": "24h change",
+  "@attackDetailPressureDelta": {
+    "description": "Weather field label: 24h pressure delta"
+  },
+  "attackDetailHumidity": "Humidity",
+  "@attackDetailHumidity": {
+    "description": "Weather field label: relative humidity"
+  },
+  "attackDetailTemperature": "Temperature",
+  "@attackDetailTemperature": {
+    "description": "Weather field label: temperature"
+  },
+  "attackDetailDetailsTitle": "Details",
+  "@attackDetailDetailsTitle": {
+    "description": "Section header for symptoms/triggers/notes"
+  },
+  "attackDetailNoDetails": "No details added.",
+  "@attackDetailNoDetails": {
+    "description": "Shown when symptoms, triggers and notes are all empty"
+  },
+  "attackDetailEdit": "Edit",
+  "@attackDetailEdit": {
+    "description": "Button that opens the edit flow for the core fields"
+  },
+  "attackDetailDeleteTitle": "Delete this attack?",
+  "@attackDetailDeleteTitle": {
+    "description": "Title of the single-attack delete confirmation"
+  },
+  "attackDetailDeleteBody": "This permanently removes this attack and its weather data. This cannot be undone.",
+  "@attackDetailDeleteBody": {
+    "description": "Body of the single-attack delete confirmation"
+  },
+  "attackDetailHumidityValue": "{value}%",
+  "@attackDetailHumidityValue": {
+    "description": "Humidity readout",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "attackDetailTemperatureValue": "{value}°C",
+  "@attackDetailTemperatureValue": {
+    "description": "Temperature readout",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "attackDetailPressureValue": "{value} hPa",
+  "@attackDetailPressureValue": {
+    "description": "Pressure readout",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "historyEmpty": "No attacks logged yet.",
   "@historyEmpty": {
     "description": "Empty state on the history screen"

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -183,6 +185,12 @@ class _AttackTile extends StatelessWidget {
               ? when
               : '$when · ${attack.medicationName}',
         ),
+        trailing: Icon(
+          Icons.chevron_right,
+          size: AppSpacingConstant.r20,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+        onTap: () => context.push(AppRoutes.attackDetail(attack.id)),
       ),
     );
   }
