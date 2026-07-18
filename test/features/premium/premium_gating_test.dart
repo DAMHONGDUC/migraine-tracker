@@ -43,7 +43,7 @@ PressureForecast forecast() => PressureForecast(
 );
 
 Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.text('Insights'));
+  await tester.tap(find.byIcon(Icons.insights_outlined));
   // Stream emits → card builds → count-up runs (700ms). Pump in real frames,
   // not one big jump: a single large pump skips the count-up's start frame.
   for (var i = 0; i < 15; i++) {
@@ -52,7 +52,7 @@ Future<void> openInsights(WidgetTester tester) async {
 }
 
 Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.text('Settings'));
+  await tester.tap(find.byIcon(Icons.settings_outlined));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }

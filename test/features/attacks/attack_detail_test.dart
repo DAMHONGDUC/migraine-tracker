@@ -20,7 +20,7 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
 
 /// History (list mode) → tap the attack tile → detail screen.
 Future<void> openDetail(WidgetTester tester) async {
-  await tester.tap(find.text('History'));
+  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.tap(find.text('Right side'));

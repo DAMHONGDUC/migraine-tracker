@@ -44,7 +44,6 @@ class AppScaffold extends StatelessWidget {
   static double bottomNavInset(BuildContext context) => kLiquidGlassEnabled
       ? MediaQuery.paddingOf(context).bottom +
             _navBarHeight +
-            AppSpacingConstant.h12 +
             AppSpacingConstant.h8
       : 0;
 

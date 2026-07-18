@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
@@ -8,7 +9,7 @@ void main() {
   ) async {
     final app = await pumpApp(tester);
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -27,7 +28,7 @@ void main() {
     expect(app.prefs.getString('app_locale'), 'vi');
 
     // The log flow is Vietnamese too.
-    await tester.tap(find.text('Ghi'));
+    await tester.tap(find.byIcon(Icons.add_circle_outline));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Cơn đau dữ dội mức nào?'), findsOneWidget);
@@ -41,7 +42,8 @@ void main() {
     await pumpApp(tester, initialPrefs: {'app_locale': 'vi'});
 
     expect(find.text('Cơn đau dữ dội mức nào?'), findsOneWidget);
-    expect(find.text('Lịch sử'), findsOneWidget);
+    // The Log app bar title relocalized (the icon-only nav has no labels).
+    expect(find.text('Ghi cơn đau'), findsOneWidget);
 
     await finishTest(tester);
   });
