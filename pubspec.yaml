@@ -31,7 +31,6 @@ dependencies:
   meta: ^1.18.0
   path_provider: ^2.1.6
   pdf: ^3.12.0
-  printing: ^5.14.3
   share_plus: ^13.2.0
   shared_preferences: ^2.5.5
   step_progress: ^2.7.1
