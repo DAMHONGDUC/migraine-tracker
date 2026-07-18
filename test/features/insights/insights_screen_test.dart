@@ -26,7 +26,7 @@ Attack seededAttack(int i, {double? pressureDelta}) {
 }
 
 Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.text('Insights'));
+  await tester.tap(find.byIcon(Icons.insights_outlined));
   // Real frames so the correlation count-up can run (see premium test note).
   for (var i = 0; i < 15; i++) {
     await tester.pump(const Duration(milliseconds: 100));
@@ -77,7 +77,7 @@ void main() {
     final repository = DriftAttackRepository(app.db);
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
