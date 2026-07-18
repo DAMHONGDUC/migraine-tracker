@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -25,18 +26,18 @@ class HistoryScreen extends ConsumerWidget {
     final mode = ref.watch(historyViewModeProvider);
     final period = ref.watch(historyPeriodProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.historyTitle),
-        actions: [
-          HistoryViewToggle(
-            mode: mode,
-            onChanged: ref.read(historyViewModeProvider.notifier).select,
-          ),
-          SizedBox(width: AppSpacingConstant.w12),
-        ],
-      ),
-      body: switch (allAttacks) {
+    return AppScaffold(
+      title: Text(l10n.historyTitle),
+      actions: [
+        HistoryViewToggle(
+          mode: mode,
+          onChanged: ref.read(historyViewModeProvider.notifier).select,
+        ),
+        SizedBox(width: AppSpacingConstant.w12),
+      ],
+      body: Padding(
+        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
+        child: switch (allAttacks) {
         AsyncData(value: final all) when all.isEmpty => Center(
           child: Text(l10n.historyEmpty),
         ),
@@ -86,6 +87,7 @@ class HistoryScreen extends ConsumerWidget {
         AsyncError() => Center(child: Text(l10n.historyEmpty)),
         _ => const Center(child: CircularProgressIndicator()),
       },
+      ),
     );
   }
 }

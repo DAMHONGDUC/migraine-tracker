@@ -8,6 +8,7 @@ import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
@@ -158,9 +159,10 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final locale = ref.watch(localeControllerProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+    return AppScaffold(
+      title: Text(l10n.settingsTitle),
       body: ListView(
+        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
         children: [
           PremiumTileGate(
             icon: Icons.notifications_active_outlined,

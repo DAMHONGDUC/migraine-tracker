@@ -9,6 +9,7 @@ import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../medications/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
@@ -158,26 +159,29 @@ class AttackDetailScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final attack = ref.watch(attackByIdProvider(attackId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.attackDetailTitle),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.delete_outline,
-              color: context.colorScheme.error,
-            ),
-            onPressed: () => _delete(context, ref),
+    return AppScaffold(
+      title: Text(l10n.attackDetailTitle),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.delete_outline,
+            color: context.colorScheme.error,
           ),
-          SizedBox(width: AppSpacingConstant.w4),
-        ],
-      ),
+          onPressed: () => _delete(context, ref),
+        ),
+        SizedBox(width: AppSpacingConstant.w4),
+      ],
       body: switch (attack) {
         AsyncData(value: null) => Center(
           child: Text(l10n.attackDetailDeleted),
         ),
         AsyncData(value: final a?) => ListView(
-          padding: EdgeInsets.all(AppSpacingConstant.w16),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w16,
+            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+            AppSpacingConstant.w16,
+            AppSpacingConstant.w16,
+          ),
           children: [
             _Header(attack: a),
             SizedBox(height: AppSpacingConstant.h16),
