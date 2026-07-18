@@ -24,7 +24,7 @@ class InsightsScreen extends ConsumerWidget {
             AppSpacingConstant.w16,
             AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
             AppSpacingConstant.w16,
-            AppSpacingConstant.w16,
+            AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
           ),
           children: [
             // Free users never build the forecast card, so no forecast is

@@ -104,7 +104,12 @@ class _ChartView extends StatelessWidget {
       return Center(child: Text(context.l10n.historyEmptyFiltered));
     }
     return ListView(
-      padding: EdgeInsets.all(AppSpacingConstant.w16),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+      ),
       children: [
         WeeklyFrequencyChart(
           buckets: weeklyBuckets(attacks, now: DateTime.now()),
@@ -132,7 +137,12 @@ class _AttackList extends StatelessWidget {
       return Center(child: Text(context.l10n.historyEmptyFiltered));
     }
     return ListView.separated(
-      padding: EdgeInsets.all(AppSpacingConstant.w16),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+      ),
       itemCount: attacks.length + 1,
       separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),
       itemBuilder: (context, index) {
