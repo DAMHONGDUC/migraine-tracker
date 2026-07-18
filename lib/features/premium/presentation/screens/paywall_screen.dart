@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
 /// own change; until then the CTA explains that instead of pretending.
@@ -13,10 +14,15 @@ class PaywallScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.paywallTitle)),
+    return AppScaffold(
+      title: Text(l10n.paywallTitle),
       body: ListView(
-        padding: EdgeInsets.all(AppSpacingConstant.w24),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacingConstant.w24,
+          AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+          AppSpacingConstant.w24,
+          AppSpacingConstant.w24,
+        ),
         children: [
           Icon(
             Icons.storm_outlined,

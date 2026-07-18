@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../controllers/log_controller.dart';
 import '../widgets/intensity_step.dart';
 import '../widgets/location_step.dart';
@@ -29,11 +30,10 @@ class LogScreen extends ConsumerWidget {
       LogStep.saved => null,
     };
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.logTitle),
-        leading: tracking ? BackButton(onPressed: controller.back) : null,
-        actions: [
+    return AppScaffold(
+      title: Text(l10n.logTitle),
+      leading: tracking ? BackButton(onPressed: controller.back) : null,
+      actions: [
           if (tracking)
             FilledButton(
               style: FilledButton.styleFrom(
@@ -48,10 +48,11 @@ class LogScreen extends ConsumerWidget {
             ),
           SizedBox(width: AppSpacingConstant.w12),
         ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      body: Padding(
+        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           // The question, big and readable mid-attack.
           if (question != null)
             Padding(
@@ -99,6 +100,7 @@ class LogScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
