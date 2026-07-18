@@ -49,7 +49,10 @@ class LogScreen extends ConsumerWidget {
           SizedBox(width: AppSpacingConstant.w12),
         ],
       body: Padding(
-        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
+        padding: EdgeInsets.only(
+          top: AppScaffold.bodyTopInset(context),
+          bottom: AppScaffold.bottomNavInset(context),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

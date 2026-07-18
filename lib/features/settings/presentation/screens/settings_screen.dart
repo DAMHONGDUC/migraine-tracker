@@ -162,7 +162,10 @@ class SettingsScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.settingsTitle),
       body: ListView(
-        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
+        padding: EdgeInsets.only(
+          top: AppScaffold.bodyTopInset(context),
+          bottom: AppScaffold.bottomNavInset(context),
+        ),
         children: [
           PremiumTileGate(
             icon: Icons.notifications_active_outlined,
