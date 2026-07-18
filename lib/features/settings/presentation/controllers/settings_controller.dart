@@ -1,5 +1,7 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import '../../../attacks/providers.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
@@ -41,16 +43,35 @@ class SettingsController {
   }
 
   /// Builds the 90-day doctor report and hands the PDF to the share sheet.
-  /// [strings] must be the ENGLISH labels (base PDF fonts are Latin-only).
+  /// Loads the bundled Noto Sans faces the PDF renders with. Cached for the
+  /// process lifetime — the report is built rarely but re-reading 1MB of TTF
+  /// each time is wasteful.
+  static pw.Font? _regularFont;
+  static pw.Font? _boldFont;
+
+  Future<(pw.Font, pw.Font)> _reportFonts() async {
+    _regularFont ??= pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+    );
+    _boldFont ??= pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'),
+    );
+    return (_regularFont!, _boldFont!);
+  }
+
+  /// [strings] are localized — the bundled font covers Vietnamese.
   Future<void> shareDoctorReport(DoctorReportStrings strings) async {
     final attacks = await _ref.read(attackRepositoryProvider).getAll();
     final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
+    final (regular, bold) = await _reportFonts();
     final now = DateTime.now();
     final bytes = await const DoctorReportBuilder().build(
       attacks: attacks,
       correlation: correlation,
       strings: strings,
       now: now,
+      regularFont: regular,
+      boldFont: bold,
     );
     final stamp = DateFormat('yyyy-MM-dd').format(now);
     await _ref

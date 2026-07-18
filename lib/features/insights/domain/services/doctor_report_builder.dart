@@ -9,9 +9,9 @@ import '../../../attacks/domain/enums/head_location.dart';
 import '../entities/correlation_result.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
-/// Flutter/l10n imports. NOTE: the PDF is rendered with the base PDF fonts
-/// (Latin-1 only), so callers must supply English strings — Vietnamese
-/// diacritics would fail to encode. Revisit when a TTF font is bundled.
+/// Flutter/l10n imports. The PDF renders with the bundled Noto Sans faces
+/// (see [DoctorReportBuilder.build]), which cover Vietnamese, so these
+/// strings may be fully localized.
 class DoctorReportStrings {
   const DoctorReportStrings({
     required this.title,
@@ -57,18 +57,25 @@ class DoctorReportBuilder {
 
   static const _periodDays = 90;
 
+  /// [regularFont] and [boldFont] are the bundled Noto Sans faces, passed in
+  /// by the caller (the loader lives in the presentation layer so this stays
+  /// pure Dart). They cover Vietnamese, so [strings] may now be localized.
   Future<Uint8List> build({
     required List<Attack> attacks,
     required CorrelationResult correlation,
     required DoctorReportStrings strings,
     required DateTime now,
+    required pw.Font regularFont,
+    required pw.Font boldFont,
   }) async {
     final since = now.subtract(const Duration(days: _periodDays));
     final recent =
         attacks.where((a) => a.startedAt.isAfter(since)).toList()
           ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
-    final doc = pw.Document();
+    final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
+    );
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,

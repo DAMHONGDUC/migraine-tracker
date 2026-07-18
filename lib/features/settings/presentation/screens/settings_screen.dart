@@ -8,7 +8,6 @@ import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_dialog.dart';
-import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
@@ -89,31 +88,30 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(settingsControllerProvider).export(format);
   }
 
-  Future<void> _shareDoctorReport(WidgetRef ref) async {
-    // The PDF always renders in English: the base PDF fonts only cover
-    // Latin-1, so Vietnamese labels would fail to encode.
-    final en = lookupAppLocalizations(const Locale('en'));
+  Future<void> _shareDoctorReport(BuildContext context, WidgetRef ref) async {
+    // Localized: the bundled Noto Sans font covers Vietnamese.
+    final l10n = context.l10n;
     final strings = DoctorReportStrings(
-      title: en.reportTitle,
-      generated: en.reportGenerated(
+      title: l10n.reportTitle,
+      generated: l10n.reportGenerated(
         DateFormat('yyyy-MM-dd').format(DateTime.now()),
       ),
-      period: en.reportPeriod,
-      summaryTitle: en.reportSummaryTitle,
-      totalAttacks: en.reportTotalAttacks,
-      avgIntensity: en.reportAvgIntensity,
-      commonLocation: en.reportCommonLocation,
-      attacksDuringDrops: en.reportAttacksDuringDrops,
-      tableTitle: en.reportTableTitle,
-      colDate: en.reportColDate,
-      colIntensity: en.reportColIntensity,
-      colLocation: en.reportColLocation,
-      colMedication: en.reportColMedication,
-      colPressureDelta: en.reportColPressureDelta,
-      disclaimer: en.onboardingDisclaimer,
+      period: l10n.reportPeriod,
+      summaryTitle: l10n.reportSummaryTitle,
+      totalAttacks: l10n.reportTotalAttacks,
+      avgIntensity: l10n.reportAvgIntensity,
+      commonLocation: l10n.reportCommonLocation,
+      attacksDuringDrops: l10n.reportAttacksDuringDrops,
+      tableTitle: l10n.reportTableTitle,
+      colDate: l10n.reportColDate,
+      colIntensity: l10n.reportColIntensity,
+      colLocation: l10n.reportColLocation,
+      colMedication: l10n.reportColMedication,
+      colPressureDelta: l10n.reportColPressureDelta,
+      disclaimer: l10n.onboardingDisclaimer,
       locationLabels: {
         for (final location in HeadLocation.values)
-          location: location.label(en),
+          location: location.label(l10n),
       },
     );
     await ref.read(settingsControllerProvider).shareDoctorReport(strings);
@@ -193,7 +191,7 @@ class SettingsScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.picture_as_pdf_outlined),
               title: Text(l10n.settingsDoctorReport),
-              onTap: () => _shareDoctorReport(ref),
+              onTap: () => _shareDoctorReport(context, ref),
             ),
           ),
           ListTile(

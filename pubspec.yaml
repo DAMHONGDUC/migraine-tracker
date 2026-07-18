@@ -48,3 +48,8 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    # Bundled so the doctor-report PDF can render Vietnamese (the base PDF
+    # fonts are Latin-1 only). Noto Sans, SIL Open Font License.
+    - assets/fonts/NotoSans-Regular.ttf
+    - assets/fonts/NotoSans-Bold.ttf
