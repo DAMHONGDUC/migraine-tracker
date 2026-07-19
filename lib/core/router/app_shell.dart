@@ -77,8 +77,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       // never rebuilds mid-swap (re-creating it caused a visible hitch);
       // inside it, AnimatedSize morphs the height while the switcher
       // cross-fades + slides the content.
+      // Mid-log the bar is the 3-tap progress — always full size; the idle
+      // minimise only applies to the tab nav.
       bottomNavigationBar: _FloatingBar(
-        shrunk: _idle,
+        shrunk: _idle && !tracking,
         child: AnimatedSize(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
