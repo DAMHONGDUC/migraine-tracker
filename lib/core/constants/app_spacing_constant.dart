@@ -37,6 +37,10 @@ abstract final class AppSpacingConstant {
   static double get h34 => 34.h;
   static double get h44 => 44.h;
   static double get h64 => 64.h;
+
+  /// Shared height of the bottom bar in BOTH states (tab nav and the 3-tap
+  /// step progress) — equal heights make the morph a pure cross-fade.
+  static double get h68 => 68.h;
   static double get h160 => 160.h;
 
   // --- Square / radius (.r) ---

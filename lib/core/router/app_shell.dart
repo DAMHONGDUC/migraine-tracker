@@ -121,7 +121,9 @@ class _SlidingNavBar extends StatelessWidget {
         color: kLiquidGlassEnabled ? null : scheme.surfaceContainer,
       ),
       child: SizedBox(
-        height: 56,
+        // Same height as the tracking progress bar — the morph between the
+        // two states is then a pure cross-fade, no size jump.
+        height: AppSpacingConstant.h68,
         child: Stack(
           children: [
             // The sliding thumb: 1/N wide, aligned to the selected segment.
@@ -270,7 +272,7 @@ class _TrackingProgressBar extends StatelessWidget {
         top: false,
         bottom: !kLiquidGlassEnabled,
         child: SizedBox(
-          height: 68,
+          height: AppSpacingConstant.h68,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w48),
             child: Center(
