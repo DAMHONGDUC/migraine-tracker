@@ -28,29 +28,39 @@ class AppShell extends ConsumerWidget {
       body: navigationShell,
       // Mid-track the tabs are meaningless — morph the nav bar into the
       // step progress; Cancel in the log screen's app bar exits the flow.
-      // AnimatedSize interpolates the height difference between the two
-      // bars so the swap never jolts the layout; the switcher only fades.
-      bottomNavigationBar: AnimatedSize(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        child: AnimatedSwitcher(
+      // ONE _FloatingBar stays mounted for both states so the glass layer
+      // never rebuilds mid-swap (re-creating it caused a visible hitch);
+      // inside it, AnimatedSize morphs the height while the switcher
+      // cross-fades + slides the content.
+      bottomNavigationBar: _FloatingBar(
+        child: AnimatedSize(
           duration: const Duration(milliseconds: 250),
-          switchInCurve: const Interval(0.4, 1, curve: Curves.easeOut),
-          switchOutCurve: const Interval(0.6, 1, curve: Curves.easeIn),
-          child: tracking
-            ? _FloatingBar(
-                key: const ValueKey('progress'),
-                child: _TrackingProgressBar(
+          curve: Curves.easeOutCubic,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.12),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            ),
+            child: tracking
+              ? _TrackingProgressBar(
+                  key: const ValueKey('progress'),
                   currentStep: switch (logState.step) {
                     LogStep.location => 1,
                     LogStep.medication => 2,
                     _ => 0,
                   },
-                ),
-              )
-            : _FloatingBar(
-                key: const ValueKey('tabs'),
-                child: _SlidingNavBar(
+                )
+              : _SlidingNavBar(
+                  key: const ValueKey('tabs'),
                   selectedIndex: navigationShell.currentIndex,
                   onSelected: (index) => navigationShell.goBranch(
                     index,
@@ -79,7 +89,7 @@ class AppShell extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ),
+          ),
         ),
       ),
     );
@@ -94,6 +104,7 @@ class _SlidingNavBar extends StatelessWidget {
     required this.selectedIndex,
     required this.onSelected,
     required this.items,
+    super.key,
   });
 
   final int selectedIndex;
@@ -210,7 +221,7 @@ class _NavSegment extends StatelessWidget {
 /// consumed here (children have their bottom inset removed to avoid a double
 /// gap). A no-op when [kLiquidGlassEnabled] is false.
 class _FloatingBar extends StatelessWidget {
-  const _FloatingBar({required this.child, super.key});
+  const _FloatingBar({required this.child});
 
   final Widget child;
 
@@ -219,10 +230,12 @@ class _FloatingBar extends StatelessWidget {
     if (!kLiquidGlassEnabled) return child;
     return Padding(
       // Sit the bar right on the safe-area line — the only gap below it.
+      // Slim side margins: the wider the pill, the bigger each item's
+      // tappable slice.
       padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w16,
+        AppSpacingConstant.w8,
         0,
-        AppSpacingConstant.w16,
+        AppSpacingConstant.w8,
         MediaQuery.paddingOf(context).bottom,
       ),
       child: LiquidGlass.withOwnLayer(
@@ -241,7 +254,7 @@ class _FloatingBar extends StatelessWidget {
 
 /// The 3-tap progress living in the nav bar slot while tracking.
 class _TrackingProgressBar extends StatelessWidget {
-  const _TrackingProgressBar({required this.currentStep});
+  const _TrackingProgressBar({required this.currentStep, super.key});
 
   final int currentStep;
 
