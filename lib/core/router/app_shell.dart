@@ -187,15 +187,17 @@ class _SlidingNavBar extends StatelessWidget {
                 widthFactor: 1 / count,
                 heightFactor: 1,
                 child: Padding(
+                  // Slim inset so the thumb hugs the container border.
                   padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacingConstant.w8,
-                    vertical: AppSpacingConstant.h12,
+                    horizontal: AppSpacingConstant.w4,
+                    vertical: AppSpacingConstant.h6,
                   ),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: scheme.primary.withValues(alpha: 0.22),
+                      // Oversized radius = stadium caps, matching the bar.
                       borderRadius: BorderRadius.circular(
-                        AppSpacingConstant.r16,
+                        AppSpacingConstant.r64,
                       ),
                     ),
                   ),
@@ -303,8 +305,10 @@ class _FloatingBar extends StatelessWidget {
         curve: Curves.easeOutCubic,
         child: LiquidGlass.withOwnLayer(
           settings: kChromeGlass,
+          // Half the bar height (h68) → a true stadium: the short edges are
+          // full semicircles, no straight segment left.
           shape:
-              LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.r22),
+              LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.h34),
           clipBehavior: Clip.antiAlias,
           child: MediaQuery.removePadding(
             context: context,
