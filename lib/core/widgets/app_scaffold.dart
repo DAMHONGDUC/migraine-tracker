@@ -36,15 +36,17 @@ class AppScaffold extends StatelessWidget {
 
   /// Bottom inset a scroll-under body on a *tab* screen should pad by so its
   /// last item clears the floating glass bottom nav (which content scrolls
-  /// behind).
+  /// behind): safe area + bar height + a small breathing gap.
   ///
-  /// Must be read from a context INSIDE the Scaffold body: with `extendBody`
-  /// the Scaffold already reports the floating bar's full slot height
-  /// (safe area + bar) as the body's `MediaQuery.padding.bottom`, so this
-  /// only adds a small breathing gap. Collapses to 0 when glass is off —
-  /// the bar then reserves its own slot.
+  /// Reads `viewPadding` (the raw device inset), NOT `padding`: Scaffold
+  /// rewrites the body's `MediaQuery.padding.bottom` to the nav slot height
+  /// under `extendBody`, so a `padding` read returns different values above
+  /// vs inside the body — `viewPadding` is stable everywhere. Collapses to
+  /// 0 when glass is off — the bar then reserves its own slot.
   static double bottomNavInset(BuildContext context) => kLiquidGlassEnabled
-      ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
+      ? MediaQuery.viewPaddingOf(context).bottom +
+            AppSpacingConstant.h68 + // shared bar height (nav + progress)
+            AppSpacingConstant.h8
       : 0;
 
   @override
