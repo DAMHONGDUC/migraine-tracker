@@ -102,9 +102,10 @@ class _ChartView extends StatelessWidget {
       );
     }
     return ListView(
+      // Flush under the app bar — no gap between the bar and the content.
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+        AppScaffold.bodyTopInset(context),
         AppSpacingConstant.w16,
         AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
       ),
@@ -131,9 +132,10 @@ class _AttackList extends StatelessWidget {
       );
     }
     return ListView.separated(
+      // Flush under the app bar — no gap between the bar and the content.
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+        AppScaffold.bodyTopInset(context),
         AppSpacingConstant.w16,
         AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
       ),
