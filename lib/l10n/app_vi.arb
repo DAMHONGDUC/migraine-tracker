@@ -158,5 +158,8 @@
   "a11yIntensityLabel": "Mức độ {value}, {severity}",
   "a11yCalendarMarker": "{count, plural, other{{count} cơn đau}}, nặng nhất mức {peak} trên 10",
   "a11yForecastChart": "Biểu đồ áp suất, 12 giờ qua và 48 giờ tới. Hiện tại {now} hPa, thấp nhất sắp tới {min} hPa.",
-  "a11yWeeklyChart": "Biểu đồ cột cơn đau theo tuần, {total, plural, other{{total} cơn}} trong {weeks} tuần."
+  "a11yWeeklyChart": "Biểu đồ cột cơn đau theo tuần, {total, plural, other{{total} cơn}} trong {weeks} tuần.",
+  "a11yViewList": "Xem danh sách",
+  "a11yViewCalendar": "Xem lịch",
+  "a11yViewChart": "Xem biểu đồ"
 }

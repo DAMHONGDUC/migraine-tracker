@@ -74,6 +74,12 @@ class HistoryViewToggle extends StatelessWidget {
                 Expanded(
                   child: _Segment(
                     icon: _icons[m]!,
+                    label: switch (m) {
+                      HistoryViewMode.list => context.l10n.a11yViewList,
+                      HistoryViewMode.calendar =>
+                        context.l10n.a11yViewCalendar,
+                      HistoryViewMode.chart => context.l10n.a11yViewChart,
+                    },
                     selected: m == mode,
                     onTap: () => onChanged(m),
                   ),
@@ -99,25 +105,35 @@ class HistoryViewToggle extends StatelessWidget {
 class _Segment extends StatelessWidget {
   const _Segment({
     required this.icon,
+    required this.label,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
+  final String label;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    // Icon-only segment — VoiceOver needs the name + selected state.
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
       onTap: onTap,
-      child: Center(
-        child: Icon(
-          icon,
-          size: AppSpacingConstant.r20,
-          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Center(
+          child: Icon(
+            icon,
+            size: AppSpacingConstant.r20,
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
