@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -10,18 +12,61 @@ import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
 
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  /// How long without any touch before the bar minimises to 80%.
+  static const _idleDelay = Duration(milliseconds: 2500);
+
+  Timer? _idleTimer;
+  bool _idle = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kLiquidGlassEnabled) _armIdleTimer();
+  }
+
+  @override
+  void dispose() {
+    _idleTimer?.cancel();
+    super.dispose();
+  }
+
+  void _armIdleTimer() {
+    _idleTimer?.cancel();
+    _idleTimer = Timer(_idleDelay, () {
+      if (mounted) setState(() => _idle = true);
+    });
+  }
+
+  /// Any touch anywhere counts as interaction: restore the bar and restart
+  /// the idle countdown.
+  void _onPointerDown(PointerDownEvent _) {
+    if (!kLiquidGlassEnabled) return;
+    if (_idle) setState(() => _idle = false);
+    _armIdleTimer();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final navigationShell = widget.navigationShell;
     final l10n = context.l10n;
     final logState = ref.watch(logControllerProvider);
     final tracking = ref.watch(logFlowInProgressProvider);
 
-    return Scaffold(
+    return Listener(
+      // Translucent: observes every pointer-down without eating it.
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: _onPointerDown,
+      child: Scaffold(
       // Let the branch content flow behind the floating glass bar so it
       // refracts through it (hard rule 3: the effect stays calm and dark).
       extendBody: kLiquidGlassEnabled,
@@ -33,6 +78,7 @@ class AppShell extends ConsumerWidget {
       // inside it, AnimatedSize morphs the height while the switcher
       // cross-fades + slides the content.
       bottomNavigationBar: _FloatingBar(
+        shrunk: _idle,
         child: AnimatedSize(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
@@ -51,46 +97,47 @@ class AppShell extends ConsumerWidget {
               ),
             ),
             child: tracking
-              ? _TrackingProgressBar(
-                  key: const ValueKey('progress'),
-                  currentStep: switch (logState.step) {
-                    LogStep.location => 1,
-                    LogStep.medication => 2,
-                    _ => 0,
-                  },
-                )
-              : _SlidingNavBar(
-                  key: const ValueKey('tabs'),
-                  selectedIndex: navigationShell.currentIndex,
-                  onSelected: (index) => navigationShell.goBranch(
-                    index,
-                    initialLocation: index == navigationShell.currentIndex,
+                ? _TrackingProgressBar(
+                    key: const ValueKey('progress'),
+                    currentStep: switch (logState.step) {
+                      LogStep.location => 1,
+                      LogStep.medication => 2,
+                      _ => 0,
+                    },
+                  )
+                : _SlidingNavBar(
+                    key: const ValueKey('tabs'),
+                    selectedIndex: navigationShell.currentIndex,
+                    onSelected: (index) => navigationShell.goBranch(
+                      index,
+                      initialLocation: index == navigationShell.currentIndex,
+                    ),
+                    items: [
+                      _NavItem(
+                        icon: Icons.add_circle_outline,
+                        selectedIcon: Icons.add_circle,
+                        label: l10n.navLog,
+                      ),
+                      _NavItem(
+                        icon: Icons.calendar_month_outlined,
+                        selectedIcon: Icons.calendar_month,
+                        label: l10n.navHistory,
+                      ),
+                      _NavItem(
+                        icon: Icons.insights_outlined,
+                        selectedIcon: Icons.insights,
+                        label: l10n.navInsights,
+                      ),
+                      _NavItem(
+                        icon: Icons.settings_outlined,
+                        selectedIcon: Icons.settings,
+                        label: l10n.navSettings,
+                      ),
+                    ],
                   ),
-                  items: [
-                    _NavItem(
-                      icon: Icons.add_circle_outline,
-                      selectedIcon: Icons.add_circle,
-                      label: l10n.navLog,
-                    ),
-                    _NavItem(
-                      icon: Icons.calendar_month_outlined,
-                      selectedIcon: Icons.calendar_month,
-                      label: l10n.navHistory,
-                    ),
-                    _NavItem(
-                      icon: Icons.insights_outlined,
-                      selectedIcon: Icons.insights,
-                      label: l10n.navInsights,
-                    ),
-                    _NavItem(
-                      icon: Icons.settings_outlined,
-                      selectedIcon: Icons.settings,
-                      label: l10n.navSettings,
-                    ),
-                  ],
-                ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -145,7 +192,9 @@ class _SlidingNavBar extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: scheme.primary.withValues(alpha: 0.22),
-                      borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacingConstant.r16,
+                      ),
                     ),
                   ),
                 ),
@@ -222,10 +271,15 @@ class _NavSegment extends StatelessWidget {
 /// margins so it "lifts" off the edges, rounded glass, and safe-area padding
 /// consumed here (children have their bottom inset removed to avoid a double
 /// gap). A no-op when [kLiquidGlassEnabled] is false.
+///
+/// While [shrunk] the pill scales down to 80%, anchored to the bottom — the
+/// idle "minimised" state; any touch restores it (see _AppShellState). The
+/// scale is paint-only, so the layout slot and body insets never move.
 class _FloatingBar extends StatelessWidget {
-  const _FloatingBar({required this.child});
+  const _FloatingBar({required this.child, this.shrunk = false});
 
   final Widget child;
+  final bool shrunk;
 
   @override
   Widget build(BuildContext context) {
@@ -240,14 +294,21 @@ class _FloatingBar extends StatelessWidget {
         AppSpacingConstant.w8,
         MediaQuery.paddingOf(context).bottom,
       ),
-      child: LiquidGlass.withOwnLayer(
-        settings: kChromeGlass,
-        shape: LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.r22),
-        clipBehavior: Clip.antiAlias,
-        child: MediaQuery.removePadding(
-          context: context,
-          removeBottom: true,
-          child: child,
+      child: AnimatedScale(
+        scale: shrunk ? 0.8 : 1,
+        alignment: Alignment.bottomCenter,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        child: LiquidGlass.withOwnLayer(
+          settings: kChromeGlass,
+          shape:
+              LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.r22),
+          clipBehavior: Clip.antiAlias,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: child,
+          ),
         ),
       ),
     );
