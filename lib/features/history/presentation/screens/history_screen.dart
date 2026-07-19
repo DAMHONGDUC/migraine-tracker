@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_scaffold.dart';
@@ -70,7 +71,7 @@ class HistoryScreen extends ConsumerWidget {
             // report the real bar heights — and passed down, so the inner
             // views don't depend on where they read MediaQuery from.
             final topInset = kLiquidGlassEnabled
-                ? MediaQuery.paddingOf(context).top
+                ? MediaQuery.paddingOf(context).top + AppSpacingConstant.h16
                 : 0.0;
             final bottomInset = kLiquidGlassEnabled
                 ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
