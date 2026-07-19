@@ -34,16 +34,13 @@ class AppScaffold extends StatelessWidget {
   static double bodyTopInset(BuildContext context, {double bottomHeight = 0}) =>
       MainAppBar.bodyTopInset(context, bottomHeight: bottomHeight);
 
-  /// Standard tab-bar content height (icon + label).
-  static const double _navBarHeight = 56;
-
   /// Bottom inset a scroll-under body on a *tab* screen should pad by so its
   /// last item clears the floating glass bottom nav (which content scrolls
   /// behind). Collapses to 0 when glass is off — the bar then reserves its own
   /// slot. Only tab screens (Log/History/Insights/Settings) need this.
   static double bottomNavInset(BuildContext context) => kLiquidGlassEnabled
       ? MediaQuery.paddingOf(context).bottom +
-            _navBarHeight +
+            AppSpacingConstant.h68 + // shared bar height (nav + progress)
             AppSpacingConstant.h8
       : 0;
 
