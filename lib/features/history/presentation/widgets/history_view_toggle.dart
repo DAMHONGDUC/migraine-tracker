@@ -36,6 +36,8 @@ class HistoryViewToggle extends StatelessWidget {
     final height = AppSpacingConstant.h34;
     final index = modes.indexOf(mode);
 
+    // Styled like the bottom nav pill: borderless glass surface, and the
+    // thumb floats inside the track with its own inset padding.
     final track = Container(
       width: segmentWidth * modes.length,
       height: height,
@@ -43,12 +45,10 @@ class HistoryViewToggle extends StatelessWidget {
         // Opaque fill only when glass is off; the glass supplies the surface.
         color: kLiquidGlassEnabled ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Stack(
         children: [
-          // Thumb: 1/N wide, aligned to the selected segment. Fractional so
-          // it fits whatever width the border leaves (no fixed-px overflow).
+          // Thumb: 1/N wide, aligned to the selected segment.
           AnimatedAlign(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
@@ -60,10 +60,17 @@ class HistoryViewToggle extends StatelessWidget {
             child: FractionallySizedBox(
               widthFactor: 1 / modes.length,
               heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(height / 2),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacingConstant.w4,
+                  vertical: AppSpacingConstant.h4,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.22),
+                    borderRadius:
+                        BorderRadius.circular(AppSpacingConstant.r12),
+                  ),
                 ),
               ),
             ),
