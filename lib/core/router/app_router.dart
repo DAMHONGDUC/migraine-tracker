@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -76,10 +77,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           attackId: state.pathParameters[AppRoutes.attackIdParam]!,
         ),
       ),
+      // A routed page that PRESENTS as a modal bottom sheet: transparent
+      // route with a dim barrier, content slides up from the bottom and
+      // covers ~80% (see PaywallScreen). Tap above the sheet dismisses.
       GoRoute(
         name: AppRoutes.paywall.name,
         path: AppRoutes.paywall.path,
-        builder: (context, state) => const PaywallScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          opaque: false,
+          barrierColor: Colors.black54,
+          barrierDismissible: true,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 250),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              SlideTransition(
+                position: animation.drive(
+                  Tween<Offset>(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).chain(CurveTween(curve: Curves.easeOutCubic)),
+                ),
+                child: child,
+              ),
+          child: const PaywallScreen(),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
