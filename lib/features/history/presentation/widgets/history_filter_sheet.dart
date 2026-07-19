@@ -26,8 +26,8 @@ Future<HistoryPeriod?> showHistoryFilterSheet(
   );
 }
 
-/// Chip below the app bar showing the active period; tapping opens the
-/// bottom sheet. Closed = value at a glance, open = the full picker.
+/// The period filter pill (icon + current value + expand chevron); tapping
+/// opens the bottom sheet. Lives in the History app bar actions.
 class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
@@ -53,11 +53,18 @@ class HistoryFilterChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
         onTap: () => _open(context),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w14, vertical: AppSpacingConstant.h8),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacingConstant.w14,
+            vertical: AppSpacingConstant.h8,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.filter_list, size: AppSpacingConstant.r16, color: scheme.primary),
+              Icon(
+                Icons.filter_list,
+                size: AppSpacingConstant.r16,
+                color: scheme.primary,
+              ),
               SizedBox(width: AppSpacingConstant.w6),
               Text(
                 periodLabel(context, selected),
