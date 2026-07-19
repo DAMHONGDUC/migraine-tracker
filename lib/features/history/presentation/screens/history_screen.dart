@@ -30,6 +30,18 @@ class HistoryScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.historyTitle),
       actions: [
+        // The period filter pill, same UI as before but living in the app
+        // bar; hidden in calendar mode — that view navigates by month
+        // itself and ignores the filter.
+        if (mode != HistoryViewMode.calendar) ...[
+          Center(
+            child: HistoryFilterChip(
+              selected: period,
+              onSelected: ref.read(historyPeriodProvider.notifier).select,
+            ),
+          ),
+          SizedBox(width: AppSpacingConstant.w8),
+        ],
         HistoryViewToggle(
           mode: mode,
           onChanged: ref.read(historyViewModeProvider.notifier).select,
@@ -49,39 +61,15 @@ class HistoryScreen extends ConsumerWidget {
               AsyncData(value: final value) => value,
               _ => const <Attack>[],
             };
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // IndexedStack keeps ALL views alive so switching modes
+            // preserves state (scroll position, selected day, layout).
+            return IndexedStack(
+              index: HistoryViewMode.values.indexOf(mode),
               children: [
-                // Shared filter, right below the app bar: closed = current
-                // value at a glance, tap = bottom sheet picker. Hidden in
-                // calendar mode — that view navigates by month itself.
-                if (mode != HistoryViewMode.calendar)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacingConstant.w16,
-                      AppSpacingConstant.h8,
-                      AppSpacingConstant.w16,
-                      AppSpacingConstant.h12,
-                    ),
-                    child: HistoryFilterChip(
-                      selected: period,
-                      onSelected:
-                          ref.read(historyPeriodProvider.notifier).select,
-                    ),
-                  ),
-                Expanded(
-                  // IndexedStack keeps ALL views alive so switching modes
-                  // preserves state (scroll position, selected day, layout).
-                  child: IndexedStack(
-                    index: HistoryViewMode.values.indexOf(mode),
-                    children: [
-                      _AttackList(attacks: list),
-                      // Calendar ignores the period filter by design.
-                      HistoryCalendarView(attacks: all),
-                      _ChartView(attacks: list),
-                    ],
-                  ),
-                ),
+                _AttackList(attacks: list),
+                // Calendar ignores the period filter by design.
+                HistoryCalendarView(attacks: all),
+                _ChartView(attacks: list),
               ],
             );
           },
