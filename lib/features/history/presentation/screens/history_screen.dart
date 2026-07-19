@@ -51,9 +51,9 @@ class HistoryScreen extends ConsumerWidget {
         ),
         SizedBox(width: AppSpacingConstant.w12),
       ],
-      body: Padding(
-        padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
-        child: switch (allAttacks) {
+      // No outer top padding: each view pads INSIDE its own scrollable, so
+      // the content scrolls behind the translucent app bar and blurs out.
+      body: switch (allAttacks) {
         AsyncData(value: final all) when all.isEmpty => EmptyState(
           icon: Icons.event_note_outlined,
           message: l10n.historyEmpty,
@@ -83,7 +83,6 @@ class HistoryScreen extends ConsumerWidget {
         ),
         _ => const Center(child: CircularProgressIndicator()),
       },
-      ),
     );
   }
 }
@@ -105,20 +104,13 @@ class _ChartView extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppSpacingConstant.w16,
+        AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
         AppSpacingConstant.w16,
         AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
       ),
       children: [
         WeeklyFrequencyChart(
           buckets: weeklyBuckets(attacks, now: DateTime.now()),
-        ),
-        SizedBox(height: AppSpacingConstant.h12),
-        Text(
-          context.l10n.historyAttackCount(attacks.length),
-          style: context.textTheme.titleSmall?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
         ),
       ],
     );
@@ -141,26 +133,13 @@ class _AttackList extends StatelessWidget {
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppSpacingConstant.w16,
+        AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
         AppSpacingConstant.w16,
         AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
       ),
-      itemCount: attacks.length + 1,
+      itemCount: attacks.length,
       separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: AppSpacingConstant.h4),
-            child: Text(
-              context.l10n.historyAttackCount(attacks.length),
-              style: context.textTheme.titleSmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          );
-        }
-        return AttackTile(attack: attacks[index - 1]);
-      },
+      itemBuilder: (context, index) => AttackTile(attack: attacks[index]),
     );
   }
 }

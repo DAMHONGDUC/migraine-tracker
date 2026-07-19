@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -42,11 +43,13 @@ void main() {
 
     await openHistory(tester);
 
-    // Default = All → both count.
-    expect(find.text('2 attacks'), findsOneWidget);
+    // Default = All → both listed; the pill carries the count.
+    expect(find.byType(AttackTile), findsNWidgets(2));
+    expect(find.text('All (2)'), findsOneWidget);
 
     await selectPeriod(tester, 'Today');
-    expect(find.text('1 attack'), findsOneWidget);
+    expect(find.byType(AttackTile), findsOneWidget);
+    expect(find.text('Today (1)'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -77,7 +80,7 @@ void main() {
     ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
 
     await openHistory(tester);
-    expect(find.text('1 attack'), findsOneWidget); // list mode default
+    expect(find.byType(AttackTile), findsOneWidget); // list mode default
 
     await tester.tap(find.byIcon(Icons.bar_chart));
     await tester.pump();
@@ -87,7 +90,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.list_alt));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('1 attack'), findsOneWidget);
+    expect(find.byType(AttackTile), findsOneWidget);
 
     await finishTest(tester);
   });

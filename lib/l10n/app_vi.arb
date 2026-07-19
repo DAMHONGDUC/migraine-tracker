@@ -87,7 +87,6 @@
   "historyFilterMonth": "Tháng",
   "historyFilterYear": "Năm",
   "historyFilterAll": "Tất cả",
-  "historyAttackCount": "{count, plural, =0{Không có cơn đau} =1{1 cơn đau} other{{count} cơn đau}}",
   "historyEmptyFiltered": "Không có cơn đau trong khoảng thời gian này.",
   "historyFilterSheetTitle": "Lọc theo thời gian",
   "premiumBadge": "Premium",
