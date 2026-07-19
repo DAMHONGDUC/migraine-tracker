@@ -46,7 +46,8 @@ class PaywallScreen extends StatelessWidget {
             AppSpacingConstant.w8,
             0,
           ),
-          child: Row(
+          child: Stack(
+            alignment: AlignmentDirectional.center,
             children: [
               Expanded(
                 child: Text(
@@ -56,74 +57,86 @@ class PaywallScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                icon: const Icon(Icons.close),
-                onPressed: () => context.pop(),
+              Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: IconButton(
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  icon: const Icon(Icons.close),
+                  onPressed: () => context.pop(),
+                ),
               ),
             ],
           ),
         ),
         Expanded(
-          child: ListView(
+          child: Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacingConstant.w24,
               AppSpacingConstant.h8,
               AppSpacingConstant.w24,
-              MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h24,
+              MediaQuery.paddingOf(context).bottom,
             ),
-            children: [
-              Icon(
-                Icons.storm_outlined,
-                size: AppSpacingConstant.r64,
-                color: context.colorScheme.primary,
-              ),
-              SizedBox(height: AppSpacingConstant.h16),
-              Text(
-                l10n.paywallHeadline,
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Icon(
+                      Icons.storm_outlined,
+                      size: AppSpacingConstant.r64,
+                      color: context.colorScheme.primary,
+                    ),
+                    SizedBox(height: AppSpacingConstant.h16),
+                    Text(
+                      l10n.paywallHeadline,
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: AppSpacingConstant.h24),
+                    _Benefit(
+                      icon: Icons.notifications_active_outlined,
+                      title: l10n.paywallBenefitAlerts,
+                      body: l10n.paywallBenefitAlertsBody,
+                    ),
+                    _Benefit(
+                      icon: Icons.show_chart,
+                      title: l10n.paywallBenefitForecast,
+                      body: l10n.paywallBenefitForecastBody,
+                    ),
+                    _Benefit(
+                      icon: Icons.insights_outlined,
+                      title: l10n.paywallBenefitInsights,
+                      body: l10n.paywallBenefitInsightsBody,
+                    ),
+                    _Benefit(
+                      icon: Icons.picture_as_pdf_outlined,
+                      title: l10n.paywallBenefitReport,
+                      body: l10n.paywallBenefitReportBody,
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: AppSpacingConstant.h24),
-              _Benefit(
-                icon: Icons.notifications_active_outlined,
-                title: l10n.paywallBenefitAlerts,
-                body: l10n.paywallBenefitAlertsBody,
-              ),
-              _Benefit(
-                icon: Icons.show_chart,
-                title: l10n.paywallBenefitForecast,
-                body: l10n.paywallBenefitForecastBody,
-              ),
-              _Benefit(
-                icon: Icons.insights_outlined,
-                title: l10n.paywallBenefitInsights,
-                body: l10n.paywallBenefitInsightsBody,
-              ),
-              _Benefit(
-                icon: Icons.picture_as_pdf_outlined,
-                title: l10n.paywallBenefitReport,
-                body: l10n.paywallBenefitReportBody,
-              ),
-              SizedBox(height: AppSpacingConstant.h16),
-              Text(
-                l10n.paywallFreeKeeps,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: AppSpacingConstant.h24),
+                    FilledButton(
+                      onPressed: () {},
+                      child: Text(l10n.premiumUnlock),
+                    ),
+                    SizedBox(height: AppSpacingConstant.h8),
+                    Text(
+                      l10n.paywallFreeKeeps,
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: AppSpacingConstant.h24),
-              FilledButton(onPressed: null, child: Text(l10n.premiumUnlock)),
-              SizedBox(height: AppSpacingConstant.h8),
-              Text(
-                l10n.paywallComingSoon,
-                textAlign: TextAlign.center,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
