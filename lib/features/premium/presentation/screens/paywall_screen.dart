@@ -12,7 +12,7 @@ import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 /// Prices deliberately live with the store products, not hardcoded here.
 ///
 /// Although this is a routed page (deep-linkable, pushed by name), it
-/// *presents* as a modal bottom sheet: ~80% tall, slides up from the bottom
+/// *presents* as a modal bottom sheet: ~85% tall, slides up from the bottom
 /// (see the paywall route's CustomTransitionPage), drag-handle indicator,
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
@@ -114,10 +114,7 @@ class PaywallScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: AppSpacingConstant.h24),
-              FilledButton(
-                onPressed: null,
-                child: Text(l10n.premiumUnlock),
-              ),
+              FilledButton(onPressed: null, child: Text(l10n.premiumUnlock)),
               SizedBox(height: AppSpacingConstant.h8),
               Text(
                 l10n.paywallComingSoon,
@@ -150,12 +147,12 @@ class PaywallScreen extends StatelessWidget {
             child: sheet,
           );
 
-    // ~80% tall, pinned to the bottom; the transparent 20% above shows the
+    // ~85% tall, pinned to the bottom; the transparent 15% above shows the
     // dimmed screen underneath (the route's barrier handles tap-to-dismiss).
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
-        heightFactor: 0.8,
+        heightFactor: 0.85,
         widthFactor: 1,
         child: surface,
       ),
@@ -164,11 +161,7 @@ class PaywallScreen extends StatelessWidget {
 }
 
 class _Benefit extends StatelessWidget {
-  const _Benefit({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
+  const _Benefit({required this.icon, required this.title, required this.body});
 
   final IconData icon;
   final String title;
