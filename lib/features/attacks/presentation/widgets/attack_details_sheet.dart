@@ -7,10 +7,21 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
+/// Opened empty right after logging, or prefilled when editing from the
+/// attack detail screen.
 class AttackDetailsSheet extends HookConsumerWidget {
-  const AttackDetailsSheet({required this.attackId, super.key});
+  const AttackDetailsSheet({
+    required this.attackId,
+    this.initialSymptoms = const [],
+    this.initialTriggers = const [],
+    this.initialNotes,
+    super.key,
+  });
 
   final String attackId;
+  final List<String> initialSymptoms;
+  final List<String> initialTriggers;
+  final String? initialNotes;
 
   List<String> _split(String input) => input
       .split(',')
@@ -21,9 +32,13 @@ class AttackDetailsSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final symptomsController = useTextEditingController();
-    final triggersController = useTextEditingController();
-    final notesController = useTextEditingController();
+    final symptomsController = useTextEditingController(
+      text: initialSymptoms.join(', '),
+    );
+    final triggersController = useTextEditingController(
+      text: initialTriggers.join(', '),
+    );
+    final notesController = useTextEditingController(text: initialNotes ?? '');
 
     Future<void> save() async {
       final notes = notesController.text.trim();

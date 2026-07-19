@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/head_location_label.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../attacks/domain/entities/attack.dart';
+
+/// One attack row, shared by the list and calendar views. Taps through to
+/// the attack detail screen.
+class AttackTile extends StatelessWidget {
+  const AttackTile({required this.attack, super.key});
+
+  final Attack attack;
+
+  @override
+  Widget build(BuildContext context) {
+    final when = DateFormat.yMMMd(
+      context.l10n.localeName,
+    ).add_jm().format(attack.startedAt.toLocal());
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, (1 - t) * 8),
+          child: child,
+        ),
+      ),
+      child: _card(context, when),
+    );
+  }
+
+  Widget _card(BuildContext context, String when) {
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: context.colorScheme.primary.withValues(alpha: 0.18),
+          child: Text(
+            '${attack.intensity}',
+            style: context.textTheme.titleMedium,
+          ),
+        ),
+        title: Text(attack.location.label(context.l10n)),
+        subtitle: Text(
+          attack.medicationName == null
+              ? when
+              : '$when · ${attack.medicationName}',
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          size: AppSpacingConstant.r20,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+        onTap: () => context.push(AppRoutes.attackDetail(attack.id)),
+      ),
+    );
+  }
+}

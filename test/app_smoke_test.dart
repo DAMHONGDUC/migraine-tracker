@@ -10,10 +10,11 @@ void main() {
     await pumpApp(tester);
 
     expect(find.text('How intense is the pain?'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('History'), findsOneWidget);
-    expect(find.text('Insights'), findsOneWidget);
-    expect(find.text('Settings'), findsOneWidget);
+    // Icon-only bottom nav: Log is selected (filled), the rest are outlined.
+    expect(find.byIcon(Icons.add_circle), findsOneWidget);
+    expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.insights_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -21,12 +22,12 @@ void main() {
   testWidgets('bottom navigation switches between tabs', (tester) async {
     await pumpApp(tester);
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('No attacks logged yet.'), findsOneWidget);
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Language'), findsOneWidget);
@@ -37,7 +38,7 @@ void main() {
   testWidgets('theme is dark with no pure white surfaces', (tester) async {
     await pumpApp(tester);
 
-    final context = tester.element(find.byType(NavigationBar));
+    final context = tester.element(find.byIcon(Icons.add_circle));
     final theme = Theme.of(context);
     expect(theme.brightness, Brightness.dark);
     expect(theme.scaffoldBackgroundColor, isNot(Colors.white));

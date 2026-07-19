@@ -4,6 +4,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/repositories/medication_reminder_repository.dart';
 import '../../providers.dart';
@@ -71,8 +72,8 @@ class RemindersScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final reminders = ref.watch(medicationRemindersStreamProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.remindersTitle)),
+    return AppScaffold(
+      title: Text(l10n.remindersTitle),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _add(context, ref),
         icon: const Icon(Icons.add_alarm),
@@ -83,7 +84,12 @@ class RemindersScreen extends ConsumerWidget {
           child: Text(l10n.remindersEmpty),
         ),
         AsyncData(value: final list) => ListView.separated(
-          padding: EdgeInsets.all(AppSpacingConstant.w16),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w16,
+            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+            AppSpacingConstant.w16,
+            AppSpacingConstant.w16,
+          ),
           itemCount: list.length,
           separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),
           itemBuilder: (context, index) =>

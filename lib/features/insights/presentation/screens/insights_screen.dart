@@ -3,6 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_scaffold.dart';
+import '../../../premium/presentation/widgets/premium_gate.dart';
 import '../../providers.dart';
 import '../widgets/correlation_card.dart';
 import '../widgets/pressure_forecast_card.dart';
@@ -14,13 +16,24 @@ class InsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(correlationResultProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.insightsTitle)),
+    return AppScaffold(
+      title: Text(context.l10n.insightsTitle),
       body: switch (result) {
         AsyncData(value: final value) => ListView(
-          padding: EdgeInsets.all(AppSpacingConstant.w16),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w16,
+            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+            AppSpacingConstant.w16,
+            AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+          ),
           children: [
-            const PressureForecastCard(),
+            // Free users never build the forecast card, so no forecast is
+            // fetched or held for them.
+            PremiumGate(
+              lockedIcon: Icons.show_chart,
+              lockedMessage: context.l10n.premiumLockedForecast,
+              child: const PressureForecastCard(),
+            ),
             SizedBox(height: AppSpacingConstant.h12),
             CorrelationCard(result: value),
           ],

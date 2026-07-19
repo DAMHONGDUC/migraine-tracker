@@ -6,9 +6,9 @@ import { logger } from "firebase-functions/v2";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
-import { shouldAlert } from "./core/alerts";
+import { runPressureAlerts } from "./core/alertRun";
 import { geohashCenter } from "./core/geohash";
-import { AlertUser, groupByGeohash } from "./core/grouping";
+import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
 import { premiumFromEvent } from "./revenuecat";
 import { fetchHourlyPressure } from "./weather/openMeteo";
@@ -72,80 +72,49 @@ export const pressureAlertJob = onSchedule(
       });
     }
 
-    const cells = groupByGeohash(users);
-    const failedCells: string[] = [];
-    let pushesSent = 0;
-
-    for (const [cell, cellUsers] of cells) {
-      let drop;
-      try {
+    const result = await runPressureAlerts(users, {
+      now,
+      fetchCellDrop: async (cell) => {
         const { lat, lon } = geohashCenter(cell);
         const forecast = await fetchHourlyPressure(lat, lon);
-        drop = maxDrop24h(forecast, now);
-      } catch (error) {
-        logger.error("cell forecast failed", {
-          cell,
-          users: cellUsers.length,
-          error: String(error),
+        return maxDrop24h(forecast, now);
+      },
+      sendPush: async (user, drop) => {
+        await getMessaging().send({
+          token: user.fcmToken,
+          notification: {
+            title: "Pressure drop ahead",
+            body:
+              `Barometric pressure is forecast to fall ` +
+              `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
+          },
+          apns: { payload: { aps: { sound: "default" } } },
         });
-        failedCells.push(cell);
-        continue;
-      }
-      if (drop === null) continue;
-
-      for (const user of cellUsers) {
-        if (
-          !shouldAlert({
-            dropHpa: drop.dropHpa,
-            thresholdHpa: user.thresholdHpa,
-            eventId: drop.eventId,
-            history: user.history,
-            now,
-          })
-        ) {
-          continue;
-        }
-        try {
-          await getMessaging().send({
-            token: user.fcmToken,
-            notification: {
-              title: "Pressure drop ahead",
-              body:
-                `Barometric pressure is forecast to fall ` +
-                `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
-            },
-            apns: { payload: { aps: { sound: "default" } } },
-          });
-          await db.collection("users").doc(user.uid).update({
-            lastAlertAt: Timestamp.fromDate(now),
-            lastAlertEventId: drop.eventId,
-          });
-          pushesSent++;
-        } catch (error) {
-          const code = (error as { code?: string }).code;
-          if (code === "messaging/registration-token-not-registered") {
-            // Stale token (app reinstalled) — drop it so this orphan doc
-            // stops costing pushes and weather calls.
-            await db
-              .collection("users")
-              .doc(user.uid)
-              .update({ fcmToken: FieldValue.delete() });
-            logger.info("stale token removed", { uid: user.uid });
-          } else {
-            logger.error("push failed", { uid: user.uid, error: String(error) });
-          }
-        }
-      }
-    }
+      },
+      recordAlert: async (uid, eventId, at) => {
+        await db.collection("users").doc(uid).update({
+          lastAlertAt: Timestamp.fromDate(at),
+          lastAlertEventId: eventId,
+        });
+      },
+      removeToken: async (uid) => {
+        await db
+          .collection("users")
+          .doc(uid)
+          .update({ fcmToken: FieldValue.delete() });
+      },
+      logError: (message, data) => logger.error(message, data),
+      logInfo: (message, data) => logger.info(message, data),
+    });
 
     logger.info("pressureAlertJob done", {
-      users: users.length,
-      cells: cells.size,
-      failedCells: failedCells.length,
-      pushesSent,
+      users: result.users,
+      cells: result.cells,
+      failedCells: result.failedCells.length,
+      pushesSent: result.pushesSent,
     });
-    if (failedCells.length > 0) {
-      throw new Error(`${failedCells.length} cells failed weather fetch`);
+    if (result.failedCells.length > 0) {
+      throw new Error(`${result.failedCells.length} cells failed weather fetch`);
     }
   },
 );

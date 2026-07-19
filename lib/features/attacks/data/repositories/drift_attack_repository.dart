@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../../core/db/app_database.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/enums/head_location.dart';
 import '../../domain/repositories/attack_repository.dart';
 
 /// Drift-backed [AttackRepository]. Returns domain models, never Drift rows.
@@ -55,6 +56,25 @@ class DriftAttackRepository implements AttackRepository {
           ),
         )
         .toList();
+  }
+
+  @override
+  Stream<Attack?> watchById(String id) {
+    final query = _db.select(_db.attacks).join([
+      leftOuterJoin(
+        _db.weatherSnapshots,
+        _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
+      ),
+    ])..where(_db.attacks.id.equals(id));
+
+    return query.watchSingleOrNull().map(
+      (row) => row == null
+          ? null
+          : _toDomain(
+              row.readTable(_db.attacks),
+              row.readTableOrNull(_db.weatherSnapshots),
+            ),
+    );
   }
 
   /// Inserts the attack and, if already available, its weather snapshot.
@@ -111,6 +131,27 @@ class DriftAttackRepository implements AttackRepository {
       ),
     );
   }
+
+  @override
+  Future<void> updateCore(
+    String id, {
+    required int intensity,
+    required HeadLocation location,
+    String? medicationName,
+  }) async {
+    await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+      AttacksCompanion(
+        intensity: Value(intensity),
+        location: Value(location),
+        medicationName: Value(medicationName),
+      ),
+    );
+  }
+
+  /// Weather snapshot goes with it via the FK cascade.
+  @override
+  Future<void> deleteById(String id) =>
+      (_db.delete(_db.attacks)..where((t) => t.id.equals(id))).go();
 
   /// GDPR wipe. Weather snapshots go with their attacks via cascade.
   @override
