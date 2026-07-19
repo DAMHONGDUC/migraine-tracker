@@ -32,11 +32,15 @@ class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
     required this.onSelected,
+    this.count,
     super.key,
   });
 
   final HistoryPeriod selected;
   final ValueChanged<HistoryPeriod> onSelected;
+
+  /// How many attacks the selected period matches — shown as "All (10)".
+  final int? count;
 
   Future<void> _open(BuildContext context) async {
     final picked = await showHistoryFilterSheet(context, selected: selected);
@@ -67,7 +71,12 @@ class HistoryFilterChip extends StatelessWidget {
               ),
               SizedBox(width: AppSpacingConstant.w6),
               Text(
-                periodLabel(context, selected),
+                count == null
+                    ? periodLabel(context, selected)
+                    : context.l10n.historyFilterWithCount(
+                        periodLabel(context, selected),
+                        count!,
+                      ),
                 style: context.textTheme.labelLarge,
               ),
               SizedBox(width: AppSpacingConstant.w2),
