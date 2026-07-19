@@ -1,16 +1,21 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
+import '../theme/app_colors.dart';
 import 'glass/liquid_glass_theme.dart';
 
-/// The app's single, frosted Liquid Glass [AppBar]. Every screen gets it via
-/// [AppScaffold] rather than constructing an [AppBar] directly.
+/// The app's single [AppBar]. Every screen gets it via [AppScaffold] rather
+/// than constructing an [AppBar] directly.
 ///
-/// It relies on `Scaffold(extendBodyBehindAppBar: true)` (which [AppScaffold]
-/// sets) so the body scrolls *behind* the bar and the glass has something to
-/// refract — without that it just tints the near-black background and the
-/// effect is invisible. Scroll-under bodies should pad their top by
-/// [bodyTopInset] so their first item starts below the bar.
+/// Chrome style: the bar itself is NOT a glass slab — its strip is the app
+/// background colour (translucent) over a backdrop blur, so there is no
+/// visible edge/divider and content scrolling behind it (via
+/// `extendBodyBehindAppBar`) simply blurs out. The Liquid Glass treatment
+/// is applied per element instead: the leading/back button and icon actions
+/// each sit in their own glass circle. Scroll-under bodies should pad their
+/// top by [bodyTopInset] so their first item starts below the bar.
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MainAppBar({
     required this.title,
@@ -40,23 +45,71 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appBar = AppBar(
-      backgroundColor: kLiquidGlassEnabled ? Colors.transparent : null,
-      elevation: kLiquidGlassEnabled ? 0 : null,
-      scrolledUnderElevation: kLiquidGlassEnabled ? 0 : null,
-      surfaceTintColor: kLiquidGlassEnabled ? Colors.transparent : null,
-      title: title,
-      actions: actions,
-      leading: leading,
-      bottom: bottom,
+    if (!kLiquidGlassEnabled) {
+      return AppBar(
+        title: title,
+        actions: actions,
+        leading: leading,
+        bottom: bottom,
+      );
+    }
+
+    // Glass per element: the (back) button and plain icon actions get their
+    // own circles. Composite actions (filter pill, view toggle) already
+    // carry their own surface, so they pass through untouched.
+    Widget? glassLeading = leading;
+    if (glassLeading == null && (ModalRoute.of(context)?.canPop ?? false)) {
+      glassLeading = const BackButton();
+    }
+    if (glassLeading != null) {
+      glassLeading = _GlassCircle(child: glassLeading);
+    }
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: kChromeGlass.blur,
+          sigmaY: kChromeGlass.blur,
+        ),
+        // Same colour as the app background — no divider, no distinct slab;
+        // the translucency lets the blurred content glow through faintly.
+        child: ColoredBox(
+          color: AppColors.background.withValues(alpha: 0.65),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            title: title,
+            leading: glassLeading,
+            actions: [
+              for (final action in actions ?? const <Widget>[])
+                if (action is IconButton)
+                  _GlassCircle(child: action)
+                else
+                  action,
+            ],
+            bottom: bottom,
+          ),
+        ),
+      ),
     );
-    if (!kLiquidGlassEnabled) return appBar;
+  }
+}
+
+/// A single app-bar element in its own Liquid Glass circle.
+class _GlassCircle extends StatelessWidget {
+  const _GlassCircle({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
     return LiquidGlass.withOwnLayer(
       settings: kChromeGlass,
-      // Edge-to-edge frosted bar; the title/actions paint crisply on top
-      // (glassContainsChild: false) so text is never refracted.
-      shape: const LiquidRoundedRectangle(borderRadius: 0),
-      child: appBar,
+      shape: const LiquidOval(),
+      clipBehavior: Clip.antiAlias,
+      child: child,
     );
   }
 }
