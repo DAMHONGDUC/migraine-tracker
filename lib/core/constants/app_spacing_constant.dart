@@ -22,6 +22,7 @@ abstract final class AppSpacingConstant {
   static double get w32 => 32.w;
   static double get w40 => 40.w;
   static double get w44 => 44.w;
+  static double get w46 => 46.w;
   static double get w48 => 48.w;
 
   // --- Vertical (.h) ---

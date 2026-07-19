@@ -23,7 +23,7 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   /// How long without any touch before the bar minimises to 80%.
-  static const _idleDelay = Duration(milliseconds: 2500);
+  static const _idleDelay = Duration(seconds: 5);
 
   Timer? _idleTimer;
   bool _idle = false;

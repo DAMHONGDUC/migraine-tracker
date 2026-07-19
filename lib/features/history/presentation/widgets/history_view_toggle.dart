@@ -32,7 +32,7 @@ class HistoryViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
-    final segmentWidth = AppSpacingConstant.w40;
+    final segmentWidth = AppSpacingConstant.w48;
     final height = AppSpacingConstant.h34;
     final index = modes.indexOf(mode);
 
@@ -68,8 +68,7 @@ class HistoryViewToggle extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacingConstant.r12),
+                    borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
                   ),
                 ),
               ),
@@ -83,8 +82,7 @@ class HistoryViewToggle extends StatelessWidget {
                     icon: _icons[m]!,
                     label: switch (m) {
                       HistoryViewMode.list => context.l10n.a11yViewList,
-                      HistoryViewMode.calendar =>
-                        context.l10n.a11yViewCalendar,
+                      HistoryViewMode.calendar => context.l10n.a11yViewCalendar,
                       HistoryViewMode.chart => context.l10n.a11yViewChart,
                     },
                     selected: m == mode,
