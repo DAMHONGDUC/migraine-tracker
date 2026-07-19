@@ -92,7 +92,17 @@ class _Chart extends StatelessWidget {
       Duration(minutes: (x * 60).round()),
     );
 
-    return SizedBox(
+    // Chart pixels mean nothing to VoiceOver — describe the trend instead.
+    final nowHpa = (past.isNotEmpty ? past.last.y : future.first.y);
+    final minAheadHpa = future.map((s) => s.y).reduce(min);
+
+    return Semantics(
+      label: context.l10n.a11yForecastChart(
+        nowHpa.toStringAsFixed(0),
+        minAheadHpa.toStringAsFixed(0),
+      ),
+      child: ExcludeSemantics(
+        child: SizedBox(
       height: AppSpacingConstant.h160,
       child: LineChart(
         LineChartData(
@@ -183,6 +193,8 @@ class _Chart extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
         ),
       ),
     );

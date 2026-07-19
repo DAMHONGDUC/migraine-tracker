@@ -149,5 +149,14 @@
   "settingsDeleteConfirmTitle": "Xóa tất cả?",
   "settingsDeleteConfirmBody": "Thao tác này xóa vĩnh viễn toàn bộ cơn đau, dữ liệu thời tiết và thuốc khỏi thiết bị. Không thể hoàn tác.",
   "settingsDeleteConfirmAction": "Xóa",
-  "settingsDeleteDone": "Đã xóa toàn bộ dữ liệu."
+  "settingsDeleteDone": "Đã xóa toàn bộ dữ liệu.",
+  "severityMild": "nhẹ",
+  "severityModerate": "vừa",
+  "severitySevere": "nặng",
+  "severityExtreme": "rất nặng",
+  "a11yIntensityButton": "Mức đau {value}, {severity}",
+  "a11yIntensityLabel": "Mức độ {value}, {severity}",
+  "a11yCalendarMarker": "{count, plural, other{{count} cơn đau}}, nặng nhất mức {peak} trên 10",
+  "a11yForecastChart": "Biểu đồ áp suất, 12 giờ qua và 48 giờ tới. Hiện tại {now} hPa, thấp nhất sắp tới {min} hPa.",
+  "a11yWeeklyChart": "Biểu đồ cột cơn đau theo tuần, {total, plural, other{{total} cơn}} trong {weeks} tuần."
 }

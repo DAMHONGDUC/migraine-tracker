@@ -4,6 +4,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -38,8 +39,9 @@ class HistoryScreen extends ConsumerWidget {
       body: Padding(
         padding: EdgeInsets.only(top: AppScaffold.bodyTopInset(context)),
         child: switch (allAttacks) {
-        AsyncData(value: final all) when all.isEmpty => Center(
-          child: Text(l10n.historyEmpty),
+        AsyncData(value: final all) when all.isEmpty => EmptyState(
+          icon: Icons.event_note_outlined,
+          message: l10n.historyEmpty,
         ),
         AsyncData(value: final all) => Builder(
           builder: (context) {
@@ -84,7 +86,10 @@ class HistoryScreen extends ConsumerWidget {
             );
           },
         ),
-        AsyncError() => Center(child: Text(l10n.historyEmpty)),
+        AsyncError() => EmptyState(
+          icon: Icons.event_note_outlined,
+          message: l10n.historyEmpty,
+        ),
         _ => const Center(child: CircularProgressIndicator()),
       },
       ),
@@ -101,7 +106,10 @@ class _ChartView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (attacks.isEmpty) {
-      return Center(child: Text(context.l10n.historyEmptyFiltered));
+      return EmptyState(
+        icon: Icons.filter_alt_outlined,
+        message: context.l10n.historyEmptyFiltered,
+      );
     }
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -134,7 +142,10 @@ class _AttackList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (attacks.isEmpty) {
-      return Center(child: Text(context.l10n.historyEmptyFiltered));
+      return EmptyState(
+        icon: Icons.filter_alt_outlined,
+        message: context.l10n.historyEmptyFiltered,
+      );
     }
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(

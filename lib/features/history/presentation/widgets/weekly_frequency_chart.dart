@@ -35,7 +35,14 @@ class WeeklyFrequencyChart extends StatelessWidget {
           style: context.textTheme.titleMedium,
         ),
         SizedBox(height: AppSpacingConstant.h12),
-        SizedBox(
+        // Bars are unreadable to VoiceOver — summarise the series instead.
+        Semantics(
+          label: context.l10n.a11yWeeklyChart(
+            buckets.fold(0, (sum, b) => sum + b.count),
+            buckets.length,
+          ),
+          child: ExcludeSemantics(
+            child: SizedBox(
           height: AppSpacingConstant.h160,
           child: BarChart(
             BarChartData(
@@ -112,6 +119,8 @@ class WeeklyFrequencyChart extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+        ),
           ),
         ),
       ],

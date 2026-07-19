@@ -4,6 +4,7 @@ import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 
@@ -74,9 +75,16 @@ class _IntensityCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = AppColors.intensity(value);
-    return PressableScale(
-      onTap: onTap,
-      child: Container(
+    final l10n = context.l10n;
+    // The circle only shows a number; severity is colour-only. Give
+    // VoiceOver the full meaning and hide the bare "$value" text.
+    return Semantics(
+      button: true,
+      label: l10n.a11yIntensityButton(value, value.severityLabel(l10n)),
+      excludeSemantics: true,
+      child: PressableScale(
+        onTap: onTap,
+        child: Container(
         width: AppSpacingConstant.r88,
         height: AppSpacingConstant.r88,
         alignment: Alignment.center,
@@ -94,6 +102,7 @@ class _IntensityCircle extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
           ),
+        ),
         ),
       ),
     );
