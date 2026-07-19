@@ -723,5 +723,17 @@
       "total": {"type": "int"},
       "weeks": {"type": "int"}
     }
+  },
+  "a11yViewList": "List view",
+  "@a11yViewList": {
+    "description": "VoiceOver label for the list segment of the history view toggle"
+  },
+  "a11yViewCalendar": "Calendar view",
+  "@a11yViewCalendar": {
+    "description": "VoiceOver label for the calendar segment of the history view toggle"
+  },
+  "a11yViewChart": "Chart view",
+  "@a11yViewChart": {
+    "description": "VoiceOver label for the chart segment of the history view toggle"
   }
 }
