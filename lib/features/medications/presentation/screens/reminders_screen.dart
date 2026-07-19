@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/repositories/medication_reminder_repository.dart';
 import '../../providers.dart';
@@ -80,8 +81,9 @@ class RemindersScreen extends ConsumerWidget {
         label: Text(l10n.remindersAdd),
       ),
       body: switch (reminders) {
-        AsyncData(value: final list) when list.isEmpty => Center(
-          child: Text(l10n.remindersEmpty),
+        AsyncData(value: final list) when list.isEmpty => EmptyState(
+          icon: Icons.alarm_outlined,
+          message: l10n.remindersEmpty,
         ),
         AsyncData(value: final list) => ListView.separated(
           padding: EdgeInsets.fromLTRB(

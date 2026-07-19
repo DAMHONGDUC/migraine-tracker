@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -28,7 +29,14 @@ class HistoryCalendarView extends HookWidget {
     final selectedAttacks = byDay[selected.value] ?? const <Attack>[];
 
     return ListView(
-      padding: EdgeInsets.all(AppSpacingConstant.w16),
+      // Bottom inset so the selected day's last attack scrolls clear of the
+      // floating glass nav the content slides behind.
+      padding: EdgeInsets.fromLTRB(
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppSpacingConstant.w16,
+        AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+      ),
       children: [
         TableCalendar<Attack>(
           firstDay: DateTime(2020),
@@ -74,13 +82,17 @@ class HistoryCalendarView extends HookWidget {
             markerBuilder: (context, day, events) {
               final peak = peakIntensity(events);
               if (peak == null) return null;
-              return Container(
-                width: AppSpacingConstant.r6,
-                height: AppSpacingConstant.r6,
-                margin: EdgeInsets.only(bottom: AppSpacingConstant.h4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.intensity(peak),
+              // The dot is colour-only — give VoiceOver the count + peak.
+              return Semantics(
+                label: context.l10n.a11yCalendarMarker(events.length, peak),
+                child: Container(
+                  width: AppSpacingConstant.r6,
+                  height: AppSpacingConstant.r6,
+                  margin: EdgeInsets.only(bottom: AppSpacingConstant.h4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.intensity(peak),
+                  ),
                 ),
               );
             },

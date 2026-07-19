@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
+import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
@@ -38,11 +39,20 @@ class AttackTile extends StatelessWidget {
   Widget _card(BuildContext context, String when) {
     return Card(
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: context.colorScheme.primary.withValues(alpha: 0.18),
-          child: Text(
-            '${attack.intensity}',
-            style: context.textTheme.titleMedium,
+        // The avatar shows a bare number — tell VoiceOver what it means.
+        leading: Semantics(
+          label: context.l10n.a11yIntensityLabel(
+            attack.intensity,
+            attack.intensity.severityLabel(context.l10n),
+          ),
+          excludeSemantics: true,
+          child: CircleAvatar(
+            backgroundColor:
+                context.colorScheme.primary.withValues(alpha: 0.18),
+            child: Text(
+              '${attack.intensity}',
+              style: context.textTheme.titleMedium,
+            ),
           ),
         ),
         title: Text(attack.location.label(context.l10n)),
