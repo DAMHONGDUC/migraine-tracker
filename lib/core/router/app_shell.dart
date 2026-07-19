@@ -67,79 +67,79 @@ class _AppShellState extends ConsumerState<AppShell> {
       behavior: HitTestBehavior.translucent,
       onPointerDown: _onPointerDown,
       child: Scaffold(
-      // Let the branch content flow behind the floating glass bar so it
-      // refracts through it (hard rule 3: the effect stays calm and dark).
-      extendBody: kLiquidGlassEnabled,
-      body: navigationShell,
-      // Mid-track the tabs are meaningless — morph the nav bar into the
-      // step progress; Cancel in the log screen's app bar exits the flow.
-      // ONE _FloatingBar stays mounted for both states so the glass layer
-      // never rebuilds mid-swap (re-creating it caused a visible hitch);
-      // inside it, AnimatedSize morphs the height while the switcher
-      // cross-fades + slides the content.
-      // Mid-log the bar is the 3-tap progress — always full size; the idle
-      // minimise only applies to the tab nav.
-      bottomNavigationBar: _FloatingBar(
-        shrunk: _idle && !tracking,
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          child: AnimatedSwitcher(
+        // Let the branch content flow behind the floating glass bar so it
+        // refracts through it (hard rule 3: the effect stays calm and dark).
+        extendBody: kLiquidGlassEnabled,
+        body: navigationShell,
+        // Mid-track the tabs are meaningless — morph the nav bar into the
+        // step progress; Cancel in the log screen's app bar exits the flow.
+        // ONE _FloatingBar stays mounted for both states so the glass layer
+        // never rebuilds mid-swap (re-creating it caused a visible hitch);
+        // inside it, AnimatedSize morphs the height while the switcher
+        // cross-fades + slides the content.
+        // Mid-log the bar is the 3-tap progress — always full size; the idle
+        // minimise only applies to the tab nav.
+        bottomNavigationBar: _FloatingBar(
+          shrunk: _idle && !tracking,
+          child: AnimatedSize(
             duration: const Duration(milliseconds: 250),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.12),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
+            curve: Curves.easeOutCubic,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.12),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
               ),
-            ),
-            child: tracking
-                ? _TrackingProgressBar(
-                    key: const ValueKey('progress'),
-                    currentStep: switch (logState.step) {
-                      LogStep.location => 1,
-                      LogStep.medication => 2,
-                      _ => 0,
-                    },
-                  )
-                : _SlidingNavBar(
-                    key: const ValueKey('tabs'),
-                    selectedIndex: navigationShell.currentIndex,
-                    onSelected: (index) => navigationShell.goBranch(
-                      index,
-                      initialLocation: index == navigationShell.currentIndex,
+              child: tracking
+                  ? _TrackingProgressBar(
+                      key: const ValueKey('progress'),
+                      currentStep: switch (logState.step) {
+                        LogStep.location => 1,
+                        LogStep.medication => 2,
+                        _ => 0,
+                      },
+                    )
+                  : _SlidingNavBar(
+                      key: const ValueKey('tabs'),
+                      selectedIndex: navigationShell.currentIndex,
+                      onSelected: (index) => navigationShell.goBranch(
+                        index,
+                        initialLocation: index == navigationShell.currentIndex,
+                      ),
+                      items: [
+                        _NavItem(
+                          icon: Icons.add_circle_outline,
+                          selectedIcon: Icons.add_circle,
+                          label: l10n.navLog,
+                        ),
+                        _NavItem(
+                          icon: Icons.calendar_month_outlined,
+                          selectedIcon: Icons.calendar_month,
+                          label: l10n.navHistory,
+                        ),
+                        _NavItem(
+                          icon: Icons.insights_outlined,
+                          selectedIcon: Icons.insights,
+                          label: l10n.navInsights,
+                        ),
+                        _NavItem(
+                          icon: Icons.settings_outlined,
+                          selectedIcon: Icons.settings,
+                          label: l10n.navSettings,
+                        ),
+                      ],
                     ),
-                    items: [
-                      _NavItem(
-                        icon: Icons.add_circle_outline,
-                        selectedIcon: Icons.add_circle,
-                        label: l10n.navLog,
-                      ),
-                      _NavItem(
-                        icon: Icons.calendar_month_outlined,
-                        selectedIcon: Icons.calendar_month,
-                        label: l10n.navHistory,
-                      ),
-                      _NavItem(
-                        icon: Icons.insights_outlined,
-                        selectedIcon: Icons.insights,
-                        label: l10n.navInsights,
-                      ),
-                      _NavItem(
-                        icon: Icons.settings_outlined,
-                        selectedIcon: Icons.settings,
-                        label: l10n.navSettings,
-                      ),
-                    ],
-                  ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -164,60 +164,55 @@ class _SlidingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final count = items.length;
-    return DecoratedBox(
-      // Opaque surface only when glass is off; the glass supplies it otherwise.
+    return Container(
+      // Same height as the tracking progress bar — the morph between the
+      // two states is then a pure cross-fade, no size jump.
+      height: AppSpacingConstant.h56,
       decoration: BoxDecoration(
         color: kLiquidGlassEnabled ? null : scheme.surfaceContainer,
       ),
-      child: SizedBox(
-        // Same height as the tracking progress bar — the morph between the
-        // two states is then a pure cross-fade, no size jump.
-        height: AppSpacingConstant.h68,
-        child: Stack(
-          children: [
-            // The sliding thumb: 1/N wide, aligned to the selected segment.
-            AnimatedAlign(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutCubic,
-              alignment: AlignmentDirectional(
-                count == 1 ? 0 : -1 + 2 * selectedIndex / (count - 1),
-                0,
-              ),
-              child: FractionallySizedBox(
-                widthFactor: 1 / count,
-                heightFactor: 1,
-                child: Padding(
-                  // Slim inset so the thumb hugs the container border.
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacingConstant.w4,
-                    vertical: AppSpacingConstant.h6,
-                  ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.22),
-                      // Oversized radius = stadium caps, matching the bar.
-                      borderRadius: BorderRadius.circular(
-                        AppSpacingConstant.r64,
-                      ),
-                    ),
+      child: Stack(
+        children: [
+          // The sliding thumb: 1/N wide, aligned to the selected segment.
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            alignment: AlignmentDirectional(
+              count == 1 ? 0 : -1 + 2 * selectedIndex / (count - 1),
+              0,
+            ),
+            child: FractionallySizedBox(
+              widthFactor: 1 / count,
+              heightFactor: 1,
+              child: Padding(
+                // Slim inset so the thumb hugs the container border.
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacingConstant.w6,
+                  vertical: AppSpacingConstant.w6,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.22),
+                    // Oversized radius = stadium caps, matching the bar.
+                    borderRadius: BorderRadius.circular(AppSpacingConstant.r64),
                   ),
                 ),
               ),
             ),
-            Row(
-              children: [
-                for (var i = 0; i < count; i++)
-                  Expanded(
-                    child: _NavSegment(
-                      item: items[i],
-                      selected: i == selectedIndex,
-                      onTap: () => onSelected(i),
-                    ),
+          ),
+          Row(
+            children: [
+              for (var i = 0; i < count; i++)
+                Expanded(
+                  child: _NavSegment(
+                    item: items[i],
+                    selected: i == selectedIndex,
+                    onTap: () => onSelected(i),
                   ),
-              ],
-            ),
-          ],
-        ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -262,7 +257,7 @@ class _NavSegment extends StatelessWidget {
         child: Center(
           child: Icon(
             selected ? item.selectedIcon : item.icon,
-            size: AppSpacingConstant.r22,
+            size: AppSpacingConstant.r26,
             color: color,
           ),
         ),
@@ -307,8 +302,9 @@ class _FloatingBar extends StatelessWidget {
           settings: kChromeGlass,
           // Half the bar height (h68) → a true stadium: the short edges are
           // full semicircles, no straight segment left.
-          shape:
-              LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.h34),
+          shape: LiquidRoundedSuperellipse(
+            borderRadius: AppSpacingConstant.h34,
+          ),
           clipBehavior: Clip.antiAlias,
           child: MediaQuery.removePadding(
             context: context,
@@ -339,9 +335,11 @@ class _TrackingProgressBar extends StatelessWidget {
         top: false,
         bottom: !kLiquidGlassEnabled,
         child: SizedBox(
-          height: AppSpacingConstant.h68,
+          height: AppSpacingConstant.h56,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w48),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacingConstant.w48,
+            ).copyWith(top: AppSpacingConstant.h2),
             child: Center(
               child: StepProgress(
                 totalSteps: 3,
