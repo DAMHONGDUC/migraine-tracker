@@ -176,7 +176,7 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.alarm),
             title: Text(l10n.remindersTitle),
-            onTap: () => context.push(AppRoutes.reminders),
+            onTap: () => context.pushNamed(AppRoutes.reminders.name),
           ),
           ListTile(
             leading: const Icon(Icons.language),

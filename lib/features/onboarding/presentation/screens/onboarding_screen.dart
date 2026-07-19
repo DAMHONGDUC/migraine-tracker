@@ -32,7 +32,7 @@ class OnboardingScreen extends HookConsumerWidget {
 
     Future<void> finish() async {
       await controller.complete(thresholdHpa: threshold.value);
-      if (context.mounted) context.go(AppRoutes.log);
+      if (context.mounted) context.goNamed(AppRoutes.log.name);
     }
 
     return Scaffold(

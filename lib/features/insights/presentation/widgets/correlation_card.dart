@@ -78,7 +78,7 @@ class _Teaser extends StatelessWidget {
         Align(
           alignment: AlignmentDirectional.centerEnd,
           child: FilledButton.tonal(
-            onPressed: () => context.push(AppRoutes.paywall),
+            onPressed: () => context.pushNamed(AppRoutes.paywall.name),
             child: Text(l10n.premiumUnlock),
           ),
         ),
