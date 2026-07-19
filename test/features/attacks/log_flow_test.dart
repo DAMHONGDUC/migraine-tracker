@@ -72,7 +72,7 @@ void main() {
 
     await logAttack(tester, intensity: '4', location: 'Whole head');
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

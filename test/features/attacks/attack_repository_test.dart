@@ -125,6 +125,61 @@ void main() {
     expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
   });
 
+  group('detail screen support', () {
+    test('watchById emits the attack with weather, then null once deleted',
+        () async {
+      await repository.insert(fullAttack());
+      final stream = repository.watchById('a1');
+
+      expect((await stream.first)?.weather, snapshot());
+
+      await repository.deleteById('a1');
+      expect(await stream.first, isNull);
+    });
+
+    test('watchById is null for an unknown id', () async {
+      expect(await repository.watchById('nope').first, isNull);
+    });
+
+    test('updateCore corrects the 3-tap fields, keeping details + weather',
+        () async {
+      await repository.insert(fullAttack());
+
+      await repository.updateCore(
+        'a1',
+        intensity: 3,
+        location: HeadLocation.back,
+        medicationName: null,
+      );
+
+      final a = (await repository.watchAll().first).single;
+      expect(a.intensity, 3);
+      expect(a.location, HeadLocation.back);
+      expect(a.medicationName, isNull);
+      // Untouched:
+      expect(a.symptoms, ['aura', 'nausea']);
+      expect(a.notes, 'woke up with it');
+      expect(a.weather, snapshot());
+    });
+
+    test('deleteById removes one attack and cascades its weather', () async {
+      await repository.insert(fullAttack());
+      await repository.insert(
+        Attack(
+          id: 'a2',
+          startedAt: DateTime.utc(2026, 7, 4),
+          intensity: 2,
+          location: HeadLocation.front,
+        ),
+      );
+
+      await repository.deleteById('a1');
+
+      expect((await repository.watchAll().first).map((a) => a.id), ['a2']);
+      expect(await db.select(db.weatherSnapshots).get(), isEmpty);
+    });
+  });
+
   test('deleteAll wipes attacks and cascades to weather snapshots', () async {
     await repository.insert(fullAttack());
     await repository.deleteAll();

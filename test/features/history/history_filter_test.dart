@@ -14,7 +14,7 @@ Attack at(String id, DateTime local) => Attack(
 );
 
 Future<void> openHistory(WidgetTester tester) async {
-  await tester.tap(find.text('History'));
+  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }

@@ -20,6 +20,7 @@ abstract final class AppSpacingConstant {
   static double get w24 => 24.w;
   static double get w28 => 28.w;
   static double get w32 => 32.w;
+  static double get w40 => 40.w;
   static double get w44 => 44.w;
   static double get w48 => 48.w;
 
@@ -40,6 +41,7 @@ abstract final class AppSpacingConstant {
   // --- Square / radius (.r) ---
   static double get r3 => 3.r;
   static double get r4 => 4.r;
+  static double get r6 => 6.r;
   static double get r12 => 12.r;
   static double get r16 => 16.r;
   static double get r18 => 18.r;

@@ -38,13 +38,27 @@ abstract final class AppColors {
 
   static const Color transparent = Color(0x00000000);
 
-  /// Calm, desaturated severity tint for a 1–10 pain intensity. Used as a
-  /// translucent fill + solid text/border, never a bright saturated fill
-  /// (photophobia). Four bands: low → mild → strong → severe.
+  /// Severity tint for a 1–10 pain intensity, in four bands: the familiar
+  /// green → yellow → orange → red scale.
+  ///
+  /// Every step is measured, not eyeballed. Each adjacent pair clears the
+  /// normal-vision floor (ΔE ≥ 15) AND the colour-blind target (ΔE ≥ 8)
+  /// against the dark surface:
+  ///   green↔yellow  ΔE 18.0 normal / 14.8 CVD
+  ///   yellow↔orange ΔE 15.4 normal / 10.1 CVD
+  ///   orange↔red    ΔE 15.7 normal / 13.5 CVD
+  ///
+  /// Squeezing four bands into one hue journey is tight — nudging any step
+  /// toward its neighbour collapses that pair (the previous orange/red sat
+  /// at ΔE 5.0 normal, 1.7 deutan: the same colour to most eyes). Re-measure
+  /// before changing any value here.
+  ///
+  /// Use for fills/borders only — the red is 3.5:1 on [surface], fine for a
+  /// mark but below the 4.5:1 text floor, so numbers wear [textPrimary].
   static Color intensity(int value) {
-    if (value <= 3) return const Color(0xFF6FA890); // muted green
-    if (value <= 6) return const Color(0xFFC7A86B); // muted amber
-    if (value <= 8) return const Color(0xFFD98A6C); // muted orange
-    return error; // severe → desaturated red
+    if (value <= 3) return const Color(0xFF6FA890); // mild — green
+    if (value <= 6) return const Color(0xFFD9C24E); // moderate — yellow
+    if (value <= 8) return const Color(0xFFE8823A); // severe — orange
+    return const Color(0xFFCF3B34); // extreme — red
   }
 }

@@ -4,6 +4,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dar
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/doctor_report_builder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 DoctorReportStrings strings() => DoctorReportStrings(
   title: 'BaroEase - Migraine report',
@@ -60,6 +61,8 @@ void main() {
       ),
       strings: strings(),
       now: now,
+      regularFont: pw.Font.helvetica(),
+      boldFont: pw.Font.helveticaBold(),
     );
     // %PDF magic header + non-trivial content.
     expect(bytes.length, greaterThan(1000));
@@ -75,6 +78,8 @@ void main() {
       ),
       strings: strings(),
       now: now,
+      regularFont: pw.Font.helvetica(),
+      boldFont: pw.Font.helveticaBold(),
     );
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });

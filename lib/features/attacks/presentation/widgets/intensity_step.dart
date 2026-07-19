@@ -82,13 +82,17 @@ class _IntensityCircle extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: color.withValues(alpha: 0.20),
-          border: Border.all(color: color.withValues(alpha: 0.55), width: 1.5),
+          // Severity lives in the fill/border; the number wears the text
+          // token so it stays readable at every step of the ramp.
+          color: color.withValues(alpha: 0.45),
+          border: Border.all(color: color, width: 1.5),
         ),
         child: FittedBox(
           child: Text(
             '$value',
-            style: context.textTheme.headlineSmall?.copyWith(color: color),
+            style: context.textTheme.headlineSmall?.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
       ),
