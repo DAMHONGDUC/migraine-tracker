@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -64,15 +65,37 @@ class HistoryScreen extends ConsumerWidget {
               AsyncData(value: final value) => value,
               _ => const <Attack>[],
             };
+            // Insets computed HERE — a context inside the Scaffold body,
+            // where extendBodyBehindAppBar/extendBody make MediaQuery
+            // report the real bar heights — and passed down, so the inner
+            // views don't depend on where they read MediaQuery from.
+            final topInset = kLiquidGlassEnabled
+                ? MediaQuery.paddingOf(context).top
+                : 0.0;
+            final bottomInset = kLiquidGlassEnabled
+                ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
+                : 0.0;
             // IndexedStack keeps ALL views alive so switching modes
             // preserves state (scroll position, selected day, layout).
             return IndexedStack(
               index: HistoryViewMode.values.indexOf(mode),
               children: [
-                _AttackList(attacks: list),
+                _AttackList(
+                  attacks: list,
+                  topInset: topInset,
+                  bottomInset: bottomInset,
+                ),
                 // Calendar ignores the period filter by design.
-                HistoryCalendarView(attacks: all),
-                _ChartView(attacks: list),
+                HistoryCalendarView(
+                  attacks: all,
+                  topInset: topInset,
+                  bottomInset: bottomInset,
+                ),
+                _ChartView(
+                  attacks: list,
+                  topInset: topInset,
+                  bottomInset: bottomInset,
+                ),
               ],
             );
           },
@@ -89,9 +112,15 @@ class HistoryScreen extends ConsumerWidget {
 
 /// Chart mode — same filtered data as the list.
 class _ChartView extends StatelessWidget {
-  const _ChartView({required this.attacks});
+  const _ChartView({
+    required this.attacks,
+    required this.topInset,
+    required this.bottomInset,
+  });
 
   final List<Attack> attacks;
+  final double topInset;
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -105,9 +134,9 @@ class _ChartView extends StatelessWidget {
       // Flush under the app bar — no gap between the bar and the content.
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppScaffold.bodyTopInset(context),
+        topInset,
         AppSpacingConstant.w16,
-        AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+        bottomInset + AppSpacingConstant.h16,
       ),
       children: [
         WeeklyFrequencyChart(
@@ -119,9 +148,15 @@ class _ChartView extends StatelessWidget {
 }
 
 class _AttackList extends StatelessWidget {
-  const _AttackList({required this.attacks});
+  const _AttackList({
+    required this.attacks,
+    required this.topInset,
+    required this.bottomInset,
+  });
 
   final List<Attack> attacks;
+  final double topInset;
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -135,9 +170,9 @@ class _AttackList extends StatelessWidget {
       // Flush under the app bar — no gap between the bar and the content.
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w16,
-        AppScaffold.bodyTopInset(context),
+        topInset,
         AppSpacingConstant.w16,
-        AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
+        bottomInset + AppSpacingConstant.h16,
       ),
       itemCount: attacks.length,
       separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),

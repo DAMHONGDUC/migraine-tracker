@@ -5,7 +5,6 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_scaffold.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -19,9 +18,19 @@ import 'attack_tile.dart';
 /// collapses it from month grid to a single week strip (and back at the
 /// top), so the list gets the space while the selected week stays visible.
 class HistoryCalendarView extends HookWidget {
-  const HistoryCalendarView({required this.attacks, super.key});
+  const HistoryCalendarView({
+    required this.attacks,
+    required this.topInset,
+    required this.bottomInset,
+    super.key,
+  });
 
   final List<Attack> attacks;
+
+  /// Bar clearances, computed by the parent from a context inside the
+  /// Scaffold body (where MediaQuery reports the real bar heights).
+  final double topInset;
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +56,7 @@ class HistoryCalendarView extends HookWidget {
       padding: EdgeInsets.only(
         left: AppSpacingConstant.w16,
         right: AppSpacingConstant.w16,
-        top: AppScaffold.bodyTopInset(context),
+        top: topInset,
       ),
       child: CustomScrollView(
         slivers: [
@@ -174,10 +183,7 @@ class HistoryCalendarView extends HookWidget {
             ),
           // Clearance so the last tile scrolls past the floating glass nav.
           SliverToBoxAdapter(
-            child: SizedBox(
-              height: AppScaffold.bottomNavInset(context) +
-                  AppSpacingConstant.h16,
-            ),
+            child: SizedBox(height: bottomInset + AppSpacingConstant.h16),
           ),
         ],
       ),
