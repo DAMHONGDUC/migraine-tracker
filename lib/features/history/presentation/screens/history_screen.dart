@@ -37,6 +37,9 @@ class HistoryScreen extends ConsumerWidget {
           Center(
             child: HistoryFilterChip(
               selected: period,
+              // Count only once the filtered list has resolved — the pill
+              // shows just the period name for the first frames.
+              count: filtered.value?.length,
               onSelected: ref.read(historyPeriodProvider.notifier).select,
             ),
           ),

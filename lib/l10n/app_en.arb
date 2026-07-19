@@ -368,6 +368,14 @@
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"
   },
+  "historyFilterWithCount": "{label} ({count})",
+  "@historyFilterWithCount": {
+    "description": "Filter pill text: the active period plus how many attacks it matches, e.g. \"All (10)\"",
+    "placeholders": {
+      "label": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
   "historyFilterToday": "Today",
   "@historyFilterToday": {
     "description": "History filter chip: attacks from today"

@@ -81,6 +81,7 @@
   "historyCalendarLegend": "Màu thể hiện cơn đau nặng nhất trong ngày",
   "historyChartTitle": "Số cơn đau mỗi tuần",
   "historyChartTooltip": "{count} cơn đau",
+  "historyFilterWithCount": "{label} ({count})",
   "historyFilterToday": "Hôm nay",
   "historyFilterWeek": "Tuần",
   "historyFilterMonth": "Tháng",
