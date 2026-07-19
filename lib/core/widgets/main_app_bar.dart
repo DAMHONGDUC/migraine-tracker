@@ -30,14 +30,16 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final PreferredSizeWidget? bottom;
 
-  /// Top inset a scroll-under body needs: the status-bar height plus the
-  /// toolbar (and any [bottom]) so the first item clears the bar. Returns 0
-  /// when glass is disabled — the bar is then opaque and the body sits below
-  /// it normally, so no extra inset is wanted.
-  static double bodyTopInset(BuildContext context, {double bottomHeight = 0}) =>
-      kLiquidGlassEnabled
-      ? MediaQuery.paddingOf(context).top + kToolbarHeight + bottomHeight
-      : 0;
+  /// Top inset a scroll-under body needs so its first item clears the bar.
+  ///
+  /// Must be read from a context INSIDE the Scaffold body: with
+  /// `extendBodyBehindAppBar` the Scaffold already reports the bar's full
+  /// height (status bar + toolbar + any [bottom]) as the body's
+  /// `MediaQuery.padding.top`, so this is a plain read — adding
+  /// kToolbarHeight on top would double-count it. Returns 0 when glass is
+  /// disabled — the bar is then opaque and the body sits below it normally.
+  static double bodyTopInset(BuildContext context) =>
+      kLiquidGlassEnabled ? MediaQuery.paddingOf(context).top : 0;
 
   @override
   Size get preferredSize =>
