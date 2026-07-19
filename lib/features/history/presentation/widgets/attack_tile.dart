@@ -66,7 +66,10 @@ class AttackTile extends StatelessWidget {
           size: AppSpacingConstant.r20,
           color: context.colorScheme.onSurfaceVariant,
         ),
-        onTap: () => context.push(AppRoutes.attackDetail(attack.id)),
+        onTap: () => context.pushNamed(
+          AppRoutes.attack.name,
+          pathParameters: {AppRoutes.attackIdParam: attack.id},
+        ),
       ),
     );
   }

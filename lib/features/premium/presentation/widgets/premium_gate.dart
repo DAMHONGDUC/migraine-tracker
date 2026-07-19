@@ -63,7 +63,7 @@ class _LockedCard extends StatelessWidget {
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: FilledButton.tonal(
-                onPressed: () => context.push(AppRoutes.paywall),
+                onPressed: () => context.pushNamed(AppRoutes.paywall.name),
                 child: Text(l10n.premiumUnlock),
               ),
             ),
@@ -98,7 +98,7 @@ class PremiumTileGate extends ConsumerWidget {
       title: Text(title),
       subtitle: Text(lockedMessage),
       trailing: const PremiumBadge(),
-      onTap: () => context.push(AppRoutes.paywall),
+      onTap: () => context.pushNamed(AppRoutes.paywall.name),
     );
   }
 }
