@@ -96,14 +96,14 @@ void main() {
     );
 
     await openHistory(tester);
-    expect(find.text('1 attack'), findsOneWidget);
+    expect(find.byType(AttackTile), findsOneWidget);
 
     await switchToCalendar(tester);
     await tester.tap(find.byIcon(Icons.list_alt));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('1 attack'), findsOneWidget);
+    expect(find.byType(AttackTile), findsOneWidget);
     expect(find.byIcon(Icons.filter_list), findsOneWidget);
 
     await finishTest(tester);

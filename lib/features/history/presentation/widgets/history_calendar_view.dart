@@ -41,8 +41,14 @@ class HistoryCalendarView extends HookWidget {
     final monthExtent = headerH + daysOfWeekH + 6 * rowH;
     final weekExtent = headerH + daysOfWeekH + rowH;
 
+    // Top inset lives OUTSIDE the scroll view: the pinned calendar header
+    // must sit below the app bar, never slide behind it.
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w16),
+      padding: EdgeInsets.only(
+        left: AppSpacingConstant.w16,
+        right: AppSpacingConstant.w16,
+        top: AppScaffold.bodyTopInset(context),
+      ),
       child: CustomScrollView(
         slivers: [
           SliverPersistentHeader(
