@@ -11,35 +11,40 @@ class WeeklyBucket {
   final int count;
 }
 
-/// Buckets attacks into the last [weeks] calendar weeks (Monday-start,
-/// user-local time), oldest first. Weeks with no attacks are included with
-/// a zero count so the chart never hides quiet weeks.
-List<WeeklyBucket> weeklyBuckets(
-  List<Attack> attacks, {
-  required DateTime now,
-  int weeks = 8,
-}) {
-  DateTime mondayOf(DateTime d) {
+/// Buckets attacks into calendar weeks for the frequency chart.
+class WeeklyBucketsCalculator {
+  const WeeklyBucketsCalculator();
+
+  /// Buckets attacks into the last [weeks] calendar weeks (Monday-start,
+  /// user-local time), oldest first. Weeks with no attacks are included
+  /// with a zero count so the chart never hides quiet weeks.
+  List<WeeklyBucket> compute(
+    List<Attack> attacks, {
+    required DateTime now,
+    int weeks = 8,
+  }) {
+    final currentWeek = _mondayOf(now.toLocal());
+    final starts = [
+      for (var i = weeks - 1; i >= 0; i--)
+        currentWeek.subtract(Duration(days: 7 * i)),
+    ];
+    final counts = {for (final start in starts) start: 0};
+
+    for (final attack in attacks) {
+      final week = _mondayOf(attack.startedAt.toLocal());
+      if (counts.containsKey(week)) {
+        counts[week] = counts[week]! + 1;
+      }
+    }
+
+    return [
+      for (final start in starts)
+        WeeklyBucket(weekStart: start, count: counts[start]!),
+    ];
+  }
+
+  DateTime _mondayOf(DateTime d) {
     final midnight = DateTime(d.year, d.month, d.day);
     return midnight.subtract(Duration(days: midnight.weekday - 1));
   }
-
-  final currentWeek = mondayOf(now.toLocal());
-  final starts = [
-    for (var i = weeks - 1; i >= 0; i--)
-      currentWeek.subtract(Duration(days: 7 * i)),
-  ];
-  final counts = {for (final start in starts) start: 0};
-
-  for (final attack in attacks) {
-    final week = mondayOf(attack.startedAt.toLocal());
-    if (counts.containsKey(week)) {
-      counts[week] = counts[week]! + 1;
-    }
-  }
-
-  return [
-    for (final start in starts)
-      WeeklyBucket(weekStart: start, count: counts[start]!),
-  ];
 }

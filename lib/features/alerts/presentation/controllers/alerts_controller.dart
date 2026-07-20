@@ -50,8 +50,3 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
   }
 }
-
-final alertsControllerProvider =
-    AsyncNotifierProvider<AlertsController, AlertsSettings>(
-      AlertsController.new,
-    );

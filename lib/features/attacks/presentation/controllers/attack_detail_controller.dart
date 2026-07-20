@@ -28,7 +28,3 @@ class AttackDetailController {
   Future<void> delete(String id) =>
       _ref.read(attackRepositoryProvider).deleteById(id);
 }
-
-final attackDetailControllerProvider = Provider<AttackDetailController>(
-  AttackDetailController.new,
-);
