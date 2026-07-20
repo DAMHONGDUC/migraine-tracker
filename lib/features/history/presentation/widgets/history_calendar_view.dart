@@ -15,9 +15,13 @@ import 'attack_tile.dart';
 /// below. Owns its month navigation, so the period filter is hidden in this
 /// mode (see HistoryScreen).
 ///
-/// The calendar lives in a pinned sliver header: scrolling the day list
-/// collapses it from month grid to a single week strip (and back at the
-/// top), so the list gets the space while the selected week stays visible.
+/// The calendar sits ABOVE the day list (not inside its scroll view):
+/// scrolling the list collapses it to a compact strip — weekday labels +
+/// the selected week, month-title header hidden. It stays collapsed until
+/// the user deliberately expands it: a pull past the top of the list, or a
+/// swipe down on the strip itself. Because the list starts right under the
+/// calendar box and the height change is a single animation, there is
+/// never a dead gap between the strip and the first tile.
 class HistoryCalendarView extends HookWidget {
   const HistoryCalendarView({
     required this.attacks,
@@ -39,44 +43,77 @@ class HistoryCalendarView extends HookWidget {
     final today = dayKey(DateTime.now());
     final selected = useState(today);
     final focused = useState(today);
+    final collapsed = useState(false);
+    final scrollController = useScrollController();
+
+    // Collapse once the list is meaningfully scrolled. Expanding is never
+    // automatic — merely returning to the top keeps the strip compact; the
+    // user expands it deliberately (pull past the top, or swipe down on
+    // the strip itself via onFormatChanged below).
+    useEffect(() {
+      void onScroll() {
+        if (!collapsed.value &&
+            scrollController.offset > AppSpacingConstant.h32) {
+          collapsed.value = true;
+        }
+      }
+
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController]);
+
+    // A drag past the top edge re-expands the calendar. dragDetails filters
+    // out ballistic bounces: only a finger actually pulling counts, so a
+    // fling that overshoots the top doesn't pop the month grid open.
+    bool onScrollNotification(ScrollNotification notification) {
+      if (!collapsed.value) return false;
+      final pulling = switch (notification) {
+        OverscrollNotification(:final dragDetails, :final overscroll) =>
+          dragDetails != null && overscroll < 0,
+        ScrollUpdateNotification(:final dragDetails, :final metrics) =>
+          dragDetails != null && metrics.pixels < -AppSpacingConstant.h8,
+        _ => false,
+      };
+      if (pulling) collapsed.value = false;
+      return false;
+    }
 
     final selectedAttacks = byDay[selected.value] ?? const <Attack>[];
 
-    // Fixed calendar metrics so the sliver extents are exact:
-    // header (month title + chevrons), weekday row, and 6 date rows
-    // (sixWeekMonthsEnforced keeps every month the same height).
-    final headerH = AppSpacingConstant.h64;
     final daysOfWeekH = AppSpacingConstant.h20;
     final rowH = AppSpacingConstant.h44;
-    final monthExtent = headerH + daysOfWeekH + 6 * rowH;
-    final weekExtent = headerH + daysOfWeekH + rowH;
 
-    // Top inset lives OUTSIDE the scroll view: the pinned calendar header
-    // must sit below the app bar, never slide behind it.
+    // Top inset lives OUTSIDE the scroll view: the calendar must sit below
+    // the app bar, never slide behind it.
     return Padding(
       padding: EdgeInsets.only(
         left: AppSpacingConstant.w16,
         right: AppSpacingConstant.w16,
         top: topInset,
       ),
-      child: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _CollapsingCalendarDelegate(
-              minExtent: weekExtent,
-              maxExtent: monthExtent,
-              builder: (context, collapsed) => TableCalendar<Attack>(
+      child: Column(
+        children: [
+          // Calm height animation between month grid and week strip (hard
+          // rule 3: nothing flashy). ClipRect keeps the mid-animation
+          // overflow invisible.
+          ClipRect(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: TableCalendar<Attack>(
                 firstDay: DateTime(2020),
                 lastDay: DateTime(today.year + 1, 12, 31),
                 focusedDay: focused.value,
                 currentDay: today,
                 startingDayOfWeek: StartingDayOfWeek.monday,
                 locale: context.l10n.localeName,
-                calendarFormat: collapsed
+                calendarFormat: collapsed.value
                     ? CalendarFormat.week
                     : CalendarFormat.month,
-                sixWeekMonthsEnforced: true,
+                // The collapsed strip drops the month-title header too:
+                // just the weekday labels and the selected week.
+                headerVisible: !collapsed.value,
                 rowHeight: rowH,
                 daysOfWeekHeight: daysOfWeekH,
                 selectedDayPredicate: (day) => isSameDay(day, selected.value),
@@ -86,6 +123,10 @@ class HistoryCalendarView extends HookWidget {
                   focused.value = focusedDay;
                 },
                 onPageChanged: (focusedDay) => focused.value = focusedDay,
+                // Vertical swipe on the calendar itself: down expands to
+                // the month grid, up collapses to the week strip.
+                onFormatChanged: (format) =>
+                    collapsed.value = format == CalendarFormat.week,
                 availableCalendarFormats: const {
                   CalendarFormat.month: '',
                   CalendarFormat.week: '',
@@ -93,32 +134,26 @@ class HistoryCalendarView extends HookWidget {
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
-                  titleTextStyle:
-                      AppTextStyle.titleMedium,
+                  titleTextStyle: AppTextStyle.titleMedium,
                   leftChevronIcon: const Icon(Icons.chevron_left),
                   rightChevronIcon: const Icon(Icons.chevron_right),
                 ),
                 calendarStyle: CalendarStyle(
                   outsideDaysVisible: false,
-                  defaultTextStyle:
-                      AppTextStyle.bodyMedium,
-                  weekendTextStyle:
-                      AppTextStyle.bodyMedium,
+                  defaultTextStyle: AppTextStyle.bodyMedium,
+                  weekendTextStyle: AppTextStyle.bodyMedium,
                   todayDecoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color:
-                          context.colorScheme.primary.withValues(alpha: 0.6),
+                      color: context.colorScheme.primary.withValues(alpha: 0.6),
                     ),
                   ),
-                  todayTextStyle:
-                      AppTextStyle.bodyMedium,
+                  todayTextStyle: AppTextStyle.bodyMedium,
                   selectedDecoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: context.colorScheme.primary.withValues(alpha: 0.28),
                   ),
-                  selectedTextStyle:
-                      AppTextStyle.bodyMedium,
+                  selectedTextStyle: AppTextStyle.bodyMedium,
                 ),
                 calendarBuilders: CalendarBuilders<Attack>(
                   markerBuilder: (context, day, events) {
@@ -145,94 +180,51 @@ class HistoryCalendarView extends HookWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(top: AppSpacingConstant.h8),
-              child: Text(
-                context.l10n.historyCalendarLegend,
-                textAlign: TextAlign.center,
-                style: AppTextStyle.bodySmall.secondary,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(height: AppSpacingConstant.h16),
-          ),
-          if (selectedAttacks.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: AppSpacingConstant.h16),
-                child: Text(
-                  context.l10n.historyCalendarNoAttacks,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.bodyMedium.secondary,
-                ),
-              ),
-            )
-          else
-            SliverList.separated(
-              itemCount: selectedAttacks.length,
-              separatorBuilder: (_, _) =>
+          Expanded(
+            child: NotificationListener<ScrollNotification>(
+              onNotification: onScrollNotification,
+              child: ListView(
+                controller: scrollController,
+                // No ambient MediaQuery padding: the app bar clearance is
+                // already handled by topInset above the calendar, and the
+                // bottom nav by the trailing SizedBox — the default would
+                // open a dead gap between the calendar and the legend.
+                padding: EdgeInsets.zero,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: AppSpacingConstant.h8),
+                    child: Text(
+                      context.l10n.historyCalendarLegend,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.bodySmall.secondary,
+                    ),
+                  ),
                   SizedBox(height: AppSpacingConstant.h8),
-              itemBuilder: (context, index) =>
-                  AttackTile(attack: selectedAttacks[index]),
+                  if (selectedAttacks.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacingConstant.h16,
+                      ),
+                      child: Text(
+                        context.l10n.historyCalendarNoAttacks,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyle.bodyMedium.secondary,
+                      ),
+                    )
+                  else
+                    for (final (i, attack) in selectedAttacks.indexed) ...[
+                      if (i > 0) SizedBox(height: AppSpacingConstant.h8),
+                      AttackTile(attack: attack),
+                    ],
+                  // Clearance so the last tile scrolls past the floating
+                  // glass nav.
+                  SizedBox(height: bottomInset + AppSpacingConstant.h16),
+                ],
+              ),
             ),
-          // Clearance so the last tile scrolls past the floating glass nav.
-          SliverToBoxAdapter(
-            child: SizedBox(height: bottomInset + AppSpacingConstant.h16),
           ),
         ],
       ),
     );
   }
-}
-
-/// Pinned header that swaps the calendar between month and week format as it
-/// collapses. The child is clipped to the current extent (top-aligned), so
-/// the drag reads as the month grid sliding away; past the midpoint the
-/// calendar animates itself down to the week strip.
-class _CollapsingCalendarDelegate extends SliverPersistentHeaderDelegate {
-  const _CollapsingCalendarDelegate({
-    required this.minExtent,
-    required this.maxExtent,
-    required this.builder,
-  });
-
-  @override
-  final double minExtent;
-  @override
-  final double maxExtent;
-
-  final Widget Function(BuildContext context, bool collapsed) builder;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    final collapsed = shrinkOffset > (maxExtent - minExtent) / 2;
-    // Opaque so the day list never shows through the pinned strip. The
-    // OverflowBox grants slack beyond the sliver extent: the calendar's
-    // header has fixed-height internals that don't follow screenutil
-    // scaling, so a tight box would overflow by a few px on small scales —
-    // any excess is clipped instead.
-    return ColoredBox(
-      color: AppColors.background,
-      child: ClipRect(
-        child: OverflowBox(
-          alignment: Alignment.topCenter,
-          minHeight: 0,
-          maxHeight: maxExtent + AppSpacingConstant.h32,
-          child: builder(context, collapsed),
-        ),
-      ),
-    );
-  }
-
-  // The builder closure captures live state (selected day, attack map), so
-  // every new delegate instance must rebuild — extents alone can't tell.
-  @override
-  bool shouldRebuild(_CollapsingCalendarDelegate oldDelegate) => true;
 }

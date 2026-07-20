@@ -26,26 +26,10 @@ class HistoryScreen extends ConsumerWidget {
     final allAttacks = ref.watch(attacksStreamProvider);
     final filtered = ref.watch(filteredAttacksProvider);
     final mode = ref.watch(historyViewModeProvider);
-    final period = ref.watch(historyPeriodProvider);
 
     return AppScaffold(
       title: Text(l10n.historyTitle),
       actions: [
-        // The period filter pill, same UI as before but living in the app
-        // bar; hidden in calendar mode — that view navigates by month
-        // itself and ignores the filter.
-        if (mode != HistoryViewMode.calendar) ...[
-          Center(
-            child: HistoryFilterChip(
-              selected: period,
-              // Count only once the filtered list has resolved — the pill
-              // shows just the period name for the first frames.
-              count: filtered.value?.length,
-              onSelected: ref.read(historyPeriodProvider.notifier).select,
-            ),
-          ),
-          SizedBox(width: AppSpacingConstant.w8),
-        ],
         HistoryViewToggle(
           mode: mode,
           onChanged: ref.read(historyViewModeProvider.notifier).select,
@@ -110,6 +94,30 @@ class HistoryScreen extends ConsumerWidget {
   }
 }
 
+/// The period filter pill row, first thing in each scrollable — below the
+/// app bar (not in it), trailing-aligned, and it stays visible when the
+/// filter matches nothing so the user can always switch back.
+class _FilterRow extends ConsumerWidget {
+  const _FilterRow({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: AppSpacingConstant.h12),
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: HistoryFilterChip(
+          selected: ref.watch(historyPeriodProvider),
+          count: count,
+          onSelected: ref.read(historyPeriodProvider.notifier).select,
+        ),
+      ),
+    );
+  }
+}
+
 /// Chart mode — same filtered data as the list.
 class _ChartView extends StatelessWidget {
   const _ChartView({
@@ -124,24 +132,40 @@ class _ChartView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (attacks.isEmpty) {
-      return EmptyState(
-        icon: Icons.filter_alt_outlined,
-        message: context.l10n.historyEmptyFiltered,
-      );
-    }
-    return ListView(
-      // Flush under the app bar — no gap between the bar and the content.
-      padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w16,
-        topInset,
-        AppSpacingConstant.w16,
-        bottomInset + AppSpacingConstant.h16,
-      ),
-      children: [
-        WeeklyFrequencyChart(
-          buckets: weeklyBuckets(attacks, now: DateTime.now()),
+    return CustomScrollView(
+      slivers: [
+        // Flush under the app bar — no gap between the bar and the content.
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w16,
+            topInset,
+            AppSpacingConstant.w16,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(child: _FilterRow(count: attacks.length)),
         ),
+        if (attacks.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyState(
+              icon: Icons.filter_alt_outlined,
+              message: context.l10n.historyEmptyFiltered,
+            ),
+          )
+        else
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacingConstant.w16,
+              0,
+              AppSpacingConstant.w16,
+              bottomInset + AppSpacingConstant.h16,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: WeeklyFrequencyChart(
+                buckets: weeklyBuckets(attacks, now: DateTime.now()),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -160,23 +184,43 @@ class _AttackList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (attacks.isEmpty) {
-      return EmptyState(
-        icon: Icons.filter_alt_outlined,
-        message: context.l10n.historyEmptyFiltered,
-      );
-    }
-    return ListView.separated(
-      // Flush under the app bar — no gap between the bar and the content.
-      padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w16,
-        topInset,
-        AppSpacingConstant.w16,
-        bottomInset + AppSpacingConstant.h16,
-      ),
-      itemCount: attacks.length,
-      separatorBuilder: (_, _) => SizedBox(height: AppSpacingConstant.h8),
-      itemBuilder: (context, index) => AttackTile(attack: attacks[index]),
+    return CustomScrollView(
+      slivers: [
+        // Flush under the app bar — no gap between the bar and the content.
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w16,
+            topInset,
+            AppSpacingConstant.w16,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(child: _FilterRow(count: attacks.length)),
+        ),
+        if (attacks.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyState(
+              icon: Icons.filter_alt_outlined,
+              message: context.l10n.historyEmptyFiltered,
+            ),
+          )
+        else
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacingConstant.w16,
+              0,
+              AppSpacingConstant.w16,
+              bottomInset + AppSpacingConstant.h16,
+            ),
+            sliver: SliverList.separated(
+              itemCount: attacks.length,
+              separatorBuilder: (_, _) =>
+                  SizedBox(height: AppSpacingConstant.h8),
+              itemBuilder: (context, index) =>
+                  AttackTile(attack: attacks[index]),
+            ),
+          ),
+      ],
     );
   }
 }
