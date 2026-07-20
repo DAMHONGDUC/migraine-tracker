@@ -51,12 +51,7 @@ class PaywallScreen extends StatelessWidget {
           child: Stack(
             alignment: AlignmentDirectional.center,
             children: [
-              Expanded(
-                child: Text(
-                  l10n.paywallTitle,
-                  style: AppTextStyle.titleLarge.w600,
-                ),
-              ),
+              Text(l10n.paywallTitle, style: AppTextStyle.titleLarge.w600),
               Align(
                 alignment: AlignmentDirectional.topEnd,
                 child: IconButton(
@@ -78,42 +73,47 @@ class PaywallScreen extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    Icon(
-                      Icons.storm_outlined,
-                      size: AppSpacingConstant.r64,
-                      color: context.colorScheme.primary,
+                // Benefits scroll when the sheet is short (small phones);
+                // the CTA stays pinned below.
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.storm_outlined,
+                          size: AppSpacingConstant.r64,
+                          color: context.colorScheme.primary,
+                        ),
+                        SizedBox(height: AppSpacingConstant.h16),
+                        Text(
+                          l10n.paywallHeadline,
+                          style: AppTextStyle.headlineSmall.w600,
+                        ),
+                        SizedBox(height: AppSpacingConstant.h24),
+                        _Benefit(
+                          icon: Icons.notifications_active_outlined,
+                          title: l10n.paywallBenefitAlerts,
+                          body: l10n.paywallBenefitAlertsBody,
+                        ),
+                        _Benefit(
+                          icon: Icons.show_chart,
+                          title: l10n.paywallBenefitForecast,
+                          body: l10n.paywallBenefitForecastBody,
+                        ),
+                        _Benefit(
+                          icon: Icons.insights_outlined,
+                          title: l10n.paywallBenefitInsights,
+                          body: l10n.paywallBenefitInsightsBody,
+                        ),
+                        _Benefit(
+                          icon: Icons.picture_as_pdf_outlined,
+                          title: l10n.paywallBenefitReport,
+                          body: l10n.paywallBenefitReportBody,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: AppSpacingConstant.h16),
-                    Text(
-                      l10n.paywallHeadline,
-                      style: AppTextStyle.headlineSmall.w600,
-                    ),
-                    SizedBox(height: AppSpacingConstant.h24),
-                    _Benefit(
-                      icon: Icons.notifications_active_outlined,
-                      title: l10n.paywallBenefitAlerts,
-                      body: l10n.paywallBenefitAlertsBody,
-                    ),
-                    _Benefit(
-                      icon: Icons.show_chart,
-                      title: l10n.paywallBenefitForecast,
-                      body: l10n.paywallBenefitForecastBody,
-                    ),
-                    _Benefit(
-                      icon: Icons.insights_outlined,
-                      title: l10n.paywallBenefitInsights,
-                      body: l10n.paywallBenefitInsightsBody,
-                    ),
-                    _Benefit(
-                      icon: Icons.picture_as_pdf_outlined,
-                      title: l10n.paywallBenefitReport,
-                      body: l10n.paywallBenefitReportBody,
-                    ),
-                  ],
+                  ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -191,10 +191,7 @@ class _Benefit extends StatelessWidget {
               children: [
                 Text(title, style: AppTextStyle.titleMedium),
                 SizedBox(height: AppSpacingConstant.h4),
-                Text(
-                  body,
-                  style: AppTextStyle.bodyMedium.secondary,
-                ),
+                Text(body, style: AppTextStyle.bodyMedium.secondary),
               ],
             ),
           ),
