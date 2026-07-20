@@ -1,98 +1,100 @@
 import 'package:flutter/painting.dart';
 
-import '../constants/app_spacing_constant.dart';
 import 'app_colors.dart';
 
 /// Single home for every text style in the app — no inline `TextStyle(...)`
 /// and no `context.textTheme.*` in widgets. Metrics follow the Material 3
-/// type scale so swapping in was visually lossless; sizes go through
-/// [AppSpacingConstant] `sp*`, colors through [AppColors].
+/// type scale so swapping in was visually lossless; colors come from
+/// [AppColors].
 ///
-/// Getters (not consts) because screenutil resolves at runtime, after
-/// ScreenUtilInit. [AppTheme] feeds these into `ThemeData.textTheme`, so
-/// ambient defaults (ListTile, buttons, AppBar) stay consistent too.
+/// Font sizes are FIXED logical px, deliberately not screenutil `.sp`:
+/// text already follows the user's system text-size setting via
+/// `textScaler` (the accessibility-correct channel), and `.sp` on top of
+/// that blows text up on wide viewports. [AppTheme] feeds these into
+/// `ThemeData.textTheme`, so ambient defaults (ListTile, buttons, AppBar)
+/// stay consistent too.
 ///
 /// Default color is [AppColors.textPrimary]; for the muted variant use
 /// `.secondary` (below) instead of a manual copyWith.
 abstract final class AppTextStyle {
-  static TextStyle get displaySmall => TextStyle(
-    fontSize: AppSpacingConstant.sp36,
+  static const TextStyle displaySmall = TextStyle(
+    fontSize: 36,
     height: 44 / 36,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get headlineMedium => TextStyle(
-    fontSize: AppSpacingConstant.sp28,
+  static const TextStyle headlineMedium = TextStyle(
+    fontSize: 28,
     height: 36 / 28,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get headlineSmall => TextStyle(
-    fontSize: AppSpacingConstant.sp24,
+  static const TextStyle headlineSmall = TextStyle(
+    fontSize: 24,
     height: 32 / 24,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get titleLarge => TextStyle(
-    fontSize: AppSpacingConstant.sp22,
+  static const TextStyle titleLarge = TextStyle(
+    fontSize: 22,
     height: 28 / 22,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get titleMedium => TextStyle(
-    fontSize: AppSpacingConstant.sp16,
+  static const TextStyle titleMedium = TextStyle(
+    fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.15,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get titleSmall => TextStyle(
-    fontSize: AppSpacingConstant.sp14,
+  static const TextStyle titleSmall = TextStyle(
+    fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get bodyLarge => TextStyle(
-    fontSize: AppSpacingConstant.sp16,
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get bodyMedium => TextStyle(
-    fontSize: AppSpacingConstant.sp14,
+  static const TextStyle bodyMedium = TextStyle(
+    fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.25,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get bodySmall => TextStyle(
-    fontSize: AppSpacingConstant.sp12,
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
     height: 16 / 12,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.4,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get labelLarge => TextStyle(
-    fontSize: AppSpacingConstant.sp14,
+  static const TextStyle labelLarge = TextStyle(
+    fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
-  static TextStyle get labelSmall => TextStyle(
-    fontSize: AppSpacingConstant.sp11,
+  static const TextStyle labelSmall = TextStyle(
+    fontSize: 11,
     height: 16 / 11,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
@@ -100,8 +102,8 @@ abstract final class AppTextStyle {
   );
 
   /// Below the Material scale — bottom-nav / step-progress labels only.
-  static TextStyle get labelTiny => TextStyle(
-    fontSize: AppSpacingConstant.sp10,
+  static const TextStyle labelTiny = TextStyle(
+    fontSize: 10,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
