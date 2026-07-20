@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../domain/enums/history_period.dart';
 
@@ -77,7 +78,7 @@ class HistoryFilterChip extends StatelessWidget {
                         periodLabel(context, selected),
                         count!,
                       ),
-                style: context.textTheme.labelLarge,
+                style: AppTextStyle.labelLarge,
               ),
               SizedBox(width: AppSpacingConstant.w2),
               Icon(
@@ -110,7 +111,7 @@ class _FilterSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h4, AppSpacingConstant.w24, AppSpacingConstant.h12),
             child: Text(
               context.l10n.historyFilterSheetTitle,
-              style: context.textTheme.titleMedium,
+              style: AppTextStyle.titleMedium,
             ),
           ),
           Flexible(

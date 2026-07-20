@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
-import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_scaffold.dart';

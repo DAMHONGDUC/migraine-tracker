@@ -3,6 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../controllers/log_controller.dart';
 import '../widgets/intensity_step.dart';
@@ -35,16 +37,10 @@ class LogScreen extends ConsumerWidget {
       leading: tracking ? BackButton(onPressed: controller.back) : null,
       actions: [
           if (tracking)
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: context.colorScheme.error,
-                foregroundColor: context.colorScheme.onPrimary,
-                padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w14),
-                minimumSize: Size(0, AppSpacingConstant.h34),
-                visualDensity: VisualDensity.compact,
-              ),
+            AppButton.destructive(
+              compact: true,
               onPressed: controller.reset,
-              child: Text(l10n.commonCancel),
+              label: l10n.commonCancel,
             ),
           SizedBox(width: AppSpacingConstant.w12),
         ],
@@ -62,9 +58,7 @@ class LogScreen extends ConsumerWidget {
               padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h16, AppSpacingConstant.w24, AppSpacingConstant.h8),
               child: Text(
                 question,
-                style: context.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyle.headlineMedium.w600,
               ),
             ),
           Expanded(

@@ -7,6 +7,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
@@ -126,20 +128,16 @@ class SettingsScreen extends ConsumerWidget {
         title: l10n.settingsDeleteConfirmTitle,
         content: Text(
           l10n.settingsDeleteConfirmBody,
-          style: context.textTheme.bodyMedium,
+          style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          TextButton(
+          AppButton.text(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel),
+            label: l10n.commonCancel,
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colorScheme.error,
-              foregroundColor: context.colorScheme.onPrimary,
-            ),
+          AppButton.destructive(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.settingsDeleteConfirmAction),
+            label: l10n.settingsDeleteConfirmAction,
           ),
         ],
       ),
@@ -206,7 +204,9 @@ class SettingsScreen extends ConsumerWidget {
             ),
             title: Text(
               l10n.settingsDelete,
-              style: TextStyle(color: context.colorScheme.error),
+              style: AppTextStyle.bodyLarge.copyWith(
+                color: context.colorScheme.error,
+              ),
             ),
             onTap: () => _deleteAll(context, ref),
           ),

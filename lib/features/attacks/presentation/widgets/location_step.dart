@@ -3,6 +3,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../domain/enums/head_location.dart';
 
 /// Second tap: where the pain is. Selecting advances immediately.
@@ -27,13 +29,11 @@ class LocationStep extends StatelessWidget {
         for (final location in HeadLocation.values) ...[
           SizedBox(
             height: AppSpacingConstant.h64,
-            child: FilledButton.tonalIcon(
+            child: AppButton.secondary(
               onPressed: () => onSelected(location),
-              icon: Icon(_icons[location]),
-              label: Text(
-                location.label(context.l10n),
-                style: context.textTheme.titleMedium,
-              ),
+              icon: _icons[location],
+              label: location.label(context.l10n),
+              labelStyle: AppTextStyle.titleMedium,
             ),
           ),
           SizedBox(height: AppSpacingConstant.h12),

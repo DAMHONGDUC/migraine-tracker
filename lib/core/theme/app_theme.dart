@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'app_text_style.dart';
 
 /// Dark-first theme. Users are photophobic: dark is the default and only
 /// theme in v1, and no flashing/emphasis animations are added here.
@@ -26,6 +27,21 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      // Ambient defaults (ListTile, AppBar, buttons) come from the same
+      // single source as explicit styles: AppTextStyle.
+      textTheme: TextTheme(
+        displaySmall: AppTextStyle.displaySmall,
+        headlineMedium: AppTextStyle.headlineMedium,
+        headlineSmall: AppTextStyle.headlineSmall,
+        titleLarge: AppTextStyle.titleLarge,
+        titleMedium: AppTextStyle.titleMedium,
+        titleSmall: AppTextStyle.titleSmall,
+        bodyLarge: AppTextStyle.bodyLarge,
+        bodyMedium: AppTextStyle.bodyMedium,
+        bodySmall: AppTextStyle.bodySmall,
+        labelLarge: AppTextStyle.labelLarge,
+        labelSmall: AppTextStyle.labelSmall,
+      ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
@@ -50,9 +66,7 @@ abstract final class AppTheme {
         // Fixed size/weight — only the color changes on tab switch, so
         // labels never jump.
         labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+          (states) => AppTextStyle.labelSmall.copyWith(
             color: states.contains(WidgetState.selected)
                 ? scheme.primary
                 : AppColors.textSecondary,

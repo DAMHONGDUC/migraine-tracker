@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -93,16 +94,16 @@ class HistoryCalendarView extends HookWidget {
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle:
-                      context.textTheme.titleMedium ?? const TextStyle(),
+                      AppTextStyle.titleMedium,
                   leftChevronIcon: const Icon(Icons.chevron_left),
                   rightChevronIcon: const Icon(Icons.chevron_right),
                 ),
                 calendarStyle: CalendarStyle(
                   outsideDaysVisible: false,
                   defaultTextStyle:
-                      context.textTheme.bodyMedium ?? const TextStyle(),
+                      AppTextStyle.bodyMedium,
                   weekendTextStyle:
-                      context.textTheme.bodyMedium ?? const TextStyle(),
+                      AppTextStyle.bodyMedium,
                   todayDecoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -111,13 +112,13 @@ class HistoryCalendarView extends HookWidget {
                     ),
                   ),
                   todayTextStyle:
-                      context.textTheme.bodyMedium ?? const TextStyle(),
+                      AppTextStyle.bodyMedium,
                   selectedDecoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: context.colorScheme.primary.withValues(alpha: 0.28),
                   ),
                   selectedTextStyle:
-                      context.textTheme.bodyMedium ?? const TextStyle(),
+                      AppTextStyle.bodyMedium,
                 ),
                 calendarBuilders: CalendarBuilders<Attack>(
                   markerBuilder: (context, day, events) {
@@ -150,9 +151,7 @@ class HistoryCalendarView extends HookWidget {
               child: Text(
                 context.l10n.historyCalendarLegend,
                 textAlign: TextAlign.center,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                style: AppTextStyle.bodySmall.secondary,
               ),
             ),
           ),
@@ -167,9 +166,7 @@ class HistoryCalendarView extends HookWidget {
                 child: Text(
                   context.l10n.historyCalendarNoAttacks,
                   textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+                  style: AppTextStyle.bodyMedium.secondary,
                 ),
               ),
             )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_spacing_constant.dart';
+import '../theme/app_text_style.dart';
 
 /// Calm, shared empty/error state: a muted icon over a short message.
 /// No illustration, no bright colours — photophobia-first (hard rule 3).
@@ -28,9 +29,7 @@ class EmptyState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: AppTextStyle.bodyMedium.secondary,
             ),
           ],
         ),

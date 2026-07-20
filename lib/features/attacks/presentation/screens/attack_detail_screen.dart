@@ -7,7 +7,9 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../medications/providers.dart';
@@ -130,20 +132,16 @@ class AttackDetailScreen extends ConsumerWidget {
         title: l10n.attackDetailDeleteTitle,
         content: Text(
           l10n.attackDetailDeleteBody,
-          style: context.textTheme.bodyMedium,
+          style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          TextButton(
+          AppButton.text(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel),
+            label: l10n.commonCancel,
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colorScheme.error,
-              foregroundColor: context.colorScheme.onPrimary,
-            ),
+          AppButton.destructive(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.settingsDeleteConfirmAction),
+            label: l10n.settingsDeleteConfirmAction,
           ),
         ],
       ),
@@ -244,7 +242,7 @@ class _Header extends StatelessWidget {
           child: FittedBox(
             child: Text(
               '${attack.intensity}',
-              style: context.textTheme.headlineSmall?.copyWith(
+              style: AppTextStyle.headlineSmall.copyWith(
                 color: AppColors.textPrimary,
               ),
             ),
@@ -252,7 +250,7 @@ class _Header extends StatelessWidget {
         ),
         SizedBox(width: AppSpacingConstant.w16),
         Expanded(
-          child: Text(when, style: context.textTheme.titleMedium),
+          child: Text(when, style: AppTextStyle.titleMedium),
         ),
       ],
     );
@@ -278,9 +276,7 @@ class _Section extends StatelessWidget {
             ),
             child: Text(
               title!,
-              style: context.textTheme.titleSmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: AppTextStyle.titleSmall.secondary,
             ),
           ),
         ],
@@ -321,7 +317,7 @@ class _EditableRow extends StatelessWidget {
             ),
             SizedBox(width: AppSpacingConstant.w8),
           ],
-          Text(value, style: context.textTheme.bodyLarge),
+          Text(value, style: AppTextStyle.bodyLarge),
           SizedBox(width: AppSpacingConstant.w4),
           Icon(
             Icons.chevron_right,
@@ -345,7 +341,7 @@ class _ReadOnlyRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(label),
-      trailing: Text(value, style: context.textTheme.bodyLarge),
+      trailing: Text(value, style: AppTextStyle.bodyLarge),
     );
   }
 }
@@ -371,9 +367,7 @@ class _WeatherSection extends StatelessWidget {
             ),
             title: Text(
               l10n.attackDetailNoWeather,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: AppTextStyle.bodyMedium.secondary,
             ),
           ),
         ],
@@ -396,7 +390,7 @@ class _WeatherSection extends StatelessWidget {
             l10n.attackDetailPressureValue(
               '${delta > 0 ? '+' : ''}${delta.toStringAsFixed(1)}',
             ),
-            style: context.textTheme.bodyLarge?.copyWith(
+            style: AppTextStyle.bodyLarge.copyWith(
               // A drop is what this app is about — mark it.
               color: delta <= -5 ? AppColors.error : null,
               fontWeight: delta <= -5 ? FontWeight.w600 : null,
@@ -453,9 +447,7 @@ class _DetailsSection extends StatelessWidget {
           ListTile(
             title: Text(
               l10n.attackDetailNoDetails,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: AppTextStyle.bodyMedium.secondary,
             ),
             trailing: const Icon(Icons.add),
             onTap: edit,
@@ -483,10 +475,10 @@ class _DetailsSection extends StatelessWidget {
             ),
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: TextButton.icon(
+              child: AppButton.text(
                 onPressed: edit,
-                icon: const Icon(Icons.edit_outlined),
-                label: Text(l10n.attackDetailEdit),
+                icon: Icons.edit_outlined,
+                label: l10n.attackDetailEdit,
               ),
             ),
           ),
@@ -521,9 +513,7 @@ class _IntensityDialogState extends State<_IntensityDialog> {
         children: [
           Text(
             '${_value.round()}',
-            style: context.textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyle.displaySmall.w600,
           ),
           Slider(
             value: _value,
@@ -536,13 +526,13 @@ class _IntensityDialogState extends State<_IntensityDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        AppButton.text(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.commonCancel),
+          label: l10n.commonCancel,
         ),
-        FilledButton(
+        AppButton.primary(
           onPressed: () => Navigator.of(context).pop(_value.round()),
-          child: Text(l10n.detailsSave),
+          label: l10n.detailsSave,
         ),
       ],
     );

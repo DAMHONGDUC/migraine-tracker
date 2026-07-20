@@ -6,6 +6,7 @@ import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 
 /// First tap: pain intensity 1–10. Buttons are large enough to hit with a
@@ -98,7 +99,7 @@ class _IntensityCircle extends StatelessWidget {
         child: FittedBox(
           child: Text(
             '$value',
-            style: context.textTheme.headlineSmall?.copyWith(
+            style: AppTextStyle.headlineSmall.copyWith(
               color: AppColors.textPrimary,
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -117,7 +118,7 @@ class _ReminderTile extends ConsumerWidget {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.alarm),
-        title: Text(time, style: context.textTheme.titleMedium),
+        title: Text(time, style: AppTextStyle.titleMedium),
         subtitle: Text(view.medicationName),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,

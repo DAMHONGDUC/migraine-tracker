@@ -5,6 +5,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
@@ -52,9 +54,7 @@ class PaywallScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.paywallTitle,
-                  style: context.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyle.titleLarge.w600,
                 ),
               ),
               Align(
@@ -90,9 +90,7 @@ class PaywallScreen extends StatelessWidget {
                     SizedBox(height: AppSpacingConstant.h16),
                     Text(
                       l10n.paywallHeadline,
-                      style: context.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyle.headlineSmall.w600,
                     ),
                     SizedBox(height: AppSpacingConstant.h24),
                     _Benefit(
@@ -121,17 +119,15 @@ class PaywallScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: AppSpacingConstant.h24),
-                    FilledButton(
+                    AppButton.primary(
                       onPressed: () {},
-                      child: Text(l10n.premiumUnlock),
+                      label: l10n.premiumUnlock,
                     ),
                     SizedBox(height: AppSpacingConstant.h8),
                     Text(
                       l10n.paywallFreeKeeps,
                       textAlign: TextAlign.center,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
+                      style: AppTextStyle.bodyMedium.secondary,
                     ),
                   ],
                 ),
@@ -193,13 +189,11 @@ class _Benefit extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: context.textTheme.titleMedium),
+                Text(title, style: AppTextStyle.titleMedium),
                 SizedBox(height: AppSpacingConstant.h4),
                 Text(
                   body,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+                  style: AppTextStyle.bodyMedium.secondary,
                 ),
               ],
             ),

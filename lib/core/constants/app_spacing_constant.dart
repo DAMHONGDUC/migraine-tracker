@@ -64,4 +64,12 @@ abstract final class AppSpacingConstant {
 
   // --- Font (.sp) ---
   static double get sp10 => 10.sp;
+  static double get sp11 => 11.sp;
+  static double get sp12 => 12.sp;
+  static double get sp14 => 14.sp;
+  static double get sp16 => 16.sp;
+  static double get sp22 => 22.sp;
+  static double get sp24 => 24.sp;
+  static double get sp28 => 28.sp;
+  static double get sp36 => 36.sp;
 }
