@@ -5,6 +5,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../providers.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
@@ -58,13 +60,13 @@ class _LockedCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: AppSpacingConstant.h12),
-            Text(message, style: context.textTheme.bodyMedium),
+            Text(message, style: AppTextStyle.bodyMedium),
             SizedBox(height: AppSpacingConstant.h12),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton.tonal(
+              child: AppButton.secondary(
                 onPressed: () => context.pushNamed(AppRoutes.paywall.name),
-                child: Text(l10n.premiumUnlock),
+                label: l10n.premiumUnlock,
               ),
             ),
           ],
@@ -120,7 +122,7 @@ class PremiumBadge extends StatelessWidget {
       ),
       child: Text(
         context.l10n.premiumBadge,
-        style: context.textTheme.labelSmall?.copyWith(
+        style: AppTextStyle.labelSmall.copyWith(
           color: context.colorScheme.primary,
           fontWeight: FontWeight.w600,
         ),

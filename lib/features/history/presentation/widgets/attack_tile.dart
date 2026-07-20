@@ -7,6 +7,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
 /// One attack row, shared by the list and calendar views. Taps through to
@@ -51,7 +52,7 @@ class AttackTile extends StatelessWidget {
                 context.colorScheme.primary.withValues(alpha: 0.18),
             child: Text(
               '${attack.intensity}',
-              style: context.textTheme.titleMedium,
+              style: AppTextStyle.titleMedium,
             ),
           ),
         ),

@@ -10,6 +10,7 @@ import 'package:step_progress/step_progress.dart';
 import '../../features/attacks/presentation/controllers/log_controller.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_style.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -360,10 +361,7 @@ class _TrackingProgressBar extends StatelessWidget {
                     maxWidth: 72,
                     activeColor: scheme.primary,
                     defualtColor: AppColors.textSecondary,
-                    titleStyle: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    titleStyle: AppTextStyle.labelTiny,
                     titleMaxLines: 1,
                   ),
                   stepLineStyle: StepLineStyle(

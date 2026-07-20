@@ -9,5 +9,6 @@ extension BuildContextX on BuildContext {
 
   ThemeData get theme => Theme.of(this);
   ColorScheme get colorScheme => theme.colorScheme;
-  TextTheme get textTheme => theme.textTheme;
+  // No textTheme shorthand on purpose: text styles come from AppTextStyle
+  // (core/theme/app_text_style.dart), the single source of truth.
 }

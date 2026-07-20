@@ -8,6 +8,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../weather/domain/entities/pressure_forecast.dart';
 import '../../../weather/providers.dart';
 
@@ -29,7 +30,7 @@ class PressureForecastCard extends ConsumerWidget {
           children: [
             Text(
               context.l10n.insightsForecastTitle,
-              style: context.textTheme.titleMedium,
+              style: AppTextStyle.titleMedium,
             ),
             SizedBox(height: AppSpacingConstant.h16),
             switch (forecast) {
@@ -45,9 +46,7 @@ class PressureForecastCard extends ConsumerWidget {
                 child: Center(
                   child: Text(
                     context.l10n.insightsForecastUnavailable,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
+                    style: AppTextStyle.bodyMedium.secondary,
                   ),
                 ),
               ),
@@ -69,7 +68,7 @@ class _Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = context.textTheme.bodySmall?.copyWith(
+    final labelStyle = AppTextStyle.bodySmall.copyWith(
       color: AppColors.textSecondary,
       fontSize: AppSpacingConstant.sp10,
     );
@@ -162,7 +161,7 @@ class _Chart extends StatelessWidget {
                   LineTooltipItem(
                     '${context.l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
                     '${timeFormat.format(timeAt(spot.x).toLocal())}',
-                    context.textTheme.bodySmall!.copyWith(
+                    AppTextStyle.bodySmall.copyWith(
                       color: AppColors.textPrimary,
                     ),
                   ),
