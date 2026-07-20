@@ -4,6 +4,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
@@ -30,13 +32,13 @@ class MedicationStep extends ConsumerWidget {
           onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
         ),
         actions: [
-          TextButton(
+          AppButton.text(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.commonCancel),
+            label: l10n.commonCancel,
           ),
-          FilledButton(
+          AppButton.primary(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-            child: Text(l10n.commonAdd),
+            label: l10n.commonAdd,
           ),
         ],
       ),
@@ -98,10 +100,11 @@ class _OptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: AppSpacingConstant.h64,
-      child: FilledButton.tonalIcon(
+      child: AppButton.secondary(
         onPressed: onTap,
-        icon: Icon(icon),
-        label: Text(label, style: context.textTheme.titleMedium),
+        icon: icon,
+        label: label,
+        labelStyle: AppTextStyle.titleMedium,
       ),
     );
   }

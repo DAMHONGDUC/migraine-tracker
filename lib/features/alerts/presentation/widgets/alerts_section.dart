@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/alert_registration_error.dart';
@@ -104,7 +106,7 @@ class _ThresholdDialogState extends State<_ThresholdDialog> {
         children: [
           Text(
             widget.l10n.onboardingThresholdValue(_value.round()),
-            style: context.textTheme.headlineMedium?.copyWith(
+            style: AppTextStyle.headlineMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: context.colorScheme.primary,
             ),
@@ -119,13 +121,13 @@ class _ThresholdDialogState extends State<_ThresholdDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        AppButton.text(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(widget.l10n.commonCancel),
+          label: widget.l10n.commonCancel,
         ),
-        FilledButton(
+        AppButton.primary(
           onPressed: () => Navigator.of(context).pop(_value),
-          child: Text(widget.l10n.detailsSave),
+          label: widget.l10n.detailsSave,
         ),
       ],
     );

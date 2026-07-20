@@ -3,6 +3,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_style.dart';
 
 /// Shows [AppDialog] (or any dialog content) with a calm fade + gentle
 /// scale on open, reversed on close (hard rule 3: nothing flashy).
@@ -61,7 +62,7 @@ class AppDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(title, style: context.textTheme.titleLarge),
+            Text(title, style: AppTextStyle.titleLarge),
             if (content != null) ...[SizedBox(height: AppSpacingConstant.h16), content!],
             if (actions.isNotEmpty) ...[
               SizedBox(height: AppSpacingConstant.h20),
@@ -113,7 +114,7 @@ class AppDialogOption extends StatelessWidget {
               Icon(icon, size: AppSpacingConstant.r20, color: scheme.primary),
               SizedBox(width: AppSpacingConstant.w12),
             ],
-            Expanded(child: Text(label, style: context.textTheme.bodyLarge)),
+            Expanded(child: Text(label, style: AppTextStyle.bodyLarge)),
             if (selected != null)
               Icon(
                 selected!

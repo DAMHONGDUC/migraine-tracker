@@ -5,6 +5,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../premium/presentation/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
@@ -35,7 +37,7 @@ class CorrelationCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     context.l10n.insightsCorrelationTitle,
-                    style: context.textTheme.titleMedium,
+                    style: AppTextStyle.titleMedium,
                   ),
                 ),
                 if (!hasPremium) const PremiumBadge(),
@@ -72,14 +74,14 @@ class _Teaser extends StatelessWidget {
       children: [
         Text(
           l10n.premiumLockedCorrelation,
-          style: context.textTheme.bodyMedium,
+          style: AppTextStyle.bodyMedium,
         ),
         SizedBox(height: AppSpacingConstant.h12),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: FilledButton.tonal(
-            onPressed: () => context.push(AppRoutes.paywall),
-            child: Text(l10n.premiumUnlock),
+          child: AppButton.secondary(
+            onPressed: () => context.pushNamed(AppRoutes.paywall.name),
+            label: l10n.premiumUnlock,
           ),
         ),
       ],
@@ -110,7 +112,7 @@ class _InsufficientData extends StatelessWidget {
             Expanded(
               child: Text(
                 l10n.insightsInsufficientData(remaining),
-                style: context.textTheme.bodyMedium,
+                style: AppTextStyle.bodyMedium,
               ),
             ),
           ],
@@ -127,9 +129,7 @@ class _InsufficientData extends StatelessWidget {
             result.attacksWithWeather,
             result.requiredAttacks,
           ),
-          style: context.textTheme.bodySmall?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
+          style: AppTextStyle.bodySmall.secondary,
         ),
       ],
     );
@@ -141,7 +141,7 @@ class _NoVariation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       context.l10n.insightsNoVariation,
-      style: context.textTheme.bodyMedium,
+      style: AppTextStyle.bodyMedium,
     );
   }
 }
@@ -165,22 +165,18 @@ class _Insight extends StatelessWidget {
           curve: Curves.easeOutCubic,
           builder: (context, value, child) => Text(
             '${value.round()}%',
-            style: context.textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyle.displaySmall.w600,
           ),
         ),
         SizedBox(height: AppSpacingConstant.h4),
         Text(
           l10n.insightsDropShareSentence(threshold),
-          style: context.textTheme.bodyMedium,
+          style: AppTextStyle.bodyMedium,
         ),
         SizedBox(height: AppSpacingConstant.h12),
         Text(
           l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
-          style: context.textTheme.bodySmall?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
+          style: AppTextStyle.bodySmall.secondary,
         ),
       ],
     );

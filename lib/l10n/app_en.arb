@@ -368,6 +368,14 @@
   "@historyChartTitle": {
     "description": "Title above the weekly frequency bar chart"
   },
+  "historyFilterWithCount": "{label} ({count})",
+  "@historyFilterWithCount": {
+    "description": "Filter pill text: the active period plus how many attacks it matches, e.g. \"All (10)\"",
+    "placeholders": {
+      "label": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
   "historyFilterToday": "Today",
   "@historyFilterToday": {
     "description": "History filter chip: attacks from today"
@@ -387,15 +395,6 @@
   "historyFilterAll": "All",
   "@historyFilterAll": {
     "description": "History filter chip: all attacks ever"
-  },
-  "historyAttackCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
-  "@historyAttackCount": {
-    "description": "Count header above the filtered attack list",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "historyEmptyFiltered": "No attacks in this period.",
   "@historyEmptyFiltered": {
@@ -667,5 +666,73 @@
   "settingsDeleteDone": "All data deleted.",
   "@settingsDeleteDone": {
     "description": "Snackbar shown after a successful wipe"
+  },
+  "severityMild": "mild",
+  "@severityMild": {
+    "description": "Severity word for intensity 1-3, used in accessibility labels"
+  },
+  "severityModerate": "moderate",
+  "@severityModerate": {
+    "description": "Severity word for intensity 4-6, used in accessibility labels"
+  },
+  "severitySevere": "severe",
+  "@severitySevere": {
+    "description": "Severity word for intensity 7-8, used in accessibility labels"
+  },
+  "severityExtreme": "extreme",
+  "@severityExtreme": {
+    "description": "Severity word for intensity 9-10, used in accessibility labels"
+  },
+  "a11yIntensityButton": "Pain intensity {value}, {severity}",
+  "@a11yIntensityButton": {
+    "description": "VoiceOver label for an intensity button in the log flow",
+    "placeholders": {
+      "value": {"type": "int"},
+      "severity": {"type": "String"}
+    }
+  },
+  "a11yIntensityLabel": "Intensity {value}, {severity}",
+  "@a11yIntensityLabel": {
+    "description": "VoiceOver label for the intensity badge on an attack row",
+    "placeholders": {
+      "value": {"type": "int"},
+      "severity": {"type": "String"}
+    }
+  },
+  "a11yCalendarMarker": "{count, plural, =1{1 attack} other{{count} attacks}}, worst intensity {peak} of 10",
+  "@a11yCalendarMarker": {
+    "description": "VoiceOver label for a calendar day's attack marker dot (colour-only otherwise)",
+    "placeholders": {
+      "count": {"type": "int"},
+      "peak": {"type": "int"}
+    }
+  },
+  "a11yForecastChart": "Pressure chart, past 12 hours and next 48 hours. Now {now} hPa, lowest ahead {min} hPa.",
+  "@a11yForecastChart": {
+    "description": "VoiceOver summary of the pressure forecast line chart",
+    "placeholders": {
+      "now": {"type": "String"},
+      "min": {"type": "String"}
+    }
+  },
+  "a11yWeeklyChart": "Bar chart of attacks per week, {total, plural, =1{1 attack} other{{total} attacks}} over {weeks} weeks.",
+  "@a11yWeeklyChart": {
+    "description": "VoiceOver summary of the weekly frequency bar chart",
+    "placeholders": {
+      "total": {"type": "int"},
+      "weeks": {"type": "int"}
+    }
+  },
+  "a11yViewList": "List view",
+  "@a11yViewList": {
+    "description": "VoiceOver label for the list segment of the history view toggle"
+  },
+  "a11yViewCalendar": "Calendar view",
+  "@a11yViewCalendar": {
+    "description": "VoiceOver label for the calendar segment of the history view toggle"
+  },
+  "a11yViewChart": "Chart view",
+  "@a11yViewChart": {
+    "description": "VoiceOver label for the chart segment of the history view toggle"
   }
 }

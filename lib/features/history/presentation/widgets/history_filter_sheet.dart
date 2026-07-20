@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../domain/enums/history_period.dart';
 
@@ -26,17 +27,22 @@ Future<HistoryPeriod?> showHistoryFilterSheet(
   );
 }
 
-/// Chip below the app bar showing the active period; tapping opens the
-/// bottom sheet. Closed = value at a glance, open = the full picker.
+/// The period filter pill (icon + current value + expand chevron); tapping
+/// opens the bottom sheet. Rendered at the top of the list/chart content,
+/// below the app bar.
 class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
     required this.onSelected,
+    this.count,
     super.key,
   });
 
   final HistoryPeriod selected;
   final ValueChanged<HistoryPeriod> onSelected;
+
+  /// How many attacks the selected period matches — shown as "All (10)".
+  final int? count;
 
   Future<void> _open(BuildContext context) async {
     final picked = await showHistoryFilterSheet(context, selected: selected);
@@ -53,15 +59,27 @@ class HistoryFilterChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
         onTap: () => _open(context),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w14, vertical: AppSpacingConstant.h8),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacingConstant.w14,
+            vertical: AppSpacingConstant.h8,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.filter_list, size: AppSpacingConstant.r16, color: scheme.primary),
+              Icon(
+                Icons.filter_list,
+                size: AppSpacingConstant.r16,
+                color: scheme.primary,
+              ),
               SizedBox(width: AppSpacingConstant.w6),
               Text(
-                periodLabel(context, selected),
-                style: context.textTheme.labelLarge,
+                count == null
+                    ? periodLabel(context, selected)
+                    : context.l10n.historyFilterWithCount(
+                        periodLabel(context, selected),
+                        count!,
+                      ),
+                style: AppTextStyle.labelLarge,
               ),
               SizedBox(width: AppSpacingConstant.w2),
               Icon(
@@ -94,7 +112,7 @@ class _FilterSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h4, AppSpacingConstant.w24, AppSpacingConstant.h12),
             child: Text(
               context.l10n.historyFilterSheetTitle,
-              style: context.textTheme.titleMedium,
+              style: AppTextStyle.titleMedium,
             ),
           ),
           Flexible(

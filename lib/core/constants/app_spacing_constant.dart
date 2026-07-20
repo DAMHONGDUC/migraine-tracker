@@ -22,9 +22,11 @@ abstract final class AppSpacingConstant {
   static double get w32 => 32.w;
   static double get w40 => 40.w;
   static double get w44 => 44.w;
+  static double get w46 => 46.w;
   static double get w48 => 48.w;
 
   // --- Vertical (.h) ---
+  static double get h2 => 2.h;
   static double get h4 => 4.h;
   static double get h6 => 6.h;
   static double get h8 => 8.h;
@@ -35,7 +37,16 @@ abstract final class AppSpacingConstant {
   static double get h24 => 24.h;
   static double get h32 => 32.h;
   static double get h34 => 34.h;
+  static double get h38 => 38.h;
+  static double get h40 => 40.h;
+  static double get h44 => 44.h;
   static double get h64 => 64.h;
+
+  /// Shared height of the bottom bar in BOTH states (tab nav and the 3-tap
+  /// step progress) — equal heights make the morph a pure cross-fade.
+  static double get h56 => 56.h;
+  static double get h62 => 62.h;
+  static double get h68 => 68.h;
   static double get h160 => 160.h;
 
   // --- Square / radius (.r) ---
@@ -47,9 +58,20 @@ abstract final class AppSpacingConstant {
   static double get r18 => 18.r;
   static double get r20 => 20.r;
   static double get r22 => 22.r;
+  static double get r24 => 24.r;
+  static double get r26 => 26.r;
+  static double get r28 => 28.r;
   static double get r64 => 64.r;
   static double get r88 => 88.r;
 
   // --- Font (.sp) ---
   static double get sp10 => 10.sp;
+  static double get sp11 => 11.sp;
+  static double get sp12 => 12.sp;
+  static double get sp14 => 14.sp;
+  static double get sp16 => 16.sp;
+  static double get sp22 => 22.sp;
+  static double get sp24 => 24.sp;
+  static double get sp28 => 28.sp;
+  static double get sp36 => 36.sp;
 }
