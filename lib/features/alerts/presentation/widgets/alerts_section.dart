@@ -7,7 +7,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/alert_registration_error.dart';
-import '../controllers/alerts_controller.dart';
+import '../../providers.dart';
 
 /// The alerts block embedded at the top of Settings: enable switch +
 /// threshold. Registration errors surface as snackbars here.

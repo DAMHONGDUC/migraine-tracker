@@ -9,6 +9,7 @@ import 'domain/entities/medication.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
 import 'domain/repositories/medication_repository.dart';
 import 'domain/services/notification_scheduler.dart';
+import 'presentation/controllers/reminders_controller.dart';
 
 final medicationRepositoryProvider = Provider<MedicationRepository>(
   (ref) => DriftMedicationRepository(ref.watch(databaseProvider)),
@@ -43,3 +44,8 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
   );
   return LocalNotificationScheduler(plugin);
 });
+
+/// Orchestrates reminders (see [RemindersController]).
+final remindersControllerProvider = Provider<RemindersController>(
+  RemindersController.new,
+);

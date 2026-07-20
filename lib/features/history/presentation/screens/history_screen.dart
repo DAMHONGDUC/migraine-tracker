@@ -11,7 +11,7 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
 import '../../domain/services/weekly_buckets.dart';
-import '../controllers/history_controller.dart';
+import '../../providers.dart';
 import '../widgets/attack_tile.dart';
 import '../widgets/history_calendar_view.dart';
 import '../widgets/history_filter_sheet.dart';
@@ -211,7 +211,10 @@ class _ChartView extends StatelessWidget {
               ),
               sliver: SliverToBoxAdapter(
                 child: WeeklyFrequencyChart(
-                  buckets: weeklyBuckets(attacks, now: DateTime.now()),
+                  buckets: const WeeklyBucketsCalculator().compute(
+                    attacks,
+                    now: DateTime.now(),
+                  ),
                 ),
               ),
             ),
