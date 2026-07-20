@@ -7,7 +7,9 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:step_progress/step_progress.dart';
 
-import '../../features/attacks/presentation/controllers/log_controller.dart';
+import '../../features/attacks/presentation/controllers/log_controller.dart'
+    show LogStep;
+import '../../features/attacks/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';

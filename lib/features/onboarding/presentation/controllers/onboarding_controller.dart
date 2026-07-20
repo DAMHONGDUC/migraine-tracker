@@ -27,7 +27,3 @@ class OnboardingController {
     await prefs.setBool(completedKey, true);
   }
 }
-
-final onboardingControllerProvider = Provider<OnboardingController>(
-  OnboardingController.new,
-);

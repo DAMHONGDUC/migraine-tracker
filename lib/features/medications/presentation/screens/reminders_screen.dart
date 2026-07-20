@@ -10,7 +10,6 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/repositories/medication_reminder_repository.dart';
 import '../../providers.dart';
-import '../controllers/reminders_controller.dart';
 
 class RemindersScreen extends ConsumerWidget {
   const RemindersScreen({super.key});

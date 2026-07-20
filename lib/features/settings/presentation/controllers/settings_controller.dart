@@ -82,7 +82,3 @@ class SettingsController {
   /// GDPR wipe of all on-device data.
   Future<void> deleteAll() => _ref.read(dataWipeServiceProvider).wipeAll();
 }
-
-final settingsControllerProvider = Provider<SettingsController>(
-  SettingsController.new,
-);

@@ -5,7 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../weather/providers.dart';
 import 'data/repositories/firebase_alert_registration_repository.dart';
+import 'domain/entities/alerts_settings.dart';
 import 'domain/repositories/alert_registration_repository.dart';
+import 'presentation/controllers/alerts_controller.dart';
 
 /// Only read inside controller actions (never watched at build time) so
 /// screens and tests don't touch Firebase until the user flips the toggle.
@@ -17,4 +19,10 @@ final alertRegistrationRepositoryProvider =
         FirebaseFirestore.instance,
         ref.watch(locationSourceProvider),
       ),
+    );
+
+/// Owns the alerts toggle + threshold (see [AlertsController]).
+final alertsControllerProvider =
+    AsyncNotifierProvider<AlertsController, AlertsSettings>(
+      AlertsController.new,
     );

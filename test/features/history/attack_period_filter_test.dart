@@ -23,7 +23,9 @@ void main() {
     at(DateTime(2025, 12, 31)), // last year
   ];
 
-  int count(HistoryPeriod p) => filterByPeriod(attacks, p, now).length;
+  const filterer = AttackPeriodFilterer();
+
+  int count(HistoryPeriod p) => filterer.filterByPeriod(attacks, p, now).length;
 
   test('today keeps only attacks on the current calendar day', () {
     expect(count(HistoryPeriod.today), 1);
@@ -46,15 +48,18 @@ void main() {
   });
 
   test('periodStart is null only for all', () {
-    expect(periodStart(HistoryPeriod.all, now), isNull);
-    expect(periodStart(HistoryPeriod.today, now), DateTime(2026, 7, 8));
-    expect(periodStart(HistoryPeriod.week, now), DateTime(2026, 7, 6));
-    expect(periodStart(HistoryPeriod.month, now), DateTime(2026, 7));
-    expect(periodStart(HistoryPeriod.year, now), DateTime(2026));
+    expect(filterer.periodStart(HistoryPeriod.all, now), isNull);
+    expect(filterer.periodStart(HistoryPeriod.today, now), DateTime(2026, 7, 8));
+    expect(filterer.periodStart(HistoryPeriod.week, now), DateTime(2026, 7, 6));
+    expect(filterer.periodStart(HistoryPeriod.month, now), DateTime(2026, 7));
+    expect(filterer.periodStart(HistoryPeriod.year, now), DateTime(2026));
   });
 
   test('an attack exactly at the boundary is included', () {
     final boundary = [at(DateTime(2026, 7, 6))]; // Monday 00:00
-    expect(filterByPeriod(boundary, HistoryPeriod.week, now), hasLength(1));
+    expect(
+      filterer.filterByPeriod(boundary, HistoryPeriod.week, now),
+      hasLength(1),
+    );
   });
 }

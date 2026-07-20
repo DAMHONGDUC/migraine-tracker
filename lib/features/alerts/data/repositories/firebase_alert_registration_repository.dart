@@ -56,7 +56,7 @@ class FirebaseAlertRegistrationRepository
       }
 
       await _firestore.collection('users').doc(uid).set({
-        'geohash5': encodeGeohash(point.latitude, point.longitude),
+        'geohash5': Geohash.encode(point.latitude, point.longitude),
         'fcmToken': token,
         'alertThreshold': thresholdHpa,
         'tz': DateTime.now().timeZoneName,

@@ -16,7 +16,7 @@ import '../../../attacks/domain/enums/head_location.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../premium/presentation/widgets/premium_gate.dart';
 import '../../domain/enums/export_format.dart';
-import '../controllers/settings_controller.dart';
+import '../../providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
