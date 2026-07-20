@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
@@ -17,7 +18,7 @@ import '../widgets/history_filter_sheet.dart';
 import '../widgets/history_view_toggle.dart';
 import '../widgets/weekly_frequency_chart.dart';
 
-class HistoryScreen extends ConsumerWidget {
+class HistoryScreen extends HookConsumerWidget {
   const HistoryScreen({super.key});
 
   @override
@@ -27,8 +28,35 @@ class HistoryScreen extends ConsumerWidget {
     final filtered = ref.watch(filteredAttacksProvider);
     final mode = ref.watch(historyViewModeProvider);
 
+    // Whether each scrollable has scrolled past its in-list filter pill —
+    // tracked per view because IndexedStack keeps both alive with their own
+    // scroll offsets.
+    final listPastFilter = useState(false);
+    final chartPastFilter = useState(false);
+    final pastFilter = switch (mode) {
+      HistoryViewMode.list => listPastFilter.value,
+      HistoryViewMode.chart => chartPastFilter.value,
+      HistoryViewMode.calendar => false,
+    };
+
     return AppScaffold(
-      title: Text(l10n.historyTitle),
+      // At rest the pill lives in the scroll content; once it scrolls away
+      // it takes over the title slot and the "History" heading hides.
+      title: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        child: pastFilter
+            ? Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: HistoryFilterChip(
+                  selected: ref.watch(historyPeriodProvider),
+                  count: filtered.value?.length,
+                  onSelected: ref.read(historyPeriodProvider.notifier).select,
+                ),
+              )
+            : Text(l10n.historyTitle),
+      ),
       actions: [
         HistoryViewToggle(
           mode: mode,
@@ -68,6 +96,7 @@ class HistoryScreen extends ConsumerWidget {
                   attacks: list,
                   topInset: topInset,
                   bottomInset: bottomInset,
+                  onPastFilterChanged: (past) => listPastFilter.value = past,
                 ),
                 // Calendar ignores the period filter by design.
                 HistoryCalendarView(
@@ -79,6 +108,7 @@ class HistoryScreen extends ConsumerWidget {
                   attacks: list,
                   topInset: topInset,
                   bottomInset: bottomInset,
+                  onPastFilterChanged: (past) => chartPastFilter.value = past,
                 ),
               ],
             );
@@ -95,19 +125,25 @@ class HistoryScreen extends ConsumerWidget {
 }
 
 /// The period filter pill row, first thing in each scrollable — below the
-/// app bar (not in it), trailing-aligned, and it stays visible when the
-/// filter matches nothing so the user can always switch back.
+/// app bar (not in it), leading-aligned, and it stays visible when the
+/// filter matches nothing so the user can always switch back. Once it
+/// scrolls away, [HistoryScreen] shows the same pill in the app bar.
 class _FilterRow extends ConsumerWidget {
   const _FilterRow({required this.count});
 
   final int count;
+
+  /// Scroll offset past which the pill row is gone behind the app bar —
+  /// the pill height plus its bottom padding.
+  static double get scrolledPastExtent =>
+      AppSpacingConstant.h34 + AppSpacingConstant.h12;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacingConstant.h12),
       child: Align(
-        alignment: AlignmentDirectional.centerEnd,
+        alignment: AlignmentDirectional.centerStart,
         child: HistoryFilterChip(
           selected: ref.watch(historyPeriodProvider),
           count: count,
@@ -124,49 +160,63 @@ class _ChartView extends StatelessWidget {
     required this.attacks,
     required this.topInset,
     required this.bottomInset,
+    required this.onPastFilterChanged,
   });
 
   final List<Attack> attacks;
   final double topInset;
   final double bottomInset;
 
+  /// Reports whether the filter pill has scrolled out behind the app bar.
+  final ValueChanged<bool> onPastFilterChanged;
+
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // Flush under the app bar — no gap between the bar and the content.
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w16,
-            topInset,
-            AppSpacingConstant.w16,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(child: _FilterRow(count: attacks.length)),
-        ),
-        if (attacks.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: EmptyState(
-              icon: Icons.filter_alt_outlined,
-              message: context.l10n.historyEmptyFiltered,
-            ),
-          )
-        else
+    return NotificationListener<ScrollUpdateNotification>(
+      onNotification: (notification) {
+        onPastFilterChanged(
+          notification.metrics.pixels > _FilterRow.scrolledPastExtent,
+        );
+        return false;
+      },
+      child: CustomScrollView(
+        slivers: [
+          // Flush under the app bar — no gap between the bar and the content.
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
               AppSpacingConstant.w16,
-              0,
+              topInset,
               AppSpacingConstant.w16,
-              bottomInset + AppSpacingConstant.h16,
+              0,
             ),
             sliver: SliverToBoxAdapter(
-              child: WeeklyFrequencyChart(
-                buckets: weeklyBuckets(attacks, now: DateTime.now()),
-              ),
+              child: _FilterRow(count: attacks.length),
             ),
           ),
-      ],
+          if (attacks.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.filter_alt_outlined,
+                message: context.l10n.historyEmptyFiltered,
+              ),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacingConstant.w16,
+                0,
+                AppSpacingConstant.w16,
+                bottomInset + AppSpacingConstant.h16,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: WeeklyFrequencyChart(
+                  buckets: weeklyBuckets(attacks, now: DateTime.now()),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -176,51 +226,65 @@ class _AttackList extends StatelessWidget {
     required this.attacks,
     required this.topInset,
     required this.bottomInset,
+    required this.onPastFilterChanged,
   });
 
   final List<Attack> attacks;
   final double topInset;
   final double bottomInset;
 
+  /// Reports whether the filter pill has scrolled out behind the app bar.
+  final ValueChanged<bool> onPastFilterChanged;
+
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // Flush under the app bar — no gap between the bar and the content.
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w16,
-            topInset,
-            AppSpacingConstant.w16,
-            0,
-          ),
-          sliver: SliverToBoxAdapter(child: _FilterRow(count: attacks.length)),
-        ),
-        if (attacks.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: EmptyState(
-              icon: Icons.filter_alt_outlined,
-              message: context.l10n.historyEmptyFiltered,
-            ),
-          )
-        else
+    return NotificationListener<ScrollUpdateNotification>(
+      onNotification: (notification) {
+        onPastFilterChanged(
+          notification.metrics.pixels > _FilterRow.scrolledPastExtent,
+        );
+        return false;
+      },
+      child: CustomScrollView(
+        slivers: [
+          // Flush under the app bar — no gap between the bar and the content.
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
               AppSpacingConstant.w16,
-              0,
+              topInset,
               AppSpacingConstant.w16,
-              bottomInset + AppSpacingConstant.h16,
+              0,
             ),
-            sliver: SliverList.separated(
-              itemCount: attacks.length,
-              separatorBuilder: (_, _) =>
-                  SizedBox(height: AppSpacingConstant.h8),
-              itemBuilder: (context, index) =>
-                  AttackTile(attack: attacks[index]),
+            sliver: SliverToBoxAdapter(
+              child: _FilterRow(count: attacks.length),
             ),
           ),
-      ],
+          if (attacks.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.filter_alt_outlined,
+                message: context.l10n.historyEmptyFiltered,
+              ),
+            )
+          else
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacingConstant.w16,
+                0,
+                AppSpacingConstant.w16,
+                bottomInset + AppSpacingConstant.h16,
+              ),
+              sliver: SliverList.separated(
+                itemCount: attacks.length,
+                separatorBuilder: (_, _) =>
+                    SizedBox(height: AppSpacingConstant.h8),
+                itemBuilder: (context, index) =>
+                    AttackTile(attack: attacks[index]),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
