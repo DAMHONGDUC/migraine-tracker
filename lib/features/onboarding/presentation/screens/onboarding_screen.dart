@@ -7,6 +7,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../controllers/onboarding_controller.dart';
 
@@ -32,7 +34,7 @@ class OnboardingScreen extends HookConsumerWidget {
 
     Future<void> finish() async {
       await controller.complete(thresholdHpa: threshold.value);
-      if (context.mounted) context.go(AppRoutes.log);
+      if (context.mounted) context.goNamed(AppRoutes.log.name);
     }
 
     return Scaffold(
@@ -62,29 +64,29 @@ class OnboardingScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: switch (page.value) {
                   0 => [
-                    FilledButton(
+                    AppButton.primary(
                       onPressed: next,
-                      child: Text(l10n.onboardingContinue),
+                      label: l10n.onboardingContinue,
                     ),
                   ],
                   1 => [
-                    FilledButton(
+                    AppButton.primary(
                       onPressed: () async {
                         await controller.requestLocation();
                         await next();
                       },
-                      child: Text(l10n.onboardingLocationAllow),
+                      label: l10n.onboardingLocationAllow,
                     ),
                     SizedBox(height: AppSpacingConstant.h8),
-                    TextButton(
+                    AppButton.text(
                       onPressed: next,
-                      child: Text(l10n.onboardingNotNow),
+                      label: l10n.onboardingNotNow,
                     ),
                   ],
                   _ => [
-                    FilledButton(
+                    AppButton.primary(
                       onPressed: finish,
-                      child: Text(l10n.onboardingStart),
+                      label: l10n.onboardingStart,
                     ),
                   ],
                 },
@@ -126,16 +128,12 @@ class _PageScaffold extends StatelessWidget {
           SizedBox(height: AppSpacingConstant.h24),
           Text(
             title,
-            style: context.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyle.headlineMedium.w600,
           ),
           SizedBox(height: AppSpacingConstant.h12),
           Text(
             body,
-            style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
+            style: AppTextStyle.bodyLarge.secondary,
           ),
           if (footer != null) ...[
             SizedBox(height: AppSpacingConstant.h24),
@@ -179,9 +177,7 @@ class _WelcomePage extends StatelessWidget {
             Expanded(
               child: Text(
                 l10n.onboardingDisclaimer,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                style: AppTextStyle.bodySmall.secondary,
               ),
             ),
           ],
@@ -224,7 +220,7 @@ class _ThresholdPage extends StatelessWidget {
           children: [
             Text(
               l10n.onboardingThresholdValue(value.round()),
-              style: context.textTheme.displaySmall?.copyWith(
+              style: AppTextStyle.displaySmall.copyWith(
                 fontWeight: FontWeight.w600,
                 color: context.colorScheme.primary,
               ),

@@ -7,6 +7,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../domain/services/weekly_buckets.dart';
 
 /// Single-series weekly bar chart. Follows the chart specs: thin rounded
@@ -21,7 +22,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final maxCount = buckets.fold(0, (m, b) => max(m, b.count));
     final interval = maxCount <= 4 ? 1.0 : (maxCount / 4).ceilToDouble();
-    final labelStyle = context.textTheme.bodySmall?.copyWith(
+    final labelStyle = AppTextStyle.bodySmall.copyWith(
       color: AppColors.textSecondary,
       fontSize: AppSpacingConstant.sp10,
     );
@@ -32,10 +33,17 @@ class WeeklyFrequencyChart extends StatelessWidget {
       children: [
         Text(
           context.l10n.historyChartTitle,
-          style: context.textTheme.titleMedium,
+          style: AppTextStyle.titleMedium,
         ),
         SizedBox(height: AppSpacingConstant.h12),
-        SizedBox(
+        // Bars are unreadable to VoiceOver — summarise the series instead.
+        Semantics(
+          label: context.l10n.a11yWeeklyChart(
+            buckets.fold(0, (sum, b) => sum + b.count),
+            buckets.length,
+          ),
+          child: ExcludeSemantics(
+            child: SizedBox(
           height: AppSpacingConstant.h160,
           child: BarChart(
             BarChartData(
@@ -89,7 +97,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
                   getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                       BarTooltipItem(
                         context.l10n.historyChartTooltip(rod.toY.toInt()),
-                        context.textTheme.bodySmall!.copyWith(
+                        AppTextStyle.bodySmall.copyWith(
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -112,6 +120,8 @@ class WeeklyFrequencyChart extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+        ),
           ),
         ),
       ],

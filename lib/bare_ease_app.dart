@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'core/l10n/locale_provider.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'features/attacks/providers.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -33,6 +34,8 @@ class BaroEaseApp extends HookConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) => MaterialApp.router(
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+        // Fits-on-screen content must not scroll/bounce (calm UI).
+        scrollBehavior: const AppScrollBehavior(),
         theme: AppTheme.dark,
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.dark,

@@ -4,6 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
@@ -64,7 +66,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l10n.detailsTitle, style: context.textTheme.titleLarge),
+          Text(l10n.detailsTitle, style: AppTextStyle.titleLarge),
           SizedBox(height: AppSpacingConstant.h16),
           TextField(
             controller: symptomsController,
@@ -88,7 +90,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
             decoration: InputDecoration(labelText: l10n.detailsNotesLabel),
           ),
           SizedBox(height: AppSpacingConstant.h24),
-          FilledButton(onPressed: save, child: Text(l10n.detailsSave)),
+          AppButton.primary(onPressed: save, label: l10n.detailsSave),
         ],
       ),
     );

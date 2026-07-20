@@ -32,10 +32,12 @@ class HistoryViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
-    final segmentWidth = AppSpacingConstant.w40;
-    final height = AppSpacingConstant.h34;
+    final segmentWidth = AppSpacingConstant.w48;
+    final height = AppSpacingConstant.h38;
     final index = modes.indexOf(mode);
 
+    // Styled like the bottom nav pill: borderless glass surface, and the
+    // thumb floats inside the track with its own inset padding.
     final track = Container(
       width: segmentWidth * modes.length,
       height: height,
@@ -43,12 +45,10 @@ class HistoryViewToggle extends StatelessWidget {
         // Opaque fill only when glass is off; the glass supplies the surface.
         color: kLiquidGlassEnabled ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Stack(
         children: [
-          // Thumb: 1/N wide, aligned to the selected segment. Fractional so
-          // it fits whatever width the border leaves (no fixed-px overflow).
+          // Thumb: 1/N wide, aligned to the selected segment.
           AnimatedAlign(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
@@ -60,10 +60,16 @@ class HistoryViewToggle extends StatelessWidget {
             child: FractionallySizedBox(
               widthFactor: 1 / modes.length,
               heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(height / 2),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacingConstant.w4,
+                  vertical: AppSpacingConstant.h4,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+                  ),
                 ),
               ),
             ),
@@ -74,6 +80,11 @@ class HistoryViewToggle extends StatelessWidget {
                 Expanded(
                   child: _Segment(
                     icon: _icons[m]!,
+                    label: switch (m) {
+                      HistoryViewMode.list => context.l10n.a11yViewList,
+                      HistoryViewMode.calendar => context.l10n.a11yViewCalendar,
+                      HistoryViewMode.chart => context.l10n.a11yViewChart,
+                    },
                     selected: m == mode,
                     onTap: () => onChanged(m),
                   ),
@@ -99,25 +110,35 @@ class HistoryViewToggle extends StatelessWidget {
 class _Segment extends StatelessWidget {
   const _Segment({
     required this.icon,
+    required this.label,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
+  final String label;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    // Icon-only segment — VoiceOver needs the name + selected state.
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
       onTap: onTap,
-      child: Center(
-        child: Icon(
-          icon,
-          size: AppSpacingConstant.r20,
-          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Center(
+          child: Icon(
+            icon,
+            size: AppSpacingConstant.r20,
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          ),
         ),
       ),
     );

@@ -77,6 +77,15 @@ Future<PumpedApp> pumpApp(
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 }) async {
+  // Pin the test view to the 393×852 design size (an iPhone-class screen,
+  // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
+  // screenutil scale `.sp`/`.w`/`.h` by ~2×, which distorts layout and
+  // pushes tap targets off-screen.
+  tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+  tester.view.devicePixelRatio = 3.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
   // Onboarding is considered done by default so existing tests land on the
