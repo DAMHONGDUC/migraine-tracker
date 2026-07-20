@@ -28,7 +28,8 @@ Future<HistoryPeriod?> showHistoryFilterSheet(
 }
 
 /// The period filter pill (icon + current value + expand chevron); tapping
-/// opens the bottom sheet. Lives in the History app bar actions.
+/// opens the bottom sheet. Rendered at the top of the list/chart content,
+/// below the app bar.
 class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
