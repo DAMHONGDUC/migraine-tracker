@@ -145,7 +145,13 @@ class PaywallScreen extends StatelessWidget {
               borderRadius: AppSpacingConstant.r22,
             ),
             clipBehavior: Clip.antiAlias,
-            child: sheet,
+            // Transparent Material: text/ink need a Material ancestor
+            // (without one, Text renders Flutter's yellow double-underline
+            // fallback), but it must not paint over the glass.
+            child: Material(
+              type: MaterialType.transparency,
+              child: sheet,
+            ),
           )
         : Material(
             color: AppColors.surface,
