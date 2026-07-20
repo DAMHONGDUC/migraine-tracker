@@ -33,7 +33,7 @@ class HistoryViewToggle extends StatelessWidget {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
     final segmentWidth = AppSpacingConstant.w48;
-    final height = AppSpacingConstant.h34;
+    final height = AppSpacingConstant.h38;
     final index = modes.indexOf(mode);
 
     // Styled like the bottom nav pill: borderless glass surface, and the
