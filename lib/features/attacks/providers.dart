@@ -6,6 +6,8 @@ import 'data/repositories/drift_attack_repository.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
 import 'domain/services/weather_attach_service.dart';
+import 'presentation/controllers/attack_detail_controller.dart';
+import 'presentation/controllers/log_controller.dart';
 
 final attackRepositoryProvider = Provider<AttackRepository>(
   (ref) => DriftAttackRepository(ref.watch(databaseProvider)),
@@ -26,4 +28,21 @@ final weatherAttachServiceProvider = Provider<WeatherAttachService>(
     ref.watch(attackRepositoryProvider),
     ref.watch(weatherRepositoryProvider),
   ),
+);
+
+/// Owns the 3-tap flow state machine (see [LogController]).
+final logControllerProvider = NotifierProvider<LogController, LogFlowState>(
+  LogController.new,
+);
+
+/// True from the second tap onward (location/medication): the shell swaps
+/// the bottom nav for a tracking progress bar and the app bar shows Cancel.
+final logFlowInProgressProvider = Provider<bool>((ref) {
+  final step = ref.watch(logControllerProvider).step;
+  return step == LogStep.location || step == LogStep.medication;
+});
+
+/// Edits/deletes an already-logged attack (see [AttackDetailController]).
+final attackDetailControllerProvider = Provider<AttackDetailController>(
+  AttackDetailController.new,
 );

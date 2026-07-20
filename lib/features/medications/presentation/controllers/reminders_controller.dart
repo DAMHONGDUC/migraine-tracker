@@ -69,7 +69,3 @@ class RemindersController {
     await _ref.read(notificationSchedulerProvider).cancel(reminderId);
   }
 }
-
-final remindersControllerProvider = Provider<RemindersController>(
-  RemindersController.new,
-);

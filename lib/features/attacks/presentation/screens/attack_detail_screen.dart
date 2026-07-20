@@ -16,7 +16,6 @@ import '../../../medications/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
-import '../controllers/attack_detail_controller.dart';
 import '../widgets/attack_details_sheet.dart';
 
 /// View and correct a logged attack. Reachable from History; the 3-tap log

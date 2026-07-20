@@ -8,6 +8,7 @@ import 'domain/services/data_export_service.dart';
 import 'domain/services/data_wipe_service.dart';
 import 'domain/services/export_sink.dart';
 import 'domain/services/pdf_sharer.dart';
+import 'presentation/controllers/settings_controller.dart';
 
 final dataExportServiceProvider = Provider<DataExportService>(
   (ref) => const DataExportService(),
@@ -26,4 +27,10 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(attackRepositoryProvider),
     ref.watch(medicationRepositoryProvider),
   ),
+);
+
+/// Orchestrates the settings actions — export, doctor report, wipe (see
+/// [SettingsController]).
+final settingsControllerProvider = Provider<SettingsController>(
+  SettingsController.new,
 );

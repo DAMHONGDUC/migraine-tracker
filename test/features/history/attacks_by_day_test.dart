@@ -11,8 +11,10 @@ Attack at(String id, DateTime local, {int intensity = 5}) => Attack(
 );
 
 void main() {
+  const grouper = AttacksByDayGrouper();
+
   test('groups attacks into their local calendar day', () {
-    final byDay = attacksByDay([
+    final byDay = grouper.groupByDay([
       at('a', DateTime(2026, 7, 8, 9)),
       at('b', DateTime(2026, 7, 8, 21)),
       at('c', DateTime(2026, 7, 9, 1)),
@@ -23,14 +25,17 @@ void main() {
   });
 
   test('day keys are midnight-normalized', () {
-    expect(dayKey(DateTime(2026, 7, 8, 23, 59).toUtc()), DateTime(2026, 7, 8));
-    expect(dayKey(DateTime(2026, 7, 8).toUtc()), DateTime(2026, 7, 8));
+    expect(
+      grouper.dayKey(DateTime(2026, 7, 8, 23, 59).toUtc()),
+      DateTime(2026, 7, 8),
+    );
+    expect(grouper.dayKey(DateTime(2026, 7, 8).toUtc()), DateTime(2026, 7, 8));
   });
 
   test('an attack near midnight lands on its LOCAL day, not the UTC one', () {
     // Stored in UTC; grouped by local wall time.
     final local = DateTime(2026, 7, 8, 23, 30);
-    final byDay = attacksByDay([at('late', local)]);
+    final byDay = grouper.groupByDay([at('late', local)]);
     expect(byDay.keys.single, DateTime(2026, 7, 8));
   });
 
@@ -40,14 +45,14 @@ void main() {
       at('b', DateTime(2026, 7, 8, 20), intensity: 9),
       at('c', DateTime(2026, 7, 8, 22), intensity: 6),
     ];
-    expect(peakIntensity(day), 9);
+    expect(grouper.peakIntensity(day), 9);
   });
 
   test('peakIntensity is null for an empty day', () {
-    expect(peakIntensity([]), isNull);
+    expect(grouper.peakIntensity([]), isNull);
   });
 
   test('empty input yields no days', () {
-    expect(attacksByDay([]), isEmpty);
+    expect(grouper.groupByDay([]), isEmpty);
   });
 }

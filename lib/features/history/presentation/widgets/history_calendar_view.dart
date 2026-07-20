@@ -37,10 +37,12 @@ class HistoryCalendarView extends HookWidget {
   final double topInset;
   final double bottomInset;
 
+  static const _grouper = AttacksByDayGrouper();
+
   @override
   Widget build(BuildContext context) {
-    final byDay = attacksByDay(attacks);
-    final today = dayKey(DateTime.now());
+    final byDay = _grouper.groupByDay(attacks);
+    final today = _grouper.dayKey(DateTime.now());
     final selected = useState(today);
     final focused = useState(today);
     final collapsed = useState(false);
@@ -117,9 +119,9 @@ class HistoryCalendarView extends HookWidget {
                 rowHeight: rowH,
                 daysOfWeekHeight: daysOfWeekH,
                 selectedDayPredicate: (day) => isSameDay(day, selected.value),
-                eventLoader: (day) => byDay[dayKey(day)] ?? const [],
+                eventLoader: (day) => byDay[_grouper.dayKey(day)] ?? const [],
                 onDaySelected: (selectedDay, focusedDay) {
-                  selected.value = dayKey(selectedDay);
+                  selected.value = _grouper.dayKey(selectedDay);
                   focused.value = focusedDay;
                 },
                 onPageChanged: (focusedDay) => focused.value = focusedDay,
@@ -157,7 +159,7 @@ class HistoryCalendarView extends HookWidget {
                 ),
                 calendarBuilders: CalendarBuilders<Attack>(
                   markerBuilder: (context, day, events) {
-                    final peak = peakIntensity(events);
+                    final peak = _grouper.peakIntensity(events);
                     if (peak == null) return null;
                     // The dot is colour-only — give VoiceOver count + peak.
                     return Semantics(
