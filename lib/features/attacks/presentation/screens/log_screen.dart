@@ -54,15 +54,13 @@ class LogScreen extends ConsumerWidget {
             )
           : null,
       actions: [
-          if (showNext)
-            AppButton.primary(
-              onPressed: state.hasDraft
-                  ? () => controller.confirmStep()
-                  : null,
-              label: l10n.logNext,
-            ),
-          SizedBox(width: AppSpacingConstant.w12),
-        ],
+        if (showNext)
+          AppButton.primary(
+            onPressed: state.hasDraft ? () => controller.confirmStep() : null,
+            label: l10n.logNext,
+          ),
+        SizedBox(width: AppSpacingConstant.w12),
+      ],
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
@@ -71,55 +69,61 @@ class LogScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          // The question, big and readable mid-attack — always one line,
-          // however long the localized string runs.
-          if (question != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h16, AppSpacingConstant.w24, AppSpacingConstant.h8),
-              child: FittedText(
-                question,
-                style: AppTextStyle.headlineMedium.w600,
+            // The question, big and readable mid-attack — always one line,
+            // however long the localized string runs.
+            if (question != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacingConstant.w24,
+                  AppSpacingConstant.h16,
+                  AppSpacingConstant.w24,
+                  AppSpacingConstant.h8,
+                ),
+                child: FittedText(
+                  question,
+                  style: AppTextStyle.headlineMedium.w600,
+                  maxLines: 1,
+                ),
               ),
-            ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final offset = Tween<Offset>(
-                  begin: const Offset(0.06, 0),
-                  end: Offset.zero,
-                ).animate(animation);
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(position: offset, child: child),
-                );
-              },
-              child: KeyedSubtree(
-                key: ValueKey(state.step),
-                child: switch (state.step) {
-                  LogStep.intensity => IntensityStep(
-                    onSelected: controller.selectIntensity,
-                  ),
-                  LogStep.location => LocationStep(
-                    selected: state.draft as HeadLocation?,
-                    onSelected: controller.updateDraft,
-                  ),
-                  LogStep.medication => MedicationStep(
-                    hasSelection: state.hasDraft,
-                    selectedName: state.draft as String?,
-                    onSelected: controller.updateDraft,
-                  ),
-                  LogStep.saved => SavedStep(
-                    attackId: state.savedId!,
-                    onDone: controller.reset,
-                  ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final offset = Tween<Offset>(
+                    begin: const Offset(0.06, 0),
+                    end: Offset.zero,
+                  ).animate(animation);
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(position: offset, child: child),
+                  );
                 },
+                child: KeyedSubtree(
+                  key: ValueKey(state.step),
+                  child: switch (state.step) {
+                    LogStep.intensity => IntensityStep(
+                      onSelected: controller.selectIntensity,
+                    ),
+                    LogStep.location => LocationStep(
+                      selected: state.draft as HeadLocation?,
+                      onSelected: controller.updateDraft,
+                    ),
+                    LogStep.medication => MedicationStep(
+                      hasSelection: state.hasDraft,
+                      selectedName: state.draft as String?,
+                      onSelected: controller.updateDraft,
+                    ),
+                    LogStep.saved => SavedStep(
+                      attackId: state.savedId!,
+                      onDone: controller.reset,
+                    ),
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
