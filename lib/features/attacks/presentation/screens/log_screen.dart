@@ -6,6 +6,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/fitted_text.dart';
+import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
 import '../controllers/log_controller.dart' show LogStep;
 import '../widgets/intensity_step.dart';
@@ -13,9 +15,14 @@ import '../widgets/location_step.dart';
 import '../widgets/medication_step.dart';
 import '../widgets/saved_step.dart';
 
-/// The sacred 3-tap flow: intensity → head location → medication → saved.
-/// Pure rendering — all state lives in [logControllerProvider]. While
-/// tracking (step 2+) the shell swaps the bottom nav for a progress bar.
+/// The sacred flow: intensity → head location → medication → saved. Pure
+/// rendering — all state lives in [logControllerProvider]. Intensity
+/// advances immediately on tap (fastest way in, mid-attack); location and
+/// medication are pick-then-confirm — the app bar's Next button commits
+/// the active step's draft and advances (the last step's own "Done" is on
+/// the saved screen itself, so Next never needs to relabel). While
+/// tracking (any step but the first) the shell swaps the bottom nav for a
+/// progress bar.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -25,6 +32,8 @@ class LogScreen extends ConsumerWidget {
     final state = ref.watch(logControllerProvider);
     final controller = ref.read(logControllerProvider.notifier);
     final tracking = ref.watch(logFlowInProgressProvider);
+    final showNext =
+        state.step == LogStep.location || state.step == LogStep.medication;
 
     final question = switch (state.step) {
       LogStep.intensity => l10n.logIntensityTitle,
@@ -35,13 +44,22 @@ class LogScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.logTitle),
-      leading: tracking ? BackButton(onPressed: controller.back) : null,
+      // Smaller than the default BackButton — it's a secondary action next
+      // to the (now bigger) Next button.
+      leading: tracking
+          ? IconButton(
+              onPressed: controller.back,
+              icon: const BackButtonIcon(),
+              iconSize: AppSpacingConstant.r18,
+            )
+          : null,
       actions: [
-          if (tracking)
-            AppButton.destructive(
-              compact: true,
-              onPressed: controller.reset,
-              label: l10n.commonCancel,
+          if (showNext)
+            AppButton.primary(
+              onPressed: state.hasDraft
+                  ? () => controller.confirmStep()
+                  : null,
+              label: l10n.logNext,
             ),
           SizedBox(width: AppSpacingConstant.w12),
         ],
@@ -53,11 +71,12 @@ class LogScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          // The question, big and readable mid-attack.
+          // The question, big and readable mid-attack — always one line,
+          // however long the localized string runs.
           if (question != null)
             Padding(
               padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h16, AppSpacingConstant.w24, AppSpacingConstant.h8),
-              child: Text(
+              child: FittedText(
                 question,
                 style: AppTextStyle.headlineMedium.w600,
               ),
@@ -84,10 +103,13 @@ class LogScreen extends ConsumerWidget {
                     onSelected: controller.selectIntensity,
                   ),
                   LogStep.location => LocationStep(
-                    onSelected: controller.selectLocation,
+                    selected: state.draft as HeadLocation?,
+                    onSelected: controller.updateDraft,
                   ),
                   LogStep.medication => MedicationStep(
-                    onSelected: controller.save,
+                    hasSelection: state.hasDraft,
+                    selectedName: state.draft as String?,
+                    onSelected: controller.updateDraft,
                   ),
                   LogStep.saved => SavedStep(
                     attackId: state.savedId!,

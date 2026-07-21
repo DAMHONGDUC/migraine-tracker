@@ -11,7 +11,8 @@ import '../../../../core/widgets/pressable_scale.dart';
 
 /// First tap: pain intensity 1–10. Buttons are large enough to hit with a
 /// shaking hand and tinted by severity so the scale reads at a glance.
-/// Selecting advances the flow immediately.
+/// Selecting advances the flow immediately — no confirm step, this is the
+/// fastest way into the flow, mid-attack.
 class IntensityStep extends StatelessWidget {
   const IntensityStep({required this.onSelected, super.key});
 
@@ -86,24 +87,24 @@ class _IntensityCircle extends StatelessWidget {
       child: PressableScale(
         onTap: onTap,
         child: Container(
-        width: AppSpacingConstant.r88,
-        height: AppSpacingConstant.r88,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          // Severity lives in the fill/border; the number wears the text
-          // token so it stays readable at every step of the ramp.
-          color: color.withValues(alpha: 0.45),
-          border: Border.all(color: color, width: 1.5),
-        ),
-        child: FittedBox(
-          child: Text(
-            '$value',
-            style: AppTextStyle.headlineSmall.copyWith(
-              color: AppColors.textPrimary,
+          width: AppSpacingConstant.r88,
+          height: AppSpacingConstant.r88,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            // Severity lives in the fill/border; the number wears the text
+            // token so it stays readable at every step of the ramp.
+            color: color.withValues(alpha: 0.45),
+            border: Border.all(color: color, width: 1.5),
+          ),
+          child: FittedBox(
+            child: Text(
+              '$value',
+              style: AppTextStyle.headlineSmall.copyWith(
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
-        ),
         ),
       ),
     );
