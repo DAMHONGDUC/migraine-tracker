@@ -25,7 +25,9 @@ class LocationStep extends StatelessWidget {
       children: [
         Expanded(
           child: Padding(
-            padding: EdgeInsets.all(AppSpacingConstant.w16),
+            // Full width for a bigger head; a fixed 20 breathing gap above
+            // and below.
+            padding: EdgeInsets.symmetric(vertical: AppSpacingConstant.h20),
             child: HeadDiagram(selected: selected),
           ),
         ),
