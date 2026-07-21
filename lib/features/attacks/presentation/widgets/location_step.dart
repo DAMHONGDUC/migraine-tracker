@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -14,7 +15,11 @@ import 'head_diagram.dart';
 /// highlights — the app bar's Next confirms and advances. Everything fits
 /// on one screen, no scrolling.
 class LocationStep extends StatelessWidget {
-  const LocationStep({required this.selected, required this.onSelected, super.key});
+  const LocationStep({
+    required this.selected,
+    required this.onSelected,
+    super.key,
+  });
 
   final HeadLocation? selected;
   final ValueChanged<HeadLocation> onSelected;
@@ -23,37 +28,28 @@ class LocationStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          child: Padding(
-            // Full width for a bigger head; a fixed 20 breathing gap above
-            // and below.
-            padding: EdgeInsets.symmetric(vertical: AppSpacingConstant.h20),
-            child: HeadDiagram(selected: selected),
-          ),
+        VerticalSpacing(xRatio: 2),
+        SizedBox(
+          height: AppSpacingConstant.h200,
+          child: HeadDiagram(selected: selected),
         ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w24,
-            0,
-            AppSpacingConstant.w24,
-            AppSpacingConstant.w24,
-          ),
-          child: GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: AppSpacingConstant.h8,
-            crossAxisSpacing: AppSpacingConstant.w8,
-            childAspectRatio: 1,
-            children: [
-              for (final location in HeadLocation.values)
-                _LocationTile(
-                  location: location,
-                  selected: selected == location,
-                  onTap: () => onSelected(location),
-                ),
-            ],
-          ),
+        VerticalSpacing(xRatio: 2),
+        GridView.count(
+          padding: EdgeInsets.zero,
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: AppSpacingConstant.h8,
+          crossAxisSpacing: AppSpacingConstant.w8,
+          childAspectRatio: 1,
+          children: [
+            for (final location in HeadLocation.values)
+              _LocationTile(
+                location: location,
+                selected: selected == location,
+                onTap: () => onSelected(location),
+              ),
+          ],
         ),
       ],
     );
@@ -109,7 +105,11 @@ class _LocationTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(_icons[location], color: color, size: AppSpacingConstant.r24),
+              Icon(
+                _icons[location],
+                color: color,
+                size: AppSpacingConstant.r24,
+              ),
               SizedBox(height: AppSpacingConstant.h4),
               Text(
                 location.label(l10n),
