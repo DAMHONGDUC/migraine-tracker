@@ -97,6 +97,10 @@
   "@logLocationTitle": {
     "description": "Title above the head-location options, second tap of the log flow"
   },
+  "logNext": "Next",
+  "@logNext": {
+    "description": "App bar button that confirms the current step's pick (location or medication) and advances to the next step"
+  },
   "logMedicationTitle": "Did you take medication?",
   "@logMedicationTitle": {
     "description": "Title above the medication picker, third tap of the log flow"

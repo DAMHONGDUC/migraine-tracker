@@ -64,6 +64,9 @@ abstract final class AppSpacingConstant {
   static double get r64 => 64.r;
   static double get r88 => 88.r;
 
+  /// Head-location diagram diameter (log flow step 2).
+  static double get r240 => 240.r;
+
   // --- Font (.sp) ---
   static double get sp10 => 10.sp;
   static double get sp11 => 11.sp;
