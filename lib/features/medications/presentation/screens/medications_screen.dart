@@ -77,7 +77,7 @@ class MedicationsScreen extends ConsumerWidget {
       // primary action in the app bar instead; this one follows suit.
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add, color: AppColors.secondary),
           tooltip: l10n.logAddMedication,
           onPressed: () => _add(context, ref),
         ),
