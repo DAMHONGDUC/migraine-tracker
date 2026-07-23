@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_leading_button.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/fitted_text.dart';
 import '../../domain/enums/head_location.dart';
@@ -44,15 +45,11 @@ class LogScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.logTitle),
-      // Smaller than the default BackButton — it's a secondary action next
-      // to the (now bigger) Next button.
-      leading: tracking
-          ? IconButton(
-              onPressed: controller.back,
-              icon: const BackButtonIcon(),
-              iconSize: AppSpacingConstant.r18,
-            )
-          : null,
+      // Steps back through LogController's state machine rather than
+      // popping a route (there's nothing to pop — the steps are this one
+      // screen's internal state, an AnimatedSwitcher below). Only shown
+      // once actually tracking; the first step has nothing to go back to.
+      leading: tracking ? AppLeadingButton(onPressed: controller.back) : null,
       actions: [
         if (showNext)
           AppButton.primary(
