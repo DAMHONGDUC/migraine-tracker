@@ -1,9 +1,9 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
 import '../theme/app_colors.dart';
+import 'glass/glass_circle.dart';
 import 'glass/liquid_glass_theme.dart';
 
 /// The app's single [AppBar]. Every screen gets it via [AppScaffold] rather
@@ -66,7 +66,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
       glassLeading = const BackButton();
     }
     if (glassLeading != null) {
-      glassLeading = _GlassCircle(child: glassLeading);
+      glassLeading = GlassCircle(child: glassLeading);
     }
 
     return ClipRect(
@@ -89,7 +89,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             actions: [
               for (final action in actions ?? const <Widget>[])
                 if (action is IconButton)
-                  _GlassCircle(child: action)
+                  GlassCircle(child: action)
                 else
                   action,
             ],
@@ -97,23 +97,6 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A single app-bar element in its own Liquid Glass circle.
-class _GlassCircle extends StatelessWidget {
-  const _GlassCircle({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return LiquidGlass.withOwnLayer(
-      settings: kChromeGlass,
-      shape: const LiquidOval(),
-      clipBehavior: Clip.antiAlias,
-      child: child,
     );
   }
 }

@@ -40,7 +40,14 @@ void main() {
           jsonDecode(
                 service.toJson(
                   [full, bare],
-                  [const Medication(id: 'm1', name: 'Ibuprofen')],
+                  [
+                    Medication(
+                      id: 'm1',
+                      name: 'Ibuprofen',
+                      createdAt: DateTime.utc(2026, 6, 1),
+                    ),
+                    const Medication(id: 'm2', name: 'Unknown creation date'),
+                  ],
                   exportedAt: DateTime.utc(2026, 7, 8, 12),
                 ),
               )
@@ -66,7 +73,11 @@ void main() {
       expect(a2['medication'], isNull);
 
       final meds = json['medications'] as List<dynamic>;
-      expect((meds.single as Map<String, dynamic>)['name'], 'Ibuprofen');
+      final m1 = meds[0] as Map<String, dynamic>;
+      expect(m1['name'], 'Ibuprofen');
+      expect(m1['createdAtUtc'], '2026-06-01T00:00:00.000Z');
+      final m2 = meds[1] as Map<String, dynamic>;
+      expect(m2['createdAtUtc'], isNull);
     });
   });
 

@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -32,6 +32,13 @@ class AppDatabase extends _$AppDatabase {
       // v2: daily medication reminders.
       if (from < 2) {
         await m.createTable(medicationReminders);
+      }
+      // v3: medications remember when they were added, so the medications
+      // tab can sort and filter by it. Existing rows get null — their real
+      // creation date was never recorded and inventing one would corrupt
+      // the very filter this column exists to serve.
+      if (from < 3) {
+        await m.addColumn(medications, medications.createdAt);
       }
     },
     beforeOpen: (details) async {

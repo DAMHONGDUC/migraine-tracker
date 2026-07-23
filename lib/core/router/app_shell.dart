@@ -121,6 +121,11 @@ class _AppShellState extends ConsumerState<AppShell> {
                         label: l10n.navHistory,
                       ),
                       _NavItem(
+                        icon: Icons.medication_outlined,
+                        selectedIcon: Icons.medication,
+                        label: l10n.navMedications,
+                      ),
+                      _NavItem(
                         icon: Icons.insights_outlined,
                         selectedIcon: Icons.insights,
                         label: l10n.navInsights,

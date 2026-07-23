@@ -57,6 +57,12 @@ Future<void> openSettings(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+Future<void> openMedications(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.medication_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 void main() {
   group('free user', () {
     testWidgets('never sees the correlation percentage, only the teaser', (
@@ -126,7 +132,9 @@ void main() {
 
       await openSettings(tester);
       expect(find.text('Export data'), findsOneWidget);
-      expect(find.text('Medication reminders'), findsOneWidget);
+
+      await openMedications(tester);
+      expect(find.text('Medications'), findsOneWidget);
 
       await finishTest(tester);
     });

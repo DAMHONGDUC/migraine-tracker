@@ -13,6 +13,7 @@ void main() {
     // Icon-only bottom nav: Log is selected (filled), the rest are outlined.
     expect(find.byIcon(Icons.add_circle), findsOneWidget);
     expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.medication_outlined), findsOneWidget);
     expect(find.byIcon(Icons.insights_outlined), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
 
