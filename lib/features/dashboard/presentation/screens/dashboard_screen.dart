@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../attacks/providers.dart';
@@ -49,16 +46,6 @@ class DashboardScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.dashboardGreeting),
-      // No auth yet: signing in / account management lives under Settings.
-      // When auth lands, swap this for the signed-in user's name + avatar.
-      actions: [
-        // Matches the log flow's "Next": a plain primary button.
-        AppButton.primary(
-          label: l10n.dashboardSignIn,
-          onPressed: () => context.goNamed(AppRoutes.settings.name),
-        ),
-        SizedBox(width: AppSpacingConstant.w12),
-      ],
       body: AppRefreshIndicator(
         onRefresh: () => pullRefresh(() {
           ref
