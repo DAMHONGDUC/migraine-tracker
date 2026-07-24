@@ -224,6 +224,40 @@ void main() {
     },
   );
 
+  testWidgets('searching by name narrows the list and clears on close', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repo = DriftMedicationRepository(app.db);
+    await repo.upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    await repo.upsert(const Medication(id: 'm2', name: 'Ibuprofen'));
+
+    await openMedications(tester);
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('Ibuprofen'), findsOneWidget);
+
+    // Open the search field and type a partial, case-insensitive name.
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.enterText(find.byType(TextField), 'ibu');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Ibuprofen'), findsOneWidget);
+    expect(find.text('Sumatriptan'), findsNothing);
+
+    // Closing search restores the full list.
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('Ibuprofen'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('the reminder filter narrows the list', (tester) async {
     final app = await pumpApp(tester);
     final repo = DriftMedicationRepository(app.db);

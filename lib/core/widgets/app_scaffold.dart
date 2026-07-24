@@ -70,7 +70,16 @@ class AppScaffold extends StatelessWidget {
       ),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
-      body: body,
+      // Tap anywhere outside a focused field (e.g. the medications search box)
+      // to drop focus and dismiss the keyboard. Translucent so it never eats
+      // taps meant for buttons/list rows — a tap only reaches here when nothing
+      // nearer claims it; a scroll drag defeats the tap so scrolling is
+      // unaffected.
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: body,
+      ),
     );
   }
 }
