@@ -97,10 +97,18 @@ class _AppShellState extends ConsumerState<AppShell> {
                 : _SlidingNavBar(
                     key: const ValueKey('tabs'),
                     selectedIndex: navigationShell.currentIndex,
-                    onSelected: (index) => navigationShell.goBranch(
-                      index,
-                      initialLocation: index == navigationShell.currentIndex,
-                    ),
+                    onSelected: (index) {
+                      // Leaving the log tab from the saved confirmation
+                      // resets the flow, so returning to Log later starts
+                      // fresh at intensity instead of the stale saved screen.
+                      if (logState.step == LogStep.saved) {
+                        ref.read(logControllerProvider.notifier).reset();
+                      }
+                      navigationShell.goBranch(
+                        index,
+                        initialLocation: index == navigationShell.currentIndex,
+                      );
+                    },
                     items: [
                       _NavItem(
                         icon: Icons.add_circle_outline,
@@ -111,6 +119,11 @@ class _AppShellState extends ConsumerState<AppShell> {
                         icon: Icons.calendar_month_outlined,
                         selectedIcon: Icons.calendar_month,
                         label: l10n.navHistory,
+                      ),
+                      _NavItem(
+                        icon: Icons.medication_outlined,
+                        selectedIcon: Icons.medication,
+                        label: l10n.navMedications,
                       ),
                       _NavItem(
                         icon: Icons.insights_outlined,

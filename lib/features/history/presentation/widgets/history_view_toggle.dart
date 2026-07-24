@@ -32,8 +32,8 @@ class HistoryViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
-    final segmentWidth = AppSpacingConstant.w48;
-    final height = AppSpacingConstant.h38;
+    final segmentWidth = AppSpacingConstant.w54;
+    final height = AppSpacingConstant.h42;
     final index = modes.indexOf(mode);
 
     // Styled like the bottom nav pill: borderless glass surface, and the
@@ -68,7 +68,9 @@ class HistoryViewToggle extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacingConstant.r999,
+                    ),
                   ),
                 ),
               ),

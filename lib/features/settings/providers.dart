@@ -26,6 +26,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
   (ref) => DataWipeService(
     ref.watch(attackRepositoryProvider),
     ref.watch(medicationRepositoryProvider),
+    ref.watch(notificationSchedulerProvider),
   ),
 );
 

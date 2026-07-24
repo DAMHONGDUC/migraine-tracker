@@ -5,7 +5,10 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_leading_button.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/fitted_text.dart';
+import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
 import '../controllers/log_controller.dart' show LogStep;
 import '../widgets/intensity_step.dart';
@@ -13,9 +16,14 @@ import '../widgets/location_step.dart';
 import '../widgets/medication_step.dart';
 import '../widgets/saved_step.dart';
 
-/// The sacred 3-tap flow: intensity → head location → medication → saved.
-/// Pure rendering — all state lives in [logControllerProvider]. While
-/// tracking (step 2+) the shell swaps the bottom nav for a progress bar.
+/// The sacred flow: intensity → head location → medication → saved. Pure
+/// rendering — all state lives in [logControllerProvider]. Intensity
+/// advances immediately on tap (fastest way in, mid-attack); location and
+/// medication are pick-then-confirm — the app bar's Next button commits
+/// the active step's draft and advances (the last step's own "Done" is on
+/// the saved screen itself, so Next never needs to relabel). While
+/// tracking (any step but the first) the shell swaps the bottom nav for a
+/// progress bar.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -25,6 +33,8 @@ class LogScreen extends ConsumerWidget {
     final state = ref.watch(logControllerProvider);
     final controller = ref.read(logControllerProvider.notifier);
     final tracking = ref.watch(logFlowInProgressProvider);
+    final showNext =
+        state.step == LogStep.location || state.step == LogStep.medication;
 
     final question = switch (state.step) {
       LogStep.intensity => l10n.logIntensityTitle,
@@ -35,16 +45,19 @@ class LogScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.logTitle),
-      leading: tracking ? BackButton(onPressed: controller.back) : null,
+      // Steps back through LogController's state machine rather than
+      // popping a route (there's nothing to pop — the steps are this one
+      // screen's internal state, an AnimatedSwitcher below). Only shown
+      // once actually tracking; the first step has nothing to go back to.
+      leading: tracking ? AppLeadingButton(onPressed: controller.back) : null,
       actions: [
-          if (tracking)
-            AppButton.destructive(
-              compact: true,
-              onPressed: controller.reset,
-              label: l10n.commonCancel,
-            ),
-          SizedBox(width: AppSpacingConstant.w12),
-        ],
+        if (showNext)
+          AppButton.primary(
+            onPressed: state.hasDraft ? () => controller.confirmStep() : null,
+            label: l10n.logNext,
+          ),
+        SizedBox(width: AppSpacingConstant.w12),
+      ],
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
@@ -53,51 +66,61 @@ class LogScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          // The question, big and readable mid-attack.
-          if (question != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h16, AppSpacingConstant.w24, AppSpacingConstant.h8),
-              child: Text(
-                question,
-                style: AppTextStyle.headlineMedium.w600,
+            // The question, big and readable mid-attack — always one line,
+            // however long the localized string runs.
+            if (question != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacingConstant.w24,
+                  AppSpacingConstant.h16,
+                  AppSpacingConstant.w24,
+                  AppSpacingConstant.h8,
+                ),
+                child: FittedText(
+                  question,
+                  style: AppTextStyle.headlineMedium.w600,
+                  maxLines: 1,
+                ),
               ),
-            ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final offset = Tween<Offset>(
-                  begin: const Offset(0.06, 0),
-                  end: Offset.zero,
-                ).animate(animation);
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(position: offset, child: child),
-                );
-              },
-              child: KeyedSubtree(
-                key: ValueKey(state.step),
-                child: switch (state.step) {
-                  LogStep.intensity => IntensityStep(
-                    onSelected: controller.selectIntensity,
-                  ),
-                  LogStep.location => LocationStep(
-                    onSelected: controller.selectLocation,
-                  ),
-                  LogStep.medication => MedicationStep(
-                    onSelected: controller.save,
-                  ),
-                  LogStep.saved => SavedStep(
-                    attackId: state.savedId!,
-                    onDone: controller.reset,
-                  ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final offset = Tween<Offset>(
+                    begin: const Offset(0.06, 0),
+                    end: Offset.zero,
+                  ).animate(animation);
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(position: offset, child: child),
+                  );
                 },
+                child: KeyedSubtree(
+                  key: ValueKey(state.step),
+                  child: switch (state.step) {
+                    LogStep.intensity => IntensityStep(
+                      onSelected: controller.selectIntensity,
+                    ),
+                    LogStep.location => LocationStep(
+                      selected: state.draft as HeadLocation?,
+                      onSelected: controller.updateDraft,
+                    ),
+                    LogStep.medication => MedicationStep(
+                      hasSelection: state.hasDraft,
+                      selectedName: state.draft as String?,
+                      onSelected: controller.updateDraft,
+                    ),
+                    LogStep.saved => SavedStep(
+                      attackId: state.savedId!,
+                      onDone: controller.reset,
+                    ),
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );

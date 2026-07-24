@@ -6,7 +6,7 @@ import '../../features/attacks/presentation/screens/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen.dart';
 import '../../features/history/presentation/screens/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen.dart';
-import '../../features/medications/presentation/screens/reminders_screen.dart';
+import '../../features/medications/presentation/screens/medications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen.dart';
@@ -31,7 +31,10 @@ abstract final class AppRoutes {
   static const history = AppRoute(name: 'history', path: '/history');
   static const insights = AppRoute(name: 'insights', path: '/insights');
   static const settings = AppRoute(name: 'settings', path: '/settings');
-  static const reminders = AppRoute(name: 'reminders', path: '/reminders');
+  static const medications = AppRoute(
+    name: 'medications',
+    path: '/medications',
+  );
 
   /// Detail of one logged attack, pushed from History.
   /// Path parameter: [attackIdParam].
@@ -63,12 +66,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.onboarding.name,
         path: AppRoutes.onboarding.path,
         builder: (context, state) => const OnboardingScreen(),
-      ),
-      // Full-screen, pushed above the shell (no bottom nav).
-      GoRoute(
-        name: AppRoutes.reminders.name,
-        path: AppRoutes.reminders.path,
-        builder: (context, state) => const RemindersScreen(),
       ),
       GoRoute(
         name: AppRoutes.attack.name,
@@ -124,6 +121,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: AppRoutes.history.name,
                 path: AppRoutes.history.path,
                 builder: (context, state) => const HistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                name: AppRoutes.medications.name,
+                path: AppRoutes.medications.path,
+                builder: (context, state) => const MedicationsScreen(),
               ),
             ],
           ),

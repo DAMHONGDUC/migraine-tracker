@@ -45,23 +45,40 @@ void main() {
   test('starts at the intensity step with no data', () {
     expect(state().step, LogStep.intensity);
     expect(state().intensity, isNull);
+    expect(state().hasDraft, isFalse);
   });
 
-  test('each tap advances the flow and records its value', () {
+  test('selectIntensity advances immediately, no confirm step', () {
     controller().selectIntensity(7);
     expect(state().step, LogStep.location);
     expect(state().intensity, 7);
-
-    controller().selectLocation(HeadLocation.right);
-    expect(state().step, LogStep.medication);
-    expect(state().location, HeadLocation.right);
+    expect(state().hasDraft, isFalse);
   });
 
-  test('save persists the attack and moves to the saved step', () async {
-    controller()
-      ..selectIntensity(8)
-      ..selectLocation(HeadLocation.left);
-    await controller().save('Sumatriptan');
+  test('picking a location arms the draft without advancing', () {
+    controller().selectIntensity(7);
+    controller().updateDraft(HeadLocation.right);
+    expect(state().step, LogStep.location);
+    expect(state().hasDraft, isTrue);
+    expect(state().location, isNull);
+  });
+
+  test('confirmStep commits the location draft and advances', () async {
+    controller().selectIntensity(7);
+
+    controller().updateDraft(HeadLocation.right);
+    await controller().confirmStep();
+    expect(state().step, LogStep.medication);
+    expect(state().location, HeadLocation.right);
+    expect(state().hasDraft, isFalse);
+  });
+
+  test('confirmStep on the medication step persists the attack', () async {
+    controller().selectIntensity(8);
+    controller().updateDraft(HeadLocation.left);
+    await controller().confirmStep();
+    controller().updateDraft('Sumatriptan');
+    await controller().confirmStep();
 
     expect(state().step, LogStep.saved);
     expect(state().savedId, isNotNull);
@@ -73,23 +90,52 @@ void main() {
     expect(rows.single.medicationName, 'Sumatriptan');
   });
 
-  test('back steps to the previous screen', () {
+  test('confirming "No medication" is a valid pick (null draft)', () async {
+    controller().selectIntensity(3);
+    controller().updateDraft(HeadLocation.whole);
+    await controller().confirmStep();
+    controller().updateDraft(null);
+    expect(state().hasDraft, isTrue, reason: 'null is a valid medication pick');
+    await controller().confirmStep();
+
+    expect(state().step, LogStep.saved);
+    final rows = await db.select(db.attacks).get();
+    expect(rows.single.medicationName, isNull);
+  });
+
+  test('back steps to the previous screen, keeping its value pre-filled', () {
     controller().selectIntensity(5);
+    controller().updateDraft(HeadLocation.whole);
     controller().back();
+
     expect(state().step, LogStep.intensity);
     expect(state().intensity, 5, reason: 'value kept so it can be re-picked');
   });
 
+  test('back from medication pre-fills the location draft', () async {
+    controller().selectIntensity(5);
+    controller().updateDraft(HeadLocation.left);
+    await controller().confirmStep();
+    controller().back();
+
+    expect(state().step, LogStep.location);
+    expect(state().location, HeadLocation.left, reason: 'kept on record');
+    expect(state().hasDraft, isTrue);
+    expect(state().draft, HeadLocation.left);
+  });
+
   test('reset clears everything back to the start', () async {
-    controller()
-      ..selectIntensity(6)
-      ..selectLocation(HeadLocation.whole);
-    await controller().save(null);
+    controller().selectIntensity(6);
+    controller().updateDraft(HeadLocation.whole);
+    await controller().confirmStep();
+    controller().updateDraft(null);
+    await controller().confirmStep();
     controller().reset();
 
     expect(state().step, LogStep.intensity);
     expect(state().intensity, isNull);
     expect(state().location, isNull);
     expect(state().savedId, isNull);
+    expect(state().hasDraft, isFalse);
   });
 }

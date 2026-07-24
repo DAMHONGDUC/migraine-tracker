@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/app_filter_sheet.dart';
 import '../../domain/enums/history_period.dart';
 
 String periodLabel(BuildContext context, HistoryPeriod period) =>
@@ -16,20 +14,25 @@ String periodLabel(BuildContext context, HistoryPeriod period) =>
     };
 
 /// Opens the shared period filter (used by both list and chart modes).
-/// Returns the picked period, or null when dismissed.
+/// Returns the picked period, or null when dismissed. Thin wrapper over the
+/// generic [showAppFilterSheet] — see [HistoryFilterChip].
 Future<HistoryPeriod?> showHistoryFilterSheet(
   BuildContext context, {
   required HistoryPeriod selected,
 }) {
-  return showAppBottomSheet<HistoryPeriod>(
+  return showAppFilterSheet<HistoryPeriod>(
     context,
-    builder: (_) => _FilterSheet(selected: selected),
+    title: context.l10n.historyFilterSheetTitle,
+    options: HistoryPeriod.values,
+    selected: selected,
+    labelBuilder: (period) => periodLabel(context, period),
   );
 }
 
 /// The period filter pill (icon + current value + expand chevron); tapping
 /// opens the bottom sheet. Rendered at the top of the list/chart content,
-/// below the app bar.
+/// below the app bar. A thin [AppFilterChip] wrapper — see that class for
+/// the shared visuals/behavior now also used by the medications tab.
 class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
@@ -44,101 +47,18 @@ class HistoryFilterChip extends StatelessWidget {
   /// How many attacks the selected period matches — shown as "All (10)".
   final int? count;
 
-  Future<void> _open(BuildContext context) async {
-    final picked = await showHistoryFilterSheet(context, selected: selected);
-    if (picked != null) onSelected(picked);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    return Material(
-      color: scheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
-        onTap: () => _open(context),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacingConstant.w14,
-            vertical: AppSpacingConstant.h8,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.filter_list,
-                size: AppSpacingConstant.r16,
-                color: scheme.primary,
-              ),
-              SizedBox(width: AppSpacingConstant.w6),
-              Text(
-                count == null
-                    ? periodLabel(context, selected)
-                    : context.l10n.historyFilterWithCount(
-                        periodLabel(context, selected),
-                        count!,
-                      ),
-                style: AppTextStyle.labelLarge,
-              ),
-              SizedBox(width: AppSpacingConstant.w2),
-              Icon(
-                Icons.expand_more,
-                size: AppSpacingConstant.r18,
-                color: scheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterSheet extends StatelessWidget {
-  const _FilterSheet({required this.selected});
-
-  final HistoryPeriod selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h4, AppSpacingConstant.w24, AppSpacingConstant.h12),
-            child: Text(
-              context.l10n.historyFilterSheetTitle,
-              style: AppTextStyle.titleMedium,
-            ),
-          ),
-          Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                for (final period in HistoryPeriod.values)
-                  ListTile(
-                    leading: Icon(
-                      period == selected
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_off,
-                      color: period == selected
-                          ? scheme.primary
-                          : scheme.onSurfaceVariant,
-                      size: AppSpacingConstant.r22,
-                    ),
-                    title: Text(periodLabel(context, period)),
-                    onTap: () => Navigator.of(context).pop(period),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: AppSpacingConstant.h8),
-        ],
-      ),
+    return AppFilterChip<HistoryPeriod>(
+      label: periodLabel(context, selected),
+      selected: selected,
+      options: HistoryPeriod.values,
+      optionLabelBuilder: (period) => periodLabel(context, period),
+      onSelected: onSelected,
+      sheetTitle: context.l10n.historyFilterSheetTitle,
+      count: count,
+      countLabelBuilder: (label, count) =>
+          context.l10n.historyFilterWithCount(label, count),
     );
   }
 }
