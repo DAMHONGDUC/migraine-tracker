@@ -75,6 +75,23 @@ final medicationAddRequestProvider =
       MedicationAddRequestController.new,
     );
 
+/// Free-text search over medication names, driven by the search field in the
+/// medications tab app bar. Narrows [filteredMedicationsProvider] on top of the
+/// three filter axes. Empty string = not searching.
+class MedicationSearchController extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void setQuery(String value) => state = value;
+
+  void clear() => state = '';
+}
+
+final medicationSearchProvider =
+    NotifierProvider<MedicationSearchController, String>(
+      MedicationSearchController.new,
+    );
+
 /// One-shot request to scroll to and briefly highlight a medication's card,
 /// set when the dashboard's next-reminder banner is tapped and consumed by the
 /// Medications tab once it's active. Holds the target medication id, or null.
@@ -121,13 +138,21 @@ final filteredMedicationsProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
   final filters = ref.watch(medicationFiltersProvider);
-  return const MedicationFilterer().apply(
+  final filtered = const MedicationFilterer().apply(
     medications,
     filters,
     now: DateTime.now(),
     reminderMedicationIds: ref.watch(_medicationIdsWithRemindersProvider),
     everUsedNames: ref.watch(_everUsedMedicationNamesProvider),
   );
+  // Free-text name search narrows the filtered result further (case- and
+  // whitespace-insensitive). Applied here, on top of the enum filters, so the
+  // filterer stays a pure enum-axis engine.
+  final query = ref.watch(medicationSearchProvider).trim().toLowerCase();
+  if (query.isEmpty) return filtered;
+  return filtered
+      .where((medication) => medication.name.toLowerCase().contains(query))
+      .toList();
 });
 
 final medicationReminderRepositoryProvider =

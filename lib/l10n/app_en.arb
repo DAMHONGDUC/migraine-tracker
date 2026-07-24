@@ -125,6 +125,22 @@
   "@medicationsTitle": {
     "description": "App bar title of the medications tab"
   },
+  "medicationsSearchTooltip": "Search medications",
+  "@medicationsSearchTooltip": {
+    "description": "Tooltip on the search icon button in the medications tab app bar"
+  },
+  "medicationsSearchHint": "Search medications",
+  "@medicationsSearchHint": {
+    "description": "Placeholder text inside the medications search field"
+  },
+  "medicationsSearchClear": "Clear search",
+  "@medicationsSearchClear": {
+    "description": "Tooltip on the button that clears the medications search field"
+  },
+  "medicationsSearchEmpty": "No medications match your search.",
+  "@medicationsSearchEmpty": {
+    "description": "Empty state shown in the medications tab when a name search matches nothing"
+  },
   "medicationsEmpty": "No medications yet.",
   "@medicationsEmpty": {
     "description": "Shown in the medications tab when no medications match the current filters (or none exist yet)"

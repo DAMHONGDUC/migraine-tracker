@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -16,10 +17,12 @@ import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/pinned_filter_bar.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/enums/medication_filters.dart';
 import '../../domain/repositories/medication_reminder_repository.dart';
 import '../../providers.dart';
+import '../controllers/medication_filters_controller.dart';
 import '../widgets/medication_name_dialog.dart';
 
 String _dateFilterLabel(BuildContext context, MedicationDateFilter filter) =>
@@ -78,6 +81,13 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   Timer? _highlightTimer;
   bool _handlingHighlight = false;
 
+  /// Whether the app bar is showing the name-search field in place of the
+  /// title. The query itself lives in [medicationSearchProvider] so filtering
+  /// survives a tab switch; this only toggles the field's visibility.
+  bool _searching = false;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+
   /// Rough per-card height, used only to jump a not-yet-built target near the
   /// viewport so its key resolves before the precise ensureVisible.
   static double get _estimatedCardExtent => AppSpacingConstant.h96;
@@ -95,7 +105,42 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   void dispose() {
     _highlightTimer?.cancel();
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
+  }
+
+  /// Reveals the search field and focuses it.
+  void _startSearch() {
+    setState(() => _searching = true);
+    _searchFocus.requestFocus();
+  }
+
+  /// Hides the search field and clears the query so the full list returns.
+  void _stopSearch() {
+    _searchController.clear();
+    ref.read(medicationSearchProvider.notifier).clear();
+    _searchFocus.unfocus();
+    setState(() => _searching = false);
+  }
+
+  /// The name-search field shown in the app bar title slot while searching.
+  Widget _searchField(BuildContext context) {
+    final l10n = context.l10n;
+    return TextField(
+      controller: _searchController,
+      focusNode: _searchFocus,
+      textInputAction: TextInputAction.search,
+      style: AppTextStyle.titleMedium,
+      cursorColor: AppColors.primary,
+      onChanged: ref.read(medicationSearchProvider.notifier).setQuery,
+      decoration: InputDecoration(
+        isCollapsed: true,
+        border: InputBorder.none,
+        hintText: l10n.medicationsSearchHint,
+        hintStyle: AppTextStyle.titleMedium.secondary,
+      ),
+    );
   }
 
   /// Consumes a pending "add medication" request and opens the dialog, once,
@@ -148,8 +193,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         final meds = ref.read(filteredMedicationsProvider);
         final index = meds.indexWhere((m) => m.id == medicationId);
         if (index >= 0) {
-          final offset = (index * _estimatedCardExtent)
-              .clamp(0.0, _scrollController.position.maxScrollExtent);
+          final offset = (index * _estimatedCardExtent).clamp(
+            0.0,
+            _scrollController.position.maxScrollExtent,
+          );
           if ((offset - _scrollController.offset).abs() > 1) {
             _scrollController.jumpTo(offset);
           }
@@ -185,125 +232,180 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final medications = ref.watch(filteredMedicationsProvider);
     final filters = ref.watch(medicationFiltersProvider);
     final filtersController = ref.read(medicationFiltersProvider.notifier);
+    final searchQuery = ref.watch(medicationSearchProvider);
+    // Measured here (the body-building context) and handed to both the filter
+    // strip and the list gap so they use the identical value — reading it again
+    // deeper in the tree can drift in this nested-Scaffold setup.
+    final topInset = AppScaffold.bodyTopInset(context);
+    final filterBarHeight = PinnedFilterBar.heightFor(topInset);
 
     return AppScaffold(
-      title: Text(l10n.medicationsTitle),
+      // While searching, the title slot becomes the search field and a close
+      // button takes the leading slot; otherwise the tab title with a search
+      // affordance right after it.
+      title: _searching ? _searchField(context) : Text(l10n.medicationsTitle),
+      leading: _searching
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: l10n.commonCancel,
+              onPressed: _stopSearch,
+            )
+          : null,
       // No FAB here: this is a shell tab, and the floating glass bottom nav
       // overlays tab content (extendBody) — a FAB would sit right under its
       // hit-test region and silently eat the tap. Every other tab puts its
       // primary action in the app bar instead; this one follows suit.
-      actions: [
-        IconButton(
-          icon: Icon(Icons.add, color: AppColors.secondary),
-          tooltip: l10n.logAddMedication,
-          onPressed: _add,
-        ),
-        SizedBox(width: AppSpacingConstant.w12),
-      ],
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: AppScaffold.bodyTopInset(context),
-          bottom: AppScaffold.bottomNavInset(context),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacingConstant.w16,
-                vertical: AppSpacingConstant.h12,
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    AppFilterChip<MedicationDateFilter>(
-                      // The row holds 3 independent chips — at their default
-                      // ("all") they'd otherwise all just read "All" with
-                      // nothing to tell them apart, so the axis name leads
-                      // until something is actually picked.
-                      label: filters.date == MedicationDateFilter.all
-                          ? l10n.medicationsFilterDateTitle
-                          : _dateFilterLabel(context, filters.date),
-                      selected: filters.date,
-                      options: MedicationDateFilter.values,
-                      optionLabelBuilder: (value) =>
-                          _dateFilterLabel(context, value),
-                      onSelected: filtersController.setDate,
-                      sheetTitle: l10n.medicationsFilterDateTitle,
-                    ),
-                    SizedBox(width: AppSpacingConstant.w8),
-                    AppFilterChip<MedicationReminderFilter>(
-                      label: filters.reminder == MedicationReminderFilter.all
-                          ? l10n.medicationsFilterReminderTitle
-                          : _reminderFilterLabel(context, filters.reminder),
-                      selected: filters.reminder,
-                      options: MedicationReminderFilter.values,
-                      optionLabelBuilder: (value) =>
-                          _reminderFilterLabel(context, value),
-                      onSelected: filtersController.setReminder,
-                      sheetTitle: l10n.medicationsFilterReminderTitle,
-                    ),
-                    SizedBox(width: AppSpacingConstant.w8),
-                    AppFilterChip<MedicationUsageFilter>(
-                      label: filters.usage == MedicationUsageFilter.all
-                          ? l10n.medicationsFilterUsageTitle
-                          : _usageFilterLabel(context, filters.usage),
-                      selected: filters.usage,
-                      options: MedicationUsageFilter.values,
-                      optionLabelBuilder: (value) =>
-                          _usageFilterLabel(context, value),
-                      onSelected: filtersController.setUsage,
-                      sheetTitle: l10n.medicationsFilterUsageTitle,
-                    ),
-                  ],
+      actions: _searching
+          ? [
+              if (searchQuery.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.medicationsSearchClear,
+                  onPressed: () {
+                    _searchController.clear();
+                    ref.read(medicationSearchProvider.notifier).clear();
+                    _searchFocus.requestFocus();
+                  },
                 ),
+              SizedBox(width: AppSpacingConstant.w12),
+            ]
+          : [
+              IconButton(
+                icon: Icon(Icons.search, color: AppColors.secondary),
+                tooltip: l10n.medicationsSearchTooltip,
+                onPressed: _startSearch,
               ),
-            ),
-            Expanded(
-              child: AppRefreshIndicator(
-                edgeOffset: 0,
-                onRefresh: () => pullRefresh(() {
-                  ref
-                    ..invalidate(medicationsStreamProvider)
-                    ..invalidate(medicationRemindersStreamProvider);
-                }),
-                child: medications.isEmpty
-                    ? ScrollFill(
-                        child: EmptyState(
-                          icon: Icons.medication_outlined,
-                          message: l10n.medicationsEmpty,
-                        ),
-                      )
-                    : ListView.separated(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(
-                          AppSpacingConstant.w16,
-                          0,
-                          AppSpacingConstant.w16,
-                          AppSpacingConstant.w16,
-                        ),
-                        itemCount: medications.length,
-                        separatorBuilder: (_, _) =>
-                            SizedBox(height: AppSpacingConstant.h8),
-                        itemBuilder: (context, index) {
-                          final medication = medications[index];
-                          return _MedicationCard(
-                            key: _cardKeys.putIfAbsent(
-                              medication.id,
-                              GlobalKey.new,
-                            ),
-                            medication: medication,
-                            highlighted: medication.id == _highlightedId,
-                          );
-                        },
+              HorizontalSpacing(),
+              IconButton(
+                icon: Icon(Icons.add, color: AppColors.secondary),
+                tooltip: l10n.logAddMedication,
+                onPressed: _add,
+              ),
+              SizedBox(width: AppSpacingConstant.w12),
+            ],
+      // No outer top padding: like History, the list scrolls behind the
+      // translucent app bar so it fills the screen. The filter row is a fixed
+      // PinnedFilterBar floating over the top of the list (in a Stack) — it
+      // stays anchored just below the app bar while the cards scroll under it.
+      body: Stack(
+        children: [
+          AppRefreshIndicator(
+            // Drop the spinner below the filter strip, not over its chips.
+            edgeOffset: filterBarHeight + AppSpacingConstant.h8,
+            onRefresh: () => pullRefresh(() {
+              ref
+                ..invalidate(medicationsStreamProvider)
+                ..invalidate(medicationRemindersStreamProvider);
+            }),
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                if (medications.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    // Clear the app bar + filter strip so the empty state
+                    // centers in the space below them.
+                    child: Padding(
+                      padding: EdgeInsets.only(top: filterBarHeight),
+                      child: EmptyState(
+                        icon: Icons.medication_outlined,
+                        message: searchQuery.trim().isEmpty
+                            ? l10n.medicationsEmpty
+                            : l10n.medicationsSearchEmpty,
                       ),
-              ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacingConstant.w16,
+                      filterBarHeight,
+                      AppSpacingConstant.w16,
+                      AppScaffold.bottomNavInset(context) +
+                          AppSpacingConstant.h16,
+                    ),
+                    sliver: SliverList.separated(
+                      itemCount: medications.length,
+                      separatorBuilder: (_, _) =>
+                          SizedBox(height: AppSpacingConstant.h8),
+                      itemBuilder: (context, index) {
+                        final medication = medications[index];
+                        return _MedicationCard(
+                          key: _cardKeys.putIfAbsent(
+                            medication.id,
+                            GlobalKey.new,
+                          ),
+                          medication: medication,
+                          highlighted: medication.id == _highlightedId,
+                        );
+                      },
+                    ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: PinnedFilterBar(
+              topInset: topInset,
+              child: _filterRow(context, filters, filtersController),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  /// The row of independent filter chips (date / reminder / usage).
+  /// [PinnedFilterBar] supplies the horizontal scrolling, so this returns a
+  /// bare [Row] — don't wrap it in a scroll view (that would nest two).
+  Widget _filterRow(
+    BuildContext context,
+    MedicationFilters filters,
+    MedicationFiltersController filtersController,
+  ) {
+    final l10n = context.l10n;
+    return Row(
+      children: [
+        AppFilterChip<MedicationDateFilter>(
+          // The row holds 3 independent chips — at their default ("all")
+          // they'd otherwise all just read "All" with nothing to tell them
+          // apart, so the axis name leads until something is actually picked.
+          label: filters.date == MedicationDateFilter.all
+              ? l10n.medicationsFilterDateTitle
+              : _dateFilterLabel(context, filters.date),
+          selected: filters.date,
+          options: MedicationDateFilter.values,
+          optionLabelBuilder: (value) => _dateFilterLabel(context, value),
+          onSelected: filtersController.setDate,
+          sheetTitle: l10n.medicationsFilterDateTitle,
+        ),
+        SizedBox(width: AppSpacingConstant.w8),
+        AppFilterChip<MedicationReminderFilter>(
+          label: filters.reminder == MedicationReminderFilter.all
+              ? l10n.medicationsFilterReminderTitle
+              : _reminderFilterLabel(context, filters.reminder),
+          selected: filters.reminder,
+          options: MedicationReminderFilter.values,
+          optionLabelBuilder: (value) => _reminderFilterLabel(context, value),
+          onSelected: filtersController.setReminder,
+          sheetTitle: l10n.medicationsFilterReminderTitle,
+        ),
+        SizedBox(width: AppSpacingConstant.w8),
+        AppFilterChip<MedicationUsageFilter>(
+          label: filters.usage == MedicationUsageFilter.all
+              ? l10n.medicationsFilterUsageTitle
+              : _usageFilterLabel(context, filters.usage),
+          selected: filters.usage,
+          options: MedicationUsageFilter.values,
+          optionLabelBuilder: (value) => _usageFilterLabel(context, value),
+          onSelected: filtersController.setUsage,
+          sheetTitle: l10n.medicationsFilterUsageTitle,
+        ),
+      ],
     );
   }
 }
@@ -482,40 +584,43 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           children: [
             ListTile(
               leading: const Icon(Icons.medication_outlined),
-            title: Text(
-              widget.medication.name,
-              style: AppTextStyle.titleMedium,
-            ),
-            subtitle: Text(addedLabel, style: AppTextStyle.bodySmall.secondary),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _openActions(context, ref),
-            ),
-          ),
-          for (final view in visibleReminders) _ReminderRow(view: view),
-          if (overflowing)
-            _ExpandRemindersToggle(
-              expanded: _expanded,
-              hiddenCount: reminders.length - _MedicationCard.collapsedLimit,
-              onTap: () => setState(() => _expanded = !_expanded),
-            ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w16,
-              0,
-              AppSpacingConstant.w16,
-              AppSpacingConstant.h12,
-            ),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: AppButton.text(
-                onPressed: () => _addReminder(context, ref),
-                icon: Icons.add_alarm,
-                label: l10n.remindersAdd,
+              title: Text(
+                widget.medication.name,
+                style: AppTextStyle.titleMedium,
+              ),
+              subtitle: Text(
+                addedLabel,
+                style: AppTextStyle.bodySmall.secondary,
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _openActions(context, ref),
               ),
             ),
-          ),
-        ],
+            for (final view in visibleReminders) _ReminderRow(view: view),
+            if (overflowing)
+              _ExpandRemindersToggle(
+                expanded: _expanded,
+                hiddenCount: reminders.length - _MedicationCard.collapsedLimit,
+                onTap: () => setState(() => _expanded = !_expanded),
+              ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacingConstant.w16,
+                0,
+                AppSpacingConstant.w16,
+                AppSpacingConstant.h12,
+              ),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: AppButton.text(
+                  onPressed: () => _addReminder(context, ref),
+                  icon: Icons.add_alarm,
+                  label: l10n.remindersAdd,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
