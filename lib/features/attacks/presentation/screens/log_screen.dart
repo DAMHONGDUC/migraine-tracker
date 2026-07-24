@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
@@ -13,6 +14,7 @@ import '../../providers.dart';
 import '../controllers/log_controller.dart' show LogStep;
 import '../widgets/intensity_step.dart';
 import '../widgets/location_step.dart';
+import '../widgets/log_step_bar.dart';
 import '../widgets/medication_step.dart';
 import '../widgets/saved_step.dart';
 
@@ -21,9 +23,13 @@ import '../widgets/saved_step.dart';
 /// advances immediately on tap (fastest way in, mid-attack); location and
 /// medication are pick-then-confirm — the app bar's Next button commits
 /// the active step's draft and advances (the last step's own "Done" is on
-/// the saved screen itself, so Next never needs to relabel). While
-/// tracking (any step but the first) the shell swaps the bottom nav for a
-/// progress bar.
+/// the saved screen itself, so Next never needs to relabel).
+///
+/// This is a full-screen pushed route (opened from the dashboard's log
+/// button). The 3-step progress lives in a floating bottom bar ([LogStepBar])
+/// — the same slot the shell's bottom nav used to morph into. The app bar's
+/// leading button cancels the flow (pops the route) on the first step and
+/// steps back on later ones. "Done" on the saved screen pops back.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -32,7 +38,6 @@ class LogScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final state = ref.watch(logControllerProvider);
     final controller = ref.read(logControllerProvider.notifier);
-    final tracking = ref.watch(logFlowInProgressProvider);
     final showNext =
         state.step == LogStep.location || state.step == LogStep.medication;
 
@@ -43,13 +48,21 @@ class LogScreen extends ConsumerWidget {
       LogStep.saved => null,
     };
 
+    void closeFlow() {
+      controller.reset();
+      context.pop();
+    }
+
     return AppScaffold(
       title: Text(l10n.logTitle),
-      // Steps back through LogController's state machine rather than
-      // popping a route (there's nothing to pop — the steps are this one
-      // screen's internal state, an AnimatedSwitcher below). Only shown
-      // once actually tracking; the first step has nothing to go back to.
-      leading: tracking ? AppLeadingButton(onPressed: controller.back) : null,
+      // First step: nothing to step back to, so the leading button cancels
+      // the whole flow (pops the route). Later steps: step back through the
+      // LogController state machine. Saved: no leading — only "Done" leaves.
+      leading: switch (state.step) {
+        LogStep.saved => null,
+        LogStep.intensity => AppLeadingButton(onPressed: closeFlow),
+        _ => AppLeadingButton(onPressed: controller.back),
+      },
       actions: [
         if (showNext)
           AppButton.primary(
@@ -58,10 +71,17 @@ class LogScreen extends ConsumerWidget {
           ),
         SizedBox(width: AppSpacingConstant.w12),
       ],
+      // The 3-tap progress lives in the bottom bar slot, in the same floating
+      // position the shell's bottom nav used to morph into. Hidden once saved
+      // (nothing left to track), so the body then uses a plain bottom inset.
+      bottomNavigationBar: question != null ? LogStepBar(step: state.step) : null,
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
-          bottom: AppScaffold.bottomNavInset(context),
+          bottom: question != null
+              ? AppScaffold.bottomNavInset(context)
+              : MediaQuery.viewPaddingOf(context).bottom +
+                    AppSpacingConstant.h16,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,7 +134,7 @@ class LogScreen extends ConsumerWidget {
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,
-                      onDone: controller.reset,
+                      onDone: closeFlow,
                     ),
                   },
                 ),

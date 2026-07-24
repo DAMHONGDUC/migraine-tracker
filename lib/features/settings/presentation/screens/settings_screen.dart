@@ -8,11 +8,13 @@ import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../premium/providers.dart';
 import '../../domain/enums/export_format.dart';
 import '../../providers.dart';
 
@@ -157,18 +159,21 @@ class SettingsScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.settingsTitle),
-      body: ListView(
-        padding: EdgeInsets.only(
-          top: AppScaffold.bodyTopInset(context),
-          bottom: AppScaffold.bottomNavInset(context),
-        ),
-        children: [
-          PremiumTileGate(
-            icon: Icons.notifications_active_outlined,
-            title: l10n.alertsToggleTitle,
-            lockedMessage: l10n.premiumLockedAlerts,
-            child: const AlertsSection(),
+      body: AppRefreshIndicator(
+        onRefresh: () => pullRefresh(() => ref.invalidate(isPremiumProvider)),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.only(
+            top: AppScaffold.bodyTopInset(context),
+            bottom: AppScaffold.bottomNavInset(context),
           ),
+          children: [
+            PremiumTileGate(
+              icon: Icons.notifications_active_outlined,
+              title: l10n.alertsToggleTitle,
+              lockedMessage: l10n.premiumLockedAlerts,
+              child: const AlertsSection(),
+            ),
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.settingsLanguage),
@@ -204,6 +209,7 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _deleteAll(context, ref),
           ),
         ],
+        ),
       ),
     );
   }

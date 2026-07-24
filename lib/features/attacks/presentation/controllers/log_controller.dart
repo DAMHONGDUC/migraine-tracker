@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
@@ -94,6 +95,11 @@ class LogController extends Notifier<LogFlowState> {
       medicationName: medicationName,
     );
     await ref.read(attackRepositoryProvider).insert(attack);
+    AppLogger.action('Attack logged', {
+      'intensity': attack.intensity,
+      'location': attack.location.name,
+      'medication': medicationName,
+    });
     unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
     state = LogFlowState(savedId: attack.id, step: LogStep.saved);
   }
