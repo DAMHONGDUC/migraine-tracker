@@ -20,4 +20,13 @@ abstract interface class NotificationScheduler {
   Future<void> cancel(String reminderId);
 
   Future<void> cancelAll();
+
+  /// Fires a single (non-repeating) notification after [delay] — a debug-only
+  /// smoke test so a developer can confirm notifications actually deliver
+  /// without waiting for a real reminder time. Requests permission first.
+  Future<void> scheduleTest({
+    required String title,
+    required String body,
+    Duration delay,
+  });
 }

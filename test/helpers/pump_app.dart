@@ -39,6 +39,10 @@ class FakeWeatherRepository implements WeatherRepository {
 
 /// No-op scheduler so widget tests never touch the notifications plugin.
 class FakeNotificationScheduler implements NotificationScheduler {
+  /// Set when [scheduleTest] is called, so a test can assert the debug
+  /// "test notification" action reached the scheduler.
+  bool testScheduled = false;
+
   @override
   Future<bool> ensurePermission() async => true;
 
@@ -55,14 +59,29 @@ class FakeNotificationScheduler implements NotificationScheduler {
 
   @override
   Future<void> cancelAll() async {}
+
+  @override
+  Future<void> scheduleTest({
+    required String title,
+    required String body,
+    Duration delay = const Duration(seconds: 10),
+  }) async {
+    testScheduled = true;
+  }
 }
 
 class PumpedApp {
-  PumpedApp({required this.db, required this.prefs, required this.weather});
+  PumpedApp({
+    required this.db,
+    required this.prefs,
+    required this.weather,
+    required this.scheduler,
+  });
 
   final AppDatabase db;
   final SharedPreferences prefs;
   final FakeWeatherRepository weather;
+  final FakeNotificationScheduler scheduler;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -97,6 +116,7 @@ Future<PumpedApp> pumpApp(
   });
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
+  final scheduler = FakeNotificationScheduler();
 
   await tester.pumpWidget(
     ProviderScope(
@@ -104,9 +124,7 @@ Future<PumpedApp> pumpApp(
         databaseProvider.overrideWithValue(db),
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
-        notificationSchedulerProvider.overrideWithValue(
-          FakeNotificationScheduler(),
-        ),
+        notificationSchedulerProvider.overrideWithValue(scheduler),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],
@@ -116,7 +134,12 @@ Future<PumpedApp> pumpApp(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 
-  return PumpedApp(db: db, prefs: prefs, weather: weather);
+  return PumpedApp(
+    db: db,
+    prefs: prefs,
+    weather: weather,
+    scheduler: scheduler,
+  );
 }
 
 /// Must be the last statement of every test that used [pumpApp].

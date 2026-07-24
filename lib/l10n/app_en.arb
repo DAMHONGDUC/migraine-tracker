@@ -725,6 +725,22 @@
       "time": {"type": "String"}
     }
   },
+  "remindersTestTooltip": "Test notification (debug)",
+  "@remindersTestTooltip": {
+    "description": "Tooltip on the debug-only button that fires a test notification"
+  },
+  "remindersTestScheduled": "Test notification in 10s — leave or background the app to see it",
+  "@remindersTestScheduled": {
+    "description": "Snackbar shown after triggering the debug test notification"
+  },
+  "remindersTestTitle": "Test notification",
+  "@remindersTestTitle": {
+    "description": "Title of the debug test notification"
+  },
+  "remindersTestBody": "If you can see this, reminders are working.",
+  "@remindersTestBody": {
+    "description": "Body of the debug test notification"
+  },
   "remindersHourLabel": "Hour",
   "@remindersHourLabel": {
     "description": "Accessibility label prefix for each row of the time picker's hour wheel"

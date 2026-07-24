@@ -100,6 +100,20 @@ class RemindersController {
     }
   }
 
+  /// Debug-only: fires a one-off notification shortly from now so a developer
+  /// can confirm delivery without waiting for a real reminder. Strings come
+  /// from the UI (l10n).
+  Future<void> sendTest({
+    required String title,
+    required String body,
+    Duration delay = const Duration(seconds: 10),
+  }) async {
+    AppLogger.action('Send test notification', {'delaySeconds': delay.inSeconds});
+    await _ref
+        .read(notificationSchedulerProvider)
+        .scheduleTest(title: title, body: body, delay: delay);
+  }
+
   Future<void> delete(String reminderId) async {
     AppLogger.action('Delete reminder', reminderId);
     await _ref.read(medicationReminderRepositoryProvider).deleteById(reminderId);
