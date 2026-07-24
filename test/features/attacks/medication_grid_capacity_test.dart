@@ -61,6 +61,27 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('the search field filters the medication tiles', (tester) async {
+    final app = await pumpApp(tester);
+    await _seedMedications(app.db, 5);
+    await _toMedicationStep(tester);
+
+    expect(find.text('Medication 00'), findsOneWidget);
+    expect(find.text('Medication 03'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '03');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Medication 03'), findsOneWidget);
+    expect(find.text('Medication 00'), findsNothing);
+    // The fixed first row is never filtered out.
+    expect(find.text('No medication'), findsOneWidget);
+    expect(find.text('Add a medication'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('the fixed first row leads the grid', (tester) async {
     final app = await pumpApp(tester);
     await _seedMedications(app.db, 12);
