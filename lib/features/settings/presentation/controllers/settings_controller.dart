@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/logging/app_logger.dart';
 import '../../../attacks/providers.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../insights/providers.dart';
@@ -19,6 +20,7 @@ class SettingsController {
 
   /// Serializes all data in [format] and hands it to the share sheet.
   Future<void> export(ExportFormat format) async {
+    AppLogger.action('Export data', format.name);
     final attacks = await _ref.read(attackRepositoryProvider).getAll();
     final medications = await _ref.read(medicationRepositoryProvider).getAll();
     final service = _ref.read(dataExportServiceProvider);
@@ -61,6 +63,7 @@ class SettingsController {
 
   /// [strings] are localized — the bundled font covers Vietnamese.
   Future<void> shareDoctorReport(DoctorReportStrings strings) async {
+    AppLogger.action('Share doctor report (PDF)');
     final attacks = await _ref.read(attackRepositoryProvider).getAll();
     final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
     final (regular, bold) = await _reportFonts();
@@ -80,5 +83,8 @@ class SettingsController {
   }
 
   /// GDPR wipe of all on-device data.
-  Future<void> deleteAll() => _ref.read(dataWipeServiceProvider).wipeAll();
+  Future<void> deleteAll() {
+    AppLogger.action('Delete all data (GDPR wipe)');
+    return _ref.read(dataWipeServiceProvider).wipeAll();
+  }
 }
