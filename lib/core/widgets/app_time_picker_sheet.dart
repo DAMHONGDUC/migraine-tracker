@@ -12,11 +12,16 @@ Future<TimeOfDay?> showAppTimePickerSheet(
   BuildContext context, {
   required TimeOfDay initialTime,
   String? title,
+  bool isEditMode = false,
 }) {
   return showAppBottomSheet<TimeOfDay>(
     context,
     isScrollControlled: true,
-    builder: (_) => AppTimePickerSheet(initialTime: initialTime, title: title),
+    builder: (_) => AppTimePickerSheet(
+      initialTime: initialTime,
+      title: title,
+      isEditMode: isEditMode,
+    ),
   );
 }
 
@@ -30,7 +35,12 @@ Future<TimeOfDay?> showAppTimePickerSheet(
 /// `showAppBottomSheet` entirely, so it never picked up this app's calm
 /// fade-in chrome or its `#1C1C1E`-family dark surface (hard rule 3).
 class AppTimePickerSheet extends StatefulWidget {
-  const AppTimePickerSheet({required this.initialTime, this.title, super.key});
+  const AppTimePickerSheet({
+    required this.initialTime,
+    this.title,
+    super.key,
+    this.isEditMode = false,
+  });
 
   final TimeOfDay initialTime;
 
@@ -45,6 +55,8 @@ class AppTimePickerSheet extends StatefulWidget {
 
   /// Rows visible at once (odd, so one sits exactly centered).
   static const visibleRows = 5;
+
+  final bool isEditMode;
 
   @override
   State<AppTimePickerSheet> createState() => _AppTimePickerSheetState();
@@ -101,7 +113,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                 // — so the confirming action reads as the one filled,
                 // affirmative icon next to Cancel's plain outline.
                 IconButton.filled(
-                  icon: const Icon(Icons.check),
+                  icon: Icon(widget.isEditMode ? Icons.edit : Icons.check),
                   tooltip: l10n.logDone,
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.secondary,
@@ -115,7 +127,8 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
             ),
             SizedBox(height: AppSpacingConstant.h16),
             SizedBox(
-              height: AppTimePickerSheet.rowExtent * AppTimePickerSheet.visibleRows,
+              height:
+                  AppTimePickerSheet.rowExtent * AppTimePickerSheet.visibleRows,
               child: Stack(
                 alignment: Alignment.center,
                 children: [

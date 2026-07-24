@@ -14,21 +14,16 @@ class RemindersController {
   final Ref _ref;
   static const _uuid = Uuid();
 
-  Future<bool> add({
+  /// Persists a new reminder and schedules its notification. Notification
+  /// permission is the caller's responsibility now (via `AppPermission`), so
+  /// this no longer prompts.
+  Future<void> add({
     required String medicationId,
     required String medicationName,
     required int minuteOfDay,
     required String notificationTitle,
     required String notificationBody,
   }) async {
-    final granted = await _ref
-        .read(notificationSchedulerProvider)
-        .ensurePermission();
-    if (!granted) {
-      AppLogger.warning('Reminder not added: notification permission denied');
-      return false;
-    }
-
     final reminder = MedicationReminder(
       id: _uuid.v4(),
       medicationId: medicationId,
@@ -47,7 +42,6 @@ class RemindersController {
           title: notificationTitle,
           bodyTemplate: notificationBody,
         );
-    return true;
   }
 
   /// Changes an existing reminder's time of day and reschedules its
