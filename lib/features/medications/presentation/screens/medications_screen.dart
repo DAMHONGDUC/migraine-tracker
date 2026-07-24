@@ -76,9 +76,7 @@ void _showReminderScheduledSnack(BuildContext context, int minuteOfDay) {
   final message = firesTomorrow
       ? l10n.remindersScheduledTomorrow(time)
       : l10n.remindersScheduledToday(time);
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message)));
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 /// Manages saved medications: add, rename, delete, filter by when they were
@@ -311,7 +309,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           : [
               // Debug-only smoke test for notification delivery (kDebugMode
               // strips it from release builds entirely).
-              if (kDebugMode)
+              if (kDebugMode) ...[
                 IconButton(
                   icon: Icon(
                     Icons.notification_add_outlined,
@@ -320,6 +318,9 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                   tooltip: l10n.remindersTestTooltip,
                   onPressed: _sendTestNotification,
                 ),
+                HorizontalSpacing(),
+              ],
+
               IconButton(
                 icon: Icon(Icons.search, color: AppColors.secondary),
                 tooltip: l10n.medicationsSearchTooltip,
