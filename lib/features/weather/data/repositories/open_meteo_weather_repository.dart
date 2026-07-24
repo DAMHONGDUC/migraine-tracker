@@ -1,3 +1,4 @@
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_snapshot.dart';
 import '../../domain/repositories/weather_repository.dart';
@@ -13,18 +14,26 @@ class OpenMeteoWeatherRepository implements WeatherRepository {
   @override
   Future<WeatherSnapshot?> snapshotAt(DateTime instant) async {
     final point = await _location.currentPosition();
-    if (point == null) return null;
-    return _dataSource.snapshotAt(
+    if (point == null) {
+      AppLogger.info('Weather snapshot skipped: no location/permission');
+      return null;
+    }
+    final snapshot = await _dataSource.snapshotAt(
       latitude: point.latitude,
       longitude: point.longitude,
       instant: instant,
     );
+    AppLogger.debug('Weather snapshot fetched', snapshot?.pressureHpa);
+    return snapshot;
   }
 
   @override
   Future<PressureForecast?> pressureForecast() async {
     final point = await _location.currentPosition();
-    if (point == null) return null;
+    if (point == null) {
+      AppLogger.info('Pressure forecast skipped: no location/permission');
+      return null;
+    }
     final now = DateTime.now().toUtc();
     final points = await _dataSource.pressureSeries(
       latitude: point.latitude,
