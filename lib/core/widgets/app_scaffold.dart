@@ -19,6 +19,7 @@ class AppScaffold extends StatelessWidget {
     this.leading,
     this.appBarBottom,
     this.floatingActionButton,
+    this.bottomNavigationBar,
     super.key,
   });
 
@@ -28,6 +29,11 @@ class AppScaffold extends StatelessWidget {
   final Widget? leading;
   final PreferredSizeWidget? appBarBottom;
   final Widget? floatingActionButton;
+
+  /// A bottom bar (e.g. the log flow's floating step progress). When set and
+  /// glass is on, the body extends behind it so it refracts through the glass;
+  /// pad the body's bottom by [bottomNavInset] so its last item clears it.
+  final Widget? bottomNavigationBar;
 
   /// Top inset a scroll-under body should pad by so its first item clears the
   /// frosted bar. Read it inside [body] (e.g. a `ListView.padding`).
@@ -53,6 +59,9 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: kLiquidGlassEnabled,
+      // Let the body flow behind a floating glass bottom bar so it refracts
+      // through it (mirrors the shell's bottom nav).
+      extendBody: kLiquidGlassEnabled && bottomNavigationBar != null,
       appBar: MainAppBar(
         title: title,
         actions: actions,
@@ -60,6 +69,7 @@ class AppScaffold extends StatelessWidget {
         bottom: appBarBottom,
       ),
       floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomNavigationBar,
       body: body,
     );
   }
