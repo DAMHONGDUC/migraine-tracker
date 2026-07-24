@@ -926,5 +926,44 @@
   "dashboardExportBody": "Share a JSON, CSV, or a PDF report for your doctor.",
   "@dashboardExportBody": {
     "description": "Body of the dashboard export banner"
+  },
+  "dashboardNextReminderTitle": "Next reminder",
+  "@dashboardNextReminderTitle": {
+    "description": "Title of the dashboard banner showing the soonest medication reminder"
+  },
+  "dashboardNextReminderBody": "{name} at {time} · {remaining}",
+  "@dashboardNextReminderBody": {
+    "description": "Body of the next-reminder banner: medication name, time, and time remaining",
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "remaining": {"type": "String"}
+    }
+  },
+  "dashboardRemainingHm": "in {hours}h {minutes}m",
+  "@dashboardRemainingHm": {
+    "description": "Time remaining until the next reminder, hours and minutes",
+    "placeholders": {
+      "hours": {"type": "int"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "dashboardRemainingH": "in {hours}h",
+  "@dashboardRemainingH": {
+    "description": "Time remaining until the next reminder, whole hours",
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "dashboardRemainingM": "in {minutes}m",
+  "@dashboardRemainingM": {
+    "description": "Time remaining until the next reminder, minutes only",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "dashboardRemainingSoon": "soon",
+  "@dashboardRemainingSoon": {
+    "description": "Shown when the next reminder is less than a minute away"
   }
 }

@@ -30,7 +30,7 @@ class DashboardBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.only(bottom: AppSpacingConstant.h12),
+      margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
         child: Padding(

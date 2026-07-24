@@ -3,6 +3,10 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -71,6 +75,28 @@ void main() {
 
     // The add-name dialog auto-opens after landing on the Medications tab.
     expect(find.text('Add a medication'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('next-reminder banner shows the soonest scheduled reminder', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+    await DriftMedicationReminderRepository(app.db).upsert(
+      const MedicationReminder(
+        id: 'r1',
+        medicationId: 'm1',
+        minuteOfDay: 9 * 60,
+      ),
+    );
+    await _settle(tester);
+
+    expect(find.text('Next reminder'), findsOneWidget);
+    expect(find.textContaining('Ibuprofen'), findsOneWidget);
 
     await finishTest(tester);
   });
