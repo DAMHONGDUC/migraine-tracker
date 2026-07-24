@@ -7,6 +7,9 @@ import 'package:logger/logger.dart';
 /// profile/release, so it's purely a development-visibility aid that never
 /// leaks in production. Tests flip [enabled] off to keep their console clean.
 ///
+/// Each entry is a single line: `«time?» «emoji» «message»`. Toggle the
+/// leading timestamp with [includeTime].
+///
 /// Categories (pick by intent, so the console reads as a story of what the app
 /// is doing):
 /// - [action]  — a user-driven action ("logged attack", "added medication")
@@ -22,19 +25,13 @@ abstract final class AppLogger {
   /// logging. Mutable so tests can silence it.
   static bool enabled = _assertsEnabled();
 
+  /// Whether each line is prefixed with the time (HH:MM:SS.mmm). Set false for
+  /// terser logs.
+  static bool includeTime = true;
+
   static final Logger _logger = Logger(
     filter: ProductionFilter(),
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 8,
-      lineLength: 100,
-      // The Flutter/IDE console doesn't render ANSI colors (they'd print as
-      // raw `^[[38;5;12m` escapes) and the box borders just add noise — keep
-      // it plain, one line per log.
-      colors: false,
-      noBoxingByDefault: true,
-      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
-    ),
+    printer: _OneLinePrinter(),
   );
 
   static void action(String message, [Object? data]) {
@@ -72,5 +69,41 @@ abstract final class AppLogger {
     var enabled = false;
     assert(enabled = true);
     return enabled;
+  }
+}
+
+/// One line per entry: `«time?» «level-emoji» «message»`, with the error and
+/// each stack-trace frame on their own following lines (errors need the trace,
+/// but ordinary logs stay single-line). No ANSI colors or box borders — the
+/// Flutter/IDE console renders neither.
+class _OneLinePrinter extends LogPrinter {
+  static const _emojis = {
+    Level.trace: '🔍',
+    Level.debug: '🐛',
+    Level.info: '💡',
+    Level.warning: '⚠️',
+    Level.error: '⛔',
+    Level.fatal: '💀',
+  };
+
+  @override
+  List<String> log(LogEvent event) {
+    final time = AppLogger.includeTime ? '${_formatTime(event.time)} ' : '';
+    final emoji = _emojis[event.level] ?? '';
+    final lines = <String>['$time$emoji ${event.message}'];
+
+    if (event.error != null) lines.add('    ${event.error}');
+    final stackTrace = event.stackTrace;
+    if (stackTrace != null) {
+      lines.addAll(stackTrace.toString().trimRight().split('\n'));
+    }
+    return lines;
+  }
+
+  String _formatTime(DateTime t) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    String three(int n) => n.toString().padLeft(3, '0');
+    return '${two(t.hour)}:${two(t.minute)}:${two(t.second)}'
+        '.${three(t.millisecond)}';
   }
 }
