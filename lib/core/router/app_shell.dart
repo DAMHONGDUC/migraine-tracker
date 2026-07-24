@@ -4,14 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
-import 'package:step_progress/step_progress.dart';
 
-import '../../features/attacks/presentation/controllers/log_controller.dart'
-    show LogStep;
-import '../../features/attacks/providers.dart';
 import '../extensions/context_extensions.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_style.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -46,8 +40,6 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final navigationShell = widget.navigationShell;
     final l10n = context.l10n;
-    final logState = ref.watch(logControllerProvider);
-    final tracking = ref.watch(logFlowInProgressProvider);
 
     return Scaffold(
       // Let the branch content flow behind the floating glass bar so it
@@ -57,87 +49,44 @@ class _AppShellState extends ConsumerState<AppShell> {
         onNotification: _onUserScroll,
         child: navigationShell,
       ),
-      // Mid-track the tabs are meaningless — morph the nav bar into the
-      // step progress; Cancel in the log screen's app bar exits the flow.
-      // ONE _FloatingBar stays mounted for both states so the glass layer
-      // never rebuilds mid-swap (re-creating it caused a visible hitch);
-      // inside it, AnimatedSize morphs the height while the switcher
-      // cross-fades + slides the content.
-      // Mid-log the bar is the 3-tap progress — always full size; the
-      // scroll-triggered minimise only applies to the tab nav.
+      // The log flow is a pushed route now, not a tab, so the bar always
+      // shows the tab nav — no more morphing into a step-progress mid-log.
       bottomNavigationBar: _FloatingBar(
-        shrunk: _shrunk && !tracking,
+        shrunk: _shrunk,
         onTapRestore: () => setState(() => _shrunk = false),
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.12),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            ),
-            child: tracking
-                ? _TrackingProgressBar(
-                    key: const ValueKey('progress'),
-                    currentStep: switch (logState.step) {
-                      LogStep.location => 1,
-                      LogStep.medication => 2,
-                      _ => 0,
-                    },
-                  )
-                : _SlidingNavBar(
-                    key: const ValueKey('tabs'),
-                    selectedIndex: navigationShell.currentIndex,
-                    onSelected: (index) {
-                      // Leaving the log tab from the saved confirmation
-                      // resets the flow, so returning to Log later starts
-                      // fresh at intensity instead of the stale saved screen.
-                      if (logState.step == LogStep.saved) {
-                        ref.read(logControllerProvider.notifier).reset();
-                      }
-                      navigationShell.goBranch(
-                        index,
-                        initialLocation: index == navigationShell.currentIndex,
-                      );
-                    },
-                    items: [
-                      _NavItem(
-                        icon: Icons.add_circle_outline,
-                        selectedIcon: Icons.add_circle,
-                        label: l10n.navLog,
-                      ),
-                      _NavItem(
-                        icon: Icons.calendar_month_outlined,
-                        selectedIcon: Icons.calendar_month,
-                        label: l10n.navHistory,
-                      ),
-                      _NavItem(
-                        icon: Icons.medication_outlined,
-                        selectedIcon: Icons.medication,
-                        label: l10n.navMedications,
-                      ),
-                      _NavItem(
-                        icon: Icons.insights_outlined,
-                        selectedIcon: Icons.insights,
-                        label: l10n.navInsights,
-                      ),
-                      _NavItem(
-                        icon: Icons.settings_outlined,
-                        selectedIcon: Icons.settings,
-                        label: l10n.navSettings,
-                      ),
-                    ],
-                  ),
+        child: _SlidingNavBar(
+          selectedIndex: navigationShell.currentIndex,
+          onSelected: (index) => navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
           ),
+          items: [
+            _NavItem(
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home,
+              label: l10n.navDashboard,
+            ),
+            _NavItem(
+              icon: Icons.calendar_month_outlined,
+              selectedIcon: Icons.calendar_month,
+              label: l10n.navHistory,
+            ),
+            _NavItem(
+              icon: Icons.medication_outlined,
+              selectedIcon: Icons.medication,
+              label: l10n.navMedications,
+            ),
+            _NavItem(
+              icon: Icons.insights_outlined,
+              selectedIcon: Icons.insights,
+              label: l10n.navInsights,
+            ),
+            _NavItem(
+              icon: Icons.settings_outlined,
+              selectedIcon: Icons.settings,
+              label: l10n.navSettings,
+            ),
+          ],
         ),
       ),
     );
@@ -152,7 +101,6 @@ class _SlidingNavBar extends StatelessWidget {
     required this.selectedIndex,
     required this.onSelected,
     required this.items,
-    super.key,
   });
 
   final int selectedIndex;
@@ -164,8 +112,8 @@ class _SlidingNavBar extends StatelessWidget {
     final scheme = context.colorScheme;
     final count = items.length;
     return Container(
-      // Same height as the tracking progress bar — the morph between the
-      // two states is then a pure cross-fade, no size jump.
+      // Same height the tracking progress bar used to be — keeps the floating
+      // pill proportions unchanged from before the log tab was removed.
       height: AppSpacingConstant.h56,
       decoration: BoxDecoration(
         color: kLiquidGlassEnabled ? null : scheme.surfaceContainer,
@@ -376,68 +324,6 @@ class _FloatingBarState extends State<_FloatingBar>
                 context: context,
                 removeBottom: true,
                 child: widget.child,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The 3-tap progress living in the nav bar slot while tracking.
-class _TrackingProgressBar extends StatelessWidget {
-  const _TrackingProgressBar({required this.currentStep, super.key});
-
-  final int currentStep;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    final l10n = context.l10n;
-    // With glass, [_FloatingBar] supplies the surface + safe-area padding, so
-    // this is transparent and skips its own SafeArea to avoid a double gap.
-    return Material(
-      color: kLiquidGlassEnabled ? Colors.transparent : AppColors.surface,
-      child: SafeArea(
-        top: false,
-        bottom: !kLiquidGlassEnabled,
-        child: SizedBox(
-          height: AppSpacingConstant.h56,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacingConstant.w48,
-            ).copyWith(top: AppSpacingConstant.h2),
-            child: Center(
-              child: StepProgress(
-                totalSteps: 3,
-                currentStep: currentStep,
-                stepNodeSize: AppSpacingConstant.r20,
-                nodeTitles: [
-                  l10n.stepIntensity,
-                  l10n.stepLocation,
-                  l10n.stepMedication,
-                ],
-                visibilityOptions: StepProgressVisibilityOptions.nodeThenLine,
-                theme: StepProgressThemeData(
-                  activeForegroundColor: scheme.primary,
-                  defaultForegroundColor: scheme.surfaceContainerHigh,
-                  stepAnimationDuration: const Duration(milliseconds: 200),
-                  nodeLabelAlignment: StepLabelAlignment.bottom,
-                  nodeLabelStyle: StepLabelStyle(
-                    maxWidth: 72,
-                    activeColor: scheme.primary,
-                    defualtColor: AppColors.textSecondary,
-                    titleStyle: AppTextStyle.labelTiny,
-                    titleMaxLines: 1,
-                  ),
-                  stepLineStyle: StepLineStyle(
-                    lineThickness: 3,
-                    activeColor: scheme.primary,
-                    foregroundColor: scheme.surfaceContainerHigh,
-                    borderRadius: const Radius.circular(2),
-                  ),
-                ),
               ),
             ),
           ),

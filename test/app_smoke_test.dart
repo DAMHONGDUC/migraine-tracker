@@ -4,14 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers/pump_app.dart';
 
 void main() {
-  testWidgets('app boots into the log flow with bottom navigation', (
+  testWidgets('app boots into the dashboard with bottom navigation', (
     tester,
   ) async {
     await pumpApp(tester);
 
-    expect(find.text('How intense is the pain?'), findsOneWidget);
-    // Icon-only bottom nav: Log is selected (filled), the rest are outlined.
-    expect(find.byIcon(Icons.add_circle), findsOneWidget);
+    // The dashboard's hero log button is front and centre.
+    expect(find.text('Log an attack'), findsOneWidget);
+    // Icon-only bottom nav: Home is selected (filled), the rest are outlined.
+    expect(find.byIcon(Icons.home), findsOneWidget);
     expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
     expect(find.byIcon(Icons.medication_outlined), findsOneWidget);
     expect(find.byIcon(Icons.insights_outlined), findsOneWidget);
@@ -39,7 +40,7 @@ void main() {
   testWidgets('theme is dark with no pure white surfaces', (tester) async {
     await pumpApp(tester);
 
-    final context = tester.element(find.byIcon(Icons.add_circle));
+    final context = tester.element(find.byIcon(Icons.home));
     final theme = Theme.of(context);
     expect(theme.brightness, Brightness.dark);
     expect(theme.scaffoldBackgroundColor, isNot(Colors.white));

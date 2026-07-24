@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../features/attacks/presentation/screens/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen.dart';
+import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen.dart';
@@ -27,6 +28,7 @@ class AppRoute {
 
 abstract final class AppRoutes {
   static const onboarding = AppRoute(name: 'onboarding', path: '/onboarding');
+  static const dashboard = AppRoute(name: 'dashboard', path: '/dashboard');
   static const log = AppRoute(name: 'log', path: '/log');
   static const history = AppRoute(name: 'history', path: '/history');
   static const insights = AppRoute(name: 'insights', path: '/insights');
@@ -46,7 +48,7 @@ abstract final class AppRoutes {
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoutes.log.path,
+    initialLocation: AppRoutes.dashboard.path,
     // First launch lands on onboarding until it's completed; afterwards
     // /onboarding is never reachable again.
     redirect: (context, state) {
@@ -58,7 +60,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final onOnboarding =
           state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
-      if (done && onOnboarding) return AppRoutes.log.path;
+      if (done && onOnboarding) return AppRoutes.dashboard.path;
       return null;
     },
     routes: [
@@ -73,6 +75,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => AttackDetailScreen(
           attackId: state.pathParameters[AppRoutes.attackIdParam]!,
         ),
+      ),
+      // The 3-tap log flow is a full-screen pushed route (opened from the
+      // dashboard's log button), not a tab: it takes over the screen so the
+      // sacred flow has no distractions, and its own step progress lives in
+      // the screen. Popping it (Cancel / Done) returns to wherever it was
+      // launched from.
+      GoRoute(
+        name: AppRoutes.log.name,
+        path: AppRoutes.log.path,
+        builder: (context, state) => const LogScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and
@@ -109,9 +121,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                name: AppRoutes.log.name,
-                path: AppRoutes.log.path,
-                builder: (context, state) => const LogScreen(),
+                name: AppRoutes.dashboard.name,
+                path: AppRoutes.dashboard.path,
+                builder: (context, state) => const DashboardScreen(),
               ),
             ],
           ),

@@ -179,5 +179,19 @@
   "a11yWeeklyChart": "Biểu đồ cột cơn đau theo tuần, {total, plural, other{{total} cơn}} trong {weeks} tuần.",
   "a11yViewList": "Xem danh sách",
   "a11yViewCalendar": "Xem lịch",
-  "a11yViewChart": "Xem biểu đồ"
+  "a11yViewChart": "Xem biểu đồ",
+  "navDashboard": "Trang chính",
+  "dashboardGreeting": "Xin chào",
+  "dashboardSignIn": "Đăng nhập",
+  "dashboardLogButton": "Ghi cơn đau mới",
+  "dashboardLogButtonSubtitle": "Ghi lại cơn đau chỉ với 3 chạm",
+  "dashboardThisWeek": "Tuần này",
+  "dashboardAttacksCount": "{count, plural, =0{Không có cơn đau} other{{count} cơn đau}}",
+  "dashboardTrendUp": "{count, plural, other{Nhiều hơn tuần trước {count}}}",
+  "dashboardTrendDown": "{count, plural, other{Ít hơn tuần trước {count}}}",
+  "dashboardTrendSame": "Bằng tuần trước",
+  "dashboardAvgIntensity": "Cường độ TB {value}",
+  "dashboardQuickAccess": "Truy cập nhanh",
+  "dashboardPremiumTitle": "Mở khóa Premium",
+  "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn."
 }
