@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
-import 'package:step_progress/step_progress.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_leading_button.dart';
@@ -16,6 +14,7 @@ import '../../providers.dart';
 import '../controllers/log_controller.dart' show LogStep;
 import '../widgets/intensity_step.dart';
 import '../widgets/location_step.dart';
+import '../widgets/log_step_bar.dart';
 import '../widgets/medication_step.dart';
 import '../widgets/saved_step.dart';
 
@@ -27,9 +26,10 @@ import '../widgets/saved_step.dart';
 /// the saved screen itself, so Next never needs to relabel).
 ///
 /// This is a full-screen pushed route (opened from the dashboard's log
-/// button). The 3-step progress lives at the top of the screen; the app
-/// bar's leading button cancels the flow (pops the route) on the first step
-/// and steps back on later ones. "Done" on the saved screen pops back.
+/// button). The 3-step progress lives in a floating bottom bar ([LogStepBar])
+/// — the same slot the shell's bottom nav used to morph into. The app bar's
+/// leading button cancels the flow (pops the route) on the first step and
+/// steps back on later ones. "Done" on the saved screen pops back.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -71,26 +71,21 @@ class LogScreen extends ConsumerWidget {
           ),
         SizedBox(width: AppSpacingConstant.w12),
       ],
+      // The 3-tap progress lives in the bottom bar slot, in the same floating
+      // position the shell's bottom nav used to morph into. Hidden once saved
+      // (nothing left to track), so the body then uses a plain bottom inset.
+      bottomNavigationBar: question != null ? LogStepBar(step: state.step) : null,
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
-          bottom: MediaQuery.viewPaddingOf(context).bottom +
-              AppSpacingConstant.h16,
+          bottom: question != null
+              ? AppScaffold.bottomNavInset(context)
+              : MediaQuery.viewPaddingOf(context).bottom +
+                    AppSpacingConstant.h16,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // The 3-tap progress, hidden once saved (nothing left to track).
-            if (question != null)
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacingConstant.w48,
-                  AppSpacingConstant.h16,
-                  AppSpacingConstant.w48,
-                  0,
-                ),
-                child: _LogProgress(step: state.step),
-              ),
             // The question, big and readable mid-attack — always one line,
             // however long the localized string runs.
             if (question != null)
@@ -146,58 +141,6 @@ class LogScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The 3-step progress at the top of the log flow (was in the bottom nav
-/// while logging was a tab). Maps the flow step to the active node.
-class _LogProgress extends StatelessWidget {
-  const _LogProgress({required this.step});
-
-  final LogStep step;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    final l10n = context.l10n;
-    final currentStep = switch (step) {
-      LogStep.location => 1,
-      LogStep.medication => 2,
-      _ => 0,
-    };
-    return SizedBox(
-      height: AppSpacingConstant.h56,
-      child: StepProgress(
-        totalSteps: 3,
-        currentStep: currentStep,
-        stepNodeSize: AppSpacingConstant.r20,
-        nodeTitles: [
-          l10n.stepIntensity,
-          l10n.stepLocation,
-          l10n.stepMedication,
-        ],
-        visibilityOptions: StepProgressVisibilityOptions.nodeThenLine,
-        theme: StepProgressThemeData(
-          activeForegroundColor: scheme.primary,
-          defaultForegroundColor: scheme.surfaceContainerHigh,
-          stepAnimationDuration: const Duration(milliseconds: 200),
-          nodeLabelAlignment: StepLabelAlignment.bottom,
-          nodeLabelStyle: StepLabelStyle(
-            maxWidth: 72,
-            activeColor: scheme.primary,
-            defualtColor: AppColors.textSecondary,
-            titleStyle: AppTextStyle.labelTiny,
-            titleMaxLines: 1,
-          ),
-          stepLineStyle: StepLineStyle(
-            lineThickness: 3,
-            activeColor: scheme.primary,
-            foregroundColor: scheme.surfaceContainerHigh,
-            borderRadius: const Radius.circular(2),
-          ),
         ),
       ),
     );
