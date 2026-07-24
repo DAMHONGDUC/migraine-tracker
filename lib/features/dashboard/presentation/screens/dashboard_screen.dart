@@ -10,6 +10,7 @@ import '../../../medications/providers.dart';
 import '../../../premium/providers.dart';
 import '../widgets/dashboard_explore_section.dart';
 import '../widgets/dashboard_log_button.dart';
+import '../widgets/dashboard_severity_card.dart';
 import '../widgets/next_reminder_banner.dart';
 import '../widgets/premium_countdown_banner.dart';
 import '../widgets/quick_access_section.dart';
@@ -41,6 +42,7 @@ class DashboardScreen extends ConsumerWidget {
       const QuickAccessSection(),
       if (nextReminder != null) const NextReminderBanner(),
       if (hasAttacks) const WeekSummaryCard(),
+      if (hasAttacks) const DashboardSeverityCard(),
       const DashboardExploreSection(),
     ];
 
