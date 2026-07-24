@@ -711,6 +711,20 @@
   "@remindersEditTitle": {
     "description": "Title of the time picker sheet when changing an existing reminder's time"
   },
+  "remindersScheduledToday": "Reminder set for {time} today",
+  "@remindersScheduledToday": {
+    "description": "Snackbar confirming a reminder was scheduled and will fire later today",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "remindersScheduledTomorrow": "Reminder set for {time} tomorrow",
+  "@remindersScheduledTomorrow": {
+    "description": "Snackbar confirming a reminder was scheduled but its time already passed today, so it first fires tomorrow",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
   "remindersHourLabel": "Hour",
   "@remindersHourLabel": {
     "description": "Accessibility label prefix for each row of the time picker's hour wheel"
