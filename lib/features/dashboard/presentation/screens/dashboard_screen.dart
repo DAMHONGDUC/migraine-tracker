@@ -34,8 +34,8 @@ class DashboardScreen extends ConsumerWidget {
     // them below so a hidden section never leaves a double gap.
     final sections = <Widget>[
       const DashboardLogButton(),
-      if (nextReminder != null) NextReminderBanner(reminder: nextReminder),
       const WeekSummaryCard(),
+      if (nextReminder != null) NextReminderBanner(reminder: nextReminder),
       const QuickAccessSection(),
       const DashboardExploreSection(),
       if (showPremium) const DashboardPremiumCard(),
