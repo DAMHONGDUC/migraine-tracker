@@ -49,9 +49,8 @@ class DashboardScreen extends ConsumerWidget {
       // No auth yet: signing in / account management lives under Settings.
       // When auth lands, swap this for the signed-in user's name + avatar.
       actions: [
-        AppButton.secondary(
-          compact: true,
-          icon: Icons.person_outline,
+        // Matches the log flow's "Next": a plain primary button.
+        AppButton.primary(
           label: l10n.dashboardSignIn,
           onPressed: () => context.goNamed(AppRoutes.settings.name),
         ),

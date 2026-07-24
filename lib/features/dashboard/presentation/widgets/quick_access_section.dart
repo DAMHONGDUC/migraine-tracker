@@ -99,7 +99,7 @@ class _QuickAccessCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: AppSpacingConstant.h20,
+            vertical: AppSpacingConstant.h12,
             horizontal: AppSpacingConstant.w8,
           ),
           child: Column(
@@ -107,16 +107,16 @@ class _QuickAccessCard extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                size: AppSpacingConstant.r28,
+                size: AppSpacingConstant.r24,
                 color: context.colorScheme.primary,
               ),
-              SizedBox(height: AppSpacingConstant.h8),
+              SizedBox(height: AppSpacingConstant.h6),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelLarge,
+                style: AppTextStyle.labelSmall,
               ),
             ],
           ),
