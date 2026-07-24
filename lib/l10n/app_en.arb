@@ -886,5 +886,41 @@
   "dashboardPremiumBody": "Pressure alerts, the 48h forecast chart, and your trigger analysis.",
   "@dashboardPremiumBody": {
     "description": "Body of the premium promo card on the dashboard"
+  },
+  "dashboardCalendarShortcut": "Calendar",
+  "@dashboardCalendarShortcut": {
+    "description": "Dashboard quick-access card opening History in calendar view"
+  },
+  "dashboardChartShortcut": "Chart",
+  "@dashboardChartShortcut": {
+    "description": "Dashboard quick-access card opening History in chart view"
+  },
+  "dashboardExplore": "Explore",
+  "@dashboardExplore": {
+    "description": "Section header above the dashboard feature banners"
+  },
+  "dashboardReminderTitle": "Medication reminders",
+  "@dashboardReminderTitle": {
+    "description": "Title of the dashboard banner promoting medication reminders"
+  },
+  "dashboardReminderBody": "Never miss a dose — set reminders for your medications.",
+  "@dashboardReminderBody": {
+    "description": "Body of the dashboard medication-reminders banner"
+  },
+  "dashboardInsightsBannerTitle": "Pressure & pain insights",
+  "@dashboardInsightsBannerTitle": {
+    "description": "Title of the dashboard banner linking to Insights"
+  },
+  "dashboardInsightsBannerBody": "See how weather pressure lines up with your migraines.",
+  "@dashboardInsightsBannerBody": {
+    "description": "Body of the dashboard Insights banner"
+  },
+  "dashboardExportTitle": "Export your data",
+  "@dashboardExportTitle": {
+    "description": "Title of the dashboard banner linking to data export in Settings"
+  },
+  "dashboardExportBody": "Share a JSON, CSV, or a PDF report for your doctor.",
+  "@dashboardExportBody": {
+    "description": "Body of the dashboard export banner"
   }
 }

@@ -7,6 +7,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../widgets/dashboard_explore_section.dart';
 import '../widgets/dashboard_log_button.dart';
 import '../widgets/dashboard_premium_card.dart';
 import '../widgets/quick_access_section.dart';
@@ -49,6 +50,8 @@ class DashboardScreen extends ConsumerWidget {
           const WeekSummaryCard(),
           SizedBox(height: AppSpacingConstant.h24),
           const QuickAccessSection(),
+          SizedBox(height: AppSpacingConstant.h24),
+          const DashboardExploreSection(),
           SizedBox(height: AppSpacingConstant.h24),
           const DashboardPremiumCard(),
         ],
