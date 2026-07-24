@@ -44,8 +44,10 @@ class AppRefreshIndicator extends StatelessWidget {
 }
 
 /// Makes a non-scrollable widget (e.g. an [EmptyState]) fill the viewport and
-/// still be pull-to-refreshable, by putting it in an always-scrollable
-/// viewport-height box.
+/// still be pull-to-refreshable. Uses [SliverFillRemaining] rather than a
+/// `LayoutBuilder` on purpose: a LayoutBuilder builds its child DURING layout,
+/// and a Riverpod consumer resuming inside that layout-phase build can trigger
+/// "setState() called during build". A sliver avoids that entirely.
 class ScrollFill extends StatelessWidget {
   const ScrollFill({required this.child, this.topInset = 0, super.key});
 
@@ -56,17 +58,17 @@ class ScrollFill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-          child: Padding(
-            padding: EdgeInsets.only(top: topInset),
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.only(top: topInset),
+          sliver: SliverFillRemaining(
+            hasScrollBody: false,
             child: child,
           ),
         ),
-      ),
+      ],
     );
   }
 }

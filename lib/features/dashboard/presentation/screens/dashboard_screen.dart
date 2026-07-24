@@ -15,6 +15,7 @@ import '../widgets/dashboard_explore_section.dart';
 import '../widgets/dashboard_log_button.dart';
 import '../widgets/dashboard_premium_card.dart';
 import '../widgets/next_reminder_banner.dart';
+import '../widgets/premium_countdown_banner.dart';
 import '../widgets/quick_access_section.dart';
 import '../widgets/week_summary_card.dart';
 
@@ -35,9 +36,11 @@ class DashboardScreen extends ConsumerWidget {
     // Only the sections that should show, in order — gaps are inserted between
     // them below so a hidden section never leaves a double gap.
     final sections = <Widget>[
+      // A limited-time discount promo pinned right under the app bar.
+      if (showPremium) const PremiumCountdownBanner(),
       const DashboardLogButton(),
       const WeekSummaryCard(),
-      if (nextReminder != null) NextReminderBanner(reminder: nextReminder),
+      if (nextReminder != null) const NextReminderBanner(),
       const QuickAccessSection(),
       const DashboardExploreSection(),
       if (showPremium) const DashboardPremiumCard(),
@@ -61,8 +64,7 @@ class DashboardScreen extends ConsumerWidget {
           ref
             ..invalidate(attacksStreamProvider)
             ..invalidate(medicationRemindersStreamProvider)
-            ..invalidate(isPremiumProvider)
-            ..invalidate(clockProvider);
+            ..invalidate(isPremiumProvider);
         }),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),

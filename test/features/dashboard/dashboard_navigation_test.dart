@@ -79,6 +79,30 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('premium sale banner counts down and opens the paywall', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    expect(find.text('50% off Premium'), findsOneWidget);
+
+    await tester.tap(find.text('50% off Premium'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('BaroEase Premium'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('premium users never see the sale banner', (tester) async {
+    await pumpApp(tester, premium: true);
+
+    expect(find.text('50% off Premium'), findsNothing);
+
+    await finishTest(tester);
+  });
+
   testWidgets('next-reminder banner shows the soonest scheduled reminder', (
     tester,
   ) async {

@@ -156,24 +156,15 @@ final remindersControllerProvider = Provider<RemindersController>(
   RemindersController.new,
 );
 
-/// A ticking "now" — emits immediately, then every 30s — so live countdowns
-/// (the dashboard's next-reminder banner) stay fresh without a manual refresh.
-/// The subscription is cancelled when nothing listens, stopping the timer.
-final clockProvider = StreamProvider<DateTime>((ref) async* {
-  yield DateTime.now();
-  yield* Stream.periodic(
-    const Duration(seconds: 30),
-    (_) => DateTime.now(),
-  );
-});
-
 /// The soonest upcoming enabled reminder relative to now, for the dashboard's
-/// next-reminder banner; null when nothing is scheduled. Live: recomputes both
-/// when the reminders change and on every [clockProvider] tick.
+/// next-reminder banner; null when nothing is scheduled. Recomputes when the
+/// reminders change. The dashboard uses this to decide whether to show the
+/// banner; the banner itself re-ticks the live countdown on a widget-owned
+/// timer (a stream-driven clock here would invalidate this during layout and
+/// crash — see NextReminderBanner).
 final nextReminderProvider = Provider<NextReminder?>((ref) {
-  final now = ref.watch(clockProvider).value ?? DateTime.now();
   final views =
       ref.watch(medicationRemindersStreamProvider).value ??
       const <MedicationReminderView>[];
-  return const NextReminderCalculator().compute(views, now: now);
+  return const NextReminderCalculator().compute(views, now: DateTime.now());
 });

@@ -209,5 +209,7 @@
   "dashboardRemainingHm": "sau {hours} giờ {minutes} phút",
   "dashboardRemainingH": "sau {hours} giờ",
   "dashboardRemainingM": "sau {minutes} phút",
-  "dashboardRemainingSoon": "sắp tới"
+  "dashboardRemainingSoon": "sắp tới",
+  "dashboardSaleTitle": "Giảm 50% Premium",
+  "dashboardSaleEndsIn": "Kết thúc sau {time}"
 }
