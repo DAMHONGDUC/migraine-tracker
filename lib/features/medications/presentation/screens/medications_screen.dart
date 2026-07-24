@@ -455,19 +455,24 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
       tween: Tween<double>(begin: 0, end: widget.highlighted ? 1 : 0),
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,
-      builder: (context, t, child) => DecoratedBox(
+      builder: (context, t, child) => Container(
+        // Glow sits behind the card; the border is painted in the FOREGROUND
+        // so it isn't hidden under the card's opaque surface.
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: t),
-            width: 2,
-          ),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.35 * t),
               blurRadius: AppSpacingConstant.r16 * t,
             ),
           ],
+        ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: t),
+            width: 2,
+          ),
         ),
         child: child,
       ),
