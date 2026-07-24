@@ -97,6 +97,10 @@
   "@logLocationTitle": {
     "description": "Title above the head-location options, second tap of the log flow"
   },
+  "logNext": "Next",
+  "@logNext": {
+    "description": "App bar button that confirms the current step's pick (location or medication) and advances to the next step"
+  },
   "logMedicationTitle": "Did you take medication?",
   "@logMedicationTitle": {
     "description": "Title above the medication picker, third tap of the log flow"
@@ -112,6 +116,90 @@
   "logMedicationNameHint": "Medication name",
   "@logMedicationNameHint": {
     "description": "Hint text in the add-medication dialog text field"
+  },
+  "navMedications": "Medications",
+  "@navMedications": {
+    "description": "Bottom nav label for the medications tab"
+  },
+  "medicationsTitle": "Medications",
+  "@medicationsTitle": {
+    "description": "App bar title of the medications tab"
+  },
+  "medicationsEmpty": "No medications yet.",
+  "@medicationsEmpty": {
+    "description": "Shown in the medications tab when no medications match the current filters (or none exist yet)"
+  },
+  "medicationsRename": "Rename medication",
+  "@medicationsRename": {
+    "description": "Title of the dialog that renames an existing medication"
+  },
+  "medicationsEditAction": "Edit name",
+  "@medicationsEditAction": {
+    "description": "Action sheet row that opens the rename dialog for a medication"
+  },
+  "medicationsDeleteTitle": "Delete medication?",
+  "@medicationsDeleteTitle": {
+    "description": "Confirmation dialog title before deleting a medication"
+  },
+  "medicationsDeleteBody": "This also removes its reminders. Attacks you've already logged keep their medication name.",
+  "@medicationsDeleteBody": {
+    "description": "Confirmation dialog body explaining what deleting a medication affects"
+  },
+  "medicationsAddedOn": "Added {date}",
+  "@medicationsAddedOn": {
+    "description": "Medication card subtitle showing when it was added",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Jul 20, 2026"
+      }
+    }
+  },
+  "medicationsAddedUnknown": "Added date unknown",
+  "@medicationsAddedUnknown": {
+    "description": "Medication card subtitle for a medication saved before the app recorded creation dates"
+  },
+  "medicationsShowMoreReminders": "Show {count} more",
+  "@medicationsShowMoreReminders": {
+    "description": "Toggle row under a medication card's reminder list, collapsed past 3 reminders",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "medicationsShowFewerReminders": "Show less",
+  "@medicationsShowFewerReminders": {
+    "description": "Toggle row under a medication card's reminder list, expanded state"
+  },
+  "medicationsFilterDateTitle": "Date added",
+  "@medicationsFilterDateTitle": {
+    "description": "Filter chip label and sheet title for the date-added filter axis"
+  },
+  "medicationsFilterReminderTitle": "Reminder",
+  "@medicationsFilterReminderTitle": {
+    "description": "Filter chip label and sheet title for the has-reminder filter axis"
+  },
+  "medicationsFilterReminderWith": "Has reminder",
+  "@medicationsFilterReminderWith": {
+    "description": "Reminder filter option: only medications with at least one reminder set up"
+  },
+  "medicationsFilterReminderWithout": "No reminder",
+  "@medicationsFilterReminderWithout": {
+    "description": "Reminder filter option: only medications with no reminder set up"
+  },
+  "medicationsFilterUsageTitle": "Usage",
+  "@medicationsFilterUsageTitle": {
+    "description": "Filter chip label and sheet title for the ever-used filter axis"
+  },
+  "medicationsFilterUsageEverUsed": "Used before",
+  "@medicationsFilterUsageEverUsed": {
+    "description": "Usage filter option: only medications picked in at least one logged attack"
+  },
+  "medicationsFilterUsageNeverUsed": "Never used",
+  "@medicationsFilterUsageNeverUsed": {
+    "description": "Usage filter option: only medications never picked in a logged attack"
   },
   "logSavedTitle": "Logged.",
   "@logSavedTitle": {
@@ -533,25 +621,21 @@
   "@alertsErrorGeneric": {
     "description": "Fallback error for alert registration"
   },
-  "remindersTitle": "Medication reminders",
-  "@remindersTitle": {
-    "description": "Settings tile / screen title for medication reminders"
-  },
-  "remindersEmpty": "No reminders yet.",
-  "@remindersEmpty": {
-    "description": "Empty state on the reminders screen"
-  },
   "remindersAdd": "Add reminder",
   "@remindersAdd": {
-    "description": "Button to add a new medication reminder"
+    "description": "Button to add a new medication reminder, on a medication's card in the medications tab"
   },
-  "remindersPickMedication": "Which medication?",
-  "@remindersPickMedication": {
-    "description": "Title of the medication picker in the add-reminder flow"
+  "remindersPickTimeTitle": "Reminder time",
+  "@remindersPickTimeTitle": {
+    "description": "Title of the custom hour/minute wheel picker sheet for a reminder's time"
   },
-  "remindersNoMedications": "Add a medication first (when logging an attack).",
-  "@remindersNoMedications": {
-    "description": "Shown when there are no medications to remind about"
+  "remindersHourLabel": "Hour",
+  "@remindersHourLabel": {
+    "description": "Accessibility label prefix for each row of the time picker's hour wheel"
+  },
+  "remindersMinuteLabel": "Minute",
+  "@remindersMinuteLabel": {
+    "description": "Accessibility label prefix for each row of the time picker's minute wheel"
   },
   "remindersPermissionDenied": "Notification permission is required for reminders.",
   "@remindersPermissionDenied": {

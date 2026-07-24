@@ -1,9 +1,10 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
 import '../theme/app_colors.dart';
+import 'app_leading_button.dart';
+import 'glass/glass_circle.dart';
 import 'glass/liquid_glass_theme.dart';
 
 /// The app's single [AppBar]. Every screen gets it via [AppScaffold] rather
@@ -49,24 +50,30 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Every screen's leading button — explicit or auto-inserted for a
+    // pushed route that can pop — resolves through AppLeadingButton, glass
+    // on or off, so there is exactly one leading widget for the whole app
+    // rather than this bar and stock AppBar each growing their own.
+    // automaticallyImplyLeading: false below stops AppBar from also trying
+    // to insert its own default back button on top of this.
+    final canPop = ModalRoute.of(context)?.canPop ?? false;
+    Widget? resolvedLeading = leading ?? (canPop ? const AppLeadingButton() : null);
+
     if (!kLiquidGlassEnabled) {
       return AppBar(
         title: title,
         actions: actions,
-        leading: leading,
+        leading: resolvedLeading,
+        automaticallyImplyLeading: false,
         bottom: bottom,
       );
     }
 
-    // Glass per element: the (back) button and plain icon actions get their
-    // own circles. Composite actions (filter pill, view toggle) already
-    // carry their own surface, so they pass through untouched.
-    Widget? glassLeading = leading;
-    if (glassLeading == null && (ModalRoute.of(context)?.canPop ?? false)) {
-      glassLeading = const BackButton();
-    }
-    if (glassLeading != null) {
-      glassLeading = _GlassCircle(child: glassLeading);
+    // Glass per element: the leading button and plain icon actions get
+    // their own circles. Composite actions (filter pill, view toggle)
+    // already carry their own surface, so they pass through untouched.
+    if (resolvedLeading != null) {
+      resolvedLeading = GlassCircle(child: resolvedLeading);
     }
 
     return ClipRect(
@@ -85,11 +92,12 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
             title: title,
-            leading: glassLeading,
+            leading: resolvedLeading,
+            automaticallyImplyLeading: false,
             actions: [
               for (final action in actions ?? const <Widget>[])
                 if (action is IconButton)
-                  _GlassCircle(child: action)
+                  GlassCircle(child: action)
                 else
                   action,
             ],
@@ -97,23 +105,6 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A single app-bar element in its own Liquid Glass circle.
-class _GlassCircle extends StatelessWidget {
-  const _GlassCircle({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return LiquidGlass.withOwnLayer(
-      settings: kChromeGlass,
-      shape: const LiquidOval(),
-      clipBehavior: Clip.antiAlias,
-      child: child,
     );
   }
 }

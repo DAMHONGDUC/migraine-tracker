@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 import '../constants/app_spacing_constant.dart';
 import '../theme/app_colors.dart';
 
-enum _AppButtonVariant { primary, secondary, outlined, text, destructive }
+enum _AppButtonVariant {
+  primary,
+  secondary,
+  outlined,
+  text,
+  destructive,
+  positive,
+}
 
 /// The one button widget for the whole app — feature code never uses raw
 /// [FilledButton]/[OutlinedButton]/[TextButton]. Pick the constructor by
@@ -16,6 +23,9 @@ enum _AppButtonVariant { primary, secondary, outlined, text, destructive }
 /// - [AppButton.text] — low-emphasis action (dialog "Cancel", "Not now").
 /// - [AppButton.destructive] — irreversible confirm (delete); error-tinted
 ///   fill so it can never be mistaken for the safe action.
+/// - [AppButton.positive] — an affirmative, additive action (add an item);
+///   teal-tinted fill so it reads as the "good news" option next to a
+///   destructive one.
 class AppButton extends StatelessWidget {
   const AppButton.primary({
     required this.label,
@@ -62,6 +72,15 @@ class AppButton extends StatelessWidget {
     super.key,
   }) : _variant = _AppButtonVariant.destructive;
 
+  const AppButton.positive({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.compact = false,
+    this.labelStyle,
+    super.key,
+  }) : _variant = _AppButtonVariant.positive;
+
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
@@ -80,6 +99,12 @@ class AppButton extends StatelessWidget {
     if (_variant == _AppButtonVariant.destructive) {
       style = FilledButton.styleFrom(
         backgroundColor: AppColors.error,
+        foregroundColor: AppColors.onPrimary,
+      );
+    }
+    if (_variant == _AppButtonVariant.positive) {
+      style = FilledButton.styleFrom(
+        backgroundColor: AppColors.secondary,
         foregroundColor: AppColors.onPrimary,
       );
     }
@@ -104,7 +129,8 @@ class AppButton extends StatelessWidget {
       final iconWidget = Icon(icon);
       return switch (_variant) {
         _AppButtonVariant.primary ||
-        _AppButtonVariant.destructive => FilledButton.icon(
+        _AppButtonVariant.destructive ||
+        _AppButtonVariant.positive => FilledButton.icon(
           onPressed: onPressed,
           style: style,
           icon: iconWidget,
@@ -133,7 +159,8 @@ class AppButton extends StatelessWidget {
 
     return switch (_variant) {
       _AppButtonVariant.primary ||
-      _AppButtonVariant.destructive => FilledButton(
+      _AppButtonVariant.destructive ||
+      _AppButtonVariant.positive => FilledButton(
         onPressed: onPressed,
         style: style,
         child: text,

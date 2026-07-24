@@ -42,7 +42,12 @@ class DataExportService {
           },
       ],
       'medications': [
-        for (final m in medications) {'id': m.id, 'name': m.name},
+        for (final m in medications)
+          {
+            'id': m.id,
+            'name': m.name,
+            'createdAtUtc': m.createdAt?.toUtc().toIso8601String(),
+          },
       ],
     });
   }

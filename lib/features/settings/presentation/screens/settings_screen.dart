@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
@@ -170,11 +168,6 @@ class SettingsScreen extends ConsumerWidget {
             title: l10n.alertsToggleTitle,
             lockedMessage: l10n.premiumLockedAlerts,
             child: const AlertsSection(),
-          ),
-          ListTile(
-            leading: const Icon(Icons.alarm),
-            title: Text(l10n.remindersTitle),
-            onTap: () => context.pushNamed(AppRoutes.reminders.name),
           ),
           ListTile(
             leading: const Icon(Icons.language),

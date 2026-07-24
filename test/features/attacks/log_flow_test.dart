@@ -19,9 +19,15 @@ void main() {
     await tester.tap(find.text('Right side'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Did you take medication?'), findsOneWidget);
 
-    await tester.tap(find.text('No medication'));
+    await tester.tap(find.text('No medication').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Logged.'), findsOneWidget);
@@ -88,7 +94,7 @@ void main() {
     await tester.tap(find.text('9'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byType(BackButton));
+    await tester.tap(find.byType(BackButtonIcon));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('How intense is the pain?'), findsOneWidget);

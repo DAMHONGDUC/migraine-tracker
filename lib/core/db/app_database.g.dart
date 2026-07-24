@@ -1012,8 +1012,19 @@ class $MedicationsTable extends Medications
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name];
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1039,6 +1050,12 @@ class $MedicationsTable extends Medications
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
     return context;
   }
 
@@ -1056,6 +1073,10 @@ class $MedicationsTable extends Medications
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      ),
     );
   }
 
@@ -1068,17 +1089,35 @@ class $MedicationsTable extends Medications
 class MedicationRow extends DataClass implements Insertable<MedicationRow> {
   final String id;
   final String name;
-  const MedicationRow({required this.id, required this.name});
+
+  /// When the user saved this medication (UTC). Added in schema v3 to sort
+  /// and filter the medications tab.
+  ///
+  /// Nullable on purpose: rows that predate v3 have no recorded creation
+  /// date and stamping them with the migration's timestamp would invent one
+  /// — "added this week" would then list medications saved years ago. Null
+  /// means "unknown", sorts last, and matches only the "all" filter.
+  final DateTime? createdAt;
+  const MedicationRow({required this.id, required this.name, this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
     return map;
   }
 
   MedicationsCompanion toCompanion(bool nullToAbsent) {
-    return MedicationsCompanion(id: Value(id), name: Value(name));
+    return MedicationsCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+    );
   }
 
   factory MedicationRow.fromJson(
@@ -1089,6 +1128,7 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
     return MedicationRow(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
     );
   }
   @override
@@ -1097,15 +1137,24 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
     };
   }
 
-  MedicationRow copyWith({String? id, String? name}) =>
-      MedicationRow(id: id ?? this.id, name: name ?? this.name);
+  MedicationRow copyWith({
+    String? id,
+    String? name,
+    Value<DateTime?> createdAt = const Value.absent(),
+  }) => MedicationRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+  );
   MedicationRow copyWithCompanion(MedicationsCompanion data) {
     return MedicationRow(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
 
@@ -1113,44 +1162,51 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
   String toString() {
     return (StringBuffer('MedicationRow(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name);
+  int get hashCode => Object.hash(id, name, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MedicationRow &&
           other.id == this.id &&
-          other.name == this.name);
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
 }
 
 class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
   final Value<String> id;
   final Value<String> name;
+  final Value<DateTime?> createdAt;
   final Value<int> rowid;
   const MedicationsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MedicationsCompanion.insert({
     required String id,
     required String name,
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name);
   static Insertable<MedicationRow> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1158,11 +1214,13 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
   MedicationsCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
+    Value<DateTime?>? createdAt,
     Value<int>? rowid,
   }) {
     return MedicationsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1176,6 +1234,9 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1187,6 +1248,7 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
     return (StringBuffer('MedicationsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2294,12 +2356,14 @@ typedef $$MedicationsTableCreateCompanionBuilder =
     MedicationsCompanion Function({
       required String id,
       required String name,
+      Value<DateTime?> createdAt,
       Value<int> rowid,
     });
 typedef $$MedicationsTableUpdateCompanionBuilder =
     MedicationsCompanion Function({
       Value<String> id,
       Value<String> name,
+      Value<DateTime?> createdAt,
       Value<int> rowid,
     });
 
@@ -2351,6 +2415,11 @@ class $$MedicationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> medicationRemindersRefs(
     Expression<bool> Function($$MedicationRemindersTableFilterComposer f) f,
   ) {
@@ -2395,6 +2464,11 @@ class $$MedicationsTableOrderingComposer
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MedicationsTableAnnotationComposer
@@ -2411,6 +2485,9 @@ class $$MedicationsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   Expression<T> medicationRemindersRefs<T extends Object>(
     Expression<T> Function($$MedicationRemindersTableAnnotationComposer a) f,
@@ -2469,15 +2546,26 @@ class $$MedicationsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => MedicationsCompanion(id: id, name: name, rowid: rowid),
+              }) => MedicationsCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
           createCompanionCallback:
               ({
                 required String id,
                 required String name,
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) =>
-                  MedicationsCompanion.insert(id: id, name: name, rowid: rowid),
+              }) => MedicationsCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (

@@ -130,7 +130,9 @@ Future<void> finishTest(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
-/// Taps through the sacred 3-tap flow with sensible defaults.
+/// Taps through the sacred flow with sensible defaults. Intensity advances
+/// immediately; location and medication are pick-then-confirm — each pick
+/// is followed by a tap on the app bar's Next (see LogScreen/LogController).
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
@@ -140,10 +142,21 @@ Future<void> logAttack(
   await tester.tap(find.text(intensity));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+
   await tester.tap(find.text(location));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
-  await tester.tap(find.text(medication));
+  await tester.tap(find.text('Next'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+
+  // The medication step keeps both an expanded and a collapsed copy of the
+  // action rows mounted (they cross-fade on scroll), so the label matches
+  // twice — .first is the visible, tappable expanded one.
+  await tester.tap(find.text(medication).first);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+  await tester.tap(find.text('Next'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 }

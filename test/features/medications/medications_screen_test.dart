@@ -1,0 +1,259 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/db/app_database.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
+
+import '../../helpers/pump_app.dart';
+
+Future<void> openMedications(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.medication_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> addMedication(WidgetTester tester, String name) async {
+  // App bar "+" icon (a FAB would sit under the floating bottom nav's hit
+  // region on a shell tab, so this screen puts its add action there
+  // instead — see MedicationsScreen).
+  await tester.tap(find.byIcon(Icons.add));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.enterText(find.widgetWithText(TextField, 'Medication name'), name);
+  await tester.tap(find.text('Add'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+void main() {
+  testWidgets('shows the empty state when no medications are saved', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openMedications(tester);
+
+    expect(find.text('No medications yet.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('adding a medication shows it as a card', (tester) async {
+    await pumpApp(tester);
+    await openMedications(tester);
+
+    await addMedication(tester, 'Sumatriptan');
+
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('No medications yet.'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('renaming a medication updates its card and keeps its id', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+
+    await openMedications(tester);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Edit name'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Medication name'),
+      'Rizatriptan',
+    );
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Rizatriptan'), findsOneWidget);
+    expect(find.text('Sumatriptan'), findsNothing);
+
+    final rows = await app.db.select(app.db.medications).get();
+    expect(rows.single.id, 'm1');
+
+    await finishTest(tester);
+  });
+
+  testWidgets('deleting a medication removes its card', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+
+    await openMedications(tester);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Confirmation dialog.
+    expect(find.text('Delete medication?'), findsOneWidget);
+    await tester.tap(find.text('Delete').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Sumatriptan'), findsNothing);
+    expect(find.text('No medications yet.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a reminder can be added, toggled and removed from the card', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+
+    await openMedications(tester);
+    await tester.tap(find.text('Add reminder'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Custom wheel picker sheet (AppTimePickerSheet), defaults to 09:00 —
+    // the checkmark in its top bar confirms without touching the wheels.
+    expect(find.text('Reminder time'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byIcon(Icons.alarm), findsOneWidget);
+    expect(find.text('09:00'), findsOneWidget);
+    expect(find.byType(Switch), findsOneWidget);
+
+    await tester.tap(find.byType(Switch));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+
+    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byIcon(Icons.alarm), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('scrolling the hour wheel changes the time that gets saved', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+
+    await openMedications(tester);
+    await tester.tap(find.text('Add reminder'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Drag the hour wheel (the first of the two ListWheelScrollViews) up by
+    // 3 rows: dragging up brings later (higher-index) rows to the centered
+    // selection, same direction as a real upward swipe. Row height is
+    // AppSpacingConstant.h44, which is exactly 44 logical px at the test
+    // harness's pinned 393×852 design size (screenutil scale 1).
+    await tester.drag(
+      find.byType(ListWheelScrollView).first,
+      const Offset(0, -44 * 3),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('12:00'), findsOneWidget);
+    final rows = await app.db.select(app.db.medicationReminders).get();
+    expect(rows.single.minuteOfDay, 12 * 60);
+
+    await finishTest(tester);
+  });
+
+  testWidgets(
+    'a card with more than 3 reminders starts collapsed and can expand',
+    (tester) async {
+      final app = await pumpApp(tester);
+      await DriftMedicationRepository(
+        app.db,
+      ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+      for (var i = 0; i < 5; i++) {
+        await app.db
+            .into(app.db.medicationReminders)
+            .insert(
+              MedicationRemindersCompanion.insert(
+                id: 'r$i',
+                medicationId: 'm1',
+                // Distinct, ordered minutes: 01:00, 02:00, ... 05:00.
+                minuteOfDay: (i + 1) * 60,
+              ),
+            );
+      }
+
+      await openMedications(tester);
+
+      expect(find.byIcon(Icons.alarm), findsNWidgets(3));
+      expect(find.text('Show 2 more'), findsOneWidget);
+
+      await tester.tap(find.text('Show 2 more'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byIcon(Icons.alarm), findsNWidgets(5));
+      expect(find.text('Show less'), findsOneWidget);
+
+      await tester.tap(find.text('Show less'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byIcon(Icons.alarm), findsNWidgets(3));
+      expect(find.text('Show 2 more'), findsOneWidget);
+
+      await finishTest(tester);
+    },
+  );
+
+  testWidgets('the reminder filter narrows the list', (tester) async {
+    final app = await pumpApp(tester);
+    final repo = DriftMedicationRepository(app.db);
+    await repo.upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    await repo.upsert(const Medication(id: 'm2', name: 'Ibuprofen'));
+    await app.db
+        .into(app.db.medicationReminders)
+        .insert(
+          MedicationRemindersCompanion.insert(
+            id: 'r1',
+            medicationId: 'm1',
+            minuteOfDay: 480,
+          ),
+        );
+
+    await openMedications(tester);
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('Ibuprofen'), findsOneWidget);
+
+    // Open the reminder filter chip (its sheet title) and pick "Has reminder".
+    await tester.tap(find.text('Reminder'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Has reminder'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('Ibuprofen'), findsNothing);
+
+    await finishTest(tester);
+  });
+}
