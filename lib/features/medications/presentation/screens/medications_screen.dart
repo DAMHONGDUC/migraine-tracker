@@ -509,9 +509,13 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
 
   Future<void> _addReminder(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
+    final dateTimeNow = DateTime.now();
     final time = await showAppTimePickerSheet(
       context,
-      initialTime: const TimeOfDay(hour: 9, minute: 0),
+      initialTime: TimeOfDay(
+        hour: dateTimeNow.hour,
+        minute: dateTimeNow.minute,
+      ),
     );
     if (time == null || !context.mounted) return;
 

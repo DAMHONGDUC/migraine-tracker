@@ -58,7 +58,15 @@ class LocalNotificationScheduler implements NotificationScheduler {
           _channelName,
           importance: Importance.defaultImportance,
         ),
-        iOS: DarwinNotificationDetails(),
+        // Present a banner + sound even while the app is in the foreground —
+        // without these, iOS silently drops the notification when the app is
+        // open, which reads as "reminders don't work" during testing.
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentSound: true,
+          presentList: true,
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // repeat daily
