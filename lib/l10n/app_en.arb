@@ -741,6 +741,30 @@
   "@remindersTestBody": {
     "description": "Body of the debug test notification"
   },
+  "permissionOpenSettings": "Open Settings",
+  "@permissionOpenSettings": {
+    "description": "Button that opens the OS app-settings page to re-enable a permission"
+  },
+  "permissionNotNow": "Not now",
+  "@permissionNotNow": {
+    "description": "Dismiss button on the permission settings sheet"
+  },
+  "permissionNotificationTitle": "Turn on notifications",
+  "@permissionNotificationTitle": {
+    "description": "Title of the sheet shown when notification permission is permanently denied"
+  },
+  "permissionNotificationBody": "Notifications are off. Enable them in Settings to get your medication reminders.",
+  "@permissionNotificationBody": {
+    "description": "Body of the notification permission settings sheet"
+  },
+  "permissionLocationTitle": "Turn on location",
+  "@permissionLocationTitle": {
+    "description": "Title of the sheet shown when location permission is permanently denied"
+  },
+  "permissionLocationBody": "Location is off. Enable it in Settings for barometric pressure alerts near you.",
+  "@permissionLocationBody": {
+    "description": "Body of the location permission settings sheet"
+  },
   "remindersHourLabel": "Hour",
   "@remindersHourLabel": {
     "description": "Accessibility label prefix for each row of the time picker's hour wheel"

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
@@ -240,6 +241,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   /// Debug-only: fires a test notification ~10s out and confirms via snackbar.
   Future<void> _sendTestNotification() async {
     final l10n = context.l10n;
+    final granted = await ref
+        .read(appPermissionProvider)
+        .ensure(context, AppPermissionType.notification);
+    if (!granted || !mounted) return;
     await ref
         .read(remindersControllerProvider)
         .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
@@ -560,6 +565,13 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
 
   Future<void> _addReminder(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
+    // A reminder is useless without notification permission — ask up front and,
+    // if it's permanently off, AppPermission shows the Settings sheet for us.
+    final granted = await ref
+        .read(appPermissionProvider)
+        .ensure(context, AppPermissionType.notification);
+    if (!granted || !context.mounted) return;
+
     // Default a few minutes ahead so the reminder actually fires soon —
     // defaulting to "now" would land in the past and roll to tomorrow.
     final base = DateTime.now().add(const Duration(minutes: 5));
@@ -571,7 +583,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
     if (time == null || !context.mounted) return;
 
     final minuteOfDay = time.hour * 60 + time.minute;
-    final ok = await ref
+    await ref
         .read(remindersControllerProvider)
         .add(
           medicationId: widget.medication.id,
@@ -581,13 +593,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           notificationBody: l10n.reminderNotificationBody('{name}'),
         );
     if (!context.mounted) return;
-    if (ok) {
-      _showReminderScheduledSnack(context, minuteOfDay);
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.remindersPermissionDenied)));
-    }
+    _showReminderScheduledSnack(context, minuteOfDay);
   }
 
   @override
@@ -727,12 +733,20 @@ class _ReminderRow extends ConsumerWidget {
   /// Opens the wheel picker pre-filled with this reminder's time; on confirm,
   /// updates the time and reschedules the notification.
   Future<void> _editTime(BuildContext context, WidgetRef ref) async {
+    // A reminder is useless without notification permission — ask up front and,
+    // if it's permanently off, AppPermission shows the Settings sheet for us.
+    final granted = await ref
+        .read(appPermissionProvider)
+        .ensure(context, AppPermissionType.notification);
+    if (!granted || !context.mounted) return;
+
     final l10n = context.l10n;
     final reminder = view.reminder;
     final picked = await showAppTimePickerSheet(
       context,
       title: l10n.remindersEditTitle,
       initialTime: TimeOfDay(hour: reminder.hour, minute: reminder.minute),
+      isEditMode: true,
     );
     if (picked == null || !context.mounted) return;
     final minuteOfDay = picked.hour * 60 + picked.minute;

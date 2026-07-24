@@ -6,6 +6,8 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/core/permissions/app_permission.dart';
+import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
@@ -70,18 +72,37 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
+/// Grants permissions by default; a test can flip [statusFor] to exercise the
+/// permanently-denied → settings-sheet path. Never touches the OS.
+class FakeAppPermissionGateway implements AppPermissionGateway {
+  AppPermissionStatus statusFor = AppPermissionStatus.granted;
+  int openSettingsCalls = 0;
+
+  @override
+  Future<AppPermissionStatus> status(AppPermissionType type) async => statusFor;
+
+  @override
+  Future<AppPermissionStatus> request(AppPermissionType type) async =>
+      statusFor;
+
+  @override
+  Future<void> openAppSettings() async => openSettingsCalls++;
+}
+
 class PumpedApp {
   PumpedApp({
     required this.db,
     required this.prefs,
     required this.weather,
     required this.scheduler,
+    required this.permissions,
   });
 
   final AppDatabase db;
   final SharedPreferences prefs;
   final FakeWeatherRepository weather;
   final FakeNotificationScheduler scheduler;
+  final FakeAppPermissionGateway permissions;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -117,6 +138,7 @@ Future<PumpedApp> pumpApp(
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
+  final permissions = FakeAppPermissionGateway();
 
   await tester.pumpWidget(
     ProviderScope(
@@ -125,6 +147,7 @@ Future<PumpedApp> pumpApp(
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
+        appPermissionGatewayProvider.overrideWithValue(permissions),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],
@@ -139,6 +162,7 @@ Future<PumpedApp> pumpApp(
     prefs: prefs,
     weather: weather,
     scheduler: scheduler,
+    permissions: permissions,
   );
 }
 
