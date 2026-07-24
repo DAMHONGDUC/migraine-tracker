@@ -1,23 +1,56 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../medications/domain/entities/next_reminder.dart';
+import '../../../medications/domain/services/next_reminder_calculator.dart';
+import '../../../medications/providers.dart';
 import 'dashboard_banner.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
-/// current time). Tapping it opens the Medications tab. The screen decides
-/// whether to show it (only when a reminder is scheduled).
-class NextReminderBanner extends StatelessWidget {
-  const NextReminderBanner({required this.reminder, super.key});
+/// current time), tapping through to the Medications tab.
+///
+/// Live without a stream-driven clock provider: a widget-owned 30s timer
+/// re-ticks "now" locally. (A `StreamProvider` clock that a synchronous
+/// provider watched crashed with "setState during build" when a consumer
+/// resumed mid-layout — the timer stays on the element, cancelled on dispose.)
+class NextReminderBanner extends ConsumerStatefulWidget {
+  const NextReminderBanner({super.key});
 
-  final NextReminder reminder;
+  @override
+  ConsumerState<NextReminderBanner> createState() => _NextReminderBannerState();
+}
+
+class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
+  static const _calculator = NextReminderCalculator();
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => setState(() {}),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final views = ref.watch(medicationRemindersStreamProvider).value ?? const [];
+    final reminder = _calculator.compute(views, now: DateTime.now());
+    if (reminder == null) return const SizedBox.shrink();
+
     final time =
         '${reminder.hour.toString().padLeft(2, '0')}:'
         '${reminder.minute.toString().padLeft(2, '0')}';
