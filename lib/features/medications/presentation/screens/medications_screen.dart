@@ -54,6 +54,32 @@ String _usageFilterLabel(BuildContext context, MedicationUsageFilter filter) =>
         context.l10n.medicationsFilterUsageNeverUsed,
     };
 
+/// Confirms a just-saved reminder, spelling out when it will next fire. The
+/// "tomorrow" case matters most: a time already past today rolls to the next
+/// day (see [LocalNotificationScheduler]), which otherwise reads as "nothing
+/// happened". Mirrors that scheduler's boundary (a time == now counts as past).
+void _showReminderScheduledSnack(BuildContext context, int minuteOfDay) {
+  final l10n = context.l10n;
+  final now = DateTime.now();
+  final todayAt = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    minuteOfDay ~/ 60,
+    minuteOfDay % 60,
+  );
+  final firesTomorrow = !todayAt.isAfter(now);
+  final time =
+      '${(minuteOfDay ~/ 60).toString().padLeft(2, '0')}:'
+      '${(minuteOfDay % 60).toString().padLeft(2, '0')}';
+  final message = firesTomorrow
+      ? l10n.remindersScheduledTomorrow(time)
+      : l10n.remindersScheduledToday(time);
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
+}
+
 /// Manages saved medications: add, rename, delete, filter by when they were
 /// added / whether they have a reminder / whether they've ever been used —
 /// and each medication's daily reminders live right on its own card. The
@@ -509,27 +535,30 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
 
   Future<void> _addReminder(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final dateTimeNow = DateTime.now();
+    // Default a few minutes ahead so the reminder actually fires soon —
+    // defaulting to "now" would land in the past and roll to tomorrow.
+    final base = DateTime.now().add(const Duration(minutes: 5));
     final time = await showAppTimePickerSheet(
       context,
       title: l10n.remindersAdd,
-      initialTime: TimeOfDay(
-        hour: dateTimeNow.hour,
-        minute: dateTimeNow.minute,
-      ),
+      initialTime: TimeOfDay(hour: base.hour, minute: base.minute),
     );
     if (time == null || !context.mounted) return;
 
+    final minuteOfDay = time.hour * 60 + time.minute;
     final ok = await ref
         .read(remindersControllerProvider)
         .add(
           medicationId: widget.medication.id,
           medicationName: widget.medication.name,
-          minuteOfDay: time.hour * 60 + time.minute,
+          minuteOfDay: minuteOfDay,
           notificationTitle: l10n.reminderNotificationTitle,
           notificationBody: l10n.reminderNotificationBody('{name}'),
         );
-    if (!ok && context.mounted) {
+    if (!context.mounted) return;
+    if (ok) {
+      _showReminderScheduledSnack(context, minuteOfDay);
+    } else {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.remindersPermissionDenied)));
@@ -681,15 +710,21 @@ class _ReminderRow extends ConsumerWidget {
       initialTime: TimeOfDay(hour: reminder.hour, minute: reminder.minute),
     );
     if (picked == null || !context.mounted) return;
+    final minuteOfDay = picked.hour * 60 + picked.minute;
     await ref
         .read(remindersControllerProvider)
         .updateTime(
           reminder,
           medicationName: view.medicationName,
-          minuteOfDay: picked.hour * 60 + picked.minute,
+          minuteOfDay: minuteOfDay,
           notificationTitle: l10n.reminderNotificationTitle,
           notificationBody: l10n.reminderNotificationBody('{name}'),
         );
+    // Only a scheduled (enabled) reminder actually fires — don't promise a
+    // time for a disabled one.
+    if (context.mounted && reminder.enabled) {
+      _showReminderScheduledSnack(context, minuteOfDay);
+    }
   }
 
   @override

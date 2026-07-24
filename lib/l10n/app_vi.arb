@@ -159,6 +159,8 @@
   "remindersAdd": "Thêm lời nhắc",
   "remindersPickTimeTitle": "Giờ nhắc nhở",
   "remindersEditTitle": "Sửa lời nhắc",
+  "remindersScheduledToday": "Đã đặt nhắc lúc {time} hôm nay",
+  "remindersScheduledTomorrow": "Đã đặt nhắc lúc {time} ngày mai",
   "remindersHourLabel": "Giờ",
   "remindersMinuteLabel": "Phút",
   "remindersPermissionDenied": "Cần quyền thông báo để đặt lời nhắc.",

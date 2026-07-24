@@ -131,6 +131,8 @@ void main() {
 
     expect(find.byIcon(Icons.alarm), findsOneWidget);
     expect(find.byType(Switch), findsOneWidget);
+    // A confirmation snackbar spells out when it will fire.
+    expect(find.textContaining('Reminder set for'), findsOneWidget);
 
     await tester.tap(find.byType(Switch));
     await tester.pump();
