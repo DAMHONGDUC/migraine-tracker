@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:step_progress/step_progress.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_leading_button.dart';
@@ -21,9 +24,12 @@ import '../widgets/saved_step.dart';
 /// advances immediately on tap (fastest way in, mid-attack); location and
 /// medication are pick-then-confirm — the app bar's Next button commits
 /// the active step's draft and advances (the last step's own "Done" is on
-/// the saved screen itself, so Next never needs to relabel). While
-/// tracking (any step but the first) the shell swaps the bottom nav for a
-/// progress bar.
+/// the saved screen itself, so Next never needs to relabel).
+///
+/// This is a full-screen pushed route (opened from the dashboard's log
+/// button). The 3-step progress lives at the top of the screen; the app
+/// bar's leading button cancels the flow (pops the route) on the first step
+/// and steps back on later ones. "Done" on the saved screen pops back.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -32,7 +38,6 @@ class LogScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final state = ref.watch(logControllerProvider);
     final controller = ref.read(logControllerProvider.notifier);
-    final tracking = ref.watch(logFlowInProgressProvider);
     final showNext =
         state.step == LogStep.location || state.step == LogStep.medication;
 
@@ -43,13 +48,21 @@ class LogScreen extends ConsumerWidget {
       LogStep.saved => null,
     };
 
+    void closeFlow() {
+      controller.reset();
+      context.pop();
+    }
+
     return AppScaffold(
       title: Text(l10n.logTitle),
-      // Steps back through LogController's state machine rather than
-      // popping a route (there's nothing to pop — the steps are this one
-      // screen's internal state, an AnimatedSwitcher below). Only shown
-      // once actually tracking; the first step has nothing to go back to.
-      leading: tracking ? AppLeadingButton(onPressed: controller.back) : null,
+      // First step: nothing to step back to, so the leading button cancels
+      // the whole flow (pops the route). Later steps: step back through the
+      // LogController state machine. Saved: no leading — only "Done" leaves.
+      leading: switch (state.step) {
+        LogStep.saved => null,
+        LogStep.intensity => AppLeadingButton(onPressed: closeFlow),
+        _ => AppLeadingButton(onPressed: controller.back),
+      },
       actions: [
         if (showNext)
           AppButton.primary(
@@ -61,11 +74,23 @@ class LogScreen extends ConsumerWidget {
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
-          bottom: AppScaffold.bottomNavInset(context),
+          bottom: MediaQuery.viewPaddingOf(context).bottom +
+              AppSpacingConstant.h16,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // The 3-tap progress, hidden once saved (nothing left to track).
+            if (question != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacingConstant.w48,
+                  AppSpacingConstant.h16,
+                  AppSpacingConstant.w48,
+                  0,
+                ),
+                child: _LogProgress(step: state.step),
+              ),
             // The question, big and readable mid-attack — always one line,
             // however long the localized string runs.
             if (question != null)
@@ -114,13 +139,65 @@ class LogScreen extends ConsumerWidget {
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,
-                      onDone: controller.reset,
+                      onDone: closeFlow,
                     ),
                   },
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The 3-step progress at the top of the log flow (was in the bottom nav
+/// while logging was a tab). Maps the flow step to the active node.
+class _LogProgress extends StatelessWidget {
+  const _LogProgress({required this.step});
+
+  final LogStep step;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final l10n = context.l10n;
+    final currentStep = switch (step) {
+      LogStep.location => 1,
+      LogStep.medication => 2,
+      _ => 0,
+    };
+    return SizedBox(
+      height: AppSpacingConstant.h56,
+      child: StepProgress(
+        totalSteps: 3,
+        currentStep: currentStep,
+        stepNodeSize: AppSpacingConstant.r20,
+        nodeTitles: [
+          l10n.stepIntensity,
+          l10n.stepLocation,
+          l10n.stepMedication,
+        ],
+        visibilityOptions: StepProgressVisibilityOptions.nodeThenLine,
+        theme: StepProgressThemeData(
+          activeForegroundColor: scheme.primary,
+          defaultForegroundColor: scheme.surfaceContainerHigh,
+          stepAnimationDuration: const Duration(milliseconds: 200),
+          nodeLabelAlignment: StepLabelAlignment.bottom,
+          nodeLabelStyle: StepLabelStyle(
+            maxWidth: 72,
+            activeColor: scheme.primary,
+            defualtColor: AppColors.textSecondary,
+            titleStyle: AppTextStyle.labelTiny,
+            titleMaxLines: 1,
+          ),
+          stepLineStyle: StepLineStyle(
+            lineThickness: 3,
+            activeColor: scheme.primary,
+            foregroundColor: scheme.surfaceContainerHigh,
+            borderRadius: const Radius.circular(2),
+          ),
         ),
       ),
     );

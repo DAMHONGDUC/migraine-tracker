@@ -10,6 +10,7 @@ void main() {
     tester,
   ) async {
     final app = await pumpApp(tester);
+    await openLog(tester);
 
     await tester.tap(find.text('7'));
     await tester.pump();
@@ -65,7 +66,7 @@ void main() {
   ) async {
     final app = await pumpApp(tester); // weather stub returns null
 
-    await logAttack(tester);
+    await logAttack(tester, finish: false);
 
     expect(find.text('Logged.'), findsOneWidget);
     expect(await app.db.select(app.db.weatherSnapshots).get(), isEmpty);
@@ -90,6 +91,7 @@ void main() {
 
   testWidgets('back buttons allow correcting a mis-tap', (tester) async {
     await pumpApp(tester);
+    await openLog(tester);
 
     await tester.tap(find.text('9'));
     await tester.pump();
@@ -107,7 +109,8 @@ void main() {
   ) async {
     final app = await pumpApp(tester);
 
-    await logAttack(tester, intensity: '6', location: 'Front');
+    // Stay on the saved step so "Add details" is reachable.
+    await logAttack(tester, intensity: '6', location: 'Front', finish: false);
 
     await tester.tap(find.text('Add details'));
     await tester.pump();

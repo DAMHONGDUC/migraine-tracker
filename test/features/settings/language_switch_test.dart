@@ -27,10 +27,13 @@ void main() {
     // Choice is persisted for the next launch.
     expect(app.prefs.getString('app_locale'), 'vi');
 
-    // The log flow is Vietnamese too.
-    await tester.tap(find.byIcon(Icons.add_circle_outline));
+    // The log flow is Vietnamese too — open it from the dashboard.
+    await tester.tap(find.byIcon(Icons.home_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Ghi cơn đau mới'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
     expect(find.text('Cơn đau dữ dội mức nào?'), findsOneWidget);
 
     await finishTest(tester);
@@ -41,9 +44,9 @@ void main() {
   ) async {
     await pumpApp(tester, initialPrefs: {'app_locale': 'vi'});
 
-    expect(find.text('Cơn đau dữ dội mức nào?'), findsOneWidget);
-    // The Log app bar title relocalized (the icon-only nav has no labels).
-    expect(find.text('Ghi cơn đau'), findsOneWidget);
+    // Launch lands on the dashboard, relocalized to Vietnamese.
+    expect(find.text('Xin chào'), findsOneWidget);
+    expect(find.text('Ghi cơn đau mới'), findsOneWidget);
 
     await finishTest(tester);
   });
