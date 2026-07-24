@@ -6,17 +6,23 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/charts/chart_card.dart';
+import '../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../domain/enums/history_view_mode.dart';
+import '../../domain/services/chart_analytics.dart';
 import '../../domain/services/weekly_buckets.dart';
 import '../../providers.dart';
 import '../widgets/attack_tile.dart';
 import '../widgets/history_calendar_view.dart';
 import '../widgets/history_filter_sheet.dart';
 import '../widgets/history_view_toggle.dart';
+import '../widgets/intensity_trend_chart.dart';
+import '../widgets/location_breakdown_chart.dart';
+import '../widgets/time_of_day_chart.dart';
 import '../widgets/weekly_frequency_chart.dart';
 
 class HistoryScreen extends HookConsumerWidget {
@@ -220,17 +226,51 @@ class _ChartView extends StatelessWidget {
                 AppSpacingConstant.w16,
                 bottomInset + AppSpacingConstant.h16,
               ),
-              sliver: SliverToBoxAdapter(
-                child: WeeklyFrequencyChart(
-                  buckets: const WeeklyBucketsCalculator().compute(
-                    attacks,
-                    now: DateTime.now(),
-                  ),
-                ),
-              ),
+              sliver: SliverToBoxAdapter(child: _Charts(attacks: attacks)),
             ),
         ],
       ),
+    );
+  }
+}
+
+/// The stacked chart deck shown once the filtered period has attacks: weekly
+/// frequency, average-intensity trend, severity mix, pain-by-location and
+/// time-of-day — each in its own [ChartCard]. All read the same filtered
+/// [attacks] and are computed once here (pure calculators).
+class _Charts extends StatelessWidget {
+  const _Charts({required this.attacks});
+
+  final List<Attack> attacks;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final cards = <Widget>[
+      WeeklyFrequencyChart(
+        buckets: const WeeklyBucketsCalculator().compute(attacks, now: now),
+      ),
+      IntensityTrendChart(
+        points: const IntensityTrendCalculator().compute(attacks, now: now),
+      ),
+      SeverityBreakdownChart(
+        counts: const SeverityBreakdownCalculator().compute(attacks),
+      ),
+      LocationBreakdownChart(
+        counts: const LocationBreakdownCalculator().compute(attacks),
+      ),
+      TimeOfDayChart(
+        counts: const TimeOfDayCalculator().compute(attacks),
+      ),
+    ];
+
+    return Column(
+      children: [
+        for (var i = 0; i < cards.length; i++) ...[
+          if (i > 0) SizedBox(height: AppSpacingConstant.h16),
+          ChartCard(child: cards[i]),
+        ],
+      ],
     );
   }
 }

@@ -517,6 +517,68 @@
       }
     }
   },
+  "historyChartIntensityTitle": "Average intensity per week",
+  "@historyChartIntensityTitle": {
+    "description": "Title above the line chart of average pain intensity per week"
+  },
+  "historyChartIntensityTooltip": "Avg intensity {value}",
+  "@historyChartIntensityTooltip": {
+    "description": "Tooltip when touching a point on the intensity trend line",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "historyChartSeverityTitle": "Severity mix",
+  "@historyChartSeverityTitle": {
+    "description": "Title above the donut chart splitting attacks by severity band"
+  },
+  "historyChartLocationTitle": "Pain by location",
+  "@historyChartLocationTitle": {
+    "description": "Title above the head-location breakdown chart"
+  },
+  "historyChartTimeTitle": "Time of day",
+  "@historyChartTimeTitle": {
+    "description": "Title above the time-of-day distribution bar chart"
+  },
+  "historySeverityMild": "Mild",
+  "@historySeverityMild": {
+    "description": "Severity band label: pain intensity 1-3"
+  },
+  "historySeverityModerate": "Moderate",
+  "@historySeverityModerate": {
+    "description": "Severity band label: pain intensity 4-6"
+  },
+  "historySeveritySevere": "Severe",
+  "@historySeveritySevere": {
+    "description": "Severity band label: pain intensity 7-8"
+  },
+  "historySeverityExtreme": "Extreme",
+  "@historySeverityExtreme": {
+    "description": "Severity band label: pain intensity 9-10"
+  },
+  "historyDayNight": "Night",
+  "@historyDayNight": {
+    "description": "Time-of-day bucket label: 00:00-06:00"
+  },
+  "historyDayMorning": "Morning",
+  "@historyDayMorning": {
+    "description": "Time-of-day bucket label: 06:00-12:00"
+  },
+  "historyDayAfternoon": "Afternoon",
+  "@historyDayAfternoon": {
+    "description": "Time-of-day bucket label: 12:00-18:00"
+  },
+  "historyDayEvening": "Evening",
+  "@historyDayEvening": {
+    "description": "Time-of-day bucket label: 18:00-24:00"
+  },
+  "a11yChart": "{title} chart",
+  "@a11yChart": {
+    "description": "Accessibility label wrapping a chart, naming it by its title",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
   "premiumBadge": "Premium",
   "@premiumBadge": {
     "description": "Small badge marking a premium-only surface"
