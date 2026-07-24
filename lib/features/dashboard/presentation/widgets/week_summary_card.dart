@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:migraine_tracker/features/history/domain/enums/history_view_mode.dart';
+import 'package:migraine_tracker/features/history/providers.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
@@ -22,10 +24,15 @@ class WeekSummaryCard extends ConsumerWidget {
     final summary = ref.watch(weekSummaryProvider);
     final hasData = summary.thisWeekCount > 0 || summary.lastWeekCount > 0;
 
+    void openHistory(HistoryViewMode mode) {
+      ref.read(historyViewModeProvider.notifier).select(mode);
+      context.goNamed(AppRoutes.history.name);
+    }
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.goNamed(AppRoutes.history.name),
+        onTap: () => openHistory(HistoryViewMode.calendar),
         child: Padding(
           padding: EdgeInsets.all(AppSpacingConstant.w20),
           child: Column(

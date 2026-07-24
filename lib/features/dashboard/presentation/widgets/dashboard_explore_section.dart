@@ -28,28 +28,33 @@ class DashboardExploreSection extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacingConstant.h12),
-        DashboardBanner(
-          icon: Icons.notifications_active_outlined,
-          color: AppColors.secondary,
-          title: l10n.dashboardReminderTitle,
-          subtitle: l10n.dashboardReminderBody,
-          onTap: () => context.goNamed(AppRoutes.medications.name),
-        ),
-        DashboardBanner(
-          // Distinct from the bottom nav's insights_outlined so byIcon finders
-          // stay unambiguous (see the byicon gotcha).
-          icon: Icons.analytics_outlined,
-          color: AppColors.primary,
-          title: l10n.dashboardInsightsBannerTitle,
-          subtitle: l10n.dashboardInsightsBannerBody,
-          onTap: () => context.goNamed(AppRoutes.insights.name),
-        ),
-        DashboardBanner(
-          icon: Icons.ios_share_outlined,
-          color: AppColors.secondary,
-          title: l10n.dashboardExportTitle,
-          subtitle: l10n.dashboardExportBody,
-          onTap: () => context.goNamed(AppRoutes.settings.name),
+        Column(
+          spacing: AppSpacingConstant.h12,
+          children: [
+            DashboardBanner(
+              icon: Icons.notifications_active_outlined,
+              color: AppColors.secondary,
+              title: l10n.dashboardReminderTitle,
+              subtitle: l10n.dashboardReminderBody,
+              onTap: () => context.goNamed(AppRoutes.medications.name),
+            ),
+            DashboardBanner(
+              // Distinct from the bottom nav's insights_outlined so byIcon
+              // finders stay unambiguous (see the byicon gotcha).
+              icon: Icons.analytics_outlined,
+              color: AppColors.primary,
+              title: l10n.dashboardInsightsBannerTitle,
+              subtitle: l10n.dashboardInsightsBannerBody,
+              onTap: () => context.goNamed(AppRoutes.insights.name),
+            ),
+            DashboardBanner(
+              icon: Icons.ios_share_outlined,
+              color: AppColors.secondary,
+              title: l10n.dashboardExportTitle,
+              subtitle: l10n.dashboardExportBody,
+              onTap: () => context.goNamed(AppRoutes.settings.name),
+            ),
+          ],
         ),
       ],
     );
