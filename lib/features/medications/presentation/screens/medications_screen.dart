@@ -76,6 +76,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   /// next-reminder tap), or null.
   String? _highlightedId;
   Timer? _highlightTimer;
+  bool _handlingHighlight = false;
 
   /// Rough per-card height, used only to jump a not-yet-built target near the
   /// viewport so its key resolves before the precise ensureVisible.
@@ -84,11 +85,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   @override
   void initState() {
     super.initState();
-    // The dashboard shortcuts may have set a request before this tab was ever
-    // built — pick them up on first mount.
+    // The dashboard's add shortcut may have set a request before this tab was
+    // ever built — pick it up on first mount. (The highlight request is driven
+    // by a watch in build, which also fires when the tab is re-activated.)
     if (ref.read(medicationAddRequestProvider)) _handleAddRequest();
-    final highlightId = ref.read(medicationHighlightProvider);
-    if (highlightId != null) _handleHighlightRequest(highlightId);
   }
 
   @override
@@ -110,44 +110,52 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     });
   }
 
-  /// Scrolls the requested medication's card into view and flashes its
-  /// highlight for a second, then clears it.
-  void _handleHighlightRequest(String medicationId) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(medicationHighlightProvider.notifier).consume();
-      if (!mounted) return;
-      setState(() => _highlightedId = medicationId);
-      await _scrollToCard(medicationId);
-      _highlightTimer?.cancel();
-      _highlightTimer = Timer(const Duration(seconds: 1), () {
-        if (mounted) setState(() => _highlightedId = null);
-      });
+  /// Consumes a pending highlight request, flashes the card for a second, and
+  /// scrolls it into view. Kicked off from a post-frame callback in [build] so
+  /// it runs after navigation settles and the list has a chance to build.
+  Future<void> _beginHighlight(String medicationId) async {
+    if (!mounted) {
+      _handlingHighlight = false;
+      return;
+    }
+    ref.read(medicationHighlightProvider.notifier).consume();
+    setState(() => _highlightedId = medicationId);
+    await _scrollToCard(medicationId);
+    _handlingHighlight = false;
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) setState(() => _highlightedId = null);
     });
   }
 
+  /// Waits (a bounded number of frames) for the target card to build — the
+  /// list may still be loading right after navigation — nudging toward its
+  /// index so it does, then aligns it into view.
   Future<void> _scrollToCard(String medicationId) async {
-    var cardContext = _cardKeys[medicationId]?.currentContext;
-    // If the target isn't built yet, jump roughly to its index so it builds.
-    if (cardContext == null && _scrollController.hasClients) {
-      final meds = ref.read(filteredMedicationsProvider);
-      final index = meds.indexWhere((m) => m.id == medicationId);
-      if (index >= 0) {
-        _scrollController.jumpTo(
-          (index * _estimatedCardExtent)
-              .clamp(0.0, _scrollController.position.maxScrollExtent),
+    for (var attempt = 0; attempt < 15; attempt++) {
+      if (!mounted) return;
+      final cardContext = _cardKeys[medicationId]?.currentContext;
+      if (cardContext != null && cardContext.mounted) {
+        await Scrollable.ensureVisible(
+          cardContext,
+          alignment: 0.1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
         );
-        await WidgetsBinding.instance.endOfFrame;
-        if (!mounted) return;
-        cardContext = _cardKeys[medicationId]?.currentContext;
+        return;
       }
-    }
-    if (cardContext != null && cardContext.mounted) {
-      await Scrollable.ensureVisible(
-        cardContext,
-        alignment: 0.1,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-      );
+      if (_scrollController.hasClients) {
+        final meds = ref.read(filteredMedicationsProvider);
+        final index = meds.indexWhere((m) => m.id == medicationId);
+        if (index >= 0) {
+          final offset = (index * _estimatedCardExtent)
+              .clamp(0.0, _scrollController.position.maxScrollExtent);
+          if ((offset - _scrollController.offset).abs() > 1) {
+            _scrollController.jumpTo(offset);
+          }
+        }
+      }
+      await WidgetsBinding.instance.endOfFrame;
     }
   }
 
@@ -163,9 +171,16 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     ref.listen(medicationAddRequestProvider, (_, next) {
       if (next) _handleAddRequest();
     });
-    ref.listen(medicationHighlightProvider, (_, next) {
-      if (next != null) _handleHighlightRequest(next);
-    });
+    // Drive the highlight from a watch (not a listen) so it also fires when the
+    // tab is re-activated with a request already pending (an offstage listen
+    // stays paused).
+    final highlightId = ref.watch(medicationHighlightProvider);
+    if (highlightId != null && !_handlingHighlight) {
+      _handlingHighlight = true;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _beginHighlight(highlightId),
+      );
+    }
     final l10n = context.l10n;
     final medications = ref.watch(filteredMedicationsProvider);
     final filters = ref.watch(medicationFiltersProvider);
