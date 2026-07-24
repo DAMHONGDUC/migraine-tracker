@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
-import 'package:migraine_tracker/features/history/presentation/widgets/history_calendar_view.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 
 import '../../helpers/pump_app.dart';
@@ -33,17 +32,17 @@ Future<void> _tapBanner(WidgetTester tester, String label) async {
 }
 
 void main() {
-  testWidgets('Calendar shortcut opens History in calendar view', (
-    tester,
-  ) async {
+  testWidgets('History shortcut opens History in list view', (tester) async {
     final app = await pumpApp(tester);
     await _seedOneAttack(app);
     await _settle(tester);
 
-    await tester.tap(find.text('Calendar'));
+    await tester.tap(find.text('History'));
     await _settle(tester);
 
-    expect(find.byType(HistoryCalendarView), findsOneWidget);
+    // On the History screen (its title), showing the list — not the chart.
+    expect(find.text('History'), findsWidgets);
+    expect(find.byType(WeeklyFrequencyChart), findsNothing);
 
     await finishTest(tester);
   });
@@ -57,6 +56,21 @@ void main() {
     await _settle(tester);
 
     expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('Add medication shortcut opens the add dialog on Medications', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.text('Add medication'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    // The add-name dialog auto-opens after landing on the Medications tab.
+    expect(find.text('Add a medication'), findsOneWidget);
 
     await finishTest(tester);
   });

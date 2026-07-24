@@ -8,10 +8,12 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
+import '../../../medications/providers.dart';
 
-/// Quick access to the two History visualisations. Each card sets the History
-/// view mode, then switches to that branch via go_router, so tapping "Calendar"
-/// lands directly on the calendar (not the default list).
+/// Three shortcuts on one row: History (list), the History chart, and "Add
+/// medication" — which opens the Medications tab AND kicks off the add dialog
+/// via [medicationAddRequestProvider]. History cards set the view mode before
+/// switching branch so they land on the right view.
 class QuickAccessSection extends ConsumerWidget {
   const QuickAccessSection({super.key});
 
@@ -22,6 +24,11 @@ class QuickAccessSection extends ConsumerWidget {
     void openHistory(HistoryViewMode mode) {
       ref.read(historyViewModeProvider.notifier).select(mode);
       context.goNamed(AppRoutes.history.name);
+    }
+
+    void addMedication() {
+      ref.read(medicationAddRequestProvider.notifier).request();
+      context.goNamed(AppRoutes.medications.name);
     }
 
     return Column(
@@ -35,26 +42,37 @@ class QuickAccessSection extends ConsumerWidget {
           ),
         ),
         SizedBox(height: AppSpacingConstant.h12),
-        Row(
-          children: [
-            Expanded(
-              child: _QuickAccessCard(
-                // Distinct from the bottom nav's calendar_month_outlined so
-                // byIcon finders stay unambiguous (see the byicon gotcha).
-                icon: Icons.calendar_today_outlined,
-                label: l10n.dashboardCalendarShortcut,
-                onTap: () => openHistory(HistoryViewMode.calendar),
+        // IntrinsicHeight so all three cards match the tallest (the "Add
+        // medication" label wraps to two lines).
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _QuickAccessCard(
+                  icon: Icons.history,
+                  label: l10n.navHistory,
+                  onTap: () => openHistory(HistoryViewMode.list),
+                ),
               ),
-            ),
-            SizedBox(width: AppSpacingConstant.w12),
-            Expanded(
-              child: _QuickAccessCard(
-                icon: Icons.bar_chart,
-                label: l10n.dashboardChartShortcut,
-                onTap: () => openHistory(HistoryViewMode.chart),
+              SizedBox(width: AppSpacingConstant.w12),
+              Expanded(
+                child: _QuickAccessCard(
+                  icon: Icons.bar_chart,
+                  label: l10n.dashboardChartShortcut,
+                  onTap: () => openHistory(HistoryViewMode.chart),
+                ),
               ),
-            ),
-          ],
+              SizedBox(width: AppSpacingConstant.w12),
+              Expanded(
+                child: _QuickAccessCard(
+                  icon: Icons.add_circle_outline,
+                  label: l10n.dashboardAddMedication,
+                  onTap: addMedication,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -80,8 +98,12 @@ class _QuickAccessCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: AppSpacingConstant.h20),
+          padding: EdgeInsets.symmetric(
+            vertical: AppSpacingConstant.h20,
+            horizontal: AppSpacingConstant.w8,
+          ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
@@ -92,7 +114,7 @@ class _QuickAccessCard extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.labelLarge,
               ),

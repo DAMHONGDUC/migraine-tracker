@@ -53,17 +53,48 @@ String _usageFilterLabel(BuildContext context, MedicationUsageFilter filter) =>
 /// and each medication's daily reminders live right on its own card. The
 /// 3-tap log flow's own medication picker (`MedicationStep`) is untouched
 /// and unaffected by anything filtered or sorted here.
-class MedicationsScreen extends ConsumerWidget {
+class MedicationsScreen extends ConsumerStatefulWidget {
   const MedicationsScreen({super.key});
 
-  Future<void> _add(BuildContext context, WidgetRef ref) async {
+  @override
+  ConsumerState<MedicationsScreen> createState() => _MedicationsScreenState();
+}
+
+class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
+  bool _handlingAdd = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The dashboard's "Add medication" shortcut may have set the request
+    // before this tab was ever built — pick it up on first mount.
+    if (ref.read(medicationAddRequestProvider)) _handleAddRequest();
+  }
+
+  /// Consumes a pending "add medication" request and opens the dialog, once,
+  /// after the current frame (so it runs post-navigation, never during build).
+  void _handleAddRequest() {
+    if (_handlingAdd) return;
+    _handlingAdd = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(medicationAddRequestProvider.notifier).consume();
+      if (mounted) await _add();
+      _handlingAdd = false;
+    });
+  }
+
+  Future<void> _add() async {
     final name = await showMedicationNameDialog(context);
     if (name == null) return;
     await ref.read(medicationsControllerProvider).add(name);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    // Handle requests that arrive while this tab is already alive.
+    ref.listen(medicationAddRequestProvider, (_, next) {
+      if (next) _handleAddRequest();
+    });
     final l10n = context.l10n;
     final medications = ref.watch(filteredMedicationsProvider);
     final filters = ref.watch(medicationFiltersProvider);
@@ -79,7 +110,7 @@ class MedicationsScreen extends ConsumerWidget {
         IconButton(
           icon: Icon(Icons.add, color: AppColors.secondary),
           tooltip: l10n.logAddMedication,
-          onPressed: () => _add(context, ref),
+          onPressed: _add,
         ),
         SizedBox(width: AppSpacingConstant.w12),
       ],

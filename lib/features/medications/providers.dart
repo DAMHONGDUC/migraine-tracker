@@ -55,6 +55,24 @@ final medicationsControllerProvider = Provider<MedicationsController>(
   MedicationsController.new,
 );
 
+/// One-shot request to open the "add medication" dialog, set by the dashboard
+/// shortcut and consumed by the medications tab once it becomes active (it
+/// listens for this and, on first mount, checks it). Kept out of the widget
+/// tree so the request survives the branch switch that follows it.
+class MedicationAddRequestController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void request() => state = true;
+
+  void consume() => state = false;
+}
+
+final medicationAddRequestProvider =
+    NotifierProvider<MedicationAddRequestController, bool>(
+      MedicationAddRequestController.new,
+    );
+
 /// Medication ids with at least one reminder configured (any enabled
 /// state) — feeds [MedicationReminderFilter].
 final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
