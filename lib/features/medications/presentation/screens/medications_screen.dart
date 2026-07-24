@@ -447,25 +447,29 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         ? reminders.take(_MedicationCard.collapsedLimit).toList()
         : reminders;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 350),
+    // Drive the highlight from a single 0..1 value and derive the border +
+    // glow from it — building the decoration per-frame keeps the fade
+    // monotonic. (AnimatedContainer lerps the whole BoxDecoration, and
+    // interpolating boxShadow toward null flickers brighter near the end.)
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: widget.highlighted ? 1 : 0),
+      duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
-        border: Border.all(
-          color: widget.highlighted
-              ? AppColors.primary
-              : AppColors.transparent,
-          width: 2,
+      builder: (context, t, child) => DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: t),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.35 * t),
+              blurRadius: AppSpacingConstant.r16 * t,
+            ),
+          ],
         ),
-        boxShadow: widget.highlighted
-            ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.35),
-                  blurRadius: AppSpacingConstant.r16,
-                ),
-              ]
-            : null,
+        child: child,
       ),
       child: Card(
         margin: EdgeInsets.zero,
