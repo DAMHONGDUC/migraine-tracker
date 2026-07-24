@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
 import 'dashboard_banner.dart';
+import 'highlighted_time_text.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
 /// current time), tapping through to the Medications tab.
@@ -54,15 +55,23 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
     final time =
         '${reminder.hour.toString().padLeft(2, '0')}:'
         '${reminder.minute.toString().padLeft(2, '0')}';
+    final remaining = _remaining(context, reminder.timeUntil);
+    final subtitle = l10n.dashboardNextReminderBody(
+      reminder.medicationName,
+      time,
+      remaining,
+    );
 
     return DashboardBanner(
       icon: Icons.alarm,
       color: AppColors.secondary,
       title: l10n.dashboardNextReminderTitle,
-      subtitle: l10n.dashboardNextReminderBody(
-        reminder.medicationName,
-        time,
-        _remaining(context, reminder.timeUntil),
+      subtitle: subtitle,
+      // Gently highlight the live countdown within the line.
+      subtitleChild: HighlightedTimeText(
+        full: subtitle,
+        highlight: remaining,
+        color: AppColors.secondary,
       ),
       onTap: () => context.goNamed(AppRoutes.medications.name),
     );

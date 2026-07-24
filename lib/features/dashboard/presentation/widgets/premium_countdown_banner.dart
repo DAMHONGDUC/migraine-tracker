@@ -12,6 +12,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../premium/providers.dart';
+import 'highlighted_time_text.dart';
 
 /// A limited-time premium-discount promo that sits right under the dashboard
 /// app bar and counts down (a "today only" deal — the deadline is local
@@ -108,15 +109,10 @@ class _PremiumCountdownBannerState
                       ),
                       SizedBox(width: AppSpacingConstant.w6),
                       Flexible(
-                        child: Text(
-                          l10n.dashboardSaleEndsIn(_remaining),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyle.bodySmall.secondary.copyWith(
-                            fontFeatures: const [
-                              FontFeature.tabularFigures(),
-                            ],
-                          ),
+                        child: HighlightedTimeText(
+                          full: l10n.dashboardSaleEndsIn(_remaining),
+                          highlight: _remaining,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
