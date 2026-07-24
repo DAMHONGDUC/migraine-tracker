@@ -38,9 +38,9 @@ class DashboardScreen extends ConsumerWidget {
       // A limited-time discount promo pinned right under the app bar.
       if (showPremium) const PremiumCountdownBanner(),
       const DashboardLogButton(),
+      const QuickAccessSection(),
       const WeekSummaryCard(),
       if (nextReminder != null) const NextReminderBanner(),
-      const QuickAccessSection(),
       const DashboardExploreSection(),
     ];
 

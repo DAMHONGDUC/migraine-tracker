@@ -120,7 +120,12 @@ void main() {
     await _settle(tester);
 
     expect(find.text('Next reminder'), findsOneWidget);
-    expect(find.textContaining('Ibuprofen'), findsOneWidget);
+    // The subtitle is a Text.rich (the countdown is highlighted), so match
+    // the rich text too.
+    expect(
+      find.textContaining('Ibuprofen', findRichText: true),
+      findsOneWidget,
+    );
 
     await finishTest(tester);
   });

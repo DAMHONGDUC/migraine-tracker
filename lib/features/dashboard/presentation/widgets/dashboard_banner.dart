@@ -14,6 +14,7 @@ class DashboardBanner extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.subtitleChild,
     super.key,
   });
 
@@ -25,6 +26,11 @@ class DashboardBanner extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+
+  /// Optional rich replacement for the plain [subtitle] Text (e.g. a
+  /// [HighlightedTimeText] emphasising a live countdown). When null the plain
+  /// [subtitle] is shown.
+  final Widget? subtitleChild;
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +63,11 @@ class DashboardBanner extends StatelessWidget {
                   children: [
                     Text(title, style: AppTextStyle.titleMedium),
                     SizedBox(height: AppSpacingConstant.h2),
-                    Text(
-                      subtitle,
-                      style: AppTextStyle.bodySmall.secondary,
-                    ),
+                    subtitleChild ??
+                        Text(
+                          subtitle,
+                          style: AppTextStyle.bodySmall.secondary,
+                        ),
                   ],
                 ),
               ),
