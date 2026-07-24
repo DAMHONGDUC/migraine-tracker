@@ -6,7 +6,9 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../attacks/providers.dart';
 import '../../../medications/providers.dart';
 import '../../../premium/providers.dart';
 import '../widgets/dashboard_explore_section.dart';
@@ -54,19 +56,29 @@ class DashboardScreen extends ConsumerWidget {
         ),
         SizedBox(width: AppSpacingConstant.w12),
       ],
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w24,
-          AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
-          AppSpacingConstant.w24,
-          AppScaffold.bottomNavInset(context) + AppSpacingConstant.h24,
-        ),
-        children: [
-          for (var i = 0; i < sections.length; i++) ...[
-            if (i > 0) SizedBox(height: AppSpacingConstant.h24),
-            sections[i],
+      body: AppRefreshIndicator(
+        onRefresh: () => pullRefresh(() {
+          ref
+            ..invalidate(attacksStreamProvider)
+            ..invalidate(medicationRemindersStreamProvider)
+            ..invalidate(isPremiumProvider)
+            ..invalidate(clockProvider);
+        }),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacingConstant.w24,
+            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
+            AppSpacingConstant.w24,
+            AppScaffold.bottomNavInset(context) + AppSpacingConstant.h24,
+          ),
+          children: [
+            for (var i = 0; i < sections.length; i++) ...[
+              if (i > 0) SizedBox(height: AppSpacingConstant.h24),
+              sections[i],
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
