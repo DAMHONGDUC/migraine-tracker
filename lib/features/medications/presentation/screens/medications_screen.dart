@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -238,6 +239,18 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     await ref.read(medicationsControllerProvider).add(name);
   }
 
+  /// Debug-only: fires a test notification ~10s out and confirms via snackbar.
+  Future<void> _sendTestNotification() async {
+    final l10n = context.l10n;
+    await ref
+        .read(remindersControllerProvider)
+        .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.remindersTestScheduled)));
+  }
+
   @override
   Widget build(BuildContext context) {
     // Handle requests that arrive while this tab is already alive.
@@ -296,6 +309,17 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               SizedBox(width: AppSpacingConstant.w12),
             ]
           : [
+              // Debug-only smoke test for notification delivery (kDebugMode
+              // strips it from release builds entirely).
+              if (kDebugMode)
+                IconButton(
+                  icon: Icon(
+                    Icons.notification_add_outlined,
+                    color: AppColors.secondary,
+                  ),
+                  tooltip: l10n.remindersTestTooltip,
+                  onPressed: _sendTestNotification,
+                ),
               IconButton(
                 icon: Icon(Icons.search, color: AppColors.secondary),
                 tooltip: l10n.medicationsSearchTooltip,

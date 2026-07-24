@@ -308,6 +308,23 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('debug test-notification button reaches the scheduler', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await openMedications(tester);
+
+    expect(app.scheduler.testScheduled, isFalse);
+    await tester.tap(find.byIcon(Icons.notification_add_outlined));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(app.scheduler.testScheduled, isTrue);
+    expect(find.textContaining('Test notification in 10s'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('the reminder filter narrows the list', (tester) async {
     final app = await pumpApp(tester);
     final repo = DriftMedicationRepository(app.db);
