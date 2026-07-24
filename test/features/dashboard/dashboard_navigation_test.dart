@@ -130,6 +130,32 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('tapping the next-reminder banner opens the medication', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+    await DriftMedicationReminderRepository(app.db).upsert(
+      const MedicationReminder(
+        id: 'r1',
+        medicationId: 'm1',
+        minuteOfDay: 9 * 60,
+      ),
+    );
+    await _settle(tester);
+
+    await tester.tap(find.text('Next reminder'));
+    await _settle(tester);
+
+    // Landed on the Medications tab with that medication's card shown.
+    expect(find.text('Medications'), findsWidgets);
+    expect(find.text('Ibuprofen'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('reminder banner opens Medications', (tester) async {
     await pumpApp(tester);
 

@@ -29,6 +29,7 @@ class NextReminderCalculator {
 
     if (best == null) return null;
     return NextReminder(
+      medicationId: best.reminder.medicationId,
       medicationName: best.medicationName,
       minuteOfDay: best.reminder.minuteOfDay,
       timeUntil: bestDelay!,
