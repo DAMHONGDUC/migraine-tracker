@@ -28,6 +28,11 @@ abstract final class AppLogger {
       methodCount: 0,
       errorMethodCount: 8,
       lineLength: 100,
+      // The Flutter/IDE console doesn't render ANSI colors (they'd print as
+      // raw `^[[38;5;12m` escapes) and the box borders just add noise — keep
+      // it plain, one line per log.
+      colors: false,
+      noBoxingByDefault: true,
       dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
     ),
   );
