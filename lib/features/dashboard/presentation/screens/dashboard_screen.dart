@@ -39,8 +39,8 @@ class DashboardScreen extends ConsumerWidget {
       if (showPremium) const PremiumCountdownBanner(),
       const DashboardLogButton(),
       const QuickAccessSection(),
-      const WeekSummaryCard(),
       if (nextReminder != null) const NextReminderBanner(),
+      const WeekSummaryCard(),
       const DashboardExploreSection(),
     ];
 
