@@ -14,28 +14,43 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Surface uncaught framework errors in the dev console (no-op in release).
-  final previousOnError = FlutterError.onError;
-  FlutterError.onError = (details) {
-    previousOnError?.call(details);
-    AppLogger.error(
-      'Flutter framework error',
-      error: details.exception,
-      stackTrace: details.stack,
-    );
-  };
-  assert(AppEnv.hasFirebaseConfig, AppEnv.missingConfigMessage);
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Timezone DB for scheduling daily medication reminders at local wall time.
-  tzdata.initializeTimeZones();
-  final localTz = await FlutterTimezone.getLocalTimezone();
-  tz.setLocalLocation(tz.getLocation(localTz.identifier));
+  await _handleAppInit();
   final prefs = await SharedPreferences.getInstance();
-  AppLogger.info('App started', {'tz': localTz.identifier});
+
   runApp(
     ProviderScope(
       overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       child: const BaroEaseApp(),
     ),
   );
+}
+
+Future<void> _handleAppInit() async {
+  try {
+    final previousOnError = FlutterError.onError;
+    final localTz = await FlutterTimezone.getLocalTimezone();
+
+    FlutterError.onError = (details) {
+      previousOnError?.call(details);
+      AppLogger.error(
+        'Flutter framework error',
+        error: details.exception,
+        stackTrace: details.stack,
+      );
+    };
+
+    assert(AppEnv.hasFirebaseConfig, AppEnv.missingConfigMessage);
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Timezone DB for scheduling daily medication reminders at local wall time.
+    tzdata.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation(localTz.identifier));
+
+    AppLogger.info('App started', {'tz': localTz.identifier});
+  } catch (err) {
+    AppLogger.error('App started', error: err);
+  }
 }
