@@ -187,6 +187,14 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestSoundPermission: false,
+        // Present reminders while the app is in the FOREGROUND. These defaults
+        // drive the plugin's own willPresent handler (it owns the notification
+        // delegate); without them iOS silently drops foreground notifications
+        // and reminders only show when backgrounded.
+        defaultPresentAlert: true,
+        defaultPresentSound: true,
+        defaultPresentBanner: true,
+        defaultPresentList: true,
       ),
     ),
   );
