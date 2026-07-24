@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -64,12 +66,36 @@ class MedicationsScreen extends ConsumerStatefulWidget {
 class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   bool _handlingAdd = false;
 
+  final ScrollController _scrollController = ScrollController();
+
+  /// One key per medication card, so the highlight flow can scroll a card
+  /// into view via [Scrollable.ensureVisible].
+  final Map<String, GlobalKey> _cardKeys = {};
+
+  /// The card currently flashing its highlight (from the dashboard's
+  /// next-reminder tap), or null.
+  String? _highlightedId;
+  Timer? _highlightTimer;
+
+  /// Rough per-card height, used only to jump a not-yet-built target near the
+  /// viewport so its key resolves before the precise ensureVisible.
+  static double get _estimatedCardExtent => AppSpacingConstant.h96;
+
   @override
   void initState() {
     super.initState();
-    // The dashboard's "Add medication" shortcut may have set the request
-    // before this tab was ever built — pick it up on first mount.
+    // The dashboard shortcuts may have set a request before this tab was ever
+    // built — pick them up on first mount.
     if (ref.read(medicationAddRequestProvider)) _handleAddRequest();
+    final highlightId = ref.read(medicationHighlightProvider);
+    if (highlightId != null) _handleHighlightRequest(highlightId);
+  }
+
+  @override
+  void dispose() {
+    _highlightTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   /// Consumes a pending "add medication" request and opens the dialog, once,
@@ -84,6 +110,47 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     });
   }
 
+  /// Scrolls the requested medication's card into view and flashes its
+  /// highlight for a second, then clears it.
+  void _handleHighlightRequest(String medicationId) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(medicationHighlightProvider.notifier).consume();
+      if (!mounted) return;
+      setState(() => _highlightedId = medicationId);
+      await _scrollToCard(medicationId);
+      _highlightTimer?.cancel();
+      _highlightTimer = Timer(const Duration(seconds: 1), () {
+        if (mounted) setState(() => _highlightedId = null);
+      });
+    });
+  }
+
+  Future<void> _scrollToCard(String medicationId) async {
+    var cardContext = _cardKeys[medicationId]?.currentContext;
+    // If the target isn't built yet, jump roughly to its index so it builds.
+    if (cardContext == null && _scrollController.hasClients) {
+      final meds = ref.read(filteredMedicationsProvider);
+      final index = meds.indexWhere((m) => m.id == medicationId);
+      if (index >= 0) {
+        _scrollController.jumpTo(
+          (index * _estimatedCardExtent)
+              .clamp(0.0, _scrollController.position.maxScrollExtent),
+        );
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted) return;
+        cardContext = _cardKeys[medicationId]?.currentContext;
+      }
+    }
+    if (cardContext != null && cardContext.mounted) {
+      await Scrollable.ensureVisible(
+        cardContext,
+        alignment: 0.1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
   Future<void> _add() async {
     final name = await showMedicationNameDialog(context);
     if (name == null) return;
@@ -95,6 +162,9 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     // Handle requests that arrive while this tab is already alive.
     ref.listen(medicationAddRequestProvider, (_, next) {
       if (next) _handleAddRequest();
+    });
+    ref.listen(medicationHighlightProvider, (_, next) {
+      if (next != null) _handleHighlightRequest(next);
     });
     final l10n = context.l10n;
     final medications = ref.watch(filteredMedicationsProvider);
@@ -191,6 +261,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                         ),
                       )
                     : ListView.separated(
+                        controller: _scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           AppSpacingConstant.w16,
@@ -201,8 +272,17 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                         itemCount: medications.length,
                         separatorBuilder: (_, _) =>
                             SizedBox(height: AppSpacingConstant.h8),
-                        itemBuilder: (context, index) =>
-                            _MedicationCard(medication: medications[index]),
+                        itemBuilder: (context, index) {
+                          final medication = medications[index];
+                          return _MedicationCard(
+                            key: _cardKeys.putIfAbsent(
+                              medication.id,
+                              GlobalKey.new,
+                            ),
+                            medication: medication,
+                            highlighted: medication.id == _highlightedId,
+                          );
+                        },
                       ),
               ),
             ),
@@ -214,9 +294,17 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
 }
 
 class _MedicationCard extends ConsumerStatefulWidget {
-  const _MedicationCard({required this.medication});
+  const _MedicationCard({
+    required this.medication,
+    this.highlighted = false,
+    super.key,
+  });
 
   final Medication medication;
+
+  /// Briefly flashed (a primary border + glow) when the user jumped here from
+  /// the dashboard's next-reminder banner.
+  final bool highlighted;
 
   /// Reminders beyond this many start collapsed — a med taken 4+ times a
   /// day is rare, and the "Add reminder" action should stay reachable
@@ -344,11 +432,32 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         ? reminders.take(_MedicationCard.collapsedLimit).toList()
         : reminders;
 
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.medication_outlined),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+        border: Border.all(
+          color: widget.highlighted
+              ? AppColors.primary
+              : AppColors.transparent,
+          width: 2,
+        ),
+        boxShadow: widget.highlighted
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  blurRadius: AppSpacingConstant.r16,
+                ),
+              ]
+            : null,
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.medication_outlined),
             title: Text(
               widget.medication.name,
               style: AppTextStyle.titleMedium,
@@ -383,6 +492,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

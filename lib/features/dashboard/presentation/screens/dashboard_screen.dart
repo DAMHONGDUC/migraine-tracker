@@ -31,6 +31,9 @@ class DashboardScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final showPremium = !ref.watch(hasPremiumProvider);
     final nextReminder = ref.watch(nextReminderProvider);
+    // Data-driven sections only show once there's something to show.
+    final hasAttacks =
+        ref.watch(attacksStreamProvider).value?.isNotEmpty ?? false;
 
     // Only the sections that should show, in order — gaps are inserted between
     // them below so a hidden section never leaves a double gap.
@@ -40,7 +43,7 @@ class DashboardScreen extends ConsumerWidget {
       const DashboardLogButton(),
       const QuickAccessSection(),
       if (nextReminder != null) const NextReminderBanner(),
-      const WeekSummaryCard(),
+      if (hasAttacks) const WeekSummaryCard(),
       const DashboardExploreSection(),
     ];
 

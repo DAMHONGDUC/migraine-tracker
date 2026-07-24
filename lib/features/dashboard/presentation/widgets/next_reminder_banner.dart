@@ -73,7 +73,13 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
         highlight: remaining,
         color: AppColors.secondary,
       ),
-      onTap: () => context.goNamed(AppRoutes.medications.name),
+      onTap: () {
+        // Ask the Medications tab to scroll to + flash this reminder's card.
+        ref
+            .read(medicationHighlightProvider.notifier)
+            .request(reminder.medicationId);
+        context.goNamed(AppRoutes.medications.name);
+      },
     );
   }
 

@@ -5,11 +5,15 @@ import 'package:meta/meta.dart';
 @immutable
 class NextReminder {
   const NextReminder({
+    required this.medicationId,
     required this.medicationName,
     required this.minuteOfDay,
     required this.timeUntil,
   });
 
+  /// The medication this reminder belongs to — used to scroll/highlight its
+  /// card on the Medications tab.
+  final String medicationId;
   final String medicationName;
 
   /// Local time-of-day of the reminder, minutes past midnight (0–1439).

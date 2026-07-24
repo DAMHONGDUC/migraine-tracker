@@ -75,6 +75,23 @@ final medicationAddRequestProvider =
       MedicationAddRequestController.new,
     );
 
+/// One-shot request to scroll to and briefly highlight a medication's card,
+/// set when the dashboard's next-reminder banner is tapped and consumed by the
+/// Medications tab once it's active. Holds the target medication id, or null.
+class MedicationHighlightController extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void request(String medicationId) => state = medicationId;
+
+  void consume() => state = null;
+}
+
+final medicationHighlightProvider =
+    NotifierProvider<MedicationHighlightController, String?>(
+      MedicationHighlightController.new,
+    );
+
 /// Medication ids with at least one reminder configured (any enabled
 /// state) — feeds [MedicationReminderFilter].
 final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
