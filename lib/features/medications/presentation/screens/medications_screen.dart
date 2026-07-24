@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_filter_sheet.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -175,24 +176,35 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               ),
             ),
             Expanded(
-              child: medications.isEmpty
-                  ? EmptyState(
-                      icon: Icons.medication_outlined,
-                      message: l10n.medicationsEmpty,
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.fromLTRB(
-                        AppSpacingConstant.w16,
-                        0,
-                        AppSpacingConstant.w16,
-                        AppSpacingConstant.w16,
+              child: AppRefreshIndicator(
+                edgeOffset: 0,
+                onRefresh: () => pullRefresh(() {
+                  ref
+                    ..invalidate(medicationsStreamProvider)
+                    ..invalidate(medicationRemindersStreamProvider);
+                }),
+                child: medications.isEmpty
+                    ? ScrollFill(
+                        child: EmptyState(
+                          icon: Icons.medication_outlined,
+                          message: l10n.medicationsEmpty,
+                        ),
+                      )
+                    : ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                          AppSpacingConstant.w16,
+                          0,
+                          AppSpacingConstant.w16,
+                          AppSpacingConstant.w16,
+                        ),
+                        itemCount: medications.length,
+                        separatorBuilder: (_, _) =>
+                            SizedBox(height: AppSpacingConstant.h8),
+                        itemBuilder: (context, index) =>
+                            _MedicationCard(medication: medications[index]),
                       ),
-                      itemCount: medications.length,
-                      separatorBuilder: (_, _) =>
-                          SizedBox(height: AppSpacingConstant.h8),
-                      itemBuilder: (context, index) =>
-                          _MedicationCard(medication: medications[index]),
-                    ),
+              ),
             ),
           ],
         ),
