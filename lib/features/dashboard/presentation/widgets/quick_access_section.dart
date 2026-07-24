@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../history/domain/enums/history_view_mode.dart';
+import '../../../history/providers.dart';
 
-/// Row of shortcuts to the other tabs (History, the insights chart, and
-/// Medications). Each card switches the shell's active branch via go_router
-/// rather than pushing a new route, so the bottom nav stays in sync.
-class QuickAccessSection extends StatelessWidget {
+/// Quick access to the two History visualisations. Each card sets the History
+/// view mode, then switches to that branch via go_router, so tapping "Calendar"
+/// lands directly on the calendar (not the default list).
+class QuickAccessSection extends ConsumerWidget {
   const QuickAccessSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+
+    void openHistory(HistoryViewMode mode) {
+      ref.read(historyViewModeProvider.notifier).select(mode);
+      context.goNamed(AppRoutes.history.name);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,28 +39,19 @@ class QuickAccessSection extends StatelessWidget {
           children: [
             Expanded(
               child: _QuickAccessCard(
-                // Distinct from the bottom nav's calendar/insights/medication
-                // icons on purpose — a shared icon would read as the same
-                // control twice (and makes byIcon finders ambiguous in tests).
-                icon: Icons.history,
-                label: l10n.navHistory,
-                onTap: () => context.goNamed(AppRoutes.history.name),
+                // Distinct from the bottom nav's calendar_month_outlined so
+                // byIcon finders stay unambiguous (see the byicon gotcha).
+                icon: Icons.calendar_today_outlined,
+                label: l10n.dashboardCalendarShortcut,
+                onTap: () => openHistory(HistoryViewMode.calendar),
               ),
             ),
             SizedBox(width: AppSpacingConstant.w12),
             Expanded(
               child: _QuickAccessCard(
-                icon: Icons.show_chart,
-                label: l10n.navInsights,
-                onTap: () => context.goNamed(AppRoutes.insights.name),
-              ),
-            ),
-            SizedBox(width: AppSpacingConstant.w12),
-            Expanded(
-              child: _QuickAccessCard(
-                icon: Icons.medical_services_outlined,
-                label: l10n.navMedications,
-                onTap: () => context.goNamed(AppRoutes.medications.name),
+                icon: Icons.bar_chart,
+                label: l10n.dashboardChartShortcut,
+                onTap: () => openHistory(HistoryViewMode.chart),
               ),
             ),
           ],

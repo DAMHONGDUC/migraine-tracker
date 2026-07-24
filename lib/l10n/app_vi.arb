@@ -193,5 +193,14 @@
   "dashboardAvgIntensity": "Cường độ TB {value}",
   "dashboardQuickAccess": "Truy cập nhanh",
   "dashboardPremiumTitle": "Mở khóa Premium",
-  "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn."
+  "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn.",
+  "dashboardCalendarShortcut": "Lịch",
+  "dashboardChartShortcut": "Biểu đồ",
+  "dashboardExplore": "Khám phá",
+  "dashboardReminderTitle": "Nhắc uống thuốc",
+  "dashboardReminderBody": "Đừng bỏ lỡ liều nào — đặt nhắc nhở cho thuốc của bạn.",
+  "dashboardInsightsBannerTitle": "Phân tích áp suất & cơn đau",
+  "dashboardInsightsBannerBody": "Xem áp suất thời tiết liên quan thế nào tới cơn đau của bạn.",
+  "dashboardExportTitle": "Xuất dữ liệu",
+  "dashboardExportBody": "Chia sẻ JSON, CSV hoặc báo cáo PDF cho bác sĩ."
 }
