@@ -512,6 +512,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
     final dateTimeNow = DateTime.now();
     final time = await showAppTimePickerSheet(
       context,
+      title: l10n.remindersAdd,
       initialTime: TimeOfDay(
         hour: dateTimeNow.hour,
         minute: dateTimeNow.minute,
@@ -669,6 +670,28 @@ class _ReminderRow extends ConsumerWidget {
 
   final MedicationReminderView view;
 
+  /// Opens the wheel picker pre-filled with this reminder's time; on confirm,
+  /// updates the time and reschedules the notification.
+  Future<void> _editTime(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final reminder = view.reminder;
+    final picked = await showAppTimePickerSheet(
+      context,
+      title: l10n.remindersEditTitle,
+      initialTime: TimeOfDay(hour: reminder.hour, minute: reminder.minute),
+    );
+    if (picked == null || !context.mounted) return;
+    await ref
+        .read(remindersControllerProvider)
+        .updateTime(
+          reminder,
+          medicationName: view.medicationName,
+          minuteOfDay: picked.hour * 60 + picked.minute,
+          notificationTitle: l10n.reminderNotificationTitle,
+          notificationBody: l10n.reminderNotificationBody('{name}'),
+        );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
@@ -683,6 +706,8 @@ class _ReminderRow extends ConsumerWidget {
 
     return ListTile(
       dense: true,
+      // Tap the row to change the time (the switch/delete keep their own taps).
+      onTap: () => _editTime(context, ref),
       leading: const Icon(Icons.alarm),
       title: Text(time),
       trailing: Row(

@@ -707,6 +707,10 @@
   "@remindersPickTimeTitle": {
     "description": "Title of the custom hour/minute wheel picker sheet for a reminder's time"
   },
+  "remindersEditTitle": "Edit reminder",
+  "@remindersEditTitle": {
+    "description": "Title of the time picker sheet when changing an existing reminder's time"
+  },
   "remindersHourLabel": "Hour",
   "@remindersHourLabel": {
     "description": "Accessibility label prefix for each row of the time picker's hour wheel"

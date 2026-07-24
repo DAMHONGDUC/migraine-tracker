@@ -50,6 +50,33 @@ class RemindersController {
     return true;
   }
 
+  /// Changes an existing reminder's time of day and reschedules its
+  /// notification (which fires at the new time). A disabled reminder just
+  /// updates its stored time — [NotificationScheduler.schedule] cancels the
+  /// old one and skips scheduling until it's re-enabled.
+  Future<void> updateTime(
+    MedicationReminder reminder, {
+    required String medicationName,
+    required int minuteOfDay,
+    required String notificationTitle,
+    required String notificationBody,
+  }) async {
+    AppLogger.action('Edit reminder time', {
+      'id': reminder.id,
+      'minuteOfDay': minuteOfDay,
+    });
+    final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
+    await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
+    await _ref
+        .read(notificationSchedulerProvider)
+        .schedule(
+          updated,
+          medicationName: medicationName,
+          title: notificationTitle,
+          bodyTemplate: notificationBody,
+        );
+  }
+
   Future<void> setEnabled(
     MedicationReminder reminder, {
     required String medicationName,

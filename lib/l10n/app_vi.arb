@@ -158,6 +158,7 @@
   "alertsErrorGeneric": "Không thể cập nhật cảnh báo. Vui lòng thử lại.",
   "remindersAdd": "Thêm lời nhắc",
   "remindersPickTimeTitle": "Giờ nhắc nhở",
+  "remindersEditTitle": "Sửa lời nhắc",
   "remindersHourLabel": "Giờ",
   "remindersMinuteLabel": "Phút",
   "remindersPermissionDenied": "Cần quyền thông báo để đặt lời nhắc.",

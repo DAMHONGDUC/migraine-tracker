@@ -11,11 +11,12 @@ import 'app_bottom_sheet.dart';
 Future<TimeOfDay?> showAppTimePickerSheet(
   BuildContext context, {
   required TimeOfDay initialTime,
+  String? title,
 }) {
   return showAppBottomSheet<TimeOfDay>(
     context,
     isScrollControlled: true,
-    builder: (_) => AppTimePickerSheet(initialTime: initialTime),
+    builder: (_) => AppTimePickerSheet(initialTime: initialTime, title: title),
   );
 }
 
@@ -29,9 +30,14 @@ Future<TimeOfDay?> showAppTimePickerSheet(
 /// `showAppBottomSheet` entirely, so it never picked up this app's calm
 /// fade-in chrome or its `#1C1C1E`-family dark surface (hard rule 3).
 class AppTimePickerSheet extends StatefulWidget {
-  const AppTimePickerSheet({required this.initialTime, super.key});
+  const AppTimePickerSheet({required this.initialTime, this.title, super.key});
 
   final TimeOfDay initialTime;
+
+  /// Sheet heading. Defaults to the generic "Reminder time" when null so the
+  /// caller can name the action instead (e.g. "Add reminder" / "Edit
+  /// reminder").
+  final String? title;
 
   /// Row height shared by both wheels and the selection band behind them —
   /// must match for the band to sit exactly behind the centered row.
@@ -84,7 +90,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                 ),
                 Expanded(
                   child: Text(
-                    l10n.remindersPickTimeTitle,
+                    widget.title ?? l10n.remindersPickTimeTitle,
                     textAlign: TextAlign.center,
                     style: AppTextStyle.titleMedium,
                   ),
