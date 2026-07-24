@@ -21,8 +21,10 @@ Future<void> _seedMedications(AppDatabase db, int count) async {
   }
 }
 
-/// Walks intensity → location → medication and stops on the medication step.
+/// Opens the log flow from the dashboard, walks intensity → location →
+/// medication, and stops on the medication step.
 Future<void> _toMedicationStep(WidgetTester tester) async {
+  await openLog(tester);
   await tester.tap(find.text('7'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

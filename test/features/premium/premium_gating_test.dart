@@ -127,14 +127,18 @@ void main() {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
-      // Logging works.
-      expect(find.text('How intense is the pain?'), findsOneWidget);
-
       await openSettings(tester);
       expect(find.text('Export data'), findsOneWidget);
 
       await openMedications(tester);
       expect(find.text('Medications'), findsOneWidget);
+
+      // Logging works — reachable from the dashboard's hero button.
+      await tester.tap(find.byIcon(Icons.home_outlined));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await openLog(tester);
+      expect(find.text('How intense is the pain?'), findsOneWidget);
 
       await finishTest(tester);
     });

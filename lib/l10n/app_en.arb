@@ -125,6 +125,22 @@
   "@medicationsTitle": {
     "description": "App bar title of the medications tab"
   },
+  "medicationsSearchTooltip": "Search medications",
+  "@medicationsSearchTooltip": {
+    "description": "Tooltip on the search icon button in the medications tab app bar"
+  },
+  "medicationsSearchHint": "Search medications",
+  "@medicationsSearchHint": {
+    "description": "Placeholder text inside the medications search field"
+  },
+  "medicationsSearchClear": "Clear search",
+  "@medicationsSearchClear": {
+    "description": "Tooltip on the button that clears the medications search field"
+  },
+  "medicationsSearchEmpty": "No medications match your search.",
+  "@medicationsSearchEmpty": {
+    "description": "Empty state shown in the medications tab when a name search matches nothing"
+  },
   "medicationsEmpty": "No medications yet.",
   "@medicationsEmpty": {
     "description": "Shown in the medications tab when no medications match the current filters (or none exist yet)"
@@ -818,5 +834,163 @@
   "a11yViewChart": "Chart view",
   "@a11yViewChart": {
     "description": "VoiceOver label for the chart segment of the history view toggle"
+  },
+  "navDashboard": "Home",
+  "@navDashboard": {
+    "description": "Bottom navigation label for the dashboard/home tab"
+  },
+  "dashboardGreeting": "Hi there",
+  "@dashboardGreeting": {
+    "description": "Dashboard app bar greeting shown when the user is not signed in"
+  },
+  "dashboardSignIn": "Sign in",
+  "@dashboardSignIn": {
+    "description": "Dashboard app bar button that leads to sign-in (in Settings)"
+  },
+  "dashboardLogButton": "Log an attack",
+  "@dashboardLogButton": {
+    "description": "Big primary call-to-action on the dashboard that opens the 3-tap log flow"
+  },
+  "dashboardLogButtonSubtitle": "Track a migraine in 3 taps",
+  "@dashboardLogButtonSubtitle": {
+    "description": "Supporting line under the dashboard log button"
+  },
+  "dashboardThisWeek": "This week",
+  "@dashboardThisWeek": {
+    "description": "Title of the weekly summary card on the dashboard"
+  },
+  "dashboardAttacksCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "@dashboardAttacksCount": {
+    "description": "Attack count for the current week on the dashboard summary card",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "dashboardTrendUp": "{count, plural, =1{1 more than last week} other{{count} more than last week}}",
+  "@dashboardTrendUp": {
+    "description": "Weekly trend caption when this week has more attacks than last week",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "dashboardTrendDown": "{count, plural, =1{1 fewer than last week} other{{count} fewer than last week}}",
+  "@dashboardTrendDown": {
+    "description": "Weekly trend caption when this week has fewer attacks than last week",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "dashboardTrendSame": "Same as last week",
+  "@dashboardTrendSame": {
+    "description": "Weekly trend caption when this week matches last week"
+  },
+  "dashboardAvgIntensity": "Avg intensity {value}",
+  "@dashboardAvgIntensity": {
+    "description": "Average pain intensity for the week on the dashboard summary card",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "dashboardQuickAccess": "Quick access",
+  "@dashboardQuickAccess": {
+    "description": "Section header above the dashboard quick-access shortcuts"
+  },
+  "dashboardPremiumTitle": "Unlock Premium",
+  "@dashboardPremiumTitle": {
+    "description": "Title of the premium promo card on the dashboard"
+  },
+  "dashboardPremiumBody": "Pressure alerts, the 48h forecast chart, and your trigger analysis.",
+  "@dashboardPremiumBody": {
+    "description": "Body of the premium promo card on the dashboard"
+  },
+  "dashboardCalendarShortcut": "Calendar",
+  "@dashboardCalendarShortcut": {
+    "description": "Dashboard quick-access card opening History in calendar view"
+  },
+  "dashboardChartShortcut": "Chart",
+  "@dashboardChartShortcut": {
+    "description": "Dashboard quick-access card opening History in chart view"
+  },
+  "dashboardAddMedication": "Add medication",
+  "@dashboardAddMedication": {
+    "description": "Dashboard quick-access card that opens Medications and starts adding one"
+  },
+  "dashboardExplore": "Explore",
+  "@dashboardExplore": {
+    "description": "Section header above the dashboard feature banners"
+  },
+  "dashboardReminderTitle": "Medication reminders",
+  "@dashboardReminderTitle": {
+    "description": "Title of the dashboard banner promoting medication reminders"
+  },
+  "dashboardReminderBody": "Never miss a dose — set reminders for your medications.",
+  "@dashboardReminderBody": {
+    "description": "Body of the dashboard medication-reminders banner"
+  },
+  "dashboardInsightsBannerTitle": "Pressure & pain insights",
+  "@dashboardInsightsBannerTitle": {
+    "description": "Title of the dashboard banner linking to Insights"
+  },
+  "dashboardInsightsBannerBody": "See how weather pressure lines up with your migraines.",
+  "@dashboardInsightsBannerBody": {
+    "description": "Body of the dashboard Insights banner"
+  },
+  "dashboardExportTitle": "Export your data",
+  "@dashboardExportTitle": {
+    "description": "Title of the dashboard banner linking to data export in Settings"
+  },
+  "dashboardExportBody": "Share a JSON, CSV, or a PDF report for your doctor.",
+  "@dashboardExportBody": {
+    "description": "Body of the dashboard export banner"
+  },
+  "dashboardNextReminderTitle": "Next reminder",
+  "@dashboardNextReminderTitle": {
+    "description": "Title of the dashboard banner showing the soonest medication reminder"
+  },
+  "dashboardNextReminderBody": "{name} at {time} · {remaining}",
+  "@dashboardNextReminderBody": {
+    "description": "Body of the next-reminder banner: medication name, time, and time remaining",
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "remaining": {"type": "String"}
+    }
+  },
+  "dashboardRemainingHm": "in {hours}h {minutes}m",
+  "@dashboardRemainingHm": {
+    "description": "Time remaining until the next reminder, hours and minutes",
+    "placeholders": {
+      "hours": {"type": "int"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "dashboardRemainingH": "in {hours}h",
+  "@dashboardRemainingH": {
+    "description": "Time remaining until the next reminder, whole hours",
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "dashboardRemainingM": "in {minutes}m",
+  "@dashboardRemainingM": {
+    "description": "Time remaining until the next reminder, minutes only",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "dashboardRemainingSoon": "soon",
+  "@dashboardRemainingSoon": {
+    "description": "Shown when the next reminder is less than a minute away"
+  },
+  "dashboardSaleTitle": "50% off Premium",
+  "@dashboardSaleTitle": {
+    "description": "Title of the limited-time premium discount banner on the dashboard"
+  },
+  "dashboardSaleEndsIn": "Ends in {time}",
+  "@dashboardSaleEndsIn": {
+    "description": "Countdown line on the premium sale banner; time is HH:MM:SS",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
   }
 }

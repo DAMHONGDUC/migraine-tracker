@@ -35,13 +35,6 @@ final logControllerProvider = NotifierProvider<LogController, LogFlowState>(
   LogController.new,
 );
 
-/// True from the second tap onward (location/medication): the shell swaps
-/// the bottom nav for a tracking progress bar and the app bar shows Cancel.
-final logFlowInProgressProvider = Provider<bool>((ref) {
-  final step = ref.watch(logControllerProvider).step;
-  return step == LogStep.location || step == LogStep.medication;
-});
-
 /// Edits/deletes an already-logged attack (see [AttackDetailController]).
 final attackDetailControllerProvider = Provider<AttackDetailController>(
   AttackDetailController.new,

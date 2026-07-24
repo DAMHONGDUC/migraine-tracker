@@ -1,3 +1,4 @@
+import '../../../../core/logging/app_logger.dart';
 import '../../../weather/domain/repositories/weather_repository.dart';
 import '../entities/attack.dart';
 import '../repositories/attack_repository.dart';
@@ -16,11 +17,17 @@ class WeatherAttachService {
   Future<void> onAttackLogged(Attack attack) async {
     try {
       final snapshot = await _weather.snapshotAt(attack.startedAt);
-      if (snapshot == null) return;
+      if (snapshot == null) {
+        AppLogger.info('No weather snapshot yet; will backfill', attack.id);
+        return;
+      }
       await _attacks.attachWeather(attack.id, snapshot);
+      AppLogger.info('Weather attached to attack', attack.id);
       await backfillMissing();
-    } on Exception {
+    } on Exception catch (error, stackTrace) {
       // Swallow: the attack is already saved; weather comes later.
+      AppLogger.warning('Weather attach failed (will retry later)', error);
+      AppLogger.debug('Weather attach stack', stackTrace);
     }
   }
 

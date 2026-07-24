@@ -8,11 +8,13 @@ import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'data/services/local_notification_scheduler.dart';
 import 'domain/entities/medication.dart';
+import 'domain/entities/next_reminder.dart';
 import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
 import 'domain/repositories/medication_repository.dart';
 import 'domain/services/medication_filterer.dart';
 import 'domain/services/medication_ranking.dart';
+import 'domain/services/next_reminder_calculator.dart';
 import 'domain/services/notification_scheduler.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
@@ -55,6 +57,58 @@ final medicationsControllerProvider = Provider<MedicationsController>(
   MedicationsController.new,
 );
 
+/// One-shot request to open the "add medication" dialog, set by the dashboard
+/// shortcut and consumed by the medications tab once it becomes active (it
+/// listens for this and, on first mount, checks it). Kept out of the widget
+/// tree so the request survives the branch switch that follows it.
+class MedicationAddRequestController extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void request() => state = true;
+
+  void consume() => state = false;
+}
+
+final medicationAddRequestProvider =
+    NotifierProvider<MedicationAddRequestController, bool>(
+      MedicationAddRequestController.new,
+    );
+
+/// Free-text search over medication names, driven by the search field in the
+/// medications tab app bar. Narrows [filteredMedicationsProvider] on top of the
+/// three filter axes. Empty string = not searching.
+class MedicationSearchController extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void setQuery(String value) => state = value;
+
+  void clear() => state = '';
+}
+
+final medicationSearchProvider =
+    NotifierProvider<MedicationSearchController, String>(
+      MedicationSearchController.new,
+    );
+
+/// One-shot request to scroll to and briefly highlight a medication's card,
+/// set when the dashboard's next-reminder banner is tapped and consumed by the
+/// Medications tab once it's active. Holds the target medication id, or null.
+class MedicationHighlightController extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void request(String medicationId) => state = medicationId;
+
+  void consume() => state = null;
+}
+
+final medicationHighlightProvider =
+    NotifierProvider<MedicationHighlightController, String?>(
+      MedicationHighlightController.new,
+    );
+
 /// Medication ids with at least one reminder configured (any enabled
 /// state) — feeds [MedicationReminderFilter].
 final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
@@ -84,13 +138,21 @@ final filteredMedicationsProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
   final filters = ref.watch(medicationFiltersProvider);
-  return const MedicationFilterer().apply(
+  final filtered = const MedicationFilterer().apply(
     medications,
     filters,
     now: DateTime.now(),
     reminderMedicationIds: ref.watch(_medicationIdsWithRemindersProvider),
     everUsedNames: ref.watch(_everUsedMedicationNamesProvider),
   );
+  // Free-text name search narrows the filtered result further (case- and
+  // whitespace-insensitive). Applied here, on top of the enum filters, so the
+  // filterer stays a pure enum-axis engine.
+  final query = ref.watch(medicationSearchProvider).trim().toLowerCase();
+  if (query.isEmpty) return filtered;
+  return filtered
+      .where((medication) => medication.name.toLowerCase().contains(query))
+      .toList();
 });
 
 final medicationReminderRepositoryProvider =
@@ -135,3 +197,16 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
 final remindersControllerProvider = Provider<RemindersController>(
   RemindersController.new,
 );
+
+/// The soonest upcoming enabled reminder relative to now, for the dashboard's
+/// next-reminder banner; null when nothing is scheduled. Recomputes when the
+/// reminders change. The dashboard uses this to decide whether to show the
+/// banner; the banner itself re-ticks the live countdown on a widget-owned
+/// timer (a stream-driven clock here would invalidate this during layout and
+/// crash — see NextReminderBanner).
+final nextReminderProvider = Provider<NextReminder?>((ref) {
+  final views =
+      ref.watch(medicationRemindersStreamProvider).value ??
+      const <MedicationReminderView>[];
+  return const NextReminderCalculator().compute(views, now: DateTime.now());
+});

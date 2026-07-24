@@ -47,6 +47,8 @@ abstract final class AppSpacingConstant {
   static double get h56 => 56.h;
   static double get h62 => 62.h;
   static double get h68 => 68.h;
+  static double get h96 => 96.h;
+  static double get h108 => 108.h;
   static double get h160 => 160.h;
   static double get h200 => 200.h;
 
@@ -62,6 +64,7 @@ abstract final class AppSpacingConstant {
   static double get r24 => 24.r;
   static double get r26 => 26.r;
   static double get r28 => 28.r;
+  static double get r44 => 44.r;
   static double get r64 => 64.r;
   static double get r88 => 88.r;
   static double get r999 => 999.r;

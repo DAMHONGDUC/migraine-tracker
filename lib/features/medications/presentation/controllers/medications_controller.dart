@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/medication.dart';
 import '../../providers.dart';
 
@@ -14,30 +15,41 @@ class MedicationsController {
   static const _uuid = Uuid();
 
   /// Adds a brand-new medication, stamping `createdAt` now.
-  Future<void> add(String name) => _ref
-      .read(medicationRepositoryProvider)
-      .upsert(
-        Medication(id: _uuid.v4(), name: name, createdAt: DateTime.now().toUtc()),
-      );
+  Future<void> add(String name) {
+    AppLogger.action('Add medication', name);
+    return _ref
+        .read(medicationRepositoryProvider)
+        .upsert(
+          Medication(
+            id: _uuid.v4(),
+            name: name,
+            createdAt: DateTime.now().toUtc(),
+          ),
+        );
+  }
 
   /// Renames [medication] without disturbing its `createdAt` — the caller
   /// already holds the existing entity, so its creation date just passes
   /// through untouched.
-  Future<void> rename(Medication medication, String newName) => _ref
-      .read(medicationRepositoryProvider)
-      .upsert(
-        Medication(
-          id: medication.id,
-          name: newName,
-          createdAt: medication.createdAt,
-        ),
-      );
+  Future<void> rename(Medication medication, String newName) {
+    AppLogger.action('Rename medication', '${medication.name} → $newName');
+    return _ref
+        .read(medicationRepositoryProvider)
+        .upsert(
+          Medication(
+            id: medication.id,
+            name: newName,
+            createdAt: medication.createdAt,
+          ),
+        );
+  }
 
   /// Deletes the medication. Its reminders cascade at the DB level, but that
   /// cascade doesn't reach the OS — every enabled reminder's scheduled
   /// notification is cancelled first, or it would keep firing for a
   /// medication that no longer exists.
   Future<void> delete(String medicationId) async {
+    AppLogger.action('Delete medication', medicationId);
     final enabledReminders = await _ref
         .read(medicationReminderRepositoryProvider)
         .getAllEnabled();

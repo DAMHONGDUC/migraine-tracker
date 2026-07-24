@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/glass/liquid_glass_theme.dart';
@@ -66,10 +67,16 @@ class HistoryScreen extends HookConsumerWidget {
       ],
       // No outer top padding: each view pads INSIDE its own scrollable, so
       // the content scrolls behind the translucent app bar and blurs out.
-      body: switch (allAttacks) {
-        AsyncData(value: final all) when all.isEmpty => EmptyState(
-          icon: Icons.event_note_outlined,
-          message: l10n.historyEmpty,
+      body: AppRefreshIndicator(
+        onRefresh: () =>
+            pullRefresh(() => ref.invalidate(attacksStreamProvider)),
+        child: switch (allAttacks) {
+        AsyncData(value: final all) when all.isEmpty => ScrollFill(
+          topInset: AppScaffold.bodyTopInset(context),
+          child: EmptyState(
+            icon: Icons.event_note_outlined,
+            message: l10n.historyEmpty,
+          ),
         ),
         AsyncData(value: final all) => Builder(
           builder: (context) {
@@ -114,12 +121,16 @@ class HistoryScreen extends HookConsumerWidget {
             );
           },
         ),
-        AsyncError() => EmptyState(
-          icon: Icons.event_note_outlined,
-          message: l10n.historyEmpty,
+        AsyncError() => ScrollFill(
+          topInset: AppScaffold.bodyTopInset(context),
+          child: EmptyState(
+            icon: Icons.event_note_outlined,
+            message: l10n.historyEmpty,
+          ),
         ),
         _ => const Center(child: CircularProgressIndicator()),
-      },
+        },
+      ),
     );
   }
 }

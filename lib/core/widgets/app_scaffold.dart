@@ -19,6 +19,7 @@ class AppScaffold extends StatelessWidget {
     this.leading,
     this.appBarBottom,
     this.floatingActionButton,
+    this.bottomNavigationBar,
     super.key,
   });
 
@@ -28,6 +29,11 @@ class AppScaffold extends StatelessWidget {
   final Widget? leading;
   final PreferredSizeWidget? appBarBottom;
   final Widget? floatingActionButton;
+
+  /// A bottom bar (e.g. the log flow's floating step progress). When set and
+  /// glass is on, the body extends behind it so it refracts through the glass;
+  /// pad the body's bottom by [bottomNavInset] so its last item clears it.
+  final Widget? bottomNavigationBar;
 
   /// Top inset a scroll-under body should pad by so its first item clears the
   /// frosted bar. Read it inside [body] (e.g. a `ListView.padding`).
@@ -53,6 +59,9 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: kLiquidGlassEnabled,
+      // Let the body flow behind a floating glass bottom bar so it refracts
+      // through it (mirrors the shell's bottom nav).
+      extendBody: kLiquidGlassEnabled && bottomNavigationBar != null,
       appBar: MainAppBar(
         title: title,
         actions: actions,
@@ -60,7 +69,17 @@ class AppScaffold extends StatelessWidget {
         bottom: appBarBottom,
       ),
       floatingActionButton: floatingActionButton,
-      body: body,
+      bottomNavigationBar: bottomNavigationBar,
+      // Tap anywhere outside a focused field (e.g. the medications search box)
+      // to drop focus and dismiss the keyboard. Translucent so it never eats
+      // taps meant for buttons/list rows — a tap only reaches here when nothing
+      // nearer claims it; a scroll drag defeats the tap so scrolling is
+      // unaffected.
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: body,
+      ),
     );
   }
 }

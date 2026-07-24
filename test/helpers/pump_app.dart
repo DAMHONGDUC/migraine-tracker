@@ -89,7 +89,7 @@ Future<PumpedApp> pumpApp(
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
   // Onboarding is considered done by default so existing tests land on the
-  // log tab; pass onboarding_completed: false to exercise onboarding.
+  // dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
     OnboardingController.completedKey: true,
     if (premium) DebugPremiumRepository.prefsKey: true,
@@ -130,15 +130,29 @@ Future<void> finishTest(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
-/// Taps through the sacred flow with sensible defaults. Intensity advances
-/// immediately; location and medication are pick-then-confirm — each pick
-/// is followed by a tap on the app bar's Next (see LogScreen/LogController).
+/// Opens the log flow from the dashboard's hero button (the flow is a pushed
+/// route now, not a tab). Leaves the tester on the intensity step.
+Future<void> openLog(WidgetTester tester) async {
+  await tester.tap(find.text('Log an attack'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 350));
+}
+
+/// Taps through the sacred flow with sensible defaults, starting from the
+/// dashboard. Intensity advances immediately; location and medication are
+/// pick-then-confirm — each pick is followed by a tap on the app bar's Next
+/// (see LogScreen/LogController). By default it also taps "Done" on the
+/// saved screen to return to the dashboard; pass finish: false to stay on the
+/// saved step (e.g. to open "Add details").
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
   String location = 'Right side',
   String medication = 'No medication',
+  bool finish = true,
 }) async {
+  await openLog(tester);
+
   await tester.tap(find.text(intensity));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
@@ -159,4 +173,10 @@ Future<void> logAttack(
   await tester.tap(find.text('Next'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+
+  if (finish) {
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+  }
 }
