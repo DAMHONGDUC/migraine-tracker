@@ -73,7 +73,11 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     // their own circles. Composite actions (filter pill, view toggle)
     // already carry their own surface, so they pass through untouched.
     if (resolvedLeading != null) {
-      resolvedLeading = GlassCircle(child: resolvedLeading);
+      // Centered, not bare: AppBar forces the leading into a tight
+      // `leadingWidth` box (56 by default), which would stretch the glass
+      // circle into a wider oval than the (naturally sized) action circles.
+      // Centering keeps it a 48×48 circle matching the actions.
+      resolvedLeading = Center(child: GlassCircle(child: resolvedLeading));
     }
 
     return ClipRect(

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_spacing_constant.dart';
-
 /// The one leading (top-left) app-bar button for the whole app — every
 /// screen's back/step-back action goes through this so they all share the
 /// same icon size, padding, and tap-target policy instead of each screen
 /// hand-rolling its own [IconButton].
+///
+/// Uses the default [IconButton] metrics (icon size, padding, 48×48 tap
+/// target) so it matches the app bar's icon *actions* exactly — inside
+/// [MainAppBar] both get the same frosted [GlassCircle], so a matching
+/// footprint keeps the leading circle and the action circles the same size.
 ///
 /// Defaults to a plain platform-adaptive back arrow that pops the current
 /// route ([Navigator.maybePop]) — that's what [MainAppBar] auto-inserts for
@@ -32,14 +35,6 @@ class AppLeadingButton extends StatelessWidget {
       icon: icon,
       tooltip: MaterialLocalizations.of(context).backButtonTooltip,
       onPressed: onPressed ?? () => Navigator.maybePop(context),
-      iconSize: AppSpacingConstant.r18,
-      padding: EdgeInsets.all(AppSpacingConstant.w6),
-      // No minimum tap-target floor: Material's IconButton otherwise clamps
-      // to 48×48 regardless of padding/icon size, which would swallow the
-      // smaller footprint this button is deliberately going for — it's a
-      // secondary action next to whatever primary action (e.g. "Next")
-      // shares the app bar.
-      constraints: const BoxConstraints(),
     );
   }
 }
