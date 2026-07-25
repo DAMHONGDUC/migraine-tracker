@@ -12,11 +12,11 @@ class Geohash {
     double longitude, {
     int precision = 5,
   }) {
-    var latMin = -90.0, latMax = 90.0;
-    var lonMin = -180.0, lonMax = 180.0;
-    var even = true;
-    var bits = 0;
-    var bitCount = 0;
+    double latMin = -90.0, latMax = 90.0;
+    double lonMin = -180.0, lonMax = 180.0;
+    bool even = true;
+    int bits = 0;
+    int bitCount = 0;
     final buffer = StringBuffer();
 
     while (buffer.length < precision) {

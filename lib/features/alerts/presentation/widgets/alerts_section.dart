@@ -5,6 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/alert_registration_error.dart';
 import '../../providers.dart';
@@ -64,7 +65,7 @@ class AlertsSection extends ConsumerWidget {
     return Column(
       children: [
         SwitchListTile(
-          secondary: const Icon(Icons.notifications_active_outlined),
+          secondary: const AppIcon(Icons.notifications_active_outlined),
           title: Text(l10n.alertsToggleTitle),
           subtitle: Text(l10n.alertsToggleSubtitle),
           value: settings.enabled,
@@ -72,7 +73,7 @@ class AlertsSection extends ConsumerWidget {
               ref.read(alertsControllerProvider.notifier).setEnabled(value),
         ),
         ListTile(
-          leading: const Icon(Icons.compress),
+          leading: const AppIcon(Icons.compress),
           title: Text(l10n.alertsThresholdTitle),
           subtitle: Text(
             l10n.onboardingThresholdValue(settings.thresholdHpa.round()),

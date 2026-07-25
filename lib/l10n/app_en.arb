@@ -517,6 +517,68 @@
       }
     }
   },
+  "historyChartIntensityTitle": "Average intensity per week",
+  "@historyChartIntensityTitle": {
+    "description": "Title above the line chart of average pain intensity per week"
+  },
+  "historyChartIntensityTooltip": "Avg intensity {value}",
+  "@historyChartIntensityTooltip": {
+    "description": "Tooltip when touching a point on the intensity trend line",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "historyChartSeverityTitle": "Severity mix",
+  "@historyChartSeverityTitle": {
+    "description": "Title above the donut chart splitting attacks by severity band"
+  },
+  "historyChartLocationTitle": "Pain by location",
+  "@historyChartLocationTitle": {
+    "description": "Title above the head-location breakdown chart"
+  },
+  "historyChartTimeTitle": "Time of day",
+  "@historyChartTimeTitle": {
+    "description": "Title above the time-of-day distribution bar chart"
+  },
+  "historySeverityMild": "Mild",
+  "@historySeverityMild": {
+    "description": "Severity band label: pain intensity 1-3"
+  },
+  "historySeverityModerate": "Moderate",
+  "@historySeverityModerate": {
+    "description": "Severity band label: pain intensity 4-6"
+  },
+  "historySeveritySevere": "Severe",
+  "@historySeveritySevere": {
+    "description": "Severity band label: pain intensity 7-8"
+  },
+  "historySeverityExtreme": "Extreme",
+  "@historySeverityExtreme": {
+    "description": "Severity band label: pain intensity 9-10"
+  },
+  "historyDayNight": "Night",
+  "@historyDayNight": {
+    "description": "Time-of-day bucket label: 00:00-06:00"
+  },
+  "historyDayMorning": "Morning",
+  "@historyDayMorning": {
+    "description": "Time-of-day bucket label: 06:00-12:00"
+  },
+  "historyDayAfternoon": "Afternoon",
+  "@historyDayAfternoon": {
+    "description": "Time-of-day bucket label: 12:00-18:00"
+  },
+  "historyDayEvening": "Evening",
+  "@historyDayEvening": {
+    "description": "Time-of-day bucket label: 18:00-24:00"
+  },
+  "a11yChart": "{title} chart",
+  "@a11yChart": {
+    "description": "Accessibility label wrapping a chart, naming it by its title",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
   "premiumBadge": "Premium",
   "@premiumBadge": {
     "description": "Small badge marking a premium-only surface"
@@ -644,6 +706,64 @@
   "remindersPickTimeTitle": "Reminder time",
   "@remindersPickTimeTitle": {
     "description": "Title of the custom hour/minute wheel picker sheet for a reminder's time"
+  },
+  "remindersEditTitle": "Edit reminder",
+  "@remindersEditTitle": {
+    "description": "Title of the time picker sheet when changing an existing reminder's time"
+  },
+  "remindersScheduledToday": "Reminder set for {time} today",
+  "@remindersScheduledToday": {
+    "description": "Snackbar confirming a reminder was scheduled and will fire later today",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "remindersScheduledTomorrow": "Reminder set for {time} tomorrow",
+  "@remindersScheduledTomorrow": {
+    "description": "Snackbar confirming a reminder was scheduled but its time already passed today, so it first fires tomorrow",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "remindersTestTooltip": "Test notification (debug)",
+  "@remindersTestTooltip": {
+    "description": "Tooltip on the debug-only button that fires a test notification"
+  },
+  "remindersTestScheduled": "Test notification in 10s — leave or background the app to see it",
+  "@remindersTestScheduled": {
+    "description": "Snackbar shown after triggering the debug test notification"
+  },
+  "remindersTestTitle": "Test notification",
+  "@remindersTestTitle": {
+    "description": "Title of the debug test notification"
+  },
+  "remindersTestBody": "If you can see this, reminders are working.",
+  "@remindersTestBody": {
+    "description": "Body of the debug test notification"
+  },
+  "permissionOpenSettings": "Open Settings",
+  "@permissionOpenSettings": {
+    "description": "Button that opens the OS app-settings page to re-enable a permission"
+  },
+  "permissionNotNow": "Not now",
+  "@permissionNotNow": {
+    "description": "Dismiss button on the permission settings sheet"
+  },
+  "permissionNotificationTitle": "Turn on notifications",
+  "@permissionNotificationTitle": {
+    "description": "Title of the sheet shown when notification permission is permanently denied"
+  },
+  "permissionNotificationBody": "Notifications are off. Enable them in Settings to get your medication reminders.",
+  "@permissionNotificationBody": {
+    "description": "Body of the notification permission settings sheet"
+  },
+  "permissionLocationTitle": "Turn on location",
+  "@permissionLocationTitle": {
+    "description": "Title of the sheet shown when location permission is permanently denied"
+  },
+  "permissionLocationBody": "Location is off. Enable it in Settings for barometric pressure alerts near you.",
+  "@permissionLocationBody": {
+    "description": "Body of the location permission settings sheet"
   },
   "remindersHourLabel": "Hour",
   "@remindersHourLabel": {

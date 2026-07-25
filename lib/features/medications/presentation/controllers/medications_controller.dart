@@ -49,11 +49,12 @@ class MedicationsController {
   /// notification is cancelled first, or it would keep firing for a
   /// medication that no longer exists.
   Future<void> delete(String medicationId) async {
-    AppLogger.action('Delete medication', medicationId);
     final enabledReminders = await _ref
         .read(medicationReminderRepositoryProvider)
         .getAllEnabled();
     final scheduler = _ref.read(notificationSchedulerProvider);
+
+    AppLogger.action('Delete medication', medicationId);
     for (final reminder in enabledReminders) {
       if (reminder.medicationId == medicationId) {
         await scheduler.cancel(reminder.id);

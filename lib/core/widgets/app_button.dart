@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_spacing_constant.dart';
 import '../theme/app_colors.dart';
+import 'app_icon.dart';
 
 enum _AppButtonVariant {
   primary,
@@ -126,7 +127,7 @@ class AppButton extends StatelessWidget {
     final text = Text(label, style: labelStyle);
 
     if (icon != null) {
-      final iconWidget = Icon(icon);
+      final iconWidget = AppIcon(icon!);
       return switch (_variant) {
         _AppButtonVariant.primary ||
         _AppButtonVariant.destructive ||

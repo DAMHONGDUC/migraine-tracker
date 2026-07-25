@@ -94,6 +94,7 @@ class LogController extends Notifier<LogFlowState> {
       location: state.location!,
       medicationName: medicationName,
     );
+
     await ref.read(attackRepositoryProvider).insert(attack);
     AppLogger.action('Attack logged', {
       'intensity': attack.intensity,

@@ -7,6 +7,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../attacks/providers.dart';
 
@@ -59,7 +60,7 @@ class DashboardLogButton extends ConsumerWidget {
                 color: AppColors.onPrimary,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: AppIcon(
                 Icons.add,
                 size: AppSpacingConstant.r24,
                 color: AppColors.primary,
@@ -87,7 +88,7 @@ class DashboardLogButton extends ConsumerWidget {
               ),
             ),
             SizedBox(width: AppSpacingConstant.w8),
-            Icon(
+            AppIcon(
               Icons.arrow_forward_rounded,
               size: AppSpacingConstant.r22,
               color: AppColors.onPrimary,

@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -137,8 +138,8 @@ class HistoryCalendarView extends HookWidget {
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: AppTextStyle.titleMedium,
-                  leftChevronIcon: const Icon(Icons.chevron_left),
-                  rightChevronIcon: const Icon(Icons.chevron_right),
+                  leftChevronIcon: const AppIcon(Icons.chevron_left),
+                  rightChevronIcon: const AppIcon(Icons.chevron_right),
                 ),
                 calendarStyle: CalendarStyle(
                   outsideDaysVisible: false,

@@ -31,14 +31,14 @@ final medicationsStreamProvider = StreamProvider<List<Medication>>(
 /// The medication list as the log flow's picker wants it: most recently
 /// taken first, never-taken ones alphabetically after. Ordering follows real
 /// use so the usual med sits under the thumb mid-attack — see
-/// [rankByRecentUse]. Everywhere else (settings, reminders) keeps the plain
+/// [MedicationRanking.byRecentUse]. Everywhere else (settings, reminders) keeps the plain
 /// alphabetical [medicationsStreamProvider].
 final medicationsByRecentUseProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
   final attacks =
       ref.watch(attacksStreamProvider).value ?? const <Attack>[];
-  return rankByRecentUse(
+  return MedicationRanking.byRecentUse(
     medications,
     attacks.map((attack) => attack.medicationName),
   );
@@ -120,7 +120,7 @@ final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
 
 /// Medication names that appear at least once in logged attack history —
 /// feeds [MedicationUsageFilter]. Matched by name, same join key as
-/// [rankByRecentUse]: attacks keep an immutable name snapshot, not a
+/// [MedicationRanking.byRecentUse]: attacks keep an immutable name snapshot, not a
 /// foreign key to [Medication.id].
 final _everUsedMedicationNamesProvider = Provider<Set<String>>((ref) {
   final attacks = ref.watch(attacksStreamProvider).value ?? const <Attack>[];
@@ -187,6 +187,14 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestSoundPermission: false,
+        // Present reminders while the app is in the FOREGROUND. These defaults
+        // drive the plugin's own willPresent handler (it owns the notification
+        // delegate); without them iOS silently drops foreground notifications
+        // and reminders only show when backgrounded.
+        defaultPresentAlert: true,
+        defaultPresentSound: true,
+        defaultPresentBanner: true,
+        defaultPresentList: true,
       ),
     ),
   );

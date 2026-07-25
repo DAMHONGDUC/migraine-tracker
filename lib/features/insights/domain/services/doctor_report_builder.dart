@@ -72,10 +72,10 @@ class DoctorReportBuilder {
     final recent =
         attacks.where((a) => a.startedAt.isAfter(since)).toList()
           ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
-
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
     );
+
     doc.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,

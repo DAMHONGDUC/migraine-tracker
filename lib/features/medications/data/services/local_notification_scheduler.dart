@@ -58,7 +58,15 @@ class LocalNotificationScheduler implements NotificationScheduler {
           _channelName,
           importance: Importance.defaultImportance,
         ),
-        iOS: DarwinNotificationDetails(),
+        // Present a banner + sound even while the app is in the foreground —
+        // without these, iOS silently drops the notification when the app is
+        // open, which reads as "reminders don't work" during testing.
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentSound: true,
+          presentList: true,
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // repeat daily
@@ -72,9 +80,43 @@ class LocalNotificationScheduler implements NotificationScheduler {
   @override
   Future<void> cancelAll() => _plugin.cancelAll();
 
+  /// Fixed id for the debug test notification, kept far from reminder ids
+  /// (which are masked hashCodes) so it never clobbers a real reminder.
+  static const _testNotificationId = 2147483646;
+
+  @override
+  Future<void> scheduleTest({
+    required String title,
+    required String body,
+    Duration delay = const Duration(seconds: 10),
+  }) async {
+    await ensurePermission();
+    await _plugin.zonedSchedule(
+      id: _testNotificationId,
+      title: title,
+      body: body,
+      scheduledDate: tz.TZDateTime.now(tz.local).add(delay),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.defaultImportance,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentSound: true,
+          presentList: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      // No matchDateTimeComponents → fires once, not daily.
+    );
+  }
+
   tz.TZDateTime _nextInstanceOf(int hour, int minute) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(
+    tz.TZDateTime scheduled = tz.TZDateTime(
       tz.local,
       now.year,
       now.month,
