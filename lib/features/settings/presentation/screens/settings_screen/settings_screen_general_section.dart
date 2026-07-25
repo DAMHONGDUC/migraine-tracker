@@ -1,69 +1,64 @@
 part of 'settings_screen.dart';
 
-/// App-wide preferences. Just the language today; this is where anything
-/// that changes how the app behaves rather than what it holds belongs.
+/// How the app behaves for you: who you are signed in as, whether pressure
+/// alerts reach you, and which language it speaks. Anything that changes
+/// what the app *holds* belongs in [_DataSection] instead.
 class _GeneralSection extends ConsumerWidget {
   const _GeneralSection();
 
-  String _localeLabel(BuildContext context, Locale? locale) =>
-      switch (locale?.languageCode) {
-        'en' => context.l10n.settingsLanguageEnglish,
-        'vi' => context.l10n.settingsLanguageVietnamese,
-        _ => context.l10n.settingsLanguageSystem,
-      };
-
   Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
-    final l10n = context.l10n;
-    final current = ref.read(localeControllerProvider);
-    final selected = await showAppDialog<_LanguageChoice>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: l10n.settingsLanguage,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final (choice, label) in [
-              (const _LanguageChoice(null), l10n.settingsLanguageSystem),
-              (
-                const _LanguageChoice(Locale('en')),
-                l10n.settingsLanguageEnglish,
-              ),
-              (
-                const _LanguageChoice(Locale('vi')),
-                l10n.settingsLanguageVietnamese,
-              ),
-            ])
-              AppDialogOption(
-                label: label,
-                selected: choice.locale?.languageCode == current?.languageCode,
-                onTap: () => Navigator.of(dialogContext).pop(choice),
-              ),
-          ],
-        ),
-      ),
+    final AppLanguage current = AppLanguage.fromCode(
+      ref.read(localeControllerProvider)?.languageCode,
     );
-    if (selected != null) {
-      await ref.read(localeControllerProvider.notifier).set(selected.locale);
-    }
+
+    // The generic single-choice sheet, opened inline: a dedicated
+    // LanguageSheet widget would be a wrapper with nothing of its own in it
+    // (see CLAUDE.md § Code style).
+    final AppLanguage? picked = await showAppFilterSheet<AppLanguage>(
+      context,
+      title: context.l10n.settingsLanguage,
+      options: AppLanguage.values,
+      selected: current,
+      labelBuilder: (AppLanguage language) => language.label(context),
+    );
+    if (picked == null) return;
+
+    await ref.read(localeControllerProvider.notifier).set(picked.locale);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeControllerProvider);
+    final AppLanguage current = AppLanguage.fromCode(
+      ref.watch(localeControllerProvider)?.languageCode,
+    );
 
-    return ListTile(
-      leading: const AppIcon(Icons.language),
-      title: Text(context.l10n.settingsLanguage),
-      subtitle: Text(_localeLabel(context, locale)),
-      onTap: () => _pickLanguage(context, ref),
+    return Column(
+      children: [
+        const AccountSection(),
+        const _AlertsSection(),
+        ListTile(
+          leading: const AppIcon(Icons.language),
+          title: Text(context.l10n.settingsLanguage),
+          subtitle: Text(current.label(context)),
+          onTap: () => _pickLanguage(context, ref),
+        ),
+      ],
     );
   }
 }
 
-/// Wrapper so the dialog can distinguish "picked System (null)" from
-/// "dismissed without picking".
-class _LanguageChoice {
-  const _LanguageChoice(this.locale);
+/// Presentation-side view of [AppLanguage]: the domain enum stays pure Dart,
+/// so the Flutter [Locale] and the localized label are attached here.
+extension _AppLanguageX on AppLanguage {
+  Locale? get locale {
+    final String? code = languageCode;
 
-  final Locale? locale;
+    return code == null ? null : Locale(code);
+  }
+
+  String label(BuildContext context) => switch (this) {
+    AppLanguage.system => context.l10n.settingsLanguageSystem,
+    AppLanguage.english => context.l10n.settingsLanguageEnglish,
+    AppLanguage.vietnamese => context.l10n.settingsLanguageVietnamese,
+  };
 }

@@ -1,33 +1,14 @@
 part of 'settings_screen.dart';
 
-/// Getting data back out. Export is free forever (hard rule 8 — GDPR); the
-/// doctor report is the premium flavour of the same idea.
+/// What the app holds, and what you can do with it: get it out, or destroy
+/// it. Export is free forever (hard rule 8 — GDPR); the doctor report is
+/// the premium flavour of the same idea; the wipe closes the group.
 class _DataSection extends ConsumerWidget {
   const _DataSection();
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {
-    final l10n = context.l10n;
-    final format = await showAppDialog<ExportFormat>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: l10n.settingsExport,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppDialogOption(
-              icon: Icons.data_object,
-              label: l10n.settingsExportJson,
-              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.json),
-            ),
-            AppDialogOption(
-              icon: Icons.table_chart_outlined,
-              label: l10n.settingsExportCsv,
-              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.csv),
-            ),
-          ],
-        ),
-      ),
-    );
+    final ExportFormat? format = await const ExportFormatSheet().show(context);
+
     if (format == null) return;
 
     await ref.read(settingsControllerProvider).export(format);
@@ -84,6 +65,7 @@ class _DataSection extends ConsumerWidget {
             onTap: () => _shareDoctorReport(context, ref),
           ),
         ),
+        const _DeleteAllTile(),
       ],
     );
   }

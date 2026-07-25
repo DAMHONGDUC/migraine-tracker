@@ -268,9 +268,6 @@
   "settingsSignOutConfirmBody": "Dữ liệu cơn đau vẫn nằm trên máy này. Các tính năng Premium sẽ khoá lại cho tới khi bạn đăng nhập lại.",
   "paywallSignInFirst": "Đăng nhập để tiếp tục",
   "paywallWhySignIn": "Premium cần một tài khoản để gói đăng ký đi theo bạn.",
-  "settingsSectionAccount": "Tài khoản",
-  "settingsSectionAlerts": "Cảnh báo",
   "settingsSectionGeneral": "Chung",
-  "settingsSectionData": "Dữ liệu của bạn",
-  "settingsSectionDanger": "Vùng nguy hiểm"
+  "settingsSectionData": "Dữ liệu của bạn"
 }

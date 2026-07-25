@@ -13,13 +13,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.tap(find.text('Language'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await tester.tap(find.text('Tiếng Việt'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    // The picker is a bottom sheet now: it slides in on the root navigator,
+    // so both the open and the dismiss need a full transition, not 100ms.
+    await tapVisible(tester, find.text('Language'));
+    await tapVisible(tester, find.text('Tiếng Việt'));
 
     // UI is now Vietnamese.
     expect(find.text('Cài đặt'), findsWidgets);
