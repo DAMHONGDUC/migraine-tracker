@@ -53,6 +53,16 @@ class LogScreen extends ConsumerWidget {
       context.pop();
     }
 
+    // Bottom inset the body must clear: the floating step bar while it shows,
+    // else just the home indicator + a gap on the saved screen.
+    final bottomInset = question != null
+        ? AppScaffold.bottomNavInset(context)
+        : MediaQuery.viewPaddingOf(context).bottom + AppSpacingConstant.h16;
+    // The medication step scrolls its grid BEHIND the step bar (like the tab
+    // flows), so the body reserves no bottom space for it — the grid applies
+    // [bottomInset] as its own scroll padding instead.
+    final isMedication = state.step == LogStep.medication;
+
     return AppScaffold(
       title: Text(l10n.logTitle),
       // First step: nothing to step back to, so the leading button cancels
@@ -78,10 +88,7 @@ class LogScreen extends ConsumerWidget {
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),
-          bottom: question != null
-              ? AppScaffold.bottomNavInset(context)
-              : MediaQuery.viewPaddingOf(context).bottom +
-                    AppSpacingConstant.h16,
+          bottom: isMedication ? 0 : bottomInset,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -131,6 +138,7 @@ class LogScreen extends ConsumerWidget {
                       hasSelection: state.hasDraft,
                       selectedName: state.draft as String?,
                       onSelected: controller.updateDraft,
+                      scrollBottomInset: bottomInset,
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,
