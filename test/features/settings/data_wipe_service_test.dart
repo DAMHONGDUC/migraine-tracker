@@ -31,6 +31,13 @@ class RecordingNotificationScheduler implements NotificationScheduler {
   Future<void> cancelAll() async {
     cancelAllCalls++;
   }
+
+  @override
+  Future<void> scheduleTest({
+    required String title,
+    required String body,
+    Duration delay = const Duration(seconds: 10),
+  }) async {}
 }
 
 void main() {

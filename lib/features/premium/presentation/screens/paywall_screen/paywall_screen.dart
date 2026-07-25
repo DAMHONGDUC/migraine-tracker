@@ -3,11 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/glass/liquid_glass_theme.dart';
+import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_icon.dart';
+import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
 /// own change; until then the CTA explains that instead of pretending.
@@ -56,7 +57,7 @@ class PaywallScreen extends StatelessWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: IconButton(
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                  icon: const Icon(Icons.close),
+                  icon: const AppIcon(Icons.close),
                   onPressed: () => context.pop(),
                 ),
               ),
@@ -80,7 +81,7 @@ class PaywallScreen extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Icon(
+                        AppIcon(
                           Icons.storm_outlined,
                           size: AppSpacingConstant.r64,
                           color: context.colorScheme.primary,
@@ -189,7 +190,7 @@ class _Benefit extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: context.colorScheme.primary),
+          AppIcon(icon, color: context.colorScheme.primary),
           SizedBox(width: AppSpacingConstant.w16),
           Expanded(
             child: Column(

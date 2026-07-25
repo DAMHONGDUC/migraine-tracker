@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../features/attacks/presentation/screens/attack_detail_screen.dart';
-import '../../features/attacks/presentation/screens/log_screen.dart';
-import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
-import '../../features/history/presentation/screens/history_screen.dart';
-import '../../features/insights/presentation/screens/insights_screen.dart';
-import '../../features/medications/presentation/screens/medications_screen.dart';
+import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
+import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
+import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
+import '../../features/history/presentation/screens/history_screen/history_screen.dart';
+import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
+import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../../features/premium/presentation/screens/paywall_screen.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
+import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
 

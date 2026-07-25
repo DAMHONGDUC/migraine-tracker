@@ -121,16 +121,18 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    // Custom wheel picker sheet (AppTimePickerSheet), defaults to 09:00 —
-    // the checkmark in its top bar confirms without touching the wheels.
-    expect(find.text('Reminder time'), findsOneWidget);
+    // Custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour +
+    // minute) confirm the sheet is open; the checkmark saves the default
+    // (current) time without touching the wheels.
+    expect(find.byType(ListWheelScrollView), findsNWidgets(2));
     await tester.tap(find.byIcon(Icons.check));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byIcon(Icons.alarm), findsOneWidget);
-    expect(find.text('09:00'), findsOneWidget);
     expect(find.byType(Switch), findsOneWidget);
+    // A confirmation snackbar spells out when it will fire.
+    expect(find.textContaining('Reminder set for'), findsOneWidget);
 
     await tester.tap(find.byType(Switch));
     await tester.pump();
@@ -141,6 +143,54 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byIcon(Icons.alarm), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('tapping a reminder edits its time and reschedules', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    await app.db
+        .into(app.db.medicationReminders)
+        .insert(
+          MedicationRemindersCompanion.insert(
+            id: 'r1',
+            medicationId: 'm1',
+            minuteOfDay: 9 * 60,
+          ),
+        );
+
+    await openMedications(tester);
+    expect(find.text('09:00'), findsOneWidget);
+
+    // Tap the reminder row to open the picker pre-filled at 09:00.
+    await tester.tap(find.text('09:00'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    // The sheet titles itself for editing (not "Add reminder").
+    expect(find.text('Edit reminder'), findsOneWidget);
+
+    // Drag the hour wheel up 3 rows → 12:00 (same mechanic as the add test).
+    await tester.drag(
+      find.byType(ListWheelScrollView).first,
+      const Offset(0, -44 * 3),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    // Edit mode shows the confirm action as a pencil (Icons.edit), not a check.
+    await tester.tap(find.byIcon(Icons.edit));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('12:00'), findsOneWidget);
+    expect(find.text('09:00'), findsNothing);
+    final rows = await app.db.select(app.db.medicationReminders).get();
+    expect(rows.single.minuteOfDay, 12 * 60);
+    expect(rows.single.id, 'r1', reason: 'edits in place, not a new reminder');
 
     await finishTest(tester);
   });
@@ -158,14 +208,14 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    // Drag the hour wheel (the first of the two ListWheelScrollViews) up by
-    // 3 rows: dragging up brings later (higher-index) rows to the centered
-    // selection, same direction as a real upward swipe. Row height is
-    // AppSpacingConstant.h44, which is exactly 44 logical px at the test
-    // harness's pinned 393×852 design size (screenutil scale 1).
+    // Over-drag the hour wheel (the first of the two ListWheelScrollViews) UP
+    // well past the end so it clamps at the last hour (23), independent of the
+    // current-time default the picker opens on. Dragging up brings higher-index
+    // rows to the centered selection; row height is AppSpacingConstant.h44 =
+    // 44 logical px at the harness's pinned 393×852 design size.
     await tester.drag(
       find.byType(ListWheelScrollView).first,
-      const Offset(0, -44 * 3),
+      const Offset(0, -44 * 30),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -174,9 +224,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('12:00'), findsOneWidget);
+    // The saved hour is whatever the wheel was dragged to (23), proving the
+    // wheel drives the stored time.
     final rows = await app.db.select(app.db.medicationReminders).get();
-    expect(rows.single.minuteOfDay, 12 * 60);
+    expect(rows.single.minuteOfDay ~/ 60, 23);
 
     await finishTest(tester);
   });
@@ -254,6 +305,23 @@ void main() {
 
     expect(find.text('Sumatriptan'), findsOneWidget);
     expect(find.text('Ibuprofen'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('debug test-notification button reaches the scheduler', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await openMedications(tester);
+
+    expect(app.scheduler.testScheduled, isFalse);
+    await tester.tap(find.byIcon(Icons.notification_add_outlined));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(app.scheduler.testScheduled, isTrue);
+    expect(find.textContaining('Test notification in 10s'), findsOneWidget);
 
     await finishTest(tester);
   });

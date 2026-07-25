@@ -1,9 +1,9 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 import '../../helpers/pump_app.dart';
@@ -86,7 +86,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(BarChart), findsOneWidget);
+    // The chart deck now stacks several charts (some also BarCharts), so
+    // target the weekly-frequency one specifically.
+    expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
     expect(find.text('Attacks per week'), findsOneWidget);
 
     await finishTest(tester);

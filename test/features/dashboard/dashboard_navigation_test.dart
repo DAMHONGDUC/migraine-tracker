@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
@@ -59,6 +60,31 @@ void main() {
     await tester.tap(find.text('Chart'));
     await _settle(tester);
 
+    expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('severity card shows with data and opens the chart view', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await _seedOneAttack(app);
+    await _settle(tester);
+
+    // The severity mix card appears once there are attacks.
+    expect(find.text('Severity mix'), findsOneWidget);
+
+    // Its chart is wrapped in an IgnorePointer so the whole card is one tap
+    // target — tap the card body (warnIfMissed: the hit falls through to the
+    // PressableScale behind the ignored chart).
+    final card = find.byType(DashboardSeverityCard);
+    await tester.ensureVisible(card);
+    await _settle(tester);
+    await tester.tap(card, warnIfMissed: false);
+    await _settle(tester);
+
+    // Landed on the History chart deck.
     expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
 
     await finishTest(tester);

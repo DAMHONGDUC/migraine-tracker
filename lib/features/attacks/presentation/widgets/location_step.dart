@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../domain/enums/head_location.dart';
 import 'head_diagram.dart';
@@ -105,8 +106,8 @@ class _LocationTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                _icons[location],
+              AppIcon(
+                _icons[location]!,
                 color: color,
                 size: AppSpacingConstant.r24,
               ),

@@ -10,10 +10,10 @@ class WeekSummaryCalculator {
   WeekSummary compute(List<Attack> attacks, {required DateTime now}) {
     final thisWeekStart = _mondayOf(now.toLocal());
     final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
+    int thisWeek = 0;
+    int lastWeek = 0;
+    int intensitySum = 0;
 
-    var thisWeek = 0;
-    var lastWeek = 0;
-    var intensitySum = 0;
     for (final attack in attacks) {
       final week = _mondayOf(attack.startedAt.toLocal());
       if (week == thisWeekStart) {

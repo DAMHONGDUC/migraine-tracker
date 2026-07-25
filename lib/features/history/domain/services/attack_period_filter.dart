@@ -11,6 +11,7 @@ class AttackPeriodFilterer {
   DateTime? periodStart(HistoryPeriod period, DateTime now) {
     final local = now.toLocal();
     final midnight = DateTime(local.year, local.month, local.day);
+
     return switch (period) {
       HistoryPeriod.today => midnight,
       HistoryPeriod.week =>

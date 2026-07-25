@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/presentation/widgets/medication_name_dialog.dart';
@@ -74,7 +75,7 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
   }
 
   Future<void> _addMedication() async {
-    final name = await showMedicationNameDialog(context);
+    final name = await const MedicationNameDialog().show(context);
     if (name == null || !mounted) return;
     await ref
         .read(medicationRepositoryProvider)
@@ -202,14 +203,14 @@ class _SearchField extends StatelessWidget {
         fillColor: AppColors.surface,
         hintText: l10n.medicationsSearchHint,
         hintStyle: AppTextStyle.titleSmall.secondary,
-        prefixIcon: Icon(
+        prefixIcon: AppIcon(
           Icons.search,
           color: AppColors.textSecondary,
           size: AppSpacingConstant.r24,
         ),
         suffixIcon: hasText
             ? IconButton(
-                icon: Icon(Icons.close, size: AppSpacingConstant.r18),
+                icon: AppIcon(Icons.close, size: AppSpacingConstant.r18),
                 color: AppColors.textSecondary,
                 tooltip: l10n.medicationsSearchClear,
                 onPressed: onClear,
@@ -288,7 +289,7 @@ class _Tile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: foreground, size: AppSpacingConstant.r24),
+              AppIcon(icon, color: foreground, size: AppSpacingConstant.r24),
               SizedBox(width: AppSpacingConstant.w12),
               Expanded(
                 child: Text(
