@@ -1213,24 +1213,12 @@
   "@paywallWhySignIn": {
     "description": "Line under the paywall CTA explaining why signing in comes first"
   },
-  "settingsSectionAccount": "Account",
-  "@settingsSectionAccount": {
-    "description": "Settings section heading above the sign-in / account row"
-  },
-  "settingsSectionAlerts": "Alerts",
-  "@settingsSectionAlerts": {
-    "description": "Settings section heading above the pressure-alert controls"
-  },
   "settingsSectionGeneral": "General",
   "@settingsSectionGeneral": {
-    "description": "Settings section heading above app-wide preferences such as language"
+    "description": "Settings section heading above the account, alert and language rows"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
-    "description": "Settings section heading above export and the doctor report"
-  },
-  "settingsSectionDanger": "Danger zone",
-  "@settingsSectionDanger": {
-    "description": "Settings section heading above the irreversible delete-everything row"
+    "description": "Settings section heading above export, the doctor report and the delete-everything row"
   }
 }

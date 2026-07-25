@@ -1,9 +1,11 @@
 part of 'settings_screen.dart';
 
-/// The irreversible one, alone under its own heading so it cannot be
-/// mistaken for the export rows above it (hard rule 8 — GDPR wipe).
-class _DangerSection extends ConsumerWidget {
-  const _DangerSection();
+/// The GDPR wipe (hard rule 8). Lives at the end of "Your data" — it is the
+/// same subject as the export rows, just the irreversible end of it — and
+/// carries its own error tint and confirm dialog so it can never be
+/// mistaken for one of them.
+class _DeleteAllTile extends ConsumerWidget {
+  const _DeleteAllTile();
 
   Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
