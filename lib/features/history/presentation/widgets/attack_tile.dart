@@ -8,6 +8,7 @@ import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
 /// One attack row, shared by the list and calendar views. Taps through to
@@ -62,7 +63,7 @@ class AttackTile extends StatelessWidget {
               ? when
               : '$when · ${attack.medicationName}',
         ),
-        trailing: Icon(
+        trailing: AppIcon(
           Icons.chevron_right,
           size: AppSpacingConstant.r20,
           color: context.colorScheme.onSurfaceVariant,

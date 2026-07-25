@@ -181,7 +181,8 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.byIcon(Icons.check));
+    // Edit mode shows the confirm action as a pencil (Icons.edit), not a check.
+    await tester.tap(find.byIcon(Icons.edit));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

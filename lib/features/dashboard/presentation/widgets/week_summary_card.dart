@@ -9,6 +9,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
@@ -46,7 +47,7 @@ class WeekSummaryCard extends ConsumerWidget {
                       style: AppTextStyle.titleMedium,
                     ),
                   ),
-                  Icon(
+                  AppIcon(
                     Icons.chevron_right,
                     size: AppSpacingConstant.r20,
                     color: context.colorScheme.onSurfaceVariant,

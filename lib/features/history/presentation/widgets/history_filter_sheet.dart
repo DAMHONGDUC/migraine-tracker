@@ -4,31 +4,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_filter_sheet.dart';
 import '../../domain/enums/history_period.dart';
 
-String periodLabel(BuildContext context, HistoryPeriod period) =>
-    switch (period) {
-      HistoryPeriod.today => context.l10n.historyFilterToday,
-      HistoryPeriod.week => context.l10n.historyFilterWeek,
-      HistoryPeriod.month => context.l10n.historyFilterMonth,
-      HistoryPeriod.year => context.l10n.historyFilterYear,
-      HistoryPeriod.all => context.l10n.historyFilterAll,
-    };
-
-/// Opens the shared period filter (used by both list and chart modes).
-/// Returns the picked period, or null when dismissed. Thin wrapper over the
-/// generic [showAppFilterSheet] — see [HistoryFilterChip].
-Future<HistoryPeriod?> showHistoryFilterSheet(
-  BuildContext context, {
-  required HistoryPeriod selected,
-}) {
-  return showAppFilterSheet<HistoryPeriod>(
-    context,
-    title: context.l10n.historyFilterSheetTitle,
-    options: HistoryPeriod.values,
-    selected: selected,
-    labelBuilder: (period) => periodLabel(context, period),
-  );
-}
-
 /// The period filter pill (icon + current value + expand chevron); tapping
 /// opens the bottom sheet. Rendered at the top of the list/chart content,
 /// below the app bar. A thin [AppFilterChip] wrapper — see that class for
@@ -47,13 +22,24 @@ class HistoryFilterChip extends StatelessWidget {
   /// How many attacks the selected period matches — shown as "All (10)".
   final int? count;
 
+  /// Localized label for a period (used for both the current value and each
+  /// option in the filter sheet).
+  static String _label(BuildContext context, HistoryPeriod period) =>
+      switch (period) {
+        HistoryPeriod.today => context.l10n.historyFilterToday,
+        HistoryPeriod.week => context.l10n.historyFilterWeek,
+        HistoryPeriod.month => context.l10n.historyFilterMonth,
+        HistoryPeriod.year => context.l10n.historyFilterYear,
+        HistoryPeriod.all => context.l10n.historyFilterAll,
+      };
+
   @override
   Widget build(BuildContext context) {
     return AppFilterChip<HistoryPeriod>(
-      label: periodLabel(context, selected),
+      label: _label(context, selected),
       selected: selected,
       options: HistoryPeriod.values,
-      optionLabelBuilder: (period) => periodLabel(context, period),
+      optionLabelBuilder: (period) => _label(context, period),
       onSelected: onSelected,
       sheetTitle: context.l10n.historyFilterSheetTitle,
       count: count,

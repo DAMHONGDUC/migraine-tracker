@@ -3,6 +3,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../domain/enums/history_view_mode.dart';
 
@@ -136,7 +137,7 @@ class _Segment extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Center(
-          child: Icon(
+          child: AppIcon(
             icon,
             size: AppSpacingConstant.r20,
             color: selected ? scheme.primary : scheme.onSurfaceVariant,

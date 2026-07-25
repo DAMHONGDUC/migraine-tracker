@@ -51,7 +51,7 @@ class OpenMeteoDataSource {
       final start = now.toUtc().subtract(const Duration(hours: 12));
       final end = now.toUtc().add(const Duration(hours: 48));
       final points = <PressurePoint>[];
-      for (var i = 0; i < times.length; i++) {
+      for (int i = 0; i < times.length; i++) {
         final pressure = pressures[i];
         if (pressure == null) continue;
         final time = DateTime.parse('${times[i]}Z');
@@ -121,7 +121,7 @@ class OpenMeteoDataSource {
   int? _closestIndex(List<DateTime> times, DateTime target) {
     int? best;
     Duration? bestDistance;
-    for (var i = 0; i < times.length; i++) {
+    for (int i = 0; i < times.length; i++) {
       final distance = times[i].difference(target).abs();
       if (bestDistance == null || distance < bestDistance) {
         best = i;

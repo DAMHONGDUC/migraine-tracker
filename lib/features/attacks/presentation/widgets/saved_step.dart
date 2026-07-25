@@ -3,8 +3,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_icon.dart';
 import 'attack_details_sheet.dart';
 
 /// Confirmation after the attack is saved. Calm, static — no flashing.
@@ -29,7 +29,7 @@ class SavedStep extends StatelessWidget {
               curve: Curves.easeOutBack,
               builder: (context, scale, child) =>
                   Transform.scale(scale: scale, child: child),
-              child: Icon(
+              child: AppIcon(
                 Icons.check_circle_outline,
                 size: AppSpacingConstant.r64,
                 color: context.colorScheme.primary,
@@ -44,11 +44,8 @@ class SavedStep extends StatelessWidget {
             ),
             SizedBox(height: AppSpacingConstant.h32),
             AppButton.outlined(
-              onPressed: () => showAppBottomSheet<void>(
-                context,
-                isScrollControlled: true,
-                builder: (_) => AttackDetailsSheet(attackId: attackId),
-              ),
+              onPressed: () =>
+                  AttackDetailsSheet(attackId: attackId).show(context),
               label: l10n.logAddDetails,
             ),
             SizedBox(height: AppSpacingConstant.h12),

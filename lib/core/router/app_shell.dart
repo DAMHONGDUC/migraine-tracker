@@ -6,6 +6,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../extensions/context_extensions.dart';
+import '../widgets/app_icon.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -149,7 +150,7 @@ class _SlidingNavBar extends StatelessWidget {
           ),
           Row(
             children: [
-              for (var i = 0; i < count; i++)
+              for (int i = 0; i < count; i++)
                 Expanded(
                   child: _NavSegment(
                     item: items[i],
@@ -202,7 +203,7 @@ class _NavSegment extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Center(
-          child: Icon(
+          child: AppIcon(
             selected ? item.selectedIcon : item.icon,
             size: AppSpacingConstant.r26,
             color: color,

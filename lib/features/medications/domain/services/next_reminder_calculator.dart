@@ -18,7 +18,7 @@ class NextReminderCalculator {
     for (final view in views) {
       final reminder = view.reminder;
       if (!reminder.enabled) continue;
-      var next = today.add(Duration(minutes: reminder.minuteOfDay));
+      DateTime next = today.add(Duration(minutes: reminder.minuteOfDay));
       if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
       final delay = next.difference(now);
       if (bestDelay == null || delay < bestDelay) {

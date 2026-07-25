@@ -3,20 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_leading_button.dart';
-import '../../../../core/widgets/app_scaffold.dart';
-import '../../../../core/widgets/fitted_text.dart';
-import '../../domain/enums/head_location.dart';
-import '../../providers.dart';
-import '../controllers/log_controller.dart' show LogStep;
-import '../widgets/intensity_step.dart';
-import '../widgets/location_step.dart';
-import '../widgets/log_step_bar.dart';
-import '../widgets/medication_step.dart';
-import '../widgets/saved_step.dart';
+import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_leading_button.dart';
+import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/fitted_text.dart';
+import '../../../domain/enums/head_location.dart';
+import '../../../providers.dart';
+import '../../controllers/log_controller.dart' show LogStep;
+import '../../widgets/intensity_step.dart';
+import '../../widgets/location_step.dart';
+import '../../widgets/log_step_bar.dart';
+import '../../widgets/medication_step.dart';
+import '../../widgets/saved_step.dart';
 
 /// The sacred flow: intensity → head location → medication → saved. Pure
 /// rendering — all state lives in [logControllerProvider]. Intensity

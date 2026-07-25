@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/presentation/widgets/medication_name_dialog.dart';
@@ -42,7 +43,7 @@ class MedicationStep extends ConsumerWidget {
   final ValueChanged<String?> onSelected;
 
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
-    final name = await showMedicationNameDialog(context);
+    final name = await const MedicationNameDialog().show(context);
     if (name == null || !context.mounted) return;
     await ref
         .read(medicationRepositoryProvider)
@@ -172,7 +173,7 @@ class _Tile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: foreground, size: AppSpacingConstant.r24),
+              AppIcon(icon, color: foreground, size: AppSpacingConstant.r24),
               SizedBox(width: AppSpacingConstant.w12),
               Expanded(
                 child: Text(

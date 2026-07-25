@@ -25,7 +25,7 @@ class WeeklyBucketsCalculator {
   }) {
     final currentWeek = _mondayOf(now.toLocal());
     final starts = [
-      for (var i = weeks - 1; i >= 0; i--)
+      for (int i = weeks - 1; i >= 0; i--)
         currentWeek.subtract(Duration(days: 7 * i)),
     ];
     final counts = {for (final start in starts) start: 0};

@@ -66,7 +66,7 @@ abstract final class AppLogger {
   /// (debug builds), so this is true in debug and false in release/profile —
   /// no `dart:ui`/Flutter import needed.
   static bool _assertsEnabled() {
-    var enabled = false;
+    bool enabled = false;
     assert(enabled = true);
     return enabled;
   }

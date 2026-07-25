@@ -76,6 +76,7 @@ class DataExportService {
           a.weather?.capturedAt.toIso8601String() ?? '',
         ].map(_escape).join(','),
     ];
+
     return rows.join('\r\n');
   }
 

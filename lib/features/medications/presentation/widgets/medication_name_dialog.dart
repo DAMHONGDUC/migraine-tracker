@@ -6,21 +6,13 @@ import '../../../../core/widgets/app_dialog.dart';
 
 /// Prompts for a medication's name — adding a new one, or renaming an
 /// existing one when [initial] is passed (prefills the field and swaps the
-/// title/action to "Rename"/"Save"). Returns the trimmed name, or null if
-/// cancelled or left blank.
+/// title/action to "Rename"/"Save"). Present it with
+/// `MedicationNameDialog(...).show(context)` — see [MedicationNameDialogExt] —
+/// which returns the trimmed name, or null if cancelled or left blank.
 ///
 /// Shared by the log flow's medication step and the medications tab so both
 /// "add" surfaces (and the tab's "rename") look and behave identically.
-Future<String?> showMedicationNameDialog(
-  BuildContext context, {
-  String? initial,
-}) {
-  return showAppDialog<String>(
-    context,
-    builder: (_) => _MedicationNameDialog(initial: initial),
-  );
-}
-
+///
 /// A [StatefulWidget] so the [TextEditingController] is owned by [State]
 /// and disposed by the framework once this widget actually leaves the tree
 /// — NOT by the caller right after the picked value comes back. [AppDialog]
@@ -30,16 +22,23 @@ Future<String?> showMedicationNameDialog(
 /// the await returns (the log flow's original inline version of this
 /// dialog did exactly that) tears it down out from under the still-visible
 /// [TextField] and crashes with "used after being disposed".
-class _MedicationNameDialog extends StatefulWidget {
-  const _MedicationNameDialog({this.initial});
+class MedicationNameDialog extends StatefulWidget {
+  const MedicationNameDialog({this.initial, super.key});
 
   final String? initial;
 
   @override
-  State<_MedicationNameDialog> createState() => _MedicationNameDialogState();
+  State<MedicationNameDialog> createState() => _MedicationNameDialogState();
 }
 
-class _MedicationNameDialogState extends State<_MedicationNameDialog> {
+/// Presents the dialog and returns the trimmed name, or null when cancelled
+/// (see CLAUDE.md § Code style, "Bottom sheets and dialogs").
+extension MedicationNameDialogExt on MedicationNameDialog {
+  Future<String?> show(BuildContext context) =>
+      showAppDialog<String>(context, builder: (_) => this);
+}
+
+class _MedicationNameDialogState extends State<MedicationNameDialog> {
   late final _controller = TextEditingController(text: widget.initial);
 
   @override

@@ -5,26 +5,12 @@ import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'app_bottom_sheet.dart';
+import 'app_icon.dart';
 
-/// Opens [AppTimePickerSheet] and returns the picked time, or null if
-/// dismissed/cancelled.
-Future<TimeOfDay?> showAppTimePickerSheet(
-  BuildContext context, {
-  required TimeOfDay initialTime,
-  String? title,
-  bool isEditMode = false,
-}) {
-  return showAppBottomSheet<TimeOfDay>(
-    context,
-    isScrollControlled: true,
-    builder: (_) => AppTimePickerSheet(
-      initialTime: initialTime,
-      title: title,
-      isEditMode: isEditMode,
-    ),
-  );
-}
-
+/// Opens the picker and returns the picked time, or null if dismissed —
+/// `AppTimePickerSheet(initialTime: ...).show(context)`. See
+/// [AppTimePickerSheetExt].
+///
 /// A two-column hour/minute wheel picker, styled like iOS's built-in alarm
 /// time picker — built from Flutter's own [ListWheelScrollView] rather than
 /// the Cupertino widget so it can wear the app's own dark palette and text
@@ -62,6 +48,18 @@ class AppTimePickerSheet extends StatefulWidget {
   State<AppTimePickerSheet> createState() => _AppTimePickerSheetState();
 }
 
+/// Presents the picker as a scroll-controlled bottom sheet and returns the
+/// picked time, or null when dismissed (see CLAUDE.md § Code style,
+/// "Bottom sheets and dialogs").
+extension AppTimePickerSheetExt on AppTimePickerSheet {
+  Future<TimeOfDay?> show(BuildContext context) =>
+      showAppBottomSheet<TimeOfDay>(
+        context,
+        isScrollControlled: true,
+        builder: (_) => this,
+      );
+}
+
 class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
   late int _hour = widget.initialTime.hour;
   late int _minute = widget.initialTime.minute;
@@ -96,7 +94,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const AppIcon(Icons.close),
                   tooltip: l10n.commonCancel,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -113,7 +111,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                 // — so the confirming action reads as the one filled,
                 // affirmative icon next to Cancel's plain outline.
                 IconButton.filled(
-                  icon: Icon(widget.isEditMode ? Icons.edit : Icons.check),
+                  icon: AppIcon(widget.isEditMode ? Icons.edit : Icons.check),
                   tooltip: l10n.logDone,
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.secondary,
