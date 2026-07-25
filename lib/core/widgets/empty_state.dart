@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_spacing_constant.dart';
 import '../theme/app_text_style.dart';
+import 'app_icon.dart';
 
 /// Calm, shared empty/error state: a muted icon over a short message.
 /// No illustration, no bright colours — photophobia-first (hard rule 3).
@@ -20,7 +21,7 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon(
               icon,
               size: AppSpacingConstant.r64,
               color: scheme.onSurfaceVariant.withValues(alpha: 0.5),

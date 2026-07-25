@@ -3,6 +3,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_icon.dart';
 
 /// A tappable feature banner on the dashboard: a tinted leading icon, a title
 /// and one supporting line, and a trailing chevron. Used to surface features
@@ -50,7 +51,7 @@ class DashboardBanner extends StatelessWidget {
                   color: color.withValues(alpha: 0.16),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: AppIcon(
                   icon,
                   size: AppSpacingConstant.r22,
                   color: color,
@@ -72,7 +73,7 @@ class DashboardBanner extends StatelessWidget {
                 ),
               ),
               SizedBox(width: AppSpacingConstant.w8),
-              Icon(
+              AppIcon(
                 Icons.chevron_right,
                 size: AppSpacingConstant.r20,
                 color: context.colorScheme.onSurfaceVariant,

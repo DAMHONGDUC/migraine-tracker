@@ -4,6 +4,7 @@ import '../constants/app_spacing_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
 import 'app_bottom_sheet.dart';
+import 'app_icon.dart';
 
 /// Opens a single-choice filter sheet: a plain radio list of [options],
 /// [selected] pre-checked. Returns the picked value, or null if dismissed
@@ -115,7 +116,7 @@ class AppFilterChip<T> extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              AppIcon(
                 Icons.filter_list,
                 size: AppSpacingConstant.r16,
                 color: scheme.primary,
@@ -126,7 +127,7 @@ class AppFilterChip<T> extends StatelessWidget {
                 style: AppTextStyle.labelLarge,
               ),
               SizedBox(width: AppSpacingConstant.w2),
-              Icon(
+              AppIcon(
                 Icons.expand_more,
                 size: AppSpacingConstant.r18,
                 color: scheme.onSurfaceVariant,
@@ -175,7 +176,7 @@ class _FilterSheet<T> extends StatelessWidget {
               children: [
                 for (final option in options)
                   ListTile(
-                    leading: Icon(
+                    leading: AppIcon(
                       option == selected
                           ? Icons.radio_button_checked
                           : Icons.radio_button_off,

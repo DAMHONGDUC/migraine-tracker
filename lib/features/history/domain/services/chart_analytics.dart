@@ -11,11 +11,6 @@ import '../../../attacks/domain/enums/head_location.dart';
 /// The weekly attack-frequency chart keeps its own `WeeklyBucketsCalculator`;
 /// these cover the trend, severity, location and time-of-day breakdowns.
 
-DateTime _mondayOf(DateTime d) {
-  final midnight = DateTime(d.year, d.month, d.day);
-  return midnight.subtract(Duration(days: midnight.weekday - 1));
-}
-
 /// One week's average pain intensity (null when that week had no attacks, so
 /// the line can leave a gap rather than plunge to zero).
 @immutable
@@ -36,6 +31,11 @@ class IntensityTrendPoint {
 class IntensityTrendCalculator {
   const IntensityTrendCalculator();
 
+  static DateTime _mondayOf(DateTime d) {
+    final midnight = DateTime(d.year, d.month, d.day);
+    return midnight.subtract(Duration(days: midnight.weekday - 1));
+  }
+
   List<IntensityTrendPoint> compute(
     List<Attack> attacks, {
     required DateTime now,
@@ -43,7 +43,7 @@ class IntensityTrendCalculator {
   }) {
     final currentWeek = _mondayOf(now.toLocal());
     final starts = [
-      for (var i = weeks - 1; i >= 0; i--)
+      for (int i = weeks - 1; i >= 0; i--)
         currentWeek.subtract(Duration(days: 7 * i)),
     ];
     final sums = {for (final start in starts) start: 0};

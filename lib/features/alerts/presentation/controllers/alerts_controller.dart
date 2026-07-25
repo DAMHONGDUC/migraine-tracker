@@ -23,10 +23,12 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
   }
 
   Future<void> setEnabled(bool enabled) async {
-    AppLogger.action('Toggle pressure alerts', enabled);
     final current = state.requireValue;
+
+    AppLogger.action('Toggle pressure alerts', enabled);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(alertRegistrationRepositoryProvider);
+
       if (enabled) {
         await repo.register(thresholdHpa: current.thresholdHpa);
       } else {
@@ -47,8 +49,9 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
   }
 
   Future<void> setThreshold(double thresholdHpa) async {
-    AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
     final current = state.requireValue;
+
+    AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
     await ref
         .read(sharedPreferencesProvider)
         .setDouble(OnboardingController.thresholdKey, thresholdHpa);

@@ -29,6 +29,7 @@ class RemindersController {
       medicationId: medicationId,
       minuteOfDay: minuteOfDay,
     );
+
     AppLogger.action('Add reminder', {
       'medication': medicationName,
       'minuteOfDay': minuteOfDay,
@@ -55,11 +56,12 @@ class RemindersController {
     required String notificationTitle,
     required String notificationBody,
   }) async {
+    final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
+
     AppLogger.action('Edit reminder time', {
       'id': reminder.id,
       'minuteOfDay': minuteOfDay,
     });
-    final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
     await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     await _ref
         .read(notificationSchedulerProvider)
@@ -78,10 +80,11 @@ class RemindersController {
     required String notificationBody,
     required bool enabled,
   }) async {
-    AppLogger.action('Toggle reminder', {'id': reminder.id, 'enabled': enabled});
     final updated = reminder.copyWith(enabled: enabled);
-    await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     final scheduler = _ref.read(notificationSchedulerProvider);
+
+    AppLogger.action('Toggle reminder', {'id': reminder.id, 'enabled': enabled});
+    await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     if (enabled) {
       await scheduler.schedule(
         updated,

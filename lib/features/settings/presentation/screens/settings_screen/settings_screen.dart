@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/extensions/head_location_label.dart';
-import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_dialog.dart';
-import '../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../core/widgets/app_scaffold.dart';
-import '../../../alerts/presentation/widgets/alerts_section.dart';
-import '../../../attacks/domain/enums/head_location.dart';
-import '../../../insights/domain/services/doctor_report_builder.dart';
-import '../../../premium/presentation/widgets/premium_gate.dart';
-import '../../../premium/providers.dart';
-import '../../domain/enums/export_format.dart';
-import '../../providers.dart';
+import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/head_location_label.dart';
+import '../../../../../core/l10n/locale_provider.dart';
+import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_dialog.dart';
+import '../../../../../core/widgets/app_icon.dart';
+import '../../../../../core/widgets/app_refresh_indicator.dart';
+import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../alerts/presentation/widgets/alerts_section.dart';
+import '../../../../attacks/domain/enums/head_location.dart';
+import '../../../../insights/domain/services/doctor_report_builder.dart';
+import '../../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../../premium/providers.dart';
+import '../../../domain/enums/export_format.dart';
+import '../../../providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -160,7 +161,7 @@ class SettingsScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.settingsTitle),
       body: AppRefreshIndicator(
-        onRefresh: () => pullRefresh(() => ref.invalidate(isPremiumProvider)),
+        onRefresh: () => AppRefreshIndicator.run(() => ref.invalidate(isPremiumProvider)),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.only(
@@ -175,13 +176,13 @@ class SettingsScreen extends ConsumerWidget {
               child: const AlertsSection(),
             ),
           ListTile(
-            leading: const Icon(Icons.language),
+            leading: const AppIcon(Icons.language),
             title: Text(l10n.settingsLanguage),
             subtitle: Text(_localeLabel(context, locale)),
             onTap: () => _pickLanguage(context, ref),
           ),
           ListTile(
-            leading: const Icon(Icons.ios_share),
+            leading: const AppIcon(Icons.ios_share),
             title: Text(l10n.settingsExport),
             onTap: () => _export(context, ref),
           ),
@@ -190,13 +191,13 @@ class SettingsScreen extends ConsumerWidget {
             title: l10n.settingsDoctorReport,
             lockedMessage: l10n.premiumLockedReport,
             child: ListTile(
-              leading: const Icon(Icons.picture_as_pdf_outlined),
+              leading: const AppIcon(Icons.picture_as_pdf_outlined),
               title: Text(l10n.settingsDoctorReport),
               onTap: () => _shareDoctorReport(context, ref),
             ),
           ),
           ListTile(
-            leading: Icon(
+            leading: AppIcon(
               Icons.delete_forever_outlined,
               color: context.colorScheme.error,
             ),

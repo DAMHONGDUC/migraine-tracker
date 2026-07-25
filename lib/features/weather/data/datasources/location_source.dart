@@ -18,7 +18,7 @@ class GeolocatorLocationSource implements LocationSource {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
 
-      var permission = await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }

@@ -28,11 +28,10 @@ class AppPermission {
     final status = await _gateway.request(type);
     if (status == AppPermissionStatus.granted) return true;
     if (status == AppPermissionStatus.permanentlyDenied && context.mounted) {
-      await showPermissionSettingsSheet(
-        context,
+      await PermissionSettingsSheet(
         type: type,
         onOpenSettings: _gateway.openAppSettings,
-      );
+      ).show(context);
     }
     return false;
   }

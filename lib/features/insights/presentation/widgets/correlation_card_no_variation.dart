@@ -1,0 +1,11 @@
+part of 'correlation_card.dart';
+
+class _NoVariation extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      context.l10n.insightsNoVariation,
+      style: AppTextStyle.bodyMedium,
+    );
+  }
+}

@@ -8,7 +8,7 @@ List<String> _names(List<Medication> meds) =>
     meds.map((m) => m.name).toList();
 
 void main() {
-  group('rankByRecentUse', () {
+  group('MedicationRanking.byRecentUse', () {
     // Repository order — alphabetical, as watchAll() delivers it.
     final all = [
       _med('Aspirin'),
@@ -18,7 +18,7 @@ void main() {
     ];
 
     test('puts the most recently taken medication first', () {
-      final ranked = rankByRecentUse(all, ['Sumatriptan']);
+      final ranked = MedicationRanking.byRecentUse(all, ['Sumatriptan']);
 
       expect(_names(ranked), [
         'Sumatriptan',
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('orders several taken medications by recency, newest first', () {
-      final ranked = rankByRecentUse(all, [
+      final ranked = MedicationRanking.byRecentUse(all, [
         'Naproxen',
         'Sumatriptan',
         'Aspirin',
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('ranks by most recent use, not by how often it was taken', () {
-      final ranked = rankByRecentUse(all, [
+      final ranked = MedicationRanking.byRecentUse(all, [
         'Naproxen',
         'Sumatriptan',
         'Sumatriptan',
@@ -55,19 +55,19 @@ void main() {
     });
 
     test('keeps never-taken medications alphabetical after the ranked ones', () {
-      final ranked = rankByRecentUse(all, ['Sumatriptan', 'Naproxen']);
+      final ranked = MedicationRanking.byRecentUse(all, ['Sumatriptan', 'Naproxen']);
 
       expect(_names(ranked).sublist(2), ['Aspirin', 'Ibuprofen']);
     });
 
     test('ignores "no medication" entries in the history', () {
-      final ranked = rankByRecentUse(all, [null, null, 'Ibuprofen']);
+      final ranked = MedicationRanking.byRecentUse(all, [null, null, 'Ibuprofen']);
 
       expect(_names(ranked).first, 'Ibuprofen');
     });
 
     test('ignores history naming a medication that no longer exists', () {
-      final ranked = rankByRecentUse(all, ['Deleted med', 'Aspirin']);
+      final ranked = MedicationRanking.byRecentUse(all, ['Deleted med', 'Aspirin']);
 
       expect(_names(ranked), [
         'Aspirin',
@@ -78,20 +78,20 @@ void main() {
     });
 
     test('keeps alphabetical order when nothing has been taken yet', () {
-      expect(_names(rankByRecentUse(all, const [])), _names(all));
-      expect(_names(rankByRecentUse(all, const [null, null])), _names(all));
+      expect(_names(MedicationRanking.byRecentUse(all, const [])), _names(all));
+      expect(_names(MedicationRanking.byRecentUse(all, const [null, null])), _names(all));
     });
 
     test('handles empty and single-entry medication lists', () {
-      expect(rankByRecentUse(const [], ['Aspirin']), isEmpty);
-      expect(_names(rankByRecentUse([_med('Aspirin')], ['Aspirin'])), [
+      expect(MedicationRanking.byRecentUse(const [], ['Aspirin']), isEmpty);
+      expect(_names(MedicationRanking.byRecentUse([_med('Aspirin')], ['Aspirin'])), [
         'Aspirin',
       ]);
     });
 
     test('does not mutate the medication list it is given', () {
       final input = [...all];
-      rankByRecentUse(input, ['Sumatriptan']);
+      MedicationRanking.byRecentUse(input, ['Sumatriptan']);
 
       expect(_names(input), _names(all));
     });

@@ -41,6 +41,15 @@ class AppRefreshIndicator extends StatelessWidget {
       child: child,
     );
   }
+
+  /// Runs [invalidate] (a tab's `ref.invalidate(...)` calls so its providers
+  /// reload), then holds briefly so the refresh spinner reads as deliberate
+  /// even when the (local-first) data reloads instantly. Use as a tab's
+  /// `onRefresh`.
+  static Future<void> run(void Function() invalidate) async {
+    invalidate();
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+  }
 }
 
 /// Makes a non-scrollable widget (e.g. an [EmptyState]) fill the viewport and
@@ -71,12 +80,4 @@ class ScrollFill extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Runs [invalidate] (a tab's `ref.invalidate(...)` calls so its providers
-/// reload), then holds briefly so the refresh spinner reads as deliberate even
-/// when the (local-first) data reloads instantly. Use as a tab's `onRefresh`.
-Future<void> pullRefresh(void Function() invalidate) async {
-  invalidate();
-  await Future<void>.delayed(const Duration(milliseconds: 350));
 }

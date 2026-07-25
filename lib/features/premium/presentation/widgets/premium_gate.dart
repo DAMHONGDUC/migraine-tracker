@@ -7,6 +7,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../providers.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
@@ -50,7 +51,7 @@ class _LockedCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
+                AppIcon(
                   icon,
                   size: AppSpacingConstant.r20,
                   color: context.colorScheme.onSurfaceVariant,
@@ -96,7 +97,7 @@ class PremiumTileGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(hasPremiumProvider)) return child;
     return ListTile(
-      leading: Icon(icon, color: context.colorScheme.onSurfaceVariant),
+      leading: AppIcon(icon, color: context.colorScheme.onSurfaceVariant),
       title: Text(title),
       subtitle: Text(lockedMessage),
       trailing: const PremiumBadge(),

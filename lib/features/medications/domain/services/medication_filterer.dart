@@ -19,6 +19,7 @@ class MedicationFilterer {
   DateTime? _dateFilterStart(MedicationDateFilter filter, DateTime now) {
     final local = now.toLocal();
     final midnight = DateTime(local.year, local.month, local.day);
+
     return switch (filter) {
       MedicationDateFilter.today => midnight,
       MedicationDateFilter.week =>
@@ -41,7 +42,6 @@ class MedicationFilterer {
     required Set<String> everUsedNames,
   }) {
     final start = _dateFilterStart(filters.date, now);
-
     final filtered = medications.where((m) {
       if (start != null) {
         if (m.createdAt == null) return false;

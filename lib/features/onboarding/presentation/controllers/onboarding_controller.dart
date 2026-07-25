@@ -23,6 +23,7 @@ class OnboardingController {
   /// and marks onboarding as done so the router stops redirecting here.
   Future<void> complete({required double thresholdHpa}) async {
     final prefs = _ref.read(sharedPreferencesProvider);
+
     await prefs.setDouble(thresholdKey, thresholdHpa);
     await prefs.setBool(completedKey, true);
   }

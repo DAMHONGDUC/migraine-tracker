@@ -26,7 +26,7 @@ class IntensityStep extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (var i = startIndex; i <= endIndex; i++) ...[
+        for (int i = startIndex; i <= endIndex; i++) ...[
           _IntensityCircle(value: i, onTap: () => onSelected(i)),
           if (i < endIndex) HorizontalSpacing(width: AppSpacingConstant.w16),
         ],

@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../core/widgets/app_scaffold.dart';
-import '../../../attacks/providers.dart';
-import '../../../premium/presentation/widgets/premium_gate.dart';
-import '../../../weather/providers.dart';
-import '../../providers.dart';
-import '../widgets/correlation_card.dart';
-import '../widgets/pressure_forecast_card.dart';
+import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/widgets/app_refresh_indicator.dart';
+import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../attacks/providers.dart';
+import '../../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../../weather/providers.dart';
+import '../../../providers.dart';
+import '../../widgets/correlation_card.dart';
+import '../../widgets/pressure_forecast_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -23,7 +23,7 @@ class InsightsScreen extends ConsumerWidget {
       title: Text(context.l10n.insightsTitle),
       body: switch (result) {
         AsyncData(value: final value) => AppRefreshIndicator(
-          onRefresh: () => pullRefresh(() {
+          onRefresh: () => AppRefreshIndicator.run(() {
             ref
               ..invalidate(attacksStreamProvider)
               ..invalidate(pressureForecastProvider);

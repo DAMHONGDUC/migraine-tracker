@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../providers.dart';
 
@@ -95,4 +96,14 @@ class AttackDetailsSheet extends HookConsumerWidget {
       ),
     );
   }
+}
+
+/// Presents the details form as a scroll-controlled bottom sheet (see
+/// CLAUDE.md § Code style, "Bottom sheets and dialogs").
+extension AttackDetailsSheetExt on AttackDetailsSheet {
+  Future<void> show(BuildContext context) => showAppBottomSheet<void>(
+    context,
+    isScrollControlled: true,
+    builder: (_) => this,
+  );
 }

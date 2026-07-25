@@ -6,27 +6,20 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_style.dart';
 import '../../widgets/app_bottom_sheet.dart';
 import '../../widgets/app_button.dart';
+import '../../widgets/app_icon.dart';
 import '../app_permission_types.dart';
 
 /// Shown when a permission is permanently denied — explains why the feature
 /// needs it and offers a jump to the OS Settings (the only way to re-enable
 /// it). [onOpenSettings] runs after the sheet closes.
-Future<void> showPermissionSettingsSheet(
-  BuildContext context, {
-  required AppPermissionType type,
-  required Future<void> Function() onOpenSettings,
-}) {
-  return showAppBottomSheet<void>(
-    context,
-    builder: (_) =>
-        _PermissionSettingsSheet(type: type, onOpenSettings: onOpenSettings),
-  );
-}
-
-class _PermissionSettingsSheet extends StatelessWidget {
-  const _PermissionSettingsSheet({
+///
+/// Present it with `PermissionSettingsSheet(...).show(context)` — see
+/// [PermissionSettingsSheetExt].
+class PermissionSettingsSheet extends StatelessWidget {
+  const PermissionSettingsSheet({
     required this.type,
     required this.onOpenSettings,
+    super.key,
   });
 
   final AppPermissionType type;
@@ -64,7 +57,7 @@ class _PermissionSettingsSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
+            AppIcon(
               content.icon,
               size: AppSpacingConstant.r44,
               color: AppColors.primary,
@@ -99,4 +92,13 @@ class _PermissionSettingsSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Presents [PermissionSettingsSheet] as a bottom sheet. Completes when the
+/// sheet is dismissed. Sheets expose their opener as a `.show(context)`
+/// extension instead of a top-level `showX` function (see CLAUDE.md § Code
+/// style, "Bottom sheets and dialogs").
+extension PermissionSettingsSheetExt on PermissionSettingsSheet {
+  Future<void> show(BuildContext context) =>
+      showAppBottomSheet<void>(context, builder: (_) => this);
 }

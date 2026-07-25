@@ -20,13 +20,11 @@ class SettingsController {
 
   /// Serializes all data in [format] and hands it to the share sheet.
   Future<void> export(ExportFormat format) async {
-    AppLogger.action('Export data', format.name);
     final attacks = await _ref.read(attackRepositoryProvider).getAll();
     final medications = await _ref.read(medicationRepositoryProvider).getAll();
     final service = _ref.read(dataExportServiceProvider);
     final now = DateTime.now();
     final stamp = DateFormat('yyyy-MM-dd').format(now);
-
     final (content, filename, mime) = switch (format) {
       ExportFormat.json => (
         service.toJson(attacks, medications, exportedAt: now),
@@ -39,6 +37,8 @@ class SettingsController {
         'text/csv',
       ),
     };
+
+    AppLogger.action('Export data', format.name);
     await _ref
         .read(exportSinkProvider)
         .share(content: content, filename: filename, mimeType: mime);
@@ -63,7 +63,6 @@ class SettingsController {
 
   /// [strings] are localized — the bundled font covers Vietnamese.
   Future<void> shareDoctorReport(DoctorReportStrings strings) async {
-    AppLogger.action('Share doctor report (PDF)');
     final attacks = await _ref.read(attackRepositoryProvider).getAll();
     final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
     final (regular, bold) = await _reportFonts();
@@ -77,6 +76,8 @@ class SettingsController {
       boldFont: bold,
     );
     final stamp = DateFormat('yyyy-MM-dd').format(now);
+
+    AppLogger.action('Share doctor report (PDF)');
     await _ref
         .read(pdfSharerProvider)
         .share(bytes: bytes, filename: 'baroease_report_$stamp.pdf');
