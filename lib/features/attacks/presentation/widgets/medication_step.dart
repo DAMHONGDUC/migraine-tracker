@@ -26,11 +26,18 @@ import '../../../medications/providers.dart';
 /// Fixing that first row also removes the need for separate chrome: with no
 /// medications saved the grid is just those two cells, which reads as its
 /// own empty state.
-class MedicationStep extends ConsumerWidget {
+///
+/// A name-search field sits above the grid (once there's at least one saved
+/// medication) and filters the medication tiles; the fixed first row ("No
+/// medication", "Add a medication") always stays put. The grid scrolls behind
+/// the floating step bar — the log screen reserves no bottom space for it and
+/// passes the inset down as [scrollBottomInset].
+class MedicationStep extends ConsumerStatefulWidget {
   const MedicationStep({
     required this.hasSelection,
     required this.selectedName,
     required this.onSelected,
+    required this.scrollBottomInset,
     super.key,
   });
 
@@ -42,9 +49,34 @@ class MedicationStep extends ConsumerWidget {
   /// Called with the medication name, or null for "no medication".
   final ValueChanged<String?> onSelected;
 
-  Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
+  /// Bottom scroll padding so the grid's last row clears the floating step bar
+  /// it now scrolls behind (the log screen no longer reserves this space).
+  final double scrollBottomInset;
+
+  @override
+  ConsumerState<MedicationStep> createState() => _MedicationStepState();
+}
+
+class _MedicationStepState extends ConsumerState<MedicationStep> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onQueryChanged(String value) => setState(() => _query = value);
+
+  void _clearQuery() {
+    _searchController.clear();
+    setState(() => _query = '');
+  }
+
+  Future<void> _addMedication() async {
     final name = await const MedicationNameDialog().show(context);
-    if (name == null || !context.mounted) return;
+    if (name == null || !mounted) return;
     await ref
         .read(medicationRepositoryProvider)
         .upsert(
@@ -55,55 +87,139 @@ class MedicationStep extends ConsumerWidget {
           ),
         );
     // Mid-attack every tap counts: adding a medication also picks it.
-    onSelected(name);
+    widget.onSelected(name);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final medications = ref.watch(medicationsByRecentUseProvider);
-    final horizontal = EdgeInsets.symmetric(
-      horizontal: AppSpacingConstant.w24,
-    );
+    final all = ref.watch(medicationsByRecentUseProvider);
+    final query = _query.trim().toLowerCase();
+    final medications = query.isEmpty
+        ? all
+        : all
+              .where((med) => med.name.toLowerCase().contains(query))
+              .toList();
 
-    return GridView.builder(
-      padding: horizontal.copyWith(
-        top: AppSpacingConstant.h16,
-        bottom: AppSpacingConstant.h16,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Only worth a search box once there's something to search.
+        if (all.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacingConstant.w24,
+              AppSpacingConstant.h8,
+              AppSpacingConstant.w24,
+              AppSpacingConstant.h8,
+            ),
+            child: _SearchField(
+              controller: _searchController,
+              hasText: query.isNotEmpty,
+              onChanged: _onQueryChanged,
+              onClear: _clearQuery,
+            ),
+          ),
+        Expanded(
+          child: GridView.builder(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacingConstant.w24,
+              AppSpacingConstant.h8,
+              AppSpacingConstant.w24,
+              widget.scrollBottomInset + AppSpacingConstant.h16,
+            ),
+            // Calm and predictable over platform-native bounce: a short list
+            // must not rubber-band mid-attack.
+            physics: const ClampingScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: AppSpacingConstant.h8,
+              crossAxisSpacing: AppSpacingConstant.w8,
+              mainAxisExtent: AppSpacingConstant.h64,
+            ),
+            itemCount: medications.length + 2,
+            itemBuilder: (context, i) {
+              if (i == 0) {
+                return _Tile.option(
+                  icon: Icons.block,
+                  label: l10n.logNoMedication,
+                  selected: widget.hasSelection && widget.selectedName == null,
+                  onTap: () => widget.onSelected(null),
+                );
+              }
+              if (i == 1) {
+                return _Tile.add(
+                  label: l10n.logAddMedication,
+                  onTap: _addMedication,
+                );
+              }
+              final med = medications[i - 2];
+              return _Tile.option(
+                icon: Icons.medication_outlined,
+                label: med.name,
+                selected:
+                    widget.hasSelection && widget.selectedName == med.name,
+                onTap: () => widget.onSelected(med.name),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Rounded name-search field above the medication grid — calm surface tile
+/// language (matching the option tiles) rather than a bare underlined field.
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.controller,
+    required this.hasText,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final bool hasText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+      borderSide: BorderSide(color: color),
+    );
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      textCapitalization: TextCapitalization.sentences,
+      style: AppTextStyle.titleSmall,
+      cursorColor: AppColors.primary,
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: AppColors.surface,
+        hintText: l10n.medicationsSearchHint,
+        hintStyle: AppTextStyle.titleSmall.secondary,
+        prefixIcon: AppIcon(
+          Icons.search,
+          color: AppColors.textSecondary,
+          size: AppSpacingConstant.r24,
+        ),
+        suffixIcon: hasText
+            ? IconButton(
+                icon: AppIcon(Icons.close, size: AppSpacingConstant.r18),
+                color: AppColors.textSecondary,
+                tooltip: l10n.medicationsSearchClear,
+                onPressed: onClear,
+              )
+            : null,
+        border: border(AppColors.textSecondary.withValues(alpha: 0.2)),
+        enabledBorder: border(AppColors.textSecondary.withValues(alpha: 0.2)),
+        focusedBorder: border(AppColors.primary),
       ),
-      // Calm and predictable over platform-native bounce: a short list must
-      // not rubber-band mid-attack.
-      physics: const ClampingScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: AppSpacingConstant.h8,
-        crossAxisSpacing: AppSpacingConstant.w8,
-        mainAxisExtent: AppSpacingConstant.h64,
-      ),
-      itemCount: medications.length + 2,
-      itemBuilder: (context, i) {
-        if (i == 0) {
-          return _Tile.option(
-            icon: Icons.block,
-            label: l10n.logNoMedication,
-            selected: hasSelection && selectedName == null,
-            onTap: () => onSelected(null),
-          );
-        }
-        if (i == 1) {
-          return _Tile.add(
-            label: l10n.logAddMedication,
-            onTap: () => _addMedication(context, ref),
-          );
-        }
-        final med = medications[i - 2];
-        return _Tile.option(
-          icon: Icons.medication_outlined,
-          label: med.name,
-          selected: hasSelection && selectedName == med.name,
-          onTap: () => onSelected(med.name),
-        );
-      },
     );
   }
 }
