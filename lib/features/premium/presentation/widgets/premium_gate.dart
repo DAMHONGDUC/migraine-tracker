@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../providers.dart';
+import 'premium_unlock_flow.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
 ///
@@ -34,14 +33,14 @@ class PremiumGate extends ConsumerWidget {
   }
 }
 
-class _LockedCard extends StatelessWidget {
+class _LockedCard extends ConsumerWidget {
   const _LockedCard({required this.message, required this.icon});
 
   final String message;
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Card(
       child: Padding(
@@ -66,7 +65,7 @@ class _LockedCard extends StatelessWidget {
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: AppButton.secondary(
-                onPressed: () => context.pushNamed(AppRoutes.paywall.name),
+                onPressed: () => PremiumUnlockFlow.start(context, ref),
                 label: l10n.premiumUnlock,
               ),
             ),
@@ -101,7 +100,7 @@ class PremiumTileGate extends ConsumerWidget {
       title: Text(title),
       subtitle: Text(lockedMessage),
       trailing: const PremiumBadge(),
-      onTap: () => context.pushNamed(AppRoutes.paywall.name),
+      onTap: () => PremiumUnlockFlow.start(context, ref),
     );
   }
 }

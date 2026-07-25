@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
+import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
@@ -44,6 +45,10 @@ abstract final class AppRoutes {
   static const attackIdParam = 'id';
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
+
+  /// Optional sign-in, pushed from Settings and from any premium gate.
+  /// Pops `true` once an account exists (see [LoginScreen]).
+  static const login = AppRoute(name: 'login', path: '/login');
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -85,6 +90,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.log.name,
         path: AppRoutes.log.path,
         builder: (context, state) => const LogScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.login.name,
+        path: AppRoutes.login.path,
+        builder: (context, state) => const LoginScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and
