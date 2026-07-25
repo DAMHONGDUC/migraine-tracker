@@ -1,0 +1,90 @@
+part of 'settings_screen.dart';
+
+/// Getting data back out. Export is free forever (hard rule 8 — GDPR); the
+/// doctor report is the premium flavour of the same idea.
+class _DataSection extends ConsumerWidget {
+  const _DataSection();
+
+  Future<void> _export(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final format = await showAppDialog<ExportFormat>(
+      context,
+      builder: (dialogContext) => AppDialog(
+        title: l10n.settingsExport,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppDialogOption(
+              icon: Icons.data_object,
+              label: l10n.settingsExportJson,
+              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.json),
+            ),
+            AppDialogOption(
+              icon: Icons.table_chart_outlined,
+              label: l10n.settingsExportCsv,
+              onTap: () => Navigator.of(dialogContext).pop(ExportFormat.csv),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (format == null) return;
+
+    await ref.read(settingsControllerProvider).export(format);
+  }
+
+  Future<void> _shareDoctorReport(BuildContext context, WidgetRef ref) async {
+    // Localized: the bundled Noto Sans font covers Vietnamese.
+    final l10n = context.l10n;
+    final strings = DoctorReportStrings(
+      title: l10n.reportTitle,
+      generated: l10n.reportGenerated(
+        DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      ),
+      period: l10n.reportPeriod,
+      summaryTitle: l10n.reportSummaryTitle,
+      totalAttacks: l10n.reportTotalAttacks,
+      avgIntensity: l10n.reportAvgIntensity,
+      commonLocation: l10n.reportCommonLocation,
+      attacksDuringDrops: l10n.reportAttacksDuringDrops,
+      tableTitle: l10n.reportTableTitle,
+      colDate: l10n.reportColDate,
+      colIntensity: l10n.reportColIntensity,
+      colLocation: l10n.reportColLocation,
+      colMedication: l10n.reportColMedication,
+      colPressureDelta: l10n.reportColPressureDelta,
+      disclaimer: l10n.onboardingDisclaimer,
+      locationLabels: {
+        for (final location in HeadLocation.values)
+          location: location.label(l10n),
+      },
+    );
+
+    await ref.read(settingsControllerProvider).shareDoctorReport(strings);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
+    return Column(
+      children: [
+        ListTile(
+          leading: const AppIcon(Icons.ios_share),
+          title: Text(l10n.settingsExport),
+          onTap: () => _export(context, ref),
+        ),
+        PremiumTileGate(
+          icon: Icons.picture_as_pdf_outlined,
+          title: l10n.settingsDoctorReport,
+          lockedMessage: l10n.premiumLockedReport,
+          child: ListTile(
+            leading: const AppIcon(Icons.picture_as_pdf_outlined),
+            title: Text(l10n.settingsDoctorReport),
+            onTap: () => _shareDoctorReport(context, ref),
+          ),
+        ),
+      ],
+    );
+  }
+}

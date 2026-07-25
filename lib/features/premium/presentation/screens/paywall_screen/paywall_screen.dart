@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
+import '../../../../auth/providers.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
 /// own change; until then the CTA explains that instead of pretending.
@@ -19,12 +22,17 @@ import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 /// (see the paywall route's CustomTransitionPage), drag-handle indicator,
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
-class PaywallScreen extends StatelessWidget {
+///
+/// Premium gates route through [PremiumUnlockFlow], which signs the user in
+/// before pushing this. Deep links skip that, so the CTA checks for itself:
+/// signed out, it offers sign-in instead of a purchase.
+class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final bool signedIn = ref.watch(isSignedInProvider);
 
     final sheet = Column(
       children: [
@@ -120,13 +128,21 @@ class PaywallScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: AppSpacingConstant.h24),
+                    // Signed out, the only honest action here is sign-in:
+                    // there is no account for a subscription to attach to.
+                    // Signed in, purchases still land with RevenueCat — the
+                    // CTA stays inert rather than pretending.
                     AppButton.primary(
-                      onPressed: () {},
-                      label: l10n.premiumUnlock,
+                      onPressed: signedIn
+                          ? () {}
+                          : () => context.pushNamed(AppRoutes.login.name),
+                      label: signedIn
+                          ? l10n.premiumUnlock
+                          : l10n.paywallSignInFirst,
                     ),
                     SizedBox(height: AppSpacingConstant.h8),
                     Text(
-                      l10n.paywallFreeKeeps,
+                      signedIn ? l10n.paywallFreeKeeps : l10n.paywallWhySignIn,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.bodyMedium.secondary,
                     ),
