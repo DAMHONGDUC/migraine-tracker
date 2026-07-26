@@ -3,11 +3,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../providers.dart';
-import 'premium_unlock_flow.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
 ///
@@ -65,7 +65,7 @@ class _LockedCard extends ConsumerWidget {
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: AppButton.secondary(
-                onPressed: () => PremiumUnlockFlow.start(context, ref),
+                onPressed: () => NavigationUtils.unlockPremium(context, ref),
                 label: l10n.premiumUnlock,
               ),
             ),
@@ -97,10 +97,10 @@ class PremiumTileGate extends ConsumerWidget {
     if (ref.watch(hasPremiumProvider)) return child;
     return ListTile(
       leading: AppIcon(icon, color: context.colorScheme.onSurfaceVariant),
-      title: Text(title),
-      subtitle: Text(lockedMessage),
+      title: Text(title, style: AppTextStyle.bodyLarge),
+      subtitle: Text(lockedMessage, style: AppTextStyle.bodyMedium.secondary),
       trailing: const PremiumBadge(),
-      onTap: () => PremiumUnlockFlow.start(context, ref),
+      onTap: () => NavigationUtils.unlockPremium(context, ref),
     );
   }
 }

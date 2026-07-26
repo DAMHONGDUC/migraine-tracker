@@ -38,8 +38,14 @@ class _GeneralSection extends ConsumerWidget {
         const _AlertsSection(),
         ListTile(
           leading: const AppIcon(Icons.language),
-          title: Text(context.l10n.settingsLanguage),
-          subtitle: Text(current.label(context)),
+          title: Text(
+            context.l10n.settingsLanguage,
+            style: AppTextStyle.bodyLarge,
+          ),
+          subtitle: Text(
+            current.label(context),
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
           onTap: () => _pickLanguage(context, ref),
         ),
       ],

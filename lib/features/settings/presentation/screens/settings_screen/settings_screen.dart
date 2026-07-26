@@ -44,7 +44,11 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return AppScaffold(
-      title: Text(l10n.settingsTitle),
+      // Tab screen: content scrolls behind the floating glass nav via
+      // AppScaffold.bottomNavInset, so the device inset is already
+      // accounted for there — a bottom SafeArea would cut it short.
+      withSafeArea: false,
+      title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(
         onRefresh: () =>
             AppRefreshIndicator.run(() => ref.invalidate(isPremiumProvider)),

@@ -15,18 +15,16 @@ import '../../providers.dart';
 class AlertsSection extends ConsumerWidget {
   const AlertsSection({super.key});
 
-  String _errorMessage(AppLocalizations l10n, Object? error) =>
-      switch (error) {
-        AlertRegistrationException(:final error) => switch (error) {
-          AlertRegistrationError.notificationsDenied =>
-            l10n.alertsErrorNotifications,
-          AlertRegistrationError.locationUnavailable =>
-            l10n.alertsErrorLocation,
-          AlertRegistrationError.pushUnavailable => l10n.alertsErrorPush,
-          AlertRegistrationError.unknown => l10n.alertsErrorGeneric,
-        },
-        _ => l10n.alertsErrorGeneric,
-      };
+  String _errorMessage(AppLocalizations l10n, Object? error) => switch (error) {
+    AlertRegistrationException(:final error) => switch (error) {
+      AlertRegistrationError.notificationsDenied =>
+        l10n.alertsErrorNotifications,
+      AlertRegistrationError.locationUnavailable => l10n.alertsErrorLocation,
+      AlertRegistrationError.pushUnavailable => l10n.alertsErrorPush,
+      AlertRegistrationError.unknown => l10n.alertsErrorGeneric,
+    },
+    _ => l10n.alertsErrorGeneric,
+  };
 
   Future<void> _pickThreshold(
     BuildContext context,
@@ -50,7 +48,12 @@ class AlertsSection extends ConsumerWidget {
     ref.listen(alertsControllerProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorMessage(l10n, next.error))),
+          SnackBar(
+            content: Text(
+              _errorMessage(l10n, next.error),
+              style: AppTextStyle.bodyMedium,
+            ),
+          ),
         );
       }
     });
@@ -66,17 +69,21 @@ class AlertsSection extends ConsumerWidget {
       children: [
         SwitchListTile(
           secondary: const AppIcon(Icons.notifications_active_outlined),
-          title: Text(l10n.alertsToggleTitle),
-          subtitle: Text(l10n.alertsToggleSubtitle),
+          title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
+          subtitle: Text(
+            l10n.alertsToggleSubtitle,
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
           value: settings.enabled,
           onChanged: (value) =>
               ref.read(alertsControllerProvider.notifier).setEnabled(value),
         ),
         ListTile(
           leading: const AppIcon(Icons.compress),
-          title: Text(l10n.alertsThresholdTitle),
+          title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
+            style: AppTextStyle.bodyMedium.secondary,
           ),
           onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
         ),

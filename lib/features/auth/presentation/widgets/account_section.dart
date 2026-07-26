@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
@@ -56,9 +55,12 @@ class AccountSection extends ConsumerWidget {
     if (!signedIn) {
       return ListTile(
         leading: const AppIcon(Icons.account_circle_outlined),
-        title: Text(l10n.settingsAccountSignIn),
-        subtitle: Text(l10n.settingsAccountSignInSubtitle),
-        onTap: () => context.pushNamed(AppRoutes.login.name),
+        title: Text(l10n.settingsAccountSignIn, style: AppTextStyle.bodyLarge),
+        subtitle: Text(
+          l10n.settingsAccountSignInSubtitle,
+          style: AppTextStyle.bodyMedium.secondary,
+        ),
+        onTap: () => NavigationUtils.toLogin(context),
       );
     }
 
@@ -66,8 +68,14 @@ class AccountSection extends ConsumerWidget {
 
     return ListTile(
       leading: const AppIcon(Icons.account_circle),
-      title: Text(user?.label ?? l10n.settingsAccountSignedIn),
-      subtitle: Text(l10n.settingsAccountSignedInSubtitle),
+      title: Text(
+        user?.label ?? l10n.settingsAccountSignedIn,
+        style: AppTextStyle.bodyLarge,
+      ),
+      subtitle: Text(
+        l10n.settingsAccountSignedInSubtitle,
+        style: AppTextStyle.bodyMedium.secondary,
+      ),
       trailing: AppButton.text(
         onPressed: () => _signOut(context, ref),
         label: l10n.settingsSignOut,

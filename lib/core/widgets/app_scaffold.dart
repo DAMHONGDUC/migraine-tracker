@@ -20,6 +20,8 @@ class AppScaffold extends StatelessWidget {
     this.appBarBottom,
     this.floatingActionButton,
     this.bottomNavigationBar,
+    this.withSafeArea = true,
+    this.withScrollView = false,
     super.key,
   });
 
@@ -34,6 +36,32 @@ class AppScaffold extends StatelessWidget {
   /// glass is on, the body extends behind it so it refracts through the glass;
   /// pad the body's bottom by [bottomNavInset] so its last item clears it.
   final Widget? bottomNavigationBar;
+
+  /// Keeps [body] clear of the device's own bottom and side insets (home
+  /// indicator, notch in landscape), so screens stop sprinkling
+  /// `MediaQuery.paddingOf(context).bottom` through their padding.
+  ///
+  /// The top edge is deliberately excluded: that one belongs to the app bar,
+  /// not the device, and a scroll-under body has to pass *behind* the bar —
+  /// use [bodyTopInset] inside the scrollable for it.
+  ///
+  /// Pass false on any screen whose content scrolls behind a floating bottom
+  /// bar — the five tab screens (which use [bottomNavInset]) and the log
+  /// flow (which owns a [bottomNavigationBar]). There, a bottom SafeArea
+  /// would end the viewport above the home indicator and the content would
+  /// stop dead instead of sliding under the glass.
+  final bool withSafeArea;
+
+  /// Makes [body] scroll once it outgrows the screen, while still filling at
+  /// least one viewport when it does not — the pairing a bottom-pinned
+  /// action column needs (see the "content plus an action button" rule in
+  /// CLAUDE.md). Opt-in, because most bodies here are already a `ListView`
+  /// and a second scroll view around one is a bug, not a fallback.
+  ///
+  /// Only for bodies that size themselves. A body using `Expanded` (the log
+  /// flow's steps) cannot live inside a scroll view: unbounded height and
+  /// flex are contradictory.
+  final bool withScrollView;
 
   /// Top inset a scroll-under body should pad by so its first item clears the
   /// frosted bar. Read it inside [body] (e.g. a `ListView.padding`).
@@ -78,8 +106,46 @@ class AppScaffold extends StatelessWidget {
       body: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.translucent,
-        child: body,
+        child: _wrapped(),
       ),
+    );
+  }
+
+  /// SafeArea outside the scroll view, so scrolled content still stops clear
+  /// of the home indicator rather than running under it.
+  Widget _wrapped() {
+    final Widget scrollable = withScrollView ? _Scrollable(child: body) : body;
+
+    return withSafeArea ? SafeArea(top: false, child: scrollable) : scrollable;
+  }
+}
+
+/// The "fills the viewport, scrolls once it cannot" body.
+///
+/// The minimum height is what makes a `spaceBetween` column work: without
+/// it the column shrink-wraps its children inside an unbounded scroll view
+/// and there is no free space left to push the actions down, so they end up
+/// stacked under the content instead of at the bottom edge.
+///
+/// [child]'s own padding is deflated out of that minimum automatically
+/// (a `Padding` passes the tightened constraint on), so a padded body still
+/// measures exactly one viewport and does not scroll by its own margins.
+class _Scrollable extends StatelessWidget {
+  const _Scrollable({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

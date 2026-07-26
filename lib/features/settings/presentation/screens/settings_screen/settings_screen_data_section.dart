@@ -52,7 +52,7 @@ class _DataSection extends ConsumerWidget {
       children: [
         ListTile(
           leading: const AppIcon(Icons.ios_share),
-          title: Text(l10n.settingsExport),
+          title: Text(l10n.settingsExport, style: AppTextStyle.bodyLarge),
           onTap: () => _export(context, ref),
         ),
         PremiumTileGate(
@@ -61,7 +61,10 @@ class _DataSection extends ConsumerWidget {
           lockedMessage: l10n.premiumLockedReport,
           child: ListTile(
             leading: const AppIcon(Icons.picture_as_pdf_outlined),
-            title: Text(l10n.settingsDoctorReport),
+            title: Text(
+              l10n.settingsDoctorReport,
+              style: AppTextStyle.bodyLarge,
+            ),
             onTap: () => _shareDoctorReport(context, ref),
           ),
         ),

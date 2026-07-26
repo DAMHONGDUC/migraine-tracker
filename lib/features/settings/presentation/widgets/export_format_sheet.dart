@@ -71,7 +71,7 @@ class _FormatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: AppIcon(icon, color: context.colorScheme.primary),
-      title: Text(label),
+      title: Text(label, style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(format),
     );
   }

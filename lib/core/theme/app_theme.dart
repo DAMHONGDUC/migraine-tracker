@@ -73,12 +73,18 @@ abstract final class AppTheme {
           ),
         ),
       ),
-      cardTheme: const CardThemeData(
-        color: AppColors.surface,
-        elevation: 0,
-      ),
+      cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceElevated,
+      ),
+      // M3's default snackbar is an *inverse* surface — a bright bar
+      // flashing up on a dark, photophobia-friendly screen (hard rule 3).
+      // Pinning it to the elevated surface also means snackbar content can
+      // wear a normal AppTextStyle instead of an inverse-colored one.
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceElevated,
+        contentTextStyle: AppTextStyle.bodyMedium,
+        behavior: SnackBarBehavior.floating,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

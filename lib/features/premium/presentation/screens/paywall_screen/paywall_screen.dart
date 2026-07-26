@@ -5,7 +5,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
-import '../../../../../core/router/app_router.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
@@ -23,7 +23,8 @@ import '../../../../auth/providers.dart';
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
 ///
-/// Premium gates route through [PremiumUnlockFlow], which signs the user in
+/// Premium gates route through [NavigationUtils.unlockPremium], which signs
+/// the user in
 /// before pushing this. Deep links skip that, so the CTA checks for itself:
 /// signed out, it offers sign-in instead of a purchase.
 class PaywallScreen extends ConsumerWidget {
@@ -78,7 +79,9 @@ class PaywallScreen extends ConsumerWidget {
               AppSpacingConstant.w24,
               AppSpacingConstant.h8,
               AppSpacingConstant.w24,
-              MediaQuery.paddingOf(context).bottom,
+              // A sheet route, so there is no SafeArea above it — the device
+              // inset is taken here, plus the standard gap above it.
+              MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h16,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,7 +138,7 @@ class PaywallScreen extends ConsumerWidget {
                     AppButton.primary(
                       onPressed: signedIn
                           ? () {}
-                          : () => context.pushNamed(AppRoutes.login.name),
+                          : () => NavigationUtils.toLogin(context),
                       label: signedIn
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
@@ -165,10 +168,7 @@ class PaywallScreen extends ConsumerWidget {
             // Transparent Material: text/ink need a Material ancestor
             // (without one, Text renders Flutter's yellow double-underline
             // fallback), but it must not paint over the glass.
-            child: Material(
-              type: MaterialType.transparency,
-              child: sheet,
-            ),
+            child: Material(type: MaterialType.transparency, child: sheet),
           )
         : Material(
             color: AppColors.surface,
