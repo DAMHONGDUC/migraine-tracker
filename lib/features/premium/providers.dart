@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/l10n/locale_provider.dart';
+import '../auth/providers.dart';
 import 'data/repositories/debug_premium_repository.dart';
 import 'domain/repositories/premium_repository.dart';
 
@@ -16,12 +17,17 @@ final isPremiumProvider = StreamProvider<bool>(
   (ref) => ref.watch(premiumRepositoryProvider).watchIsPremium(),
 );
 
-/// Convenience for widgets/gates. Falls back to the repository's current
-/// value while the stream is still loading, so a premium user's gate never
-/// flashes locked on the first frame; live toggles come through the stream.
+/// What every gate reads. Falls back to the repository while loading, so a
+/// premium gate never flashes locked on the first frame.
+///
+/// An entitlement without an account unlocks nothing — a subscription needs
+/// something that survives a reinstall. Both conditions live here so no
+/// gate can forget one.
 final hasPremiumProvider = Provider<bool>((ref) {
+  if (!ref.watch(isSignedInProvider)) return false;
+
   return switch (ref.watch(isPremiumProvider)) {
-    AsyncData(value: final value) => value,
+    AsyncData(value: final bool value) => value,
     _ => ref.watch(premiumRepositoryProvider).isPremium,
   };
 });

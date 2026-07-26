@@ -18,6 +18,7 @@ import '../../../../../core/widgets/app_filter_sheet.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../core/widgets/empty_state.dart';
 import '../../../../../core/widgets/pinned_filter_bar.dart';
@@ -87,9 +88,7 @@ abstract final class _ReminderSnack {
     final message = firesTomorrow
         ? l10n.remindersScheduledTomorrow(time)
         : l10n.remindersScheduledToday(time);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    AppSnackBarUtils.success(context, message);
   }
 }
 
@@ -262,9 +261,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         .read(remindersControllerProvider)
         .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.remindersTestScheduled)));
+    AppSnackBarUtils.info(context, l10n.remindersTestScheduled);
   }
 
   @override
@@ -295,10 +292,15 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filterBarHeight = PinnedFilterBar.heightFor(topInset);
 
     return AppScaffold(
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
+      withSafeArea: false,
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
-      title: _searching ? _searchField(context) : Text(l10n.medicationsTitle),
+      title: _searching
+          ? _searchField(context)
+          : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
       leading: _searching
           ? IconButton(
               icon: const AppIcon(Icons.arrow_back),

@@ -73,12 +73,16 @@ abstract final class AppTheme {
           ),
         ),
       ),
-      cardTheme: const CardThemeData(
-        color: AppColors.surface,
-        elevation: 0,
-      ),
+      cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceElevated,
+      ),
+      // A backstop only — the app's look lives in AppSnackBarUtils. Without
+      // it, M3's default inverse surface is a bright bar on a dark screen.
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceElevated,
+        contentTextStyle: AppTextStyle.bodyMedium,
+        behavior: SnackBarBehavior.floating,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

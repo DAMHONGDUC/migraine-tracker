@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../attacks/providers.dart';
@@ -20,7 +21,10 @@ class InsightsScreen extends ConsumerWidget {
     final result = ref.watch(correlationResultProvider);
 
     return AppScaffold(
-      title: Text(context.l10n.insightsTitle),
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
+      withSafeArea: false,
+      title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
       body: switch (result) {
         AsyncData(value: final value) => AppRefreshIndicator(
           onRefresh: () => AppRefreshIndicator.run(() {

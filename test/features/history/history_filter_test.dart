@@ -14,12 +14,6 @@ Attack at(String id, DateTime local) => Attack(
   location: HeadLocation.left,
 );
 
-Future<void> openHistory(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 /// Opens the filter bottom sheet from the app bar and picks [period].
 Future<void> selectPeriod(WidgetTester tester, String period) async {
   await tester.tap(find.byIcon(Icons.filter_list));

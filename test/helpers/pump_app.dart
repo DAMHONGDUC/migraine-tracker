@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +10,11 @@ import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
+import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
+import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/auth/domain/repositories/auth_repository.dart';
+import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
@@ -72,6 +79,71 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
+/// In-memory account. Not optional like the other fakes: `authUserProvider`
+/// is watched at build time, so a real one drags Firebase into the tree.
+class FakeAuthRepository implements AuthRepository {
+  FakeAuthRepository({bool signedIn = false})
+    : _user = signedIn
+          ? const AuthUser(
+              uid: 'test-uid',
+              isAnonymous: false,
+              email: 'tester@example.com',
+            )
+          : const AuthUser(uid: 'test-uid', isAnonymous: true);
+
+  /// Set to make [signIn] fail with this error instead of succeeding.
+  AuthError? failWith;
+
+  /// Whether the login screen should offer the Apple button.
+  bool appleAvailable = true;
+
+  /// Providers [signIn] was called with, in order.
+  final List<AuthProviderKind> signInCalls = <AuthProviderKind>[];
+  int signOutCalls = 0;
+
+  AuthUser _user;
+  final StreamController<AuthUser?> _controller =
+      StreamController<AuthUser?>.broadcast();
+
+  @override
+  AuthUser? get currentUser => _user;
+
+  @override
+  Stream<AuthUser?> watchUser() async* {
+    yield _user;
+    yield* _controller.stream;
+  }
+
+  @override
+  Future<bool> isAppleAvailable() async => appleAvailable;
+
+  @override
+  Future<AuthUser> signIn(AuthProviderKind provider) async {
+    signInCalls.add(provider);
+    final AuthError? error = failWith;
+
+    if (error != null) throw AuthException(error);
+
+    // Mirrors linkWithCredential: same UID, no longer anonymous.
+    _user = AuthUser(
+      uid: _user.uid,
+      isAnonymous: false,
+      email: 'tester@example.com',
+    );
+    _controller.add(_user);
+    return _user;
+  }
+
+  @override
+  Future<void> signOut() async {
+    signOutCalls++;
+    _user = AuthUser(uid: _user.uid, isAnonymous: true);
+    _controller.add(_user);
+  }
+
+  void dispose() => _controller.close();
+}
+
 /// Grants permissions by default; a test can flip [statusFor] to exercise the
 /// permanently-denied → settings-sheet path. Never touches the OS.
 class FakeAppPermissionGateway implements AppPermissionGateway {
@@ -96,6 +168,7 @@ class PumpedApp {
     required this.weather,
     required this.scheduler,
     required this.permissions,
+    required this.auth,
   });
 
   final AppDatabase db;
@@ -103,6 +176,7 @@ class PumpedApp {
   final FakeWeatherRepository weather;
   final FakeNotificationScheduler scheduler;
   final FakeAppPermissionGateway permissions;
+  final FakeAuthRepository auth;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -116,6 +190,14 @@ Future<PumpedApp> pumpApp(
   ExportSink? exportSink,
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
+
+  /// Follows [premium]: an entitlement without an account unlocks nothing,
+  /// so a signed-out premium test would silently test the locked branch.
+  bool? signedIn,
+
+  /// Off, as shipped: the Apple button shows but its flow is not wired up.
+  /// True covers the real path, which must work before submission.
+  bool appleSignIn = false,
 }) async {
   // Pin the test view to the 393×852 design size (an iPhone-class screen,
   // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
@@ -139,6 +221,8 @@ Future<PumpedApp> pumpApp(
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
   final permissions = FakeAppPermissionGateway();
+  final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
+  addTearDown(auth.dispose);
 
   await tester.pumpWidget(
     ProviderScope(
@@ -148,6 +232,8 @@ Future<PumpedApp> pumpApp(
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
+        authRepositoryProvider.overrideWithValue(auth),
+        appleSignInImplementedProvider.overrideWithValue(appleSignIn),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],
@@ -163,6 +249,7 @@ Future<PumpedApp> pumpApp(
     weather: weather,
     scheduler: scheduler,
     permissions: permissions,
+    auth: auth,
   );
 }
 
@@ -175,6 +262,45 @@ Future<PumpedApp> pumpApp(
 Future<void> finishTest(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(milliseconds: 500));
+}
+
+/// Taps a target below the fold. A plain `tap()` on an off-screen widget
+/// only warns and taps nothing, failing some later assertion instead.
+Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  await tester.tap(finder);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Tab switches from the shell's bottom nav. Every widget test that leaves
+/// the dashboard goes through these rather than re-tapping the icons.
+Future<void> openSettings(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.settings_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> openMedications(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.medication_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> openHistory(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Pumps real frames so the correlation count-up (700ms) can run — one big
+/// jump skips its start frame.
+Future<void> openInsights(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.insights_outlined));
+  for (int i = 0; i < 15; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 }
 
 /// Opens the log flow from the dashboard's hero button (the flow is a pushed

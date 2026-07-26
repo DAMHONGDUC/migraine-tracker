@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
+import '../../../../auth/providers.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
 /// own change; until then the CTA explains that instead of pretending.
@@ -19,12 +23,16 @@ import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 /// (see the paywall route's CustomTransitionPage), drag-handle indicator,
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
-class PaywallScreen extends StatelessWidget {
+///
+/// Gates route through [NavigationUtils.unlockPremium], which signs the
+/// user in first. Deep links skip that, so the CTA checks for itself.
+class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final bool signedIn = ref.watch(isSignedInProvider);
 
     final sheet = Column(
       children: [
@@ -70,7 +78,8 @@ class PaywallScreen extends StatelessWidget {
               AppSpacingConstant.w24,
               AppSpacingConstant.h8,
               AppSpacingConstant.w24,
-              MediaQuery.paddingOf(context).bottom,
+              // A sheet route: no SafeArea above it, so take the inset here.
+              MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h16,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,22 +101,22 @@ class PaywallScreen extends StatelessWidget {
                           style: AppTextStyle.headlineSmall.w600,
                         ),
                         SizedBox(height: AppSpacingConstant.h24),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
                           body: l10n.paywallBenefitAlertsBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.show_chart,
                           title: l10n.paywallBenefitForecast,
                           body: l10n.paywallBenefitForecastBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.insights_outlined,
                           title: l10n.paywallBenefitInsights,
                           body: l10n.paywallBenefitInsightsBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.picture_as_pdf_outlined,
                           title: l10n.paywallBenefitReport,
                           body: l10n.paywallBenefitReportBody,
@@ -120,13 +129,19 @@ class PaywallScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: AppSpacingConstant.h24),
+                    // Signed out there is no account to attach a
+                    // subscription to; signed in, purchases await RevenueCat.
                     AppButton.primary(
-                      onPressed: () {},
-                      label: l10n.premiumUnlock,
+                      onPressed: signedIn
+                          ? () {}
+                          : () => NavigationUtils.toLogin(context),
+                      label: signedIn
+                          ? l10n.premiumUnlock
+                          : l10n.paywallSignInFirst,
                     ),
                     SizedBox(height: AppSpacingConstant.h8),
                     Text(
-                      l10n.paywallFreeKeeps,
+                      signedIn ? l10n.paywallFreeKeeps : l10n.paywallWhySignIn,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.bodyMedium.secondary,
                     ),
@@ -149,10 +164,7 @@ class PaywallScreen extends StatelessWidget {
             // Transparent Material: text/ink need a Material ancestor
             // (without one, Text renders Flutter's yellow double-underline
             // fallback), but it must not paint over the glass.
-            child: Material(
-              type: MaterialType.transparency,
-              child: sheet,
-            ),
+            child: Material(type: MaterialType.transparency, child: sheet),
           )
         : Material(
             color: AppColors.surface,
@@ -176,34 +188,3 @@ class PaywallScreen extends StatelessWidget {
   }
 }
 
-class _Benefit extends StatelessWidget {
-  const _Benefit({required this.icon, required this.title, required this.body});
-
-  final IconData icon;
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: AppSpacingConstant.h16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppIcon(icon, color: context.colorScheme.primary),
-          SizedBox(width: AppSpacingConstant.w16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyle.titleMedium),
-                SizedBox(height: AppSpacingConstant.h4),
-                Text(body, style: AppTextStyle.bodyMedium.secondary),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

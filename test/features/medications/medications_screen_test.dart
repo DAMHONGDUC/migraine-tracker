@@ -6,12 +6,6 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 
 import '../../helpers/pump_app.dart';
 
-Future<void> openMedications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.medication_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 Future<void> addMedication(WidgetTester tester, String name) async {
   // App bar "+" icon (a FAB would sit under the floating bottom nav's hit
   // region on a shell tab, so this screen puts its add action there

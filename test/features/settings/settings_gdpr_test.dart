@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -19,12 +18,6 @@ class RecordingExportSink implements ExportSink {
   }
 }
 
-Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 100));
-}
-
 void main() {
   testWidgets('delete everything wipes attacks, weather, and medications', (
     tester,
@@ -37,9 +30,7 @@ void main() {
     ).upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
 
     await openSettings(tester);
-    await tester.tap(find.text('Delete all data'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tapVisible(tester, find.text('Delete all data'));
 
     expect(find.text('Delete everything?'), findsOneWidget);
     await tester.tap(find.text('Delete'));
@@ -59,9 +50,7 @@ void main() {
     await logAttack(tester);
 
     await openSettings(tester);
-    await tester.tap(find.text('Delete all data'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tapVisible(tester, find.text('Delete all data'));
     await tester.tap(find.text('Cancel'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
@@ -80,9 +69,7 @@ void main() {
     await logAttack(tester, intensity: '8', location: 'Left side');
 
     await openSettings(tester);
-    await tester.tap(find.text('Export data'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tapVisible(tester, find.text('Export data'));
     await tester.tap(find.text('JSON (full backup)'));
     // The export path chains several awaits (two stream reads + the share
     // call); give the fake event loop enough turns to drain them all.
@@ -106,9 +93,7 @@ void main() {
     await logAttack(tester);
 
     await openSettings(tester);
-    await tester.tap(find.text('Export data'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tapVisible(tester, find.text('Export data'));
     await tester.tap(find.text('CSV (attacks table)'));
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 50));

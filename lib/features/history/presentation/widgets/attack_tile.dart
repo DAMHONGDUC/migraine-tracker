@@ -49,19 +49,21 @@ class AttackTile extends StatelessWidget {
           ),
           excludeSemantics: true,
           child: CircleAvatar(
-            backgroundColor:
-                context.colorScheme.primary.withValues(alpha: 0.18),
-            child: Text(
-              '${attack.intensity}',
-              style: AppTextStyle.titleMedium,
+            backgroundColor: context.colorScheme.primary.withValues(
+              alpha: 0.18,
             ),
+            child: Text('${attack.intensity}', style: AppTextStyle.titleMedium),
           ),
         ),
-        title: Text(attack.location.label(context.l10n)),
+        title: Text(
+          attack.location.label(context.l10n),
+          style: AppTextStyle.bodyLarge,
+        ),
         subtitle: Text(
           attack.medicationName == null
               ? when
               : '$when · ${attack.medicationName}',
+          style: AppTextStyle.bodyMedium.secondary,
         ),
         trailing: AppIcon(
           Icons.chevron_right,

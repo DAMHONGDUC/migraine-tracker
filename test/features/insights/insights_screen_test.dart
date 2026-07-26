@@ -25,14 +25,6 @@ Attack seededAttack(int i, {double? pressureDelta}) {
   );
 }
 
-Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.insights_outlined));
-  // Real frames so the correlation count-up can run (see premium test note).
-  for (var i = 0; i < 15; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-}
-
 void main() {
   testWidgets('locked state shows remaining count and progress', (
     tester,
