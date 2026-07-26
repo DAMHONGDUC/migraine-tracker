@@ -5,8 +5,12 @@ part of 'login_screen.dart';
 /// Apple sits first and gets the filled treatment: offering Google makes
 /// Sign in with Apple mandatory (App Store 4.8), and Apple's guidelines
 /// expect it to be no less prominent than the alternatives. It is hidden
-/// entirely where the platform cannot serve it (Android, iOS < 13) rather
-/// than shown as a button that only ever errors.
+/// only where the platform cannot serve it (Android, iOS < 13) — a button
+/// that could never work is worse than no button.
+///
+/// It shows even while the Apple flow is unimplemented, so the screen is
+/// laid out in its final shape from the start; tapping it then reports that
+/// plainly (see `appleSignInImplementedProvider`).
 ///
 /// While a provider sheet is open both buttons go inert — two concurrent
 /// sheets would race for the same anonymous UID to upgrade.

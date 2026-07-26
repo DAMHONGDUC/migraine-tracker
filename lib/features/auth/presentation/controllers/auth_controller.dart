@@ -30,6 +30,14 @@ class LoginController extends Notifier<LoginState> {
   Future<bool> signIn(AuthProviderKind provider) async {
     if (state.isBusy) return false;
 
+    // Offered in the UI, not wired up yet: say so rather than starting a
+    // flow whose only possible ending is a confusing provider error.
+    if (provider == AuthProviderKind.apple &&
+        !ref.read(appleSignInImplementedProvider)) {
+      state = const LoginState(error: AuthError.notImplemented);
+      return false;
+    }
+
     state = LoginState(pending: provider);
     AppLogger.action('Sign in', provider.name);
 

@@ -269,5 +269,6 @@
   "paywallSignInFirst": "Đăng nhập để tiếp tục",
   "paywallWhySignIn": "Premium cần một tài khoản để gói đăng ký đi theo bạn.",
   "settingsSectionGeneral": "Chung",
-  "settingsSectionData": "Dữ liệu của bạn"
+  "settingsSectionData": "Dữ liệu của bạn",
+  "loginErrorAppleSoon": "Đăng nhập bằng Apple sắp có. Bạn hãy dùng Google trong lúc này."
 }

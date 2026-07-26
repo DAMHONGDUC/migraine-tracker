@@ -1220,5 +1220,9 @@
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
     "description": "Settings section heading above export, the doctor report and the delete-everything row"
+  },
+  "loginErrorAppleSoon": "Sign in with Apple is coming soon. Please use Google for now.",
+  "@loginErrorAppleSoon": {
+    "description": "Shown when the Apple button is tapped while the Apple flow is offered but not yet wired up (appleSignInImplementedProvider)"
   }
 }
