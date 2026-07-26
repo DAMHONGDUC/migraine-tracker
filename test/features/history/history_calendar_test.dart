@@ -15,12 +15,6 @@ Attack at(String id, DateTime local, {int intensity = 5}) => Attack(
   location: HeadLocation.left,
 );
 
-Future<void> openHistory(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 Future<void> switchToCalendar(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.calendar_view_month));
   await tester.pump();

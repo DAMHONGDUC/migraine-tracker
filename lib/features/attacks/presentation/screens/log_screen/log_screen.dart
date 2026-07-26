@@ -64,7 +64,9 @@ class LogScreen extends ConsumerWidget {
     final isMedication = state.step == LogStep.medication;
 
     return AppScaffold(
-      title: Text(l10n.logTitle),
+      // The step bar keeps itself clear of the home indicator (LogStepBar).
+      withSafeArea: false,
+      title: Text(l10n.logTitle, style: AppTextStyle.titleLarge),
       // First step: nothing to step back to, so the leading button cancels
       // the whole flow (pops the route). Later steps: step back through the
       // LogController state machine. Saved: no leading — only "Done" leaves.
@@ -84,7 +86,9 @@ class LogScreen extends ConsumerWidget {
       // The 3-tap progress lives in the bottom bar slot, in the same floating
       // position the shell's bottom nav used to morph into. Hidden once saved
       // (nothing left to track), so the body then uses a plain bottom inset.
-      bottomNavigationBar: question != null ? LogStepBar(step: state.step) : null,
+      bottomNavigationBar: question != null
+          ? LogStepBar(step: state.step)
+          : null,
       body: Padding(
         padding: EdgeInsets.only(
           top: AppScaffold.bodyTopInset(context),

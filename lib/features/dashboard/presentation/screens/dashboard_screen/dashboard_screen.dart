@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../attacks/providers.dart';
@@ -47,7 +48,10 @@ class DashboardScreen extends ConsumerWidget {
     ];
 
     return AppScaffold(
-      title: Text(l10n.dashboardGreeting),
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
+      withSafeArea: false,
+      title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(
         onRefresh: () => AppRefreshIndicator.run(() {
           ref

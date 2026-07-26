@@ -1112,5 +1112,117 @@
     "placeholders": {
       "time": {"type": "String"}
     }
+  },
+  "loginTitle": "Sign in",
+  "@loginTitle": {
+    "description": "Title of the optional sign-in screen"
+  },
+  "loginHeadline": "Sign in to unlock Premium",
+  "@loginHeadline": {
+    "description": "Headline of the login screen"
+  },
+  "loginBody": "An account is only needed for your subscription. Everything else works without one.",
+  "@loginBody": {
+    "description": "Sub-headline explaining why the app asks for an account"
+  },
+  "loginBenefitDevices": "Premium on any device",
+  "@loginBenefitDevices": {
+    "description": "Login benefit: the subscription follows the account"
+  },
+  "loginBenefitDevicesBody": "Your subscription follows your account to a new phone.",
+  "@loginBenefitDevicesBody": {
+    "description": "Body of the cross-device login benefit"
+  },
+  "loginBenefitRestore": "Restore your purchase",
+  "@loginBenefitRestore": {
+    "description": "Login benefit: reinstalling does not cost money again"
+  },
+  "loginBenefitRestoreBody": "Reinstall the app and get Premium back without paying twice.",
+  "@loginBenefitRestoreBody": {
+    "description": "Body of the restore-purchase login benefit"
+  },
+  "loginPrivacyNote": "Your attacks stay on this device. Signing in never uploads your health data.",
+  "@loginPrivacyNote": {
+    "description": "Privacy disclosure on the login screen (hard rule 1). Must stay accurate: update it only when encrypted attack sync actually ships."
+  },
+  "loginApple": "Sign in with Apple",
+  "@loginApple": {
+    "description": "Apple sign-in button. Wording is prescribed by Apple; do not paraphrase."
+  },
+  "loginGoogle": "Continue with Google",
+  "@loginGoogle": {
+    "description": "Google sign-in button"
+  },
+  "loginNotNow": "Not now",
+  "@loginNotNow": {
+    "description": "Dismisses the login screen without signing in"
+  },
+  "loginErrorNetwork": "No connection. Check your network and try again.",
+  "@loginErrorNetwork": {
+    "description": "Sign-in failed because the provider could not be reached"
+  },
+  "loginErrorApple": "Sign in with Apple isn't available on this device.",
+  "@loginErrorApple": {
+    "description": "Sign-in failed because the platform does not support Apple sign-in"
+  },
+  "loginErrorConflict": "That account can't be linked to this one. Try the other sign-in option.",
+  "@loginErrorConflict": {
+    "description": "Sign-in failed because the credential belongs to another account"
+  },
+  "loginErrorConfig": "Sign-in isn't set up yet. Please try again later.",
+  "@loginErrorConfig": {
+    "description": "Sign-in failed because the provider is not configured in the backend"
+  },
+  "loginErrorGeneric": "Sign-in didn't work. Please try again.",
+  "@loginErrorGeneric": {
+    "description": "Fallback sign-in error"
+  },
+  "settingsAccountSignIn": "Sign in",
+  "@settingsAccountSignIn": {
+    "description": "Settings row that opens the login screen"
+  },
+  "settingsAccountSignInSubtitle": "Optional \u2014 needed to unlock Premium",
+  "@settingsAccountSignInSubtitle": {
+    "description": "Subtitle of the signed-out account row"
+  },
+  "settingsAccountSignedIn": "Signed in",
+  "@settingsAccountSignedIn": {
+    "description": "Account row title when the provider gave us no email or name"
+  },
+  "settingsAccountSignedInSubtitle": "Your subscription is tied to this account",
+  "@settingsAccountSignedInSubtitle": {
+    "description": "Subtitle of the signed-in account row"
+  },
+  "settingsSignOut": "Sign out",
+  "@settingsSignOut": {
+    "description": "Sign-out action on the account row"
+  },
+  "settingsSignOutConfirmTitle": "Sign out?",
+  "@settingsSignOutConfirmTitle": {
+    "description": "Title of the sign-out confirmation dialog"
+  },
+  "settingsSignOutConfirmBody": "Your attacks stay on this device. Premium features lock until you sign in again.",
+  "@settingsSignOutConfirmBody": {
+    "description": "Body of the sign-out confirmation dialog"
+  },
+  "paywallSignInFirst": "Sign in to continue",
+  "@paywallSignInFirst": {
+    "description": "Paywall CTA shown to a signed-out user, opens the login screen"
+  },
+  "paywallWhySignIn": "Premium needs an account so your subscription can follow you.",
+  "@paywallWhySignIn": {
+    "description": "Line under the paywall CTA explaining why signing in comes first"
+  },
+  "settingsSectionGeneral": "General",
+  "@settingsSectionGeneral": {
+    "description": "Settings section heading above the account, alert and language rows"
+  },
+  "settingsSectionData": "Your data",
+  "@settingsSectionData": {
+    "description": "Settings section heading above export, the doctor report and the delete-everything row"
+  },
+  "loginErrorAppleSoon": "Sign in with Apple is coming soon. Please use Google for now.",
+  "@loginErrorAppleSoon": {
+    "description": "Shown when the Apple button is tapped while the Apple flow is offered but not yet wired up (appleSignInImplementedProvider)"
   }
 }

@@ -45,8 +45,14 @@ class _DetailsSection extends StatelessWidget {
             ),
           if (attack.notes?.isNotEmpty ?? false)
             ListTile(
-              title: Text(l10n.detailsNotesLabel),
-              subtitle: Text(attack.notes!),
+              title: Text(
+                l10n.detailsNotesLabel,
+                style: AppTextStyle.bodyLarge,
+              ),
+              subtitle: Text(
+                attack.notes!,
+                style: AppTextStyle.bodyMedium.secondary,
+              ),
             ),
           Padding(
             padding: EdgeInsets.only(

@@ -19,7 +19,7 @@ class _EditableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(label),
+      title: Text(label, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -44,4 +44,3 @@ class _EditableRow extends StatelessWidget {
     );
   }
 }
-

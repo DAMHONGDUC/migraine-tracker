@@ -72,7 +72,10 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           children: [
             ListTile(
               leading: const AppIcon(Icons.edit_outlined),
-              title: Text(l10n.medicationsEditAction),
+              title: Text(
+                l10n.medicationsEditAction,
+                style: AppTextStyle.bodyLarge,
+              ),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _rename(context, ref);

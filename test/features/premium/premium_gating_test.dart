@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -41,27 +42,6 @@ PressureForecast forecast() => PressureForecast(
       ),
   ],
 );
-
-Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.insights_outlined));
-  // Stream emits → card builds → count-up runs (700ms). Pump in real frames,
-  // not one big jump: a single large pump skips the count-up's start frame.
-  for (var i = 0; i < 15; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-}
-
-Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
-Future<void> openMedications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.medication_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
 
 void main() {
   group('free user', () {
@@ -143,7 +123,9 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('tapping Unlock opens the paywall', (tester) async {
+    testWidgets('tapping Unlock asks for an account before the paywall', (
+      tester,
+    ) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
       await openInsights(tester);
@@ -152,8 +134,69 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
+      // A subscription needs an account to belong to, so the login screen
+      // comes first and the paywall is not reachable around it.
+      expect(find.text('Sign in to unlock Premium'), findsOneWidget);
+      expect(find.text('BaroEase Premium'), findsNothing);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('signing in from the gate continues to the paywall', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await seedInsightData(tester, app);
+      await openInsights(tester);
+
+      await tester.tap(find.text('Unlock').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tester.tap(find.text('Continue with Google'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(app.auth.signInCalls, [AuthProviderKind.google]);
       expect(find.text('BaroEase Premium'), findsOneWidget);
       expect(find.text('Know your storm before it hits'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('backing out of the login screen stops the flow', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await seedInsightData(tester, app);
+      await openInsights(tester);
+
+      await tester.tap(find.text('Unlock').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tapVisible(tester, find.text('Not now'));
+
+      // Back on the locked surface, not pushed on to the paywall.
+      expect(app.auth.signInCalls, isEmpty);
+      expect(find.text('BaroEase Premium'), findsNothing);
+      expect(find.text('Unlock'), findsWidgets);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('an entitlement without an account unlocks nothing', (
+      tester,
+    ) async {
+      // The combination RevenueCat can produce on a fresh install: a
+      // restored entitlement with nobody signed in.
+      final app = await pumpApp(tester, premium: true, signedIn: false);
+      await seedInsightData(tester, app);
+
+      await openInsights(tester);
+
+      expect(find.text('60%'), findsNothing);
+      expect(find.text('Premium'), findsWidgets);
 
       await finishTest(tester);
     });

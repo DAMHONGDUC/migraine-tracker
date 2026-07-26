@@ -165,20 +165,17 @@ class AttackDetailScreen extends ConsumerWidget {
     final attack = ref.watch(attackByIdProvider(attackId));
 
     return AppScaffold(
-      title: Text(l10n.attackDetailTitle),
+      title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
       actions: [
         IconButton(
-          icon: AppIcon(
-            Icons.delete_outline,
-            color: context.colorScheme.error,
-          ),
+          icon: AppIcon(Icons.delete_outline, color: context.colorScheme.error),
           onPressed: () => _delete(context, ref),
         ),
         SizedBox(width: AppSpacingConstant.w4),
       ],
       body: switch (attack) {
-        AsyncData(value: null) => Center(
-          child: Text(l10n.attackDetailDeleted),
+        AsyncData(value: null) || AsyncError() => Center(
+          child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         AsyncData(value: final a?) => ListView(
           padding: EdgeInsets.fromLTRB(
@@ -216,7 +213,6 @@ class AttackDetailScreen extends ConsumerWidget {
             _DetailsSection(attack: a),
           ],
         ),
-        AsyncError() => Center(child: Text(l10n.attackDetailDeleted)),
         _ => const Center(child: CircularProgressIndicator()),
       },
     );

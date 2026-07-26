@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationDefaultAccuracyReduced</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BaroEase uses your approximate location to attach local barometric pressure to your attack logs and power pressure-drop alerts. Your location never leaves your device beyond a ~5km area code.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -66,9 +70,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>BaroEase uses your approximate location to attach local barometric pressure to your attack logs and power pressure-drop alerts. Your location never leaves your device beyond a ~5km area code.</string>
-	<key>NSLocationDefaultAccuracyReduced</key>
-	<true/>
 </dict>
 </plist>
