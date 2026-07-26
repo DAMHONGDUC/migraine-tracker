@@ -174,7 +174,7 @@ class AttackDetailScreen extends ConsumerWidget {
         SizedBox(width: AppSpacingConstant.w4),
       ],
       body: switch (attack) {
-        AsyncData(value: null) => Center(
+        AsyncData(value: null) || AsyncError() => Center(
           child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         AsyncData(value: final a?) => ListView(
@@ -212,9 +212,6 @@ class AttackDetailScreen extends ConsumerWidget {
             SizedBox(height: AppSpacingConstant.h16),
             _DetailsSection(attack: a),
           ],
-        ),
-        AsyncError() => Center(
-          child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         _ => const Center(child: CircularProgressIndicator()),
       },

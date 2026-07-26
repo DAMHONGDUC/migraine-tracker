@@ -6,6 +6,7 @@ import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
@@ -16,7 +17,6 @@ import '../../../domain/enums/auth_provider_kind.dart';
 import '../../../providers.dart';
 import '../../controllers/auth_controller.dart';
 
-part 'login_screen_benefit.dart';
 part 'login_screen_buttons.dart';
 part 'login_screen_disclosure.dart';
 part 'login_screen_pitch.dart';

@@ -5,12 +5,6 @@ import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.d
 
 import '../../helpers/pump_app.dart';
 
-Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 Future<void> openLogin(WidgetTester tester) async {
   await openSettings(tester);
   await tester.tap(find.text('Sign in'));

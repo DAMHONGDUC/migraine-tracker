@@ -8,6 +8,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
@@ -100,22 +101,22 @@ class PaywallScreen extends ConsumerWidget {
                           style: AppTextStyle.headlineSmall.w600,
                         ),
                         SizedBox(height: AppSpacingConstant.h24),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
                           body: l10n.paywallBenefitAlertsBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.show_chart,
                           title: l10n.paywallBenefitForecast,
                           body: l10n.paywallBenefitForecastBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.insights_outlined,
                           title: l10n.paywallBenefitInsights,
                           body: l10n.paywallBenefitInsightsBody,
                         ),
-                        _Benefit(
+                        AppBenefitRow(
                           icon: Icons.picture_as_pdf_outlined,
                           title: l10n.paywallBenefitReport,
                           body: l10n.paywallBenefitReportBody,
@@ -187,34 +188,3 @@ class PaywallScreen extends ConsumerWidget {
   }
 }
 
-class _Benefit extends StatelessWidget {
-  const _Benefit({required this.icon, required this.title, required this.body});
-
-  final IconData icon;
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: AppSpacingConstant.h16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppIcon(icon, color: context.colorScheme.primary),
-          SizedBox(width: AppSpacingConstant.w16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyle.titleMedium),
-                SizedBox(height: AppSpacingConstant.h4),
-                Text(body, style: AppTextStyle.bodyMedium.secondary),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

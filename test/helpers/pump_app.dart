@@ -274,6 +274,35 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+/// Tab switches from the shell's bottom nav. Every widget test that leaves
+/// the dashboard goes through these rather than re-tapping the icons.
+Future<void> openSettings(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.settings_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> openMedications(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.medication_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> openHistory(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Pumps real frames so the correlation count-up (700ms) can run — one big
+/// jump skips its start frame.
+Future<void> openInsights(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.insights_outlined));
+  for (int i = 0; i < 15; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
 /// Opens the log flow from the dashboard's hero button (the flow is a pushed
 /// route now, not a tab). Leaves the tester on the intensity step.
 Future<void> openLog(WidgetTester tester) async {

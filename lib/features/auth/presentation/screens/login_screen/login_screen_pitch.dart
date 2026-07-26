@@ -31,12 +31,12 @@ class _Pitch extends StatelessWidget {
           style: AppTextStyle.bodyMedium.secondary,
         ),
         SizedBox(height: AppSpacingConstant.h32),
-        _Benefit(
+        AppBenefitRow(
           icon: Icons.devices_outlined,
           title: l10n.loginBenefitDevices,
           body: l10n.loginBenefitDevicesBody,
         ),
-        _Benefit(
+        AppBenefitRow(
           icon: Icons.restore,
           title: l10n.loginBenefitRestore,
           body: l10n.loginBenefitRestoreBody,
