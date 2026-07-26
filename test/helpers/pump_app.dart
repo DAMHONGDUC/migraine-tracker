@@ -79,11 +79,8 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
-/// In-memory account, so widget tests never touch Firebase, Google or Apple.
-///
-/// Unlike the other fakes here this one is not optional: `authUserProvider`
-/// is watched at build time by Settings and by every premium gate, so a real
-/// [AuthRepository] would drag Firebase into the widget tree.
+/// In-memory account. Not optional like the other fakes: `authUserProvider`
+/// is watched at build time, so a real one drags Firebase into the tree.
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({bool signedIn = false})
     : _user = signedIn
@@ -194,15 +191,12 @@ Future<PumpedApp> pumpApp(
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 
-  /// Defaults to following [premium]: an entitlement without an account
-  /// unlocks nothing (see `hasPremiumProvider`), so a premium test that
-  /// stayed signed out would be testing the locked branch by accident. Pass
-  /// it explicitly to exercise that combination on purpose.
+  /// Follows [premium]: an entitlement without an account unlocks nothing,
+  /// so a signed-out premium test would silently test the locked branch.
   bool? signedIn,
 
-  /// Matches the shipped default (off) — the Apple button is on screen but
-  /// the flow behind it is not wired up yet. Pass true to cover the real
-  /// Apple path, which has to work before submission (App Store 4.8).
+  /// Off, as shipped: the Apple button shows but its flow is not wired up.
+  /// True covers the real path, which must work before submission.
   bool appleSignIn = false,
 }) async {
   // Pin the test view to the 393×852 design size (an iPhone-class screen,
@@ -270,12 +264,8 @@ Future<void> finishTest(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
-/// Taps a target that may sit below the fold on the 393×852 test view.
-///
-/// A plain `tap()` on an off-screen widget does not fail — it warns and taps
-/// nothing, so the assertion that follows fails somewhere unrelated. Scroll
-/// it in first (e.g. the login screen's "Not now", under a long benefit
-/// list).
+/// Taps a target below the fold. A plain `tap()` on an off-screen widget
+/// only warns and taps nothing, failing some later assertion instead.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.pump();

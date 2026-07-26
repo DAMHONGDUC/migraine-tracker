@@ -1,11 +1,8 @@
 part of 'login_screen.dart';
 
-/// What signing in does and does not do with health data.
-///
-/// Hard rule 1 requires this to be stated where the user decides, and it
-/// must stay accurate: today an account uploads nothing but the alert
-/// settings the user already opted into. When encrypted attack sync ships,
-/// this copy changes with it — not before.
+/// Hard rule 1: state this where the user decides, and keep it true. Today
+/// an account uploads nothing beyond the alert settings they opted into.
+/// The copy changes when encrypted sync ships — not before.
 class _PrivacyDisclosure extends StatelessWidget {
   const _PrivacyDisclosure();
 

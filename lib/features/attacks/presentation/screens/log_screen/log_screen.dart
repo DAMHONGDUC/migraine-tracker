@@ -64,8 +64,7 @@ class LogScreen extends ConsumerWidget {
     final isMedication = state.step == LogStep.medication;
 
     return AppScaffold(
-      // Owns a bottom step bar the body extends behind; that bar keeps
-      // itself clear of the home indicator (see LogStepBar).
+      // The step bar keeps itself clear of the home indicator (LogStepBar).
       withSafeArea: false,
       title: Text(l10n.logTitle, style: AppTextStyle.titleLarge),
       // First step: nothing to step back to, so the leading button cancels

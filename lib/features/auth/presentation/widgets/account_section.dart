@@ -11,12 +11,8 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../providers.dart';
 
-/// The account row in Settings: one tile that either offers sign-in or shows
-/// who is signed in, with sign-out behind a confirm.
-///
-/// Signing out is not destructive — hard rule 1 means everything except the
-/// subscription keeps working — so the confirm exists to say exactly that,
-/// not to warn about data loss.
+/// Offers sign-in, or shows who is signed in with sign-out behind a
+/// confirm. The confirm is there to say nothing is lost, not to warn.
 class AccountSection extends ConsumerWidget {
   const AccountSection({super.key});
 

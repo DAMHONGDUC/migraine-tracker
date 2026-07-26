@@ -21,9 +21,8 @@ class InsightsScreen extends ConsumerWidget {
     final result = ref.watch(correlationResultProvider);
 
     return AppScaffold(
-      // Tab screen: content scrolls behind the floating glass nav via
-      // AppScaffold.bottomNavInset, so the device inset is already
-      // accounted for there — a bottom SafeArea would cut it short.
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
       withSafeArea: false,
       title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
       body: switch (result) {

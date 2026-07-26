@@ -23,10 +23,8 @@ import '../../../../auth/providers.dart';
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
 ///
-/// Premium gates route through [NavigationUtils.unlockPremium], which signs
-/// the user in
-/// before pushing this. Deep links skip that, so the CTA checks for itself:
-/// signed out, it offers sign-in instead of a purchase.
+/// Gates route through [NavigationUtils.unlockPremium], which signs the
+/// user in first. Deep links skip that, so the CTA checks for itself.
 class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
@@ -79,8 +77,7 @@ class PaywallScreen extends ConsumerWidget {
               AppSpacingConstant.w24,
               AppSpacingConstant.h8,
               AppSpacingConstant.w24,
-              // A sheet route, so there is no SafeArea above it — the device
-              // inset is taken here, plus the standard gap above it.
+              // A sheet route: no SafeArea above it, so take the inset here.
               MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h16,
             ),
             child: Column(
@@ -131,10 +128,8 @@ class PaywallScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: AppSpacingConstant.h24),
-                    // Signed out, the only honest action here is sign-in:
-                    // there is no account for a subscription to attach to.
-                    // Signed in, purchases still land with RevenueCat — the
-                    // CTA stays inert rather than pretending.
+                    // Signed out there is no account to attach a
+                    // subscription to; signed in, purchases await RevenueCat.
                     AppButton.primary(
                       onPressed: signedIn
                           ? () {}

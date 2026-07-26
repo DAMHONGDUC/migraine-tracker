@@ -30,13 +30,9 @@ part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
 part 'settings_screen_general_section.dart';
 
-/// Settings, in two labelled groups.
-///
-/// "General" is how the app behaves for you — the account, pressure alerts,
-/// language. "Your data" is what the app holds — getting it out, and
-/// deleting it. Deleting closes out that second group rather than standing
-/// alone: same subject as the exports, last because it is the irreversible
-/// end of it.
+/// Two groups: "General" is how the app behaves for you, "Your data" is
+/// what it holds. Deleting closes the second one — same subject as the
+/// exports, last because it is the irreversible end of it.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -45,9 +41,8 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return AppScaffold(
-      // Tab screen: content scrolls behind the floating glass nav via
-      // AppScaffold.bottomNavInset, so the device inset is already
-      // accounted for there — a bottom SafeArea would cut it short.
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
       withSafeArea: false,
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(

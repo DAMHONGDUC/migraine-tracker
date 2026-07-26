@@ -8,16 +8,12 @@ import '../../../../core/widgets/app_icon.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/export_format.dart';
 
-/// Picks the format for a data export (hard rule 8 — GDPR export stays free
-/// forever). Pops the chosen [ExportFormat], or null when dismissed.
+/// Picks an export format (hard rule 8). Pops the choice, or null.
 ///
-/// Deliberately not the generic single-choice filter sheet: there is no
-/// "currently selected" format to pre-check here. This is an action picker —
-/// each row starts an export — so the rows carry a format icon and a line of
-/// what you get, not a radio button.
+/// Not the generic filter sheet: there is no "currently selected" format to
+/// pre-check. It is an action picker, so rows carry an icon, not a radio.
 ///
-/// Present it with `ExportFormatSheet().show(context)` — see
-/// [ExportFormatSheetExt].
+/// Show it with `ExportFormatSheet().show(context)`.
 class ExportFormatSheet extends StatelessWidget {
   const ExportFormatSheet({super.key});
 
@@ -77,10 +73,8 @@ class _FormatTile extends StatelessWidget {
   }
 }
 
-/// Presents [ExportFormatSheet] and completes with the picked format, or
-/// null if dismissed. Sheets expose their opener as a `.show(context)`
-/// extension instead of a top-level `showX` function (see CLAUDE.md § Code
-/// style, "Bottom sheets and dialogs").
+/// Sheets expose their opener as `.show(context)`, never a top-level
+/// `showX` (CLAUDE.md § Code style).
 extension ExportFormatSheetExt on ExportFormatSheet {
   Future<ExportFormat?> show(BuildContext context) =>
       showAppBottomSheet<ExportFormat>(context, builder: (_) => this);

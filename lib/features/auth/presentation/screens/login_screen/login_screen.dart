@@ -21,12 +21,9 @@ part 'login_screen_buttons.dart';
 part 'login_screen_disclosure.dart';
 part 'login_screen_pitch.dart';
 
-/// The optional account. Nothing on this screen is required to use the app
-/// (hard rule 1) — it exists so a subscription has something durable to hang
-/// off, which is why it is what premium gates route through first.
-///
-/// Pops with `true` once an account exists, so whatever sent the user here
-/// (Settings, or a premium gate on its way to the paywall) can continue.
+/// The optional account (hard rule 1) — it exists so a subscription has
+/// something durable to hang off. Pops `true` once an account exists, so
+/// whatever sent the user here can continue.
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
@@ -70,17 +67,15 @@ class LoginScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.loginTitle, style: AppTextStyle.titleLarge),
-      // The pitch sits at the top, the buttons hug the bottom, and the page
-      // scrolls once it cannot all fit — long locales and large
-      // accessibility text sizes make that a matter of when, not if.
+      // Pitch on top, buttons at the bottom, scrolls when it cannot fit —
+      // long locales and large text sizes make that a matter of when.
       withScrollView: true,
       body: Padding(
         padding: EdgeInsets.fromLTRB(
           AppSpacingConstant.w24,
           AppScaffold.bodyTopInset(context),
           AppSpacingConstant.w24,
-          // AppScaffold's SafeArea already clears the home indicator; this
-          // is only the breathing gap above it.
+          // SafeArea already clears the home indicator; this is the gap.
           AppSpacingConstant.h16,
         ),
         child: Column(

@@ -17,15 +17,12 @@ final isPremiumProvider = StreamProvider<bool>(
   (ref) => ref.watch(premiumRepositoryProvider).watchIsPremium(),
 );
 
-/// Convenience for widgets/gates. Falls back to the repository's current
-/// value while the stream is still loading, so a premium user's gate never
-/// flashes locked on the first frame; live toggles come through the stream.
+/// What every gate reads. Falls back to the repository while loading, so a
+/// premium gate never flashes locked on the first frame.
 ///
-/// An entitlement without an account does not unlock anything: a
-/// subscription has to belong to something that survives a reinstall, so
-/// gates route signed-out users through the login screen first (see
-/// [NavigationUtils.unlockPremium]). Both conditions live here rather than
-/// at each call site, so no gate can be written that forgets one of them.
+/// An entitlement without an account unlocks nothing — a subscription needs
+/// something that survives a reinstall. Both conditions live here so no
+/// gate can forget one.
 final hasPremiumProvider = Provider<bool>((ref) {
   if (!ref.watch(isSignedInProvider)) return false;
 

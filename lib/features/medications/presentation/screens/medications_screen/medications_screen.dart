@@ -292,9 +292,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filterBarHeight = PinnedFilterBar.heightFor(topInset);
 
     return AppScaffold(
-      // Tab screen: content scrolls behind the floating glass nav via
-      // AppScaffold.bottomNavInset, so the device inset is already
-      // accounted for there — a bottom SafeArea would cut it short.
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
       withSafeArea: false,
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search

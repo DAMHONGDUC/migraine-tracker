@@ -1,11 +1,7 @@
 part of 'login_screen.dart';
 
-/// Everything above the buttons: what an account is for, and what it does
-/// not do with health data.
-///
-/// Split out so the screen's own build reads as its two halves — pitch, then
-/// actions — and so this half rebuilds never: it holds no state, and `const`
-/// keeps it out of the rebuilds the sign-in state machine triggers below it.
+/// What an account is for, and what it does not do with health data.
+/// `const`, so the sign-in state machine below never rebuilds it.
 class _Pitch extends StatelessWidget {
   const _Pitch();
 

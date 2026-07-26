@@ -1,13 +1,8 @@
-/// The language choices offered in Settings.
+/// Makes "follow the system" a value like any other. A nullable `Locale`
+/// cannot tell "chose System" from "dismissed"; an enum can, and compares
+/// by identity as the choice sheet needs.
 ///
-/// Exists so "follow the system" is a value like any other. The locale
-/// itself is nullable (`null` = system), which makes a picker unable to tell
-/// "chose System" from "dismissed without choosing" — an enum has no such
-/// hole, and it compares by identity, which is what the single-choice sheet
-/// needs.
-///
-/// Pure Dart on purpose (domain layer): the mapping to a Flutter `Locale`
-/// belongs to presentation.
+/// Pure Dart: the mapping to `Locale` belongs to presentation.
 enum AppLanguage {
   system(null),
   english('en'),
@@ -15,11 +10,10 @@ enum AppLanguage {
 
   const AppLanguage(this.languageCode);
 
-  /// Null for [system] — there is no fixed code to store.
+  /// Null for [system] — no fixed code to store.
   final String? languageCode;
 
-  /// The choice matching a persisted locale, falling back to [system] for
-  /// null and for any code this build no longer ships.
+  /// Falls back to [system] for null and for codes this build dropped.
   static AppLanguage fromCode(String? code) => values.firstWhere(
     (AppLanguage language) => language.languageCode == code,
     orElse: () => system,

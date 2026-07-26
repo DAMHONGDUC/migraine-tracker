@@ -65,8 +65,7 @@ class OnboardingScreen extends HookConsumerWidget {
                 AppSpacingConstant.w24,
                 AppSpacingConstant.h16,
                 AppSpacingConstant.w24,
-                // The screen's SafeArea already clears the home indicator;
-                // this is only the breathing gap above it.
+                // SafeArea already clears the home indicator; this is the gap.
                 AppSpacingConstant.h16,
               ),
               child: Column(

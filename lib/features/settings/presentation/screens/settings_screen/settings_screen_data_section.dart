@@ -1,8 +1,7 @@
 part of 'settings_screen.dart';
 
-/// What the app holds, and what you can do with it: get it out, or destroy
-/// it. Export is free forever (hard rule 8 — GDPR); the doctor report is
-/// the premium flavour of the same idea; the wipe closes the group.
+/// Get the data out, or destroy it. Export is free forever (hard rule 8);
+/// the doctor report is its premium flavour.
 class _DataSection extends ConsumerWidget {
   const _DataSection();
 

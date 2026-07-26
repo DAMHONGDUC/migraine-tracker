@@ -1,9 +1,7 @@
 part of 'settings_screen.dart';
 
-/// The GDPR wipe (hard rule 8). Lives at the end of "Your data" — it is the
-/// same subject as the export rows, just the irreversible end of it — and
-/// carries its own error tint and confirm dialog so it can never be
-/// mistaken for one of them.
+/// The GDPR wipe (hard rule 8). Sits with the export rows, but its error
+/// tint and confirm dialog keep it from being mistaken for one.
 class _DeleteAllTile extends ConsumerWidget {
   const _DeleteAllTile();
 

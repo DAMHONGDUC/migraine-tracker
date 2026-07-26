@@ -1,8 +1,7 @@
 part of 'settings_screen.dart';
 
-/// How the app behaves for you: who you are signed in as, whether pressure
-/// alerts reach you, and which language it speaks. Anything that changes
-/// what the app *holds* belongs in [_DataSection] instead.
+/// Account, alerts, language. Anything about what the app *holds* goes in
+/// [_DataSection] instead.
 class _GeneralSection extends ConsumerWidget {
   const _GeneralSection();
 
@@ -11,9 +10,7 @@ class _GeneralSection extends ConsumerWidget {
       ref.read(localeControllerProvider)?.languageCode,
     );
 
-    // The generic single-choice sheet, opened inline: a dedicated
-    // LanguageSheet widget would be a wrapper with nothing of its own in it
-    // (see CLAUDE.md § Code style).
+    // Inline: a LanguageSheet widget would wrap this and add nothing.
     final AppLanguage? picked = await showAppFilterSheet<AppLanguage>(
       context,
       title: context.l10n.settingsLanguage,
@@ -53,8 +50,7 @@ class _GeneralSection extends ConsumerWidget {
   }
 }
 
-/// Presentation-side view of [AppLanguage]: the domain enum stays pure Dart,
-/// so the Flutter [Locale] and the localized label are attached here.
+/// The domain enum stays pure Dart, so [Locale] and the label attach here.
 extension _AppLanguageX on AppLanguage {
   Locale? get locale {
     final String? code = languageCode;

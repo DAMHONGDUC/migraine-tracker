@@ -5,33 +5,30 @@ import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
 import '../../providers.dart';
 
-/// View state of the login screen. [error] is null while nothing has gone
-/// wrong; a cancelled sheet clears it rather than reporting it — backing out
-/// is not a failure the user needs told about.
+/// Login screen state. [error] stays null on cancellation — backing out is
+/// not a failure worth reporting.
 class LoginState {
   const LoginState({this.pending, this.error});
 
-  /// The provider whose sheet is open, or null when idle. Drives the spinner
-  /// and disables the other button so two sheets can never race.
+  /// The open provider sheet, or null when idle. Disables the other button
+  /// so two sheets cannot race.
   final AuthProviderKind? pending;
   final AuthError? error;
 
   bool get isBusy => pending != null;
 }
 
-/// Owns the login screen's state machine. The screen only renders this and
-/// calls [signIn]; the repository stays behind the controller.
+/// Owns the login screen's state machine; the repository stays behind it.
 class LoginController extends Notifier<LoginState> {
   @override
   LoginState build() => const LoginState();
 
-  /// Returns true once the account exists, so the caller can continue what
-  /// it was doing (pop back to Settings, or move on to the paywall).
+  /// True once the account exists, so the caller can continue.
   Future<bool> signIn(AuthProviderKind provider) async {
     if (state.isBusy) return false;
 
-    // Offered in the UI, not wired up yet: say so rather than starting a
-    // flow whose only possible ending is a confusing provider error.
+    // Offered but not wired up: say so, rather than start a flow that can
+    // only end in a confusing provider error.
     if (provider == AuthProviderKind.apple &&
         !ref.read(appleSignInImplementedProvider)) {
       state = const LoginState(error: AuthError.notImplemented);
@@ -58,8 +55,8 @@ class LoginController extends Notifier<LoginState> {
   }
 }
 
-/// Sign-out lives apart from [LoginController]: it is triggered from
-/// Settings, where the login screen's state machine has no meaning.
+/// Sign-out is triggered from Settings, where [LoginController]'s state
+/// machine has no meaning.
 class AccountController {
   const AccountController(this._ref);
 
