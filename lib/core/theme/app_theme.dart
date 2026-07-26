@@ -77,10 +77,11 @@ abstract final class AppTheme {
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceElevated,
       ),
-      // M3's default snackbar is an *inverse* surface — a bright bar
+      // A backstop, not the app's snackbar look — that lives in
+      // AppSnackBarUtils, which every call goes through. This only catches
+      // anything that slips past it (a package showing its own), because
+      // M3's default snackbar is an *inverse* surface: a bright bar
       // flashing up on a dark, photophobia-friendly screen (hard rule 3).
-      // Pinning it to the elevated surface also means snackbar content can
-      // wear a normal AppTextStyle instead of an inverse-colored one.
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,
         contentTextStyle: AppTextStyle.bodyMedium,

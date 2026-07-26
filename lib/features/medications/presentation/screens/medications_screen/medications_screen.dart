@@ -18,6 +18,7 @@ import '../../../../../core/widgets/app_filter_sheet.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../core/widgets/empty_state.dart';
 import '../../../../../core/widgets/pinned_filter_bar.dart';
@@ -87,9 +88,7 @@ abstract final class _ReminderSnack {
     final message = firesTomorrow
         ? l10n.remindersScheduledTomorrow(time)
         : l10n.remindersScheduledToday(time);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message, style: AppTextStyle.bodyMedium)),
-    );
+    AppSnackBarUtils.success(context, message);
   }
 }
 
@@ -262,14 +261,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         .read(remindersControllerProvider)
         .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.remindersTestScheduled,
-          style: AppTextStyle.bodyMedium,
-        ),
-      ),
-    );
+    AppSnackBarUtils.info(context, l10n.remindersTestScheduled);
   }
 
   @override

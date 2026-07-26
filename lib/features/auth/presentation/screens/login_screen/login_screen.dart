@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/enums/auth_error.dart';
 import '../../../domain/enums/auth_provider_kind.dart';
@@ -64,14 +65,7 @@ class LoginScreen extends ConsumerWidget {
       final AuthError? error = next.error;
       if (error == null) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _errorMessage(l10n, error),
-            style: AppTextStyle.bodyMedium,
-          ),
-        ),
-      );
+      AppSnackBarUtils.error(context, _errorMessage(l10n, error));
     });
 
     return AppScaffold(

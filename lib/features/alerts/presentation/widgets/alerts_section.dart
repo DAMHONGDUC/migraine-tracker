@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_icon.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/alert_registration_error.dart';
 import '../../providers.dart';
@@ -47,14 +48,7 @@ class AlertsSection extends ConsumerWidget {
 
     ref.listen(alertsControllerProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _errorMessage(l10n, next.error),
-              style: AppTextStyle.bodyMedium,
-            ),
-          ),
-        );
+        AppSnackBarUtils.error(context, _errorMessage(l10n, next.error));
       }
     });
 
