@@ -45,15 +45,55 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('offers Apple as well as Google where the platform can', (
+    testWidgets('shows both providers, in the shape the app has to ship in', (
       tester,
     ) async {
       await pumpApp(tester);
       await openLogin(tester);
 
-      // App Store 4.8: offering Google obliges us to offer Apple too.
+      // App Store 4.8: offering Google obliges us to offer Apple too. The
+      // button is on screen from the start, even before its flow is wired.
       expect(find.text('Sign in with Apple'), findsOneWidget);
       expect(find.text('Continue with Google'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('tapping Apple says it is not wired up, and does not try', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await openLogin(tester);
+
+      await tapVisible(tester, find.text('Sign in with Apple'));
+
+      expect(
+        find.text(
+          'Sign in with Apple is coming soon. Please use Google for now.',
+        ),
+        findsOneWidget,
+      );
+      // Never reaches the provider — no half-started flow to recover from.
+      expect(app.auth.signInCalls, isEmpty);
+      expect(find.text('Sign in to unlock Premium'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('scrolls instead of overflowing on a short viewport', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await openLogin(tester);
+
+      // Well short of what the pitch plus buttons need. A fixed Column here
+      // would throw a RenderFlex overflow, which this test would fail on.
+      tester.view.physicalSize = const Size(393 * 3, 480 * 3);
+      await tester.pump();
+
+      // And the CTA is still reachable, just further down.
+      await tapVisible(tester, find.text('Continue with Google'));
+      expect(app.auth.signInCalls, [AuthProviderKind.google]);
 
       await finishTest(tester);
     });
@@ -79,11 +119,25 @@ void main() {
       final app = await pumpApp(tester);
       await openLogin(tester);
 
+      await tapVisible(tester, find.text('Continue with Google'));
+
+      expect(app.auth.signInCalls, [AuthProviderKind.google]);
+      expect(find.text('tester@example.com'), findsOneWidget);
+      expect(find.text('Sign out'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('the Apple path works once it is wired up', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester, appleSignIn: true);
+      await openLogin(tester);
+
       await tapVisible(tester, find.text('Sign in with Apple'));
 
       expect(app.auth.signInCalls, [AuthProviderKind.apple]);
       expect(find.text('tester@example.com'), findsOneWidget);
-      expect(find.text('Sign out'), findsOneWidget);
 
       await finishTest(tester);
     });

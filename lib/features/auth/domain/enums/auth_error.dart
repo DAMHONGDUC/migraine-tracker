@@ -12,6 +12,11 @@ enum AuthError {
   /// this only fires if it was reached anyway.
   appleUnavailable,
 
+  /// The provider is offered in the UI but not wired up in this build (see
+  /// `appleSignInImplementedProvider`). Distinct from [notConfigured]: that
+  /// is a backend that answered no, this is us not having asked yet.
+  notImplemented,
+
   /// The credential is valid but belongs to a Firebase account we could not
   /// attach to this session.
   accountConflict,

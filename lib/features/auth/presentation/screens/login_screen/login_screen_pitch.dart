@@ -1,0 +1,52 @@
+part of 'login_screen.dart';
+
+/// Everything above the buttons: what an account is for, and what it does
+/// not do with health data.
+///
+/// Split out so the screen's own build reads as its two halves — pitch, then
+/// actions — and so this half rebuilds never: it holds no state, and `const`
+/// keeps it out of the rebuilds the sign-in state machine triggers below it.
+class _Pitch extends StatelessWidget {
+  const _Pitch();
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        SizedBox(height: AppSpacingConstant.h24),
+        AppIcon(
+          Icons.cloud_done_outlined,
+          size: AppSpacingConstant.r64,
+          color: context.colorScheme.primary,
+        ),
+        SizedBox(height: AppSpacingConstant.h16),
+        Text(
+          l10n.loginHeadline,
+          textAlign: TextAlign.center,
+          style: AppTextStyle.headlineSmall.w600,
+        ),
+        SizedBox(height: AppSpacingConstant.h8),
+        Text(
+          l10n.loginBody,
+          textAlign: TextAlign.center,
+          style: AppTextStyle.bodyMedium.secondary,
+        ),
+        SizedBox(height: AppSpacingConstant.h32),
+        _Benefit(
+          icon: Icons.devices_outlined,
+          title: l10n.loginBenefitDevices,
+          body: l10n.loginBenefitDevicesBody,
+        ),
+        _Benefit(
+          icon: Icons.restore,
+          title: l10n.loginBenefitRestore,
+          body: l10n.loginBenefitRestoreBody,
+        ),
+        const _PrivacyDisclosure(),
+      ],
+    );
+  }
+}

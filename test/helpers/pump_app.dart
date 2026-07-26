@@ -199,6 +199,11 @@ Future<PumpedApp> pumpApp(
   /// stayed signed out would be testing the locked branch by accident. Pass
   /// it explicitly to exercise that combination on purpose.
   bool? signedIn,
+
+  /// Matches the shipped default (off) — the Apple button is on screen but
+  /// the flow behind it is not wired up yet. Pass true to cover the real
+  /// Apple path, which has to work before submission (App Store 4.8).
+  bool appleSignIn = false,
 }) async {
   // Pin the test view to the 393×852 design size (an iPhone-class screen,
   // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
@@ -234,6 +239,7 @@ Future<PumpedApp> pumpApp(
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
+        appleSignInImplementedProvider.overrideWithValue(appleSignIn),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
       ],

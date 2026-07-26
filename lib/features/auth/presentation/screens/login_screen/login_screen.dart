@@ -18,6 +18,7 @@ import '../../controllers/auth_controller.dart';
 part 'login_screen_benefit.dart';
 part 'login_screen_buttons.dart';
 part 'login_screen_disclosure.dart';
+part 'login_screen_pitch.dart';
 
 /// The optional account. Nothing on this screen is required to use the app
 /// (hard rule 1) — it exists so a subscription has something durable to hang
@@ -32,6 +33,7 @@ class LoginScreen extends ConsumerWidget {
       switch (error) {
         AuthError.network => l10n.loginErrorNetwork,
         AuthError.appleUnavailable => l10n.loginErrorApple,
+        AuthError.notImplemented => l10n.loginErrorAppleSoon,
         AuthError.accountConflict => l10n.loginErrorConflict,
         AuthError.notConfigured => l10n.loginErrorConfig,
         // Cancelling is not a failure — the controller never surfaces it.
@@ -55,67 +57,60 @@ class LoginScreen extends ConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final LoginState state = ref.watch(loginControllerProvider);
 
-    ref.listen(loginControllerProvider, (LoginState? previous, LoginState next) {
+    ref.listen(loginControllerProvider, (
+      LoginState? previous,
+      LoginState next,
+    ) {
       final AuthError? error = next.error;
       if (error == null) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(_errorMessage(l10n, error))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _errorMessage(l10n, error),
+            style: AppTextStyle.bodyMedium,
+          ),
+        ),
+      );
     });
 
     return AppScaffold(
-      title: Text(l10n.loginTitle),
-      body: ListView(
+      title: Text(l10n.loginTitle, style: AppTextStyle.titleLarge),
+      // The pitch sits at the top, the buttons hug the bottom, and the page
+      // scrolls once it cannot all fit — long locales and large
+      // accessibility text sizes make that a matter of when, not if.
+      withScrollView: true,
+      body: Padding(
         padding: EdgeInsets.fromLTRB(
           AppSpacingConstant.w24,
           AppScaffold.bodyTopInset(context),
           AppSpacingConstant.w24,
-          AppSpacingConstant.h24,
+          // AppScaffold's SafeArea already clears the home indicator; this
+          // is only the breathing gap above it.
+          AppSpacingConstant.h16,
         ),
-        children: <Widget>[
-          SizedBox(height: AppSpacingConstant.h24),
-          AppIcon(
-            Icons.cloud_done_outlined,
-            size: AppSpacingConstant.r64,
-            color: context.colorScheme.primary,
-          ),
-          SizedBox(height: AppSpacingConstant.h16),
-          Text(
-            l10n.loginHeadline,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.headlineSmall.w600,
-          ),
-          SizedBox(height: AppSpacingConstant.h8),
-          Text(
-            l10n.loginBody,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
-          SizedBox(height: AppSpacingConstant.h32),
-          _Benefit(
-            icon: Icons.devices_outlined,
-            title: l10n.loginBenefitDevices,
-            body: l10n.loginBenefitDevicesBody,
-          ),
-          _Benefit(
-            icon: Icons.restore,
-            title: l10n.loginBenefitRestore,
-            body: l10n.loginBenefitRestoreBody,
-          ),
-          const _PrivacyDisclosure(),
-          SizedBox(height: AppSpacingConstant.h24),
-          _ProviderButtons(
-            state: state,
-            onSignIn: (AuthProviderKind provider) =>
-                _signIn(context, ref, provider),
-          ),
-          SizedBox(height: AppSpacingConstant.h8),
-          AppButton.text(
-            onPressed: state.isBusy ? null : () => context.pop(false),
-            label: l10n.loginNotNow,
-          ),
-        ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            const _Pitch(),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(height: AppSpacingConstant.h24),
+                _ProviderButtons(
+                  state: state,
+                  onSignIn: (AuthProviderKind provider) =>
+                      _signIn(context, ref, provider),
+                ),
+                SizedBox(height: AppSpacingConstant.h8),
+                AppButton.text(
+                  onPressed: state.isBusy ? null : () => context.pop(false),
+                  label: l10n.loginNotNow,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
