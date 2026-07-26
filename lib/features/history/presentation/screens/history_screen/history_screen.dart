@@ -53,9 +53,8 @@ class HistoryScreen extends HookConsumerWidget {
     };
 
     return AppScaffold(
-      // Tab screen: content scrolls behind the floating glass nav via
-      // AppScaffold.bottomNavInset, so the device inset is already
-      // accounted for there — a bottom SafeArea would cut it short.
+      // Content scrolls behind the glass nav; bottomNavInset already covers
+      // the device inset.
       withSafeArea: false,
       // At rest the pill lives in the scroll content; once it scrolls away
       // it takes over the title slot and the "History" heading hides.

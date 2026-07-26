@@ -1,8 +1,7 @@
 part of 'settings_screen.dart';
 
-/// Pressure-drop alerts. Premium-gated as a whole: a free user gets the
-/// locked tile, never the switch (the gate's locked branch does not build
-/// [AlertsSection] at all).
+/// Premium-gated as a whole: a free user gets the locked tile, never the
+/// switch — the gate never builds [AlertsSection] at all.
 class _AlertsSection extends StatelessWidget {
   const _AlertsSection();
 

@@ -4,11 +4,8 @@ import '../constants/app_spacing_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
 
-/// The label above a group of rows in a long settings-style list.
-///
-/// Quiet by design: small, tinted with the primary colour, and carrying its
-/// own spacing so callers just drop it between groups. It is a label, not a
-/// heading users read one by one — the rows underneath are the content.
+/// Label above a group of rows. Quiet by design, and carries its own
+/// spacing so callers just drop it between groups.
 class AppSectionHeader extends StatelessWidget {
   const AppSectionHeader(this.title, {super.key});
 

@@ -1,8 +1,7 @@
 part of 'login_screen.dart';
 
-/// One reason to bother with an account. Deliberately concrete — vague
-/// "sync your data" copy would over-promise something that does not exist
-/// yet (see [_PrivacyDisclosure]).
+/// One reason to bother with an account. Kept concrete: vague "sync your
+/// data" copy would promise something that does not exist yet.
 class _Benefit extends StatelessWidget {
   const _Benefit({required this.icon, required this.title, required this.body});
 

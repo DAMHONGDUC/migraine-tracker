@@ -1,28 +1,22 @@
 import '../entities/auth_user.dart';
 import '../enums/auth_provider_kind.dart';
 
-/// Contract for the optional account. Everything above this line works
-/// without one (hard rule 1) — signing in only unlocks the subscription and,
-/// later, cloud sync.
+/// The optional account. Everything works without one (hard rule 1);
+/// signing in only unlocks the subscription.
 abstract interface class AuthRepository {
-  /// The session as it stands right now, or null when Firebase has not
-  /// restored (or created) one yet.
+  /// Null until Firebase restores or creates a session.
   AuthUser? get currentUser;
 
   /// Emits on every sign-in, sign-out and anonymous upgrade.
   Stream<AuthUser?> watchUser();
 
-  /// False on Android and on iOS older than 13 — the Apple button is hidden
-  /// rather than shown broken.
+  /// False on Android and iOS < 13 — hide the button rather than break it.
   Future<bool> isAppleAvailable();
 
-  /// Upgrades the current anonymous UID with [provider]'s credential, so the
-  /// UID survives the sign-in instead of being replaced.
-  ///
-  /// Throws [AuthException] for every failure path, including cancellation.
+  /// Upgrades the anonymous UID rather than replacing it.
+  /// Throws [AuthException] on every failure, cancellation included.
   Future<AuthUser> signIn(AuthProviderKind provider);
 
-  /// Drops the account. The app stays fully usable afterwards — the next
-  /// feature that needs a UID signs in anonymously again.
+  /// The app stays usable: the next feature needing a UID goes anonymous.
   Future<void> signOut();
 }

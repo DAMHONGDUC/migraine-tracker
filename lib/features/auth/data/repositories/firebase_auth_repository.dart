@@ -12,21 +12,16 @@ import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-/// Firebase-backed [AuthRepository].
-///
-/// Sign-in always goes through `linkWithCredential` on the current anonymous
-/// user, so the UID that alert registration already wrote to Firestore is
-/// upgraded rather than replaced. The one case where that is impossible —
-/// the credential already belongs to another Firebase account — falls back
-/// to a plain sign-in, documented at [_link].
+/// Signs in via `linkWithCredential` so the anonymous UID already written
+/// to Firestore survives. See [_link] for the one case where it cannot.
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._auth, this._google);
 
   final FirebaseAuth _auth;
   final GoogleSignIn _google;
 
-  /// `initialize()` must run exactly once before `authenticate()`, and it is
-  /// async — cached so concurrent taps share the one call.
+  /// `initialize()` runs once before `authenticate()`; cached so concurrent
+  /// taps share the one call.
   Future<void>? _googleInit;
 
   @override
@@ -54,9 +49,8 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    // Google keeps its own session: without this the account picker is
-    // skipped on the next sign-in and the user silently lands back in the
-    // account they just left.
+    // Without this, the next sign-in skips the picker and silently lands
+    // back in the account just left.
     try {
       await _google.signOut();
     } on GoogleSignInException {
@@ -80,9 +74,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       return GoogleAuthProvider.credential(idToken: idToken);
     } on GoogleSignInException catch (e) {
-      // The cached initialize() future is poisoned once it fails (a missing
-      // CLIENT_ID does not fix itself mid-session, but a retry should at
-      // least re-run rather than await a dead future).
+      // Drop the poisoned future so a retry re-runs instead of awaiting it.
       _googleInit = null;
       throw AuthException(switch (e.code) {
         GoogleSignInExceptionCode.canceled => AuthError.cancelled,
@@ -96,9 +88,8 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   Future<AuthCredential> _appleCredential() async {
-    // Apple signs the raw nonce into the identity token; Firebase re-hashes
-    // the raw value and compares. Without it the same token could be
-    // replayed against our project.
+    // Apple signs the nonce into the token and Firebase re-checks it —
+    // without it the token could be replayed against our project.
     final String rawNonce = _nonce();
 
     try {
@@ -131,8 +122,7 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  /// Upgrades the anonymous session, or signs straight in when there is no
-  /// session to upgrade.
+  /// Upgrades the anonymous session, or signs straight in if there is none.
   Future<AuthUser> _link(AuthCredential credential) async {
     final User? anonymous = _auth.currentUser;
 
@@ -152,19 +142,16 @@ class FirebaseAuthRepository implements AuthRepository {
     AuthCredential credential,
   ) async {
     switch (e.code) {
-      // The Google/Apple account is already a Firebase user of its own —
-      // the anonymous UID cannot absorb it. Signing in with the existing
-      // account is the only way through, and it is the right one: the user
-      // asked for THAT account. Nothing on-device is lost (Drift is the
-      // source of truth and is untouched by sign-in); the abandoned
-      // anonymous UID's alert registration is dealt with when sync lands.
+      // The account already exists on its own, so the anonymous UID cannot
+      // absorb it — sign into it instead, which is what the user asked for.
+      // Nothing on-device is lost; Drift is untouched by sign-in.
       case 'credential-already-in-use':
       case 'email-already-in-use':
         final UserCredential result = await _auth.signInWithCredential(
           credential,
         );
         return _toDomain(result.user)!;
-      // Already linked to this very session — treat as success.
+      // Already linked here — treat as success.
       case 'provider-already-linked':
         final AuthUser? user = currentUser;
         if (user != null) return user;
