@@ -1,9 +1,19 @@
-part of 'login_screen.dart';
+import 'package:flutter/material.dart';
 
-/// One reason to bother with an account. Kept concrete: vague "sync your
-/// data" copy would promise something that does not exist yet.
-class _Benefit extends StatelessWidget {
-  const _Benefit({required this.icon, required this.title, required this.body});
+import '../constants/app_spacing_constant.dart';
+import '../extensions/context_extensions.dart';
+import '../theme/app_text_style.dart';
+import 'app_icon.dart';
+
+/// One "here is what you get" row: icon, title, supporting line. Shared by
+/// the paywall and the login pitch, which sell different things the same way.
+class AppBenefitRow extends StatelessWidget {
+  const AppBenefitRow({
+    required this.icon,
+    required this.title,
+    required this.body,
+    super.key,
+  });
 
   final IconData icon;
   final String title;

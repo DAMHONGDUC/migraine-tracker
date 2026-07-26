@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -17,12 +16,6 @@ class RecordingExportSink implements ExportSink {
   }) async {
     shared.add((content: content, filename: filename, mimeType: mimeType));
   }
-}
-
-Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 100));
 }
 
 void main() {

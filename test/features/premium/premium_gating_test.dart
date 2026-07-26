@@ -43,27 +43,6 @@ PressureForecast forecast() => PressureForecast(
   ],
 );
 
-Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.insights_outlined));
-  // Stream emits → card builds → count-up runs (700ms). Pump in real frames,
-  // not one big jump: a single large pump skips the count-up's start frame.
-  for (var i = 0; i < 15; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-}
-
-Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
-Future<void> openMedications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.medication_outlined));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 void main() {
   group('free user', () {
     testWidgets('never sees the correlation percentage, only the teaser', (
