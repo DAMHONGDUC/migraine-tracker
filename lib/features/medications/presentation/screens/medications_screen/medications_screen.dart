@@ -87,9 +87,9 @@ abstract final class _ReminderSnack {
     final message = firesTomorrow
         ? l10n.remindersScheduledTomorrow(time)
         : l10n.remindersScheduledToday(time);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message, style: AppTextStyle.bodyMedium)),
+    );
   }
 }
 
@@ -262,9 +262,14 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         .read(remindersControllerProvider)
         .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.remindersTestScheduled)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n.remindersTestScheduled,
+          style: AppTextStyle.bodyMedium,
+        ),
+      ),
+    );
   }
 
   @override
@@ -295,10 +300,16 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filterBarHeight = PinnedFilterBar.heightFor(topInset);
 
     return AppScaffold(
+      // Tab screen: content scrolls behind the floating glass nav via
+      // AppScaffold.bottomNavInset, so the device inset is already
+      // accounted for there — a bottom SafeArea would cut it short.
+      withSafeArea: false,
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
-      title: _searching ? _searchField(context) : Text(l10n.medicationsTitle),
+      title: _searching
+          ? _searchField(context)
+          : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
       leading: _searching
           ? IconButton(
               icon: const AppIcon(Icons.arrow_back),

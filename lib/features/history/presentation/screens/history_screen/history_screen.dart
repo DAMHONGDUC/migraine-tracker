@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/charts/chart_card.dart';
@@ -52,6 +53,10 @@ class HistoryScreen extends HookConsumerWidget {
     };
 
     return AppScaffold(
+      // Tab screen: content scrolls behind the floating glass nav via
+      // AppScaffold.bottomNavInset, so the device inset is already
+      // accounted for there — a bottom SafeArea would cut it short.
+      withSafeArea: false,
       // At rest the pill lives in the scroll content; once it scrolls away
       // it takes over the title slot and the "History" heading hides.
       title: AnimatedSwitcher(
@@ -67,7 +72,7 @@ class HistoryScreen extends HookConsumerWidget {
                   onSelected: ref.read(historyPeriodProvider.notifier).select,
                 ),
               )
-            : Text(l10n.historyTitle),
+            : Text(l10n.historyTitle, style: AppTextStyle.titleLarge),
       ),
       actions: [
         HistoryViewToggle(
@@ -79,67 +84,68 @@ class HistoryScreen extends HookConsumerWidget {
       // No outer top padding: each view pads INSIDE its own scrollable, so
       // the content scrolls behind the translucent app bar and blurs out.
       body: AppRefreshIndicator(
-        onRefresh: () =>
-            AppRefreshIndicator.run(() => ref.invalidate(attacksStreamProvider)),
+        onRefresh: () => AppRefreshIndicator.run(
+          () => ref.invalidate(attacksStreamProvider),
+        ),
         child: switch (allAttacks) {
-        AsyncData(value: final all) when all.isEmpty => ScrollFill(
-          topInset: AppScaffold.bodyTopInset(context),
-          child: EmptyState(
-            icon: Icons.event_note_outlined,
-            message: l10n.historyEmpty,
+          AsyncData(value: final all) when all.isEmpty => ScrollFill(
+            topInset: AppScaffold.bodyTopInset(context),
+            child: EmptyState(
+              icon: Icons.event_note_outlined,
+              message: l10n.historyEmpty,
+            ),
           ),
-        ),
-        AsyncData(value: final all) => Builder(
-          builder: (context) {
-            final list = switch (filtered) {
-              AsyncData(value: final value) => value,
-              _ => const <Attack>[],
-            };
-            // Insets computed HERE — a context inside the Scaffold body,
-            // where extendBodyBehindAppBar/extendBody make MediaQuery
-            // report the real bar heights — and passed down, so the inner
-            // views don't depend on where they read MediaQuery from.
-            final topInset = kLiquidGlassEnabled
-                ? MediaQuery.paddingOf(context).top + AppSpacingConstant.h16
-                : 0.0;
-            final bottomInset = kLiquidGlassEnabled
-                ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
-                : 0.0;
-            // IndexedStack keeps ALL views alive so switching modes
-            // preserves state (scroll position, selected day, layout).
-            return IndexedStack(
-              index: HistoryViewMode.values.indexOf(mode),
-              children: [
-                _AttackList(
-                  attacks: list,
-                  topInset: topInset,
-                  bottomInset: bottomInset,
-                  onPastFilterChanged: (past) => listPastFilter.value = past,
-                ),
-                // Calendar ignores the period filter by design.
-                HistoryCalendarView(
-                  attacks: all,
-                  topInset: topInset,
-                  bottomInset: bottomInset,
-                ),
-                _ChartView(
-                  attacks: list,
-                  topInset: topInset,
-                  bottomInset: bottomInset,
-                  onPastFilterChanged: (past) => chartPastFilter.value = past,
-                ),
-              ],
-            );
-          },
-        ),
-        AsyncError() => ScrollFill(
-          topInset: AppScaffold.bodyTopInset(context),
-          child: EmptyState(
-            icon: Icons.event_note_outlined,
-            message: l10n.historyEmpty,
+          AsyncData(value: final all) => Builder(
+            builder: (context) {
+              final list = switch (filtered) {
+                AsyncData(value: final value) => value,
+                _ => const <Attack>[],
+              };
+              // Insets computed HERE — a context inside the Scaffold body,
+              // where extendBodyBehindAppBar/extendBody make MediaQuery
+              // report the real bar heights — and passed down, so the inner
+              // views don't depend on where they read MediaQuery from.
+              final topInset = kLiquidGlassEnabled
+                  ? MediaQuery.paddingOf(context).top + AppSpacingConstant.h16
+                  : 0.0;
+              final bottomInset = kLiquidGlassEnabled
+                  ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
+                  : 0.0;
+              // IndexedStack keeps ALL views alive so switching modes
+              // preserves state (scroll position, selected day, layout).
+              return IndexedStack(
+                index: HistoryViewMode.values.indexOf(mode),
+                children: [
+                  _AttackList(
+                    attacks: list,
+                    topInset: topInset,
+                    bottomInset: bottomInset,
+                    onPastFilterChanged: (past) => listPastFilter.value = past,
+                  ),
+                  // Calendar ignores the period filter by design.
+                  HistoryCalendarView(
+                    attacks: all,
+                    topInset: topInset,
+                    bottomInset: bottomInset,
+                  ),
+                  _ChartView(
+                    attacks: list,
+                    topInset: topInset,
+                    bottomInset: bottomInset,
+                    onPastFilterChanged: (past) => chartPastFilter.value = past,
+                  ),
+                ],
+              );
+            },
           ),
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
+          AsyncError() => ScrollFill(
+            topInset: AppScaffold.bodyTopInset(context),
+            child: EmptyState(
+              icon: Icons.event_note_outlined,
+              message: l10n.historyEmpty,
+            ),
+          ),
+          _ => const Center(child: CircularProgressIndicator()),
         },
       ),
     );

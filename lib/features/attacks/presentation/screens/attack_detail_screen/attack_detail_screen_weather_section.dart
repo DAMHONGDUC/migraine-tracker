@@ -39,7 +39,10 @@ class _WeatherSection extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text(l10n.attackDetailPressureDelta),
+          title: Text(
+            l10n.attackDetailPressureDelta,
+            style: AppTextStyle.bodyLarge,
+          ),
           trailing: Text(
             l10n.attackDetailPressureValue(
               '${delta > 0 ? '+' : ''}${delta.toStringAsFixed(1)}',
@@ -69,4 +72,3 @@ class _WeatherSection extends StatelessWidget {
     );
   }
 }
-

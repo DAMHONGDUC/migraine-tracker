@@ -9,9 +9,8 @@ class _ReadOnlyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(label),
+      title: Text(label, style: AppTextStyle.bodyLarge),
       trailing: Text(value, style: AppTextStyle.bodyLarge),
     );
   }
 }
-

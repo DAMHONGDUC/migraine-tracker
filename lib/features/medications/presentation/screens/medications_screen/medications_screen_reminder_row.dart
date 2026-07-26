@@ -57,7 +57,7 @@ class _ReminderRow extends ConsumerWidget {
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
       leading: const AppIcon(Icons.alarm),
-      title: Text(time),
+      title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

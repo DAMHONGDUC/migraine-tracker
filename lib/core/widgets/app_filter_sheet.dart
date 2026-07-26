@@ -185,7 +185,10 @@ class _FilterSheet<T> extends StatelessWidget {
                           : scheme.onSurfaceVariant,
                       size: AppSpacingConstant.r22,
                     ),
-                    title: Text(labelBuilder(option)),
+                    title: Text(
+                      labelBuilder(option),
+                      style: AppTextStyle.bodyLarge,
+                    ),
                     onTap: () => Navigator.of(context).pop(option),
                   ),
               ],

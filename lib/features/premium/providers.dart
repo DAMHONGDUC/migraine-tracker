@@ -24,8 +24,8 @@ final isPremiumProvider = StreamProvider<bool>(
 /// An entitlement without an account does not unlock anything: a
 /// subscription has to belong to something that survives a reinstall, so
 /// gates route signed-out users through the login screen first (see
-/// [PremiumUnlockFlow]). Both conditions live here rather than at each call
-/// site, so no gate can be written that forgets one of them.
+/// [NavigationUtils.unlockPremium]). Both conditions live here rather than
+/// at each call site, so no gate can be written that forgets one of them.
 final hasPremiumProvider = Provider<bool>((ref) {
   if (!ref.watch(isSignedInProvider)) return false;
 
