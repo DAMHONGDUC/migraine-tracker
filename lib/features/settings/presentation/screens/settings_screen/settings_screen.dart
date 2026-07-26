@@ -13,6 +13,7 @@ import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_section_header.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../../attacks/domain/enums/head_location.dart';
 import '../../../../auth/presentation/widgets/account_section.dart';

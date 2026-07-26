@@ -33,14 +33,7 @@ class _DeleteAllTile extends ConsumerWidget {
 
     await ref.read(settingsControllerProvider).deleteAll();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.settingsDeleteDone,
-            style: AppTextStyle.bodyMedium,
-          ),
-        ),
-      );
+      AppSnackBarUtils.success(context, l10n.settingsDeleteDone);
     }
   }
 
