@@ -91,8 +91,10 @@ void main() {
 
       // Locked rows in place of the real controls.
       expect(find.byType(Switch), findsNothing);
-      expect(find.text('Get a push before a big pressure drop hits.'),
-          findsOneWidget);
+      expect(
+        find.text('Get a push before a big pressure drop hits.'),
+        findsOneWidget,
+      );
       expect(
         find.text('Export a PDF summary of your attacks for your doctor.'),
         findsOneWidget,
@@ -218,9 +220,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text(
-            'Unlock to see how much of your pain follows the weather.',
-          ),
+          find.text('Unlock to see how much of your pain follows the weather.'),
           findsNothing,
         );
 

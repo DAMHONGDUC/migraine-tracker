@@ -27,8 +27,7 @@ String payload({
       'surface_pressure': pressures,
       'relative_humidity_2m':
           humidities ?? List<num?>.filled(pressures.length, 70),
-      'temperature_2m':
-          temperatures ?? List<num?>.filled(pressures.length, 20),
+      'temperature_2m': temperatures ?? List<num?>.filled(pressures.length, 20),
     },
   });
 }
@@ -53,35 +52,37 @@ void main() {
     );
   }
 
-  test('parses the sample at the requested hour and computes the 24h delta',
-      () async {
-    // 30 samples; last = instant. Pressure fell from 1013 to 1005 over the
-    // final 24 hours.
-    final pressures = List<num?>.generate(30, (i) => i < 6 ? 1015 : 1013);
-    pressures[29] = 1005; // now
-    pressures[5] = 1013; // 24h before now
+  test(
+    'parses the sample at the requested hour and computes the 24h delta',
+    () async {
+      // 30 samples; last = instant. Pressure fell from 1013 to 1005 over the
+      // final 24 hours.
+      final pressures = List<num?>.generate(30, (i) => i < 6 ? 1015 : 1013);
+      pressures[29] = 1005; // now
+      pressures[5] = 1013; // 24h before now
 
-    Uri? requested;
-    final source = sourceReturning(
-      payload(end: instant, pressures: pressures),
-      onRequest: (uri) => requested = uri,
-    );
+      Uri? requested;
+      final source = sourceReturning(
+        payload(end: instant, pressures: pressures),
+        onRequest: (uri) => requested = uri,
+      );
 
-    final snapshot = await source.snapshotAt(
-      latitude: 21.03,
-      longitude: 105.85,
-      instant: instant,
-    );
+      final snapshot = await source.snapshotAt(
+        latitude: 21.03,
+        longitude: 105.85,
+        instant: instant,
+      );
 
-    expect(snapshot, isNotNull);
-    expect(snapshot!.pressureHpa, 1005);
-    expect(snapshot.pressureDelta24hHpa, 1005 - 1013);
-    expect(snapshot.humidityPercent, 70);
-    expect(snapshot.temperatureCelsius, 20);
-    expect(snapshot.capturedAt, instant);
-    expect(requested!.queryParameters['timezone'], 'UTC');
-    expect(requested!.queryParameters['past_days'], '7');
-  });
+      expect(snapshot, isNotNull);
+      expect(snapshot!.pressureHpa, 1005);
+      expect(snapshot.pressureDelta24hHpa, 1005 - 1013);
+      expect(snapshot.humidityPercent, 70);
+      expect(snapshot.temperatureCelsius, 20);
+      expect(snapshot.capturedAt, instant);
+      expect(requested!.queryParameters['timezone'], 'UTC');
+      expect(requested!.queryParameters['past_days'], '7');
+    },
+  );
 
   test('returns null when the instant is outside the data window', () async {
     final source = sourceReturning(
@@ -95,18 +96,20 @@ void main() {
     expect(snapshot, isNull);
   });
 
-  test('returns null when fewer than 24h of history precede the instant',
-      () async {
-    final source = sourceReturning(
-      payload(end: instant, pressures: List<num?>.filled(10, 1010)),
-    );
-    final snapshot = await source.snapshotAt(
-      latitude: 0,
-      longitude: 0,
-      instant: instant,
-    );
-    expect(snapshot, isNull);
-  });
+  test(
+    'returns null when fewer than 24h of history precede the instant',
+    () async {
+      final source = sourceReturning(
+        payload(end: instant, pressures: List<num?>.filled(10, 1010)),
+      );
+      final snapshot = await source.snapshotAt(
+        latitude: 0,
+        longitude: 0,
+        instant: instant,
+      );
+      expect(snapshot, isNull);
+    },
+  );
 
   test('returns null when the pressure sample is missing (null)', () async {
     final pressures = List<num?>.filled(30, 1010);
@@ -122,18 +125,22 @@ void main() {
 
   test('returns null on HTTP errors and malformed bodies', () async {
     expect(
-      await sourceReturning('{}', status: 500)
-          .snapshotAt(latitude: 0, longitude: 0, instant: instant),
+      await sourceReturning(
+        '{}',
+        status: 500,
+      ).snapshotAt(latitude: 0, longitude: 0, instant: instant),
       isNull,
     );
     expect(
-      await sourceReturning('not json')
-          .snapshotAt(latitude: 0, longitude: 0, instant: instant),
+      await sourceReturning(
+        'not json',
+      ).snapshotAt(latitude: 0, longitude: 0, instant: instant),
       isNull,
     );
     expect(
-      await sourceReturning('{"hourly": null}')
-          .snapshotAt(latitude: 0, longitude: 0, instant: instant),
+      await sourceReturning(
+        '{"hourly": null}',
+      ).snapshotAt(latitude: 0, longitude: 0, instant: instant),
       isNull,
     );
   });
@@ -165,7 +172,10 @@ void main() {
       final pressures = List<num?>.generate(96, (i) => 1000 + i * 0.1);
       pressures[30] = null; // inside the window -> skipped
       final source = sourceReturning(
-        payload(end: start.add(const Duration(hours: 95)), pressures: pressures),
+        payload(
+          end: start.add(const Duration(hours: 95)),
+          pressures: pressures,
+        ),
       );
 
       final points = await source.pressureSeries(
@@ -185,22 +195,26 @@ void main() {
       }
     });
 
-    test('returns null on http errors or when nothing falls in the window',
-        () async {
-      expect(
-        await sourceReturning('{}', status: 500)
-            .pressureSeries(latitude: 0, longitude: 0, now: instant),
-        isNull,
-      );
-      // Series entirely in the past -> empty window -> null.
-      final old = instant.subtract(const Duration(days: 30));
-      final source = sourceReturning(
-        payload(end: old, pressures: List<num?>.filled(24, 1010)),
-      );
-      expect(
-        await source.pressureSeries(latitude: 0, longitude: 0, now: instant),
-        isNull,
-      );
-    });
+    test(
+      'returns null on http errors or when nothing falls in the window',
+      () async {
+        expect(
+          await sourceReturning(
+            '{}',
+            status: 500,
+          ).pressureSeries(latitude: 0, longitude: 0, now: instant),
+          isNull,
+        );
+        // Series entirely in the past -> empty window -> null.
+        final old = instant.subtract(const Duration(days: 30));
+        final source = sourceReturning(
+          payload(end: old, pressures: List<num?>.filled(24, 1010)),
+        );
+        expect(
+          await source.pressureSeries(latitude: 0, longitude: 0, now: instant),
+          isNull,
+        );
+      },
+    );
   });
 }

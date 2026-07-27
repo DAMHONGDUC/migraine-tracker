@@ -189,6 +189,7 @@ Future<PumpedApp> pumpApp(
   // Riverpod 3 no longer exports the `Override` type, so the helper takes
   // the concrete fakes it knows about instead of a generic override list.
   ExportSink? exportSink,
+
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 
