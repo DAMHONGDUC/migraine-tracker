@@ -31,10 +31,7 @@ class WeeklyFrequencyChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          context.l10n.historyChartTitle,
-          style: AppTextStyle.titleMedium,
-        ),
+        Text(context.l10n.historyChartTitle, style: AppTextStyle.titleMedium),
         SizedBox(height: AppSpacingConstant.h12),
         // Bars are unreadable to VoiceOver — summarise the series instead.
         Semantics(
@@ -44,84 +41,86 @@ class WeeklyFrequencyChart extends StatelessWidget {
           ),
           child: ExcludeSemantics(
             child: SizedBox(
-          height: AppSpacingConstant.h160,
-          child: BarChart(
-            BarChartData(
-              maxY: max(maxCount, 1) + 0.5,
-              alignment: BarChartAlignment.spaceAround,
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                horizontalInterval: interval,
-                getDrawingHorizontalLine: (value) =>
-                    const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
-              ),
-              borderData: FlBorderData(show: false),
-              titlesData: FlTitlesData(
-                topTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: interval,
-                    reservedSize: AppSpacingConstant.w28,
-                    getTitlesWidget: (value, meta) => Text(
-                      value.toInt().toString(),
-                      style: labelStyle,
+              height: AppSpacingConstant.h160,
+              child: BarChart(
+                BarChartData(
+                  maxY: max(maxCount, 1) + 0.5,
+                  alignment: BarChartAlignment.spaceAround,
+                  gridData: FlGridData(
+                    drawVerticalLine: false,
+                    horizontalInterval: interval,
+                    getDrawingHorizontalLine: (value) => const FlLine(
+                      color: AppColors.chartGrid,
+                      strokeWidth: 1,
                     ),
                   ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: AppSpacingConstant.h24,
-                    getTitlesWidget: (value, meta) {
-                      final index = value.toInt();
-                      // Label every other week to avoid collisions.
-                      if (index.isOdd || index >= buckets.length) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: EdgeInsets.only(top: AppSpacingConstant.h6),
-                        child: Text(
-                          weekLabel.format(buckets[index].weekStart),
-                          style: labelStyle,
-                        ),
-                      );
-                    },
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: interval,
+                        reservedSize: AppSpacingConstant.w28,
+                        getTitlesWidget: (value, meta) =>
+                            Text(value.toInt().toString(), style: labelStyle),
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: AppSpacingConstant.h24,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          // Label every other week to avoid collisions.
+                          if (index.isOdd || index >= buckets.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              top: AppSpacingConstant.h6,
+                            ),
+                            child: Text(
+                              weekLabel.format(buckets[index].weekStart),
+                              style: labelStyle,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => AppColors.surfaceElevated,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                          BarTooltipItem(
+                            context.l10n.historyChartTooltip(rod.toY.toInt()),
+                            AppTextStyle.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                    ),
+                  ),
+                  barGroups: [
+                    for (final (index, bucket) in buckets.indexed)
+                      BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: bucket.count.toDouble(),
+                            width: AppSpacingConstant.w14,
+                            color: AppColors.chartSeries,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppSpacingConstant.r4),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                 ),
               ),
-              barTouchData: BarTouchData(
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => AppColors.surfaceElevated,
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-                      BarTooltipItem(
-                        context.l10n.historyChartTooltip(rod.toY.toInt()),
-                        AppTextStyle.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                ),
-              ),
-              barGroups: [
-                for (final (index, bucket) in buckets.indexed)
-                  BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: bucket.count.toDouble(),
-                        width: AppSpacingConstant.w14,
-                        color: AppColors.chartSeries,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(AppSpacingConstant.r4),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
             ),
-          ),
-        ),
           ),
         ),
       ],

@@ -56,9 +56,7 @@ class OpenMeteoDataSource {
         if (pressure == null) continue;
         final time = DateTime.parse('${times[i]}Z');
         if (time.isBefore(start) || time.isAfter(end)) continue;
-        points.add(
-          PressurePoint(time: time, pressureHpa: pressure.toDouble()),
-        );
+        points.add(PressurePoint(time: time, pressureHpa: pressure.toDouble()));
       }
       return points.isEmpty ? null : points;
     } on Exception {

@@ -15,33 +15,51 @@ class MedicationsController {
   static const _uuid = Uuid();
 
   /// Adds a brand-new medication, stamping `createdAt` now.
-  Future<void> add(String name) {
+  Future<void> add(String name) async {
     AppLogger.action('Add medication', name);
-    return _ref
-        .read(medicationRepositoryProvider)
-        .upsert(
-          Medication(
-            id: _uuid.v4(),
-            name: name,
-            createdAt: DateTime.now().toUtc(),
-          ),
-        );
+    try {
+      await _ref
+          .read(medicationRepositoryProvider)
+          .upsert(
+            Medication(
+              id: _uuid.v4(),
+              name: name,
+              createdAt: DateTime.now().toUtc(),
+            ),
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Add medication failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Renames [medication] without disturbing its `createdAt` — the caller
   /// already holds the existing entity, so its creation date just passes
   /// through untouched.
-  Future<void> rename(Medication medication, String newName) {
+  Future<void> rename(Medication medication, String newName) async {
     AppLogger.action('Rename medication', '${medication.name} → $newName');
-    return _ref
-        .read(medicationRepositoryProvider)
-        .upsert(
-          Medication(
-            id: medication.id,
-            name: newName,
-            createdAt: medication.createdAt,
-          ),
-        );
+    try {
+      await _ref
+          .read(medicationRepositoryProvider)
+          .upsert(
+            Medication(
+              id: medication.id,
+              name: newName,
+              createdAt: medication.createdAt,
+            ),
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Rename medication failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Deletes the medication. Its reminders cascade at the DB level, but that
@@ -49,17 +67,26 @@ class MedicationsController {
   /// notification is cancelled first, or it would keep firing for a
   /// medication that no longer exists.
   Future<void> delete(String medicationId) async {
-    final enabledReminders = await _ref
-        .read(medicationReminderRepositoryProvider)
-        .getAllEnabled();
-    final scheduler = _ref.read(notificationSchedulerProvider);
+    try {
+      final enabledReminders = await _ref
+          .read(medicationReminderRepositoryProvider)
+          .getAllEnabled();
+      final scheduler = _ref.read(notificationSchedulerProvider);
 
-    AppLogger.action('Delete medication', medicationId);
-    for (final reminder in enabledReminders) {
-      if (reminder.medicationId == medicationId) {
-        await scheduler.cancel(reminder.id);
+      AppLogger.action('Delete medication', medicationId);
+      for (final reminder in enabledReminders) {
+        if (reminder.medicationId == medicationId) {
+          await scheduler.cancel(reminder.id);
+        }
       }
+      await _ref.read(medicationRepositoryProvider).deleteById(medicationId);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete medication failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
     }
-    await _ref.read(medicationRepositoryProvider).deleteById(medicationId);
   }
 }

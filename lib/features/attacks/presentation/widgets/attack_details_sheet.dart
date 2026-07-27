@@ -26,11 +26,8 @@ class AttackDetailsSheet extends HookConsumerWidget {
   final List<String> initialTriggers;
   final String? initialNotes;
 
-  List<String> _split(String input) => input
-      .split(',')
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .toList();
+  List<String> _split(String input) =>
+      input.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +58,8 @@ class AttackDetailsSheet extends HookConsumerWidget {
         left: AppSpacingConstant.w24,
         right: AppSpacingConstant.w24,
         top: AppSpacingConstant.h24,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacingConstant.h24,
+        bottom:
+            MediaQuery.viewInsetsOf(context).bottom + AppSpacingConstant.h24,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

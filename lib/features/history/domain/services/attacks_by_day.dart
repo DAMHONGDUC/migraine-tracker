@@ -29,8 +29,6 @@ class AttacksByDayGrouper {
   /// colour. Returns null for days with no attacks.
   int? peakIntensity(List<Attack> attacksOnDay) {
     if (attacksOnDay.isEmpty) return null;
-    return attacksOnDay
-        .map((a) => a.intensity)
-        .reduce((a, b) => a > b ? a : b);
+    return attacksOnDay.map((a) => a.intensity).reduce((a, b) => a > b ? a : b);
   }
 }

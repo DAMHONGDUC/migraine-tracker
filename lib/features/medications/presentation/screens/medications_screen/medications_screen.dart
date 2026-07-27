@@ -34,7 +34,7 @@ part 'medications_screen_medication_card.dart';
 part 'medications_screen_reminder_row.dart';
 
 /// Localized labels for the medications tab's three filter axes.
-abstract final class _FilterLabels {
+final class _FilterLabels {
   static String date(BuildContext context, MedicationDateFilter filter) =>
       switch (filter) {
         MedicationDateFilter.today => context.l10n.historyFilterToday,
@@ -66,7 +66,7 @@ abstract final class _FilterLabels {
 }
 
 /// Confirms a just-saved reminder, spelling out when it will next fire.
-abstract final class _ReminderSnack {
+final class _ReminderSnack {
   /// The "tomorrow" case matters most: a time already past today rolls to the
   /// next day (see [LocalNotificationScheduler]), which otherwise reads as
   /// "nothing happened". Mirrors that scheduler's boundary (a time == now

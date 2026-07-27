@@ -7,11 +7,7 @@ const _base32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 class Geohash {
   const Geohash._();
 
-  static String encode(
-    double latitude,
-    double longitude, {
-    int precision = 5,
-  }) {
+  static String encode(double latitude, double longitude, {int precision = 5}) {
     double latMin = -90.0, latMax = 90.0;
     double lonMin = -180.0, lonMax = 180.0;
     bool even = true;

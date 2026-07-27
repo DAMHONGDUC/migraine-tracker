@@ -17,8 +17,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final prefs = ref.watch(sharedPreferencesProvider);
     return AlertsSettings(
       enabled: prefs.getBool(enabledKey) ?? false,
-      thresholdHpa:
-          prefs.getDouble(OnboardingController.thresholdKey) ?? 5,
+      thresholdHpa: prefs.getDouble(OnboardingController.thresholdKey) ?? 5,
     );
   }
 
@@ -34,9 +33,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
       } else {
         await repo.unregister();
       }
-      await ref
-          .read(sharedPreferencesProvider)
-          .setBool(enabledKey, enabled);
+      await ref.read(sharedPreferencesProvider).setBool(enabledKey, enabled);
       return current.copyWith(enabled: enabled);
     });
     if (state case AsyncError(:final error, :final stackTrace)) {
@@ -52,14 +49,23 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final current = state.requireValue;
 
     AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
-    await ref
-        .read(sharedPreferencesProvider)
-        .setDouble(OnboardingController.thresholdKey, thresholdHpa);
-    if (current.enabled) {
+    try {
       await ref
-          .read(alertRegistrationRepositoryProvider)
-          .updateThreshold(thresholdHpa);
+          .read(sharedPreferencesProvider)
+          .setDouble(OnboardingController.thresholdKey, thresholdHpa);
+      if (current.enabled) {
+        await ref
+            .read(alertRegistrationRepositoryProvider)
+            .updateThreshold(thresholdHpa);
+      }
+      state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Set alert threshold failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
     }
-    state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
   }
 }
