@@ -28,15 +28,18 @@ void main() {
         enabled: enabled,
       );
 
-  test('upsert + watchAll joins the medication name, ordered by time', () async {
-    await reminders.upsert(reminder('r1', 9 * 60)); // 09:00
-    await reminders.upsert(reminder('r2', 8 * 60)); // 08:00
+  test(
+    'upsert + watchAll joins the medication name, ordered by time',
+    () async {
+      await reminders.upsert(reminder('r1', 9 * 60)); // 09:00
+      await reminders.upsert(reminder('r2', 8 * 60)); // 08:00
 
-    final list = await reminders.watchAll().first;
-    expect(list.map((v) => v.reminder.id), ['r2', 'r1']); // earliest first
-    expect(list.first.medicationName, 'Sumatriptan');
-    expect(list.first.reminder.hour, 8);
-  });
+      final list = await reminders.watchAll().first;
+      expect(list.map((v) => v.reminder.id), ['r2', 'r1']); // earliest first
+      expect(list.first.medicationName, 'Sumatriptan');
+      expect(list.first.reminder.hour, 8);
+    },
+  );
 
   test('getAllEnabled excludes disabled reminders', () async {
     await reminders.upsert(reminder('r1', 540));

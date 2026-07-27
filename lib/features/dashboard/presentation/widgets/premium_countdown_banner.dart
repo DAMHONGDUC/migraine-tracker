@@ -72,9 +72,7 @@ class _PremiumCountdownBannerState
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.35),
-          ),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
         ),
         child: Row(
           children: [

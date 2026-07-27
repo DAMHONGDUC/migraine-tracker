@@ -26,9 +26,9 @@ void main() {
     tester,
   ) async {
     final app = await pumpApp(tester);
-    await DriftAttackRepository(app.db).insert(
-      at('a', DateTime.now().subtract(const Duration(hours: 2))),
-    );
+    await DriftAttackRepository(
+      app.db,
+    ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
 
     await openHistory(tester);
     // List mode: the filter chip is up top.
@@ -69,9 +69,9 @@ void main() {
   testWidgets('a day with no attacks shows the empty message', (tester) async {
     final app = await pumpApp(tester);
     // Only an attack far in the past, so today is clear.
-    await DriftAttackRepository(app.db).insert(
-      at('old', DateTime.now().subtract(const Duration(days: 40))),
-    );
+    await DriftAttackRepository(
+      app.db,
+    ).insert(at('old', DateTime.now().subtract(const Duration(days: 40))));
 
     await openHistory(tester);
     await switchToCalendar(tester);
@@ -85,9 +85,9 @@ void main() {
     tester,
   ) async {
     final app = await pumpApp(tester);
-    await DriftAttackRepository(app.db).insert(
-      at('a', DateTime.now().subtract(const Duration(hours: 2))),
-    );
+    await DriftAttackRepository(
+      app.db,
+    ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
 
     await openHistory(tester);
     expect(find.byType(AttackTile), findsOneWidget);

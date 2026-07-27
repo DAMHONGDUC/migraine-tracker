@@ -15,8 +15,7 @@ void main() {
   final now = DateTime(2026, 7, 8, 15);
   const calculator = WeeklyBucketsCalculator();
 
-  test('produces the requested number of weeks, oldest first, zero-filled',
-      () {
+  test('produces the requested number of weeks, oldest first, zero-filled', () {
     final buckets = calculator.compute([], now: now);
     expect(buckets, hasLength(8));
     expect(buckets.last.weekStart, DateTime(2026, 7, 6)); // this Monday

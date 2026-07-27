@@ -14,8 +14,9 @@ class AttackPeriodFilterer {
 
     return switch (period) {
       HistoryPeriod.today => midnight,
-      HistoryPeriod.week =>
-        midnight.subtract(Duration(days: midnight.weekday - 1)),
+      HistoryPeriod.week => midnight.subtract(
+        Duration(days: midnight.weekday - 1),
+      ),
       HistoryPeriod.month => DateTime(local.year, local.month),
       HistoryPeriod.year => DateTime(local.year),
       HistoryPeriod.all => null,

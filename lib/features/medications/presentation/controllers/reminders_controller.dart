@@ -24,25 +24,34 @@ class RemindersController {
     required String notificationTitle,
     required String notificationBody,
   }) async {
-    final reminder = MedicationReminder(
-      id: _uuid.v4(),
-      medicationId: medicationId,
-      minuteOfDay: minuteOfDay,
-    );
+    try {
+      final reminder = MedicationReminder(
+        id: _uuid.v4(),
+        medicationId: medicationId,
+        minuteOfDay: minuteOfDay,
+      );
 
-    AppLogger.action('Add reminder', {
-      'medication': medicationName,
-      'minuteOfDay': minuteOfDay,
-    });
-    await _ref.read(medicationReminderRepositoryProvider).upsert(reminder);
-    await _ref
-        .read(notificationSchedulerProvider)
-        .schedule(
-          reminder,
-          medicationName: medicationName,
-          title: notificationTitle,
-          bodyTemplate: notificationBody,
-        );
+      AppLogger.action('Add reminder', {
+        'medication': medicationName,
+        'minuteOfDay': minuteOfDay,
+      });
+      await _ref.read(medicationReminderRepositoryProvider).upsert(reminder);
+      await _ref
+          .read(notificationSchedulerProvider)
+          .schedule(
+            reminder,
+            medicationName: medicationName,
+            title: notificationTitle,
+            bodyTemplate: notificationBody,
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Add reminder failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Changes an existing reminder's time of day and reschedules its
@@ -56,21 +65,30 @@ class RemindersController {
     required String notificationTitle,
     required String notificationBody,
   }) async {
-    final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
+    try {
+      final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
 
-    AppLogger.action('Edit reminder time', {
-      'id': reminder.id,
-      'minuteOfDay': minuteOfDay,
-    });
-    await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
-    await _ref
-        .read(notificationSchedulerProvider)
-        .schedule(
-          updated,
-          medicationName: medicationName,
-          title: notificationTitle,
-          bodyTemplate: notificationBody,
-        );
+      AppLogger.action('Edit reminder time', {
+        'id': reminder.id,
+        'minuteOfDay': minuteOfDay,
+      });
+      await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
+      await _ref
+          .read(notificationSchedulerProvider)
+          .schedule(
+            updated,
+            medicationName: medicationName,
+            title: notificationTitle,
+            bodyTemplate: notificationBody,
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Edit reminder time failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   Future<void> setEnabled(
@@ -80,20 +98,32 @@ class RemindersController {
     required String notificationBody,
     required bool enabled,
   }) async {
-    final updated = reminder.copyWith(enabled: enabled);
-    final scheduler = _ref.read(notificationSchedulerProvider);
+    try {
+      final updated = reminder.copyWith(enabled: enabled);
+      final scheduler = _ref.read(notificationSchedulerProvider);
 
-    AppLogger.action('Toggle reminder', {'id': reminder.id, 'enabled': enabled});
-    await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
-    if (enabled) {
-      await scheduler.schedule(
-        updated,
-        medicationName: medicationName,
-        title: notificationTitle,
-        bodyTemplate: notificationBody,
+      AppLogger.action('Toggle reminder', {
+        'id': reminder.id,
+        'enabled': enabled,
+      });
+      await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
+      if (enabled) {
+        await scheduler.schedule(
+          updated,
+          medicationName: medicationName,
+          title: notificationTitle,
+          bodyTemplate: notificationBody,
+        );
+      } else {
+        await scheduler.cancel(reminder.id);
+      }
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Toggle reminder failed',
+        error: error,
+        stackTrace: stackTrace,
       );
-    } else {
-      await scheduler.cancel(reminder.id);
+      rethrow;
     }
   }
 
@@ -105,15 +135,37 @@ class RemindersController {
     required String body,
     Duration delay = const Duration(seconds: 10),
   }) async {
-    AppLogger.action('Send test notification', {'delaySeconds': delay.inSeconds});
-    await _ref
-        .read(notificationSchedulerProvider)
-        .scheduleTest(title: title, body: body, delay: delay);
+    AppLogger.action('Send test notification', {
+      'delaySeconds': delay.inSeconds,
+    });
+    try {
+      await _ref
+          .read(notificationSchedulerProvider)
+          .scheduleTest(title: title, body: body, delay: delay);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Send test notification failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   Future<void> delete(String reminderId) async {
     AppLogger.action('Delete reminder', reminderId);
-    await _ref.read(medicationReminderRepositoryProvider).deleteById(reminderId);
-    await _ref.read(notificationSchedulerProvider).cancel(reminderId);
+    try {
+      await _ref
+          .read(medicationReminderRepositoryProvider)
+          .deleteById(reminderId);
+      await _ref.read(notificationSchedulerProvider).cancel(reminderId);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete reminder failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 }

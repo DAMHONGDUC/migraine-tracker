@@ -73,9 +73,7 @@ void main() {
   test('reminders still cascade after v3', () async {
     final schema = await verifier.schemaAt(2);
     schema.rawDatabase
-      ..execute(
-        "INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')",
-      )
+      ..execute("INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')")
       ..execute(
         'INSERT INTO medication_reminders (id, medication_id, minute_of_day, '
         "enabled) VALUES ('r1', 'm1', 480, 1)",

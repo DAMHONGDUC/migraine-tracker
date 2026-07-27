@@ -27,7 +27,7 @@ Future<void> main() async {
 
 /// One-time app initialization run before `runApp`: crash logging, Firebase,
 /// and the timezone DB used to schedule reminders at local wall time.
-abstract final class _AppBootstrap {
+final class _AppBootstrap {
   static Future<void> init() async {
     try {
       final previousOnError = FlutterError.onError;

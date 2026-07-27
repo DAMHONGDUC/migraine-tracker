@@ -25,8 +25,7 @@ class DashboardSeverityCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final attacks =
-        ref.watch(attacksStreamProvider).value ?? const [];
+    final attacks = ref.watch(attacksStreamProvider).value ?? const [];
     final counts = const SeverityBreakdownCalculator().compute(attacks);
 
     void openChart() {
