@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/constants/app_content_padding.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -90,8 +91,8 @@ class HistoryCalendarView extends HookWidget {
     // the app bar, never slide behind it.
     return Padding(
       padding: EdgeInsets.only(
-        left: AppSpacingConstant.w16,
-        right: AppSpacingConstant.w16,
+        left: AppContentPadding.horizontal,
+        right: AppContentPadding.horizontal,
         top: topInset,
       ),
       child: Column(

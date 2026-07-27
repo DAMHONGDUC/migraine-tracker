@@ -29,9 +29,9 @@ class _AttackList extends StatelessWidget {
           // Flush under the app bar — no gap between the bar and the content.
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w16,
+              AppContentPadding.horizontal,
               topInset,
-              AppSpacingConstant.w16,
+              AppContentPadding.horizontal,
               0,
             ),
             sliver: SliverToBoxAdapter(
@@ -49,10 +49,10 @@ class _AttackList extends StatelessWidget {
           else
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                AppSpacingConstant.w16,
+                AppContentPadding.horizontal,
                 0,
-                AppSpacingConstant.w16,
-                bottomInset + AppSpacingConstant.h16,
+                AppContentPadding.horizontal,
+                bottomInset,
               ),
               sliver: SliverList.separated(
                 itemCount: attacks.length,

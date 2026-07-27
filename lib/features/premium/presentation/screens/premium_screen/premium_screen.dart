@@ -34,12 +34,6 @@ class PremiumScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.premiumScreenTitle, style: AppTextStyle.titleLarge),
       body: AppActionView(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: AppSpacingConstant.w16,
-        ),
-        actionsPadding: EdgeInsets.symmetric(
-          horizontal: AppSpacingConstant.w16,
-        ),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[

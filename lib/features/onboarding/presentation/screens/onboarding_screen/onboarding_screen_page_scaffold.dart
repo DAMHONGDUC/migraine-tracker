@@ -16,7 +16,7 @@ class _PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w24),
+      padding: EdgeInsets.symmetric(horizontal: AppContentPadding.horizontal),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,15 +27,9 @@ class _PageScaffold extends StatelessWidget {
             color: context.colorScheme.primary,
           ),
           SizedBox(height: AppSpacingConstant.h24),
-          Text(
-            title,
-            style: AppTextStyle.headlineMedium.w600,
-          ),
+          Text(title, style: AppTextStyle.headlineMedium.w600),
           SizedBox(height: AppSpacingConstant.h12),
-          Text(
-            body,
-            style: AppTextStyle.bodyLarge.secondary,
-          ),
+          Text(body, style: AppTextStyle.bodyLarge.secondary),
           if (footer != null) ...[
             SizedBox(height: AppSpacingConstant.h24),
             footer!,

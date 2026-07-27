@@ -5,6 +5,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -76,11 +77,12 @@ class PaywallScreen extends ConsumerWidget {
         Expanded(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w24,
+              AppContentPadding.horizontal,
               AppSpacingConstant.h8,
-              AppSpacingConstant.w24,
-              // A sheet route: no SafeArea above it, so take the inset here.
-              MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h16,
+              AppContentPadding.horizontal,
+              // A sheet route rather than a screen, but the same rule: it
+              // clears the home indicator by the same 16.
+              AppContentPadding.bottom(context),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,

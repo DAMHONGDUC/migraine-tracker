@@ -15,8 +15,9 @@ import 'glass/liquid_glass_theme.dart';
 /// visible edge/divider and content scrolling behind it (via
 /// `extendBodyBehindAppBar`) simply blurs out. The Liquid Glass treatment
 /// is applied per element instead: the leading/back button and icon actions
-/// each sit in their own glass circle. Scroll-under bodies should pad their
-/// top by [bodyTopInset] so their first item starts below the bar.
+/// each sit in their own glass circle. Scroll-under bodies pad their top by
+/// `AppContentPadding.top` so their first item starts below the bar — this
+/// widget holds no spacing logic of its own, the one spacing class does.
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MainAppBar({
     required this.title,
@@ -31,25 +32,6 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final PreferredSizeWidget? bottom;
 
-  /// Top inset a scroll-under body needs so its first item clears the bar:
-  /// status bar + toolbar.
-  ///
-  /// Reads the inset off the **view**, not off the ambient `MediaQuery`:
-  /// `Scaffold` wraps its body in `removePadding(removeTop: true)` whenever
-  /// there is an app bar, and that subtracts the status bar from
-  /// `viewPadding.top` as well. A body-side caller therefore used to get
-  /// just `kToolbarHeight` (56) where the screen's own build got the full
-  /// 103 on a notched device — and the bar silently covered the first 47
-  /// logical pixels of content. The status bar height is a property of the
-  /// window, so read it from there and the answer is the same anywhere in
-  /// the tree.
-  ///
-  /// Returns 0 when glass is disabled — the bar is then opaque and the body
-  /// sits below it normally.
-  static double bodyTopInset(BuildContext context) => AppGlass.isSupported
-      ? MediaQueryData.fromView(View.of(context)).padding.top + kToolbarHeight
-      : 0;
-
   @override
   Size get preferredSize =>
       Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
@@ -63,7 +45,8 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     // automaticallyImplyLeading: false below stops AppBar from also trying
     // to insert its own default back button on top of this.
     final canPop = ModalRoute.of(context)?.canPop ?? false;
-    Widget? resolvedLeading = leading ?? (canPop ? const AppLeadingButton() : null);
+    Widget? resolvedLeading =
+        leading ?? (canPop ? const AppLeadingButton() : null);
 
     if (!AppGlass.isSupported) {
       return AppBar(

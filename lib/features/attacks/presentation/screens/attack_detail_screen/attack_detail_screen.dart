@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -178,12 +179,7 @@ class AttackDetailScreen extends ConsumerWidget {
           child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         AsyncData(value: final a?) => ListView(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w16,
-            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
-            AppSpacingConstant.w16,
-            AppSpacingConstant.w16,
-          ),
+          padding: AppContentPadding.screen(context),
           children: [
             _Header(attack: a),
             SizedBox(height: AppSpacingConstant.h16),

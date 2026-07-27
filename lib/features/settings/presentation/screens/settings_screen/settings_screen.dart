@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/l10n/locale_provider.dart';
@@ -43,19 +44,14 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(
         onRefresh: () =>
             AppRefreshIndicator.run(() => ref.invalidate(isPremiumProvider)),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.only(
-            top: AppScaffold.bodyTopInset(context),
-            bottom: AppScaffold.bottomNavInset(context),
-          ),
+          // Full-bleed: every row is a ListTile, which insets itself.
+          padding: AppContentPadding.fullBleed(context, floatingNav: true),
           children: [
             AppSectionHeader(l10n.settingsSectionGeneral),
             const _GeneralSection(),
