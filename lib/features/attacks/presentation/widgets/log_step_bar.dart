@@ -31,7 +31,7 @@ class LogStepBar extends StatelessWidget {
 
     // Glass off: a plain surface bar that reserves its own slot + safe area,
     // matching the old non-glass tracking bar.
-    if (!kLiquidGlassEnabled) {
+    if (!AppGlass.isSupported) {
       return Material(
         color: AppColors.surface,
         child: SafeArea(top: false, child: content),

@@ -8,7 +8,7 @@ import 'main_app_bar.dart';
 /// instead of a bare [Scaffold] so the frosted [MainAppBar] and the
 /// behind-the-bar layout are wired in one place.
 ///
-/// When [kLiquidGlassEnabled] is true it sets `extendBodyBehindAppBar` so the
+/// When [AppGlass.isSupported] is true it sets `extendBodyBehindAppBar` so the
 /// body refracts through the glass; scroll-under bodies should pad their top
 /// by [bodyTopInset] (which collapses to 0 when glass is off).
 class AppScaffold extends StatelessWidget {
@@ -34,7 +34,7 @@ class AppScaffold extends StatelessWidget {
 
   /// A bottom bar (e.g. the log flow's floating step progress). When set and
   /// glass is on, the body extends behind it so it refracts through the glass;
-  /// pad the body's bottom by [bottomNavInset] so its last item clears it.
+  /// pad the body's bottom by [bottomBarInset] so its last item clears it.
   final Widget? bottomNavigationBar;
 
   /// Keeps [body] clear of the home indicator and side insets, so screens
@@ -67,21 +67,29 @@ class AppScaffold extends StatelessWidget {
   /// Reads `viewPadding` (the raw device inset), NOT `padding`: Scaffold
   /// rewrites the body's `MediaQuery.padding.bottom` to the nav slot height
   /// under `extendBody`, so a `padding` read returns different values above
-  /// vs inside the body — `viewPadding` is stable everywhere. Collapses to
-  /// 0 when glass is off — the bar then reserves its own slot.
-  static double bottomNavInset(BuildContext context) => kLiquidGlassEnabled
-      ? MediaQuery.viewPaddingOf(context).bottom +
-            AppSpacingConstant.h68 + // shared bar height (nav + progress)
-            AppSpacingConstant.h8
-      : 0;
+  /// vs inside the body — `viewPadding` is stable everywhere.
+  ///
+  /// Never collapses: the shell's nav is a floating pill on every device
+  /// (see [AppGlass]), so the body always scrolls behind it.
+  static double bottomNavInset(BuildContext context) =>
+      MediaQuery.viewPaddingOf(context).bottom +
+      AppSpacingConstant.h68 + // shared bar height (nav + progress)
+      AppSpacingConstant.h8;
+
+  /// Same measurement for a floating bar passed as [bottomNavigationBar] —
+  /// the log flow's step bar. Unlike the shell nav that one is only floating
+  /// where glass is supported, so this collapses to 0 otherwise: the bar
+  /// then reserves its own layout slot and the body must not pad for it.
+  static double bottomBarInset(BuildContext context) =>
+      AppGlass.isSupported ? bottomNavInset(context) : 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: kLiquidGlassEnabled,
+      extendBodyBehindAppBar: AppGlass.isSupported,
       // Let the body flow behind a floating glass bottom bar so it refracts
       // through it (mirrors the shell's bottom nav).
-      extendBody: kLiquidGlassEnabled && bottomNavigationBar != null,
+      extendBody: AppGlass.isSupported && bottomNavigationBar != null,
       appBar: MainAppBar(
         title: title,
         actions: actions,

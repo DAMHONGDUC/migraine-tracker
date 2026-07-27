@@ -44,7 +44,7 @@ class HistoryViewToggle extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         // Opaque fill only when glass is off; the glass supplies the surface.
-        color: kLiquidGlassEnabled ? null : scheme.surfaceContainerHigh,
+        color: AppGlass.isSupported ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
       ),
       child: Stack(
@@ -98,7 +98,7 @@ class HistoryViewToggle extends StatelessWidget {
       ),
     );
 
-    if (!kLiquidGlassEnabled) return track;
+    if (!AppGlass.isSupported) return track;
     // A frosted pill: it refracts the (glass) app bar and the content behind
     // it. The thumb + icons paint crisply on top (glassContainsChild: false).
     return LiquidGlass.withOwnLayer(
