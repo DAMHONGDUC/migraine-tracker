@@ -104,12 +104,13 @@ class HistoryScreen extends HookConsumerWidget {
               // where extendBodyBehindAppBar/extendBody make MediaQuery
               // report the real bar heights — and passed down, so the inner
               // views don't depend on where they read MediaQuery from.
-              final topInset = kLiquidGlassEnabled
+              final topInset = AppGlass.isSupported
                   ? MediaQuery.paddingOf(context).top + AppSpacingConstant.h16
                   : 0.0;
-              final bottomInset = kLiquidGlassEnabled
-                  ? MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8
-                  : 0.0;
+              // Unconditional: the shell's nav floats on every device, so
+              // these views always scroll behind it.
+              final bottomInset =
+                  MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8;
               // IndexedStack keeps ALL views alive so switching modes
               // preserves state (scroll position, selected day, layout).
               return IndexedStack(

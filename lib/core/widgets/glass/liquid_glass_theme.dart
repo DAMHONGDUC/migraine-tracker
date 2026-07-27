@@ -1,22 +1,42 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
-/// Master switch for the Liquid Glass chrome (app bar + bottom sheet).
+/// Whether this device can actually render Liquid Glass.
 ///
-/// When `false`, [MainAppBar] and [showAppBottomSheet] fall back to plain
-/// Material surfaces, [AppScaffold] stops extending its body behind the bar,
-/// and [MainAppBar.bodyTopInset] returns 0 — so a single flag cleanly removes
-/// the effect everywhere without touching call sites.
-const bool kLiquidGlassEnabled = true;
+/// The effect is a fragment-shader image filter, and only Impeller can run
+/// one: true on iOS, true on Android devices that get the Vulkan backend,
+/// false on Android's Skia fallback (and in widget tests). When false,
+/// [MainAppBar] and [showAppBottomSheet] fall back to plain Material
+/// surfaces, [AppScaffold] stops extending its body behind the bar, and
+/// [MainAppBar.bodyTopInset] returns 0.
+///
+/// The shell's bottom nav is the deliberate exception — it stays a floating
+/// glass pill everywhere. Its geometry (side margins, the gap beneath it,
+/// the inset tab screens pad by) is layout rather than decoration, and the
+/// renderer degrades that one surface to `FakeGlass` by itself.
+class AppGlass {
+  const AppGlass._();
+
+  static bool? _debugOverride;
+
+  /// Test seam: the widget-test engine is Skia, so [isSupported] is false
+  /// there and every test would exercise the fallback layout instead of the
+  /// shipped one. `pumpApp` pins this to true.
+  @visibleForTesting
+  static set debugSupported(bool? value) => _debugOverride = value;
+
+  static bool get isSupported =>
+      _debugOverride ?? ImageFilter.isShaderFilterSupported;
+}
 
 /// Shared Liquid Glass tuning for the app's chrome (app bar + bottom sheet).
 ///
 /// Tuned for the dark, photophobia-first theme (hard rule 3): a dark glass
 /// tint, gentle lighting, and no chromatic aberration, so the effect reads as
 /// a calm frosted surface and never introduces a bright specular glare or
-/// rainbow fringing. The glass falls back to a plain blur automatically on
-/// engines without shader support (e.g. widget tests), so callers never need
-/// to branch on platform.
+/// rainbow fringing.
 const LiquidGlassSettings kChromeGlass = LiquidGlassSettings(
   // AppColors.background at ~50% — keeps the bar dark and text legible while
   // the blur carries the "glass" read.

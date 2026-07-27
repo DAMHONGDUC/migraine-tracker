@@ -40,7 +40,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// values above vs inside the body — `viewPadding` is stable everywhere.
   /// Returns 0 when glass is disabled — the bar is then opaque and the body
   /// sits below it normally.
-  static double bodyTopInset(BuildContext context) => kLiquidGlassEnabled
+  static double bodyTopInset(BuildContext context) => AppGlass.isSupported
       ? MediaQuery.viewPaddingOf(context).top + kToolbarHeight
       : 0;
 
@@ -59,7 +59,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     Widget? resolvedLeading = leading ?? (canPop ? const AppLeadingButton() : null);
 
-    if (!kLiquidGlassEnabled) {
+    if (!AppGlass.isSupported) {
       return AppBar(
         title: title,
         actions: actions,
