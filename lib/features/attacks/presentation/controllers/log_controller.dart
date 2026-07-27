@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
@@ -50,6 +51,8 @@ class LogController extends Notifier<LogFlowState> {
   /// fastest way into the flow, mid-attack.
   void selectIntensity(int value) {
     state = LogFlowState(step: LogStep.location, intensity: value);
+    // Funnel only — the step reached, never the value picked (health data).
+    AppAnalytics.logLogFlowStep(LogStep.location.name);
   }
 
   /// Called by the location/medication step whenever the user picks or
@@ -76,6 +79,7 @@ class LogController extends Notifier<LogFlowState> {
           intensity: state.intensity,
           location: state.draft! as HeadLocation,
         );
+        AppAnalytics.logLogFlowStep(LogStep.medication.name);
       case LogStep.medication:
         await _save(state.draft as String?);
       case LogStep.intensity:
@@ -101,6 +105,8 @@ class LogController extends Notifier<LogFlowState> {
       'location': attack.location.name,
       'medication': medicationName,
     });
+    AppAnalytics.logAttackLogged();
+    AppAnalytics.logLogFlowStep(LogStep.saved.name);
     unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
     state = LogFlowState(savedId: attack.id, step: LogStep.saved);
   }

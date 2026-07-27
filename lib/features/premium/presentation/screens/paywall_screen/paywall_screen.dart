@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/analytics/app_analytics.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -132,9 +133,12 @@ class PaywallScreen extends ConsumerWidget {
                     // Signed out there is no account to attach a
                     // subscription to; signed in, purchases await RevenueCat.
                     AppButton.primary(
-                      onPressed: signedIn
-                          ? () {}
-                          : () => NavigationUtils.toLogin(context),
+                      onPressed: () {
+                        AppAnalytics.logPaywallCtaTapped(signedIn: signedIn);
+                        // Signed in, the purchase itself awaits RevenueCat —
+                        // the tap is still the conversion signal to measure.
+                        if (!signedIn) NavigationUtils.toLogin(context);
+                      },
                       label: signedIn
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
@@ -187,4 +191,3 @@ class PaywallScreen extends ConsumerWidget {
     );
   }
 }
-

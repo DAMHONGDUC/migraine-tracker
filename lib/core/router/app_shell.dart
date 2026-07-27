@@ -5,9 +5,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
+import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.navigationShell, super.key});
@@ -19,7 +21,37 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
+  /// Branch order of the shell's tabs — the analytics screen name for each.
+  static const List<AppRoute> _tabs = <AppRoute>[
+    AppRoutes.dashboard,
+    AppRoutes.history,
+    AppRoutes.medications,
+    AppRoutes.insights,
+    AppRoutes.settings,
+  ];
+
   bool _shrunk = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _logTabView();
+  }
+
+  /// Tabs are branches of an IndexedStack, so no route is pushed and the
+  /// navigator observer sees nothing — the screen view is logged here.
+  @override
+  void didUpdateWidget(AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.navigationShell.currentIndex !=
+        widget.navigationShell.currentIndex) {
+      _logTabView();
+    }
+  }
+
+  void _logTabView() => AppAnalytics.logScreenView(
+    _tabs[widget.navigationShell.currentIndex].name,
+  );
 
   /// Scrolling down (content moving up, more below) minimises the bar to
   /// 80%; scrolling back up restores it. Fires once per direction change,

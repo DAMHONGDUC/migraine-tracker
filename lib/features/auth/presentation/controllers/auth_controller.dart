@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
@@ -42,6 +43,7 @@ class LoginController extends Notifier<LoginState> {
       await ref.read(authRepositoryProvider).signIn(provider);
       state = const LoginState();
       AppLogger.info('Signed in', provider.name);
+      AppAnalytics.logLogin(provider.name);
       return true;
     } on AuthException catch (e) {
       state = LoginState(
@@ -49,6 +51,10 @@ class LoginController extends Notifier<LoginState> {
       );
       if (e.error != AuthError.cancelled) {
         AppLogger.warning('Sign in failed', e.error.name);
+        AppAnalytics.logSignInFailed(
+          method: provider.name,
+          reason: e.error.name,
+        );
       }
       return false;
     }
@@ -64,6 +70,7 @@ class AccountController {
 
   Future<void> signOut() async {
     AppLogger.action('Sign out');
+    AppAnalytics.logSignOut();
     await _ref.read(authRepositoryProvider).signOut();
   }
 }

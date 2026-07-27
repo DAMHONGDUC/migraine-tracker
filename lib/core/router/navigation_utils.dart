@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../features/auth/providers.dart';
+import '../analytics/app_analytics.dart';
 import 'app_router.dart';
 
 /// Navigation moves with a rule attached — an order of screens, or a
@@ -21,10 +22,15 @@ abstract final class NavigationUtils {
   /// Locked surface → paywall, signing in first if needed: a subscription
   /// needs an account to belong to. Backing out of login stops the flow.
   static Future<void> unlockPremium(BuildContext context, WidgetRef ref) async {
-    if (!ref.read(isSignedInProvider)) {
-      final bool signedIn = await toLogin(context);
+    final bool signedIn = ref.read(isSignedInProvider);
 
-      if (!signedIn || !context.mounted) return;
+    // Demand signal: how often a locked surface is tapped, and whether the
+    // user already had an account when it happened.
+    AppAnalytics.logPremiumGateTapped(signedIn: signedIn);
+    if (!signedIn) {
+      final bool didSignIn = await toLogin(context);
+
+      if (!didSignIn || !context.mounted) return;
     }
 
     await toPaywall(context);

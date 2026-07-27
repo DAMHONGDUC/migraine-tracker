@@ -13,8 +13,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   drift: 2.34.0
   drift_flutter: ^0.3.0
+  firebase_analytics: ^12.4.5
   firebase_auth: ^6.5.4
   firebase_core: ^4.11.0
+  firebase_crashlytics: ^5.2.6
   firebase_messaging: ^16.4.1
   fl_chart: ^1.2.0
   flutter:

@@ -1,7 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/logging/crash_reporter.dart';
 import '../../../onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
@@ -26,6 +28,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final current = state.requireValue;
 
     AppLogger.action('Toggle pressure alerts', enabled);
+    AppAnalytics.logAlertsToggled(enabled: enabled);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(alertRegistrationRepositoryProvider);
 
@@ -45,6 +48,11 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
         error: error,
         stackTrace: stackTrace,
       );
+      CrashReporter.recordError(
+        error,
+        stackTrace,
+        reason: 'Alert registration failed',
+      );
     }
   }
 
@@ -52,6 +60,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final current = state.requireValue;
 
     AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
+    AppAnalytics.logAlertThresholdSet(thresholdHpa);
     await ref
         .read(sharedPreferencesProvider)
         .setDouble(OnboardingController.thresholdKey, thresholdHpa);

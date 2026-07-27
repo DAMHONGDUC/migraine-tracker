@@ -19,6 +19,7 @@ Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). N
 - **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
 - **Weather**: WeatherKit REST in-app is the target; Open-Meteo is the temporary in-app source until the WeatherKit key is configured (swap inside `weatherRepositoryProvider` — everything depends on the `WeatherRepository` interface). Open-Meteo in backend cron permanently.
 - **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
+- **Observability**: Firebase Crashlytics (crashes + non-fatals) and Firebase Analytics (usage). Both are initialized in `main` and stay no-ops until then, so tests and pure-Dart paths never touch the SDKs.
 
 ## Repo layout
 
@@ -74,7 +75,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 
 ## Hard rules
 
-1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it.
+1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
 2. **Location**: request While-Using + reduced accuracy only. Never request Always.
 3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
 4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.
@@ -96,6 +97,8 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 - Text: every style comes from `AppTextStyle` (`core/theme/app_text_style.dart`) — no inline `TextStyle(...)` and no `context.textTheme`/`Theme.of(context).textTheme` in widgets (the extension getter was removed on purpose). Font sizes go through `AppSpacingConstant.sp*` (screenutil); line heights are shared `_height*` ratio constants in `AppTextStyle`. Because of `.sp`, widget tests MUST pin the view to the 393×852 design size — `pumpApp` already does this; the default 800×600 test surface scales fonts ~2× and breaks layout. Use the `.secondary` / `.w600` helpers for muted color and semi-bold; other tweaks via `copyWith`. `AppTheme` feeds `AppTextStyle` into `ThemeData.textTheme` so ambient defaults match.
 - **Icons: every icon is an `AppIcon`** (`core/widgets/app_icon.dart`) — never a raw `Icon(...)` in feature or core code (the only raw `Icon` lives inside `AppIcon`). `AppIcon` always resolves to a concrete size: it defaults to `AppSpacingConstant.r24`, and any other size is passed explicitly via `size:` (never let an icon inherit an ambient size). `color` falls back to the ambient `IconTheme` when omitted.
 - Buttons: every labeled button is an `AppButton` (`core/widgets/app_button.dart`) — `.primary` (main CTA), `.secondary` (tonal), `.outlined`, `.text` (low emphasis / dialog cancel), `.destructive` (error-filled confirm). Never raw `FilledButton`/`OutlinedButton`/`TextButton` in feature code. Icon-only actions may still use `IconButton`.
+- **Analytics: every event goes through `AppAnalytics`** (`core/analytics/app_analytics.dart`) — a typed method per event, so the full inventory of what we send is one file. Never call `FirebaseAnalytics` directly and never type an event name at a call site. Events live next to the matching `AppLogger.action` in a `presentation/controllers/` Notifier, never in a widget's build. Health data never becomes a parameter (hard rule 1).
+- **Crash reporting goes through `CrashReporter`** (`core/logging/crash_reporter.dart`): `recordError` for a caught failure worth seeing in production, alongside the `AppLogger.error` that serves the debug console. `domain/` stays pure Dart — report from the presentation/data layer that catches it.
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
 - Cloud Functions: idempotent, log with structured JSON, fail loud on weather API errors (retry with backoff), never silently skip a user cohort.
