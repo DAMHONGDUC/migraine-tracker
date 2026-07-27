@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
@@ -56,16 +57,14 @@ class LogScreen extends ConsumerWidget {
     // Bottom inset the body must clear: the floating step bar while it shows,
     // else just the home indicator + a gap on the saved screen.
     final bottomInset = question != null
-        ? AppScaffold.bottomBarInset(context)
-        : MediaQuery.viewPaddingOf(context).bottom + AppSpacingConstant.h16;
+        ? AppContentPadding.bottomBar(context)
+        : AppContentPadding.bottom(context);
     // The medication step scrolls its grid BEHIND the step bar (like the tab
     // flows), so the body reserves no bottom space for it — the grid applies
     // [bottomInset] as its own scroll padding instead.
     final isMedication = state.step == LogStep.medication;
 
     return AppScaffold(
-      // The step bar keeps itself clear of the home indicator (LogStepBar).
-      withSafeArea: false,
       title: Text(l10n.logTitle, style: AppTextStyle.titleLarge),
       // First step: nothing to step back to, so the leading button cancels
       // the whole flow (pops the route). Later steps: step back through the
@@ -91,7 +90,7 @@ class LogScreen extends ConsumerWidget {
           : null,
       body: Padding(
         padding: EdgeInsets.only(
-          top: AppScaffold.bodyTopInset(context),
+          top: AppContentPadding.appBarInset(context),
           bottom: isMedication ? 0 : bottomInset,
         ),
         child: Column(

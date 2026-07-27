@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
@@ -21,9 +22,6 @@ class InsightsScreen extends ConsumerWidget {
     final result = ref.watch(correlationResultProvider);
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
       body: switch (result) {
         AsyncData(value: final value) => AppRefreshIndicator(
@@ -34,12 +32,7 @@ class InsightsScreen extends ConsumerWidget {
           }),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w16,
-              AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
-              AppSpacingConstant.w16,
-              AppScaffold.bottomNavInset(context) + AppSpacingConstant.h16,
-            ),
+            padding: AppContentPadding.screen(context, floatingNav: true),
             children: [
               // Free users never build the forecast card, so no forecast is
               // fetched or held for them.

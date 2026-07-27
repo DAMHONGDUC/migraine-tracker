@@ -8,6 +8,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -288,13 +289,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     // Measured here (the body-building context) and handed to both the filter
     // strip and the list gap so they use the identical value — reading it again
     // deeper in the tree can drift in this nested-Scaffold setup.
-    final topInset = AppScaffold.bodyTopInset(context);
-    final filterBarHeight = PinnedFilterBar.heightFor(topInset);
+    final topInset = AppContentPadding.appBarInset(context);
+    final filterBarHeight = AppContentPadding.belowPinnedFilterBar(context);
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
@@ -390,11 +388,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 else
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
-                      AppSpacingConstant.w16,
+                      AppContentPadding.horizontal,
                       filterBarHeight,
-                      AppSpacingConstant.w16,
-                      AppScaffold.bottomNavInset(context) +
-                          AppSpacingConstant.h16,
+                      AppContentPadding.horizontal,
+                      AppContentPadding.bottom(context, floatingNav: true),
                     ),
                     sliver: SliverList.separated(
                       itemCount: medications.length,

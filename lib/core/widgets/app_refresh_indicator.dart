@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_content_padding.dart';
 import '../constants/app_spacing_constant.dart';
 import '../theme/app_colors.dart';
-import 'main_app_bar.dart';
 
 /// The app's pull-to-refresh wrapper — one themed [RefreshIndicator] so every
 /// tab refreshes the same way. Wrap a scrollable [child] (use
@@ -37,7 +37,7 @@ class AppRefreshIndicator extends StatelessWidget {
       backgroundColor: AppColors.surfaceElevated,
       edgeOffset:
           edgeOffset ??
-          MainAppBar.bodyTopInset(context) + AppSpacingConstant.h20,
+          AppContentPadding.appBarInset(context) + AppSpacingConstant.h20,
       child: child,
     );
   }
@@ -72,10 +72,7 @@ class ScrollFill extends StatelessWidget {
       slivers: [
         SliverPadding(
           padding: EdgeInsets.only(top: topInset),
-          sliver: SliverFillRemaining(
-            hasScrollBody: false,
-            child: child,
-          ),
+          sliver: SliverFillRemaining(hasScrollBody: false, child: child),
         ),
       ],
     );
