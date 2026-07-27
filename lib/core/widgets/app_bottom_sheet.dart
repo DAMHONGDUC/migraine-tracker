@@ -13,17 +13,25 @@ import 'glass/liquid_glass_theme.dart';
 /// transparent so the content behind the sheet refracts through it. We draw
 /// our own drag handle inside the glass (instead of `showDragHandle`) so the
 /// handle sits on the frosted surface rather than floating above it.
+/// Pass `dismissible: false` for a sheet the user must act on (the force
+/// update block): the barrier stops closing it, dragging is off and the
+/// handle — which promises a swipe that no longer works — is dropped. The
+/// sheet's own content still has to block the system back gesture
+/// (`PopScope`); that is the route's job, not this presenter's.
 Future<T?> showAppBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
   bool isScrollControlled = false,
+  bool dismissible = true,
 }) {
   if (!AppGlass.isSupported) {
     // Plain Material sheet: let the framework draw the drag handle and surface.
     return showModalBottomSheet<T>(
       context: context,
       useRootNavigator: true,
-      showDragHandle: true,
+      showDragHandle: dismissible,
+      isDismissible: dismissible,
+      enableDrag: dismissible,
       isScrollControlled: isScrollControlled,
       builder: builder,
     );
@@ -32,6 +40,8 @@ Future<T?> showAppBottomSheet<T>(
     context: context,
     useRootNavigator: true,
     showDragHandle: false,
+    isDismissible: dismissible,
+    enableDrag: dismissible,
     backgroundColor: Colors.transparent,
     isScrollControlled: isScrollControlled,
     builder: (context) => LiquidGlass.withOwnLayer(
@@ -41,7 +51,7 @@ Future<T?> showAppBottomSheet<T>(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _SheetDragHandle(),
+          if (dismissible) const _SheetDragHandle(),
           Flexible(child: builder(context)),
         ],
       ),
@@ -62,8 +72,9 @@ class _SheetDragHandle extends StatelessWidget {
           width: AppSpacingConstant.w32,
           height: AppSpacingConstant.h4,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurfaceVariant
-                .withValues(alpha: 0.4),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(AppSpacingConstant.r3),
           ),
         ),

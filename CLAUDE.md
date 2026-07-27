@@ -53,7 +53,7 @@ functions/               # firebase cloud functions (typescript)
 test/features/           # mirrors lib/features
 ```
 
-Features: `attacks` (Attack entity + 3-tap log), `medications`, `weather`
+Features: `app_update` (force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather`
 (WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
 `alerts`, `auth` (Google/Apple, linkWithCredential), `sync`, `paywall`,
 `settings`. Create a layer folder only when it gets its first file — no empty
@@ -83,8 +83,9 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 6. Every user-facing string goes through `intl` ARB files. Two locales ship in v1: `app_en.arb` (template, with `@` descriptions) and `app_vi.arb` — every new key must be added to BOTH. Access strings via the `context.l10n` extension (`core/extensions/context_extensions.dart`), never `AppLocalizations.of(context)` directly. The user's language choice lives in `localeControllerProvider` (persisted via shared_preferences; null = follow system).
 7. Pressure math: alerts trigger on **delta** (default ≥5 hPa drop within 24h forecast), not absolute values. Threshold is user-tunable and stored per-user.
 8. GDPR: `settings/` must always keep working "Export all data (JSON/CSV)" and "Delete everything" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist.
-9. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
-10. Medical disclaimer must appear in onboarding and App Store description. Never generate copy that promises diagnosis, treatment, or prevention.
+9. **Force update fails open.** The launch check (`app_update`) reads the public, read-only `app_updates` collection and blocks ONLY on an explicit `enable_force_update` against a strictly newer `build_number`. Offline, a missing record, an unreadable field or a malformed link must let the user in — someone mid-attack has to reach the log button. Compare `build_name` first (via `VersionUtils`, segment by segment as numbers — never as strings, `"1.10.0" < "1.9.0"` is true for a string), then `build_number` as the tiebreaker for two builds of the same version.
+10. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
+11. Medical disclaimer must appear in onboarding and App Store description. Never generate copy that promises diagnosis, treatment, or prevention.
 
 ## Code style
 
@@ -117,6 +118,37 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 - **Screens with content plus an action button: `spaceBetween`, button pinned to the bottom.** Content at the top, actions hugging the bottom edge (see `login_screen.dart`). It must still scroll — long locales and large accessibility text sizes overflow a fixed `Column`. Pass `withScrollView: true` to `AppScaffold`, which wraps the body so it fills at least one viewport and scrolls past that; only hand-roll it (`LayoutBuilder` → `SingleChildScrollView` → `ConstrainedBox(minHeight:)`) outside `AppScaffold`. A bare `ListView` is wrong here: under short content the buttons drift up into the middle.
 - **The bottom action sits 16 above the safe area, never twice.** Once the device inset is already accounted for — `AppScaffold`'s SafeArea, an explicit `SafeArea`, or an explicit `MediaQuery.paddingOf(context).bottom` on a sheet route — the button's own bottom padding is just `AppSpacingConstant.h16`, the breathing gap. Don't add the inset a second time, and don't leave the button flush against the home indicator. Floating chrome (the shell's bottom nav, the log flow's step bar) is exempt: those pills sit at exactly the safe area so they line up with each other.
 - **Shared navigation lives in `NavigationUtils`** (`core/router/navigation_utils.dart`). A plain "push this route" belongs at its call site; a move with a *rule* attached — an order of screens, or a condition deciding where the user lands — goes in `NavigationUtils` so the second caller cannot reimplement it without the rule. Example: `unlockPremium` sends a signed-out user to login first and only continues to the paywall once that succeeded.
+
+## Pending setup — the owner does this by hand, don't assume it exists
+
+Force update (`app_update`) is coded and tested, but nothing on the Firebase
+side is done yet. Until all three land, the launch check reads nothing and
+fails open — which is the safe state, and also a silent one, so don't read
+"no sheet appeared" as "it works".
+
+1. **`firestore.rules` is not deployed.** The `app_updates` block exists in
+   the repo only. Until `firebase deploy --only firestore:rules` runs, the
+   client read returns `permission-denied` and the check silently fails open.
+2. **The `app_updates` collection does not exist.** Records are published by
+   hand from the Firebase console — schema and field types are documented on
+   `AppUpdateMapper`. `create_date` MUST be a Firestore `timestamp`: Firestore
+   orders mixed types by type, so one record saved as a string sorts below
+   every timestamp and `orderBy(create_date, desc).limit(1)` will never see
+   it. Publish a NEW document per release; never edit the previous one.
+   Flip `enable_force_update` to true only once that build is live on both
+   stores.
+3. **No caching — deliberately.** Every entry into the app (cold start and
+   each resume) is one Firestore document read. That is what makes an
+   emergency un-block take effect on the next app open, unlike Remote
+   Config's 12h cache. If the read volume ever matters, cache the record in
+   memory and refetch after N minutes — decide the N against how fast an
+   un-block has to reach users, and never cache the "blocked" verdict longer
+   than the "not blocked" one.
+
+Also note `env/dev.json` and `env/prod.json` point at the SAME Firebase
+project, so a blocking record written while testing hits real users too.
+Fix that with a separate dev project, or wire the Firestore emulator behind
+`!AppEnv.isProd` before testing a blocking record post-launch.
 
 ## Testing priorities
 

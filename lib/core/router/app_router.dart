@@ -52,8 +52,18 @@ abstract final class AppRoutes {
   static const login = AppRoute(name: 'login', path: '/login');
 }
 
+/// The router's own navigator. Anything that has to present over the whole
+/// app from OUTSIDE the router — `ForceUpdateWrapper`, which lives in
+/// `MaterialApp.builder` and so sits above this navigator — pushes onto
+/// this key's context. Provider-scoped, not a global: two app instances in
+/// the same test process would otherwise share (and duplicate) one key.
+final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
+  (ref) => GlobalKey<NavigatorState>(debugLabel: 'root'),
+);
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    navigatorKey: ref.watch(rootNavigatorKeyProvider),
     initialLocation: AppRoutes.dashboard.path,
     // `screen_view` for pushed routes (log, login, paywall, attack detail).
     // Empty outside a Firebase build — the shell's tabs are logged by hand
@@ -67,8 +77,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               .read(sharedPreferencesProvider)
               .getBool(OnboardingController.completedKey) ??
           false;
-      final onOnboarding =
-          state.matchedLocation == AppRoutes.onboarding.path;
+      final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
       if (done && onOnboarding) return AppRoutes.dashboard.path;
       return null;
@@ -112,8 +121,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           opaque: false,
           barrierColor: Colors.black54,
           barrierDismissible: true,
-          barrierLabel:
-              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel: MaterialLocalizations.of(
+            context,
+          ).modalBarrierDismissLabel,
           transitionDuration: const Duration(milliseconds: 300),
           reverseTransitionDuration: const Duration(milliseconds: 250),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>

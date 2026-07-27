@@ -41,6 +41,8 @@ abstract final class AppAnalytics {
   static const String _signInFailed = 'sign_in_failed';
   static const String _premiumGateTapped = 'premium_gate_tapped';
   static const String _paywallCtaTapped = 'paywall_cta_tapped';
+  static const String _forceUpdateShown = 'force_update_shown';
+  static const String _forceUpdateCtaTapped = 'force_update_cta_tapped';
   static const String _dataExported = 'data_exported';
   static const String _doctorReportShared = 'doctor_report_shared';
   static const String _dataWiped = 'data_wiped';
@@ -202,6 +204,14 @@ abstract final class AppAnalytics {
     _paywallCtaTapped,
     <String, Object>{_pSignedIn: signedIn.toString()},
   );
+
+  // --- Force update ------------------------------------------------------
+
+  /// The blocking sheet went up — how many installs are actually stuck on
+  /// an old build, and how many of them then leave for the store.
+  static void logForceUpdateShown() => _log(_forceUpdateShown);
+
+  static void logForceUpdateCtaTapped() => _log(_forceUpdateCtaTapped);
 
   // --- Settings / GDPR ---------------------------------------------------
 

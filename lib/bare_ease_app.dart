@@ -11,6 +11,7 @@ import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
@@ -62,6 +63,10 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
+        // Wraps every route: checks on each entry whether this build is
+        // still allowed to run (see ForceUpdateWrapper).
+        builder: (context, child) =>
+            ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,

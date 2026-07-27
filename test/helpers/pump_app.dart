@@ -11,6 +11,11 @@ import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
 import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
+import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
+import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
+import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
+import 'package:migraine_tracker/features/app_update/domain/services/store_launcher.dart';
+import 'package:migraine_tracker/features/app_update/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
@@ -77,6 +82,37 @@ class FakeNotificationScheduler implements NotificationScheduler {
     Duration delay = const Duration(seconds: 10),
   }) async {
     testScheduled = true;
+  }
+}
+
+/// Serves whatever update record a test asks for. Default: no record at
+/// all, so the force-update wrapper never blocks the app under test.
+class FakeAppUpdateRepository implements AppUpdateRepository {
+  FakeAppUpdateRepository({this.config});
+
+  AppUpdateConfig? config;
+
+  /// How many times the wrapper asked — one per entry into the app.
+  int calls = 0;
+
+  @override
+  Future<AppUpdateConfig?> latest() async {
+    calls++;
+    return config;
+  }
+}
+
+/// Records the store link instead of leaving the test to url_launcher.
+class FakeStoreLauncher implements StoreLauncher {
+  final List<String> opened = <String>[];
+
+  /// Flip to false to exercise the "couldn't open the store" branch.
+  bool succeeds = true;
+
+  @override
+  Future<bool> open(String url) async {
+    opened.add(url);
+    return succeeds;
   }
 }
 
@@ -170,6 +206,8 @@ class PumpedApp {
     required this.scheduler,
     required this.permissions,
     required this.auth,
+    required this.appUpdate,
+    required this.storeLauncher,
   });
 
   final AppDatabase db;
@@ -178,6 +216,8 @@ class PumpedApp {
   final FakeNotificationScheduler scheduler;
   final FakeAppPermissionGateway permissions;
   final FakeAuthRepository auth;
+  final FakeAppUpdateRepository appUpdate;
+  final FakeStoreLauncher storeLauncher;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -189,6 +229,7 @@ Future<PumpedApp> pumpApp(
   // Riverpod 3 no longer exports the `Override` type, so the helper takes
   // the concrete fakes it knows about instead of a generic override list.
   ExportSink? exportSink,
+
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 
@@ -203,6 +244,15 @@ Future<PumpedApp> pumpApp(
   /// What `AppGlass.isSupported` reports. Defaults to true (the shipped iOS
   /// path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
+
+  /// The record the force-update check reads. Null (default) = no record,
+  /// so the blocking sheet never appears.
+  AppUpdateConfig? appUpdate,
+
+  /// The build this fake device is running. Both are high by default, so a
+  /// test that passes [appUpdate] still has to opt into being out of date.
+  String installedBuildName = '99.0.0',
+  int installedBuildNumber = 9999,
 }) async {
   // Pin the test view to the 393×852 design size (an iPhone-class screen,
   // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
@@ -234,6 +284,10 @@ Future<PumpedApp> pumpApp(
   final permissions = FakeAppPermissionGateway();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
   addTearDown(auth.dispose);
+  final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
+    config: appUpdate,
+  );
+  final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
 
   await tester.pumpWidget(
     ProviderScope(
@@ -244,6 +298,14 @@ Future<PumpedApp> pumpApp(
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
+        appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
+        storeLauncherProvider.overrideWithValue(storeLauncher),
+        installedAppVersionProvider.overrideWith(
+          (ref) async => InstalledAppVersion(
+            buildName: installedBuildName,
+            buildNumber: installedBuildNumber,
+          ),
+        ),
         appleSignInImplementedProvider.overrideWithValue(appleSignIn),
         if (exportSink != null)
           exportSinkProvider.overrideWithValue(exportSink),
@@ -261,6 +323,8 @@ Future<PumpedApp> pumpApp(
     scheduler: scheduler,
     permissions: permissions,
     auth: auth,
+    appUpdate: appUpdateRepository,
+    storeLauncher: storeLauncher,
   );
 }
 
