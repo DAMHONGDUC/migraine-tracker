@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
 
@@ -16,15 +17,36 @@ class AttackDetailController {
     required int intensity,
     required HeadLocation location,
     required String? medicationName,
-  }) => _ref
-      .read(attackRepositoryProvider)
-      .updateCore(
-        id,
-        intensity: intensity,
-        location: location,
-        medicationName: medicationName,
+  }) async {
+    try {
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateCore(
+            id,
+            intensity: intensity,
+            location: location,
+            medicationName: medicationName,
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack failed',
+        error: error,
+        stackTrace: stackTrace,
       );
+      rethrow;
+    }
+  }
 
-  Future<void> delete(String id) =>
-      _ref.read(attackRepositoryProvider).deleteById(id);
+  Future<void> delete(String id) async {
+    try {
+      await _ref.read(attackRepositoryProvider).deleteById(id);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete attack failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
 }

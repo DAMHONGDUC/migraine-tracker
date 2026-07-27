@@ -27,15 +27,9 @@ class _PageScaffold extends StatelessWidget {
             color: context.colorScheme.primary,
           ),
           SizedBox(height: AppSpacingConstant.h24),
-          Text(
-            title,
-            style: AppTextStyle.headlineMedium.w600,
-          ),
+          Text(title, style: AppTextStyle.headlineMedium.w600),
           SizedBox(height: AppSpacingConstant.h12),
-          Text(
-            body,
-            style: AppTextStyle.bodyLarge.secondary,
-          ),
+          Text(body, style: AppTextStyle.bodyLarge.secondary),
           if (footer != null) ...[
             SizedBox(height: AppSpacingConstant.h24),
             footer!,

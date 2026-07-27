@@ -13,7 +13,10 @@ Future<void> addMedication(WidgetTester tester, String name) async {
   await tester.tap(find.byIcon(Icons.add));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
-  await tester.enterText(find.widgetWithText(TextField, 'Medication name'), name);
+  await tester.enterText(
+    find.widgetWithText(TextField, 'Medication name'),
+    name,
+  );
   await tester.tap(find.text('Add'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));

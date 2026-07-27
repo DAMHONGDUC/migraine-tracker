@@ -32,7 +32,12 @@ class HighlightedTimeText extends StatelessWidget {
 
     final index = full.indexOf(highlight);
     if (index < 0) {
-      return Text(full, style: base, maxLines: 1, overflow: TextOverflow.ellipsis);
+      return Text(
+        full,
+        style: base,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return Text.rich(

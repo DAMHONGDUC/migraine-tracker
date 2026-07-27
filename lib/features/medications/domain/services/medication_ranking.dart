@@ -36,8 +36,9 @@ class MedicationRanking {
     final ranked = <Medication>[];
     final unranked = <Medication>[];
     for (final medication in medications) {
-      (rankByName.containsKey(medication.name) ? ranked : unranked)
-          .add(medication);
+      (rankByName.containsKey(medication.name) ? ranked : unranked).add(
+        medication,
+      );
     }
     ranked.sort((a, b) => rankByName[a.name]!.compareTo(rankByName[b.name]!));
     return [...ranked, ...unranked];

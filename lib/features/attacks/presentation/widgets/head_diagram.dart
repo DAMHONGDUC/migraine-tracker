@@ -97,13 +97,16 @@ class _HeadPainter extends CustomPainter {
         return Path.combine(
           PathOperation.intersect,
           outline,
-          Path()..addRect(Rect.fromLTWH(s.width * 0.5, 0, s.width * 0.5, s.height)),
+          Path()
+            ..addRect(Rect.fromLTWH(s.width * 0.5, 0, s.width * 0.5, s.height)),
         );
       case HeadLocation.front:
         return Path.combine(
           PathOperation.intersect,
           outline,
-          Path()..addRect(Rect.fromLTWH(0, 0, s.width, s.height * _frontBandHeight)),
+          Path()..addRect(
+            Rect.fromLTWH(0, 0, s.width, s.height * _frontBandHeight),
+          ),
         );
       case HeadLocation.whole:
       case HeadLocation.back:
@@ -264,23 +267,38 @@ class _HeadPainter extends CustomPainter {
 
   /// Fills the selected region with a curve-following radial gradient,
   /// rippling out from its centre as [reveal] runs 0→1.
-  void _paintRegion(Canvas canvas, Size s, Rect rect, Path outline, double reveal) {
+  void _paintRegion(
+    Canvas canvas,
+    Size s,
+    Rect rect,
+    Path outline,
+    double reveal,
+  ) {
     if (reveal <= 0) return;
     final region = _region(selected, s, outline);
     if (region == null) return;
 
     final bounds = region.getBounds();
     final center = bounds.center;
-    final shader = RadialGradient(
-      colors: [
-        AppColors.primary.withValues(alpha: 0.6),
-        AppColors.primary.withValues(alpha: 0.2),
-      ],
-    ).createShader(Rect.fromCircle(center: center, radius: bounds.longestSide * 0.6));
+    final shader =
+        RadialGradient(
+          colors: [
+            AppColors.primary.withValues(alpha: 0.6),
+            AppColors.primary.withValues(alpha: 0.2),
+          ],
+        ).createShader(
+          Rect.fromCircle(center: center, radius: bounds.longestSide * 0.6),
+        );
 
     canvas.saveLayer(
       rect,
-      Paint()..color = Color.fromARGB((reveal * 255).round().clamp(0, 255), 255, 255, 255),
+      Paint()
+        ..color = Color.fromARGB(
+          (reveal * 255).round().clamp(0, 255),
+          255,
+          255,
+          255,
+        ),
     );
     canvas.clipPath(outline);
     canvas

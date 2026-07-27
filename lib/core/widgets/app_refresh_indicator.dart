@@ -72,10 +72,7 @@ class ScrollFill extends StatelessWidget {
       slivers: [
         SliverPadding(
           padding: EdgeInsets.only(top: topInset),
-          sliver: SliverFillRemaining(
-            hasScrollBody: false,
-            child: child,
-          ),
+          sliver: SliverFillRemaining(hasScrollBody: false, child: child),
         ),
       ],
     );

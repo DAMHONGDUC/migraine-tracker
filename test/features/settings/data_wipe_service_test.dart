@@ -41,31 +41,28 @@ class RecordingNotificationScheduler implements NotificationScheduler {
 }
 
 void main() {
-  test(
-    'wipeAll cancels every scheduled reminder notification, not just the '
-    'DB rows a cascade delete would remove',
-    () async {
-      final db = AppDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
-      final attacks = DriftAttackRepository(db);
-      final medications = DriftMedicationRepository(db);
-      final notifications = RecordingNotificationScheduler();
+  test('wipeAll cancels every scheduled reminder notification, not just the '
+      'DB rows a cascade delete would remove', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final attacks = DriftAttackRepository(db);
+    final medications = DriftMedicationRepository(db);
+    final notifications = RecordingNotificationScheduler();
 
-      await attacks.insert(
-        Attack(
-          id: 'a1',
-          startedAt: DateTime.now().toUtc(),
-          intensity: 5,
-          location: HeadLocation.left,
-        ),
-      );
-      await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+    await attacks.insert(
+      Attack(
+        id: 'a1',
+        startedAt: DateTime.now().toUtc(),
+        intensity: 5,
+        location: HeadLocation.left,
+      ),
+    );
+    await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
 
-      await DataWipeService(attacks, medications, notifications).wipeAll();
+    await DataWipeService(attacks, medications, notifications).wipeAll();
 
-      expect(notifications.cancelAllCalls, 1);
-      expect(await attacks.getAll(), isEmpty);
-      expect(await medications.getAll(), isEmpty);
-    },
-  );
+    expect(notifications.cancelAllCalls, 1);
+    expect(await attacks.getAll(), isEmpty);
+    expect(await medications.getAll(), isEmpty);
+  });
 }

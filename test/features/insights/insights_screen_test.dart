@@ -33,7 +33,9 @@ void main() {
     await openInsights(tester);
 
     expect(
-      find.text('Log 15 more attacks with weather data to unlock this insight.'),
+      find.text(
+        'Log 15 more attacks with weather data to unlock this insight.',
+      ),
       findsOneWidget,
     );
     expect(find.text('0 of 15 attacks with weather'), findsOneWidget);
@@ -44,23 +46,27 @@ void main() {
   testWidgets(
     'with 15+ attacks a premium user sees the drop-share hero number',
     (tester) async {
-    final app = await pumpApp(tester, premium: true);
-    final repository = DriftAttackRepository(app.db);
-    // 9 during rapid drops, 6 during stable weather → 60%.
-    for (var i = 0; i < 9; i++) {
-      await repository.insert(seededAttack(i, pressureDelta: -7));
-    }
-    for (var i = 9; i < 15; i++) {
-      await repository.insert(seededAttack(i, pressureDelta: 2));
-    }
+      final app = await pumpApp(tester, premium: true);
+      final repository = DriftAttackRepository(app.db);
+      // 9 during rapid drops, 6 during stable weather → 60%.
+      for (var i = 0; i < 9; i++) {
+        await repository.insert(seededAttack(i, pressureDelta: -7));
+      }
+      for (var i = 9; i < 15; i++) {
+        await repository.insert(seededAttack(i, pressureDelta: 2));
+      }
 
-    await openInsights(tester);
+      await openInsights(tester);
 
-    expect(find.text('60%'), findsOneWidget);
-    expect(find.text('Based on 15 attacks with weather data'), findsOneWidget);
+      expect(find.text('60%'), findsOneWidget);
+      expect(
+        find.text('Based on 15 attacks with weather data'),
+        findsOneWidget,
+      );
 
-    await finishTest(tester);
-  });
+      await finishTest(tester);
+    },
+  );
 
   testWidgets('history shows the weekly frequency chart once attacks exist', (
     tester,

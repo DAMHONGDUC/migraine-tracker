@@ -11,7 +11,7 @@ enum AppSnackBarKind { success, error, info }
 
 /// The one way to show a snackbar; never call `showSnackBar` directly.
 /// Takes an already-localized string.
-abstract final class AppSnackBarUtils {
+final class AppSnackBarUtils {
   /// Something the user asked for completed.
   static void success(BuildContext context, String message) =>
       _show(context, message, AppSnackBarKind.success);
@@ -110,9 +110,7 @@ class _AppSnackBarBody extends StatelessWidget {
             color: style.accent,
           ),
           SizedBox(width: AppSpacingConstant.w12),
-          Expanded(
-            child: Text(message, style: AppTextStyle.bodyMedium),
-          ),
+          Expanded(child: Text(message, style: AppTextStyle.bodyMedium)),
         ],
       ),
     );

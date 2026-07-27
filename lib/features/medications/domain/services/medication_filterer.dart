@@ -22,8 +22,9 @@ class MedicationFilterer {
 
     return switch (filter) {
       MedicationDateFilter.today => midnight,
-      MedicationDateFilter.week =>
-        midnight.subtract(Duration(days: midnight.weekday - 1)),
+      MedicationDateFilter.week => midnight.subtract(
+        Duration(days: midnight.weekday - 1),
+      ),
       MedicationDateFilter.month => DateTime(local.year, local.month),
       MedicationDateFilter.year => DateTime(local.year),
       MedicationDateFilter.all => null,

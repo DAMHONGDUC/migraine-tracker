@@ -11,10 +11,7 @@ class _Teaser extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.premiumLockedCorrelation,
-          style: AppTextStyle.bodyMedium,
-        ),
+        Text(l10n.premiumLockedCorrelation, style: AppTextStyle.bodyMedium),
         SizedBox(height: AppSpacingConstant.h12),
         Align(
           alignment: AlignmentDirectional.centerEnd,

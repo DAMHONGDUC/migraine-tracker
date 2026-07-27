@@ -33,11 +33,8 @@ class _Header extends StatelessWidget {
           ),
         ),
         SizedBox(width: AppSpacingConstant.w16),
-        Expanded(
-          child: Text(when, style: AppTextStyle.titleMedium),
-        ),
+        Expanded(child: Text(when, style: AppTextStyle.titleMedium)),
       ],
     );
   }
 }
-

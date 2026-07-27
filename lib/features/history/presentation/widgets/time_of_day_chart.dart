@@ -73,7 +73,9 @@ class TimeOfDayChart extends StatelessWidget {
                             return const SizedBox.shrink();
                           }
                           return Padding(
-                            padding: EdgeInsets.only(top: AppSpacingConstant.h6),
+                            padding: EdgeInsets.only(
+                              top: AppSpacingConstant.h6,
+                            ),
                             child: Text(
                               counts[index].part.label(l10n),
                               style: labelStyle,
