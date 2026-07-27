@@ -21,10 +21,7 @@ class _IntensityDialogState extends State<_IntensityDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '${_value.round()}',
-            style: AppTextStyle.displaySmall.w600,
-          ),
+          Text('${_value.round()}', style: AppTextStyle.displaySmall.w600),
           Slider(
             value: _value,
             min: 1,

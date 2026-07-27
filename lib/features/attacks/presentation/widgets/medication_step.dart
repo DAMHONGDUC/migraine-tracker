@@ -97,9 +97,7 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
     final query = _query.trim().toLowerCase();
     final medications = query.isEmpty
         ? all
-        : all
-              .where((med) => med.name.toLowerCase().contains(query))
-              .toList();
+        : all.where((med) => med.name.toLowerCase().contains(query)).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

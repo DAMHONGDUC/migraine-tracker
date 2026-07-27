@@ -25,9 +25,7 @@ class _Charts extends StatelessWidget {
       LocationBreakdownChart(
         counts: const LocationBreakdownCalculator().compute(attacks),
       ),
-      TimeOfDayChart(
-        counts: const TimeOfDayCalculator().compute(attacks),
-      ),
+      TimeOfDayChart(counts: const TimeOfDayCalculator().compute(attacks)),
     ];
 
     return Column(

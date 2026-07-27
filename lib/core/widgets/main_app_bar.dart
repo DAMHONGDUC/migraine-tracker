@@ -57,7 +57,8 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     // automaticallyImplyLeading: false below stops AppBar from also trying
     // to insert its own default back button on top of this.
     final canPop = ModalRoute.of(context)?.canPop ?? false;
-    Widget? resolvedLeading = leading ?? (canPop ? const AppLeadingButton() : null);
+    Widget? resolvedLeading =
+        leading ?? (canPop ? const AppLeadingButton() : null);
 
     if (!AppGlass.isSupported) {
       return AppBar(

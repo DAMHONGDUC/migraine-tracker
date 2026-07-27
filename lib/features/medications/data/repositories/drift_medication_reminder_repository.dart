@@ -12,16 +12,12 @@ class DriftMedicationReminderRepository
 
   @override
   Stream<List<MedicationReminderView>> watchAll() {
-    final query =
-        _db.select(_db.medicationReminders).join([
-            innerJoin(
-              _db.medications,
-              _db.medications.id.equalsExp(
-                _db.medicationReminders.medicationId,
-              ),
-            ),
-          ])
-          ..orderBy([OrderingTerm.asc(_db.medicationReminders.minuteOfDay)]);
+    final query = _db.select(_db.medicationReminders).join([
+      innerJoin(
+        _db.medications,
+        _db.medications.id.equalsExp(_db.medicationReminders.medicationId),
+      ),
+    ])..orderBy([OrderingTerm.asc(_db.medicationReminders.minuteOfDay)]);
 
     return query.watch().map(
       (rows) => rows.map((row) {
@@ -36,9 +32,9 @@ class DriftMedicationReminderRepository
 
   @override
   Future<List<MedicationReminder>> getAllEnabled() async {
-    final rows = await (_db.select(_db.medicationReminders)
-          ..where((t) => t.enabled.equals(true)))
-        .get();
+    final rows = await (_db.select(
+      _db.medicationReminders,
+    )..where((t) => t.enabled.equals(true))).get();
     return rows.map(_toDomain).toList();
   }
 
@@ -55,9 +51,8 @@ class DriftMedicationReminderRepository
       );
 
   @override
-  Future<void> deleteById(String id) => (_db.delete(
-    _db.medicationReminders,
-  )..where((t) => t.id.equals(id))).go();
+  Future<void> deleteById(String id) =>
+      (_db.delete(_db.medicationReminders)..where((t) => t.id.equals(id))).go();
 
   @override
   Future<void> deleteAll() => _db.delete(_db.medicationReminders).go();

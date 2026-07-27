@@ -8,8 +8,9 @@ class _Insight extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final threshold = result.dropThresholdHpa
-        .toStringAsFixed(result.dropThresholdHpa % 1 == 0 ? 0 : 1);
+    final threshold = result.dropThresholdHpa.toStringAsFixed(
+      result.dropThresholdHpa % 1 == 0 ? 0 : 1,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -17,10 +18,8 @@ class _Insight extends StatelessWidget {
           tween: Tween(begin: 0, end: result.dropSharePercent),
           duration: const Duration(milliseconds: 700),
           curve: Curves.easeOutCubic,
-          builder: (context, value, child) => Text(
-            '${value.round()}%',
-            style: AppTextStyle.displaySmall.w600,
-          ),
+          builder: (context, value, child) =>
+              Text('${value.round()}%', style: AppTextStyle.displaySmall.w600),
         ),
         SizedBox(height: AppSpacingConstant.h4),
         Text(

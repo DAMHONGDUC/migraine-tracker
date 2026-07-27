@@ -27,7 +27,7 @@ class AppRoute {
   final String path;
 }
 
-abstract final class AppRoutes {
+final class AppRoutes {
   static const onboarding = AppRoute(name: 'onboarding', path: '/onboarding');
   static const dashboard = AppRoute(name: 'dashboard', path: '/dashboard');
   static const log = AppRoute(name: 'log', path: '/log');
@@ -62,8 +62,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               .read(sharedPreferencesProvider)
               .getBool(OnboardingController.completedKey) ??
           false;
-      final onOnboarding =
-          state.matchedLocation == AppRoutes.onboarding.path;
+      final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
       if (done && onOnboarding) return AppRoutes.dashboard.path;
       return null;
@@ -107,8 +106,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           opaque: false,
           barrierColor: Colors.black54,
           barrierDismissible: true,
-          barrierLabel:
-              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel: MaterialLocalizations.of(
+            context,
+          ).modalBarrierDismissLabel,
           transitionDuration: const Duration(milliseconds: 300),
           reverseTransitionDuration: const Duration(milliseconds: 250),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>

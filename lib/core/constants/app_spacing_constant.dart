@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 /// Naming: unit prefix + design-size value. `w` = horizontal, `h` =
 /// vertical, `r` = square/circular (radius, icons, fixed boxes),
 /// `sp` = font size.
-abstract final class AppSpacingConstant {
+final class AppSpacingConstant {
   // --- Horizontal (.w) ---
   static double get w2 => 2.w;
   static double get w4 => 4.w;

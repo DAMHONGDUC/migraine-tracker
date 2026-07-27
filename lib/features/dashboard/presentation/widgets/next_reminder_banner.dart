@@ -48,7 +48,8 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final views = ref.watch(medicationRemindersStreamProvider).value ?? const [];
+    final views =
+        ref.watch(medicationRemindersStreamProvider).value ?? const [];
     final reminder = _calculator.compute(views, now: DateTime.now());
     if (reminder == null) return const SizedBox.shrink();
 

@@ -87,9 +87,8 @@ class _Chart extends StatelessWidget {
     final minY = (pressures.reduce(min) - 2).floorToDouble();
     final maxY = (pressures.reduce(max) + 2).ceilToDouble();
 
-    DateTime timeAt(double x) => forecast.generatedAt.add(
-      Duration(minutes: (x * 60).round()),
-    );
+    DateTime timeAt(double x) =>
+        forecast.generatedAt.add(Duration(minutes: (x * 60).round()));
 
     // Chart pixels mean nothing to VoiceOver — describe the trend instead.
     final nowHpa = (past.isNotEmpty ? past.last.y : future.first.y);
@@ -102,98 +101,98 @@ class _Chart extends StatelessWidget {
       ),
       child: ExcludeSemantics(
         child: SizedBox(
-      height: AppSpacingConstant.h160,
-      child: LineChart(
-        LineChartData(
-          minY: minY,
-          maxY: maxY,
-          gridData: FlGridData(
-            drawVerticalLine: false,
-            horizontalInterval: max(((maxY - minY) / 3).ceilToDouble(), 1),
-            getDrawingHorizontalLine: (value) =>
-                const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
-          ),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(),
-            rightTitles: const AxisTitles(),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: max(((maxY - minY) / 3).ceilToDouble(), 1),
-                reservedSize: AppSpacingConstant.w32,
-                getTitlesWidget: (value, meta) =>
-                    Text(value.toInt().toString(), style: labelStyle),
+          height: AppSpacingConstant.h160,
+          child: LineChart(
+            LineChartData(
+              minY: minY,
+              maxY: maxY,
+              gridData: FlGridData(
+                drawVerticalLine: false,
+                horizontalInterval: max(((maxY - minY) / 3).ceilToDouble(), 1),
+                getDrawingHorizontalLine: (value) =>
+                    const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
               ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 12,
-                reservedSize: AppSpacingConstant.h24,
-                getTitlesWidget: (value, meta) => Padding(
-                  padding: EdgeInsets.only(top: AppSpacingConstant.h6),
-                  child: Text(
-                    value == 0
-                        ? context.l10n.insightsForecastNow
-                        : timeFormat.format(timeAt(value).toLocal()),
-                    style: labelStyle,
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: max(((maxY - minY) / 3).ceilToDouble(), 1),
+                    reservedSize: AppSpacingConstant.w32,
+                    getTitlesWidget: (value, meta) =>
+                        Text(value.toInt().toString(), style: labelStyle),
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 12,
+                    reservedSize: AppSpacingConstant.h24,
+                    getTitlesWidget: (value, meta) => Padding(
+                      padding: EdgeInsets.only(top: AppSpacingConstant.h6),
+                      child: Text(
+                        value == 0
+                            ? context.l10n.insightsForecastNow
+                            : timeFormat.format(timeAt(value).toLocal()),
+                        style: labelStyle,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          extraLinesData: ExtraLinesData(
-            verticalLines: [
-              VerticalLine(
-                x: 0,
-                color: AppColors.textSecondary.withValues(alpha: 0.5),
-                strokeWidth: 1,
-                dashArray: const [4, 4],
-              ),
-            ],
-          ),
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (_) => AppColors.surfaceElevated,
-              getTooltipItems: (spots) => [
-                for (final spot in spots)
-                  LineTooltipItem(
-                    '${context.l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
-                    '${timeFormat.format(timeAt(spot.x).toLocal())}',
-                    AppTextStyle.bodySmall.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
+              extraLinesData: ExtraLinesData(
+                verticalLines: [
+                  VerticalLine(
+                    x: 0,
+                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                    strokeWidth: 1,
+                    dashArray: const [4, 4],
                   ),
+                ],
+              ),
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (_) => AppColors.surfaceElevated,
+                  getTooltipItems: (spots) => [
+                    for (final spot in spots)
+                      LineTooltipItem(
+                        '${context.l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
+                        '${timeFormat.format(timeAt(spot.x).toLocal())}',
+                        AppTextStyle.bodySmall.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              lineBarsData: [
+                // Past context — dimmed, no touch.
+                LineChartBarData(
+                  spots: past,
+                  color: AppColors.chartSeries.withValues(alpha: 0.35),
+                  barWidth: 2,
+                  isCurved: true,
+                  curveSmoothness: 0.2,
+                  dotData: const FlDotData(show: false),
+                ),
+                // Forecast — the series the card is about.
+                LineChartBarData(
+                  spots: future,
+                  color: AppColors.chartSeries,
+                  barWidth: 2,
+                  isCurved: true,
+                  curveSmoothness: 0.2,
+                  dotData: const FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: AppColors.chartSeries.withValues(alpha: 0.08),
+                  ),
+                ),
               ],
             ),
           ),
-          lineBarsData: [
-            // Past context — dimmed, no touch.
-            LineChartBarData(
-              spots: past,
-              color: AppColors.chartSeries.withValues(alpha: 0.35),
-              barWidth: 2,
-              isCurved: true,
-              curveSmoothness: 0.2,
-              dotData: const FlDotData(show: false),
-            ),
-            // Forecast — the series the card is about.
-            LineChartBarData(
-              spots: future,
-              color: AppColors.chartSeries,
-              barWidth: 2,
-              isCurved: true,
-              curveSmoothness: 0.2,
-              dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                color: AppColors.chartSeries.withValues(alpha: 0.08),
-              ),
-            ),
-          ],
-        ),
-      ),
         ),
       ),
     );

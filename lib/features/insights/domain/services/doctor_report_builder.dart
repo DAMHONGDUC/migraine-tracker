@@ -69,9 +69,8 @@ class DoctorReportBuilder {
     required pw.Font boldFont,
   }) async {
     final since = now.subtract(const Duration(days: _periodDays));
-    final recent =
-        attacks.where((a) => a.startedAt.isAfter(since)).toList()
-          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    final recent = attacks.where((a) => a.startedAt.isAfter(since)).toList()
+      ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
     );
@@ -83,10 +82,7 @@ class DoctorReportBuilder {
           padding: const pw.EdgeInsets.only(top: 12),
           child: pw.Text(
             strings.disclaimer,
-            style: const pw.TextStyle(
-              fontSize: 8,
-              color: PdfColors.grey600,
-            ),
+            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
           ),
         ),
         build: (context) => [
