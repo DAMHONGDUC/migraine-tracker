@@ -270,5 +270,10 @@
   "paywallWhySignIn": "Premium cần một tài khoản để gói đăng ký đi theo bạn.",
   "settingsSectionGeneral": "Chung",
   "settingsSectionData": "Dữ liệu của bạn",
-  "loginErrorAppleSoon": "Đăng nhập bằng Apple sắp có. Bạn hãy dùng Google trong lúc này."
+  "loginErrorAppleSoon": "Đăng nhập bằng Apple sắp có. Bạn hãy dùng Google trong lúc này.",
+  "forceUpdateTitle": "Cần cập nhật",
+  "forceUpdateBody": "Phiên bản BaroEase này không còn được hỗ trợ. Hãy cập nhật để tiếp tục ghi lại cơn đau.",
+  "forceUpdateVersion": "Phiên bản mới nhất: {version}",
+  "forceUpdateCta": "Cập nhật ngay",
+  "forceUpdateStoreFailed": "Không mở được cửa hàng ứng dụng. Bạn hãy cập nhật BaroEase thủ công."
 }

@@ -1224,5 +1224,31 @@
   "loginErrorAppleSoon": "Sign in with Apple is coming soon. Please use Google for now.",
   "@loginErrorAppleSoon": {
     "description": "Shown when the Apple button is tapped while the Apple flow is offered but not yet wired up (appleSignInImplementedProvider)"
+  },
+  "forceUpdateTitle": "Update required",
+  "@forceUpdateTitle": {
+    "description": "Title of the blocking force-update bottom sheet"
+  },
+  "forceUpdateBody": "This version of BaroEase is no longer supported. Update to keep logging your attacks.",
+  "@forceUpdateBody": {
+    "description": "Body of the blocking force-update bottom sheet, explaining why the app is blocked"
+  },
+  "forceUpdateVersion": "Latest version: {version}",
+  "@forceUpdateVersion": {
+    "description": "Line naming the published version the user should update to",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.4.0"
+      }
+    }
+  },
+  "forceUpdateCta": "Update now",
+  "@forceUpdateCta": {
+    "description": "Button on the force-update sheet that opens the store listing"
+  },
+  "forceUpdateStoreFailed": "Couldn't open the store. Please update BaroEase manually.",
+  "@forceUpdateStoreFailed": {
+    "description": "Error snackbar shown when the store link could not be opened"
   }
 }
