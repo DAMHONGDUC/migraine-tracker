@@ -122,9 +122,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('the Apple path works once it is wired up', (
-      tester,
-    ) async {
+    testWidgets('the Apple path works once it is wired up', (tester) async {
       final app = await pumpApp(tester, appleSignIn: true);
       await openLogin(tester);
 

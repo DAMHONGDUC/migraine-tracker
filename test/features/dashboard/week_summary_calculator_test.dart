@@ -24,19 +24,22 @@ void main() {
     expect(summary.trend, 0);
   });
 
-  test('buckets attacks into this week vs last week and averages intensity', () {
-    final summary = calculator.compute([
-      _attack(DateTime(2026, 7, 20, 9), intensity: 4), // Mon this week
-      _attack(DateTime(2026, 7, 22, 8), intensity: 8), // Wed this week
-      _attack(DateTime(2026, 7, 15, 8)), // Wed last week
-      _attack(DateTime(2026, 7, 1, 8)), // three weeks ago — ignored
-    ], now: now);
+  test(
+    'buckets attacks into this week vs last week and averages intensity',
+    () {
+      final summary = calculator.compute([
+        _attack(DateTime(2026, 7, 20, 9), intensity: 4), // Mon this week
+        _attack(DateTime(2026, 7, 22, 8), intensity: 8), // Wed this week
+        _attack(DateTime(2026, 7, 15, 8)), // Wed last week
+        _attack(DateTime(2026, 7, 1, 8)), // three weeks ago — ignored
+      ], now: now);
 
-    expect(summary.thisWeekCount, 2);
-    expect(summary.lastWeekCount, 1);
-    expect(summary.averageIntensity, 6); // (4 + 8) / 2
-    expect(summary.trend, 1);
-  });
+      expect(summary.thisWeekCount, 2);
+      expect(summary.lastWeekCount, 1);
+      expect(summary.averageIntensity, 6); // (4 + 8) / 2
+      expect(summary.trend, 1);
+    },
+  );
 
   test('trend is negative when this week is quieter than last', () {
     final summary = calculator.compute([

@@ -72,7 +72,9 @@ void main() {
     test('withReminder keeps only medications with a configured reminder', () {
       final result = filterer.apply(
         medications,
-        const MedicationFilters(reminder: MedicationReminderFilter.withReminder),
+        const MedicationFilters(
+          reminder: MedicationReminderFilter.withReminder,
+        ),
         now: now,
         reminderMedicationIds: {'m1', 'm3'},
         everUsedNames: const {},
@@ -95,16 +97,19 @@ void main() {
   });
 
   group('usage filter', () {
-    test('everUsed keeps only medications matched by name to attack history', () {
-      final result = filterer.apply(
-        medications,
-        const MedicationFilters(usage: MedicationUsageFilter.everUsed),
-        now: now,
-        reminderMedicationIds: const {},
-        everUsedNames: {'Today', 'This year'},
-      );
-      expect(result.map((m) => m.id).toSet(), {'m1', 'm4'});
-    });
+    test(
+      'everUsed keeps only medications matched by name to attack history',
+      () {
+        final result = filterer.apply(
+          medications,
+          const MedicationFilters(usage: MedicationUsageFilter.everUsed),
+          now: now,
+          reminderMedicationIds: const {},
+          everUsedNames: {'Today', 'This year'},
+        );
+        expect(result.map((m) => m.id).toSet(), {'m1', 'm4'});
+      },
+    );
 
     test('neverUsed keeps everything else', () {
       final result = filterer.apply(
@@ -137,10 +142,13 @@ void main() {
   group('default sort', () {
     test('most recently added first', () {
       final result = apply(const MedicationFilters());
-      expect(
-        result.where((m) => m.createdAt != null).map((m) => m.id),
-        ['m1', 'm2', 'm3', 'm4', 'm5'],
-      );
+      expect(result.where((m) => m.createdAt != null).map((m) => m.id), [
+        'm1',
+        'm2',
+        'm3',
+        'm4',
+        'm5',
+      ]);
     });
 
     test('medications with no recorded creation date sort last', () {

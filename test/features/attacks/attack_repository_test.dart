@@ -57,25 +57,27 @@ void main() {
     expect(a.weather, snapshot());
   });
 
-  test('offline attack has no weather and shows up in the backfill queue',
-      () async {
-    final offline = Attack(
-      id: 'a2',
-      startedAt: DateTime.utc(2026, 7, 2),
-      intensity: 4,
-      location: HeadLocation.front,
-    );
-    await repository.insert(offline);
+  test(
+    'offline attack has no weather and shows up in the backfill queue',
+    () async {
+      final offline = Attack(
+        id: 'a2',
+        startedAt: DateTime.utc(2026, 7, 2),
+        intensity: 4,
+        location: HeadLocation.front,
+      );
+      await repository.insert(offline);
 
-    final missing = await repository.attacksMissingWeather();
-    expect(missing.map((a) => a.id), ['a2']);
+      final missing = await repository.attacksMissingWeather();
+      expect(missing.map((a) => a.id), ['a2']);
 
-    await repository.attachWeather('a2', snapshot(delta: -8));
+      await repository.attachWeather('a2', snapshot(delta: -8));
 
-    expect(await repository.attacksMissingWeather(), isEmpty);
-    final attacks = await repository.watchAll().first;
-    expect(attacks.single.weather?.pressureDelta24hHpa, -8);
-  });
+      expect(await repository.attacksMissingWeather(), isEmpty);
+      final attacks = await repository.watchAll().first;
+      expect(attacks.single.weather?.pressureDelta24hHpa, -8);
+    },
+  );
 
   test('watchAll returns attacks newest first', () async {
     for (final (i, day) in [3, 1, 2].indexed) {
@@ -101,66 +103,72 @@ void main() {
     expect(attacks.single.weather?.pressureDelta24hHpa, -12);
   });
 
-  test('updateDetails fills in the optional fields after the 3-tap save',
-      () async {
-    final bare = Attack(
-      id: 'a3',
-      startedAt: DateTime.utc(2026, 7, 3),
-      intensity: 6,
-      location: HeadLocation.back,
-    );
-    await repository.insert(bare);
+  test(
+    'updateDetails fills in the optional fields after the 3-tap save',
+    () async {
+      final bare = Attack(
+        id: 'a3',
+        startedAt: DateTime.utc(2026, 7, 3),
+        intensity: 6,
+        location: HeadLocation.back,
+      );
+      await repository.insert(bare);
 
-    await repository.updateDetails(
-      'a3',
-      symptoms: ['aura'],
-      triggers: ['dehydration', 'heat'],
-      notes: 'started at work',
-    );
+      await repository.updateDetails(
+        'a3',
+        symptoms: ['aura'],
+        triggers: ['dehydration', 'heat'],
+        notes: 'started at work',
+      );
 
-    final attack = (await repository.watchAll().first).single;
-    expect(attack.symptoms, ['aura']);
-    expect(attack.triggers, ['dehydration', 'heat']);
-    expect(attack.notes, 'started at work');
-    expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
-  });
+      final attack = (await repository.watchAll().first).single;
+      expect(attack.symptoms, ['aura']);
+      expect(attack.triggers, ['dehydration', 'heat']);
+      expect(attack.notes, 'started at work');
+      expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
+    },
+  );
 
   group('detail screen support', () {
-    test('watchById emits the attack with weather, then null once deleted',
-        () async {
-      await repository.insert(fullAttack());
-      final stream = repository.watchById('a1');
+    test(
+      'watchById emits the attack with weather, then null once deleted',
+      () async {
+        await repository.insert(fullAttack());
+        final stream = repository.watchById('a1');
 
-      expect((await stream.first)?.weather, snapshot());
+        expect((await stream.first)?.weather, snapshot());
 
-      await repository.deleteById('a1');
-      expect(await stream.first, isNull);
-    });
+        await repository.deleteById('a1');
+        expect(await stream.first, isNull);
+      },
+    );
 
     test('watchById is null for an unknown id', () async {
       expect(await repository.watchById('nope').first, isNull);
     });
 
-    test('updateCore corrects the 3-tap fields, keeping details + weather',
-        () async {
-      await repository.insert(fullAttack());
+    test(
+      'updateCore corrects the 3-tap fields, keeping details + weather',
+      () async {
+        await repository.insert(fullAttack());
 
-      await repository.updateCore(
-        'a1',
-        intensity: 3,
-        location: HeadLocation.back,
-        medicationName: null,
-      );
+        await repository.updateCore(
+          'a1',
+          intensity: 3,
+          location: HeadLocation.back,
+          medicationName: null,
+        );
 
-      final a = (await repository.watchAll().first).single;
-      expect(a.intensity, 3);
-      expect(a.location, HeadLocation.back);
-      expect(a.medicationName, isNull);
-      // Untouched:
-      expect(a.symptoms, ['aura', 'nausea']);
-      expect(a.notes, 'woke up with it');
-      expect(a.weather, snapshot());
-    });
+        final a = (await repository.watchAll().first).single;
+        expect(a.intensity, 3);
+        expect(a.location, HeadLocation.back);
+        expect(a.medicationName, isNull);
+        // Untouched:
+        expect(a.symptoms, ['aura', 'nausea']);
+        expect(a.notes, 'woke up with it');
+        expect(a.weather, snapshot());
+      },
+    );
 
     test('deleteById removes one attack and cascades its weather', () async {
       await repository.insert(fullAttack());
