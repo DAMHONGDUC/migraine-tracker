@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../attacks/providers.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
@@ -39,6 +40,10 @@ class SettingsController {
     };
 
     AppLogger.action('Export data', format.name);
+    AppAnalytics.logDataExported(
+      format: format.name,
+      attackCount: attacks.length,
+    );
     await _ref
         .read(exportSinkProvider)
         .share(content: content, filename: filename, mimeType: mime);
@@ -78,6 +83,7 @@ class SettingsController {
     final stamp = DateFormat('yyyy-MM-dd').format(now);
 
     AppLogger.action('Share doctor report (PDF)');
+    AppAnalytics.logDoctorReportShared(attackCount: attacks.length);
     await _ref
         .read(pdfSharerProvider)
         .share(bytes: bytes, filename: 'baroease_report_$stamp.pdf');
@@ -86,6 +92,7 @@ class SettingsController {
   /// GDPR wipe of all on-device data.
   Future<void> deleteAll() {
     AppLogger.action('Delete all data (GDPR wipe)');
+    AppAnalytics.logDataWiped();
     return _ref.read(dataWipeServiceProvider).wipeAll();
   }
 }

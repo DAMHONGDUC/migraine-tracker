@@ -13,6 +13,7 @@ import '../../features/onboarding/presentation/controllers/onboarding_controller
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
+import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
 
@@ -54,6 +55,10 @@ abstract final class AppRoutes {
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.dashboard.path,
+    // `screen_view` for pushed routes (log, login, paywall, attack detail).
+    // Empty outside a Firebase build — the shell's tabs are logged by hand
+    // in AppShell, since switching branches pushes nothing.
+    observers: AppAnalytics.navigatorObservers,
     // First launch lands on onboarding until it's completed; afterwards
     // /onboarding is never reachable again.
     redirect: (context, state) {

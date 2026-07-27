@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/medication.dart';
 import '../../providers.dart';
@@ -17,6 +18,8 @@ class MedicationsController {
   /// Adds a brand-new medication, stamping `createdAt` now.
   Future<void> add(String name) {
     AppLogger.action('Add medication', name);
+    // No medication name: what someone takes is health data.
+    AppAnalytics.logMedicationAdded();
     return _ref
         .read(medicationRepositoryProvider)
         .upsert(
@@ -33,6 +36,7 @@ class MedicationsController {
   /// through untouched.
   Future<void> rename(Medication medication, String newName) {
     AppLogger.action('Rename medication', '${medication.name} → $newName');
+    AppAnalytics.logMedicationRenamed();
     return _ref
         .read(medicationRepositoryProvider)
         .upsert(
@@ -55,6 +59,7 @@ class MedicationsController {
     final scheduler = _ref.read(notificationSchedulerProvider);
 
     AppLogger.action('Delete medication', medicationId);
+    AppAnalytics.logMedicationDeleted();
     for (final reminder in enabledReminders) {
       if (reminder.medicationId == medicationId) {
         await scheduler.cancel(reminder.id);

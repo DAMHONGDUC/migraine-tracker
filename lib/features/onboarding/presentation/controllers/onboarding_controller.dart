@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../weather/providers.dart';
 
@@ -26,5 +27,6 @@ class OnboardingController {
 
     await prefs.setDouble(thresholdKey, thresholdHpa);
     await prefs.setBool(completedKey, true);
+    AppAnalytics.logOnboardingCompleted(thresholdHpa: thresholdHpa);
   }
 }

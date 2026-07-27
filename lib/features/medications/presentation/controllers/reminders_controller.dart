@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/medication_reminder.dart';
 import '../../providers.dart';
@@ -34,6 +35,7 @@ class RemindersController {
       'medication': medicationName,
       'minuteOfDay': minuteOfDay,
     });
+    AppAnalytics.logReminderAdded();
     await _ref.read(medicationReminderRepositoryProvider).upsert(reminder);
     await _ref
         .read(notificationSchedulerProvider)
@@ -62,6 +64,7 @@ class RemindersController {
       'id': reminder.id,
       'minuteOfDay': minuteOfDay,
     });
+    AppAnalytics.logReminderTimeEdited();
     await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     await _ref
         .read(notificationSchedulerProvider)
@@ -84,6 +87,7 @@ class RemindersController {
     final scheduler = _ref.read(notificationSchedulerProvider);
 
     AppLogger.action('Toggle reminder', {'id': reminder.id, 'enabled': enabled});
+    AppAnalytics.logReminderToggled(enabled: enabled);
     await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     if (enabled) {
       await scheduler.schedule(
@@ -113,6 +117,7 @@ class RemindersController {
 
   Future<void> delete(String reminderId) async {
     AppLogger.action('Delete reminder', reminderId);
+    AppAnalytics.logReminderDeleted();
     await _ref.read(medicationReminderRepositoryProvider).deleteById(reminderId);
     await _ref.read(notificationSchedulerProvider).cancel(reminderId);
   }
