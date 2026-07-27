@@ -5,10 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "dev",
+            "name": "dev-ios",
             "request": "launch",
             "type": "dart",
-            "args": ["--dart-define-from-file=env/dev.json"]
+            "args": ["--dart-define-from-file=env/dev.json"],
+            "deviceId": "0E628AD0-A4D6-4E92-A846-47AC7314D16C"
+        },
+         {
+            "name": "dev-android",
+            "request": "launch",
+            "type": "dart",
+            "args": ["--dart-define-from-file=env/dev.json"],
+            "deviceId": "emulator-5554"
         },
         {
             "name": "prod",

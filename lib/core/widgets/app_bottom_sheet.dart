@@ -18,7 +18,7 @@ Future<T?> showAppBottomSheet<T>(
   required WidgetBuilder builder,
   bool isScrollControlled = false,
 }) {
-  if (!kLiquidGlassEnabled) {
+  if (!AppGlass.isSupported) {
     // Plain Material sheet: let the framework draw the drag handle and surface.
     return showModalBottomSheet<T>(
       context: context,
