@@ -5,6 +5,7 @@ import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_action_view.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -32,69 +33,59 @@ class PremiumScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.premiumScreenTitle, style: AppTextStyle.titleLarge),
-      // Status and benefits on top, the action hugging the bottom edge.
-      withScrollView: true,
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w16,
-          AppScaffold.bodyTopInset(context),
-          AppSpacingConstant.w16,
-          // SafeArea already clears the home indicator; this is the gap.
-          AppSpacingConstant.h16,
+      body: AppActionView(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppSpacingConstant.w16,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        actionsPadding: EdgeInsets.symmetric(
+          horizontal: AppSpacingConstant.w16,
+        ),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                _StatusCard(premium: premium),
-                SizedBox(height: AppSpacingConstant.h24),
-                Text(
-                  l10n.premiumScreenIncluded,
-                  style: AppTextStyle.titleMedium.w600,
-                ),
-                SizedBox(height: AppSpacingConstant.h12),
-                AppBenefitRow(
-                  icon: Icons.notifications_active_outlined,
-                  title: l10n.paywallBenefitAlerts,
-                  body: l10n.paywallBenefitAlertsBody,
-                ),
-                AppBenefitRow(
-                  icon: Icons.show_chart,
-                  title: l10n.paywallBenefitForecast,
-                  body: l10n.paywallBenefitForecastBody,
-                ),
-                AppBenefitRow(
-                  icon: Icons.insights_outlined,
-                  title: l10n.paywallBenefitInsights,
-                  body: l10n.paywallBenefitInsightsBody,
-                ),
-                AppBenefitRow(
-                  icon: Icons.picture_as_pdf_outlined,
-                  title: l10n.paywallBenefitReport,
-                  body: l10n.paywallBenefitReportBody,
-                ),
-              ],
+            _StatusCard(premium: premium),
+            SizedBox(height: AppSpacingConstant.h24),
+            Text(
+              l10n.premiumScreenIncluded,
+              style: AppTextStyle.titleMedium.w600,
             ),
-            Padding(
-              padding: EdgeInsets.only(top: AppSpacingConstant.h24),
-              child: premium
-                  // Cancelling and refunds are the store's, not ours —
-                  // saying so beats a button that can only open Settings.
-                  ? Text(
-                      l10n.premiumScreenManageNote,
-                      style: AppTextStyle.bodySmall.secondary,
-                    )
-                  : AppButton.primary(
-                      onPressed: () =>
-                          NavigationUtils.unlockPremium(context, ref),
-                      label: l10n.premiumUnlock,
-                    ),
+            SizedBox(height: AppSpacingConstant.h12),
+            AppBenefitRow(
+              icon: Icons.notifications_active_outlined,
+              title: l10n.paywallBenefitAlerts,
+              body: l10n.paywallBenefitAlertsBody,
+            ),
+            AppBenefitRow(
+              icon: Icons.show_chart,
+              title: l10n.paywallBenefitForecast,
+              body: l10n.paywallBenefitForecastBody,
+            ),
+            AppBenefitRow(
+              icon: Icons.insights_outlined,
+              title: l10n.paywallBenefitInsights,
+              body: l10n.paywallBenefitInsightsBody,
+            ),
+            AppBenefitRow(
+              icon: Icons.picture_as_pdf_outlined,
+              title: l10n.paywallBenefitReport,
+              body: l10n.paywallBenefitReportBody,
             ),
           ],
         ),
+        actions: <Widget>[
+          if (premium)
+            // Cancelling and refunds are the store's, not ours — saying so
+            // beats a button that can only open Settings.
+            Text(
+              l10n.premiumScreenManageNote,
+              style: AppTextStyle.bodySmall.secondary,
+            )
+          else
+            AppButton.primary(
+              onPressed: () => NavigationUtils.unlockPremium(context, ref),
+              label: l10n.premiumUnlock,
+            ),
+        ],
       ),
     );
   }
