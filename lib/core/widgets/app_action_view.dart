@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+
+import '../constants/app_spacing_constant.dart';
+import 'app_scaffold.dart';
+
+/// Body layout for any screen that is "content, then an action at the
+/// bottom": the sign-in screen, the account screen, the premium screen.
+///
+/// [content] sits at the top, [actions] hug the bottom edge, and the space
+/// between them is whatever is left over. It scrolls once the two together
+/// outgrow one viewport — which long locales and large accessibility text
+/// sizes make a matter of when, not if — so pass it straight as
+/// `AppScaffold.body` and leave the scroll view to this widget.
+///
+/// Three things it owns, so no screen has to remember them (CLAUDE.md
+/// § Code style):
+/// - the top inset, so the first item clears the frosted app bar;
+/// - the minimum height, which is what gives `spaceBetween` free space to
+///   push the actions down — without it the column shrink-wraps and the
+///   buttons drift into the middle under short content;
+/// - the bottom gap of exactly [AppSpacingConstant.h16]. `AppScaffold`'s
+///   SafeArea already cleared the home indicator; adding the device inset
+///   again here would double it.
+///
+/// [actions] is a stretched column, so buttons come out full width and the
+/// same width as each other whatever their labels say.
+class AppActionView extends StatelessWidget {
+  const AppActionView({
+    required this.content,
+    required this.actions,
+    this.contentPadding,
+    this.actionsPadding,
+    this.actionSpacing,
+    super.key,
+  });
+
+  final Widget content;
+
+  /// Bottom-pinned, in order. Usually one or two [AppButton]s.
+  final List<Widget> actions;
+
+  /// Horizontal insets for [content]. Defaults to
+  /// [AppSpacingConstant.w24]; pass [EdgeInsets.zero] for full-bleed rows
+  /// (a `ListTile` brings its own).
+  final EdgeInsetsGeometry? contentPadding;
+
+  /// Horizontal insets for [actions]. Defaults to [AppSpacingConstant.w24]
+  /// — buttons stay inset even where the content above is full-bleed.
+  final EdgeInsetsGeometry? actionsPadding;
+
+  /// Gap between action rows. Defaults to [AppSpacingConstant.h8].
+  final double? actionSpacing;
+
+  @override
+  Widget build(BuildContext context) {
+    final EdgeInsetsGeometry contentInsets =
+        contentPadding ??
+        EdgeInsets.symmetric(horizontal: AppSpacingConstant.w24);
+    final EdgeInsetsGeometry actionInsets =
+        actionsPadding ??
+        EdgeInsets.symmetric(horizontal: AppSpacingConstant.w24);
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: AppScaffold.bodyTopInset(context),
+                bottom: AppSpacingConstant.h16,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Padding(padding: contentInsets, child: content),
+                  Padding(
+                    padding: actionInsets,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: actionSpacing ?? AppSpacingConstant.h8,
+                      children: actions,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

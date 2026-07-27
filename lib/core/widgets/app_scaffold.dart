@@ -21,7 +21,6 @@ class AppScaffold extends StatelessWidget {
     this.floatingActionButton,
     this.bottomNavigationBar,
     this.withSafeArea = true,
-    this.withScrollView = false,
     super.key,
   });
 
@@ -46,14 +45,6 @@ class AppScaffold extends StatelessWidget {
   /// Pass false where content scrolls behind a floating bottom bar (the tab
   /// screens, the log flow): a bottom SafeArea would cut the viewport short.
   final bool withSafeArea;
-
-  /// Body fills at least one viewport and scrolls past that — what a
-  /// bottom-pinned action column needs. Opt-in: most bodies are already a
-  /// `ListView`, and nesting scroll views is a bug.
-  ///
-  /// Not for bodies using `Expanded` (the log flow): flex needs a bounded
-  /// height, a scroll view gives none.
-  final bool withScrollView;
 
   /// Top inset a scroll-under body should pad by so its first item clears the
   /// frosted bar. Read it inside [body] (e.g. a `ListView.padding`).
@@ -111,36 +102,8 @@ class AppScaffold extends StatelessWidget {
     );
   }
 
-  /// SafeArea outside the scroll view, so content stops clear of the home
-  /// indicator instead of running under it.
-  Widget _wrapped() {
-    final Widget scrollable = withScrollView ? _Scrollable(child: body) : body;
-
-    return withSafeArea ? SafeArea(top: false, child: scrollable) : scrollable;
-  }
-}
-
-/// The minimum height is what makes `spaceBetween` work: without it the
-/// column shrink-wraps and has no free space to push the actions down.
-///
-/// A padded [child] deflates that minimum on its own, so it still measures
-/// exactly one viewport rather than scrolling by its own margins.
-class _Scrollable extends StatelessWidget {
-  const _Scrollable({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
+  /// SafeArea outside any scroll view the body brings (see [AppActionView]),
+  /// so content stops clear of the home indicator instead of running under
+  /// it.
+  Widget _wrapped() => withSafeArea ? SafeArea(top: false, child: body) : body;
 }

@@ -34,14 +34,20 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Top inset a scroll-under body needs so its first item clears the bar:
   /// status bar + toolbar.
   ///
-  /// Reads `viewPadding` (the raw device inset), NOT `padding`: Scaffold
-  /// rewrites the body's `MediaQuery.padding.top` to the app-bar height
-  /// under `extendBodyBehindAppBar`, so a `padding` read returns different
-  /// values above vs inside the body — `viewPadding` is stable everywhere.
+  /// Reads the inset off the **view**, not off the ambient `MediaQuery`:
+  /// `Scaffold` wraps its body in `removePadding(removeTop: true)` whenever
+  /// there is an app bar, and that subtracts the status bar from
+  /// `viewPadding.top` as well. A body-side caller therefore used to get
+  /// just `kToolbarHeight` (56) where the screen's own build got the full
+  /// 103 on a notched device — and the bar silently covered the first 47
+  /// logical pixels of content. The status bar height is a property of the
+  /// window, so read it from there and the answer is the same anywhere in
+  /// the tree.
+  ///
   /// Returns 0 when glass is disabled — the bar is then opaque and the body
   /// sits below it normally.
   static double bodyTopInset(BuildContext context) => AppGlass.isSupported
-      ? MediaQuery.viewPaddingOf(context).top + kToolbarHeight
+      ? MediaQueryData.fromView(View.of(context)).padding.top + kToolbarHeight
       : 0;
 
   @override

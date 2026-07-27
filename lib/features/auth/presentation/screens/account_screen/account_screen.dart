@@ -7,6 +7,7 @@ import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_action_view.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -48,32 +49,20 @@ class AccountScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.accountTitle, style: AppTextStyle.titleLarge),
-      // Account details on top, sign-out hugging the bottom edge; scrolls
-      // when a long locale or a large text size outgrows the viewport.
-      withScrollView: true,
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: AppScaffold.bodyTopInset(context),
-          // SafeArea already clears the home indicator; this is the gap.
-          bottom: AppSpacingConstant.h16,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: AppActionView(
+        // Full-bleed: every row here is a ListTile, which insets itself.
+        contentPadding: EdgeInsets.zero,
+        content: Column(
           children: <Widget>[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                _AccountHeader(user: user, profile: profile),
-                AppSectionHeader(l10n.accountSectionProfile),
-                _ProfileSection(user: user, profile: profile),
-                AppSectionHeader(l10n.accountSectionSubscription),
-                const _PremiumSection(),
-                const _DataNote(),
-              ],
-            ),
-            const _SignOutButton(),
+            _AccountHeader(user: user, profile: profile),
+            AppSectionHeader(l10n.accountSectionProfile),
+            _ProfileSection(user: user, profile: profile),
+            AppSectionHeader(l10n.accountSectionSubscription),
+            const _PremiumSection(),
+            const _DataNote(),
           ],
         ),
+        actions: const <Widget>[_SignOutButton()],
       ),
     );
   }
@@ -145,22 +134,15 @@ class _SignOutButton extends ConsumerWidget {
     await ref.read(accountControllerProvider).signOut();
     // This screen assumes an account — without one there is nothing left on
     // it, so it goes back to Settings rather than sitting there empty.
+    if (context.mounted) context.pop();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w16,
-        AppSpacingConstant.h24,
-        AppSpacingConstant.w16,
-        0,
-      ),
-      child: AppButton.outlined(
-        onPressed: () => _signOut(context, ref),
-        label: context.l10n.settingsSignOut,
-        icon: Icons.logout,
-      ),
+    return AppButton.outlined(
+      onPressed: () => _signOut(context, ref),
+      label: context.l10n.settingsSignOut,
+      icon: Icons.logout,
     );
   }
 }
