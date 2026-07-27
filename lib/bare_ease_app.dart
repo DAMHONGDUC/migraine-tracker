@@ -43,6 +43,11 @@ class BaroEaseApp extends HookConsumerWidget {
 
       AppAnalytics.setUser(uid: user?.uid, signedIn: user?.isSignedIn ?? false);
       CrashReporter.setUserId(user?.uid);
+      // Sign-in, and every launch of a signed-in session: keep the account
+      // document in step with what the provider knows about the user.
+      if (user != null) {
+        unawaited(ref.read(accountControllerProvider).syncProfile(user));
+      }
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
       AppAnalytics.setPremium(next);

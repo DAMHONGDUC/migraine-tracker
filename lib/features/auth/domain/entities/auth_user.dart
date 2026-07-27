@@ -9,6 +9,7 @@ class AuthUser {
     required this.isAnonymous,
     this.email,
     this.displayName,
+    this.photoUrl,
   });
 
   final String uid;
@@ -17,6 +18,9 @@ class AuthUser {
   /// Null when withheld — Apple only sends the profile on first sign-in.
   final String? email;
   final String? displayName;
+
+  /// Provider avatar (Google). Null for Apple and for anonymous sessions.
+  final String? photoUrl;
 
   bool get isSignedIn => !isAnonymous;
 

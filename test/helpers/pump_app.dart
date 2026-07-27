@@ -17,9 +17,11 @@ import 'package:migraine_tracker/features/app_update/domain/repositories/app_upd
 import 'package:migraine_tracker/features/app_update/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_update/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
+import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/auth/domain/repositories/auth_repository.dart';
+import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
@@ -178,6 +180,65 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(_user);
   }
 
+  @override
+  Future<void> updateDisplayName(String displayName) async {
+    _user = AuthUser(
+      uid: _user.uid,
+      isAnonymous: _user.isAnonymous,
+      email: _user.email,
+      displayName: displayName,
+    );
+    _controller.add(_user);
+  }
+
+  void dispose() => _controller.close();
+}
+
+/// In-memory account document. The account tab watches it, so a real one
+/// would drag Firestore into the test tree.
+class FakeUserProfileRepository implements UserProfileRepository {
+  FakeUserProfileRepository({this.profile});
+
+  /// The current document, or null until something writes one.
+  UserProfile? profile;
+  final StreamController<UserProfile?> _controller =
+      StreamController<UserProfile?>.broadcast();
+
+  /// Users [upsertFromAccount] was called for — the sign-in/launch sync.
+  final List<AuthUser> synced = <AuthUser>[];
+
+  /// Names [updateDisplayName] was called with, in order.
+  final List<String> renames = <String>[];
+
+  @override
+  Stream<UserProfile?> watch(String uid) async* {
+    yield profile;
+    yield* _controller.stream;
+  }
+
+  @override
+  Future<void> upsertFromAccount(AuthUser user) async {
+    synced.add(user);
+    profile ??= UserProfile(
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+    );
+    _controller.add(profile);
+  }
+
+  @override
+  Future<void> updateDisplayName({
+    required String uid,
+    required String displayName,
+  }) async {
+    renames.add(displayName);
+    profile = (profile ?? UserProfile(uid: uid)).copyWith(
+      displayName: displayName,
+    );
+    _controller.add(profile);
+  }
+
   void dispose() => _controller.close();
 }
 
@@ -208,6 +269,7 @@ class PumpedApp {
     required this.auth,
     required this.appUpdate,
     required this.storeLauncher,
+    required this.profiles,
   });
 
   final AppDatabase db;
@@ -218,6 +280,7 @@ class PumpedApp {
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
+  final FakeUserProfileRepository profiles;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -244,6 +307,10 @@ Future<PumpedApp> pumpApp(
   /// What `AppGlass.isSupported` reports. Defaults to true (the shipped iOS
   /// path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
+
+  /// The account document the account tab reads. Null = not written yet,
+  /// which is what a brand-new sign-in looks like.
+  UserProfile? userProfile,
 
   /// The record the force-update check reads. Null (default) = no record,
   /// so the blocking sheet never appears.
@@ -288,6 +355,10 @@ Future<PumpedApp> pumpApp(
     config: appUpdate,
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
+  final FakeUserProfileRepository profiles = FakeUserProfileRepository(
+    profile: userProfile,
+  );
+  addTearDown(profiles.dispose);
 
   await tester.pumpWidget(
     ProviderScope(
@@ -298,6 +369,7 @@ Future<PumpedApp> pumpApp(
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
+        userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
         installedAppVersionProvider.overrideWith(
@@ -325,6 +397,7 @@ Future<PumpedApp> pumpApp(
     auth: auth,
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
+    profiles: profiles,
   );
 }
 

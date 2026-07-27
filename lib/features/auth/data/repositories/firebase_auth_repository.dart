@@ -59,6 +59,16 @@ class FirebaseAuthRepository implements AuthRepository {
     await _auth.signOut();
   }
 
+  @override
+  Future<void> updateDisplayName(String displayName) async {
+    final User? user = _auth.currentUser;
+
+    if (user == null || user.isAnonymous) return;
+    await user.updateDisplayName(displayName);
+    // userChanges() does not fire for a profile write on its own.
+    await user.reload();
+  }
+
   Future<AuthCredential> _googleCredential() async {
     try {
       _googleInit ??= _google.initialize();
@@ -104,10 +114,9 @@ class FirebaseAuthRepository implements AuthRepository {
       final String? identityToken = credential.identityToken;
       if (identityToken == null) throw const AuthException(AuthError.unknown);
 
-      return OAuthProvider('apple.com').credential(
-        idToken: identityToken,
-        rawNonce: rawNonce,
-      );
+      return OAuthProvider(
+        'apple.com',
+      ).credential(idToken: identityToken, rawNonce: rawNonce);
     } on SignInWithAppleNotSupportedException {
       throw const AuthException(AuthError.appleUnavailable);
     } on SignInWithAppleAuthorizationException catch (e) {
@@ -172,19 +181,16 @@ class FirebaseAuthRepository implements AuthRepository {
           isAnonymous: user.isAnonymous,
           email: user.email,
           displayName: user.displayName,
+          photoUrl: user.photoURL,
         );
 
   /// 32 cryptographically random bytes, base64url-encoded.
   String _nonce() {
     final Random random = Random.secure();
-    final List<int> bytes = List<int>.generate(
-      32,
-      (_) => random.nextInt(256),
-    );
+    final List<int> bytes = List<int>.generate(32, (_) => random.nextInt(256));
 
     return base64UrlEncode(bytes);
   }
 
-  String _sha256(String input) =>
-      sha256.convert(utf8.encode(input)).toString();
+  String _sha256(String input) => sha256.convert(utf8.encode(input)).toString();
 }

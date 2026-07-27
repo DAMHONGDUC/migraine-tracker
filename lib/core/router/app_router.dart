@@ -4,7 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
+import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
+import '../../features/auth/providers.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
@@ -12,6 +14,7 @@ import '../../features/medications/presentation/screens/medications_screen/medic
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
+import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
@@ -50,6 +53,14 @@ abstract final class AppRoutes {
   /// Optional sign-in, pushed from Settings and from any premium gate.
   /// Pops `true` once an account exists (see [LoginScreen]).
   static const login = AppRoute(name: 'login', path: '/login');
+
+  /// The signed-in user's own record, pushed from Settings. Guarded by the
+  /// redirect below — there is no account to look at while signed out.
+  static const account = AppRoute(name: 'account', path: '/account');
+
+  /// Subscription detail, pushed from Settings. [paywall] is the purchase
+  /// sheet; this is the status page that leads to it.
+  static const premium = AppRoute(name: 'premium', path: '/premium');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -80,6 +91,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
       if (done && onOnboarding) return AppRoutes.dashboard.path;
+      // Signing out (or a deep link without an account) must not land on a
+      // tab that has nothing to show.
+      if (state.matchedLocation == AppRoutes.account.path &&
+          !ref.read(isSignedInProvider)) {
+        return AppRoutes.dashboard.path;
+      }
       return null;
     },
     routes: [
@@ -109,6 +126,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.login.name,
         path: AppRoutes.login.path,
         builder: (context, state) => const LoginScreen(),
+      ),
+      // Both are pushed from Settings, so they cover the tab bar and come
+      // back to where they were opened from.
+      GoRoute(
+        name: AppRoutes.account.name,
+        path: AppRoutes.account.path,
+        builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.premium.name,
+        path: AppRoutes.premium.path,
+        builder: (context, state) => const PremiumScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and

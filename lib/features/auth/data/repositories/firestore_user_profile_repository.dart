@@ -1,0 +1,65 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../domain/entities/auth_user.dart';
+import '../../domain/entities/user_profile.dart';
+import '../../domain/repositories/user_profile_repository.dart';
+import 'user_profile_mapper.dart';
+
+/// The account document for a signed-in user, in the same `users/{uid}` doc
+/// the alert registration already writes (merge writes, disjoint keys — see
+/// [UserProfileMapper]).
+class FirestoreUserProfileRepository implements UserProfileRepository {
+  const FirestoreUserProfileRepository(this._firestore);
+
+  static const String collectionPath = 'users';
+
+  final FirebaseFirestore _firestore;
+
+  DocumentReference<Map<String, dynamic>> _doc(String uid) =>
+      _firestore.collection(collectionPath).doc(uid);
+
+  @override
+  Stream<UserProfile?> watch(String uid) =>
+      _doc(uid).snapshots().map((DocumentSnapshot<Map<String, dynamic>> snap) {
+        final Map<String, dynamic>? data = snap.data();
+
+        if (!snap.exists || data == null) return null;
+        return UserProfileMapper.fromMap(uid, data);
+      });
+
+  /// One read before the write, to answer two questions the write itself
+  /// cannot: is this the first time (stamp `createdAt`), and has the user
+  /// already named themselves here (then the provider's name must not win).
+  @override
+  Future<void> upsertFromAccount(AuthUser user) async {
+    final DocumentSnapshot<Map<String, dynamic>> existing = await _doc(
+      user.uid,
+    ).get();
+    final bool hasOwnName =
+        UserProfileMapper.fromMap(
+          user.uid,
+          existing.data() ?? <String, Object?>{},
+        ).displayName !=
+        null;
+    final Map<String, Object?> write = UserProfileMapper.toWrite(
+      displayName: user.displayName,
+      email: user.email,
+      photoUrl: user.photoUrl,
+      includeDisplayName: !hasOwnName,
+    );
+
+    if (!existing.exists) {
+      write[UserProfileMapper.createdAtField] = FieldValue.serverTimestamp();
+    }
+    await _doc(user.uid).set(write, SetOptions(merge: true));
+  }
+
+  @override
+  Future<void> updateDisplayName({
+    required String uid,
+    required String displayName,
+  }) => _doc(uid).set(<String, Object?>{
+    UserProfileMapper.displayNameField: displayName,
+    UserProfileMapper.updatedAtField: FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+}

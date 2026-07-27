@@ -1250,5 +1250,93 @@
   "forceUpdateStoreFailed": "Couldn't open the store. Please update BaroEase manually.",
   "@forceUpdateStoreFailed": {
     "description": "Error snackbar shown when the store link could not be opened"
+  },
+  "navAccount": "Account",
+  "@navAccount": {
+    "description": "Bottom navigation label for the account tab, shown only while signed in"
+  },
+  "accountTitle": "Account",
+  "@accountTitle": {
+    "description": "App bar title of the account screen"
+  },
+  "accountSectionProfile": "Profile",
+  "@accountSectionProfile": {
+    "description": "Account screen section heading above the name, email and member-since rows"
+  },
+  "accountSectionSubscription": "Subscription",
+  "@accountSectionSubscription": {
+    "description": "Account screen section heading above the premium status row"
+  },
+  "accountName": "Name",
+  "@accountName": {
+    "description": "Label of the editable display-name row on the account screen"
+  },
+  "accountNoName": "Add your name",
+  "@accountNoName": {
+    "description": "Shown instead of the display name when the account has none yet"
+  },
+  "accountEmail": "Email",
+  "@accountEmail": {
+    "description": "Label of the read-only email row on the account screen"
+  },
+  "accountEmailUnknown": "Not shared",
+  "@accountEmailUnknown": {
+    "description": "Shown instead of the email when the provider withheld it (Apple only sends it on first sign-in)"
+  },
+  "accountMemberSince": "Member since",
+  "@accountMemberSince": {
+    "description": "Label of the row showing when the account was created"
+  },
+  "accountEditName": "Edit name",
+  "@accountEditName": {
+    "description": "Title of the dialog that edits the display name"
+  },
+  "accountNameHint": "Your name",
+  "@accountNameHint": {
+    "description": "Hint inside the display-name text field"
+  },
+  "accountNameUpdated": "Name updated",
+  "@accountNameUpdated": {
+    "description": "Success snackbar after the display name was saved"
+  },
+  "accountPremiumActive": "Premium is active",
+  "@accountPremiumActive": {
+    "description": "Account screen row title when the user has a premium entitlement"
+  },
+  "accountPremiumActiveBody": "Every premium feature is unlocked on this account.",
+  "@accountPremiumActiveBody": {
+    "description": "Account screen row subtitle when the user has premium"
+  },
+  "accountPremiumFree": "Free plan",
+  "@accountPremiumFree": {
+    "description": "Account screen row title when the user has no premium entitlement"
+  },
+  "accountPremiumFreeBody": "Pressure alerts, the forecast, insights and the doctor report are premium.",
+  "@accountPremiumFreeBody": {
+    "description": "Account screen row subtitle listing what premium adds"
+  },
+  "accountDataNote": "Your account holds your name, email and photo. Your attacks stay on this device.",
+  "@accountDataNote": {
+    "description": "Privacy note at the bottom of the account screen, stating that health data is not part of the account record"
+  },
+  "settingsPremium": "Premium",
+  "@settingsPremium": {
+    "description": "Settings row that opens the subscription detail screen, shown only while signed in"
+  },
+  "premiumScreenTitle": "Premium",
+  "@premiumScreenTitle": {
+    "description": "App bar title of the subscription detail screen"
+  },
+  "premiumScreenIncluded": "What premium includes",
+  "@premiumScreenIncluded": {
+    "description": "Heading above the list of premium features on the subscription screen"
+  },
+  "premiumScreenManageNote": "Manage or cancel your subscription in the App Store or Google Play, under your account's subscriptions.",
+  "@premiumScreenManageNote": {
+    "description": "Note shown to subscribers explaining that billing is managed by the store, not in the app"
+  },
+  "settingsAccount": "Account",
+  "@settingsAccount": {
+    "description": "Settings row title for the signed-in account; deliberately not the email, which Settings should not put on screen"
   }
 }
