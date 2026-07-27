@@ -25,7 +25,6 @@ class _AppShellState extends ConsumerState<AppShell> {
   /// 80%; scrolling back up restores it. Fires once per direction change,
   /// not per pixel, so this stays cheap during a fling.
   bool _onUserScroll(UserScrollNotification notification) {
-    if (!kLiquidGlassEnabled) return false;
     switch (notification.direction) {
       case ScrollDirection.reverse:
         if (!_shrunk) setState(() => _shrunk = true);
@@ -45,7 +44,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     return Scaffold(
       // Let the branch content flow behind the floating glass bar so it
       // refracts through it (hard rule 3: the effect stays calm and dark).
-      extendBody: kLiquidGlassEnabled,
+      // Unconditional: the nav is always the floating pill, so the body
+      // always has to reach under it.
+      extendBody: true,
       body: NotificationListener<UserScrollNotification>(
         onNotification: _onUserScroll,
         child: navigationShell,
@@ -112,13 +113,10 @@ class _SlidingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final count = items.length;
-    return Container(
+    return SizedBox(
       // Same height the tracking progress bar used to be — keeps the floating
       // pill proportions unchanged from before the log tab was removed.
       height: AppSpacingConstant.h56,
-      decoration: BoxDecoration(
-        color: kLiquidGlassEnabled ? null : scheme.surfaceContainer,
-      ),
       child: Stack(
         children: [
           // The sliding thumb: 1/N wide, aligned to the selected segment.
@@ -217,7 +215,10 @@ class _NavSegment extends StatelessWidget {
 /// Wraps a bottom bar in the floating frosted-glass treatment: side + bottom
 /// margins so it "lifts" off the edges, rounded glass, and safe-area padding
 /// consumed here (children have their bottom inset removed to avoid a double
-/// gap). A no-op when [kLiquidGlassEnabled] is false.
+/// gap). Applied unconditionally — the nav pill is the one surface that stays
+/// glass even where [AppGlass.isSupported] is false, because its floating
+/// geometry is layout the tab screens already pad for; the renderer degrades
+/// the surface itself to `FakeGlass` there.
 ///
 /// While [shrunk] the pill scales down (see [_FloatingBarState._shrunkScale]),
 /// anchored to the bottom — scrolling back up restores it smoothly (see
@@ -291,7 +292,6 @@ class _FloatingBarState extends State<_FloatingBar>
 
   @override
   Widget build(BuildContext context) {
-    if (!kLiquidGlassEnabled) return widget.child;
     return Listener(
       // Translucent + raw pointer events: observes the touch-down without
       // eating it or competing in the gesture arena with nav segment taps.

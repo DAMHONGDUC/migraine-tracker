@@ -56,7 +56,7 @@ class LogScreen extends ConsumerWidget {
     // Bottom inset the body must clear: the floating step bar while it shows,
     // else just the home indicator + a gap on the saved screen.
     final bottomInset = question != null
-        ? AppScaffold.bottomNavInset(context)
+        ? AppScaffold.bottomBarInset(context)
         : MediaQuery.viewPaddingOf(context).bottom + AppSpacingConstant.h16;
     // The medication step scrolls its grid BEHIND the step bar (like the tab
     // flows), so the body reserves no bottom space for it — the grid applies

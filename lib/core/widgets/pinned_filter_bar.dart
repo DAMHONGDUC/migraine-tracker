@@ -68,7 +68,7 @@ class PinnedFilterBar extends StatelessWidget {
         child: child,
       ),
     );
-    if (!kLiquidGlassEnabled) {
+    if (!AppGlass.isSupported) {
       return ColoredBox(color: AppColors.background, child: content);
     }
     // Same frosted treatment as the app bar so the strip continues it.

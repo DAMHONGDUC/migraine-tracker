@@ -5,7 +5,7 @@ import 'liquid_glass_theme.dart';
 
 /// Wraps a single small chrome element — an icon button, a back arrow — in
 /// its own frosted Liquid Glass circle. Falls back to plain [child] when
-/// [kLiquidGlassEnabled] is off, so every caller can use this
+/// [AppGlass.isSupported] is off, so every caller can use this
 /// unconditionally instead of re-deriving that check itself.
 ///
 /// Only for icons sitting directly on non-glass chrome (blurred but not
@@ -22,7 +22,7 @@ class GlassCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kLiquidGlassEnabled) return child;
+    if (!AppGlass.isSupported) return child;
     return LiquidGlass.withOwnLayer(
       settings: kChromeGlass,
       shape: const LiquidOval(),

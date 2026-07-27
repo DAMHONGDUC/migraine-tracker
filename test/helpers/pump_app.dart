@@ -10,6 +10,7 @@ import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
@@ -198,6 +199,10 @@ Future<PumpedApp> pumpApp(
   /// Off, as shipped: the Apple button shows but its flow is not wired up.
   /// True covers the real path, which must work before submission.
   bool appleSignIn = false,
+
+  /// What `AppGlass.isSupported` reports. Defaults to true (the shipped iOS
+  /// path); pass false to cover the Android/Skia fallback chrome.
+  bool glassSupported = true,
 }) async {
   // Pin the test view to the 393×852 design size (an iPhone-class screen,
   // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
@@ -207,6 +212,12 @@ Future<PumpedApp> pumpApp(
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
+
+  // The test engine is Skia, so AppGlass.isSupported would always be false
+  // and every test would assert the fallback layout instead of the shipped
+  // one. The glass still renders as FakeGlass here; only the insets follow.
+  AppGlass.debugSupported = glassSupported;
+  addTearDown(() => AppGlass.debugSupported = null);
 
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);

@@ -154,7 +154,7 @@ class PaywallScreen extends ConsumerWidget {
       ],
     );
 
-    final surface = kLiquidGlassEnabled
+    final surface = AppGlass.isSupported
         ? LiquidGlass.withOwnLayer(
             settings: kChromeGlass,
             shape: LiquidRoundedSuperellipse(
