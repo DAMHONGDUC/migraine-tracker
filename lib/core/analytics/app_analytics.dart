@@ -38,6 +38,7 @@ abstract final class AppAnalytics {
   static const String _alertsToggled = 'alerts_toggled';
   static const String _alertThresholdSet = 'alert_threshold_set';
   static const String _signOut = 'sign_out';
+  static const String _profileNameUpdated = 'profile_name_updated';
   static const String _signInFailed = 'sign_in_failed';
   static const String _premiumGateTapped = 'premium_gate_tapped';
   static const String _paywallCtaTapped = 'paywall_cta_tapped';
@@ -191,6 +192,9 @@ abstract final class AppAnalytics {
       _log(_signInFailed, <String, Object>{_pMethod: method, _pReason: reason});
 
   static void logSignOut() => _log(_signOut);
+
+  /// The name only — never the value the user typed.
+  static void logProfileNameUpdated() => _log(_profileNameUpdated);
 
   // --- Premium ----------------------------------------------------------
 

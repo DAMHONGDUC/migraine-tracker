@@ -55,7 +55,7 @@ test/features/           # mirrors lib/features
 
 Features: `app_update` (force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather`
 (WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
-`alerts`, `auth` (Google/Apple, linkWithCredential), `sync`, `paywall`,
+`alerts`, `auth` (Google/Apple + linkWithCredential, account screen, `users/{uid}` profile doc), `sync`, `paywall`,
 `settings`. Create a layer folder only when it gets its first file — no empty
 placeholder folders.
 
@@ -75,7 +75,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 
 ## Hard rules
 
-1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
+1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Signing in adds account fields to the same `users/{uid}` doc — display name, email, photo URL, created/updated timestamps — and nothing else. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
 2. **Location**: request While-Using + reduced accuracy only. Never request Always.
 3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
 4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.

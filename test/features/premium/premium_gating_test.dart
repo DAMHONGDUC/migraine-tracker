@@ -5,6 +5,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/premium/presentation/widgets/premium_gate.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -91,8 +92,10 @@ void main() {
 
       // Locked rows in place of the real controls.
       expect(find.byType(Switch), findsNothing);
-      expect(find.text('Get a push before a big pressure drop hits.'),
-          findsOneWidget);
+      expect(
+        find.text('Get a push before a big pressure drop hits.'),
+        findsOneWidget,
+      );
       expect(
         find.text('Export a PDF summary of your attacks for your doctor.'),
         findsOneWidget,
@@ -218,9 +221,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text(
-            'Unlock to see how much of your pain follows the weather.',
-          ),
+          find.text('Unlock to see how much of your pain follows the weather.'),
           findsNothing,
         );
 
@@ -259,7 +260,9 @@ void main() {
 
       expect(find.byType(Switch), findsOneWidget);
       expect(find.text('Doctor report (PDF)'), findsOneWidget);
-      expect(find.text('Premium'), findsNothing);
+      // No locked teaser left anywhere on the screen. (The Premium row is
+      // titled 'Premium' now, so the badge is what marks a gate.)
+      expect(find.byType(PremiumBadge), findsNothing);
 
       await finishTest(tester);
     });

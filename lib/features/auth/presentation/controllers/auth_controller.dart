@@ -2,6 +2,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/logging/crash_reporter.dart';
+import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
 import '../../providers.dart';
@@ -61,8 +63,9 @@ class LoginController extends Notifier<LoginState> {
   }
 }
 
-/// Sign-out is triggered from Settings, where [LoginController]'s state
-/// machine has no meaning.
+/// The account itself — sign-out and the profile document. Separate from
+/// [LoginController], whose state machine only means anything while the
+/// login screen is up.
 class AccountController {
   const AccountController(this._ref);
 
@@ -72,5 +75,42 @@ class AccountController {
     AppLogger.action('Sign out');
     AppAnalytics.logSignOut();
     await _ref.read(authRepositoryProvider).signOut();
+  }
+
+  /// Pushes what the auth provider knows into `users/{uid}`. Called on
+  /// sign-in and on each launch of a signed-in session.
+  ///
+  /// Best-effort: an account record that failed to write is not worth
+  /// blocking anyone over, and the next launch retries it.
+  Future<void> syncProfile(AuthUser user) async {
+    if (!user.isSignedIn) return;
+
+    try {
+      await _ref.read(userProfileRepositoryProvider).upsertFromAccount(user);
+      AppLogger.info('Profile synced', user.uid);
+    } catch (error, stackTrace) {
+      AppLogger.warning('Profile sync failed', error);
+      CrashReporter.recordError(
+        error,
+        stackTrace,
+        reason: 'User profile sync failed',
+      );
+    }
+  }
+
+  /// Renames the account. Writes Firestore first — that is what the app
+  /// reads back — then the Firebase Auth profile, so a second device that
+  /// only has the auth record shows the same name.
+  Future<void> updateDisplayName(String displayName) async {
+    final AuthUser? user = _ref.read(authRepositoryProvider).currentUser;
+    final String trimmed = displayName.trim();
+
+    if (user == null || !user.isSignedIn || trimmed.isEmpty) return;
+    AppLogger.action('Update display name');
+    AppAnalytics.logProfileNameUpdated();
+    await _ref
+        .read(userProfileRepositoryProvider)
+        .updateDisplayName(uid: user.uid, displayName: trimmed);
+    await _ref.read(authRepositoryProvider).updateDisplayName(trimmed);
   }
 }
