@@ -6,7 +6,7 @@ import 'app_text_style.dart';
 
 /// Dark-first theme. Users are photophobic: dark is the default and only
 /// theme in v1, and no flashing/emphasis animations are added here.
-abstract final class AppTheme {
+final class AppTheme {
   static ThemeData get dark {
     final scheme =
         ColorScheme.fromSeed(

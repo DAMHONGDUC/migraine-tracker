@@ -58,14 +58,23 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
 
     AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
     AppAnalytics.logAlertThresholdSet(thresholdHpa);
-    await ref
-        .read(sharedPreferencesProvider)
-        .setDouble(OnboardingController.thresholdKey, thresholdHpa);
-    if (current.enabled) {
+    try {
       await ref
-          .read(alertRegistrationRepositoryProvider)
-          .updateThreshold(thresholdHpa);
+          .read(sharedPreferencesProvider)
+          .setDouble(OnboardingController.thresholdKey, thresholdHpa);
+      if (current.enabled) {
+        await ref
+            .read(alertRegistrationRepositoryProvider)
+            .updateThreshold(thresholdHpa);
+      }
+      state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Set alert threshold failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
     }
-    state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
   }
 }

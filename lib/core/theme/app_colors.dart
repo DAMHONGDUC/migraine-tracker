@@ -2,7 +2,7 @@ import 'dart:ui';
 
 /// Photophobia-friendly palette. Hard rule: no pure white anywhere;
 /// the brightest surface allowed is the #1C1C1E family.
-abstract final class AppColors {
+final class AppColors {
   /// Scaffold background — near black.
   static const Color background = Color(0xFF0E0E10);
 

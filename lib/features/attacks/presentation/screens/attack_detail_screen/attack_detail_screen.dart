@@ -154,9 +154,10 @@ class AttackDetailScreen extends ConsumerWidget {
           children: [
             _Header(attack: a),
             SizedBox(height: AppSpacingConstant.h16),
+            _LocationDiagram(location: a.location),
+            SizedBox(height: AppSpacingConstant.h16),
             _Section(
               children: [
-                _LocationDiagram(location: a.location),
                 _EditableRow(
                   label: l10n.attackDetailIntensity,
                   value: '${a.intensity}',

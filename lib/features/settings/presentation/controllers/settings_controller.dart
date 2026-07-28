@@ -21,32 +21,43 @@ class SettingsController {
 
   /// Serializes all data in [format] and hands it to the share sheet.
   Future<void> export(ExportFormat format) async {
-    final attacks = await _ref.read(attackRepositoryProvider).getAll();
-    final medications = await _ref.read(medicationRepositoryProvider).getAll();
-    final service = _ref.read(dataExportServiceProvider);
-    final now = DateTime.now();
-    final stamp = DateFormat('yyyy-MM-dd').format(now);
-    final (content, filename, mime) = switch (format) {
-      ExportFormat.json => (
-        service.toJson(attacks, medications, exportedAt: now),
-        'baroease_export_$stamp.json',
-        'application/json',
-      ),
-      ExportFormat.csv => (
-        service.toCsv(attacks),
-        'baroease_export_$stamp.csv',
-        'text/csv',
-      ),
-    };
+    try {
+      final attacks = await _ref.read(attackRepositoryProvider).getAll();
+      final medications = await _ref
+          .read(medicationRepositoryProvider)
+          .getAll();
+      final service = _ref.read(dataExportServiceProvider);
+      final now = DateTime.now();
+      final stamp = DateFormat('yyyy-MM-dd').format(now);
+      final (content, filename, mime) = switch (format) {
+        ExportFormat.json => (
+          service.toJson(attacks, medications, exportedAt: now),
+          'baroease_export_$stamp.json',
+          'application/json',
+        ),
+        ExportFormat.csv => (
+          service.toCsv(attacks),
+          'baroease_export_$stamp.csv',
+          'text/csv',
+        ),
+      };
 
-    AppLogger.action('Export data', format.name);
-    AppAnalytics.logDataExported(
-      format: format.name,
-      attackCount: attacks.length,
-    );
-    await _ref
-        .read(exportSinkProvider)
-        .share(content: content, filename: filename, mimeType: mime);
+      AppLogger.action('Export data', format.name);
+      AppAnalytics.logDataExported(
+        format: format.name,
+        attackCount: attacks.length,
+      );
+      await _ref
+          .read(exportSinkProvider)
+          .share(content: content, filename: filename, mimeType: mime);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Export data failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Builds the 90-day doctor report and hands the PDF to the share sheet.
@@ -68,31 +79,49 @@ class SettingsController {
 
   /// [strings] are localized — the bundled font covers Vietnamese.
   Future<void> shareDoctorReport(DoctorReportStrings strings) async {
-    final attacks = await _ref.read(attackRepositoryProvider).getAll();
-    final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
-    final (regular, bold) = await _reportFonts();
-    final now = DateTime.now();
-    final bytes = await const DoctorReportBuilder().build(
-      attacks: attacks,
-      correlation: correlation,
-      strings: strings,
-      now: now,
-      regularFont: regular,
-      boldFont: bold,
-    );
-    final stamp = DateFormat('yyyy-MM-dd').format(now);
+    try {
+      final attacks = await _ref.read(attackRepositoryProvider).getAll();
+      final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
+      final (regular, bold) = await _reportFonts();
+      final now = DateTime.now();
+      final bytes = await const DoctorReportBuilder().build(
+        attacks: attacks,
+        correlation: correlation,
+        strings: strings,
+        now: now,
+        regularFont: regular,
+        boldFont: bold,
+      );
+      final stamp = DateFormat('yyyy-MM-dd').format(now);
 
-    AppLogger.action('Share doctor report (PDF)');
-    AppAnalytics.logDoctorReportShared(attackCount: attacks.length);
-    await _ref
-        .read(pdfSharerProvider)
-        .share(bytes: bytes, filename: 'baroease_report_$stamp.pdf');
+      AppLogger.action('Share doctor report (PDF)');
+      AppAnalytics.logDoctorReportShared(attackCount: attacks.length);
+      await _ref
+          .read(pdfSharerProvider)
+          .share(bytes: bytes, filename: 'baroease_report_$stamp.pdf');
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Share doctor report failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// GDPR wipe of all on-device data.
-  Future<void> deleteAll() {
+  Future<void> deleteAll() async {
     AppLogger.action('Delete all data (GDPR wipe)');
     AppAnalytics.logDataWiped();
-    return _ref.read(dataWipeServiceProvider).wipeAll();
+    try {
+      await _ref.read(dataWipeServiceProvider).wipeAll();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete all data failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 }

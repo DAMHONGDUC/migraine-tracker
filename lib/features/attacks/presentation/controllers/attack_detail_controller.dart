@@ -18,22 +18,40 @@ class AttackDetailController {
     required int intensity,
     required HeadLocation location,
     required String? medicationName,
-  }) {
+  }) async {
     AppLogger.action('Edit attack', id);
     AppAnalytics.logAttackEdited();
-    return _ref
-        .read(attackRepositoryProvider)
-        .updateCore(
-          id,
-          intensity: intensity,
-          location: location,
-          medicationName: medicationName,
-        );
+    try {
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateCore(
+            id,
+            intensity: intensity,
+            location: location,
+            medicationName: medicationName,
+          );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
-  Future<void> delete(String id) {
+  Future<void> delete(String id) async {
     AppLogger.action('Delete attack', id);
     AppAnalytics.logAttackDeleted();
-    return _ref.read(attackRepositoryProvider).deleteById(id);
+    try {
+      await _ref.read(attackRepositoryProvider).deleteById(id);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete attack failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 }

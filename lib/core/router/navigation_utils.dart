@@ -8,7 +8,7 @@ import 'app_router.dart';
 
 /// Navigation moves with a rule attached — an order of screens, or a
 /// condition on where the user lands. A plain push stays at its call site.
-abstract final class NavigationUtils {
+final class NavigationUtils {
   /// False means no account: backed out, or the attempt failed.
   static Future<bool> toLogin(BuildContext context) async {
     final bool? signedIn = await context.pushNamed<bool>(AppRoutes.login.name);

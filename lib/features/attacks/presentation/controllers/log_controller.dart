@@ -99,16 +99,25 @@ class LogController extends Notifier<LogFlowState> {
       medicationName: medicationName,
     );
 
-    await ref.read(attackRepositoryProvider).insert(attack);
-    AppLogger.action('Attack logged', {
-      'intensity': attack.intensity,
-      'location': attack.location.name,
-      'medication': medicationName,
-    });
-    AppAnalytics.logAttackLogged();
-    AppAnalytics.logLogFlowStep(LogStep.saved.name);
-    unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
-    state = LogFlowState(savedId: attack.id, step: LogStep.saved);
+    try {
+      await ref.read(attackRepositoryProvider).insert(attack);
+      AppLogger.action('Attack logged', {
+        'intensity': attack.intensity,
+        'location': attack.location.name,
+        'medication': medicationName,
+      });
+      AppAnalytics.logAttackLogged();
+      AppAnalytics.logLogFlowStep(LogStep.saved.name);
+      unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
+      state = LogFlowState(savedId: attack.id, step: LogStep.saved);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Attack log failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Steps back one screen so a mis-tap can be corrected. The previous
