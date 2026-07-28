@@ -138,7 +138,8 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
             itemCount: medications.length + 2,
             itemBuilder: (context, i) {
               if (i == 0) {
-                return _Tile.option(
+                return _Tile(
+                  kind: _TileKind.option,
                   icon: Icons.block,
                   label: l10n.logNoMedication,
                   selected: widget.hasSelection && widget.selectedName == null,
@@ -146,13 +147,16 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
                 );
               }
               if (i == 1) {
-                return _Tile.add(
+                return _Tile(
+                  kind: _TileKind.add,
+                  icon: Icons.add,
                   label: l10n.logAddMedication,
                   onTap: _addMedication,
                 );
               }
               final med = medications[i - 2];
-              return _Tile.option(
+              return _Tile(
+                kind: _TileKind.option,
                 icon: Icons.medication_outlined,
                 label: med.name,
                 selected:
@@ -222,40 +226,42 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-/// One grid cell. Two semantics, one geometry so the "Add" cell lines up
-/// with the medications it trails:
+/// What a [_Tile] means — the look is a prop, like [AppButtonVariant].
 ///
-/// - [_Tile.option] — a pickable answer (a medication, or "No medication").
-///   Shares the location step's tile language so the two steps read as one
-///   flow.
-/// - [_Tile.add] — the action that opens the add-medication dialog. Never
+/// - [option] — a pickable answer (a medication, or "No medication"). Shares
+///   the location step's tile language so the two steps read as one flow.
+/// - [add] — the action that opens the add-medication dialog. Never
 ///   selectable, and teal-tinted like [AppButtonVariant.positive] so it
 ///   reads as additive rather than as one more thing to choose between.
+enum _TileKind { option, add }
+
+/// One grid cell. Two semantics, one geometry so the "Add" cell lines up
+/// with the medications it trails.
 class _Tile extends StatelessWidget {
-  const _Tile.option({
+  const _Tile({
+    required this.kind,
     required this.icon,
     required this.label,
-    required this.selected,
     required this.onTap,
-  }) : _isAdd = false;
+    this.selected = false,
+  });
 
-  const _Tile.add({required this.label, required this.onTap})
-    : icon = Icons.add,
-      selected = false,
-      _isAdd = true;
-
+  final _TileKind kind;
   final IconData icon;
   final String label;
-  final bool selected;
   final VoidCallback onTap;
-  final bool _isAdd;
+
+  /// Ignored by [_TileKind.add], which is an action and never a choice.
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
+    final bool isAdd = kind == _TileKind.add;
     final Color foreground;
     final Color background;
     final Color borderColor;
-    if (_isAdd) {
+
+    if (isAdd) {
       foreground = AppColors.secondary;
       background = AppColors.secondary.withValues(alpha: 0.10);
       borderColor = AppColors.secondary.withValues(alpha: 0.45);
@@ -271,7 +277,7 @@ class _Tile extends StatelessWidget {
 
     return Semantics(
       button: true,
-      selected: _isAdd ? null : selected,
+      selected: isAdd ? null : selected,
       label: label,
       excludeSemantics: true,
       child: PressableScale(
