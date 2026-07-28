@@ -889,13 +889,13 @@
       }
     }
   },
-  "settingsExportJson": "JSON (full backup)",
+  "settingsExportJson": "JSON",
   "@settingsExportJson": {
-    "description": "Export format option: structured JSON with everything"
+    "description": "Export kind: structured JSON with everything"
   },
-  "settingsExportCsv": "CSV (attacks table)",
+  "settingsExportCsv": "CSV",
   "@settingsExportCsv": {
-    "description": "Export format option: flat CSV of attacks"
+    "description": "Export kind: flat CSV of attacks"
   },
   "settingsDoctorReport": "Doctor report (PDF)",
   "@settingsDoctorReport": {
