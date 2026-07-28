@@ -33,7 +33,7 @@ abstract final class AppContentPadding {
 
   /// Gap between the last item — usually the bottom action — and the safe
   /// area below it.
-  static double get bottomGap => AppSpacingConstant.h16;
+  static double get bottomGap => AppSpacingConstant.h8;
 
   /// How far down the app bar reaches: status bar + toolbar while the bar is
   /// frosted glass (the body passes behind it), 0 when it is opaque and the
