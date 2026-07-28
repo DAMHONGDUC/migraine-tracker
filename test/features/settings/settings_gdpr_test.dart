@@ -64,8 +64,8 @@ void main() {
 
     await logAttack(tester, intensity: '8', location: 'Left side');
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('JSON (full backup)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
     expect(app.exportFiles.singleContent, contains('"intensity": 8'));
@@ -84,8 +84,8 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('CSV (attacks table)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
     expect(app.exportFiles.singleContent, contains('id,started_at_utc'));
@@ -102,12 +102,12 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('JSON (full backup)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
     // Tap the history row, then Share in its actions sheet.
-    await tapVisible(tester, find.text('JSON (full backup)'));
+    await tapVisible(tester, find.text('JSON'));
     await tester.tap(find.text('Share'));
     await settleExport(tester);
 
@@ -126,11 +126,11 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('CSV (attacks table)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
-    await tapVisible(tester, find.text('CSV (attacks table)'));
+    await tapVisible(tester, find.text('CSV'));
     await tester.tap(find.text('Save to device'));
     await settleExport(tester);
 
@@ -148,11 +148,11 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('CSV (attacks table)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
-    await tapVisible(tester, find.text('CSV (attacks table)'));
+    await tapVisible(tester, find.text('CSV'));
     await tester.tap(find.text('Save to device'));
     await settleExport(tester);
 
@@ -169,11 +169,11 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
-    await tester.tap(find.text('JSON (full backup)'));
+    await tapVisible(tester, find.byTooltip('New export'));
+    await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
-    await tapVisible(tester, find.text('JSON (full backup)'));
+    await tapVisible(tester, find.text('JSON'));
     await tester.tap(find.text('Delete'));
     await settleExport(tester);
 
@@ -194,7 +194,7 @@ void main() {
     await pumpApp(tester);
 
     await openExportScreen(tester);
-    await tapVisible(tester, find.text('New export'));
+    await tapVisible(tester, find.byTooltip('New export'));
 
     // The row is there, but locked — never a path that produces a report.
     expect(find.text('Doctor report (PDF)'), findsOneWidget);

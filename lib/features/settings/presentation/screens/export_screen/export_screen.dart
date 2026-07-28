@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/constants/file_size_utils.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_action_view.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -127,19 +128,22 @@ class ExportScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
-      body: AppActionView(
-        // Rows inset themselves — a ListTile brings its own gutter.
-        contentPadding: EdgeInsets.zero,
-        content: _History(
-          onRecordTap: (ExportRecord record) =>
-              _openActions(context, ref, record),
+      actions: <Widget>[
+        AppBarButton(
+          icon: Icons.add,
+          tooltip: l10n.exportNewAction,
+          onPressed: () => _create(context, ref),
         ),
-        actions: <Widget>[
-          AppButton(
-            variant: AppButtonVariant.primary,
-            icon: Icons.ios_share,
-            onPressed: () => _create(context, ref),
-            label: l10n.exportNewAction,
+        SizedBox(width: AppSpacingConstant.w4),
+      ],
+      // The list pads itself so it scrolls behind the frosted bar. Full
+      // bleed: a ListTile brings its own gutter.
+      body: ListView(
+        padding: AppContentPadding.fullBleed(context),
+        children: <Widget>[
+          _History(
+            onRecordTap: (ExportRecord record) =>
+                _openActions(context, ref, record),
           ),
         ],
       ),
