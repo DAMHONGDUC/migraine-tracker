@@ -55,8 +55,8 @@ void main() {
       expect(insets.top, 47 + kToolbarHeight + 8);
       // 34 home indicator + bottomGap.
       expect(insets.bottom, 34 + 8);
-      expect(insets.left, 24);
-      expect(insets.right, 24);
+      expect(insets.left, 16);
+      expect(insets.right, 16);
     },
   );
 
