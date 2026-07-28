@@ -15,7 +15,8 @@ class _Teaser extends ConsumerWidget {
         SizedBox(height: AppSpacingConstant.h12),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: AppButton.secondary(
+          child: AppButton(
+            variant: AppButtonVariant.secondary,
             onPressed: () => NavigationUtils.toPaywall(context, ref),
             label: l10n.premiumUnlock,
           ),

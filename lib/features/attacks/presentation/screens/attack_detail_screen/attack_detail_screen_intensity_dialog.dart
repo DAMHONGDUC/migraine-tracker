@@ -21,10 +21,7 @@ class _IntensityDialogState extends State<_IntensityDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '${_value.round()}',
-            style: AppTextStyle.displaySmall.w600,
-          ),
+          Text('${_value.round()}', style: AppTextStyle.displaySmall.w600),
           Slider(
             value: _value,
             min: 1,
@@ -36,11 +33,13 @@ class _IntensityDialogState extends State<_IntensityDialog> {
         ],
       ),
       actions: [
-        AppButton.text(
+        AppButton(
+          variant: AppButtonVariant.text,
           onPressed: () => Navigator.of(context).pop(),
           label: l10n.commonCancel,
         ),
-        AppButton.primary(
+        AppButton(
+          variant: AppButtonVariant.primary,
           onPressed: () => Navigator.of(context).pop(_value.round()),
           label: l10n.detailsSave,
         ),

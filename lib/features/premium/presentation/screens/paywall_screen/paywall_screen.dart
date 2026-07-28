@@ -134,7 +134,8 @@ class PaywallScreen extends ConsumerWidget {
                     SizedBox(height: AppSpacingConstant.h24),
                     // Signed out there is no account to attach a
                     // subscription to; signed in, purchases await RevenueCat.
-                    AppButton.primary(
+                    AppButton(
+                      variant: AppButtonVariant.primary,
                       onPressed: () {
                         AppAnalytics.logPaywallCtaTapped(signedIn: signedIn);
                         // Signed in, the purchase itself awaits RevenueCat —

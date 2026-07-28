@@ -119,7 +119,8 @@ class _PremiumCountdownBannerState
               ),
             ),
             SizedBox(width: AppSpacingConstant.w12),
-            AppButton.primary(
+            AppButton(
+              variant: AppButtonVariant.primary,
               compact: true,
               label: l10n.premiumUnlock,
               onPressed: openPaywall,

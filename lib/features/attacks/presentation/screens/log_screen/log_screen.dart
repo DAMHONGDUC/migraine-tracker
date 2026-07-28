@@ -76,7 +76,8 @@ class LogScreen extends ConsumerWidget {
       },
       actions: [
         if (showNext)
-          AppButton.primary(
+          AppButton(
+            variant: AppButtonVariant.primary,
             onPressed: state.hasDraft ? () => controller.confirmStep() : null,
             label: l10n.logNext,
           ),

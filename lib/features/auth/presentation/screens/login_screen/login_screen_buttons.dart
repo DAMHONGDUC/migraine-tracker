@@ -23,19 +23,22 @@ class _ProviderButtons extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         if (appleAvailable) ...<Widget>[
-          AppButton.primary(
+          AppButton(
+            variant: AppButtonVariant.primary,
             onPressed: state.isBusy
                 ? null
                 : () => onSignIn(AuthProviderKind.apple),
-            icon: Icons.apple,
+            icon: SimpleIcons.apple,
             label: l10n.loginApple,
           ),
           SizedBox(height: AppSpacingConstant.h12),
         ],
-        AppButton.outlined(
+        AppButton(
+          variant: AppButtonVariant.outlined,
           onPressed: state.isBusy
               ? null
               : () => onSignIn(AuthProviderKind.google),
+          icon: SimpleIcons.google,
           label: l10n.loginGoogle,
         ),
         // A calm bar under the buttons, not a spinner in the label.

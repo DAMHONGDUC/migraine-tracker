@@ -231,8 +231,8 @@ class _SearchField extends StatelessWidget {
 ///   Shares the location step's tile language so the two steps read as one
 ///   flow.
 /// - [_Tile.add] — the action that opens the add-medication dialog. Never
-///   selectable, and teal-tinted like [AppButton.positive] so it reads as
-///   additive rather than as one more thing to choose between.
+///   selectable, and teal-tinted like [AppButtonVariant.positive] so it
+///   reads as additive rather than as one more thing to choose between.
 class _Tile extends StatelessWidget {
   const _Tile.option({
     required this.icon,
