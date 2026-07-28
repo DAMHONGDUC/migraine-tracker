@@ -2,13 +2,29 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
 import '../constants/app_spacing_constant.dart';
+import '../theme/app_colors.dart';
 import 'app_icon.dart';
 import 'glass/glass_circle.dart';
 import 'pop_scale.dart';
 
+/// What an [AppBarButton] sits on — a prop, like `AppButtonVariant`.
+///
+/// - [glassCircle] — its own frosted circle, for a button on the app bar's
+///   blurred strip (that strip is not itself a glass surface, so the circle
+///   has real background to refract).
+/// - [positive] — a filled teal disc, the same "affirmative, additive"
+///   treatment as `AppButtonVariant.positive`. The confirming icon of a
+///   sheet header wears it so it reads as the one action that commits,
+///   next to the plain X that abandons.
+/// - [none] — the bare glyph, for a button already on a glass surface (the
+///   paywall's sheet header, a sheet's own header): nesting a glass layer
+///   inside one has nothing left to catch the light and just reads flat.
+enum AppBarButtonSurface { glassCircle, positive, none }
+
 /// Every icon button in an app bar — the leading back arrow and the trailing
-/// actions alike. One class, so the back button on one screen can never end
-/// up a different size from the delete button next to it.
+/// actions alike — and the two actions of a sheet header. One class, so the
+/// back button on one screen can never end up a different size from the
+/// delete button next to it.
 ///
 /// Three things it fixes in place:
 /// - a small glyph, [iconSize] (20) rather than Material's 24, so the bar
@@ -24,18 +40,8 @@ import 'pop_scale.dart';
 /// pointer-down, so it never waits to find out which one it was.
 ///
 /// The button owns its [surface] rather than letting the bar wrap one around
-/// it — the swell has to take the glass circle with it, and a circle applied
-/// from outside would sit still while its contents grew.
-/// What an [AppBarButton] sits on — a prop, like [AppButtonVariant].
-///
-/// - [glassCircle] — its own frosted circle, for a button on the app bar's
-///   blurred strip (that strip is not itself a glass surface, so the circle
-///   has real background to refract).
-/// - [none] — the bare glyph, for a button already on a glass surface (the
-///   paywall's sheet header): nesting a glass layer inside one has nothing
-///   left to catch the light and just reads flat.
-enum AppBarButtonSurface { glassCircle, none }
-
+/// it — the swell has to take the circle with it, and a circle applied from
+/// outside would sit still while its contents grew.
 class AppBarButton extends StatelessWidget {
   const AppBarButton({
     required this.icon,
@@ -74,6 +80,11 @@ class AppBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // On the filled disc the glyph has to read against teal, not against the
+    // page — the caller's own [color] still wins if it passes one.
+    final Color? glyphColor =
+        color ??
+        (surface == AppBarButtonSurface.positive ? AppColors.onPrimary : null);
     final Widget target = GestureDetector(
       // Opaque so the whole invisible square takes the tap, not just the
       // glyph painted in the middle of it.
@@ -82,14 +93,21 @@ class AppBarButton extends StatelessWidget {
       child: SizedBox.square(
         dimension: tapSize,
         child: Center(
-          child: AppIcon(icon, size: iconSize, color: color),
+          child: AppIcon(icon, size: iconSize, color: glyphColor),
         ),
       ),
     );
-    // Inside the pop, so the swell carries the circle and the glyph together
+    // Inside the pop, so the swell carries the surface and the glyph together
     // rather than growing the glyph inside a circle that stays put.
     final Widget dressed = switch (surface) {
       AppBarButtonSurface.glassCircle => GlassCircle(child: target),
+      AppBarButtonSurface.positive => DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.secondary,
+        ),
+        child: target,
+      ),
       AppBarButtonSurface.none => target,
     };
 
