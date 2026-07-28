@@ -68,6 +68,9 @@ class PaywallScreen extends ConsumerWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: AppBarButton(
                   icon: Icons.close,
+                  // Already on the sheet's glass: a circle here would nest
+                  // one glass layer inside another and read flat.
+                  surface: AppBarButtonSurface.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: () => context.pop(),
                 ),

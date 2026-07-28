@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/widgets/app_bar_button.dart';
+import 'package:migraine_tracker/core/widgets/glass/glass_circle.dart';
 import 'package:migraine_tracker/core/widgets/pop_scale.dart';
 
 /// The one app-bar button: a small glyph inside a touch target big enough to
@@ -11,6 +12,7 @@ void main() {
   Future<void> pumpButton(
     WidgetTester tester, {
     VoidCallback? onPressed,
+    AppBarButtonSurface surface = AppBarButtonSurface.glassCircle,
   }) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
@@ -25,6 +27,7 @@ void main() {
               child: AppBarButton(
                 icon: Icons.delete_outline,
                 tooltip: 'Delete',
+                surface: surface,
                 onPressed: onPressed,
               ),
             ),
@@ -99,6 +102,34 @@ void main() {
 
     await gesture.up();
     await tester.pump();
+  });
+
+  // The whole button swells, surface included. Get this backwards — a
+  // circle wrapped around the pop instead of inside it — and the glyph grows
+  // inside a circle that sits still, which is what it used to do.
+  testWidgets('the swell wraps the surface, not the other way round', (
+    tester,
+  ) async {
+    await pumpButton(tester, onPressed: () {});
+
+    expect(
+      find.ancestor(
+        of: find.byType(GlassCircle),
+        matching: find.byType(PopScale),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('on a glass surface it drops the circle', (tester) async {
+    await pumpButton(
+      tester,
+      onPressed: () {},
+      surface: AppBarButtonSurface.none,
+    );
+
+    expect(find.byType(GlassCircle), findsNothing);
+    expect(find.byType(PopScale), findsOneWidget);
   });
 
   testWidgets('disabled, it does not pop', (tester) async {

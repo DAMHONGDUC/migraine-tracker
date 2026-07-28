@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import 'app_bar_button.dart';
-import 'glass/glass_circle.dart';
 import 'glass/liquid_glass_theme.dart';
 
 /// The app's single [AppBar]. Every screen gets it via [AppScaffold] rather
@@ -64,15 +63,15 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
     }
 
-    // Glass per element: the leading button and plain icon actions get
-    // their own circles. Composite actions (filter pill, view toggle)
-    // already carry their own surface, so they pass through untouched.
+    // Glass per element, but drawn by the button itself (AppBarButtonSurface)
+    // so the touch swell carries the circle with it. Composite actions
+    // (filter pill, view toggle) bring their own surface either way.
+    //
+    // Centered, not bare: AppBar forces the leading into a tight
+    // `leadingWidth` box (56 by default), which would stretch a full-width
+    // child into a wider oval than the naturally sized action circles.
     if (resolvedLeading != null) {
-      // Centered, not bare: AppBar forces the leading into a tight
-      // `leadingWidth` box (56 by default), which would stretch the glass
-      // circle into a wider oval than the (naturally sized) action circles.
-      // Centering keeps it a 48×48 circle matching the actions.
-      resolvedLeading = Center(child: GlassCircle(child: resolvedLeading));
+      resolvedLeading = Center(child: resolvedLeading);
     }
 
     return ClipRect(
@@ -93,13 +92,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             title: title,
             leading: resolvedLeading,
             automaticallyImplyLeading: false,
-            actions: [
-              for (final action in actions ?? const <Widget>[])
-                if (action is AppBarButton)
-                  GlassCircle(child: action)
-                else
-                  action,
-            ],
+            actions: actions,
             bottom: bottom,
           ),
         ),

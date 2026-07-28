@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_spacing_constant.dart';
 import 'app_icon.dart';
+import 'glass/glass_circle.dart';
 import 'pop_scale.dart';
 
 /// Every icon button in an app bar — the leading back arrow and the trailing
@@ -21,12 +22,27 @@ import 'pop_scale.dart';
 ///
 /// Both a tap and a long press make it pop: the feedback rides the raw
 /// pointer-down, so it never waits to find out which one it was.
+///
+/// The button owns its [surface] rather than letting the bar wrap one around
+/// it — the swell has to take the glass circle with it, and a circle applied
+/// from outside would sit still while its contents grew.
+/// What an [AppBarButton] sits on — a prop, like [AppButtonVariant].
+///
+/// - [glassCircle] — its own frosted circle, for a button on the app bar's
+///   blurred strip (that strip is not itself a glass surface, so the circle
+///   has real background to refract).
+/// - [none] — the bare glyph, for a button already on a glass surface (the
+///   paywall's sheet header): nesting a glass layer inside one has nothing
+///   left to catch the light and just reads flat.
+enum AppBarButtonSurface { glassCircle, none }
+
 class AppBarButton extends StatelessWidget {
   const AppBarButton({
     required this.icon,
     required this.onPressed,
     this.tooltip,
     this.color,
+    this.surface = AppBarButtonSurface.glassCircle,
     super.key,
   });
 
@@ -54,6 +70,8 @@ class AppBarButton extends StatelessWidget {
   /// Falls back to the ambient icon theme, like every other [AppIcon].
   final Color? color;
 
+  final AppBarButtonSurface surface;
+
   @override
   Widget build(BuildContext context) {
     final Widget target = GestureDetector(
@@ -68,11 +86,17 @@ class AppBarButton extends StatelessWidget {
         ),
       ),
     );
+    // Inside the pop, so the swell carries the circle and the glyph together
+    // rather than growing the glyph inside a circle that stays put.
+    final Widget dressed = switch (surface) {
+      AppBarButtonSurface.glassCircle => GlassCircle(child: target),
+      AppBarButtonSurface.none => target,
+    };
 
     return Tooltip(
       message: tooltip ?? '',
       excludeFromSemantics: tooltip == null,
-      child: onPressed == null ? target : PopScale(child: target),
+      child: onPressed == null ? dressed : PopScale(child: dressed),
     );
   }
 }
