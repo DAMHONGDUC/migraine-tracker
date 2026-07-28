@@ -22,9 +22,7 @@ DoctorReportStrings strings() => DoctorReportStrings(
   colMedication: 'Medication',
   colPressureDelta: 'D24h (hPa)',
   disclaimer: 'Not a substitute for professional medical advice.',
-  locationLabels: {
-    for (final l in HeadLocation.values) l: l.name,
-  },
+  locationLabels: {for (final l in HeadLocation.values) l: l.name},
 );
 
 void main() {
@@ -45,29 +43,31 @@ void main() {
           ),
   );
 
-  test('builds a non-empty PDF with data, insight, and offline attacks',
-      () async {
-    final bytes = await const DoctorReportBuilder().build(
-      attacks: [
-        attack(1, delta: -7),
-        attack(10, delta: 2),
-        attack(50), // offline, no weather
-        attack(120, delta: -9), // outside the 90-day window
-      ],
-      correlation: const CorrelationInsight(
-        attacksAnalyzed: 15,
-        attacksDuringPressureDrop: 9,
-        dropThresholdHpa: 5,
-      ),
-      strings: strings(),
-      now: now,
-      regularFont: pw.Font.helvetica(),
-      boldFont: pw.Font.helveticaBold(),
-    );
-    // %PDF magic header + non-trivial content.
-    expect(bytes.length, greaterThan(1000));
-    expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
-  });
+  test(
+    'builds a non-empty PDF with data, insight, and offline attacks',
+    () async {
+      final bytes = await const DoctorReportBuilder().build(
+        attacks: [
+          attack(1, delta: -7),
+          attack(10, delta: 2),
+          attack(50), // offline, no weather
+          attack(120, delta: -9), // outside the 90-day window
+        ],
+        correlation: const CorrelationInsight(
+          attacksAnalyzed: 15,
+          attacksDuringPressureDrop: 9,
+          dropThresholdHpa: 5,
+        ),
+        strings: strings(),
+        now: now,
+        regularFont: pw.Font.helvetica(),
+        boldFont: pw.Font.helveticaBold(),
+      );
+      // %PDF magic header + non-trivial content.
+      expect(bytes.length, greaterThan(1000));
+      expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+    },
+  );
 
   test('handles an empty history without throwing', () async {
     final bytes = await const DoctorReportBuilder().build(

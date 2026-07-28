@@ -110,9 +110,7 @@ class _AppSnackBarBody extends StatelessWidget {
             color: style.accent,
           ),
           SizedBox(width: AppSpacingConstant.w12),
-          Expanded(
-            child: Text(message, style: AppTextStyle.bodyMedium),
-          ),
+          Expanded(child: Text(message, style: AppTextStyle.bodyMedium)),
         ],
       ),
     );

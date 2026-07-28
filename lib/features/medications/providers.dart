@@ -36,8 +36,7 @@ final medicationsStreamProvider = StreamProvider<List<Medication>>(
 final medicationsByRecentUseProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
-  final attacks =
-      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+  final attacks = ref.watch(attacksStreamProvider).value ?? const <Attack>[];
   return MedicationRanking.byRecentUse(
     medications,
     attacks.map((attack) => attack.medicationName),

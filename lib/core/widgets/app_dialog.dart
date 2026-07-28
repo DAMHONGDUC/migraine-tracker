@@ -55,16 +55,26 @@ class AppDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.surfaceElevated,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacingConstant.r20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
+      ),
       insetPadding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w32),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(AppSpacingConstant.w24, AppSpacingConstant.h22, AppSpacingConstant.w24, AppSpacingConstant.h16),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacingConstant.w24,
+          AppSpacingConstant.h22,
+          AppSpacingConstant.w24,
+          AppSpacingConstant.h16,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(title, style: AppTextStyle.titleLarge),
-            if (content != null) ...[SizedBox(height: AppSpacingConstant.h16), content!],
+            if (content != null) ...[
+              SizedBox(height: AppSpacingConstant.h16),
+              content!,
+            ],
             if (actions.isNotEmpty) ...[
               SizedBox(height: AppSpacingConstant.h20),
               Row(
@@ -108,19 +118,24 @@ class AppDialogOption extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w8, vertical: AppSpacingConstant.h12),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacingConstant.w8,
+          vertical: AppSpacingConstant.h12,
+        ),
         child: Row(
           children: [
             if (icon != null) ...[
-              AppIcon(icon!, size: AppSpacingConstant.r20, color: scheme.primary),
+              AppIcon(
+                icon!,
+                size: AppSpacingConstant.r20,
+                color: scheme.primary,
+              ),
               SizedBox(width: AppSpacingConstant.w12),
             ],
             Expanded(child: Text(label, style: AppTextStyle.bodyLarge)),
             if (selected != null)
               AppIcon(
-                selected!
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_off,
+                selected! ? Icons.radio_button_checked : Icons.radio_button_off,
                 size: AppSpacingConstant.r20,
                 color: selected! ? scheme.primary : scheme.onSurfaceVariant,
               ),

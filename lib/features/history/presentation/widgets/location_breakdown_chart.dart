@@ -90,7 +90,9 @@ class _LocationRow extends StatelessWidget {
                     height: AppSpacingConstant.h16,
                     decoration: BoxDecoration(
                       color: AppColors.chartSeries,
-                      borderRadius: BorderRadius.circular(AppSpacingConstant.r4),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacingConstant.r4,
+                      ),
                     ),
                   ),
                 ),

@@ -38,8 +38,7 @@ void main() {
     await db.close();
   });
 
-  LogController controller() =>
-      container.read(logControllerProvider.notifier);
+  LogController controller() => container.read(logControllerProvider.notifier);
   LogFlowState state() => container.read(logControllerProvider);
 
   test('starts at the intensity step with no data', () {

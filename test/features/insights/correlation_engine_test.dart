@@ -18,10 +18,9 @@ Attack attack({
     weather: pressureDelta == null
         ? null
         : WeatherSnapshot(
-            capturedAt:
-                (startedAt ?? DateTime.utc(2026, 1, 1)).add(
-                  Duration(days: index),
-                ),
+            capturedAt: (startedAt ?? DateTime.utc(2026, 1, 1)).add(
+              Duration(days: index),
+            ),
             pressureHpa: 1013,
             pressureDelta24hHpa: pressureDelta,
           ),
@@ -30,7 +29,8 @@ Attack attack({
 
 /// [deltas] one 24h pressure delta per attack; null = no snapshot (offline).
 List<Attack> attacksWithDeltas(List<double?> deltas) => [
-  for (final (i, delta) in deltas.indexed) attack(index: i, pressureDelta: delta),
+  for (final (i, delta) in deltas.indexed)
+    attack(index: i, pressureDelta: delta),
 ];
 
 void main() {
@@ -46,14 +46,9 @@ void main() {
     });
 
     test('14 attacks with weather is one short of the minimum', () {
-      final result = engine.analyze(
-        attacksWithDeltas(List.filled(14, -6.0)),
-      );
+      final result = engine.analyze(attacksWithDeltas(List.filled(14, -6.0)));
       expect(result, isA<CorrelationInsufficientData>());
-      expect(
-        (result as CorrelationInsufficientData).attacksWithWeather,
-        14,
-      );
+      expect((result as CorrelationInsufficientData).attacksWithWeather, 14);
     });
 
     test('attacks without snapshots do not count toward the minimum', () {
@@ -64,18 +59,13 @@ void main() {
       ];
       final result = engine.analyze(attacksWithDeltas(deltas));
       expect(result, isA<CorrelationInsufficientData>());
-      expect(
-        (result as CorrelationInsufficientData).attacksWithWeather,
-        10,
-      );
+      expect((result as CorrelationInsufficientData).attacksWithWeather, 10);
     });
   });
 
   group('no weather variation', () {
     test('identical deltas across all attacks carry no signal', () {
-      final result = engine.analyze(
-        attacksWithDeltas(List.filled(20, -6.0)),
-      );
+      final result = engine.analyze(attacksWithDeltas(List.filled(20, -6.0)));
       expect(result, isA<CorrelationNoVariation>());
       expect((result as CorrelationNoVariation).attacksAnalyzed, 20);
     });
@@ -90,10 +80,7 @@ void main() {
   group('insight', () {
     test('computes drop share at exactly the 15-attack minimum', () {
       // 9 rapid drops, 6 stable days.
-      final deltas = <double?>[
-        ...List.filled(9, -7.0),
-        ...List.filled(6, 2.0),
-      ];
+      final deltas = <double?>[...List.filled(9, -7.0), ...List.filled(6, 2.0)];
       final result = engine.analyze(attacksWithDeltas(deltas));
       expect(result, isA<CorrelationInsight>());
       result as CorrelationInsight;
