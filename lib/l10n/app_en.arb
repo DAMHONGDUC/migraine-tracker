@@ -800,7 +800,94 @@
   },
   "settingsExport": "Export data",
   "@settingsExport": {
-    "description": "Settings tile that opens the export format picker"
+    "description": "Settings tile that opens the export screen"
+  },
+  "exportTitle": "Export data",
+  "@exportTitle": {
+    "description": "App bar title of the export screen"
+  },
+  "exportNewAction": "New export",
+  "@exportNewAction": {
+    "description": "Button on the export screen that opens the format picker"
+  },
+  "exportPickTitle": "What to export",
+  "@exportPickTitle": {
+    "description": "Header of the sheet that picks what kind of export to make"
+  },
+  "exportHistoryTitle": "Previous exports",
+  "@exportHistoryTitle": {
+    "description": "Section header above the list of past exports"
+  },
+  "exportEmptyTitle": "No exports yet",
+  "@exportEmptyTitle": {
+    "description": "Empty state title on the export screen"
+  },
+  "exportEmptyBody": "Exports you create are listed here, so you can share or save them again later.",
+  "@exportEmptyBody": {
+    "description": "Empty state body on the export screen"
+  },
+  "exportCreated": "Export ready.",
+  "@exportCreated": {
+    "description": "Snackbar after an export was created"
+  },
+  "exportSaved": "Saved to your device.",
+  "@exportSaved": {
+    "description": "Snackbar after an export was saved through the system picker"
+  },
+  "exportDeleted": "Export deleted.",
+  "@exportDeleted": {
+    "description": "Snackbar after an export was removed from the history"
+  },
+  "exportFileMissing": "That file is no longer on this device.",
+  "@exportFileMissing": {
+    "description": "Snackbar when a history row points at a file that is gone"
+  },
+  "exportShareAction": "Share",
+  "@exportShareAction": {
+    "description": "Row action that opens the system share sheet"
+  },
+  "exportSaveAction": "Save to device",
+  "@exportSaveAction": {
+    "description": "Row action that saves the export through the system picker"
+  },
+  "exportDeleteAction": "Delete",
+  "@exportDeleteAction": {
+    "description": "Row action that removes an export from the history"
+  },
+  "exportDeleteTitle": "Delete this export?",
+  "@exportDeleteTitle": {
+    "description": "Confirm dialog title before removing one export"
+  },
+  "exportDeleteBody": "The file is removed from this device. Your attack data is not affected.",
+  "@exportDeleteBody": {
+    "description": "Confirm dialog body before removing one export"
+  },
+  "exportSizeBytes": "{count} B",
+  "@exportSizeBytes": {
+    "description": "File size in bytes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exportSizeKilobytes": "{count} KB",
+  "@exportSizeKilobytes": {
+    "description": "File size in kilobytes",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSizeMegabytes": "{count} MB",
+  "@exportSizeMegabytes": {
+    "description": "File size in megabytes",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   },
   "settingsExportJson": "JSON (full backup)",
   "@settingsExportJson": {
