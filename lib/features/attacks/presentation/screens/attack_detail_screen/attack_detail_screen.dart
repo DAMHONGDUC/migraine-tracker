@@ -18,11 +18,13 @@ import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/head_location.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
+import '../../widgets/head_diagram.dart';
 
 part 'attack_detail_screen_details_section.dart';
 part 'attack_detail_screen_editable_row.dart';
 part 'attack_detail_screen_header.dart';
 part 'attack_detail_screen_intensity_dialog.dart';
+part 'attack_detail_screen_location_diagram.dart';
 part 'attack_detail_screen_read_only_row.dart';
 part 'attack_detail_screen_section.dart';
 part 'attack_detail_screen_weather_section.dart';
@@ -187,6 +189,7 @@ class AttackDetailScreen extends ConsumerWidget {
             SizedBox(height: AppSpacingConstant.h16),
             _Section(
               children: [
+                _LocationDiagram(location: a.location),
                 _EditableRow(
                   label: l10n.attackDetailIntensity,
                   value: '${a.intensity}',
