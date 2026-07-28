@@ -15,6 +15,7 @@ import '../../features/onboarding/presentation/controllers/onboarding_controller
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
+import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
@@ -61,6 +62,9 @@ final class AppRoutes {
   /// Subscription detail, pushed from Settings. [paywall] is the purchase
   /// sheet; this is the status page that leads to it.
   static const premium = AppRoute(name: 'premium', path: '/premium');
+
+  /// Export data and the history of past exports, pushed from Settings.
+  static const export = AppRoute(name: 'export', path: '/export');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -138,6 +142,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.premium.name,
         path: AppRoutes.premium.path,
         builder: (context, state) => const PremiumScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.export.name,
+        path: AppRoutes.export.path,
+        builder: (context, state) => const ExportScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and

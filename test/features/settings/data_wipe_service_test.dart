@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -8,7 +11,12 @@ import 'package:migraine_tracker/features/medications/data/repositories/drift_me
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
+import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
+import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
+
+import '../../helpers/export_fakes.dart';
 
 class RecordingNotificationScheduler implements NotificationScheduler {
   int cancelAllCalls = 0;
@@ -48,6 +56,8 @@ void main() {
     final attacks = DriftAttackRepository(db);
     final medications = DriftMedicationRepository(db);
     final notifications = RecordingNotificationScheduler();
+    final exportRecords = DriftExportRecordRepository(db);
+    final exportFiles = FakeExportFileStore();
 
     await attacks.insert(
       Attack(
@@ -59,10 +69,50 @@ void main() {
     );
     await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
 
-    await DataWipeService(attacks, medications, notifications).wipeAll();
+    await DataWipeService(
+      attacks,
+      medications,
+      notifications,
+      exportRecords,
+      exportFiles,
+    ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
     expect(await attacks.getAll(), isEmpty);
     expect(await medications.getAll(), isEmpty);
+  });
+
+  test('wipeAll deletes past exports — they are full copies of the data '
+      'being erased', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final exportRecords = DriftExportRecordRepository(db);
+    final exportFiles = FakeExportFileStore();
+    final stored = await exportFiles.write(
+      filename: 'baroease_export_2026-07-28_120000.json',
+      bytes: Uint8List.fromList(utf8.encode('{"attacks":[]}')),
+    );
+
+    await exportRecords.insert(
+      ExportRecord(
+        id: 'e1',
+        kind: ExportKind.json,
+        filename: 'baroease_export_2026-07-28_120000.json',
+        filePath: stored.path,
+        sizeBytes: stored.sizeBytes,
+        createdAt: DateTime.now().toUtc(),
+      ),
+    );
+
+    await DataWipeService(
+      DriftAttackRepository(db),
+      DriftMedicationRepository(db),
+      RecordingNotificationScheduler(),
+      exportRecords,
+      exportFiles,
+    ).wipeAll();
+
+    expect(await exportRecords.getAll(), isEmpty);
+    expect(exportFiles.files, isEmpty);
   });
 }

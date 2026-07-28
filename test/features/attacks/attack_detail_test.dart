@@ -35,9 +35,11 @@ Future<void> openEditSheet(WidgetTester tester, String row) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// The tick in the sheet header — a pick is only applied by this.
+/// The commit button in the sheet header — a pick is only applied by this.
+/// These sheets overwrite a value the attack already has, so the glyph is
+/// the pencil (`AppSheetAction.edit`), not the tick.
 Future<void> confirmSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.check));
+  await tester.tap(find.byIcon(Icons.edit));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -186,9 +188,10 @@ void main() {
         findsOneWidget,
         reason: '$row should open a sheet',
       );
-      // Every one of them offers both answers in its header.
+      // Every one of them offers both answers in its header. The commit is
+      // the pencil, not the tick: these overwrite a value the attack has.
       expect(find.byIcon(Icons.close), findsOneWidget);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byIcon(Icons.edit), findsOneWidget);
 
       await closeSheet(tester);
     }
