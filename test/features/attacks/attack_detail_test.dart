@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 import '../../helpers/pump_app.dart';
@@ -71,6 +72,42 @@ void main() {
     await openDetail(tester);
 
     expect(find.text('No weather data attached yet.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the head diagram shows the logged location', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+
+    expect(
+      tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
+      HeadLocation.right,
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the head diagram follows an edit of the location', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    await tester.tap(find.text('Location'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Whole head').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(
+      tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
+      HeadLocation.whole,
+    );
 
     await finishTest(tester);
   });
