@@ -25,6 +25,18 @@ enum AppButtonVariant {
   positive,
 }
 
+/// Where the [AppButton.icon] sits — a prop, like [AppButtonVariant].
+///
+/// - [inline] — glyph and label travel together as one cluster that
+///   shrink-wraps its content, so a longer label pushes the glyph sideways.
+///   Right for a button sized by what is in it.
+/// - [aligned] — the same centred cluster, but the label sits start-aligned
+///   in a slot of [AppButton.alignedLabelWidth], so two stacked buttons put
+///   their glyphs on the same x and start their labels on the same x however
+///   differently long the labels are. This is what makes the Apple and Google
+///   buttons on the login screen read as one pair.
+enum AppButtonIconPlacement { inline, aligned }
+
 /// The one button widget for the whole app — feature code never uses raw
 /// [FilledButton]/[OutlinedButton]/[TextButton]:
 ///
@@ -43,6 +55,7 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.iconPlacement = AppButtonIconPlacement.inline,
     this.compact = false,
     this.labelStyle,
     super.key,
@@ -55,10 +68,16 @@ class AppButton extends StatelessWidget {
   /// Breathing room between the glyph and the label.
   static double get iconGap => AppSpacingConstant.w12;
 
+  /// The label slot under [AppButtonIconPlacement.aligned] — wide enough for
+  /// the longest sign-in label in either shipped locale ("Continue with
+  /// Google", "Đăng nhập bằng Apple") so neither pair has to grow out of it.
+  static double get alignedLabelWidth => AppSpacingConstant.w160;
+
   final AppButtonVariant variant;
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final AppButtonIconPlacement iconPlacement;
 
   /// Chrome-sized button (app-bar actions): tighter padding and height.
   final bool compact;
@@ -95,18 +114,37 @@ class AppButton extends StatelessWidget {
     return style;
   }
 
-  Widget _child() {
-    final Text text = Text(label, style: labelStyle);
+  Widget _label(TextAlign align) =>
+      Text(label, style: labelStyle, textAlign: align);
 
-    if (icon == null) return text;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        AppIcon(icon!, size: iconSize),
-        SizedBox(width: iconGap),
-        Flexible(child: text),
-      ],
-    );
+  Widget _child() {
+    if (icon == null) return _label(TextAlign.center);
+    return switch (iconPlacement) {
+      AppButtonIconPlacement.inline => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          AppIcon(icon!, size: iconSize),
+          SizedBox(width: iconGap),
+          Flexible(child: _label(TextAlign.center)),
+        ],
+      ),
+      // Start-aligned inside a slot that is a minimum, not a fixed width: the
+      // labels begin on the same x, and one too long for the slot takes the
+      // room it needs (losing the alignment) rather than being cut off.
+      AppButtonIconPlacement.aligned => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          AppIcon(icon!, size: iconSize),
+          SizedBox(width: iconGap),
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: alignedLabelWidth),
+              child: _label(TextAlign.start),
+            ),
+          ),
+        ],
+      ),
+    };
   }
 
   @override
