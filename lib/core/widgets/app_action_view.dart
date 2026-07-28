@@ -14,8 +14,8 @@ import '../constants/app_spacing_constant.dart';
 ///
 /// Three things it owns, so no screen has to remember them (CLAUDE.md
 /// § Code style):
-/// - the vertical insets, straight from [AppContentPadding] — 16 below the
-///   app bar, 16 above the home indicator, computed nowhere else;
+/// - the vertical insets, straight from [AppContentPadding] — so [content]
+///   must not open with a gap of its own, or the two stack up;
 /// - the minimum height, which is what gives `spaceBetween` free space to
 ///   push the actions down — without it the column shrink-wraps and the
 ///   buttons drift into the middle under short content.

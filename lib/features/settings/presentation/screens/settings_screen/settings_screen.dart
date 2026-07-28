@@ -53,7 +53,7 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: AppContentPadding.fullBleed(context, floatingNav: true),
           children: [
-            AppSectionHeader(l10n.settingsSectionGeneral),
+            AppSectionHeader(l10n.settingsSectionGeneral, first: true),
             const _GeneralSection(),
             AppSectionHeader(l10n.settingsSectionData),
             const _DataSection(),

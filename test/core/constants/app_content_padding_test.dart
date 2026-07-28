@@ -51,8 +51,8 @@ void main() {
         (BuildContext context) => AppContentPadding.screen(context),
       );
 
-      // 47 status bar + 56 toolbar + 16.
-      expect(insets.top, 47 + kToolbarHeight + 16);
+      // 47 status bar + 56 toolbar + topGap.
+      expect(insets.top, 47 + kToolbarHeight + 8);
       // 34 home indicator + 16.
       expect(insets.bottom, 34 + 16);
       expect(insets.left, 24);
@@ -70,7 +70,7 @@ void main() {
     // 34 home indicator + 68 pill + 8 hover gap + 16.
     expect(insets.bottom, 34 + 68 + 8 + 16);
     // The pill changes nothing above it.
-    expect(insets.top, 47 + kToolbarHeight + 16);
+    expect(insets.top, 47 + kToolbarHeight + 8);
   });
 
   testWidgets('full-bleed keeps the vertical rule, drops the gutter', (
@@ -81,7 +81,7 @@ void main() {
       (BuildContext context) => AppContentPadding.fullBleed(context),
     );
 
-    expect(insets.top, 47 + kToolbarHeight + 16);
+    expect(insets.top, 47 + kToolbarHeight + 8);
     expect(insets.bottom, 34 + 16);
     expect(insets.left, 0);
     expect(insets.right, 0);
@@ -139,7 +139,7 @@ void main() {
     );
 
     // The body already starts below the bar; only the gap is left.
-    expect(insets.top, 16);
+    expect(insets.top, 8);
     expect(insets.bottom, 34 + 16);
   });
 }

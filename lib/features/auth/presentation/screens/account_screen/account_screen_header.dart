@@ -15,12 +15,8 @@ class _AccountHeader extends StatelessWidget {
     final String? email = profile?.email ?? user?.email;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w16,
-        AppSpacingConstant.h16,
-        AppSpacingConstant.w16,
-        0,
-      ),
+      // No top gap of its own: AppActionView already applied the screen's.
+      padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w16),
       child: Column(
         children: <Widget>[
           _Avatar(photoUrl: profile?.photoUrl ?? user?.photoUrl, name: name),

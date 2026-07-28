@@ -60,10 +60,27 @@ abstract final class AppContentPadding {
   static double belowPinnedFilterBar(BuildContext context) =>
       appBarInset(context) + PinnedFilterBar.barHeight;
 
-  /// First item starts 16 below the app bar.
+  /// Padding for a section heading (`AppSectionHeader`): the gap that
+  /// separates it from the group above, the list gutter, and the small gap
+  /// down to its own rows.
+  ///
+  /// [first] drops the top gap. The screen's [topGap] has already placed the
+  /// first heading; adding the separator on top of it is what made Settings
+  /// start noticeably lower than Insights, whose first item is a plain card.
+  ///
+  /// The gutter here is the *list's* (16), not [horizontal]: the heading
+  /// lines up with the left edge of the `ListTile`s under it.
+  static EdgeInsets sectionHeader({bool first = false}) => EdgeInsets.fromLTRB(
+    AppSpacingConstant.w16,
+    first ? 0 : AppSpacingConstant.h24,
+    AppSpacingConstant.w16,
+    AppSpacingConstant.h8,
+  );
+
+  /// First item starts [topGap] below the app bar.
   static double top(BuildContext context) => appBarInset(context) + topGap;
 
-  /// Last item ends 16 above the home indicator.
+  /// Last item ends [bottomGap] above the home indicator.
   ///
   /// The shell's five tab screens pass [floatingNav] — their content scrolls
   /// behind the nav pill, so it has to clear the pill's height too.
