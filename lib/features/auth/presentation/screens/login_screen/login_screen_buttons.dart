@@ -29,6 +29,7 @@ class _ProviderButtons extends ConsumerWidget {
                 ? null
                 : () => onSignIn(AuthProviderKind.apple),
             icon: SimpleIcons.apple,
+            iconPlacement: AppButtonIconPlacement.aligned,
             label: l10n.loginApple,
           ),
           SizedBox(height: AppSpacingConstant.h12),
@@ -39,6 +40,7 @@ class _ProviderButtons extends ConsumerWidget {
               ? null
               : () => onSignIn(AuthProviderKind.google),
           icon: SimpleIcons.google,
+          iconPlacement: AppButtonIconPlacement.aligned,
           label: l10n.loginGoogle,
         ),
         // A calm bar under the buttons, not a spinner in the label.
