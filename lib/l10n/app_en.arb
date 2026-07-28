@@ -806,7 +806,7 @@
   "@exportTitle": {
     "description": "App bar title of the export screen"
   },
-  "exportNewAction": "New export",
+  "exportNewAction": "Export",
   "@exportNewAction": {
     "description": "Button on the export screen that opens the format picker"
   },

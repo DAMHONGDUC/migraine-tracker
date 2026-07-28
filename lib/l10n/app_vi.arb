@@ -180,7 +180,7 @@
   "reminderNotificationBody": "Uống {name}",
   "settingsExport": "Xuất dữ liệu",
   "exportTitle": "Xuất dữ liệu",
-  "exportNewAction": "Tạo bản xuất",
+  "exportNewAction": "Xuất",
   "exportPickTitle": "Chọn nội dung xuất",
   "exportHistoryTitle": "Các bản đã xuất",
   "exportEmptyTitle": "Chưa có bản xuất nào",
