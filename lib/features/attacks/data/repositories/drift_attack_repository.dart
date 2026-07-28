@@ -15,14 +15,12 @@ class DriftAttackRepository implements AttackRepository {
   /// All attacks, newest first, with their weather snapshot when present.
   @override
   Stream<List<Attack>> watchAll() {
-    final query =
-        _db.select(_db.attacks).join([
-            leftOuterJoin(
-              _db.weatherSnapshots,
-              _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
-            ),
-          ])
-          ..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
+    final query = _db.select(_db.attacks).join([
+      leftOuterJoin(
+        _db.weatherSnapshots,
+        _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
+      ),
+    ])..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
 
     return query.watch().map(
       (rows) => rows
@@ -38,14 +36,12 @@ class DriftAttackRepository implements AttackRepository {
 
   @override
   Future<List<Attack>> getAll() async {
-    final query =
-        _db.select(_db.attacks).join([
-            leftOuterJoin(
-              _db.weatherSnapshots,
-              _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
-            ),
-          ])
-          ..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
+    final query = _db.select(_db.attacks).join([
+      leftOuterJoin(
+        _db.weatherSnapshots,
+        _db.weatherSnapshots.attackId.equalsExp(_db.attacks.id),
+      ),
+    ])..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
 
     final rows = await query.get();
     return rows

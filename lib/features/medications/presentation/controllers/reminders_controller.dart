@@ -86,7 +86,10 @@ class RemindersController {
     final updated = reminder.copyWith(enabled: enabled);
     final scheduler = _ref.read(notificationSchedulerProvider);
 
-    AppLogger.action('Toggle reminder', {'id': reminder.id, 'enabled': enabled});
+    AppLogger.action('Toggle reminder', {
+      'id': reminder.id,
+      'enabled': enabled,
+    });
     AppAnalytics.logReminderToggled(enabled: enabled);
     await _ref.read(medicationReminderRepositoryProvider).upsert(updated);
     if (enabled) {
@@ -109,7 +112,9 @@ class RemindersController {
     required String body,
     Duration delay = const Duration(seconds: 10),
   }) async {
-    AppLogger.action('Send test notification', {'delaySeconds': delay.inSeconds});
+    AppLogger.action('Send test notification', {
+      'delaySeconds': delay.inSeconds,
+    });
     await _ref
         .read(notificationSchedulerProvider)
         .scheduleTest(title: title, body: body, delay: delay);
@@ -118,7 +123,9 @@ class RemindersController {
   Future<void> delete(String reminderId) async {
     AppLogger.action('Delete reminder', reminderId);
     AppAnalytics.logReminderDeleted();
-    await _ref.read(medicationReminderRepositoryProvider).deleteById(reminderId);
+    await _ref
+        .read(medicationReminderRepositoryProvider)
+        .deleteById(reminderId);
     await _ref.read(notificationSchedulerProvider).cancel(reminderId);
   }
 }

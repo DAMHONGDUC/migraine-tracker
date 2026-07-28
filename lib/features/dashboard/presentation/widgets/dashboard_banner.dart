@@ -65,10 +65,7 @@ class DashboardBanner extends StatelessWidget {
                     Text(title, style: AppTextStyle.titleMedium),
                     SizedBox(height: AppSpacingConstant.h2),
                     subtitleChild ??
-                        Text(
-                          subtitle,
-                          style: AppTextStyle.bodySmall.secondary,
-                        ),
+                        Text(subtitle, style: AppTextStyle.bodySmall.secondary),
                   ],
                 ),
               ),

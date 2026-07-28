@@ -34,11 +34,8 @@ class DriftMedicationRepository implements MedicationRepository {
     final rows = await query.get();
     return rows
         .map(
-          (row) => Medication(
-            id: row.id,
-            name: row.name,
-            createdAt: row.createdAt,
-          ),
+          (row) =>
+              Medication(id: row.id, name: row.name, createdAt: row.createdAt),
         )
         .toList();
   }

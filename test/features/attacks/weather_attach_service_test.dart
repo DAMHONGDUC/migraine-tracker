@@ -46,12 +46,11 @@ void main() {
     location: HeadLocation.left,
   );
 
-  WeatherSnapshot snapshot(DateTime at, {double delta = -6}) =>
-      WeatherSnapshot(
-        capturedAt: at,
-        pressureHpa: 1008,
-        pressureDelta24hHpa: delta,
-      );
+  WeatherSnapshot snapshot(DateTime at, {double delta = -6}) => WeatherSnapshot(
+    capturedAt: at,
+    pressureHpa: 1008,
+    pressureDelta24hHpa: delta,
+  );
 
   test('onAttackLogged attaches weather and backfills older attacks', () async {
     final oldTime = DateTime.utc(2026, 7, 5, 9);
@@ -77,21 +76,20 @@ void main() {
     );
   });
 
-  test('offline (null snapshot) leaves the attack in the backfill queue',
-      () async {
-    final when = DateTime.utc(2026, 7, 8, 13);
-    await attacks.insert(attack('a1', when));
+  test(
+    'offline (null snapshot) leaves the attack in the backfill queue',
+    () async {
+      final when = DateTime.utc(2026, 7, 8, 13);
+      await attacks.insert(attack('a1', when));
 
-    final weather = RecordingWeatherRepository({when: null});
-    final service = WeatherAttachService(attacks, weather);
+      final weather = RecordingWeatherRepository({when: null});
+      final service = WeatherAttachService(attacks, weather);
 
-    await service.onAttackLogged(attack('a1', when));
+      await service.onAttackLogged(attack('a1', when));
 
-    expect(
-      (await attacks.attacksMissingWeather()).map((a) => a.id),
-      ['a1'],
-    );
-  });
+      expect((await attacks.attacksMissingWeather()).map((a) => a.id), ['a1']);
+    },
+  );
 
   test('backfillMissing skips attacks whose weather is unavailable', () async {
     final okTime = DateTime.utc(2026, 7, 7, 10);
@@ -105,10 +103,9 @@ void main() {
     });
     await WeatherAttachService(attacks, weather).backfillMissing();
 
-    expect(
-      (await attacks.attacksMissingWeather()).map((a) => a.id),
-      ['too-old'],
-    );
+    expect((await attacks.attacksMissingWeather()).map((a) => a.id), [
+      'too-old',
+    ]);
     expect(weather.requests, containsAll([okTime, tooOldTime]));
   });
 

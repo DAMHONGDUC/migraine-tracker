@@ -24,8 +24,14 @@ void main() {
 
       final points = const IntensityTrendCalculator().compute(
         [
-          _attack(startedAt: thisWeek.add(const Duration(days: 1)), intensity: 4),
-          _attack(startedAt: thisWeek.add(const Duration(days: 2)), intensity: 8),
+          _attack(
+            startedAt: thisWeek.add(const Duration(days: 1)),
+            intensity: 4,
+          ),
+          _attack(
+            startedAt: thisWeek.add(const Duration(days: 2)),
+            intensity: 8,
+          ),
         ],
         now: now,
         weeks: 3,

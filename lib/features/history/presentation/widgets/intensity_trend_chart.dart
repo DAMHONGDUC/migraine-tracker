@@ -79,7 +79,9 @@ class IntensityTrendChart extends StatelessWidget {
                             return const SizedBox.shrink();
                           }
                           return Padding(
-                            padding: EdgeInsets.only(top: AppSpacingConstant.h6),
+                            padding: EdgeInsets.only(
+                              top: AppSpacingConstant.h6,
+                            ),
                             child: Text(
                               weekLabel.format(points[index].weekStart),
                               style: labelStyle,

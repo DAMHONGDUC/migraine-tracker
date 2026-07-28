@@ -17,10 +17,7 @@ class _Section extends StatelessWidget {
               left: AppSpacingConstant.w4,
               bottom: AppSpacingConstant.h8,
             ),
-            child: Text(
-              title!,
-              style: AppTextStyle.titleSmall.secondary,
-            ),
+            child: Text(title!, style: AppTextStyle.titleSmall.secondary),
           ),
         ],
         Card(child: Column(children: children)),
@@ -28,4 +25,3 @@ class _Section extends StatelessWidget {
     );
   }
 }
-

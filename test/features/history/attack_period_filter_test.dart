@@ -49,7 +49,10 @@ void main() {
 
   test('periodStart is null only for all', () {
     expect(filterer.periodStart(HistoryPeriod.all, now), isNull);
-    expect(filterer.periodStart(HistoryPeriod.today, now), DateTime(2026, 7, 8));
+    expect(
+      filterer.periodStart(HistoryPeriod.today, now),
+      DateTime(2026, 7, 8),
+    );
     expect(filterer.periodStart(HistoryPeriod.week, now), DateTime(2026, 7, 6));
     expect(filterer.periodStart(HistoryPeriod.month, now), DateTime(2026, 7));
     expect(filterer.periodStart(HistoryPeriod.year, now), DateTime(2026));
