@@ -4,7 +4,19 @@ import '../constants/app_spacing_constant.dart';
 import '../theme/app_colors.dart';
 import 'app_icon.dart';
 
-enum _AppButtonVariant {
+/// What a button *means*, passed to [AppButton] as a prop — never a named
+/// constructor per variant.
+///
+/// - [primary] — the main CTA of a screen/dialog (filled).
+/// - [secondary] — supporting action, tonal fill (option tiles, "Unlock"
+///   teasers).
+/// - [outlined] — alternative action next to a primary.
+/// - [text] — low-emphasis action (dialog "Cancel", "Not now").
+/// - [destructive] — irreversible confirm (delete); error-tinted fill so it
+///   can never be mistaken for the safe action.
+/// - [positive] — an affirmative, additive action (add an item); teal-tinted
+///   fill so it reads as the "good news" option next to a destructive one.
+enum AppButtonVariant {
   primary,
   secondary,
   outlined,
@@ -14,74 +26,36 @@ enum _AppButtonVariant {
 }
 
 /// The one button widget for the whole app — feature code never uses raw
-/// [FilledButton]/[OutlinedButton]/[TextButton]. Pick the constructor by
-/// semantics:
+/// [FilledButton]/[OutlinedButton]/[TextButton]:
 ///
-/// - [AppButton.primary] — the main CTA of a screen/dialog (filled).
-/// - [AppButton.secondary] — supporting action, tonal fill (option tiles,
-///   "Unlock" teasers).
-/// - [AppButton.outlined] — alternative action next to a primary.
-/// - [AppButton.text] — low-emphasis action (dialog "Cancel", "Not now").
-/// - [AppButton.destructive] — irreversible confirm (delete); error-tinted
-///   fill so it can never be mistaken for the safe action.
-/// - [AppButton.positive] — an affirmative, additive action (add an item);
-///   teal-tinted fill so it reads as the "good news" option next to a
-///   destructive one.
+/// ```dart
+/// AppButton(variant: AppButtonVariant.primary, label: ..., onPressed: ...)
+/// ```
+///
+/// With an [icon] the content is always the same shape whatever the variant:
+/// a fixed [iconSize] glyph, a fixed [iconGap], then the label. Material's
+/// own `.icon` constructors are deliberately not used — they carry their own
+/// padding per variant, which is what made the filled Apple button and the
+/// outlined Google button sit differently.
 class AppButton extends StatelessWidget {
-  const AppButton.primary({
+  const AppButton({
+    required this.variant,
     required this.label,
     required this.onPressed,
     this.icon,
     this.compact = false,
     this.labelStyle,
     super.key,
-  }) : _variant = _AppButtonVariant.primary;
+  });
 
-  const AppButton.secondary({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.compact = false,
-    this.labelStyle,
-    super.key,
-  }) : _variant = _AppButtonVariant.secondary;
+  /// Leading glyph box — one size for every icon in every button, so two
+  /// buttons stacked on top of each other line up.
+  static double get iconSize => AppSpacingConstant.r20;
 
-  const AppButton.outlined({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.compact = false,
-    this.labelStyle,
-    super.key,
-  }) : _variant = _AppButtonVariant.outlined;
+  /// Breathing room between the glyph and the label.
+  static double get iconGap => AppSpacingConstant.w12;
 
-  const AppButton.text({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.compact = false,
-    this.labelStyle,
-    super.key,
-  }) : _variant = _AppButtonVariant.text;
-
-  const AppButton.destructive({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.compact = false,
-    this.labelStyle,
-    super.key,
-  }) : _variant = _AppButtonVariant.destructive;
-
-  const AppButton.positive({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.compact = false,
-    this.labelStyle,
-    super.key,
-  }) : _variant = _AppButtonVariant.positive;
-
+  final AppButtonVariant variant;
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
@@ -90,20 +64,20 @@ class AppButton extends StatelessWidget {
   final bool compact;
 
   /// Overrides the default M3 label style (e.g. option tiles use
-  /// `AppTextStyle.titleMedium`).
+  /// `AppTextStyle.titleMedium`). Left null the button resolves its own,
+  /// which is also what keeps the foreground colour per variant.
   final TextStyle? labelStyle;
-
-  final _AppButtonVariant _variant;
 
   ButtonStyle? _style() {
     ButtonStyle? style;
-    if (_variant == _AppButtonVariant.destructive) {
+
+    if (variant == AppButtonVariant.destructive) {
       style = FilledButton.styleFrom(
         backgroundColor: AppColors.error,
         foregroundColor: AppColors.onPrimary,
       );
     }
-    if (_variant == _AppButtonVariant.positive) {
+    if (variant == AppButtonVariant.positive) {
       style = FilledButton.styleFrom(
         backgroundColor: AppColors.secondary,
         foregroundColor: AppColors.onPrimary,
@@ -121,65 +95,47 @@ class AppButton extends StatelessWidget {
     return style;
   }
 
+  Widget _child() {
+    final Text text = Text(label, style: labelStyle);
+
+    if (icon == null) return text;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        AppIcon(icon!, size: iconSize),
+        SizedBox(width: iconGap),
+        Flexible(child: text),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final style = _style();
-    final text = Text(label, style: labelStyle);
+    final ButtonStyle? style = _style();
+    final Widget child = _child();
 
-    if (icon != null) {
-      final iconWidget = AppIcon(icon!);
-      return switch (_variant) {
-        _AppButtonVariant.primary ||
-        _AppButtonVariant.destructive ||
-        _AppButtonVariant.positive => FilledButton.icon(
-          onPressed: onPressed,
-          style: style,
-          icon: iconWidget,
-          label: text,
-        ),
-        _AppButtonVariant.secondary => FilledButton.tonalIcon(
-          onPressed: onPressed,
-          style: style,
-          icon: iconWidget,
-          label: text,
-        ),
-        _AppButtonVariant.outlined => OutlinedButton.icon(
-          onPressed: onPressed,
-          style: style,
-          icon: iconWidget,
-          label: text,
-        ),
-        _AppButtonVariant.text => TextButton.icon(
-          onPressed: onPressed,
-          style: style,
-          icon: iconWidget,
-          label: text,
-        ),
-      };
-    }
-
-    return switch (_variant) {
-      _AppButtonVariant.primary ||
-      _AppButtonVariant.destructive ||
-      _AppButtonVariant.positive => FilledButton(
+    return switch (variant) {
+      AppButtonVariant.primary ||
+      AppButtonVariant.destructive ||
+      AppButtonVariant.positive => FilledButton(
         onPressed: onPressed,
         style: style,
-        child: text,
+        child: child,
       ),
-      _AppButtonVariant.secondary => FilledButton.tonal(
+      AppButtonVariant.secondary => FilledButton.tonal(
         onPressed: onPressed,
         style: style,
-        child: text,
+        child: child,
       ),
-      _AppButtonVariant.outlined => OutlinedButton(
+      AppButtonVariant.outlined => OutlinedButton(
         onPressed: onPressed,
         style: style,
-        child: text,
+        child: child,
       ),
-      _AppButtonVariant.text => TextButton(
+      AppButtonVariant.text => TextButton(
         onPressed: onPressed,
         style: style,
-        child: text,
+        child: child,
       ),
     };
   }

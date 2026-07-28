@@ -66,11 +66,13 @@ class _MedicationNameDialogState extends State<MedicationNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        AppButton.text(
+        AppButton(
+          variant: AppButtonVariant.text,
           onPressed: () => Navigator.of(context).pop(),
           label: l10n.commonCancel,
         ),
-        AppButton.primary(
+        AppButton(
+          variant: AppButtonVariant.primary,
           onPressed: () => _submit(_controller.text),
           label: isRename ? l10n.detailsSave : l10n.commonAdd,
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:simple_icons/simple_icons.dart';
 
 import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
@@ -78,7 +79,8 @@ class LoginScreen extends ConsumerWidget {
             onSignIn: (AuthProviderKind provider) =>
                 _signIn(context, ref, provider),
           ),
-          AppButton.text(
+          AppButton(
+            variant: AppButtonVariant.text,
             onPressed: state.isBusy ? null : () => context.pop(false),
             label: l10n.loginNotNow,
           ),

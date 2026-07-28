@@ -46,11 +46,13 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          AppButton.text(
+          AppButton(
+            variant: AppButtonVariant.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton.destructive(
+          AppButton(
+            variant: AppButtonVariant.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsDeleteConfirmAction,
           ),
@@ -213,7 +215,8 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               ),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: AppButton.text(
+                child: AppButton(
+                  variant: AppButtonVariant.text,
                   onPressed: () => _addReminder(context, ref),
                   icon: Icons.add_alarm,
                   label: l10n.remindersAdd,

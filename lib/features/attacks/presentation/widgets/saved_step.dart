@@ -43,13 +43,18 @@ class SavedStep extends StatelessWidget {
               style: AppTextStyle.bodyLarge.secondary,
             ),
             SizedBox(height: AppSpacingConstant.h32),
-            AppButton.outlined(
+            AppButton(
+              variant: AppButtonVariant.outlined,
               onPressed: () =>
                   AttackDetailsSheet(attackId: attackId).show(context),
               label: l10n.logAddDetails,
             ),
             SizedBox(height: AppSpacingConstant.h12),
-            AppButton.primary(onPressed: onDone, label: l10n.logDone),
+            AppButton(
+              variant: AppButtonVariant.primary,
+              onPressed: onDone,
+              label: l10n.logDone,
+            ),
           ],
         ),
       ),

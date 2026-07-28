@@ -118,11 +118,13 @@ class _SignOutButton extends ConsumerWidget {
           style: AppTextStyle.bodyMedium,
         ),
         actions: <Widget>[
-          AppButton.text(
+          AppButton(
+            variant: AppButtonVariant.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton.primary(
+          AppButton(
+            variant: AppButtonVariant.primary,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsSignOut,
           ),
@@ -139,7 +141,8 @@ class _SignOutButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppButton.outlined(
+    return AppButton(
+      variant: AppButtonVariant.outlined,
       onPressed: () => _signOut(context, ref),
       label: context.l10n.settingsSignOut,
       icon: Icons.logout,

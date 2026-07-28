@@ -143,11 +143,13 @@ class AttackDetailScreen extends ConsumerWidget {
           style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          AppButton.text(
+          AppButton(
+            variant: AppButtonVariant.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton.destructive(
+          AppButton(
+            variant: AppButtonVariant.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsDeleteConfirmAction,
           ),

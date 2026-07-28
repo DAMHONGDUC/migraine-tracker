@@ -57,11 +57,13 @@ class _DisplayNameDialogState extends State<DisplayNameDialog> {
         onSubmitted: _submit,
       ),
       actions: <Widget>[
-        AppButton.text(
+        AppButton(
+          variant: AppButtonVariant.text,
           onPressed: () => Navigator.of(context).pop(),
           label: l10n.commonCancel,
         ),
-        AppButton.primary(
+        AppButton(
+          variant: AppButtonVariant.primary,
           onPressed: () => _submit(_controller.text),
           label: l10n.detailsSave,
         ),

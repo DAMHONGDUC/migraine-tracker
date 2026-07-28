@@ -73,13 +73,15 @@ class OnboardingScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: switch (page.value) {
                   0 => [
-                    AppButton.primary(
+                    AppButton(
+                      variant: AppButtonVariant.primary,
                       onPressed: next,
                       label: l10n.onboardingContinue,
                     ),
                   ],
                   1 => [
-                    AppButton.primary(
+                    AppButton(
+                      variant: AppButtonVariant.primary,
                       onPressed: () async {
                         await controller.requestLocation();
                         await next();
@@ -87,13 +89,15 @@ class OnboardingScreen extends HookConsumerWidget {
                       label: l10n.onboardingLocationAllow,
                     ),
                     SizedBox(height: AppSpacingConstant.h8),
-                    AppButton.text(
+                    AppButton(
+                      variant: AppButtonVariant.text,
                       onPressed: next,
                       label: l10n.onboardingNotNow,
                     ),
                   ],
                   _ => [
-                    AppButton.primary(
+                    AppButton(
+                      variant: AppButtonVariant.primary,
                       onPressed: finish,
                       label: l10n.onboardingStart,
                     ),

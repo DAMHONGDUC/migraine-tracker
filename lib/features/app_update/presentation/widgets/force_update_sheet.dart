@@ -84,7 +84,8 @@ class _UpdateButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppButton.primary(
+    return AppButton(
+      variant: AppButtonVariant.primary,
       label: label,
       icon: Icons.open_in_new,
       onPressed: () async {

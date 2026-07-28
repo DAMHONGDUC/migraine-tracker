@@ -106,7 +106,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                   ),
                 ),
                 // Filled teal circle — the same "positive, additive"
-                // treatment as AppButton.positive (backgroundColor:
+                // treatment as AppButtonVariant.positive (backgroundColor:
                 // AppColors.secondary, foregroundColor: AppColors.onPrimary)
                 // — so the confirming action reads as the one filled,
                 // affirmative icon next to Cancel's plain outline.
