@@ -28,6 +28,27 @@ Future<void> openDetail(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+/// Opens one of the detail screen's edit sheets by its row label.
+Future<void> openEditSheet(WidgetTester tester, String row) async {
+  await tester.tap(find.text(row));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// The tick in the sheet header — a pick is only applied by this.
+Future<void> confirmSheet(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.check));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// The X in the sheet header — leaves without applying the pick.
+Future<void> closeSheet(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.close));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
 void main() {
   testWidgets('tapping an attack opens its detail with weather and details', (
     tester,
@@ -98,12 +119,10 @@ void main() {
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    await tester.tap(find.text('Location'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await openEditSheet(tester, 'Location');
     await tester.tap(find.text('Whole head').last);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await confirmSheet(tester);
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
@@ -120,18 +139,33 @@ void main() {
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    // Tap the Location row's value.
-    await tester.tap(find.text('Location'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
+    await openEditSheet(tester, 'Location');
     await tester.tap(find.text('Whole head').last);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await confirmSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows.single.location, HeadLocation.whole);
     expect(find.text('Whole head'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  // The point of the tick: a tap inside the sheet is a highlight, not a
+  // decision, so leaving by the X must change nothing.
+  testWidgets('a pick abandoned by the X changes nothing', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    await openEditSheet(tester, 'Location');
+    await tester.tap(find.text('Whole head').last);
+    await tester.pump();
+    await closeSheet(tester);
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.location, HeadLocation.right);
+    expect(find.text('Right side'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -145,20 +179,18 @@ void main() {
     await openDetail(tester);
 
     for (final String row in <String>['Intensity', 'Location', 'Medication']) {
-      await tester.tap(find.text(row));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await openEditSheet(tester, row);
 
       expect(
         find.byType(AppSheetContent),
         findsOneWidget,
         reason: '$row should open a sheet',
       );
+      // Every one of them offers both answers in its header.
+      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(Icons.check), findsOneWidget);
 
-      // Dismiss by popping the sheet route, the way the barrier would.
-      Navigator.of(tester.element(find.byType(AppSheetContent))).pop();
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await closeSheet(tester);
     }
 
     await finishTest(tester);
@@ -169,13 +201,10 @@ void main() {
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    await tester.tap(find.text('Medication'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
+    await openEditSheet(tester, 'Medication');
     await tester.tap(find.text('No medication').last);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await confirmSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows.single.medicationName, isNull);
@@ -183,24 +212,29 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('the intensity sheet only commits on Save', (tester) async {
+  testWidgets('the intensity sheet only commits on the tick', (tester) async {
     final app = await pumpApp(tester);
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    await tester.tap(find.text('Intensity'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await openEditSheet(tester, 'Intensity');
 
-    // Drag the slider to the far end, then leave without saving.
+    // Drag the slider to the far end, then leave by the X.
     await tester.drag(find.byType(Slider), const Offset(400, 0));
     await tester.pump();
-    Navigator.of(tester.element(find.byType(AppSheetContent))).pop();
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await closeSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows.single.intensity, 7);
+
+    // Same drag, confirmed this time.
+    await openEditSheet(tester, 'Intensity');
+    await tester.drag(find.byType(Slider), const Offset(400, 0));
+    await tester.pump();
+    await confirmSheet(tester);
+
+    final rowsAfter = await app.db.select(app.db.attacks).get();
+    expect(rowsAfter.single.intensity, 10);
 
     await finishTest(tester);
   });

@@ -2,20 +2,27 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_content_padding.dart';
 import '../constants/app_spacing_constant.dart';
+import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
+import 'app_icon.dart';
 
-/// The inside of a bottom sheet: a title, then content that scrolls when it
+/// The inside of a bottom sheet: a header, then content that scrolls when it
 /// has to, under a ceiling of [maxHeightFraction] of the screen.
+///
+/// The header is the sheet's two answers — an X on the left that leaves
+/// without applying anything, and, when [onConfirm] is given, a tick on the
+/// right that applies. That pairing is what lets a picker mark a choice
+/// without committing it: tapping a tile only moves the highlight, and
+/// nothing leaves the sheet until the tick.
 ///
 /// The ceiling is what keeps a sheet reading as a layer over the page — a
 /// tall picker that grew to the status bar would just be a screen with a
 /// rounded top. Content shorter than the ceiling still only takes what it
 /// needs; the sheet does not stretch to meet it.
 ///
-/// Only the *content* scrolls: [title] stays pinned, and so does [footer]
-/// (a save button that must not scroll out of reach). A sheet is a route,
-/// not a screen, so it clears the home indicator itself rather than through
-/// `AppContentPadding.screen`.
+/// Only the *content* scrolls: the header stays pinned, and so does
+/// [footer]. A sheet is a route, not a screen, so it clears the home
+/// indicator itself rather than through `AppContentPadding.screen`.
 ///
 /// Pass `isScrollControlled: true` when showing it — without that the sheet
 /// route caps itself around half the screen and the ceiling never applies.
@@ -23,6 +30,7 @@ class AppSheetContent extends StatelessWidget {
   const AppSheetContent({
     required this.title,
     required this.child,
+    this.onConfirm,
     this.footer,
     super.key,
   });
@@ -33,8 +41,11 @@ class AppSheetContent extends StatelessWidget {
   final String title;
   final Widget child;
 
-  /// Pinned under the scroll area — a confirm button, usually. Null for a
-  /// picker where the pick itself closes the sheet.
+  /// Applies whatever the sheet is collecting. Null hides the tick — for a
+  /// sheet with nothing to confirm, or one that confirms in its [footer].
+  final VoidCallback? onConfirm;
+
+  /// Pinned under the scroll area, below the content.
   final Widget? footer;
 
   @override
@@ -50,15 +61,7 @@ class AppSheetContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppContentPadding.horizontal,
-              AppSpacingConstant.h8,
-              AppContentPadding.horizontal,
-              AppSpacingConstant.h16,
-            ),
-            child: Text(title, style: AppTextStyle.titleLarge),
-          ),
+          _Header(title: title, onConfirm: onConfirm),
           Flexible(
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
@@ -79,6 +82,49 @@ class AppSheetContent extends StatelessWidget {
                 safeBottom,
               ),
               child: footer,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Leave on the left, apply on the right, title between them. The empty slot
+/// where the tick would go is kept when there is none, so the title sits on
+/// the sheet's centre either way.
+class _Header extends StatelessWidget {
+  const _Header({required this.title, this.onConfirm});
+
+  final String title;
+  final VoidCallback? onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: AppSpacingConstant.h8),
+      child: Row(
+        children: <Widget>[
+          IconButton(
+            icon: const AppIcon(Icons.close),
+            tooltip: context.l10n.commonClose,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          Expanded(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.titleMedium,
+            ),
+          ),
+          if (onConfirm == null)
+            SizedBox(width: AppSpacingConstant.w48)
+          else
+            IconButton(
+              icon: AppIcon(Icons.check, color: context.colorScheme.primary),
+              tooltip: context.l10n.commonDone,
+              onPressed: onConfirm,
             ),
         ],
       ),

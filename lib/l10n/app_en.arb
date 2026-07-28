@@ -269,6 +269,14 @@
   "@commonAdd": {
     "description": "Generic add/confirm button"
   },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Tooltip on the X in a picker sheet's header, which dismisses it without applying the pick"
+  },
+  "commonDone": "Done",
+  "@commonDone": {
+    "description": "Tooltip on the tick in a picker sheet's header, which applies the pick and closes the sheet"
+  },
   "locationLeft": "Left side",
   "@locationLeft": {
     "description": "Head location option: left side"
