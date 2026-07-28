@@ -10,6 +10,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -65,9 +66,9 @@ class PaywallScreen extends ConsumerWidget {
               Text(l10n.paywallTitle, style: AppTextStyle.titleLarge.w600),
               Align(
                 alignment: AlignmentDirectional.topEnd,
-                child: IconButton(
+                child: AppBarButton(
+                  icon: Icons.close,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                  icon: const AppIcon(Icons.close),
                   onPressed: () => context.pop(),
                 ),
               ),

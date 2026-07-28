@@ -8,6 +8,7 @@ import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
+import '../widgets/pop_scale.dart';
 import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -229,91 +230,44 @@ class _NavSegment extends StatelessWidget {
 /// geometry is layout the tab screens already pad for; the renderer degrades
 /// the surface itself to `FakeGlass` there.
 ///
-/// Any tap on the bar plays a little overshoot pop (see
-/// [_FloatingBarState._popPeakScale]) as tactile feedback. A raw [Listener]
-/// is used for the tap (rather than a [GestureDetector]) so it fires even
-/// when the tap lands on a nav segment's own opaque tap recognizer
-/// underneath — those don't block a plain pointer-down from also being
-/// observed here. The scale is paint-only, so the layout slot and body
-/// insets never move.
-class _FloatingBar extends StatefulWidget {
+/// Any tap on the bar plays a little overshoot pop ([PopScale], the same
+/// feedback the app bar's buttons use) — smaller here, and anchored to the
+/// bottom edge so the pill grows upward off the safe-area line it sits on.
+/// The scale is paint-only, so the layout slot and body insets never move.
+class _FloatingBar extends StatelessWidget {
   const _FloatingBar({required this.child});
+
+  /// Barely there: this is a wide surface, and the same 18% the small icons
+  /// pop by would read as the whole bar lurching.
+  static const double _popPeakScale = 1.02;
 
   final Widget child;
 
   @override
-  State<_FloatingBar> createState() => _FloatingBarState();
-}
-
-class _FloatingBarState extends State<_FloatingBar>
-    with SingleTickerProviderStateMixin {
-  static const _popDuration = Duration(milliseconds: 350);
-
-  /// Peak of the tap overshoot pop, relative to full size (1.0).
-  static const _popPeakScale = 1.02;
-
-  /// Overshoots to [_popPeakScale] then settles back to 1.0.
-  static final Animatable<double> _pop = TweenSequence<double>([
-    TweenSequenceItem(
-      weight: 40,
-      tween: Tween(
-        begin: 1.0,
-        end: _popPeakScale,
-      ).chain(CurveTween(curve: Curves.easeOut)),
-    ),
-    TweenSequenceItem(
-      weight: 60,
-      tween: Tween(
-        begin: _popPeakScale,
-        end: 1.0,
-      ).chain(CurveTween(curve: Curves.easeOut)),
-    ),
-  ]);
-
-  late final AnimationController _popController = AnimationController(
-    vsync: this,
-    duration: _popDuration,
-  );
-
-  @override
-  void dispose() {
-    _popController.dispose();
-    super.dispose();
-  }
-
-  void _onPointerDown(PointerDownEvent _) => _popController.forward(from: 0);
-
-  @override
   Widget build(BuildContext context) {
-    return Listener(
-      // Translucent + raw pointer events: observes the touch-down without
-      // eating it or competing in the gesture arena with nav segment taps.
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: _onPointerDown,
-      child: Padding(
-        // Sit the bar right on the safe-area line — the only gap below it.
-        padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w24,
-          0,
-          AppSpacingConstant.w24,
-          MediaQuery.paddingOf(context).bottom,
-        ),
-        child: ScaleTransition(
-          scale: _popController.drive(_pop),
-          alignment: Alignment.bottomCenter,
-          child: LiquidGlass.withOwnLayer(
-            settings: kChromeGlass,
-            // Half the bar height (h68) → a true stadium: the short edges
-            // are full semicircles, no straight segment left.
-            shape: LiquidRoundedSuperellipse(
-              borderRadius: AppSpacingConstant.h34,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: MediaQuery.removePadding(
-              context: context,
-              removeBottom: true,
-              child: widget.child,
-            ),
+    return Padding(
+      // Sit the bar right on the safe-area line — the only gap below it.
+      padding: EdgeInsets.fromLTRB(
+        AppSpacingConstant.w24,
+        0,
+        AppSpacingConstant.w24,
+        MediaQuery.paddingOf(context).bottom,
+      ),
+      child: PopScale(
+        peakScale: _popPeakScale,
+        alignment: Alignment.bottomCenter,
+        child: LiquidGlass.withOwnLayer(
+          settings: kChromeGlass,
+          // Half the bar height (h68) → a true stadium: the short edges
+          // are full semicircles, no straight segment left.
+          shape: LiquidRoundedSuperellipse(
+            borderRadius: AppSpacingConstant.h34,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: child,
           ),
         ),
       ),

@@ -6,8 +6,8 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_button.dart';
-import '../../../../../core/widgets/app_leading_button.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/fitted_text.dart';
 import '../../../domain/enums/head_location.dart';
@@ -71,8 +71,14 @@ class LogScreen extends ConsumerWidget {
       // LogController state machine. Saved: no leading — only "Done" leaves.
       leading: switch (state.step) {
         LogStep.saved => null,
-        LogStep.intensity => AppLeadingButton(onPressed: closeFlow),
-        _ => AppLeadingButton(onPressed: controller.back),
+        LogStep.intensity => AppBarButton(
+          icon: AppBarButton.backIcon,
+          onPressed: closeFlow,
+        ),
+        _ => AppBarButton(
+          icon: AppBarButton.backIcon,
+          onPressed: controller.back,
+        ),
       },
       actions: [
         if (showNext)
