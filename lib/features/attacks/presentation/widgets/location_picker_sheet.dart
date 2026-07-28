@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_sheet_content.dart';
+import '../../../../core/widgets/app_sheet_header.dart';
 import '../../domain/enums/head_location.dart';
 import 'location_grid.dart';
 
@@ -30,6 +31,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
   Widget build(BuildContext context) {
     return AppSheetContent(
       title: context.l10n.logLocationTitle,
+      action: AppSheetAction.edit,
       onConfirm: () => Navigator.of(context).pop(_selected),
       child: LocationGrid(
         selected: _selected,

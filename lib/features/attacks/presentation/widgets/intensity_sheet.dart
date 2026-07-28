@@ -4,6 +4,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_sheet_content.dart';
+import '../../../../core/widgets/app_sheet_header.dart';
 import '../../../../core/widgets/app_value_slider.dart';
 
 /// Corrects a logged attack's intensity. Dragging only moves the readout —
@@ -29,6 +30,7 @@ class _IntensitySheetState extends State<IntensitySheet> {
 
     return AppSheetContent(
       title: context.l10n.logIntensityTitle,
+      action: AppSheetAction.edit,
       onConfirm: () => Navigator.of(context).pop(rounded),
       child: AppValueSlider(
         label: '$rounded',
