@@ -76,7 +76,7 @@ class PremiumScreen extends ConsumerWidget {
             )
           else
             AppButton.primary(
-              onPressed: () => NavigationUtils.unlockPremium(context, ref),
+              onPressed: () => NavigationUtils.toPaywall(context, ref),
               label: l10n.premiumUnlock,
             ),
         ],

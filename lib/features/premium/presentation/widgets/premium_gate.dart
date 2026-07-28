@@ -65,7 +65,7 @@ class _LockedCard extends ConsumerWidget {
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: AppButton.secondary(
-                onPressed: () => NavigationUtils.unlockPremium(context, ref),
+                onPressed: () => NavigationUtils.toPaywall(context, ref),
                 label: l10n.premiumUnlock,
               ),
             ),
@@ -100,7 +100,7 @@ class PremiumTileGate extends ConsumerWidget {
       title: Text(title, style: AppTextStyle.bodyLarge),
       subtitle: Text(lockedMessage, style: AppTextStyle.bodyMedium.secondary),
       trailing: const PremiumBadge(),
-      onTap: () => NavigationUtils.unlockPremium(context, ref),
+      onTap: () => NavigationUtils.toPaywall(context, ref),
     );
   }
 }
