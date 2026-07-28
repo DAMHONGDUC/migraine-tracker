@@ -123,11 +123,13 @@ class _ThresholdDialogState extends State<_ThresholdDialog> {
         ],
       ),
       actions: [
-        AppButton.text(
+        AppButton(
+          variant: AppButtonVariant.text,
           onPressed: () => Navigator.of(context).pop(),
           label: widget.l10n.commonCancel,
         ),
-        AppButton.primary(
+        AppButton(
+          variant: AppButtonVariant.primary,
           onPressed: () => Navigator.of(context).pop(_value),
           label: widget.l10n.detailsSave,
         ),

@@ -4,25 +4,28 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
-import '../../../../medications/providers.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/head_location.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
 import '../../widgets/head_diagram.dart';
+import '../../widgets/intensity_sheet.dart';
+import '../../widgets/location_picker_sheet.dart';
+import '../../widgets/medication_picker_sheet.dart';
 
 part 'attack_detail_screen_details_section.dart';
 part 'attack_detail_screen_editable_row.dart';
 part 'attack_detail_screen_header.dart';
-part 'attack_detail_screen_intensity_dialog.dart';
 part 'attack_detail_screen_location_diagram.dart';
 part 'attack_detail_screen_read_only_row.dart';
 part 'attack_detail_screen_section.dart';
@@ -40,10 +43,10 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final picked = await showAppDialog<int>(
-      context,
-      builder: (_) => _IntensityDialog(initial: attack.intensity),
-    );
+    final int? picked = await IntensitySheet(
+      initial: attack.intensity,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
@@ -60,23 +63,10 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final picked = await showAppDialog<HeadLocation>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: context.l10n.logLocationTitle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final location in HeadLocation.values)
-              AppDialogOption(
-                label: location.label(context.l10n),
-                selected: location == attack.location,
-                onTap: () => Navigator.of(dialogContext).pop(location),
-              ),
-          ],
-        ),
-      ),
-    );
+    final HeadLocation? picked = await LocationPickerSheet(
+      selected: attack.location,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
@@ -93,35 +83,11 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final l10n = context.l10n;
-    final medications = await ref.read(medicationRepositoryProvider).getAll();
-    if (!context.mounted) return;
-
     // Wrapped so "No medication" (null) is distinguishable from dismissal.
-    final picked = await showAppDialog<({String? name})>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: l10n.logMedicationTitle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppDialogOption(
-              icon: Icons.block,
-              label: l10n.logNoMedication,
-              selected: attack.medicationName == null,
-              onTap: () => Navigator.of(dialogContext).pop((name: null)),
-            ),
-            for (final med in medications)
-              AppDialogOption(
-                icon: Icons.medication_outlined,
-                label: med.name,
-                selected: attack.medicationName == med.name,
-                onTap: () => Navigator.of(dialogContext).pop((name: med.name)),
-              ),
-          ],
-        ),
-      ),
-    );
+    final ({String? name})? picked = await MedicationPickerSheet(
+      selectedName: attack.medicationName,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
@@ -144,11 +110,13 @@ class AttackDetailScreen extends ConsumerWidget {
           style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          AppButton.text(
+          AppButton(
+            variant: AppButtonVariant.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton.destructive(
+          AppButton(
+            variant: AppButtonVariant.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsDeleteConfirmAction,
           ),
@@ -169,8 +137,10 @@ class AttackDetailScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
       actions: [
-        IconButton(
-          icon: AppIcon(Icons.delete_outline, color: context.colorScheme.error),
+        AppBarButton(
+          icon: Icons.delete_outline,
+          color: context.colorScheme.error,
+          tooltip: l10n.attackDetailDeleteTitle,
           onPressed: () => _delete(context, ref),
         ),
         SizedBox(width: AppSpacingConstant.w4),
@@ -180,12 +150,7 @@ class AttackDetailScreen extends ConsumerWidget {
           child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         AsyncData(value: final a?) => ListView(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w16,
-            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
-            AppSpacingConstant.w16,
-            AppSpacingConstant.w16,
-          ),
+          padding: AppContentPadding.screen(context),
           children: [
             _Header(attack: a),
             SizedBox(height: AppSpacingConstant.h16),

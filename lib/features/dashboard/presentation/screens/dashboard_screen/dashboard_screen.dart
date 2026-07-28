@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
@@ -48,9 +49,6 @@ class DashboardScreen extends ConsumerWidget {
     ];
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(
         onRefresh: () => AppRefreshIndicator.run(() {
@@ -61,12 +59,7 @@ class DashboardScreen extends ConsumerWidget {
         }),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w24,
-            AppScaffold.bodyTopInset(context) + AppSpacingConstant.h16,
-            AppSpacingConstant.w24,
-            AppScaffold.bottomNavInset(context) + AppSpacingConstant.h24,
-          ),
+          padding: AppContentPadding.screen(context, floatingNav: true),
           children: [
             for (int i = 0; i < sections.length; i++) ...[
               if (i > 0) SizedBox(height: AppSpacingConstant.h24),

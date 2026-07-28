@@ -1,0 +1,85 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/router/app_router.dart';
+import '../../domain/entities/app_update_config.dart';
+import '../../providers.dart';
+import '../controllers/force_update_controller.dart';
+import 'force_update_sheet.dart';
+
+/// Wraps the whole app (see `BaroEaseApp`): asks Firestore on every entry —
+/// cold start and every resume — whether this build is still allowed, and
+/// puts the blocking sheet over everything when it isn't.
+///
+/// [child] is rendered untouched; the block is a modal sheet, so nothing
+/// about the app's own tree changes. All the deciding lives in
+/// [ForceUpdateController], which fails open on any error.
+class ForceUpdateWrapper extends ConsumerStatefulWidget {
+  const ForceUpdateWrapper({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  ConsumerState<ForceUpdateWrapper> createState() => _ForceUpdateWrapperState();
+}
+
+class _ForceUpdateWrapperState extends ConsumerState<ForceUpdateWrapper>
+    with WidgetsBindingObserver {
+  /// The sheet is a route, so it survives rebuilds — this stops a second
+  /// copy being pushed on top of the first.
+  bool _sheetShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _check();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// "Every time you enter the app" includes coming back from the store or
+  /// from the background, not just a cold start.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _check();
+  }
+
+  void _check() =>
+      unawaited(ref.read(forceUpdateControllerProvider.notifier).check());
+
+  /// The sheet needs a Navigator, and this wrapper sits ABOVE the router's
+  /// one (it comes from `MaterialApp.builder`), so it is presented on the
+  /// root navigator's own context.
+  void _showSheet(PlatformUpdateConfig config) {
+    final BuildContext? navigatorContext = ref
+        .read(rootNavigatorKeyProvider)
+        .currentContext;
+
+    if (_sheetShown || navigatorContext == null) return;
+    _sheetShown = true;
+    AppAnalytics.logForceUpdateShown();
+    unawaited(ForceUpdateSheet(config: config).show(navigatorContext));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final PlatformUpdateConfig? blocking = ref
+        .watch(forceUpdateControllerProvider)
+        .blockingUpdate;
+
+    // After the frame: the navigator has to exist before a route can be
+    // pushed onto it, and on a cold start this runs during the first build.
+    if (blocking != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showSheet(blocking));
+    }
+    return widget.child;
+  }
+}

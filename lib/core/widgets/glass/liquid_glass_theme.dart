@@ -10,7 +10,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 /// false on Android's Skia fallback (and in widget tests). When false,
 /// [MainAppBar] and [showAppBottomSheet] fall back to plain Material
 /// surfaces, [AppScaffold] stops extending its body behind the bar, and
-/// [MainAppBar.bodyTopInset] returns 0.
+/// `AppContentPadding.appBarInset` returns 0.
 ///
 /// The shell's bottom nav is the deliberate exception — it stays a floating
 /// glass pill everywhere. Its geometry (side margins, the gap beneath it,

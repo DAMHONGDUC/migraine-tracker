@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
@@ -18,6 +19,8 @@ class AttackDetailController {
     required HeadLocation location,
     required String? medicationName,
   }) async {
+    AppLogger.action('Edit attack', id);
+    AppAnalytics.logAttackEdited();
     try {
       await _ref
           .read(attackRepositoryProvider)
@@ -38,6 +41,8 @@ class AttackDetailController {
   }
 
   Future<void> delete(String id) async {
+    AppLogger.action('Delete attack', id);
+    AppAnalytics.logAttackDeleted();
     try {
       await _ref.read(attackRepositoryProvider).deleteById(id);
     } catch (error, stackTrace) {

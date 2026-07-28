@@ -19,4 +19,8 @@ abstract interface class AuthRepository {
 
   /// The app stays usable: the next feature needing a UID goes anonymous.
   Future<void> signOut();
+
+  /// Renames the account on the auth record itself, so a reinstall or a
+  /// second device sees the name the user chose. No-op when signed out.
+  Future<void> updateDisplayName(String displayName);
 }

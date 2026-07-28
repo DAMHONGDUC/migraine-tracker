@@ -61,7 +61,8 @@ class _DetailsSection extends StatelessWidget {
             ),
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: AppButton.text(
+              child: AppButton(
+                variant: AppButtonVariant.text,
                 onPressed: edit,
                 icon: Icons.edit_outlined,
                 label: l10n.attackDetailEdit,

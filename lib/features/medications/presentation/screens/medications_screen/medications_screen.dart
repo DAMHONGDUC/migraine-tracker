@@ -8,9 +8,11 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
@@ -288,13 +290,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     // Measured here (the body-building context) and handed to both the filter
     // strip and the list gap so they use the identical value — reading it again
     // deeper in the tree can drift in this nested-Scaffold setup.
-    final topInset = AppScaffold.bodyTopInset(context);
-    final filterBarHeight = PinnedFilterBar.heightFor(topInset);
+    final topInset = AppContentPadding.appBarInset(context);
+    final filterBarHeight = AppContentPadding.belowPinnedFilterBar(context);
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
@@ -302,8 +301,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           ? _searchField(context)
           : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
       leading: _searching
-          ? IconButton(
-              icon: const AppIcon(Icons.arrow_back),
+          ? AppBarButton(
+              icon: AppBarButton.backIcon,
               tooltip: l10n.commonCancel,
               onPressed: _stopSearch,
             )
@@ -315,8 +314,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       actions: _searching
           ? [
               if (searchQuery.isNotEmpty)
-                IconButton(
-                  icon: const AppIcon(Icons.close),
+                AppBarButton(
+                  icon: Icons.close,
                   tooltip: l10n.medicationsSearchClear,
                   onPressed: () {
                     _searchController.clear();
@@ -330,25 +329,25 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               // Debug-only smoke test for notification delivery (kDebugMode
               // strips it from release builds entirely).
               if (kDebugMode) ...[
-                IconButton(
-                  icon: AppIcon(
-                    Icons.notification_add_outlined,
-                    color: AppColors.secondary,
-                  ),
+                AppBarButton(
+                  icon: Icons.notification_add_outlined,
+                  color: AppColors.secondary,
                   tooltip: l10n.remindersTestTooltip,
                   onPressed: _sendTestNotification,
                 ),
                 HorizontalSpacing(),
               ],
 
-              IconButton(
-                icon: AppIcon(Icons.search, color: AppColors.secondary),
+              AppBarButton(
+                icon: Icons.search,
+                color: AppColors.secondary,
                 tooltip: l10n.medicationsSearchTooltip,
                 onPressed: _startSearch,
               ),
               HorizontalSpacing(),
-              IconButton(
-                icon: AppIcon(Icons.add, color: AppColors.secondary),
+              AppBarButton(
+                icon: Icons.add,
+                color: AppColors.secondary,
                 tooltip: l10n.logAddMedication,
                 onPressed: _add,
               ),
@@ -390,11 +389,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 else
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
-                      AppSpacingConstant.w16,
+                      AppContentPadding.horizontal,
                       filterBarHeight,
-                      AppSpacingConstant.w16,
-                      AppScaffold.bottomNavInset(context) +
-                          AppSpacingConstant.h16,
+                      AppContentPadding.horizontal,
+                      AppContentPadding.bottom(context, floatingNav: true),
                     ),
                     sliver: SliverList.separated(
                       itemCount: medications.length,

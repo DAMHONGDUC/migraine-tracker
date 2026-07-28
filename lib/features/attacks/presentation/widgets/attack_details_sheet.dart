@@ -4,9 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_sheet_content.dart';
+import '../../../../core/widgets/app_sheet_header.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
@@ -53,20 +53,16 @@ class AttackDetailsSheet extends HookConsumerWidget {
       if (context.mounted) Navigator.of(context).pop();
     }
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacingConstant.w24,
-        right: AppSpacingConstant.w24,
-        top: AppSpacingConstant.h24,
-        bottom:
-            MediaQuery.viewInsetsOf(context).bottom + AppSpacingConstant.h24,
-      ),
+    return AppSheetContent(
+      title: l10n.detailsTitle,
+      // Overwriting what is already on the attack, not adding a first
+      // answer — so the commit is the pencil, not the tick.
+      action: AppSheetAction.edit,
+      onConfirm: save,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l10n.detailsTitle, style: AppTextStyle.titleLarge),
-          SizedBox(height: AppSpacingConstant.h16),
           TextField(
             controller: symptomsController,
             decoration: InputDecoration(
@@ -88,8 +84,6 @@ class AttackDetailsSheet extends HookConsumerWidget {
             maxLines: 3,
             decoration: InputDecoration(labelText: l10n.detailsNotesLabel),
           ),
-          SizedBox(height: AppSpacingConstant.h24),
-          AppButton.primary(onPressed: save, label: l10n.detailsSave),
         ],
       ),
     );

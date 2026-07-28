@@ -13,13 +13,14 @@ import 'glass/liquid_glass_theme.dart';
 ///
 /// It's a plain overlay box (NOT a sliver): drop it into a [Stack] over the
 /// scrollable, positioned at the top, and pad the scrollable's top by
-/// [heightFor] so its first item starts below the strip.
+/// `AppContentPadding.belowPinnedFilterBar` so its first item starts
+/// below the strip.
 ///
 /// [topInset] (the app-bar height the strip sits under) is passed in rather
 /// than read from `MediaQuery` here: this widget builds inside the Scaffold
 /// body, where a `MediaQuery` read can differ from the same read at the
 /// body-building site that pads the list — measure it once at that site (via
-/// `AppScaffold.bodyTopInset`) and hand the SAME value to both so the strip and
+/// `AppContentPadding.appBarInset`) and hand the SAME value to both so the strip and
 /// the list gap always line up.
 class PinnedFilterBar extends StatelessWidget {
   const PinnedFilterBar({
@@ -39,15 +40,10 @@ class PinnedFilterBar extends StatelessWidget {
   /// Height of the visible filter strip below the app bar.
   static double get barHeight => AppSpacingConstant.h56;
 
-  /// Full height the strip occupies from the top of the body, for [topInset].
-  /// Pad a scrollable's top by this so its first item clears the strip, and
-  /// offset a [RefreshIndicator] past it so the spinner drops below the chips.
-  static double heightFor(double topInset) => topInset + barHeight;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: heightFor(topInset),
+      height: topInset + barHeight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

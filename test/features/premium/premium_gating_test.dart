@@ -5,6 +5,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/premium/presentation/widgets/premium_gate.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -125,7 +126,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('tapping Unlock asks for an account before the paywall', (
+    testWidgets('tapping Unlock opens the paywall, account or not', (
       tester,
     ) async {
       final app = await pumpApp(tester);
@@ -136,15 +137,17 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      // A subscription needs an account to belong to, so the login screen
-      // comes first and the paywall is not reachable around it.
-      expect(find.text('Sign in to unlock Premium'), findsOneWidget);
-      expect(find.text('BaroEase Premium'), findsNothing);
+      // The pitch comes first: a login screen must never appear in front of
+      // a paywall the user has not been shown yet.
+      expect(find.text('BaroEase Premium'), findsOneWidget);
+      expect(find.text('Sign in to unlock Premium'), findsNothing);
+      // …and the CTA is the account, since there is none yet.
+      expect(find.text('Sign in to continue'), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('signing in from the gate continues to the paywall', (
+    testWidgets('the paywall CTA leads to login, and comes back unlockable', (
       tester,
     ) async {
       final app = await pumpApp(tester);
@@ -154,19 +157,23 @@ void main() {
       await tester.tap(find.text('Unlock').first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
+
+      await tapVisible(tester, find.text('Sign in to continue'));
+      expect(find.text('Sign in to unlock Premium'), findsOneWidget);
 
       await tester.tap(find.text('Continue with Google'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
+      // Back on the paywall it was opened from, now offering the purchase.
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
       expect(find.text('BaroEase Premium'), findsOneWidget);
-      expect(find.text('Know your storm before it hits'), findsOneWidget);
+      expect(find.text('Sign in to continue'), findsNothing);
 
       await finishTest(tester);
     });
 
-    testWidgets('backing out of the login screen stops the flow', (
+    testWidgets('backing out of login leaves the paywall standing', (
       tester,
     ) async {
       final app = await pumpApp(tester);
@@ -177,12 +184,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
+      await tapVisible(tester, find.text('Sign in to continue'));
       await tapVisible(tester, find.text('Not now'));
 
-      // Back on the locked surface, not pushed on to the paywall.
       expect(app.auth.signInCalls, isEmpty);
-      expect(find.text('BaroEase Premium'), findsNothing);
-      expect(find.text('Unlock'), findsWidgets);
+      expect(find.text('BaroEase Premium'), findsOneWidget);
+      expect(find.text('Sign in to continue'), findsOneWidget);
 
       await finishTest(tester);
     });
@@ -259,7 +266,9 @@ void main() {
 
       expect(find.byType(Switch), findsOneWidget);
       expect(find.text('Doctor report (PDF)'), findsOneWidget);
-      expect(find.text('Premium'), findsNothing);
+      // No locked teaser left anywhere on the screen. (The Premium row is
+      // titled 'Premium' now, so the badge is what marks a gate.)
+      expect(find.byType(PremiumBadge), findsNothing);
 
       await finishTest(tester);
     });

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/widgets/app_bar_button.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -96,7 +97,7 @@ void main() {
     await tester.tap(find.text('9'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byType(BackButtonIcon));
+    await tester.tap(find.byType(AppBarButton));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('How intense is the pain?'), findsOneWidget);

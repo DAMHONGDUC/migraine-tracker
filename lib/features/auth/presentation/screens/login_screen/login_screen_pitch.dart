@@ -12,7 +12,7 @@ class _Pitch extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        SizedBox(height: AppSpacingConstant.h24),
+        // Starts flush: AppActionView already applied the screen's top gap.
         AppIcon(
           Icons.cloud_done_outlined,
           size: AppSpacingConstant.r64,

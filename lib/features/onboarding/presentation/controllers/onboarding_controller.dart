@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../weather/providers.dart';
@@ -38,6 +39,7 @@ class OnboardingController {
     try {
       await prefs.setDouble(thresholdKey, thresholdHpa);
       await prefs.setBool(completedKey, true);
+      AppAnalytics.logOnboardingCompleted(thresholdHpa: thresholdHpa);
     } catch (error, stackTrace) {
       AppLogger.error(
         'Complete onboarding failed',

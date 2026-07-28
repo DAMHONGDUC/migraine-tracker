@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
@@ -10,7 +11,6 @@ import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/charts/chart_card.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../../core/widgets/empty_state.dart';
-import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../../../attacks/domain/entities/attack.dart';
 import '../../../../attacks/providers.dart';
 import '../../../domain/enums/history_view_mode.dart';
@@ -53,9 +53,6 @@ class HistoryScreen extends HookConsumerWidget {
     };
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       // At rest the pill lives in the scroll content; once it scrolls away
       // it takes over the title slot and the "History" heading hides.
       title: AnimatedSwitcher(
@@ -88,7 +85,7 @@ class HistoryScreen extends HookConsumerWidget {
         ),
         child: switch (allAttacks) {
           AsyncData(value: final all) when all.isEmpty => ScrollFill(
-            topInset: AppScaffold.bodyTopInset(context),
+            topInset: AppContentPadding.appBarInset(context),
             child: EmptyState(
               icon: Icons.event_note_outlined,
               message: l10n.historyEmpty,
@@ -100,17 +97,15 @@ class HistoryScreen extends HookConsumerWidget {
                 AsyncData(value: final value) => value,
                 _ => const <Attack>[],
               };
-              // Insets computed HERE — a context inside the Scaffold body,
-              // where extendBodyBehindAppBar/extendBody make MediaQuery
-              // report the real bar heights — and passed down, so the inner
-              // views don't depend on where they read MediaQuery from.
-              final topInset = AppGlass.isSupported
-                  ? MediaQuery.paddingOf(context).top + AppSpacingConstant.h16
-                  : 0.0;
-              // Unconditional: the shell's nav floats on every device, so
-              // these views always scroll behind it.
-              final bottomInset =
-                  MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h8;
+              // Computed once and passed down, so the three views can't
+              // drift apart. Unconditional floatingNav: the shell's nav
+              // pill floats on every device, so these views always scroll
+              // behind it.
+              final topInset = AppContentPadding.top(context);
+              final bottomInset = AppContentPadding.bottom(
+                context,
+                floatingNav: true,
+              );
               // IndexedStack keeps ALL views alive so switching modes
               // preserves state (scroll position, selected day, layout).
               return IndexedStack(
@@ -139,7 +134,7 @@ class HistoryScreen extends HookConsumerWidget {
             },
           ),
           AsyncError() => ScrollFill(
-            topInset: AppScaffold.bodyTopInset(context),
+            topInset: AppContentPadding.appBarInset(context),
             child: EmptyState(
               icon: Icons.event_note_outlined,
               message: l10n.historyEmpty,
