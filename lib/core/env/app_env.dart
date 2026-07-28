@@ -4,7 +4,7 @@
 /// This is the ONLY place `String.fromEnvironment` is allowed — everything
 /// else reads typed getters here, so a renamed key or a missing value is a
 /// one-line fix and the set of expected keys is self-documenting.
-abstract final class AppEnv {
+final class AppEnv {
   const AppEnv._();
 
   static const String flavor = String.fromEnvironment(

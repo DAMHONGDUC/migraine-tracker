@@ -31,7 +31,7 @@ Future<void> main() async {
 /// One-time app initialization run before `runApp`: the timezone DB used to
 /// schedule reminders at local wall time, Firebase, then crash reporting and
 /// analytics on top of it.
-abstract final class _AppBootstrap {
+final class _AppBootstrap {
   static Future<void> init() async {
     _installErrorLogging();
 

@@ -20,7 +20,7 @@ import 'package:logger/logger.dart';
 ///
 /// Optional [data] is appended to the message, e.g.
 /// `AppLogger.action('Attack logged', {'intensity': 7})`.
-abstract final class AppLogger {
+final class AppLogger {
   /// True only in debug builds (asserts run) — the on/off switch for all
   /// logging. Mutable so tests can silence it.
   static bool enabled = _assertsEnabled();

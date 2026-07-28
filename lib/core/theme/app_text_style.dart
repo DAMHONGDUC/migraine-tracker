@@ -16,7 +16,7 @@ import 'app_colors.dart';
 ///
 /// Default color is [AppColors.textPrimary]; for the muted variant use
 /// `.secondary` (below) instead of a manual copyWith.
-abstract final class AppTextStyle {
+final class AppTextStyle {
   // Line heights as M3 total-height / font-size ratios, defined once per
   // font size and reused. Ratios are unitless, so they hold under `.sp`.
   static const double _height36 = 44 / 36;

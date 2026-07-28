@@ -31,7 +31,7 @@ class AppRoute {
   final String path;
 }
 
-abstract final class AppRoutes {
+final class AppRoutes {
   static const onboarding = AppRoute(name: 'onboarding', path: '/onboarding');
   static const dashboard = AppRoute(name: 'dashboard', path: '/dashboard');
   static const log = AppRoute(name: 'log', path: '/log');

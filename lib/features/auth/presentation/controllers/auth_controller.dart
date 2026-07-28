@@ -47,18 +47,28 @@ class LoginController extends Notifier<LoginState> {
       AppLogger.info('Signed in', provider.name);
       AppAnalytics.logLogin(provider.name);
       return true;
-    } on AuthException catch (e) {
+    } on AuthException catch (e, stackTrace) {
       state = LoginState(
         error: e.error == AuthError.cancelled ? null : e.error,
       );
+      // Backing out is not a failure — only real ones get logged.
       if (e.error != AuthError.cancelled) {
-        AppLogger.warning('Sign in failed', e.error.name);
+        AppLogger.error(
+          'Sign in failed (${e.error.name})',
+          error: e,
+          stackTrace: stackTrace,
+        );
         AppAnalytics.logSignInFailed(
           method: provider.name,
           reason: e.error.name,
         );
       }
       return false;
+    } catch (error, stackTrace) {
+      // Anything the repository didn't map to an AuthException: no UI state
+      // fits it, but it must not vanish from the console.
+      AppLogger.error('Sign in crashed', error: error, stackTrace: stackTrace);
+      rethrow;
     }
   }
 }
