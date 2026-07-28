@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
+import '../widgets/pop_scale.dart';
+import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.navigationShell, super.key});
@@ -19,22 +21,35 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  bool _shrunk = false;
+  /// Branch order of the shell's tabs — the analytics screen name for each.
+  static const List<AppRoute> _tabs = <AppRoute>[
+    AppRoutes.dashboard,
+    AppRoutes.history,
+    AppRoutes.medications,
+    AppRoutes.insights,
+    AppRoutes.settings,
+  ];
 
-  /// Scrolling down (content moving up, more below) minimises the bar to
-  /// 80%; scrolling back up restores it. Fires once per direction change,
-  /// not per pixel, so this stays cheap during a fling.
-  bool _onUserScroll(UserScrollNotification notification) {
-    switch (notification.direction) {
-      case ScrollDirection.reverse:
-        if (!_shrunk) setState(() => _shrunk = true);
-      case ScrollDirection.forward:
-        if (_shrunk) setState(() => _shrunk = false);
-      case ScrollDirection.idle:
-        break;
-    }
-    return false;
+  @override
+  void initState() {
+    super.initState();
+    _logTabView();
   }
+
+  /// Tabs are branches of an IndexedStack, so no route is pushed and the
+  /// navigator observer sees nothing — the screen view is logged here.
+  @override
+  void didUpdateWidget(AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.navigationShell.currentIndex !=
+        widget.navigationShell.currentIndex) {
+      _logTabView();
+    }
+  }
+
+  void _logTabView() => AppAnalytics.logScreenView(
+    _tabs[widget.navigationShell.currentIndex].name,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -47,15 +62,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       // Unconditional: the nav is always the floating pill, so the body
       // always has to reach under it.
       extendBody: true,
-      body: NotificationListener<UserScrollNotification>(
-        onNotification: _onUserScroll,
-        child: navigationShell,
-      ),
+      body: navigationShell,
       // The log flow is a pushed route now, not a tab, so the bar always
       // shows the tab nav — no more morphing into a step-progress mid-log.
       bottomNavigationBar: _FloatingBar(
-        shrunk: _shrunk,
-        onTapRestore: () => setState(() => _shrunk = false),
         child: _SlidingNavBar(
           selectedIndex: navigationShell.currentIndex,
           onSelected: (index) => navigationShell.goBranch(
@@ -220,113 +230,44 @@ class _NavSegment extends StatelessWidget {
 /// geometry is layout the tab screens already pad for; the renderer degrades
 /// the surface itself to `FakeGlass` there.
 ///
-/// While [shrunk] the pill scales down (see [_FloatingBarState._shrunkScale]),
-/// anchored to the bottom — scrolling back up restores it smoothly (see
-/// _AppShellState). Any tap on the bar plays a little overshoot pop (see
-/// [_FloatingBarState._popPeakScale]) as tactile feedback, and also restores
-/// it immediately if it was shrunk. A raw [Listener] is used for the tap
-/// (rather than a [GestureDetector]) so it fires even when the tap lands on
-/// a nav segment's own opaque tap recognizer underneath — those don't block
-/// a plain pointer-down from also being observed here. The scale is
-/// paint-only, so the layout slot and body insets never move.
-class _FloatingBar extends StatefulWidget {
-  const _FloatingBar({
-    required this.child,
-    required this.onTapRestore,
-    this.shrunk = false,
-  });
+/// Any tap on the bar plays a little overshoot pop ([PopScale], the same
+/// feedback the app bar's buttons use) — smaller here, and anchored to the
+/// bottom edge so the pill grows upward off the safe-area line it sits on.
+/// The scale is paint-only, so the layout slot and body insets never move.
+class _FloatingBar extends StatelessWidget {
+  const _FloatingBar({required this.child});
+
+  /// Barely there: this is a wide surface, and the same 18% the small icons
+  /// pop by would read as the whole bar lurching.
+  static const double _popPeakScale = 1.02;
 
   final Widget child;
-  final bool shrunk;
-  final VoidCallback onTapRestore;
-
-  @override
-  State<_FloatingBar> createState() => _FloatingBarState();
-}
-
-class _FloatingBarState extends State<_FloatingBar>
-    with SingleTickerProviderStateMixin {
-  static const _popDuration = Duration(milliseconds: 350);
-
-  /// Resting scale while minimised (see [_FloatingBar.shrunk]).
-  static const _shrunkScale = 0.8;
-
-  /// Peak of the tap-restore overshoot pop, relative to full size (1.0).
-  static const _popPeakScale = 1.02;
-
-  /// Overshoots to [_popPeakScale] then settles back to 1.0, multiplied on
-  /// top of the shrunk/full scale so it composes with that animation
-  /// instead of fighting it for the same value.
-  static final Animatable<double> _pop = TweenSequence<double>([
-    TweenSequenceItem(
-      weight: 40,
-      tween: Tween(
-        begin: 1.0,
-        end: _popPeakScale,
-      ).chain(CurveTween(curve: Curves.easeOut)),
-    ),
-    TweenSequenceItem(
-      weight: 60,
-      tween: Tween(
-        begin: _popPeakScale,
-        end: 1.0,
-      ).chain(CurveTween(curve: Curves.easeOut)),
-    ),
-  ]);
-
-  late final AnimationController _popController = AnimationController(
-    vsync: this,
-    duration: _popDuration,
-  );
-
-  @override
-  void dispose() {
-    _popController.dispose();
-    super.dispose();
-  }
-
-  void _onPointerDown(PointerDownEvent _) {
-    if (widget.shrunk) widget.onTapRestore();
-    _popController.forward(from: 0);
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      // Translucent + raw pointer events: observes the touch-down without
-      // eating it or competing in the gesture arena with nav segment taps.
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: _onPointerDown,
-      child: Padding(
-        // Sit the bar right on the safe-area line — the only gap below it.
-        padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w24,
-          0,
-          AppSpacingConstant.w24,
-          MediaQuery.paddingOf(context).bottom,
-        ),
-        child: ScaleTransition(
-          scale: _popController.drive(_pop),
-          alignment: Alignment.bottomCenter,
-          child: AnimatedScale(
-            scale: widget.shrunk ? _shrunkScale : 1,
-            alignment: Alignment.bottomCenter,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            child: LiquidGlass.withOwnLayer(
-              settings: kChromeGlass,
-              // Half the bar height (h68) → a true stadium: the short edges
-              // are full semicircles, no straight segment left.
-              shape: LiquidRoundedSuperellipse(
-                borderRadius: AppSpacingConstant.h34,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: MediaQuery.removePadding(
-                context: context,
-                removeBottom: true,
-                child: widget.child,
-              ),
-            ),
+    return Padding(
+      // Sit the bar right on the safe-area line — the only gap below it.
+      padding: EdgeInsets.fromLTRB(
+        AppSpacingConstant.w24,
+        0,
+        AppSpacingConstant.w24,
+        MediaQuery.paddingOf(context).bottom,
+      ),
+      child: PopScale(
+        peakScale: _popPeakScale,
+        alignment: Alignment.bottomCenter,
+        child: LiquidGlass.withOwnLayer(
+          settings: kChromeGlass,
+          // Half the bar height (h68) → a true stadium: the short edges
+          // are full semicircles, no straight segment left.
+          shape: LiquidRoundedSuperellipse(
+            borderRadius: AppSpacingConstant.h34,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: child,
           ),
         ),
       ),

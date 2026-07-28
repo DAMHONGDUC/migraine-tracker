@@ -75,7 +75,8 @@ class PermissionSettingsSheet extends StatelessWidget {
               style: AppTextStyle.bodyMedium.secondary,
             ),
             SizedBox(height: AppSpacingConstant.h24),
-            AppButton.primary(
+            AppButton(
+              variant: AppButtonVariant.primary,
               onPressed: () async {
                 Navigator.of(context).pop();
                 await onOpenSettings();
@@ -83,7 +84,8 @@ class PermissionSettingsSheet extends StatelessWidget {
               label: l10n.permissionOpenSettings,
             ),
             SizedBox(height: AppSpacingConstant.h8),
-            AppButton.text(
+            AppButton(
+              variant: AppButtonVariant.text,
               onPressed: () => Navigator.of(context).pop(),
               label: l10n.permissionNotNow,
             ),

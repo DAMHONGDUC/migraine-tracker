@@ -5,11 +5,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'core/analytics/app_analytics.dart';
 import 'core/l10n/locale_provider.dart';
+import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/providers.dart';
+import 'features/auth/domain/entities/auth_user.dart';
+import 'features/auth/providers.dart';
+import 'features/premium/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
 class BaroEaseApp extends HookConsumerWidget {
@@ -27,6 +33,27 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
+    // Keeps the analytics/crash identity in step with the account: the UID
+    // is opaque (never an email), and null once signed out.
+    ref.listen<AsyncValue<AuthUser?>>(authUserProvider, (previous, next) {
+      final AuthUser? user = switch (next) {
+        AsyncData(value: final AuthUser? value) => value,
+        _ => null,
+      };
+
+      AppAnalytics.setUser(uid: user?.uid, signedIn: user?.isSignedIn ?? false);
+      CrashReporter.setUserId(user?.uid);
+      // Sign-in, and every launch of a signed-in session: keep the account
+      // document in step with what the provider knows about the user.
+      if (user != null) {
+        unawaited(ref.read(accountControllerProvider).syncProfile(user));
+      }
+    });
+    ref.listen<bool>(hasPremiumProvider, (previous, next) {
+      AppAnalytics.setPremium(next);
+      CrashReporter.setCustomKey('is_premium', next);
+    });
+
     return ScreenUtilInit(
       // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this.
       designSize: const Size(393, 852),
@@ -41,6 +68,10 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
+        // Wraps every route: checks on each entry whether this build is
+        // still allowed to run (see ForceUpdateWrapper).
+        builder: (context, child) =>
+            ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,

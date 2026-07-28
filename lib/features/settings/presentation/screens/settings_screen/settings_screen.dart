@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/l10n/locale_provider.dart';
@@ -17,8 +18,10 @@ import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../../attacks/domain/enums/head_location.dart';
 import '../../../../auth/presentation/widgets/account_section.dart';
+import '../../../../auth/providers.dart';
 import '../../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../../premium/presentation/widgets/premium_settings_tile.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/enums/export_format.dart';
@@ -41,21 +44,16 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return AppScaffold(
-      // Content scrolls behind the glass nav; bottomNavInset already covers
-      // the device inset.
-      withSafeArea: false,
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
       body: AppRefreshIndicator(
         onRefresh: () =>
             AppRefreshIndicator.run(() => ref.invalidate(isPremiumProvider)),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.only(
-            top: AppScaffold.bodyTopInset(context),
-            bottom: AppScaffold.bottomNavInset(context),
-          ),
+          // Full-bleed: every row is a ListTile, which insets itself.
+          padding: AppContentPadding.fullBleed(context, floatingNav: true),
           children: [
-            AppSectionHeader(l10n.settingsSectionGeneral),
+            AppSectionHeader(l10n.settingsSectionGeneral, first: true),
             const _GeneralSection(),
             AppSectionHeader(l10n.settingsSectionData),
             const _DataSection(),

@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'data/repositories/firebase_auth_repository.dart';
+import 'data/repositories/firestore_user_profile_repository.dart';
 import 'domain/entities/auth_user.dart';
+import 'domain/entities/user_profile.dart';
 import 'domain/repositories/auth_repository.dart';
+import 'domain/repositories/user_profile_repository.dart';
 import 'presentation/controllers/auth_controller.dart';
 
 /// Widget tests MUST override this: [authUserProvider] is watched at build
@@ -18,6 +22,23 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final authUserProvider = StreamProvider<AuthUser?>(
   (ref) => ref.watch(authRepositoryProvider).watchUser(),
 );
+
+/// Widget tests MUST override this too — the account tab watches it.
+final userProfileRepositoryProvider = Provider<UserProfileRepository>(
+  (ref) => FirestoreUserProfileRepository(FirebaseFirestore.instance),
+);
+
+/// The signed-in user's account document. Null when signed out (nothing to
+/// read) or before the first write lands.
+final userProfileProvider = StreamProvider<UserProfile?>((ref) {
+  final AuthUser? user = switch (ref.watch(authUserProvider)) {
+    AsyncData(value: final AuthUser? value) => value,
+    _ => null,
+  };
+
+  if (user == null || !user.isSignedIn) return Stream<UserProfile?>.value(null);
+  return ref.watch(userProfileRepositoryProvider).watch(user.uid);
+});
 
 /// Every "needs an account" decision reads this. Falls back to the
 /// repository while loading, so Settings never flashes "Sign in".

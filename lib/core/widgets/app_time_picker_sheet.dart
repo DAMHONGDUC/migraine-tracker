@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_content_padding.dart';
 import '../constants/app_spacing_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'app_bottom_sheet.dart';
-import 'app_icon.dart';
+import 'app_sheet_header.dart';
 
 /// Opens the picker and returns the picked time, or null if dismissed —
 /// `AppTimePickerSheet(initialTime: ...).show(context)`. See
@@ -68,63 +69,32 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w24,
-          AppSpacingConstant.h4,
-          AppSpacingConstant.w24,
-          AppSpacingConstant.h16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Cancel/Done live as icon buttons flanking the title, like
-            // iOS's own picker sheets — not a button row under the wheels,
-            // which would put the confirming action a full wheel-height
-            // away from the title it belongs with.
-            //
-            // Plain IconButtons, not wrapped in GlassCircle: the whole sheet
-            // (showAppBottomSheet) is already one Liquid Glass surface, so a
-            // second independent glass layer nested inside it has no real
-            // background of its own left to refract — it just reads as
-            // flat, unlike GlassCircle on MainAppBar, which sits on
-            // deliberately non-glass chrome specifically so each icon has
-            // real content behind it to catch the light.
-            Row(
-              children: [
-                IconButton(
-                  icon: const AppIcon(Icons.close),
-                  tooltip: l10n.commonCancel,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                Expanded(
-                  child: Text(
-                    widget.title ?? l10n.remindersPickTimeTitle,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.titleMedium,
-                  ),
-                ),
-                // Filled teal circle — the same "positive, additive"
-                // treatment as AppButton.positive (backgroundColor:
-                // AppColors.secondary, foregroundColor: AppColors.onPrimary)
-                // — so the confirming action reads as the one filled,
-                // affirmative icon next to Cancel's plain outline.
-                IconButton.filled(
-                  icon: AppIcon(widget.isEditMode ? Icons.edit : Icons.check),
-                  tooltip: l10n.logDone,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: AppColors.onPrimary,
-                  ),
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).pop(TimeOfDay(hour: _hour, minute: _minute)),
-                ),
-              ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Cancel/Done flank the title, like iOS's own picker sheets — not
+          // a button row under the wheels, which would put the confirming
+          // action a full wheel-height away from the title it belongs with.
+          // Shared with every other sheet that has actions, and it brings
+          // its own insets, so nothing here pads around it.
+          AppSheetHeader(
+            title: widget.title ?? l10n.remindersPickTimeTitle,
+            action: widget.isEditMode
+                ? AppSheetAction.edit
+                : AppSheetAction.confirm,
+            onConfirm: () => Navigator.of(
+              context,
+            ).pop(TimeOfDay(hour: _hour, minute: _minute)),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppContentPadding.horizontal,
+              0,
+              AppContentPadding.horizontal,
+              AppSpacingConstant.h16,
             ),
-            SizedBox(height: AppSpacingConstant.h16),
-            SizedBox(
+            child: SizedBox(
               height:
                   AppTimePickerSheet.rowExtent * AppTimePickerSheet.visibleRows,
               child: Stack(
@@ -160,8 +130,8 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

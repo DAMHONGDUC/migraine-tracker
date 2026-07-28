@@ -12,25 +12,19 @@ class _ThresholdPage extends StatelessWidget {
       icon: Icons.compress,
       title: l10n.onboardingThresholdTitle,
       body: l10n.onboardingThresholdBody,
+      // Same control as the attack detail's intensity dialog, and the same
+      // severity ramp on the number: a bigger drop is the one worth warning
+      // about, so it reads redder as it climbs.
       footer: ValueListenableBuilder<double>(
         valueListenable: threshold,
-        builder: (context, value, _) => Column(
-          children: [
-            Text(
-              l10n.onboardingThresholdValue(value.round()),
-              style: AppTextStyle.displaySmall.copyWith(
-                fontWeight: FontWeight.w600,
-                color: context.colorScheme.primary,
-              ),
-            ),
-            Slider(
-              value: value,
-              min: 3,
-              max: 10,
-              divisions: 7,
-              onChanged: (v) => threshold.value = v,
-            ),
-          ],
+        builder: (BuildContext context, double value, _) => AppValueSlider(
+          label: l10n.onboardingThresholdValue(value.round()),
+          value: value,
+          min: 3,
+          max: 10,
+          divisions: 7,
+          accent: AppColors.intensity(value.round()),
+          onChanged: (double v) => threshold.value = v,
         ),
       ),
     );

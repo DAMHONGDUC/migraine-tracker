@@ -16,7 +16,7 @@ class _PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w24),
+      padding: EdgeInsets.symmetric(horizontal: AppContentPadding.horizontal),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,

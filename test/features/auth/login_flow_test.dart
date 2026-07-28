@@ -116,8 +116,10 @@ void main() {
       await tapVisible(tester, find.text('Continue with Google'));
 
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
-      expect(find.text('tester@example.com'), findsOneWidget);
-      expect(find.text('Sign out'), findsOneWidget);
+      // Settings shows the account row (which opens the account screen),
+      // never the email itself.
+      expect(find.text('Account'), findsOneWidget);
+      expect(find.text('tester@example.com'), findsNothing);
 
       await finishTest(tester);
     });
@@ -129,7 +131,7 @@ void main() {
       await tapVisible(tester, find.text('Sign in with Apple'));
 
       expect(app.auth.signInCalls, [AuthProviderKind.apple]);
-      expect(find.text('tester@example.com'), findsOneWidget);
+      expect(find.text('Account'), findsOneWidget);
 
       await finishTest(tester);
     });
@@ -173,46 +175,11 @@ void main() {
       await pumpApp(tester, signedIn: true);
       await openSettings(tester);
 
-      expect(find.text('tester@example.com'), findsOneWidget);
+      // The row says 'Account' and opens the account screen; Settings
+      // never puts the email on screen.
+      expect(find.text('Account'), findsOneWidget);
+      expect(find.text('tester@example.com'), findsNothing);
       expect(find.text('Optional — needed to unlock Premium'), findsNothing);
-
-      await finishTest(tester);
-    });
-
-    testWidgets('signing out is confirmed first, then reverts the row', (
-      tester,
-    ) async {
-      final app = await pumpApp(tester, signedIn: true);
-      await openSettings(tester);
-
-      await tester.tap(find.text('Sign out'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-
-      // The confirm explains that nothing on-device is lost (hard rule 1).
-      expect(
-        find.text(
-          'Your attacks stay on this device. Premium features lock until you '
-          'sign in again.',
-        ),
-        findsOneWidget,
-      );
-
-      await tester.tap(find.text('Cancel'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(app.auth.signOutCalls, 0);
-
-      await tester.tap(find.text('Sign out'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      // 'Sign out' now matches both the row and the dialog's confirm.
-      await tester.tap(find.text('Sign out').last);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-
-      expect(app.auth.signOutCalls, 1);
-      expect(find.text('Optional — needed to unlock Premium'), findsOneWidget);
 
       await finishTest(tester);
     });

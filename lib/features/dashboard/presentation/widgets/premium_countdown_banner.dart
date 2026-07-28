@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -62,7 +61,7 @@ class _PremiumCountdownBannerState
     if (ref.watch(hasPremiumProvider)) return const SizedBox.shrink();
 
     final l10n = context.l10n;
-    void openPaywall() => context.pushNamed(AppRoutes.paywall.name);
+    void openPaywall() => NavigationUtils.toPaywall(context, ref);
 
     return PressableScale(
       pressedScale: 0.98,
@@ -120,7 +119,8 @@ class _PremiumCountdownBannerState
               ),
             ),
             SizedBox(width: AppSpacingConstant.w12),
-            AppButton.primary(
+            AppButton(
+              variant: AppButtonVariant.primary,
               compact: true,
               label: l10n.premiumUnlock,
               onPressed: openPaywall,

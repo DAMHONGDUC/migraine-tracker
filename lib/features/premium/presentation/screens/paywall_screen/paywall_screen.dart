@@ -4,10 +4,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
+import '../../../../../core/analytics/app_analytics.dart';
+import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -63,9 +66,12 @@ class PaywallScreen extends ConsumerWidget {
               Text(l10n.paywallTitle, style: AppTextStyle.titleLarge.w600),
               Align(
                 alignment: AlignmentDirectional.topEnd,
-                child: IconButton(
+                child: AppBarButton(
+                  icon: Icons.close,
+                  // Already on the sheet's glass: a circle here would nest
+                  // one glass layer inside another and read flat.
+                  surface: AppBarButtonSurface.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                  icon: const AppIcon(Icons.close),
                   onPressed: () => context.pop(),
                 ),
               ),
@@ -75,11 +81,12 @@ class PaywallScreen extends ConsumerWidget {
         Expanded(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w24,
+              AppContentPadding.horizontal,
               AppSpacingConstant.h8,
-              AppSpacingConstant.w24,
-              // A sheet route: no SafeArea above it, so take the inset here.
-              MediaQuery.paddingOf(context).bottom + AppSpacingConstant.h16,
+              AppContentPadding.horizontal,
+              // A sheet route rather than a screen, but the same rule: it
+              // clears the home indicator by the same 16.
+              AppContentPadding.bottom(context),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -131,10 +138,14 @@ class PaywallScreen extends ConsumerWidget {
                     SizedBox(height: AppSpacingConstant.h24),
                     // Signed out there is no account to attach a
                     // subscription to; signed in, purchases await RevenueCat.
-                    AppButton.primary(
-                      onPressed: signedIn
-                          ? () {}
-                          : () => NavigationUtils.toLogin(context),
+                    AppButton(
+                      variant: AppButtonVariant.primary,
+                      onPressed: () {
+                        AppAnalytics.logPaywallCtaTapped(signedIn: signedIn);
+                        // Signed in, the purchase itself awaits RevenueCat —
+                        // the tap is still the conversion signal to measure.
+                        if (!signedIn) NavigationUtils.toLogin(context);
+                      },
                       label: signedIn
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
