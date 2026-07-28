@@ -45,7 +45,7 @@ enum AppButtonIconPlacement { inline, aligned }
 /// ```
 ///
 /// With an [icon] the content is always the same shape whatever the variant:
-/// a fixed [iconSize] glyph, a fixed [iconGap], then the label. Material's
+/// a [defaultIconSize] glyph, a fixed [iconGap], then the label. Material's
 /// own `.icon` constructors are deliberately not used — they carry their own
 /// padding per variant, which is what made the filled Apple button and the
 /// outlined Google button sit differently.
@@ -56,14 +56,16 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.iconPlacement = AppButtonIconPlacement.inline,
+    this.iconSize,
     this.compact = false,
     this.labelStyle,
     super.key,
   });
 
-  /// Leading glyph box — one size for every icon in every button, so two
-  /// buttons stacked on top of each other line up.
-  static double get iconSize => AppSpacingConstant.r20;
+  /// Leading glyph box when a call site does not pass [iconSize] — one size
+  /// for every icon in every button, so two buttons stacked on top of each
+  /// other line up.
+  static double get defaultIconSize => AppSpacingConstant.r20;
 
   /// Breathing room between the glyph and the label.
   static double get iconGap => AppSpacingConstant.w12;
@@ -78,6 +80,16 @@ class AppButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   final AppButtonIconPlacement iconPlacement;
+
+  /// Overrides [defaultIconSize] for a brand glyph that needs its own weight
+  /// (Apple's mark reads smaller than Google's in the same box). Pass an
+  /// `AppSpacingConstant.r*`, never a raw number.
+  ///
+  /// Under [AppButtonIconPlacement.aligned] this resizes the glyph but not
+  /// the slot it is centred in, so optical correction never costs the
+  /// alignment; under [AppButtonIconPlacement.inline] the glyph is the slot,
+  /// and a bigger one pushes the label along.
+  final double? iconSize;
 
   /// Chrome-sized button (app-bar actions): tighter padding and height.
   final bool compact;
@@ -123,7 +135,7 @@ class AppButton extends StatelessWidget {
       AppButtonIconPlacement.inline => Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          AppIcon(icon!, size: iconSize),
+          AppIcon(icon!, size: iconSize ?? defaultIconSize),
           SizedBox(width: iconGap),
           Flexible(child: _label(TextAlign.center)),
         ],
@@ -134,7 +146,16 @@ class AppButton extends StatelessWidget {
       AppButtonIconPlacement.aligned => Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          AppIcon(icon!, size: iconSize),
+          // The slot keeps [defaultIconSize] whatever the glyph measures, so
+          // an optically-corrected mark cannot shift the pair out of line.
+          SizedBox.square(
+            dimension: defaultIconSize,
+            child: OverflowBox(
+              maxWidth: double.infinity,
+              maxHeight: double.infinity,
+              child: AppIcon(icon!, size: iconSize ?? defaultIconSize),
+            ),
+          ),
           SizedBox(width: iconGap),
           Flexible(
             child: ConstrainedBox(

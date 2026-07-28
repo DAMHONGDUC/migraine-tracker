@@ -40,6 +40,7 @@ class _ProviderButtons extends ConsumerWidget {
               ? null
               : () => onSignIn(AuthProviderKind.google),
           icon: SimpleIcons.google,
+          iconSize: AppSpacingConstant.r18,
           iconPlacement: AppButtonIconPlacement.aligned,
           label: l10n.loginGoogle,
         ),

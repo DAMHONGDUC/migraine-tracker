@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/widgets/app_button.dart';
 
 /// The login screen's pair: a filled Apple button over an outlined Google
@@ -23,6 +24,7 @@ void main() {
     required AppButtonIconPlacement placement,
     String appleLabel = 'Apple',
     String googleLabel = 'Google',
+    double? appleIconSize,
   }) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
@@ -40,6 +42,7 @@ void main() {
                   variant: AppButtonVariant.primary,
                   icon: appleIcon,
                   iconPlacement: placement,
+                  iconSize: appleIconSize,
                   label: appleLabel,
                   onPressed: () {},
                 ),
@@ -135,6 +138,46 @@ void main() {
     expect(
       label.height,
       greaterThan(tester.getSize(find.text('Google')).height),
+    );
+  });
+
+  // Per-button override, for a brand glyph whose mark reads light or heavy
+  // at the shared box. The button next to it keeps the default.
+  testWidgets('iconSize overrides the default for that button alone', (
+    tester,
+  ) async {
+    await pumpPair(
+      tester,
+      placement: AppButtonIconPlacement.aligned,
+      appleIconSize: AppSpacingConstant.r28,
+    );
+
+    expect(
+      tester.getSize(find.byIcon(appleIcon)).width,
+      AppSpacingConstant.r28,
+    );
+    expect(
+      tester.getSize(find.byIcon(googleIcon)).width,
+      AppButton.defaultIconSize,
+    );
+  });
+
+  // Optical correction must not cost the alignment the pair was built for:
+  // the bigger glyph grows around its centre, inside an unchanged slot.
+  testWidgets('a resized glyph keeps the pair aligned', (tester) async {
+    await pumpPair(
+      tester,
+      placement: AppButtonIconPlacement.aligned,
+      appleIconSize: AppSpacingConstant.r28,
+    );
+
+    expect(
+      tester.getCenter(find.byIcon(appleIcon)).dx,
+      moreOrLessEquals(tester.getCenter(find.byIcon(googleIcon)).dx),
+    );
+    expect(
+      tester.getTopLeft(find.text('Apple')).dx,
+      tester.getTopLeft(find.text('Google')).dx,
     );
   });
 
