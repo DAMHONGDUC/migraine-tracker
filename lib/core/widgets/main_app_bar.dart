@@ -3,7 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import 'app_leading_button.dart';
+import 'app_bar_button.dart';
 import 'glass/glass_circle.dart';
 import 'glass/liquid_glass_theme.dart';
 
@@ -39,14 +39,20 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     // Every screen's leading button — explicit or auto-inserted for a
-    // pushed route that can pop — resolves through AppLeadingButton, glass
-    // on or off, so there is exactly one leading widget for the whole app
-    // rather than this bar and stock AppBar each growing their own.
+    // pushed route that can pop — is an AppBarButton, the same class the
+    // trailing actions use, so back and delete can never drift apart.
     // automaticallyImplyLeading: false below stops AppBar from also trying
     // to insert its own default back button on top of this.
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     Widget? resolvedLeading =
-        leading ?? (canPop ? const AppLeadingButton() : null);
+        leading ??
+        (canPop
+            ? AppBarButton(
+                icon: AppBarButton.backIcon,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: () => Navigator.maybePop(context),
+              )
+            : null);
 
     if (!AppGlass.isSupported) {
       return AppBar(
@@ -89,7 +95,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             automaticallyImplyLeading: false,
             actions: [
               for (final action in actions ?? const <Widget>[])
-                if (action is IconButton)
+                if (action is AppBarButton)
                   GlassCircle(child: action)
                 else
                   action,

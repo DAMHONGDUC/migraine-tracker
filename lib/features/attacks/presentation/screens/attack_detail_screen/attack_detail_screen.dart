@@ -9,6 +9,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
@@ -136,8 +137,10 @@ class AttackDetailScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
       actions: [
-        IconButton(
-          icon: AppIcon(Icons.delete_outline, color: context.colorScheme.error),
+        AppBarButton(
+          icon: Icons.delete_outline,
+          color: context.colorScheme.error,
+          tooltip: l10n.attackDetailDeleteTitle,
           onPressed: () => _delete(context, ref),
         ),
         SizedBox(width: AppSpacingConstant.w4),
