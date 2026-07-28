@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/widgets/app_sheet_content.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
@@ -131,6 +132,75 @@ void main() {
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows.single.location, HeadLocation.whole);
     expect(find.text('Whole head'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  // All three edits open a sheet now, not a dialog: the same grids the log
+  // flow uses need the room, and a sheet is where this app puts a picker.
+  testWidgets('each edit row opens a sheet', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+
+    for (final String row in <String>['Intensity', 'Location', 'Medication']) {
+      await tester.tap(find.text(row));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(
+        find.byType(AppSheetContent),
+        findsOneWidget,
+        reason: '$row should open a sheet',
+      );
+
+      // Dismiss by popping the sheet route, the way the barrier would.
+      Navigator.of(tester.element(find.byType(AppSheetContent))).pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the medication sheet picks "No medication"', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    await tester.tap(find.text('Medication'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    await tester.tap(find.text('No medication').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.medicationName, isNull);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the intensity sheet only commits on Save', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    await tester.tap(find.text('Intensity'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Drag the slider to the far end, then leave without saving.
+    await tester.drag(find.byType(Slider), const Offset(400, 0));
+    await tester.pump();
+    Navigator.of(tester.element(find.byType(AppSheetContent))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.intensity, 7);
 
     await finishTest(tester);
   });

@@ -13,18 +13,18 @@ import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
-import '../../../../../core/widgets/app_value_slider.dart';
-import '../../../../medications/providers.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/head_location.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
 import '../../widgets/head_diagram.dart';
+import '../../widgets/intensity_sheet.dart';
+import '../../widgets/location_picker_sheet.dart';
+import '../../widgets/medication_picker_sheet.dart';
 
 part 'attack_detail_screen_details_section.dart';
 part 'attack_detail_screen_editable_row.dart';
 part 'attack_detail_screen_header.dart';
-part 'attack_detail_screen_intensity_dialog.dart';
 part 'attack_detail_screen_location_diagram.dart';
 part 'attack_detail_screen_read_only_row.dart';
 part 'attack_detail_screen_section.dart';
@@ -42,10 +42,10 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final picked = await showAppDialog<int>(
-      context,
-      builder: (_) => _IntensityDialog(initial: attack.intensity),
-    );
+    final int? picked = await IntensitySheet(
+      initial: attack.intensity,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
@@ -62,23 +62,10 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final picked = await showAppDialog<HeadLocation>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: context.l10n.logLocationTitle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final location in HeadLocation.values)
-              AppDialogOption(
-                label: location.label(context.l10n),
-                selected: location == attack.location,
-                onTap: () => Navigator.of(dialogContext).pop(location),
-              ),
-          ],
-        ),
-      ),
-    );
+    final HeadLocation? picked = await LocationPickerSheet(
+      selected: attack.location,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
@@ -95,35 +82,11 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final l10n = context.l10n;
-    final medications = await ref.read(medicationRepositoryProvider).getAll();
-    if (!context.mounted) return;
-
     // Wrapped so "No medication" (null) is distinguishable from dismissal.
-    final picked = await showAppDialog<({String? name})>(
-      context,
-      builder: (dialogContext) => AppDialog(
-        title: l10n.logMedicationTitle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppDialogOption(
-              icon: Icons.block,
-              label: l10n.logNoMedication,
-              selected: attack.medicationName == null,
-              onTap: () => Navigator.of(dialogContext).pop((name: null)),
-            ),
-            for (final med in medications)
-              AppDialogOption(
-                icon: Icons.medication_outlined,
-                label: med.name,
-                selected: attack.medicationName == med.name,
-                onTap: () => Navigator.of(dialogContext).pop((name: med.name)),
-              ),
-          ],
-        ),
-      ),
-    );
+    final ({String? name})? picked = await MedicationPickerSheet(
+      selectedName: attack.medicationName,
+    ).show(context);
+
     if (picked == null) return;
     await ref
         .read(attackDetailControllerProvider)
