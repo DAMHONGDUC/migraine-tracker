@@ -22,8 +22,8 @@ import 'app_spacing_constant.dart';
 /// nav pill and the log flow's step bar sit AT the safe area so they line up
 /// with each other, and they read `MediaQuery` themselves.
 abstract final class AppContentPadding {
-  /// The gutter: 24 either side of any content.
-  static double get horizontal => AppSpacingConstant.w24;
+  /// The gutter: 16 either side of any content.
+  static double get horizontal => AppSpacingConstant.w16;
 
   /// Gap between the app bar and the first item of content. Separate from
   /// [bottomGap] on purpose: the two edges are different problems — this one
