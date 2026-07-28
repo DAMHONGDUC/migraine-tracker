@@ -11,6 +11,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
+import '../../../../../core/widgets/app_value_slider.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 

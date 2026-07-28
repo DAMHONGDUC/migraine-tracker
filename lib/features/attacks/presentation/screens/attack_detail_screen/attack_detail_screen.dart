@@ -13,6 +13,7 @@ import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/app_value_slider.dart';
 import '../../../../medications/providers.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/head_location.dart';

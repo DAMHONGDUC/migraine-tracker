@@ -15,22 +15,16 @@ class _IntensityDialogState extends State<_IntensityDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final color = AppColors.intensity(_value.round());
     return AppDialog(
       title: l10n.logIntensityTitle,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('${_value.round()}', style: AppTextStyle.displaySmall.w600),
-          Slider(
-            value: _value,
-            min: 1,
-            max: 10,
-            divisions: 9,
-            activeColor: color,
-            onChanged: (v) => setState(() => _value = v),
-          ),
-        ],
+      content: AppValueSlider(
+        label: '${_value.round()}',
+        value: _value,
+        min: 1,
+        max: 10,
+        divisions: 9,
+        accent: AppColors.intensity(_value.round()),
+        onChanged: (v) => setState(() => _value = v),
       ),
       actions: [
         AppButton(
