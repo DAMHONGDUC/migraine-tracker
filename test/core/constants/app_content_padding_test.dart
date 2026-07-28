@@ -53,8 +53,8 @@ void main() {
 
       // 47 status bar + 56 toolbar + topGap.
       expect(insets.top, 47 + kToolbarHeight + 8);
-      // 34 home indicator + 16.
-      expect(insets.bottom, 34 + 16);
+      // 34 home indicator + bottomGap.
+      expect(insets.bottom, 34 + 8);
       expect(insets.left, 24);
       expect(insets.right, 24);
     },
@@ -67,8 +67,8 @@ void main() {
           AppContentPadding.screen(context, floatingNav: true),
     );
 
-    // 34 home indicator + 68 pill + 8 hover gap + 16.
-    expect(insets.bottom, 34 + 68 + 8 + 16);
+    // 34 home indicator + 68 pill + 8 hover gap + bottomGap.
+    expect(insets.bottom, 34 + 68 + 8 + 8);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
   });
@@ -82,7 +82,7 @@ void main() {
     );
 
     expect(insets.top, 47 + kToolbarHeight + 8);
-    expect(insets.bottom, 34 + 16);
+    expect(insets.bottom, 34 + 8);
     expect(insets.left, 0);
     expect(insets.right, 0);
   });
@@ -140,6 +140,6 @@ void main() {
 
     // The body already starts below the bar; only the gap is left.
     expect(insets.top, 8);
-    expect(insets.bottom, 34 + 16);
+    expect(insets.bottom, 34 + 8);
   });
 }
