@@ -129,9 +129,10 @@ class ExportScreen extends ConsumerWidget {
     return AppScaffold(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
       actions: <Widget>[
-        AppBarButton(
-          icon: Icons.add,
-          tooltip: l10n.exportNewAction,
+        AppButton(
+          variant: AppButtonVariant.primary,
+          label: l10n.exportNewAction,
+          icon: Icons.ios_share,
           onPressed: () => _create(context, ref),
         ),
         SizedBox(width: AppSpacingConstant.w4),
