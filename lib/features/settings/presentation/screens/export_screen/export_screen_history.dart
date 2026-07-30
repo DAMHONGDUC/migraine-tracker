@@ -1,7 +1,11 @@
 part of 'export_screen.dart';
 
-/// The list of past exports, newest first. Streams from Drift, so a new
-/// export appears the moment it is recorded.
+/// The list of past exports, newest first, narrowed to the picked date window.
+/// Streams from Drift, so a new export appears the moment it is recorded.
+///
+/// Three states, not two: nothing exported yet ([_EmptyState], no filter to
+/// offer), a window that matches nothing ([_NoMatchState], with the pill still
+/// there to widen or clear it), or the rows.
 class _History extends ConsumerWidget {
   const _History({required this.onRecordTap});
 
@@ -10,12 +14,15 @@ class _History extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final bool hasAny =
+        ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
     final AsyncValue<List<ExportRecord>> history = ref.watch(
-      exportHistoryProvider,
+      filteredExportHistoryProvider,
     );
 
     return switch (history) {
-      AsyncData(value: final List<ExportRecord> records) when records.isEmpty =>
+      AsyncData(value: final List<ExportRecord> records)
+          when records.isEmpty && !hasAny =>
         const _EmptyState(),
       AsyncData(value: final List<ExportRecord> records) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,8 +38,11 @@ class _History extends ConsumerWidget {
               style: AppTextStyle.titleSmall.secondary,
             ),
           ),
-          for (final ExportRecord record in records)
-            _RecordTile(record: record, onTap: () => onRecordTap(record)),
+          if (records.isEmpty)
+            const _NoMatchState()
+          else
+            for (final ExportRecord record in records)
+              _RecordTile(record: record, onTap: () => onRecordTap(record)),
         ],
       ),
       AsyncError() => const _EmptyState(),

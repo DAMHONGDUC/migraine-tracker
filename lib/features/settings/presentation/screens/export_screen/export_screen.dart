@@ -11,25 +11,36 @@ import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
+import '../../../../../core/widgets/app_filter_pill.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
+import '../../../../../core/widgets/pinned_filter_bar.dart';
+import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../domain/entities/export_date_filter.dart';
 import '../../../domain/entities/export_record.dart';
 import '../../../domain/enums/export_action.dart';
 import '../../../domain/enums/export_kind.dart';
 import '../../../providers.dart';
 import '../../controllers/export_controller.dart';
 import '../../widgets/export_actions_sheet.dart';
+import '../../widgets/export_date_filter_sheet.dart';
 import '../../widgets/export_kind_sheet.dart';
 
+part 'export_screen_date_filter_pill.dart';
 part 'export_screen_empty_state.dart';
 part 'export_screen_history.dart';
+part 'export_screen_no_match_state.dart';
 part 'export_screen_record_tile.dart';
 
 /// Export data, and everything already exported. Reached from Settings.
 ///
 /// Exports are written to disk and recorded, so a row can be re-shared or
 /// saved to the device later without rebuilding the file.
+///
+/// The history can be narrowed to a date window. The pill that does it sits in
+/// a [PinnedFilterBar] anchored just below the app bar — the rows scroll under
+/// it and it never leaves, the same treatment the medications tab uses.
 class ExportScreen extends ConsumerWidget {
   const ExportScreen({super.key});
 
@@ -124,6 +135,14 @@ class ExportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // Nothing to filter until something has been exported, so the strip only
+    // exists once the list does.
+    final bool hasAny =
+        ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
+    // Measured here (the body-building context) and handed to both the strip
+    // and the list gap, so the two can never drift apart.
+    final double topInset = AppContentPadding.appBarInset(context);
+    final double belowStrip = AppContentPadding.belowPinnedFilterBar(context);
 
     return AppScaffold(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
@@ -136,15 +155,33 @@ class ExportScreen extends ConsumerWidget {
         ),
         SizedBox(width: AppSpacingConstant.w4),
       ],
-      // The list pads itself so it scrolls behind the frosted bar. Full
-      // bleed: a ListTile brings its own gutter.
-      body: ListView(
-        padding: AppContentPadding.fullBleed(context),
+      // The filter strip floats over the top of the list (in a Stack), anchored
+      // under the app bar while the rows scroll beneath it. The list pads itself
+      // so it passes behind both; no gutter of its own — a ListTile brings one.
+      body: Stack(
         children: <Widget>[
-          _History(
-            onRecordTap: (ExportRecord record) =>
-                _openActions(context, ref, record),
+          ListView(
+            padding: EdgeInsets.only(
+              top: hasAny ? belowStrip : AppContentPadding.top(context),
+              bottom: AppContentPadding.bottom(context),
+            ),
+            children: <Widget>[
+              _History(
+                onRecordTap: (ExportRecord record) =>
+                    _openActions(context, ref, record),
+              ),
+            ],
           ),
+          if (hasAny)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: PinnedFilterBar(
+                topInset: topInset,
+                child: const _DateFilterPill(),
+              ),
+            ),
         ],
       ),
     );
