@@ -1,22 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
-import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 
+import '../../helpers/export_fakes.dart';
 import '../../helpers/pump_app.dart';
-
-class RecordingExportSink implements ExportSink {
-  final List<({String content, String filename, String mimeType})> shared = [];
-
-  @override
-  Future<void> share({
-    required String content,
-    required String filename,
-    required String mimeType,
-  }) async {
-    shared.add((content: content, filename: filename, mimeType: mimeType));
-  }
-}
 
 void main() {
   testWidgets('delete everything wipes attacks, weather, and medications', (
@@ -60,47 +47,158 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('JSON export shares a file containing the logged attack', (
-    tester,
-  ) async {
-    final sink = RecordingExportSink();
-    await pumpApp(tester, exportSink: sink);
+  testWidgets('the export screen starts empty', (tester) async {
+    await pumpApp(tester);
 
-    await logAttack(tester, intensity: '8', location: 'Left side');
+    await openExportScreen(tester);
 
-    await openSettings(tester);
-    await tapVisible(tester, find.text('Export data'));
-    await tester.tap(find.text('JSON (full backup)'));
-    // The export path chains several awaits (two stream reads + the share
-    // call); give the fake event loop enough turns to drain them all.
-    for (var i = 0; i < 10; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
-
-    expect(sink.shared, hasLength(1));
-    expect(sink.shared.single.mimeType, 'application/json');
-    expect(sink.shared.single.filename, startsWith('baroease_export_'));
-    expect(sink.shared.single.content, contains('"intensity": 8'));
-    expect(sink.shared.single.content, contains('"location": "left"'));
+    expect(find.text('No exports yet'), findsOneWidget);
 
     await finishTest(tester);
   });
 
-  testWidgets('CSV export shares a text/csv file', (tester) async {
-    final sink = RecordingExportSink();
-    await pumpApp(tester, exportSink: sink);
+  testWidgets('JSON export writes the file and records it in the history', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+
+    await logAttack(tester, intensity: '8', location: 'Left side');
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('JSON'));
+    await settleExport(tester);
+
+    expect(app.exportFiles.singleContent, contains('"intensity": 8'));
+    expect(app.exportFiles.singleContent, contains('"location": "left"'));
+    expect(app.exportFiles.files.keys.single, contains('baroease_export_'));
+
+    // The history row replaced the empty state.
+    expect(await app.db.select(app.db.exportRecords).get(), hasLength(1));
+    expect(find.text('No exports yet'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('CSV export writes a csv file', (tester) async {
+    final app = await pumpApp(tester);
 
     await logAttack(tester);
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('CSV'));
+    await settleExport(tester);
 
-    await openSettings(tester);
-    await tapVisible(tester, find.text('Export data'));
-    await tester.tap(find.text('CSV (attacks table)'));
-    for (var i = 0; i < 10; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
+    expect(app.exportFiles.singleContent, contains('id,started_at_utc'));
+    expect(app.exportFiles.files.keys.single, endsWith('.csv'));
 
-    expect(sink.shared.single.mimeType, 'text/csv');
-    expect(sink.shared.single.content, contains('id,started_at_utc'));
+    await finishTest(tester);
+  });
+
+  testWidgets('sharing a history row hands the stored file to the share sheet', (
+    tester,
+  ) async {
+    final sharer = RecordingExportSharer();
+    final app = await pumpApp(tester, exportSharer: sharer);
+
+    await logAttack(tester);
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('JSON'));
+    await settleExport(tester);
+
+    // Tap the history row, then Share in its actions sheet.
+    await tapVisible(tester, find.text('JSON'));
+    await tester.tap(find.text('Share'));
+    await settleExport(tester);
+
+    expect(sharer.shared, hasLength(1));
+    expect(sharer.shared.single.mimeType, 'application/json');
+    expect(sharer.shared.single.path, app.exportFiles.files.keys.single);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('save to device copies the stored export through the picker', (
+    tester,
+  ) async {
+    final saver = RecordingFileSaver();
+    final app = await pumpApp(tester, fileSaver: saver);
+
+    await logAttack(tester);
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('CSV'));
+    await settleExport(tester);
+
+    await tapVisible(tester, find.text('CSV'));
+    await tester.tap(find.text('Save to device'));
+    await settleExport(tester);
+
+    expect(saver.saved, hasLength(1));
+    expect(saver.saved.single.sourcePath, app.exportFiles.files.keys.single);
+    expect(saver.saved.single.filename, endsWith('.csv'));
+    expect(find.text('Saved to your device.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('dismissing the save picker says nothing', (tester) async {
+    final saver = RecordingFileSaver(result: false);
+    await pumpApp(tester, fileSaver: saver);
+
+    await logAttack(tester);
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('CSV'));
+    await settleExport(tester);
+
+    await tapVisible(tester, find.text('CSV'));
+    await tester.tap(find.text('Save to device'));
+    await settleExport(tester);
+
+    // Backing out is not a failure — no confirmation, no error.
+    expect(find.text('Saved to your device.'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('deleting an export removes the row and its file', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+
+    await logAttack(tester);
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+    await tester.tap(find.text('JSON'));
+    await settleExport(tester);
+
+    await tapVisible(tester, find.text('JSON'));
+    await tester.tap(find.text('Delete'));
+    await settleExport(tester);
+
+    expect(find.text('Delete this export?'), findsOneWidget);
+    await tester.tap(find.text('Delete').last);
+    await settleExport(tester);
+
+    expect(await app.db.select(app.db.exportRecords).get(), isEmpty);
+    expect(app.exportFiles.files, isEmpty);
+    expect(find.text('No exports yet'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a free user gets the paywall pitch instead of the PDF report', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await openExportScreen(tester);
+    await tapVisible(tester, find.text('Export'));
+
+    // The row is there, but locked — never a path that produces a report.
+    expect(find.text('Doctor report (PDF)'), findsOneWidget);
+    expect(find.text('Premium'), findsOneWidget);
 
     await finishTest(tester);
   });

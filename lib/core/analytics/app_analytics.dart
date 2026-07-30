@@ -46,6 +46,9 @@ abstract final class AppAnalytics {
   static const String _forceUpdateCtaTapped = 'force_update_cta_tapped';
   static const String _dataExported = 'data_exported';
   static const String _doctorReportShared = 'doctor_report_shared';
+  static const String _exportShared = 'export_shared';
+  static const String _exportSavedToDevice = 'export_saved_to_device';
+  static const String _exportDeleted = 'export_deleted';
   static const String _dataWiped = 'data_wiped';
 
   // --- Parameter keys. ---
@@ -229,6 +232,16 @@ abstract final class AppAnalytics {
 
   static void logDoctorReportShared({required int attackCount}) =>
       _log(_doctorReportShared, <String, Object>{_pAttackCount: attackCount});
+
+  /// Re-sharing / saving / dropping something already in the export history.
+  /// The format only — never the file's contents (hard rule 1).
+  static void logExportShared({required String format}) =>
+      _log(_exportShared, <String, Object>{_pFormat: format});
+
+  static void logExportSavedToDevice({required String format}) =>
+      _log(_exportSavedToDevice, <String, Object>{_pFormat: format});
+
+  static void logExportDeleted() => _log(_exportDeleted);
 
   static void logDataWiped() => _log(_dataWiped);
 

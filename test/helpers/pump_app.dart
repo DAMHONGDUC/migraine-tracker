@@ -28,13 +28,14 @@ import 'package:migraine_tracker/features/medications/domain/services/notificati
 import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/premium/data/repositories/debug_premium_repository.dart';
-import 'package:migraine_tracker/features/settings/domain/services/export_sink.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'export_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
 /// the network.
@@ -270,6 +271,7 @@ class PumpedApp {
     required this.appUpdate,
     required this.storeLauncher,
     required this.profiles,
+    required this.exportFiles,
   });
 
   final AppDatabase db;
@@ -281,6 +283,10 @@ class PumpedApp {
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
   final FakeUserProfileRepository profiles;
+
+  /// Where exports landed. Read `singleContent` to assert on what was
+  /// written without touching a real filesystem.
+  final FakeExportFileStore exportFiles;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -291,7 +297,8 @@ Future<PumpedApp> pumpApp(
   WeatherSnapshot? weatherSnapshot,
   // Riverpod 3 no longer exports the `Override` type, so the helper takes
   // the concrete fakes it knows about instead of a generic override list.
-  ExportSink? exportSink,
+  RecordingExportSharer? exportSharer,
+  RecordingFileSaver? fileSaver,
 
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
@@ -349,6 +356,7 @@ Future<PumpedApp> pumpApp(
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
   final permissions = FakeAppPermissionGateway();
+  final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
   addTearDown(auth.dispose);
   final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
@@ -379,8 +387,12 @@ Future<PumpedApp> pumpApp(
           ),
         ),
         appleSignInImplementedProvider.overrideWithValue(appleSignIn),
-        if (exportSink != null)
-          exportSinkProvider.overrideWithValue(exportSink),
+        // Always overridden: the real store needs path_provider, which a
+        // widget test does not have.
+        exportFileStoreProvider.overrideWithValue(exportFiles),
+        if (exportSharer != null)
+          exportSharerProvider.overrideWithValue(exportSharer),
+        if (fileSaver != null) fileSaverProvider.overrideWithValue(fileSaver),
       ],
       child: const BaroEaseApp(),
     ),
@@ -398,6 +410,7 @@ Future<PumpedApp> pumpApp(
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
     profiles: profiles,
+    exportFiles: exportFiles,
   );
 }
 
@@ -428,6 +441,22 @@ Future<void> openSettings(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.settings_outlined));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Settings → Export data. The export screen is pushed over the tab shell,
+/// so it covers the bottom nav.
+Future<void> openExportScreen(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(tester, find.text('Export data'));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Runs the export flow's chain of awaits (repository reads, the file
+/// write, the record insert) to completion on the fake event loop.
+Future<void> settleExport(WidgetTester tester) async {
+  for (int i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
 
 Future<void> openMedications(WidgetTester tester) async {

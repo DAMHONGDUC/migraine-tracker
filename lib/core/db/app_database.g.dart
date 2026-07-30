@@ -1588,6 +1588,419 @@ class MedicationRemindersCompanion
   }
 }
 
+class $ExportRecordsTable extends ExportRecords
+    with TableInfo<$ExportRecordsTable, ExportRecordRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExportRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _filenameMeta = const VerificationMeta(
+    'filename',
+  );
+  @override
+  late final GeneratedColumn<String> filename = GeneratedColumn<String>(
+    'filename',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _filePathMeta = const VerificationMeta(
+    'filePath',
+  );
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+    'file_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    filename,
+    filePath,
+    sizeBytes,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'export_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExportRecordRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('filename')) {
+      context.handle(
+        _filenameMeta,
+        filename.isAcceptableOrUnknown(data['filename']!, _filenameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_filenameMeta);
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(
+        _filePathMeta,
+        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_filePathMeta);
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExportRecordRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExportRecordRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      filename: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filename'],
+      )!,
+      filePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_path'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ExportRecordsTable createAlias(String alias) {
+    return $ExportRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class ExportRecordRow extends DataClass implements Insertable<ExportRecordRow> {
+  final String id;
+
+  /// `ExportKind.name` — json, csv or pdf.
+  final String kind;
+  final String filename;
+
+  /// Absolute path in the app's documents directory. Stored rather than
+  /// rebuilt so a rename of the naming scheme can't orphan old rows.
+  final String filePath;
+  final int sizeBytes;
+  final DateTime createdAt;
+  const ExportRecordRow({
+    required this.id,
+    required this.kind,
+    required this.filename,
+    required this.filePath,
+    required this.sizeBytes,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['kind'] = Variable<String>(kind);
+    map['filename'] = Variable<String>(filename);
+    map['file_path'] = Variable<String>(filePath);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  ExportRecordsCompanion toCompanion(bool nullToAbsent) {
+    return ExportRecordsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      filename: Value(filename),
+      filePath: Value(filePath),
+      sizeBytes: Value(sizeBytes),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory ExportRecordRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExportRecordRow(
+      id: serializer.fromJson<String>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      filename: serializer.fromJson<String>(json['filename']),
+      filePath: serializer.fromJson<String>(json['filePath']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<String>(kind),
+      'filename': serializer.toJson<String>(filename),
+      'filePath': serializer.toJson<String>(filePath),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  ExportRecordRow copyWith({
+    String? id,
+    String? kind,
+    String? filename,
+    String? filePath,
+    int? sizeBytes,
+    DateTime? createdAt,
+  }) => ExportRecordRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    filename: filename ?? this.filename,
+    filePath: filePath ?? this.filePath,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  ExportRecordRow copyWithCompanion(ExportRecordsCompanion data) {
+    return ExportRecordRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      filename: data.filename.present ? data.filename.value : this.filename,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExportRecordRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('filename: $filename, ')
+          ..write('filePath: $filePath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, kind, filename, filePath, sizeBytes, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExportRecordRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.filename == this.filename &&
+          other.filePath == this.filePath &&
+          other.sizeBytes == this.sizeBytes &&
+          other.createdAt == this.createdAt);
+}
+
+class ExportRecordsCompanion extends UpdateCompanion<ExportRecordRow> {
+  final Value<String> id;
+  final Value<String> kind;
+  final Value<String> filename;
+  final Value<String> filePath;
+  final Value<int> sizeBytes;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const ExportRecordsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.filename = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExportRecordsCompanion.insert({
+    required String id,
+    required String kind,
+    required String filename,
+    required String filePath,
+    required int sizeBytes,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       kind = Value(kind),
+       filename = Value(filename),
+       filePath = Value(filePath),
+       sizeBytes = Value(sizeBytes),
+       createdAt = Value(createdAt);
+  static Insertable<ExportRecordRow> custom({
+    Expression<String>? id,
+    Expression<String>? kind,
+    Expression<String>? filename,
+    Expression<String>? filePath,
+    Expression<int>? sizeBytes,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (filename != null) 'filename': filename,
+      if (filePath != null) 'file_path': filePath,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExportRecordsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? kind,
+    Value<String>? filename,
+    Value<String>? filePath,
+    Value<int>? sizeBytes,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return ExportRecordsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      filename: filename ?? this.filename,
+      filePath: filePath ?? this.filePath,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (filename.present) {
+      map['filename'] = Variable<String>(filename.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExportRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('filename: $filename, ')
+          ..write('filePath: $filePath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1598,6 +2011,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MedicationsTable medications = $MedicationsTable(this);
   late final $MedicationRemindersTable medicationReminders =
       $MedicationRemindersTable(this);
+  late final $ExportRecordsTable exportRecords = $ExportRecordsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1607,6 +2021,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     weatherSnapshots,
     medications,
     medicationReminders,
+    exportRecords,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -2946,6 +3361,225 @@ typedef $$MedicationRemindersTableProcessedTableManager =
       MedicationReminderRow,
       PrefetchHooks Function({bool medicationId})
     >;
+typedef $$ExportRecordsTableCreateCompanionBuilder =
+    ExportRecordsCompanion Function({
+      required String id,
+      required String kind,
+      required String filename,
+      required String filePath,
+      required int sizeBytes,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$ExportRecordsTableUpdateCompanionBuilder =
+    ExportRecordsCompanion Function({
+      Value<String> id,
+      Value<String> kind,
+      Value<String> filename,
+      Value<String> filePath,
+      Value<int> sizeBytes,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$ExportRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $ExportRecordsTable> {
+  $$ExportRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filename => $composableBuilder(
+    column: $table.filename,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExportRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExportRecordsTable> {
+  $$ExportRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filename => $composableBuilder(
+    column: $table.filename,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExportRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExportRecordsTable> {
+  $$ExportRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get filename =>
+      $composableBuilder(column: $table.filename, builder: (column) => column);
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$ExportRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExportRecordsTable,
+          ExportRecordRow,
+          $$ExportRecordsTableFilterComposer,
+          $$ExportRecordsTableOrderingComposer,
+          $$ExportRecordsTableAnnotationComposer,
+          $$ExportRecordsTableCreateCompanionBuilder,
+          $$ExportRecordsTableUpdateCompanionBuilder,
+          (
+            ExportRecordRow,
+            BaseReferences<_$AppDatabase, $ExportRecordsTable, ExportRecordRow>,
+          ),
+          ExportRecordRow,
+          PrefetchHooks Function()
+        > {
+  $$ExportRecordsTableTableManager(_$AppDatabase db, $ExportRecordsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExportRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExportRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExportRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> filename = const Value.absent(),
+                Value<String> filePath = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExportRecordsCompanion(
+                id: id,
+                kind: kind,
+                filename: filename,
+                filePath: filePath,
+                sizeBytes: sizeBytes,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String kind,
+                required String filename,
+                required String filePath,
+                required int sizeBytes,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ExportRecordsCompanion.insert(
+                id: id,
+                kind: kind,
+                filename: filename,
+                filePath: filePath,
+                sizeBytes: sizeBytes,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExportRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExportRecordsTable,
+      ExportRecordRow,
+      $$ExportRecordsTableFilterComposer,
+      $$ExportRecordsTableOrderingComposer,
+      $$ExportRecordsTableAnnotationComposer,
+      $$ExportRecordsTableCreateCompanionBuilder,
+      $$ExportRecordsTableUpdateCompanionBuilder,
+      (
+        ExportRecordRow,
+        BaseReferences<_$AppDatabase, $ExportRecordsTable, ExportRecordRow>,
+      ),
+      ExportRecordRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2958,4 +3592,6 @@ class $AppDatabaseManager {
       $$MedicationsTableTableManager(_db, _db.medications);
   $$MedicationRemindersTableTableManager get medicationReminders =>
       $$MedicationRemindersTableTableManager(_db, _db.medicationReminders);
+  $$ExportRecordsTableTableManager get exportRecords =>
+      $$ExportRecordsTableTableManager(_db, _db.exportRecords);
 }
