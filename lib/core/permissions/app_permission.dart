@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../widgets/permission_settings_sheet.dart';
 import 'app_permission_gateway.dart';
 import 'app_permission_types.dart';
-import 'widgets/permission_settings_sheet.dart';
 
 export 'app_permission_types.dart';
 

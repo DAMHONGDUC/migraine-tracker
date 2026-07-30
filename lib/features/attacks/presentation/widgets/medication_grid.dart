@@ -8,9 +8,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
+import '../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../medications/domain/entities/medication.dart';
-import '../../../medications/presentation/widgets/medication_name_dialog.dart';
 import '../../../medications/providers.dart';
 
 /// The medication picker's two-column grid, shared by the log flow's third

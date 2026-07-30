@@ -23,13 +23,13 @@ import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../core/widgets/empty_state.dart';
+import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../core/widgets/pinned_filter_bar.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
 import '../../../providers.dart';
 import '../../controllers/medication_filters_controller.dart';
-import '../../widgets/medication_name_dialog.dart';
 
 part 'medications_screen_expand_reminders_toggle.dart';
 part 'medications_screen_medication_card.dart';
