@@ -19,12 +19,11 @@ import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_filter_sheet.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
+import '../../../../../core/widgets/collapsing_filter_scaffold.dart';
 import '../../../../../core/widgets/empty_state.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
-import '../../../../../core/widgets/pinned_filter_bar.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
@@ -287,13 +286,12 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filters = ref.watch(medicationFiltersProvider);
     final filtersController = ref.read(medicationFiltersProvider.notifier);
     final searchQuery = ref.watch(medicationSearchProvider);
-    // Measured here (the body-building context) and handed to both the filter
-    // strip and the list gap so they use the identical value — reading it again
-    // deeper in the tree can drift in this nested-Scaffold setup.
-    final topInset = AppContentPadding.appBarInset(context);
+    // The gap the cards leave for the app bar and the filter strip above them.
+    // Fixed whether the strip is showing or lifted into the bar, so the list
+    // never jumps mid-scroll (see CollapsingFilterScaffold).
     final filterBarHeight = AppContentPadding.belowPinnedFilterBar(context);
 
-    return AppScaffold(
+    return CollapsingFilterScaffold(
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
@@ -353,84 +351,72 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               ),
               SizedBox(width: AppSpacingConstant.w12),
             ],
+      // The filter chips sit under the app bar while reading and lift into it
+      // once the list scrolls — except while searching, when the bar is the
+      // search field's and must stay put.
+      filter: _filterRow(context, filters, filtersController),
+      collapsible: !_searching,
       // No outer top padding: like History, the list scrolls behind the
-      // translucent app bar so it fills the screen. The filter row is a fixed
-      // PinnedFilterBar floating over the top of the list (in a Stack) — it
-      // stays anchored just below the app bar while the cards scroll under it.
-      body: Stack(
-        children: [
-          AppRefreshIndicator(
-            // Drop the spinner below the filter strip, not over its chips.
-            edgeOffset: filterBarHeight + AppSpacingConstant.h8,
-            onRefresh: () => AppRefreshIndicator.run(() {
-              ref
-                ..invalidate(medicationsStreamProvider)
-                ..invalidate(medicationRemindersStreamProvider);
-            }),
-            child: CustomScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                if (medications.isEmpty)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    // Clear the app bar + filter strip so the empty state
-                    // centers in the space below them.
-                    child: Padding(
-                      padding: EdgeInsets.only(top: filterBarHeight),
-                      child: EmptyState(
-                        icon: Icons.medication_outlined,
-                        message: searchQuery.trim().isEmpty
-                            ? l10n.medicationsEmpty
-                            : l10n.medicationsSearchEmpty,
-                      ),
-                    ),
-                  )
-                else
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(
-                      AppContentPadding.horizontal,
-                      filterBarHeight,
-                      AppContentPadding.horizontal,
-                      AppContentPadding.bottom(context, floatingNav: true),
-                    ),
-                    sliver: SliverList.separated(
-                      itemCount: medications.length,
-                      separatorBuilder: (_, _) =>
-                          SizedBox(height: AppSpacingConstant.h8),
-                      itemBuilder: (context, index) {
-                        final medication = medications[index];
-                        return _MedicationCard(
-                          key: _cardKeys.putIfAbsent(
-                            medication.id,
-                            GlobalKey.new,
-                          ),
-                          medication: medication,
-                          highlighted: medication.id == _highlightedId,
-                        );
-                      },
-                    ),
+      // translucent app bar so it fills the screen.
+      body: AppRefreshIndicator(
+        // Drop the spinner below the filter strip, not over its chips.
+        edgeOffset: filterBarHeight + AppSpacingConstant.h8,
+        onRefresh: () => AppRefreshIndicator.run(() {
+          ref
+            ..invalidate(medicationsStreamProvider)
+            ..invalidate(medicationRemindersStreamProvider);
+        }),
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            if (medications.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                // Clear the app bar + filter strip so the empty state
+                // centers in the space below them.
+                child: Padding(
+                  padding: EdgeInsets.only(top: filterBarHeight),
+                  child: EmptyState(
+                    icon: Icons.medication_outlined,
+                    message: searchQuery.trim().isEmpty
+                        ? l10n.medicationsEmpty
+                        : l10n.medicationsSearchEmpty,
                   ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: PinnedFilterBar(
-              topInset: topInset,
-              child: _filterRow(context, filters, filtersController),
-            ),
-          ),
-        ],
+                ),
+              )
+            else
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  AppContentPadding.horizontal,
+                  filterBarHeight,
+                  AppContentPadding.horizontal,
+                  AppContentPadding.bottom(context, floatingNav: true),
+                ),
+                sliver: SliverList.separated(
+                  itemCount: medications.length,
+                  separatorBuilder: (_, _) =>
+                      SizedBox(height: AppSpacingConstant.h8),
+                  itemBuilder: (context, index) {
+                    final medication = medications[index];
+                    return _MedicationCard(
+                      key: _cardKeys.putIfAbsent(medication.id, GlobalKey.new),
+                      medication: medication,
+                      highlighted: medication.id == _highlightedId,
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
   /// The row of independent filter chips (date / reminder / usage).
-  /// [PinnedFilterBar] supplies the horizontal scrolling, so this returns a
-  /// bare [Row] — don't wrap it in a scroll view (that would nest two).
+  /// `CollapsingFilterScaffold` supplies the horizontal scrolling in both places
+  /// it shows this row, so it stays a bare [Row] — a scroll view here would
+  /// nest two.
   Widget _filterRow(
     BuildContext context,
     MedicationFilters filters,

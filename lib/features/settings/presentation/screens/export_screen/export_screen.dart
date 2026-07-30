@@ -13,9 +13,8 @@ import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_filter_pill.dart';
 import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../../core/widgets/pinned_filter_bar.dart';
+import '../../../../../core/widgets/collapsing_filter_scaffold.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_date_filter.dart';
 import '../../../domain/entities/export_record.dart';
@@ -38,9 +37,10 @@ part 'export_screen_record_tile.dart';
 /// Exports are written to disk and recorded, so a row can be re-shared or
 /// saved to the device later without rebuilding the file.
 ///
-/// The history can be narrowed to a date window. The pill that does it sits in
-/// a [PinnedFilterBar] anchored just below the app bar — the rows scroll under
-/// it and it never leaves, the same treatment the medications tab uses.
+/// The history can be narrowed to a date window. The pill that does it rides in
+/// a [CollapsingFilterScaffold], so it sits under the app bar while reading and
+/// lifts into it once the list scrolls — the same behaviour as the medications
+/// tab.
 class ExportScreen extends ConsumerWidget {
   const ExportScreen({super.key});
 
@@ -139,12 +139,8 @@ class ExportScreen extends ConsumerWidget {
     // exists once the list does.
     final bool hasAny =
         ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
-    // Measured here (the body-building context) and handed to both the strip
-    // and the list gap, so the two can never drift apart.
-    final double topInset = AppContentPadding.appBarInset(context);
-    final double belowStrip = AppContentPadding.belowPinnedFilterBar(context);
 
-    return AppScaffold(
+    return CollapsingFilterScaffold(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
       actions: <Widget>[
         AppButton(
@@ -155,33 +151,22 @@ class ExportScreen extends ConsumerWidget {
         ),
         SizedBox(width: AppSpacingConstant.w4),
       ],
-      // The filter strip floats over the top of the list (in a Stack), anchored
-      // under the app bar while the rows scroll beneath it. The list pads itself
-      // so it passes behind both; no gutter of its own — a ListTile brings one.
-      body: Stack(
+      filter: hasAny ? const _DateFilterPill() : null,
+      // The list pads itself so it scrolls behind the frosted bar and the strip;
+      // no gutter of its own — a ListTile brings one. The top inset stays put
+      // whether the strip is showing or not (see CollapsingFilterScaffold).
+      body: ListView(
+        padding: EdgeInsets.only(
+          top: hasAny
+              ? AppContentPadding.belowPinnedFilterBar(context)
+              : AppContentPadding.top(context),
+          bottom: AppContentPadding.bottom(context),
+        ),
         children: <Widget>[
-          ListView(
-            padding: EdgeInsets.only(
-              top: hasAny ? belowStrip : AppContentPadding.top(context),
-              bottom: AppContentPadding.bottom(context),
-            ),
-            children: <Widget>[
-              _History(
-                onRecordTap: (ExportRecord record) =>
-                    _openActions(context, ref, record),
-              ),
-            ],
+          _History(
+            onRecordTap: (ExportRecord record) =>
+                _openActions(context, ref, record),
           ),
-          if (hasAny)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: PinnedFilterBar(
-                topInset: topInset,
-                child: const _DateFilterPill(),
-              ),
-            ),
         ],
       ),
     );
