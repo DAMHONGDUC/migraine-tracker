@@ -101,7 +101,7 @@ void main() {
       // locked: the row is a pitch, never a path that produces a report.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
-      await tapVisible(tester, find.byTooltip('New export'));
+      await tapVisible(tester, find.text('Export'));
       expect(
         find.text('Export a PDF summary of your attacks for your doctor.'),
         findsOneWidget,
@@ -279,7 +279,7 @@ void main() {
       // pitch, just the row that produces it.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
-      await tapVisible(tester, find.byTooltip('New export'));
+      await tapVisible(tester, find.text('Export'));
 
       expect(find.text('Doctor report (PDF)'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsNothing);
