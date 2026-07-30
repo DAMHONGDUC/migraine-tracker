@@ -96,6 +96,12 @@ void main() {
         find.text('Get a push before a big pressure drop hits.'),
         findsOneWidget,
       );
+
+      // The PDF report now lives behind the export screen's picker, still
+      // locked: the row is a pitch, never a path that produces a report.
+      await tapVisible(tester, find.text('Export data'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tapVisible(tester, find.text('Export'));
       expect(
         find.text('Export a PDF summary of your attacks for your doctor.'),
         findsOneWidget,
@@ -265,9 +271,17 @@ void main() {
       await openSettings(tester);
 
       expect(find.byType(Switch), findsOneWidget);
-      expect(find.text('Doctor report (PDF)'), findsOneWidget);
       // No locked teaser left anywhere on the screen. (The Premium row is
       // titled 'Premium' now, so the badge is what marks a gate.)
+      expect(find.byType(PremiumBadge), findsNothing);
+
+      // The report is offered for real in the export picker — no badge, no
+      // pitch, just the row that produces it.
+      await tapVisible(tester, find.text('Export data'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tapVisible(tester, find.text('Export'));
+
+      expect(find.text('Doctor report (PDF)'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsNothing);
 
       await finishTest(tester);

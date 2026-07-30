@@ -126,7 +126,9 @@ void main() {
       'stress',
     );
     await tester.enterText(find.widgetWithText(TextField, 'Notes'), 'bad one');
-    await tester.tap(find.text('Save'));
+    // The details sheet commits from its header — a pencil, since it
+    // overwrites details the attack may already carry.
+    await tester.tap(find.byIcon(Icons.edit));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
