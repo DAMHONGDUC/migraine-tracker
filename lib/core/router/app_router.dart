@@ -158,7 +158,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           opaque: false,
-          // The same dim `showAppBottomSheet` puts behind a sheet.
           barrierColor: AppColors.barrier,
           barrierDismissible: true,
           barrierLabel: MaterialLocalizations.of(

@@ -3,6 +3,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:step_progress/step_progress.dart';
 
+import '../../../../core/constants/app_content_padding.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -25,7 +26,8 @@ class LogStepBar extends StatelessWidget {
       _ => 0,
     };
     final content = SizedBox(
-      height: AppSpacingConstant.h56,
+      // Same height as the shell's nav pill, so the two bars line up.
+      height: AppContentPadding.floatingBarHeight,
       child: _StepProgress(currentStep: currentStep),
     );
 
@@ -50,8 +52,9 @@ class LogStepBar extends StatelessWidget {
       ),
       child: LiquidGlass.withOwnLayer(
         settings: kChromeGlass,
-        // Half the bar height → a true stadium (full semicircle caps).
-        shape: LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.h34),
+        shape: LiquidRoundedSuperellipse(
+          borderRadius: AppContentPadding.floatingBarRadius,
+        ),
         clipBehavior: Clip.antiAlias,
         child: MediaQuery.removePadding(
           context: context,

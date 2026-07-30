@@ -54,7 +54,7 @@ void main() {
       // 47 status bar + 56 toolbar + topGap.
       expect(insets.top, 47 + kToolbarHeight + 8);
       // 34 home indicator + bottomGap.
-      expect(insets.bottom, 34 + 8);
+      expect(insets.bottom, 34 + 16);
       expect(insets.left, 16);
       expect(insets.right, 16);
     },
@@ -67,10 +67,42 @@ void main() {
           AppContentPadding.screen(context, floatingNav: true),
     );
 
-    // 34 home indicator + 68 pill + 8 hover gap + bottomGap.
-    expect(insets.bottom, 34 + 68 + 8 + 8);
+    // The pill rests on the 34 home indicator, so: that + its 56 of height +
+    // bottomGap.
+    expect(insets.bottom, 34 + 56 + 16);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
+  });
+
+  testWidgets('with no home indicator the pill takes a flat 16 instead', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    // A Home-button phone: status bar, no gesture bar at the bottom.
+    tester.view.padding = const FakeViewPadding(top: 60);
+    tester.view.viewPadding = const FakeViewPadding(top: 60);
+    addTearDown(tester.view.reset);
+
+    late final double bottom;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          home: Builder(
+            builder: (BuildContext context) {
+              bottom = AppContentPadding.bottom(context, floatingNav: true);
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+
+    // Nothing to rest on, so the pill floats 16 off the edge: that + its 56 +
+    // bottomGap.
+    expect(bottom, 16 + 56 + 16);
   });
 
   testWidgets('full-bleed keeps the vertical rule, drops the gutter', (
@@ -82,7 +114,7 @@ void main() {
     );
 
     expect(insets.top, 47 + kToolbarHeight + 8);
-    expect(insets.bottom, 34 + 8);
+    expect(insets.bottom, 34 + 16);
     expect(insets.left, 0);
     expect(insets.right, 0);
   });
@@ -140,6 +172,52 @@ void main() {
 
     // The body already starts below the bar; only the gap is left.
     expect(insets.top, 8);
-    expect(insets.bottom, 34 + 8);
+    expect(insets.bottom, 34 + 16);
+  });
+
+  testWidgets('the bar inset survives Scaffold stripping the bottom padding', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
+    tester.view.viewPadding = const FakeViewPadding(top: 141, bottom: 102);
+    addTearDown(tester.view.reset);
+
+    late final double tabScreen;
+    late final double logFlow;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          // The shape both floating bars come in: a bottom bar, and a body
+          // that reaches under it.
+          home: Scaffold(
+            extendBody: true,
+            bottomNavigationBar: const SizedBox(height: 56),
+            body: Builder(
+              builder: (BuildContext context) {
+                // Scaffold subtracts padding.bottom from the body's
+                // viewPadding.bottom whenever there is a bottom bar, so an
+                // ambient read here loses the home indicator entirely — and
+                // the last row ends up under the bar.
+                tabScreen = AppContentPadding.bottom(
+                  context,
+                  floatingNav: true,
+                );
+                logFlow = AppContentPadding.bottomBar(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Both bars rest on the 34 home indicator here, so both come to the same
+    // sum — what matters is that neither lost it.
+    expect(tabScreen, 34 + 56 + 16);
+    expect(logFlow, 34 + 56 + 16);
   });
 }
