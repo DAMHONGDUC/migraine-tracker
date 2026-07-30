@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../extensions/context_extensions.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_text_style.dart';
-import '../../widgets/app_bottom_sheet.dart';
-import '../../widgets/app_button.dart';
-import '../../widgets/app_icon.dart';
-import '../app_permission_types.dart';
+import '../extensions/context_extensions.dart';
+import '../permissions/app_permission_types.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_style.dart';
+import 'app_bottom_sheet.dart';
+import 'app_button.dart';
+import 'app_icon.dart';
 
 /// Shown when a permission is permanently denied — explains why the feature
 /// needs it and offers a jump to the OS Settings (the only way to re-enable

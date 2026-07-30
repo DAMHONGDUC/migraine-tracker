@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/navigation_utils.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../providers.dart';
+import '../../features/premium/providers.dart';
+import '../extensions/context_extensions.dart';
+import '../router/navigation_utils.dart';
+import '../theme/app_text_style.dart';
+import 'app_button.dart';
+import 'app_icon.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
 ///
