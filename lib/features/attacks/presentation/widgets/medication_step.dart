@@ -143,7 +143,8 @@ class _SearchField extends StatelessWidget {
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: AppColors.surface,
+        // Same fill as the tiles it filters (MedicationGrid).
+        fillColor: AppColors.surfaceElevated,
         hintText: l10n.medicationsSearchHint,
         hintStyle: AppTextStyle.titleSmall.secondary,
         prefixIcon: AppIcon(
