@@ -9,10 +9,10 @@ class _FilterRow extends ConsumerWidget {
 
   final int count;
 
-  /// Scroll offset past which the pill row is gone behind the app bar —
-  /// the pill height plus its bottom padding.
+  /// Scroll offset past which the pill row is gone behind the app bar — the
+  /// pill's own height plus its bottom padding.
   static double get scrolledPastExtent =>
-      AppSpacingConstant.h34 + AppSpacingConstant.h12;
+      AppFilterPill.pillHeight + AppSpacingConstant.h12;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
