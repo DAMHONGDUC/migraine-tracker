@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
@@ -14,7 +13,6 @@ import '../../../../../core/widgets/app_bar_button.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../../../auth/providers.dart';
 
 /// The premium pitch. Purchases are NOT wired yet — RevenueCat lands in its
@@ -22,10 +20,12 @@ import '../../../../auth/providers.dart';
 /// Prices deliberately live with the store products, not hardcoded here.
 ///
 /// Although this is a routed page (deep-linkable, pushed by name), it
-/// *presents* as a modal bottom sheet: ~85% tall, slides up from the bottom
-/// (see the paywall route's CustomTransitionPage), drag-handle indicator,
-/// and an X to dismiss. The area above the sheet stays see-through so the
-/// barrier shows the screen underneath.
+/// *presents* as a modal bottom sheet, and wears the exact surface
+/// `showAppBottomSheet` draws: ~85% tall, flat opaque [AppColors.surface]
+/// with r22 top corners, slid up from the bottom (see the paywall route's
+/// CustomTransitionPage), drag-handle indicator, and an X to dismiss. The
+/// area above it stays see-through so the barrier shows the screen
+/// underneath.
 ///
 /// Gates route through [NavigationUtils.unlockPremium], which signs the
 /// user in first. Deep links skip that, so the CTA checks for itself.
@@ -68,8 +68,8 @@ class PaywallScreen extends ConsumerWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: AppBarButton(
                   icon: Icons.close,
-                  // Already on the sheet's glass: a circle here would nest
-                  // one glass layer inside another and read flat.
+                  // The panel is opaque: a glass circle on it has no
+                  // background left to refract and reads flat.
                   surface: AppBarButtonSurface.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: () => context.pop(),
@@ -165,27 +165,6 @@ class PaywallScreen extends ConsumerWidget {
       ],
     );
 
-    final surface = AppGlass.isSupported
-        ? LiquidGlass.withOwnLayer(
-            settings: kChromeGlass,
-            shape: LiquidRoundedSuperellipse(
-              borderRadius: AppSpacingConstant.r22,
-            ),
-            clipBehavior: Clip.antiAlias,
-            // Transparent Material: text/ink need a Material ancestor
-            // (without one, Text renders Flutter's yellow double-underline
-            // fallback), but it must not paint over the glass.
-            child: Material(type: MaterialType.transparency, child: sheet),
-          )
-        : Material(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(AppSpacingConstant.r22),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: sheet,
-          );
-
     // ~85% tall, pinned to the bottom; the transparent 15% above shows the
     // dimmed screen underneath (the route's barrier handles tap-to-dismiss).
     return Align(
@@ -193,7 +172,16 @@ class PaywallScreen extends ConsumerWidget {
       child: FractionallySizedBox(
         heightFactor: 0.85,
         widthFactor: 1,
-        child: surface,
+        // The same panel `showAppBottomSheet` draws: flat, opaque, one card
+        // colour, r22 on the top corners.
+        child: Material(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppSpacingConstant.r22),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: sheet,
+        ),
       ),
     );
   }

@@ -86,7 +86,9 @@ class _LocationTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
-                : AppColors.surface,
+                // One step above the card colour: this tile also sits on a
+                // sheet, which is that colour, and would vanish into it.
+                : AppColors.surfaceElevated,
             borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
             border: Border.all(
               color: selected

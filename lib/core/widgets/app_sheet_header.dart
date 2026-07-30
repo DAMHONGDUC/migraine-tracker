@@ -71,8 +71,8 @@ class AppSheetHeader extends StatelessWidget {
         children: <Widget>[
           AppBarButton(
             icon: Icons.close,
-            // The sheet is already one glass surface — a second layer inside
-            // it has no background left to refract and reads flat.
+            // The sheet is an opaque panel — a glass disc on it has no
+            // background left to refract and reads flat.
             surface: AppBarButtonSurface.none,
             tooltip: context.l10n.commonClose,
             onPressed: () => Navigator.of(context).pop(),

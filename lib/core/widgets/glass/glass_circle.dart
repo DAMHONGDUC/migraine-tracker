@@ -11,10 +11,10 @@ import 'liquid_glass_theme.dart';
 /// Only for icons sitting directly on non-glass chrome (blurred but not
 /// itself a [LiquidGlass] surface) — that's what gives the circle real
 /// background to refract. [MainAppBar]'s leading/icon actions are the
-/// current example. Do NOT use this inside something that's already a
-/// [LiquidGlass] surface (e.g. a `showAppBottomSheet` sheet): nesting an
-/// independent glass layer inside one has nothing left of the real
-/// background to catch the light and just reads as flat.
+/// current example. Do NOT use this on an opaque surface (a bottom sheet,
+/// a card) or inside something that is already a [LiquidGlass] surface:
+/// either way there is nothing left of the real background to catch the
+/// light and it just reads as flat.
 class GlassCircle extends StatelessWidget {
   const GlassCircle({required this.child, super.key});
 
