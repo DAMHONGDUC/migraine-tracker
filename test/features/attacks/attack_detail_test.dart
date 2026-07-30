@@ -5,6 +5,8 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 import '../../helpers/pump_app.dart';
@@ -110,6 +112,51 @@ void main() {
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
       HeadLocation.right,
     );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the head diagram keeps its proportions on this screen', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+
+    // A ListView hands its children a TIGHT width, which overrides the
+    // AspectRatio inside HeadDiagram unless something loosens it — the head
+    // used to come out stretched across the whole row.
+    final Size size = tester.getSize(find.byType(HeadDiagram));
+    expect(size.width / size.height, closeTo(0.82, 0.01));
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the medication sheet filters the tiles from its search bar', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+    final DriftMedicationRepository medications = DriftMedicationRepository(
+      app.db,
+    );
+    await medications.upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    await medications.upsert(const Medication(id: 'm2', name: 'Ibuprofen'));
+
+    await openDetail(tester);
+    await openEditSheet(tester, 'Medication');
+
+    expect(find.text('Ibuprofen'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'suma');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Ibuprofen'), findsNothing);
+    expect(find.text('Sumatriptan'), findsWidgets);
+    // The fixed first row is never filtered out.
+    expect(find.text('No medication'), findsOneWidget);
 
     await finishTest(tester);
   });

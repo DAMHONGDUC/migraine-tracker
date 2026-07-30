@@ -5,6 +5,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../analytics/app_analytics.dart';
+import '../constants/app_content_padding.dart';
 import '../extensions/context_extensions.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/glass/liquid_glass_theme.dart';
@@ -124,9 +125,9 @@ class _SlidingNavBar extends StatelessWidget {
     final scheme = context.colorScheme;
     final count = items.length;
     return SizedBox(
-      // Same height the tracking progress bar used to be — keeps the floating
-      // pill proportions unchanged from before the log tab was removed.
-      height: AppSpacingConstant.h56,
+      // Shared with the log flow's step bar, and with what content pads by to
+      // clear this pill — see AppContentPadding.floatingBarHeight.
+      height: AppContentPadding.floatingBarHeight,
       child: Stack(
         children: [
           // The sliding thumb: 1/N wide, aligned to the selected segment.
@@ -222,18 +223,20 @@ class _NavSegment extends StatelessWidget {
   }
 }
 
-/// Wraps a bottom bar in the floating frosted-glass treatment: side + bottom
-/// margins so it "lifts" off the edges, rounded glass, and safe-area padding
-/// consumed here (children have their bottom inset removed to avoid a double
-/// gap). Applied unconditionally — the nav pill is the one surface that stays
-/// glass even where [AppGlass.isSupported] is false, because its floating
-/// geometry is layout the tab screens already pad for; the renderer degrades
-/// the surface itself to `FakeGlass` there.
+/// Wraps a bottom bar in the floating frosted-glass treatment: side margins so
+/// it "lifts" off the edges, rounded glass, and
+/// [AppContentPadding.navBarOffset] below it — the home indicator where there
+/// is one, a flat 16 where there is none — with the child's own bottom inset
+/// removed so nothing re-adds the safe area inside. Applied
+/// unconditionally — the nav pill is the one surface that stays glass even
+/// where [AppGlass.isSupported] is false, because its floating geometry is
+/// layout the tab screens already pad for; the renderer degrades the surface
+/// itself to `FakeGlass` there.
 ///
 /// Any tap on the bar plays a little overshoot pop ([PopScale], the same
 /// feedback the app bar's buttons use) — smaller here, and anchored to the
-/// bottom edge so the pill grows upward off the safe-area line it sits on.
-/// The scale is paint-only, so the layout slot and body insets never move.
+/// bottom edge so the pill grows upward off the line it rests on. The scale is
+/// paint-only, so the layout slot and body insets never move.
 class _FloatingBar extends StatelessWidget {
   const _FloatingBar({required this.child});
 
@@ -246,22 +249,19 @@ class _FloatingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      // Sit the bar right on the safe-area line — the only gap below it.
       padding: EdgeInsets.fromLTRB(
         AppSpacingConstant.w24,
         0,
         AppSpacingConstant.w24,
-        MediaQuery.paddingOf(context).bottom,
+        AppContentPadding.navBarOffset(context),
       ),
       child: PopScale(
         peakScale: _popPeakScale,
         alignment: Alignment.bottomCenter,
         child: LiquidGlass.withOwnLayer(
           settings: kChromeGlass,
-          // Half the bar height (h68) → a true stadium: the short edges
-          // are full semicircles, no straight segment left.
           shape: LiquidRoundedSuperellipse(
-            borderRadius: AppSpacingConstant.h34,
+            borderRadius: AppContentPadding.floatingBarRadius,
           ),
           clipBehavior: Clip.antiAlias,
           child: MediaQuery.removePadding(

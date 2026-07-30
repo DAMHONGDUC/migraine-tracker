@@ -18,9 +18,9 @@ import 'app_spacing_constant.dart';
 /// to pad for something floating over it, and the two would double up. One
 /// class computes it, every screen reads it, nothing adds it twice.
 ///
-/// Floating chrome is the exception and asks for none of this: the shell's
-/// nav pill and the log flow's step bar sit AT the safe area so they line up
-/// with each other, and they read `MediaQuery` themselves.
+/// Floating chrome is the exception and asks for none of this: the shell's nav
+/// pill sits [navBarOffset] off the bottom edge and the log flow's step bar
+/// rests on the safe area.
 abstract final class AppContentPadding {
   /// The gutter: 16 either side of any content.
   static double get horizontal => AppSpacingConstant.w16;
@@ -31,9 +31,37 @@ abstract final class AppContentPadding {
   /// indicator — and each can move without dragging the other with it.
   static double get topGap => AppSpacingConstant.h8;
 
-  /// Gap between the last item — usually the bottom action — and the safe
-  /// area below it.
-  static double get bottomGap => AppSpacingConstant.h8;
+  /// Gap between the last item — usually the bottom action — and whatever is
+  /// below it: the safe area, or the floating nav pill on a tab screen. Scroll
+  /// a list to its end and this is the breathing room you see.
+  static double get bottomGap => AppSpacingConstant.h16;
+
+  /// Height of the app's floating bottom bars — the shell's nav pill and the
+  /// log flow's step bar. Both read it and neither hardcodes its own: the two
+  /// numbers drifted apart once (68 assumed here against a 56-tall bar), and
+  /// the difference was silently eaten out of [bottomGap].
+  static double get floatingBarHeight => AppSpacingConstant.h56;
+
+  /// Corner radius that turns a floating bar into a true stadium: exactly half
+  /// its height, so the short edges are full semicircles with no straight
+  /// segment left. Derived, never typed — it was a literal 34 against a
+  /// 56-tall bar and only looked right because the shape clamps it.
+  static double get floatingBarRadius => floatingBarHeight / 2;
+
+  /// How far the shell's nav pill sits above the bottom edge of the screen.
+  ///
+  /// Where there is a home indicator the pill rests exactly on it — that inset
+  /// is already the gap. Where there is none (a Home-button iPhone, most
+  /// Androids, the default test view) the pill would hug the edge of the glass,
+  /// so it takes a flat 16 instead.
+  ///
+  /// The log flow's step bar does not follow this: it always rests on the safe
+  /// area, whatever that is.
+  static double navBarOffset(BuildContext context) {
+    final double safeBottom = _viewBottom(context);
+
+    return safeBottom > 0 ? safeBottom : AppSpacingConstant.h16;
+  }
 
   /// How far down the app bar reaches: status bar + toolbar while the bar is
   /// frosted glass (the body passes behind it), 0 when it is opaque and the
@@ -83,12 +111,9 @@ abstract final class AppContentPadding {
   /// Last item ends [bottomGap] above the home indicator.
   ///
   /// The shell's five tab screens pass [floatingNav] — their content scrolls
-  /// behind the nav pill, so it has to clear the pill's height too.
+  /// behind the nav pill, so it has to clear the pill's own footprint too.
   static double bottom(BuildContext context, {bool floatingNav = false}) =>
-      (floatingNav
-          ? _navInset(context)
-          : MediaQuery.viewPaddingOf(context).bottom) +
-      bottomGap;
+      (floatingNav ? _navInset(context) : _viewBottom(context)) + bottomGap;
 
   /// The whole thing: gutter + [top] + [bottom].
   static EdgeInsets screen(BuildContext context, {bool floatingNav = false}) =>
@@ -112,20 +137,27 @@ abstract final class AppContentPadding {
 
   /// Bottom inset for a floating bar handed to `Scaffold.bottomNavigationBar`
   /// — the log flow's step bar. Unlike the shell's nav pill that one only
-  /// floats where glass is supported; otherwise it takes a real layout slot
-  /// and the body must NOT pad for it, so this collapses to the plain gap.
+  /// floats where glass is supported; otherwise it takes a real layout slot,
+  /// clears the safe area itself, and the body owes only the gap.
   static double bottomBar(BuildContext context) => AppGlass.isSupported
-      ? _navInset(context) + bottomGap
-      : MediaQuery.viewPaddingOf(context).bottom + bottomGap;
+      ? _viewBottom(context) + floatingBarHeight + bottomGap
+      : bottomGap;
 
-  /// Safe area + the floating bar's own height + the gap it hovers by.
-  ///
-  /// Reads `viewPadding` (the raw device inset), NOT `padding`: `Scaffold`
-  /// rewrites the body's `MediaQuery.padding.bottom` to the bottom-bar slot
-  /// height under `extendBody`, so a `padding` read returns different values
-  /// above vs inside the body — `viewPadding` is stable everywhere.
+  /// The nav pill's footprint: how far off the bottom edge it sits, plus its
+  /// own height.
   static double _navInset(BuildContext context) =>
-      MediaQuery.viewPaddingOf(context).bottom +
-      AppSpacingConstant.h68 + // shared bar height (nav pill + step bar)
-      AppSpacingConstant.h8;
+      navBarOffset(context) + floatingBarHeight;
+
+  /// The device's bottom inset (home indicator), off the **view** — the same
+  /// reason [appBarInset] reads the view at the top.
+  ///
+  /// `Scaffold` wraps its body in `removePadding(removeBottom)` whenever there
+  /// is a `bottomNavigationBar`, and that subtracts `padding.bottom` from
+  /// `viewPadding.bottom` too — so an ambient read from inside the shell's
+  /// body returns 0 where the screen's own build got 34, and content came out
+  /// 34 short: the last row of every tab screen ended up *behind* the nav
+  /// pill. The inset is a property of the window, so the view is the one place
+  /// with a stable answer.
+  static double _viewBottom(BuildContext context) =>
+      MediaQueryData.fromView(View.of(context)).viewPadding.bottom;
 }
