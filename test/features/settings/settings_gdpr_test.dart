@@ -64,7 +64,7 @@ void main() {
 
     await logAttack(tester, intensity: '8', location: 'Left side');
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
@@ -84,7 +84,7 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
@@ -102,7 +102,7 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
@@ -126,7 +126,7 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
@@ -148,7 +148,7 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('CSV'));
     await settleExport(tester);
 
@@ -169,7 +169,7 @@ void main() {
 
     await logAttack(tester);
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
@@ -194,7 +194,7 @@ void main() {
     await pumpApp(tester);
 
     await openExportScreen(tester);
-    await tapVisible(tester, find.byTooltip('New export'));
+    await tapVisible(tester, find.text('Export'));
 
     // The row is there, but locked — never a path that produces a report.
     expect(find.text('Doctor report (PDF)'), findsOneWidget);
