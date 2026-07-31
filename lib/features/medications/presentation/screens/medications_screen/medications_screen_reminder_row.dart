@@ -52,11 +52,16 @@ class _ReminderRow extends ConsumerWidget {
         '${reminder.hour.toString().padLeft(2, '0')}:'
         '${reminder.minute.toString().padLeft(2, '0')}';
 
+    final rowPadding = EdgeInsets.symmetric(
+      horizontal: AppContentPadding.horizontal,
+    ).copyWith(right: AppContentPadding.horizontal / 2);
+
     return ListTile(
       dense: true,
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
       leading: const AppIcon(icon: Icons.alarm),
+      contentPadding: rowPadding,
       title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -73,7 +78,7 @@ class _ReminderRow extends ConsumerWidget {
                   enabled: enabled,
                 ),
           ),
-          IconButton(
+          AppIconButton(
             icon: const AppIcon(icon: Icons.delete_outline),
             onPressed: () =>
                 ref.read(remindersControllerProvider).delete(reminder.id),

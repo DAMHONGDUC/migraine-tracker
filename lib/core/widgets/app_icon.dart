@@ -30,6 +30,10 @@ enum AppIconVariant {
 /// icon has an explicit size rather than inheriting an ambient one. [color]
 /// falls back to the surrounding [IconTheme] when null (ignored for raster
 /// images unless [applyColorToImage] is true).
+///
+/// [hasPadding] wraps the rendered icon with [AppSpacingConstant.r8] padding
+/// on all sides — useful for giving tappable icons a larger hit area without
+/// affecting the visual icon size itself.
 class AppIcon extends StatelessWidget {
   const AppIcon({
     this.icon,
@@ -38,8 +42,10 @@ class AppIcon extends StatelessWidget {
     this.size,
     this.color,
     this.applyColorToImage = false,
-    super.key,
     this.variant = AppIconVariant.icon,
+    this.hasPadding = false,
+    this.padding,
+    super.key,
   });
 
   final AppIconVariant variant;
@@ -61,6 +67,13 @@ class AppIcon extends StatelessWidget {
   /// SVG and [Icon] are always tinted when [color] is set.
   final bool applyColorToImage;
 
+  /// Whether to wrap the icon in padding. Ignored if [padding] is provided.
+  final bool hasPadding;
+
+  /// Custom padding around the icon. If set, this takes priority over
+  /// [hasPadding] and is applied regardless of [hasPadding]'s value.
+  final EdgeInsetsGeometry? padding;
+
   @override
   Widget build(BuildContext context) {
     final resolvedSize = size ?? AppSpacingConstant.r24;
@@ -69,20 +82,21 @@ class AppIcon extends StatelessWidget {
         ? null
         : ColorFilter.mode(resolvedColor, BlendMode.srcIn);
 
+    final Widget child;
     switch (variant) {
       case AppIconVariant.icon:
         assert(
           icon != null,
           'AppIcon: `icon` is required for AppIconVariant.icon',
         );
-        return Icon(icon, size: resolvedSize, color: resolvedColor);
+        child = Icon(icon, size: resolvedSize, color: resolvedColor);
 
       case AppIconVariant.svgAsset:
         assert(
           source != null,
           'AppIcon: `source` is required for AppIconVariant.svgAsset',
         );
-        return SvgPicture.asset(
+        child = SvgPicture.asset(
           source!,
           width: resolvedSize,
           height: resolvedSize,
@@ -94,7 +108,7 @@ class AppIcon extends StatelessWidget {
           source != null,
           'AppIcon: `source` is required for AppIconVariant.svgNetwork',
         );
-        return SvgPicture.network(
+        child = SvgPicture.network(
           source!,
           width: resolvedSize,
           height: resolvedSize,
@@ -106,7 +120,7 @@ class AppIcon extends StatelessWidget {
           source != null,
           'AppIcon: `source` is required for AppIconVariant.imageAsset',
         );
-        return _wrapColor(
+        child = _wrapColor(
           Image.asset(
             source!,
             width: resolvedSize,
@@ -121,7 +135,7 @@ class AppIcon extends StatelessWidget {
           source != null,
           'AppIcon: `source` is required for AppIconVariant.imageNetwork',
         );
-        return _wrapColor(
+        child = _wrapColor(
           Image.network(
             source!,
             width: resolvedSize,
@@ -136,7 +150,7 @@ class AppIcon extends StatelessWidget {
           bytes != null,
           'AppIcon: `bytes` is required for AppIconVariant.imageMemory',
         );
-        return _wrapColor(
+        child = _wrapColor(
           Image.memory(
             bytes!,
             width: resolvedSize,
@@ -146,6 +160,12 @@ class AppIcon extends StatelessWidget {
           resolvedColor,
         );
     }
+
+    final resolvedPadding =
+        padding ?? (hasPadding ? EdgeInsets.all(AppSpacingConstant.r8) : null);
+
+    if (resolvedPadding == null) return child;
+    return Padding(padding: resolvedPadding, child: child);
   }
 
   /// Wraps a raster image with a [ColorFiltered] tint when

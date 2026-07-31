@@ -6,7 +6,7 @@ import '../permissions/app_permission_types.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
 import 'app_bottom_sheet.dart';
-import 'app_button.dart';
+import 'buttons/app_button.dart';
 import 'app_icon.dart';
 
 /// Shown when a permission is permanently denied — explains why the feature
