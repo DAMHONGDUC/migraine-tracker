@@ -1044,6 +1044,36 @@
   "@settingsDeleteDone": {
     "description": "Snackbar shown after a successful wipe"
   },
+  "settingsSectionDev": "Developer",
+  "@settingsSectionDev": {
+    "description": "Section heading for dev-only tools, hidden in prod builds"
+  },
+  "settingsDevSeed": "Reset with sample data",
+  "@settingsDevSeed": {
+    "description": "Dev-only settings tile that wipes the device and seeds fixtures"
+  },
+  "settingsDevSeedSubtitle": "Deletes everything, then adds {count} attacks, medications and exports",
+  "@settingsDevSeedSubtitle": {
+    "description": "Subtitle of the dev-only seed tile",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDevSeedDone": "Seeded {count} attacks, medications and exports.",
+  "@settingsDevSeedDone": {
+    "description": "Snackbar shown after the dev-only seed finishes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDevSeedFailed": "Seeding sample data failed.",
+  "@settingsDevSeedFailed": {
+    "description": "Snackbar shown when the dev-only seed throws"
+  },
   "severityMild": "mild",
   "@severityMild": {
     "description": "Severity word for intensity 1-3, used in accessibility labels"
