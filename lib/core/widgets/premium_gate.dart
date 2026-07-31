@@ -49,6 +49,7 @@ class _LockedCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AppIcon(
                   icon: icon,
