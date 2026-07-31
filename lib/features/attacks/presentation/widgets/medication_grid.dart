@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../core/widgets/pressable_scale.dart';

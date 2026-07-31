@@ -6,7 +6,7 @@ import '../../features/premium/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
 import '../theme/app_text_style.dart';
-import 'app_button.dart';
+import 'buttons/app_button.dart';
 import 'app_icon.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.

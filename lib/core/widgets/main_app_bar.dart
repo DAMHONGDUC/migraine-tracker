@@ -3,7 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import 'app_bar_button.dart';
+import 'buttons/app_bar_button.dart';
 import 'glass/liquid_glass_theme.dart';
 
 /// The app's single [AppBar]. Every screen gets it via [AppScaffold] rather

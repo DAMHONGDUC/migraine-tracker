@@ -9,7 +9,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_filter_pill.dart';
 import '../../../../../core/widgets/app_icon.dart';

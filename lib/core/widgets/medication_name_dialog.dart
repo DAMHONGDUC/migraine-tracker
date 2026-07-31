@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../extensions/context_extensions.dart';
-import 'app_button.dart';
+import 'buttons/app_button.dart';
 import 'app_dialog.dart';
 
 /// Prompts for a medication's name — adding a new one, or renaming an

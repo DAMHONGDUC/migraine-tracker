@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
-import '../constants/app_spacing_constant.dart';
-import 'app_icon.dart';
-import 'glass/glass_circle.dart';
-import 'pop_scale.dart';
+import '../../constants/app_spacing_constant.dart';
+import '../app_icon.dart';
+import '../glass/glass_circle.dart';
+import '../pop_scale.dart';
 
 /// What an [AppBarButton] sits on — a prop, like `AppButtonVariant`.
 ///
