@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/constants/app_content_padding.dart';
@@ -37,7 +38,7 @@ class InsightsScreen extends ConsumerWidget {
               // Free users never build the forecast card, so no forecast is
               // fetched or held for them.
               PremiumGate(
-                lockedIcon: Icons.show_chart,
+                lockedIcon: Symbols.show_chart,
                 lockedMessage: context.l10n.premiumLockedForecast,
                 child: const PressureForecastCard(),
               ),
