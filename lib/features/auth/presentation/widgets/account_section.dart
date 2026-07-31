@@ -22,7 +22,7 @@ class AccountSection extends ConsumerWidget {
 
     if (!signedIn) {
       return ListTile(
-        leading: const AppIcon(Icons.account_circle_outlined),
+        leading: const AppIcon(icon: Icons.account_circle_outlined),
         title: Text(l10n.settingsAccountSignIn, style: AppTextStyle.bodyLarge),
         subtitle: Text(
           l10n.settingsAccountSignInSubtitle,
@@ -37,13 +37,13 @@ class AccountSection extends ConsumerWidget {
     // The email stays off this row: Settings is a screen people scroll past
     // in public, and the account screen is one tap away.
     return ListTile(
-      leading: const AppIcon(Icons.account_circle),
+      leading: const AppIcon(icon: Icons.account_circle),
       title: Text(l10n.settingsAccount, style: AppTextStyle.bodyLarge),
       subtitle: Text(
         l10n.settingsAccountSignedInSubtitle,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const AppIcon(Icons.chevron_right),
+      trailing: const AppIcon(icon: Icons.chevron_right),
       onTap: () => context.pushNamed(AppRoutes.account.name),
     );
   }

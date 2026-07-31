@@ -19,11 +19,14 @@ class _RecordTile extends StatelessWidget {
         ' · ${FileSizeUtils.format(l10n, record.sizeBytes)}';
 
     return ListTile(
-      leading: AppIcon(record.kind.icon, color: context.colorScheme.primary),
+      leading: AppIcon(
+        icon: record.kind.icon,
+        color: context.colorScheme.primary,
+      ),
       title: Text(record.kind.label(l10n), style: AppTextStyle.bodyLarge),
       subtitle: Text(subtitle, style: AppTextStyle.bodyMedium.secondary),
       trailing: AppIcon(
-        Icons.more_horiz,
+        icon: Icons.more_horiz,
         size: AppSpacingConstant.r20,
         color: context.colorScheme.onSurfaceVariant,
       ),

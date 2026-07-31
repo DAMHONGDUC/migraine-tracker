@@ -43,7 +43,7 @@ class DashboardSeverityCard extends ConsumerWidget {
               top: 0,
               end: 0,
               child: AppIcon(
-                Icons.chevron_right,
+                icon: Icons.chevron_right,
                 color: AppColors.textSecondary,
                 size: AppSpacingConstant.r24,
               ),

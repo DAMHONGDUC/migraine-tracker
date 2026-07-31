@@ -107,7 +107,7 @@ class _QuickAccessCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AppIcon(
-                icon,
+                icon: icon,
                 size: AppSpacingConstant.r24,
                 color: context.colorScheme.primary,
               ),

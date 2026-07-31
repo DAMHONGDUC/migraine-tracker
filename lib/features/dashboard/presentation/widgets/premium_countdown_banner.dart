@@ -83,7 +83,7 @@ class _PremiumCountdownBannerState
                 shape: BoxShape.circle,
               ),
               child: AppIcon(
-                Icons.local_offer_outlined,
+                icon: Icons.local_offer_outlined,
                 size: AppSpacingConstant.r22,
                 color: AppColors.primary,
               ),
@@ -101,7 +101,7 @@ class _PremiumCountdownBannerState
                   Row(
                     children: [
                       AppIcon(
-                        Icons.schedule_outlined,
+                        icon: Icons.schedule_outlined,
                         size: AppSpacingConstant.r16,
                         color: context.colorScheme.onSurfaceVariant,
                       ),

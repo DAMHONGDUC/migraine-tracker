@@ -21,7 +21,7 @@ class _PrivacyDisclosure extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           AppIcon(
-            Icons.lock_outline,
+           icon: Icons.lock_outline,
             size: AppSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),

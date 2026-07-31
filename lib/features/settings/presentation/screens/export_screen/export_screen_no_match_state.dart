@@ -19,7 +19,7 @@ class _NoMatchState extends StatelessWidget {
       child: Column(
         children: <Widget>[
           AppIcon(
-            Icons.event_busy_outlined,
+            icon: Icons.event_busy_outlined,
             size: AppSpacingConstant.r44,
             color: context.colorScheme.onSurfaceVariant,
           ),

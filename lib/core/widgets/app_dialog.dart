@@ -126,7 +126,7 @@ class AppDialogOption extends StatelessWidget {
           children: [
             if (icon != null) ...[
               AppIcon(
-                icon!,
+                icon: icon!,
                 size: AppSpacingConstant.r20,
                 color: scheme.primary,
               ),
@@ -135,7 +135,9 @@ class AppDialogOption extends StatelessWidget {
             Expanded(child: Text(label, style: AppTextStyle.bodyLarge)),
             if (selected != null)
               AppIcon(
-                selected! ? Icons.radio_button_checked : Icons.radio_button_off,
+                icon: selected!
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
                 size: AppSpacingConstant.r20,
                 color: selected! ? scheme.primary : scheme.onSurfaceVariant,
               ),

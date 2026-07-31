@@ -73,7 +73,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const AppIcon(Icons.edit_outlined),
+              leading: const AppIcon(icon: Icons.edit_outlined),
               title: Text(
                 l10n.medicationsEditAction,
                 style: AppTextStyle.bodyLarge,
@@ -84,7 +84,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               },
             ),
             ListTile(
-              leading: AppIcon(Icons.delete_outline, color: scheme.error),
+              leading: AppIcon(icon: Icons.delete_outline, color: scheme.error),
               title: Text(
                 l10n.settingsDeleteConfirmAction,
                 style: TextStyle(color: scheme.error),
@@ -184,20 +184,29 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         margin: EdgeInsets.zero,
         child: Column(
           children: [
-            ListTile(
-              leading: const AppIcon(Icons.medication_outlined),
-              title: Text(
-                widget.medication.name,
-                style: AppTextStyle.titleMedium,
-              ),
-              subtitle: Text(
-                addedLabel,
-                style: AppTextStyle.bodySmall.secondary,
-              ),
-              trailing: IconButton(
-                icon: const AppIcon(Icons.more_vert),
-                onPressed: () => _openActions(context, ref),
-              ),
+            // ListTile(
+            //   leading: const AppIcon(Icons.medication_outlined),
+            //   title: Text(
+            //     widget.medication.name,
+            //     style: AppTextStyle.titleMedium,
+            //   ),
+            //   subtitle: Text(
+            //     addedLabel,
+            //     style: AppTextStyle.bodySmall.secondary,
+            //   ),
+            // trailing: IconButton(
+            //   icon: const AppIcon(Icons.more_vert),
+            //   onPressed: () => _openActions(context, ref),
+            // ),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const AppIcon(icon: Icons.more_vert),
+                  onPressed: () => _openActions(context, ref),
+                ),
+              ],
             ),
             for (final view in visibleReminders) _ReminderRow(view: view),
             if (overflowing)

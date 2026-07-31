@@ -13,7 +13,7 @@ class _PremiumSection extends ConsumerWidget {
 
     return ListTile(
       leading: AppIcon(
-        premium ? Icons.workspace_premium : Icons.lock_outline,
+        icon: premium ? Icons.workspace_premium : Icons.lock_outline,
         color: premium ? context.colorScheme.primary : null,
       ),
       title: Text(
@@ -24,7 +24,7 @@ class _PremiumSection extends ConsumerWidget {
         premium ? l10n.accountPremiumActiveBody : l10n.accountPremiumFreeBody,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const AppIcon(Icons.chevron_right),
+      trailing: const AppIcon(icon: Icons.chevron_right),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

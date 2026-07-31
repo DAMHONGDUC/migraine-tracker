@@ -61,7 +61,7 @@ class DashboardLogButton extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: AppIcon(
-                Icons.add,
+                icon: Icons.add,
                 size: AppSpacingConstant.r24,
                 color: AppColors.primary,
               ),
@@ -89,7 +89,7 @@ class DashboardLogButton extends ConsumerWidget {
             ),
             SizedBox(width: AppSpacingConstant.w8),
             AppIcon(
-              Icons.arrow_forward_rounded,
+              icon: Icons.arrow_forward_rounded,
               size: AppSpacingConstant.r22,
               color: AppColors.onPrimary,
             ),

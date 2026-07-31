@@ -146,7 +146,7 @@ class _FilterSheet<T> extends StatelessWidget {
                 for (final option in options)
                   ListTile(
                     leading: AppIcon(
-                      option == selected
+                      icon: option == selected
                           ? Icons.radio_button_checked
                           : Icons.radio_button_off,
                       color: option == selected

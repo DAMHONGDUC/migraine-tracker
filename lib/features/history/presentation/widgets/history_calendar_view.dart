@@ -139,8 +139,8 @@ class HistoryCalendarView extends HookWidget {
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: AppTextStyle.titleMedium,
-                  leftChevronIcon: const AppIcon(Icons.chevron_left),
-                  rightChevronIcon: const AppIcon(Icons.chevron_right),
+                  leftChevronIcon: const AppIcon(icon: Icons.chevron_left),
+                  rightChevronIcon: const AppIcon(icon: Icons.chevron_right),
                 ),
                 calendarStyle: CalendarStyle(
                   outsideDaysVisible: false,

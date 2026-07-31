@@ -86,7 +86,7 @@ class _DataNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           AppIcon(
-            Icons.lock_outline,
+            icon: Icons.lock_outline,
             size: AppSpacingConstant.r16,
             color: context.colorScheme.onSurfaceVariant,
           ),

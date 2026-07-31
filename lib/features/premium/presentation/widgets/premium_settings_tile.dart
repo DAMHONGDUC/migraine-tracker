@@ -22,7 +22,9 @@ class PremiumSettingsTile extends ConsumerWidget {
 
     return ListTile(
       leading: AppIcon(
-        premium ? Icons.workspace_premium : Icons.workspace_premium_outlined,
+        icon: premium
+            ? Icons.workspace_premium
+            : Icons.workspace_premium_outlined,
         color: premium ? context.colorScheme.primary : null,
       ),
       title: Text(l10n.settingsPremium, style: AppTextStyle.bodyLarge),
@@ -32,7 +34,7 @@ class PremiumSettingsTile extends ConsumerWidget {
       ),
       // Chevron, never the PremiumBadge: that badge marks a locked teaser,
       // and this row is a way in, not a gate.
-      trailing: const AppIcon(Icons.chevron_right),
+      trailing: const AppIcon(icon: Icons.chevron_right),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

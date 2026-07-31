@@ -188,7 +188,11 @@ class _Tile extends StatelessWidget {
           ),
           child: Row(
             children: <Widget>[
-              AppIcon(icon, color: foreground, size: AppSpacingConstant.r24),
+              AppIcon(
+                icon: icon,
+                color: foreground,
+                size: AppSpacingConstant.r24,
+              ),
               SizedBox(width: AppSpacingConstant.w12),
               Expanded(
                 child: Text(

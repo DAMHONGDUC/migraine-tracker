@@ -41,7 +41,7 @@ class ForceUpdateSheet extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               AppIcon(
-                Icons.system_update_alt,
+                icon: Icons.system_update_alt,
                 size: AppSpacingConstant.r44,
                 color: context.colorScheme.primary,
               ),

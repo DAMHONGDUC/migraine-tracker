@@ -22,7 +22,7 @@ class _PageScaffold extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppIcon(
-            icon,
+            icon: icon,
             size: AppSpacingConstant.r64,
             color: context.colorScheme.primary,
           ),

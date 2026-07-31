@@ -83,7 +83,7 @@ class AppBarButton extends StatelessWidget {
       child: SizedBox.square(
         dimension: tapSize,
         child: Center(
-          child: AppIcon(icon, size: iconSize, color: color),
+          child: AppIcon(icon: icon, size: iconSize, color: color),
         ),
       ),
     );
