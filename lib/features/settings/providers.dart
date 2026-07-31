@@ -12,6 +12,7 @@ import 'domain/entities/export_record.dart';
 import 'domain/repositories/export_record_repository.dart';
 import 'domain/services/data_export_service.dart';
 import 'domain/services/data_wipe_service.dart';
+import 'domain/services/dev_seed_service.dart';
 import 'domain/services/export_file_store.dart';
 import 'domain/services/export_record_filterer.dart';
 import 'domain/services/export_sharer.dart';
@@ -77,6 +78,19 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(notificationSchedulerProvider),
     ref.watch(exportRecordRepositoryProvider),
     ref.watch(exportFileStoreProvider),
+  ),
+);
+
+/// Dev-only fixture generator (see [DevSeedService]). Its settings row is
+/// hidden in prod, so nothing reads this provider there.
+final devSeedServiceProvider = Provider<DevSeedService>(
+  (ref) => DevSeedService(
+    ref.watch(dataWipeServiceProvider),
+    ref.watch(attackRepositoryProvider),
+    ref.watch(medicationRepositoryProvider),
+    ref.watch(dataExportServiceProvider),
+    ref.watch(exportFileStoreProvider),
+    ref.watch(exportRecordRepositoryProvider),
   ),
 );
 
