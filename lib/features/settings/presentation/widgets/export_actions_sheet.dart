@@ -79,7 +79,7 @@ class _ActionTile extends StatelessWidget {
         : AppColors.primary;
 
     return ListTile(
-      leading: AppIcon(icon, color: color),
+      leading: AppIcon(icon: icon, color: color),
       title: Text(
         label,
         style: isDestructive

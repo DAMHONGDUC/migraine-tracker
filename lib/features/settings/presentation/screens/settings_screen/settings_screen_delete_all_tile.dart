@@ -43,7 +43,7 @@ class _DeleteAllTile extends ConsumerWidget {
 
     return ListTile(
       leading: AppIcon(
-        Icons.delete_forever_outlined,
+        icon: Icons.delete_forever_outlined,
         color: context.colorScheme.error,
       ),
       title: Text(

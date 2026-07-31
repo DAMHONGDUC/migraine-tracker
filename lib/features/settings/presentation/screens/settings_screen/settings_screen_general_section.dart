@@ -37,7 +37,7 @@ class _GeneralSection extends ConsumerWidget {
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
         const _AlertsSection(),
         ListTile(
-          leading: const AppIcon(Icons.language),
+          leading: const AppIcon(icon: Icons.language),
           title: Text(
             context.l10n.settingsLanguage,
             style: AppTextStyle.bodyLarge,

@@ -105,7 +105,7 @@ class _AppSnackBarBody extends StatelessWidget {
       child: Row(
         children: <Widget>[
           AppIcon(
-            style.icon,
+            icon: style.icon,
             size: AppSpacingConstant.r20,
             color: style.accent,
           ),

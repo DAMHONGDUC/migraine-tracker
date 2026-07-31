@@ -52,13 +52,13 @@ class MedicationSearchField extends StatelessWidget {
         hintText: l10n.medicationsSearchHint,
         hintStyle: AppTextStyle.titleSmall.secondary,
         prefixIcon: AppIcon(
-          Icons.search,
+         icon: Icons.search,
           color: AppColors.textSecondary,
           size: AppSpacingConstant.r24,
         ),
         suffixIcon: hasText
             ? IconButton(
-                icon: AppIcon(Icons.close, size: AppSpacingConstant.r18),
+                icon: AppIcon(icon: Icons.close, size: AppSpacingConstant.r18),
                 color: AppColors.textSecondary,
                 tooltip: l10n.medicationsSearchClear,
                 onPressed: onClear,

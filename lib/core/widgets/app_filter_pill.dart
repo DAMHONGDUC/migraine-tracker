@@ -43,7 +43,7 @@ class AppFilterPill extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               AppIcon(
-                Icons.filter_list,
+               icon: Icons.filter_list,
                 size: AppSpacingConstant.r16,
                 color: scheme.primary,
               ),
@@ -51,7 +51,7 @@ class AppFilterPill extends StatelessWidget {
               Text(label, style: AppTextStyle.labelLarge),
               SizedBox(width: AppSpacingConstant.w2),
               AppIcon(
-                Icons.expand_more,
+              icon:  Icons.expand_more,
                 size: AppSpacingConstant.r18,
                 color: scheme.onSurfaceVariant,
               ),

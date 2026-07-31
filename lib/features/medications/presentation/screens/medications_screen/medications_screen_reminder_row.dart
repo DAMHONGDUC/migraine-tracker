@@ -56,7 +56,7 @@ class _ReminderRow extends ConsumerWidget {
       dense: true,
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
-      leading: const AppIcon(Icons.alarm),
+      leading: const AppIcon(icon: Icons.alarm),
       title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -74,7 +74,7 @@ class _ReminderRow extends ConsumerWidget {
                 ),
           ),
           IconButton(
-            icon: const AppIcon(Icons.delete_outline),
+            icon: const AppIcon(icon: Icons.delete_outline),
             onPressed: () =>
                 ref.read(remindersControllerProvider).delete(reminder.id),
           ),

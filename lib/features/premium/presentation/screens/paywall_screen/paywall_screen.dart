@@ -101,7 +101,7 @@ class PaywallScreen extends ConsumerWidget {
                     child: Column(
                       children: [
                         AppIcon(
-                          Icons.storm_outlined,
+                          icon: Icons.storm_outlined,
                           size: AppSpacingConstant.r64,
                           color: context.colorScheme.primary,
                         ),

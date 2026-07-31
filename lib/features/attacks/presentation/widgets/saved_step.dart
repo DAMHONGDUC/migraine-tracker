@@ -30,7 +30,7 @@ class SavedStep extends StatelessWidget {
               builder: (context, scale, child) =>
                   Transform.scale(scale: scale, child: child),
               child: AppIcon(
-                Icons.check_circle_outline,
+                icon: Icons.check_circle_outline,
                 size: AppSpacingConstant.r64,
                 color: context.colorScheme.primary,
               ),

@@ -62,7 +62,7 @@ class AlertsSection extends ConsumerWidget {
     return Column(
       children: [
         SwitchListTile(
-          secondary: const AppIcon(Icons.notifications_active_outlined),
+          secondary: const AppIcon(icon: Icons.notifications_active_outlined),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             l10n.alertsToggleSubtitle,
@@ -73,7 +73,7 @@ class AlertsSection extends ConsumerWidget {
               ref.read(alertsControllerProvider.notifier).setEnabled(value),
         ),
         ListTile(
-          leading: const AppIcon(Icons.compress),
+          leading: const AppIcon(icon: Icons.compress),
           title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             l10n.onboardingThresholdValue(settings.thresholdHpa.round()),

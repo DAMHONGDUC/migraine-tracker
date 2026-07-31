@@ -101,7 +101,7 @@ class _LocationTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               AppIcon(
-                _icons[location]!,
+                icon: _icons[location]!,
                 color: color,
                 size: AppSpacingConstant.r24,
               ),

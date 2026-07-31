@@ -135,7 +135,7 @@ class AppButton extends StatelessWidget {
       AppButtonIconPlacement.inline => Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          AppIcon(icon!, size: iconSize ?? defaultIconSize),
+          AppIcon(icon: icon!, size: iconSize ?? defaultIconSize),
           SizedBox(width: iconGap),
           Flexible(child: _label(TextAlign.center)),
         ],
@@ -153,7 +153,7 @@ class AppButton extends StatelessWidget {
             child: OverflowBox(
               maxWidth: double.infinity,
               maxHeight: double.infinity,
-              child: AppIcon(icon!, size: iconSize ?? defaultIconSize),
+              child: AppIcon(icon: icon!, size: iconSize ?? defaultIconSize),
             ),
           ),
           SizedBox(width: iconGap),

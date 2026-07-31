@@ -58,7 +58,7 @@ class PermissionSettingsSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppIcon(
-              content.icon,
+              icon: content.icon,
               size: AppSpacingConstant.r44,
               color: AppColors.primary,
             ),

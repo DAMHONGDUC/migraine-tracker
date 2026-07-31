@@ -213,7 +213,7 @@ class _NavSegment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: AppIcon(
-            selected ? item.selectedIcon : item.icon,
+            icon: selected ? item.selectedIcon : item.icon,
             size: AppSpacingConstant.r26,
             color: color,
           ),

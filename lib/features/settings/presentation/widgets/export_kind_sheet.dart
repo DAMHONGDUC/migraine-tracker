@@ -62,7 +62,10 @@ class _KindTile extends ConsumerWidget {
 
     if (kind.isPremium && !ref.watch(hasPremiumProvider)) {
       return ListTile(
-        leading: AppIcon(kind.icon, color: context.colorScheme.onSurfaceVariant),
+        leading: AppIcon(
+          icon: kind.icon,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
         title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
         subtitle: Text(
           l10n.premiumLockedReport,
@@ -79,7 +82,7 @@ class _KindTile extends ConsumerWidget {
     }
 
     return ListTile(
-      leading: AppIcon(kind.icon, color: context.colorScheme.primary),
+      leading: AppIcon(icon: kind.icon, color: context.colorScheme.primary),
       title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );

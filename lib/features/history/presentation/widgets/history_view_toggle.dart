@@ -138,7 +138,7 @@ class _Segment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: AppIcon(
-            icon,
+            icon: icon,
             size: AppSpacingConstant.r20,
             color: selected ? scheme.primary : scheme.onSurfaceVariant,
           ),

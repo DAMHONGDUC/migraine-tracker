@@ -52,7 +52,7 @@ class DashboardBanner extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: AppIcon(
-                  icon,
+                  icon: icon,
                   size: AppSpacingConstant.r22,
                   color: color,
                 ),
@@ -71,7 +71,7 @@ class DashboardBanner extends StatelessWidget {
               ),
               SizedBox(width: AppSpacingConstant.w8),
               AppIcon(
-                Icons.chevron_right,
+                icon: Icons.chevron_right,
                 size: AppSpacingConstant.r20,
                 color: context.colorScheme.onSurfaceVariant,
               ),

@@ -51,7 +51,7 @@ class _LockedCard extends ConsumerWidget {
             Row(
               children: [
                 AppIcon(
-                  icon,
+                  icon: icon,
                   size: AppSpacingConstant.r20,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -97,7 +97,7 @@ class PremiumTileGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(hasPremiumProvider)) return child;
     return ListTile(
-      leading: AppIcon(icon, color: context.colorScheme.onSurfaceVariant),
+      leading: AppIcon(icon: icon, color: context.colorScheme.onSurfaceVariant),
       title: Text(title, style: AppTextStyle.bodyLarge),
       subtitle: Text(lockedMessage, style: AppTextStyle.bodyMedium.secondary),
       trailing: const PremiumBadge(),
