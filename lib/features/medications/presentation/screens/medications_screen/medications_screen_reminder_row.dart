@@ -66,7 +66,8 @@ class _ReminderRow extends ConsumerWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Switch(
+          AppSwitcher(
+            size: 0.7,
             value: reminder.enabled,
             onChanged: (enabled) => ref
                 .read(remindersControllerProvider)
