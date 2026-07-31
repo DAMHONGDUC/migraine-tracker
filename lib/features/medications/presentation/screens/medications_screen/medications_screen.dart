@@ -8,6 +8,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/widgets/buttons/app_icon_button.dart';
 import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
+import 'package:migraine_tracker/core/widgets/switch/app_switcher.dart';
 
 import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
