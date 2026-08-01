@@ -10,6 +10,7 @@ import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_sheet_content.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/export_date_filter.dart';
+import 'date_range_calendar.dart';
 
 /// Which end of the window the calendar is currently setting.
 enum _Bound { from, to }
@@ -47,6 +48,11 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
     setState(() {
       if (_editing == _Bound.from) {
         _from = date;
+        // A start later than the end the user already picked would leave an
+        // inverted window, so that end goes back to "any date".
+        if (_to != null && date.isAfter(_to!)) {
+          _to = null;
+        }
         // Straight on to the other end: picking a start almost always means
         // an end is coming next.
         _editing = _Bound.to;
@@ -60,7 +66,13 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final DateTime today = DateTime.now();
-    final DateTime? active = _editing == _Bound.from ? _from : _to;
+    final bool editingTo = _editing == _Bound.to;
+    final DateTime? active = editingTo ? _to : _from;
+    // The end of the window can never be older than its start, so days before
+    // it are greyed out rather than picked and silently swapped.
+    final DateTime firstDate = editingTo && _from != null
+        ? _from!
+        : ExportDateFilterSheet.firstSelectableDate;
 
     return AppSheetContent(
       title: l10n.exportFilterTitle,
@@ -99,13 +111,15 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
           SizedBox(height: AppSpacingConstant.h8),
           // Keyed on the bound, so switching ends re-centres the calendar on
           // that end's own month instead of staying where the other one was.
-          CalendarDatePicker(
+          DateRangeCalendar(
             key: ValueKey<_Bound>(_editing),
-            initialDate: active ?? today,
-            firstDate: ExportDateFilterSheet.firstSelectableDate,
+            from: _from,
+            to: _to,
+            initialMonth: active ?? today,
+            firstDate: firstDate,
             // An export cannot have been made tomorrow.
             lastDate: today,
-            onDateChanged: _pick,
+            onDateSelected: _pick,
           ),
         ],
       ),
