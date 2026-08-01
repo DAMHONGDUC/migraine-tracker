@@ -227,8 +227,10 @@ class _MonthGrid extends StatelessWidget {
               !date.isBefore(DateUtils.dateOnly(firstDate)) &&
               !date.isAfter(DateUtils.dateOnly(lastDate)),
           onTap: () => onDateSelected(date),
-          bandBefore: isStart,
-          bandAfter: isEnd,
+          // A day between the two ends bands on both sides so the row reads
+          // as one block; the ends themselves band only toward the middle.
+          bandBefore: hasRange && (isEnd || isInside),
+          bandAfter: hasRange && (isStart || isInside),
         ),
       );
     }
