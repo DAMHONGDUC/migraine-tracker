@@ -125,6 +125,12 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   `pub get` for both packages, `gen-l10n`, `build_runner`, `env/*.json` from
   the templates, `npm ci` in `functions/`, and `pod install` on macOS.
   Idempotent — re-run it any time, and after `melos run clean`.
+  **It puts each submodule on the branch named in `.gitmodules` (`main`) and
+  fast-forwards it, rather than leaving it detached at the recorded gitlink.**
+  So the design system is always editable in place — and what you build is
+  whatever is on that branch, NOT what the parent commit pins. When the branch
+  moves ahead, `packages/system_design` shows as modified; commit that gitlink
+  deliberately, and never assume an old parent commit rebuilds byte-for-byte.
 - `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.

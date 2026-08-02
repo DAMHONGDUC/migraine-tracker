@@ -33,6 +33,14 @@ Drift code, lays down `env/*.json` from the templates, installs the Cloud
 Functions dependencies, and — on macOS — runs `pod install` for the one
 plugin that still needs CocoaPods. It is safe to re-run at any time.
 
+**Submodules follow their branch, they are not pinned.** Setup checks the
+design system out on `main` (the branch named in `.gitmodules`) and
+fast-forwards it, instead of leaving it detached at the commit this repo
+records. So you can edit it in place without remembering to check out a
+branch first — but what you build is whatever is on `main`, not what the
+parent commit pins. When `main` moves ahead, git shows
+`packages/system_design` as modified: commit that gitlink when you mean to.
+
 **One thing setup cannot do for you:** `env/dev.json` and `env/prod.json`
 hold Firebase and RevenueCat keys and are gitignored, so a fresh clone gets
 key-only templates copied from `env/*.example.json`. Fill them in before

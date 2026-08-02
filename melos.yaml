@@ -42,8 +42,28 @@ scripts:
         FL="flutter"; DT="dart"
       fi
 
+      # Submodules land on their branch and follow it, rather than sitting
+      # detached at the commit the gitlink records. That is deliberate: the
+      # design system is developed alongside this app, and nobody wants to
+      # remember to `git checkout main` inside it before every edit.
+      #
+      # The cost is real, so know it: after this, what you build is whatever
+      # is on the submodule's branch, NOT what the parent commit pins. The
+      # parent will show `packages/system_design` as modified the moment the
+      # branch moves ahead of the gitlink — commit that gitlink when you mean
+      # to, and never assume a past parent commit rebuilds byte-for-byte.
       echo "==> submodules"
       git submodule update --init --recursive
+      git submodule foreach --quiet --recursive '
+        branch=$(git config -f "$toplevel/.gitmodules" "submodule.$name.branch" || echo main)
+        if ! git checkout -q "$branch" 2>/dev/null; then
+          echo "    $name: cannot switch to $branch (uncommitted changes?), left as is"
+        elif ! git pull -q --ff-only origin "$branch" 2>/dev/null; then
+          echo "    $name: on $branch, but not fast-forwardable — pull it by hand"
+        else
+          echo "    $name -> $branch"
+        fi
+      '
 
       echo "==> dependencies"
       $FL pub get
