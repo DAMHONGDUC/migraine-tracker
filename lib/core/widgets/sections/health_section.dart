@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/app_snack_bar.dart';
-import '../../../../core/widgets/premium_gate.dart';
-import '../../providers.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../features/health/providers.dart';
+import '../../extensions/context_extensions.dart';
+import '../premium_gate.dart';
 
 /// The Apple Health row in Settings: one switch that connects the sleep
 /// source. Absent off iOS, and locked for free users — the sleep insight it
@@ -23,11 +22,11 @@ class HealthSection extends ConsumerWidget {
 
       if (!context.mounted || connected) return;
 
-      AppSnackBarUtils.error(context, context.l10n.healthConnectFailed);
+      SdSnackBarUtilsV2.error(context, context.l10n.healthConnectFailed);
     } catch (_) {
       // The controller already logged it; the user needs the outcome.
       if (context.mounted) {
-        AppSnackBarUtils.error(context, context.l10n.healthConnectFailed);
+        SdSnackBarUtilsV2.error(context, context.l10n.healthConnectFailed);
       }
     }
   }
@@ -43,7 +42,7 @@ class HealthSection extends ConsumerWidget {
       title: context.l10n.healthSleepTitle,
       lockedMessage: context.l10n.premiumLockedSleep,
       child: SwitchListTile(
-        secondary: const AppIcon(icon: Icons.bedtime_outlined),
+        secondary: const SdIconV2(icon: Icons.bedtime_outlined),
         title: Text(
           context.l10n.healthSleepTitle,
           style: AppTextStyle.bodyLarge,

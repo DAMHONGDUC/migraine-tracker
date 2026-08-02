@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/features/premium/presentation/widgets/premium_settings_tile.dart';
+import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dart';
 
 import '../../helpers/pump_app.dart';
 

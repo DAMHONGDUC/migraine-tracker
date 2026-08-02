@@ -5,15 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
-import 'package:migraine_tracker/core/constants/app_content_padding.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
-import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
-import 'package:migraine_tracker/core/widgets/main_app_bar.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
@@ -44,6 +40,7 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_snapsh
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_design/v2/index.dart';
 
 import 'export_fakes.dart';
 
@@ -490,7 +487,7 @@ Future<PumpedApp> pumpApp(
   /// True covers the real path, which must work before submission.
   bool appleSignIn = false,
 
-  /// What `AppGlass.isSupported` reports. Defaults to true (the shipped iOS
+  /// What `SdGlassV2.isSupported` reports. Defaults to true (the shipped iOS
   /// path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
 
@@ -523,11 +520,11 @@ Future<PumpedApp> pumpApp(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  // The test engine is Skia, so AppGlass.isSupported would always be false
+  // The test engine is Skia, so SdGlassV2.isSupported would always be false
   // and every test would assert the fallback layout instead of the shipped
   // one. The glass still renders as FakeGlass here; only the insets follow.
-  AppGlass.debugSupported = glassSupported;
-  addTearDown(() => AppGlass.debugSupported = null);
+  SdGlassV2.debugSupported = glassSupported;
+  addTearDown(() => SdGlassV2.debugSupported = null);
 
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
@@ -649,7 +646,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   }
 
   // Only when there is something to scroll. A target inside a bottom sheet
-  // has no Scrollable ancestor, and `find.byType(MainAppBar)` still matches
+  // has no Scrollable ancestor, and `find.byType(SdAppBarV2)` still matches
   // the bars sitting in the shell's IndexedStack *behind* the sheet — so
   // without this guard the nudge tried to drag a scrollable that does not
   // exist and threw `Bad state: No element`.
@@ -662,7 +659,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   if (covered > 0 && scrollable.evaluate().isNotEmpty) {
     await tester.drag(
       scrollable.first,
-      Offset(0, covered + AppSpacingConstant.h8),
+      Offset(0, covered + SdSpacingV2.h8),
     );
     await tester.pump();
   }
@@ -674,11 +671,11 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 
 /// Bottom edge of the frosted app bar covering [finder]'s screen, or 0 where
 /// that screen has none (a sheet, the log flow). Reads the app's own
-/// [AppContentPadding.appBarInset] rather than a second copy of the number.
+/// [SdContentPaddingV2.appBarInset] rather than a second copy of the number.
 double _appBarBottom(WidgetTester tester, Finder finder) {
-  if (find.byType(MainAppBar).evaluate().isEmpty) return 0;
+  if (find.byType(SdAppBarV2).evaluate().isEmpty) return 0;
 
-  return AppContentPadding.appBarInset(tester.element(finder));
+  return SdContentPaddingV2.appBarInset(tester.element(finder));
 }
 
 /// Tab switches from the shell's bottom nav. Every widget test that leaves

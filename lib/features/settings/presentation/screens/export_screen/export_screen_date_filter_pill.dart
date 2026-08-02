@@ -40,7 +40,7 @@ class _DateFilterPill extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ExportDateFilter filter = ref.watch(exportFilterControllerProvider);
 
-    return AppFilterPill(
+    return SdFilterPillV2(
       label: _label(context.l10n, filter),
       onTap: () => _open(context, ref),
     );

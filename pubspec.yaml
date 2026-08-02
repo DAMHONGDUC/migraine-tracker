@@ -47,6 +47,11 @@ dependencies:
   shared_preferences: ^2.5.5
   sign_in_with_apple: ^8.1.0
   simple_icons: ^16.23.0
+  # The shared design system. Its own git repo, checked out here as a
+  # submodule — tokens, theme and string-free widgets live there, not in
+  # lib/core.
+  system_design:
+    path: packages/system_design
   step_progress: ^2.7.1
   table_calendar: ^3.2.0
   timezone: ^0.11.1

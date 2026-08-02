@@ -4,13 +4,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../weather/domain/entities/pressure_forecast.dart';
 import '../../../weather/providers.dart';
+import 'insight_card.dart';
 
 /// Single-series line chart: pressure over now−12h … now+48h. The dimmed
 /// segment is the past, the solid one the forecast; a vertical marker
@@ -22,38 +23,26 @@ class PressureForecastCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final forecast = ref.watch(pressureForecastProvider);
 
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.insightsForecastTitle,
-              style: AppTextStyle.titleMedium,
-            ),
-            SizedBox(height: AppSpacingConstant.h16),
-            switch (forecast) {
-              AsyncData(value: final value) when value != null => _Chart(
-                forecast: value,
-              ),
-              AsyncLoading() => SizedBox(
-                height: AppSpacingConstant.h160,
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-              _ => SizedBox(
-                height: AppSpacingConstant.h64,
-                child: Center(
-                  child: Text(
-                    context.l10n.insightsForecastUnavailable,
-                    style: AppTextStyle.bodyMedium.secondary,
-                  ),
-                ),
-              ),
-            },
-          ],
+    return InsightCard(
+      title: context.l10n.insightsForecastTitle,
+      child: switch (forecast) {
+        AsyncData(value: final value) when value != null => _Chart(
+          forecast: value,
         ),
-      ),
+        AsyncLoading() => SizedBox(
+          height: SdSpacingV2.h160,
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        _ => SizedBox(
+          height: SdSpacingV2.h64,
+          child: Center(
+            child: Text(
+              context.l10n.insightsForecastUnavailable,
+              style: AppTextStyle.bodyMedium.secondary,
+            ),
+          ),
+        ),
+      },
     );
   }
 }
@@ -70,7 +59,7 @@ class _Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final labelStyle = AppTextStyle.bodySmall.copyWith(
       color: AppColors.textSecondary,
-      fontSize: AppSpacingConstant.sp10,
+      fontSize: SdSpacingV2.sp10,
     );
     final timeFormat = DateFormat.Hm(context.l10n.localeName);
 
@@ -101,7 +90,7 @@ class _Chart extends StatelessWidget {
       ),
       child: ExcludeSemantics(
         child: SizedBox(
-          height: AppSpacingConstant.h160,
+          height: SdSpacingV2.h160,
           child: LineChart(
             LineChartData(
               minY: minY,
@@ -120,7 +109,7 @@ class _Chart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: max(((maxY - minY) / 3).ceilToDouble(), 1),
-                    reservedSize: AppSpacingConstant.w32,
+                    reservedSize: SdSpacingV2.w32,
                     getTitlesWidget: (value, meta) =>
                         Text(value.toInt().toString(), style: labelStyle),
                   ),
@@ -129,9 +118,9 @@ class _Chart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: 12,
-                    reservedSize: AppSpacingConstant.h24,
+                    reservedSize: SdSpacingV2.h24,
                     getTitlesWidget: (value, meta) => Padding(
-                      padding: EdgeInsets.only(top: AppSpacingConstant.h6),
+                      padding: EdgeInsets.only(top: SdSpacingV2.h6),
                       child: Text(
                         value == 0
                             ? context.l10n.insightsForecastNow

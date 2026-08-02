@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_filter_pill.dart';
-import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
-import '../../../../../core/widgets/charts/chart_card.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
-import '../../../../../core/widgets/empty_state.dart';
 import '../../../../attacks/domain/entities/attack.dart';
 import '../../../../attacks/providers.dart';
 import '../../../domain/enums/history_view_mode.dart';
@@ -53,7 +47,7 @@ class HistoryScreen extends HookConsumerWidget {
       HistoryViewMode.calendar => false,
     };
 
-    return AppScaffold(
+    return SdScaffoldV2(
       // At rest the pill lives in the scroll content; once it scrolls away
       // it takes over the title slot and the "History" heading hides.
       title: AnimatedSwitcher(
@@ -76,18 +70,18 @@ class HistoryScreen extends HookConsumerWidget {
           mode: mode,
           onChanged: ref.read(historyViewModeProvider.notifier).select,
         ),
-        SizedBox(width: AppSpacingConstant.w12),
+        SizedBox(width: SdSpacingV2.w12),
       ],
       // No outer top padding: each view pads INSIDE its own scrollable, so
       // the content scrolls behind the translucent app bar and blurs out.
-      body: AppRefreshIndicator(
-        onRefresh: () => AppRefreshIndicator.run(
+      body: SdRefreshIndicatorV2(
+        onRefresh: () => SdRefreshIndicatorV2.run(
           () => ref.invalidate(attacksStreamProvider),
         ),
         child: switch (allAttacks) {
-          AsyncData(value: final all) when all.isEmpty => ScrollFill(
-            topInset: AppContentPadding.appBarInset(context),
-            child: EmptyState(
+          AsyncData(value: final all) when all.isEmpty => SdScrollFillV2(
+            topInset: SdContentPaddingV2.appBarInset(context),
+            child: SdEmptyStateV2(
               icon: Icons.event_note_outlined,
               message: l10n.historyEmpty,
             ),
@@ -102,8 +96,8 @@ class HistoryScreen extends HookConsumerWidget {
               // drift apart. Unconditional floatingNav: the shell's nav
               // pill floats on every device, so these views always scroll
               // behind it.
-              final topInset = AppContentPadding.top(context);
-              final bottomInset = AppContentPadding.bottom(
+              final topInset = SdContentPaddingV2.top(context);
+              final bottomInset = SdContentPaddingV2.bottom(
                 context,
                 floatingNav: true,
               );
@@ -134,9 +128,9 @@ class HistoryScreen extends HookConsumerWidget {
               );
             },
           ),
-          AsyncError() => ScrollFill(
-            topInset: AppContentPadding.appBarInset(context),
-            child: EmptyState(
+          AsyncError() => SdScrollFillV2(
+            topInset: SdContentPaddingV2.appBarInset(context),
+            child: SdEmptyStateV2(
               icon: Icons.event_note_outlined,
               message: l10n.historyEmpty,
             ),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
-import 'package:migraine_tracker/core/widgets/buttons/app_button.dart';
+import 'package:system_design/v2/index.dart';
 
 /// The login screen's pair: a filled Apple button over an outlined Google
 /// one, two labels of different lengths. Under
-/// [AppButtonIconPlacement.aligned] the icon+label cluster sits in the middle
+/// [SdButtonIconPlacementV2.aligned] the icon+label cluster sits in the middle
 /// of the button AND lands on the same x in both — whatever the variant and
 /// whatever the label length.
 ///
@@ -21,7 +20,7 @@ void main() {
 
   Future<void> pumpPair(
     WidgetTester tester, {
-    required AppButtonIconPlacement placement,
+    required SdButtonIconPlacementV2 placement,
     String appleLabel = 'Apple',
     String googleLabel = 'Google',
     double? appleIconSize,
@@ -38,16 +37,16 @@ void main() {
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                AppButton(
-                  variant: AppButtonVariant.primary,
+                SdButtonV2(
+                  variant: SdButtonVariantV2.primary,
                   icon: appleIcon,
                   iconPlacement: placement,
                   iconSize: appleIconSize,
                   label: appleLabel,
                   onPressed: () {},
                 ),
-                AppButton(
-                  variant: AppButtonVariant.outlined,
+                SdButtonV2(
+                  variant: SdButtonVariantV2.outlined,
                   icon: googleIcon,
                   iconPlacement: placement,
                   label: googleLabel,
@@ -62,7 +61,7 @@ void main() {
   }
 
   testWidgets('aligned puts both glyphs on the same x', (tester) async {
-    await pumpPair(tester, placement: AppButtonIconPlacement.aligned);
+    await pumpPair(tester, placement: SdButtonIconPlacementV2.aligned);
 
     expect(
       tester.getTopLeft(find.byIcon(appleIcon)).dx,
@@ -71,7 +70,7 @@ void main() {
   });
 
   testWidgets('aligned starts both labels on the same x', (tester) async {
-    await pumpPair(tester, placement: AppButtonIconPlacement.aligned);
+    await pumpPair(tester, placement: SdButtonIconPlacementV2.aligned);
 
     // Same slot, same left edge — and start-aligned, so the first character
     // sits on that edge instead of floating in the middle of the slot.
@@ -91,7 +90,7 @@ void main() {
   testWidgets('aligned keeps the cluster centred on the button', (
     tester,
   ) async {
-    await pumpPair(tester, placement: AppButtonIconPlacement.aligned);
+    await pumpPair(tester, placement: SdButtonIconPlacementV2.aligned);
 
     final Finder button = find.byType(FilledButton);
     final Finder cluster = find.descendant(
@@ -107,12 +106,12 @@ void main() {
     expect(
       tester.getTopLeft(find.byIcon(appleIcon)).dx -
           tester.getTopLeft(button).dx,
-      greaterThan(AppButton.iconGap * 2),
+      greaterThan(SdButtonV2.iconGap * 2),
     );
   });
 
   testWidgets('aligned gives both buttons the same height', (tester) async {
-    await pumpPair(tester, placement: AppButtonIconPlacement.aligned);
+    await pumpPair(tester, placement: SdButtonIconPlacementV2.aligned);
 
     expect(
       tester.getSize(find.byType(FilledButton)).height,
@@ -125,7 +124,7 @@ void main() {
   testWidgets('a label wider than the slot is never truncated', (tester) async {
     await pumpPair(
       tester,
-      placement: AppButtonIconPlacement.aligned,
+      placement: SdButtonIconPlacementV2.aligned,
       appleLabel: 'Sign in with a very long label indeed',
     );
 
@@ -133,7 +132,7 @@ void main() {
       find.text('Sign in with a very long label indeed'),
     );
 
-    expect(label.width, greaterThan(AppButton.alignedLabelWidth));
+    expect(label.width, greaterThan(SdButtonV2.alignedLabelWidth));
     // Out of width it wraps to a second line rather than losing characters.
     expect(
       label.height,
@@ -148,17 +147,17 @@ void main() {
   ) async {
     await pumpPair(
       tester,
-      placement: AppButtonIconPlacement.aligned,
-      appleIconSize: AppSpacingConstant.r28,
+      placement: SdButtonIconPlacementV2.aligned,
+      appleIconSize: SdSpacingV2.r28,
     );
 
     expect(
       tester.getSize(find.byIcon(appleIcon)).width,
-      AppSpacingConstant.r28,
+      SdSpacingV2.r28,
     );
     expect(
       tester.getSize(find.byIcon(googleIcon)).width,
-      AppButton.defaultIconSize,
+      SdButtonV2.defaultIconSize,
     );
   });
 
@@ -167,8 +166,8 @@ void main() {
   testWidgets('a resized glyph keeps the pair aligned', (tester) async {
     await pumpPair(
       tester,
-      placement: AppButtonIconPlacement.aligned,
-      appleIconSize: AppSpacingConstant.r28,
+      placement: SdButtonIconPlacementV2.aligned,
+      appleIconSize: SdSpacingV2.r28,
     );
 
     expect(
@@ -184,7 +183,7 @@ void main() {
   // The inline default is what the shrink-wrapped text buttons (the "Add
   // reminder" / "Edit" rows) sit on: it must not grow to the full width.
   testWidgets('inline still shrink-wraps to its content', (tester) async {
-    await pumpPair(tester, placement: AppButtonIconPlacement.inline);
+    await pumpPair(tester, placement: SdButtonIconPlacementV2.inline);
 
     final double buttonWidth = tester.getSize(find.byType(FilledButton)).width;
     final Finder row = find.descendant(

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/charts/chart_card.dart';
 import '../../../../core/widgets/charts/severity_breakdown_chart.dart';
-import '../../../../core/widgets/pressable_scale.dart';
 import '../../../attacks/providers.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/domain/services/chart_analytics.dart';
@@ -33,19 +30,19 @@ class DashboardSeverityCard extends ConsumerWidget {
       context.goNamed(AppRoutes.history.name);
     }
 
-    return PressableScale(
+    return SdPressableScaleV2(
       onTap: openChart,
-      child: ChartCard(
+      child: SdChartCardV2(
         child: Stack(
           children: [
             IgnorePointer(child: SeverityBreakdownChart(counts: counts)),
             PositionedDirectional(
               top: 0,
               end: 0,
-              child: AppIcon(
+              child: SdIconV2(
                 icon: Icons.chevron_right,
                 color: AppColors.textSecondary,
-                size: AppSpacingConstant.r24,
+                size: SdSpacingV2.r24,
               ),
             ),
           ],

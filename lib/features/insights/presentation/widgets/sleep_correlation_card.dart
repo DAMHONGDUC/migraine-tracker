@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/duration_label.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/sleep_correlation_result.dart';
 import '../../providers.dart';
+import 'insight_card.dart';
+import 'insight_progress_body.dart';
 
 part 'sleep_correlation_card_insight.dart';
-part 'sleep_correlation_card_insufficient_data.dart';
 part 'sleep_correlation_card_not_connected.dart';
 part 'sleep_correlation_card_no_variation.dart';
 
@@ -51,28 +51,25 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              context.l10n.insightsSleepTitle,
-              style: AppTextStyle.titleMedium,
-            ),
-            SizedBox(height: AppSpacingConstant.h16),
-            switch (result) {
-              SleepNotConnected() => const _NotConnected(),
-              final SleepInsufficientData r => _SleepInsufficientDataBody(
-                result: r,
-              ),
-              SleepNoVariation() => const _SleepNoVariationBody(),
-              final SleepInsight r => _SleepInsightBody(result: r),
-            },
-          ],
+    return InsightCard(
+      title: context.l10n.insightsSleepTitle,
+      child: switch (result) {
+        SleepNotConnected() => const _NotConnected(),
+        final SleepInsufficientData r => InsightProgressBody(
+          icon: Icons.hourglass_empty,
+          message: context.l10n.insightsSleepInsufficientData(
+            r.requiredNights,
+            r.requiredPerGroup,
+          ),
+          progress: r.nightsWithSleep / r.requiredNights,
+          caption: context.l10n.insightsSleepProgressCaption(
+            r.nightsWithSleep,
+            r.requiredNights,
+          ),
         ),
-      ),
+        SleepNoVariation() => const _SleepNoVariationBody(),
+        final SleepInsight r => _SleepInsightBody(result: r),
+      },
     );
   }
 }

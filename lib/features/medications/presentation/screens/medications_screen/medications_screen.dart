@@ -4,27 +4,13 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
-import 'package:migraine_tracker/core/widgets/buttons/app_icon_button.dart';
-import 'package:migraine_tracker/core/widgets/spacing/horizontal_spacing.dart';
-import 'package:migraine_tracker/core/widgets/switch/app_switcher.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/buttons/app_bar_button.dart';
-import '../../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_dialog.dart';
-import '../../../../../core/widgets/app_filter_sheet.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
-import '../../../../../core/widgets/collapsing_filter_scaffold.dart';
-import '../../../../../core/widgets/empty_state.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
@@ -91,7 +77,7 @@ final class _ReminderSnack {
     final message = firesTomorrow
         ? l10n.remindersScheduledTomorrow(time)
         : l10n.remindersScheduledToday(time);
-    AppSnackBarUtils.success(context, message);
+    SdSnackBarUtilsV2.success(context, message);
   }
 }
 
@@ -131,7 +117,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
 
   /// Rough per-card height, used only to jump a not-yet-built target near the
   /// viewport so its key resolves before the precise ensureVisible.
-  static double get _estimatedCardExtent => AppSpacingConstant.h96;
+  static double get _estimatedCardExtent => SdSpacingV2.h96;
 
   @override
   void initState() {
@@ -264,7 +250,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         .read(remindersControllerProvider)
         .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
     if (!mounted) return;
-    AppSnackBarUtils.info(context, l10n.remindersTestScheduled);
+    SdSnackBarUtilsV2.info(context, l10n.remindersTestScheduled);
   }
 
   @override
@@ -290,10 +276,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final searchQuery = ref.watch(medicationSearchProvider);
     // The gap the cards leave for the app bar and the filter strip above them.
     // Fixed whether the strip is showing or lifted into the bar, so the list
-    // never jumps mid-scroll (see CollapsingFilterScaffold).
-    final filterBarHeight = AppContentPadding.belowPinnedFilterBar(context);
+    // never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
+    final filterBarHeight = SdContentPaddingV2.belowPinnedFilterBar(context);
 
-    return CollapsingFilterScaffold(
+    return SdCollapsingFilterScaffoldV2(
       // While searching, the title slot becomes the search field and a close
       // button takes the leading slot; otherwise the tab title with a search
       // affordance right after it.
@@ -301,8 +287,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           ? _searchField(context)
           : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
       leading: _searching
-          ? AppBarButton(
-              icon: AppBarButton.backIcon,
+          ? SdAppBarButtonV2(
+              icon: SdAppBarButtonV2.backIcon,
               tooltip: l10n.commonCancel,
               onPressed: _stopSearch,
             )
@@ -314,7 +300,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       actions: _searching
           ? [
               if (searchQuery.isNotEmpty)
-                AppBarButton(
+                SdAppBarButtonV2(
                   icon: Icons.close,
                   tooltip: l10n.medicationsSearchClear,
                   onPressed: () {
@@ -323,35 +309,35 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                     _searchFocus.requestFocus();
                   },
                 ),
-              SizedBox(width: AppSpacingConstant.w12),
+              SizedBox(width: SdSpacingV2.w12),
             ]
           : [
               // Debug-only smoke test for notification delivery (kDebugMode
               // strips it from release builds entirely).
               if (kDebugMode) ...[
-                AppBarButton(
+                SdAppBarButtonV2(
                   icon: Icons.notification_add_outlined,
                   color: AppColors.secondary,
                   tooltip: l10n.remindersTestTooltip,
                   onPressed: _sendTestNotification,
                 ),
-                HorizontalSpacing(),
+                SdHorizontalSpacingV2(),
               ],
 
-              AppBarButton(
+              SdAppBarButtonV2(
                 icon: Icons.search,
                 color: AppColors.secondary,
                 tooltip: l10n.medicationsSearchTooltip,
                 onPressed: _startSearch,
               ),
-              HorizontalSpacing(),
-              AppBarButton(
+              SdHorizontalSpacingV2(),
+              SdAppBarButtonV2(
                 icon: Icons.add,
                 color: AppColors.secondary,
                 tooltip: l10n.logAddMedication,
                 onPressed: _add,
               ),
-              SizedBox(width: AppSpacingConstant.w12),
+              SizedBox(width: SdSpacingV2.w12),
             ],
       // The filter chips sit under the app bar while reading and lift into it
       // once the list scrolls — except while searching, when the bar is the
@@ -360,10 +346,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       collapsible: !_searching,
       // No outer top padding: like History, the list scrolls behind the
       // translucent app bar so it fills the screen.
-      body: AppRefreshIndicator(
+      body: SdRefreshIndicatorV2(
         // Drop the spinner below the filter strip, not over its chips.
-        edgeOffset: filterBarHeight + AppSpacingConstant.h8,
-        onRefresh: () => AppRefreshIndicator.run(() {
+        edgeOffset: filterBarHeight + SdSpacingV2.h8,
+        onRefresh: () => SdRefreshIndicatorV2.run(() {
           ref
             ..invalidate(medicationsStreamProvider)
             ..invalidate(medicationRemindersStreamProvider);
@@ -379,7 +365,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 // centers in the space below them.
                 child: Padding(
                   padding: EdgeInsets.only(top: filterBarHeight),
-                  child: EmptyState(
+                  child: SdEmptyStateV2(
                     icon: Icons.medication_outlined,
                     message: searchQuery.trim().isEmpty
                         ? l10n.medicationsEmpty
@@ -390,15 +376,15 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
             else
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
-                  AppContentPadding.horizontal,
+                  SdContentPaddingV2.horizontal,
                   filterBarHeight,
-                  AppContentPadding.horizontal,
-                  AppContentPadding.bottom(context, floatingNav: true),
+                  SdContentPaddingV2.horizontal,
+                  SdContentPaddingV2.bottom(context, floatingNav: true),
                 ),
                 sliver: SliverList.separated(
                   itemCount: medications.length,
                   separatorBuilder: (_, _) =>
-                      SizedBox(height: AppSpacingConstant.h8),
+                      SizedBox(height: SdSpacingV2.h8),
                   itemBuilder: (context, index) {
                     final medication = medications[index];
                     return _MedicationCard(
@@ -416,7 +402,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   /// The row of independent filter chips (date / reminder / usage).
-  /// `CollapsingFilterScaffold` supplies the horizontal scrolling in both places
+  /// `SdCollapsingFilterScaffoldV2` supplies the horizontal scrolling in both places
   /// it shows this row, so it stays a bare [Row] — a scroll view here would
   /// nest two.
   Widget _filterRow(
@@ -427,7 +413,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final l10n = context.l10n;
     return Row(
       children: [
-        AppFilterChip<MedicationDateFilter>(
+        SdFilterChipV2<MedicationDateFilter>(
           // The row holds 3 independent chips — at their default ("all")
           // they'd otherwise all just read "All" with nothing to tell them
           // apart, so the axis name leads until something is actually picked.
@@ -440,8 +426,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           onSelected: filtersController.setDate,
           sheetTitle: l10n.medicationsFilterDateTitle,
         ),
-        SizedBox(width: AppSpacingConstant.w8),
-        AppFilterChip<MedicationReminderFilter>(
+        SizedBox(width: SdSpacingV2.w8),
+        SdFilterChipV2<MedicationReminderFilter>(
           label: filters.reminder == MedicationReminderFilter.all
               ? l10n.medicationsFilterReminderTitle
               : _FilterLabels.reminder(context, filters.reminder),
@@ -451,8 +437,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           onSelected: filtersController.setReminder,
           sheetTitle: l10n.medicationsFilterReminderTitle,
         ),
-        SizedBox(width: AppSpacingConstant.w8),
-        AppFilterChip<MedicationUsageFilter>(
+        SizedBox(width: SdSpacingV2.w8),
+        SdFilterChipV2<MedicationUsageFilter>(
           label: filters.usage == MedicationUsageFilter.all
               ? l10n.medicationsFilterUsageTitle
               : _FilterLabels.usage(context, filters.usage),

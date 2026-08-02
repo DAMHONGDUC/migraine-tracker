@@ -19,15 +19,15 @@ class _RecordTile extends StatelessWidget {
         ' · ${FileSizeUtils.format(l10n, record.sizeBytes)}';
 
     return ListTile(
-      leading: AppIcon(
+      leading: SdIconV2(
         icon: record.kind.icon,
         color: context.colorScheme.primary,
       ),
       title: Text(record.kind.label(l10n), style: AppTextStyle.bodyLarge),
       subtitle: Text(subtitle, style: AppTextStyle.bodyMedium.secondary),
-      trailing: AppIcon(
+      trailing: SdIconV2(
         icon: Icons.more_horiz,
-        size: AppSpacingConstant.r20,
+        size: SdSpacingV2.r20,
         color: context.colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
 /// One attack row, shared by the list and calendar views. Taps through to
@@ -65,9 +64,9 @@ class AttackTile extends StatelessWidget {
               : '$when · ${attack.medicationName}',
           style: AppTextStyle.bodyMedium.secondary,
         ),
-        trailing: AppIcon(
+        trailing: SdIconV2(
         icon:  Icons.chevron_right,
-          size: AppSpacingConstant.r20,
+          size: SdSpacingV2.r20,
           color: context.colorScheme.onSurfaceVariant,
         ),
         onTap: () => context.pushNamed(

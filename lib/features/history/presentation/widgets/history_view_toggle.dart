@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../domain/enums/history_view_mode.dart';
 
 /// Segmented toggle for the History representations: a pill track with an
@@ -33,8 +31,8 @@ class HistoryViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
-    final segmentWidth = AppSpacingConstant.w54;
-    final height = AppSpacingConstant.h42;
+    final segmentWidth = SdSpacingV2.w54;
+    final height = SdSpacingV2.h42;
     final index = modes.indexOf(mode);
 
     // Styled like the bottom nav pill: borderless glass surface, and the
@@ -44,7 +42,7 @@ class HistoryViewToggle extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         // Opaque fill only when glass is off; the glass supplies the surface.
-        color: AppGlass.isSupported ? null : scheme.surfaceContainerHigh,
+        color: SdGlassV2.isSupported ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
       ),
       child: Stack(
@@ -63,14 +61,14 @@ class HistoryViewToggle extends StatelessWidget {
               heightFactor: 1,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacingConstant.w4,
-                  vertical: AppSpacingConstant.h4,
+                  horizontal: SdSpacingV2.w4,
+                  vertical: SdSpacingV2.h4,
                 ),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
                     borderRadius: BorderRadius.circular(
-                      AppSpacingConstant.r999,
+                      SdSpacingV2.r999,
                     ),
                   ),
                 ),
@@ -98,7 +96,7 @@ class HistoryViewToggle extends StatelessWidget {
       ),
     );
 
-    if (!AppGlass.isSupported) return track;
+    if (!SdGlassV2.isSupported) return track;
     // A frosted pill: it refracts the (glass) app bar and the content behind
     // it. The thumb + icons paint crisply on top (glassContainsChild: false).
     return LiquidGlass.withOwnLayer(
@@ -137,9 +135,9 @@ class _Segment extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Center(
-          child: AppIcon(
+          child: SdIconV2(
             icon: icon,
-            size: AppSpacingConstant.r20,
+            size: SdSpacingV2.r20,
             color: selected ? scheme.primary : scheme.onSurfaceVariant,
           ),
         ),

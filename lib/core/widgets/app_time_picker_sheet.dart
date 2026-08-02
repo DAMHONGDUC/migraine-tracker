@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../constants/app_content_padding.dart';
-import '../constants/app_spacing_constant.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_style.dart';
 import '../extensions/context_extensions.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_style.dart';
-import 'app_bottom_sheet.dart';
-import 'app_sheet_header.dart';
 
 /// Opens the picker and returns the picked time, or null if dismissed —
 /// `AppTimePickerSheet(initialTime: ...).show(context)`. See
@@ -18,8 +15,8 @@ import 'app_sheet_header.dart';
 /// styles instead of Cupertino's fixed look.
 ///
 /// Replaces the platform [showTimePicker] dialog for reminder times: that
-/// dialog is a bare Material route that bypasses `showAppDialog`/
-/// `showAppBottomSheet` entirely, so it never picked up this app's calm
+/// dialog is a bare Material route that bypasses `showSdDialogV2`/
+/// `showSdBottomSheetV2` entirely, so it never picked up this app's calm
 /// fade-in chrome or its `#1C1C1E`-family dark surface (hard rule 3).
 class AppTimePickerSheet extends StatefulWidget {
   const AppTimePickerSheet({
@@ -38,7 +35,7 @@ class AppTimePickerSheet extends StatefulWidget {
 
   /// Row height shared by both wheels and the selection band behind them —
   /// must match for the band to sit exactly behind the centered row.
-  static double get rowExtent => AppSpacingConstant.h44;
+  static double get rowExtent => SdSpacingV2.h44;
 
   /// Rows visible at once (odd, so one sits exactly centered).
   static const visibleRows = 5;
@@ -54,7 +51,7 @@ class AppTimePickerSheet extends StatefulWidget {
 /// "Bottom sheets and dialogs").
 extension AppTimePickerSheetExt on AppTimePickerSheet {
   Future<TimeOfDay?> show(BuildContext context) =>
-      showAppBottomSheet<TimeOfDay>(
+      showSdBottomSheetV2<TimeOfDay>(
         context,
         isScrollControlled: true,
         builder: (_) => this,
@@ -78,21 +75,23 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
           // action a full wheel-height away from the title it belongs with.
           // Shared with every other sheet that has actions, and it brings
           // its own insets, so nothing here pads around it.
-          AppSheetHeader(
+          SdSheetHeaderV2(
             title: widget.title ?? l10n.remindersPickTimeTitle,
+            closeTooltip: l10n.commonClose,
+            confirmTooltip: l10n.commonDone,
             action: widget.isEditMode
-                ? AppSheetAction.edit
-                : AppSheetAction.confirm,
+                ? SdSheetActionV2.edit
+                : SdSheetActionV2.confirm,
             onConfirm: () => Navigator.of(
               context,
             ).pop(TimeOfDay(hour: _hour, minute: _minute)),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
               0,
-              AppContentPadding.horizontal,
-              AppSpacingConstant.h16,
+              SdContentPaddingV2.horizontal,
+              SdSpacingV2.h16,
             ),
             child: SizedBox(
               height:
@@ -113,7 +112,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacingConstant.w4,
+                          horizontal: SdSpacingV2.w4,
                         ),
                         child: Text(':', style: AppTextStyle.headlineSmall),
                       ),
@@ -150,7 +149,7 @@ class _SelectionBand extends StatelessWidget {
         height: AppTimePickerSheet.rowExtent,
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
           border: Border.symmetric(
             horizontal: BorderSide(
               color: AppColors.primary.withValues(alpha: 0.35),

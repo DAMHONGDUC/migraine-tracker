@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/constants/app_content_padding.dart';
-import 'package:migraine_tracker/core/widgets/app_scaffold.dart';
-import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
+import 'package:migraine_tracker/core/theme/app_theme.dart';
+import 'package:system_design/v2/index.dart';
 
 /// The app's one spacing rule, pinned on a notched device: [topGap] below
 /// the bar, [bottomGap] above the home indicator, [horizontal] either side.
@@ -28,6 +27,7 @@ void main() {
       ScreenUtilInit(
         designSize: const Size(393, 852),
         builder: (BuildContext context, Widget? child) => MaterialApp(
+          theme: AppTheme.dark,
           home: Builder(
             builder: (BuildContext context) {
               insets = read(context);
@@ -40,15 +40,15 @@ void main() {
     return insets;
   }
 
-  setUp(() => AppGlass.debugSupported = true);
-  tearDown(() => AppGlass.debugSupported = null);
+  setUp(() => SdGlassV2.debugSupported = true);
+  tearDown(() => SdGlassV2.debugSupported = null);
 
   testWidgets(
     'content clears the app bar by topGap and the inset by bottomGap',
     (tester) async {
       final EdgeInsets insets = await insetsOf(
         tester,
-        (BuildContext context) => AppContentPadding.screen(context),
+        (BuildContext context) => SdContentPaddingV2.screen(context),
       );
 
       // 47 status bar + 56 toolbar + topGap.
@@ -64,7 +64,7 @@ void main() {
     final EdgeInsets insets = await insetsOf(
       tester,
       (BuildContext context) =>
-          AppContentPadding.screen(context, floatingNav: true),
+          SdContentPaddingV2.screen(context, floatingNav: true),
     );
 
     // The pill rests on the 34 home indicator, so: that + its 56 of height +
@@ -90,9 +90,10 @@ void main() {
       ScreenUtilInit(
         designSize: const Size(393, 852),
         builder: (BuildContext _, Widget? _) => MaterialApp(
+          theme: AppTheme.dark,
           home: Builder(
             builder: (BuildContext context) {
-              bottom = AppContentPadding.bottom(context, floatingNav: true);
+              bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
               return const SizedBox();
             },
           ),
@@ -110,7 +111,7 @@ void main() {
   ) async {
     final EdgeInsets insets = await insetsOf(
       tester,
-      (BuildContext context) => AppContentPadding.fullBleed(context),
+      (BuildContext context) => SdContentPaddingV2.fullBleed(context),
     );
 
     expect(insets.top, 47 + kToolbarHeight + 8);
@@ -122,8 +123,8 @@ void main() {
   testWidgets('appBarInset survives Scaffold stripping the top padding', (
     tester,
   ) async {
-    AppGlass.debugSupported = true;
-    addTearDown(() => AppGlass.debugSupported = null);
+    SdGlassV2.debugSupported = true;
+    addTearDown(() => SdGlassV2.debugSupported = null);
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
     // A notched device: 47pt of status bar (141 physical / DPR 3).
@@ -136,17 +137,18 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.dark,
         home: Builder(
           builder: (BuildContext outer) {
-            above = AppContentPadding.appBarInset(outer);
-            return AppScaffold(
+            above = SdContentPaddingV2.appBarInset(outer);
+            return SdScaffoldV2(
               title: const Text('Title'),
               body: Builder(
                 builder: (BuildContext inner) {
                   // Scaffold strips the body's top padding when there is an
-                  // app bar; the inset must survive that (AppActionView is
+                  // app bar; the inset must survive that (SdActionViewV2 is
                   // the body, so this is where it gets read).
-                  below = AppContentPadding.appBarInset(inner);
+                  below = SdContentPaddingV2.appBarInset(inner);
                   return const SizedBox();
                 },
               ),
@@ -163,11 +165,11 @@ void main() {
   testWidgets('without glass the bar is opaque, so no top inset', (
     tester,
   ) async {
-    AppGlass.debugSupported = false;
+    SdGlassV2.debugSupported = false;
 
     final EdgeInsets insets = await insetsOf(
       tester,
-      (BuildContext context) => AppContentPadding.screen(context),
+      (BuildContext context) => SdContentPaddingV2.screen(context),
     );
 
     // The body already starts below the bar; only the gap is left.
@@ -202,11 +204,11 @@ void main() {
                 // viewPadding.bottom whenever there is a bottom bar, so an
                 // ambient read here loses the home indicator entirely — and
                 // the last row ends up under the bar.
-                tabScreen = AppContentPadding.bottom(
+                tabScreen = SdContentPaddingV2.bottom(
                   context,
                   floatingNav: true,
                 );
-                logFlow = AppContentPadding.bottomBar(context);
+                logFlow = SdContentPaddingV2.bottomBar(context);
                 return const SizedBox();
               },
             ),

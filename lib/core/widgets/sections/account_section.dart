@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/router/navigation_utils.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../l10n/gen/app_localizations.dart';
-import '../../providers.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../features/auth/providers.dart';
+import '../../../l10n/gen/app_localizations.dart';
+import '../../extensions/context_extensions.dart';
+import '../../router/app_router.dart';
+import '../../router/navigation_utils.dart';
 
 /// Offers sign-in, or — once there is an account — a way into the account
 /// tab, which owns everything else about it (name, email, sign-out).
@@ -22,7 +22,7 @@ class AccountSection extends ConsumerWidget {
 
     if (!signedIn) {
       return ListTile(
-        leading: const AppIcon(icon: Icons.account_circle_outlined),
+        leading: const SdIconV2(icon: Icons.account_circle_outlined),
         title: Text(l10n.settingsAccountSignIn, style: AppTextStyle.bodyLarge),
         subtitle: Text(
           l10n.settingsAccountSignInSubtitle,
@@ -37,13 +37,13 @@ class AccountSection extends ConsumerWidget {
     // The email stays off this row: Settings is a screen people scroll past
     // in public, and the account screen is one tap away.
     return ListTile(
-      leading: const AppIcon(icon: Icons.account_circle),
+      leading: const SdIconV2(icon: Icons.account_circle),
       title: Text(l10n.settingsAccount, style: AppTextStyle.bodyLarge),
       subtitle: Text(
         l10n.settingsAccountSignedInSubtitle,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const AppIcon(icon: Icons.chevron_right),
+      trailing: const SdIconV2(icon: Icons.chevron_right),
       onTap: () => context.pushNamed(AppRoutes.account.name),
     );
   }

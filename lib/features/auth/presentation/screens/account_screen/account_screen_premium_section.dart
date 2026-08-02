@@ -12,7 +12,7 @@ class _PremiumSection extends ConsumerWidget {
     final bool premium = ref.watch(hasPremiumProvider);
 
     return ListTile(
-      leading: AppIcon(
+      leading: SdIconV2(
         icon: premium ? Icons.workspace_premium : Icons.lock_outline,
         color: premium ? context.colorScheme.primary : null,
       ),
@@ -24,7 +24,7 @@ class _PremiumSection extends ConsumerWidget {
         premium ? l10n.accountPremiumActiveBody : l10n.accountPremiumFreeBody,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const AppIcon(icon: Icons.chevron_right),
+      trailing: const SdIconV2(icon: Icons.chevron_right),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

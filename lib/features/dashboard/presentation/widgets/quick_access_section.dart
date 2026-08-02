@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
 import '../../../medications/providers.dart';
@@ -36,13 +35,13 @@ class QuickAccessSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: AppSpacingConstant.w4),
+          padding: EdgeInsets.only(left: SdSpacingV2.w4),
           child: Text(
             l10n.dashboardQuickAccess,
             style: AppTextStyle.titleSmall.secondary,
           ),
         ),
-        SizedBox(height: AppSpacingConstant.h12),
+        SizedBox(height: SdSpacingV2.h12),
         // IntrinsicHeight so all three cards match the tallest (the "Add
         // medication" label wraps to two lines).
         IntrinsicHeight(
@@ -56,7 +55,7 @@ class QuickAccessSection extends ConsumerWidget {
                   onTap: () => openHistory(HistoryViewMode.list),
                 ),
               ),
-              SizedBox(width: AppSpacingConstant.w12),
+              SizedBox(width: SdSpacingV2.w12),
               Expanded(
                 child: _QuickAccessCard(
                   icon: Icons.bar_chart,
@@ -64,7 +63,7 @@ class QuickAccessSection extends ConsumerWidget {
                   onTap: () => openHistory(HistoryViewMode.chart),
                 ),
               ),
-              SizedBox(width: AppSpacingConstant.w12),
+              SizedBox(width: SdSpacingV2.w12),
               Expanded(
                 child: _QuickAccessCard(
                   icon: Icons.add_circle_outline,
@@ -100,18 +99,18 @@ class _QuickAccessCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: AppSpacingConstant.h12,
-            horizontal: AppSpacingConstant.w8,
+            vertical: SdSpacingV2.h12,
+            horizontal: SdSpacingV2.w8,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AppIcon(
+              SdIconV2(
                 icon: icon,
-                size: AppSpacingConstant.r24,
+                size: SdSpacingV2.r24,
                 color: context.colorScheme.primary,
               ),
-              SizedBox(height: AppSpacingConstant.h6),
+              SizedBox(height: SdSpacingV2.h6),
               Text(
                 label,
                 textAlign: TextAlign.center,

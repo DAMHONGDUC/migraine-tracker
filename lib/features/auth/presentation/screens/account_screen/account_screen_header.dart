@@ -15,20 +15,20 @@ class _AccountHeader extends StatelessWidget {
     final String? email = profile?.email ?? user?.email;
 
     return Container(
-      // No top gap of its own: AppActionView already applied the screen's.
-      padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w16),
+      // No top gap of its own: SdActionViewV2 already applied the screen's.
+      padding: EdgeInsets.symmetric(horizontal: SdSpacingV2.w16),
       alignment: AlignmentDirectional.center,
       child: Column(
         children: <Widget>[
           _Avatar(photoUrl: profile?.photoUrl ?? user?.photoUrl, name: name),
-          SizedBox(height: AppSpacingConstant.h12),
+          SizedBox(height: SdSpacingV2.h12),
           Text(
             name ?? l10n.accountNoName,
             textAlign: TextAlign.center,
             style: AppTextStyle.titleMedium.w600,
           ),
           if (email != null) ...<Widget>[
-            SizedBox(height: AppSpacingConstant.h4),
+            SizedBox(height: SdSpacingV2.h4),
             Text(
               email,
               textAlign: TextAlign.center,
@@ -52,7 +52,7 @@ class _Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String initial = (name ?? '?').characters.first.toUpperCase();
-    final double size = AppSpacingConstant.r64;
+    final double size = SdSpacingV2.r64;
 
     return Container(
       width: size,

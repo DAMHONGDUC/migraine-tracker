@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/widgets/buttons/app_bar_button.dart';
-import 'package:migraine_tracker/core/widgets/glass/glass_circle.dart';
-import 'package:migraine_tracker/core/widgets/pop_scale.dart';
+import 'package:system_design/v2/index.dart';
 
 /// The one app-bar button: a small glyph inside a touch target big enough to
 /// hit while a migraine builds, and feedback that swells out from under the
@@ -12,7 +10,7 @@ void main() {
   Future<void> pumpButton(
     WidgetTester tester, {
     VoidCallback? onPressed,
-    AppBarButtonSurface surface = AppBarButtonSurface.glassCircle,
+    SdAppBarButtonSurfaceV2 surface = SdAppBarButtonSurfaceV2.glassCircle,
   }) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
@@ -24,7 +22,7 @@ void main() {
         builder: (BuildContext context, Widget? child) => MaterialApp(
           home: Scaffold(
             body: Center(
-              child: AppBarButton(
+              child: SdAppBarButtonV2(
                 icon: Icons.delete_outline,
                 tooltip: 'Delete',
                 surface: surface,
@@ -42,7 +40,7 @@ void main() {
   double scaleOf(WidgetTester tester) => tester
       .widget<ScaleTransition>(
         find.descendant(
-          of: find.byType(PopScale),
+          of: find.byType(SdPopScaleV2),
           matching: find.byType(ScaleTransition),
         ),
       )
@@ -54,14 +52,14 @@ void main() {
 
     expect(
       tester.getSize(find.byIcon(Icons.delete_outline)).width,
-      AppBarButton.iconSize,
+      SdAppBarButtonV2.iconSize,
     );
     expect(
-      tester.getSize(find.byType(AppBarButton)).width,
-      AppBarButton.tapSize,
+      tester.getSize(find.byType(SdAppBarButtonV2)).width,
+      SdAppBarButtonV2.tapSize,
     );
     // The whole square is the target, so it dwarfs the mark drawn in it.
-    expect(AppBarButton.tapSize, greaterThan(AppBarButton.iconSize * 2));
+    expect(SdAppBarButtonV2.tapSize, greaterThan(SdAppBarButtonV2.iconSize * 2));
   });
 
   testWidgets('a tap in the corner of the square still counts', (tester) async {
@@ -70,7 +68,7 @@ void main() {
     await pumpButton(tester, onPressed: () => taps++);
 
     // Well clear of the glyph, inside the invisible square.
-    final Rect box = tester.getRect(find.byType(AppBarButton));
+    final Rect box = tester.getRect(find.byType(SdAppBarButtonV2));
     await tester.tapAt(box.topLeft + const Offset(2, 2));
     await tester.pump();
 
@@ -87,7 +85,7 @@ void main() {
     // Hold the finger down: the swell runs on the pointer-down, so it does
     // not wait to learn whether this is a tap or a long press.
     final TestGesture gesture = await tester.startGesture(
-      tester.getCenter(find.byType(PopScale)),
+      tester.getCenter(find.byType(SdPopScaleV2)),
     );
     // One empty pump first: the ticker starts on the frame after the touch,
     // so a single timed pump would still read the resting value.
@@ -114,8 +112,8 @@ void main() {
 
     expect(
       find.ancestor(
-        of: find.byType(GlassCircle),
-        matching: find.byType(PopScale),
+        of: find.byType(SdGlassCircleV2),
+        matching: find.byType(SdPopScaleV2),
       ),
       findsOneWidget,
     );
@@ -125,16 +123,16 @@ void main() {
     await pumpButton(
       tester,
       onPressed: () {},
-      surface: AppBarButtonSurface.none,
+      surface: SdAppBarButtonSurfaceV2.none,
     );
 
-    expect(find.byType(GlassCircle), findsNothing);
-    expect(find.byType(PopScale), findsOneWidget);
+    expect(find.byType(SdGlassCircleV2), findsNothing);
+    expect(find.byType(SdPopScaleV2), findsOneWidget);
   });
 
   testWidgets('disabled, it does not pop', (tester) async {
     await pumpButton(tester);
 
-    expect(find.byType(PopScale), findsNothing);
+    expect(find.byType(SdPopScaleV2), findsNothing);
   });
 }

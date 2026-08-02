@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../health/providers.dart';
@@ -24,11 +21,11 @@ class InsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(correlationResultProvider);
 
-    return AppScaffold(
+    return SdScaffoldV2(
       title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
       body: switch (result) {
-        AsyncData(value: final value) => AppRefreshIndicator(
-          onRefresh: () => AppRefreshIndicator.run(() {
+        AsyncData(value: final value) => SdRefreshIndicatorV2(
+          onRefresh: () => SdRefreshIndicatorV2.run(() {
             ref
               ..invalidate(attacksStreamProvider)
               ..invalidate(pressureForecastProvider)
@@ -36,7 +33,7 @@ class InsightsScreen extends ConsumerWidget {
           }),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: AppContentPadding.screen(context, floatingNav: true),
+            padding: SdContentPaddingV2.screen(context, floatingNav: true),
             children: [
               // Free users never build the forecast card, so no forecast is
               // fetched or held for them.
@@ -45,12 +42,12 @@ class InsightsScreen extends ConsumerWidget {
                 lockedMessage: context.l10n.premiumLockedForecast,
                 child: const PressureForecastCard(),
               ),
-              SizedBox(height: AppSpacingConstant.h12),
+              SizedBox(height: SdSpacingV2.h12),
               CorrelationCard(result: value),
               // iOS only: off HealthKit there is no sleep source, so the
               // card would have nothing to say but "unavailable".
               if (ref.watch(healthAvailableProvider)) ...<Widget>[
-                SizedBox(height: AppSpacingConstant.h12),
+                SizedBox(height: SdSpacingV2.h12),
                 PremiumGate(
                   lockedIcon: Symbols.bedtime,
                   lockedMessage: context.l10n.premiumLockedSleep,

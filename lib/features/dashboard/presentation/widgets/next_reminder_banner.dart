@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
-import 'dashboard_banner.dart';
 import 'highlighted_time_text.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
@@ -63,7 +63,7 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
       remaining,
     );
 
-    return DashboardBanner(
+    return SdBannerV2(
       icon: Icons.alarm,
       color: AppColors.secondary,
       title: l10n.dashboardNextReminderTitle,

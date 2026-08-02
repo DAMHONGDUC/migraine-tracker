@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/export_kind_label.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/enums/export_kind.dart';
@@ -30,10 +28,10 @@ class ExportKindSheet extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w24,
-              AppSpacingConstant.h4,
-              AppSpacingConstant.w24,
-              AppSpacingConstant.h12,
+              SdSpacingV2.w24,
+              SdSpacingV2.h4,
+              SdSpacingV2.w24,
+              SdSpacingV2.h12,
             ),
             child: Text(
               context.l10n.exportPickTitle,
@@ -42,7 +40,7 @@ class ExportKindSheet extends StatelessWidget {
           ),
           for (final ExportKind kind in ExportKind.values)
             _KindTile(kind: kind),
-          SizedBox(height: AppSpacingConstant.h8),
+          SizedBox(height: SdSpacingV2.h8),
         ],
       ),
     );
@@ -62,7 +60,7 @@ class _KindTile extends ConsumerWidget {
 
     if (kind.isPremium && !ref.watch(hasPremiumProvider)) {
       return ListTile(
-        leading: AppIcon(
+        leading: SdIconV2(
           icon: kind.icon,
           color: context.colorScheme.onSurfaceVariant,
         ),
@@ -82,7 +80,7 @@ class _KindTile extends ConsumerWidget {
     }
 
     return ListTile(
-      leading: AppIcon(icon: kind.icon, color: context.colorScheme.primary),
+      leading: SdIconV2(icon: kind.icon, color: context.colorScheme.primary),
       title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );
@@ -93,5 +91,5 @@ class _KindTile extends ConsumerWidget {
 /// `showX` (CLAUDE.md § Code style).
 extension ExportKindSheetExt on ExportKindSheet {
   Future<ExportKind?> show(BuildContext context) =>
-      showAppBottomSheet<ExportKind>(context, builder: (_) => this);
+      showSdBottomSheetV2<ExportKind>(context, builder: (_) => this);
 }

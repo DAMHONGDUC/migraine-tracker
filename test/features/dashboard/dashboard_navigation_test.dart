@@ -77,7 +77,7 @@ void main() {
 
     // Its chart is wrapped in an IgnorePointer so the whole card is one tap
     // target — tap the card body (warnIfMissed: the hit falls through to the
-    // PressableScale behind the ignored chart).
+    // SdPressableScaleV2 behind the ignored chart).
     final card = find.byType(DashboardSeverityCard);
     await tester.ensureVisible(card);
     await _settle(tester);

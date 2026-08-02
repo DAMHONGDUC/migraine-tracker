@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/features/history/domain/enums/history_view_mode.dart';
 import 'package:migraine_tracker/features/history/providers.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
@@ -35,7 +34,7 @@ class WeekSummaryCard extends ConsumerWidget {
       child: InkWell(
         onTap: () => openHistory(HistoryViewMode.calendar),
         child: Padding(
-          padding: EdgeInsets.all(AppSpacingConstant.w20),
+          padding: EdgeInsets.all(SdSpacingV2.w20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -47,27 +46,27 @@ class WeekSummaryCard extends ConsumerWidget {
                       style: AppTextStyle.titleMedium,
                     ),
                   ),
-                  AppIcon(
+                  SdIconV2(
                     icon: Icons.chevron_right,
-                    size: AppSpacingConstant.r20,
+                    size: SdSpacingV2.r20,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
-              SizedBox(height: AppSpacingConstant.h12),
+              SizedBox(height: SdSpacingV2.h12),
               Text(
                 l10n.dashboardAttacksCount(summary.thisWeekCount),
                 style: AppTextStyle.headlineSmall.w600,
               ),
               if (hasData) ...[
-                SizedBox(height: AppSpacingConstant.h4),
+                SizedBox(height: SdSpacingV2.h4),
                 Text(
                   _trendText(l10n, summary),
                   style: AppTextStyle.bodySmall.secondary,
                 ),
               ],
               if (summary.averageIntensity != null) ...[
-                SizedBox(height: AppSpacingConstant.h16),
+                SizedBox(height: SdSpacingV2.h16),
                 _AvgIntensityChip(value: summary.averageIntensity!),
               ],
             ],
@@ -95,22 +94,18 @@ class _AvgIntensityChip extends StatelessWidget {
     final color = AppColors.intensity(value.round());
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: AppSpacingConstant.w12,
-        vertical: AppSpacingConstant.h6,
+        horizontal: SdSpacingV2.w12,
+        vertical: SdSpacingV2.h6,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r999),
+        borderRadius: BorderRadius.circular(SdSpacingV2.r999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: AppSpacingConstant.r12,
-            height: AppSpacingConstant.r12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          SizedBox(width: AppSpacingConstant.w8),
+          SdColorDotV2(color: color),
+          SizedBox(width: SdSpacingV2.w8),
           Text(
             context.l10n.dashboardAvgIntensity(value.toStringAsFixed(1)),
             style: AppTextStyle.labelLarge,
