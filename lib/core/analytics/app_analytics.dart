@@ -43,6 +43,9 @@ abstract final class AppAnalytics {
   static const String _signInFailed = 'sign_in_failed';
   static const String _premiumGateTapped = 'premium_gate_tapped';
   static const String _paywallCtaTapped = 'paywall_cta_tapped';
+  static const String _purchaseStarted = 'purchase_started';
+  static const String _purchaseCompleted = 'purchase_completed';
+  static const String _purchaseRestored = 'purchase_restored';
   static const String _forceUpdateShown = 'force_update_shown';
   static const String _forceUpdateCtaTapped = 'force_update_cta_tapped';
   static const String _dataExported = 'data_exported';
@@ -61,6 +64,7 @@ abstract final class AppAnalytics {
   static const String _pFormat = 'format';
   static const String _pAttackCount = 'attack_count';
   static const String _pSignedIn = 'signed_in';
+  static const String _pPeriod = 'period';
 
   // --- User properties (cohorts we slice every other metric by). ---
   static const String _upSignedIn = 'signed_in';
@@ -221,6 +225,17 @@ abstract final class AppAnalytics {
     _paywallCtaTapped,
     <String, Object>{_pSignedIn: signedIn.toString()},
   );
+
+  /// [period] is the plan shape (`monthly`, `yearly`, `lifetime`) — never a
+  /// price or a transaction id. The store owns revenue reporting; this is
+  /// only the funnel from tap to entitlement.
+  static void logPurchaseStarted({required String period}) =>
+      _log(_purchaseStarted, <String, Object>{_pPeriod: period});
+
+  static void logPurchaseCompleted({required String period}) =>
+      _log(_purchaseCompleted, <String, Object>{_pPeriod: period});
+
+  static void logPurchaseRestored() => _log(_purchaseRestored);
 
   // --- Force update ------------------------------------------------------
 

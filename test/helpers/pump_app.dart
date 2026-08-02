@@ -33,7 +33,11 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
-import 'package:migraine_tracker/features/premium/data/repositories/debug_premium_repository.dart';
+import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
+import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
+import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
+import 'package:migraine_tracker/features/premium/domain/repositories/purchase_repository.dart';
+import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -249,6 +253,124 @@ class FakeUserProfileRepository implements UserProfileRepository {
   void dispose() => _controller.close();
 }
 
+/// Entitlement state a test sets directly.
+///
+/// There is no local premium repository in the app any more — premium comes
+/// from RevenueCat and nothing the client can write (CLAUDE.md) — so the way
+/// a test gets a premium user is to override the provider with this.
+class FakePremiumRepository implements PremiumRepository {
+  FakePremiumRepository({bool premium = false}) : _isPremium = premium;
+
+  bool _isPremium;
+  final StreamController<bool> _controller = StreamController<bool>.broadcast();
+
+  @override
+  bool get isPremium => _isPremium;
+
+  @override
+  Stream<bool> watchIsPremium() async* {
+    yield _isPremium;
+    yield* _controller.stream;
+  }
+
+  /// Flips the entitlement mid-test — what a completed purchase looks like.
+  void setPremium(bool value) {
+    _isPremium = value;
+    if (!_controller.isClosed) _controller.add(value);
+  }
+
+  void dispose() => _controller.close();
+}
+
+/// The store, without a store. A purchase grants the entitlement through
+/// [FakePremiumRepository], so it behaves like the real thing: the paywall
+/// never decides premium itself, the entitlement stream does.
+class FakePurchaseRepository implements PurchaseRepository {
+  FakePurchaseRepository(this._premium);
+
+  final FakePremiumRepository _premium;
+
+  /// The three plans PLAN.md sells, at their listed prices.
+  List<PremiumOffer> availableOffers = const <PremiumOffer>[
+    PremiumOffer(
+      id: r'$rc_monthly',
+      period: PremiumPeriod.monthly,
+      priceLabel: r'$5.99',
+    ),
+    PremiumOffer(
+      id: r'$rc_annual',
+      period: PremiumPeriod.yearly,
+      priceLabel: r'$39.99',
+      trialDays: 7,
+    ),
+    PremiumOffer(
+      id: r'$rc_lifetime',
+      period: PremiumPeriod.lifetime,
+      priceLabel: r'$79.99',
+    ),
+  ];
+
+  /// Set to make [purchase] and [restore] throw this instead of granting.
+  ///
+  /// Deliberately NOT applied to [offers]: when one flag drove both, setting
+  /// it emptied the paywall, which disabled the CTA — so a "purchase fails"
+  /// test passed without a purchase ever being attempted.
+  Object? failWith;
+
+  /// Set to make loading the offerings fail, which is a different story: the
+  /// paywall has nothing to show rather than something that fails on tap.
+  Object? offersFailWith;
+
+  /// Whether [restore] finds anything.
+  bool hasPastPurchase = false;
+
+  final List<String> purchased = <String>[];
+
+  /// UIDs passed to [identify]; null entries are [forget] calls.
+  final List<String?> identified = <String?>[];
+  int restoreCalls = 0;
+
+  @override
+  Future<List<PremiumOffer>> offers() async {
+    final Object? failure = offersFailWith;
+
+    if (failure != null) throw failure;
+
+    return availableOffers;
+  }
+
+  @override
+  Future<bool> purchase(PremiumOffer offer) async {
+    final Object? failure = failWith;
+
+    if (failure != null) throw failure;
+
+    purchased.add(offer.id);
+    _premium.setPremium(true);
+
+    return true;
+  }
+
+  @override
+  Future<bool> restore() async {
+    final Object? failure = failWith;
+
+    restoreCalls++;
+    if (failure != null) throw failure;
+    if (!hasPastPurchase) return false;
+
+    _premium.setPremium(true);
+
+    return true;
+  }
+
+  @override
+  Future<void> identify(String uid) async => identified.add(uid);
+
+  @override
+  Future<void> forget() async => identified.add(null);
+}
+
 /// Stands in for HealthKit. Unavailable by default, so every existing test
 /// sees the shipped Android/simulator shape (no Apple Health row, no sleep
 /// card) and nothing touches the plugin.
@@ -318,6 +440,8 @@ class PumpedApp {
     required this.profiles,
     required this.exportFiles,
     required this.health,
+    required this.premiumRepository,
+    required this.purchases,
   });
 
   final AppDatabase db;
@@ -332,6 +456,12 @@ class PumpedApp {
 
   /// Stands in for HealthKit. Unavailable unless a test asks otherwise.
   final FakeHealthRepository health;
+
+  /// The entitlement a test can flip. Premium is never a prefs flag now.
+  final FakePremiumRepository premiumRepository;
+
+  /// The fake store behind the paywall.
+  final FakePurchaseRepository purchases;
 
   /// Where exports landed. Read `singleContent` to assert on what was
   /// written without touching a real filesystem.
@@ -405,7 +535,6 @@ Future<PumpedApp> pumpApp(
   // dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
     OnboardingController.completedKey: true,
-    if (premium) DebugPremiumRepository.prefsKey: true,
     ...initialPrefs,
   });
   final prefs = await SharedPreferences.getInstance();
@@ -426,6 +555,13 @@ Future<PumpedApp> pumpApp(
   final FakeHealthRepository health = FakeHealthRepository(
     isAvailable: healthAvailable,
   )..nights = <SleepNight>[...sleepNights];
+  final FakePremiumRepository premiumRepository = FakePremiumRepository(
+    premium: premium,
+  );
+  addTearDown(premiumRepository.dispose);
+  final FakePurchaseRepository purchases = FakePurchaseRepository(
+    premiumRepository,
+  );
 
   await tester.pumpWidget(
     ProviderScope(
@@ -437,6 +573,8 @@ Future<PumpedApp> pumpApp(
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
         healthRepositoryProvider.overrideWithValue(health),
+        premiumRepositoryProvider.overrideWithValue(premiumRepository),
+        purchaseRepositoryProvider.overrideWithValue(purchases),
         userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
@@ -472,6 +610,8 @@ Future<PumpedApp> pumpApp(
     profiles: profiles,
     exportFiles: exportFiles,
     health: health,
+    premiumRepository: premiumRepository,
+    purchases: purchases,
   );
 }
 
@@ -508,10 +648,20 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
+  // Only when there is something to scroll. A target inside a bottom sheet
+  // has no Scrollable ancestor, and `find.byType(MainAppBar)` still matches
+  // the bars sitting in the shell's IndexedStack *behind* the sheet — so
+  // without this guard the nudge tried to drag a scrollable that does not
+  // exist and threw `Bad state: No element`.
+  final Finder scrollable = find.ancestor(
+    of: finder,
+    matching: find.byType(Scrollable),
+  );
   final double covered = chromeBottom - tester.getRect(finder).top;
-  if (covered > 0) {
+
+  if (covered > 0 && scrollable.evaluate().isNotEmpty) {
     await tester.drag(
-      find.ancestor(of: finder, matching: find.byType(Scrollable)).first,
+      scrollable.first,
       Offset(0, covered + AppSpacingConstant.h8),
     );
     await tester.pump();
