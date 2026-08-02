@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
-import 'package:migraine_tracker/core/widgets/main_app_bar.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../helpers/pump_app.dart';
 
-/// The chrome follows what the engine can actually render (`AppGlass`), with
+/// The chrome follows what the engine can actually render (`SdGlassV2`), with
 /// the bottom nav as the one deliberate exception.
 void main() {
   /// Icons.home is the nav's selected dashboard icon and appears nowhere
@@ -20,7 +20,7 @@ void main() {
   );
 
   final Finder appBarBlur = find.descendant(
-    of: find.byType(MainAppBar),
+    of: find.byType(SdAppBarV2),
     matching: find.byType(BackdropFilter),
   );
 

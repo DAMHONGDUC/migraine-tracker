@@ -12,11 +12,11 @@ class _Teaser extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.premiumLockedCorrelation, style: AppTextStyle.bodyMedium),
-        SizedBox(height: AppSpacingConstant.h12),
+        SizedBox(height: SdSpacingV2.h12),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: AppButton(
-            variant: AppButtonVariant.secondary,
+          child: SdButtonV2(
+            variant: SdButtonVariantV2.secondary,
             onPressed: () => NavigationUtils.toPaywall(context, ref),
             label: l10n.premiumUnlock,
           ),

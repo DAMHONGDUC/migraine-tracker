@@ -18,7 +18,7 @@ class _ExpandRemindersToggle extends StatelessWidget {
     final l10n = context.l10n;
     return ListTile(
       dense: true,
-      leading: AppIcon(
+      leading: SdIconV2(
         icon: expanded ? Icons.expand_less : Icons.expand_more,
         color: AppColors.primary,
       ),

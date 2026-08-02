@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_sheet_content.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/export_date_filter.dart';
 import 'date_range_calendar.dart';
@@ -74,13 +71,15 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
         ? _from!
         : ExportDateFilterSheet.firstSelectableDate;
 
-    return AppSheetContent(
+    return SdSheetContentV2(
       title: l10n.exportFilterTitle,
+      closeTooltip: l10n.commonClose,
+      confirmTooltip: l10n.commonDone,
       onConfirm: () => Navigator.of(
         context,
       ).pop(ExportDateFilter.ordered(from: _from, to: _to)),
-      footer: AppButton(
-        variant: AppButtonVariant.text,
+      footer: SdButtonV2(
+        variant: SdButtonVariantV2.text,
         label: l10n.exportFilterClear,
         onPressed: () => Navigator.of(context).pop(const ExportDateFilter()),
       ),
@@ -97,7 +96,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
                   onTap: () => setState(() => _editing = _Bound.from),
                 ),
               ),
-              SizedBox(width: AppSpacingConstant.w8),
+              SizedBox(width: SdSpacingV2.w8),
               Expanded(
                 child: _BoundTile(
                   label: l10n.exportFilterToLabel,
@@ -108,7 +107,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
               ),
             ],
           ),
-          SizedBox(height: AppSpacingConstant.h8),
+          SizedBox(height: SdSpacingV2.h8),
           // Keyed on the bound, so switching ends re-centres the calendar on
           // that end's own month instead of staying where the other one was.
           DateRangeCalendar(
@@ -153,18 +152,18 @@ class _BoundTile extends StatelessWidget {
       button: true,
       selected: selected,
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+        borderRadius: BorderRadius.circular(SdSpacingV2.r16),
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: AppSpacingConstant.w14,
-            vertical: AppSpacingConstant.h12,
+            horizontal: SdSpacingV2.w14,
+            vertical: SdSpacingV2.h12,
           ),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
                 : AppColors.surfaceElevated,
-            borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+            borderRadius: BorderRadius.circular(SdSpacingV2.r16),
             border: Border.all(
               color: selected
                   ? AppColors.primary
@@ -176,7 +175,7 @@ class _BoundTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(label, style: AppTextStyle.bodySmall.secondary),
-              SizedBox(height: AppSpacingConstant.h2),
+              SizedBox(height: SdSpacingV2.h2),
               Text(value, style: AppTextStyle.titleSmall),
             ],
           ),
@@ -190,7 +189,7 @@ class _BoundTile extends StatelessWidget {
 /// `showX` (CLAUDE.md § Code style).
 extension ExportDateFilterSheetExt on ExportDateFilterSheet {
   Future<ExportDateFilter?> show(BuildContext context) =>
-      showAppBottomSheet<ExportDateFilter>(
+      showSdBottomSheetV2<ExportDateFilter>(
         context,
         isScrollControlled: true,
         builder: (_) => this,

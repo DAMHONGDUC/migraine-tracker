@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../extensions/context_extensions.dart';
-import 'buttons/app_button.dart';
-import 'app_dialog.dart';
 
 /// Prompts for a medication's name — adding a new one, or renaming an
 /// existing one when [initial] is passed (prefills the field and swaps the
@@ -15,8 +14,8 @@ import 'app_dialog.dart';
 ///
 /// A [StatefulWidget] so the [TextEditingController] is owned by [State]
 /// and disposed by the framework once this widget actually leaves the tree
-/// — NOT by the caller right after the picked value comes back. [AppDialog]
-/// closes with a 220ms fade+scale (`showAppDialog`), so the field is still
+/// — NOT by the caller right after the picked value comes back. [SdDialogV2]
+/// closes with a 220ms fade+scale (`showSdDialogV2`), so the field is still
 /// mounted and painting for that whole reverse transition even though the
 /// awaited `Future` already resolved; disposing the controller as soon as
 /// the await returns (the log flow's original inline version of this
@@ -35,7 +34,7 @@ class MedicationNameDialog extends StatefulWidget {
 /// (see CLAUDE.md § Code style, "Bottom sheets and dialogs").
 extension MedicationNameDialogExt on MedicationNameDialog {
   Future<String?> show(BuildContext context) =>
-      showAppDialog<String>(context, builder: (_) => this);
+      showSdDialogV2<String>(context, builder: (_) => this);
 }
 
 class _MedicationNameDialogState extends State<MedicationNameDialog> {
@@ -56,7 +55,7 @@ class _MedicationNameDialogState extends State<MedicationNameDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final isRename = widget.initial != null;
-    return AppDialog(
+    return SdDialogV2(
       title: isRename ? l10n.medicationsRename : l10n.logAddMedication,
       content: TextField(
         controller: _controller,
@@ -66,13 +65,13 @@ class _MedicationNameDialogState extends State<MedicationNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        AppButton(
-          variant: AppButtonVariant.text,
+        SdButtonV2(
+          variant: SdButtonVariantV2.text,
           onPressed: () => Navigator.of(context).pop(),
           label: l10n.commonCancel,
         ),
-        AppButton(
-          variant: AppButtonVariant.primary,
+        SdButtonV2(
+          variant: SdButtonVariantV2.primary,
           onPressed: () => _submit(_controller.text),
           label: isRename ? l10n.detailsSave : l10n.commonAdd,
         ),

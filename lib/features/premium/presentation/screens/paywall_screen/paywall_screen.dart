@@ -1,25 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
-import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/buttons/app_bar_button.dart';
-import '../../../../../core/widgets/app_benefit_row.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../../core/widgets/pressable_scale.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../auth/providers.dart';
 import '../../../domain/entities/premium_offer.dart';
@@ -76,11 +68,11 @@ class PaywallScreen extends HookConsumerWidget {
 
       if (!context.mounted || !entitled) return;
 
-      AppSnackBarUtils.success(context, l10n.paywallPurchaseDone);
+      SdSnackBarUtilsV2.success(context, l10n.paywallPurchaseDone);
       context.pop();
     } catch (error) {
       if (context.mounted) {
-        AppSnackBarUtils.error(context, _errorMessage(l10n, error));
+        SdSnackBarUtilsV2.error(context, _errorMessage(l10n, error));
       }
     }
   }
@@ -96,14 +88,14 @@ class PaywallScreen extends HookConsumerWidget {
       if (!context.mounted) return;
 
       if (!restored) {
-        AppSnackBarUtils.info(context, l10n.paywallRestoreNothing);
+        SdSnackBarUtilsV2.info(context, l10n.paywallRestoreNothing);
         return;
       }
-      AppSnackBarUtils.success(context, l10n.paywallPurchaseDone);
+      SdSnackBarUtilsV2.success(context, l10n.paywallPurchaseDone);
       context.pop();
     } catch (error) {
       if (context.mounted) {
-        AppSnackBarUtils.error(context, _errorMessage(l10n, error));
+        SdSnackBarUtilsV2.error(context, _errorMessage(l10n, error));
       }
     }
   }
@@ -138,23 +130,23 @@ class PaywallScreen extends HookConsumerWidget {
       children: [
         // Sheet chrome: drag-handle indicator + title row with the X.
         Padding(
-          padding: EdgeInsets.only(top: AppSpacingConstant.h12),
+          padding: EdgeInsets.only(top: SdSpacingV2.h12),
           child: Container(
-            width: AppSpacingConstant.w32,
-            height: AppSpacingConstant.h4,
+            width: SdSpacingV2.w32,
+            height: SdSpacingV2.h4,
             decoration: BoxDecoration(
               color: context.colorScheme.onSurfaceVariant.withValues(
                 alpha: 0.4,
               ),
-              borderRadius: BorderRadius.circular(AppSpacingConstant.r3),
+              borderRadius: BorderRadius.circular(SdSpacingV2.r3),
             ),
           ),
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            AppSpacingConstant.w24,
-            AppSpacingConstant.h4,
-            AppSpacingConstant.w8,
+            SdSpacingV2.w24,
+            SdSpacingV2.h4,
+            SdSpacingV2.w8,
             0,
           ),
           child: Stack(
@@ -163,11 +155,11 @@ class PaywallScreen extends HookConsumerWidget {
               Text(l10n.paywallTitle, style: AppTextStyle.titleLarge.w600),
               Align(
                 alignment: AlignmentDirectional.topEnd,
-                child: AppBarButton(
+                child: SdAppBarButtonV2(
                   icon: Icons.close,
                   // Already on the sheet's glass: a circle here would nest
                   // one glass layer inside another and read flat.
-                  surface: AppBarButtonSurface.none,
+                  surface: SdAppBarButtonSurfaceV2.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: () => context.pop(),
                 ),
@@ -178,12 +170,12 @@ class PaywallScreen extends HookConsumerWidget {
         Expanded(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              AppContentPadding.horizontal,
-              AppSpacingConstant.h8,
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
+              SdSpacingV2.h8,
+              SdContentPaddingV2.horizontal,
               // A sheet route rather than a screen, but the same rule: it
               // clears the home indicator by the same 16.
-              AppContentPadding.bottom(context),
+              SdContentPaddingV2.bottom(context),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,38 +186,38 @@ class PaywallScreen extends HookConsumerWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        AppIcon(
+                        SdIconV2(
                           icon: Icons.storm_outlined,
-                          size: AppSpacingConstant.r64,
+                          size: SdSpacingV2.r64,
                           color: context.colorScheme.primary,
                         ),
-                        SizedBox(height: AppSpacingConstant.h16),
+                        SizedBox(height: SdSpacingV2.h16),
                         Text(
                           l10n.paywallHeadline,
                           style: AppTextStyle.headlineSmall.w600,
                         ),
-                        SizedBox(height: AppSpacingConstant.h24),
-                        AppBenefitRow(
+                        SizedBox(height: SdSpacingV2.h24),
+                        SdBenefitRowV2(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
                           body: l10n.paywallBenefitAlertsBody,
                         ),
-                        AppBenefitRow(
+                        SdBenefitRowV2(
                           icon: Icons.show_chart,
                           title: l10n.paywallBenefitForecast,
                           body: l10n.paywallBenefitForecastBody,
                         ),
-                        AppBenefitRow(
+                        SdBenefitRowV2(
                           icon: Icons.insights_outlined,
                           title: l10n.paywallBenefitInsights,
                           body: l10n.paywallBenefitInsightsBody,
                         ),
-                        AppBenefitRow(
+                        SdBenefitRowV2(
                           icon: Icons.picture_as_pdf_outlined,
                           title: l10n.paywallBenefitReport,
                           body: l10n.paywallBenefitReportBody,
                         ),
-                        AppBenefitRow(
+                        SdBenefitRowV2(
                           icon: Icons.bedtime_outlined,
                           title: l10n.paywallBenefitSleep,
                           body: l10n.paywallBenefitSleepBody,
@@ -234,7 +226,7 @@ class PaywallScreen extends HookConsumerWidget {
                         // subscription to: showing prices behind a sign-in
                         // wall would invite a tap that cannot complete.
                         if (signedIn) ...<Widget>[
-                          SizedBox(height: AppSpacingConstant.h24),
+                          SizedBox(height: SdSpacingV2.h24),
                           _Plans(
                             offers: offers,
                             selectedId: active?.id,
@@ -249,11 +241,11 @@ class PaywallScreen extends HookConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: AppSpacingConstant.h24),
+                    SizedBox(height: SdSpacingV2.h24),
                     // Signed out there is no account to attach a
                     // subscription to, so the CTA signs in first.
-                    AppButton(
-                      variant: AppButtonVariant.primary,
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.primary,
                       // Null while the offerings are still loading, and when
                       // the store returned nothing to sell — a CTA that can
                       // only fail is worse than a disabled one.
@@ -273,7 +265,7 @@ class PaywallScreen extends HookConsumerWidget {
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
                     ),
-                    SizedBox(height: AppSpacingConstant.h8),
+                    SizedBox(height: SdSpacingV2.h8),
                     Text(
                       signedIn ? l10n.paywallFreeKeeps : l10n.paywallWhySignIn,
                       textAlign: TextAlign.center,
@@ -282,8 +274,8 @@ class PaywallScreen extends HookConsumerWidget {
                     // App Store 3.1.1 requires a restore path for anyone who
                     // already paid — a reinstall or a second device.
                     if (signedIn)
-                      AppButton(
-                        variant: AppButtonVariant.text,
+                      SdButtonV2(
+                        variant: SdButtonVariantV2.text,
                         onPressed: () => unawaited(_restore(context, ref)),
                         label: l10n.paywallRestore,
                       ),
@@ -296,11 +288,11 @@ class PaywallScreen extends HookConsumerWidget {
       ],
     );
 
-    final surface = AppGlass.isSupported
+    final surface = SdGlassV2.isSupported
         ? LiquidGlass.withOwnLayer(
             settings: kChromeGlass,
             shape: LiquidRoundedSuperellipse(
-              borderRadius: AppSpacingConstant.r22,
+              borderRadius: SdSpacingV2.r22,
             ),
             clipBehavior: Clip.antiAlias,
             // Transparent Material: text/ink need a Material ancestor
@@ -311,7 +303,7 @@ class PaywallScreen extends HookConsumerWidget {
         : Material(
             color: AppColors.surface,
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(AppSpacingConstant.r22),
+              top: Radius.circular(SdSpacingV2.r22),
             ),
             clipBehavior: Clip.antiAlias,
             child: sheet,

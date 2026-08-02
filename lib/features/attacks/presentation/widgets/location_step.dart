@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
-import 'package:migraine_tracker/core/widgets/spacing/vertical_spacing.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../domain/enums/head_location.dart';
 import 'head_diagram.dart';
@@ -24,12 +23,12 @@ class LocationStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        VerticalSpacing(xRatio: 2),
+        SdVerticalSpacingV2(xRatio: 2),
         SizedBox(
-          height: AppSpacingConstant.h200,
+          height: SdSpacingV2.h200,
           child: HeadDiagram(selected: selected),
         ),
-        VerticalSpacing(xRatio: 2),
+        SdVerticalSpacingV2(xRatio: 2),
         LocationGrid(selected: selected, onSelected: onSelected),
       ],
     );

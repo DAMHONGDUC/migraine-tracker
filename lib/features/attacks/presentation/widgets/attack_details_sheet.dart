@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_sheet_content.dart';
-import '../../../../core/widgets/app_sheet_header.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
@@ -53,11 +50,13 @@ class AttackDetailsSheet extends HookConsumerWidget {
       if (context.mounted) Navigator.of(context).pop();
     }
 
-    return AppSheetContent(
+    return SdSheetContentV2(
       title: l10n.detailsTitle,
+      closeTooltip: l10n.commonClose,
+      confirmTooltip: l10n.commonDone,
       // Overwriting what is already on the attack, not adding a first
       // answer — so the commit is the pencil, not the tick.
-      action: AppSheetAction.edit,
+      action: SdSheetActionV2.edit,
       onConfirm: save,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -70,7 +69,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsSymptomsHint,
             ),
           ),
-          SizedBox(height: AppSpacingConstant.h12),
+          SizedBox(height: SdSpacingV2.h12),
           TextField(
             controller: triggersController,
             decoration: InputDecoration(
@@ -78,7 +77,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsTriggersHint,
             ),
           ),
-          SizedBox(height: AppSpacingConstant.h12),
+          SizedBox(height: SdSpacingV2.h12),
           TextField(
             controller: notesController,
             maxLines: 3,
@@ -93,7 +92,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
 /// Presents the details form as a scroll-controlled bottom sheet (see
 /// CLAUDE.md § Code style, "Bottom sheets and dialogs").
 extension AttackDetailsSheetExt on AttackDetailsSheet {
-  Future<void> show(BuildContext context) => showAppBottomSheet<void>(
+  Future<void> show(BuildContext context) => showSdBottomSheetV2<void>(
     context,
     isScrollControlled: true,
     builder: (_) => this,

@@ -9,10 +9,10 @@ class _PrivacyDisclosure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(AppSpacingConstant.w16),
+      padding: EdgeInsets.all(SdSpacingV2.w16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+        borderRadius: BorderRadius.circular(SdSpacingV2.r12),
         border: Border.all(
           color: context.colorScheme.outlineVariant.withValues(alpha: 0.4),
         ),
@@ -20,12 +20,12 @@ class _PrivacyDisclosure extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          AppIcon(
+          SdIconV2(
            icon: Icons.lock_outline,
-            size: AppSpacingConstant.r20,
+            size: SdSpacingV2.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),
-          SizedBox(width: AppSpacingConstant.w12),
+          SizedBox(width: SdSpacingV2.w12),
           Expanded(
             child: Text(
               context.l10n.loginPrivacyNote,

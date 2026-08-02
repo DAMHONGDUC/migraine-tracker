@@ -13,19 +13,19 @@ class _NoMatchState extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: AppSpacingConstant.w24,
-        vertical: AppSpacingConstant.h32,
+        horizontal: SdSpacingV2.w24,
+        vertical: SdSpacingV2.h32,
       ),
       child: Column(
         children: <Widget>[
-          AppIcon(
+          SdIconV2(
             icon: Icons.event_busy_outlined,
-            size: AppSpacingConstant.r44,
+            size: SdSpacingV2.r44,
             color: context.colorScheme.onSurfaceVariant,
           ),
-          SizedBox(height: AppSpacingConstant.h12),
+          SizedBox(height: SdSpacingV2.h12),
           Text(l10n.exportFilterNoMatchTitle, style: AppTextStyle.titleSmall),
-          SizedBox(height: AppSpacingConstant.h8),
+          SizedBox(height: SdSpacingV2.h8),
           Text(
             l10n.exportFilterNoMatchBody,
             textAlign: TextAlign.center,

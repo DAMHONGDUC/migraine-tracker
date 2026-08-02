@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_style.dart';
 import '../extensions/context_extensions.dart';
 import '../permissions/app_permission_types.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_style.dart';
-import 'app_bottom_sheet.dart';
-import 'buttons/app_button.dart';
-import 'app_icon.dart';
 
 /// Shown when a permission is permanently denied — explains why the feature
 /// needs it and offers a jump to the OS Settings (the only way to re-enable
@@ -48,44 +45,44 @@ class PermissionSettingsSheet extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          AppSpacingConstant.w24,
-          AppSpacingConstant.h8,
-          AppSpacingConstant.w24,
-          AppSpacingConstant.h16,
+          SdSpacingV2.w24,
+          SdSpacingV2.h8,
+          SdSpacingV2.w24,
+          SdSpacingV2.h16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppIcon(
+            SdIconV2(
               icon: content.icon,
-              size: AppSpacingConstant.r44,
+              size: SdSpacingV2.r44,
               color: AppColors.primary,
             ),
-            SizedBox(height: AppSpacingConstant.h16),
+            SizedBox(height: SdSpacingV2.h16),
             Text(
               content.title,
               textAlign: TextAlign.center,
               style: AppTextStyle.titleMedium,
             ),
-            SizedBox(height: AppSpacingConstant.h8),
+            SizedBox(height: SdSpacingV2.h8),
             Text(
               content.body,
               textAlign: TextAlign.center,
               style: AppTextStyle.bodyMedium.secondary,
             ),
-            SizedBox(height: AppSpacingConstant.h24),
-            AppButton(
-              variant: AppButtonVariant.primary,
+            SizedBox(height: SdSpacingV2.h24),
+            SdButtonV2(
+              variant: SdButtonVariantV2.primary,
               onPressed: () async {
                 Navigator.of(context).pop();
                 await onOpenSettings();
               },
               label: l10n.permissionOpenSettings,
             ),
-            SizedBox(height: AppSpacingConstant.h8),
-            AppButton(
-              variant: AppButtonVariant.text,
+            SizedBox(height: SdSpacingV2.h8),
+            SdButtonV2(
+              variant: SdButtonVariantV2.text,
               onPressed: () => Navigator.of(context).pop(),
               label: l10n.permissionNotNow,
             ),
@@ -102,5 +99,5 @@ class PermissionSettingsSheet extends StatelessWidget {
 /// style, "Bottom sheets and dialogs").
 extension PermissionSettingsSheetExt on PermissionSettingsSheet {
   Future<void> show(BuildContext context) =>
-      showAppBottomSheet<void>(context, builder: (_) => this);
+      showSdBottomSheetV2<void>(context, builder: (_) => this);
 }

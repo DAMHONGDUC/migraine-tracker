@@ -2,16 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_content_padding.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_value_slider.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 
@@ -64,41 +60,41 @@ class OnboardingScreen extends HookConsumerWidget {
             _Dots(current: page.value),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                AppSpacingConstant.w24,
-                AppSpacingConstant.h16,
-                AppSpacingConstant.w24,
+                SdSpacingV2.w24,
+                SdSpacingV2.h16,
+                SdSpacingV2.w24,
                 // SafeArea already clears the home indicator; this is the gap.
-                AppSpacingConstant.h16,
+                SdSpacingV2.h16,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: switch (page.value) {
                   0 => [
-                    AppButton(
-                      variant: AppButtonVariant.primary,
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.primary,
                       onPressed: next,
                       label: l10n.onboardingContinue,
                     ),
                   ],
                   1 => [
-                    AppButton(
-                      variant: AppButtonVariant.primary,
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.primary,
                       onPressed: () async {
                         await controller.requestLocation();
                         await next();
                       },
                       label: l10n.onboardingLocationAllow,
                     ),
-                    SizedBox(height: AppSpacingConstant.h8),
-                    AppButton(
-                      variant: AppButtonVariant.text,
+                    SizedBox(height: SdSpacingV2.h8),
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.text,
                       onPressed: next,
                       label: l10n.onboardingNotNow,
                     ),
                   ],
                   _ => [
-                    AppButton(
-                      variant: AppButtonVariant.primary,
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.primary,
                       onPressed: finish,
                       label: l10n.onboardingStart,
                     ),

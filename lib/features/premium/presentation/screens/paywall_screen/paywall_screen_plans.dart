@@ -33,7 +33,7 @@ class _Plans extends StatelessWidget {
             selected: offer.id == selectedId,
             onTap: () => onSelected(offer),
           ),
-          SizedBox(height: AppSpacingConstant.h8),
+          SizedBox(height: SdSpacingV2.h8),
         ],
       ],
     );
@@ -62,19 +62,19 @@ class _PlanRow extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
     final Color accent = context.colorScheme.primary;
 
-    return PressableScale(
+    return SdPressableScaleV2(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: AppSpacingConstant.w16,
-          vertical: AppSpacingConstant.h12,
+          horizontal: SdSpacingV2.w16,
+          vertical: SdSpacingV2.h12,
         ),
         decoration: BoxDecoration(
           // On the paywall's glass, so the unselected state is a hairline
           // rather than a filled card — a second opaque surface here would
           // flatten the panel it sits on.
           color: selected ? accent.withValues(alpha: 0.16) : null,
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
           border: Border.all(
             color: selected
                 ? accent
@@ -84,14 +84,14 @@ class _PlanRow extends StatelessWidget {
         ),
         child: Row(
           children: <Widget>[
-            AppIcon(
+            SdIconV2(
               icon: selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              size: AppSpacingConstant.r20,
+              size: SdSpacingV2.r20,
               color: selected ? accent : context.colorScheme.onSurfaceVariant,
             ),
-            SizedBox(width: AppSpacingConstant.w12),
+            SizedBox(width: SdSpacingV2.w12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +105,7 @@ class _PlanRow extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: AppSpacingConstant.w8),
+            SizedBox(width: SdSpacingV2.w8),
             Text(offer.priceLabel, style: AppTextStyle.bodyLarge.w600),
           ],
         ),

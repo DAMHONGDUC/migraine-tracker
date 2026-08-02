@@ -2,15 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/pressable_scale.dart';
 import '../../../premium/providers.dart';
 import 'highlighted_time_text.dart';
 
@@ -63,32 +60,23 @@ class _PremiumCountdownBannerState
     final l10n = context.l10n;
     void openPaywall() => NavigationUtils.toPaywall(context, ref);
 
-    return PressableScale(
+    return SdPressableScaleV2(
       pressedScale: 0.98,
       onTap: openPaywall,
       child: Container(
-        padding: EdgeInsets.all(AppSpacingConstant.w16),
+        padding: EdgeInsets.all(SdSpacingV2.w16),
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+          borderRadius: BorderRadius.circular(SdSpacingV2.r16),
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
         ),
         child: Row(
           children: [
-            Container(
-              width: AppSpacingConstant.r44,
-              height: AppSpacingConstant.r44,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.16),
-                shape: BoxShape.circle,
-              ),
-              child: AppIcon(
-                icon: Icons.local_offer_outlined,
-                size: AppSpacingConstant.r22,
-                color: AppColors.primary,
-              ),
+            const SdIconBadgeV2(
+              icon: Icons.local_offer_outlined,
+              color: AppColors.primary,
             ),
-            SizedBox(width: AppSpacingConstant.w16),
+            SizedBox(width: SdSpacingV2.w16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,15 +85,15 @@ class _PremiumCountdownBannerState
                     l10n.dashboardSaleTitle,
                     style: AppTextStyle.titleMedium,
                   ),
-                  SizedBox(height: AppSpacingConstant.h4),
+                  SizedBox(height: SdSpacingV2.h4),
                   Row(
                     children: [
-                      AppIcon(
+                      SdIconV2(
                         icon: Icons.schedule_outlined,
-                        size: AppSpacingConstant.r16,
+                        size: SdSpacingV2.r16,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
-                      SizedBox(width: AppSpacingConstant.w6),
+                      SizedBox(width: SdSpacingV2.w6),
                       Flexible(
                         child: HighlightedTimeText(
                           full: l10n.dashboardSaleEndsIn(_remaining),
@@ -118,9 +106,9 @@ class _PremiumCountdownBannerState
                 ],
               ),
             ),
-            SizedBox(width: AppSpacingConstant.w12),
-            AppButton(
-              variant: AppButtonVariant.primary,
+            SizedBox(width: SdSpacingV2.w12),
+            SdButtonV2(
+              variant: SdButtonVariantV2.primary,
               compact: true,
               label: l10n.premiumUnlock,
               onPressed: openPaywall,

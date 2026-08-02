@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../core/constants/app_content_padding.dart';
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_sheet_content.dart';
-import '../../../../core/widgets/app_sheet_header.dart';
 import 'medication_grid.dart';
 import 'medication_search_field.dart';
 
@@ -52,22 +48,24 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
   Widget build(BuildContext context) {
     // What the grid adds so its last row can scroll clear of the bar: the bar
     // itself plus the gap above it. Everything below the bar — keyboard, home
-    // indicator, the gap under it — is already in AppSheetContent's own
+    // indicator, the gap under it — is already in SdSheetContentV2's own
     // bottom padding.
     final double barClearance =
-        AppContentPadding.floatingBarHeight + AppContentPadding.bottomGap;
+        SdContentPaddingV2.floatingBarHeight + SdContentPaddingV2.bottomGap;
     // A sheet is a route, not a screen, so it clears the keyboard and the home
-    // indicator itself (same rule as AppSheetContent's own last row).
+    // indicator itself (same rule as SdSheetContentV2's own last row).
     final double barBottom =
         MediaQuery.viewInsetsOf(context).bottom +
         MediaQuery.paddingOf(context).bottom +
-        AppContentPadding.bottomGap;
+        SdContentPaddingV2.bottomGap;
 
     return Stack(
       children: <Widget>[
-        AppSheetContent(
+        SdSheetContentV2(
           title: context.l10n.logMedicationTitle,
-          action: AppSheetAction.edit,
+          closeTooltip: context.l10n.commonClose,
+          confirmTooltip: context.l10n.commonDone,
+          action: SdSheetActionV2.edit,
           onConfirm: () => Navigator.of(context).pop((name: _selectedName)),
           child: Padding(
             padding: EdgeInsets.only(bottom: barClearance),
@@ -83,8 +81,8 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
           ),
         ),
         Positioned(
-          left: AppSpacingConstant.w24,
-          right: AppSpacingConstant.w24,
+          left: SdSpacingV2.w24,
+          right: SdSpacingV2.w24,
           bottom: barBottom,
           child: MedicationSearchField(
             controller: _searchController,
@@ -102,7 +100,7 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
 /// `showX` (CLAUDE.md § Code style).
 extension MedicationPickerSheetExt on MedicationPickerSheet {
   Future<({String? name})?> show(BuildContext context) =>
-      showAppBottomSheet<({String? name})>(
+      showSdBottomSheetV2<({String? name})>(
         context,
         isScrollControlled: true,
         builder: (_) => this,

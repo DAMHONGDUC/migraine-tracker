@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
-import 'package:migraine_tracker/core/widgets/app_value_slider.dart';
+import 'package:migraine_tracker/core/theme/app_theme.dart';
+import 'package:system_design/v2/index.dart';
 
 /// The control the intensity dialog and the onboarding threshold page share.
 /// What matters here is the one thing both rely on: the accent reaches BOTH
@@ -17,8 +18,11 @@ void main() {
       ScreenUtilInit(
         designSize: const Size(393, 852),
         builder: (BuildContext context, Widget? child) => MaterialApp(
+          // The widget resolves its fallback accent from the theme, so the
+          // test has to render under the app's, not Material's default.
+          theme: AppTheme.dark,
           home: Scaffold(
-            body: AppValueSlider(
+            body: SdValueSliderV2(
               label: '7',
               value: 7,
               min: 1,

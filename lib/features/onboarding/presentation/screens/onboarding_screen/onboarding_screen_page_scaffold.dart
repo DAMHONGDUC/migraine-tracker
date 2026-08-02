@@ -16,22 +16,22 @@ class _PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppContentPadding.horizontal),
+      padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppIcon(
+          SdIconV2(
             icon: icon,
-            size: AppSpacingConstant.r64,
+            size: SdSpacingV2.r64,
             color: context.colorScheme.primary,
           ),
-          SizedBox(height: AppSpacingConstant.h24),
+          SizedBox(height: SdSpacingV2.h24),
           Text(title, style: AppTextStyle.headlineMedium.w600),
-          SizedBox(height: AppSpacingConstant.h12),
+          SizedBox(height: SdSpacingV2.h12),
           Text(body, style: AppTextStyle.bodyLarge.secondary),
           if (footer != null) ...[
-            SizedBox(height: AppSpacingConstant.h24),
+            SizedBox(height: SdSpacingV2.h24),
             footer!,
           ],
         ],

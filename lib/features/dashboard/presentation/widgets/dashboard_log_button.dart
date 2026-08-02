@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/pressable_scale.dart';
 import '../../../attacks/providers.dart';
 
 /// The dashboard's hero call-to-action: a soft-gradient card with an icon
@@ -23,7 +21,7 @@ class DashboardLogButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    return PressableScale(
+    return SdPressableScaleV2(
       pressedScale: 0.97,
       onTap: () {
         ref.read(logControllerProvider.notifier).reset();
@@ -31,8 +29,8 @@ class DashboardLogButton extends ConsumerWidget {
       },
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: AppSpacingConstant.w20,
-          vertical: AppSpacingConstant.h20,
+          horizontal: SdSpacingV2.w20,
+          vertical: SdSpacingV2.h20,
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -40,33 +38,26 @@ class DashboardLogButton extends ConsumerWidget {
             end: Alignment.bottomRight,
             colors: [AppColors.primary, AppColors.chartSeries],
           ),
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r24),
+          borderRadius: BorderRadius.circular(SdSpacingV2.r24),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.28),
-              blurRadius: AppSpacingConstant.r24,
-              offset: Offset(0, AppSpacingConstant.h8),
+              blurRadius: SdSpacingV2.r24,
+              offset: Offset(0, SdSpacingV2.h8),
             ),
           ],
         ),
         child: Row(
           children: [
             // A lavender "+" in a dark disc — reads as a crisp badge on the
-            // lavender gradient.
-            Container(
-              width: AppSpacingConstant.r44,
-              height: AppSpacingConstant.r44,
-              decoration: const BoxDecoration(
-                color: AppColors.onPrimary,
-                shape: BoxShape.circle,
-              ),
-              child: AppIcon(
-                icon: Icons.add,
-                size: AppSpacingConstant.r24,
-                color: AppColors.primary,
-              ),
+            // lavender gradient, so the fill is opaque rather than a tint.
+            SdIconBadgeV2(
+              icon: Icons.add,
+              color: AppColors.primary,
+              background: AppColors.onPrimary,
+              iconSize: SdSpacingV2.r24,
             ),
-            SizedBox(width: AppSpacingConstant.w16),
+            SizedBox(width: SdSpacingV2.w16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +68,7 @@ class DashboardLogButton extends ConsumerWidget {
                       color: AppColors.onPrimary,
                     ),
                   ),
-                  SizedBox(height: AppSpacingConstant.h2),
+                  SizedBox(height: SdSpacingV2.h2),
                   Text(
                     l10n.dashboardLogButtonSubtitle,
                     style: AppTextStyle.bodySmall.copyWith(
@@ -87,10 +78,10 @@ class DashboardLogButton extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(width: AppSpacingConstant.w8),
-            AppIcon(
+            SizedBox(width: SdSpacingV2.w8),
+            SdIconV2(
               icon: Icons.arrow_forward_rounded,
-              size: AppSpacingConstant.r22,
+              size: SdSpacingV2.r22,
               color: AppColors.onPrimary,
             ),
           ],

@@ -17,7 +17,7 @@ class _ProfileSection extends ConsumerWidget {
     if (name == null) return;
     await ref.read(accountControllerProvider).updateDisplayName(name);
     if (context.mounted) {
-      AppSnackBarUtils.success(context, l10n.accountNameUpdated);
+      SdSnackBarUtilsV2.success(context, l10n.accountNameUpdated);
     }
   }
 
@@ -31,17 +31,17 @@ class _ProfileSection extends ConsumerWidget {
     return Column(
       children: <Widget>[
         ListTile(
-          leading: const AppIcon(icon: Icons.badge_outlined),
+          leading: const SdIconV2(icon: Icons.badge_outlined),
           title: Text(l10n.accountName, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             name ?? l10n.accountNoName,
             style: AppTextStyle.bodyMedium.secondary,
           ),
-          trailing: const AppIcon(icon: Icons.edit_outlined),
+          trailing: const SdIconV2(icon: Icons.edit_outlined),
           onTap: () => _editName(context, ref),
         ),
         ListTile(
-          leading: const AppIcon(icon: Icons.alternate_email),
+          leading: const SdIconV2(icon: Icons.alternate_email),
           title: Text(l10n.accountEmail, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             // Apple only sends the email on the very first sign-in, so an
@@ -52,7 +52,7 @@ class _ProfileSection extends ConsumerWidget {
         ),
         if (createdAt != null)
           ListTile(
-            leading: const AppIcon(icon: Icons.event_outlined),
+            leading: const SdIconV2(icon: Icons.event_outlined),
             title: Text(l10n.accountMemberSince, style: AppTextStyle.bodyLarge),
             subtitle: Text(
               DateFormat.yMMMMd(l10n.localeName).format(createdAt.toLocal()),

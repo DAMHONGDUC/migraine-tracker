@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:step_progress/step_progress.dart';
+import 'package:system_design/v2/index.dart';
 
-import '../../../../core/constants/app_content_padding.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../controllers/log_controller.dart' show LogStep;
 
 /// The 3-tap progress as a floating bottom bar — the same slot and glass
 /// treatment the shell's bottom nav used to morph into while logging. Sits in
-/// [AppScaffold.bottomNavigationBar]; the log flow's body scrolls behind it.
+/// [SdScaffoldV2.bottomNavigationBar]; the log flow's body scrolls behind it.
 class LogStepBar extends StatelessWidget {
   const LogStepBar({required this.step, super.key});
 
@@ -27,13 +25,13 @@ class LogStepBar extends StatelessWidget {
     };
     final content = SizedBox(
       // Same height as the shell's nav pill, so the two bars line up.
-      height: AppContentPadding.floatingBarHeight,
+      height: SdContentPaddingV2.floatingBarHeight,
       child: _StepProgress(currentStep: currentStep),
     );
 
     // Glass off: a plain surface bar that reserves its own slot + safe area,
     // matching the old non-glass tracking bar.
-    if (!AppGlass.isSupported) {
+    if (!SdGlassV2.isSupported) {
       return Material(
         color: AppColors.surface,
         child: SafeArea(top: false, child: content),
@@ -45,15 +43,15 @@ class LogStepBar extends StatelessWidget {
     // to avoid a double gap (see the shell's floating bar).
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w24,
+        SdSpacingV2.w24,
         0,
-        AppSpacingConstant.w24,
+        SdSpacingV2.w24,
         MediaQuery.paddingOf(context).bottom,
       ),
       child: LiquidGlass.withOwnLayer(
         settings: kChromeGlass,
         shape: LiquidRoundedSuperellipse(
-          borderRadius: AppContentPadding.floatingBarRadius,
+          borderRadius: SdContentPaddingV2.floatingBarRadius,
         ),
         clipBehavior: Clip.antiAlias,
         child: MediaQuery.removePadding(
@@ -77,13 +75,13 @@ class _StepProgress extends StatelessWidget {
     final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: AppSpacingConstant.w48,
-      ).copyWith(top: AppSpacingConstant.h2),
+        horizontal: SdSpacingV2.w48,
+      ).copyWith(top: SdSpacingV2.h2),
       child: Center(
         child: StepProgress(
           totalSteps: 3,
           currentStep: currentStep,
-          stepNodeSize: AppSpacingConstant.r20,
+          stepNodeSize: SdSpacingV2.r20,
           nodeTitles: [
             l10n.stepIntensity,
             l10n.stepLocation,
