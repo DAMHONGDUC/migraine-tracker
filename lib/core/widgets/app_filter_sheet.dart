@@ -4,6 +4,7 @@ import '../constants/app_spacing_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
 import 'app_bottom_sheet.dart';
+import 'app_filter_pill.dart';
 import 'app_icon.dart';
 
 /// Opens a single-choice filter sheet: a plain radio list of [options],
@@ -101,41 +102,9 @@ class AppFilterChip<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    return Material(
-      color: scheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r20),
-        onTap: () => _open(context),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacingConstant.w14,
-            vertical: AppSpacingConstant.h8,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppIcon(
-                Icons.filter_list,
-                size: AppSpacingConstant.r16,
-                color: scheme.primary,
-              ),
-              SizedBox(width: AppSpacingConstant.w6),
-              Text(
-                count == null ? label : countLabelBuilder!(label, count!),
-                style: AppTextStyle.labelLarge,
-              ),
-              SizedBox(width: AppSpacingConstant.w2),
-              AppIcon(
-                Icons.expand_more,
-                size: AppSpacingConstant.r18,
-                color: scheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return AppFilterPill(
+      label: count == null ? label : countLabelBuilder!(label, count!),
+      onTap: () => _open(context),
     );
   }
 }
@@ -177,7 +146,7 @@ class _FilterSheet<T> extends StatelessWidget {
                 for (final option in options)
                   ListTile(
                     leading: AppIcon(
-                      option == selected
+                      icon: option == selected
                           ? Icons.radio_button_checked
                           : Icons.radio_button_off,
                       color: option == selected

@@ -8,7 +8,7 @@ import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_icon.dart';
-import '../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/enums/export_kind.dart';
 
@@ -62,7 +62,10 @@ class _KindTile extends ConsumerWidget {
 
     if (kind.isPremium && !ref.watch(hasPremiumProvider)) {
       return ListTile(
-        leading: AppIcon(kind.icon, color: context.colorScheme.onSurfaceVariant),
+        leading: AppIcon(
+          icon: kind.icon,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
         title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
         subtitle: Text(
           l10n.premiumLockedReport,
@@ -79,7 +82,7 @@ class _KindTile extends ConsumerWidget {
     }
 
     return ListTile(
-      leading: AppIcon(kind.icon, color: context.colorScheme.primary),
+      leading: AppIcon(icon: kind.icon, color: context.colorScheme.primary),
       title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );

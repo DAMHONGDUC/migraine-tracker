@@ -73,7 +73,15 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const AppIcon(Icons.edit_outlined),
+              leading: const AppIcon(icon: Icons.alarm_add),
+              title: Text(l10n.remindersAdd, style: AppTextStyle.bodyLarge),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _addReminder(context, ref);
+              },
+            ),
+            ListTile(
+              leading: const AppIcon(icon: Icons.edit_outlined),
               title: Text(
                 l10n.medicationsEditAction,
                 style: AppTextStyle.bodyLarge,
@@ -84,7 +92,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               },
             ),
             ListTile(
-              leading: AppIcon(Icons.delete_outline, color: scheme.error),
+              leading: AppIcon(icon: Icons.delete_outline, color: scheme.error),
               title: Text(
                 l10n.settingsDeleteConfirmAction,
                 style: TextStyle(color: scheme.error),
@@ -151,6 +159,10 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         ? reminders.take(_MedicationCard.collapsedLimit).toList()
         : reminders;
 
+    final rowPadding = EdgeInsets.symmetric(
+      horizontal: AppContentPadding.horizontal,
+    ).copyWith(right: AppContentPadding.horizontal / 2);
+
     // Drive the highlight from a single 0..1 value and derive the border +
     // glow from it — building the decoration per-frame keeps the fade
     // monotonic. (AnimatedContainer lerps the whole BoxDecoration, and
@@ -184,19 +196,33 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         margin: EdgeInsets.zero,
         child: Column(
           children: [
-            ListTile(
-              leading: const AppIcon(Icons.medication_outlined),
-              title: Text(
-                widget.medication.name,
-                style: AppTextStyle.titleMedium,
-              ),
-              subtitle: Text(
-                addedLabel,
-                style: AppTextStyle.bodySmall.secondary,
-              ),
-              trailing: IconButton(
-                icon: const AppIcon(Icons.more_vert),
-                onPressed: () => _openActions(context, ref),
+            Padding(
+              padding: rowPadding,
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: Icons.medication_outlined),
+                title: Text(
+                  widget.medication.name,
+                  style: AppTextStyle.titleMedium,
+                ),
+                subtitle: Text(
+                  addedLabel,
+                  style: AppTextStyle.bodySmall.secondary,
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIconButton(
+                      onPressed: () => _addReminder(context, ref),
+                      icon: const AppIcon(icon: Icons.add_alarm),
+                    ),
+                    SizedBox(width: AppSpacingConstant.w2),
+                    AppIconButton(
+                      icon: const AppIcon(icon: Icons.more_vert),
+                      onPressed: () => _openActions(context, ref),
+                    ),
+                  ],
+                ),
               ),
             ),
             for (final view in visibleReminders) _ReminderRow(view: view),
@@ -206,23 +232,6 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
                 hiddenCount: reminders.length - _MedicationCard.collapsedLimit,
                 onTap: () => setState(() => _expanded = !_expanded),
               ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacingConstant.w16,
-                0,
-                AppSpacingConstant.w16,
-                AppSpacingConstant.h12,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: AppButton(
-                  variant: AppButtonVariant.text,
-                  onPressed: () => _addReminder(context, ref),
-                  icon: Icons.add_alarm,
-                  label: l10n.remindersAdd,
-                ),
-              ),
-            ),
           ],
         ),
       ),

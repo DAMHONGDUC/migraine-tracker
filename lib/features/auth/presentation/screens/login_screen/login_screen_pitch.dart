@@ -14,7 +14,7 @@ class _Pitch extends StatelessWidget {
       children: <Widget>[
         // Starts flush: AppActionView already applied the screen's top gap.
         AppIcon(
-          Icons.cloud_done_outlined,
+          icon: Icons.cloud_done_outlined,
           size: AppSpacingConstant.r64,
           color: context.colorScheme.primary,
         ),

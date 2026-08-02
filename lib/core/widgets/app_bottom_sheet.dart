@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
 import '../constants/app_spacing_constant.dart';
-import 'glass/liquid_glass_theme.dart';
+import '../theme/app_colors.dart';
 
 /// Standard modal sheet for the app. Always use this instead of raw
 /// [showModalBottomSheet]: `useRootNavigator: true` makes the sheet render
 /// ABOVE the bottom navigation bar (the shell's branch navigators live
 /// inside the Scaffold body, so a non-root sheet slides under the nav bar).
 ///
-/// The sheet is a frosted Liquid Glass surface: the modal barrier is
-/// transparent so the content behind the sheet refracts through it. We draw
-/// our own drag handle inside the glass (instead of `showDragHandle`) so the
-/// handle sits on the frosted surface rather than floating above it.
+/// The sheet is a flat opaque [AppColors.surface] panel — the one card colour,
+/// so a sheet and the cards it covers never read as two different darks. We
+/// draw our own drag handle instead of `showDragHandle`, which reserves a full
+/// 48 tap row above the content and would push every sheet header down.
 /// Pass `dismissible: false` for a sheet the user must act on (the force
 /// update block): the barrier stops closing it, dragging is off and the
 /// handle — which promises a swipe that no longer works — is dropped. The
@@ -24,42 +23,32 @@ Future<T?> showAppBottomSheet<T>(
   bool isScrollControlled = false,
   bool dismissible = true,
 }) {
-  if (!AppGlass.isSupported) {
-    // Plain Material sheet: let the framework draw the drag handle and surface.
-    return showModalBottomSheet<T>(
-      context: context,
-      useRootNavigator: true,
-      showDragHandle: dismissible,
-      isDismissible: dismissible,
-      enableDrag: dismissible,
-      isScrollControlled: isScrollControlled,
-      builder: builder,
-    );
-  }
   return showModalBottomSheet<T>(
     context: context,
     useRootNavigator: true,
     showDragHandle: false,
     isDismissible: dismissible,
     enableDrag: dismissible,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: isScrollControlled,
-    builder: (context) => LiquidGlass.withOwnLayer(
-      settings: kChromeGlass,
-      shape: LiquidRoundedSuperellipse(borderRadius: AppSpacingConstant.r22),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (dismissible) const _SheetDragHandle(),
-          Flexible(child: builder(context)),
-        ],
+    backgroundColor: AppColors.surface,
+    barrierColor: AppColors.barrier,
+    clipBehavior: Clip.antiAlias,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(AppSpacingConstant.r22),
       ),
+    ),
+    isScrollControlled: isScrollControlled,
+    builder: (context) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (dismissible) const _SheetDragHandle(),
+        Flexible(child: builder(context)),
+      ],
     ),
   );
 }
 
-/// Matches Material's default drag handle (32×4), drawn inside the glass.
+/// Matches Material's default drag handle (32×4), without its 48 tap row.
 class _SheetDragHandle extends StatelessWidget {
   const _SheetDragHandle();
 

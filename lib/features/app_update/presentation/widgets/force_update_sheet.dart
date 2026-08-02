@@ -5,7 +5,7 @@ import '../../../../core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -41,7 +41,7 @@ class ForceUpdateSheet extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               AppIcon(
-                Icons.system_update_alt,
+                icon: Icons.system_update_alt,
                 size: AppSpacingConstant.r44,
                 color: context.colorScheme.primary,
               ),

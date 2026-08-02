@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_dialog.dart';
+import '../extensions/context_extensions.dart';
+import 'buttons/app_button.dart';
+import 'app_dialog.dart';
 
 /// Prompts for a medication's name — adding a new one, or renaming an
 /// existing one when [initial] is passed (prefills the field and swaps the

@@ -8,13 +8,13 @@ import 'liquid_glass_theme.dart';
 /// [AppGlass.isSupported] is off, so every caller can use this
 /// unconditionally instead of re-deriving that check itself.
 ///
-/// Only for icons sitting directly on non-glass chrome (blurred but not
-/// itself a [LiquidGlass] surface) — that's what gives the circle real
-/// background to refract. [MainAppBar]'s leading/icon actions are the
-/// current example. Do NOT use this inside something that's already a
-/// [LiquidGlass] surface (e.g. a `showAppBottomSheet` sheet): nesting an
-/// independent glass layer inside one has nothing left of the real
-/// background to catch the light and just reads as flat.
+/// For icons sitting on anything that is not itself a [LiquidGlass] surface:
+/// the app bar's blurred strip ([MainAppBar]'s leading/icon actions) or a flat
+/// opaque panel (a bottom sheet's [AppSheetHeader]). Both leave real
+/// background under the circle to refract. Do NOT use it inside something
+/// that IS already a [LiquidGlass] surface — the paywall's own header —
+/// because nesting one glass layer in another has nothing left to catch the
+/// light and just reads as flat.
 class GlassCircle extends StatelessWidget {
   const GlassCircle({required this.child, super.key});
 

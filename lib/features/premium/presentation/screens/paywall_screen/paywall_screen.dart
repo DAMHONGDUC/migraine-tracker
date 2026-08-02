@@ -10,9 +10,9 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_bar_button.dart';
+import '../../../../../core/widgets/buttons/app_bar_button.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
-import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/glass/liquid_glass_theme.dart';
 import '../../../../auth/providers.dart';
@@ -26,6 +26,9 @@ import '../../../../auth/providers.dart';
 /// (see the paywall route's CustomTransitionPage), drag-handle indicator,
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
+///
+/// This one keeps its frosted Liquid Glass surface — the app's sheets are
+/// flat opaque panels, the paywall deliberately is not.
 ///
 /// Gates route through [NavigationUtils.unlockPremium], which signs the
 /// user in first. Deep links skip that, so the CTA checks for itself.
@@ -98,7 +101,7 @@ class PaywallScreen extends ConsumerWidget {
                     child: Column(
                       children: [
                         AppIcon(
-                          Icons.storm_outlined,
+                          icon: Icons.storm_outlined,
                           size: AppSpacingConstant.r64,
                           color: context.colorScheme.primary,
                         ),

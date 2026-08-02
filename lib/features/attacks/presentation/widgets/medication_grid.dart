@@ -6,11 +6,11 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
+import '../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../medications/domain/entities/medication.dart';
-import '../../../medications/presentation/widgets/medication_name_dialog.dart';
 import '../../../medications/providers.dart';
 
 /// The medication picker's two-column grid, shared by the log flow's third
@@ -164,7 +164,9 @@ class _Tile extends StatelessWidget {
       borderColor = AppColors.primary;
     } else {
       foreground = AppColors.textSecondary;
-      background = AppColors.surface;
+      // One step above the card colour: this tile also sits on a sheet,
+      // which is that colour, and would vanish into it.
+      background = AppColors.surfaceElevated;
       borderColor = AppColors.textSecondary.withValues(alpha: 0.2);
     }
 
@@ -186,7 +188,11 @@ class _Tile extends StatelessWidget {
           ),
           child: Row(
             children: <Widget>[
-              AppIcon(icon, color: foreground, size: AppSpacingConstant.r24),
+              AppIcon(
+                icon: icon,
+                color: foreground,
+                size: AppSpacingConstant.r24,
+              ),
               SizedBox(width: AppSpacingConstant.w12),
               Expanded(
                 child: Text(

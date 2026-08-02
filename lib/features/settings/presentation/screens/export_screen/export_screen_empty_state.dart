@@ -17,7 +17,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: <Widget>[
           AppIcon(
-            Icons.inbox_outlined,
+            icon: Icons.inbox_outlined,
             size: AppSpacingConstant.r44,
             color: context.colorScheme.onSurfaceVariant,
           ),

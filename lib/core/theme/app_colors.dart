@@ -6,10 +6,14 @@ final class AppColors {
   /// Scaffold background — near black.
   static const Color background = Color(0xFF0E0E10);
 
-  /// Default surface (cards, sheets).
+  /// The one card colour. Every card in the app wears exactly this —
+  /// dashboard, insights, chart panels — and so does every bottom sheet, so
+  /// a sheet opening over a card is never a second shade of dark.
   static const Color surface = Color(0xFF1C1C1E);
 
-  /// Elevated surface (dialogs, raised cards).
+  /// One step above [surface], for anything that has to stay visible while
+  /// sitting *on* a card or a sheet: dialogs, snack bars, chart tooltips,
+  /// option tiles, filter chips.
   static const Color surfaceElevated = Color(0xFF2C2C2E);
 
   /// Muted lavender — calm, low-glare accent.

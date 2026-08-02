@@ -26,4 +26,20 @@ class SettingsController {
       rethrow;
     }
   }
+
+  /// Dev-only: wipes the device and refills it with sample data. No analytics
+  /// event — this never runs in a build real users have.
+  Future<void> seedDevData() async {
+    AppLogger.action('Seed dev data');
+    try {
+      await _ref.read(devSeedServiceProvider).seed();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Seed dev data failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
 }

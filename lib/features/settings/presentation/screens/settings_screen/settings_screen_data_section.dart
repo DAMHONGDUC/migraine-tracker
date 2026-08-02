@@ -13,10 +13,10 @@ class _DataSection extends ConsumerWidget {
     return Column(
       children: [
         ListTile(
-          leading: const AppIcon(Icons.ios_share),
+          leading: const AppIcon(icon: Icons.ios_share),
           title: Text(l10n.settingsExport, style: AppTextStyle.bodyLarge),
           trailing: AppIcon(
-            Icons.chevron_right,
+            icon: Icons.chevron_right,
             size: AppSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),

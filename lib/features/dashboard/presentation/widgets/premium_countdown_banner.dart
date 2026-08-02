@@ -8,7 +8,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/pressable_scale.dart';
 import '../../../premium/providers.dart';
@@ -83,7 +83,7 @@ class _PremiumCountdownBannerState
                 shape: BoxShape.circle,
               ),
               child: AppIcon(
-                Icons.local_offer_outlined,
+                icon: Icons.local_offer_outlined,
                 size: AppSpacingConstant.r22,
                 color: AppColors.primary,
               ),
@@ -101,7 +101,7 @@ class _PremiumCountdownBannerState
                   Row(
                     children: [
                       AppIcon(
-                        Icons.schedule_outlined,
+                        icon: Icons.schedule_outlined,
                         size: AppSpacingConstant.r16,
                         color: context.colorScheme.onSurfaceVariant,
                       ),

@@ -3,7 +3,7 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
 import 'attack_details_sheet.dart';
 
@@ -30,7 +30,7 @@ class SavedStep extends StatelessWidget {
               builder: (context, scale, child) =>
                   Transform.scale(scale: scale, child: child),
               child: AppIcon(
-                Icons.check_circle_outline,
+                icon: Icons.check_circle_outline,
                 size: AppSpacingConstant.r64,
                 color: context.colorScheme.primary,
               ),

@@ -9,27 +9,38 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
+import '../../../../../core/widgets/app_filter_pill.dart';
 import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
+import '../../../../../core/widgets/collapsing_filter_scaffold.dart';
+import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../domain/entities/export_date_filter.dart';
 import '../../../domain/entities/export_record.dart';
 import '../../../domain/enums/export_action.dart';
 import '../../../domain/enums/export_kind.dart';
 import '../../../providers.dart';
 import '../../controllers/export_controller.dart';
 import '../../widgets/export_actions_sheet.dart';
+import '../../widgets/export_date_filter_sheet.dart';
 import '../../widgets/export_kind_sheet.dart';
 
+part 'export_screen_date_filter_pill.dart';
 part 'export_screen_empty_state.dart';
 part 'export_screen_history.dart';
+part 'export_screen_no_match_state.dart';
 part 'export_screen_record_tile.dart';
 
 /// Export data, and everything already exported. Reached from Settings.
 ///
 /// Exports are written to disk and recorded, so a row can be re-shared or
 /// saved to the device later without rebuilding the file.
+///
+/// The history can be narrowed to a date window. The pill that does it rides in
+/// a [CollapsingFilterScaffold], so it sits under the app bar while reading and
+/// lifts into it once the list scrolls — the same behaviour as the medications
+/// tab.
 class ExportScreen extends ConsumerWidget {
   const ExportScreen({super.key});
 
@@ -124,8 +135,12 @@ class ExportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // Nothing to filter until something has been exported, so the strip only
+    // exists once the list does.
+    final bool hasAny =
+        ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
 
-    return AppScaffold(
+    return CollapsingFilterScaffold(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
       actions: <Widget>[
         AppButton(
@@ -136,10 +151,17 @@ class ExportScreen extends ConsumerWidget {
         ),
         SizedBox(width: AppSpacingConstant.w4),
       ],
-      // The list pads itself so it scrolls behind the frosted bar. Full
-      // bleed: a ListTile brings its own gutter.
+      filter: hasAny ? const _DateFilterPill() : null,
+      // The list pads itself so it scrolls behind the frosted bar and the strip;
+      // no gutter of its own — a ListTile brings one. The top inset stays put
+      // whether the strip is showing or not (see CollapsingFilterScaffold).
       body: ListView(
-        padding: AppContentPadding.fullBleed(context),
+        padding: EdgeInsets.only(
+          top: hasAny
+              ? AppContentPadding.belowPinnedFilterBar(context)
+              : AppContentPadding.top(context),
+          bottom: AppContentPadding.bottom(context),
+        ),
         children: <Widget>[
           _History(
             onRecordTap: (ExportRecord record) =>

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/widgets/app_bar_button.dart';
+import 'package:migraine_tracker/core/widgets/buttons/app_bar_button.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
