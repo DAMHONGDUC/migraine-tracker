@@ -53,6 +53,7 @@ class AccountScreen extends ConsumerWidget {
         // Full-bleed: every row here is a ListTile, which insets itself.
         contentPadding: EdgeInsets.zero,
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _AccountHeader(user: user, profile: profile),
             AppSectionHeader(l10n.accountSectionProfile),

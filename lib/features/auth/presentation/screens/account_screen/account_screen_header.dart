@@ -14,9 +14,10 @@ class _AccountHeader extends StatelessWidget {
     final String? name = profile?.displayName ?? user?.displayName;
     final String? email = profile?.email ?? user?.email;
 
-    return Padding(
+    return Container(
       // No top gap of its own: AppActionView already applied the screen's.
       padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w16),
+      alignment: AlignmentDirectional.center,
       child: Column(
         children: <Widget>[
           _Avatar(photoUrl: profile?.photoUrl ?? user?.photoUrl, name: name),
