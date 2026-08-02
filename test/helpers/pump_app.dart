@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
+import 'package:migraine_tracker/core/constants/app_content_padding.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
 import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
+import 'package:migraine_tracker/core/widgets/main_app_bar.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
@@ -485,12 +488,47 @@ Future<void> finishTest(WidgetTester tester) async {
 
 /// Taps a target below the fold. A plain `tap()` on an off-screen widget
 /// only warns and taps nothing, failing some later assertion instead.
+///
+/// Deliberately not a bare `ensureVisible` + `tap`: `ensureVisible` aligns the
+/// target to the viewport's LEADING edge, and every screen's viewport starts
+/// at y=0 because content scrolls *behind* the frosted app bar. Called on a
+/// row that is already on screen, it therefore drags that row UNDER the bar,
+/// and the tap hit-tests the bar instead of the row — which `tap()` only
+/// warns about, so it surfaces later as a missing widget somewhere else.
+/// So: scroll only when the target really is off-screen, then make sure
+/// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  await tester.ensureVisible(finder);
-  await tester.pump();
+  final double chromeBottom = _appBarBottom(tester, finder);
+  final double screenBottom =
+      tester.view.physicalSize.height / tester.view.devicePixelRatio;
+
+  if (tester.getRect(finder).top < chromeBottom ||
+      tester.getRect(finder).bottom > screenBottom) {
+    await tester.ensureVisible(finder);
+    await tester.pump();
+  }
+
+  final double covered = chromeBottom - tester.getRect(finder).top;
+  if (covered > 0) {
+    await tester.drag(
+      find.ancestor(of: finder, matching: find.byType(Scrollable)).first,
+      Offset(0, covered + AppSpacingConstant.h8),
+    );
+    await tester.pump();
+  }
+
   await tester.tap(finder);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Bottom edge of the frosted app bar covering [finder]'s screen, or 0 where
+/// that screen has none (a sheet, the log flow). Reads the app's own
+/// [AppContentPadding.appBarInset] rather than a second copy of the number.
+double _appBarBottom(WidgetTester tester, Finder finder) {
+  if (find.byType(MainAppBar).evaluate().isEmpty) return 0;
+
+  return AppContentPadding.appBarInset(tester.element(finder));
 }
 
 /// Tab switches from the shell's bottom nav. Every widget test that leaves
