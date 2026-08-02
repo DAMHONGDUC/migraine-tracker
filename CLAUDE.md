@@ -169,9 +169,17 @@ Fix that with a separate dev project, or wire the Firestore emulator behind
 ### HealthKit — code and Xcode project are done, the portal side is not
 
 `ios/Runner/Runner.entitlements` (checked in, wired into all three Runner
-build configs), the `com.apple.HealthKit` target capability and
-`NSHealthShareUsageDescription` all exist. What is NOT in the repo, because
-it cannot be:
+build configs), the `com.apple.HealthKit` target capability and BOTH health
+usage strings all exist. What is NOT in the repo, because it cannot be:
+
+**Both strings are mandatory even though the app only reads.**
+`NSHealthUpdateUsageDescription` looks unnecessary — the plugin calls
+`requestAuthorization(toShare: nil, …)`, so nothing is ever written and iOS
+never shows that string. But App Store Connect's validator keys off the
+**entitlement**, not off actual API usage: with `com.apple.developer.healthkit`
+present it rejects the upload with `ITMS-90683 — Missing purpose string in
+Info.plist … should contain a NSHealthUpdateUsageDescription key`, and the
+build never reaches TestFlight. Do not "clean up" that string as dead config.
 
 1. **HealthKit on the App ID.** The App ID behind
    `PRODUCT_BUNDLE_IDENTIFIER` needs the HealthKit capability enabled in the
