@@ -48,6 +48,13 @@ class BaroEaseApp extends HookConsumerWidget {
       if (user != null) {
         unawaited(ref.read(accountControllerProvider).syncProfile(user));
       }
+      // Bind purchases to the account, so an entitlement follows the person
+      // rather than the install — that is what makes a subscription survive
+      // a reinstall or a second device. Anonymous sessions stay unbound:
+      // there is nothing durable to attach a purchase to yet.
+      unawaited(
+        ref.read(purchaseIdentityProvider).sync(user?.isSignedIn == true ? user!.uid : null),
+      );
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
       AppAnalytics.setPremium(next);

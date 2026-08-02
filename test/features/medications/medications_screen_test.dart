@@ -22,6 +22,17 @@ Future<void> addMedication(WidgetTester tester, String name) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Opens the reminder picker from a medication card.
+///
+/// The card's add action is an icon button, not a label — "Add reminder"
+/// only exists as text inside the card's overflow sheet, so a find.text on
+/// the screen itself matches nothing.
+Future<void> openAddReminder(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.add_alarm));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 void main() {
   testWidgets('shows the empty state when no medications are saved', (
     tester,
@@ -114,9 +125,7 @@ void main() {
     ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
 
     await openMedications(tester);
-    await tester.tap(find.text('Add reminder'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await openAddReminder(tester);
 
     // Custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour +
     // minute) confirm the sheet is open; the checkmark saves the default
@@ -201,9 +210,7 @@ void main() {
     ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
 
     await openMedications(tester);
-    await tester.tap(find.text('Add reminder'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await openAddReminder(tester);
 
     // Over-drag the hour wheel (the first of the two ListWheelScrollViews) UP
     // well past the end so it clamps at the last hour (23), independent of the

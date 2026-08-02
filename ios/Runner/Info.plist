@@ -37,6 +37,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>BaroEase reads your sleep from Apple Health to show whether short nights line up with your migraine attacks. It reads sleep only, the data stays on this device, and it is never uploaded or shared.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>BaroEase never writes anything to Apple Health. It only reads your sleep, to show whether short nights line up with your migraine attacks.</string>
 	<key>NSLocationDefaultAccuracyReduced</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>

@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
+import 'package:migraine_tracker/core/constants/app_content_padding.dart';
+import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
 import 'package:migraine_tracker/core/widgets/glass/liquid_glass_theme.dart';
+import 'package:migraine_tracker/core/widgets/main_app_bar.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
@@ -23,11 +26,18 @@ import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.d
 import 'package:migraine_tracker/features/auth/domain/repositories/auth_repository.dart';
 import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
+import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
+import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
+import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
-import 'package:migraine_tracker/features/premium/data/repositories/debug_premium_repository.dart';
+import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
+import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
+import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
+import 'package:migraine_tracker/features/premium/domain/repositories/purchase_repository.dart';
+import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -243,6 +253,163 @@ class FakeUserProfileRepository implements UserProfileRepository {
   void dispose() => _controller.close();
 }
 
+/// Entitlement state a test sets directly.
+///
+/// There is no local premium repository in the app any more — premium comes
+/// from RevenueCat and nothing the client can write (CLAUDE.md) — so the way
+/// a test gets a premium user is to override the provider with this.
+class FakePremiumRepository implements PremiumRepository {
+  FakePremiumRepository({bool premium = false}) : _isPremium = premium;
+
+  bool _isPremium;
+  final StreamController<bool> _controller = StreamController<bool>.broadcast();
+
+  @override
+  bool get isPremium => _isPremium;
+
+  @override
+  Stream<bool> watchIsPremium() async* {
+    yield _isPremium;
+    yield* _controller.stream;
+  }
+
+  /// Flips the entitlement mid-test — what a completed purchase looks like.
+  void setPremium(bool value) {
+    _isPremium = value;
+    if (!_controller.isClosed) _controller.add(value);
+  }
+
+  void dispose() => _controller.close();
+}
+
+/// The store, without a store. A purchase grants the entitlement through
+/// [FakePremiumRepository], so it behaves like the real thing: the paywall
+/// never decides premium itself, the entitlement stream does.
+class FakePurchaseRepository implements PurchaseRepository {
+  FakePurchaseRepository(this._premium);
+
+  final FakePremiumRepository _premium;
+
+  /// The three plans PLAN.md sells, at their listed prices.
+  List<PremiumOffer> availableOffers = const <PremiumOffer>[
+    PremiumOffer(
+      id: r'$rc_monthly',
+      period: PremiumPeriod.monthly,
+      priceLabel: r'$5.99',
+    ),
+    PremiumOffer(
+      id: r'$rc_annual',
+      period: PremiumPeriod.yearly,
+      priceLabel: r'$39.99',
+      trialDays: 7,
+    ),
+    PremiumOffer(
+      id: r'$rc_lifetime',
+      period: PremiumPeriod.lifetime,
+      priceLabel: r'$79.99',
+    ),
+  ];
+
+  /// Set to make [purchase] and [restore] throw this instead of granting.
+  ///
+  /// Deliberately NOT applied to [offers]: when one flag drove both, setting
+  /// it emptied the paywall, which disabled the CTA — so a "purchase fails"
+  /// test passed without a purchase ever being attempted.
+  Object? failWith;
+
+  /// Set to make loading the offerings fail, which is a different story: the
+  /// paywall has nothing to show rather than something that fails on tap.
+  Object? offersFailWith;
+
+  /// Whether [restore] finds anything.
+  bool hasPastPurchase = false;
+
+  final List<String> purchased = <String>[];
+
+  /// UIDs passed to [identify]; null entries are [forget] calls.
+  final List<String?> identified = <String?>[];
+  int restoreCalls = 0;
+
+  @override
+  Future<List<PremiumOffer>> offers() async {
+    final Object? failure = offersFailWith;
+
+    if (failure != null) throw failure;
+
+    return availableOffers;
+  }
+
+  @override
+  Future<bool> purchase(PremiumOffer offer) async {
+    final Object? failure = failWith;
+
+    if (failure != null) throw failure;
+
+    purchased.add(offer.id);
+    _premium.setPremium(true);
+
+    return true;
+  }
+
+  @override
+  Future<bool> restore() async {
+    final Object? failure = failWith;
+
+    restoreCalls++;
+    if (failure != null) throw failure;
+    if (!hasPastPurchase) return false;
+
+    _premium.setPremium(true);
+
+    return true;
+  }
+
+  @override
+  Future<void> identify(String uid) async => identified.add(uid);
+
+  @override
+  Future<void> forget() async => identified.add(null);
+}
+
+/// Stands in for HealthKit. Unavailable by default, so every existing test
+/// sees the shipped Android/simulator shape (no Apple Health row, no sleep
+/// card) and nothing touches the plugin.
+class FakeHealthRepository implements HealthRepository {
+  FakeHealthRepository({this.isAvailable = false});
+
+  @override
+  bool isAvailable;
+
+  /// What the authorization sheet reports. False covers the "couldn't
+  /// connect" branch.
+  bool authorizes = true;
+
+  /// Served by [sleepNights], unfiltered — tests hand over exactly the nights
+  /// they want analysed.
+  List<SleepNight> nights = <SleepNight>[];
+
+  int authorizationRequests = 0;
+
+  /// How many times sleep was actually read — the assertion behind "a free
+  /// user never reaches a HealthKit read".
+  int sleepReads = 0;
+
+  @override
+  Future<bool> requestAuthorization() async {
+    authorizationRequests++;
+    return authorizes;
+  }
+
+  @override
+  Future<List<SleepNight>> sleepNights({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    sleepReads++;
+    return nights;
+  }
+}
+
 /// Grants permissions by default; a test can flip [statusFor] to exercise the
 /// permanently-denied → settings-sheet path. Never touches the OS.
 class FakeAppPermissionGateway implements AppPermissionGateway {
@@ -272,6 +439,9 @@ class PumpedApp {
     required this.storeLauncher,
     required this.profiles,
     required this.exportFiles,
+    required this.health,
+    required this.premiumRepository,
+    required this.purchases,
   });
 
   final AppDatabase db;
@@ -283,6 +453,15 @@ class PumpedApp {
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
   final FakeUserProfileRepository profiles;
+
+  /// Stands in for HealthKit. Unavailable unless a test asks otherwise.
+  final FakeHealthRepository health;
+
+  /// The entitlement a test can flip. Premium is never a prefs flag now.
+  final FakePremiumRepository premiumRepository;
+
+  /// The fake store behind the paywall.
+  final FakePurchaseRepository purchases;
 
   /// Where exports landed. Read `singleContent` to assert on what was
   /// written without touching a real filesystem.
@@ -323,6 +502,13 @@ Future<PumpedApp> pumpApp(
   /// so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
 
+  /// Whether this fake device has HealthKit. False by default — the Apple
+  /// Health row and the sleep card are iOS-only surfaces.
+  bool healthAvailable = false,
+
+  /// Nights the fake HealthKit serves to the sleep correlation.
+  List<SleepNight> sleepNights = const <SleepNight>[],
+
   /// The build this fake device is running. Both are high by default, so a
   /// test that passes [appUpdate] still has to opt into being out of date.
   String installedBuildName = '99.0.0',
@@ -349,7 +535,6 @@ Future<PumpedApp> pumpApp(
   // dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
     OnboardingController.completedKey: true,
-    if (premium) DebugPremiumRepository.prefsKey: true,
     ...initialPrefs,
   });
   final prefs = await SharedPreferences.getInstance();
@@ -367,6 +552,16 @@ Future<PumpedApp> pumpApp(
     profile: userProfile,
   );
   addTearDown(profiles.dispose);
+  final FakeHealthRepository health = FakeHealthRepository(
+    isAvailable: healthAvailable,
+  )..nights = <SleepNight>[...sleepNights];
+  final FakePremiumRepository premiumRepository = FakePremiumRepository(
+    premium: premium,
+  );
+  addTearDown(premiumRepository.dispose);
+  final FakePurchaseRepository purchases = FakePurchaseRepository(
+    premiumRepository,
+  );
 
   await tester.pumpWidget(
     ProviderScope(
@@ -377,6 +572,9 @@ Future<PumpedApp> pumpApp(
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
+        healthRepositoryProvider.overrideWithValue(health),
+        premiumRepositoryProvider.overrideWithValue(premiumRepository),
+        purchaseRepositoryProvider.overrideWithValue(purchases),
         userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
@@ -411,6 +609,9 @@ Future<PumpedApp> pumpApp(
     storeLauncher: storeLauncher,
     profiles: profiles,
     exportFiles: exportFiles,
+    health: health,
+    premiumRepository: premiumRepository,
+    purchases: purchases,
   );
 }
 
@@ -427,12 +628,57 @@ Future<void> finishTest(WidgetTester tester) async {
 
 /// Taps a target below the fold. A plain `tap()` on an off-screen widget
 /// only warns and taps nothing, failing some later assertion instead.
+///
+/// Deliberately not a bare `ensureVisible` + `tap`: `ensureVisible` aligns the
+/// target to the viewport's LEADING edge, and every screen's viewport starts
+/// at y=0 because content scrolls *behind* the frosted app bar. Called on a
+/// row that is already on screen, it therefore drags that row UNDER the bar,
+/// and the tap hit-tests the bar instead of the row — which `tap()` only
+/// warns about, so it surfaces later as a missing widget somewhere else.
+/// So: scroll only when the target really is off-screen, then make sure
+/// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  await tester.ensureVisible(finder);
-  await tester.pump();
+  final double chromeBottom = _appBarBottom(tester, finder);
+  final double screenBottom =
+      tester.view.physicalSize.height / tester.view.devicePixelRatio;
+
+  if (tester.getRect(finder).top < chromeBottom ||
+      tester.getRect(finder).bottom > screenBottom) {
+    await tester.ensureVisible(finder);
+    await tester.pump();
+  }
+
+  // Only when there is something to scroll. A target inside a bottom sheet
+  // has no Scrollable ancestor, and `find.byType(MainAppBar)` still matches
+  // the bars sitting in the shell's IndexedStack *behind* the sheet — so
+  // without this guard the nudge tried to drag a scrollable that does not
+  // exist and threw `Bad state: No element`.
+  final Finder scrollable = find.ancestor(
+    of: finder,
+    matching: find.byType(Scrollable),
+  );
+  final double covered = chromeBottom - tester.getRect(finder).top;
+
+  if (covered > 0 && scrollable.evaluate().isNotEmpty) {
+    await tester.drag(
+      scrollable.first,
+      Offset(0, covered + AppSpacingConstant.h8),
+    );
+    await tester.pump();
+  }
+
   await tester.tap(finder);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Bottom edge of the frosted app bar covering [finder]'s screen, or 0 where
+/// that screen has none (a sheet, the log flow). Reads the app's own
+/// [AppContentPadding.appBarInset] rather than a second copy of the number.
+double _appBarBottom(WidgetTester tester, Finder finder) {
+  if (find.byType(MainAppBar).evaluate().isEmpty) return 0;
+
+  return AppContentPadding.appBarInset(tester.element(finder));
 }
 
 /// Tab switches from the shell's bottom nav. Every widget test that leaves

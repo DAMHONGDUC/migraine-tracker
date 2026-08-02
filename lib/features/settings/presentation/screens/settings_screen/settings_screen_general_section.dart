@@ -36,6 +36,7 @@ class _GeneralSection extends ConsumerWidget {
         // there is nothing to report before that.
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
         const _AlertsSection(),
+        const HealthSection(),
         ListTile(
           leading: const AppIcon(icon: Icons.language),
           title: Text(

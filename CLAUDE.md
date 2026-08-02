@@ -61,7 +61,7 @@ test/features/           # mirrors lib/features
 Features: `app_update` (force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather`
 (WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
 `alerts`, `auth` (Google/Apple + linkWithCredential, account screen, `users/{uid}` profile doc), `sync`, `paywall`,
-`settings`. Create a layer folder only when it gets its first file — no empty
+`settings`, `health` (HealthKit sleep, read-only). Create a layer folder only when it gets its first file — no empty
 placeholder folders.
 
 Dependency rule: `presentation → domain ← data` inside a feature. Across
@@ -109,6 +109,7 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
 - **Crash reporting goes through `CrashReporter`** (`core/logging/crash_reporter.dart`): `recordError` for a caught failure worth seeing in production, alongside the `AppLogger.error` that serves the debug console. `domain/` stays pure Dart — report from the presentation/data layer that catches it.
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
+- **HealthKit is read-only, iOS-only, and nothing it returns is persisted.** `health` reads `SLEEP_IN_BED` and only that: this plugin version maps IN_BED / ASLEEP / AWAKE onto the same `HKCategoryType.sleepAnalysis` and drops the category value before Dart sees it, so asking for all three returns the same samples three times and none can be told apart — take one type and union the intervals (`SleepNightAggregator`). Sleep is queried on demand for the analysis window and never written to Drift: HealthKit is already on-device storage, and a copy here would be one more pile of health data the wipe has to chase (hard rule 8). iOS never reports a *read* denial (that would leak which conditions a user has), so `requestAuthorization` returning true proves only that the sheet was answered — treat an empty read as "no access or no data" and never as an error. The connect switch lives in Settings and is the only place the prompt is raised; everything else reads `healthControllerProvider`.
 - Cloud Functions: idempotent, log with structured JSON, fail loud on weather API errors (retry with backoff), never silently skip a user cohort.
 - Commit style: conventional commits (`feat:`, `fix:`, `chore:`).
 - **No standalone top-level functions.** Every function lives inside a class — a widget method, or a static/instance method on a utility class (`DateUtils`, `StringUtils`, `ValidatorUtils`). Never a floating `void doSomething() {}` at file scope. The one sanctioned exception is a widget's `.show()` extension (see "Bottom sheets" below); the shared `core/widgets` primitives `showAppDialog`/`showAppBottomSheet`/`showAppFilterSheet` stay as-is (they are the low-level presenters those extensions call).
@@ -164,6 +165,74 @@ Also note `env/dev.json` and `env/prod.json` point at the SAME Firebase
 project, so a blocking record written while testing hits real users too.
 Fix that with a separate dev project, or wire the Firestore emulator behind
 `!AppEnv.isProd` before testing a blocking record post-launch.
+
+### HealthKit — code and Xcode project are done, the portal side is not
+
+`ios/Runner/Runner.entitlements` (checked in, wired into all three Runner
+build configs), the `com.apple.HealthKit` target capability and BOTH health
+usage strings all exist. What is NOT in the repo, because it cannot be:
+
+**Both strings are mandatory even though the app only reads.**
+`NSHealthUpdateUsageDescription` looks unnecessary — the plugin calls
+`requestAuthorization(toShare: nil, …)`, so nothing is ever written and iOS
+never shows that string. But App Store Connect's validator keys off the
+**entitlement**, not off actual API usage: with `com.apple.developer.healthkit`
+present it rejects the upload with `ITMS-90683 — Missing purpose string in
+Info.plist … should contain a NSHealthUpdateUsageDescription key`, and the
+build never reaches TestFlight. Do not "clean up" that string as dead config.
+
+1. **HealthKit on the App ID.** The App ID behind
+   `PRODUCT_BUNDLE_IDENTIFIER` needs the HealthKit capability enabled in the
+   Apple Developer portal (Xcode's
+   automatic signing will offer to do it on the first device build with the
+   enrolled team selected). Until it is, signing fails with "Provisioning
+   profile doesn't include the com.apple.developer.healthkit entitlement".
+2. **A real device.** HealthKit does not exist in the iOS Simulator: the
+   authorization sheet never appears and reads come back empty, which is
+   indistinguishable from a refusal. Never read "no sleep card" on the
+   Simulator as a bug.
+3. **App Store privacy.** HealthKit apps need a privacy policy URL and the
+   App Privacy label must declare Health & Fitness data as collected-but-
+   not-linked (it never leaves the device — sleep is read for the analysis
+   and nothing is stored or uploaded). App Review also rejects HealthKit
+   apps whose usage string doesn't say what is read and why; the shipped one
+   names sleep specifically.
+
+Note the entitlements file is new, so it currently declares HealthKit and
+nothing else — **push notifications (`aps-environment`) are still missing**,
+which the `alerts` feature will need before FCM can deliver anything on a
+real device. Add that key when wiring push, don't assume it is there.
+
+### RevenueCat — code is wired, the dashboard and store are not
+
+`purchases_flutter` is in, `RevenueCatPremiumRepository` reads the
+entitlement, `RevenueCatPurchaseRepository` sells and restores, and the
+paywall renders whatever the offering returns. **There is no local premium
+repository any more** — the old `DebugPremiumRepository` (a prefs flag with a
+`setPremium`) is deleted, because a premium state the client can write is the
+one thing this project must not ship. Tests override
+`premiumRepositoryProvider` with a fake instead; nothing else may.
+
+Missing config fails loud rather than silently making everyone free:
+`main()` asserts on `AppEnv.hasPurchasesConfig`, and the paywall surfaces
+`PurchaseError.notConfigured`. What the owner must do by hand:
+
+1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
+   already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
+   optionally `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and
+   `REVENUECAT_OFFERING` (empty = whatever the dashboard marks current).
+2. **Products in App Store Connect** — monthly $5.99, yearly $39.99,
+   lifetime $79.99 — plus the Paid Apps Agreement, then the same three
+   attached to a RevenueCat offering. Until an offering exists the paywall
+   correctly shows "no plans available"; that is not a bug.
+3. **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the
+   store's own string, because the currency, its position and the decimal
+   separator belong to the customer's storefront.
+
+Only `PackageType.monthly` / `annual` / `lifetime` are rendered; anything else
+the dashboard adds is skipped rather than drawn blind. Purchases are bound to
+the Firebase UID via `PurchaseIdentity` so an entitlement follows the person,
+not the install.
 
 ## Testing priorities
 

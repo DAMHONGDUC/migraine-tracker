@@ -468,6 +468,70 @@
       }
     }
   },
+  "insightsSleepTitle": "Sleep & attacks",
+  "@insightsSleepTitle": {
+    "description": "Title of the sleep correlation insight card"
+  },
+  "insightsSleepNotConnected": "Connect Apple Health sleep in Settings to see whether your attacks follow short nights.",
+  "@insightsSleepNotConnected": {
+    "description": "Sleep card body when Apple Health has not been connected"
+  },
+  "insightsSleepInsufficientData": "This insight needs at least {required} nights of sleep data, including {perGroup} nights before an attack.",
+  "@insightsSleepInsufficientData": {
+    "description": "Shown while there is not yet enough sleep data for the comparison",
+    "placeholders": {
+      "required": {
+        "type": "int"
+      },
+      "perGroup": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsSleepProgressCaption": "{withSleep} of {required} nights with sleep data",
+  "@insightsSleepProgressCaption": {
+    "description": "Progress caption under the sleep insufficient-data message",
+    "placeholders": {
+      "withSleep": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsSleepNoVariation": "You sleep about as much before an attack as on any other night.",
+  "@insightsSleepNoVariation": {
+    "description": "Shown when both sleep averages are within noise of each other"
+  },
+  "insightsSleepLessSentence": "less sleep on the nights before an attack.",
+  "@insightsSleepLessSentence": {
+    "description": "Sentence after the hero duration when attacks follow short nights"
+  },
+  "insightsSleepMoreSentence": "more sleep on the nights before an attack.",
+  "@insightsSleepMoreSentence": {
+    "description": "Sentence after the hero duration when attacks follow longer nights"
+  },
+  "insightsSleepAttackNights": "Before an attack",
+  "@insightsSleepAttackNights": {
+    "description": "Row label for the average sleep on nights followed by an attack"
+  },
+  "insightsSleepRestNights": "Other nights",
+  "@insightsSleepRestNights": {
+    "description": "Row label for the average sleep on every other night"
+  },
+  "insightsSleepAnalyzedCaption": "Based on {attackNights} nights before an attack and {restNights} others",
+  "@insightsSleepAnalyzedCaption": {
+    "description": "Sample-size caption under the sleep insight, giving both group sizes",
+    "placeholders": {
+      "attackNights": {
+        "type": "int"
+      },
+      "restNights": {
+        "type": "int"
+      }
+    }
+  },
   "historyCalendarNoAttacks": "No attacks on this day.",
   "@historyCalendarNoAttacks": {
     "description": "Shown under the calendar when the selected day is clear"
@@ -611,6 +675,10 @@
   "@premiumLockedCorrelation": {
     "description": "Teaser copy over the blurred correlation percentage"
   },
+  "premiumLockedSleep": "Unlock to see whether your attacks follow the nights you sleep least.",
+  "@premiumLockedSleep": {
+    "description": "Locked-state copy on the sleep correlation card and the Apple Health setting"
+  },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
     "description": "Title of the paywall screen"
@@ -651,11 +719,75 @@
   "@paywallBenefitReportBody": {
     "description": "Paywall benefit detail: PDF report"
   },
+  "paywallBenefitSleep": "Sleep correlation",
+  "@paywallBenefitSleep": {
+    "description": "Paywall benefit title: Apple Health sleep"
+  },
+  "paywallBenefitSleepBody": "See whether your attacks follow the nights you sleep least, read from Apple Health.",
+  "@paywallBenefitSleepBody": {
+    "description": "Paywall benefit detail: Apple Health sleep"
+  },
   "paywallFreeKeeps": "Logging your attacks stays free, forever.",
   "@paywallFreeKeeps": {
     "description": "Reassurance that the core app is free"
   },
-  "paywallComingSoon": "Purchases aren't available yet.",
+  "paywallPlanMonthly": "Monthly",
+  "@paywallPlanMonthly": {
+    "description": "Paywall plan row title for the monthly subscription"
+  },
+  "paywallPlanYearly": "Yearly",
+  "@paywallPlanYearly": {
+    "description": "Paywall plan row title for the annual subscription"
+  },
+  "paywallPlanLifetime": "Lifetime",
+  "@paywallPlanLifetime": {
+    "description": "Paywall plan row title for the one-time lifetime purchase"
+  },
+  "paywallPlanTrial": "{days}-day free trial",
+  "@paywallPlanTrial": {
+    "description": "Badge on a plan row that carries an introductory free trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallNoPlans": "No plans are available right now. Please try again later.",
+  "@paywallNoPlans": {
+    "description": "Shown when the store returned no purchasable packages"
+  },
+  "paywallRestore": "Restore purchases",
+  "@paywallRestore": {
+    "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
+  },
+  "paywallRestoreNothing": "Nothing to restore on this account.",
+  "@paywallRestoreNothing": {
+    "description": "Result message when a restore found no previous purchase"
+  },
+  "paywallPurchaseDone": "Premium unlocked. Thank you!",
+  "@paywallPurchaseDone": {
+    "description": "Confirmation after a purchase or a successful restore"
+  },
+  "paywallErrorNetwork": "Couldn't reach the store. Check your connection and try again.",
+  "@paywallErrorNetwork": {
+    "description": "Purchase error: the store was unreachable"
+  },
+  "paywallErrorAlreadyOwned": "You already own this. Try Restore purchases.",
+  "@paywallErrorAlreadyOwned": {
+    "description": "Purchase error: the product is already owned by this store account"
+  },
+  "paywallErrorPending": "Your purchase is waiting for approval. Premium unlocks as soon as it goes through.",
+  "@paywallErrorPending": {
+    "description": "Purchase is deferred (Ask to Buy, or a bank confirmation) — not a failure"
+  },
+  "paywallErrorNotAllowed": "Purchases are turned off on this device.",
+  "@paywallErrorNotAllowed": {
+    "description": "Purchase error: payments are restricted (parental controls, managed device)"
+  },
+  "paywallErrorGeneric": "The purchase didn't go through. Nothing was charged.",
+  "@paywallErrorGeneric": {
+    "description": "Purchase error fallback, including a store misconfiguration the user cannot act on"
+  },
   "@paywallComingSoon": {
     "description": "Shown while RevenueCat is not wired up yet"
   },
@@ -1525,5 +1657,33 @@
   "settingsAccount": "Account",
   "@settingsAccount": {
     "description": "Settings row title for the signed-in account; deliberately not the email, which Settings should not put on screen"
+  },
+  "healthSleepTitle": "Apple Health sleep",
+  "@healthSleepTitle": {
+    "description": "Settings row title for the Apple Health sleep connection"
+  },
+  "healthSleepSubtitle": "Read your sleep from Apple Health to compare it against your attacks. It stays on this device.",
+  "@healthSleepSubtitle": {
+    "description": "Settings row subtitle while Apple Health is not connected"
+  },
+  "healthSleepConnected": "Connected. To revoke access entirely, use iOS Settings, Privacy & Security, Health.",
+  "@healthSleepConnected": {
+    "description": "Settings row subtitle while Apple Health is connected; iOS grants can only be withdrawn from the Settings app, not from here"
+  },
+  "healthConnectFailed": "Couldn't connect to Apple Health.",
+  "@healthConnectFailed": {
+    "description": "Error snackbar when the HealthKit authorization sheet could not be completed"
+  },
+  "commonDurationHoursMinutes": "{hours}h {minutes}m",
+  "@commonDurationHoursMinutes": {
+    "description": "A span of time in hours and minutes, e.g. a night's sleep",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }
