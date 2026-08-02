@@ -42,7 +42,7 @@ Positioning: *"Know your storm before it hits."*
 - [ ] 48h pressure forecast chart (premium)
 - [ ] PDF export report for doctors (premium)
 - [ ] Medication reminders (local notifications)
-- [ ] HealthKit read: sleep hours (premium correlation)
+- [x] HealthKit read: sleep hours (premium correlation)
 - [ ] Onboarding: personal threshold setup, location permission (While Using, coarse), privacy explainer
 - [ ] Optional sign-in (Google / Apple) — app fully usable without it; signing in enables encrypted cloud sync of attack history across devices
 - [ ] In-app account deletion (App Store 5.1.1(v))
