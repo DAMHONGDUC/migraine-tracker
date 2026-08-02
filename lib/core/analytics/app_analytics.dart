@@ -37,6 +37,7 @@ abstract final class AppAnalytics {
   static const String _reminderDeleted = 'reminder_deleted';
   static const String _alertsToggled = 'alerts_toggled';
   static const String _alertThresholdSet = 'alert_threshold_set';
+  static const String _healthConnectionToggled = 'health_connection_toggled';
   static const String _signOut = 'sign_out';
   static const String _profileNameUpdated = 'profile_name_updated';
   static const String _signInFailed = 'sign_in_failed';
@@ -177,6 +178,15 @@ abstract final class AppAnalytics {
 
   static void logAlertThresholdSet(double thresholdHpa) =>
       _log(_alertThresholdSet, <String, Object>{_pThresholdHpa: thresholdHpa});
+
+  // --- Apple Health -------------------------------------------------------
+  // Whether the source is connected, and nothing from it: hours slept are
+  // health data and never leave the device (hard rule 1).
+
+  static void logHealthConnectionToggled({required bool enabled}) => _log(
+    _healthConnectionToggled,
+    <String, Object>{_pEnabled: enabled.toString()},
+  );
 
   // --- Auth -------------------------------------------------------------
 

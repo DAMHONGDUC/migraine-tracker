@@ -10,10 +10,12 @@ import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/providers.dart';
+import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
 import '../../widgets/correlation_card.dart';
 import '../../widgets/pressure_forecast_card.dart';
+import '../../widgets/sleep_correlation_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -29,7 +31,8 @@ class InsightsScreen extends ConsumerWidget {
           onRefresh: () => AppRefreshIndicator.run(() {
             ref
               ..invalidate(attacksStreamProvider)
-              ..invalidate(pressureForecastProvider);
+              ..invalidate(pressureForecastProvider)
+              ..invalidate(sleepCorrelationProvider);
           }),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -44,6 +47,16 @@ class InsightsScreen extends ConsumerWidget {
               ),
               SizedBox(height: AppSpacingConstant.h12),
               CorrelationCard(result: value),
+              // iOS only: off HealthKit there is no sleep source, so the
+              // card would have nothing to say but "unavailable".
+              if (ref.watch(healthAvailableProvider)) ...<Widget>[
+                SizedBox(height: AppSpacingConstant.h12),
+                PremiumGate(
+                  lockedIcon: Symbols.bedtime,
+                  lockedMessage: context.l10n.premiumLockedSleep,
+                  child: const SleepCorrelationCard(),
+                ),
+              ],
             ],
           ),
         ),

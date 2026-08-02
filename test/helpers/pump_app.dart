@@ -23,6 +23,9 @@ import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.d
 import 'package:migraine_tracker/features/auth/domain/repositories/auth_repository.dart';
 import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
+import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
+import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
+import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
@@ -243,6 +246,45 @@ class FakeUserProfileRepository implements UserProfileRepository {
   void dispose() => _controller.close();
 }
 
+/// Stands in for HealthKit. Unavailable by default, so every existing test
+/// sees the shipped Android/simulator shape (no Apple Health row, no sleep
+/// card) and nothing touches the plugin.
+class FakeHealthRepository implements HealthRepository {
+  FakeHealthRepository({this.isAvailable = false});
+
+  @override
+  bool isAvailable;
+
+  /// What the authorization sheet reports. False covers the "couldn't
+  /// connect" branch.
+  bool authorizes = true;
+
+  /// Served by [sleepNights], unfiltered — tests hand over exactly the nights
+  /// they want analysed.
+  List<SleepNight> nights = <SleepNight>[];
+
+  int authorizationRequests = 0;
+
+  /// How many times sleep was actually read — the assertion behind "a free
+  /// user never reaches a HealthKit read".
+  int sleepReads = 0;
+
+  @override
+  Future<bool> requestAuthorization() async {
+    authorizationRequests++;
+    return authorizes;
+  }
+
+  @override
+  Future<List<SleepNight>> sleepNights({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    sleepReads++;
+    return nights;
+  }
+}
+
 /// Grants permissions by default; a test can flip [statusFor] to exercise the
 /// permanently-denied → settings-sheet path. Never touches the OS.
 class FakeAppPermissionGateway implements AppPermissionGateway {
@@ -272,6 +314,7 @@ class PumpedApp {
     required this.storeLauncher,
     required this.profiles,
     required this.exportFiles,
+    required this.health,
   });
 
   final AppDatabase db;
@@ -283,6 +326,9 @@ class PumpedApp {
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
   final FakeUserProfileRepository profiles;
+
+  /// Stands in for HealthKit. Unavailable unless a test asks otherwise.
+  final FakeHealthRepository health;
 
   /// Where exports landed. Read `singleContent` to assert on what was
   /// written without touching a real filesystem.
@@ -322,6 +368,13 @@ Future<PumpedApp> pumpApp(
   /// The record the force-update check reads. Null (default) = no record,
   /// so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
+
+  /// Whether this fake device has HealthKit. False by default — the Apple
+  /// Health row and the sleep card are iOS-only surfaces.
+  bool healthAvailable = false,
+
+  /// Nights the fake HealthKit serves to the sleep correlation.
+  List<SleepNight> sleepNights = const <SleepNight>[],
 
   /// The build this fake device is running. Both are high by default, so a
   /// test that passes [appUpdate] still has to opt into being out of date.
@@ -367,6 +420,9 @@ Future<PumpedApp> pumpApp(
     profile: userProfile,
   );
   addTearDown(profiles.dispose);
+  final FakeHealthRepository health = FakeHealthRepository(
+    isAvailable: healthAvailable,
+  )..nights = <SleepNight>[...sleepNights];
 
   await tester.pumpWidget(
     ProviderScope(
@@ -377,6 +433,7 @@ Future<PumpedApp> pumpApp(
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
+        healthRepositoryProvider.overrideWithValue(health),
         userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
@@ -411,6 +468,7 @@ Future<PumpedApp> pumpApp(
     storeLauncher: storeLauncher,
     profiles: profiles,
     exportFiles: exportFiles,
+    health: health,
   );
 }
 
