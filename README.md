@@ -74,4 +74,4 @@ functions/                Firebase Cloud Functions (TypeScript)
 ```
 
 The design system is deliberately separate and deliberately ignorant of this
-app; see `packages/system_design/WIDGET_RULES.md` before adding to it.
+app; see `packages/system_design/WIDGET_RULES.md` before adding to it..
