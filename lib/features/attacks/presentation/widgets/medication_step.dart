@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../medications/providers.dart';
 import 'medication_grid.dart';
@@ -73,10 +73,10 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
         if (hasMedications)
           Padding(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingV2.w24,
-              SdSpacingV2.h8,
-              SdSpacingV2.w24,
-              SdSpacingV2.h8,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h8,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h8,
             ),
             child: MedicationSearchField(
               controller: _searchController,
@@ -88,10 +88,10 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingV2.w24,
-              SdSpacingV2.h8,
-              SdSpacingV2.w24,
-              widget.scrollBottomInset + SdSpacingV2.h16,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h8,
+              SdSpacingConstant.w24,
+              widget.scrollBottomInset + SdSpacingConstant.h16,
             ),
             // Calm and predictable over platform-native bounce: a short list
             // must not rubber-band mid-attack.

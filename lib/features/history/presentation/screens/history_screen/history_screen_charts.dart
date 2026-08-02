@@ -31,7 +31,7 @@ class _Charts extends StatelessWidget {
     return Column(
       children: [
         for (int i = 0; i < cards.length; i++) ...[
-          if (i > 0) SizedBox(height: SdSpacingV2.h16),
+          if (i > 0) SizedBox(height: SdSpacingConstant.h16),
           SdChartCardV2(child: cards[i]),
         ],
       ],

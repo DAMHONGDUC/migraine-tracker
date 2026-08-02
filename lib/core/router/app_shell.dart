@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
@@ -140,14 +140,14 @@ class _SlidingNavBar extends StatelessWidget {
               child: Padding(
                 // Slim inset so the thumb hugs the container border.
                 padding: EdgeInsets.symmetric(
-                  horizontal: SdSpacingV2.w6,
-                  vertical: SdSpacingV2.w6,
+                  horizontal: SdSpacingConstant.w6,
+                  vertical: SdSpacingConstant.w6,
                 ),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
                     // Oversized radius = stadium caps, matching the bar.
-                    borderRadius: BorderRadius.circular(SdSpacingV2.r64),
+                    borderRadius: BorderRadius.circular(SdSpacingConstant.r64),
                   ),
                 ),
               ),
@@ -210,7 +210,7 @@ class _NavSegment extends StatelessWidget {
         child: Center(
           child: SdIconV2(
             icon: selected ? item.selectedIcon : item.icon,
-            size: SdSpacingV2.r26,
+            size: SdSpacingConstant.r26,
             color: color,
           ),
         ),
@@ -246,9 +246,9 @@ class _FloatingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SdSpacingV2.w24,
+        SdSpacingConstant.w24,
         0,
-        SdSpacingV2.w24,
+        SdSpacingConstant.w24,
         SdContentPaddingV2.navBarOffset(context),
       ),
       child: SdPopScaleV2(

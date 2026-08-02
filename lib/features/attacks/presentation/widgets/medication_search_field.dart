@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -33,7 +33,7 @@ class MedicationSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     OutlineInputBorder border(Color color) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+      borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
       borderSide: BorderSide(color: color),
     );
 
@@ -53,11 +53,11 @@ class MedicationSearchField extends StatelessWidget {
         prefixIcon: SdIconV2(
           icon: Icons.search,
           color: AppColors.textSecondary,
-          size: SdSpacingV2.r24,
+          size: SdSpacingConstant.r24,
         ),
         suffixIcon: hasText
             ? IconButton(
-                icon: SdIconV2(icon: Icons.close, size: SdSpacingV2.r18),
+                icon: SdIconV2(icon: Icons.close, size: SdSpacingConstant.r18),
                 color: AppColors.textSecondary,
                 tooltip: l10n.medicationsSearchClear,
                 onPressed: onClear,

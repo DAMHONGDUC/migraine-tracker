@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:step_progress/step_progress.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -43,9 +43,9 @@ class LogStepBar extends StatelessWidget {
     // to avoid a double gap (see the shell's floating bar).
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SdSpacingV2.w24,
+        SdSpacingConstant.w24,
         0,
-        SdSpacingV2.w24,
+        SdSpacingConstant.w24,
         MediaQuery.paddingOf(context).bottom,
       ),
       child: LiquidGlass.withOwnLayer(
@@ -75,13 +75,13 @@ class _StepProgress extends StatelessWidget {
     final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingV2.w48,
-      ).copyWith(top: SdSpacingV2.h2),
+        horizontal: SdSpacingConstant.w48,
+      ).copyWith(top: SdSpacingConstant.h2),
       child: Center(
         child: StepProgress(
           totalSteps: 3,
           currentStep: currentStep,
-          stepNodeSize: SdSpacingV2.r20,
+          stepNodeSize: SdSpacingConstant.r20,
           nodeTitles: [
             l10n.stepIntensity,
             l10n.stepLocation,

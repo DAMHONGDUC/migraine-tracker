@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import 'app_colors.dart';
 import 'app_text_style.dart';

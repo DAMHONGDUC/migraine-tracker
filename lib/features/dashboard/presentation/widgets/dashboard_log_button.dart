@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
@@ -29,8 +29,8 @@ class DashboardLogButton extends ConsumerWidget {
       },
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: SdSpacingV2.w20,
-          vertical: SdSpacingV2.h20,
+          horizontal: SdSpacingConstant.w20,
+          vertical: SdSpacingConstant.h20,
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -38,12 +38,12 @@ class DashboardLogButton extends ConsumerWidget {
             end: Alignment.bottomRight,
             colors: [AppColors.primary, AppColors.chartSeries],
           ),
-          borderRadius: BorderRadius.circular(SdSpacingV2.r24),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r24),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.28),
-              blurRadius: SdSpacingV2.r24,
-              offset: Offset(0, SdSpacingV2.h8),
+              blurRadius: SdSpacingConstant.r24,
+              offset: Offset(0, SdSpacingConstant.h8),
             ),
           ],
         ),
@@ -55,9 +55,9 @@ class DashboardLogButton extends ConsumerWidget {
               icon: Icons.add,
               color: AppColors.primary,
               background: AppColors.onPrimary,
-              iconSize: SdSpacingV2.r24,
+              iconSize: SdSpacingConstant.r24,
             ),
-            SizedBox(width: SdSpacingV2.w16),
+            SizedBox(width: SdSpacingConstant.w16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +68,7 @@ class DashboardLogButton extends ConsumerWidget {
                       color: AppColors.onPrimary,
                     ),
                   ),
-                  SizedBox(height: SdSpacingV2.h2),
+                  SizedBox(height: SdSpacingConstant.h2),
                   Text(
                     l10n.dashboardLogButtonSubtitle,
                     style: AppTextStyle.bodySmall.copyWith(
@@ -78,10 +78,10 @@ class DashboardLogButton extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(width: SdSpacingV2.w8),
+            SizedBox(width: SdSpacingConstant.w8),
             SdIconV2(
               icon: Icons.arrow_forward_rounded,
-              size: SdSpacingV2.r22,
+              size: SdSpacingConstant.r22,
               color: AppColors.onPrimary,
             ),
           ],

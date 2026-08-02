@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
@@ -33,12 +33,12 @@ class PremiumScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _StatusCard(premium: premium),
-            SizedBox(height: SdSpacingV2.h24),
+            SizedBox(height: SdSpacingConstant.h24),
             Text(
               l10n.premiumScreenIncluded,
               style: AppTextStyle.titleMedium.w600,
             ),
-            SizedBox(height: SdSpacingV2.h12),
+            SizedBox(height: SdSpacingConstant.h12),
             SdBenefitRowV2(
               icon: Icons.notifications_active_outlined,
               title: l10n.paywallBenefitAlerts,

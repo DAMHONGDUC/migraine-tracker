@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -31,8 +31,8 @@ class LocationGrid extends StatelessWidget {
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: SdSpacingV2.h8,
-      crossAxisSpacing: SdSpacingV2.w8,
+      mainAxisSpacing: SdSpacingConstant.h8,
+      crossAxisSpacing: SdSpacingConstant.w8,
       childAspectRatio: 1,
       children: <Widget>[
         for (final HeadLocation location in HeadLocation.values)
@@ -80,14 +80,14 @@ class _LocationTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: EdgeInsets.all(SdSpacingV2.w4),
+          padding: EdgeInsets.all(SdSpacingConstant.w4),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
                 // One step above the card colour: this tile also sits on a
                 // sheet, which is that colour, and would vanish into it.
                 : AppColors.surfaceElevated,
-            borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
             border: Border.all(
               color: selected
                   ? AppColors.primary
@@ -101,9 +101,9 @@ class _LocationTile extends StatelessWidget {
               SdIconV2(
                 icon: _icons[location]!,
                 color: color,
-                size: SdSpacingV2.r24,
+                size: SdSpacingConstant.r24,
               ),
-              SizedBox(height: SdSpacingV2.h4),
+              SizedBox(height: SdSpacingConstant.h4),
               Text(
                 location.label(l10n),
                 textAlign: TextAlign.center,

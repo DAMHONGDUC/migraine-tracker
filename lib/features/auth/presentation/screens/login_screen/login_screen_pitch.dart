@@ -15,22 +15,22 @@ class _Pitch extends StatelessWidget {
         // Starts flush: SdActionViewV2 already applied the screen's top gap.
         SdIconV2(
           icon: Icons.cloud_done_outlined,
-          size: SdSpacingV2.r64,
+          size: SdSpacingConstant.r64,
           color: context.colorScheme.primary,
         ),
-        SizedBox(height: SdSpacingV2.h16),
+        SizedBox(height: SdSpacingConstant.h16),
         Text(
           l10n.loginHeadline,
           textAlign: TextAlign.center,
           style: AppTextStyle.headlineSmall.w600,
         ),
-        SizedBox(height: SdSpacingV2.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         Text(
           l10n.loginBody,
           textAlign: TextAlign.center,
           style: AppTextStyle.bodyMedium.secondary,
         ),
-        SizedBox(height: SdSpacingV2.h32),
+        SizedBox(height: SdSpacingConstant.h32),
         SdBenefitRowV2(
           icon: Icons.devices_outlined,
           title: l10n.loginBenefitDevices,

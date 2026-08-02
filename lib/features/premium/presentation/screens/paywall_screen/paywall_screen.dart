@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
 import '../../../../../core/extensions/context_extensions.dart';
@@ -130,23 +130,23 @@ class PaywallScreen extends HookConsumerWidget {
       children: [
         // Sheet chrome: drag-handle indicator + title row with the X.
         Padding(
-          padding: EdgeInsets.only(top: SdSpacingV2.h12),
+          padding: EdgeInsets.only(top: SdSpacingConstant.h12),
           child: Container(
-            width: SdSpacingV2.w32,
-            height: SdSpacingV2.h4,
+            width: SdSpacingConstant.w32,
+            height: SdSpacingConstant.h4,
             decoration: BoxDecoration(
               color: context.colorScheme.onSurfaceVariant.withValues(
                 alpha: 0.4,
               ),
-              borderRadius: BorderRadius.circular(SdSpacingV2.r3),
+              borderRadius: BorderRadius.circular(SdSpacingConstant.r3),
             ),
           ),
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            SdSpacingV2.w24,
-            SdSpacingV2.h4,
-            SdSpacingV2.w8,
+            SdSpacingConstant.w24,
+            SdSpacingConstant.h4,
+            SdSpacingConstant.w8,
             0,
           ),
           child: Stack(
@@ -171,7 +171,7 @@ class PaywallScreen extends HookConsumerWidget {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,
-              SdSpacingV2.h8,
+              SdSpacingConstant.h8,
               SdContentPaddingV2.horizontal,
               // A sheet route rather than a screen, but the same rule: it
               // clears the home indicator by the same 16.
@@ -188,15 +188,15 @@ class PaywallScreen extends HookConsumerWidget {
                       children: [
                         SdIconV2(
                           icon: Icons.storm_outlined,
-                          size: SdSpacingV2.r64,
+                          size: SdSpacingConstant.r64,
                           color: context.colorScheme.primary,
                         ),
-                        SizedBox(height: SdSpacingV2.h16),
+                        SizedBox(height: SdSpacingConstant.h16),
                         Text(
                           l10n.paywallHeadline,
                           style: AppTextStyle.headlineSmall.w600,
                         ),
-                        SizedBox(height: SdSpacingV2.h24),
+                        SizedBox(height: SdSpacingConstant.h24),
                         SdBenefitRowV2(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
@@ -226,7 +226,7 @@ class PaywallScreen extends HookConsumerWidget {
                         // subscription to: showing prices behind a sign-in
                         // wall would invite a tap that cannot complete.
                         if (signedIn) ...<Widget>[
-                          SizedBox(height: SdSpacingV2.h24),
+                          SizedBox(height: SdSpacingConstant.h24),
                           _Plans(
                             offers: offers,
                             selectedId: active?.id,
@@ -241,7 +241,7 @@ class PaywallScreen extends HookConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: SdSpacingV2.h24),
+                    SizedBox(height: SdSpacingConstant.h24),
                     // Signed out there is no account to attach a
                     // subscription to, so the CTA signs in first.
                     SdButtonV2(
@@ -265,7 +265,7 @@ class PaywallScreen extends HookConsumerWidget {
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
                     ),
-                    SizedBox(height: SdSpacingV2.h8),
+                    SizedBox(height: SdSpacingConstant.h8),
                     Text(
                       signedIn ? l10n.paywallFreeKeeps : l10n.paywallWhySignIn,
                       textAlign: TextAlign.center,
@@ -292,7 +292,7 @@ class PaywallScreen extends HookConsumerWidget {
         ? LiquidGlass.withOwnLayer(
             settings: kChromeGlass,
             shape: LiquidRoundedSuperellipse(
-              borderRadius: SdSpacingV2.r22,
+              borderRadius: SdSpacingConstant.r22,
             ),
             clipBehavior: Clip.antiAlias,
             // Transparent Material: text/ink need a Material ancestor
@@ -303,7 +303,7 @@ class PaywallScreen extends HookConsumerWidget {
         : Material(
             color: AppColors.surface,
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(SdSpacingV2.r22),
+              top: Radius.circular(SdSpacingConstant.r22),
             ),
             clipBehavior: Clip.antiAlias,
             child: sheet,

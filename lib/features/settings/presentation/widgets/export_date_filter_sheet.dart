@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -96,7 +96,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
                   onTap: () => setState(() => _editing = _Bound.from),
                 ),
               ),
-              SizedBox(width: SdSpacingV2.w8),
+              SizedBox(width: SdSpacingConstant.w8),
               Expanded(
                 child: _BoundTile(
                   label: l10n.exportFilterToLabel,
@@ -107,7 +107,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
               ),
             ],
           ),
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
           // Keyed on the bound, so switching ends re-centres the calendar on
           // that end's own month instead of staying where the other one was.
           DateRangeCalendar(
@@ -152,18 +152,18 @@ class _BoundTile extends StatelessWidget {
       button: true,
       selected: selected,
       child: InkWell(
-        borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: SdSpacingV2.w14,
-            vertical: SdSpacingV2.h12,
+            horizontal: SdSpacingConstant.w14,
+            vertical: SdSpacingConstant.h12,
           ),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
                 : AppColors.surfaceElevated,
-            borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
             border: Border.all(
               color: selected
                   ? AppColors.primary
@@ -175,7 +175,7 @@ class _BoundTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(label, style: AppTextStyle.bodySmall.secondary),
-              SizedBox(height: SdSpacingV2.h2),
+              SizedBox(height: SdSpacingConstant.h2),
               Text(value, style: AppTextStyle.titleSmall),
             ],
           ),

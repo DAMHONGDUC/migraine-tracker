@@ -14,8 +14,8 @@ class _Section extends StatelessWidget {
         if (title != null) ...[
           Padding(
             padding: EdgeInsets.only(
-              left: SdSpacingV2.w4,
-              bottom: SdSpacingV2.h8,
+              left: SdSpacingConstant.w4,
+              bottom: SdSpacingConstant.h8,
             ),
             child: Text(title!, style: AppTextStyle.titleSmall.secondary),
           ),

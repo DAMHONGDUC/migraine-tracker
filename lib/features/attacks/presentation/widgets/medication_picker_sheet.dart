@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import 'medication_grid.dart';
@@ -81,8 +81,8 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
           ),
         ),
         Positioned(
-          left: SdSpacingV2.w24,
-          right: SdSpacingV2.w24,
+          left: SdSpacingConstant.w24,
+          right: SdSpacingConstant.w24,
           bottom: barBottom,
           child: MedicationSearchField(
             controller: _searchController,

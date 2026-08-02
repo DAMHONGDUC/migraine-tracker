@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
@@ -67,11 +67,11 @@ class OnboardingScreen extends HookConsumerWidget {
             _Dots(current: page.value),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                SdSpacingV2.w24,
-                SdSpacingV2.h16,
-                SdSpacingV2.w24,
+                SdSpacingConstant.w24,
+                SdSpacingConstant.h16,
+                SdSpacingConstant.w24,
                 // SafeArea already clears the home indicator; this is the gap.
-                SdSpacingV2.h16,
+                SdSpacingConstant.h16,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,7 +93,7 @@ class OnboardingScreen extends HookConsumerWidget {
                       },
                       label: l10n.onboardingLocationAllow,
                     ),
-                    SizedBox(height: SdSpacingV2.h8),
+                    SizedBox(height: SdSpacingConstant.h8),
                     SdButtonV2(
                       variant: SdButtonVariantV2.text,
                       onPressed: next,

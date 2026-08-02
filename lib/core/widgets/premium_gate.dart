@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../core/theme/app_text_style.dart';
 import '../../features/premium/providers.dart';
@@ -42,7 +42,7 @@ class _LockedCard extends ConsumerWidget {
     final l10n = context.l10n;
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingV2.w20),
+        padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,16 +51,16 @@ class _LockedCard extends ConsumerWidget {
               children: [
                 SdIconV2(
                   icon: icon,
-                  size: SdSpacingV2.r20,
+                  size: SdSpacingConstant.r20,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
-                SizedBox(width: SdSpacingV2.w8),
+                SizedBox(width: SdSpacingConstant.w8),
                 const PremiumBadge(),
               ],
             ),
-            SizedBox(height: SdSpacingV2.h12),
+            SizedBox(height: SdSpacingConstant.h12),
             Text(message, style: AppTextStyle.bodyMedium),
-            SizedBox(height: SdSpacingV2.h12),
+            SizedBox(height: SdSpacingConstant.h12),
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: SdButtonV2(
@@ -113,12 +113,12 @@ class PremiumBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingV2.w8,
-        vertical: SdSpacingV2.h4,
+        horizontal: SdSpacingConstant.w8,
+        vertical: SdSpacingConstant.h4,
       ),
       decoration: BoxDecoration(
         color: context.colorScheme.primary.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(SdSpacingV2.r12),
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
       ),
       child: Text(
         context.l10n.premiumBadge,

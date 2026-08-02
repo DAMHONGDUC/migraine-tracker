@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 /// The control the intensity dialog and the onboarding threshold page share.
 /// What matters here is the one thing both rely on: the accent reaches BOTH

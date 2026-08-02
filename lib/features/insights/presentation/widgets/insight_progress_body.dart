@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/theme/app_text_style.dart';
 
@@ -37,22 +37,22 @@ class InsightProgressBody extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingV2.r20,
+              size: SdSpacingConstant.r20,
               color: context.colorScheme.onSurfaceVariant,
             ),
-            SizedBox(width: SdSpacingV2.w8),
+            SizedBox(width: SdSpacingConstant.w8),
             Expanded(
               child: Text(message, style: AppTextStyle.bodyMedium),
             ),
           ],
         ),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         LinearProgressIndicator(
           value: progress.clamp(0, 1),
-          minHeight: SdSpacingV2.h6,
-          borderRadius: BorderRadius.circular(SdSpacingV2.r3),
+          minHeight: SdSpacingConstant.h6,
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r3),
         ),
-        SizedBox(height: SdSpacingV2.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         Text(caption, style: AppTextStyle.bodySmall.secondary),
       ],
     );

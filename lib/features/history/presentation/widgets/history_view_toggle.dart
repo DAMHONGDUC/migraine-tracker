@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -31,8 +31,8 @@ class HistoryViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final modes = HistoryViewMode.values;
-    final segmentWidth = SdSpacingV2.w54;
-    final height = SdSpacingV2.h42;
+    final segmentWidth = SdSpacingConstant.w54;
+    final height = SdSpacingConstant.h42;
     final index = modes.indexOf(mode);
 
     // Styled like the bottom nav pill: borderless glass surface, and the
@@ -61,14 +61,14 @@ class HistoryViewToggle extends StatelessWidget {
               heightFactor: 1,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: SdSpacingV2.w4,
-                  vertical: SdSpacingV2.h4,
+                  horizontal: SdSpacingConstant.w4,
+                  vertical: SdSpacingConstant.h4,
                 ),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
                     borderRadius: BorderRadius.circular(
-                      SdSpacingV2.r999,
+                      SdSpacingConstant.r999,
                     ),
                   ),
                 ),
@@ -137,7 +137,7 @@ class _Segment extends StatelessWidget {
         child: Center(
           child: SdIconV2(
             icon: icon,
-            size: SdSpacingV2.r20,
+            size: SdSpacingConstant.r20,
             color: selected ? scheme.primary : scheme.onSurfaceVariant,
           ),
         ),

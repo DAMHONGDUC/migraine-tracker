@@ -40,7 +40,7 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_snapsh
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import 'export_fakes.dart';
 
@@ -659,7 +659,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   if (covered > 0 && scrollable.evaluate().isNotEmpty) {
     await tester.drag(
       scrollable.first,
-      Offset(0, covered + SdSpacingV2.h8),
+      Offset(0, covered + SdSpacingConstant.h8),
     );
     await tester.pump();
   }

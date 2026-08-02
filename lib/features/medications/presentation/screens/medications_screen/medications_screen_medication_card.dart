@@ -102,7 +102,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
                 _delete(context, ref);
               },
             ),
-            SizedBox(height: SdSpacingV2.h8),
+            SizedBox(height: SdSpacingConstant.h8),
           ],
         ),
       ),
@@ -175,16 +175,16 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         // Glow sits behind the card; the border is painted in the FOREGROUND
         // so it isn't hidden under the card's opaque surface.
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.35 * t),
-              blurRadius: SdSpacingV2.r16 * t,
+              blurRadius: SdSpacingConstant.r16 * t,
             ),
           ],
         ),
         foregroundDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.all(
             color: AppColors.primary.withValues(alpha: t),
             width: 2,
@@ -216,7 +216,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
                       onPressed: () => _addReminder(context, ref),
                       icon: const SdIconV2(icon: Icons.add_alarm),
                     ),
-                    SizedBox(width: SdSpacingV2.w2),
+                    SizedBox(width: SdSpacingConstant.w2),
                     SdIconButtonV2(
                       icon: const SdIconV2(icon: Icons.more_vert),
                       onPressed: () => _openActions(context, ref),

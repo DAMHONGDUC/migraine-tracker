@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -117,7 +117,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
 
   /// Rough per-card height, used only to jump a not-yet-built target near the
   /// viewport so its key resolves before the precise ensureVisible.
-  static double get _estimatedCardExtent => SdSpacingV2.h96;
+  static double get _estimatedCardExtent => SdSpacingConstant.h96;
 
   @override
   void initState() {
@@ -309,7 +309,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                     _searchFocus.requestFocus();
                   },
                 ),
-              SizedBox(width: SdSpacingV2.w12),
+              SizedBox(width: SdSpacingConstant.w12),
             ]
           : [
               // Debug-only smoke test for notification delivery (kDebugMode
@@ -337,7 +337,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 tooltip: l10n.logAddMedication,
                 onPressed: _add,
               ),
-              SizedBox(width: SdSpacingV2.w12),
+              SizedBox(width: SdSpacingConstant.w12),
             ],
       // The filter chips sit under the app bar while reading and lift into it
       // once the list scrolls — except while searching, when the bar is the
@@ -348,7 +348,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       // translucent app bar so it fills the screen.
       body: SdRefreshIndicatorV2(
         // Drop the spinner below the filter strip, not over its chips.
-        edgeOffset: filterBarHeight + SdSpacingV2.h8,
+        edgeOffset: filterBarHeight + SdSpacingConstant.h8,
         onRefresh: () => SdRefreshIndicatorV2.run(() {
           ref
             ..invalidate(medicationsStreamProvider)
@@ -384,7 +384,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 sliver: SliverList.separated(
                   itemCount: medications.length,
                   separatorBuilder: (_, _) =>
-                      SizedBox(height: SdSpacingV2.h8),
+                      SizedBox(height: SdSpacingConstant.h8),
                   itemBuilder: (context, index) {
                     final medication = medications[index];
                     return _MedicationCard(
@@ -426,7 +426,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           onSelected: filtersController.setDate,
           sheetTitle: l10n.medicationsFilterDateTitle,
         ),
-        SizedBox(width: SdSpacingV2.w8),
+        SizedBox(width: SdSpacingConstant.w8),
         SdFilterChipV2<MedicationReminderFilter>(
           label: filters.reminder == MedicationReminderFilter.all
               ? l10n.medicationsFilterReminderTitle
@@ -437,7 +437,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           onSelected: filtersController.setReminder,
           sheetTitle: l10n.medicationsFilterReminderTitle,
         ),
-        SizedBox(width: SdSpacingV2.w8),
+        SizedBox(width: SdSpacingConstant.w8),
         SdFilterChipV2<MedicationUsageFilter>(
           label: filters.usage == MedicationUsageFilter.all
               ? l10n.medicationsFilterUsageTitle

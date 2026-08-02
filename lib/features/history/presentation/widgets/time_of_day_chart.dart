@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/chart_labels.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -31,7 +31,7 @@ class TimeOfDayChart extends StatelessWidget {
             ),
         ],
         color: AppColors.secondary,
-        barWidth: SdSpacingV2.w20,
+        barWidth: SdSpacingConstant.w20,
         tooltip: (num value) => l10n.historyChartTooltip(value.toInt()),
       ),
     );

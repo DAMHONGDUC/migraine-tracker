@@ -33,7 +33,7 @@ class _Plans extends StatelessWidget {
             selected: offer.id == selectedId,
             onTap: () => onSelected(offer),
           ),
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
         ],
       ],
     );
@@ -66,15 +66,15 @@ class _PlanRow extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: SdSpacingV2.w16,
-          vertical: SdSpacingV2.h12,
+          horizontal: SdSpacingConstant.w16,
+          vertical: SdSpacingConstant.h12,
         ),
         decoration: BoxDecoration(
           // On the paywall's glass, so the unselected state is a hairline
           // rather than a filled card — a second opaque surface here would
           // flatten the panel it sits on.
           color: selected ? accent.withValues(alpha: 0.16) : null,
-          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.all(
             color: selected
                 ? accent
@@ -88,10 +88,10 @@ class _PlanRow extends StatelessWidget {
               icon: selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              size: SdSpacingV2.r20,
+              size: SdSpacingConstant.r20,
               color: selected ? accent : context.colorScheme.onSurfaceVariant,
             ),
-            SizedBox(width: SdSpacingV2.w12),
+            SizedBox(width: SdSpacingConstant.w12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +105,7 @@ class _PlanRow extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: SdSpacingV2.w8),
+            SizedBox(width: SdSpacingConstant.w8),
             Text(offer.priceLabel, style: AppTextStyle.bodyLarge.w600),
           ],
         ),

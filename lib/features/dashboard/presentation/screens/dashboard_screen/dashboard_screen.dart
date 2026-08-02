@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -59,7 +59,7 @@ class DashboardScreen extends ConsumerWidget {
           padding: SdContentPaddingV2.screen(context, floatingNav: true),
           children: [
             for (int i = 0; i < sections.length; i++) ...[
-              if (i > 0) SizedBox(height: SdSpacingV2.h24),
+              if (i > 0) SizedBox(height: SdSpacingConstant.h24),
               sections[i],
             ],
           ],

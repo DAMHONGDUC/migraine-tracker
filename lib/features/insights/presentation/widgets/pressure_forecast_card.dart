@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -30,11 +30,11 @@ class PressureForecastCard extends ConsumerWidget {
           forecast: value,
         ),
         AsyncLoading() => SizedBox(
-          height: SdSpacingV2.h160,
+          height: SdSpacingConstant.h160,
           child: const Center(child: CircularProgressIndicator()),
         ),
         _ => SizedBox(
-          height: SdSpacingV2.h64,
+          height: SdSpacingConstant.h64,
           child: Center(
             child: Text(
               context.l10n.insightsForecastUnavailable,
@@ -59,7 +59,7 @@ class _Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final labelStyle = AppTextStyle.bodySmall.copyWith(
       color: AppColors.textSecondary,
-      fontSize: SdSpacingV2.sp10,
+      fontSize: SdSpacingConstant.sp10,
     );
     final timeFormat = DateFormat.Hm(context.l10n.localeName);
 
@@ -90,7 +90,7 @@ class _Chart extends StatelessWidget {
       ),
       child: ExcludeSemantics(
         child: SizedBox(
-          height: SdSpacingV2.h160,
+          height: SdSpacingConstant.h160,
           child: LineChart(
             LineChartData(
               minY: minY,
@@ -109,7 +109,7 @@ class _Chart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: max(((maxY - minY) / 3).ceilToDouble(), 1),
-                    reservedSize: SdSpacingV2.w32,
+                    reservedSize: SdSpacingConstant.w32,
                     getTitlesWidget: (value, meta) =>
                         Text(value.toInt().toString(), style: labelStyle),
                   ),
@@ -118,9 +118,9 @@ class _Chart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: 12,
-                    reservedSize: SdSpacingV2.h24,
+                    reservedSize: SdSpacingConstant.h24,
                     getTitlesWidget: (value, meta) => Padding(
-                      padding: EdgeInsets.only(top: SdSpacingV2.h6),
+                      padding: EdgeInsets.only(top: SdSpacingConstant.h6),
                       child: Text(
                         value == 0
                             ? context.l10n.insightsForecastNow

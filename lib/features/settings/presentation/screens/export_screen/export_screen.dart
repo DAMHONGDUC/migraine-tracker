@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/file_size_utils.dart';
 import '../../../../../core/extensions/context_extensions.dart';
@@ -142,7 +142,7 @@ class ExportScreen extends ConsumerWidget {
           icon: Icons.ios_share,
           onPressed: () => _create(context, ref),
         ),
-        SizedBox(width: SdSpacingV2.w4),
+        SizedBox(width: SdSpacingConstant.w4),
       ],
       filter: hasAny ? const _DateFilterPill() : null,
       // The list pads itself so it scrolls behind the frosted bar and the strip;

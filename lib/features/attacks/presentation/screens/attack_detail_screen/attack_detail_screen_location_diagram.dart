@@ -11,7 +11,7 @@ class _LocationDiagram extends StatelessWidget {
 
   /// Small enough to sit above the rows rather than take the screen, unlike
   /// the log step where the diagram is the whole question.
-  static double get height => SdSpacingV2.h160;
+  static double get height => SdSpacingConstant.h160;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,8 @@ class _LocationDiagram extends StatelessWidget {
       excludeSemantics: true,
       child: Padding(
         padding: EdgeInsets.only(
-          top: SdSpacingV2.h16,
-          bottom: SdSpacingV2.h8,
+          top: SdSpacingConstant.h16,
+          bottom: SdSpacingConstant.h8,
         ),
         child: SizedBox(
           height: height,

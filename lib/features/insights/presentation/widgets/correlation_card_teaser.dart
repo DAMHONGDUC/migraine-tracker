@@ -12,7 +12,7 @@ class _Teaser extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.premiumLockedCorrelation, style: AppTextStyle.bodyMedium),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         Align(
           alignment: AlignmentDirectional.centerEnd,
           child: SdButtonV2(

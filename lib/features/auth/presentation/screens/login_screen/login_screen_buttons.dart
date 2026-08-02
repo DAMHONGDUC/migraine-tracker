@@ -32,7 +32,7 @@ class _ProviderButtons extends ConsumerWidget {
             iconPlacement: SdButtonIconPlacementV2.aligned,
             label: l10n.loginApple,
           ),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
         ],
         SdButtonV2(
           variant: SdButtonVariantV2.outlined,
@@ -40,14 +40,14 @@ class _ProviderButtons extends ConsumerWidget {
               ? null
               : () => onSignIn(AuthProviderKind.google),
           icon: SimpleIcons.google,
-          iconSize: SdSpacingV2.r18,
+          iconSize: SdSpacingConstant.r18,
           iconPlacement: SdButtonIconPlacementV2.aligned,
           label: l10n.loginGoogle,
         ),
         // A calm bar under the buttons, not a spinner in the label.
-        SizedBox(height: SdSpacingV2.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         SizedBox(
-          height: SdSpacingV2.h4,
+          height: SdSpacingConstant.h4,
           child: state.isBusy
               ? const LinearProgressIndicator()
               : const SizedBox.shrink(),

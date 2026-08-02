@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -27,10 +27,10 @@ class ExportActionsSheet extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingV2.w24,
-              SdSpacingV2.h4,
-              SdSpacingV2.w24,
-              SdSpacingV2.h12,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h4,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h12,
             ),
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
@@ -50,7 +50,7 @@ class ExportActionsSheet extends StatelessWidget {
             action: ExportAction.delete,
             isDestructive: true,
           ),
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
         ],
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
@@ -79,9 +79,9 @@ class MedicationGrid extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: SdSpacingV2.h8,
-        crossAxisSpacing: SdSpacingV2.w8,
-        mainAxisExtent: SdSpacingV2.h64,
+        mainAxisSpacing: SdSpacingConstant.h8,
+        crossAxisSpacing: SdSpacingConstant.w8,
+        mainAxisExtent: SdSpacingConstant.h64,
       ),
       itemCount: medications.length + 2,
       itemBuilder: (BuildContext context, int i) {
@@ -177,10 +177,10 @@ class _Tile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: EdgeInsets.symmetric(horizontal: SdSpacingV2.w16),
+          padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
             border: Border.all(color: borderColor, width: selected ? 2 : 1),
           ),
           child: Row(
@@ -188,9 +188,9 @@ class _Tile extends StatelessWidget {
               SdIconV2(
                 icon: icon,
                 color: foreground,
-                size: SdSpacingV2.r24,
+                size: SdSpacingConstant.r24,
               ),
-              SizedBox(width: SdSpacingV2.w12),
+              SizedBox(width: SdSpacingConstant.w12),
               Expanded(
                 child: Text(
                   label,

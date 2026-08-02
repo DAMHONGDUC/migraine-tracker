@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/export_kind_label.dart';
@@ -28,10 +28,10 @@ class ExportKindSheet extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingV2.w24,
-              SdSpacingV2.h4,
-              SdSpacingV2.w24,
-              SdSpacingV2.h12,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h4,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h12,
             ),
             child: Text(
               context.l10n.exportPickTitle,
@@ -40,7 +40,7 @@ class ExportKindSheet extends StatelessWidget {
           ),
           for (final ExportKind kind in ExportKind.values)
             _KindTile(kind: kind),
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
         ],
       ),
     );
