@@ -51,7 +51,9 @@ class DashboardExploreSection extends StatelessWidget {
               color: AppColors.secondary,
               title: l10n.dashboardExportTitle,
               subtitle: l10n.dashboardExportBody,
-              onTap: () => context.goNamed(AppRoutes.settings.name),
+              // Straight to Export. Landing on the Settings tab and leaving
+              // the user to find the row is not what the banner promised.
+              onTap: () => context.pushNamed(AppRoutes.export.name),
             ),
           ],
         ),
