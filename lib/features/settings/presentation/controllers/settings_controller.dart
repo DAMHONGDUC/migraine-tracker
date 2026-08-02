@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../health/providers.dart';
 import '../../providers.dart';
 
 /// Orchestrates the settings actions so the widget only shows dialogs and
@@ -17,6 +18,10 @@ class SettingsController {
     AppAnalytics.logDataWiped();
     try {
       await _ref.read(dataWipeServiceProvider).wipeAll();
+      // Nothing from Apple Health is stored, so there is nothing to delete —
+      // but leaving it connected means the app keeps reading the user's
+      // sleep after they asked for everything to be gone.
+      await _ref.read(healthControllerProvider.notifier).disconnect();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Delete all data failed',

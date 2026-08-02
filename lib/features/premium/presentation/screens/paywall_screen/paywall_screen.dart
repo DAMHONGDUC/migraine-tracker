@@ -131,6 +131,11 @@ class PaywallScreen extends ConsumerWidget {
                           title: l10n.paywallBenefitReport,
                           body: l10n.paywallBenefitReportBody,
                         ),
+                        AppBenefitRow(
+                          icon: Icons.bedtime_outlined,
+                          title: l10n.paywallBenefitSleep,
+                          body: l10n.paywallBenefitSleepBody,
+                        ),
                       ],
                     ),
                   ),

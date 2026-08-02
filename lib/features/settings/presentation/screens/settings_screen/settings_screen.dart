@@ -23,6 +23,7 @@ import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../alerts/presentation/widgets/alerts_section.dart';
 import '../../../../auth/presentation/widgets/account_section.dart';
 import '../../../../auth/providers.dart';
+import '../../../../health/presentation/widgets/health_section.dart';
 import '../../../../premium/presentation/widgets/premium_settings_tile.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/enums/app_language.dart';
