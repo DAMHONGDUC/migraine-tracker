@@ -731,7 +731,63 @@
   "@paywallFreeKeeps": {
     "description": "Reassurance that the core app is free"
   },
-  "paywallComingSoon": "Purchases aren't available yet.",
+  "paywallPlanMonthly": "Monthly",
+  "@paywallPlanMonthly": {
+    "description": "Paywall plan row title for the monthly subscription"
+  },
+  "paywallPlanYearly": "Yearly",
+  "@paywallPlanYearly": {
+    "description": "Paywall plan row title for the annual subscription"
+  },
+  "paywallPlanLifetime": "Lifetime",
+  "@paywallPlanLifetime": {
+    "description": "Paywall plan row title for the one-time lifetime purchase"
+  },
+  "paywallPlanTrial": "{days}-day free trial",
+  "@paywallPlanTrial": {
+    "description": "Badge on a plan row that carries an introductory free trial",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallNoPlans": "No plans are available right now. Please try again later.",
+  "@paywallNoPlans": {
+    "description": "Shown when the store returned no purchasable packages"
+  },
+  "paywallRestore": "Restore purchases",
+  "@paywallRestore": {
+    "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
+  },
+  "paywallRestoreNothing": "Nothing to restore on this account.",
+  "@paywallRestoreNothing": {
+    "description": "Result message when a restore found no previous purchase"
+  },
+  "paywallPurchaseDone": "Premium unlocked. Thank you!",
+  "@paywallPurchaseDone": {
+    "description": "Confirmation after a purchase or a successful restore"
+  },
+  "paywallErrorNetwork": "Couldn't reach the store. Check your connection and try again.",
+  "@paywallErrorNetwork": {
+    "description": "Purchase error: the store was unreachable"
+  },
+  "paywallErrorAlreadyOwned": "You already own this. Try Restore purchases.",
+  "@paywallErrorAlreadyOwned": {
+    "description": "Purchase error: the product is already owned by this store account"
+  },
+  "paywallErrorPending": "Your purchase is waiting for approval. Premium unlocks as soon as it goes through.",
+  "@paywallErrorPending": {
+    "description": "Purchase is deferred (Ask to Buy, or a bank confirmation) — not a failure"
+  },
+  "paywallErrorNotAllowed": "Purchases are turned off on this device.",
+  "@paywallErrorNotAllowed": {
+    "description": "Purchase error: payments are restricted (parental controls, managed device)"
+  },
+  "paywallErrorGeneric": "The purchase didn't go through. Nothing was charged.",
+  "@paywallErrorGeneric": {
+    "description": "Purchase error fallback, including a store misconfiguration the user cannot act on"
+  },
   "@paywallComingSoon": {
     "description": "Shown while RevenueCat is not wired up yet"
   },

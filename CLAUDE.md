@@ -203,6 +203,37 @@ nothing else — **push notifications (`aps-environment`) are still missing**,
 which the `alerts` feature will need before FCM can deliver anything on a
 real device. Add that key when wiring push, don't assume it is there.
 
+### RevenueCat — code is wired, the dashboard and store are not
+
+`purchases_flutter` is in, `RevenueCatPremiumRepository` reads the
+entitlement, `RevenueCatPurchaseRepository` sells and restores, and the
+paywall renders whatever the offering returns. **There is no local premium
+repository any more** — the old `DebugPremiumRepository` (a prefs flag with a
+`setPremium`) is deleted, because a premium state the client can write is the
+one thing this project must not ship. Tests override
+`premiumRepositoryProvider` with a fake instead; nothing else may.
+
+Missing config fails loud rather than silently making everyone free:
+`main()` asserts on `AppEnv.hasPurchasesConfig`, and the paywall surfaces
+`PurchaseError.notConfigured`. What the owner must do by hand:
+
+1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
+   already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
+   optionally `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and
+   `REVENUECAT_OFFERING` (empty = whatever the dashboard marks current).
+2. **Products in App Store Connect** — monthly $5.99, yearly $39.99,
+   lifetime $79.99 — plus the Paid Apps Agreement, then the same three
+   attached to a RevenueCat offering. Until an offering exists the paywall
+   correctly shows "no plans available"; that is not a bug.
+3. **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the
+   store's own string, because the currency, its position and the decimal
+   separator belong to the customer's storefront.
+
+Only `PackageType.monthly` / `annual` / `lifetime` are rendered; anything else
+the dashboard adds is skipped rather than drawn blind. Purchases are bound to
+the Firebase UID via `PurchaseIdentity` so an entitlement follows the person,
+not the install.
+
 ## Testing priorities
 
 1. `domain/correlation` — unit tests, high coverage
