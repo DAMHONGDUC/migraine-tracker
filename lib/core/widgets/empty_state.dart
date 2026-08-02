@@ -22,7 +22,7 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppIcon(
-              icon,
+             icon: icon,
               size: AppSpacingConstant.r64,
               color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),

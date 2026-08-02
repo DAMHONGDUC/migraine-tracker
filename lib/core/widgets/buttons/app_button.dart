@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_spacing_constant.dart';
-import '../theme/app_colors.dart';
-import 'app_icon.dart';
+import '../../constants/app_spacing_constant.dart';
+import '../../theme/app_colors.dart';
+import '../app_icon.dart';
 
 /// What a button *means*, passed to [AppButton] as a prop — never a named
 /// constructor per variant.
@@ -135,7 +135,7 @@ class AppButton extends StatelessWidget {
       AppButtonIconPlacement.inline => Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          AppIcon(icon!, size: iconSize ?? defaultIconSize),
+          AppIcon(icon: icon!, size: iconSize ?? defaultIconSize),
           SizedBox(width: iconGap),
           Flexible(child: _label(TextAlign.center)),
         ],
@@ -153,7 +153,7 @@ class AppButton extends StatelessWidget {
             child: OverflowBox(
               maxWidth: double.infinity,
               maxHeight: double.infinity,
-              child: AppIcon(icon!, size: iconSize ?? defaultIconSize),
+              child: AppIcon(icon: icon!, size: iconSize ?? defaultIconSize),
             ),
           ),
           SizedBox(width: iconGap),

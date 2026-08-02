@@ -5,9 +5,9 @@ import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/app_icon.dart';
-import '../../../premium/presentation/widgets/premium_gate.dart';
+import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 

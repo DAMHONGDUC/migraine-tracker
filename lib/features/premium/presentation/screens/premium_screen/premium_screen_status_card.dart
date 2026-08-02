@@ -19,7 +19,7 @@ class _StatusCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 AppIcon(
-                  premium ? Icons.workspace_premium : Icons.lock_outline,
+                  icon: premium ? Icons.workspace_premium : Icons.lock_outline,
                   color: premium ? context.colorScheme.primary : null,
                 ),
                 SizedBox(width: AppSpacingConstant.w8),

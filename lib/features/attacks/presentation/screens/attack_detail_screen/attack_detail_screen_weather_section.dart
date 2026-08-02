@@ -16,7 +16,7 @@ class _WeatherSection extends StatelessWidget {
         children: [
           ListTile(
             leading: AppIcon(
-              Icons.cloud_off,
+              icon: Icons.cloud_off,
               color: context.colorScheme.onSurfaceVariant,
             ),
             title: Text(

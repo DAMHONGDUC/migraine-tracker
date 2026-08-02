@@ -7,12 +7,12 @@ import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_action_view.dart';
 import '../../../../../core/widgets/app_benefit_row.dart';
-import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
-import '../../widgets/premium_gate.dart';
 
 part 'premium_screen_status_card.dart';
 

@@ -39,9 +39,9 @@ class DashboardScreen extends ConsumerWidget {
     // them below so a hidden section never leaves a double gap.
     final sections = <Widget>[
       // A limited-time discount promo pinned right under the app bar.
-      if (showPremium) const PremiumCountdownBanner(),
       const DashboardLogButton(),
       const QuickAccessSection(),
+      if (showPremium) const PremiumCountdownBanner(),
       if (nextReminder != null) const NextReminderBanner(),
       if (hasAttacks) const WeekSummaryCard(),
       if (hasAttacks) const DashboardSeverityCard(),

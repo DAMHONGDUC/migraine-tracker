@@ -48,7 +48,7 @@ class WeekSummaryCard extends ConsumerWidget {
                     ),
                   ),
                   AppIcon(
-                    Icons.chevron_right,
+                    icon: Icons.chevron_right,
                     size: AppSpacingConstant.r20,
                     color: context.colorScheme.onSurfaceVariant,
                   ),

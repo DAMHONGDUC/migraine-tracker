@@ -8,7 +8,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_action_view.dart';
-import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../core/widgets/app_icon.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
@@ -86,7 +86,7 @@ class _DataNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           AppIcon(
-            Icons.lock_outline,
+            icon: Icons.lock_outline,
             size: AppSpacingConstant.r16,
             color: context.colorScheme.onSurfaceVariant,
           ),

@@ -842,6 +842,68 @@
   "@exportFileMissing": {
     "description": "Snackbar when a history row points at a file that is gone"
   },
+  "exportFilterTitle": "Filter by date",
+  "@exportFilterTitle": {
+    "description": "Header of the sheet that picks the date window the export history is filtered to"
+  },
+  "exportFilterAll": "All dates",
+  "@exportFilterAll": {
+    "description": "Label on the export history's filter pill while no date window is applied"
+  },
+  "exportFilterFromLabel": "From",
+  "@exportFilterFromLabel": {
+    "description": "Name of the earlier end of the date window in the filter sheet"
+  },
+  "exportFilterToLabel": "To",
+  "@exportFilterToLabel": {
+    "description": "Name of the later end of the date window in the filter sheet"
+  },
+  "exportFilterAnyDate": "Any",
+  "@exportFilterAnyDate": {
+    "description": "Shown on an end of the date window that has no day picked for it, meaning that end is open"
+  },
+  "exportFilterClear": "Clear filter",
+  "@exportFilterClear": {
+    "description": "Button in the date filter sheet that removes the filter and lists every export again"
+  },
+  "exportFilterRange": "{from} – {to}",
+  "@exportFilterRange": {
+    "description": "Filter pill label with both ends of the date window picked",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFilterSince": "From {date}",
+  "@exportFilterSince": {
+    "description": "Filter pill label when only the earlier end of the date window is picked",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFilterUntil": "Until {date}",
+  "@exportFilterUntil": {
+    "description": "Filter pill label when only the later end of the date window is picked",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFilterNoMatchTitle": "No exports in that range",
+  "@exportFilterNoMatchTitle": {
+    "description": "Title shown when the export history has records but none fall inside the picked date window"
+  },
+  "exportFilterNoMatchBody": "Widen the date range, or clear the filter to see every export.",
+  "@exportFilterNoMatchBody": {
+    "description": "Body shown when the picked date window matches none of the exports"
+  },
   "exportShareAction": "Share",
   "@exportShareAction": {
     "description": "Row action that opens the system share sheet"
@@ -981,6 +1043,36 @@
   "settingsDeleteDone": "All data deleted.",
   "@settingsDeleteDone": {
     "description": "Snackbar shown after a successful wipe"
+  },
+  "settingsSectionDev": "Developer",
+  "@settingsSectionDev": {
+    "description": "Section heading for dev-only tools, hidden in prod builds"
+  },
+  "settingsDevSeed": "Reset with sample data",
+  "@settingsDevSeed": {
+    "description": "Dev-only settings tile that wipes the device and seeds fixtures"
+  },
+  "settingsDevSeedSubtitle": "Deletes everything, then adds {count} attacks, medications and exports",
+  "@settingsDevSeedSubtitle": {
+    "description": "Subtitle of the dev-only seed tile",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDevSeedDone": "Seeded {count} attacks, medications and exports.",
+  "@settingsDevSeedDone": {
+    "description": "Snackbar shown after the dev-only seed finishes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDevSeedFailed": "Seeding sample data failed.",
+  "@settingsDevSeedFailed": {
+    "description": "Snackbar shown when the dev-only seed throws"
   },
   "severityMild": "mild",
   "@severityMild": {

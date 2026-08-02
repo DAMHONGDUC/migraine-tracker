@@ -24,7 +24,7 @@ class _WelcomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppIcon(
-              Icons.info_outline,
+              icon: Icons.info_outline,
               size: AppSpacingConstant.r20,
               color: context.colorScheme.onSurfaceVariant,
             ),

@@ -19,6 +19,7 @@ import '../../features/settings/presentation/screens/export_screen/export_screen
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
+import '../theme/app_colors.dart';
 import 'app_shell.dart';
 
 /// One route's identity: go_router [name] and URL [path] defined together so
@@ -157,7 +158,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           opaque: false,
-          barrierColor: Colors.black54,
+          barrierColor: AppColors.barrier,
           barrierDismissible: true,
           barrierLabel: MaterialLocalizations.of(
             context,

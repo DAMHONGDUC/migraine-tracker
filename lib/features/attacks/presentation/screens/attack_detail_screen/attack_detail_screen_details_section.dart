@@ -29,7 +29,7 @@ class _DetailsSection extends StatelessWidget {
               l10n.attackDetailNoDetails,
               style: AppTextStyle.bodyMedium.secondary,
             ),
-            trailing: const AppIcon(Icons.add),
+            trailing: const AppIcon(icon: Icons.add),
             onTap: edit,
           )
         else ...[

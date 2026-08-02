@@ -25,7 +25,12 @@ class _LocationDiagram extends StatelessWidget {
         ),
         child: SizedBox(
           height: height,
-          child: HeadDiagram(selected: location),
+          // Centred so the diagram gets LOOSE width: a ListView hands its
+          // children a tight one, and a tight box overrides the AspectRatio
+          // inside HeadDiagram — the head came out stretched across the full
+          // row. The log flow's Column centres by default, which is why only
+          // this screen showed it.
+          child: Center(child: HeadDiagram(selected: location)),
         ),
       ),
     );

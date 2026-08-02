@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
 import '../../../../../core/constants/app_content_padding.dart';
@@ -7,8 +8,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/providers.dart';
-import '../../../../premium/presentation/widgets/premium_gate.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
 import '../../widgets/correlation_card.dart';
@@ -37,7 +38,7 @@ class InsightsScreen extends ConsumerWidget {
               // Free users never build the forecast card, so no forecast is
               // fetched or held for them.
               PremiumGate(
-                lockedIcon: Icons.show_chart,
+                lockedIcon: Symbols.show_chart,
                 lockedMessage: context.l10n.premiumLockedForecast,
                 child: const PressureForecastCard(),
               ),

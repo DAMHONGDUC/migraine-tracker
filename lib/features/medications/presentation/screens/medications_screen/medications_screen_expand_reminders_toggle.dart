@@ -19,7 +19,7 @@ class _ExpandRemindersToggle extends StatelessWidget {
     return ListTile(
       dense: true,
       leading: AppIcon(
-        expanded ? Icons.expand_less : Icons.expand_more,
+        icon: expanded ? Icons.expand_less : Icons.expand_more,
         color: AppColors.primary,
       ),
       title: Text(

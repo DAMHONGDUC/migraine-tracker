@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../medications/providers.dart';
 import 'medication_grid.dart';
+import 'medication_search_field.dart';
 
 /// Third tap: which medication was taken (or none). Picking only
 /// highlights — the app bar's Next confirms, persists the attack and
@@ -81,7 +78,7 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
               AppSpacingConstant.w24,
               AppSpacingConstant.h8,
             ),
-            child: _SearchField(
+            child: MedicationSearchField(
               controller: _searchController,
               hasText: _query.trim().isNotEmpty,
               onChanged: _onQueryChanged,
@@ -108,61 +105,6 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Rounded name-search field above the medication grid — calm surface tile
-/// language (matching the option tiles) rather than a bare underlined field.
-class _SearchField extends StatelessWidget {
-  const _SearchField({
-    required this.controller,
-    required this.hasText,
-    required this.onChanged,
-    required this.onClear,
-  });
-
-  final TextEditingController controller;
-  final bool hasText;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    OutlineInputBorder border(Color color) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
-      borderSide: BorderSide(color: color),
-    );
-    return TextField(
-      controller: controller,
-      onChanged: onChanged,
-      textCapitalization: TextCapitalization.sentences,
-      style: AppTextStyle.titleSmall,
-      cursorColor: AppColors.primary,
-      decoration: InputDecoration(
-        isDense: true,
-        filled: true,
-        fillColor: AppColors.surface,
-        hintText: l10n.medicationsSearchHint,
-        hintStyle: AppTextStyle.titleSmall.secondary,
-        prefixIcon: AppIcon(
-          Icons.search,
-          color: AppColors.textSecondary,
-          size: AppSpacingConstant.r24,
-        ),
-        suffixIcon: hasText
-            ? IconButton(
-                icon: AppIcon(Icons.close, size: AppSpacingConstant.r18),
-                color: AppColors.textSecondary,
-                tooltip: l10n.medicationsSearchClear,
-                onPressed: onClear,
-              )
-            : null,
-        border: border(AppColors.textSecondary.withValues(alpha: 0.2)),
-        enabledBorder: border(AppColors.textSecondary.withValues(alpha: 0.2)),
-        focusedBorder: border(AppColors.primary),
-      ),
     );
   }
 }

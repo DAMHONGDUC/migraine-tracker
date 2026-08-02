@@ -57,6 +57,7 @@ final class AppSpacingConstant {
   static double get r3 => 3.r;
   static double get r4 => 4.r;
   static double get r6 => 6.r;
+  static double get r8 => 8.r;
   static double get r12 => 12.r;
   static double get r16 => 16.r;
   static double get r18 => 18.r;
@@ -65,6 +66,7 @@ final class AppSpacingConstant {
   static double get r24 => 24.r;
   static double get r26 => 26.r;
   static double get r28 => 28.r;
+  static double get r36 => 36.r;
   static double get r44 => 44.r;
   static double get r64 => 64.r;
   static double get r88 => 88.r;

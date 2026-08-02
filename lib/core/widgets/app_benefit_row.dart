@@ -26,7 +26,7 @@ class AppBenefitRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          AppIcon(icon, color: context.colorScheme.primary),
+          AppIcon(icon: icon, color: context.colorScheme.primary),
           SizedBox(width: AppSpacingConstant.w16),
           Expanded(
             child: Column(

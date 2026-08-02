@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../constants/app_content_padding.dart';
 import '../constants/app_spacing_constant.dart';
 import '../extensions/context_extensions.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_text_style.dart';
-import 'app_bar_button.dart';
+import 'buttons/app_bar_button.dart';
 
 /// What the confirming icon of an [AppSheetHeader] is for — a prop, like
 /// every other look in this app.
@@ -20,11 +21,12 @@ enum AppSheetAction { confirm, edit }
 /// The header every bottom sheet with actions uses: leave on the left,
 /// title in the middle, commit on the right.
 ///
-/// The X is plain and the commit wears [AppBarButtonSurface.positive] — one
-/// filled, affirmative disc against one bare glyph, so the action that
-/// writes something is never the one you hit by accident. Both are
-/// [AppBarButton]s, which is what gives them the small icon, the invisible
-/// 48 target and the swell on touch.
+/// Both wear their own frosted glass circle — the sheet is a flat opaque
+/// panel, so a glass disc on it has real background to refract — and the
+/// commit's glyph is teal, which is what still tells the action that writes
+/// something from the one that abandons. Both are [AppBarButton]s, which is
+/// what gives them the small icon, the invisible 48 target and the swell on
+/// touch.
 ///
 /// [onConfirm] null shows no commit at all (a picker where the tap itself is
 /// the answer, a sheet that only reads). The slot stays reserved so the
@@ -71,9 +73,6 @@ class AppSheetHeader extends StatelessWidget {
         children: <Widget>[
           AppBarButton(
             icon: Icons.close,
-            // The sheet is already one glass surface — a second layer inside
-            // it has no background left to refract and reads flat.
-            surface: AppBarButtonSurface.none,
             tooltip: context.l10n.commonClose,
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -94,7 +93,9 @@ class AppSheetHeader extends StatelessWidget {
                 AppSheetAction.confirm => Icons.check,
                 AppSheetAction.edit => Icons.edit,
               },
-              surface: AppBarButtonSurface.positive,
+              // Same glass disc as the X; the teal glyph is what still marks
+              // this as the one action that writes something.
+              color: AppColors.secondary,
               tooltip: context.l10n.commonDone,
               onPressed: onConfirm,
             ),

@@ -8,9 +8,13 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 /// The effect is a fragment-shader image filter, and only Impeller can run
 /// one: true on iOS, true on Android devices that get the Vulkan backend,
 /// false on Android's Skia fallback (and in widget tests). When false,
-/// [MainAppBar] and [showAppBottomSheet] fall back to plain Material
-/// surfaces, [AppScaffold] stops extending its body behind the bar, and
-/// `AppContentPadding.appBarInset` returns 0.
+/// [MainAppBar] falls back to a plain Material surface, [AppScaffold] stops
+/// extending its body behind the bar, and `AppContentPadding.appBarInset`
+/// returns 0.
+///
+/// Bottom sheets are not on this list: they are a flat opaque card-coloured
+/// panel on every engine, so a sheet never reads as a different dark from the
+/// cards it covers.
 ///
 /// The shell's bottom nav is the deliberate exception — it stays a floating
 /// glass pill everywhere. Its geometry (side margins, the gap beneath it,
@@ -31,7 +35,8 @@ class AppGlass {
       _debugOverride ?? ImageFilter.isShaderFilterSupported;
 }
 
-/// Shared Liquid Glass tuning for the app's chrome (app bar + bottom sheet).
+/// Shared Liquid Glass tuning for the app's chrome (app bar, nav pill, the
+/// log flow's step bar).
 ///
 /// Tuned for the dark, photophobia-first theme (hard rule 3): a dark glass
 /// tint, gentle lighting, and no chromatic aberration, so the effect reads as

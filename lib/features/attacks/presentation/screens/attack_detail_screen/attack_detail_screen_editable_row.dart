@@ -34,7 +34,7 @@ class _EditableRow extends StatelessWidget {
           Text(value, style: AppTextStyle.bodyLarge),
           SizedBox(width: AppSpacingConstant.w4),
           AppIcon(
-            Icons.chevron_right,
+            icon: Icons.chevron_right,
             size: AppSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),
