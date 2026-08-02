@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:system_design/v2/index.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
@@ -8,6 +7,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diag
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
+import 'package:system_design/v2/index.dart';
 
 import '../../helpers/pump_app.dart';
 

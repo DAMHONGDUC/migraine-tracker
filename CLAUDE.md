@@ -114,12 +114,30 @@ its own, without the app.
 
 ## Commands
 
-- `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
-- `flutter analyze` — must pass with zero warnings before considering any task done
-- `flutter test` — run after changes to `domain/` or `data/`
-- `dart run build_runner build --delete-conflicting-outputs` — after editing Drift tables or Riverpod codegen
+**Melos is the task runner** (`melos.yaml`). Installed once per machine at the
+version `pubspec.yaml` pins — `dart pub global activate melos 6.3.3`. The
+global and local versions must match exactly or melos runs one version's code
+against the other's asset templates and bootstrap dies; that is why the
+dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
+`melos.yaml` explains the two costs of the workspace-based versions.
+
+- `melos run setup` — everything a fresh clone needs, in order: submodules,
+  `pub get` for both packages, `gen-l10n`, `build_runner`, `env/*.json` from
+  the templates, `npm ci` in `functions/`, and `pod install` on macOS.
+  Idempotent — re-run it any time, and after `melos run clean`.
+- `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
+- `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
+  zero findings before considering any task done.
+- `melos run test` — run after changes to `domain/` or `data/`
+- `melos run clean` — wipe Android + iOS build artefacts, then `setup`
+- `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
 - `firebase emulators:start` — test functions locally; never test cron against production
+
+Every melos script resolves the SDK itself (`fvm flutter` when `.fvmrc` and
+fvm are both present, plain `flutter` otherwise) — a shell alias is invisible
+inside a script, so it is spelled out. Add a new script to `melos.yaml`, never
+a loose file in `scripts/`.
 
 ## Hard rules
 

@@ -9,7 +9,11 @@ jobs:
   flutter:
     runs-on: ubuntu-latest
     steps:
+      # The design system lives in packages/system_design as a submodule;
+      # without this the checkout is empty there and `pub get` fails.
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: subosito/flutter-action@v2
         with:
@@ -21,20 +25,23 @@ jobs:
       - name: Install sqlite3
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
 
-      - name: Install dependencies
-        run: flutter pub get
+      # Same steps a developer gets from `melos run setup`, minus the iOS and
+      # env parts CI has no use for. Melos is pinned to the version in
+      # pubspec.yaml so the local and global installs cannot disagree.
+      - name: Install melos
+        run: dart pub global activate melos 6.3.3
 
-      - name: Generate localizations
-        run: flutter gen-l10n
+      - name: Bootstrap
+        run: melos bootstrap
 
-      - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Generate
+        run: melos run gen
 
       - name: Analyze (zero warnings allowed)
-        run: flutter analyze --fatal-infos
+        run: melos run analyze
 
       - name: Test
-        run: flutter test
+        run: melos run test
 
   functions:
     runs-on: ubuntu-latest
