@@ -312,11 +312,11 @@ class FakePurchaseRepository implements PurchaseRepository {
   /// Deliberately NOT applied to [offers]: when one flag drove both, setting
   /// it emptied the paywall, which disabled the CTA — so a "purchase fails"
   /// test passed without a purchase ever being attempted.
-  Object? failWith;
+  Exception? failWith;
 
   /// Set to make loading the offerings fail, which is a different story: the
   /// paywall has nothing to show rather than something that fails on tap.
-  Object? offersFailWith;
+  Exception? offersFailWith;
 
   /// Whether [restore] finds anything.
   bool hasPastPurchase = false;
@@ -329,7 +329,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   @override
   Future<List<PremiumOffer>> offers() async {
-    final Object? failure = offersFailWith;
+    final Exception? failure = offersFailWith;
 
     if (failure != null) throw failure;
 
@@ -338,7 +338,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   @override
   Future<bool> purchase(PremiumOffer offer) async {
-    final Object? failure = failWith;
+    final Exception? failure = failWith;
 
     if (failure != null) throw failure;
 
@@ -350,7 +350,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   @override
   Future<bool> restore() async {
-    final Object? failure = failWith;
+    final Exception? failure = failWith;
 
     restoreCalls++;
     if (failure != null) throw failure;
