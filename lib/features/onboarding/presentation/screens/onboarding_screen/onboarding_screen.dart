@@ -8,21 +8,27 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 
 part 'onboarding_screen_dots.dart';
+part 'onboarding_screen_features_page.dart';
 part 'onboarding_screen_location_page.dart';
 part 'onboarding_screen_page_scaffold.dart';
 part 'onboarding_screen_threshold_page.dart';
 part 'onboarding_screen_welcome_page.dart';
 
-/// Three calm pages: welcome + medical disclaimer (hard rule 10), the
-/// location permission explainer (hard rule 2), and threshold setup.
+/// Four calm pages: welcome + medical disclaimer (hard rule 10), what the app
+/// does and what of it is premium, the location permission explainer (hard
+/// rule 2), and threshold setup.
+///
+/// The feature list comes second on purpose — before the two pages that ask
+/// for something, so the user knows what they are being asked for.
 class OnboardingScreen extends HookConsumerWidget {
   const OnboardingScreen({super.key});
 
-  static const _pageCount = 3;
+  static const _pageCount = 4;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,6 +58,7 @@ class OnboardingScreen extends HookConsumerWidget {
                 onPageChanged: (value) => page.value = value,
                 children: [
                   _WelcomePage(l10n: l10n),
+                  _FeaturesPage(l10n: l10n),
                   _LocationPage(l10n: l10n),
                   _ThresholdPage(l10n: l10n, threshold: threshold),
                 ],
@@ -69,14 +76,15 @@ class OnboardingScreen extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: switch (page.value) {
-                  0 => [
+                  // Welcome and the feature list both just move on.
+                  0 || 1 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: next,
                       label: l10n.onboardingContinue,
                     ),
                   ],
-                  1 => [
+                  2 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: () async {
