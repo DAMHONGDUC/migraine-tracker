@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/theme/app_text_style.dart';
 
@@ -22,7 +22,7 @@ class InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingV2.w20),
+        padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -34,7 +34,7 @@ class InsightCard extends StatelessWidget {
                 ?trailing,
               ],
             ),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             child,
           ],
         ),

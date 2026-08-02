@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
@@ -71,9 +71,9 @@ class _DataNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SdSpacingV2.w16,
-        SdSpacingV2.h24,
-        SdSpacingV2.w16,
+        SdSpacingConstant.w16,
+        SdSpacingConstant.h24,
+        SdSpacingConstant.w16,
         0,
       ),
       child: Row(
@@ -81,10 +81,10 @@ class _DataNote extends StatelessWidget {
         children: <Widget>[
           SdIconV2(
             icon: Icons.lock_outline,
-            size: SdSpacingV2.r16,
+            size: SdSpacingConstant.r16,
             color: context.colorScheme.onSurfaceVariant,
           ),
-          SizedBox(width: SdSpacingV2.w8),
+          SizedBox(width: SdSpacingConstant.w8),
           Expanded(
             child: Text(
               context.l10n.accountDataNote,

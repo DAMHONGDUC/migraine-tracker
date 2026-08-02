@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
@@ -20,15 +20,15 @@ class DashboardExploreSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: SdSpacingV2.w4),
+          padding: EdgeInsets.only(left: SdSpacingConstant.w4),
           child: Text(
             l10n.dashboardExplore,
             style: AppTextStyle.titleSmall.secondary,
           ),
         ),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         Column(
-          spacing: SdSpacingV2.h12,
+          spacing: SdSpacingConstant.h12,
           children: [
             SdBannerV2(
               icon: Icons.notifications_active_outlined,

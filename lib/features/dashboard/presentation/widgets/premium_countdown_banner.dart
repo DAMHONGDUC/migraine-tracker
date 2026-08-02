@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
@@ -64,10 +64,10 @@ class _PremiumCountdownBannerState
       pressedScale: 0.98,
       onTap: openPaywall,
       child: Container(
-        padding: EdgeInsets.all(SdSpacingV2.w16),
+        padding: EdgeInsets.all(SdSpacingConstant.w16),
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(SdSpacingV2.r16),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
         ),
         child: Row(
@@ -76,7 +76,7 @@ class _PremiumCountdownBannerState
               icon: Icons.local_offer_outlined,
               color: AppColors.primary,
             ),
-            SizedBox(width: SdSpacingV2.w16),
+            SizedBox(width: SdSpacingConstant.w16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,15 +85,15 @@ class _PremiumCountdownBannerState
                     l10n.dashboardSaleTitle,
                     style: AppTextStyle.titleMedium,
                   ),
-                  SizedBox(height: SdSpacingV2.h4),
+                  SizedBox(height: SdSpacingConstant.h4),
                   Row(
                     children: [
                       SdIconV2(
                         icon: Icons.schedule_outlined,
-                        size: SdSpacingV2.r16,
+                        size: SdSpacingConstant.r16,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
-                      SizedBox(width: SdSpacingV2.w6),
+                      SizedBox(width: SdSpacingConstant.w6),
                       Flexible(
                         child: HighlightedTimeText(
                           full: l10n.dashboardSaleEndsIn(_remaining),
@@ -106,7 +106,7 @@ class _PremiumCountdownBannerState
                 ],
               ),
             ),
-            SizedBox(width: SdSpacingV2.w12),
+            SizedBox(width: SdSpacingConstant.w12),
             SdButtonV2(
               variant: SdButtonVariantV2.primary,
               compact: true,

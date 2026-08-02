@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 /// The login screen's pair: a filled Apple button over an outlined Google
 /// one, two labels of different lengths. Under
@@ -148,12 +148,12 @@ void main() {
     await pumpPair(
       tester,
       placement: SdButtonIconPlacementV2.aligned,
-      appleIconSize: SdSpacingV2.r28,
+      appleIconSize: SdSpacingConstant.r28,
     );
 
     expect(
       tester.getSize(find.byIcon(appleIcon)).width,
-      SdSpacingV2.r28,
+      SdSpacingConstant.r28,
     );
     expect(
       tester.getSize(find.byIcon(googleIcon)).width,
@@ -167,7 +167,7 @@ void main() {
     await pumpPair(
       tester,
       placement: SdButtonIconPlacementV2.aligned,
-      appleIconSize: SdSpacingV2.r28,
+      appleIconSize: SdSpacingConstant.r28,
     );
 
     expect(

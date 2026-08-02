@@ -23,15 +23,15 @@ class _PageScaffold extends StatelessWidget {
         children: [
           SdIconV2(
             icon: icon,
-            size: SdSpacingV2.r64,
+            size: SdSpacingConstant.r64,
             color: context.colorScheme.primary,
           ),
-          SizedBox(height: SdSpacingV2.h24),
+          SizedBox(height: SdSpacingConstant.h24),
           Text(title, style: AppTextStyle.headlineMedium.w600),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
           Text(body, style: AppTextStyle.bodyLarge.secondary),
           if (footer != null) ...[
-            SizedBox(height: SdSpacingV2.h24),
+            SizedBox(height: SdSpacingConstant.h24),
             footer!,
           ],
         ],

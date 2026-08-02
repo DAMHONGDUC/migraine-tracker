@@ -17,7 +17,7 @@ class IntensityDisc extends StatelessWidget {
 
   final int value;
 
-  /// Diameter — an `SdSpacingV2.r*`, never a raw number.
+  /// Diameter — an `SdSpacingConstant.r*`, never a raw number.
   final double size;
 
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
@@ -55,7 +55,7 @@ class HistoryCalendarView extends HookWidget {
     useEffect(() {
       void onScroll() {
         if (!collapsed.value &&
-            scrollController.offset > SdSpacingV2.h32) {
+            scrollController.offset > SdSpacingConstant.h32) {
           collapsed.value = true;
         }
       }
@@ -73,7 +73,7 @@ class HistoryCalendarView extends HookWidget {
         OverscrollNotification(:final dragDetails, :final overscroll) =>
           dragDetails != null && overscroll < 0,
         ScrollUpdateNotification(:final dragDetails, :final metrics) =>
-          dragDetails != null && metrics.pixels < -SdSpacingV2.h8,
+          dragDetails != null && metrics.pixels < -SdSpacingConstant.h8,
         _ => false,
       };
       if (pulling) collapsed.value = false;
@@ -82,8 +82,8 @@ class HistoryCalendarView extends HookWidget {
 
     final selectedAttacks = byDay[selected.value] ?? const <Attack>[];
 
-    final daysOfWeekH = SdSpacingV2.h20;
-    final rowH = SdSpacingV2.h44;
+    final daysOfWeekH = SdSpacingConstant.h20;
+    final rowH = SdSpacingConstant.h44;
 
     // Top inset lives OUTSIDE the scroll view: the calendar must sit below
     // the app bar, never slide behind it.
@@ -169,11 +169,11 @@ class HistoryCalendarView extends HookWidget {
                       ),
                       child: Padding(
                         padding: EdgeInsets.only(
-                          bottom: SdSpacingV2.h4,
+                          bottom: SdSpacingConstant.h4,
                         ),
                         child: SdColorDotV2(
                           color: AppColors.intensity(peak),
-                          size: SdSpacingV2.r6,
+                          size: SdSpacingConstant.r6,
                         ),
                       ),
                     );
@@ -194,18 +194,18 @@ class HistoryCalendarView extends HookWidget {
                 padding: EdgeInsets.zero,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: SdSpacingV2.h8),
+                    padding: EdgeInsets.only(top: SdSpacingConstant.h8),
                     child: Text(
                       context.l10n.historyCalendarLegend,
                       textAlign: TextAlign.center,
                       style: AppTextStyle.bodySmall.secondary,
                     ),
                   ),
-                  SizedBox(height: SdSpacingV2.h8),
+                  SizedBox(height: SdSpacingConstant.h8),
                   if (selectedAttacks.isEmpty)
                     Padding(
                       padding: EdgeInsets.symmetric(
-                        vertical: SdSpacingV2.h16,
+                        vertical: SdSpacingConstant.h16,
                       ),
                       child: Text(
                         context.l10n.historyCalendarNoAttacks,
@@ -215,12 +215,12 @@ class HistoryCalendarView extends HookWidget {
                     )
                   else
                     for (final (i, attack) in selectedAttacks.indexed) ...[
-                      if (i > 0) SizedBox(height: SdSpacingV2.h8),
+                      if (i > 0) SizedBox(height: SdSpacingConstant.h8),
                       AttackTile(attack: attack),
                     ],
                   // Clearance so the last tile scrolls past the floating
                   // glass nav.
-                  SizedBox(height: bottomInset + SdSpacingV2.h16),
+                  SizedBox(height: bottomInset + SdSpacingConstant.h16),
                 ],
               ),
             ),

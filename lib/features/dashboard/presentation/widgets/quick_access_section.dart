@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
@@ -35,13 +35,13 @@ class QuickAccessSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: SdSpacingV2.w4),
+          padding: EdgeInsets.only(left: SdSpacingConstant.w4),
           child: Text(
             l10n.dashboardQuickAccess,
             style: AppTextStyle.titleSmall.secondary,
           ),
         ),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         // IntrinsicHeight so all three cards match the tallest (the "Add
         // medication" label wraps to two lines).
         IntrinsicHeight(
@@ -55,7 +55,7 @@ class QuickAccessSection extends ConsumerWidget {
                   onTap: () => openHistory(HistoryViewMode.list),
                 ),
               ),
-              SizedBox(width: SdSpacingV2.w12),
+              SizedBox(width: SdSpacingConstant.w12),
               Expanded(
                 child: _QuickAccessCard(
                   icon: Icons.bar_chart,
@@ -63,7 +63,7 @@ class QuickAccessSection extends ConsumerWidget {
                   onTap: () => openHistory(HistoryViewMode.chart),
                 ),
               ),
-              SizedBox(width: SdSpacingV2.w12),
+              SizedBox(width: SdSpacingConstant.w12),
               Expanded(
                 child: _QuickAccessCard(
                   icon: Icons.add_circle_outline,
@@ -99,18 +99,18 @@ class _QuickAccessCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: SdSpacingV2.h12,
-            horizontal: SdSpacingV2.w8,
+            vertical: SdSpacingConstant.h12,
+            horizontal: SdSpacingConstant.w8,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SdIconV2(
                 icon: icon,
-                size: SdSpacingV2.r24,
+                size: SdSpacingConstant.r24,
                 color: context.colorScheme.primary,
               ),
-              SizedBox(height: SdSpacingV2.h6),
+              SizedBox(height: SdSpacingConstant.h6),
               Text(
                 label,
                 textAlign: TextAlign.center,

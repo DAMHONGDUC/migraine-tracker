@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/head_location_label.dart';
@@ -138,7 +138,7 @@ class AttackDetailScreen extends ConsumerWidget {
           tooltip: l10n.attackDetailDeleteTitle,
           onPressed: () => _delete(context, ref),
         ),
-        SizedBox(width: SdSpacingV2.w4),
+        SizedBox(width: SdSpacingConstant.w4),
       ],
       body: switch (attack) {
         AsyncData(value: null) || AsyncError() => Center(
@@ -148,9 +148,9 @@ class AttackDetailScreen extends ConsumerWidget {
           padding: SdContentPaddingV2.screen(context),
           children: [
             _Header(attack: a),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             _LocationDiagram(location: a.location),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             _Section(
               children: [
                 _EditableRow(
@@ -171,9 +171,9 @@ class AttackDetailScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             _WeatherSection(attack: a),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             _DetailsSection(attack: a),
           ],
         ),

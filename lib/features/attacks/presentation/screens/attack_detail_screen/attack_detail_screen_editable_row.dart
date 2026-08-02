@@ -25,13 +25,13 @@ class _EditableRow extends StatelessWidget {
         children: [
           if (swatch != null) ...[
             SdColorDotV2(color: swatch!),
-            SizedBox(width: SdSpacingV2.w8),
+            SizedBox(width: SdSpacingConstant.w8),
           ],
           Text(value, style: AppTextStyle.bodyLarge),
-          SizedBox(width: SdSpacingV2.w4),
+          SizedBox(width: SdSpacingConstant.w4),
           SdIconV2(
             icon: Icons.chevron_right,
-            size: SdSpacingV2.r20,
+            size: SdSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),
         ],

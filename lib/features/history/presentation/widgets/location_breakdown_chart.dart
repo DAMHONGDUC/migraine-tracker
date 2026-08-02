@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -32,7 +32,7 @@ class LocationBreakdownChart extends StatelessWidget {
         children: <Widget>[
           for (final LocationCount entry in counts)
             Padding(
-              padding: EdgeInsets.only(bottom: SdSpacingV2.h8),
+              padding: EdgeInsets.only(bottom: SdSpacingConstant.h8),
               child: SdProgressRowV2(
                 label: entry.location.label(l10n),
                 value: '${entry.count}',

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -82,7 +82,7 @@ class LogScreen extends ConsumerWidget {
             onPressed: state.hasDraft ? () => controller.confirmStep() : null,
             label: l10n.logNext,
           ),
-        SizedBox(width: SdSpacingV2.w12),
+        SizedBox(width: SdSpacingConstant.w12),
       ],
       // The 3-tap progress lives in the bottom bar slot, in the same floating
       // position the shell's bottom nav used to morph into. Hidden once saved
@@ -103,10 +103,10 @@ class LogScreen extends ConsumerWidget {
             if (question != null)
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                  SdSpacingV2.w24,
-                  SdSpacingV2.h16,
-                  SdSpacingV2.w24,
-                  SdSpacingV2.h8,
+                  SdSpacingConstant.w24,
+                  SdSpacingConstant.h16,
+                  SdSpacingConstant.w24,
+                  SdSpacingConstant.h8,
                 ),
                 child: SdFittedTextV2(
                   question,

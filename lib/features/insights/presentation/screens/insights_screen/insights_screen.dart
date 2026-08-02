@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -42,12 +42,12 @@ class InsightsScreen extends ConsumerWidget {
                 lockedMessage: context.l10n.premiumLockedForecast,
                 child: const PressureForecastCard(),
               ),
-              SizedBox(height: SdSpacingV2.h12),
+              SizedBox(height: SdSpacingConstant.h12),
               CorrelationCard(result: value),
               // iOS only: off HealthKit there is no sleep source, so the
               // card would have nothing to say but "unavailable".
               if (ref.watch(healthAvailableProvider)) ...<Widget>[
-                SizedBox(height: SdSpacingV2.h12),
+                SizedBox(height: SdSpacingConstant.h12),
                 PremiumGate(
                   lockedIcon: Symbols.bedtime,
                   lockedMessage: context.l10n.premiumLockedSleep,

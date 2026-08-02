@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_location_label.dart';
@@ -66,7 +66,7 @@ class AttackTile extends StatelessWidget {
         ),
         trailing: SdIconV2(
         icon:  Icons.chevron_right,
-          size: SdSpacingV2.r20,
+          size: SdSpacingConstant.r20,
           color: context.colorScheme.onSurfaceVariant,
         ),
         onTap: () => context.pushNamed(

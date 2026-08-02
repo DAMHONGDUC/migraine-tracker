@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../domain/enums/head_location.dart';
 import 'head_diagram.dart';
@@ -25,7 +25,7 @@ class LocationStep extends StatelessWidget {
       children: <Widget>[
         SdVerticalSpacingV2(xRatio: 2),
         SizedBox(
-          height: SdSpacingV2.h200,
+          height: SdSpacingConstant.h200,
           child: HeadDiagram(selected: selected),
         ),
         SdVerticalSpacingV2(xRatio: 2),

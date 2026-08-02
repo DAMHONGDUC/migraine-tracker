@@ -12,7 +12,7 @@ class _StatusCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingV2.w20),
+        padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -22,7 +22,7 @@ class _StatusCard extends StatelessWidget {
                   icon: premium ? Icons.workspace_premium : Icons.lock_outline,
                   color: premium ? context.colorScheme.primary : null,
                 ),
-                SizedBox(width: SdSpacingV2.w8),
+                SizedBox(width: SdSpacingConstant.w8),
                 Expanded(
                   child: Text(
                     premium
@@ -34,7 +34,7 @@ class _StatusCard extends StatelessWidget {
                 if (premium) const PremiumBadge(),
               ],
             ),
-            SizedBox(height: SdSpacingV2.h8),
+            SizedBox(height: SdSpacingConstant.h8),
             Text(
               premium
                   ? l10n.accountPremiumActiveBody

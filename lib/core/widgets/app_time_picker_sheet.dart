@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_style.dart';
@@ -35,7 +35,7 @@ class AppTimePickerSheet extends StatefulWidget {
 
   /// Row height shared by both wheels and the selection band behind them —
   /// must match for the band to sit exactly behind the centered row.
-  static double get rowExtent => SdSpacingV2.h44;
+  static double get rowExtent => SdSpacingConstant.h44;
 
   /// Rows visible at once (odd, so one sits exactly centered).
   static const visibleRows = 5;
@@ -91,7 +91,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
               SdContentPaddingV2.horizontal,
               0,
               SdContentPaddingV2.horizontal,
-              SdSpacingV2.h16,
+              SdSpacingConstant.h16,
             ),
             child: SizedBox(
               height:
@@ -112,7 +112,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: SdSpacingV2.w4,
+                          horizontal: SdSpacingConstant.w4,
                         ),
                         child: Text(':', style: AppTextStyle.headlineSmall),
                       ),
@@ -149,7 +149,7 @@ class _SelectionBand extends StatelessWidget {
         height: AppTimePickerSheet.rowExtent,
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(SdSpacingV2.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.symmetric(
             horizontal: BorderSide(
               color: AppColors.primary.withValues(alpha: 0.35),

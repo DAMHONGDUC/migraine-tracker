@@ -1,12 +1,12 @@
 import 'package:flutter/painting.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import 'app_colors.dart';
 
 /// Single home for every text style in the app — no inline `TextStyle(...)`
 /// and no `context.textTheme.*` in widgets. Metrics follow the Material 3
 /// type scale so swapping in was visually lossless; font sizes go through
-/// [SdSpacingV2] `sp*` (screenutil), colors through [AppColors].
+/// [SdSpacingConstant] `sp*` (screenutil), colors through [AppColors].
 ///
 /// Getters (not consts) because screenutil resolves at runtime, after
 /// ScreenUtilInit — widget tests pin the view to the 393×852 design size so
@@ -29,35 +29,35 @@ final class AppTextStyle {
   static const double _height11 = 16 / 11;
 
   static TextStyle get displaySmall => TextStyle(
-    fontSize: SdSpacingV2.sp36,
+    fontSize: SdSpacingConstant.sp36,
     height: _height36,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
   static TextStyle get headlineMedium => TextStyle(
-    fontSize: SdSpacingV2.sp28,
+    fontSize: SdSpacingConstant.sp28,
     height: _height28,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
   static TextStyle get headlineSmall => TextStyle(
-    fontSize: SdSpacingV2.sp24,
+    fontSize: SdSpacingConstant.sp24,
     height: _height24,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
   static TextStyle get titleLarge => TextStyle(
-    fontSize: SdSpacingV2.sp22,
+    fontSize: SdSpacingConstant.sp22,
     height: _height22,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
   );
 
   static TextStyle get titleMedium => TextStyle(
-    fontSize: SdSpacingV2.sp16,
+    fontSize: SdSpacingConstant.sp16,
     height: _height16,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.15,
@@ -65,7 +65,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get titleSmall => TextStyle(
-    fontSize: SdSpacingV2.sp14,
+    fontSize: SdSpacingConstant.sp14,
     height: _height14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
@@ -73,7 +73,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get bodyLarge => TextStyle(
-    fontSize: SdSpacingV2.sp16,
+    fontSize: SdSpacingConstant.sp16,
     height: _height16,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
@@ -81,7 +81,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get bodyMedium => TextStyle(
-    fontSize: SdSpacingV2.sp14,
+    fontSize: SdSpacingConstant.sp14,
     height: _height14,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.25,
@@ -89,7 +89,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get bodySmall => TextStyle(
-    fontSize: SdSpacingV2.sp12,
+    fontSize: SdSpacingConstant.sp12,
     height: _height12,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.4,
@@ -97,7 +97,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get labelLarge => TextStyle(
-    fontSize: SdSpacingV2.sp14,
+    fontSize: SdSpacingConstant.sp14,
     height: _height14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
@@ -105,7 +105,7 @@ final class AppTextStyle {
   );
 
   static TextStyle get labelSmall => TextStyle(
-    fontSize: SdSpacingV2.sp11,
+    fontSize: SdSpacingConstant.sp11,
     height: _height11,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
@@ -114,7 +114,7 @@ final class AppTextStyle {
 
   /// Below the Material scale — bottom-nav / step-progress labels only.
   static TextStyle get labelTiny => TextStyle(
-    fontSize: SdSpacingV2.sp10,
+    fontSize: SdSpacingConstant.sp10,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );

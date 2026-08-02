@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -73,10 +73,10 @@ class IntensityTrendChart extends StatelessWidget {
               isCurved: true,
               preventCurveOverShooting: true,
               color: AppColors.primary,
-              barWidth: SdSpacingV2.w2,
+              barWidth: SdSpacingConstant.w2,
               dotData: FlDotData(
                 getDotPainter: (_, _, _, _) => FlDotCirclePainter(
-                  radius: SdSpacingV2.r4,
+                  radius: SdSpacingConstant.r4,
                   color: AppColors.primary,
                   strokeWidth: 0,
                 ),

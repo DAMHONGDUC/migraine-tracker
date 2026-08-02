@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_style.dart';
@@ -45,10 +45,10 @@ class PermissionSettingsSheet extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          SdSpacingV2.w24,
-          SdSpacingV2.h8,
-          SdSpacingV2.w24,
-          SdSpacingV2.h16,
+          SdSpacingConstant.w24,
+          SdSpacingConstant.h8,
+          SdSpacingConstant.w24,
+          SdSpacingConstant.h16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -56,22 +56,22 @@ class PermissionSettingsSheet extends StatelessWidget {
           children: [
             SdIconV2(
               icon: content.icon,
-              size: SdSpacingV2.r44,
+              size: SdSpacingConstant.r44,
               color: AppColors.primary,
             ),
-            SizedBox(height: SdSpacingV2.h16),
+            SizedBox(height: SdSpacingConstant.h16),
             Text(
               content.title,
               textAlign: TextAlign.center,
               style: AppTextStyle.titleMedium,
             ),
-            SizedBox(height: SdSpacingV2.h8),
+            SizedBox(height: SdSpacingConstant.h8),
             Text(
               content.body,
               textAlign: TextAlign.center,
               style: AppTextStyle.bodyMedium.secondary,
             ),
-            SizedBox(height: SdSpacingV2.h24),
+            SizedBox(height: SdSpacingConstant.h24),
             SdButtonV2(
               variant: SdButtonVariantV2.primary,
               onPressed: () async {
@@ -80,7 +80,7 @@ class PermissionSettingsSheet extends StatelessWidget {
               },
               label: l10n.permissionOpenSettings,
             ),
-            SizedBox(height: SdSpacingV2.h8),
+            SizedBox(height: SdSpacingConstant.h8),
             SdButtonV2(
               variant: SdButtonVariantV2.text,
               onPressed: () => Navigator.of(context).pop(),

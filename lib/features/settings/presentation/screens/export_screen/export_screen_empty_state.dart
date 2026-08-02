@@ -11,19 +11,19 @@ class _EmptyState extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingV2.w24,
-        vertical: SdSpacingV2.h32,
+        horizontal: SdSpacingConstant.w24,
+        vertical: SdSpacingConstant.h32,
       ),
       child: Column(
         children: <Widget>[
           SdIconV2(
             icon: Icons.inbox_outlined,
-            size: SdSpacingV2.r44,
+            size: SdSpacingConstant.r44,
             color: context.colorScheme.onSurfaceVariant,
           ),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
           Text(l10n.exportEmptyTitle, style: AppTextStyle.titleSmall),
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
           Text(
             l10n.exportEmptyBody,
             textAlign: TextAlign.center,

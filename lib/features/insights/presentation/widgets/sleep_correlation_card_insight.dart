@@ -18,24 +18,24 @@ class _SleepInsightBody extends StatelessWidget {
           result.shortfall.label(l10n),
           style: AppTextStyle.displaySmall.w600,
         ),
-        SizedBox(height: SdSpacingV2.h4),
+        SizedBox(height: SdSpacingConstant.h4),
         Text(
           result.sleptLessBeforeAttacks
               ? l10n.insightsSleepLessSentence
               : l10n.insightsSleepMoreSentence,
           style: AppTextStyle.bodyMedium,
         ),
-        SizedBox(height: SdSpacingV2.h16),
+        SizedBox(height: SdSpacingConstant.h16),
         _AverageRow(
           label: l10n.insightsSleepAttackNights,
           value: result.attackNightAverage.label(l10n),
         ),
-        SizedBox(height: SdSpacingV2.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         _AverageRow(
           label: l10n.insightsSleepRestNights,
           value: result.restNightAverage.label(l10n),
         ),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         Text(
           l10n.insightsSleepAnalyzedCaption(
             result.attackNights,
@@ -64,7 +64,7 @@ class _AverageRow extends StatelessWidget {
         Expanded(
           child: Text(label, style: AppTextStyle.bodyMedium.secondary),
         ),
-        SizedBox(width: SdSpacingV2.w12),
+        SizedBox(width: SdSpacingConstant.w12),
         Text(value, style: AppTextStyle.bodyMedium.w600),
       ],
     );

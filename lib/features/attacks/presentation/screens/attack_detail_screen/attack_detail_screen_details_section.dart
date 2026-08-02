@@ -56,8 +56,8 @@ class _DetailsSection extends StatelessWidget {
             ),
           Padding(
             padding: EdgeInsets.only(
-              right: SdSpacingV2.w8,
-              bottom: SdSpacingV2.h8,
+              right: SdSpacingConstant.w8,
+              bottom: SdSpacingConstant.h8,
             ),
             child: Align(
               alignment: AlignmentDirectional.centerEnd,

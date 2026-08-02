@@ -215,7 +215,7 @@ void main() {
     // Over-drag the hour wheel (the first of the two ListWheelScrollViews) UP
     // well past the end so it clamps at the last hour (23), independent of the
     // current-time default the picker opens on. Dragging up brings higher-index
-    // rows to the centered selection; row height is SdSpacingV2.h44 =
+    // rows to the centered selection; row height is SdSpacingConstant.h44 =
     // 44 logical px at the harness's pinned 393×852 design size.
     await tester.drag(
       find.byType(ListWheelScrollView).first,

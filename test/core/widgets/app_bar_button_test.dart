@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 /// The one app-bar button: a small glyph inside a touch target big enough to
 /// hit while a migraine builds, and feedback that swells out from under the

@@ -14,16 +14,16 @@ class _Dots extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
-            margin: EdgeInsets.symmetric(horizontal: SdSpacingV2.w4),
+            margin: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w4),
             width: i == current
-                ? SdSpacingV2.w20
-                : SdSpacingV2.w8,
-            height: SdSpacingV2.h8,
+                ? SdSpacingConstant.w20
+                : SdSpacingConstant.w8,
+            height: SdSpacingConstant.h8,
             decoration: BoxDecoration(
               color: i == current
                   ? context.colorScheme.primary
                   : context.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(SdSpacingV2.r4),
+              borderRadius: BorderRadius.circular(SdSpacingConstant.r4),
             ),
           ),
       ],

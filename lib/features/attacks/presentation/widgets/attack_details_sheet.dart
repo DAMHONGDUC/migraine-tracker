@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../providers.dart';
@@ -69,7 +69,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsSymptomsHint,
             ),
           ),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
           TextField(
             controller: triggersController,
             decoration: InputDecoration(
@@ -77,7 +77,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
               hintText: l10n.detailsTriggersHint,
             ),
           ),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
           TextField(
             controller: notesController,
             maxLines: 3,

@@ -15,9 +15,9 @@ class _Header extends StatelessWidget {
       children: [
         IntensityDisc(
           value: attack.intensity,
-          size: SdSpacingV2.r64,
+          size: SdSpacingConstant.r64,
         ),
-        SizedBox(width: SdSpacingV2.w16),
+        SizedBox(width: SdSpacingConstant.w16),
         Expanded(child: Text(when, style: AppTextStyle.titleMedium)),
       ],
     );

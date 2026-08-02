@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -27,10 +27,10 @@ class ForceUpdateSheet extends ConsumerWidget {
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            SdSpacingV2.w24,
-            SdSpacingV2.h24,
-            SdSpacingV2.w24,
-            SdSpacingV2.h16,
+            SdSpacingConstant.w24,
+            SdSpacingConstant.h24,
+            SdSpacingConstant.w24,
+            SdSpacingConstant.h16,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -38,30 +38,30 @@ class ForceUpdateSheet extends ConsumerWidget {
             children: <Widget>[
               SdIconV2(
                 icon: Icons.system_update_alt,
-                size: SdSpacingV2.r44,
+                size: SdSpacingConstant.r44,
                 color: context.colorScheme.primary,
               ),
-              SizedBox(height: SdSpacingV2.h16),
+              SizedBox(height: SdSpacingConstant.h16),
               Text(
                 l10n.forceUpdateTitle,
                 textAlign: TextAlign.center,
                 style: AppTextStyle.titleLarge.w600,
               ),
-              SizedBox(height: SdSpacingV2.h8),
+              SizedBox(height: SdSpacingConstant.h8),
               Text(
                 l10n.forceUpdateBody,
                 textAlign: TextAlign.center,
                 style: AppTextStyle.bodyMedium.secondary,
               ),
               if (config.buildName.isNotEmpty) ...<Widget>[
-                SizedBox(height: SdSpacingV2.h8),
+                SizedBox(height: SdSpacingConstant.h8),
                 Text(
                   l10n.forceUpdateVersion(config.buildName),
                   textAlign: TextAlign.center,
                   style: AppTextStyle.labelSmall.secondary,
                 ),
               ],
-              SizedBox(height: SdSpacingV2.h24),
+              SizedBox(height: SdSpacingConstant.h24),
               _UpdateButton(label: l10n.forceUpdateCta),
             ],
           ),

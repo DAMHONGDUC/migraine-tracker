@@ -17,7 +17,7 @@ class _FeaturesPage extends StatelessWidget {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: SdContentPaddingV2.horizontal,
-        vertical: SdSpacingV2.h24,
+        vertical: SdSpacingConstant.h24,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,12 +26,12 @@ class _FeaturesPage extends StatelessWidget {
             l10n.onboardingFeaturesTitle,
             style: AppTextStyle.headlineMedium.w600,
           ),
-          SizedBox(height: SdSpacingV2.h12),
+          SizedBox(height: SdSpacingConstant.h12),
           Text(
             l10n.onboardingFeaturesBody,
             style: AppTextStyle.bodyLarge.secondary,
           ),
-          SizedBox(height: SdSpacingV2.h24),
+          SizedBox(height: SdSpacingConstant.h24),
 
           _FeatureGroupHeader(label: l10n.onboardingFeaturesFree),
           SdBenefitRowV2(
@@ -55,7 +55,7 @@ class _FeaturesPage extends StatelessWidget {
             body: l10n.onboardingFeatureExportBody,
           ),
 
-          SizedBox(height: SdSpacingV2.h8),
+          SizedBox(height: SdSpacingConstant.h8),
           _FeatureGroupHeader(label: l10n.onboardingFeaturesPremium),
           const _PremiumFeature(
             icon: Icons.notifications_none,
@@ -92,7 +92,7 @@ class _FeatureGroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: SdSpacingV2.h12),
+      padding: EdgeInsets.only(bottom: SdSpacingConstant.h12),
       child: Text(
         label,
         style: AppTextStyle.labelLarge.copyWith(

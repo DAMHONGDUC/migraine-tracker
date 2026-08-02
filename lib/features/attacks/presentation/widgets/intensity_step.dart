@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
@@ -24,7 +24,7 @@ class IntensityStep extends StatelessWidget {
       children: [
         for (int i = startIndex; i <= endIndex; i++) ...[
           _IntensityCircle(value: i, onTap: () => onSelected(i)),
-          if (i < endIndex) SdHorizontalSpacingV2(width: SdSpacingV2.w16),
+          if (i < endIndex) SdHorizontalSpacingV2(width: SdSpacingConstant.w16),
         ],
       ],
     );
@@ -40,17 +40,17 @@ class IntensityStep extends StatelessWidget {
         builder: (context, t, child) => Opacity(opacity: t, child: child),
         // Scrollable so the four rows never overflow on short screens.
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(SdSpacingV2.w24),
+          padding: EdgeInsets.all(SdSpacingConstant.w24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _builRowItems(startIndex: 1, endIndex: 3, onSelected: onSelected),
-              SdVerticalSpacingV2(height: SdSpacingV2.h16),
+              SdVerticalSpacingV2(height: SdSpacingConstant.h16),
               _builRowItems(startIndex: 4, endIndex: 6, onSelected: onSelected),
-              SdVerticalSpacingV2(height: SdSpacingV2.h16),
+              SdVerticalSpacingV2(height: SdSpacingConstant.h16),
               _builRowItems(startIndex: 7, endIndex: 8, onSelected: onSelected),
-              SdVerticalSpacingV2(height: SdSpacingV2.h16),
+              SdVerticalSpacingV2(height: SdSpacingConstant.h16),
               _builRowItems(
                 startIndex: 9,
                 endIndex: 10,
@@ -82,7 +82,7 @@ class _IntensityCircle extends StatelessWidget {
       excludeSemantics: true,
       child: SdPressableScaleV2(
         onTap: onTap,
-        child: IntensityDisc(value: value, size: SdSpacingV2.r88),
+        child: IntensityDisc(value: value, size: SdSpacingConstant.r88),
       ),
     );
   }

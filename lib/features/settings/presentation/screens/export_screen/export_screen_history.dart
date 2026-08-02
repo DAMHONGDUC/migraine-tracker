@@ -29,9 +29,9 @@ class _History extends ConsumerWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(
-              left: SdSpacingV2.w24,
-              right: SdSpacingV2.w24,
-              bottom: SdSpacingV2.h8,
+              left: SdSpacingConstant.w24,
+              right: SdSpacingConstant.w24,
+              bottom: SdSpacingConstant.h8,
             ),
             child: Text(
               l10n.exportHistoryTitle,

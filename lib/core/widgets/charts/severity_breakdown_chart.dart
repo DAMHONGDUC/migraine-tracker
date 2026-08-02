@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../features/history/domain/services/chart_analytics.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -40,7 +40,7 @@ class SeverityBreakdownChart extends StatelessWidget {
           height: SdChartStyleV2.plotHeight,
           child: SdDonutChartV2(slices: slices),
         ),
-        SizedBox(height: SdSpacingV2.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         SdDonutLegendV2(slices: slices),
       ],
     );

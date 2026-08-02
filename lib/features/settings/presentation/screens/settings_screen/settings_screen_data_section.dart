@@ -17,7 +17,7 @@ class _DataSection extends ConsumerWidget {
           title: Text(l10n.settingsExport, style: AppTextStyle.bodyLarge),
           trailing: SdIconV2(
             icon: Icons.chevron_right,
-            size: SdSpacingV2.r20,
+            size: SdSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),
           onTap: () => context.pushNamed(AppRoutes.export.name),

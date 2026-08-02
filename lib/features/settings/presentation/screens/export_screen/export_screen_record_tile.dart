@@ -27,7 +27,7 @@ class _RecordTile extends StatelessWidget {
       subtitle: Text(subtitle, style: AppTextStyle.bodyMedium.secondary),
       trailing: SdIconV2(
         icon: Icons.more_horiz,
-        size: SdSpacingV2.r20,
+        size: SdSpacingConstant.r20,
         color: context.colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,

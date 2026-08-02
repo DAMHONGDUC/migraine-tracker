@@ -79,8 +79,8 @@ class _DevResetTileState extends ConsumerState<_DevResetTile> {
       ),
       trailing: _running
           ? SizedBox(
-              width: SdSpacingV2.r20,
-              height: SdSpacingV2.r20,
+              width: SdSpacingConstant.r20,
+              height: SdSpacingConstant.r20,
               child: const CircularProgressIndicator(strokeWidth: 2),
             )
           : null,

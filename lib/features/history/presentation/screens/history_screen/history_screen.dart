@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/v2/index.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -70,7 +70,7 @@ class HistoryScreen extends HookConsumerWidget {
           mode: mode,
           onChanged: ref.read(historyViewModeProvider.notifier).select,
         ),
-        SizedBox(width: SdSpacingV2.w12),
+        SizedBox(width: SdSpacingConstant.w12),
       ],
       // No outer top padding: each view pads INSIDE its own scrollable, so
       // the content scrolls behind the translucent app bar and blurs out.
