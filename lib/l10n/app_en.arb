@@ -49,13 +49,17 @@
       }
     }
   },
+  "onboardingFeaturesAction": "See all app features",
+  "@onboardingFeaturesAction": {
+    "description": "Button on the last onboarding step that opens the feature-list sheet"
+  },
   "onboardingFeaturesTitle": "Everything BaroEase does",
   "@onboardingFeaturesTitle": {
-    "description": "Onboarding feature-list page headline"
+    "description": "Onboarding feature-list sheet headline"
   },
   "onboardingFeaturesBody": "Tracking is free forever. The analysis that explains your attacks is Premium.",
   "@onboardingFeaturesBody": {
-    "description": "Onboarding feature-list page body"
+    "description": "Onboarding feature-list sheet body"
   },
   "onboardingFeaturesFree": "Free forever",
   "@onboardingFeaturesFree": {
@@ -263,19 +267,130 @@
   "@medicationsAddedUnknown": {
     "description": "Medication card subtitle for a medication saved before the app recorded creation dates"
   },
-  "medicationsShowMoreReminders": "Show {count} more",
-  "@medicationsShowMoreReminders": {
-    "description": "Toggle row under a medication card's reminder list, collapsed past 3 reminders",
+  "medicationsReminderCount": "{count, plural, =0{No reminders} =1{1 reminder} other{{count} reminders}}",
+  "@medicationsReminderCount": {
+    "description": "How many reminders a medication has, shown on its row in the medications tab",
     "placeholders": {
       "count": {
-        "type": "int",
-        "example": "2"
+        "type": "int"
       }
     }
   },
-  "medicationsShowFewerReminders": "Show less",
-  "@medicationsShowFewerReminders": {
-    "description": "Toggle row under a medication card's reminder list, expanded state"
+  "medicationAddQuick": "Quick add",
+  "@medicationAddQuick": {
+    "description": "First option in the add-medication sheet: the name-only dialog"
+  },
+  "medicationAddQuickBody": "Just the name.",
+  "@medicationAddQuickBody": {
+    "description": "Supporting line under the quick add option"
+  },
+  "medicationAddDetailed": "Add with details",
+  "@medicationAddDetailed": {
+    "description": "Second option in the add-medication sheet: the full form"
+  },
+  "medicationAddDetailedBody": "Name plus what the box says — or scan the label.",
+  "@medicationAddDetailedBody": {
+    "description": "Supporting line under the detailed add option"
+  },
+  "medicationFormTitle": "New medication",
+  "@medicationFormTitle": {
+    "description": "App bar title of the medication details form"
+  },
+  "medicationFormName": "Name",
+  "@medicationFormName": {
+    "description": "Label of the only required field on the medication form"
+  },
+  "medicationFormNameHint": "Sumatriptan",
+  "@medicationFormNameHint": {
+    "description": "Hint for the medication name field"
+  },
+  "medicationFormDescription": "Description",
+  "@medicationFormDescription": {
+    "description": "Optional field: what the medication is or is for"
+  },
+  "medicationFormDescriptionHint": "What it is, or what you take it for",
+  "@medicationFormDescriptionHint": {
+    "description": "Hint for the description field"
+  },
+  "medicationFormIngredients": "Ingredients",
+  "@medicationFormIngredients": {
+    "description": "Optional field: active ingredients"
+  },
+  "medicationFormIngredientsHint": "Sumatriptan succinate",
+  "@medicationFormIngredientsHint": {
+    "description": "Hint for the ingredients field"
+  },
+  "medicationFormStrength": "Strength",
+  "@medicationFormStrength": {
+    "description": "Optional field: how much per unit"
+  },
+  "medicationFormStrengthHint": "50 mg",
+  "@medicationFormStrengthHint": {
+    "description": "Hint for the strength field"
+  },
+  "medicationFormDosage": "Dosage",
+  "@medicationFormDosage": {
+    "description": "Optional field: how much to take"
+  },
+  "medicationFormDosageHint": "1 tablet, twice a day",
+  "@medicationFormDosageHint": {
+    "description": "Hint for the dosage field"
+  },
+  "medicationFormInstructions": "How to take it",
+  "@medicationFormInstructions": {
+    "description": "Optional field: usage instructions"
+  },
+  "medicationFormInstructionsHint": "After food, with water",
+  "@medicationFormInstructionsHint": {
+    "description": "Hint for the instructions field"
+  },
+  "medicationScanAction": "Scan the label",
+  "@medicationScanAction": {
+    "description": "Button on the medication form that reads the fields off a photo"
+  },
+  "medicationScanReading": "Reading the label…",
+  "@medicationScanReading": {
+    "description": "Label of the scan button while text recognition is running"
+  },
+  "medicationScanHint": "The photo is read on this device and never uploaded. Check what it fills in.",
+  "@medicationScanHint": {
+    "description": "Line under the scan button explaining where the photo goes"
+  },
+  "medicationScanCamera": "Take a photo",
+  "@medicationScanCamera": {
+    "description": "Camera option in the scan source sheet"
+  },
+  "medicationScanGallery": "Choose a photo",
+  "@medicationScanGallery": {
+    "description": "Photo library option in the scan source sheet"
+  },
+  "medicationScanFilled": "Filled in what we could read. Please check it.",
+  "@medicationScanFilled": {
+    "description": "Snackbar after a scan pre-filled the form"
+  },
+  "medicationScanNothingFound": "No text found on that photo.",
+  "@medicationScanNothingFound": {
+    "description": "Snackbar when the scan read nothing legible"
+  },
+  "medicationScanFailed": "Couldn't read that photo.",
+  "@medicationScanFailed": {
+    "description": "Snackbar when the scan failed outright"
+  },
+  "medicationDetailDetails": "Details",
+  "@medicationDetailDetails": {
+    "description": "Section header over the optional fields on the medication detail screen"
+  },
+  "medicationDetailReminders": "Reminders",
+  "@medicationDetailReminders": {
+    "description": "Section header over the reminder list on the medication detail screen"
+  },
+  "medicationDetailNoReminders": "No reminders yet. Add one to get a daily nudge at the time you choose.",
+  "@medicationDetailNoReminders": {
+    "description": "Empty state under the Reminders section on the medication detail screen"
+  },
+  "medicationDetailMissing": "This medication has been deleted.",
+  "@medicationDetailMissing": {
+    "description": "Shown on the medication detail screen when the medication no longer exists"
   },
   "medicationsFilterDateTitle": "Date added",
   "@medicationsFilterDateTitle": {
@@ -759,10 +874,6 @@
   "@premiumLockedForecast": {
     "description": "Locked-state copy on the forecast card"
   },
-  "premiumLockedAlerts": "Get a push before a big pressure drop hits.",
-  "@premiumLockedAlerts": {
-    "description": "Locked-state copy on the alerts setting"
-  },
   "premiumLockedReport": "Export a PDF summary of your attacks for your doctor.",
   "@premiumLockedReport": {
     "description": "Locked-state copy on the doctor report setting"
@@ -910,10 +1021,6 @@
   "alertsToggleTitle": "Pressure-drop alerts",
   "@alertsToggleTitle": {
     "description": "Settings switch that registers this device for pressure push alerts"
-  },
-  "alertsToggleSubtitle": "Get a push before a big pressure drop",
-  "@alertsToggleSubtitle": {
-    "description": "Subtitle under the alerts switch"
   },
   "alertsThresholdTitle": "Alert threshold",
   "@alertsThresholdTitle": {
@@ -1284,15 +1391,6 @@
   "@settingsDevSeed": {
     "description": "Dev-only settings tile that wipes the device and seeds fixtures"
   },
-  "settingsDevSeedSubtitle": "Deletes everything, then adds {count} attacks, medications and exports",
-  "@settingsDevSeedSubtitle": {
-    "description": "Subtitle of the dev-only seed tile",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "settingsDevSeedDone": "Seeded {count} attacks, medications and exports.",
   "@settingsDevSeedDone": {
     "description": "Snackbar shown after the dev-only seed finishes",
@@ -1309,10 +1407,6 @@
   "settingsDevReset": "Reset the app",
   "@settingsDevReset": {
     "description": "Dev-only tile: wipe everything and start over at onboarding"
-  },
-  "settingsDevResetSubtitle": "Delete every attack, medication and export, then start again at onboarding.",
-  "@settingsDevResetSubtitle": {
-    "description": "Dev-only reset tile, supporting line"
   },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
@@ -1668,17 +1762,9 @@
   "@settingsAccountSignIn": {
     "description": "Settings row that opens the login screen"
   },
-  "settingsAccountSignInSubtitle": "Optional — needed to unlock Premium",
-  "@settingsAccountSignInSubtitle": {
-    "description": "Subtitle of the signed-out account row"
-  },
   "settingsAccountSignedIn": "Signed in",
   "@settingsAccountSignedIn": {
     "description": "Account row title when the provider gave us no email or name"
-  },
-  "settingsAccountSignedInSubtitle": "Your subscription is tied to this account",
-  "@settingsAccountSignedInSubtitle": {
-    "description": "Subtitle of the signed-in account row"
   },
   "settingsSignOut": "Sign out",
   "@settingsSignOut": {
@@ -1829,14 +1915,6 @@
   "healthSleepTitle": "Apple Health sleep",
   "@healthSleepTitle": {
     "description": "Settings row title for the Apple Health sleep connection"
-  },
-  "healthSleepSubtitle": "Read your sleep from Apple Health to compare it against your attacks. It stays on this device.",
-  "@healthSleepSubtitle": {
-    "description": "Settings row subtitle while Apple Health is not connected"
-  },
-  "healthSleepConnected": "Connected. To revoke access entirely, use iOS Settings, Privacy & Security, Health.",
-  "@healthSleepConnected": {
-    "description": "Settings row subtitle while Apple Health is connected; iOS grants can only be withdrawn from the Settings app, not from here"
   },
   "healthConnectFailed": "Couldn't connect to Apple Health.",
   "@healthConnectFailed": {
