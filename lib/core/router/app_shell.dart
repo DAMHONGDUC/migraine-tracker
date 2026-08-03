@@ -246,9 +246,9 @@ class _FloatingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SdSpacingConstant.w24,
+        SdContentPaddingV2.floatingBarHorizontal,
         0,
-        SdSpacingConstant.w24,
+        SdContentPaddingV2.floatingBarHorizontal,
         SdContentPaddingV2.navBarOffset(context),
       ),
       child: SdPopScaleV2(
