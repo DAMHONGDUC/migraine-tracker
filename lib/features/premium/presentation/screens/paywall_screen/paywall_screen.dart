@@ -311,7 +311,7 @@ class PaywallScreen extends HookConsumerWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
-        heightFactor: 0.92,
+        heightFactor: 0.85,
         widthFactor: 1,
         child: surface,
       ),
