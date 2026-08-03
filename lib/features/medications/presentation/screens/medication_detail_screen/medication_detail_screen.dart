@@ -8,7 +8,6 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/permissions/app_permission.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
-import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
@@ -29,19 +28,6 @@ class MedicationDetailScreen extends ConsumerWidget {
   const MedicationDetailScreen({required this.medicationId, super.key});
 
   final String medicationId;
-
-  Future<void> _rename(
-    BuildContext context,
-    WidgetRef ref,
-    Medication medication,
-  ) async {
-    final String? name = await MedicationNameDialog(
-      initial: medication.name,
-    ).show(context);
-
-    if (name == null) return;
-    await ref.read(medicationsControllerProvider).rename(medication, name);
-  }
 
   Future<void> _delete(
     BuildContext context,
@@ -144,12 +130,6 @@ class MedicationDetailScreen extends ConsumerWidget {
     return SdScaffoldV2(
       title: Text(medication.name, style: AppTextStyle.titleLarge),
       actions: <Widget>[
-        SdAppBarButtonV2(
-          icon: Icons.edit_outlined,
-          tooltip: l10n.medicationsEditAction,
-          onPressed: () => _rename(context, ref, medication),
-        ),
-        SdHorizontalSpacingV2(),
         SdAppBarButtonV2(
           icon: Icons.delete_outline,
           color: context.colorScheme.error,
