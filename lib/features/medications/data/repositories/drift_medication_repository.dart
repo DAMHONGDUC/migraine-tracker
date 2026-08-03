@@ -10,34 +10,34 @@ class DriftMedicationRepository implements MedicationRepository {
 
   final AppDatabase _db;
 
+  /// One place the row shape becomes the domain model — the optional detail
+  /// columns are easy to add in one mapper and forget in the other.
+  Medication _toDomain(MedicationRow row) => Medication(
+    id: row.id,
+    name: row.name,
+    createdAt: row.createdAt,
+    description: row.description,
+    ingredients: row.ingredients,
+    strength: row.strength,
+    dosage: row.dosage,
+    instructions: row.instructions,
+  );
+
   @override
   Stream<List<Medication>> watchAll() {
     final query = _db.select(_db.medications)
       ..orderBy([(m) => OrderingTerm.asc(m.name)]);
-    return query.watch().map(
-      (rows) => rows
-          .map(
-            (row) => Medication(
-              id: row.id,
-              name: row.name,
-              createdAt: row.createdAt,
-            ),
-          )
-          .toList(),
-    );
+
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
   }
 
   @override
   Future<List<Medication>> getAll() async {
     final query = _db.select(_db.medications)
       ..orderBy([(m) => OrderingTerm.asc(m.name)]);
-    final rows = await query.get();
-    return rows
-        .map(
-          (row) =>
-              Medication(id: row.id, name: row.name, createdAt: row.createdAt),
-        )
-        .toList();
+    final List<MedicationRow> rows = await query.get();
+
+    return rows.map(_toDomain).toList();
   }
 
   // Callers own createdAt: it's stamped once when a medication is first
@@ -52,6 +52,11 @@ class DriftMedicationRepository implements MedicationRepository {
           id: medication.id,
           name: medication.name,
           createdAt: Value(medication.createdAt),
+          description: Value(medication.description),
+          ingredients: Value(medication.ingredients),
+          strength: Value(medication.strength),
+          dosage: Value(medication.dosage),
+          instructions: Value(medication.instructions),
         ),
       );
 

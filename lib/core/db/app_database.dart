@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,6 +52,16 @@ class AppDatabase extends _$AppDatabase {
       // exports made before this shipped were never recorded.
       if (from < 4) {
         await m.createTable(exportRecords);
+      }
+      // v5: a medication can carry what its box says. Every column is
+      // nullable and stays null for existing rows — nothing to backfill,
+      // and null is exactly what "the user never told us" means.
+      if (from < 5) {
+        await m.addColumn(medications, medications.description);
+        await m.addColumn(medications, medications.ingredients);
+        await m.addColumn(medications, medications.strength);
+        await m.addColumn(medications, medications.dosage);
+        await m.addColumn(medications, medications.instructions);
       }
     },
     beforeOpen: (details) async {

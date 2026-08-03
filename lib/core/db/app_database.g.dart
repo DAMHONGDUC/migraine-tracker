@@ -1023,8 +1023,70 @@ class $MedicationsTable extends Medications
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ingredientsMeta = const VerificationMeta(
+    'ingredients',
+  );
+  @override
+  late final GeneratedColumn<String> ingredients = GeneratedColumn<String>(
+    'ingredients',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _strengthMeta = const VerificationMeta(
+    'strength',
+  );
+  @override
+  late final GeneratedColumn<String> strength = GeneratedColumn<String>(
+    'strength',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dosageMeta = const VerificationMeta('dosage');
+  @override
+  late final GeneratedColumn<String> dosage = GeneratedColumn<String>(
+    'dosage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _instructionsMeta = const VerificationMeta(
+    'instructions',
+  );
+  @override
+  late final GeneratedColumn<String> instructions = GeneratedColumn<String>(
+    'instructions',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    createdAt,
+    description,
+    ingredients,
+    strength,
+    dosage,
+    instructions,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1056,6 +1118,45 @@ class $MedicationsTable extends Medications
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ingredients')) {
+      context.handle(
+        _ingredientsMeta,
+        ingredients.isAcceptableOrUnknown(
+          data['ingredients']!,
+          _ingredientsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('strength')) {
+      context.handle(
+        _strengthMeta,
+        strength.isAcceptableOrUnknown(data['strength']!, _strengthMeta),
+      );
+    }
+    if (data.containsKey('dosage')) {
+      context.handle(
+        _dosageMeta,
+        dosage.isAcceptableOrUnknown(data['dosage']!, _dosageMeta),
+      );
+    }
+    if (data.containsKey('instructions')) {
+      context.handle(
+        _instructionsMeta,
+        instructions.isAcceptableOrUnknown(
+          data['instructions']!,
+          _instructionsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1076,6 +1177,26 @@ class $MedicationsTable extends Medications
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
+      ),
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      ingredients: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ingredients'],
+      ),
+      strength: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}strength'],
+      ),
+      dosage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dosage'],
+      ),
+      instructions: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}instructions'],
       ),
     );
   }
@@ -1098,7 +1219,26 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
   /// — "added this week" would then list medications saved years ago. Null
   /// means "unknown", sorts last, and matches only the "all" filter.
   final DateTime? createdAt;
-  const MedicationRow({required this.id, required this.name, this.createdAt});
+
+  /// Everything the details form collects, added in schema v5. All nullable
+  /// and all free text: only the name is ever required, and a medicine box
+  /// writes its strength and dosage in too many shapes to structure. Null
+  /// means "not filled in" — an empty string would print an empty row.
+  final String? description;
+  final String? ingredients;
+  final String? strength;
+  final String? dosage;
+  final String? instructions;
+  const MedicationRow({
+    required this.id,
+    required this.name,
+    this.createdAt,
+    this.description,
+    this.ingredients,
+    this.strength,
+    this.dosage,
+    this.instructions,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1106,6 +1246,21 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || ingredients != null) {
+      map['ingredients'] = Variable<String>(ingredients);
+    }
+    if (!nullToAbsent || strength != null) {
+      map['strength'] = Variable<String>(strength);
+    }
+    if (!nullToAbsent || dosage != null) {
+      map['dosage'] = Variable<String>(dosage);
+    }
+    if (!nullToAbsent || instructions != null) {
+      map['instructions'] = Variable<String>(instructions);
     }
     return map;
   }
@@ -1117,6 +1272,21 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      ingredients: ingredients == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ingredients),
+      strength: strength == null && nullToAbsent
+          ? const Value.absent()
+          : Value(strength),
+      dosage: dosage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dosage),
+      instructions: instructions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(instructions),
     );
   }
 
@@ -1129,6 +1299,11 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      description: serializer.fromJson<String?>(json['description']),
+      ingredients: serializer.fromJson<String?>(json['ingredients']),
+      strength: serializer.fromJson<String?>(json['strength']),
+      dosage: serializer.fromJson<String?>(json['dosage']),
+      instructions: serializer.fromJson<String?>(json['instructions']),
     );
   }
   @override
@@ -1138,6 +1313,11 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'description': serializer.toJson<String?>(description),
+      'ingredients': serializer.toJson<String?>(ingredients),
+      'strength': serializer.toJson<String?>(strength),
+      'dosage': serializer.toJson<String?>(dosage),
+      'instructions': serializer.toJson<String?>(instructions),
     };
   }
 
@@ -1145,16 +1325,37 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
     String? id,
     String? name,
     Value<DateTime?> createdAt = const Value.absent(),
+    Value<String?> description = const Value.absent(),
+    Value<String?> ingredients = const Value.absent(),
+    Value<String?> strength = const Value.absent(),
+    Value<String?> dosage = const Value.absent(),
+    Value<String?> instructions = const Value.absent(),
   }) => MedicationRow(
     id: id ?? this.id,
     name: name ?? this.name,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    description: description.present ? description.value : this.description,
+    ingredients: ingredients.present ? ingredients.value : this.ingredients,
+    strength: strength.present ? strength.value : this.strength,
+    dosage: dosage.present ? dosage.value : this.dosage,
+    instructions: instructions.present ? instructions.value : this.instructions,
   );
   MedicationRow copyWithCompanion(MedicationsCompanion data) {
     return MedicationRow(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      ingredients: data.ingredients.present
+          ? data.ingredients.value
+          : this.ingredients,
+      strength: data.strength.present ? data.strength.value : this.strength,
+      dosage: data.dosage.present ? data.dosage.value : this.dosage,
+      instructions: data.instructions.present
+          ? data.instructions.value
+          : this.instructions,
     );
   }
 
@@ -1163,37 +1364,71 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
     return (StringBuffer('MedicationRow(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('description: $description, ')
+          ..write('ingredients: $ingredients, ')
+          ..write('strength: $strength, ')
+          ..write('dosage: $dosage, ')
+          ..write('instructions: $instructions')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    createdAt,
+    description,
+    ingredients,
+    strength,
+    dosage,
+    instructions,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MedicationRow &&
           other.id == this.id &&
           other.name == this.name &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.description == this.description &&
+          other.ingredients == this.ingredients &&
+          other.strength == this.strength &&
+          other.dosage == this.dosage &&
+          other.instructions == this.instructions);
 }
 
 class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
   final Value<String> id;
   final Value<String> name;
   final Value<DateTime?> createdAt;
+  final Value<String?> description;
+  final Value<String?> ingredients;
+  final Value<String?> strength;
+  final Value<String?> dosage;
+  final Value<String?> instructions;
   final Value<int> rowid;
   const MedicationsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.description = const Value.absent(),
+    this.ingredients = const Value.absent(),
+    this.strength = const Value.absent(),
+    this.dosage = const Value.absent(),
+    this.instructions = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MedicationsCompanion.insert({
     required String id,
     required String name,
     this.createdAt = const Value.absent(),
+    this.description = const Value.absent(),
+    this.ingredients = const Value.absent(),
+    this.strength = const Value.absent(),
+    this.dosage = const Value.absent(),
+    this.instructions = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name);
@@ -1201,12 +1436,22 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<DateTime>? createdAt,
+    Expression<String>? description,
+    Expression<String>? ingredients,
+    Expression<String>? strength,
+    Expression<String>? dosage,
+    Expression<String>? instructions,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (createdAt != null) 'created_at': createdAt,
+      if (description != null) 'description': description,
+      if (ingredients != null) 'ingredients': ingredients,
+      if (strength != null) 'strength': strength,
+      if (dosage != null) 'dosage': dosage,
+      if (instructions != null) 'instructions': instructions,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1215,12 +1460,22 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
     Value<String>? id,
     Value<String>? name,
     Value<DateTime?>? createdAt,
+    Value<String?>? description,
+    Value<String?>? ingredients,
+    Value<String?>? strength,
+    Value<String?>? dosage,
+    Value<String?>? instructions,
     Value<int>? rowid,
   }) {
     return MedicationsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       createdAt: createdAt ?? this.createdAt,
+      description: description ?? this.description,
+      ingredients: ingredients ?? this.ingredients,
+      strength: strength ?? this.strength,
+      dosage: dosage ?? this.dosage,
+      instructions: instructions ?? this.instructions,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1237,6 +1492,21 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (ingredients.present) {
+      map['ingredients'] = Variable<String>(ingredients.value);
+    }
+    if (strength.present) {
+      map['strength'] = Variable<String>(strength.value);
+    }
+    if (dosage.present) {
+      map['dosage'] = Variable<String>(dosage.value);
+    }
+    if (instructions.present) {
+      map['instructions'] = Variable<String>(instructions.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1249,6 +1519,11 @@ class MedicationsCompanion extends UpdateCompanion<MedicationRow> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('createdAt: $createdAt, ')
+          ..write('description: $description, ')
+          ..write('ingredients: $ingredients, ')
+          ..write('strength: $strength, ')
+          ..write('dosage: $dosage, ')
+          ..write('instructions: $instructions, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2772,6 +3047,11 @@ typedef $$MedicationsTableCreateCompanionBuilder =
       required String id,
       required String name,
       Value<DateTime?> createdAt,
+      Value<String?> description,
+      Value<String?> ingredients,
+      Value<String?> strength,
+      Value<String?> dosage,
+      Value<String?> instructions,
       Value<int> rowid,
     });
 typedef $$MedicationsTableUpdateCompanionBuilder =
@@ -2779,6 +3059,11 @@ typedef $$MedicationsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<DateTime?> createdAt,
+      Value<String?> description,
+      Value<String?> ingredients,
+      Value<String?> strength,
+      Value<String?> dosage,
+      Value<String?> instructions,
       Value<int> rowid,
     });
 
@@ -2835,6 +3120,31 @@ class $$MedicationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ingredients => $composableBuilder(
+    column: $table.ingredients,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get strength => $composableBuilder(
+    column: $table.strength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dosage => $composableBuilder(
+    column: $table.dosage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get instructions => $composableBuilder(
+    column: $table.instructions,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> medicationRemindersRefs(
     Expression<bool> Function($$MedicationRemindersTableFilterComposer f) f,
   ) {
@@ -2884,6 +3194,31 @@ class $$MedicationsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ingredients => $composableBuilder(
+    column: $table.ingredients,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get strength => $composableBuilder(
+    column: $table.strength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dosage => $composableBuilder(
+    column: $table.dosage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get instructions => $composableBuilder(
+    column: $table.instructions,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MedicationsTableAnnotationComposer
@@ -2903,6 +3238,27 @@ class $$MedicationsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ingredients => $composableBuilder(
+    column: $table.ingredients,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get strength =>
+      $composableBuilder(column: $table.strength, builder: (column) => column);
+
+  GeneratedColumn<String> get dosage =>
+      $composableBuilder(column: $table.dosage, builder: (column) => column);
+
+  GeneratedColumn<String> get instructions => $composableBuilder(
+    column: $table.instructions,
+    builder: (column) => column,
+  );
 
   Expression<T> medicationRemindersRefs<T extends Object>(
     Expression<T> Function($$MedicationRemindersTableAnnotationComposer a) f,
@@ -2962,11 +3318,21 @@ class $$MedicationsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String?> ingredients = const Value.absent(),
+                Value<String?> strength = const Value.absent(),
+                Value<String?> dosage = const Value.absent(),
+                Value<String?> instructions = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MedicationsCompanion(
                 id: id,
                 name: name,
                 createdAt: createdAt,
+                description: description,
+                ingredients: ingredients,
+                strength: strength,
+                dosage: dosage,
+                instructions: instructions,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2974,11 +3340,21 @@ class $$MedicationsTableTableManager
                 required String id,
                 required String name,
                 Value<DateTime?> createdAt = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String?> ingredients = const Value.absent(),
+                Value<String?> strength = const Value.absent(),
+                Value<String?> dosage = const Value.absent(),
+                Value<String?> instructions = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MedicationsCompanion.insert(
                 id: id,
                 name: name,
                 createdAt: createdAt,
+                description: description,
+                ingredients: ingredients,
+                strength: strength,
+                dosage: dosage,
+                instructions: instructions,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

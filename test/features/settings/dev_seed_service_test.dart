@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/medications/domain/repositories/medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
@@ -63,6 +65,7 @@ void main() {
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
+      DriftMedicationReminderRepository(db),
       const DataExportService(),
       files,
       DriftExportRecordRepository(db),
@@ -76,6 +79,8 @@ void main() {
       DriftMedicationRepository(db).watchAll().first;
   Future<List<ExportRecord>> exports() =>
       DriftExportRecordRepository(db).watchAll().first;
+  Future<List<MedicationReminderView>> reminders() =>
+      DriftMedicationReminderRepository(db).watchAll().first;
 
   test('seeds the promised number of rows of each kind', () async {
     await seeder.seed();
@@ -93,6 +98,69 @@ void main() {
     ];
 
     expect(names.toSet().length, names.length);
+  });
+
+  test('some medications get a long reminder list, some get none', () async {
+    await seeder.seed();
+
+    final Map<String, int> perMedication = <String, int>{};
+
+    for (final MedicationReminderView view in await reminders()) {
+      perMedication.update(
+        view.reminder.medicationId,
+        (int count) => count + 1,
+        ifAbsent: () => 1,
+      );
+    }
+
+    // The crowded ones are what the detail screen's list has to survive.
+    expect(
+      perMedication.values
+          .where((int count) => count == DevSeedService.crowdedReminders)
+          .length,
+      DevSeedService.crowdedMedications,
+    );
+    // And plenty are left with nothing, for the empty state and the filter.
+    expect(
+      perMedication.length,
+      lessThan(DevSeedService.seedCount),
+      reason: 'every medication got a reminder, so the empty case is unseeded',
+    );
+  });
+
+  test('no two reminders on one medication share a time', () async {
+    await seeder.seed();
+
+    final Map<String, Set<int>> minutes = <String, Set<int>>{};
+    int total = 0;
+
+    for (final MedicationReminderView view in await reminders()) {
+      total++;
+      minutes
+          .putIfAbsent(view.reminder.medicationId, () => <int>{})
+          .add(view.reminder.minuteOfDay);
+    }
+
+    expect(
+      minutes.values.fold<int>(0, (int sum, Set<int> set) => sum + set.length),
+      total,
+    );
+  });
+
+  test('re-seeding does not pile reminders onto the old medications', () async {
+    await seeder.seed();
+    final int first = (await reminders()).length;
+
+    await seeder.seed();
+
+    // The wipe cascades the old reminders away; only the new run's survive.
+    expect((await reminders()).length, lessThan(first * 2));
+    final Set<String> medicationIds = <String>{
+      for (final Medication m in await medications()) m.id,
+    };
+    for (final MedicationReminderView view in await reminders()) {
+      expect(medicationIds, contains(view.reminder.medicationId));
+    }
   });
 
   test('no two attacks land in the same hour', () async {

@@ -91,7 +91,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('Add medication shortcut opens the add dialog on Medications', (
+  testWidgets('Add medication shortcut opens the add sheet on Medications', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -100,7 +100,16 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    // The add-name dialog auto-opens after landing on the Medications tab.
+    // The add sheet auto-opens after landing on the Medications tab, and
+    // asks which way in before anything else. It opens from a post-frame
+    // callback, so it is still sliding up when the tab switch settles —
+    // tapping now would land below the screen.
+    expect(find.text('Quick add'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    await tester.tap(find.text('Quick add'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Add a medication'), findsOneWidget);
 
     await finishTest(tester);
@@ -157,7 +166,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('tapping the next-reminder banner opens the medication', (
+  testWidgets('tapping the next-reminder banner opens its detail screen', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -176,9 +185,11 @@ void main() {
     await tester.tap(find.text('Next reminder'));
     await _settle(tester);
 
-    // Landed on the Medications tab with that medication's card shown.
-    expect(find.text('Medications'), findsWidgets);
-    expect(find.text('Ibuprofen'), findsOneWidget);
+    // Landed on that medication's own screen, with the reminder on it —
+    // not the Medications tab it used to scroll and flash.
+    expect(find.text('Ibuprofen'), findsWidgets);
+    expect(find.text('Reminders'), findsOneWidget);
+    expect(find.text('09:00'), findsOneWidget);
 
     await finishTest(tester);
   });

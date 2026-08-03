@@ -8,6 +8,8 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../medications/domain/entities/medication.dart';
+import '../../../medications/domain/entities/medication_reminder.dart';
+import '../../../medications/domain/repositories/medication_reminder_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/export_record.dart';
@@ -18,9 +20,9 @@ import 'data_wipe_service.dart';
 import 'export_file_store.dart';
 
 /// Dev-only fixture generator: wipes whatever is on the device, then refills
-/// it with [seedCount] medications, [seedCount] attacks and [seedCount] past
-/// exports so charts, filters, the export history and the correlation engine
-/// all have something to chew on.
+/// it with [seedCount] medications (most carrying a reminder or three),
+/// [seedCount] attacks and [seedCount] past exports so charts, filters, the
+/// export history and the correlation engine all have something to chew on.
 ///
 /// **Every run produces a different data set.** Nothing is derived from the
 /// row index — not the medication a row gets, not whether an attack has
@@ -39,6 +41,7 @@ class DevSeedService {
     this._wipe,
     this._attacks,
     this._medications,
+    this._reminders,
     this._export,
     this._exportFiles,
     this._exportRecords,
@@ -47,12 +50,21 @@ class DevSeedService {
   final DataWipeService _wipe;
   final AttackRepository _attacks;
   final MedicationRepository _medications;
+  final MedicationReminderRepository _reminders;
   final DataExportService _export;
   final ExportFileStore _exportFiles;
   final ExportRecordRepository _exportRecords;
 
   /// How many rows of each kind a seed produces.
   static const int seedCount = 100;
+
+  /// How many medications get [crowdedReminders] instead of a handful.
+  static const int crowdedMedications = 3;
+
+  /// The pile a crowded medication gets. Nobody types twenty reminders by
+  /// hand, which is exactly why the detail screen has to be seeded with them
+  /// — a list that only ever holds three never shows what scrolling costs.
+  static const int crowdedReminders = 20;
 
   /// How far back rows are scattered, in hours — a little over three months,
   /// which is enough for the weekly charts and the 90-day filters to have
@@ -133,10 +145,70 @@ class DevSeedService {
     for (final Medication medication in medications) {
       await _medications.upsert(medication);
     }
+    // After the medications exist: a reminder is a foreign key onto one.
+    await _seedReminders(random, medications);
     for (final Attack attack in attacks) {
       await _attacks.insert(attack);
     }
     await _seedExports(random, attacks, medications, now);
+  }
+
+  /// Reminder counts are lopsided on purpose. Most medications have none or
+  /// a couple — that is what the reminder filter and the list's count line
+  /// are for — and [crowdedMedications] of them get [crowdedReminders], so
+  /// the detail screen is always seeded with one list long enough to scroll.
+  ///
+  /// Written straight to the repository, never through `RemindersController`:
+  /// these are fixtures, and scheduling hundreds of real notifications on a
+  /// dev device would be a genuinely unpleasant afternoon.
+  Future<void> _seedReminders(
+    Random random,
+    List<Medication> medications,
+  ) async {
+    final List<Medication> shuffled = List<Medication>.of(medications)
+      ..shuffle(random);
+
+    for (int i = 0; i < shuffled.length; i++) {
+      final int count = i < crowdedMedications
+          ? crowdedReminders
+          : _casualReminderCount(random);
+
+      for (final int minuteOfDay in _distinctMinutes(random, count)) {
+        await _reminders.upsert(
+          MedicationReminder(
+            id: _uuid.v4(),
+            medicationId: shuffled[i].id,
+            minuteOfDay: minuteOfDay,
+            // One in five is off: a disabled row draws differently, and the
+            // "has a reminder" filter must still count it.
+            enabled: random.nextInt(5) != 0,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 0–5, weighted low. The zeros matter as much as the rest — a medications
+  /// list where every row has reminders never shows the empty case.
+  int _casualReminderCount(Random random) {
+    final int roll = random.nextInt(10);
+
+    if (roll < 4) return 0;
+    if (roll < 8) return 1 + random.nextInt(2);
+    return 3 + random.nextInt(3);
+  }
+
+  /// [count] distinct times of day. Distinct because two reminders at the
+  /// same minute are indistinguishable rows, and the user could not have
+  /// created them either.
+  Set<int> _distinctMinutes(Random random, int count) {
+    final Set<int> minutes = <int>{};
+
+    while (minutes.length < count) {
+      minutes.add(random.nextInt(24 * 60));
+    }
+
+    return minutes;
   }
 
   /// Names are drawn without replacement: the 30 names crossed with the 5
