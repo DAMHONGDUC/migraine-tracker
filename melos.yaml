@@ -25,12 +25,19 @@ packages:
 ide:
   intellij: false
 
+# Every script below is POSIX sh, not bash: melos runs them through /bin/sh,
+# which is dash on Linux. `set -o pipefail` and `[[ ]]` die there, and macOS
+# will not tell you — its /bin/sh is bash wearing a different name.
+#
+# Each one also resolves the SDK itself: `fvm flutter` when this checkout is
+# pinned by .fvmrc and fvm is installed, plain `flutter` otherwise (CI). An
+# alias cannot be seen from inside a script, so it is spelled out.
 scripts:
   setup:
     description: >
       Everything a fresh clone needs, in order. Safe to re-run.
     run: |
-      set -euo pipefail
+      set -eu
       cd "$MELOS_ROOT_PATH"
 
       # `flutter` is a shell alias for `fvm flutter` here, and aliases do not
@@ -95,6 +102,12 @@ scripts:
       # needs CocoaPods for that one plugin. See CLAUDE.md.
       if [ "$(uname)" = "Darwin" ] && [ -f ios/Podfile ] && command -v pod >/dev/null 2>&1; then
         echo "==> ios pods"
+        # CocoaPods is Ruby, and Ruby without a UTF-8 locale reads the Podfile
+        # as ASCII-8BIT and dies inside its own error reporter — a stack trace
+        # that says nothing about the missing LANG. Terminals set it; stripped
+        # environments do not.
+        [ -n "${LANG:-}" ] || LANG=en_US.UTF-8
+        export LANG
         $FL precache --ios
         (cd ios && pod install)
       fi
@@ -110,7 +123,7 @@ scripts:
   gen:
     description: Regenerate localizations and build_runner output.
     run: |
-      set -euo pipefail
+      set -eu
       cd "$MELOS_ROOT_PATH"
       if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
         FL="fvm flutter"; DT="fvm dart"
@@ -123,7 +136,7 @@ scripts:
   analyze:
     description: Analyze every package. Must pass with zero warnings.
     run: |
-      set -euo pipefail
+      set -eu
       cd "$MELOS_ROOT_PATH"
       if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
       $FL analyze --fatal-infos
@@ -131,7 +144,7 @@ scripts:
   test:
     description: Run the Flutter test suite.
     run: |
-      set -euo pipefail
+      set -eu
       cd "$MELOS_ROOT_PATH"
       if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
       $FL test
@@ -140,7 +153,7 @@ scripts:
     description: >
       Wipe Android + iOS build artefacts. Follow with `melos run setup`.
     run: |
-      set -euo pipefail
+      set -eu
       cd "$MELOS_ROOT_PATH"
       if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
 
