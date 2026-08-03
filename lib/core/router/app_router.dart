@@ -11,6 +11,8 @@ import '../../features/auth/providers.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
+import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
+import '../../features/medications/presentation/screens/medication_form_screen/medication_form_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
@@ -49,6 +51,22 @@ final class AppRoutes {
   /// Path parameter: [attackIdParam].
   static const attack = AppRoute(name: 'attackDetail', path: '/attack/:id');
   static const attackIdParam = 'id';
+
+  /// One medication and its reminders, pushed from the medications list and
+  /// from the dashboard's next-reminder banner.
+  /// Path parameter: [medicationIdParam].
+  static const medication = AppRoute(
+    name: 'medicationDetail',
+    path: '/medication/:id',
+  );
+  static const medicationIdParam = 'id';
+
+  /// The details form for a new medication (name + what the box says + the
+  /// label scan), pushed from the medications tab's add sheet.
+  static const medicationForm = AppRoute(
+    name: 'medicationForm',
+    path: '/medication/new',
+  );
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
 
@@ -115,6 +133,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.attack.path,
         builder: (context, state) => AttackDetailScreen(
           attackId: state.pathParameters[AppRoutes.attackIdParam]!,
+        ),
+      ),
+      // Declared before the `:id` route: go_router matches in order, and
+      // `/medication/new` would otherwise be read as a medication with the
+      // id "new".
+      GoRoute(
+        name: AppRoutes.medicationForm.name,
+        path: AppRoutes.medicationForm.path,
+        builder: (context, state) => const MedicationFormScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.medication.name,
+        path: AppRoutes.medication.path,
+        builder: (context, state) => MedicationDetailScreen(
+          medicationId: state.pathParameters[AppRoutes.medicationIdParam]!,
         ),
       ),
       // The 3-tap log flow is a full-screen pushed route (opened from the

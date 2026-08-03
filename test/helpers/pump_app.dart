@@ -26,7 +26,9 @@ import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dar
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/medications/domain/services/medication_photo_source.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/medications/domain/services/text_recognizer.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
 import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
@@ -60,6 +62,38 @@ class FakeWeatherRepository implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
+}
+
+/// Stands in for the camera / photo library. Hands back [path] — null by
+/// default, which is what backing out of the picker looks like.
+class FakeMedicationPhotoSource implements MedicationPhotoSource {
+  String? path;
+
+  /// Where the last pick came from, so a test can assert the sheet's choice
+  /// reached the picker.
+  MedicationPhotoOrigin? lastOrigin;
+
+  @override
+  Future<String?> pick(MedicationPhotoOrigin origin) async {
+    lastOrigin = origin;
+
+    return path;
+  }
+}
+
+/// Stands in for ML Kit: whatever [lines] a test wants read off the photo.
+class FakeMedicationTextRecognizer implements MedicationTextRecognizer {
+  List<String> lines = const <String>[];
+
+  /// Set to make the recognizer fail the way a corrupt image would.
+  bool throws = false;
+
+  @override
+  Future<List<String>> recognize(String imagePath) async {
+    if (throws) throw StateError('unreadable image');
+
+    return lines;
+  }
 }
 
 /// No-op scheduler so widget tests never touch the notifications plugin.
@@ -430,6 +464,8 @@ class PumpedApp {
     required this.prefs,
     required this.weather,
     required this.scheduler,
+    required this.photos,
+    required this.textRecognizer,
     required this.permissions,
     required this.auth,
     required this.appUpdate,
@@ -445,6 +481,12 @@ class PumpedApp {
   final SharedPreferences prefs;
   final FakeWeatherRepository weather;
   final FakeNotificationScheduler scheduler;
+
+  /// The fake camera behind the medication form's scan button.
+  final FakeMedicationPhotoSource photos;
+
+  /// What that photo "says" — set `lines` before tapping scan.
+  final FakeMedicationTextRecognizer textRecognizer;
   final FakeAppPermissionGateway permissions;
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
@@ -537,6 +579,9 @@ Future<PumpedApp> pumpApp(
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
+  final FakeMedicationPhotoSource photos = FakeMedicationPhotoSource();
+  final FakeMedicationTextRecognizer textRecognizer =
+      FakeMedicationTextRecognizer();
   final permissions = FakeAppPermissionGateway();
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
@@ -567,6 +612,10 @@ Future<PumpedApp> pumpApp(
         sharedPreferencesProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
+        // Always overridden: there is no camera in a widget test, and ML Kit
+        // would reach for a native detector.
+        medicationPhotoSourceProvider.overrideWithValue(photos),
+        medicationTextRecognizerProvider.overrideWithValue(textRecognizer),
         appPermissionGatewayProvider.overrideWithValue(permissions),
         authRepositoryProvider.overrideWithValue(auth),
         healthRepositoryProvider.overrideWithValue(health),
@@ -600,6 +649,8 @@ Future<PumpedApp> pumpApp(
     prefs: prefs,
     weather: weather,
     scheduler: scheduler,
+    photos: photos,
+    textRecognizer: textRecognizer,
     permissions: permissions,
     auth: auth,
     appUpdate: appUpdateRepository,

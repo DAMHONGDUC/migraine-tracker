@@ -13,7 +13,7 @@ import '../../../medications/providers.dart';
 import 'highlighted_time_text.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
-/// current time), tapping through to the Medications tab.
+/// current time), tapping through to that medication's detail screen.
 ///
 /// Live without a stream-driven clock provider: a widget-owned 30s timer
 /// re-ticks "now" locally. (A `StreamProvider` clock that a synchronous
@@ -74,13 +74,14 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
         highlight: remaining,
         color: AppColors.secondary,
       ),
-      onTap: () {
-        // Ask the Medications tab to scroll to + flash this reminder's card.
-        ref
-            .read(medicationHighlightProvider.notifier)
-            .request(reminder.medicationId);
-        context.goNamed(AppRoutes.medications.name);
-      },
+      // Straight to the medication this reminder belongs to — its detail
+      // screen is where the reminder can actually be changed.
+      onTap: () => context.pushNamed(
+        AppRoutes.medication.name,
+        pathParameters: <String, String>{
+          AppRoutes.medicationIdParam: reminder.medicationId,
+        },
+      ),
     );
   }
 
