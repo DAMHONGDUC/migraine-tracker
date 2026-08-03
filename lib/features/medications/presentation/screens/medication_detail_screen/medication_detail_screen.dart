@@ -139,6 +139,12 @@ class MedicationDetailScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w12),
       ],
       body: SdActionViewV2(
+        // Full-bleed: the header and the "no reminders" text bring their own
+        // horizontal padding, `SdSectionHeaderV2` pads itself the same way,
+        // and the reminders card takes the gutter as margin instead — the
+        // default `contentPadding` would stack a second one on top of all
+        // four (see `account_screen.dart` for the same pattern).
+        contentPadding: EdgeInsets.zero,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -157,7 +163,9 @@ class MedicationDetailScreen extends ConsumerWidget {
               )
             else
               Card(
-                margin: EdgeInsets.zero,
+                margin: EdgeInsets.symmetric(
+                  horizontal: SdContentPaddingV2.horizontal,
+                ),
                 child: Column(
                   children: <Widget>[
                     for (final MedicationReminderView view in reminders)
