@@ -44,7 +44,7 @@ void main() {
   tearDown(() => SdGlassV2.debugSupported = null);
 
   testWidgets(
-    'content clears the app bar by topGap and the inset by bottomGap',
+    'content clears the app bar by topGap and rests on the safe area',
     (tester) async {
       final EdgeInsets insets = await insetsOf(
         tester,
@@ -53,8 +53,10 @@ void main() {
 
       // 47 status bar + 56 toolbar + topGap.
       expect(insets.top, 47 + kToolbarHeight + 8);
-      // 34 home indicator + bottomGap.
-      expect(insets.bottom, 34 + 16);
+      // A screen with nothing floating over it rests on the home indicator
+      // itself — 34 is already more room than the floor asks for, so nothing
+      // is stacked on top of it.
+      expect(insets.bottom, 34);
       expect(insets.left, 16);
       expect(insets.right, 16);
     },
@@ -106,6 +108,37 @@ void main() {
     expect(bottom, 16 + 56 + 16);
   });
 
+  testWidgets('a detail screen with no home indicator takes the floor', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    // A Home-button phone: nothing to rest on at the bottom.
+    tester.view.padding = const FakeViewPadding(top: 60);
+    tester.view.viewPadding = const FakeViewPadding(top: 60);
+    addTearDown(tester.view.reset);
+
+    late final double bottom;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          theme: AppTheme.dark,
+          home: Builder(
+            builder: (BuildContext context) {
+              bottom = SdContentPaddingV2.detailBottom(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+
+    // Without the floor the last row would sit flush against the glass.
+    expect(bottom, 20);
+  });
+
   testWidgets('a bottom inset below the floor is raised to it', (tester) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
@@ -145,7 +178,7 @@ void main() {
     );
 
     expect(insets.top, 47 + kToolbarHeight + 8);
-    expect(insets.bottom, 34 + 16);
+    expect(insets.bottom, 34);
     expect(insets.left, 0);
     expect(insets.right, 0);
   });
@@ -204,7 +237,7 @@ void main() {
 
     // The body already starts below the bar; only the gap is left.
     expect(insets.top, 8);
-    expect(insets.bottom, 34 + 16);
+    expect(insets.bottom, 34);
   });
 
   testWidgets(
