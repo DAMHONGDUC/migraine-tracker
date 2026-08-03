@@ -71,5 +71,3 @@ if [ -n "$MISSING" ]; then
   warn "Created from templates:$MISSING"
   warn "Fill in the Firebase and RevenueCat keys before running."
 fi
-
-done_msg "Run the app:  $FL run --dart-define-from-file=env/dev.json"
