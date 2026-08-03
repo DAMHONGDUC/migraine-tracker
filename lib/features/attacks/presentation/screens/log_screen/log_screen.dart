@@ -103,9 +103,9 @@ class LogScreen extends ConsumerWidget {
             if (question != null)
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                  SdSpacingConstant.w24,
+                  SdContentPaddingV2.horizontal,
                   SdSpacingConstant.h16,
-                  SdSpacingConstant.w24,
+                  SdContentPaddingV2.horizontal,
                   SdSpacingConstant.h8,
                 ),
                 child: SdFittedTextV2(

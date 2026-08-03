@@ -62,26 +62,22 @@ class AttackDetailsSheet extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
+          SdTextFieldV2(
             controller: symptomsController,
-            decoration: InputDecoration(
-              labelText: l10n.detailsSymptomsLabel,
-              hintText: l10n.detailsSymptomsHint,
-            ),
+            label: l10n.detailsSymptomsLabel,
+            hint: l10n.detailsSymptomsHint,
           ),
-          SizedBox(height: SdSpacingConstant.h12),
-          TextField(
+          SizedBox(height: SdSpacingConstant.h16),
+          SdTextFieldV2(
             controller: triggersController,
-            decoration: InputDecoration(
-              labelText: l10n.detailsTriggersLabel,
-              hintText: l10n.detailsTriggersHint,
-            ),
+            label: l10n.detailsTriggersLabel,
+            hint: l10n.detailsTriggersHint,
           ),
-          SizedBox(height: SdSpacingConstant.h12),
-          TextField(
+          SizedBox(height: SdSpacingConstant.h16),
+          SdTextFieldV2(
             controller: notesController,
+            label: l10n.detailsNotesLabel,
             maxLines: 3,
-            decoration: InputDecoration(labelText: l10n.detailsNotesLabel),
           ),
         ],
       ),

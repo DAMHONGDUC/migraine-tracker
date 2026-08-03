@@ -8,8 +8,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../controllers/log_controller.dart' show LogStep;
 
-/// The 3-tap progress as a floating bottom bar — the same slot and glass
-/// treatment the shell's bottom nav used to morph into while logging. Sits in
+/// The 3-tap progress as a floating bottom bar — the same slot, glass
+/// treatment, side margin and bottom offset the shell's bottom nav used to
+/// morph into while logging (both read `SdContentPaddingV2.
+/// floatingBarHorizontal` and `.navBarOffset`, never their own copy). Sits in
 /// [SdScaffoldV2.bottomNavigationBar]; the log flow's body scrolls behind it.
 class LogStepBar extends StatelessWidget {
   const LogStepBar({required this.step, super.key});
@@ -38,15 +40,17 @@ class LogStepBar extends StatelessWidget {
       );
     }
 
-    // Glass on: the floating frosted pill — side margins so it lifts off the
-    // edges, the safe-area gap below it, and the child's bottom inset removed
-    // to avoid a double gap (see the shell's floating bar).
+    // Glass on: the floating frosted pill — same side margins and the same
+    // bottom offset as the shell's nav pill (SdContentPaddingV2), so the two
+    // bars this route swaps between never visibly disagree. The child's
+    // bottom inset is removed to avoid a double gap (see the shell's
+    // floating bar).
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SdSpacingConstant.w24,
+        SdContentPaddingV2.floatingBarHorizontal,
         0,
-        SdSpacingConstant.w24,
-        MediaQuery.paddingOf(context).bottom,
+        SdContentPaddingV2.floatingBarHorizontal,
+        SdContentPaddingV2.navBarOffset(context),
       ),
       child: LiquidGlass.withOwnLayer(
         settings: kChromeGlass,

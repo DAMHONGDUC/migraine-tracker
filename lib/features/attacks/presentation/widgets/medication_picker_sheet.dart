@@ -81,8 +81,8 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
           ),
         ),
         Positioned(
-          left: SdSpacingConstant.w24,
-          right: SdSpacingConstant.w24,
+          left: SdContentPaddingV2.horizontal,
+          right: SdContentPaddingV2.horizontal,
           bottom: barBottom,
           child: MedicationSearchField(
             controller: _searchController,

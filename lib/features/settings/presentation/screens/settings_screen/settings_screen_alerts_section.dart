@@ -10,7 +10,6 @@ class _AlertsSection extends StatelessWidget {
     return PremiumTileGate(
       icon: Icons.notifications_active_outlined,
       title: context.l10n.alertsToggleTitle,
-      lockedMessage: context.l10n.premiumLockedAlerts,
       child: const AlertsSection(),
     );
   }

@@ -40,7 +40,10 @@ class IntensityStep extends StatelessWidget {
         builder: (context, t, child) => Opacity(opacity: t, child: child),
         // Scrollable so the four rows never overflow on short screens.
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(SdSpacingConstant.w24),
+          padding: EdgeInsets.symmetric(
+            horizontal: SdContentPaddingV2.horizontal,
+            vertical: SdSpacingConstant.h24,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,

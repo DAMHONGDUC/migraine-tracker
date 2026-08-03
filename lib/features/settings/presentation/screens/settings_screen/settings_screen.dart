@@ -14,6 +14,7 @@ import '../../../../../core/widgets/sections/account_section.dart';
 import '../../../../../core/widgets/sections/alerts_section.dart';
 import '../../../../../core/widgets/sections/health_section.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
+import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../auth/providers.dart';
 import '../../../../premium/providers.dart';

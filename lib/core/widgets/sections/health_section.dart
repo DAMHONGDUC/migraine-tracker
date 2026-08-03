@@ -40,18 +40,11 @@ class HealthSection extends ConsumerWidget {
     return PremiumTileGate(
       icon: Icons.bedtime_outlined,
       title: context.l10n.healthSleepTitle,
-      lockedMessage: context.l10n.premiumLockedSleep,
       child: SwitchListTile(
         secondary: const SdIconV2(icon: Icons.bedtime_outlined),
         title: Text(
           context.l10n.healthSleepTitle,
           style: AppTextStyle.bodyLarge,
-        ),
-        subtitle: Text(
-          connected
-              ? context.l10n.healthSleepConnected
-              : context.l10n.healthSleepSubtitle,
-          style: AppTextStyle.bodyMedium.secondary,
         ),
         value: connected,
         onChanged: (bool value) => _toggle(context, ref, value),

@@ -48,11 +48,13 @@ class _DisplayNameDialogState extends State<DisplayNameDialog> {
 
     return SdDialogV2(
       title: l10n.accountEditName,
-      content: TextField(
+      // No label: the dialog is titled "Edit name" already.
+      content: SdTextFieldV2(
         controller: _controller,
         autofocus: true,
+        hint: l10n.accountNameHint,
         textCapitalization: TextCapitalization.words,
-        decoration: InputDecoration(hintText: l10n.accountNameHint),
+        textInputAction: TextInputAction.done,
         onSubmitted: _submit,
       ),
       actions: <Widget>[

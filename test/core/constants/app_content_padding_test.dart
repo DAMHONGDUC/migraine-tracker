@@ -67,14 +67,14 @@ void main() {
           SdContentPaddingV2.screen(context, floatingNav: true),
     );
 
-    // The pill rests on the 34 home indicator, so: that + its 56 of height +
-    // bottomGap.
-    expect(insets.bottom, 34 + 56 + 16);
+    // The 34 home indicator is deeper than the pill's ceiling, so the offset
+    // caps at 20: that + its 56 of height + bottomGap.
+    expect(insets.bottom, 20 + 56 + 16);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
   });
 
-  testWidgets('with no home indicator the pill takes a flat 16 instead', (
+  testWidgets('with no home indicator the pill falls back to the floor', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
@@ -101,8 +101,38 @@ void main() {
       ),
     );
 
-    // Nothing to rest on, so the pill floats 16 off the edge: that + its 56 +
+    // Nothing to rest on, so the pill takes the floor: that + its 56 +
     // bottomGap.
+    expect(bottom, 16 + 56 + 16);
+  });
+
+  testWidgets('a bottom inset below the floor is raised to it', (tester) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    // An iPad, or an iPhone in landscape: there IS a home indicator, but a
+    // shallower one than a portrait phone's 34 — 8, under the floor.
+    tester.view.padding = const FakeViewPadding(top: 60, bottom: 24);
+    tester.view.viewPadding = const FakeViewPadding(top: 60, bottom: 24);
+    addTearDown(tester.view.reset);
+
+    late final double bottom;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          theme: AppTheme.dark,
+          home: Builder(
+            builder: (BuildContext context) {
+              bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+
+    // 8 of real inset, but the pill still clears the edge by the floor.
     expect(bottom, 16 + 56 + 16);
   });
 
@@ -177,49 +207,52 @@ void main() {
     expect(insets.bottom, 34 + 16);
   });
 
-  testWidgets('the bar inset survives Scaffold stripping the bottom padding', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
-    tester.view.devicePixelRatio = 3;
-    tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
-    tester.view.viewPadding = const FakeViewPadding(top: 141, bottom: 102);
-    addTearDown(tester.view.reset);
+  testWidgets(
+    'the bar inset survives Scaffold stripping the bottom padding, and the '
+    'two floating bars agree',
+    (tester) async {
+      tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+      tester.view.devicePixelRatio = 3;
+      tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
+      tester.view.viewPadding = const FakeViewPadding(top: 141, bottom: 102);
+      addTearDown(tester.view.reset);
 
-    late final double tabScreen;
-    late final double logFlow;
+      late final double tabScreen;
+      late final double logFlow;
 
-    await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: const Size(393, 852),
-        builder: (BuildContext _, Widget? _) => MaterialApp(
-          // The shape both floating bars come in: a bottom bar, and a body
-          // that reaches under it.
-          home: Scaffold(
-            extendBody: true,
-            bottomNavigationBar: const SizedBox(height: 56),
-            body: Builder(
-              builder: (BuildContext context) {
-                // Scaffold subtracts padding.bottom from the body's
-                // viewPadding.bottom whenever there is a bottom bar, so an
-                // ambient read here loses the home indicator entirely — and
-                // the last row ends up under the bar.
-                tabScreen = SdContentPaddingV2.bottom(
-                  context,
-                  floatingNav: true,
-                );
-                logFlow = SdContentPaddingV2.bottomBar(context);
-                return const SizedBox();
-              },
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(393, 852),
+          builder: (BuildContext _, Widget? _) => MaterialApp(
+            // The shape both floating bars come in: a bottom bar, and a body
+            // that reaches under it.
+            home: Scaffold(
+              extendBody: true,
+              bottomNavigationBar: const SizedBox(height: 56),
+              body: Builder(
+                builder: (BuildContext context) {
+                  // Scaffold subtracts padding.bottom from the body's
+                  // viewPadding.bottom whenever there is a bottom bar, so an
+                  // ambient read here loses the home indicator entirely — and
+                  // the last row ends up under the bar.
+                  tabScreen = SdContentPaddingV2.bottom(
+                    context,
+                    floatingNav: true,
+                  );
+                  logFlow = SdContentPaddingV2.bottomBar(context);
+                  return const SizedBox();
+                },
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Both bars rest on the 34 home indicator here, so both come to the same
-    // sum — what matters is that neither lost it.
-    expect(tabScreen, 34 + 56 + 16);
-    expect(logFlow, 34 + 56 + 16);
-  });
+      // Neither lost the home indicator, which is what this test is for.
+      // And now they DO agree: both floating bars read the same
+      // `navBarOffset`, which clamps the 34 home indicator down to 20.
+      expect(tabScreen, 20 + 56 + 16);
+      expect(logFlow, 20 + 56 + 16);
+    },
+  );
 }

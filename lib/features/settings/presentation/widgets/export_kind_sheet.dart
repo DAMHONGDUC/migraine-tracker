@@ -28,9 +28,9 @@ class ExportKindSheet extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               SdSpacingConstant.h4,
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               SdSpacingConstant.h12,
             ),
             child: Text(

@@ -1,5 +1,6 @@
-part of 'medications_screen.dart';
+part of 'medication_detail_screen.dart';
 
+/// One daily reminder: its time, whether it is armed, and a way to remove it.
 class _ReminderRow extends ConsumerWidget {
   const _ReminderRow({required this.view});
 
@@ -10,20 +11,24 @@ class _ReminderRow extends ConsumerWidget {
   Future<void> _editTime(BuildContext context, WidgetRef ref) async {
     // A reminder is useless without notification permission — ask up front and,
     // if it's permanently off, AppPermission shows the Settings sheet for us.
-    final granted = await ref
+    final bool granted = await ref
         .read(appPermissionProvider)
         .ensure(context, AppPermissionType.notification);
+
     if (!granted || !context.mounted) return;
 
-    final l10n = context.l10n;
-    final reminder = view.reminder;
-    final picked = await AppTimePickerSheet(
+    final AppLocalizations l10n = context.l10n;
+    final MedicationReminder reminder = view.reminder;
+    final TimeOfDay? picked = await AppTimePickerSheet(
       title: l10n.remindersEditTitle,
       initialTime: TimeOfDay(hour: reminder.hour, minute: reminder.minute),
       isEditMode: true,
     ).show(context);
+
     if (picked == null || !context.mounted) return;
-    final minuteOfDay = picked.hour * 60 + picked.minute;
+
+    final int minuteOfDay = picked.hour * 60 + picked.minute;
+
     await ref
         .read(remindersControllerProvider)
         .updateTime(
@@ -42,34 +47,28 @@ class _ReminderRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final reminder = view.reminder;
+    final AppLocalizations l10n = context.l10n;
+    final MedicationReminder reminder = view.reminder;
     // Zero-padded 24h, matching the wheel picker it was set with
     // (AppTimePickerSheet) rather than TimeOfDay.format's locale-dependent
     // 12h/AM-PM — picking and reading a time should never disagree on
     // format.
-    final time =
+    final String time =
         '${reminder.hour.toString().padLeft(2, '0')}:'
         '${reminder.minute.toString().padLeft(2, '0')}';
 
-    final rowPadding = EdgeInsets.symmetric(
-      horizontal: SdContentPaddingV2.horizontal,
-    ).copyWith(right: SdContentPaddingV2.horizontal / 2);
-
     return ListTile(
-      dense: true,
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
       leading: const SdIconV2(icon: Icons.alarm),
-      contentPadding: rowPadding,
       title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           SdSwitcherV2(
             size: 0.7,
             value: reminder.enabled,
-            onChanged: (enabled) => ref
+            onChanged: (bool enabled) => ref
                 .read(remindersControllerProvider)
                 .setEnabled(
                   reminder,

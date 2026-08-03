@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 
 /// Onboarding runs before anything else exists, so what matters here is that
-/// a first-launch user can get through every page, and that the page telling
+/// a first-launch user can get through every page, and that the sheet telling
 /// them what the app does is honest about which parts they have to pay for.
 void main() {
   /// Onboarding's buttons sit in a fixed bar at the bottom, always on screen,
@@ -30,29 +30,35 @@ void main() {
     expect(find.text('Log an attack'), findsNothing);
   });
 
-  testWidgets('the feature page names every feature and badges the paid ones', (
-    tester,
-  ) async {
-    await pumpApp(
-      tester,
-      initialPrefs: <String, Object>{'onboarding_completed': false},
-    );
-    await nextPage(tester);
+  testWidgets(
+    'the feature sheet names every feature and badges the paid ones',
+    (tester) async {
+      await pumpApp(
+        tester,
+        initialPrefs: <String, Object>{'onboarding_completed': false},
+      );
+      await nextPage(tester);
+      await tapButton(tester, 'Not now');
 
-    // Free — none of these wears a badge.
-    expect(find.text('Three-tap attack log'), findsOneWidget);
-    expect(find.text('History and charts'), findsOneWidget);
-    expect(find.text('Medication reminders'), findsOneWidget);
-    expect(find.text('Export your data'), findsOneWidget);
+      // The list is behind a button on the last step, not a page of its own.
+      expect(find.text('Three-tap attack log'), findsNothing);
+      await tapButton(tester, 'See all app features');
 
-    // Premium — one badge each, and the group heading is the sixth.
-    expect(find.text('Pressure-drop alerts'), findsOneWidget);
-    expect(find.text('48-hour pressure forecast'), findsOneWidget);
-    expect(find.text('Weather correlation'), findsOneWidget);
-    expect(find.text('Sleep correlation'), findsOneWidget);
-    expect(find.text('Doctor report'), findsOneWidget);
-    expect(find.text('Premium'), findsNWidgets(6));
-  });
+      // Free — none of these wears a badge.
+      expect(find.text('Three-tap attack log'), findsOneWidget);
+      expect(find.text('History and charts'), findsOneWidget);
+      expect(find.text('Medication reminders'), findsOneWidget);
+      expect(find.text('Export your data'), findsOneWidget);
+
+      // Premium — one badge each, and the group heading is the sixth.
+      expect(find.text('Pressure-drop alerts'), findsOneWidget);
+      expect(find.text('48-hour pressure forecast'), findsOneWidget);
+      expect(find.text('Weather correlation'), findsOneWidget);
+      expect(find.text('Sleep correlation'), findsOneWidget);
+      expect(find.text('Doctor report'), findsOneWidget);
+      expect(find.text('Premium'), findsNWidgets(6));
+    },
+  );
 
   testWidgets('every page is reachable in order, ending on the threshold', (
     tester,
@@ -61,9 +67,6 @@ void main() {
       tester,
       initialPrefs: <String, Object>{'onboarding_completed': false},
     );
-
-    await nextPage(tester);
-    expect(find.text('Everything BaroEase does'), findsOneWidget);
 
     await nextPage(tester);
     expect(find.text('Why location?'), findsOneWidget);

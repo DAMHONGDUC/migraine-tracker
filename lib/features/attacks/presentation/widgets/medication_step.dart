@@ -73,9 +73,9 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
         if (hasMedications)
           Padding(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               SdSpacingConstant.h8,
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               SdSpacingConstant.h8,
             ),
             child: MedicationSearchField(
@@ -88,9 +88,9 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               SdSpacingConstant.h8,
-              SdSpacingConstant.w24,
+              SdContentPaddingV2.horizontal,
               widget.scrollBottomInset + SdSpacingConstant.h16,
             ),
             // Calm and predictable over platform-native bounce: a short list

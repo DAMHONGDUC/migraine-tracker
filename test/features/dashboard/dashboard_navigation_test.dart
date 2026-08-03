@@ -157,7 +157,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('tapping the next-reminder banner opens the medication', (
+  testWidgets('tapping the next-reminder banner opens its detail screen', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -176,9 +176,11 @@ void main() {
     await tester.tap(find.text('Next reminder'));
     await _settle(tester);
 
-    // Landed on the Medications tab with that medication's card shown.
-    expect(find.text('Medications'), findsWidgets);
-    expect(find.text('Ibuprofen'), findsOneWidget);
+    // Landed on that medication's own screen, with the reminder on it —
+    // not the Medications tab it used to scroll and flash.
+    expect(find.text('Ibuprofen'), findsWidgets);
+    expect(find.text('Reminders'), findsOneWidget);
+    expect(find.text('09:00'), findsOneWidget);
 
     await finishTest(tester);
   });

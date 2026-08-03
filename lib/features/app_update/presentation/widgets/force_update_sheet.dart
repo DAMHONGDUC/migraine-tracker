@@ -27,9 +27,9 @@ class ForceUpdateSheet extends ConsumerWidget {
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            SdSpacingConstant.w24,
+            SdContentPaddingV2.horizontal,
             SdSpacingConstant.h24,
-            SdSpacingConstant.w24,
+            SdContentPaddingV2.horizontal,
             SdSpacingConstant.h16,
           ),
           child: Column(
