@@ -37,16 +37,10 @@ class _GeneralSection extends ConsumerWidget {
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
         const _AlertsSection(),
         const HealthSection(),
-        ListTile(
-          leading: const SdIconV2(icon: Icons.language),
-          title: Text(
-            context.l10n.settingsLanguage,
-            style: AppTextStyle.bodyLarge,
-          ),
-          subtitle: Text(
-            current.label(context),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        SettingsTile(
+          icon: Icons.language,
+          title: context.l10n.settingsLanguage,
+          value: current.label(context),
           onTap: () => _pickLanguage(context, ref),
         ),
       ],

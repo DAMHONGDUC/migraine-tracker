@@ -117,15 +117,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Symptoms'),
-      'aura, nausea',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Triggers'),
-      'stress',
-    );
-    await tester.enterText(find.widgetWithText(TextField, 'Notes'), 'bad one');
+    await tester.enterText(findLabelledField('Symptoms'), 'aura, nausea');
+    await tester.enterText(findLabelledField('Triggers'), 'stress');
+    await tester.enterText(findLabelledField('Notes'), 'bad one');
     // The details sheet commits from its header — a pencil, since it
     // overwrites details the attack may already carry.
     await tester.tap(find.byIcon(Icons.edit));

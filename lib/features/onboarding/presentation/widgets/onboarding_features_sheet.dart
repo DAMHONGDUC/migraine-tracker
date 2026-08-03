@@ -1,32 +1,30 @@
-part of 'onboarding_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
-/// The one page that says what the app actually does, split into what stays
-/// free and what Premium adds. Shown before the two permission-ish pages, so
-/// the user knows what they are agreeing to help with.
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/premium_gate.dart';
+import '../../../../l10n/gen/app_localizations.dart';
+
+/// What the app actually does, split into what stays free and what Premium
+/// adds. Opened from the last onboarding step rather than sitting on a page of
+/// its own: nine rows are a lot to read before the user has done anything, and
+/// the ones who want the list can ask for it.
 ///
-/// This page scrolls; the other three are short enough to centre. Nine rows
-/// do not fit a small phone, and a feature list that silently cuts off is
-/// worse than no list.
-class _FeaturesPage extends StatelessWidget {
-  const _FeaturesPage({required this.l10n});
-
-  final AppLocalizations l10n;
+/// Informational only — no commit, so the header carries just the X.
+class OnboardingFeaturesSheet extends StatelessWidget {
+  const OnboardingFeaturesSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(
-        horizontal: SdContentPaddingV2.horizontal,
-        vertical: SdSpacingConstant.h24,
-      ),
+    final AppLocalizations l10n = context.l10n;
+
+    return SdSheetContentV2(
+      title: l10n.onboardingFeaturesTitle,
+      closeTooltip: l10n.commonClose,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            l10n.onboardingFeaturesTitle,
-            style: AppTextStyle.headlineMedium.w600,
-          ),
-          SizedBox(height: SdSpacingConstant.h12),
           Text(
             l10n.onboardingFeaturesBody,
             style: AppTextStyle.bodyLarge.secondary,
@@ -150,4 +148,14 @@ class _PremiumFeature extends StatelessWidget {
       trailing: const PremiumBadge(),
     );
   }
+}
+
+/// Sheets expose their opener as `.show(context)`, never a top-level
+/// `showX` (CLAUDE.md § Code style).
+extension OnboardingFeaturesSheetExt on OnboardingFeaturesSheet {
+  Future<void> show(BuildContext context) => showSdBottomSheetV2<void>(
+    context,
+    isScrollControlled: true,
+    builder: (_) => this,
+  );
 }

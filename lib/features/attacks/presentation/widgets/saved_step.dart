@@ -17,7 +17,10 @@ class SavedStep extends StatelessWidget {
     final l10n = context.l10n;
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w24),
+        padding: EdgeInsets.symmetric(
+          horizontal: SdContentPaddingV2.horizontal,
+          vertical: SdSpacingConstant.h24,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

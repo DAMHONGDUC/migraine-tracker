@@ -88,6 +88,7 @@ final devSeedServiceProvider = Provider<DevSeedService>(
     ref.watch(dataWipeServiceProvider),
     ref.watch(attackRepositoryProvider),
     ref.watch(medicationRepositoryProvider),
+    ref.watch(medicationReminderRepositoryProvider),
     ref.watch(dataExportServiceProvider),
     ref.watch(exportFileStoreProvider),
     ref.watch(exportRecordRepositoryProvider),

@@ -623,6 +623,18 @@ Future<void> finishTest(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
+/// The [TextField] inside the [SdTextFieldV2] labelled [label].
+///
+/// [SdTextFieldV2] draws its label as a `Text` *above* the box, not inside
+/// its `InputDecoration` — so, unlike a raw `TextField`,
+/// `find.widgetWithText(TextField, label)` never matches it (that finder
+/// wants the label as a descendant of the `TextField` itself). This walks up
+/// from the label to the field that owns it instead.
+Finder findLabelledField(String label) => find.descendant(
+  of: find.ancestor(of: find.text(label), matching: find.byType(SdTextFieldV2)),
+  matching: find.byType(TextField),
+);
+
 /// Taps a target below the fold. A plain `tap()` on an off-screen widget
 /// only warns and taps nothing, failing some later assertion instead.
 ///

@@ -3,14 +3,14 @@ import 'package:system_design/index.dart';
 
 import '../extensions/context_extensions.dart';
 
-/// Prompts for a medication's name — adding a new one, or renaming an
-/// existing one when [initial] is passed (prefills the field and swaps the
-/// title/action to "Rename"/"Save"). Present it with
-/// `MedicationNameDialog(...).show(context)` — see [MedicationNameDialogExt] —
+/// Prompts for a brand-new medication's name. Present it with
+/// `MedicationNameDialog().show(context)` — see [MedicationNameDialogExt] —
 /// which returns the trimmed name, or null if cancelled or left blank.
 ///
-/// Shared by the log flow's medication step and the medications tab so both
-/// "add" surfaces (and the tab's "rename") look and behave identically.
+/// Shared by the log flow's medication step and the medications tab, so both
+/// "add" surfaces look and behave identically. Renaming an existing
+/// medication is a separate flow now — it happens in place, on the name
+/// field of the medication's own detail screen.
 ///
 /// A [StatefulWidget] so the [TextEditingController] is owned by [State]
 /// and disposed by the framework once this widget actually leaves the tree
@@ -22,9 +22,7 @@ import '../extensions/context_extensions.dart';
 /// dialog did exactly that) tears it down out from under the still-visible
 /// [TextField] and crashes with "used after being disposed".
 class MedicationNameDialog extends StatefulWidget {
-  const MedicationNameDialog({this.initial, super.key});
-
-  final String? initial;
+  const MedicationNameDialog({super.key});
 
   @override
   State<MedicationNameDialog> createState() => _MedicationNameDialogState();
@@ -38,7 +36,7 @@ extension MedicationNameDialogExt on MedicationNameDialog {
 }
 
 class _MedicationNameDialogState extends State<MedicationNameDialog> {
-  late final _controller = TextEditingController(text: widget.initial);
+  final _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -54,14 +52,14 @@ class _MedicationNameDialogState extends State<MedicationNameDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final isRename = widget.initial != null;
     return SdDialogV2(
-      title: isRename ? l10n.medicationsRename : l10n.logAddMedication,
-      content: TextField(
+      title: l10n.logAddMedication,
+      // No label: the dialog's own title already says what is being named.
+      content: SdTextFieldV2(
         controller: _controller,
         autofocus: true,
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(hintText: l10n.logMedicationNameHint),
+        hint: l10n.logMedicationNameHint,
+        textInputAction: TextInputAction.done,
         onSubmitted: _submit,
       ),
       actions: [
@@ -73,7 +71,7 @@ class _MedicationNameDialogState extends State<MedicationNameDialog> {
         SdButtonV2(
           variant: SdButtonVariantV2.primary,
           onPressed: () => _submit(_controller.text),
-          label: isRename ? l10n.detailsSave : l10n.commonAdd,
+          label: l10n.commonAdd,
         ),
       ],
     );

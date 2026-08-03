@@ -91,22 +91,20 @@ final medicationSearchProvider =
       MedicationSearchController.new,
     );
 
-/// One-shot request to scroll to and briefly highlight a medication's card,
-/// set when the dashboard's next-reminder banner is tapped and consumed by the
-/// Medications tab once it's active. Holds the target medication id, or null.
-class MedicationHighlightController extends Notifier<String?> {
-  @override
-  String? build() => null;
+/// One medication by id, for [MedicationDetailScreen]. Null once it is
+/// deleted — the screen pops itself rather than showing a stale name.
+final medicationByIdProvider = Provider.family<Medication?, String>((
+  ref,
+  medicationId,
+) {
+  final List<Medication> medications =
+      ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
 
-  void request(String medicationId) => state = medicationId;
-
-  void consume() => state = null;
-}
-
-final medicationHighlightProvider =
-    NotifierProvider<MedicationHighlightController, String?>(
-      MedicationHighlightController.new,
-    );
+  for (final Medication medication in medications) {
+    if (medication.id == medicationId) return medication;
+  }
+  return null;
+});
 
 /// Medication ids with at least one reminder configured (any enabled
 /// state) — feeds [MedicationReminderFilter].
@@ -164,8 +162,8 @@ final medicationRemindersStreamProvider =
       (ref) => ref.watch(medicationReminderRepositoryProvider).watchAll(),
     );
 
-/// One medication's reminders, for the medications tab's nested reminder
-/// list per card.
+/// One medication's reminders: the detail screen's list, and the count the
+/// medications tab shows on its card.
 final remindersForMedicationProvider =
     Provider.family<List<MedicationReminderView>, String>((ref, medicationId) {
       final all =
