@@ -15,7 +15,6 @@ import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
 import '../../../providers.dart';
 
-part 'medication_detail_screen_details_section.dart';
 part 'medication_detail_screen_header.dart';
 part 'medication_detail_screen_reminder_row.dart';
 part 'medication_detail_screen_reminder_snack.dart';
@@ -164,10 +163,6 @@ class MedicationDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _Header(medication: medication),
-            if (medication.hasDetails) ...<Widget>[
-              SdSectionHeaderV2(l10n.medicationDetailDetails),
-              _DetailsSection(medication: medication),
-            ],
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders, first: true),
             if (reminders.isEmpty)

@@ -4,8 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/db/database_provider.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
-import 'data/datasources/image_picker_photo_source.dart';
-import 'data/datasources/mlkit_text_recognizer.dart';
 import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'data/services/local_notification_scheduler.dart';
@@ -15,13 +13,10 @@ import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
 import 'domain/repositories/medication_repository.dart';
 import 'domain/services/medication_filterer.dart';
-import 'domain/services/medication_photo_source.dart';
 import 'domain/services/medication_ranking.dart';
 import 'domain/services/next_reminder_calculator.dart';
 import 'domain/services/notification_scheduler.dart';
-import 'domain/services/text_recognizer.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
-import 'presentation/controllers/medication_scan_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
 import 'presentation/controllers/reminders_controller.dart';
 
@@ -202,30 +197,6 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
   );
   return LocalNotificationScheduler(plugin);
 });
-
-/// The camera / photo library, behind an interface so a widget test can hand
-/// the scan flow a file path without an OS picker.
-final medicationPhotoSourceProvider = Provider<MedicationPhotoSource>(
-  (ref) => ImagePickerPhotoSource(),
-);
-
-/// ML Kit's on-device text recognition. Disposed with the provider — the
-/// recognizer holds a native session.
-final medicationTextRecognizerProvider = Provider<MedicationTextRecognizer>((
-  ref,
-) {
-  final MlKitMedicationTextRecognizer recognizer =
-      MlKitMedicationTextRecognizer();
-
-  ref.onDispose(recognizer.close);
-  return recognizer;
-});
-
-/// Turns a label photo into a draft for the details form. See
-/// [MedicationScanController].
-final medicationScanControllerProvider = Provider<MedicationScanController>(
-  MedicationScanController.new,
-);
 
 /// Orchestrates reminders (see [RemindersController]).
 final remindersControllerProvider = Provider<RemindersController>(

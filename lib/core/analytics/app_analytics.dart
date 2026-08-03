@@ -30,7 +30,6 @@ abstract final class AppAnalytics {
   static const String _attackDeleted = 'attack_deleted';
   static const String _medicationAdded = 'medication_added';
   static const String _medicationRenamed = 'medication_renamed';
-  static const String _medicationScanned = 'medication_label_scanned';
   static const String _medicationDeleted = 'medication_deleted';
   static const String _reminderAdded = 'reminder_added';
   static const String _reminderTimeEdited = 'reminder_time_edited';
@@ -162,9 +161,6 @@ abstract final class AppAnalytics {
   static void logMedicationAdded() => _log(_medicationAdded);
 
   static void logMedicationRenamed() => _log(_medicationRenamed);
-
-  /// That a label was scanned — never what it said.
-  static void logMedicationScanned() => _log(_medicationScanned);
 
   static void logMedicationDeleted() => _log(_medicationDeleted);
 

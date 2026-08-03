@@ -9,14 +9,10 @@ import '../../helpers/pump_app.dart';
 Future<void> addMedication(WidgetTester tester, String name) async {
   // App bar "+" icon (a FAB would sit under the floating bottom nav's hit
   // region on a shell tab, so this screen puts its add action there
-  // instead — see MedicationsScreen). It asks which way first; this is the
-  // name-only path.
+  // instead — see MedicationsScreen).
   await tester.tap(find.byIcon(Icons.add));
   await tester.pump();
-  await tester.pump(const Duration(milliseconds: 400));
-  await tester.tap(find.text('Quick add'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump(const Duration(milliseconds: 300));
   await tester.enterText(
     find.widgetWithText(TextField, 'Medication name'),
     name,

@@ -14,16 +14,6 @@ class Medications extends Table {
   /// means "unknown", sorts last, and matches only the "all" filter.
   DateTimeColumn get createdAt => dateTime().nullable()();
 
-  /// Everything the details form collects, added in schema v5. All nullable
-  /// and all free text: only the name is ever required, and a medicine box
-  /// writes its strength and dosage in too many shapes to structure. Null
-  /// means "not filled in" — an empty string would print an empty row.
-  TextColumn get description => text().nullable()();
-  TextColumn get ingredients => text().nullable()();
-  TextColumn get strength => text().nullable()();
-  TextColumn get dosage => text().nullable()();
-  TextColumn get instructions => text().nullable()();
-
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
