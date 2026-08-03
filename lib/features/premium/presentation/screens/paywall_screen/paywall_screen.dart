@@ -180,8 +180,15 @@ class PaywallScreen extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Benefits scroll when the sheet is short (small phones);
-                // the CTA stays pinned below.
+                // Only the pitch scrolls. The plans and the CTA are pinned
+                // below it, so what the user came to buy is never under the
+                // fold — on a small phone, or at a large text size, the
+                // benefits give way instead.
+                //
+                // The benefits are titles only. Five two-line rows pushed
+                // the prices off the sheet, and each title already names the
+                // feature — the sentence under it was restating it. The full
+                // descriptions live on PremiumScreen.
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -194,46 +201,30 @@ class PaywallScreen extends HookConsumerWidget {
                         SizedBox(height: SdSpacingConstant.h16),
                         Text(
                           l10n.paywallHeadline,
-                          style: AppTextStyle.headlineSmall.w600,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.titleLarge.w600,
                         ),
-                        SizedBox(height: SdSpacingConstant.h24),
+                        SizedBox(height: SdSpacingConstant.h20),
                         SdBenefitRowV2(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
-                          body: l10n.paywallBenefitAlertsBody,
                         ),
                         SdBenefitRowV2(
                           icon: Icons.show_chart,
                           title: l10n.paywallBenefitForecast,
-                          body: l10n.paywallBenefitForecastBody,
                         ),
                         SdBenefitRowV2(
                           icon: Icons.insights_outlined,
                           title: l10n.paywallBenefitInsights,
-                          body: l10n.paywallBenefitInsightsBody,
                         ),
                         SdBenefitRowV2(
                           icon: Icons.picture_as_pdf_outlined,
                           title: l10n.paywallBenefitReport,
-                          body: l10n.paywallBenefitReportBody,
                         ),
                         SdBenefitRowV2(
                           icon: Icons.bedtime_outlined,
                           title: l10n.paywallBenefitSleep,
-                          body: l10n.paywallBenefitSleepBody,
                         ),
-                        // Plans only once there is an account to attach a
-                        // subscription to: showing prices behind a sign-in
-                        // wall would invite a tap that cannot complete.
-                        if (signedIn) ...<Widget>[
-                          SizedBox(height: SdSpacingConstant.h24),
-                          _Plans(
-                            offers: offers,
-                            selectedId: active?.id,
-                            onSelected: (PremiumOffer offer) =>
-                                selectedId.value = offer.id,
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -241,7 +232,19 @@ class PaywallScreen extends HookConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: SdSpacingConstant.h24),
+                    // Plans only once there is an account to attach a
+                    // subscription to: showing prices behind a sign-in wall
+                    // would invite a tap that cannot complete.
+                    if (signedIn) ...<Widget>[
+                      SizedBox(height: SdSpacingConstant.h8),
+                      _Plans(
+                        offers: offers,
+                        selectedId: active?.id,
+                        onSelected: (PremiumOffer offer) =>
+                            selectedId.value = offer.id,
+                      ),
+                    ],
+                    SizedBox(height: SdSpacingConstant.h12),
                     // Signed out there is no account to attach a
                     // subscription to, so the CTA signs in first.
                     SdButtonV2(
@@ -264,12 +267,6 @@ class PaywallScreen extends HookConsumerWidget {
                       label: signedIn
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
-                    ),
-                    SizedBox(height: SdSpacingConstant.h8),
-                    Text(
-                      signedIn ? l10n.paywallFreeKeeps : l10n.paywallWhySignIn,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.bodyMedium.secondary,
                     ),
                     // App Store 3.1.1 requires a restore path for anyone who
                     // already paid — a reinstall or a second device.
@@ -314,7 +311,7 @@ class PaywallScreen extends HookConsumerWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
-        heightFactor: 0.85,
+        heightFactor: 0.92,
         widthFactor: 1,
         child: surface,
       ),

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/purchase_error.dart';
 import 'package:migraine_tracker/features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
@@ -22,7 +24,56 @@ Future<void> openPaywall(WidgetTester tester, PumpedApp app) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+/// Rect of [finder] against the sheet's own bounds.
+bool _isFullyInside(WidgetTester tester, Finder finder, Rect bounds) {
+  final Rect rect = tester.getRect(finder);
+
+  return rect.top >= bounds.top && rect.bottom <= bounds.bottom;
+}
+
 void main() {
+  testWidgets('the plans and the CTA are pinned, not scrolled to', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
+    await openPaywall(tester, app);
+
+    // The structural guarantee, and the reason this holds on a small phone
+    // and at a large text size: the pitch scrolls, the thing being sold does
+    // not. Asserting only that they are on screen would pass either way
+    // whenever the pitch happens to be short enough — which is exactly how
+    // this regressed unnoticed before.
+    final Finder scroller = find.descendant(
+      of: find.byType(PaywallScreen),
+      matching: find.byType(SingleChildScrollView),
+    );
+
+    for (final String label in <String>['Monthly', 'Yearly', 'Lifetime']) {
+      expect(
+        find.descendant(of: scroller, matching: find.text(label)),
+        findsNothing,
+        reason: '$label is inside the scroll view — it can fall below the fold',
+      );
+    }
+    expect(
+      find.descendant(of: scroller, matching: paywallCta()),
+      findsNothing,
+      reason: 'the buy button is inside the scroll view',
+    );
+
+    // And they really do land on screen as laid out.
+    final Rect sheet = tester.getRect(find.byType(PaywallScreen));
+
+    expect(_isFullyInside(tester, find.text('Yearly'), sheet), isTrue);
+    expect(_isFullyInside(tester, paywallCta(), sheet), isTrue);
+    expect(
+      _isFullyInside(tester, find.text('Restore purchases'), sheet),
+      isTrue,
+    );
+
+    await finishTest(tester);
+  });
+
   testWidgets('a signed-out paywall sells before it asks for an account', (
     tester,
   ) async {
