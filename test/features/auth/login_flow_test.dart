@@ -20,7 +20,7 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      expect(find.text('Optional — needed to unlock Premium'), findsOneWidget);
+      expect(find.text('Sign in'), findsOneWidget);
 
       await tester.tap(find.text('Sign in'));
       await tester.pump();
@@ -179,7 +179,7 @@ void main() {
       // never puts the email on screen.
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('tester@example.com'), findsNothing);
-      expect(find.text('Optional — needed to unlock Premium'), findsNothing);
+      expect(find.text('Sign in'), findsNothing);
 
       await finishTest(tester);
     });

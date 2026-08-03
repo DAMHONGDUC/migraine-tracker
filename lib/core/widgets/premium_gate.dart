@@ -6,6 +6,7 @@ import '../../core/theme/app_text_style.dart';
 import '../../features/premium/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
+import 'settings_tile.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
 ///
@@ -82,23 +83,24 @@ class PremiumTileGate extends ConsumerWidget {
   const PremiumTileGate({
     required this.icon,
     required this.title,
-    required this.lockedMessage,
     required this.child,
     super.key,
   });
 
   final IconData icon;
   final String title;
-  final String lockedMessage;
   final Widget child;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(hasPremiumProvider)) return child;
-    return ListTile(
-      leading: SdIconV2(icon: icon, color: context.colorScheme.onSurfaceVariant),
-      title: Text(title, style: AppTextStyle.bodyLarge),
-      subtitle: Text(lockedMessage, style: AppTextStyle.bodyMedium.secondary),
+
+    // The badge is the whole explanation a Settings row needs; the pitch
+    // itself is one tap away on the paywall.
+    return SettingsTile(
+      icon: icon,
+      iconColor: context.colorScheme.onSurfaceVariant,
+      title: title,
       trailing: const PremiumBadge(),
       onTap: () => NavigationUtils.toPaywall(context, ref),
     );

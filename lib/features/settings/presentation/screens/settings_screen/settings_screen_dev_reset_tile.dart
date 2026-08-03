@@ -67,16 +67,10 @@ class _DevResetTileState extends ConsumerState<_DevResetTile> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return ListTile(
-      leading: SdIconV2(
-        icon: Icons.restart_alt,
-        color: context.colorScheme.error,
-      ),
-      title: Text(l10n.settingsDevReset, style: AppTextStyle.bodyLarge),
-      subtitle: Text(
-        l10n.settingsDevResetSubtitle,
-        style: AppTextStyle.bodyMedium.secondary,
-      ),
+    return SettingsTile(
+      icon: Icons.restart_alt,
+      titleColor: context.colorScheme.error,
+      title: l10n.settingsDevReset,
       trailing: _running
           ? SizedBox(
               width: SdSpacingConstant.r20,

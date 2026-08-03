@@ -40,16 +40,10 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return ListTile(
-      leading: const SdIconV2(
-        icon: Icons.science_outlined,
-        color: AppColors.secondary,
-      ),
-      title: Text(l10n.settingsDevSeed, style: AppTextStyle.bodyLarge),
-      subtitle: Text(
-        l10n.settingsDevSeedSubtitle(DevSeedService.seedCount),
-        style: AppTextStyle.bodyMedium.secondary,
-      ),
+    return SettingsTile(
+      icon: Icons.science_outlined,
+      iconColor: AppColors.secondary,
+      title: l10n.settingsDevSeed,
       trailing: _running
           ? SizedBox(
               width: SdSpacingConstant.r20,

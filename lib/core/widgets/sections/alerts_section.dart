@@ -7,6 +7,7 @@ import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
+import '../settings_tile.dart';
 
 /// The alerts block embedded at the top of Settings: enable switch +
 /// threshold. Registration errors surface as snackbars here.
@@ -61,21 +62,14 @@ class AlertsSection extends ConsumerWidget {
         SwitchListTile(
           secondary: const SdIconV2(icon: Icons.notifications_active_outlined),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-          subtitle: Text(
-            l10n.alertsToggleSubtitle,
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
           value: settings.enabled,
           onChanged: (value) =>
               ref.read(alertsControllerProvider.notifier).setEnabled(value),
         ),
-        ListTile(
-          leading: const SdIconV2(icon: Icons.compress),
-          title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
-          subtitle: Text(
-            l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        SettingsTile(
+          icon: Icons.compress,
+          title: l10n.alertsThresholdTitle,
+          value: l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
           onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
         ),
       ],

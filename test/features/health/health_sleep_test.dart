@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/widgets/premium_gate.dart';
+import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
@@ -56,14 +58,16 @@ void main() {
       await openSettings(tester);
 
       expect(find.text('Apple Health sleep'), findsOneWidget);
-      // The locked tile carries the pitch, not a switch.
+      // The locked row wears the badge, not a switch.
       expect(healthSwitch(), findsNothing);
       expect(
-        find.text(
-          'Unlock to see whether your attacks follow the nights you sleep least.',
+        find.ancestor(
+          of: find.text('Apple Health sleep'),
+          matching: find.byType(SettingsTile),
         ),
         findsOneWidget,
       );
+      expect(find.byType(PremiumBadge), findsWidgets);
 
       await finishTest(tester);
     });
@@ -81,10 +85,8 @@ void main() {
 
       expect(app.health.authorizationRequests, 1);
       expect(app.prefs.getBool(HealthController.connectedKey), isTrue);
-      expect(
-        find.textContaining('Connected.'),
-        findsOneWidget,
-      );
+      // The switch itself is the state now — the row carries no second line.
+      expect(tester.widget<SwitchListTile>(healthSwitch()).value, isTrue);
 
       await finishTest(tester);
     });

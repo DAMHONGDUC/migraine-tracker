@@ -41,17 +41,10 @@ class _DeleteAllTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    return ListTile(
-      leading: SdIconV2(
-        icon: Icons.delete_forever_outlined,
-        color: context.colorScheme.error,
-      ),
-      title: Text(
-        l10n.settingsDelete,
-        style: AppTextStyle.bodyLarge.copyWith(
-          color: context.colorScheme.error,
-        ),
-      ),
+    return SettingsTile(
+      icon: Icons.delete_forever_outlined,
+      titleColor: context.colorScheme.error,
+      title: l10n.settingsDelete,
       onTap: () => _deleteAll(context, ref),
     );
   }
