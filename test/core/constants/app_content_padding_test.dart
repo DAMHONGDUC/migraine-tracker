@@ -68,8 +68,8 @@ void main() {
     );
 
     // The 34 home indicator is deeper than the pill's ceiling, so the offset
-    // caps at 30: that + its 56 of height + bottomGap.
-    expect(insets.bottom, 30 + 56 + 16);
+    // caps at 20: that + its 56 of height + bottomGap.
+    expect(insets.bottom, 20 + 56 + 16);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
   });
@@ -103,18 +103,16 @@ void main() {
 
     // Nothing to rest on, so the pill takes the floor: that + its 56 +
     // bottomGap.
-    expect(bottom, 24 + 56 + 16);
+    expect(bottom, 16 + 56 + 16);
   });
 
-  testWidgets('a bottom inset below the floor is raised to it', (
-    tester,
-  ) async {
+  testWidgets('a bottom inset below the floor is raised to it', (tester) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
     // An iPad, or an iPhone in landscape: there IS a home indicator, but a
-    // shallower one than a portrait phone's 34.
-    tester.view.padding = const FakeViewPadding(top: 60, bottom: 60);
-    tester.view.viewPadding = const FakeViewPadding(top: 60, bottom: 60);
+    // shallower one than a portrait phone's 34 — 8, under the floor.
+    tester.view.padding = const FakeViewPadding(top: 60, bottom: 24);
+    tester.view.viewPadding = const FakeViewPadding(top: 60, bottom: 24);
     addTearDown(tester.view.reset);
 
     late final double bottom;
@@ -134,8 +132,8 @@ void main() {
       ),
     );
 
-    // 20 of real inset, but the pill still clears the edge by the floor.
-    expect(bottom, 24 + 56 + 16);
+    // 8 of real inset, but the pill still clears the edge by the floor.
+    expect(bottom, 16 + 56 + 16);
   });
 
   testWidgets('full-bleed keeps the vertical rule, drops the gutter', (
@@ -250,9 +248,9 @@ void main() {
     );
 
     // Neither lost the home indicator, which is what this test is for. They
-    // do not agree, and should not: the pill clamps its offset to 30, the log
+    // do not agree, and should not: the pill clamps its offset to 20, the log
     // flow's step bar rests on the full 34 whatever that is.
-    expect(tabScreen, 30 + 56 + 16);
+    expect(tabScreen, 20 + 56 + 16);
     expect(logFlow, 34 + 56 + 16);
   });
 }
