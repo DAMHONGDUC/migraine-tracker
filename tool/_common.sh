@@ -6,9 +6,14 @@
 
 cd "${MELOS_ROOT_PATH:-.}"
 
-# Colour only on a terminal. Piped into a file or a CI log, escape codes are
-# noise nobody can read.
-if [ -t 1 ]; then
+# Colour on unless `NO_COLOR` (no-color.org) says otherwise.
+#
+# The usual guards do not work here, because melos hands every script a piped
+# stdout AND `TERM=dumb` — even when melos itself is on a real terminal. So
+# `[ -t 1 ]` is always false and `TERM` is always dumb, and either check would
+# mean the colour never appears at all. Melos passes ANSI through untouched,
+# and GitHub Actions renders it, so emitting unconditionally is right.
+if [ -z "${NO_COLOR:-}" ]; then
   C_STEP=$(printf '\033[1;36m')
   C_WARN=$(printf '\033[1;33m')
   C_DONE=$(printf '\033[1;32m')
