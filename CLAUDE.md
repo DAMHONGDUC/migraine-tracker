@@ -145,10 +145,22 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
 - `firebase emulators:start` — test functions locally; never test cron against production
 
-Every melos script resolves the SDK itself (`fvm flutter` when `.fvmrc` and
-fvm are both present, plain `flutter` otherwise) — a shell alias is invisible
-inside a script, so it is spelled out. Add a new script to `melos.yaml`, never
-a loose file in `scripts/`.
+**Every script's body lives in `tool/<name>.sh`; `melos.yaml` only names it.**
+Melos echoes the whole `run:` block before AND after each run, with no flag to
+turn it off, so a multi-line body buries the output it introduces. A file is
+also the only version that can be linted and run directly. Adding a command is
+a `tool/*.sh` plus one line in `melos.yaml`.
+
+Those scripts are **POSIX sh, not bash**: melos runs them through `/bin/sh`,
+which is dash on Linux, where `set -o pipefail`, `[[ ]]` and `local` are
+syntax errors. macOS will not catch this — its `/bin/sh` is bash under
+another name — so check a change with `dash -n tool/<name>.sh`.
+
+`tool/_common.sh` is sourced by all of them and holds the two things they
+share: the SDK resolution (`fvm flutter` when `.fvmrc` and fvm are both
+present, plain `flutter` otherwise — a shell alias is invisible inside a
+script), and `step`/`warn`/`done_msg`, which colour their output only when
+stdout is a terminal so CI logs stay readable.
 
 ## Hard rules
 

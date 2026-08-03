@@ -25,149 +25,30 @@ packages:
 ide:
   intellij: false
 
-# Every script below is POSIX sh, not bash: melos runs them through /bin/sh,
-# which is dash on Linux. `set -o pipefail` and `[[ ]]` die there, and macOS
-# will not tell you — its /bin/sh is bash wearing a different name.
-#
-# Each one also resolves the SDK itself: `fvm flutter` when this checkout is
-# pinned by .fvmrc and fvm is installed, plain `flutter` otherwise (CI). An
-# alias cannot be seen from inside a script, so it is spelled out.
+# Each script is one line on purpose. Melos echoes the whole `run:` body
+# before AND after every run, with no flag to turn it off, so a multi-line
+# block buries the output it is meant to introduce. The bodies live in
+# `tool/*.sh`, which also makes them lintable and runnable under dash — the
+# shell melos actually uses on Linux, and the one macOS hides from you.
 scripts:
   setup:
     description: >
       Everything a fresh clone needs, in order. Safe to re-run.
-    run: |
-      set -eu
-      cd "$MELOS_ROOT_PATH"
-
-      # `flutter` is a shell alias for `fvm flutter` here, and aliases do not
-      # exist inside a script — resolve it or we run the wrong SDK. CI has no
-      # fvm and falls through to the plain binaries.
-      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
-        FL="fvm flutter"; DT="fvm dart"
-      else
-        FL="flutter"; DT="dart"
-      fi
-
-      # Submodules land on their branch and follow it, rather than sitting
-      # detached at the commit the gitlink records. That is deliberate: the
-      # design system is developed alongside this app, and nobody wants to
-      # remember to `git checkout main` inside it before every edit.
-      #
-      # The cost is real, so know it: after this, what you build is whatever
-      # is on the submodule's branch, NOT what the parent commit pins. The
-      # parent will show `packages/system_design` as modified the moment the
-      # branch moves ahead of the gitlink — commit that gitlink when you mean
-      # to, and never assume a past parent commit rebuilds byte-for-byte.
-      echo "==> submodules"
-      git submodule update --init --recursive
-      git submodule foreach --quiet --recursive '
-        branch=$(git config -f "$toplevel/.gitmodules" "submodule.$name.branch" || echo main)
-        if ! git checkout -q "$branch" 2>/dev/null; then
-          echo "    $name: cannot switch to $branch (uncommitted changes?), left as is"
-        elif ! git pull -q --ff-only origin "$branch" 2>/dev/null; then
-          echo "    $name: on $branch, but not fast-forwardable — pull it by hand"
-        else
-          echo "    $name -> $branch"
-        fi
-      '
-
-      echo "==> dependencies"
-      $FL pub get
-      (cd packages/system_design && $FL pub get)
-
-      echo "==> localizations"
-      $FL gen-l10n
-
-      echo "==> code generation"
-      $DT run build_runner build --delete-conflicting-outputs
-
-      # env/*.json is gitignored (Firebase + RevenueCat keys), so a fresh
-      # clone has none. Lay down the key-only templates and say so loudly.
-      echo "==> env config"
-      MISSING=""
-      for f in dev prod; do
-        if [ ! -f "env/$f.json" ]; then
-          cp "env/$f.example.json" "env/$f.json"
-          MISSING="$MISSING env/$f.json"
-        fi
-      done
-
-      if [ -d functions ] && command -v npm >/dev/null 2>&1; then
-        echo "==> cloud functions"
-        (cd functions && npm ci --silent)
-      fi
-
-      # `health` pins an old device_info with no Swift Package, so iOS still
-      # needs CocoaPods for that one plugin. See CLAUDE.md.
-      if [ "$(uname)" = "Darwin" ] && [ -f ios/Podfile ] && command -v pod >/dev/null 2>&1; then
-        echo "==> ios pods"
-        # CocoaPods is Ruby, and Ruby without a UTF-8 locale reads the Podfile
-        # as ASCII-8BIT and dies inside its own error reporter — a stack trace
-        # that says nothing about the missing LANG. Terminals set it; stripped
-        # environments do not.
-        [ -n "${LANG:-}" ] || LANG=en_US.UTF-8
-        export LANG
-        $FL precache --ios
-        (cd ios && pod install)
-      fi
-
-      echo ""
-      if [ -n "$MISSING" ]; then
-        echo "!! Created from templates:$MISSING"
-        echo "!! Fill in the Firebase and RevenueCat keys before running."
-        echo ""
-      fi
-      echo "Run the app:  $FL run --dart-define-from-file=env/dev.json"
+    run: sh tool/setup.sh
 
   gen:
     description: Regenerate localizations and build_runner output.
-    run: |
-      set -eu
-      cd "$MELOS_ROOT_PATH"
-      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
-        FL="fvm flutter"; DT="fvm dart"
-      else
-        FL="flutter"; DT="dart"
-      fi
-      $FL gen-l10n
-      $DT run build_runner build --delete-conflicting-outputs
+    run: sh tool/gen.sh
 
   analyze:
-    description: Analyze every package. Must pass with zero warnings.
-    run: |
-      set -eu
-      cd "$MELOS_ROOT_PATH"
-      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
-      $FL analyze --fatal-infos
+    description: Analyze every package. Must pass with zero findings.
+    run: sh tool/analyze.sh
 
   test:
     description: Run the Flutter test suite.
-    run: |
-      set -eu
-      cd "$MELOS_ROOT_PATH"
-      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
-      $FL test
+    run: sh tool/test.sh
 
   clean:
     description: >
       Wipe Android + iOS build artefacts. Follow with `melos run setup`.
-    run: |
-      set -eu
-      cd "$MELOS_ROOT_PATH"
-      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
-
-      echo "==> flutter clean"
-      $FL clean
-
-      echo "==> android"
-      if [ -x android/gradlew ]; then
-        (cd android && ./gradlew clean) || echo "    gradlew clean failed, continuing"
-      fi
-      rm -rf android/.gradle android/build android/app/build
-
-      echo "==> ios"
-      rm -rf ios/.symlinks ios/Flutter/ephemeral ios/Pods ios/Podfile.lock
-
-      echo ""
-      echo "Now run: melos run setup"
+    run: sh tool/clean.sh
