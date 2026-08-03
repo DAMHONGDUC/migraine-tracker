@@ -36,6 +36,9 @@ else
   DT="dart"
 fi
 
-step() { printf '%s==> %s%s\n' "$C_STEP" "$1" "$C_OFF"; }
+# The blank line is part of the header: it separates a step from whatever the
+# previous one printed, which is otherwise a wall of tool output with the
+# headings lost in it.
+step() { printf '\n%s==> %s%s\n' "$C_STEP" "$1" "$C_OFF"; }
 warn() { printf '%s    %s%s\n' "$C_WARN" "$1" "$C_OFF"; }
 done_msg() { printf '\n%s%s%s\n' "$C_DONE" "$1" "$C_OFF"; }

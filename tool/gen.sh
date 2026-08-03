@@ -7,4 +7,6 @@ step "localizations"
 $FL gen-l10n
 
 step "code generation"
-$DT run build_runner build --delete-conflicting-outputs
+# build_runner 2.15 removed --delete-conflicting-outputs; it deletes them
+# by default now, and passing it warns on every run.
+$DT run build_runner build
