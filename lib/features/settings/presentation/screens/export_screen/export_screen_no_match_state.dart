@@ -13,7 +13,7 @@ class _NoMatchState extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w24,
+        horizontal: SdContentPaddingV2.horizontal,
         vertical: SdSpacingConstant.h32,
       ),
       child: Column(
