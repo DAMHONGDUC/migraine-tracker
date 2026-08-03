@@ -67,9 +67,9 @@ void main() {
           SdContentPaddingV2.screen(context, floatingNav: true),
     );
 
-    // The pill rests on the 34 home indicator, so: that + its 56 of height +
-    // bottomGap.
-    expect(insets.bottom, 34 + 56 + 16);
+    // The 34 home indicator is deeper than the pill's ceiling, so the offset
+    // caps at 30: that + its 56 of height + bottomGap.
+    expect(insets.bottom, 30 + 56 + 16);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
   });
@@ -106,7 +106,7 @@ void main() {
     expect(bottom, 24 + 56 + 16);
   });
 
-  testWidgets('a bottom inset smaller than the floor is raised to it', (
+  testWidgets('a bottom inset below the floor is raised to it', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
@@ -249,9 +249,10 @@ void main() {
       ),
     );
 
-    // Both bars rest on the 34 home indicator here, so both come to the same
-    // sum — what matters is that neither lost it.
-    expect(tabScreen, 34 + 56 + 16);
+    // Neither lost the home indicator, which is what this test is for. They
+    // do not agree, and should not: the pill clamps its offset to 30, the log
+    // flow's step bar rests on the full 34 whatever that is.
+    expect(tabScreen, 30 + 56 + 16);
     expect(logFlow, 34 + 56 + 16);
   });
 }
