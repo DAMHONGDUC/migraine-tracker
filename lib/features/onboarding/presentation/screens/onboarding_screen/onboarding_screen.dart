@@ -65,9 +65,9 @@ class OnboardingScreen extends HookConsumerWidget {
             _Dots(current: page.value),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                SdSpacingConstant.w24,
+                SdContentPaddingV2.horizontal,
                 SdSpacingConstant.h16,
-                SdSpacingConstant.w24,
+                SdContentPaddingV2.horizontal,
                 // SafeArea already clears the home indicator; this is the gap.
                 SdSpacingConstant.h16,
               ),

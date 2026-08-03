@@ -144,7 +144,7 @@ class PaywallScreen extends HookConsumerWidget {
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(
-            SdSpacingConstant.w24,
+            SdContentPaddingV2.horizontal,
             SdSpacingConstant.h4,
             SdSpacingConstant.w8,
             0,
