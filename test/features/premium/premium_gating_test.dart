@@ -90,12 +90,11 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      // Locked rows in place of the real controls.
+      // Locked rows in place of the real controls: the alerts row is a name
+      // wearing the badge, never the toggle.
       expect(find.byType(Switch), findsNothing);
-      expect(
-        find.text('Get a push before a big pressure drop hits.'),
-        findsOneWidget,
-      );
+      expect(find.text('Pressure-drop alerts'), findsOneWidget);
+      expect(find.byType(PremiumBadge), findsWidgets);
 
       // The PDF report now lives behind the export screen's picker, still
       // locked: the row is a pitch, never a path that produces a report.
