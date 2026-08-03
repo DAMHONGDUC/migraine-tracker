@@ -16,7 +16,6 @@ import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../providers.dart';
 import '../../controllers/medication_filters_controller.dart';
-import '../../widgets/medication_add_sheet.dart';
 
 part 'medications_screen_medication_card.dart';
 
@@ -135,20 +134,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     });
   }
 
-  /// Asks which way first: the name-only dialog, or the details form (which
-  /// is also where the label scan lives).
   Future<void> _add() async {
-    final MedicationAddMode? mode = await const MedicationAddSheet().show(
-      context,
-    );
-
-    if (mode == null || !mounted) return;
-
-    if (mode == MedicationAddMode.detailed) {
-      await context.pushNamed(AppRoutes.medicationForm.name);
-      return;
-    }
-
     final String? name = await const MedicationNameDialog().show(context);
 
     if (name == null) return;

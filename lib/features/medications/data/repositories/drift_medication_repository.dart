@@ -10,18 +10,9 @@ class DriftMedicationRepository implements MedicationRepository {
 
   final AppDatabase _db;
 
-  /// One place the row shape becomes the domain model — the optional detail
-  /// columns are easy to add in one mapper and forget in the other.
-  Medication _toDomain(MedicationRow row) => Medication(
-    id: row.id,
-    name: row.name,
-    createdAt: row.createdAt,
-    description: row.description,
-    ingredients: row.ingredients,
-    strength: row.strength,
-    dosage: row.dosage,
-    instructions: row.instructions,
-  );
+  /// One place the row shape becomes the domain model.
+  Medication _toDomain(MedicationRow row) =>
+      Medication(id: row.id, name: row.name, createdAt: row.createdAt);
 
   @override
   Stream<List<Medication>> watchAll() {
@@ -52,11 +43,6 @@ class DriftMedicationRepository implements MedicationRepository {
           id: medication.id,
           name: medication.name,
           createdAt: Value(medication.createdAt),
-          description: Value(medication.description),
-          ingredients: Value(medication.ingredients),
-          strength: Value(medication.strength),
-          dosage: Value(medication.dosage),
-          instructions: Value(medication.instructions),
         ),
       );
 

@@ -16,17 +16,7 @@ class MedicationsController {
   static const _uuid = Uuid();
 
   /// Adds a brand-new medication, stamping `createdAt` now.
-  ///
-  /// Everything after [name] comes from the details form — quick add passes
-  /// none of it, and null stays null rather than becoming an empty string.
-  Future<void> add(
-    String name, {
-    String? description,
-    String? ingredients,
-    String? strength,
-    String? dosage,
-    String? instructions,
-  }) async {
+  Future<void> add(String name) async {
     AppLogger.action('Add medication', name);
     // No medication name: what someone takes is health data.
     AppAnalytics.logMedicationAdded();
@@ -38,11 +28,6 @@ class MedicationsController {
               id: _uuid.v4(),
               name: name,
               createdAt: DateTime.now().toUtc(),
-              description: description,
-              ingredients: ingredients,
-              strength: strength,
-              dosage: dosage,
-              instructions: instructions,
             ),
           );
     } catch (error, stackTrace) {

@@ -37,10 +37,6 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>BaroEase uses the camera so you can photograph a medicine label and have its details filled in for you. The photo is read on this device and is never uploaded or stored.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>BaroEase can read a medicine label from a photo you already have, to fill in a medication's details. The photo is read on this device and is never uploaded or stored.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>BaroEase reads your sleep from Apple Health to show whether short nights line up with your migraine attacks. It reads sleep only, the data stays on this device, and it is never uploaded or shared.</string>
 	<key>NSHealthUpdateUsageDescription</key>

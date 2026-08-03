@@ -91,7 +91,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('Add medication shortcut opens the add sheet on Medications', (
+  testWidgets('Add medication shortcut opens the add dialog on Medications', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -100,16 +100,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    // The add sheet auto-opens after landing on the Medications tab, and
-    // asks which way in before anything else. It opens from a post-frame
-    // callback, so it is still sliding up when the tab switch settles —
-    // tapping now would land below the screen.
-    expect(find.text('Quick add'), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 400));
-
-    await tester.tap(find.text('Quick add'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    // The add-name dialog auto-opens after landing on the Medications tab.
     expect(find.text('Add a medication'), findsOneWidget);
 
     await finishTest(tester);
