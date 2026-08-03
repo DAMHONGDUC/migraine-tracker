@@ -237,14 +237,6 @@
   "@medicationsEmpty": {
     "description": "Shown in the medications tab when no medications match the current filters (or none exist yet)"
   },
-  "medicationsRename": "Rename medication",
-  "@medicationsRename": {
-    "description": "Title of the dialog that renames an existing medication"
-  },
-  "medicationsEditAction": "Edit name",
-  "@medicationsEditAction": {
-    "description": "Action sheet row that opens the rename dialog for a medication"
-  },
   "medicationsDeleteTitle": "Delete medication?",
   "@medicationsDeleteTitle": {
     "description": "Confirmation dialog title before deleting a medication"
@@ -275,6 +267,10 @@
         "type": "int"
       }
     }
+  },
+  "medicationDetailName": "Name",
+  "@medicationDetailName": {
+    "description": "Label over the editable name field on the medication detail screen"
   },
   "medicationDetailReminders": "Reminders",
   "@medicationDetailReminders": {

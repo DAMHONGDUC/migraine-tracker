@@ -79,15 +79,11 @@ void main() {
 
     await openMedications(tester);
     await openMedication(tester, 'Sumatriptan');
-    await tester.tap(find.byIcon(Icons.edit_outlined));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Medication name'),
-      'Rizatriptan',
-    );
-    await tester.tap(find.text('Save'));
+    // The name is edited in place on its own field, not via a dialog — it
+    // commits when the field loses focus (here, "done" on the keyboard).
+    await tester.enterText(findLabelledField('Name'), 'Rizatriptan');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

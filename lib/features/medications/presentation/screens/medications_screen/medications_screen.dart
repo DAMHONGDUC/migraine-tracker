@@ -104,21 +104,14 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   /// The name-search field shown in the app bar title slot while searching.
+  /// The app's one field, unlabelled — the bar it sits in is the label.
   Widget _searchField(BuildContext context) {
-    final l10n = context.l10n;
-    return TextField(
+    return SdTextFieldV2(
       controller: _searchController,
       focusNode: _searchFocus,
+      hint: context.l10n.medicationsSearchHint,
       textInputAction: TextInputAction.search,
-      style: AppTextStyle.titleMedium,
-      cursorColor: AppColors.primary,
       onChanged: ref.read(medicationSearchProvider.notifier).setQuery,
-      decoration: InputDecoration(
-        isCollapsed: true,
-        border: InputBorder.none,
-        hintText: l10n.medicationsSearchHint,
-        hintStyle: AppTextStyle.titleMedium.secondary,
-      ),
     );
   }
 
