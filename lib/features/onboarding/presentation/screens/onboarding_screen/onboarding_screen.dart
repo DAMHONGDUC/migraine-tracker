@@ -8,27 +8,26 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
+import '../../widgets/onboarding_features_sheet.dart';
 
 part 'onboarding_screen_dots.dart';
-part 'onboarding_screen_features_page.dart';
 part 'onboarding_screen_location_page.dart';
 part 'onboarding_screen_page_scaffold.dart';
 part 'onboarding_screen_threshold_page.dart';
 part 'onboarding_screen_welcome_page.dart';
 
-/// Four calm pages: welcome + medical disclaimer (hard rule 10), what the app
-/// does and what of it is premium, the location permission explainer (hard
-/// rule 2), and threshold setup.
+/// Three calm pages: welcome + medical disclaimer (hard rule 10), the location
+/// permission explainer (hard rule 2), and threshold setup.
 ///
-/// The feature list comes second on purpose — before the two pages that ask
-/// for something, so the user knows what they are being asked for.
+/// What the app does is not a page any more — the last step offers it as a
+/// sheet, so the nine-row feature list is there for whoever asks and out of
+/// the way of everyone else.
 class OnboardingScreen extends HookConsumerWidget {
   const OnboardingScreen({super.key});
 
-  static const _pageCount = 4;
+  static const _pageCount = 3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +57,6 @@ class OnboardingScreen extends HookConsumerWidget {
                 onPageChanged: (value) => page.value = value,
                 children: [
                   _WelcomePage(l10n: l10n),
-                  _FeaturesPage(l10n: l10n),
                   _LocationPage(l10n: l10n),
                   _ThresholdPage(l10n: l10n, threshold: threshold),
                 ],
@@ -76,15 +74,15 @@ class OnboardingScreen extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: switch (page.value) {
-                  // Welcome and the feature list both just move on.
-                  0 || 1 => [
+                  // Welcome just moves on.
+                  0 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: next,
                       label: l10n.onboardingContinue,
                     ),
                   ],
-                  2 => [
+                  1 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: () async {
@@ -95,7 +93,7 @@ class OnboardingScreen extends HookConsumerWidget {
                     ),
                     SizedBox(height: SdSpacingConstant.h8),
                     SdButtonV2(
-                      variant: SdButtonVariantV2.text,
+                      variant: SdButtonVariantV2.outlined,
                       onPressed: next,
                       label: l10n.onboardingNotNow,
                     ),
@@ -105,6 +103,13 @@ class OnboardingScreen extends HookConsumerWidget {
                       variant: SdButtonVariantV2.primary,
                       onPressed: finish,
                       label: l10n.onboardingStart,
+                    ),
+                    SizedBox(height: SdSpacingConstant.h8),
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.outlined,
+                      onPressed: () =>
+                          const OnboardingFeaturesSheet().show(context),
+                      label: l10n.onboardingFeaturesAction,
                     ),
                   ],
                 },
