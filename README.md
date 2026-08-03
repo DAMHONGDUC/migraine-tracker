@@ -71,7 +71,12 @@ prod → `env/prod.json`).
 lib/                      the app
 packages/system_design/   the design system — its own repo, a git submodule
 functions/                Firebase Cloud Functions (TypeScript)
+tool/                     what the melos commands actually run
 ```
+
+`melos.yaml` only names each command; the body is a POSIX `sh` script in
+`tool/`. Melos echoes a `run:` block twice per run, so anything longer than
+one line drowns its own output.
 
 The design system is deliberately separate and deliberately ignorant of this
 app; see `packages/system_design/WIDGET_RULES.md` before adding to it..
