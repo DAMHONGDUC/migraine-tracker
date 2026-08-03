@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_action_view.dart';
-import '../../../../../core/widgets/app_benefit_row.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
@@ -31,40 +26,40 @@ class PremiumScreen extends ConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final bool premium = ref.watch(hasPremiumProvider);
 
-    return AppScaffold(
+    return SdScaffoldV2(
       title: Text(l10n.premiumScreenTitle, style: AppTextStyle.titleLarge),
-      body: AppActionView(
+      body: SdActionViewV2(
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _StatusCard(premium: premium),
-            SizedBox(height: AppSpacingConstant.h24),
+            SizedBox(height: SdSpacingConstant.h24),
             Text(
               l10n.premiumScreenIncluded,
               style: AppTextStyle.titleMedium.w600,
             ),
-            SizedBox(height: AppSpacingConstant.h12),
-            AppBenefitRow(
+            SizedBox(height: SdSpacingConstant.h12),
+            SdBenefitRowV2(
               icon: Icons.notifications_active_outlined,
               title: l10n.paywallBenefitAlerts,
               body: l10n.paywallBenefitAlertsBody,
             ),
-            AppBenefitRow(
+            SdBenefitRowV2(
               icon: Icons.show_chart,
               title: l10n.paywallBenefitForecast,
               body: l10n.paywallBenefitForecastBody,
             ),
-            AppBenefitRow(
+            SdBenefitRowV2(
               icon: Icons.insights_outlined,
               title: l10n.paywallBenefitInsights,
               body: l10n.paywallBenefitInsightsBody,
             ),
-            AppBenefitRow(
+            SdBenefitRowV2(
               icon: Icons.picture_as_pdf_outlined,
               title: l10n.paywallBenefitReport,
               body: l10n.paywallBenefitReportBody,
             ),
-            AppBenefitRow(
+            SdBenefitRowV2(
               icon: Icons.bedtime_outlined,
               title: l10n.paywallBenefitSleep,
               body: l10n.paywallBenefitSleepBody,
@@ -80,8 +75,8 @@ class PremiumScreen extends ConsumerWidget {
               style: AppTextStyle.bodySmall.secondary,
             )
           else
-            AppButton(
-              variant: AppButtonVariant.primary,
+            SdButtonV2(
+              variant: SdButtonVariantV2.primary,
               onPressed: () => NavigationUtils.toPaywall(context, ref),
               label: l10n.premiumUnlock,
             ),

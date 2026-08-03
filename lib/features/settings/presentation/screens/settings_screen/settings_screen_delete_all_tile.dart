@@ -7,22 +7,22 @@ class _DeleteAllTile extends ConsumerWidget {
 
   Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final confirmed = await showAppDialog<bool>(
+    final confirmed = await showSdDialogV2<bool>(
       context,
-      builder: (dialogContext) => AppDialog(
+      builder: (dialogContext) => SdDialogV2(
         title: l10n.settingsDeleteConfirmTitle,
         content: Text(
           l10n.settingsDeleteConfirmBody,
           style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          AppButton(
-            variant: AppButtonVariant.text,
+          SdButtonV2(
+            variant: SdButtonVariantV2.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton(
-            variant: AppButtonVariant.destructive,
+          SdButtonV2(
+            variant: SdButtonVariantV2.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsDeleteConfirmAction,
           ),
@@ -33,7 +33,7 @@ class _DeleteAllTile extends ConsumerWidget {
 
     await ref.read(settingsControllerProvider).deleteAll();
     if (context.mounted) {
-      AppSnackBarUtils.success(context, l10n.settingsDeleteDone);
+      SdSnackBarUtilsV2.success(context, l10n.settingsDeleteDone);
     }
   }
 
@@ -42,7 +42,7 @@ class _DeleteAllTile extends ConsumerWidget {
     final l10n = context.l10n;
 
     return ListTile(
-      leading: AppIcon(
+      leading: SdIconV2(
         icon: Icons.delete_forever_outlined,
         color: context.colorScheme.error,
       ),

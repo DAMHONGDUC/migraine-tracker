@@ -9,7 +9,11 @@ jobs:
   flutter:
     runs-on: ubuntu-latest
     steps:
+      # The design system lives in packages/system_design as a submodule;
+      # without this the checkout is empty there and `pub get` fails.
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: subosito/flutter-action@v2
         with:
@@ -17,24 +21,46 @@ jobs:
           channel: stable
           cache: true
 
+      # Catches a checkout that succeeded but left the submodule empty. It
+      # does NOT catch a gitlink whose commit was never pushed — that fails
+      # the step above with "not our ref" and nothing here runs. There is no
+      # CI-side fix for that one: push the submodule before the parent.
+      - name: Verify the submodule checked out
+        run: |
+          if [ ! -f packages/system_design/pubspec.yaml ]; then
+            echo "::error::packages/system_design is empty. The gitlink this"
+            echo "::error::commit records is probably not pushed — push the"
+            echo "::error::submodule first, then the parent."
+            exit 1
+          fi
+
       # Drift tests open real SQLite databases on the host.
       - name: Install sqlite3
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
 
-      - name: Install dependencies
-        run: flutter pub get
+      # Same steps a developer gets from `melos run setup`, minus the iOS and
+      # env parts CI has no use for. Melos is pinned to the version in
+      # pubspec.yaml so the local and global installs cannot disagree.
+      #
+      # `dart pub global activate` drops the binary in ~/.pub-cache/bin, which
+      # is not on the runner's PATH — without the second line every `melos`
+      # step below dies with "command not found".
+      - name: Install melos
+        run: |
+          dart pub global activate melos 6.3.3
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
 
-      - name: Generate localizations
-        run: flutter gen-l10n
+      - name: Bootstrap
+        run: melos bootstrap
 
-      - name: Run code generation
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Generate
+        run: melos run gen
 
       - name: Analyze (zero warnings allowed)
-        run: flutter analyze --fatal-infos
+        run: melos run analyze
 
       - name: Test
-        run: flutter test
+        run: melos run test
 
   functions:
     runs-on: ubuntu-latest

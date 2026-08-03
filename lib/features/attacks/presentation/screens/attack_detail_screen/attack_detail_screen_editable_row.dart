@@ -24,18 +24,14 @@ class _EditableRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (swatch != null) ...[
-            Container(
-              width: AppSpacingConstant.r12,
-              height: AppSpacingConstant.r12,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: swatch),
-            ),
-            SizedBox(width: AppSpacingConstant.w8),
+            SdColorDotV2(color: swatch!),
+            SizedBox(width: SdSpacingConstant.w8),
           ],
           Text(value, style: AppTextStyle.bodyLarge),
-          SizedBox(width: AppSpacingConstant.w4),
-          AppIcon(
+          SizedBox(width: SdSpacingConstant.w4),
+          SdIconV2(
             icon: Icons.chevron_right,
-            size: AppSpacingConstant.r20,
+            size: SdSpacingConstant.r20,
             color: context.colorScheme.onSurfaceVariant,
           ),
         ],

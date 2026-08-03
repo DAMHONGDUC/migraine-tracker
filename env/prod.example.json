@@ -1,0 +1,15 @@
+{
+  "FLAVOR": "prod",
+  "FIREBASE_ANDROID_API_KEY": "<firebase_android_api_key>",
+  "FIREBASE_ANDROID_APP_ID": "<firebase_android_app_id>",
+  "FIREBASE_IOS_API_KEY": "<firebase_ios_api_key>",
+  "FIREBASE_IOS_APP_ID": "<firebase_ios_app_id>",
+  "FIREBASE_MESSAGING_SENDER_ID": "<firebase_messaging_sender_id>",
+  "FIREBASE_PROJECT_ID": "<firebase_project_id>",
+  "FIREBASE_STORAGE_BUCKET": "<firebase_storage_bucket>",
+  "FIREBASE_IOS_BUNDLE_ID": "<firebase_ios_bundle_id>",
+  "REVENUECAT_IOS_KEY": "<revenuecat_ios_key>",
+  "REVENUECAT_ANDROID_KEY": "<revenuecat_android_key>",
+  "REVENUECAT_ENTITLEMENT": "premium",
+  "REVENUECAT_OFFERING": ""
+}

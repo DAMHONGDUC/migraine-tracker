@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_sheet_content.dart';
-import '../../../../core/widgets/app_sheet_header.dart';
-import '../../../../core/widgets/app_value_slider.dart';
 
 /// Corrects a logged attack's intensity. Dragging only moves the readout —
 /// the value lands on the header's tick, so a stray drag on the way to
@@ -28,11 +25,13 @@ class _IntensitySheetState extends State<IntensitySheet> {
   Widget build(BuildContext context) {
     final int rounded = _value.round();
 
-    return AppSheetContent(
+    return SdSheetContentV2(
       title: context.l10n.logIntensityTitle,
-      action: AppSheetAction.edit,
+      closeTooltip: context.l10n.commonClose,
+      confirmTooltip: context.l10n.commonDone,
+      action: SdSheetActionV2.edit,
       onConfirm: () => Navigator.of(context).pop(rounded),
-      child: AppValueSlider(
+      child: SdValueSliderV2(
         label: '$rounded',
         value: _value,
         min: 1,
@@ -48,7 +47,7 @@ class _IntensitySheetState extends State<IntensitySheet> {
 /// Sheets expose their opener as `.show(context)`, never a top-level
 /// `showX` (CLAUDE.md § Code style).
 extension IntensitySheetExt on IntensitySheet {
-  Future<int?> show(BuildContext context) => showAppBottomSheet<int>(
+  Future<int?> show(BuildContext context) => showSdBottomSheetV2<int>(
     context,
     isScrollControlled: true,
     builder: (_) => this,

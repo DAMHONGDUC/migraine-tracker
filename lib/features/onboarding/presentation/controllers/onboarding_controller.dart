@@ -31,6 +31,29 @@ class OnboardingController {
     }
   }
 
+  /// Forgets that onboarding was ever done, so the router redirects here
+  /// again on the next frame. Dev tooling only — the keys stay private to
+  /// this feature, and Settings reaches this through `providers.dart` rather
+  /// than importing the controller.
+  ///
+  /// It clears no user data: the caller decides whether a reset means "show
+  /// the pages again" or "make this look like a fresh install".
+  Future<void> reset() async {
+    final prefs = _ref.read(sharedPreferencesProvider);
+
+    try {
+      await prefs.remove(completedKey);
+      await prefs.remove(thresholdKey);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Reset onboarding failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
   /// Persists the personal pressure threshold (hard rule 7: user-tunable)
   /// and marks onboarding as done so the router stops redirecting here.
   Future<void> complete({required double thresholdHpa}) async {

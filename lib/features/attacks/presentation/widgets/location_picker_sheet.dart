@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_sheet_content.dart';
-import '../../../../core/widgets/app_sheet_header.dart';
 import '../../domain/enums/head_location.dart';
 import 'location_grid.dart';
 
@@ -29,9 +27,11 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return AppSheetContent(
+    return SdSheetContentV2(
       title: context.l10n.logLocationTitle,
-      action: AppSheetAction.edit,
+      closeTooltip: context.l10n.commonClose,
+      confirmTooltip: context.l10n.commonDone,
+      action: SdSheetActionV2.edit,
       onConfirm: () => Navigator.of(context).pop(_selected),
       child: LocationGrid(
         selected: _selected,
@@ -46,7 +46,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
 /// `showX` (CLAUDE.md § Code style).
 extension LocationPickerSheetExt on LocationPickerSheet {
   Future<HeadLocation?> show(BuildContext context) =>
-      showAppBottomSheet<HeadLocation>(
+      showSdBottomSheetV2<HeadLocation>(
         context,
         isScrollControlled: true,
         builder: (_) => this,

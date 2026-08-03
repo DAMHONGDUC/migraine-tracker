@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_dialog.dart';
-import '../../../../core/widgets/app_icon.dart';
-import '../../../../core/widgets/app_snack_bar.dart';
-import '../../../../l10n/gen/app_localizations.dart';
-import '../../domain/enums/alert_registration_error.dart';
-import '../../providers.dart';
+import '../../../core/theme/app_text_style.dart';
+import '../../../features/alerts/domain/enums/alert_registration_error.dart';
+import '../../../features/alerts/providers.dart';
+import '../../../l10n/gen/app_localizations.dart';
+import '../../extensions/context_extensions.dart';
 
 /// The alerts block embedded at the top of Settings: enable switch +
 /// threshold. Registration errors surface as snackbars here.
@@ -32,7 +29,7 @@ class AlertsSection extends ConsumerWidget {
     WidgetRef ref,
     double current,
   ) async {
-    final picked = await showAppDialog<double>(
+    final picked = await showSdDialogV2<double>(
       context,
       builder: (dialogContext) =>
           _ThresholdDialog(initial: current, l10n: context.l10n),
@@ -48,7 +45,7 @@ class AlertsSection extends ConsumerWidget {
 
     ref.listen(alertsControllerProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
-        AppSnackBarUtils.error(context, _errorMessage(l10n, next.error));
+        SdSnackBarUtilsV2.error(context, _errorMessage(l10n, next.error));
       }
     });
 
@@ -62,7 +59,7 @@ class AlertsSection extends ConsumerWidget {
     return Column(
       children: [
         SwitchListTile(
-          secondary: const AppIcon(icon: Icons.notifications_active_outlined),
+          secondary: const SdIconV2(icon: Icons.notifications_active_outlined),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             l10n.alertsToggleSubtitle,
@@ -73,7 +70,7 @@ class AlertsSection extends ConsumerWidget {
               ref.read(alertsControllerProvider.notifier).setEnabled(value),
         ),
         ListTile(
-          leading: const AppIcon(icon: Icons.compress),
+          leading: const SdIconV2(icon: Icons.compress),
           title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
@@ -101,7 +98,7 @@ class _ThresholdDialogState extends State<_ThresholdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialog(
+    return SdDialogV2(
       title: widget.l10n.alertsThresholdTitle,
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -123,13 +120,13 @@ class _ThresholdDialogState extends State<_ThresholdDialog> {
         ],
       ),
       actions: [
-        AppButton(
-          variant: AppButtonVariant.text,
+        SdButtonV2(
+          variant: SdButtonVariantV2.text,
           onPressed: () => Navigator.of(context).pop(),
           label: widget.l10n.commonCancel,
         ),
-        AppButton(
-          variant: AppButtonVariant.primary,
+        SdButtonV2(
+          variant: SdButtonVariantV2.primary,
           onPressed: () => Navigator.of(context).pop(_value),
           label: widget.l10n.detailsSave,
         ),

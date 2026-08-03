@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_action.dart';
 
@@ -29,10 +27,10 @@ class ExportActionsSheet extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacingConstant.w24,
-              AppSpacingConstant.h4,
-              AppSpacingConstant.w24,
-              AppSpacingConstant.h12,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h4,
+              SdSpacingConstant.w24,
+              SdSpacingConstant.h12,
             ),
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
@@ -52,7 +50,7 @@ class ExportActionsSheet extends StatelessWidget {
             action: ExportAction.delete,
             isDestructive: true,
           ),
-          SizedBox(height: AppSpacingConstant.h8),
+          SizedBox(height: SdSpacingConstant.h8),
         ],
       ),
     );
@@ -79,7 +77,7 @@ class _ActionTile extends StatelessWidget {
         : AppColors.primary;
 
     return ListTile(
-      leading: AppIcon(icon: icon, color: color),
+      leading: SdIconV2(icon: icon, color: color),
       title: Text(
         label,
         style: isDestructive
@@ -95,5 +93,5 @@ class _ActionTile extends StatelessWidget {
 /// `showX` (CLAUDE.md § Code style).
 extension ExportActionsSheetExt on ExportActionsSheet {
   Future<ExportAction?> show(BuildContext context) =>
-      showAppBottomSheet<ExportAction>(context, builder: (_) => this);
+      showSdBottomSheetV2<ExportAction>(context, builder: (_) => this);
 }

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 
+import '../../core/theme/app_text_style.dart';
 import '../../features/premium/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
-import '../theme/app_text_style.dart';
-import 'buttons/app_button.dart';
-import 'app_icon.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
 ///
@@ -44,29 +42,29 @@ class _LockedCard extends ConsumerWidget {
     final l10n = context.l10n;
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(AppSpacingConstant.w20),
+        padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppIcon(
+                SdIconV2(
                   icon: icon,
-                  size: AppSpacingConstant.r20,
+                  size: SdSpacingConstant.r20,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
-                SizedBox(width: AppSpacingConstant.w8),
+                SizedBox(width: SdSpacingConstant.w8),
                 const PremiumBadge(),
               ],
             ),
-            SizedBox(height: AppSpacingConstant.h12),
+            SizedBox(height: SdSpacingConstant.h12),
             Text(message, style: AppTextStyle.bodyMedium),
-            SizedBox(height: AppSpacingConstant.h12),
+            SizedBox(height: SdSpacingConstant.h12),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: AppButton(
-                variant: AppButtonVariant.secondary,
+              child: SdButtonV2(
+                variant: SdButtonVariantV2.secondary,
                 onPressed: () => NavigationUtils.toPaywall(context, ref),
                 label: l10n.premiumUnlock,
               ),
@@ -98,7 +96,7 @@ class PremiumTileGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(hasPremiumProvider)) return child;
     return ListTile(
-      leading: AppIcon(icon: icon, color: context.colorScheme.onSurfaceVariant),
+      leading: SdIconV2(icon: icon, color: context.colorScheme.onSurfaceVariant),
       title: Text(title, style: AppTextStyle.bodyLarge),
       subtitle: Text(lockedMessage, style: AppTextStyle.bodyMedium.secondary),
       trailing: const PremiumBadge(),
@@ -115,12 +113,12 @@ class PremiumBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: AppSpacingConstant.w8,
-        vertical: AppSpacingConstant.h4,
+        horizontal: SdSpacingConstant.w8,
+        vertical: SdSpacingConstant.h4,
       ),
       decoration: BoxDecoration(
         color: context.colorScheme.primary.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
       ),
       child: Text(
         context.l10n.premiumBadge,

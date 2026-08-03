@@ -29,7 +29,7 @@ class _DetailsSection extends StatelessWidget {
               l10n.attackDetailNoDetails,
               style: AppTextStyle.bodyMedium.secondary,
             ),
-            trailing: const AppIcon(icon: Icons.add),
+            trailing: const SdIconV2(icon: Icons.add),
             onTap: edit,
           )
         else ...[
@@ -56,13 +56,13 @@ class _DetailsSection extends StatelessWidget {
             ),
           Padding(
             padding: EdgeInsets.only(
-              right: AppSpacingConstant.w8,
-              bottom: AppSpacingConstant.h8,
+              right: SdSpacingConstant.w8,
+              bottom: SdSpacingConstant.h8,
             ),
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: AppButton(
-                variant: AppButtonVariant.text,
+              child: SdButtonV2(
+                variant: SdButtonVariantV2.text,
                 onPressed: edit,
                 icon: Icons.edit_outlined,
                 label: l10n.attackDetailEdit,

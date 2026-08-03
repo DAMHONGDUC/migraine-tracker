@@ -4,23 +4,23 @@
   "@appTitle": {
     "description": "Application name shown in the OS task switcher"
   },
-  "onboardingWelcomeTitle": "Know your storm before it hits",
+  "onboardingWelcomeTitle": "Track your migraines",
   "@onboardingWelcomeTitle": {
     "description": "Onboarding page 1 headline"
   },
-  "onboardingWelcomeBody": "BaroEase tracks your migraines alongside barometric pressure, so you can see what the weather is doing to you.",
+  "onboardingWelcomeBody": "Log an attack in three taps. BaroEase saves the air pressure at that moment, so over weeks you can see whether the weather is one of your triggers.",
   "@onboardingWelcomeBody": {
     "description": "Onboarding page 1 body"
   },
-  "onboardingDisclaimer": "BaroEase is not a substitute for professional medical advice, diagnosis, or treatment. Always talk to your doctor about your migraines.",
+  "onboardingDisclaimer": "BaroEase is not medical advice. It helps you spot patterns and bring them to your doctor — it cannot diagnose or treat anything.",
   "@onboardingDisclaimer": {
     "description": "Medical disclaimer shown in onboarding (App Store requirement)"
   },
-  "onboardingLocationTitle": "Local pressure, private by design",
+  "onboardingLocationTitle": "Why location?",
   "@onboardingLocationTitle": {
     "description": "Onboarding page 2 headline (location permission)"
   },
-  "onboardingLocationBody": "Your approximate location (about 5 km) is used to fetch local pressure for each attack and power pressure-drop alerts. Attack data never leaves this device unless you turn on sync.",
+  "onboardingLocationBody": "To know the air pressure around you, BaroEase needs a rough idea of where you are — about 5 km, never your exact spot. Your attacks stay on this phone unless you sign in and turn on sync.",
   "@onboardingLocationBody": {
     "description": "Onboarding page 2 body explaining the location permission"
   },
@@ -32,11 +32,11 @@
   "@onboardingNotNow": {
     "description": "Secondary button to skip the location permission"
   },
-  "onboardingThresholdTitle": "Your pressure sensitivity",
+  "onboardingThresholdTitle": "When should we warn you?",
   "@onboardingThresholdTitle": {
     "description": "Onboarding page 3 headline (alert threshold)"
   },
-  "onboardingThresholdBody": "Get alerted when pressure is forecast to drop at least this much within 24 hours. You can change this later.",
+  "onboardingThresholdBody": "You get an alert when the pressure is forecast to fall by at least this much within 24 hours. Most people start at 5 hPa and adjust later — Settings lets you change it any time.",
   "@onboardingThresholdBody": {
     "description": "Onboarding page 3 body explaining the threshold slider"
   },
@@ -48,6 +48,94 @@
         "type": "int"
       }
     }
+  },
+  "onboardingFeaturesTitle": "Everything BaroEase does",
+  "@onboardingFeaturesTitle": {
+    "description": "Onboarding feature-list page headline"
+  },
+  "onboardingFeaturesBody": "Tracking is free forever. The analysis that explains your attacks is Premium.",
+  "@onboardingFeaturesBody": {
+    "description": "Onboarding feature-list page body"
+  },
+  "onboardingFeaturesFree": "Free forever",
+  "@onboardingFeaturesFree": {
+    "description": "Header above the free features"
+  },
+  "onboardingFeaturesPremium": "Premium",
+  "@onboardingFeaturesPremium": {
+    "description": "Header above the premium features"
+  },
+  "onboardingFeatureLogTitle": "Three-tap attack log",
+  "@onboardingFeatureLogTitle": {
+    "description": "Free feature: attack logging"
+  },
+  "onboardingFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
+  "@onboardingFeatureLogBody": {
+    "description": "Free feature: attack logging, detail"
+  },
+  "onboardingFeatureHistoryTitle": "History and charts",
+  "@onboardingFeatureHistoryTitle": {
+    "description": "Free feature: history"
+  },
+  "onboardingFeatureHistoryBody": "Every attack on a calendar, plus trends by week, time of day and where the pain sits.",
+  "@onboardingFeatureHistoryBody": {
+    "description": "Free feature: history, detail"
+  },
+  "onboardingFeatureRemindersTitle": "Medication reminders",
+  "@onboardingFeatureRemindersTitle": {
+    "description": "Free feature: medication reminders"
+  },
+  "onboardingFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
+  "@onboardingFeatureRemindersBody": {
+    "description": "Free feature: medication reminders, detail"
+  },
+  "onboardingFeatureExportTitle": "Export your data",
+  "@onboardingFeatureExportTitle": {
+    "description": "Free feature: data export"
+  },
+  "onboardingFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
+  "@onboardingFeatureExportBody": {
+    "description": "Free feature: data export, detail"
+  },
+  "onboardingFeatureAlertsTitle": "Pressure-drop alerts",
+  "@onboardingFeatureAlertsTitle": {
+    "description": "Premium feature: pressure alerts"
+  },
+  "onboardingFeatureAlertsBody": "A notification up to 24 hours before the air pressure falls.",
+  "@onboardingFeatureAlertsBody": {
+    "description": "Premium feature: pressure alerts, detail"
+  },
+  "onboardingFeatureForecastTitle": "48-hour pressure forecast",
+  "@onboardingFeatureForecastTitle": {
+    "description": "Premium feature: pressure forecast"
+  },
+  "onboardingFeatureForecastBody": "See what the air is about to do, so you can plan around it.",
+  "@onboardingFeatureForecastBody": {
+    "description": "Premium feature: pressure forecast, detail"
+  },
+  "onboardingFeatureCorrelationTitle": "Weather correlation",
+  "@onboardingFeatureCorrelationTitle": {
+    "description": "Premium feature: weather correlation"
+  },
+  "onboardingFeatureCorrelationBody": "How much of your pain actually follows the pressure — measured on your own attacks.",
+  "@onboardingFeatureCorrelationBody": {
+    "description": "Premium feature: weather correlation, detail"
+  },
+  "onboardingFeatureSleepTitle": "Sleep correlation",
+  "@onboardingFeatureSleepTitle": {
+    "description": "Premium feature: sleep correlation"
+  },
+  "onboardingFeatureSleepBody": "Whether your attacks follow the nights you sleep least, read from Apple Health.",
+  "@onboardingFeatureSleepBody": {
+    "description": "Premium feature: sleep correlation, detail"
+  },
+  "onboardingFeatureReportTitle": "Doctor report",
+  "@onboardingFeatureReportTitle": {
+    "description": "Premium feature: doctor report"
+  },
+  "onboardingFeatureReportBody": "A clean PDF of your history to bring to an appointment.",
+  "@onboardingFeatureReportBody": {
+    "description": "Premium feature: doctor report, detail"
   },
   "onboardingContinue": "Continue",
   "@onboardingContinue": {
@@ -548,8 +636,12 @@
   "@historyFilterWithCount": {
     "description": "Filter pill text: the active period plus how many attacks it matches, e.g. \"All (10)\"",
     "placeholders": {
-      "label": {"type": "String"},
-      "count": {"type": "int"}
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "historyFilterToday": "Today",
@@ -597,7 +689,9 @@
   "@historyChartIntensityTooltip": {
     "description": "Tooltip when touching a point on the intensity trend line",
     "placeholders": {
-      "value": {"type": "String"}
+      "value": {
+        "type": "String"
+      }
     }
   },
   "historyChartSeverityTitle": "Severity mix",
@@ -648,7 +742,9 @@
   "@a11yChart": {
     "description": "Accessibility label wrapping a chart, naming it by its title",
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "premiumBadge": "Premium",
@@ -855,14 +951,18 @@
   "@remindersScheduledToday": {
     "description": "Snackbar confirming a reminder was scheduled and will fire later today",
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "remindersScheduledTomorrow": "Reminder set for {time} tomorrow",
   "@remindersScheduledTomorrow": {
     "description": "Snackbar confirming a reminder was scheduled but its time already passed today, so it first fires tomorrow",
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "remindersTestTooltip": "Test notification (debug)",
@@ -1206,6 +1306,30 @@
   "@settingsDevSeedFailed": {
     "description": "Snackbar shown when the dev-only seed throws"
   },
+  "settingsDevReset": "Reset the app",
+  "@settingsDevReset": {
+    "description": "Dev-only tile: wipe everything and start over at onboarding"
+  },
+  "settingsDevResetSubtitle": "Delete every attack, medication and export, then start again at onboarding.",
+  "@settingsDevResetSubtitle": {
+    "description": "Dev-only reset tile, supporting line"
+  },
+  "settingsDevResetConfirmTitle": "Reset the app?",
+  "@settingsDevResetConfirmTitle": {
+    "description": "Dev-only reset tile, confirm dialog title"
+  },
+  "settingsDevResetConfirmBody": "Everything on this device goes, and you land back on onboarding as if this were a fresh install. This cannot be undone.",
+  "@settingsDevResetConfirmBody": {
+    "description": "Dev-only reset tile, confirm dialog body"
+  },
+  "settingsDevResetConfirmAction": "Reset",
+  "@settingsDevResetConfirmAction": {
+    "description": "Dev-only reset tile, confirm button"
+  },
+  "settingsDevResetFailed": "Couldn't reset the app.",
+  "@settingsDevResetFailed": {
+    "description": "Dev-only reset tile, error snackbar"
+  },
   "severityMild": "mild",
   "@severityMild": {
     "description": "Severity word for intensity 1-3, used in accessibility labels"
@@ -1226,40 +1350,60 @@
   "@a11yIntensityButton": {
     "description": "VoiceOver label for an intensity button in the log flow",
     "placeholders": {
-      "value": {"type": "int"},
-      "severity": {"type": "String"}
+      "value": {
+        "type": "int"
+      },
+      "severity": {
+        "type": "String"
+      }
     }
   },
   "a11yIntensityLabel": "Intensity {value}, {severity}",
   "@a11yIntensityLabel": {
     "description": "VoiceOver label for the intensity badge on an attack row",
     "placeholders": {
-      "value": {"type": "int"},
-      "severity": {"type": "String"}
+      "value": {
+        "type": "int"
+      },
+      "severity": {
+        "type": "String"
+      }
     }
   },
   "a11yCalendarMarker": "{count, plural, =1{1 attack} other{{count} attacks}}, worst intensity {peak} of 10",
   "@a11yCalendarMarker": {
     "description": "VoiceOver label for a calendar day's attack marker dot (colour-only otherwise)",
     "placeholders": {
-      "count": {"type": "int"},
-      "peak": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "peak": {
+        "type": "int"
+      }
     }
   },
   "a11yForecastChart": "Pressure chart, past 12 hours and next 48 hours. Now {now} hPa, lowest ahead {min} hPa.",
   "@a11yForecastChart": {
     "description": "VoiceOver summary of the pressure forecast line chart",
     "placeholders": {
-      "now": {"type": "String"},
-      "min": {"type": "String"}
+      "now": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
     }
   },
   "a11yWeeklyChart": "Bar chart of attacks per week, {total, plural, =1{1 attack} other{{total} attacks}} over {weeks} weeks.",
   "@a11yWeeklyChart": {
     "description": "VoiceOver summary of the weekly frequency bar chart",
     "placeholders": {
-      "total": {"type": "int"},
-      "weeks": {"type": "int"}
+      "total": {
+        "type": "int"
+      },
+      "weeks": {
+        "type": "int"
+      }
     }
   },
   "a11yViewList": "List view",
@@ -1302,21 +1446,27 @@
   "@dashboardAttacksCount": {
     "description": "Attack count for the current week on the dashboard summary card",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "dashboardTrendUp": "{count, plural, =1{1 more than last week} other{{count} more than last week}}",
   "@dashboardTrendUp": {
     "description": "Weekly trend caption when this week has more attacks than last week",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "dashboardTrendDown": "{count, plural, =1{1 fewer than last week} other{{count} fewer than last week}}",
   "@dashboardTrendDown": {
     "description": "Weekly trend caption when this week has fewer attacks than last week",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "dashboardTrendSame": "Same as last week",
@@ -1327,7 +1477,9 @@
   "@dashboardAvgIntensity": {
     "description": "Average pain intensity for the week on the dashboard summary card",
     "placeholders": {
-      "value": {"type": "String"}
+      "value": {
+        "type": "String"
+      }
     }
   },
   "dashboardQuickAccess": "Quick access",
@@ -1390,31 +1542,45 @@
   "@dashboardNextReminderBody": {
     "description": "Body of the next-reminder banner: medication name, time, and time remaining",
     "placeholders": {
-      "name": {"type": "String"},
-      "time": {"type": "String"},
-      "remaining": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
     }
   },
   "dashboardRemainingHm": "in {hours}h {minutes}m",
   "@dashboardRemainingHm": {
     "description": "Time remaining until the next reminder, hours and minutes",
     "placeholders": {
-      "hours": {"type": "int"},
-      "minutes": {"type": "int"}
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "dashboardRemainingH": "in {hours}h",
   "@dashboardRemainingH": {
     "description": "Time remaining until the next reminder, whole hours",
     "placeholders": {
-      "hours": {"type": "int"}
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "dashboardRemainingM": "in {minutes}m",
   "@dashboardRemainingM": {
     "description": "Time remaining until the next reminder, minutes only",
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "dashboardRemainingSoon": "soon",
@@ -1429,7 +1595,9 @@
   "@dashboardSaleEndsIn": {
     "description": "Countdown line on the premium sale banner; time is HH:MM:SS",
     "placeholders": {
-      "time": {"type": "String"}
+      "time": {
+        "type": "String"
+      }
     }
   },
   "loginTitle": "Sign in",
@@ -1500,7 +1668,7 @@
   "@settingsAccountSignIn": {
     "description": "Settings row that opens the login screen"
   },
-  "settingsAccountSignInSubtitle": "Optional \u2014 needed to unlock Premium",
+  "settingsAccountSignInSubtitle": "Optional — needed to unlock Premium",
   "@settingsAccountSignInSubtitle": {
     "description": "Subtitle of the signed-out account row"
   },

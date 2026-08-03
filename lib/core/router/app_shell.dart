@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 
 import '../analytics/app_analytics.dart';
-import '../constants/app_content_padding.dart';
 import '../extensions/context_extensions.dart';
-import '../widgets/app_icon.dart';
-import '../widgets/glass/liquid_glass_theme.dart';
-import '../widgets/pop_scale.dart';
 import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -126,8 +122,8 @@ class _SlidingNavBar extends StatelessWidget {
     final count = items.length;
     return SizedBox(
       // Shared with the log flow's step bar, and with what content pads by to
-      // clear this pill — see AppContentPadding.floatingBarHeight.
-      height: AppContentPadding.floatingBarHeight,
+      // clear this pill — see SdContentPaddingV2.floatingBarHeight.
+      height: SdContentPaddingV2.floatingBarHeight,
       child: Stack(
         children: [
           // The sliding thumb: 1/N wide, aligned to the selected segment.
@@ -144,14 +140,14 @@ class _SlidingNavBar extends StatelessWidget {
               child: Padding(
                 // Slim inset so the thumb hugs the container border.
                 padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacingConstant.w6,
-                  vertical: AppSpacingConstant.w6,
+                  horizontal: SdSpacingConstant.w6,
+                  vertical: SdSpacingConstant.w6,
                 ),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary.withValues(alpha: 0.22),
                     // Oversized radius = stadium caps, matching the bar.
-                    borderRadius: BorderRadius.circular(AppSpacingConstant.r64),
+                    borderRadius: BorderRadius.circular(SdSpacingConstant.r64),
                   ),
                 ),
               ),
@@ -212,9 +208,9 @@ class _NavSegment extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Center(
-          child: AppIcon(
+          child: SdIconV2(
             icon: selected ? item.selectedIcon : item.icon,
-            size: AppSpacingConstant.r26,
+            size: SdSpacingConstant.r26,
             color: color,
           ),
         ),
@@ -225,15 +221,15 @@ class _NavSegment extends StatelessWidget {
 
 /// Wraps a bottom bar in the floating frosted-glass treatment: side margins so
 /// it "lifts" off the edges, rounded glass, and
-/// [AppContentPadding.navBarOffset] below it — the home indicator where there
+/// [SdContentPaddingV2.navBarOffset] below it — the home indicator where there
 /// is one, a flat 16 where there is none — with the child's own bottom inset
 /// removed so nothing re-adds the safe area inside. Applied
 /// unconditionally — the nav pill is the one surface that stays glass even
-/// where [AppGlass.isSupported] is false, because its floating geometry is
+/// where [SdGlassV2.isSupported] is false, because its floating geometry is
 /// layout the tab screens already pad for; the renderer degrades the surface
 /// itself to `FakeGlass` there.
 ///
-/// Any tap on the bar plays a little overshoot pop ([PopScale], the same
+/// Any tap on the bar plays a little overshoot pop ([SdPopScaleV2], the same
 /// feedback the app bar's buttons use) — smaller here, and anchored to the
 /// bottom edge so the pill grows upward off the line it rests on. The scale is
 /// paint-only, so the layout slot and body insets never move.
@@ -250,18 +246,18 @@ class _FloatingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpacingConstant.w24,
+        SdSpacingConstant.w24,
         0,
-        AppSpacingConstant.w24,
-        AppContentPadding.navBarOffset(context),
+        SdSpacingConstant.w24,
+        SdContentPaddingV2.navBarOffset(context),
       ),
-      child: PopScale(
+      child: SdPopScaleV2(
         peakScale: _popPeakScale,
         alignment: Alignment.bottomCenter,
         child: LiquidGlass.withOwnLayer(
           settings: kChromeGlass,
           shape: LiquidRoundedSuperellipse(
-            borderRadius: AppContentPadding.floatingBarRadius,
+            borderRadius: SdContentPaddingV2.floatingBarRadius,
           ),
           clipBehavior: Clip.antiAlias,
           child: MediaQuery.removePadding(

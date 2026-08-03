@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_dialog.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 
 /// Asks for the account's display name, prefilled with [initial]. Returns
@@ -10,7 +9,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 /// `DisplayNameDialog(...).show(context)` — see [DisplayNameDialogExt].
 ///
 /// A [StatefulWidget] so the [TextEditingController] outlives the awaited
-/// result: [AppDialog] fades out over 220ms and the field is still painting
+/// result: [SdDialogV2] fades out over 220ms and the field is still painting
 /// for all of it (see [MedicationNameDialog] for the crash this avoids).
 class DisplayNameDialog extends StatefulWidget {
   const DisplayNameDialog({this.initial, super.key});
@@ -23,7 +22,7 @@ class DisplayNameDialog extends StatefulWidget {
 
 extension DisplayNameDialogExt on DisplayNameDialog {
   Future<String?> show(BuildContext context) =>
-      showAppDialog<String>(context, builder: (_) => this);
+      showSdDialogV2<String>(context, builder: (_) => this);
 }
 
 class _DisplayNameDialogState extends State<DisplayNameDialog> {
@@ -47,7 +46,7 @@ class _DisplayNameDialogState extends State<DisplayNameDialog> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return AppDialog(
+    return SdDialogV2(
       title: l10n.accountEditName,
       content: TextField(
         controller: _controller,
@@ -57,13 +56,13 @@ class _DisplayNameDialogState extends State<DisplayNameDialog> {
         onSubmitted: _submit,
       ),
       actions: <Widget>[
-        AppButton(
-          variant: AppButtonVariant.text,
+        SdButtonV2(
+          variant: SdButtonVariantV2.text,
           onPressed: () => Navigator.of(context).pop(),
           label: l10n.commonCancel,
         ),
-        AppButton(
-          variant: AppButtonVariant.primary,
+        SdButtonV2(
+          variant: SdButtonVariantV2.primary,
           onPressed: () => _submit(_controller.text),
           label: l10n.detailsSave,
         ),

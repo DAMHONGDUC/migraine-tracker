@@ -17,7 +17,7 @@ class _ThresholdPage extends StatelessWidget {
       // about, so it reads redder as it climbs.
       footer: ValueListenableBuilder<double>(
         valueListenable: threshold,
-        builder: (BuildContext context, double value, _) => AppValueSlider(
+        builder: (BuildContext context, double value, _) => SdValueSliderV2(
           label: l10n.onboardingThresholdValue(value.round()),
           value: value,
           min: 3,

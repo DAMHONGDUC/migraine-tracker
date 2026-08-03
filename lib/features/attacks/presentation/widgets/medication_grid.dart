@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/medication_name_dialog.dart';
-import '../../../../core/widgets/pressable_scale.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
 
@@ -82,9 +79,9 @@ class MedicationGrid extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: AppSpacingConstant.h8,
-        crossAxisSpacing: AppSpacingConstant.w8,
-        mainAxisExtent: AppSpacingConstant.h64,
+        mainAxisSpacing: SdSpacingConstant.h8,
+        crossAxisSpacing: SdSpacingConstant.w8,
+        mainAxisExtent: SdSpacingConstant.h64,
       ),
       itemCount: medications.length + 2,
       itemBuilder: (BuildContext context, int i) {
@@ -119,12 +116,12 @@ class MedicationGrid extends ConsumerWidget {
   }
 }
 
-/// What a [_Tile] means — the look is a prop, like [AppButtonVariant].
+/// What a [_Tile] means — the look is a prop, like [SdButtonVariantV2].
 ///
 /// - [option] — a pickable answer (a medication, or "No medication"). Shares
 ///   the location step's tile language so the two steps read as one flow.
 /// - [add] — the action that opens the add-medication dialog. Never
-///   selectable, and teal-tinted like [AppButtonVariant.positive] so it
+///   selectable, and teal-tinted like [SdButtonVariantV2.positive] so it
 ///   reads as additive rather than as one more thing to choose between.
 enum _TileKind { option, add }
 
@@ -175,25 +172,25 @@ class _Tile extends StatelessWidget {
       selected: isAdd ? null : selected,
       label: label,
       excludeSemantics: true,
-      child: PressableScale(
+      child: SdPressableScaleV2(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: EdgeInsets.symmetric(horizontal: AppSpacingConstant.w16),
+          padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
             border: Border.all(color: borderColor, width: selected ? 2 : 1),
           ),
           child: Row(
             children: <Widget>[
-              AppIcon(
+              SdIconV2(
                 icon: icon,
                 color: foreground,
-                size: AppSpacingConstant.r24,
+                size: SdSpacingConstant.r24,
               ),
-              SizedBox(width: AppSpacingConstant.w12),
+              SizedBox(width: SdSpacingConstant.w12),
               Expanded(
                 child: Text(
                   label,

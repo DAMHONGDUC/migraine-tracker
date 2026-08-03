@@ -11,7 +11,7 @@ class _GeneralSection extends ConsumerWidget {
     );
 
     // Inline: a LanguageSheet widget would wrap this and add nothing.
-    final AppLanguage? picked = await showAppFilterSheet<AppLanguage>(
+    final AppLanguage? picked = await showSdFilterSheetV2<AppLanguage>(
       context,
       title: context.l10n.settingsLanguage,
       options: AppLanguage.values,
@@ -38,7 +38,7 @@ class _GeneralSection extends ConsumerWidget {
         const _AlertsSection(),
         const HealthSection(),
         ListTile(
-          leading: const AppIcon(icon: Icons.language),
+          leading: const SdIconV2(icon: Icons.language),
           title: Text(
             context.l10n.settingsLanguage,
             style: AppTextStyle.bodyLarge,

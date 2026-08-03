@@ -1,0 +1,160 @@
+# Melos 6 on purpose, not 7/8.
+#
+# Melos 7+ moves to Dart pub workspaces, and that costs this repo twice:
+#   1. Melos 8's own dependencies cannot resolve alongside `drift_dev` — it
+#      pulls `test: any`, drift_dev wants `analyzer ^13`, and no `test`
+#      version satisfies both. The only way through is pinning `drift_dev`
+#      exactly: a task runner dictating a codegen version. Melos 6 resolves
+#      against `drift_dev: ^2.34.0` untouched.
+#   2. It requires `resolution: workspace` inside packages/system_design,
+#      which stops that package resolving in any project that is not itself
+#      a workspace — exactly the portability the submodule exists for.
+#
+# Every melos since 3.0.0 needs `melos` in the root dev_dependencies, so that
+# part is unavoidable either way. Revisit when drift_dev and melos stop
+# fighting over `analyzer`.
+name: baro_ease
+
+packages:
+  - .
+  - packages/**
+
+# melos 6.3.3 ships without the IntelliJ run-configuration templates it tries
+# to write, so bootstrap crashes on `flutter_run_with_args.xml.tmpl`. Nothing
+# here uses those files — this project runs from VS Code launch configs.
+ide:
+  intellij: false
+
+scripts:
+  setup:
+    description: >
+      Everything a fresh clone needs, in order. Safe to re-run.
+    run: |
+      set -euo pipefail
+      cd "$MELOS_ROOT_PATH"
+
+      # `flutter` is a shell alias for `fvm flutter` here, and aliases do not
+      # exist inside a script — resolve it or we run the wrong SDK. CI has no
+      # fvm and falls through to the plain binaries.
+      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
+        FL="fvm flutter"; DT="fvm dart"
+      else
+        FL="flutter"; DT="dart"
+      fi
+
+      # Submodules land on their branch and follow it, rather than sitting
+      # detached at the commit the gitlink records. That is deliberate: the
+      # design system is developed alongside this app, and nobody wants to
+      # remember to `git checkout main` inside it before every edit.
+      #
+      # The cost is real, so know it: after this, what you build is whatever
+      # is on the submodule's branch, NOT what the parent commit pins. The
+      # parent will show `packages/system_design` as modified the moment the
+      # branch moves ahead of the gitlink — commit that gitlink when you mean
+      # to, and never assume a past parent commit rebuilds byte-for-byte.
+      echo "==> submodules"
+      git submodule update --init --recursive
+      git submodule foreach --quiet --recursive '
+        branch=$(git config -f "$toplevel/.gitmodules" "submodule.$name.branch" || echo main)
+        if ! git checkout -q "$branch" 2>/dev/null; then
+          echo "    $name: cannot switch to $branch (uncommitted changes?), left as is"
+        elif ! git pull -q --ff-only origin "$branch" 2>/dev/null; then
+          echo "    $name: on $branch, but not fast-forwardable — pull it by hand"
+        else
+          echo "    $name -> $branch"
+        fi
+      '
+
+      echo "==> dependencies"
+      $FL pub get
+      (cd packages/system_design && $FL pub get)
+
+      echo "==> localizations"
+      $FL gen-l10n
+
+      echo "==> code generation"
+      $DT run build_runner build --delete-conflicting-outputs
+
+      # env/*.json is gitignored (Firebase + RevenueCat keys), so a fresh
+      # clone has none. Lay down the key-only templates and say so loudly.
+      echo "==> env config"
+      MISSING=""
+      for f in dev prod; do
+        if [ ! -f "env/$f.json" ]; then
+          cp "env/$f.example.json" "env/$f.json"
+          MISSING="$MISSING env/$f.json"
+        fi
+      done
+
+      if [ -d functions ] && command -v npm >/dev/null 2>&1; then
+        echo "==> cloud functions"
+        (cd functions && npm ci --silent)
+      fi
+
+      # `health` pins an old device_info with no Swift Package, so iOS still
+      # needs CocoaPods for that one plugin. See CLAUDE.md.
+      if [ "$(uname)" = "Darwin" ] && [ -f ios/Podfile ] && command -v pod >/dev/null 2>&1; then
+        echo "==> ios pods"
+        $FL precache --ios
+        (cd ios && pod install)
+      fi
+
+      echo ""
+      if [ -n "$MISSING" ]; then
+        echo "!! Created from templates:$MISSING"
+        echo "!! Fill in the Firebase and RevenueCat keys before running."
+        echo ""
+      fi
+      echo "Run the app:  $FL run --dart-define-from-file=env/dev.json"
+
+  gen:
+    description: Regenerate localizations and build_runner output.
+    run: |
+      set -euo pipefail
+      cd "$MELOS_ROOT_PATH"
+      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then
+        FL="fvm flutter"; DT="fvm dart"
+      else
+        FL="flutter"; DT="dart"
+      fi
+      $FL gen-l10n
+      $DT run build_runner build --delete-conflicting-outputs
+
+  analyze:
+    description: Analyze every package. Must pass with zero warnings.
+    run: |
+      set -euo pipefail
+      cd "$MELOS_ROOT_PATH"
+      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
+      $FL analyze --fatal-infos
+
+  test:
+    description: Run the Flutter test suite.
+    run: |
+      set -euo pipefail
+      cd "$MELOS_ROOT_PATH"
+      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
+      $FL test
+
+  clean:
+    description: >
+      Wipe Android + iOS build artefacts. Follow with `melos run setup`.
+    run: |
+      set -euo pipefail
+      cd "$MELOS_ROOT_PATH"
+      if [ -f .fvmrc ] && command -v fvm >/dev/null 2>&1; then FL="fvm flutter"; else FL="flutter"; fi
+
+      echo "==> flutter clean"
+      $FL clean
+
+      echo "==> android"
+      if [ -x android/gradlew ]; then
+        (cd android && ./gradlew clean) || echo "    gradlew clean failed, continuing"
+      fi
+      rm -rf android/.gradle android/build android/app/build
+
+      echo "==> ios"
+      rm -rf ios/.symlinks ios/Flutter/ephemeral ios/Pods ios/Podfile.lock
+
+      echo ""
+      echo "Now run: melos run setup"

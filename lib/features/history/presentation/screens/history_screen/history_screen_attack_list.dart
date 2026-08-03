@@ -29,9 +29,9 @@ class _AttackList extends StatelessWidget {
           // Flush under the app bar — no gap between the bar and the content.
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
               topInset,
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
               0,
             ),
             sliver: SliverToBoxAdapter(
@@ -41,7 +41,7 @@ class _AttackList extends StatelessWidget {
           if (attacks.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: EmptyState(
+              child: SdEmptyStateV2(
                 icon: Icons.filter_alt_outlined,
                 message: context.l10n.historyEmptyFiltered,
               ),
@@ -49,15 +49,15 @@ class _AttackList extends StatelessWidget {
           else
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                AppContentPadding.horizontal,
+                SdContentPaddingV2.horizontal,
                 0,
-                AppContentPadding.horizontal,
+                SdContentPaddingV2.horizontal,
                 bottomInset,
               ),
               sliver: SliverList.separated(
                 itemCount: attacks.length,
                 separatorBuilder: (_, _) =>
-                    SizedBox(height: AppSpacingConstant.h8),
+                    SizedBox(height: SdSpacingConstant.h8),
                 itemBuilder: (context, index) =>
                     AttackTile(attack: attacks[index]),
               ),
