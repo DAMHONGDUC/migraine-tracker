@@ -76,6 +76,6 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
-    - assets/fonts/
+    - assets/fonts/noto_sans/
     - assets/icons/
     - assets/images/
