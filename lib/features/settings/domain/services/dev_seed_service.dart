@@ -20,8 +20,17 @@ import 'export_file_store.dart';
 /// Dev-only fixture generator: wipes whatever is on the device, then refills
 /// it with [seedCount] medications, [seedCount] attacks and [seedCount] past
 /// exports so charts, filters, the export history and the correlation engine
-/// all have something to chew on. The seed is fixed, so two runs produce the
-/// same data set.
+/// all have something to chew on.
+///
+/// **Every run produces a different data set.** Nothing is derived from the
+/// row index — not the medication a row gets, not whether an attack has
+/// weather, not which kind an export is — because a fixture that always looks
+/// the same only ever exercises one shape of screen, and the layout bugs live
+/// in the shapes you did not seed.
+///
+/// Two things stay deliberate rather than random: medication names are drawn
+/// without replacement so no two rows collide, and pressure still sags as
+/// intensity climbs so the correlation engine has a signal to find.
 ///
 /// Never reachable in a prod flavour — the settings row that calls it is
 /// hidden behind `!AppEnv.isProd`.
@@ -45,10 +54,12 @@ class DevSeedService {
   /// How many rows of each kind a seed produces.
   static const int seedCount = 100;
 
-  static const Uuid _uuid = Uuid();
+  /// How far back rows are scattered, in hours — a little over three months,
+  /// which is enough for the weekly charts and the 90-day filters to have
+  /// something in every bucket.
+  static const int _windowHours = 2200;
 
-  /// Fixed so a seeded database is reproducible between runs.
-  static const int _randomSeed = 42;
+  static const Uuid _uuid = Uuid();
 
   static const List<String> _medicationNames = <String>[
     'Ibuprofen',
@@ -110,11 +121,12 @@ class DevSeedService {
     'dehydration',
   ];
 
-  /// Clears the database, then writes a fresh data set into it.
+  /// Clears the database, then writes a fresh data set into it. Unseeded
+  /// [Random] on purpose — see the class doc.
   Future<void> seed() async {
-    final Random random = Random(_randomSeed);
+    final Random random = Random();
     final DateTime now = DateTime.now().toUtc();
-    final List<Medication> medications = _buildMedications(now);
+    final List<Medication> medications = _buildMedications(random, now);
     final List<Attack> attacks = _buildAttacks(random, now, medications);
 
     await _wipe.wipeAll();
@@ -124,57 +136,103 @@ class DevSeedService {
     for (final Attack attack in attacks) {
       await _attacks.insert(attack);
     }
-    await _seedExports(attacks, medications, now);
+    await _seedExports(random, attacks, medications, now);
   }
 
-  List<Medication> _buildMedications(DateTime now) => List<Medication>.generate(
-    seedCount,
-    (int index) => Medication(
-      id: _uuid.v4(),
-      name:
-          '${_medicationNames[index % _medicationNames.length]}'
-          '${_doses[index ~/ _medicationNames.length]}',
-      createdAt: now.subtract(Duration(days: seedCount - index)),
-    ),
-  );
+  /// Names are drawn without replacement: the 30 names crossed with the 5
+  /// doses give 150 combinations, shuffled, of which [seedCount] are kept.
+  /// Duplicates would be indistinguishable rows in the medications list.
+  List<Medication> _buildMedications(Random random, DateTime now) {
+    final List<String> names = <String>[
+      for (final String dose in _doses)
+        for (final String name in _medicationNames) '$name$dose',
+    ]..shuffle(random);
+
+    // Without this, raising seedCount past the pool silently seeds fewer
+    // medications than it claims and every count in the app looks wrong.
+    assert(
+      names.length >= seedCount,
+      'seedCount ($seedCount) exceeds the ${names.length} name/dose '
+      'combinations available — add names or doses.',
+    );
+
+    return <Medication>[
+      for (final String name in names.take(seedCount))
+        Medication(
+          id: _uuid.v4(),
+          name: name,
+          createdAt: now.subtract(
+            Duration(hours: random.nextInt(_windowHours)),
+          ),
+        ),
+    ];
+  }
 
   List<Attack> _buildAttacks(
     Random random,
     DateTime now,
     List<Medication> medications,
-  ) => List<Attack>.generate(
-    seedCount,
-    (int index) => _buildAttack(index, random, now, medications),
-  );
+  ) => <Attack>[
+    for (final int hoursAgo in _scatteredHours(random))
+      _buildAttack(random, now.subtract(Duration(hours: hoursAgo)), medications),
+  ];
+
+  /// [seedCount] distinct hour offsets inside the window. Distinct so no two
+  /// attacks land in the same hour — the history list groups by day and the
+  /// charts bucket by hour, and a pile-up hides both.
+  List<int> _scatteredHours(Random random) {
+    final Set<int> hours = <int>{};
+
+    while (hours.length < seedCount) {
+      hours.add(random.nextInt(_windowHours));
+    }
+
+    return hours.toList();
+  }
 
   Attack _buildAttack(
-    int index,
     Random random,
-    DateTime now,
+    DateTime startedAt,
     List<Medication> medications,
   ) {
-    // ~20h apart plus jitter: roughly three months back, never two per hour.
-    final DateTime startedAt = now.subtract(
-      Duration(hours: index * 20 + random.nextInt(8)),
-    );
     final int intensity = 1 + random.nextInt(10);
-    final bool offline = index % 7 == 0;
+    // Roughly one in seven stays weatherless — that is the offline-log case
+    // the backfill queue has to pick up. A chance, not every seventh row, so
+    // the gaps land somewhere different each run.
+    final bool offline = random.nextInt(7) == 0;
+    final bool untreated = random.nextInt(5) == 0;
+    final bool annotated = random.nextInt(4) == 0;
 
     return Attack(
       id: _uuid.v4(),
       startedAt: startedAt,
       intensity: intensity,
       location: HeadLocation.values[random.nextInt(HeadLocation.values.length)],
-      medicationName: index % 5 == 0
+      medicationName: untreated
           ? null
           : medications[random.nextInt(medications.length)].name,
       symptoms: _pick(_symptoms, random),
       triggers: _pick(_triggers, random),
-      notes: index % 4 == 0 ? 'Seeded sample attack #$index' : null,
-      // Every seventh one stays weatherless — that is the offline-log case
-      // the backfill queue has to pick up.
+      notes: annotated ? _buildNote(random) : null,
       weather: offline ? null : _buildWeather(startedAt, intensity, random),
     );
+  }
+
+  /// Notes vary in length as well as content: a one-word note and a rambling
+  /// one lay out differently everywhere they appear, and only seeding both
+  /// shows it.
+  String _buildNote(Random random) {
+    final List<String> sentences = <String>[
+      'Came on suddenly.',
+      'Woke up with it.',
+      'Eased off after lying down in the dark.',
+      'Painkillers barely touched it.',
+      'Weather turned that afternoon.',
+      'Second one this week.',
+      'Had to leave work early.',
+    ]..shuffle(random);
+
+    return sentences.take(1 + random.nextInt(3)).join(' ');
   }
 
   /// Pressure sags as intensity climbs, so the correlation engine sees a
@@ -200,6 +258,7 @@ class DevSeedService {
   /// share and save these. No PDF row: a fake one would point at a file no
   /// viewer could open.
   Future<void> _seedExports(
+    Random random,
     List<Attack> attacks,
     List<Medication> medications,
     DateTime now,
@@ -209,9 +268,13 @@ class DevSeedService {
     );
     final Uint8List csvBytes = utf8.encode(_export.toCsv(attacks));
 
-    for (int index = 0; index < seedCount; index++) {
-      final ExportKind kind = index.isEven ? ExportKind.json : ExportKind.csv;
-      final DateTime createdAt = now.subtract(Duration(hours: index * 19 + 3));
+    // Distinct hours again: the filename carries the timestamp, and two
+    // exports of the same kind in the same second would collide on it.
+    for (final int hoursAgo in _scatteredHours(random)) {
+      final ExportKind kind = random.nextBool()
+          ? ExportKind.json
+          : ExportKind.csv;
+      final DateTime createdAt = now.subtract(Duration(hours: hoursAgo));
       final String filename =
           'baroease_export_${_stamp(createdAt)}.${kind.fileExtension}';
       final StoredExportFile stored = await _exportFiles.write(
