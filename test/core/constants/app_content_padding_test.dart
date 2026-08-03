@@ -74,7 +74,7 @@ void main() {
     expect(insets.top, 47 + kToolbarHeight + 8);
   });
 
-  testWidgets('with no home indicator the pill takes a flat 16 instead', (
+  testWidgets('with no home indicator the pill falls back to the floor', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
@@ -101,9 +101,41 @@ void main() {
       ),
     );
 
-    // Nothing to rest on, so the pill floats 16 off the edge: that + its 56 +
+    // Nothing to rest on, so the pill takes the floor: that + its 56 +
     // bottomGap.
-    expect(bottom, 16 + 56 + 16);
+    expect(bottom, 24 + 56 + 16);
+  });
+
+  testWidgets('a bottom inset smaller than the floor is raised to it', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    // An iPad, or an iPhone in landscape: there IS a home indicator, but a
+    // shallower one than a portrait phone's 34.
+    tester.view.padding = const FakeViewPadding(top: 60, bottom: 60);
+    tester.view.viewPadding = const FakeViewPadding(top: 60, bottom: 60);
+    addTearDown(tester.view.reset);
+
+    late final double bottom;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          theme: AppTheme.dark,
+          home: Builder(
+            builder: (BuildContext context) {
+              bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+
+    // 20 of real inset, but the pill still clears the edge by the floor.
+    expect(bottom, 24 + 56 + 16);
   });
 
   testWidgets('full-bleed keeps the vertical rule, drops the gutter', (
