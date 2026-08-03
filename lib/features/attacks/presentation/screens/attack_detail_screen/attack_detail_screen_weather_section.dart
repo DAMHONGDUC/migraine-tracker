@@ -15,7 +15,7 @@ class _WeatherSection extends StatelessWidget {
         title: l10n.attackDetailWeatherTitle,
         children: [
           ListTile(
-            leading: AppIcon(
+            leading: SdIconV2(
               icon: Icons.cloud_off,
               color: context.colorScheme.onSurfaceVariant,
             ),

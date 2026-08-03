@@ -37,22 +37,22 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
-    final confirmed = await showAppDialog<bool>(
+    final confirmed = await showSdDialogV2<bool>(
       context,
-      builder: (dialogContext) => AppDialog(
+      builder: (dialogContext) => SdDialogV2(
         title: l10n.medicationsDeleteTitle,
         content: Text(
           l10n.medicationsDeleteBody,
           style: AppTextStyle.bodyMedium,
         ),
         actions: [
-          AppButton(
-            variant: AppButtonVariant.text,
+          SdButtonV2(
+            variant: SdButtonVariantV2.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton(
-            variant: AppButtonVariant.destructive,
+          SdButtonV2(
+            variant: SdButtonVariantV2.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.settingsDeleteConfirmAction,
           ),
@@ -66,14 +66,14 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
   void _openActions(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final scheme = context.colorScheme;
-    showAppBottomSheet<void>(
+    showSdBottomSheetV2<void>(
       context,
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const AppIcon(icon: Icons.alarm_add),
+              leading: const SdIconV2(icon: Icons.alarm_add),
               title: Text(l10n.remindersAdd, style: AppTextStyle.bodyLarge),
               onTap: () {
                 Navigator.of(sheetContext).pop();
@@ -81,7 +81,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               },
             ),
             ListTile(
-              leading: const AppIcon(icon: Icons.edit_outlined),
+              leading: const SdIconV2(icon: Icons.edit_outlined),
               title: Text(
                 l10n.medicationsEditAction,
                 style: AppTextStyle.bodyLarge,
@@ -92,7 +92,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               },
             ),
             ListTile(
-              leading: AppIcon(icon: Icons.delete_outline, color: scheme.error),
+              leading: SdIconV2(icon: Icons.delete_outline, color: scheme.error),
               title: Text(
                 l10n.settingsDeleteConfirmAction,
                 style: TextStyle(color: scheme.error),
@@ -102,7 +102,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
                 _delete(context, ref);
               },
             ),
-            SizedBox(height: AppSpacingConstant.h8),
+            SizedBox(height: SdSpacingConstant.h8),
           ],
         ),
       ),
@@ -160,8 +160,8 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         : reminders;
 
     final rowPadding = EdgeInsets.symmetric(
-      horizontal: AppContentPadding.horizontal,
-    ).copyWith(right: AppContentPadding.horizontal / 2);
+      horizontal: SdContentPaddingV2.horizontal,
+    ).copyWith(right: SdContentPaddingV2.horizontal / 2);
 
     // Drive the highlight from a single 0..1 value and derive the border +
     // glow from it — building the decoration per-frame keeps the fade
@@ -175,16 +175,16 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
         // Glow sits behind the card; the border is painted in the FOREGROUND
         // so it isn't hidden under the card's opaque surface.
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.35 * t),
-              blurRadius: AppSpacingConstant.r16 * t,
+              blurRadius: SdSpacingConstant.r16 * t,
             ),
           ],
         ),
         foregroundDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.all(
             color: AppColors.primary.withValues(alpha: t),
             width: 2,
@@ -200,7 +200,7 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
               padding: rowPadding,
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const AppIcon(icon: Icons.medication_outlined),
+                leading: const SdIconV2(icon: Icons.medication_outlined),
                 title: Text(
                   widget.medication.name,
                   style: AppTextStyle.titleMedium,
@@ -212,13 +212,13 @@ class _MedicationCardState extends ConsumerState<_MedicationCard> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    AppIconButton(
+                    SdIconButtonV2(
                       onPressed: () => _addReminder(context, ref),
-                      icon: const AppIcon(icon: Icons.add_alarm),
+                      icon: const SdIconV2(icon: Icons.add_alarm),
                     ),
-                    SizedBox(width: AppSpacingConstant.w2),
-                    AppIconButton(
-                      icon: const AppIcon(icon: Icons.more_vert),
+                    SizedBox(width: SdSpacingConstant.w2),
+                    SdIconButtonV2(
+                      icon: const SdIconV2(icon: Icons.more_vert),
                       onPressed: () => _openActions(context, ref),
                     ),
                   ],

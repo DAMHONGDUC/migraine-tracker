@@ -8,6 +8,7 @@ import 'package:migraine_tracker/features/medications/data/repositories/drift_me
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/settings/presentation/screens/export_screen/export_screen.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -77,7 +78,7 @@ void main() {
 
     // Its chart is wrapped in an IgnorePointer so the whole card is one tap
     // target — tap the card body (warnIfMissed: the hit falls through to the
-    // PressableScale behind the ignored chart).
+    // SdPressableScaleV2 behind the ignored chart).
     final card = find.byType(DashboardSeverityCard);
     await tester.ensureVisible(card);
     await _settle(tester);
@@ -202,12 +203,16 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('export banner opens Settings export', (tester) async {
+  testWidgets('export banner opens the Export screen itself', (tester) async {
     await pumpApp(tester);
 
     await _tapBanner(tester, 'Export your data');
 
-    expect(find.text('Export data'), findsOneWidget);
+    // Not the Settings tab with an "Export data" row on it — the banner has
+    // to land on the screen it advertised. Both surfaces carry that title,
+    // so match the screen itself rather than the text.
+    expect(find.byType(ExportScreen), findsOneWidget);
+    expect(find.text('No exports yet'), findsOneWidget);
 
     await finishTest(tester);
   });

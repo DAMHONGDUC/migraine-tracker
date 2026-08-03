@@ -2,7 +2,7 @@ part of 'history_screen.dart';
 
 /// The stacked chart deck shown once the filtered period has attacks: weekly
 /// frequency, average-intensity trend, severity mix, pain-by-location and
-/// time-of-day — each in its own [ChartCard]. All read the same filtered
+/// time-of-day — each in its own [SdChartCardV2]. All read the same filtered
 /// [attacks] and are computed once here (pure calculators).
 class _Charts extends StatelessWidget {
   const _Charts({required this.attacks});
@@ -31,8 +31,8 @@ class _Charts extends StatelessWidget {
     return Column(
       children: [
         for (int i = 0; i < cards.length; i++) ...[
-          if (i > 0) SizedBox(height: AppSpacingConstant.h16),
-          ChartCard(child: cards[i]),
+          if (i > 0) SizedBox(height: SdSpacingConstant.h16),
+          SdChartCardV2(child: cards[i]),
         ],
       ],
     );

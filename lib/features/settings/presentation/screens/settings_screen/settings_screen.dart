@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
-import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/env/app_env.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/l10n/locale_provider.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_dialog.dart';
-import '../../../../../core/widgets/app_filter_sheet.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
-import '../../../../../core/widgets/app_section_header.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/premium_gate.dart';
+import '../../../../../core/widgets/sections/account_section.dart';
+import '../../../../../core/widgets/sections/alerts_section.dart';
+import '../../../../../core/widgets/sections/health_section.dart';
+import '../../../../../core/widgets/sections/premium_settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
-import '../../../../alerts/presentation/widgets/alerts_section.dart';
-import '../../../../auth/presentation/widgets/account_section.dart';
 import '../../../../auth/providers.dart';
-import '../../../../health/presentation/widgets/health_section.dart';
-import '../../../../premium/presentation/widgets/premium_settings_tile.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/dev_seed_service.dart';
@@ -33,6 +24,7 @@ import '../../../providers.dart';
 part 'settings_screen_alerts_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
+part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
 
@@ -46,24 +38,25 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    return AppScaffold(
+    return SdScaffoldV2(
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
-      body: AppRefreshIndicator(
+      body: SdRefreshIndicatorV2(
         onRefresh: () =>
-            AppRefreshIndicator.run(() => ref.invalidate(isPremiumProvider)),
+            SdRefreshIndicatorV2.run(() => ref.invalidate(isPremiumProvider)),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           // Full-bleed: every row is a ListTile, which insets itself.
-          padding: AppContentPadding.fullBleed(context, floatingNav: true),
+          padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
-            AppSectionHeader(l10n.settingsSectionGeneral, first: true),
+            SdSectionHeaderV2(l10n.settingsSectionGeneral, first: true),
             const _GeneralSection(),
-            AppSectionHeader(l10n.settingsSectionData),
+            SdSectionHeaderV2(l10n.settingsSectionData),
             const _DataSection(),
             // Fixture tooling — last, and only where FLAVOR is not prod.
             if (!AppEnv.isProd) ...[
-              AppSectionHeader(l10n.settingsSectionDev),
+              SdSectionHeaderV2(l10n.settingsSectionDev),
               const _DevSeedTile(),
+              const _DevResetTile(),
             ],
           ],
         ),

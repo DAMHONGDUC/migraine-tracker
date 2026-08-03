@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_refresh_indicator.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../premium/providers.dart';
@@ -48,10 +45,10 @@ class DashboardScreen extends ConsumerWidget {
       const DashboardExploreSection(),
     ];
 
-    return AppScaffold(
+    return SdScaffoldV2(
       title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
-      body: AppRefreshIndicator(
-        onRefresh: () => AppRefreshIndicator.run(() {
+      body: SdRefreshIndicatorV2(
+        onRefresh: () => SdRefreshIndicatorV2.run(() {
           ref
             ..invalidate(attacksStreamProvider)
             ..invalidate(medicationRemindersStreamProvider)
@@ -59,10 +56,10 @@ class DashboardScreen extends ConsumerWidget {
         }),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: AppContentPadding.screen(context, floatingNav: true),
+          padding: SdContentPaddingV2.screen(context, floatingNav: true),
           children: [
             for (int i = 0; i < sections.length; i++) ...[
-              if (i > 0) SizedBox(height: AppSpacingConstant.h24),
+              if (i > 0) SizedBox(height: SdSpacingConstant.h24),
               sections[i],
             ],
           ],

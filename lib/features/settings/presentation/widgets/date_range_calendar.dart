@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../core/constants/app_spacing_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 
 /// A month calendar that shows the whole picked window, not just one day.
 ///
@@ -27,7 +26,7 @@ class DateRangeCalendar extends StatefulWidget {
   });
 
   /// Diameter of a day's disc. The band behind it fills the whole cell.
-  static double get daySize => AppSpacingConstant.r36;
+  static double get daySize => SdSpacingConstant.r36;
 
   /// Six rows always, so navigating months never changes the height.
   static const int _weekRows = 6;
@@ -77,9 +76,9 @@ class _DateRangeCalendarState extends State<DateRangeCalendar> {
           onPrevious: _month.isAfter(firstMonth) ? () => _showMonth(-1) : null,
           onNext: _month.isBefore(lastMonth) ? () => _showMonth(1) : null,
         ),
-        SizedBox(height: AppSpacingConstant.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         const _WeekdayLabels(),
-        SizedBox(height: AppSpacingConstant.h4),
+        SizedBox(height: SdSpacingConstant.h4),
         _MonthGrid(
           month: _month,
           from: widget.from,
@@ -117,7 +116,7 @@ class _MonthHeader extends StatelessWidget {
         IconButton(
           onPressed: onPrevious,
           tooltip: material.previousMonthTooltip,
-          icon: AppIcon(icon: Icons.chevron_left, size: AppSpacingConstant.r24),
+          icon: SdIconV2(icon: Icons.chevron_left, size: SdSpacingConstant.r24),
         ),
         Expanded(
           child: Text(
@@ -129,9 +128,9 @@ class _MonthHeader extends StatelessWidget {
         IconButton(
           onPressed: onNext,
           tooltip: material.nextMonthTooltip,
-          icon: AppIcon(
+          icon: SdIconV2(
             icon: Icons.chevron_right,
-            size: AppSpacingConstant.r24,
+            size: SdSpacingConstant.r24,
           ),
         ),
       ],

@@ -22,14 +22,14 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
     try {
       await ref.read(settingsControllerProvider).seedDevData();
       if (mounted) {
-        AppSnackBarUtils.success(
+        SdSnackBarUtilsV2.success(
           context,
           l10n.settingsDevSeedDone(DevSeedService.seedCount),
         );
       }
     } catch (_) {
       if (mounted) {
-        AppSnackBarUtils.error(context, l10n.settingsDevSeedFailed);
+        SdSnackBarUtilsV2.error(context, l10n.settingsDevSeedFailed);
       }
     } finally {
       if (mounted) setState(() => _running = false);
@@ -41,7 +41,7 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
     final AppLocalizations l10n = context.l10n;
 
     return ListTile(
-      leading: const AppIcon(
+      leading: const SdIconV2(
         icon: Icons.science_outlined,
         color: AppColors.secondary,
       ),
@@ -52,8 +52,8 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
       ),
       trailing: _running
           ? SizedBox(
-              width: AppSpacingConstant.r20,
-              height: AppSpacingConstant.r20,
+              width: SdSpacingConstant.r20,
+              height: SdSpacingConstant.r20,
               child: const CircularProgressIndicator(strokeWidth: 2),
             )
           : null,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
@@ -19,7 +20,6 @@ import '../../features/settings/presentation/screens/export_screen/export_screen
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
-import '../theme/app_colors.dart';
 import 'app_shell.dart';
 
 /// One route's identity: go_router [name] and URL [path] defined together so

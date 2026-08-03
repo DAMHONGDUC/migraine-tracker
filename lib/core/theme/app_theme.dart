@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
+import 'package:system_design/index.dart';
 
 import 'app_colors.dart';
 import 'app_text_style.dart';
@@ -27,6 +28,19 @@ final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      // What System Design widgets read for the slots ColorScheme has no name
+      // for. Without this they fall back to neutral defaults — the app owns
+      // the palette, the package only owns the shape.
+      extensions: <ThemeExtension<dynamic>>[
+        SdThemeV2(
+          background: AppColors.background,
+          surfaceElevated: AppColors.surfaceElevated,
+          textPrimary: AppColors.textPrimary,
+          textSecondary: AppColors.textSecondary,
+          chartGrid: AppColors.chartGrid,
+          barrier: AppColors.barrier,
+        ),
+      ],
       // Ambient defaults (ListTile, AppBar, buttons) come from the same
       // single source as explicit styles: AppTextStyle.
       textTheme: TextTheme(
@@ -77,7 +91,7 @@ final class AppTheme {
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceElevated,
       ),
-      // A backstop only — the app's look lives in AppSnackBarUtils. Without
+      // A backstop only — the app's look lives in SdSnackBarUtilsV2. Without
       // it, M3's default inverse surface is a bright bar on a dark screen.
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,

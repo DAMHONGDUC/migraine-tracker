@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/app_icon.dart';
 
 /// Rounded name-search field that filters a [MedicationGrid]: calm surface
 /// tile language (matching the option tiles it filters) rather than a bare
@@ -34,7 +33,7 @@ class MedicationSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     OutlineInputBorder border(Color color) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppSpacingConstant.r16),
+      borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
       borderSide: BorderSide(color: color),
     );
 
@@ -51,14 +50,14 @@ class MedicationSearchField extends StatelessWidget {
         fillColor: AppColors.surfaceElevated,
         hintText: l10n.medicationsSearchHint,
         hintStyle: AppTextStyle.titleSmall.secondary,
-        prefixIcon: AppIcon(
+        prefixIcon: SdIconV2(
           icon: Icons.search,
           color: AppColors.textSecondary,
-          size: AppSpacingConstant.r24,
+          size: SdSpacingConstant.r24,
         ),
         suffixIcon: hasText
             ? IconButton(
-                icon: AppIcon(icon: Icons.close, size: AppSpacingConstant.r18),
+                icon: SdIconV2(icon: Icons.close, size: SdSpacingConstant.r18),
                 color: AppColors.textSecondary,
                 tooltip: l10n.medicationsSearchClear,
                 onPressed: onClear,

@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/app_content_padding.dart';
-import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/constants/file_size_utils.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_dialog.dart';
-import '../../../../../core/widgets/app_filter_pill.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../../core/widgets/collapsing_filter_scaffold.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_date_filter.dart';
 import '../../../domain/entities/export_record.dart';
@@ -38,7 +31,7 @@ part 'export_screen_record_tile.dart';
 /// saved to the device later without rebuilding the file.
 ///
 /// The history can be narrowed to a date window. The pill that does it rides in
-/// a [CollapsingFilterScaffold], so it sits under the app bar while reading and
+/// a [SdCollapsingFilterScaffoldV2], so it sits under the app bar while reading and
 /// lifts into it once the list scrolls — the same behaviour as the medications
 /// tab.
 class ExportScreen extends ConsumerWidget {
@@ -60,7 +53,7 @@ class ExportScreen extends ConsumerWidget {
               ? l10n.doctorReportStrings(DateTime.now())
               : null,
         );
-    if (context.mounted) AppSnackBarUtils.success(context, l10n.exportCreated);
+    if (context.mounted) SdSnackBarUtilsV2.success(context, l10n.exportCreated);
   }
 
   Future<void> _openActions(
@@ -80,7 +73,7 @@ class ExportScreen extends ConsumerWidget {
     // user clears a row whose file is already gone.
     if (action != ExportAction.delete && !await controller.fileExists(record)) {
       if (context.mounted) {
-        AppSnackBarUtils.error(context, l10n.exportFileMissing);
+        SdSnackBarUtilsV2.error(context, l10n.exportFileMissing);
       }
       return;
     }
@@ -93,7 +86,7 @@ class ExportScreen extends ConsumerWidget {
         final bool saved = await controller.saveToDevice(record);
         // False means the user dismissed the picker — say nothing.
         if (saved && context.mounted) {
-          AppSnackBarUtils.success(context, l10n.exportSaved);
+          SdSnackBarUtilsV2.success(context, l10n.exportSaved);
         }
       case ExportAction.delete:
         await _confirmDelete(context, controller, record);
@@ -106,19 +99,19 @@ class ExportScreen extends ConsumerWidget {
     ExportRecord record,
   ) async {
     final l10n = context.l10n;
-    final bool? confirmed = await showAppDialog<bool>(
+    final bool? confirmed = await showSdDialogV2<bool>(
       context,
-      builder: (BuildContext dialogContext) => AppDialog(
+      builder: (BuildContext dialogContext) => SdDialogV2(
         title: l10n.exportDeleteTitle,
         content: Text(l10n.exportDeleteBody, style: AppTextStyle.bodyMedium),
         actions: <Widget>[
-          AppButton(
-            variant: AppButtonVariant.text,
+          SdButtonV2(
+            variant: SdButtonVariantV2.text,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             label: l10n.commonCancel,
           ),
-          AppButton(
-            variant: AppButtonVariant.destructive,
+          SdButtonV2(
+            variant: SdButtonVariantV2.destructive,
             onPressed: () => Navigator.of(dialogContext).pop(true),
             label: l10n.exportDeleteAction,
           ),
@@ -129,7 +122,7 @@ class ExportScreen extends ConsumerWidget {
     if (confirmed != true) return;
 
     await controller.delete(record);
-    if (context.mounted) AppSnackBarUtils.success(context, l10n.exportDeleted);
+    if (context.mounted) SdSnackBarUtilsV2.success(context, l10n.exportDeleted);
   }
 
   @override
@@ -140,27 +133,27 @@ class ExportScreen extends ConsumerWidget {
     final bool hasAny =
         ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
 
-    return CollapsingFilterScaffold(
+    return SdCollapsingFilterScaffoldV2(
       title: Text(l10n.exportTitle, style: AppTextStyle.titleLarge),
       actions: <Widget>[
-        AppButton(
-          variant: AppButtonVariant.primary,
+        SdButtonV2(
+          variant: SdButtonVariantV2.primary,
           label: l10n.exportNewAction,
           icon: Icons.ios_share,
           onPressed: () => _create(context, ref),
         ),
-        SizedBox(width: AppSpacingConstant.w4),
+        SizedBox(width: SdSpacingConstant.w4),
       ],
       filter: hasAny ? const _DateFilterPill() : null,
       // The list pads itself so it scrolls behind the frosted bar and the strip;
       // no gutter of its own — a ListTile brings one. The top inset stays put
-      // whether the strip is showing or not (see CollapsingFilterScaffold).
+      // whether the strip is showing or not (see SdCollapsingFilterScaffoldV2).
       body: ListView(
         padding: EdgeInsets.only(
           top: hasAny
-              ? AppContentPadding.belowPinnedFilterBar(context)
-              : AppContentPadding.top(context),
-          bottom: AppContentPadding.bottom(context),
+              ? SdContentPaddingV2.belowPinnedFilterBar(context)
+              : SdContentPaddingV2.top(context),
+          bottom: SdContentPaddingV2.bottom(context),
         ),
         children: <Widget>[
           _History(

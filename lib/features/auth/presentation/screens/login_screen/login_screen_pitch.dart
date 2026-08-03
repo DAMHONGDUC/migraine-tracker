@@ -12,31 +12,31 @@ class _Pitch extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        // Starts flush: AppActionView already applied the screen's top gap.
-        AppIcon(
+        // Starts flush: SdActionViewV2 already applied the screen's top gap.
+        SdIconV2(
           icon: Icons.cloud_done_outlined,
-          size: AppSpacingConstant.r64,
+          size: SdSpacingConstant.r64,
           color: context.colorScheme.primary,
         ),
-        SizedBox(height: AppSpacingConstant.h16),
+        SizedBox(height: SdSpacingConstant.h16),
         Text(
           l10n.loginHeadline,
           textAlign: TextAlign.center,
           style: AppTextStyle.headlineSmall.w600,
         ),
-        SizedBox(height: AppSpacingConstant.h8),
+        SizedBox(height: SdSpacingConstant.h8),
         Text(
           l10n.loginBody,
           textAlign: TextAlign.center,
           style: AppTextStyle.bodyMedium.secondary,
         ),
-        SizedBox(height: AppSpacingConstant.h32),
-        AppBenefitRow(
+        SizedBox(height: SdSpacingConstant.h32),
+        SdBenefitRowV2(
           icon: Icons.devices_outlined,
           title: l10n.loginBenefitDevices,
           body: l10n.loginBenefitDevicesBody,
         ),
-        AppBenefitRow(
+        SdBenefitRowV2(
           icon: Icons.restore,
           title: l10n.loginBenefitRestore,
           body: l10n.loginBenefitRestoreBody,

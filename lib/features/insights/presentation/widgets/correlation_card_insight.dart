@@ -21,12 +21,12 @@ class _Insight extends StatelessWidget {
           builder: (context, value, child) =>
               Text('${value.round()}%', style: AppTextStyle.displaySmall.w600),
         ),
-        SizedBox(height: AppSpacingConstant.h4),
+        SizedBox(height: SdSpacingConstant.h4),
         Text(
           l10n.insightsDropShareSentence(threshold),
           style: AppTextStyle.bodyMedium,
         ),
-        SizedBox(height: AppSpacingConstant.h12),
+        SizedBox(height: SdSpacingConstant.h12),
         Text(
           l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
           style: AppTextStyle.bodySmall.secondary,

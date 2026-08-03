@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/widgets/app_sheet_content.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
@@ -8,6 +7,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diag
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -39,7 +39,7 @@ Future<void> openEditSheet(WidgetTester tester, String row) async {
 
 /// The commit button in the sheet header — a pick is only applied by this.
 /// These sheets overwrite a value the attack already has, so the glyph is
-/// the pencil (`AppSheetAction.edit`), not the tick.
+/// the pencil (`SdSheetActionV2.edit`), not the tick.
 Future<void> confirmSheet(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.edit));
   await tester.pump();
@@ -231,7 +231,7 @@ void main() {
       await openEditSheet(tester, row);
 
       expect(
-        find.byType(AppSheetContent),
+        find.byType(SdSheetContentV2),
         findsOneWidget,
         reason: '$row should open a sheet',
       );

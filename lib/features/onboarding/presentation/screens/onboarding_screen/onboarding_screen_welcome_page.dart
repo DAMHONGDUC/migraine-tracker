@@ -12,10 +12,10 @@ class _WelcomePage extends StatelessWidget {
       title: l10n.onboardingWelcomeTitle,
       body: l10n.onboardingWelcomeBody,
       footer: Container(
-        padding: EdgeInsets.all(AppSpacingConstant.w16),
+        padding: EdgeInsets.all(SdSpacingConstant.w16),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSpacingConstant.r12),
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.all(
             color: context.colorScheme.outlineVariant.withValues(alpha: 0.4),
           ),
@@ -23,12 +23,12 @@ class _WelcomePage extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppIcon(
+            SdIconV2(
               icon: Icons.info_outline,
-              size: AppSpacingConstant.r20,
+              size: SdSpacingConstant.r20,
               color: context.colorScheme.onSurfaceVariant,
             ),
-            SizedBox(width: AppSpacingConstant.w12),
+            SizedBox(width: SdSpacingConstant.w12),
             Expanded(
               child: Text(
                 l10n.onboardingDisclaimer,

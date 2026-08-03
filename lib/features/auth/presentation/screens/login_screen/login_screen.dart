@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:simple_icons/simple_icons.dart';
+import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/app_spacing_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/app_action_view.dart';
-import '../../../../../core/widgets/app_benefit_row.dart';
-import '../../../../../core/widgets/buttons/app_button.dart';
-import '../../../../../core/widgets/app_icon.dart';
-import '../../../../../core/widgets/app_scaffold.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/enums/auth_error.dart';
 import '../../../domain/enums/auth_provider_kind.dart';
@@ -64,14 +58,14 @@ class LoginScreen extends ConsumerWidget {
       final AuthError? error = next.error;
       if (error == null) return;
 
-      AppSnackBarUtils.error(context, _errorMessage(l10n, error));
+      SdSnackBarUtilsV2.error(context, _errorMessage(l10n, error));
     });
 
-    return AppScaffold(
+    return SdScaffoldV2(
       title: Text(l10n.loginTitle, style: AppTextStyle.titleLarge),
       // Pitch on top, buttons at the bottom, scrolls when it cannot fit —
       // long locales and large text sizes make that a matter of when.
-      body: AppActionView(
+      body: SdActionViewV2(
         content: const _Pitch(),
         actions: <Widget>[
           _ProviderButtons(
@@ -79,8 +73,8 @@ class LoginScreen extends ConsumerWidget {
             onSignIn: (AuthProviderKind provider) =>
                 _signIn(context, ref, provider),
           ),
-          AppButton(
-            variant: AppButtonVariant.text,
+          SdButtonV2(
+            variant: SdButtonVariantV2.text,
             onPressed: state.isBusy ? null : () => context.pop(false),
             label: l10n.loginNotNow,
           ),

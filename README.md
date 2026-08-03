@@ -1,17 +1,77 @@
-# migraine_tracker
+# BaroEase
 
-A new Flutter project.
+Migraine tracker with barometric pressure alerts. Flutter, iOS first.
 
-## Getting Started
+See `CLAUDE.md` for architecture and `PLAN.md` for the product spec.
 
-This project is a starting point for a Flutter application.
+## Getting started
 
-A few resources to get you started if this is your first Flutter project:
+Clone with submodules — the design system lives in one:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+git clone --recurse-submodules <url>
+cd migraine_tracker
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Already cloned without them? `git submodule update --init --recursive` (or
+just run setup below, which does it for you).
+
+Install the task runner once per machine, at the version this repo pins:
+
+```bash
+dart pub global activate melos 6.3.3
+```
+
+Then one command does the rest:
+
+```bash
+melos run setup
+```
+
+That fetches submodules, resolves both packages, generates localizations and
+Drift code, lays down `env/*.json` from the templates, installs the Cloud
+Functions dependencies, and — on macOS — runs `pod install` for the one
+plugin that still needs CocoaPods. It is safe to re-run at any time.
+
+**Submodules follow their branch, they are not pinned.** Setup checks the
+design system out on `main` (the branch named in `.gitmodules`) and
+fast-forwards it, instead of leaving it detached at the commit this repo
+records. So you can edit it in place without remembering to check out a
+branch first — but what you build is whatever is on `main`, not what the
+parent commit pins. When `main` moves ahead, git shows
+`packages/system_design` as modified: commit that gitlink when you mean to.
+
+**One thing setup cannot do for you:** `env/dev.json` and `env/prod.json`
+hold Firebase and RevenueCat keys and are gitignored, so a fresh clone gets
+key-only templates copied from `env/*.example.json`. Fill them in before
+running the app — setup says so loudly when it creates them.
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `melos run setup` | Everything a fresh clone needs. Idempotent. |
+| `melos run gen` | Regenerate localizations + `build_runner` output. |
+| `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
+| `melos run test` | The Flutter test suite. |
+| `melos run clean` | Wipe Android + iOS build artefacts. Follow with `setup`. |
+
+Run the app:
+
+```bash
+flutter run --dart-define-from-file=env/dev.json
+```
+
+The VS Code launch configs already pass that flag (dev → `env/dev.json`,
+prod → `env/prod.json`).
+
+## Layout
+
+```
+lib/                      the app
+packages/system_design/   the design system — its own repo, a git submodule
+functions/                Firebase Cloud Functions (TypeScript)
+```
+
+The design system is deliberately separate and deliberately ignorant of this
+app; see `packages/system_design/WIDGET_RULES.md` before adding to it..

@@ -30,9 +30,9 @@ class _ChartView extends StatelessWidget {
           // Flush under the app bar — no gap between the bar and the content.
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
               topInset,
-              AppContentPadding.horizontal,
+              SdContentPaddingV2.horizontal,
               0,
             ),
             sliver: SliverToBoxAdapter(
@@ -42,7 +42,7 @@ class _ChartView extends StatelessWidget {
           if (attacks.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: EmptyState(
+              child: SdEmptyStateV2(
                 icon: Icons.filter_alt_outlined,
                 message: context.l10n.historyEmptyFiltered,
               ),
@@ -50,9 +50,9 @@ class _ChartView extends StatelessWidget {
           else
             SliverPadding(
               padding: EdgeInsets.fromLTRB(
-                AppContentPadding.horizontal,
+                SdContentPaddingV2.horizontal,
                 0,
-                AppContentPadding.horizontal,
+                SdContentPaddingV2.horizontal,
                 bottomInset,
               ),
               sliver: SliverToBoxAdapter(child: _Charts(attacks: attacks)),

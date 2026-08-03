@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:migraine_tracker/core/constants/app_spacing_constant.dart';
+import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/buttons/app_button.dart';
-import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
+import 'insight_card.dart';
+import 'insight_progress_body.dart';
 
 part 'correlation_card_insight.dart';
-part 'correlation_card_insufficient_data.dart';
 part 'correlation_card_no_variation.dart';
 part 'correlation_card_teaser.dart';
 
@@ -31,37 +30,27 @@ class CorrelationCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hasPremium = ref.watch(hasPremiumProvider);
 
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.l10n.insightsCorrelationTitle,
-                    style: AppTextStyle.titleMedium,
-                  ),
-                ),
-                if (!hasPremium) const PremiumBadge(),
-              ],
-            ),
-            SizedBox(height: AppSpacingConstant.h16),
-            switch (result) {
-              // Free: how far off the insight is.
-              final CorrelationInsufficientData r => _InsufficientData(
-                result: r,
-              ),
-              // Premium: the analysis. Teased, never computed into the tree.
-              _ when !hasPremium => const _Teaser(),
-              CorrelationNoVariation() => _NoVariation(),
-              final CorrelationInsight r => _Insight(result: r),
-            },
-          ],
+    return InsightCard(
+      title: context.l10n.insightsCorrelationTitle,
+      trailing: hasPremium ? null : const PremiumBadge(),
+      child: switch (result) {
+        // Free: how far off the insight is.
+        final CorrelationInsufficientData r => InsightProgressBody(
+          icon: Icons.lock_outline,
+          message: context.l10n.insightsInsufficientData(
+            r.requiredAttacks - r.attacksWithWeather,
+          ),
+          progress: r.attacksWithWeather / r.requiredAttacks,
+          caption: context.l10n.insightsProgressCaption(
+            r.attacksWithWeather,
+            r.requiredAttacks,
+          ),
         ),
-      ),
+        // Premium: the analysis. Teased, never computed into the tree.
+        _ when !hasPremium => const _Teaser(),
+        CorrelationNoVariation() => _NoVariation(),
+        final CorrelationInsight r => _Insight(result: r),
+      },
     );
   }
 }
