@@ -35,7 +35,7 @@ class _GeneralSection extends ConsumerWidget {
         // Only with an account: a subscription needs one to belong to, so
         // there is nothing to report before that.
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
-        const _AlertsSection(),
+        const AlertsSettingsTile(),
         const HealthSection(),
         SettingsTile(
           icon: Icons.language,

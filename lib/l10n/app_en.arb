@@ -914,6 +914,18 @@
   "@alertsToggleTitle": {
     "description": "Settings switch that registers this device for pressure push alerts"
   },
+  "alertsScreenTitle": "Pressure alerts",
+  "@alertsScreenTitle": {
+    "description": "App bar title of the alerts detail screen (toggle + threshold)"
+  },
+  "alertsStatusOn": "On",
+  "@alertsStatusOn": {
+    "description": "Settings row value when pressure-drop alerts are enabled"
+  },
+  "alertsStatusOff": "Off",
+  "@alertsStatusOff": {
+    "description": "Settings row value when pressure-drop alerts are disabled"
+  },
   "alertsThresholdTitle": "Alert threshold",
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"

@@ -9,8 +9,9 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../settings_tile.dart';
 
-/// The alerts block embedded at the top of Settings: enable switch +
-/// threshold. Registration errors surface as snackbars here.
+/// The alerts detail screen's body: enable switch + threshold. Pushed from
+/// the Settings row (`AlertsSettingsTile`), which only shows On/Off.
+/// Registration errors surface as snackbars here.
 class AlertsSection extends ConsumerWidget {
   const AlertsSection({super.key});
 

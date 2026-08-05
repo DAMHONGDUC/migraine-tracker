@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../features/alerts/presentation/screens/alerts_screen/alerts_screen.dart';
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
@@ -76,6 +77,9 @@ final class AppRoutes {
 
   /// Export data and the history of past exports, pushed from Settings.
   static const export = AppRoute(name: 'export', path: '/export');
+
+  /// Pressure-drop alerts toggle + threshold, pushed from Settings.
+  static const alerts = AppRoute(name: 'alerts', path: '/alerts');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -165,6 +169,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.export.name,
         path: AppRoutes.export.path,
         builder: (context, state) => const ExportScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.alerts.name,
+        path: AppRoutes.alerts.path,
+        builder: (context, state) => const AlertsScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and

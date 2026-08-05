@@ -9,9 +9,8 @@ import '../../../../../core/l10n/locale_provider.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
-import '../../../../../core/widgets/sections/alerts_section.dart';
+import '../../../../../core/widgets/sections/alerts_settings_tile.dart';
 import '../../../../../core/widgets/sections/health_section.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
 import '../../../../../core/widgets/settings_tile.dart';
@@ -22,7 +21,6 @@ import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/dev_seed_service.dart';
 import '../../../providers.dart';
 
-part 'settings_screen_alerts_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
