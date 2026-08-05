@@ -57,7 +57,7 @@ class _AttackList extends StatelessWidget {
               sliver: SliverList.separated(
                 itemCount: attacks.length,
                 separatorBuilder: (_, _) =>
-                    SizedBox(height: SdSpacingConstant.h8),
+                    SizedBox(height: SdContentPaddingV2.listItemGap),
                 itemBuilder: (context, index) =>
                     AttackTile(attack: attacks[index]),
               ),

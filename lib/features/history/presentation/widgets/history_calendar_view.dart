@@ -168,9 +168,7 @@ class HistoryCalendarView extends HookWidget {
                         peak,
                       ),
                       child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom: SdSpacingConstant.h4,
-                        ),
+                        padding: EdgeInsets.only(bottom: SdSpacingConstant.h4),
                         child: SdColorDotV2(
                           color: AppColors.intensity(peak),
                           size: SdSpacingConstant.r6,
@@ -215,7 +213,8 @@ class HistoryCalendarView extends HookWidget {
                     )
                   else
                     for (final (i, attack) in selectedAttacks.indexed) ...[
-                      if (i > 0) SizedBox(height: SdSpacingConstant.h8),
+                      if (i > 0)
+                        SizedBox(height: SdContentPaddingV2.listItemGap),
                       AttackTile(attack: attack),
                     ],
                   // Clearance so the last tile scrolls past the floating

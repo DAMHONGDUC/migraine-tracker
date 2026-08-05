@@ -268,7 +268,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 sliver: SliverList.separated(
                   itemCount: medications.length,
                   separatorBuilder: (_, _) =>
-                      SizedBox(height: SdSpacingConstant.h8),
+                      SizedBox(height: SdContentPaddingV2.listItemGap),
                   itemBuilder: (context, index) {
                     final Medication medication = medications[index];
 
