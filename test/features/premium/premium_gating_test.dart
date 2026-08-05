@@ -45,6 +45,34 @@ PressureForecast forecast() => PressureForecast(
 );
 
 void main() {
+  testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await seedInsightData(tester, app);
+    await openInsights(tester);
+
+    // Signed out and with no entitlement, the analysis is teased.
+    expect(find.text('60%'), findsNothing);
+
+    // Driven through the row a developer actually taps. The override has to
+    // reach the gates, not just the switch that owns it — that is the whole
+    // point of layering it inside hasPremiumProvider.
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Premium (mock)'));
+
+    await openInsights(tester);
+    expect(find.text('60%'), findsOneWidget);
+
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Premium (mock)'));
+
+    await openInsights(tester);
+    expect(find.text('60%'), findsNothing);
+
+    await finishTest(tester);
+  });
+
   group('free user', () {
     testWidgets('never sees the correlation percentage, only the teaser', (
       tester,
@@ -91,8 +119,10 @@ void main() {
       await openSettings(tester);
 
       // Locked rows in place of the real controls: the alerts row is a name
-      // wearing the badge, never the toggle.
-      expect(find.byType(Switch), findsNothing);
+      // wearing the badge, never the toggle. SwitchListTile, not Switch — the
+      // dev-only premium mock is a Switch too, and this is asking about the
+      // gated toggles, not about every switch on the screen.
+      expect(find.byType(SwitchListTile), findsNothing);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
@@ -269,7 +299,16 @@ void main() {
       await pumpApp(tester, premium: true);
       await openSettings(tester);
 
-      expect(find.byType(Switch), findsOneWidget);
+      // The toggle lives on the alerts detail screen now, not on Settings —
+      // the row here only reports On/Off. Unlocked means the row opens it.
+      expect(find.byType(SwitchListTile), findsNothing);
+      await tapVisible(tester, find.text('Pressure-drop alerts'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(SwitchListTile), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pump(const Duration(milliseconds: 400));
+
       // No locked teaser left anywhere on the screen. (The Premium row is
       // titled 'Premium' now, so the badge is what marks a gate.)
       expect(find.byType(PremiumBadge), findsNothing);

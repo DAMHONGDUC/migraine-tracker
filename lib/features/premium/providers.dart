@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/env/app_env.dart';
 import '../auth/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
@@ -46,7 +47,35 @@ final isPremiumProvider = StreamProvider<bool>(
 /// An entitlement without an account unlocks nothing — a subscription needs
 /// something that survives a reinstall. Both conditions live here so no
 /// gate can forget one.
+/// Dev-only forced premium state. Null means "follow RevenueCat", which is
+/// what it is until a developer flips the Settings toggle.
+///
+/// CLAUDE.md deleted the old `DebugPremiumRepository` because a premium state
+/// the client can *write* is the one thing this project must not ship. This
+/// is deliberately not that: it holds no repository, writes nothing to disk,
+/// and lives only in memory for the run. [hasPremiumProvider] reads it behind
+/// `!AppEnv.isProd`, so in a prod flavour the branch can never be taken and
+/// the only answer is RevenueCat's.
+class DevPremiumOverride extends Notifier<bool?> {
+  @override
+  bool? build() => null;
+
+  /// Forces premium on or off; null hands control back to the entitlement.
+  void set(bool? value) => state = value;
+}
+
+final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
+  DevPremiumOverride.new,
+);
+
 final hasPremiumProvider = Provider<bool>((ref) {
+  // Never true in a prod flavour — see DevPremiumOverride.
+  if (!AppEnv.isProd) {
+    final bool? forced = ref.watch(devPremiumOverrideProvider);
+
+    if (forced != null) return forced;
+  }
+
   if (!ref.watch(isSignedInProvider)) return false;
 
   return switch (ref.watch(isPremiumProvider)) {

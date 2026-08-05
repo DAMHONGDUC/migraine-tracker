@@ -1312,6 +1312,10 @@
   "@settingsDevReset": {
     "description": "Dev-only tile: wipe everything and start over at onboarding"
   },
+  "settingsDevPremium": "Premium (mock)",
+  "@settingsDevPremium": {
+    "description": "Dev-only tile: force the premium state on or off"
+  },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
     "description": "Dev-only reset tile, confirm dialog title"
