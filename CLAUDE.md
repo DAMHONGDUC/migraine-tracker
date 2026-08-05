@@ -2,6 +2,11 @@
 
 Read `PLAN.md` for full product spec before making architectural decisions.
 
+**Every rule the owner states goes into this file, in the same turn it is
+stated.** A rule that lives only in a chat is gone by the next session — write
+it into the section it belongs to, with the reason, before doing the work it
+governs.
+
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
