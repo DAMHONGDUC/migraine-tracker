@@ -139,7 +139,7 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 - `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.
-- `melos run test` — run after changes to `domain/` or `data/`
+- `melos run test` — the whole suite. **Run it only when the change reaches the whole app** (theme, spacing, the design system) or just before a commit. While iterating, run the file that covers what you changed — `flutter test test/features/<x>/<y>_test.dart`, narrowed with `--plain-name` when one case is failing. The full suite is minutes of waiting to re-learn what one file already tells you.
 - `melos run clean` — wipe Android + iOS build artefacts, then `setup`
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
