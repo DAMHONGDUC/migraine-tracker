@@ -41,7 +41,7 @@ class _LockedCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    return Card(
+    return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(

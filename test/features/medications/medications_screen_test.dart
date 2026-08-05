@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -33,7 +34,7 @@ Future<void> openMedication(WidgetTester tester, String name) async {
 /// the same icon for deleting the medication itself, so a bare byIcon
 /// matches two.
 Finder reminderDelete() => find.descendant(
-  of: find.byType(Card),
+  of: find.byType(SdCardV2),
   matching: find.byIcon(Icons.delete_outline),
 );
 

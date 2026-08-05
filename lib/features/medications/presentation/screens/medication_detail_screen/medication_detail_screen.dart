@@ -162,15 +162,17 @@ class MedicationDetailScreen extends ConsumerWidget {
                 ),
               )
             else
-              Card(
-                margin: EdgeInsets.symmetric(
+              Padding(
+                padding: EdgeInsets.symmetric(
                   horizontal: SdContentPaddingV2.horizontal,
                 ),
-                child: Column(
-                  children: <Widget>[
-                    for (final MedicationReminderView view in reminders)
-                      _ReminderRow(view: view),
-                  ],
+                child: SdCardV2(
+                  child: Column(
+                    children: <Widget>[
+                      for (final MedicationReminderView view in reminders)
+                        _ReminderRow(view: view),
+                    ],
+                  ),
                 ),
               ),
           ],

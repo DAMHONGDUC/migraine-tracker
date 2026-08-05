@@ -88,10 +88,10 @@ final class AppTheme {
           ),
         ),
       ),
-      // margin zero on purpose: Material's default is EdgeInsets.all(4), an
-      // invisible inset that made a list of cards sit 8 apart where the code
-      // said 8, and 8 narrower than a list beside it. Every gap is explicit
-      // at the call site instead.
+      // A backstop only — every card in the app is an SdCardV2, which reads
+      // colorScheme.surface itself. This keeps a Material Card that Flutter
+      // builds internally on the same colour, and off the invisible
+      // EdgeInsets.all(4) margin that made card lists lie about their gaps.
       cardTheme: const CardThemeData(
         color: AppColors.surface,
         elevation: 0,

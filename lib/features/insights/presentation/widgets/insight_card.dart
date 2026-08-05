@@ -20,7 +20,7 @@ class InsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
@@ -28,9 +28,7 @@ class InsightCard extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Expanded(
-                  child: Text(title, style: AppTextStyle.titleMedium),
-                ),
+                Expanded(child: Text(title, style: AppTextStyle.titleMedium)),
                 ?trailing,
               ],
             ),
