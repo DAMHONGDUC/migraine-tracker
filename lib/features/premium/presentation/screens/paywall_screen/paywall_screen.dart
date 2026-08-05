@@ -38,6 +38,11 @@ part 'paywall_screen_plans.dart';
 class PaywallScreen extends HookConsumerWidget {
   const PaywallScreen({super.key});
 
+  /// Messages land at the top. The sheet covers the bottom ~87% of the
+  /// screen, so a card at the usual edge would sit on the plans the user is
+  /// still reading — or, worse, under the sheet's own surface.
+  static const SdSnackBarPlacementV2 _placement = SdSnackBarPlacementV2.top;
+
   /// Localized outcome for a failed purchase or restore. [PurchaseError
   /// .cancelled] never reaches here — the controller swallows it, because
   /// closing Apple's sheet is a decision, not an error.
@@ -68,11 +73,19 @@ class PaywallScreen extends HookConsumerWidget {
 
       if (!context.mounted || !entitled) return;
 
-      SdSnackBarUtilsV2.success(context, l10n.paywallPurchaseDone);
+      SdSnackBarUtilsV2.success(
+        context,
+        l10n.paywallPurchaseDone,
+        placement: _placement,
+      );
       context.pop();
     } catch (error) {
       if (context.mounted) {
-        SdSnackBarUtilsV2.error(context, _errorMessage(l10n, error));
+        SdSnackBarUtilsV2.error(
+          context,
+          _errorMessage(l10n, error),
+          placement: _placement,
+        );
       }
     }
   }
@@ -88,14 +101,26 @@ class PaywallScreen extends HookConsumerWidget {
       if (!context.mounted) return;
 
       if (!restored) {
-        SdSnackBarUtilsV2.info(context, l10n.paywallRestoreNothing);
+        SdSnackBarUtilsV2.info(
+          context,
+          l10n.paywallRestoreNothing,
+          placement: _placement,
+        );
         return;
       }
-      SdSnackBarUtilsV2.success(context, l10n.paywallPurchaseDone);
+      SdSnackBarUtilsV2.success(
+        context,
+        l10n.paywallPurchaseDone,
+        placement: _placement,
+      );
       context.pop();
     } catch (error) {
       if (context.mounted) {
-        SdSnackBarUtilsV2.error(context, _errorMessage(l10n, error));
+        SdSnackBarUtilsV2.error(
+          context,
+          _errorMessage(l10n, error),
+          placement: _placement,
+        );
       }
     }
   }

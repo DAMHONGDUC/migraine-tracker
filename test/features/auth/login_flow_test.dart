@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -161,7 +162,7 @@ void main() {
 
       await tapVisible(tester, find.text('Continue with Google'));
 
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(SdSnackBarCardV2), findsNothing);
       expect(find.text('Sign in to unlock Premium'), findsOneWidget);
 
       await finishTest(tester);

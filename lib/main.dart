@@ -45,9 +45,14 @@ final class _AppBootstrap {
     tz.setLocalLocation(tz.getLocation(localTz));
     AppLogger.info('App started', {'tz': localTz});
 
-    try {
-      assert(AppEnv.hasFirebaseConfig, AppEnv.missingConfigMessage);
+    // Outside the try on purpose: an AssertionError raised inside it would be
+    // caught below and logged as "Firebase init failed", which is the exact
+    // silence these asserts exist to break. Debug-only either way — a release
+    // build strips them and degrades instead.
+    assert(AppEnv.hasFirebaseConfig, AppEnv.missingConfigMessage);
+    assert(AppEnv.hasPurchasesConfig, AppEnv.missingPurchasesConfigMessage);
 
+    try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/purchase_error.dart';
 import 'package:migraine_tracker/features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 import 'premium_gating_test.dart' show seedInsightData;
@@ -10,8 +11,10 @@ import 'premium_gating_test.dart' show seedInsightData;
 /// The paywall's own CTA. Its label ("Unlock") is the same one the Insights
 /// gate card behind it carries, and that card stays mounted under the pushed
 /// route — so the finder has to be scoped to the paywall.
-Finder paywallCta() =>
-    find.descendant(of: find.byType(PaywallScreen), matching: find.text('Unlock'));
+Finder paywallCta() => find.descendant(
+  of: find.byType(PaywallScreen),
+  matching: find.text('Unlock'),
+);
 
 /// Opens the paywall from the Insights gate — the door every premium
 /// surface uses (CLAUDE.md: "the pitch comes first").
@@ -163,6 +166,49 @@ void main() {
 
     expect(find.textContaining("Couldn't reach the store"), findsOneWidget);
     expect(app.premiumRepository.isPremium, isFalse);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a paywall message is drawn above the sheet, not under it', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
+    app.purchases.failWith = const PurchaseException(PurchaseError.network);
+    await openPaywall(tester, app);
+
+    await tapVisible(tester, paywallCta());
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final Finder card = find.byType(SdSnackBarCardV2);
+
+    expect(card, findsOneWidget);
+    // In the root overlay, not in the route: a ScaffoldMessenger drew into the
+    // Scaffold *underneath*, so the sheet that raised the message covered it.
+    // Text a test can find is not text a user can see.
+    expect(
+      find.descendant(of: find.byType(PaywallScreen), matching: card),
+      findsNothing,
+      reason: 'the message is inside the paywall route — it can be covered',
+    );
+    // Anchored to the top edge, above where the sheet begins. It may still
+    // overlap the sheet lower down — being in the overlay, it is drawn over
+    // it — but it must not start down at the bottom, on the plans the user
+    // is choosing between.
+    expect(
+      tester.getRect(card).top,
+      lessThan(
+        tester
+            .getRect(
+              find.descendant(
+                of: find.byType(PaywallScreen),
+                matching: find.byType(FractionallySizedBox),
+              ),
+            )
+            .top,
+      ),
+      reason: 'the message hangs off the bottom edge, where the sheet is',
+    );
 
     await finishTest(tester);
   });
