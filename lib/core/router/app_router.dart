@@ -18,6 +18,7 @@ import '../../features/onboarding/presentation/controllers/onboarding_controller
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
+import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
@@ -80,6 +81,9 @@ final class AppRoutes {
 
   /// Pressure-drop alerts toggle + threshold, pushed from Settings.
   static const alerts = AppRoute(name: 'alerts', path: '/alerts');
+
+  /// Support email, pushed from Settings' About section.
+  static const contact = AppRoute(name: 'contact', path: '/contact');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -174,6 +178,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.alerts.name,
         path: AppRoutes.alerts.path,
         builder: (context, state) => const AlertsScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.contact.name,
+        path: AppRoutes.contact.path,
+        builder: (context, state) => const ContactScreen(),
       ),
       // A routed page that PRESENTS as a modal bottom sheet: transparent
       // route with a dim barrier, content slides up from the bottom and

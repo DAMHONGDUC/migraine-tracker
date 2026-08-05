@@ -34,6 +34,7 @@ import 'package:migraine_tracker/features/premium/domain/enums/premium_period.da
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/purchase_repository.dart';
 import 'package:migraine_tracker/features/premium/providers.dart';
+import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -122,6 +123,29 @@ class FakeStoreLauncher implements StoreLauncher {
   @override
   Future<bool> open(String url) async {
     opened.add(url);
+    return succeeds;
+  }
+}
+
+/// Records the mailto: recipient/subject instead of leaving the test to
+/// url_launcher.
+class FakeMailLauncher implements MailLauncher {
+  String? to;
+  String? subject;
+  String? body;
+
+  /// Flip to false to exercise the "couldn't open the mail app" branch.
+  bool succeeds = true;
+
+  @override
+  Future<bool> open({
+    required String to,
+    required String subject,
+    String? body,
+  }) async {
+    this.to = to;
+    this.subject = subject;
+    this.body = body;
     return succeeds;
   }
 }
@@ -434,6 +458,7 @@ class PumpedApp {
     required this.auth,
     required this.appUpdate,
     required this.storeLauncher,
+    required this.mailLauncher,
     required this.profiles,
     required this.exportFiles,
     required this.health,
@@ -449,6 +474,7 @@ class PumpedApp {
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
+  final FakeMailLauncher mailLauncher;
   final FakeUserProfileRepository profiles;
 
   /// Stands in for HealthKit. Unavailable unless a test asks otherwise.
@@ -545,6 +571,7 @@ Future<PumpedApp> pumpApp(
     config: appUpdate,
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
+  final FakeMailLauncher mailLauncher = FakeMailLauncher();
   final FakeUserProfileRepository profiles = FakeUserProfileRepository(
     profile: userProfile,
   );
@@ -575,6 +602,7 @@ Future<PumpedApp> pumpApp(
         userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
+        mailLauncherProvider.overrideWithValue(mailLauncher),
         installedAppVersionProvider.overrideWith(
           (ref) async => InstalledAppVersion(
             buildName: installedBuildName,
@@ -604,6 +632,7 @@ Future<PumpedApp> pumpApp(
     auth: auth,
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
+    mailLauncher: mailLauncher,
     profiles: profiles,
     exportFiles: exportFiles,
     health: health,

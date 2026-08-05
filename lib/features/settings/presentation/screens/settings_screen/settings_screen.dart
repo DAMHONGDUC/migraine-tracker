@@ -15,12 +15,16 @@ import '../../../../../core/widgets/sections/health_section.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../app_update/domain/entities/installed_app_version.dart';
+import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/enums/app_language.dart';
+import '../../../domain/services/app_version_label.dart';
 import '../../../domain/services/dev_seed_service.dart';
 import '../../../providers.dart';
 
+part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
@@ -52,13 +56,17 @@ class SettingsScreen extends ConsumerWidget {
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionData),
             const _DataSection(),
-            // Fixture tooling — last, and only where FLAVOR is not prod.
+            // Fixture tooling — only where FLAVOR is not prod.
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev),
               const _DevPremiumTile(),
               const _DevSeedTile(),
               const _DevResetTile(),
             ],
+            // Diagnostic info — always last, so a bug report always names
+            // the build it came from.
+            SdSectionHeaderV2(l10n.settingsSectionAbout),
+            const _AboutSection(),
           ],
         ),
       ),

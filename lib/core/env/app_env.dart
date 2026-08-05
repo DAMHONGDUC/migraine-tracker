@@ -97,4 +97,14 @@ final class AppEnv {
       'RevenueCat config missing. Add REVENUECAT_IOS_KEY / '
       'REVENUECAT_ANDROID_KEY to env/dev.json (or env/prod.json) and run with '
       '--dart-define-from-file.';
+
+  // --- Support ---
+
+  /// Inbox shown on the Contact support screen and used as the `mailto:`
+  /// recipient. Defaulted to a sample address rather than required — swap
+  /// SUPPORT_EMAIL in env/*.json for the real inbox when there is one.
+  static const String supportEmail = String.fromEnvironment(
+    'SUPPORT_EMAIL',
+    defaultValue: 'support@baroease.app',
+  );
 }

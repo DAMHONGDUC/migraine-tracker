@@ -1702,6 +1702,38 @@
   "@settingsSectionData": {
     "description": "Settings section heading above export, the doctor report and the delete-everything row"
   },
+  "settingsSectionAbout": "About",
+  "@settingsSectionAbout": {
+    "description": "Settings section heading above the app version and contact support rows"
+  },
+  "settingsAppVersion": "App version",
+  "@settingsAppVersion": {
+    "description": "Settings row title for the env/version/build number string, e.g. \"dev - 1.4.0 - 12\""
+  },
+  "settingsContactSupport": "Contact support",
+  "@settingsContactSupport": {
+    "description": "Settings row title that opens the contact screen"
+  },
+  "contactScreenTitle": "Contact support",
+  "@contactScreenTitle": {
+    "description": "App bar title for the contact support screen"
+  },
+  "contactSupportIntro": "Having an issue or a question? Email us and we'll get back to you.",
+  "@contactSupportIntro": {
+    "description": "Short line above the support email address on the contact screen"
+  },
+  "contactSupportEmailButton": "Email support",
+  "@contactSupportEmailButton": {
+    "description": "Button on the contact screen that opens the mail app addressed to support"
+  },
+  "contactSupportEmailSubject": "BaroEase support",
+  "@contactSupportEmailSubject": {
+    "description": "Pre-filled subject line of the support email"
+  },
+  "contactSupportEmailFailed": "Couldn't open your mail app.",
+  "@contactSupportEmailFailed": {
+    "description": "Error snackbar when no mail app could handle the support email link"
+  },
   "loginErrorAppleSoon": "Sign in with Apple is coming soon. Please use Google for now.",
   "@loginErrorAppleSoon": {
     "description": "Shown when the Apple button is tapped while the Apple flow is offered but not yet wired up (appleSignInImplementedProvider)"
