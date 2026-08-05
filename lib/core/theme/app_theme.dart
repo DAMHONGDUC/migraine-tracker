@@ -88,7 +88,15 @@ final class AppTheme {
           ),
         ),
       ),
-      cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
+      // margin zero on purpose: Material's default is EdgeInsets.all(4), an
+      // invisible inset that made a list of cards sit 8 apart where the code
+      // said 8, and 8 narrower than a list beside it. Every gap is explicit
+      // at the call site instead.
+      cardTheme: const CardThemeData(
+        color: AppColors.surface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceModal,
       ),

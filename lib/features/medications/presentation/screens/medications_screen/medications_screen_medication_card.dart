@@ -22,7 +22,6 @@ class _MedicationCard extends ConsumerWidget {
           );
 
     return Card(
-      margin: EdgeInsets.zero,
       child: ListTile(
         onTap: () => context.pushNamed(
           AppRoutes.medication.name,
