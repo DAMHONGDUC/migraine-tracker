@@ -45,12 +45,10 @@ final class _AppBootstrap {
     tz.setLocalLocation(tz.getLocation(localTz));
     AppLogger.info('App started', {'tz': localTz});
 
-    // Outside the try on purpose: an AssertionError raised inside it would be
-    // caught below and logged as "Firebase init failed", which is the exact
-    // silence these asserts exist to break. Debug-only either way — a release
-    // build strips them and degrades instead.
-    assert(AppEnv.hasFirebaseConfig, AppEnv.missingConfigMessage);
-    assert(AppEnv.hasPurchasesConfig, AppEnv.missingPurchasesConfigMessage);
+    // Firebase + RevenueCat config asserts removed — see CLAUDE.md "Pending
+    // setup" note (TODO: one assert that walks every AppEnv value for
+    // non-null/non-empty, replacing these). `RevenueCatClient.apiKey` still
+    // throws (and every call site still catches it) if its key is missing.
 
     try {
       await Firebase.initializeApp(

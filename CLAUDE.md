@@ -307,9 +307,17 @@ repository any more** — the old `DebugPremiumRepository` (a prefs flag with a
 one thing this project must not ship. Tests override
 `premiumRepositoryProvider` with a fake instead; nothing else may.
 
-Missing config fails loud rather than silently making everyone free:
-`main()` asserts on `AppEnv.hasPurchasesConfig`, and the paywall surfaces
-`PurchaseError.notConfigured`. What the owner must do by hand:
+Missing config used to fail loud via `assert(AppEnv.hasFirebaseConfig, …)` and
+`assert(AppEnv.hasPurchasesConfig, …)` in `main()` — **both asserts are
+removed** (owner call: a TestFlight build crashing on launch was suspected to
+trace back to one of them; under investigation). The paywall still surfaces
+`PurchaseError.notConfigured` when a purchase action runs without a key,
+because every RevenueCat call site catches the `RevenueCatClient.apiKey`
+`StateError` — that guard stays; only the two `main()` asserts are gone.
+**TODO (owner):** replace them with a single assert in `main()` that walks
+every `AppEnv` value and checks each is non-null and non-empty, instead of a
+per-field assert — not done yet, doing it later. What the owner must do by
+hand:
 
 1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
    already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
