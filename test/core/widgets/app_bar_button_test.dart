@@ -102,9 +102,8 @@ void main() {
     await tester.pump();
   });
 
-  // The whole button swells, surface included. Get this backwards — a
-  // circle wrapped around the pop instead of inside it — and the glyph grows
-  // inside a circle that sits still, which is what it used to do.
+  // - the whole button swells, surface included
+  // - get this backwards (circle wrapped around the pop, not inside it) and the glyph grows inside a static circle
   testWidgets('the swell wraps the surface, not the other way round', (
     tester,
   ) async {

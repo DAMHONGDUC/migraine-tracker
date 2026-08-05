@@ -537,18 +537,15 @@ Future<PumpedApp> pumpApp(
   String installedBuildName = '99.0.0',
   int installedBuildNumber = 9999,
 }) async {
-  // Pin the test view to the 393×852 design size (an iPhone-class screen,
-  // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
-  // screenutil scale `.sp`/`.w`/`.h` by ~2×, which distorts layout and
-  // pushes tap targets off-screen.
+  // - pin the test view to the 393×852 design size (an iPhone-class screen, DPR 3 = 1179×2556 physical)
+  // - the default 800×600 surface scales `.sp`/`.w`/`.h` ~2×, distorting layout and pushing tap targets off-screen
   tester.view.physicalSize = const Size(393 * 3, 852 * 3);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  // The test engine is Skia, so SdGlassV2.isSupported would always be false
-  // and every test would assert the fallback layout instead of the shipped
-  // one. The glass still renders as FakeGlass here; only the insets follow.
+  // - the test engine is Skia, so SdGlassV2.isSupported would always be false and tests would assert the fallback layout
+  // - glass still renders as FakeGlass here; only the insets follow
   SdGlassV2.debugSupported = glassSupported;
   addTearDown(() => SdGlassV2.debugSupported = null);
 
@@ -686,11 +683,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // Only when there is something to scroll. A target inside a bottom sheet
-  // has no Scrollable ancestor, and `find.byType(SdAppBarV2)` still matches
-  // the bars sitting in the shell's IndexedStack *behind* the sheet — so
-  // without this guard the nudge tried to drag a scrollable that does not
-  // exist and threw `Bad state: No element`.
+  // - only when there's something to scroll: a bottom-sheet target has no Scrollable ancestor
+  // - `find.byType(SdAppBarV2)` still matches bars sitting behind the sheet in the shell's IndexedStack
+  // - without this guard the nudge dragged a scrollable that doesn't exist and threw `Bad state: No element`
   final Finder scrollable = find.ancestor(
     of: finder,
     matching: find.byType(Scrollable),
@@ -798,9 +793,8 @@ Future<void> logAttack(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 
-  // The medication step keeps both an expanded and a collapsed copy of the
-  // action rows mounted (they cross-fade on scroll), so the label matches
-  // twice — .first is the visible, tappable expanded one.
+  // Expanded and collapsed action rows both stay mounted (cross-fade on scroll),
+  // so the label matches twice — .first is the visible, tappable expanded one.
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

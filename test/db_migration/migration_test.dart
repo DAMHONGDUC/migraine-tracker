@@ -18,9 +18,8 @@ void main() {
     expect(db.schemaVersion, 4);
   });
 
-  // A database always migrates to AppDatabase.schemaVersion, so every
-  // starting point is validated against the current head — not against the
-  // version that happened to be head when the test was written.
+  // Always migrates to AppDatabase.schemaVersion, so every starting point is
+  // validated against the current head, not the head at write time.
   test('migrates from v1 all the way to current', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);

@@ -73,9 +73,8 @@ void main() {
       find.descendant(of: sheet, matching: find.byType(LiquidGlass)),
       findsNothing,
     );
-    // The modal colour, which dialogs share — a dialog opening over a sheet
-    // must not be a second shade of dark. Darker than the card on purpose, so
-    // a card placed on the sheet still reads as the nearer layer.
+    // - the modal colour, shared by dialogs — must not be a second shade of dark
+    // - darker than the card on purpose, so a card placed on it still reads as the nearer layer
     final Material surface = tester.widget<Material>(
       find.descendant(of: sheet, matching: find.byType(Material)).first,
     );

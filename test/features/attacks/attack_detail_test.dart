@@ -124,9 +124,8 @@ void main() {
 
     await openDetail(tester);
 
-    // A ListView hands its children a TIGHT width, which overrides the
-    // AspectRatio inside HeadDiagram unless something loosens it — the head
-    // used to come out stretched across the whole row.
+    // A ListView hands children a TIGHT width, overriding HeadDiagram's AspectRatio
+    // unless something loosens it — the head used to come out stretched across the row.
     final Size size = tester.getSize(find.byType(HeadDiagram));
     expect(size.width / size.height, closeTo(0.82, 0.01));
 

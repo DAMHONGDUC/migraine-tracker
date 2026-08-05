@@ -76,9 +76,8 @@ void main() {
     // The severity mix card appears once there are attacks.
     expect(find.text('Severity mix'), findsOneWidget);
 
-    // Its chart is wrapped in an IgnorePointer so the whole card is one tap
-    // target — tap the card body (warnIfMissed: the hit falls through to the
-    // SdPressableScaleV2 behind the ignored chart).
+    // Chart is wrapped in IgnorePointer so the whole card is one tap target;
+    // warnIfMissed lets the hit fall through to the SdPressableScaleV2 behind it.
     final card = find.byType(DashboardSeverityCard);
     await tester.ensureVisible(card);
     await _settle(tester);
@@ -210,9 +209,8 @@ void main() {
 
     await _tapBanner(tester, 'Export your data');
 
-    // Not the Settings tab with an "Export data" row on it — the banner has
-    // to land on the screen it advertised. Both surfaces carry that title,
-    // so match the screen itself rather than the text.
+    // - not the Settings tab with an "Export data" row — the banner must land on the screen it advertised
+    // - both surfaces carry that title, so match the screen itself, not the text
     expect(find.byType(ExportScreen), findsOneWidget);
     expect(find.text('No exports yet'), findsOneWidget);
 

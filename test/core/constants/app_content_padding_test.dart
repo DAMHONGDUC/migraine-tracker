@@ -53,9 +53,7 @@ void main() {
 
       // 47 status bar + 56 toolbar + topGap.
       expect(insets.top, 47 + kToolbarHeight + 8);
-      // A screen with nothing floating over it rests on the home indicator
-      // itself — 34 is already more room than the floor asks for, so nothing
-      // is stacked on top of it.
+      // Nothing floats above this screen — 34 already clears the floor, so nothing stacks on top.
       expect(insets.bottom, 34);
       expect(insets.left, 16);
       expect(insets.right, 16);
@@ -208,9 +206,8 @@ void main() {
               title: const Text('Title'),
               body: Builder(
                 builder: (BuildContext inner) {
-                  // Scaffold strips the body's top padding when there is an
-                  // app bar; the inset must survive that (SdActionViewV2 is
-                  // the body, so this is where it gets read).
+                  // Scaffold strips the body's top padding under an app bar; the inset
+                  // must survive that (SdActionViewV2 is the body, so this is where it's read).
                   below = SdContentPaddingV2.appBarInset(inner);
                   return const SizedBox();
                 },
@@ -264,10 +261,8 @@ void main() {
               bottomNavigationBar: const SizedBox(height: 56),
               body: Builder(
                 builder: (BuildContext context) {
-                  // Scaffold subtracts padding.bottom from the body's
-                  // viewPadding.bottom whenever there is a bottom bar, so an
-                  // ambient read here loses the home indicator entirely — and
-                  // the last row ends up under the bar.
+                  // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar
+                  // - so an ambient read here loses the home indicator entirely and the last row ends up under the bar
                   tabScreen = SdContentPaddingV2.bottom(
                     context,
                     floatingNav: true,
@@ -281,9 +276,8 @@ void main() {
         ),
       );
 
-      // Neither lost the home indicator, which is what this test is for.
-      // And now they DO agree: both floating bars read the same
-      // `navBarOffset`, which clamps the 34 home indicator down to 20.
+      // - neither lost the home indicator, which is what this test is for
+      // - both floating bars agree: they read the same `navBarOffset`, clamping 34 down to 20
       expect(tabScreen, 20 + 56 + 16);
       expect(logFlow, 20 + 56 + 16);
     },

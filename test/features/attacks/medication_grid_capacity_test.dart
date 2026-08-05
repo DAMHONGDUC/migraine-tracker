@@ -37,10 +37,8 @@ Future<void> _toMedicationStep(WidgetTester tester) async {
 }
 
 void main() {
-  // The medication grid's whole reason for existing is that a list long
-  // enough to scroll costs time mid-attack. Measured on the 393×852 design
-  // size the grid holds 16 medications plus its fixed first row, so this
-  // guards against a change that quietly shrinks that.
+  // - the grid exists so a scrolling list never costs time mid-attack
+  // - at the 393×852 design size it holds 16 medications plus its fixed first row — guard against that quietly shrinking
   testWidgets('grid holds a realistic medication list without scrolling', (
     tester,
   ) async {

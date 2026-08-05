@@ -242,9 +242,8 @@ void main() {
       expect(large, moreOrLessEquals(SdButtonV2.defaultIconSize * 1.25));
     });
 
-    // The rendered button can be floored by Material's own 48-tall tap
-    // target on a small size, so this reads the padding the style actually
-    // carries rather than the final render box.
+    // Material's own 48-tall tap target can floor the rendered size at
+    // small — read the padding the style carries, not the final render box.
     double verticalPadding(WidgetTester tester) {
       final ButtonStyle style = tester.widget<FilledButton>(
         find.byType(FilledButton),

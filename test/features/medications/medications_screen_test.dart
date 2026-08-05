@@ -8,9 +8,8 @@ import 'package:system_design/index.dart';
 import '../../helpers/pump_app.dart';
 
 Future<void> addMedication(WidgetTester tester, String name) async {
-  // App bar "+" icon (a FAB would sit under the floating bottom nav's hit
-  // region on a shell tab, so this screen puts its add action there
-  // instead — see MedicationsScreen).
+  // App bar "+" icon — a FAB would sit under the floating nav's hit region
+  // on a shell tab, so the add action lives here instead (see MedicationsScreen).
   await tester.tap(find.byIcon(Icons.add));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
@@ -135,9 +134,8 @@ void main() {
     await openMedication(tester, 'Sumatriptan');
     await openAddReminder(tester);
 
-    // Custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour +
-    // minute) confirm the sheet is open; the checkmark saves the default
-    // (current) time without touching the wheels.
+    // - custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour + minute) confirm it's open
+    // - the checkmark saves the default (current) time without touching the wheels
     expect(find.byType(ListWheelScrollView), findsNWidgets(2));
     await tester.tap(find.byIcon(Icons.check));
     await tester.pump();
@@ -222,11 +220,9 @@ void main() {
     await openMedication(tester, 'Sumatriptan');
     await openAddReminder(tester);
 
-    // Over-drag the hour wheel (the first of the two ListWheelScrollViews) UP
-    // well past the end so it clamps at the last hour (23), independent of the
-    // current-time default the picker opens on. Dragging up brings higher-index
-    // rows to the centered selection; row height is SdSpacingConstant.h44 =
-    // 44 logical px at the harness's pinned 393×852 design size.
+    // - over-drag the hour wheel (first ListWheelScrollView) UP past the end so it clamps at 23
+    // - independent of the current-time default the picker opens on
+    // - dragging up brings higher-index rows to the centered selection; row height is SdSpacingConstant.h44 (44px at the pinned 393×852 design size)
     await tester.drag(
       find.byType(ListWheelScrollView).first,
       const Offset(0, -44 * 30),

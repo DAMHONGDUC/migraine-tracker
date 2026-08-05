@@ -41,11 +41,8 @@ void main() {
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await openPaywall(tester, app);
 
-    // The structural guarantee, and the reason this holds on a small phone
-    // and at a large text size: the pitch scrolls, the thing being sold does
-    // not. Asserting only that they are on screen would pass either way
-    // whenever the pitch happens to be short enough — which is exactly how
-    // this regressed unnoticed before.
+    // - the pitch scrolls, the thing being sold does not — that's what holds on a small phone or large text size
+    // - asserting only "on screen" would pass whenever the pitch happens to be short — how this regressed unnoticed before
     final Finder scroller = find.descendant(
       of: find.byType(PaywallScreen),
       matching: find.byType(SingleChildScrollView),
@@ -183,18 +180,15 @@ void main() {
     final Finder card = find.byType(SdSnackBarCardV2);
 
     expect(card, findsOneWidget);
-    // In the root overlay, not in the route: a ScaffoldMessenger drew into the
-    // Scaffold *underneath*, so the sheet that raised the message covered it.
-    // Text a test can find is not text a user can see.
+    // - in the root overlay, not the route: a ScaffoldMessenger drew into the Scaffold underneath, so the sheet covered it
+    // - text a test can find is not text a user can see
     expect(
       find.descendant(of: find.byType(PaywallScreen), matching: card),
       findsNothing,
       reason: 'the message is inside the paywall route — it can be covered',
     );
-    // Anchored to the top edge, above where the sheet begins. It may still
-    // overlap the sheet lower down — being in the overlay, it is drawn over
-    // it — but it must not start down at the bottom, on the plans the user
-    // is choosing between.
+    // - anchored to the top edge, above where the sheet begins
+    // - may still overlap the sheet lower down (drawn over it, being in the overlay), but must not start at the bottom, on the plans
     expect(
       tester.getRect(card).top,
       lessThan(

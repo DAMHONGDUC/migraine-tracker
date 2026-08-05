@@ -55,9 +55,8 @@ void main() {
     // Signed out and with no entitlement, the analysis is teased.
     expect(find.text('60%'), findsNothing);
 
-    // Driven through the row a developer actually taps. The override has to
-    // reach the gates, not just the switch that owns it — that is the whole
-    // point of layering it inside hasPremiumProvider.
+    // Driven through the row a developer actually taps: the override must
+    // reach the gates, not just the switch — the whole point of hasPremiumProvider.
     await openSettings(tester);
     await tapVisible(tester, find.text('Premium (mock)'));
 
@@ -118,10 +117,8 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      // Locked rows in place of the real controls: the alerts row is a name
-      // wearing the badge, never the toggle. SwitchListTile, not Switch — the
-      // dev-only premium mock is a Switch too, and this is asking about the
-      // gated toggles, not about every switch on the screen.
+      // - locked rows replace the real controls: the alerts row is a name wearing the badge, never the toggle
+      // - SwitchListTile, not Switch: the dev-only premium mock is a Switch too; this asks about gated toggles only
       expect(find.byType(SwitchListTile), findsNothing);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
@@ -251,10 +248,8 @@ void main() {
         await pumpApp(tester); // no attacks
         await openInsights(tester);
 
-        // The correlation card shows the "keep logging" progress, not a
-        // paywall tease — the tease only appears once there's enough data.
-        // (The forecast card above it is separately gated, so "Unlock" can
-        // still appear from there — this asserts the correlation branch.)
+        // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
+        // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
         expect(
           find.text(
             'Log 15 more attacks with weather data to unlock this insight.',
