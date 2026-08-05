@@ -77,8 +77,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   @override
   void initState() {
     super.initState();
-    // The dashboard's add shortcut may have set a request before this tab was
-    // ever built — pick it up on first mount.
+    // Dashboard's add shortcut may have set a request before this tab was
+    // built — pick it up on first mount.
     if (ref.read(medicationAddRequestProvider)) _handleAddRequest();
   }
 
@@ -159,15 +159,13 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filters = ref.watch(medicationFiltersProvider);
     final filtersController = ref.read(medicationFiltersProvider.notifier);
     final searchQuery = ref.watch(medicationSearchProvider);
-    // The gap the cards leave for the app bar and the filter strip above them.
-    // Fixed whether the strip is showing or lifted into the bar, so the list
-    // never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
+    // Gap cards leave for the bar/filter strip; fixed regardless of collapse
+    // state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final filterBarHeight = SdContentPaddingV2.belowPinnedFilterBar(context);
 
     return SdCollapsingFilterScaffoldV2(
-      // While searching, the title slot becomes the search field and a close
-      // button takes the leading slot; otherwise the tab title with a search
-      // affordance right after it.
+      // - While searching: title slot is the search field, close button leads.
+      // - Otherwise: tab title with a search affordance right after it.
       title: _searching
           ? _searchField(context)
           : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
@@ -178,10 +176,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               onPressed: _stopSearch,
             )
           : null,
-      // No FAB here: this is a shell tab, and the floating glass bottom nav
-      // overlays tab content (extendBody) — a FAB would sit right under its
-      // hit-test region and silently eat the tap. Every other tab puts its
-      // primary action in the app bar instead; this one follows suit.
+      // - No FAB: the floating glass nav overlays content and would eat the tap.
+      // - Every other tab puts its primary action in the app bar; this follows suit.
       actions: _searching
           ? [
               if (searchQuery.isNotEmpty)
@@ -197,8 +193,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               SizedBox(width: SdSpacingConstant.w12),
             ]
           : [
-              // Debug-only smoke test for notification delivery (kDebugMode
-              // strips it from release builds entirely).
+              // Debug-only smoke test; kDebugMode strips it from release builds.
               if (kDebugMode) ...[
                 SdAppBarButtonV2(
                   icon: Icons.notification_add_outlined,
@@ -224,13 +219,11 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               ),
               SizedBox(width: SdSpacingConstant.w12),
             ],
-      // The filter chips sit under the app bar while reading and lift into it
-      // once the list scrolls — except while searching, when the bar is the
-      // search field's and must stay put.
+      // - Chips sit under the app bar while reading, lift in once scrolled.
+      // - Except while searching: the bar is the search field's, stays put.
       filter: _filterRow(context, filters, filtersController),
       collapsible: !_searching,
-      // No outer top padding: like History, the list scrolls behind the
-      // translucent app bar so it fills the screen.
+      // No outer top padding: list scrolls behind the translucent app bar, like History.
       body: SdRefreshIndicatorV2(
         // Drop the spinner below the filter strip, not over its chips.
         edgeOffset: filterBarHeight + SdSpacingConstant.h8,
@@ -245,8 +238,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
             if (medications.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
-                // Clear the app bar + filter strip so the empty state
-                // centers in the space below them.
+                // Clears the app bar + filter strip so the empty state centers below them.
                 child: Padding(
                   padding: EdgeInsets.only(top: filterBarHeight),
                   child: SdEmptyStateV2(
@@ -298,9 +290,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     return Row(
       children: [
         SdFilterChipV2<MedicationDateFilter>(
-          // The row holds 3 independent chips — at their default ("all")
-          // they'd otherwise all just read "All" with nothing to tell them
-          // apart, so the axis name leads until something is actually picked.
+          // 3 chips default to "all" and would all just read "All"; axis
+          // name leads until something is actually picked.
           label: filters.date == MedicationDateFilter.all
               ? l10n.medicationsFilterDateTitle
               : _FilterLabels.date(context, filters.date),

@@ -32,8 +32,7 @@ class _GeneralSection extends ConsumerWidget {
     return Column(
       children: [
         const AccountSection(),
-        // Only with an account: a subscription needs one to belong to, so
-        // there is nothing to report before that.
+        // Only with an account: a subscription needs one to belong to.
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
         const AlertsSettingsTile(),
         const HealthSection(),

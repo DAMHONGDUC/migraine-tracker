@@ -30,8 +30,7 @@ class LoginController extends Notifier<LoginState> {
   Future<bool> signIn(AuthProviderKind provider) async {
     if (state.isBusy) return false;
 
-    // Offered but not wired up: say so, rather than start a flow that can
-    // only end in a confusing provider error.
+    // Offered but not wired up: say so, rather than fail with a confusing provider error.
     if (provider == AuthProviderKind.apple &&
         !ref.read(appleSignInImplementedProvider)) {
       state = const LoginState(error: AuthError.notImplemented);
@@ -65,8 +64,7 @@ class LoginController extends Notifier<LoginState> {
       }
       return false;
     } catch (error, stackTrace) {
-      // Anything the repository didn't map to an AuthException: no UI state
-      // fits it, but it must not vanish from the console.
+      // Anything not mapped to an AuthException has no UI state, but must not vanish from the console.
       AppLogger.error('Sign in crashed', error: error, stackTrace: stackTrace);
       rethrow;
     }

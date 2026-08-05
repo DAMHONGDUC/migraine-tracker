@@ -49,8 +49,7 @@ class DashboardLogButton extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            // A lavender "+" in a dark disc — reads as a crisp badge on the
-            // lavender gradient, so the fill is opaque rather than a tint.
+            // Opaque fill, not a tint, so the badge reads crisp on the lavender gradient.
             SdIconBadgeV2(
               icon: Icons.add,
               color: AppColors.primary,

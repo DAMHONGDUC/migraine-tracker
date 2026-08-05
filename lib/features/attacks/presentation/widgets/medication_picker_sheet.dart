@@ -46,14 +46,11 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // What the grid adds so its last row can scroll clear of the bar: the bar
-    // itself plus the gap above it. Everything below the bar — keyboard, home
-    // indicator, the gap under it — is already in SdSheetContentV2's own
-    // bottom padding.
+    // - Grid clears the bar plus the gap above it, so its last row scrolls free.
+    // - Rest (keyboard, home indicator) already in SdSheetContentV2's padding.
     final double barClearance =
         SdContentPaddingV2.floatingBarHeight + SdContentPaddingV2.bottomGap;
-    // A sheet is a route, not a screen, so it clears the keyboard and the home
-    // indicator itself (same rule as SdSheetContentV2's own last row).
+    // Sheet is a route, not a screen — it clears keyboard/home indicator itself.
     final double barBottom =
         MediaQuery.viewInsetsOf(context).bottom +
         MediaQuery.paddingOf(context).bottom +
@@ -70,8 +67,7 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
           child: Padding(
             padding: EdgeInsets.only(bottom: barClearance),
             child: MedicationGrid(
-              // Editing an attack there is always a pick already: it either
-              // names a medication or it says none was taken.
+              // Editing an attack: there's always a pick already made.
               hasSelection: true,
               selectedName: _selectedName,
               onSelected: (String? name) =>

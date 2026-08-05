@@ -49,21 +49,20 @@ class LogScreen extends ConsumerWidget {
       context.pop();
     }
 
-    // Bottom inset the body must clear: the floating step bar while it shows,
-    // else just the home indicator + a gap on the saved screen.
+    // - Body clears the floating step bar while it shows.
+    // - Else just the home indicator + a gap, once saved.
     final bottomInset = question != null
         ? SdContentPaddingV2.bottomBar(context)
         : SdContentPaddingV2.bottom(context);
-    // The medication step scrolls its grid BEHIND the step bar (like the tab
-    // flows), so the body reserves no bottom space for it — the grid applies
-    // [bottomInset] as its own scroll padding instead.
+    // Medication step scrolls its grid behind the step bar (like the tab
+    // flows); the grid applies [bottomInset] as its own scroll padding.
     final isMedication = state.step == LogStep.medication;
 
     return SdScaffoldV2(
       title: Text(l10n.logTitle, style: AppTextStyle.titleLarge),
-      // First step: nothing to step back to, so the leading button cancels
-      // the whole flow (pops the route). Later steps: step back through the
-      // LogController state machine. Saved: no leading — only "Done" leaves.
+      // - First step: leading button cancels the whole flow (pops route).
+      // - Later steps: leading button steps back via LogController.
+      // - Saved: no leading — only "Done" leaves.
       leading: switch (state.step) {
         LogStep.saved => null,
         LogStep.intensity => SdAppBarButtonV2(
@@ -85,9 +84,8 @@ class LogScreen extends ConsumerWidget {
           ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      // The 3-tap progress lives in the bottom bar slot, in the same floating
-      // position the shell's bottom nav used to morph into. Hidden once saved
-      // (nothing left to track), so the body then uses a plain bottom inset.
+      // 3-tap progress lives in the bottom bar slot (same floating spot the
+      // shell's nav morphs into); hidden once saved, body uses a plain inset.
       bottomNavigationBar: question != null
           ? LogStepBar(step: state.step)
           : null,
@@ -99,8 +97,7 @@ class LogScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // The question, big and readable mid-attack — always one line,
-            // however long the localized string runs.
+            // The question: big and readable mid-attack, always one line.
             if (question != null)
               Padding(
                 padding: EdgeInsets.fromLTRB(

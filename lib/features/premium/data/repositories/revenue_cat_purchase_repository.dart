@@ -40,8 +40,7 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
       for (final Package package in offering.availablePackages) {
         final PremiumPeriod? period = _periodOf(package.packageType);
 
-        // Anything the dashboard adds that this app has no row for is
-        // skipped rather than rendered blind.
+        // Anything the dashboard adds that this app has no row for is skipped, not rendered blind.
         if (period == null) continue;
 
         _packages[package.identifier] = package;

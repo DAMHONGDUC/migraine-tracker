@@ -93,8 +93,7 @@ class _MedicationStepState extends ConsumerState<MedicationStep> {
               SdContentPaddingV2.horizontal,
               widget.scrollBottomInset + SdSpacingConstant.h16,
             ),
-            // Calm and predictable over platform-native bounce: a short list
-            // must not rubber-band mid-attack.
+            // Calm over bounce: a short list must not rubber-band mid-attack.
             physics: const ClampingScrollPhysics(),
             child: MedicationGrid(
               hasSelection: widget.hasSelection,

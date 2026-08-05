@@ -34,8 +34,7 @@ class _HeaderState extends ConsumerState<_Header> {
   @override
   void didUpdateWidget(_Header oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Renamed from somewhere else (or the rename we just saved came back
-    // through the stream): follow it, unless the user is mid-edit.
+    // Follow a rename from elsewhere (or our own echo), unless mid-edit.
     if (!_focus.hasFocus && widget.medication.name != _controller.text) {
       _controller.text = widget.medication.name;
     }
@@ -57,8 +56,7 @@ class _HeaderState extends ConsumerState<_Header> {
   Future<void> _commit() async {
     final String name = _controller.text.trim();
 
-    // Emptied and left: a medication has to be called something, so the
-    // field goes back to what it was rather than saving nothing.
+    // Emptied and left: revert rather than save a nameless medication.
     if (name.isEmpty) {
       _controller.text = widget.medication.name;
       return;

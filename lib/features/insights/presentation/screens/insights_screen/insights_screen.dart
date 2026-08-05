@@ -35,8 +35,7 @@ class InsightsScreen extends ConsumerWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: SdContentPaddingV2.screen(context, floatingNav: true),
             children: [
-              // Free users never build the forecast card, so no forecast is
-              // fetched or held for them.
+              // Free users never build the forecast card, so no forecast is fetched or held for them.
               PremiumGate(
                 lockedIcon: Symbols.show_chart,
                 lockedMessage: context.l10n.premiumLockedForecast,
@@ -44,8 +43,7 @@ class InsightsScreen extends ConsumerWidget {
               ),
               SizedBox(height: SdSpacingConstant.h12),
               CorrelationCard(result: value),
-              // iOS only: off HealthKit there is no sleep source, so the
-              // card would have nothing to say but "unavailable".
+              // iOS only: off HealthKit there is no sleep source, so the card would only say "unavailable".
               if (ref.watch(healthAvailableProvider)) ...<Widget>[
                 SizedBox(height: SdSpacingConstant.h12),
                 PremiumGate(

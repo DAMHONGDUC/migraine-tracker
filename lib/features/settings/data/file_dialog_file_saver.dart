@@ -19,8 +19,7 @@ class FileDialogFileSaver implements FileSaver {
     final String? savedPath = await FlutterFileDialog.saveFile(
       params: SaveFileDialogParams(
         sourceFilePath: sourcePath,
-        // Suggest the same name the history row shows, so what the user
-        // saves is recognisably what they tapped.
+        // Suggest the same name the history row shows, so the save is recognisable.
         fileName: filename,
       ),
     );

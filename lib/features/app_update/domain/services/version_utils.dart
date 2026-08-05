@@ -21,8 +21,7 @@ abstract final class VersionUtils {
 
       if (match == null) break;
       segments.add(int.parse(match.group(0)!));
-      // A tag segment (`0-beta`, `0+3`) ends the version — everything after
-      // it describes the same release.
+      // A tag segment (`0-beta`, `0+3`) ends the version — the rest describes the same release.
       if (trimmed != match.group(0)) break;
     }
     return segments.isEmpty ? null : segments;

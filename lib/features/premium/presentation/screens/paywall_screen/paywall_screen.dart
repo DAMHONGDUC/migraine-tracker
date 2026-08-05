@@ -52,8 +52,7 @@ class PaywallScreen extends HookConsumerWidget {
       PurchaseError.alreadyOwned => l10n.paywallErrorAlreadyOwned,
       PurchaseError.pending => l10n.paywallErrorPending,
       PurchaseError.notAllowed => l10n.paywallErrorNotAllowed,
-      // A missing key is a wiring bug the user can do nothing about, so it
-      // gets the neutral message and the logs get the detail.
+      // A missing key is a wiring bug — neutral message for the user, detail in the logs.
       _ => l10n.paywallErrorGeneric,
     },
     _ => l10n.paywallErrorGeneric,
@@ -140,8 +139,7 @@ class PaywallScreen extends HookConsumerWidget {
     final PremiumOffer? selected = offers
         .where((PremiumOffer o) => o.id == selectedId.value)
         .firstOrNull;
-    // Default to the yearly plan when nothing is chosen yet — it is the one
-    // the pricing is built around, and an unselected list makes the CTA dead.
+    // Default to the yearly plan when nothing is chosen — an unselected list leaves the CTA dead.
     final PremiumOffer? active =
         selected ??
         (offers.isEmpty
@@ -182,8 +180,7 @@ class PaywallScreen extends HookConsumerWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: SdAppBarButtonV2(
                   icon: Icons.close,
-                  // Already on the sheet's glass: a circle here would nest
-                  // one glass layer inside another and read flat.
+                  // Already on the sheet's glass: a circle here would nest glass inside glass.
                   surface: SdAppBarButtonSurfaceV2.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: () => context.pop(),
@@ -198,22 +195,14 @@ class PaywallScreen extends HookConsumerWidget {
               SdContentPaddingV2.horizontal,
               SdSpacingConstant.h8,
               SdContentPaddingV2.horizontal,
-              // A sheet route rather than a screen, but the same rule: it
-              // clears the home indicator by the same 16.
+              // A sheet route rather than a screen, but the same rule: clears the home indicator by 16.
               SdContentPaddingV2.bottom(context),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Only the pitch scrolls. The plans and the CTA are pinned
-                // below it, so what the user came to buy is never under the
-                // fold — on a small phone, or at a large text size, the
-                // benefits give way instead.
-                //
-                // The benefits are titles only. Five two-line rows pushed
-                // the prices off the sheet, and each title already names the
-                // feature — the sentence under it was restating it. The full
-                // descriptions live on PremiumScreen.
+                // - only the pitch scrolls; the plans and CTA stay pinned so what the user buys is never under the fold
+                // - benefit titles only — five two-line rows pushed the prices off the sheet; full descriptions live on PremiumScreen
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -257,9 +246,7 @@ class PaywallScreen extends HookConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Plans only once there is an account to attach a
-                    // subscription to: showing prices behind a sign-in wall
-                    // would invite a tap that cannot complete.
+                    // Plans only with an account: prices behind a sign-in wall invite a tap that can't complete.
                     if (signedIn) ...<Widget>[
                       SizedBox(height: SdSpacingConstant.h8),
                       _Plans(
@@ -270,13 +257,10 @@ class PaywallScreen extends HookConsumerWidget {
                       ),
                     ],
                     SizedBox(height: SdSpacingConstant.h12),
-                    // Signed out there is no account to attach a
-                    // subscription to, so the CTA signs in first.
+                    // Signed out there is no account to subscribe to, so the CTA signs in first.
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
-                      // Null while the offerings are still loading, and when
-                      // the store returned nothing to sell — a CTA that can
-                      // only fail is worse than a disabled one.
+                      // Null while offerings load or when the store has nothing to sell — never a CTA that can only fail.
                       onPressed: !signedIn || active != null
                           ? () {
                               AppAnalytics.logPaywallCtaTapped(
@@ -293,8 +277,7 @@ class PaywallScreen extends HookConsumerWidget {
                           ? l10n.premiumUnlock
                           : l10n.paywallSignInFirst,
                     ),
-                    // App Store 3.1.1 requires a restore path for anyone who
-                    // already paid — a reinstall or a second device.
+                    // App Store 3.1.1 requires a restore path — a reinstall or a second device.
                     if (signedIn)
                       SdButtonV2(
                         variant: SdButtonVariantV2.text,
@@ -317,9 +300,7 @@ class PaywallScreen extends HookConsumerWidget {
               borderRadius: SdSpacingConstant.r22,
             ),
             clipBehavior: Clip.antiAlias,
-            // Transparent Material: text/ink need a Material ancestor
-            // (without one, Text renders Flutter's yellow double-underline
-            // fallback), but it must not paint over the glass.
+            // Transparent Material: Text needs a Material ancestor, but this one must not paint over the glass.
             child: Material(type: MaterialType.transparency, child: sheet),
           )
         : Material(
@@ -331,8 +312,7 @@ class PaywallScreen extends HookConsumerWidget {
             child: sheet,
           );
 
-    // ~85% tall, pinned to the bottom; the transparent 15% above shows the
-    // dimmed screen underneath (the route's barrier handles tap-to-dismiss).
+    // ~85% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(

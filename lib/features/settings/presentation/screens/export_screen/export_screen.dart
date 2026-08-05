@@ -43,8 +43,7 @@ class ExportScreen extends ConsumerWidget {
 
     if (kind == null) return;
 
-    // The doctor report is localized and l10n lives here, not in the
-    // controller — build its copy before handing over.
+    // The doctor report is localized and l10n lives here, not in the controller.
     await ref
         .read(exportControllerProvider)
         .create(
@@ -69,8 +68,7 @@ class ExportScreen extends ConsumerWidget {
 
     if (action == null || !context.mounted) return;
 
-    // Delete is the one action that works on a missing file — it is how the
-    // user clears a row whose file is already gone.
+    // Delete is the one action that works on a missing file — clears a row whose file is gone.
     if (action != ExportAction.delete && !await controller.fileExists(record)) {
       if (context.mounted) {
         SdSnackBarUtilsV2.error(context, l10n.exportFileMissing);
@@ -128,8 +126,7 @@ class ExportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    // Nothing to filter until something has been exported, so the strip only
-    // exists once the list does.
+    // Nothing to filter until something has been exported.
     final bool hasAny =
         ref.watch(exportHistoryProvider).value?.isNotEmpty ?? false;
 
@@ -145,9 +142,8 @@ class ExportScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w4),
       ],
       filter: hasAny ? const _DateFilterPill() : null,
-      // The list pads itself so it scrolls behind the frosted bar and the strip;
-      // no gutter of its own — a ListTile brings one. The top inset stays put
-      // whether the strip is showing or not (see SdCollapsingFilterScaffoldV2).
+      // - pads itself to scroll behind the frosted bar and strip; no gutter — a ListTile brings one
+      // - top inset stays put whether the strip is showing or not (see SdCollapsingFilterScaffoldV2)
       body: ListView(
         padding: EdgeInsets.only(
           top: hasAny

@@ -68,8 +68,7 @@ class PremiumScreen extends ConsumerWidget {
         ),
         actions: <Widget>[
           if (premium)
-            // Cancelling and refunds are the store's, not ours — saying so
-            // beats a button that can only open Settings.
+            // Cancelling and refunds are the store's, not ours — say so instead of a dead button.
             Text(
               l10n.premiumScreenManageNote,
               style: AppTextStyle.bodySmall.secondary,

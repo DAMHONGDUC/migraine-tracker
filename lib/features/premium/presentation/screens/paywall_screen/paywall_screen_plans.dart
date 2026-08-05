@@ -70,9 +70,7 @@ class _PlanRow extends StatelessWidget {
           vertical: SdSpacingConstant.h12,
         ),
         decoration: BoxDecoration(
-          // On the paywall's glass, so the unselected state is a hairline
-          // rather than a filled card — a second opaque surface here would
-          // flatten the panel it sits on.
+          // On the paywall's glass, unselected stays a hairline — a filled card would flatten the panel.
           color: selected ? accent.withValues(alpha: 0.16) : null,
           borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           border: Border.all(

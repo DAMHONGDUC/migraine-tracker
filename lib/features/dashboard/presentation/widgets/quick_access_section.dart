@@ -42,8 +42,7 @@ class QuickAccessSection extends ConsumerWidget {
           ),
         ),
         SizedBox(height: SdSpacingConstant.h12),
-        // IntrinsicHeight so all three cards match the tallest (the "Add
-        // medication" label wraps to two lines).
+        // Matches all three cards to the tallest ("Add medication" wraps to two lines).
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -41,15 +41,13 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         await m.createTable(medicationReminders);
       }
-      // v3: medications remember when they were added, so the medications
-      // tab can sort and filter by it. Existing rows get null — their real
-      // creation date was never recorded and inventing one would corrupt
-      // the very filter this column exists to serve.
+      // - v3: medications remember when they were added, so the tab can sort/filter by it.
+      // - Existing rows get null — inventing a date would corrupt the very filter this serves.
       if (from < 3) {
         await m.addColumn(medications, medications.createdAt);
       }
-      // v4: the export screen keeps a history. Nothing to backfill —
-      // exports made before this shipped were never recorded.
+      // - v4: the export screen keeps a history.
+      // - Nothing to backfill — exports before this shipped were never recorded.
       if (from < 4) {
         await m.createTable(exportRecords);
       }

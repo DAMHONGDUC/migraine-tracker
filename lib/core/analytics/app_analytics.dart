@@ -184,8 +184,7 @@ abstract final class AppAnalytics {
       _log(_alertThresholdSet, <String, Object>{_pThresholdHpa: thresholdHpa});
 
   // --- Apple Health -------------------------------------------------------
-  // Whether the source is connected, and nothing from it: hours slept are
-  // health data and never leave the device (hard rule 1).
+  // Only whether the source is connected — sleep hours are health data and stay on-device (hard rule 1).
 
   static void logHealthConnectionToggled({required bool enabled}) => _log(
     _healthConnectionToggled,

@@ -25,8 +25,7 @@ class DocumentsExportFileStore implements ExportFileStore {
     return StoredExportFile(path: file.path, sizeBytes: bytes.length);
   }
 
-  // existsSync over the async form: avoid_slow_async_io is on, and the
-  // async variants of these are the slow path it flags.
+  // existsSync, not the async form — avoid_slow_async_io flags async as the slow path.
   @override
   Future<bool> exists(String path) async => File(path).existsSync();
 

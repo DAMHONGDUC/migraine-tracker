@@ -77,8 +77,8 @@ class _IntensityCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    // The circle only shows a number; severity is colour-only. Give
-    // VoiceOver the full meaning and hide the bare "$value" text.
+    // - Circle shows a number only; severity is colour-only.
+    // - Give VoiceOver the full meaning, hide the bare "$value" text.
     return Semantics(
       button: true,
       label: l10n.a11yIntensityButton(value, value.severityLabel(l10n)),

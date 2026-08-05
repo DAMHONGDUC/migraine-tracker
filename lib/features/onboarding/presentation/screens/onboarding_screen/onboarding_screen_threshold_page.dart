@@ -12,9 +12,8 @@ class _ThresholdPage extends StatelessWidget {
       icon: Icons.compress,
       title: l10n.onboardingThresholdTitle,
       body: l10n.onboardingThresholdBody,
-      // Same control as the attack detail's intensity dialog, and the same
-      // severity ramp on the number: a bigger drop is the one worth warning
-      // about, so it reads redder as it climbs.
+      // - Same control as the attack detail's intensity dialog, same severity ramp.
+      // - A bigger drop is worth warning more, so it reads redder as it climbs.
       footer: ValueListenableBuilder<double>(
         valueListenable: threshold,
         builder: (BuildContext context, double value, _) => SdValueSliderV2(

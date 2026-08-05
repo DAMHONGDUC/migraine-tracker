@@ -32,8 +32,7 @@ class DashboardScreen extends ConsumerWidget {
     final hasAttacks =
         ref.watch(attacksStreamProvider).value?.isNotEmpty ?? false;
 
-    // Only the sections that should show, in order — gaps are inserted between
-    // them below so a hidden section never leaves a double gap.
+    // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
       // A limited-time discount promo pinned right under the app bar.
       const DashboardLogButton(),

@@ -25,8 +25,7 @@ final class NavigationUtils {
   /// always what the user sees first, and a login screen never appears in
   /// front of a paywall they haven't been shown yet.
   static Future<void> toPaywall(BuildContext context, WidgetRef ref) async {
-    // Demand signal: how often a locked surface is tapped, and whether the
-    // user already had an account when it happened.
+    // Demand signal: how often a locked surface is tapped, and whether the user already had an account.
     AppAnalytics.logPremiumGateTapped(signedIn: ref.read(isSignedInProvider));
     await context.pushNamed<void>(AppRoutes.paywall.name);
   }

@@ -70,11 +70,8 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Cancel/Done flank the title, like iOS's own picker sheets — not
-          // a button row under the wheels, which would put the confirming
-          // action a full wheel-height away from the title it belongs with.
-          // Shared with every other sheet that has actions, and it brings
-          // its own insets, so nothing here pads around it.
+          // - Cancel/Done flank the title (iOS-style), not a row under the wheels — keeps the confirm action next to the title.
+          // - Shared with every sheet that has actions; it brings its own insets, so nothing here pads around it.
           SdSheetHeaderV2(
             title: widget.title ?? l10n.remindersPickTimeTitle,
             closeTooltip: l10n.commonClose,

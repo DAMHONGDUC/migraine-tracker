@@ -161,8 +161,7 @@ class _Tile extends StatelessWidget {
       borderColor = AppColors.primary;
     } else {
       foreground = AppColors.textSecondary;
-      // One step above the card colour: this tile also sits on a sheet,
-      // which is that colour, and would vanish into it.
+      // One step above card colour, or it vanishes into the sheet below.
       background = AppColors.surfaceElevated;
       borderColor = AppColors.textSecondary.withValues(alpha: 0.2);
     }

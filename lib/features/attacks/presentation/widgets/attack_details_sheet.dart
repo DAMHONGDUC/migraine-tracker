@@ -54,8 +54,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
       title: l10n.detailsTitle,
       closeTooltip: l10n.commonClose,
       confirmTooltip: l10n.commonDone,
-      // Overwriting what is already on the attack, not adding a first
-      // answer — so the commit is the pencil, not the tick.
+      // Overwrites an existing answer, not a first one — pencil, not tick.
       action: SdSheetActionV2.edit,
       onConfirm: save,
       child: Column(

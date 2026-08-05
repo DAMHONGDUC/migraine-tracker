@@ -14,10 +14,8 @@ class Medication {
   /// `Medications.createdAt` for why that's left null rather than guessed.
   final DateTime? createdAt;
 
-  // Identity is id + name only: createdAt is display/sort metadata, not part
-  // of what makes two medications "the same" — keeping it out of equality
-  // means callers (tests included) can compare medications without also
-  // having to thread a timestamp through.
+  // Identity is id + name only: createdAt is display/sort metadata, not
+  // part of what makes two medications "the same".
   @override
   bool operator ==(Object other) =>
       other is Medication && other.id == id && other.name == name;

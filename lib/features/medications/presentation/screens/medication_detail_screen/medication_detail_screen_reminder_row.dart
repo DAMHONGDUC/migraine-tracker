@@ -9,8 +9,7 @@ class _ReminderRow extends ConsumerWidget {
   /// Opens the wheel picker pre-filled with this reminder's time; on confirm,
   /// updates the time and reschedules the notification.
   Future<void> _editTime(BuildContext context, WidgetRef ref) async {
-    // A reminder is useless without notification permission — ask up front and,
-    // if it's permanently off, AppPermission shows the Settings sheet for us.
+    // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
         .read(appPermissionProvider)
         .ensure(context, AppPermissionType.notification);
@@ -38,8 +37,7 @@ class _ReminderRow extends ConsumerWidget {
           notificationTitle: l10n.reminderNotificationTitle,
           notificationBody: l10n.reminderNotificationBody('{name}'),
         );
-    // Only a scheduled (enabled) reminder actually fires — don't promise a
-    // time for a disabled one.
+    // Only a scheduled (enabled) reminder fires — don't promise a disabled one's time.
     if (context.mounted && reminder.enabled) {
       _ReminderSnack.show(context, minuteOfDay);
     }
@@ -49,10 +47,8 @@ class _ReminderRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final MedicationReminder reminder = view.reminder;
-    // Zero-padded 24h, matching the wheel picker it was set with
-    // (AppTimePickerSheet) rather than TimeOfDay.format's locale-dependent
-    // 12h/AM-PM — picking and reading a time should never disagree on
-    // format.
+    // Zero-padded 24h matching the wheel picker, not TimeOfDay.format's
+    // locale-dependent 12h/AM-PM — picking and reading must never disagree.
     final String time =
         '${reminder.hour.toString().padLeft(2, '0')}:'
         '${reminder.minute.toString().padLeft(2, '0')}';

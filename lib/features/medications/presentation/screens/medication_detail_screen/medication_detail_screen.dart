@@ -61,8 +61,7 @@ class MedicationDetailScreen extends ConsumerWidget {
     if (confirmed != true) return;
 
     await ref.read(medicationsControllerProvider).delete(medication.id);
-    // Nothing left to look at — go back to the list rather than leaving the
-    // "deleted" state on screen.
+    // Nothing left to look at — go back to the list rather than showing "deleted".
     if (context.mounted && context.canPop()) context.pop();
   }
 
@@ -72,16 +71,14 @@ class MedicationDetailScreen extends ConsumerWidget {
     Medication medication,
   ) async {
     final AppLocalizations l10n = context.l10n;
-    // A reminder is useless without notification permission — ask up front and,
-    // if it's permanently off, AppPermission shows the Settings sheet for us.
+    // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
         .read(appPermissionProvider)
         .ensure(context, AppPermissionType.notification);
 
     if (!granted || !context.mounted) return;
 
-    // Default a few minutes ahead so the reminder actually fires soon —
-    // defaulting to "now" would land in the past and roll to tomorrow.
+    // Default a few minutes ahead — "now" would land in the past and roll to tomorrow.
     final DateTime base = DateTime.now().add(const Duration(minutes: 5));
     final TimeOfDay? time = await AppTimePickerSheet(
       title: l10n.remindersAdd,
@@ -139,11 +136,9 @@ class MedicationDetailScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w12),
       ],
       body: SdActionViewV2(
-        // Full-bleed: the header and the "no reminders" text bring their own
-        // horizontal padding, `SdSectionHeaderV2` pads itself the same way,
-        // and the reminders card takes the gutter as margin instead — the
-        // default `contentPadding` would stack a second one on top of all
-        // four (see `account_screen.dart` for the same pattern).
+        // - Full-bleed: header/"no reminders" text and `SdSectionHeaderV2` pad themselves.
+        // - Reminders card takes the gutter as margin instead.
+        // - Default `contentPadding` would stack a second one on top (see `account_screen.dart`).
         contentPadding: EdgeInsets.zero,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

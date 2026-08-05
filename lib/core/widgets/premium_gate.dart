@@ -95,8 +95,7 @@ class PremiumTileGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(hasPremiumProvider)) return child;
 
-    // The badge is the whole explanation a Settings row needs; the pitch
-    // itself is one tap away on the paywall.
+    // The badge is the whole explanation here; the pitch itself is one tap away on the paywall.
     return SettingsTile(
       icon: icon,
       iconColor: context.colorScheme.onSurfaceVariant,

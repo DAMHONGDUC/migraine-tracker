@@ -31,10 +31,8 @@ class DriftMedicationRepository implements MedicationRepository {
     return rows.map(_toDomain).toList();
   }
 
-  // Callers own createdAt: it's stamped once when a medication is first
-  // added (see MedicationsController.add) and threaded through unchanged on
-  // rename (MedicationsController.rename) — the repository never invents or
-  // overwrites it, so renaming can never reset "when this was added".
+  // - Callers own createdAt: stamped once on add, threaded unchanged on rename.
+  // - Repository never invents or overwrites it, so rename can't reset it.
   @override
   Future<void> upsert(Medication medication) => _db
       .into(_db.medications)

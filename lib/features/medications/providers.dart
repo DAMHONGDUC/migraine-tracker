@@ -142,8 +142,7 @@ final filteredMedicationsProvider = Provider<List<Medication>>((ref) {
     reminderMedicationIds: ref.watch(_medicationIdsWithRemindersProvider),
     everUsedNames: ref.watch(_everUsedMedicationNamesProvider),
   );
-  // Free-text name search narrows the filtered result further (case- and
-  // whitespace-insensitive). Applied here, on top of the enum filters, so the
+  // Free-text search narrows further, on top of the enum filters, so the
   // filterer stays a pure enum-axis engine.
   final query = ref.watch(medicationSearchProvider).trim().toLowerCase();
   if (query.isEmpty) return filtered;
@@ -184,10 +183,8 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestSoundPermission: false,
-        // Present reminders while the app is in the FOREGROUND. These defaults
-        // drive the plugin's own willPresent handler (it owns the notification
-        // delegate); without them iOS silently drops foreground notifications
-        // and reminders only show when backgrounded.
+        // These drive the plugin's own willPresent handler; without them
+        // iOS drops foreground notifications and reminders only show backgrounded.
         defaultPresentAlert: true,
         defaultPresentSound: true,
         defaultPresentBanner: true,

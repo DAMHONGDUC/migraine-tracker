@@ -35,9 +35,7 @@ final class _AppBootstrap {
   static Future<void> init() async {
     _installErrorLogging();
 
-    // Timezone DB for scheduling daily medication reminders at local wall
-    // time. Before Firebase: reminders must survive a backend that isn't
-    // reachable (or configured).
+    // Timezone DB to schedule reminders at local wall time — must survive a backend that isn't reachable yet.
     final String localTz =
         (await FlutterTimezone.getLocalTimezone()).identifier;
 
@@ -45,18 +43,15 @@ final class _AppBootstrap {
     tz.setLocalLocation(tz.getLocation(localTz));
     AppLogger.info('App started', {'tz': localTz});
 
-    // Firebase + RevenueCat config asserts removed — see CLAUDE.md "Pending
-    // setup" note (TODO: one assert that walks every AppEnv value for
-    // non-null/non-empty, replacing these). `RevenueCatClient.apiKey` still
-    // throws (and every call site still catches it) if its key is missing.
+    // - Firebase + RevenueCat config asserts removed — see CLAUDE.md "Pending setup" (TODO: one assert walking every AppEnv value).
+    // - `RevenueCatClient.apiKey` still throws (every call site catches it) if the key is missing.
 
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Crash reporting first, so anything the rest of the bootstrap throws
-      // is already being recorded.
+      // Crash reporting first, so anything the rest of bootstrap throws is already being recorded.
       await CrashReporter.init();
       CrashReporter.setCustomKey('flavor', AppEnv.flavor);
       await AppAnalytics.init();

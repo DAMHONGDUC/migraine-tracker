@@ -14,8 +14,7 @@ class _DevPremiumTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    // The real answer while nothing is forced, so the row starts where the
-    // app actually is rather than always at off.
+    // The real answer while nothing is forced, so the row starts where the app actually is.
     final bool premium = ref.watch(hasPremiumProvider);
 
     return SettingsTile(

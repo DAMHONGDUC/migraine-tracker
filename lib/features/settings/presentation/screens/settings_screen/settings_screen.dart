@@ -63,8 +63,7 @@ class SettingsScreen extends ConsumerWidget {
               const _DevSeedTile(),
               const _DevResetTile(),
             ],
-            // Diagnostic info — always last, so a bug report always names
-            // the build it came from.
+            // Diagnostic info — always last, so a bug report always names its build.
             SdSectionHeaderV2(l10n.settingsSectionAbout),
             const _AboutSection(),
           ],
