@@ -79,6 +79,7 @@ class LogScreen extends ConsumerWidget {
         if (showNext)
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
+            size: SdButtonSizeV2.small,
             onPressed: state.hasDraft ? () => controller.confirmStep() : null,
             label: l10n.logNext,
           ),
