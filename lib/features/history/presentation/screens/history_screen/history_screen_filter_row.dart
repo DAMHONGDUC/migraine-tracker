@@ -12,12 +12,12 @@ class _FilterRow extends ConsumerWidget {
   /// Scroll offset past which the pill row is gone behind the app bar — the
   /// pill's own height plus its bottom padding.
   static double get scrolledPastExtent =>
-      SdFilterPillV2.pillHeight + SdSpacingConstant.h12;
+      SdFilterPillV2.pillHeight + SdContentPaddingV2.listItemGap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: EdgeInsets.only(bottom: SdSpacingConstant.h12),
+      padding: EdgeInsets.only(bottom: SdContentPaddingV2.listItemGap),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: HistoryFilterChip(

@@ -58,7 +58,7 @@ class DashboardScreen extends ConsumerWidget {
           padding: SdContentPaddingV2.screen(context, floatingNav: true),
           children: [
             for (int i = 0; i < sections.length; i++) ...[
-              if (i > 0) SizedBox(height: SdSpacingConstant.h24),
+              if (i > 0) SizedBox(height: SdContentPaddingV2.sectionGap),
               sections[i],
             ],
           ],

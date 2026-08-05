@@ -41,11 +41,11 @@ class InsightsScreen extends ConsumerWidget {
                 lockedMessage: context.l10n.premiumLockedForecast,
                 child: const PressureForecastCard(),
               ),
-              SizedBox(height: SdSpacingConstant.h12),
+              SizedBox(height: SdContentPaddingV2.sectionGap),
               CorrelationCard(result: value),
               // iOS only: off HealthKit there is no sleep source, so the card would only say "unavailable".
               if (ref.watch(healthAvailableProvider)) ...<Widget>[
-                SizedBox(height: SdSpacingConstant.h12),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
                 PremiumGate(
                   lockedIcon: Symbols.bedtime,
                   lockedMessage: context.l10n.premiumLockedSleep,
