@@ -11,6 +11,13 @@ final class AppColors {
   /// a sheet opening over a card is never a second shade of dark.
   static const Color surface = Color(0xFF1C1C1E);
 
+  /// The one surface every modal wears — bottom sheets and dialogs alike.
+  ///
+  /// A step *below* [surface] rather than above it: a modal already separates
+  /// itself with the barrier scrim and its rounded corners, and going darker
+  /// keeps the cards sitting on it reading as the nearer layer.
+  static const Color surfaceModal = Color(0xFF161618);
+
   /// One step above [surface], for anything that has to stay visible while
   /// sitting *on* a card or a sheet: dialogs, snack bars, chart tooltips,
   /// option tiles, filter chips.

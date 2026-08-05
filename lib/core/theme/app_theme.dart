@@ -34,6 +34,7 @@ final class AppTheme {
       extensions: <ThemeExtension<dynamic>>[
         SdThemeV2(
           background: AppColors.background,
+          surfaceModal: AppColors.surfaceModal,
           surfaceElevated: AppColors.surfaceElevated,
           textPrimary: AppColors.textPrimary,
           textSecondary: AppColors.textSecondary,
@@ -89,7 +90,7 @@ final class AppTheme {
       ),
       cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
       dialogTheme: const DialogThemeData(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.surfaceModal,
       ),
       // A backstop only — the app's look lives in SdSnackBarUtilsV2. Without
       // it, M3's default inverse surface is a bright bar on a dark screen.
