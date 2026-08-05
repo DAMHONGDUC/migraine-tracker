@@ -4,6 +4,20 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- Answers App Store Connect's export-compliance question at upload time
+	     instead of asking on every build. False = the app uses only exempt
+	     encryption.
+
+	     That is accurate today: the one cryptographic call in the app is a
+	     SHA-256 of the Sign in with Apple nonce, which is a hash used for
+	     authentication, and everything else rides HTTPS through the OS.
+	     Both are exempt.
+
+	     REVISIT when the encrypted attack sync in hard rule 1 actually
+	     ships. Standard algorithms are still exempt, but the answer stops
+	     being obvious and may need a self-classification report. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
