@@ -46,6 +46,36 @@ users is described in `PLAN.md` as its own phase and hasn't been started.
 Decide whether it's in scope for this release before treating the app as
 done — right now signed-in users get an auth profile but no attack sync.
 
+**UX contract is decided** (see hard rule 12 in `CLAUDE.md`): never blocks
+UI, auto-sync in the background (sign-in, app launch/resume, after logging
+an attack), plus a manual "Sync now" button and a progress indicator at the
+top of the Account screen — nowhere else. Still open before this can be
+built:
+
+- **Dirty-tracking columns on `Attacks`** — no `updatedAt`/`isSynced`/
+  `syncedAt` column exists today (`attack_tables.dart`). Needed so a partial
+  push/pull (including one interrupted by the app being killed mid-sync) can
+  resume idempotently: mark an attack synced only after Firestore confirms
+  the write, never before, so a kill mid-sync just means a harmless re-push
+  next launch, not a lost or duplicated attack.
+- **Encryption design** — `PLAN.md:94` explicitly defers key management and
+  cross-device recovery to "the sync phase"; no algorithm or library is
+  chosen anywhere in the repo. Hard blocker before anything can be pushed to
+  `users/{uid}/attacks`.
+- **Trigger wiring** — the natural hook is the existing
+  `ref.listen(authUserProvider, ...)` in `bare_ease_app.dart` that already
+  fires `syncProfile()`/`purchaseIdentityProvider.sync()`; attack sync should
+  slot into the same listener, unawaited, best-effort.
+- **Pull-down case UI** — signing into an account that already has remote
+  data (the `_recoverFromLinkFailure` path in
+  `firebase_auth_repository.dart`) leaves local Drift empty until the first
+  pull completes. Consider a scoped loading state on the History list for
+  this one case only — not a blocking screen — so the list doesn't read as
+  "no data" while the pull is in flight.
+- **`DataWipeService` extension** — once sync exists, "delete everything"
+  must also delete the Firestore doc + synced attacks and revoke the FCM
+  token (already flagged in item 1).
+
 ## 4. Manual Firebase/Apple console setup still pending
 
 Already documented in `CLAUDE.md` under "Pending setup"; re-verified against
