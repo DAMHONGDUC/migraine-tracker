@@ -52,6 +52,13 @@ branch first — but what you build is whatever is on `main`, not what the
 parent commit pins. When `main` moves ahead, git shows
 `packages/system_design` as modified: commit that gitlink when you mean to.
 
+**The Firebase emulator needs a JDK** (11+) on your PATH — the Firestore
+emulator is a Java program. macOS ships a `/usr/bin/java` stub that exists
+only to tell you Java is missing, so this looks like a PATH problem rather
+than a missing install. `sdk install java 21.0.12-tem` with SDKMAN, or a JDK
+from anywhere else. Nothing but the emulator needs it: building, testing and
+deploying all work without.
+
 **One thing setup cannot do for you:** `env/dev.json` and `env/prod.json`
 hold Firebase and RevenueCat keys and are gitignored, so a fresh clone gets
 key-only templates copied from `env/*.example.json`. Fill them in before
