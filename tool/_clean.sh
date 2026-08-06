@@ -1,5 +1,9 @@
 #!/bin/sh
-# Wipe Android + iOS build artefacts. Follow with `melos run setup`.
+# The wipe, shared by set-up and deep-set-up. Underscore-prefixed like
+# _common.sh: not a melos command, never run on its own.
+#
+# Clears Xcode's DerivedData too, but only when MELOS_CLEAN_DERIVED is set,
+# which is the single thing deep-set-up adds over set-up.
 set -eu
 . "$(dirname "$0")/_common.sh"
 
@@ -15,12 +19,14 @@ rm -rf android/.gradle android/build android/app/build
 step "ios"
 rm -rf ios/.symlinks ios/Flutter/ephemeral ios/Pods ios/Podfile.lock
 
-# Xcode caches precompiled modules against the modulemap it saw at the time.
-# Bump a Firebase plugin and the modulemap under build/ changes while the .pcm
-# in DerivedData does not, and the build dies with "has been modified since the
-# module file was built" — which `flutter clean` alone never fixes, because
-# DerivedData lives outside the repo.
-if [ "$(uname)" = "Darwin" ] && command -v plutil >/dev/null 2>&1; then
+# Only for `melos run deep-set-up`, which sets this. Xcode caches precompiled
+# modules against the modulemap it saw at the time: bump a Firebase plugin and
+# the modulemap under build/ changes while the .pcm in DerivedData does not,
+# and the build dies with "has been modified since the module file was built".
+# `flutter clean` never fixes that, because DerivedData lives outside the repo
+# — but clearing it costs a full cold build, so it stays opt-in.
+if [ -n "${MELOS_CLEAN_DERIVED:-}" ] && [ "$(uname)" = "Darwin" ] &&
+  command -v plutil >/dev/null 2>&1; then
   step "xcode deriveddata"
   DERIVED="$HOME/Library/Developer/Xcode/DerivedData"
   REPO=$(pwd)
@@ -42,7 +48,3 @@ if [ "$(uname)" = "Darwin" ] && command -v plutil >/dev/null 2>&1; then
   fi
 fi
 
-# Suppressed when `setup --deepclean` chained this, since setup runs next.
-if [ -z "${MELOS_CHAINED_CLEAN:-}" ]; then
-  done_msg "Now run: melos run setup"
-fi

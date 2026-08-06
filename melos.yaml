@@ -31,11 +31,17 @@ ide:
 # `tool/*.sh`, which also makes them lintable and runnable under dash — the
 # shell melos actually uses on Linux, and the one macOS hides from you.
 scripts:
-  setup:
+  set-up:
     description: >
-      Wipe every build artefact, then set up everything a clone needs.
-      Safe to re-run; always a cold build afterwards.
-    run: sh tool/setup.sh
+      Wipe build artefacts, then set up everything a clone needs.
+      Safe to re-run.
+    run: sh tool/set-up.sh
+
+  deep-set-up:
+    description: >
+      set-up, plus Xcode's DerivedData. For a build failure the code cannot
+      explain. Costs a full cold build afterwards.
+    run: sh tool/deep-set-up.sh
 
   gen:
     description: Regenerate localizations and build_runner output.
@@ -49,7 +55,3 @@ scripts:
     description: Run the Flutter test suite.
     run: sh tool/test.sh
 
-  clean:
-    description: >
-      Wipe Android + iOS build artefacts. Follow with `melos run setup`.
-    run: sh tool/clean.sh
