@@ -11,8 +11,10 @@ import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
 import '../../widgets/correlation_card.dart';
+import '../../widgets/exertion_correlation_card.dart';
 import '../../widgets/pressure_forecast_card.dart';
 import '../../widgets/sleep_correlation_card.dart';
+import '../../widgets/step_correlation_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -20,41 +22,52 @@ class InsightsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(correlationResultProvider);
+    final exertionResult = ref.watch(exertionCorrelationResultProvider);
 
     return SdScaffoldV2(
       title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
-      body: switch (result) {
-        AsyncData(value: final value) => SdRefreshIndicatorV2(
-          onRefresh: () => SdRefreshIndicatorV2.run(() {
-            ref
-              ..invalidate(attacksStreamProvider)
-              ..invalidate(pressureForecastProvider)
-              ..invalidate(sleepCorrelationProvider);
-          }),
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: SdContentPaddingV2.screen(context, floatingNav: true),
-            children: [
-              // Free users never build the forecast card, so no forecast is fetched or held for them.
-              PremiumGate(
-                lockedIcon: Symbols.show_chart,
-                lockedMessage: context.l10n.premiumLockedForecast,
-                child: const PressureForecastCard(),
-              ),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
-              CorrelationCard(result: value),
-              // iOS only: off HealthKit there is no sleep source, so the card would only say "unavailable".
-              if (ref.watch(healthAvailableProvider)) ...<Widget>[
-                SizedBox(height: SdContentPaddingV2.sectionGap),
+      body: switch ((result, exertionResult)) {
+        (AsyncData(value: final value), AsyncData(value: final exertionValue)) =>
+          SdRefreshIndicatorV2(
+            onRefresh: () => SdRefreshIndicatorV2.run(() {
+              ref
+                ..invalidate(attacksStreamProvider)
+                ..invalidate(pressureForecastProvider)
+                ..invalidate(sleepCorrelationProvider)
+                ..invalidate(stepCorrelationProvider);
+            }),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: SdContentPaddingV2.screen(context, floatingNav: true),
+              children: [
+                // Free users never build the forecast card, so no forecast is fetched or held for them.
                 PremiumGate(
-                  lockedIcon: Symbols.bedtime,
-                  lockedMessage: context.l10n.premiumLockedSleep,
-                  child: const SleepCorrelationCard(),
+                  lockedIcon: Symbols.show_chart,
+                  lockedMessage: context.l10n.premiumLockedForecast,
+                  child: const PressureForecastCard(),
                 ),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                CorrelationCard(result: value),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                ExertionCorrelationCard(result: exertionValue),
+                // iOS only: off HealthKit there is no sleep/step source, so the cards would only say "unavailable".
+                if (ref.watch(healthAvailableProvider)) ...<Widget>[
+                  SizedBox(height: SdContentPaddingV2.sectionGap),
+                  PremiumGate(
+                    lockedIcon: Symbols.bedtime,
+                    lockedMessage: context.l10n.premiumLockedSleep,
+                    child: const SleepCorrelationCard(),
+                  ),
+                  SizedBox(height: SdContentPaddingV2.sectionGap),
+                  PremiumGate(
+                    lockedIcon: Symbols.directions_walk,
+                    lockedMessage: context.l10n.premiumLockedSteps,
+                    child: const StepCorrelationCard(),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
         _ => const SizedBox.shrink(),
       },
     );

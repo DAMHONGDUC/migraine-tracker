@@ -6,10 +6,12 @@ import '../../domain/entities/sleep_interval.dart';
 
 /// Abstracts the `health` plugin so the repository is testable without
 /// HealthKit — same role `LocationSource` plays for geolocator.
+///
+/// Authorization is NOT part of this interface: it lives on
+/// [HealthRepository][../../domain/repositories/health_repository.dart] so
+/// one sheet covers every source together ("one switch, one sheet").
 abstract interface class SleepSampleSource {
   bool get isAvailable;
-
-  Future<bool> requestAuthorization();
 
   Future<List<SleepInterval>> sleepSamples({
     required DateTime from,
@@ -28,7 +30,7 @@ class HealthKitSleepSampleSource implements SleepSampleSource {
   /// times over and none of them can be told apart. Asking for one and
   /// taking the union (see `SleepNightAggregator`) is the honest reading:
   /// total time the device recorded as sleep.
-  static const List<HealthDataType> _sleepTypes = <HealthDataType>[
+  static const List<HealthDataType> types = <HealthDataType>[
     HealthDataType.SLEEP_IN_BED,
   ];
 
@@ -36,13 +38,6 @@ class HealthKitSleepSampleSource implements SleepSampleSource {
 
   @override
   bool get isAvailable => Platform.isIOS;
-
-  @override
-  Future<bool> requestAuthorization() async {
-    if (!isAvailable) return false;
-
-    return _health.requestAuthorization(_sleepTypes);
-  }
 
   @override
   Future<List<SleepInterval>> sleepSamples({
@@ -54,7 +49,7 @@ class HealthKitSleepSampleSource implements SleepSampleSource {
     final List<HealthDataPoint> points = await _health.getHealthDataFromTypes(
       from,
       to,
-      _sleepTypes,
+      types,
     );
 
     return <SleepInterval>[

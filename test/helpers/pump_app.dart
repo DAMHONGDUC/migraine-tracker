@@ -23,6 +23,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/auth_reposito
 import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
+import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -409,11 +410,18 @@ class FakeHealthRepository implements HealthRepository {
   /// they want analysed.
   List<SleepNight> nights = <SleepNight>[];
 
+  /// Served by [stepDays], unfiltered — tests hand over exactly the days they
+  /// want analysed.
+  List<StepDay> days = <StepDay>[];
+
   int authorizationRequests = 0;
 
   /// How many times sleep was actually read — the assertion behind "a free
   /// user never reaches a HealthKit read".
   int sleepReads = 0;
+
+  /// How many times steps were actually read — same role as [sleepReads].
+  int stepReads = 0;
 
   @override
   Future<bool> requestAuthorization() async {
@@ -428,6 +436,15 @@ class FakeHealthRepository implements HealthRepository {
   }) async {
     sleepReads++;
     return nights;
+  }
+
+  @override
+  Future<List<StepDay>> stepDays({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    stepReads++;
+    return days;
   }
 }
 
@@ -532,6 +549,9 @@ Future<PumpedApp> pumpApp(
   /// Nights the fake HealthKit serves to the sleep correlation.
   List<SleepNight> sleepNights = const <SleepNight>[],
 
+  /// Days the fake HealthKit serves to the step correlation.
+  List<StepDay> stepDays = const <StepDay>[],
+
   /// The build this fake device is running. Both are high by default, so a
   /// test that passes [appUpdate] still has to opt into being out of date.
   String installedBuildName = '99.0.0',
@@ -575,7 +595,9 @@ Future<PumpedApp> pumpApp(
   addTearDown(profiles.dispose);
   final FakeHealthRepository health = FakeHealthRepository(
     isAvailable: healthAvailable,
-  )..nights = <SleepNight>[...sleepNights];
+  )
+    ..nights = <SleepNight>[...sleepNights]
+    ..days = <StepDay>[...stepDays];
   final FakePremiumRepository premiumRepository = FakePremiumRepository(
     premium: premium,
   );

@@ -22,8 +22,8 @@ Positioning: *"Know your storm before it hits."*
 
 | Tier | Price | Contents |
 |------|-------|----------|
-| Free | $0 | Unlimited attack logging, basic history chart, weather snapshot attached to each log |
-| Premium monthly | $5.99/mo | Pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, PDF doctor report, HealthKit sleep correlation |
+| Free | $0 | Unlimited attack logging, basic history chart, weather snapshot attached to each log, physical exertion self-report + correlation |
+| Premium monthly | $5.99/mo | Pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, PDF doctor report, HealthKit sleep + step-count correlation |
 | Premium yearly | $39.99/yr | Same as monthly (44% discount framing) |
 | Lifetime | $79.99 | Same, one-time (chronic illness communities love lifetime) |
 
@@ -43,6 +43,7 @@ Positioning: *"Know your storm before it hits."*
 - [ ] PDF export report for doctors (premium)
 - [ ] Medication reminders (local notifications)
 - [x] HealthKit read: sleep hours (premium correlation)
+- [x] Physical exertion self-report (free correlation) + HealthKit step count (premium correlation)
 - [ ] Onboarding: personal threshold setup, location permission (While Using, coarse), privacy explainer
 - [ ] Optional sign-in (Google / Apple) — app fully usable without it; signing in enables encrypted cloud sync of attack history across devices
 - [ ] In-app account deletion (App Store 5.1.1(v))

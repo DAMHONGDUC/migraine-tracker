@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../features/attacks/data/tables/attack_tables.dart';
+import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/settings/data/tables/export_tables.dart';
@@ -32,7 +33,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -50,6 +51,11 @@ class AppDatabase extends _$AppDatabase {
       // - Nothing to backfill — exports before this shipped were never recorded.
       if (from < 4) {
         await m.createTable(exportRecords);
+      }
+      // - v5: self-reported physical exertion, added to the details step.
+      // - Existing rows get null — nobody reported exertion before this shipped.
+      if (from < 5) {
+        await m.addColumn(attacks, attacks.exertionLevel);
       }
     },
     beforeOpen: (details) async {

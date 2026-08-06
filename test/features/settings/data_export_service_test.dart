@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
@@ -19,6 +20,7 @@ void main() {
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
     notes: 'notes with, comma and "quotes"\nand a newline',
+    exertionLevel: ExertionLevel.moderate,
     weather: WeatherSnapshot(
       capturedAt: DateTime.utc(2026, 7, 1, 8),
       pressureHpa: 1008.2,
@@ -65,12 +67,14 @@ void main() {
       expect(a1['location'], 'right');
       expect(a1['medication'], 'Sumatriptan');
       expect(a1['symptoms'], ['aura', 'nausea']);
+      expect(a1['exertionLevel'], 'moderate');
       final weather = a1['weather'] as Map<String, dynamic>;
       expect(weather['pressureDelta24hHpa'], -6.4);
 
       final a2 = attacks[1] as Map<String, dynamic>;
       expect(a2['weather'], isNull);
       expect(a2['medication'], isNull);
+      expect(a2['exertionLevel'], isNull);
 
       final meds = json['medications'] as List<dynamic>;
       final m1 = meds[0] as Map<String, dynamic>;
@@ -93,13 +97,14 @@ void main() {
         contains('"notes with, comma and ""quotes""\nand a newline"'),
       );
       expect(csv, contains('aura|nausea'));
+      expect(csv, contains(',moderate,'));
       expect(csv, contains('-6.4'));
     });
 
-    test('missing weather and medication become empty fields', () {
+    test('missing weather, medication and exertion become empty fields', () {
       final csv = service.toCsv([bare]);
       final row = csv.split('\r\n')[1];
-      expect(row, 'a2,2026-07-02T00:00:00.000Z,3,front,,,,,,,,,');
+      expect(row, 'a2,2026-07-02T00:00:00.000Z,3,front,,,,,,,,,,');
     });
 
     test('empty export is just the header', () {

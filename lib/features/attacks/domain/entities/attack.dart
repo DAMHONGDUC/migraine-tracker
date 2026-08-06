@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../weather/domain/entities/weather_snapshot.dart';
+import '../enums/exertion_level.dart';
 import '../enums/head_location.dart';
 
 /// A single migraine attack. The three required fields ([intensity],
@@ -17,6 +18,7 @@ class Attack {
     this.symptoms = const [],
     this.triggers = const [],
     this.notes,
+    this.exertionLevel,
     this.weather,
   }) : startedAt = startedAt.toUtc(),
        assert(
@@ -37,6 +39,7 @@ class Attack {
   final List<String> symptoms;
   final List<String> triggers;
   final String? notes;
+  final ExertionLevel? exertionLevel;
   final WeatherSnapshot? weather;
 
   Attack copyWith({WeatherSnapshot? weather}) => Attack(
@@ -48,6 +51,7 @@ class Attack {
     symptoms: symptoms,
     triggers: triggers,
     notes: notes,
+    exertionLevel: exertionLevel,
     weather: weather ?? this.weather,
   );
 }

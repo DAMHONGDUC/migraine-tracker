@@ -89,6 +89,15 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<ExertionLevel?, String>
+  exertionLevel = GeneratedColumn<String>(
+    'exertion_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<ExertionLevel?>($AttacksTable.$converterexertionLeveln);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     startedAt,
@@ -98,6 +107,7 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     symptoms,
     triggers,
     notes,
+    exertionLevel,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -194,6 +204,12 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      exertionLevel: $AttacksTable.$converterexertionLeveln.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}exertion_level'],
+        ),
+      ),
     );
   }
 
@@ -208,6 +224,14 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       const StringListConverter();
   static TypeConverter<List<String>, String> $convertertriggers =
       const StringListConverter();
+  static JsonTypeConverter2<ExertionLevel, String, String>
+  $converterexertionLevel = const EnumNameConverter<ExertionLevel>(
+    ExertionLevel.values,
+  );
+  static JsonTypeConverter2<ExertionLevel?, String?, String?>
+  $converterexertionLeveln = JsonTypeConverter2.asNullable(
+    $converterexertionLevel,
+  );
 }
 
 class AttackRow extends DataClass implements Insertable<AttackRow> {
@@ -221,6 +245,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final List<String> symptoms;
   final List<String> triggers;
   final String? notes;
+  final ExertionLevel? exertionLevel;
   const AttackRow({
     required this.id,
     required this.startedAt,
@@ -230,6 +255,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.symptoms,
     required this.triggers,
     this.notes,
+    this.exertionLevel,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -258,6 +284,11 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || exertionLevel != null) {
+      map['exertion_level'] = Variable<String>(
+        $AttacksTable.$converterexertionLeveln.toSql(exertionLevel),
+      );
+    }
     return map;
   }
 
@@ -275,6 +306,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      exertionLevel: exertionLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(exertionLevel),
     );
   }
 
@@ -294,6 +328,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       symptoms: serializer.fromJson<List<String>>(json['symptoms']),
       triggers: serializer.fromJson<List<String>>(json['triggers']),
       notes: serializer.fromJson<String?>(json['notes']),
+      exertionLevel: $AttacksTable.$converterexertionLeveln.fromJson(
+        serializer.fromJson<String?>(json['exertionLevel']),
+      ),
     );
   }
   @override
@@ -310,6 +347,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'symptoms': serializer.toJson<List<String>>(symptoms),
       'triggers': serializer.toJson<List<String>>(triggers),
       'notes': serializer.toJson<String?>(notes),
+      'exertionLevel': serializer.toJson<String?>(
+        $AttacksTable.$converterexertionLeveln.toJson(exertionLevel),
+      ),
     };
   }
 
@@ -322,6 +362,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     List<String>? symptoms,
     List<String>? triggers,
     Value<String?> notes = const Value.absent(),
+    Value<ExertionLevel?> exertionLevel = const Value.absent(),
   }) => AttackRow(
     id: id ?? this.id,
     startedAt: startedAt ?? this.startedAt,
@@ -333,6 +374,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     symptoms: symptoms ?? this.symptoms,
     triggers: triggers ?? this.triggers,
     notes: notes.present ? notes.value : this.notes,
+    exertionLevel: exertionLevel.present
+        ? exertionLevel.value
+        : this.exertionLevel,
   );
   AttackRow copyWithCompanion(AttacksCompanion data) {
     return AttackRow(
@@ -346,6 +390,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       symptoms: data.symptoms.present ? data.symptoms.value : this.symptoms,
       triggers: data.triggers.present ? data.triggers.value : this.triggers,
       notes: data.notes.present ? data.notes.value : this.notes,
+      exertionLevel: data.exertionLevel.present
+          ? data.exertionLevel.value
+          : this.exertionLevel,
     );
   }
 
@@ -359,7 +406,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('medicationName: $medicationName, ')
           ..write('symptoms: $symptoms, ')
           ..write('triggers: $triggers, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('exertionLevel: $exertionLevel')
           ..write(')'))
         .toString();
   }
@@ -374,6 +422,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     symptoms,
     triggers,
     notes,
+    exertionLevel,
   );
   @override
   bool operator ==(Object other) =>
@@ -386,7 +435,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.medicationName == this.medicationName &&
           other.symptoms == this.symptoms &&
           other.triggers == this.triggers &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.exertionLevel == this.exertionLevel);
 }
 
 class AttacksCompanion extends UpdateCompanion<AttackRow> {
@@ -398,6 +448,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<List<String>> symptoms;
   final Value<List<String>> triggers;
   final Value<String?> notes;
+  final Value<ExertionLevel?> exertionLevel;
   final Value<int> rowid;
   const AttacksCompanion({
     this.id = const Value.absent(),
@@ -408,6 +459,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.symptoms = const Value.absent(),
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
+    this.exertionLevel = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AttacksCompanion.insert({
@@ -419,6 +471,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.symptoms = const Value.absent(),
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
+    this.exertionLevel = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        startedAt = Value(startedAt),
@@ -433,6 +486,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? symptoms,
     Expression<String>? triggers,
     Expression<String>? notes,
+    Expression<String>? exertionLevel,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -444,6 +498,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (symptoms != null) 'symptoms': symptoms,
       if (triggers != null) 'triggers': triggers,
       if (notes != null) 'notes': notes,
+      if (exertionLevel != null) 'exertion_level': exertionLevel,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -457,6 +512,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<List<String>>? symptoms,
     Value<List<String>>? triggers,
     Value<String?>? notes,
+    Value<ExertionLevel?>? exertionLevel,
     Value<int>? rowid,
   }) {
     return AttacksCompanion(
@@ -468,6 +524,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       symptoms: symptoms ?? this.symptoms,
       triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
+      exertionLevel: exertionLevel ?? this.exertionLevel,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -505,6 +562,11 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (exertionLevel.present) {
+      map['exertion_level'] = Variable<String>(
+        $AttacksTable.$converterexertionLeveln.toSql(exertionLevel.value),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -522,6 +584,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('symptoms: $symptoms, ')
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
+          ..write('exertionLevel: $exertionLevel, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2052,6 +2115,7 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<List<String>> symptoms,
       Value<List<String>> triggers,
       Value<String?> notes,
+      Value<ExertionLevel?> exertionLevel,
       Value<int> rowid,
     });
 typedef $$AttacksTableUpdateCompanionBuilder =
@@ -2064,6 +2128,7 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<List<String>> symptoms,
       Value<List<String>> triggers,
       Value<String?> notes,
+      Value<ExertionLevel?> exertionLevel,
       Value<int> rowid,
     });
 
@@ -2144,6 +2209,12 @@ class $$AttacksTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<ExertionLevel?, ExertionLevel, String>
+  get exertionLevel => $composableBuilder(
+    column: $table.exertionLevel,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
   Expression<bool> weatherSnapshotsRefs(
     Expression<bool> Function($$WeatherSnapshotsTableFilterComposer f) f,
   ) {
@@ -2218,6 +2289,11 @@ class $$AttacksTableOrderingComposer
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get exertionLevel => $composableBuilder(
+    column: $table.exertionLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AttacksTableAnnotationComposer
@@ -2254,6 +2330,12 @@ class $$AttacksTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ExertionLevel?, String> get exertionLevel =>
+      $composableBuilder(
+        column: $table.exertionLevel,
+        builder: (column) => column,
+      );
 
   Expression<T> weatherSnapshotsRefs<T extends Object>(
     Expression<T> Function($$WeatherSnapshotsTableAnnotationComposer a) f,
@@ -2317,6 +2399,7 @@ class $$AttacksTableTableManager
                 Value<List<String>> symptoms = const Value.absent(),
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<ExertionLevel?> exertionLevel = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttacksCompanion(
                 id: id,
@@ -2327,6 +2410,7 @@ class $$AttacksTableTableManager
                 symptoms: symptoms,
                 triggers: triggers,
                 notes: notes,
+                exertionLevel: exertionLevel,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2339,6 +2423,7 @@ class $$AttacksTableTableManager
                 Value<List<String>> symptoms = const Value.absent(),
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<ExertionLevel?> exertionLevel = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttacksCompanion.insert(
                 id: id,
@@ -2349,6 +2434,7 @@ class $$AttacksTableTableManager
                 symptoms: symptoms,
                 triggers: triggers,
                 notes: notes,
+                exertionLevel: exertionLevel,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

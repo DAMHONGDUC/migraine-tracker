@@ -30,6 +30,7 @@ class DataExportService {
             'symptoms': a.symptoms,
             'triggers': a.triggers,
             'notes': a.notes,
+            'exertionLevel': a.exertionLevel?.name,
             'weather': a.weather == null
                 ? null
                 : {
@@ -55,7 +56,7 @@ class DataExportService {
   String toCsv(List<Attack> attacks) {
     const header =
         'id,started_at_utc,intensity,location,medication,symptoms,triggers,'
-        'notes,pressure_hpa,pressure_delta_24h_hpa,humidity_percent,'
+        'notes,exertion_level,pressure_hpa,pressure_delta_24h_hpa,humidity_percent,'
         'temperature_c,weather_captured_at_utc';
     final rows = [
       header,
@@ -69,6 +70,7 @@ class DataExportService {
           a.symptoms.join('|'),
           a.triggers.join('|'),
           a.notes ?? '',
+          a.exertionLevel?.name ?? '',
           '${a.weather?.pressureHpa ?? ''}',
           '${a.weather?.pressureDelta24hHpa ?? ''}',
           '${a.weather?.humidityPercent ?? ''}',
