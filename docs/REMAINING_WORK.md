@@ -5,24 +5,24 @@ handling the App Store Connect side separately. This is what is left in the
 codebase, ordered top to bottom by priority. Re-check before acting on an
 item; this is a point-in-time survey, not a live tracker.
 
-## 1. GDPR "Delete everything" is incomplete (hard rule 8)
+## 1. GDPR "Delete everything" is still incomplete (hard rule 8)
 
 `DataWipeService.wipeAll()` (`lib/features/settings/domain/services/data_wipe_service.dart`)
-only wipes local data: attacks, medications, notifications, export files +
-their DB rows. Its own doc comment already flags this:
+now deletes the account's synced attacks (`users/{uid}/attacks`) before it
+touches the device — that order matters, and a failure aborts the wipe, or
+the next sync would pull every deleted attack back down. What is left:
 
-> v1 wipes the on-device database; the auth/sync and alerts phases MUST
-> extend this with Firestore doc + synced attacks deletion, FCM token
-> revocation, and account deletion.
-
-Now that `auth` and `alerts` both exist, the gap is real, not theoretical:
-
-- No deletion of the Firestore `users/{uid}` doc or `users/{uid}/attacks`.
-- No FCM token revocation on wipe.
+- No deletion of the Firestore `users/{uid}` doc itself.
+- No FCM token revocation on wipe. `AlertRegistrationRepository.unregister()`
+  (`lib/features/alerts/domain/repositories/`) already does exactly this and
+  just needs calling.
 - No Firebase Auth account deletion — `AuthRepository`
   (`lib/features/auth/domain/repositories/auth_repository.dart`) doesn't
   even have a `deleteAccount()` method yet; add it to the interface and
   both implementations first.
+- No deletion of the encryption key at `sync_keys/{uid}`. It is unreachable
+  from any client (rules deny it outright), so this has to be a Cloud
+  Function — most naturally the same one that deletes the account.
 
 This also blocks App Store requirement 5.1.1(v) (in-app account deletion is
 mandatory once accounts exist).
@@ -38,46 +38,49 @@ device until:
 - `aps-environment` is added to the entitlements file.
 - An APNs auth key is configured in the Firebase console.
 
-## 3. `sync` feature doesn't exist yet
+## 3. ~~`sync` feature doesn't exist yet~~ — built
 
-No `features/sync/` folder, no Firestore code anywhere under
-`features/attacks/` (confirmed by grep). Encrypted attack sync for signed-in
-users is described in `PLAN.md` as its own phase and hasn't been started.
-Decide whether it's in scope for this release before treating the app as
-done — right now signed-in users get an auth profile but no attack sync.
+`features/sync/` now exists and everything hard rule 12 describes is wired:
+auto-sync on sign-in, launch, resume and after logging an attack, all
+unawaited; manual "Sync now" plus full progress on the Account screen; a
+trailing spinner on Settings' Account row and nowhere else; a scoped
+first-pull state on the History list.
 
-**UX contract is decided** (see hard rule 12 in `CLAUDE.md`): never blocks
-UI, auto-sync in the background (sign-in, app launch/resume, after logging
-an attack), plus a manual "Sync now" button and a progress indicator at the
-top of the Account screen. Settings shows the same in-flight state too, but
-narrower: just the trailing slot of its Account row (`AccountSection`)
-swaps to a spinner while syncing, same shape as `_DevResetTile`/
-`_DevSeedTile`'s trailing spinner. No other screen or row shows anything.
-Still open before this can be built:
+How the open questions were answered:
 
-- **Dirty-tracking columns on `Attacks`** — no `updatedAt`/`isSynced`/
-  `syncedAt` column exists today (`attack_tables.dart`). Needed so a partial
-  push/pull (including one interrupted by the app being killed mid-sync) can
-  resume idempotently: mark an attack synced only after Firestore confirms
-  the write, never before, so a kill mid-sync just means a harmless re-push
-  next launch, not a lost or duplicated attack.
-- **Encryption design** — `PLAN.md:94` explicitly defers key management and
-  cross-device recovery to "the sync phase"; no algorithm or library is
-  chosen anywhere in the repo. Hard blocker before anything can be pushed to
-  `users/{uid}/attacks`.
-- **Trigger wiring** — the natural hook is the existing
-  `ref.listen(authUserProvider, ...)` in `bare_ease_app.dart` that already
-  fires `syncProfile()`/`purchaseIdentityProvider.sync()`; attack sync should
-  slot into the same listener, unawaited, best-effort.
-- **Pull-down case UI** — signing into an account that already has remote
-  data (the `_recoverFromLinkFailure` path in
-  `firebase_auth_repository.dart`) leaves local Drift empty until the first
-  pull completes. Consider a scoped loading state on the History list for
-  this one case only — not a blocking screen — so the list doesn't read as
-  "no data" while the pull is in flight.
-- **`DataWipeService` extension** — once sync exists, "delete everything"
-  must also delete the Firestore doc + synced attacks and revoke the FCM
-  token (already flagged in item 1).
+- **Dirty tracking** is a `revision` counter plus `syncedRevision` on
+  `Attacks`, not a timestamp comparison. Drift stores dates as whole
+  seconds, so an edit in the same second as the push before it would have
+  looked unchanged; a counter also survives the clock stepping backwards.
+  `updatedAt` remains, used only to settle which device's version wins.
+  Deletions live in their own `AttackTombstones` table, so a delete really
+  deletes and only the opaque id survives to be propagated.
+- **Encryption is server-assisted, and is NOT end-to-end.** The `getSyncKey`
+  callable mints and holds a per-account AES-256 key in `sync_keys/{uid}`,
+  denied to every client and reachable only through the Admin SDK. The
+  client encrypts with AES-GCM and caches the key in memory for the session.
+  Google infrastructure can decrypt; `loginPrivacyNote` and
+  `accountDataNote` were rewritten to say "encrypted" and never "only you
+  can read this". Keep it that way.
+- **`updatedAt` is the one plaintext field** on each remote document, so
+  both sides can compare versions and pull only what changed without
+  decrypting everything. It reveals when a record was touched, not what is
+  in it.
+- **Conflicts are last-write-wins**, decided inside the local transaction so
+  a pull cannot clobber an edit made while it was in flight; ties go to the
+  server so two devices converge.
+
+Deliberately not done, and worth knowing before extending this:
+
+- **No key rotation.** `getSyncKey` returns a key, it never rolls one.
+  Rotating would mean re-encrypting every document.
+- **No conflict UI.** Last-write-wins is silent; the losing version is gone
+  with no prompt.
+- **Widget tests must never reach Firebase.** `pumpApp` overrides
+  `syncKeyRepositoryProvider` and `remoteAttackRepositoryProvider` with the
+  fakes in `test/helpers/sync_fakes.dart`, because the app root fires a sync
+  on sign-in. Without those overrides the sync spinner renders and every
+  `pumpAndSettle` waits out its full 10-minute timeout.
 
 ## 4. Manual Firebase/Apple console setup still pending
 
