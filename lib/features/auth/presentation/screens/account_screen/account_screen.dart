@@ -9,8 +9,6 @@ import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../premium/providers.dart';
-import '../../../../sync/domain/entities/sync_status.dart';
-import '../../../../sync/providers.dart';
 import '../../../domain/entities/auth_user.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../providers.dart';
@@ -19,7 +17,6 @@ import '../../widgets/display_name_dialog.dart';
 part 'account_screen_header.dart';
 part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
-part 'account_screen_sync_section.dart';
 
 /// The signed-in user's own record: who they are, what the subscription is,
 /// and the way out. Pushed from the Settings account row; the router's
@@ -51,14 +48,11 @@ class AccountScreen extends ConsumerWidget {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const _SyncProgress(),
             _AccountHeader(user: user, profile: profile),
             SdSectionHeaderV2(l10n.accountSectionProfile),
             _ProfileSection(user: user, profile: profile),
             SdSectionHeaderV2(l10n.accountSectionSubscription),
             const _PremiumSection(),
-            SdSectionHeaderV2(l10n.accountSectionSync),
-            const _SyncSection(),
             const _DataNote(),
           ],
         ),

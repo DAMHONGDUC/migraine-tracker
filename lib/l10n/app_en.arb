@@ -1167,6 +1167,22 @@
       }
     }
   },
+  "settingsSync": "Sync now",
+  "@settingsSync": {
+    "description": "Settings row that runs a sync by hand. Sync is automatic; this is only for a deliberate retry, and the row is absent without an account"
+  },
+  "settingsSyncFailed": "Sync didn't finish. It'll try again on its own.",
+  "@settingsSyncFailed": {
+    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
+  },
+  "settingsSyncStatusNever": "Not synced yet",
+  "@settingsSyncStatusNever": {
+    "description": "End-of-row status on the sync row before the first sync of this session has finished"
+  },
+  "settingsSyncStatusFailed": "Didn't finish",
+  "@settingsSyncStatusFailed": {
+    "description": "End-of-row status on the sync row after a failed pass. Short by necessity — it shares the row with the title"
+  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export screen"
@@ -1957,26 +1973,6 @@
   "accountDataNote": "Your account holds your name, email and photo. Your attacks are backed up encrypted, and stay on this device too.",
   "@accountDataNote": {
     "description": "Privacy note at the bottom of the account screen. Same accuracy bar as loginPrivacyNote: the backend holds the key, so never imply end-to-end encryption."
-  },
-  "accountSectionSync": "Sync",
-  "@accountSectionSync": {
-    "description": "Section header above the sync row on the account screen"
-  },
-  "accountSyncing": "Syncing your attacks…",
-  "@accountSyncing": {
-    "description": "Shown at the top of the account screen while a sync is in flight. The only place full sync progress appears (hard rule 12)"
-  },
-  "accountSyncNow": "Sync now",
-  "@accountSyncNow": {
-    "description": "Button on the account screen that starts a sync by hand. Sync is automatic; this is for a deliberate retry"
-  },
-  "accountSyncNote": "Your attacks sync automatically. This is only here for when you want to be sure.",
-  "@accountSyncNote": {
-    "description": "Subtitle under the manual sync button, explaining that pressing it is never required"
-  },
-  "accountSyncFailed": "Sync didn't finish. It'll try again on its own.",
-  "@accountSyncFailed": {
-    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
   },
   "historyFirstSyncLoading": "Getting your attacks from your account…",
   "@historyFirstSyncLoading": {

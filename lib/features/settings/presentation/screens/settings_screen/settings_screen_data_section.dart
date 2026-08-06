@@ -12,6 +12,8 @@ class _DataSection extends ConsumerWidget {
 
     return Column(
       children: [
+        // Where the data goes, before what you can get out of it or destroy.
+        const SyncSettingsTile(),
         SettingsTile(
           icon: Icons.ios_share,
           title: l10n.settingsExport,
