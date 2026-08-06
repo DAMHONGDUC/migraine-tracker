@@ -1,6 +1,24 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Ownership for the synced collections, which are shared between users —
+    // `userId` is the whole boundary, so this is the one place it is checked.
+    //
+    // BOTH sides matter, and the second is the one that is easy to miss:
+    //   - `resource` is the document already stored, absent on a create.
+    //   - `request.resource` is the document being written, absent on a read
+    //     or delete.
+    // Without the `request.resource` arm a user could rewrite `userId` to
+    // someone else's, planting a record in their account or handing over one
+    // of their own. Checking only the stored value would not catch it.
+    function ownedByCaller() {
+      return request.auth != null
+        && (resource == null
+            || resource.data.userId == request.auth.uid)
+        && (request.resource == null
+            || request.resource.data.userId == request.auth.uid);
+    }
+
     // Release metadata the app reads on every launch to decide whether the
     // installed build is still allowed (see FirestoreAppUpdateRepository).
     // World-readable on purpose: the check runs before any sign-in, and the
@@ -25,10 +43,10 @@ service cloud.firestore {
     // Each user may only touch their own settings doc. Hard rule 1: this
     // doc holds ONLY geohash5, fcmToken, alertThreshold, tz, premium and —
     // for signed-in users — the account fields displayName, email, photoUrl,
-    // createdAt, updatedAt. Never health data: attacks live on-device and,
-    // when synced, encrypted in the attacks subcollection below. premium is
-    // written exclusively by the RevenueCat webhook (Admin SDK bypasses
-    // rules), so clients must not set it.
+    // createdAt, updatedAt. Never health data: that lives on-device and, when
+    // synced, encrypted in the collections below. premium is written
+    // exclusively by the RevenueCat webhook (Admin SDK bypasses rules), so
+    // clients must not set it.
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if request.auth != null
@@ -36,22 +54,26 @@ service cloud.firestore {
         && !request.resource.data.diff(resource == null ? {} : resource.data)
             .affectedKeys()
             .hasAny(['premium']);
+    }
 
-      // Encrypted record sync for signed-in users. Every document here is
-      // ciphertext plus its timestamp — see EncryptedRecordMapper.
-      //
-      // The list is an allowlist, not a wildcard, and must be kept in step
-      // with the `SyncCollection` enum: a bare `{collection}` would hand a
-      // client read/write on any subcollection someone adds later, including
-      // one meant to be server-only. `sync_collection_rules_test.dart` fails
-      // the build when the two drift apart — which is how medications and
-      // reminders shipped denied, breaking sync AND the dev seed on its
-      // first query.
-      match /{collection}/{docId} {
-        allow read, write: if request.auth != null
-          && request.auth.uid == uid
-          && collection in ['attacks', 'medications', 'medication_reminders'];
-      }
+    // Encrypted record sync for signed-in users. Every document here is
+    // ciphertext plus its timestamp and owner — see EncryptedRecordMapper.
+    //
+    // The list is an allowlist, not a bare `{collection}`, and must be kept in
+    // step with the `SyncCollection` enum. At the root a bare wildcard would
+    // be far worse than it was under users/: it would match `sync_keys` and
+    // `app_updates` too, and any collection added later.
+    // `sync_collection_rules_test.dart` fails the build when the enum and this
+    // list drift apart — which is how medications and reminders once shipped
+    // denied, breaking sync AND the dev seed on their first query.
+    //
+    // Note what these rules can NOT do: a query over one of these collections
+    // has no single document to evaluate, so Firestore refuses it unless the
+    // client filters by userId itself. `OwnedCollection` is what guarantees
+    // that on this side; nothing here can.
+    match /{collection}/{docId} {
+      allow read, write: if ownedByCaller()
+        && collection in ['attacks', 'medications', 'medication_reminders'];
     }
   }
 }

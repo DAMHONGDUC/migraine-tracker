@@ -4,13 +4,18 @@ import '../../domain/entities/encrypted_record.dart';
 import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/remote_sync_repository.dart';
 import 'encrypted_record_mapper.dart';
+import 'owned_collection.dart';
 
-/// Firestore-backed [RemoteSyncRepository]: `users/{uid}/{collection}/{id}`,
-/// one subcollection per kind of record.
+/// Firestore-backed [RemoteSyncRepository]: one top-level collection per kind
+/// of record, each document carrying the `userId` it belongs to.
 ///
 /// Every document is ciphertext plus its timestamp, so this class never sees
 /// an intensity, a note or a medication name. Hard rule 1 allows nothing else
 /// up here.
+///
+/// Every read and write goes through [OwnedCollection], which is what keeps
+/// `userId` on the write and the filter on the query — the two things that
+/// stand between one user's records and another's.
 class FirestoreSyncRepository implements RemoteSyncRepository {
   const FirestoreSyncRepository(this._firestore);
 
@@ -24,10 +29,10 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     String uid,
     SyncCollection collection,
     EncryptedRecord record,
-  ) => _collection(
-    uid,
-    collection,
-  ).doc(record.id).set(EncryptedRecordMapper.toDocument(record));
+  ) => _owned(uid, collection).write(
+    record.id,
+    EncryptedRecordMapper.toDocument(record, uid),
+  );
 
   @override
   Future<List<EncryptedRecord>> changesSince(
@@ -35,10 +40,13 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     SyncCollection collection,
     DateTime? since,
   ) async {
-    Query<Map<String, dynamic>> query = _collection(
+    // Needs the composite index (userId, updatedAt) in firestore.indexes.json:
+    // an equality filter on one field with a range and order on another is
+    // exactly what Firestore will not serve on its own.
+    Query<Map<String, dynamic>> query = _owned(
       uid,
       collection,
-    ).orderBy(EncryptedRecordMapper.updatedAt);
+    ).owned().orderBy(EncryptedRecordMapper.updatedAt);
 
     if (since != null) {
       query = query.where(
@@ -62,17 +70,19 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
   }
 
   Future<void> _deleteCollection(String uid, SyncCollection collection) async {
+    final OwnedCollection owned = _owned(uid, collection);
+
     // Deleted in pages: a long history would otherwise blow the batch limit,
     // and a wipe that half-runs is exactly what hard rule 8 forbids.
     while (true) {
-      final QuerySnapshot<Map<String, dynamic>> page = await _collection(
-        uid,
-        collection,
-      ).limit(_batchLimit).get();
+      final QuerySnapshot<Map<String, dynamic>> page = await owned
+          .owned()
+          .limit(_batchLimit)
+          .get();
 
       if (page.docs.isEmpty) return;
 
-      final WriteBatch batch = _firestore.batch();
+      final WriteBatch batch = owned.batch();
       for (final doc in page.docs) {
         batch.delete(doc.reference);
       }
@@ -80,8 +90,6 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     }
   }
 
-  CollectionReference<Map<String, dynamic>> _collection(
-    String uid,
-    SyncCollection collection,
-  ) => _firestore.collection('users').doc(uid).collection(collection.name);
+  OwnedCollection _owned(String uid, SyncCollection collection) =>
+      OwnedCollection(_firestore, uid, collection);
 }

@@ -8,7 +8,7 @@ item; this is a point-in-time survey, not a live tracker.
 ## 1. GDPR "Delete everything" is still incomplete (hard rule 8)
 
 `DataWipeService.wipeAll()` (`lib/features/settings/domain/services/data_wipe_service.dart`)
-now deletes the account's synced attacks (`users/{uid}/attacks`) before it
+now deletes the account's synced records (the top-level collections, filtered by `userId`) before it
 touches the device — that order matters, and a failure aborts the wipe, or
 the next sync would pull every deleted attack back down. What is left:
 
@@ -49,6 +49,12 @@ carries its status; a scoped first-pull state on the History list.
 attacks, in that order because a reminder points at a medication. Export
 records deliberately stay local: `filePath` belongs to one device, and
 uploading them would multiply the copies hard rule 8 has to chase.
+
+They are **top-level collections tagged with `userId`**, not subcollections
+of the user — the owner's call, for a layout that reads like SQL. That makes
+`userId` the whole ownership boundary: `OwnedCollection` is the only thing
+allowed to build a reference to them, because it is the only way the query
+filter cannot be forgotten.
 
 How the open questions were answered:
 
@@ -131,8 +137,10 @@ part of this item.
   gating — all already have dedicated tests. Nothing to do there.
 - `l10n/app_en.arb` and `app_vi.arb` are fully in sync (420/420 keys,
   zero diff either direction).
-- `firestore.indexes.json` is empty; not a problem for the current simple
-  queries, just worth checking before adding a more complex one.
+- `firestore.indexes.json` now carries a composite index per synced
+  collection (`userId` + `updatedAt`). Deploying is a SECOND step beside
+  rules — `firebase deploy --only firestore:indexes` — and a missing index
+  fails at runtime, not at build.
 
 ## Not an issue (checked, ruled out)
 

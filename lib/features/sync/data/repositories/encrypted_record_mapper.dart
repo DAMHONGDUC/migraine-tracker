@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/entities/encrypted_record.dart';
 
-/// Field names and types for `users/{uid}/{collection}/{id}`, in one place
-/// so the read and the write cannot drift apart.
+/// Field names and types for `<collection>/{id}`, in one place so the read
+/// and the write cannot drift apart.
 final class EncryptedRecordMapper {
   const EncryptedRecordMapper._();
 
@@ -14,10 +14,16 @@ final class EncryptedRecordMapper {
   static const String updatedAt = 'updatedAt';
   static const String deleted = 'deleted';
 
-  static Map<String, Object?> toDocument(EncryptedRecord record) {
+  /// Who the record belongs to. The collections are shared, so this field is
+  /// the entire boundary between one user's records and another's — the rules
+  /// check it on every operation, and every query filters on it.
+  static const String userId = 'userId';
+
+  static Map<String, Object?> toDocument(EncryptedRecord record, String uid) {
     final EncryptedPayload? payload = record.payload;
 
     return <String, Object?>{
+      userId: uid,
       updatedAt: Timestamp.fromDate(record.updatedAt),
       deleted: record.isDeleted,
       // Cleared rather than left behind, so a deletion does not keep the
