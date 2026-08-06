@@ -132,10 +132,17 @@ against the other's asset templates and bootstrap dies; that is why the
 dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 `melos.yaml` explains the two costs of the workspace-based versions.
 
-- `melos run setup` — everything a fresh clone needs, in order: submodules,
-  `pub get` for both packages, `gen-l10n`, `build_runner`, `env/*.json` from
-  the templates, `npm ci` in `functions/`, and `pod install` on macOS.
-  Idempotent — re-run it any time, and after `melos run clean`.
+- `melos run setup` — **always wipes first** (`tool/clean.sh`: `flutter clean`,
+  gradle, pods, and Xcode's DerivedData), then everything a clone needs, in
+  order: submodules, `pub get` for both packages, `gen-l10n`, `build_runner`,
+  `env/*.json` from the templates, `npm ci` in `functions/`, and `pod install`
+  on macOS. Idempotent — re-run it any time.
+  **The wipe is unconditional on purpose**: setup is the one answer to "it
+  built yesterday and not today". The cost is that the next Xcode build is
+  always cold, so don't reach for setup when `melos run gen` would do.
+  **DerivedData is matched on the workspace path each cache records, never on
+  the folder name** — every Flutter app builds a target called `Runner`, so
+  deleting `Runner-*` would take other projects' caches with it.
   **It puts each submodule on the branch named in `.gitmodules` (`main`) and
   fast-forwards it, rather than leaving it detached at the recorded gitlink.**
   So the design system is always editable in place — and what you build is
@@ -146,7 +153,8 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.
 - `melos run test` — the whole suite. **Never run the whole suite to verify a change, no exception** — not even one that touches shared code (theme, spacing, the design system) and not "just before a commit" either. Always scope to what changed: `flutter test test/features/<x>/<y>_test.dart`, narrowed with `--plain-name` when one case is failing. The full suite is minutes of wall clock through the harness to re-learn what one scoped file already tells you — that cost is why this is absolute, not a judgment call per change.
-- `melos run clean` — wipe Android + iOS build artefacts, then `setup`
+- `melos run clean` — the wipe on its own, without setting up afterwards.
+  Rarely what you want now that `setup` always runs it.
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
 - `firebase emulators:start` — test functions locally; never test cron against production
