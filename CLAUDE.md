@@ -169,6 +169,13 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
+- **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run build`.**
+  The standalone Firebase CLI is a pkg snapshot bundling its *own* Node 20 and npm
+  8.19.4, whatever the machine has; that npm crashes inside `promiseSpawnUid` reading
+  `process.stdin`, which does not exist in a snapshot. The failure looks like a broken
+  build script — `tsc` even prints first — but the same command run by hand succeeds,
+  and the npm debug log is the only place the bundled versions show up. Don't "fix" it
+  by putting npm back.
 - `firebase emulators:start` — test functions locally; never test cron against production.
   **Needs a JDK on PATH** (11+): the Firestore emulator is a Java program. macOS ships
   `/usr/bin/java` as a stub whose only job is to tell you Java is missing, so the failure
