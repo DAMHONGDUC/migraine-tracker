@@ -4,19 +4,28 @@ service cloud.firestore {
     // Ownership for the synced collections, which are shared between users —
     // `userId` is the whole boundary, so this is the one place it is checked.
     //
-    // BOTH sides matter, and the second is the one that is easy to miss:
-    //   - `resource` is the document already stored, absent on a create.
-    //   - `request.resource` is the document being written, absent on a read
-    //     or delete.
-    // Without the `request.resource` arm a user could rewrite `userId` to
-    // someone else's, planting a record in their account or handing over one
-    // of their own. Checking only the stored value would not catch it.
-    function ownedByCaller() {
+    // Two functions, not one combining them, and the reason is queries. A
+    // query has no single document to test, so Firestore proves it safe from
+    // the query's own filters. That proof only works when the read condition
+    // is a plain constraint on a field: fold in a disjunction — say
+    // `resource == null || ...` to cover creates — and there is a branch that
+    // constrains nothing, the proof fails, and EVERY query is denied. That
+    // exact mistake shipped once and looked identical to un-deployed rules.
+    function ownsStored() {
       return request.auth != null
-        && (resource == null
-            || resource.data.userId == request.auth.uid)
-        && (request.resource == null
-            || request.resource.data.userId == request.auth.uid);
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // The incoming document. Checked on write so a user cannot set `userId`
+    // to someone else's — planting a record in their account, or handing
+    // over one of their own. Testing only the stored value would miss it.
+    function ownsIncoming() {
+      return request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    function isSynced(collection) {
+      return collection in ['attacks', 'medications', 'medication_reminders'];
     }
 
     // Release metadata the app reads on every launch to decide whether the
@@ -72,8 +81,10 @@ service cloud.firestore {
     // client filters by userId itself. `OwnedCollection` is what guarantees
     // that on this side; nothing here can.
     match /{collection}/{docId} {
-      allow read, write: if ownedByCaller()
-        && collection in ['attacks', 'medications', 'medication_reminders'];
+      allow read: if isSynced(collection) && ownsStored();
+      allow create: if isSynced(collection) && ownsIncoming();
+      allow update: if isSynced(collection) && ownsStored() && ownsIncoming();
+      allow delete: if isSynced(collection) && ownsStored();
     }
   }
 }

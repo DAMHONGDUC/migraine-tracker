@@ -62,18 +62,32 @@ void main() {
     });
   }
 
-  test('ownership is checked by one function, not copied per collection', () {
-    // The update case needs both the stored owner and the incoming one; a
-    // copy of that condition per collection is a copy that can fall behind.
-    expect(rules, contains('function ownedByCaller()'));
-    expect(rules, contains('resource.data.userId == request.auth.uid'));
+  test('ownership is checked by functions, not copied per collection', () {
+    // A copy of the condition per collection is a copy that can fall behind.
+    expect(rules, contains('function ownsStored()'));
     expect(
       rules,
-      contains('request.resource.data.userId == request.auth.uid'),
+      contains('function ownsIncoming()'),
       reason:
           'without the incoming-document check a user can rewrite userId to '
           "someone else's, planting a record in their account",
     );
+  });
+
+  test('read is its own rule, never folded in with write', () {
+    // Folding them means a disjunction covering creates, which leaves a
+    // branch constraining nothing — Firestore then cannot prove a query safe
+    // and denies EVERY query while the file still looks right. Proved by
+    // functions/test/firestoreRules.test.ts against the emulator.
+    // Asserted as four separate verbs rather than "no read, write anywhere":
+    // sync_keys uses `allow read, write: if false` quite correctly.
+    for (final String verb in <String>['read', 'create', 'update', 'delete']) {
+      expect(
+        rules,
+        contains('allow $verb: if isSynced(collection)'),
+        reason: '$verb must be its own rule for the synced collections',
+      );
+    }
   });
 
   test('the rules do not hand out every collection at once', () {
