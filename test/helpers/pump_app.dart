@@ -637,8 +637,8 @@ Future<PumpedApp> pumpApp(
         // Always overridden too: the app root fires a sync on sign-in, and
         // the real repositories reach for Firebase, which no widget test has.
         syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
-        remoteAttackRepositoryProvider.overrideWithValue(
-          FakeRemoteAttackRepository(),
+        remoteSyncRepositoryProvider.overrideWithValue(
+          FakeRemoteSyncRepository(),
         ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),

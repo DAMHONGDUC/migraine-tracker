@@ -84,7 +84,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(exportRecordRepositoryProvider),
     ref.watch(exportFileStoreProvider),
     ref.watch(authRepositoryProvider),
-    ref.watch(attackSyncServiceProvider),
+    ref.watch(syncServiceProvider),
   ),
 );
 

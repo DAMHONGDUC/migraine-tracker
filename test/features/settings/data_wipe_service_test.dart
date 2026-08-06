@@ -133,7 +133,7 @@ void main() {
     DataWipeService wipeFor(
       AppDatabase db, {
       required FakeAuthRepository auth,
-      required FakeRemoteAttackRepository remote,
+      required FakeRemoteSyncRepository remote,
     }) => DataWipeService(
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
@@ -148,7 +148,7 @@ void main() {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final attacks = DriftAttackRepository(db);
-      final remote = FakeRemoteAttackRepository();
+      final remote = FakeRemoteSyncRepository();
       final auth = FakeAuthRepository(signedIn: true);
 
       await attacks.insert(anAttack());
@@ -165,7 +165,7 @@ void main() {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final attacks = DriftAttackRepository(db);
-      final remote = FakeRemoteAttackRepository()..failNextDeleteAll = true;
+      final remote = FakeRemoteSyncRepository()..failNextDeleteAll = true;
 
       await attacks.insert(anAttack());
 
@@ -187,7 +187,7 @@ void main() {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final attacks = DriftAttackRepository(db);
-      final remote = FakeRemoteAttackRepository();
+      final remote = FakeRemoteSyncRepository();
 
       await attacks.insert(anAttack());
 

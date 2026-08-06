@@ -3,7 +3,7 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
-import '../../../sync/domain/services/attack_sync_service.dart';
+import '../../../sync/domain/services/sync_service.dart';
 import '../repositories/export_record_repository.dart';
 import 'export_file_store.dart';
 
@@ -30,7 +30,7 @@ class DataWipeService {
   final ExportRecordRepository _exportRecords;
   final ExportFileStore _exportFiles;
   final AuthRepository _auth;
-  final AttackSyncService _sync;
+  final SyncService _sync;
 
   Future<void> wipeAll() async {
     // The server copy goes FIRST, and a failure here aborts the whole wipe.

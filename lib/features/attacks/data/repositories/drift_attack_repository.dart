@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../sync/data/repositories/drift_sync_local_store.dart';
+import '../../../sync/domain/entities/sync_collection.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
@@ -75,9 +77,7 @@ class DriftAttackRepository implements AttackRepository {
             ),
           );
       // A re-used id would otherwise be deleted again by its stale tombstone.
-      await (_db.delete(
-        _db.attackTombstones,
-      )..where((t) => t.id.equals(attack.id))).go();
+      await SyncTombstoneWriter.clear(_db, SyncCollection.attacks, [attack.id]);
       final weather = attack.weather;
       if (weather != null) {
         await _db
@@ -166,14 +166,7 @@ class DriftAttackRepository implements AttackRepository {
   Future<void> deleteById(String id) {
     return _db.transaction(() async {
       await (_db.delete(_db.attacks)..where((t) => t.id.equals(id))).go();
-      await _db
-          .into(_db.attackTombstones)
-          .insertOnConflictUpdate(
-            AttackTombstonesCompanion.insert(
-              id: id,
-              deletedAt: DateTime.now().toUtc(),
-            ),
-          );
+      await SyncTombstoneWriter.write(_db, SyncCollection.attacks, [id]);
     });
   }
 
@@ -184,7 +177,7 @@ class DriftAttackRepository implements AttackRepository {
   Future<void> deleteAll() {
     return _db.transaction(() async {
       await _db.delete(_db.attacks).go();
-      await _db.delete(_db.attackTombstones).go();
+      await SyncTombstoneWriter.clearAll(_db, SyncCollection.attacks);
     });
   }
 

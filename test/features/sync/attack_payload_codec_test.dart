@@ -28,8 +28,8 @@ void main() {
   );
 
   test('every field survives the round trip', () {
-    final Attack decoded = AttackPayloadCodec.decode(
-      AttackPayloadCodec.encode(full()),
+    final Attack decoded = const AttackPayloadCodec().decode(
+      const AttackPayloadCodec().encode(full()),
       id: 'a1',
     );
 
@@ -53,8 +53,8 @@ void main() {
       location: HeadLocation.front,
     );
 
-    final Attack decoded = AttackPayloadCodec.decode(
-      AttackPayloadCodec.encode(bare),
+    final Attack decoded = const AttackPayloadCodec().decode(
+      const AttackPayloadCodec().encode(bare),
       id: 'a2',
     );
 
@@ -67,8 +67,8 @@ void main() {
 
   test('the id comes from the document, not the payload', () {
     // The document id is the attack id, so carrying it twice invites drift.
-    final Attack decoded = AttackPayloadCodec.decode(
-      AttackPayloadCodec.encode(full()),
+    final Attack decoded = const AttackPayloadCodec().decode(
+      const AttackPayloadCodec().encode(full()),
       id: 'different',
     );
 
@@ -83,8 +83,8 @@ void main() {
       location: HeadLocation.back,
     );
 
-    final Attack decoded = AttackPayloadCodec.decode(
-      AttackPayloadCodec.encode(local),
+    final Attack decoded = const AttackPayloadCodec().decode(
+      const AttackPayloadCodec().encode(local),
       id: 'a3',
     );
 
@@ -93,7 +93,7 @@ void main() {
   });
 
   test('the payload carries its version', () {
-    final Object? json = jsonDecode(AttackPayloadCodec.encode(full()));
+    final Object? json = jsonDecode(const AttackPayloadCodec().encode(full()));
 
     expect((json! as Map<String, dynamic>)['v'], AttackPayloadCodec.schemaVersion);
   });
@@ -101,49 +101,49 @@ void main() {
   group('payload versions', () {
     test('a newer payload than this build knows is refused', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json['v'] = AttackPayloadCodec.schemaVersion + 1;
 
       // Half-reading would overwrite a good local copy with a worse one.
       expect(
-        () => AttackPayloadCodec.decode(jsonEncode(json), id: 'a1'),
+        () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
       );
     });
 
     test('an older payload still reads', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json['v'] = 0;
 
       // The day the version is bumped, everything already uploaded is a
       // version behind. Refusing it would orphan the user's whole history.
       expect(
-        AttackPayloadCodec.decode(jsonEncode(json), id: 'a1').intensity,
+        const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').intensity,
         7,
       );
     });
 
     test('an unknown field is ignored rather than fatal', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json['fieldFromALaterBuild'] = 'whatever';
 
       // Adding an optional field must not need a version bump, or two builds
       // in the wild could never read each other.
       expect(
-        AttackPayloadCodec.decode(jsonEncode(json), id: 'a1').notes,
+        const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').notes,
         'woke up with it',
       );
     });
 
     test('a missing version is refused', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json.remove('v');
 
       expect(
-        () => AttackPayloadCodec.decode(jsonEncode(json), id: 'a1'),
+        () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
       );
     });
@@ -153,29 +153,29 @@ void main() {
 
     test('an unknown head location', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json['location'] = 'sideways';
 
       expect(
-        () => AttackPayloadCodec.decode(jsonEncode(json), id: 'a1'),
+        () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
       );
     });
 
     test('a missing required field', () {
       final Map<String, dynamic> json =
-          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
       json.remove('intensity');
 
       expect(
-        () => AttackPayloadCodec.decode(jsonEncode(json), id: 'a1'),
+        () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
       );
     });
 
     test('something that is not an object at all', () {
       expect(
-        () => AttackPayloadCodec.decode('[]', id: 'a1'),
+        () => const AttackPayloadCodec().decode('[]', id: 'a1'),
         throwsFormatException,
       );
     });

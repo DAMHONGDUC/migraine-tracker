@@ -2,16 +2,16 @@ import 'package:meta/meta.dart';
 
 import 'encrypted_payload.dart';
 
-/// One attack as it exists on the server: an opaque id, a plaintext timestamp
-/// and — unless it is a deletion — the encrypted attack itself.
+/// One record as it exists on the server: an opaque id, a plaintext timestamp
+/// and — unless it is a deletion — the encrypted record itself.
 ///
 /// [updatedAt] is deliberately NOT encrypted. Both sides need to compare
 /// versions and pull only what changed, and neither can do that without
 /// decrypting everything on every sync. It reveals when the user last touched
-/// a record and nothing about the attack.
+/// a record and nothing about what is in it.
 @immutable
-class EncryptedAttack {
-  const EncryptedAttack({
+class EncryptedRecord {
+  const EncryptedRecord({
     required this.id,
     required this.updatedAt,
     this.payload,

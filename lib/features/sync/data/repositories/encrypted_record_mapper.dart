@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../domain/entities/encrypted_attack.dart';
 import '../../domain/entities/encrypted_payload.dart';
+import '../../domain/entities/encrypted_record.dart';
 
-/// Field names and types for `users/{uid}/attacks/{attackId}`, in one place
+/// Field names and types for `users/{uid}/{collection}/{id}`, in one place
 /// so the read and the write cannot drift apart.
-final class EncryptedAttackMapper {
-  const EncryptedAttackMapper._();
+final class EncryptedRecordMapper {
+  const EncryptedRecordMapper._();
 
   static const String ciphertext = 'payload';
   static const String nonce = 'nonce';
@@ -14,7 +14,7 @@ final class EncryptedAttackMapper {
   static const String updatedAt = 'updatedAt';
   static const String deleted = 'deleted';
 
-  static Map<String, Object?> toDocument(EncryptedAttack record) {
+  static Map<String, Object?> toDocument(EncryptedRecord record) {
     final EncryptedPayload? payload = record.payload;
 
     return <String, Object?>{
@@ -30,7 +30,7 @@ final class EncryptedAttackMapper {
 
   /// Null when the document cannot be read as a record at all — a shape we do
   /// not recognise is skipped rather than guessed at.
-  static EncryptedAttack? fromDocument(
+  static EncryptedRecord? fromDocument(
     String id,
     Map<String, Object?>? data,
   ) {
@@ -40,14 +40,14 @@ final class EncryptedAttackMapper {
     if (at is! Timestamp) return null;
 
     if (data[deleted] == true) {
-      return EncryptedAttack(id: id, updatedAt: at.toDate().toUtc());
+      return EncryptedRecord(id: id, updatedAt: at.toDate().toUtc());
     }
     final Object? text = data[ciphertext];
     final Object? iv = data[nonce];
     final Object? tag = data[mac];
 
     if (text is! String || iv is! String || tag is! String) return null;
-    return EncryptedAttack(
+    return EncryptedRecord(
       id: id,
       updatedAt: at.toDate().toUtc(),
       payload: EncryptedPayload(ciphertext: text, nonce: iv, mac: tag),

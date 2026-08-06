@@ -37,7 +37,7 @@ class SyncController extends Notifier<SyncStatus> {
   Future<void> onSignedOut() async {
     state = const SyncStatus();
     try {
-      await ref.read(attackSyncServiceProvider).onSignedOut();
+      await ref.read(syncServiceProvider).onSignedOut();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Clearing sync state failed',
@@ -53,7 +53,7 @@ class SyncController extends Notifier<SyncStatus> {
     state = state.copyWith(phase: SyncPhase.syncing, isFirstPull: isFirstPull);
     try {
       final SyncOutcome outcome = await ref
-          .read(attackSyncServiceProvider)
+          .read(syncServiceProvider)
           .sync(uid);
 
       AppLogger.info('Attacks synced', {
@@ -108,7 +108,7 @@ class SyncController extends Notifier<SyncStatus> {
 
   Future<bool> _isFirstPull(String uid) async {
     try {
-      return await ref.read(attackSyncServiceProvider).isFirstPull(uid);
+      return await ref.read(syncServiceProvider).isFirstPull(uid);
     } catch (error, stackTrace) {
       AppLogger.error(
         'Reading the sync cursor failed',

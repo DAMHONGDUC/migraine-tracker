@@ -4,14 +4,15 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
+import 'sync_payload_codec.dart';
 
 /// Turns an attack into the JSON that gets encrypted, and back.
 ///
 /// The weather snapshot travels inside the attack rather than as a record of
 /// its own: it is meaningless without the attack, and one document per attack
 /// keeps a partial sync from ever splitting the two apart.
-final class AttackPayloadCodec {
-  const AttackPayloadCodec._();
+class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
+  const AttackPayloadCodec();
 
   /// Bumped only when the shape changes incompatibly. Written on every
   /// payload so an older build can tell "I cannot read this" from "this is
@@ -25,7 +26,8 @@ final class AttackPayloadCodec {
 
   static const String _versionKey = 'v';
 
-  static String encode(Attack attack) {
+  @override
+  String encode(Attack attack) {
     final WeatherSnapshot? weather = attack.weather;
 
     return jsonEncode(<String, dynamic>{
@@ -53,7 +55,8 @@ final class AttackPayloadCodec {
   /// Throws [FormatException] on anything it cannot faithfully rebuild — a
   /// half-read attack is worse than a skipped one, since it would overwrite
   /// the good local copy.
-  static Attack decode(String json, {required String id}) {
+  @override
+  Attack decode(String json, {required String id}) {
     final Object? decoded = jsonDecode(json);
 
     if (decoded is! Map<String, dynamic>) {

@@ -1,19 +1,17 @@
 import 'package:meta/meta.dart';
 
-import 'attack.dart';
-
-/// One local change still owed to the server: either an attack to upload or a
+/// One local change still owed to the server: either a record to upload or a
 /// deletion to propagate.
 @immutable
-class AttackSyncRecord {
-  const AttackSyncRecord({
+class SyncRecord<T> {
+  const SyncRecord({
     required this.id,
     required this.updatedAt,
     required this.revision,
-    this.attack,
+    this.value,
   });
 
-  /// The attack id, which is also the remote document id.
+  /// The row id, which is also the remote document id.
   final String id;
 
   /// When the change happened. Drives last-write-wins on both sides.
@@ -26,7 +24,7 @@ class AttackSyncRecord {
 
   /// Null for a deletion — the row is already gone, only the fact of it still
   /// has to reach the server.
-  final Attack? attack;
+  final T? value;
 
-  bool get isDeleted => attack == null;
+  bool get isDeleted => value == null;
 }

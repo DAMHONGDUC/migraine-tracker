@@ -3,21 +3,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/db/database_provider.dart';
 import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
-import 'data/repositories/drift_attack_sync_repository.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
-import 'domain/repositories/attack_sync_repository.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
 import 'presentation/controllers/log_controller.dart';
 
 final attackRepositoryProvider = Provider<AttackRepository>(
   (ref) => DriftAttackRepository(ref.watch(databaseProvider)),
-);
-
-/// The local side of sync. Read by the `sync` feature, nothing else.
-final attackSyncRepositoryProvider = Provider<AttackSyncRepository>(
-  (ref) => DriftAttackSyncRepository(ref.watch(databaseProvider)),
 );
 
 final attacksStreamProvider = StreamProvider<List<Attack>>(

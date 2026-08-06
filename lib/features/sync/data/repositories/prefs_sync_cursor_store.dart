@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/sync_cursor_store.dart';
 
 /// Cursor in shared_preferences. Losing it costs one full re-pull, which is
@@ -12,8 +13,8 @@ class PrefsSyncCursorStore implements SyncCursorStore {
   final SharedPreferences _prefs;
 
   @override
-  Future<DateTime?> lastPulledAt(String uid) async {
-    final int? millis = _prefs.getInt('$keyPrefix$uid');
+  Future<DateTime?> lastPulledAt(String uid, SyncCollection collection) async {
+    final int? millis = _prefs.getInt(_key(uid, collection));
 
     return millis == null
         ? null
@@ -21,8 +22,11 @@ class PrefsSyncCursorStore implements SyncCursorStore {
   }
 
   @override
-  Future<void> save(String uid, DateTime at) =>
-      _prefs.setInt('$keyPrefix$uid', at.toUtc().millisecondsSinceEpoch);
+  Future<void> save(String uid, SyncCollection collection, DateTime at) =>
+      _prefs.setInt(
+        _key(uid, collection),
+        at.toUtc().millisecondsSinceEpoch,
+      );
 
   @override
   Future<void> clear() async {
@@ -35,4 +39,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
       await _prefs.remove(key);
     }
   }
+
+  String _key(String uid, SyncCollection collection) =>
+      '$keyPrefix${collection.name}_$uid';
 }
