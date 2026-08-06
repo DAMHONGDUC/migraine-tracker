@@ -1,14 +1,13 @@
 {
   "permissions": {
     "deny": [
-      "Read(env/**)",
-      "Read(**/env/*.json)",
-      "Bash(cat env/*)",
-      "Bash(head env/*)",
-      "Bash(tail env/*)",
-      "Bash(less env/*)",
-      "Bash(grep * env/*)",
-      "Bash(rg * env/*)"
+      "Read(./env/**)",
+      "Bash(cat ./env/*)",
+      "Bash(head ./env/*)",
+      "Bash(tail ./env/*)",
+      "Bash(less ./env/*)",
+      "Bash(grep * ./env/*)",
+      "Bash(rg * ./env/*)"
     ]
   }
 }
