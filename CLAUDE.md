@@ -169,7 +169,12 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
-- `firebase emulators:start` — test functions locally; never test cron against production
+- `firebase emulators:start` — test functions locally; never test cron against production.
+  **Needs a JDK on PATH** (11+): the Firestore emulator is a Java program. macOS ships
+  `/usr/bin/java` as a stub whose only job is to tell you Java is missing, so the failure
+  looks like a broken PATH rather than a missing install — and it lands *after* the
+  TypeScript tests pass, which reads as the tests having broken something. `sdk install
+  java 21.0.12-tem` if you use SDKMAN. Deploying needs no JDK; only the emulator does.
 
 **Every script's body lives in `tool/<name>.sh`; `melos.yaml` only names it.**
 Melos echoes the whole `run:` block before AND after each run, with no flag to
