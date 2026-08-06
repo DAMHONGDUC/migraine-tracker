@@ -28,10 +28,15 @@ Then one command does the rest:
 melos run setup
 ```
 
-That fetches submodules, resolves both packages, generates localizations and
+That wipes every build artefact first — gradle, pods, and Xcode's DerivedData
+— then fetches submodules, resolves both packages, generates localizations and
 Drift code, lays down `env/*.json` from the templates, installs the Cloud
 Functions dependencies, and — on macOS — runs `pod install` for the one
 plugin that still needs CocoaPods. It is safe to re-run at any time.
+
+The wipe is unconditional on purpose: setup is the one answer to "it built
+yesterday and not today". The cost is that the next Xcode build is always a
+cold one, so use `melos run gen` when all you changed is a table or a string.
 
 **Submodules follow their branch, they are not pinned.** Setup checks the
 design system out on `main` (the branch named in `.gitmodules`) and
@@ -50,11 +55,11 @@ running the app — setup says so loudly when it creates them.
 
 | Command | What it does |
 | --- | --- |
-| `melos run setup` | Everything a fresh clone needs. Idempotent. |
+| `melos run setup` | Wipe every build artefact, then everything a clone needs. Idempotent. |
 | `melos run gen` | Regenerate localizations + `build_runner` output. |
 | `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
 | `melos run test` | The Flutter test suite. |
-| `melos run clean` | Wipe Android + iOS build artefacts. Follow with `setup`. |
+| `melos run clean` | The wipe on its own. Rarely needed — `setup` runs it. |
 
 Run the app:
 

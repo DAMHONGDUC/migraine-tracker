@@ -33,7 +33,8 @@ ide:
 scripts:
   setup:
     description: >
-      Everything a fresh clone needs, in order. Safe to re-run.
+      Wipe every build artefact, then set up everything a clone needs.
+      Safe to re-run; always a cold build afterwards.
     run: sh tool/setup.sh
 
   gen:

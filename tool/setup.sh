@@ -1,7 +1,18 @@
 #!/bin/sh
 # Everything a fresh clone needs, in order. Safe to re-run.
+#
+# Always wipes first — pods, gradle, build output and Xcode's DerivedData —
+# so setup is the one answer to "it built yesterday and not today". The cost
+# is real and deliberate: the next Xcode build is always a cold one, because
+# nothing cached survives. Reach for `melos run gen` when all you changed is
+# a table or an ARB file.
 set -eu
 . "$(dirname "$0")/_common.sh"
+
+# Tells clean.sh setup is coming, so it drops its "now run setup" tail.
+MELOS_CHAINED_CLEAN=1
+export MELOS_CHAINED_CLEAN
+sh "$(dirname "$0")/clean.sh"
 
 # Submodules land on their branch and follow it, rather than sitting detached
 # at the commit the gitlink records. That is deliberate: the design system is
