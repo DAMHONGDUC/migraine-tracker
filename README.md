@@ -92,19 +92,20 @@ one line drowns its own output.
 The design system is deliberately separate and deliberately ignorant of this
 app; see `packages/system_design/WIDGET_RULES.md` before adding to it..
 
-## Attack sync
+## Sync
 
-Signing in backs up attack history to the account and keeps it in step
-across devices. An account is optional: everything else works without one,
-and the on-device database stays the source of truth — the cloud copy is a
-copy, never the only one.
+Signing in backs up attacks, medications and their reminders to the account
+and keeps them in step across devices. An account is optional: everything
+else works without one, and the on-device database stays the source of truth
+— the cloud copy is a copy, never the only one. Past exports deliberately
+stay out of it: their file paths belong to one device.
 
 It never blocks the UI. Sync runs in the background on sign-in, launch,
 resume and after logging an attack, and a pass that fails just leaves the
-work for the next one. The Account screen is the only place it is visible in
-full, with a "Sync now" button for a deliberate retry.
+work for the next one. The one visible control is a row in Settings' "Your
+data", which runs a sync on tap and shows how the last one went.
 
-Attacks are encrypted with AES-GCM before they leave the device, so no
+Records are encrypted with AES-GCM before they leave the device, so no
 intensity, note or medication name reaches Firestore readable. **This is not
 end-to-end encryption:** the key is minted and held by the `getSyncKey`
 Cloud Function, so the backend can decrypt. The in-app copy therefore says

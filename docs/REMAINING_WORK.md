@@ -42,19 +42,23 @@ device until:
 
 `features/sync/` now exists and everything hard rule 12 describes is wired:
 auto-sync on sign-in, launch, resume and after logging an attack, all
-unawaited; manual "Sync now" plus full progress on the Account screen; a
-trailing spinner on Settings' Account row and nowhere else; a scoped
-first-pull state on the History list.
+unawaited; one row in Settings' "Your data" that runs a sync on tap and
+carries its status; a scoped first-pull state on the History list.
+
+**Three collections sync** — medications, then their reminders, then
+attacks, in that order because a reminder points at a medication. Export
+records deliberately stay local: `filePath` belongs to one device, and
+uploading them would multiply the copies hard rule 8 has to chase.
 
 How the open questions were answered:
 
-- **Dirty tracking** is a `revision` counter plus `syncedRevision` on
-  `Attacks`, not a timestamp comparison. Drift stores dates as whole
+- **Dirty tracking** is a `revision` counter plus `syncedRevision` on each
+  synced table, not a timestamp comparison. Drift stores dates as whole
   seconds, so an edit in the same second as the push before it would have
   looked unchanged; a counter also survives the clock stepping backwards.
   `updatedAt` remains, used only to settle which device's version wins.
-  Deletions live in their own `AttackTombstones` table, so a delete really
-  deletes and only the opaque id survives to be propagated.
+  Deletions live in one `SyncTombstones` table keyed by collection, so a
+  delete really deletes and only the opaque id survives to be propagated.
 - **Encryption is server-assisted, and is NOT end-to-end.** The `getSyncKey`
   callable mints and holds a per-account AES-256 key in `sync_keys/{uid}`,
   denied to every client and reachable only through the Admin SDK. The
@@ -77,10 +81,14 @@ Deliberately not done, and worth knowing before extending this:
 - **No conflict UI.** Last-write-wins is silent; the losing version is gone
   with no prompt.
 - **Widget tests must never reach Firebase.** `pumpApp` overrides
-  `syncKeyRepositoryProvider` and `remoteAttackRepositoryProvider` with the
+  `syncKeyRepositoryProvider` and `remoteSyncRepositoryProvider` with the
   fakes in `test/helpers/sync_fakes.dart`, because the app root fires a sync
   on sign-in. Without those overrides the sync spinner renders and every
   `pumpAndSettle` waits out its full 10-minute timeout.
+- **Reminders sync as rows, not as scheduled notifications.** A notification
+  belongs to the OS of the device that made it, so a pull calls
+  `RemindersController.rescheduleAll()` afterwards. Anything else that ends
+  up device-local like this needs the same treatment.
 
 ## 4. Manual Firebase/Apple console setup still pending
 
