@@ -49,8 +49,11 @@ done — right now signed-in users get an auth profile but no attack sync.
 **UX contract is decided** (see hard rule 12 in `CLAUDE.md`): never blocks
 UI, auto-sync in the background (sign-in, app launch/resume, after logging
 an attack), plus a manual "Sync now" button and a progress indicator at the
-top of the Account screen — nowhere else. Still open before this can be
-built:
+top of the Account screen. Settings shows the same in-flight state too, but
+narrower: just the trailing slot of its Account row (`AccountSection`)
+swaps to a spinner while syncing, same shape as `_DevResetTile`/
+`_DevSeedTile`'s trailing spinner. No other screen or row shows anything.
+Still open before this can be built:
 
 - **Dirty-tracking columns on `Attacks`** — no `updatedAt`/`isSynced`/
   `syncedAt` column exists today (`attack_tables.dart`). Needed so a partial
