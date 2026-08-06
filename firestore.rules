@@ -37,9 +37,20 @@ service cloud.firestore {
             .affectedKeys()
             .hasAny(['premium']);
 
-      // Encrypted attack sync for signed-in users (auth/sync phase).
-      match /attacks/{attackId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+      // Encrypted record sync for signed-in users. Every document here is
+      // ciphertext plus its timestamp — see EncryptedRecordMapper.
+      //
+      // The list is an allowlist, not a wildcard, and must be kept in step
+      // with the `SyncCollection` enum: a bare `{collection}` would hand a
+      // client read/write on any subcollection someone adds later, including
+      // one meant to be server-only. `sync_collection_rules_test.dart` fails
+      // the build when the two drift apart — which is how medications and
+      // reminders shipped denied, breaking sync AND the dev seed on its
+      // first query.
+      match /{collection}/{docId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid == uid
+          && collection in ['attacks', 'medications', 'medication_reminders'];
       }
     }
   }
