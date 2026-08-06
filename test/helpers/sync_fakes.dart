@@ -1,3 +1,5 @@
+import 'package:migraine_tracker/core/db/app_database.dart';
+import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_sync_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/sync/data/services/aes_gcm_attack_cipher.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/encrypted_attack.dart';
@@ -5,6 +7,20 @@ import 'package:migraine_tracker/features/sync/domain/repositories/remote_attack
 import 'package:migraine_tracker/features/sync/domain/repositories/sync_cursor_store.dart';
 import 'package:migraine_tracker/features/sync/domain/repositories/sync_key_repository.dart';
 import 'package:migraine_tracker/features/sync/domain/services/attack_payload_codec.dart';
+import 'package:migraine_tracker/features/sync/domain/services/attack_sync_service.dart';
+
+/// A real sync service over fake transport, for tests that need one but are
+/// not testing sync itself.
+AttackSyncService syncServiceOver(
+  AppDatabase db, {
+  RemoteAttackRepository? remote,
+}) => AttackSyncService(
+  DriftAttackSyncRepository(db),
+  remote ?? FakeRemoteAttackRepository(),
+  FakeSyncKeyRepository(),
+  FakeSyncCursorStore(),
+  const AesGcmAttackCipher(),
+);
 
 /// Encrypts an attack the way another device would have before uploading it.
 Future<EncryptedAttack> encryptedFor(
@@ -22,6 +38,8 @@ Future<EncryptedAttack> encryptedFor(
 
 /// The server, as a map. Failures are armed per test to stand in for a
 /// dropped connection at a chosen point.
+///
+/// Also what `pumpApp` wires in, so no widget test ever reaches Firebase.
 class FakeRemoteAttackRepository implements RemoteAttackRepository {
   final Map<String, EncryptedAttack> documents = <String, EncryptedAttack>{};
 
@@ -29,6 +47,7 @@ class FakeRemoteAttackRepository implements RemoteAttackRepository {
   DateTime? lastSince;
   bool failNextPut = false;
   bool failNextQuery = false;
+  bool failNextDeleteAll = false;
 
   /// Fails once this many puts have succeeded within a single sync.
   int? failPutAfter;
@@ -70,7 +89,13 @@ class FakeRemoteAttackRepository implements RemoteAttackRepository {
   }
 
   @override
-  Future<void> deleteAll(String uid) async => documents.clear();
+  Future<void> deleteAll(String uid) async {
+    if (failNextDeleteAll) {
+      failNextDeleteAll = false;
+      throw Exception('delete failed');
+    }
+    documents.clear();
+  }
 }
 
 /// A fixed key, standing in for the one the backend would mint.

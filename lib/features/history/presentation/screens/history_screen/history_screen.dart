@@ -8,6 +8,7 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../attacks/domain/entities/attack.dart';
 import '../../../../attacks/providers.dart';
+import '../../../../sync/providers.dart';
 import '../../../domain/enums/history_view_mode.dart';
 import '../../../domain/services/chart_analytics.dart';
 import '../../../domain/services/weekly_buckets.dart';
@@ -35,6 +36,8 @@ class HistoryScreen extends HookConsumerWidget {
     final allAttacks = ref.watch(attacksStreamProvider);
     final filtered = ref.watch(filteredAttacksProvider);
     final mode = ref.watch(historyViewModeProvider);
+    final syncStatus = ref.watch(syncControllerProvider);
+    final isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
 
     // Tracked per view: IndexedStack keeps both alive with their own scroll offsets.
     final listPastFilter = useState(false);
@@ -76,6 +79,17 @@ class HistoryScreen extends HookConsumerWidget {
           () => ref.invalidate(attacksStreamProvider),
         ),
         child: switch (allAttacks) {
+          // Signed in on a new device: the list is empty because the history
+          // is still arriving, not because there is none. Scoped to the first
+          // pull only — no later sync ever gates this screen (hard rule 12).
+          AsyncData(value: final all) when all.isEmpty && isFirstSync =>
+            SdScrollFillV2(
+              topInset: SdContentPaddingV2.appBarInset(context),
+              child: SdEmptyStateV2(
+                icon: Icons.cloud_download_outlined,
+                message: l10n.historyFirstSyncLoading,
+              ),
+            ),
           AsyncData(value: final all) when all.isEmpty => SdScrollFillV2(
             topInset: SdContentPaddingV2.appBarInset(context),
             child: SdEmptyStateV2(

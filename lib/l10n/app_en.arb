@@ -1736,7 +1736,7 @@
   "@loginHeadline": {
     "description": "Headline of the login screen"
   },
-  "loginBody": "An account is only needed for your subscription. Everything else works without one.",
+  "loginBody": "An account keeps your subscription and backs up your attack history. Everything else works without one.",
   "@loginBody": {
     "description": "Sub-headline explaining why the app asks for an account"
   },
@@ -1756,9 +1756,9 @@
   "@loginBenefitRestoreBody": {
     "description": "Body of the restore-purchase login benefit"
   },
-  "loginPrivacyNote": "Your attacks stay on this device. Signing in never uploads your health data.",
+  "loginPrivacyNote": "Signing in backs up your attacks to your account, encrypted. They stay on this device too, and stay yours to delete at any time.",
   "@loginPrivacyNote": {
-    "description": "Privacy disclosure on the login screen (hard rule 1). Must stay accurate: update it only when encrypted attack sync actually ships."
+    "description": "Privacy disclosure on the login screen (hard rule 1). Must stay accurate. It says 'encrypted', never 'only you can read them': the key is held by the backend, so this is not end-to-end encryption and the copy must not imply it is."
   },
   "loginApple": "Sign in with Apple",
   "@loginApple": {
@@ -1954,9 +1954,33 @@
   "@accountPremiumFreeBody": {
     "description": "Account screen row subtitle listing what premium adds"
   },
-  "accountDataNote": "Your account holds your name, email and photo. Your attacks stay on this device.",
+  "accountDataNote": "Your account holds your name, email and photo. Your attacks are backed up encrypted, and stay on this device too.",
   "@accountDataNote": {
-    "description": "Privacy note at the bottom of the account screen, stating that health data is not part of the account record"
+    "description": "Privacy note at the bottom of the account screen. Same accuracy bar as loginPrivacyNote: the backend holds the key, so never imply end-to-end encryption."
+  },
+  "accountSectionSync": "Sync",
+  "@accountSectionSync": {
+    "description": "Section header above the sync row on the account screen"
+  },
+  "accountSyncing": "Syncing your attacks…",
+  "@accountSyncing": {
+    "description": "Shown at the top of the account screen while a sync is in flight. The only place full sync progress appears (hard rule 12)"
+  },
+  "accountSyncNow": "Sync now",
+  "@accountSyncNow": {
+    "description": "Button on the account screen that starts a sync by hand. Sync is automatic; this is for a deliberate retry"
+  },
+  "accountSyncNote": "Your attacks sync automatically. This is only here for when you want to be sure.",
+  "@accountSyncNote": {
+    "description": "Subtitle under the manual sync button, explaining that pressing it is never required"
+  },
+  "accountSyncFailed": "Sync didn't finish. It'll try again on its own.",
+  "@accountSyncFailed": {
+    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
+  },
+  "historyFirstSyncLoading": "Getting your attacks from your account…",
+  "@historyFirstSyncLoading": {
+    "description": "Shown on the history list during the first pull after signing in, so an empty list does not read as 'you have no attacks'"
   },
   "settingsPremium": "Premium",
   "@settingsPremium": {

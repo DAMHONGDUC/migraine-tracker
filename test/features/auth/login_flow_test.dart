@@ -28,11 +28,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.text('Sign in to unlock Premium'), findsOneWidget);
-      // Hard rule 1: the sign-in UI states what happens to health data.
+      // Hard rule 1: the sign-in UI states what happens to health data — and
+      // now that sync ships, that it leaves the device at all.
       expect(
         find.text(
-          'Your attacks stay on this device. Signing in never uploads your '
-          'health data.',
+          'Signing in backs up your attacks to your account, encrypted. They '
+          'stay on this device too, and stay yours to delete at any time.',
         ),
         findsOneWidget,
       );

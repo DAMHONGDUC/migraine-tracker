@@ -37,6 +37,7 @@ import 'package:migraine_tracker/features/premium/domain/repositories/purchase_r
 import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
@@ -45,6 +46,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/index.dart';
 
 import 'export_fakes.dart';
+import 'sync_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
 /// the network.
@@ -632,6 +634,12 @@ Future<PumpedApp> pumpApp(
         // Always overridden: the real store needs path_provider, which a
         // widget test does not have.
         exportFileStoreProvider.overrideWithValue(exportFiles),
+        // Always overridden too: the app root fires a sync on sign-in, and
+        // the real repositories reach for Firebase, which no widget test has.
+        syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
+        remoteAttackRepositoryProvider.overrideWithValue(
+          FakeRemoteAttackRepository(),
+        ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),
         if (fileSaver != null) fileSaverProvider.overrideWithValue(fileSaver),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
 import '../../../features/auth/providers.dart';
+import '../../../features/sync/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
@@ -29,9 +31,17 @@ class AccountSection extends ConsumerWidget {
 
     // - Signed in: the account lives on its own screen; this row only points there, so sign-out exists in one place.
     // - The email stays off this row — Settings is scrolled past in public, and the account screen is one tap away.
+    // - The spinner is all Settings ever shows of a sync; the full progress lives on the account screen (hard rule 12).
     return SettingsTile(
       icon: Icons.account_circle,
       title: l10n.settingsAccount,
+      trailing: ref.watch(isSyncingProvider)
+          ? SizedBox(
+              width: SdSpacingConstant.r20,
+              height: SdSpacingConstant.r20,
+              child: const CircularProgressIndicator(strokeWidth: 2),
+            )
+          : null,
       onTap: () => context.pushNamed(AppRoutes.account.name),
     );
   }

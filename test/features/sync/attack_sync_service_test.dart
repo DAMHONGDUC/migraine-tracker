@@ -12,7 +12,7 @@ import 'package:migraine_tracker/features/sync/domain/entities/sync_outcome.dart
 import 'package:migraine_tracker/features/sync/domain/services/attack_sync_service.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
-import 'sync_fakes.dart';
+import '../../helpers/sync_fakes.dart';
 
 void main() {
   late AppDatabase db;
