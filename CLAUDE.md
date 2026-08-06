@@ -313,16 +313,19 @@ one thing this project must not ship. Tests override
 `premiumRepositoryProvider` with a fake instead; nothing else may.
 
 Missing config used to fail loud via `assert(AppEnv.hasFirebaseConfig, …)` and
-`assert(AppEnv.hasPurchasesConfig, …)` in `main()` — **both asserts are
-removed** (owner call: a TestFlight build crashing on launch was suspected to
-trace back to one of them; under investigation). The paywall still surfaces
-`PurchaseError.notConfigured` when a purchase action runs without a key,
-because every RevenueCat call site catches the `RevenueCatClient.apiKey`
-`StateError` — that guard stays; only the two `main()` asserts are gone.
-**TODO (owner):** replace them with a single assert in `main()` that walks
-every `AppEnv` value and checks each is non-null and non-empty, instead of a
-per-field assert — not done yet, doing it later. What the owner must do by
-hand:
+`assert(AppEnv.hasPurchasesConfig, …)` in `main()`; both were removed (owner
+call: a TestFlight build crashing on launch was suspected to trace back to
+one of them; under investigation) and have now been **replaced with one
+assert** — `AppEnv.missingConfigKeys` walks every required Firebase field
+plus the platform's own RevenueCat key and returns the names still empty;
+`main()` asserts that list is empty, reporting every gap in one message
+instead of failing on the first field checked. This is a deliberate re-add of
+an `assert()` in `main()` despite the still-open investigation above — if the
+TestFlight crash resurfaces, this is the first place to suspect and revert.
+The paywall still surfaces `PurchaseError.notConfigured` when a purchase
+action runs without a key, because every RevenueCat call site catches the
+`RevenueCatClient.apiKey` `StateError` — that guard is unchanged. What the
+owner must do by hand:
 
 1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
    already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
