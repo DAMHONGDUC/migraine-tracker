@@ -25,5 +25,27 @@
       ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    { "collectionGroup": "attacks", "fieldPath": "payload", "indexes": [] },
+    { "collectionGroup": "attacks", "fieldPath": "nonce", "indexes": [] },
+    { "collectionGroup": "attacks", "fieldPath": "mac", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "payload", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "nonce", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "mac", "indexes": [] },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "nonce",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "mac",
+      "indexes": []
+    }
+  ]
 }
