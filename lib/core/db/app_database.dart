@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../features/attacks/data/tables/attack_tables.dart';
+import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/settings/data/tables/export_tables.dart';
@@ -32,7 +33,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,17 +42,20 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         await m.createTable(medicationReminders);
       }
-      // v3: medications remember when they were added, so the medications
-      // tab can sort and filter by it. Existing rows get null — their real
-      // creation date was never recorded and inventing one would corrupt
-      // the very filter this column exists to serve.
+      // - v3: medications remember when they were added, so the tab can sort/filter by it.
+      // - Existing rows get null — inventing a date would corrupt the very filter this serves.
       if (from < 3) {
         await m.addColumn(medications, medications.createdAt);
       }
-      // v4: the export screen keeps a history. Nothing to backfill —
-      // exports made before this shipped were never recorded.
+      // - v4: the export screen keeps a history.
+      // - Nothing to backfill — exports before this shipped were never recorded.
       if (from < 4) {
         await m.createTable(exportRecords);
+      }
+      // - v5: self-reported physical exertion, added to the details step.
+      // - Existing rows get null — nobody reported exertion before this shipped.
+      if (from < 5) {
+        await m.addColumn(attacks, attacks.exertionLevel);
       }
     },
     beforeOpen: (details) async {

@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../../core/db/app_database.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 import '../../domain/repositories/attack_repository.dart';
 
@@ -118,12 +119,14 @@ class DriftAttackRepository implements AttackRepository {
     required List<String> symptoms,
     required List<String> triggers,
     String? notes,
+    ExertionLevel? exertionLevel,
   }) async {
     await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
       AttacksCompanion(
         symptoms: Value(symptoms),
         triggers: Value(triggers),
         notes: Value(notes),
+        exertionLevel: Value(exertionLevel),
       ),
     );
   }
@@ -162,6 +165,7 @@ class DriftAttackRepository implements AttackRepository {
     symptoms: row.symptoms,
     triggers: row.triggers,
     notes: row.notes,
+    exertionLevel: row.exertionLevel,
     weather: weather == null
         ? null
         : WeatherSnapshot(
@@ -182,6 +186,7 @@ class DriftAttackRepository implements AttackRepository {
     symptoms: Value(attack.symptoms),
     triggers: Value(attack.triggers),
     notes: Value(attack.notes),
+    exertionLevel: Value(attack.exertionLevel),
   );
 
   WeatherSnapshotsCompanion _toWeatherRow(

@@ -4,6 +4,20 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- Answers App Store Connect's export-compliance question at upload time
+	     instead of asking on every build. False = the app uses only exempt
+	     encryption.
+
+	     That is accurate today: the one cryptographic call in the app is a
+	     SHA-256 of the Sign in with Apple nonce, which is a hash used for
+	     authentication, and everything else rides HTTPS through the OS.
+	     Both are exempt.
+
+	     REVISIT when the encrypted attack sync in hard rule 1 actually
+	     ships. Standard algorithms are still exempt, but the answer stops
+	     being obvious and may need a self-classification report. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -38,9 +52,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>BaroEase reads your sleep from Apple Health to show whether short nights line up with your migraine attacks. It reads sleep only, the data stays on this device, and it is never uploaded or shared.</string>
+	<string>BaroEase reads your sleep and step count from Apple Health to show whether short nights or low activity line up with your migraine attacks. It reads this data only, it stays on this device, and it is never uploaded or shared.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>BaroEase never writes anything to Apple Health. It only reads your sleep, to show whether short nights line up with your migraine attacks.</string>
+	<string>BaroEase never writes anything to Apple Health. It only reads your sleep and steps, to show whether short nights or low activity line up with your migraine attacks.</string>
 	<key>NSLocationDefaultAccuracyReduced</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>

@@ -4,7 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../domain/enums/exertion_level.dart';
 import '../../providers.dart';
+import 'exertion_level_picker.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
 /// Opened empty right after logging, or prefilled when editing from the
@@ -15,6 +18,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
     this.initialSymptoms = const [],
     this.initialTriggers = const [],
     this.initialNotes,
+    this.initialExertionLevel,
     super.key,
   });
 
@@ -22,6 +26,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
   final List<String> initialSymptoms;
   final List<String> initialTriggers;
   final String? initialNotes;
+  final ExertionLevel? initialExertionLevel;
 
   List<String> _split(String input) =>
       input.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
@@ -36,6 +41,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
       text: initialTriggers.join(', '),
     );
     final notesController = useTextEditingController(text: initialNotes ?? '');
+    final exertionLevel = useState<ExertionLevel?>(initialExertionLevel);
 
     Future<void> save() async {
       final notes = notesController.text.trim();
@@ -46,6 +52,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
             symptoms: _split(symptomsController.text),
             triggers: _split(triggersController.text),
             notes: notes.isEmpty ? null : notes,
+            exertionLevel: exertionLevel.value,
           );
       if (context.mounted) Navigator.of(context).pop();
     }
@@ -54,8 +61,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
       title: l10n.detailsTitle,
       closeTooltip: l10n.commonClose,
       confirmTooltip: l10n.commonDone,
-      // Overwriting what is already on the attack, not adding a first
-      // answer — so the commit is the pencil, not the tick.
+      // Overwrites an existing answer, not a first one — pencil, not tick.
       action: SdSheetActionV2.edit,
       onConfirm: save,
       child: Column(
@@ -78,6 +84,13 @@ class AttackDetailsSheet extends HookConsumerWidget {
             controller: notesController,
             label: l10n.detailsNotesLabel,
             maxLines: 3,
+          ),
+          SizedBox(height: SdSpacingConstant.h16),
+          Text(l10n.detailsExertionLabel, style: AppTextStyle.bodyMedium),
+          SizedBox(height: SdSpacingConstant.h8),
+          ExertionLevelPicker(
+            selected: exertionLevel.value,
+            onSelected: (value) => exertionLevel.value = value,
           ),
         ],
       ),

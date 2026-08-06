@@ -54,14 +54,11 @@ class _AppShellState extends ConsumerState<AppShell> {
     final l10n = context.l10n;
 
     return Scaffold(
-      // Let the branch content flow behind the floating glass bar so it
-      // refracts through it (hard rule 3: the effect stays calm and dark).
-      // Unconditional: the nav is always the floating pill, so the body
-      // always has to reach under it.
+      // - Lets branch content flow behind the floating glass bar so it refracts (hard rule 3: calm and dark).
+      // - Unconditional: the nav is always the floating pill, so the body always reaches under it.
       extendBody: true,
       body: navigationShell,
-      // The log flow is a pushed route now, not a tab, so the bar always
-      // shows the tab nav — no more morphing into a step-progress mid-log.
+      // The log flow is a pushed route now, not a tab, so the bar always shows the tab nav (no step-progress morph mid-log).
       bottomNavigationBar: _FloatingBar(
         child: _SlidingNavBar(
           selectedIndex: navigationShell.currentIndex,
@@ -121,8 +118,7 @@ class _SlidingNavBar extends StatelessWidget {
     final scheme = context.colorScheme;
     final count = items.length;
     return SizedBox(
-      // Shared with the log flow's step bar, and with what content pads by to
-      // clear this pill — see SdContentPaddingV2.floatingBarHeight.
+      // Shared with the log flow's step bar and what content clears it — see SdContentPaddingV2.floatingBarHeight.
       height: SdContentPaddingV2.floatingBarHeight,
       child: Stack(
         children: [

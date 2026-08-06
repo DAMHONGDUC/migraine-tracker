@@ -21,8 +21,7 @@ class _MedicationCard extends ConsumerWidget {
             DateFormat.yMMMd(l10n.localeName).format(createdAt.toLocal()),
           );
 
-    return Card(
-      margin: EdgeInsets.zero,
+    return SdCardV2(
       child: ListTile(
         onTap: () => context.pushNamed(
           AppRoutes.medication.name,

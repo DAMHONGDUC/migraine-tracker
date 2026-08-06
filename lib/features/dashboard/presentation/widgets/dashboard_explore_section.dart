@@ -38,8 +38,7 @@ class DashboardExploreSection extends StatelessWidget {
               onTap: () => context.goNamed(AppRoutes.medications.name),
             ),
             SdBannerV2(
-              // Distinct from the bottom nav's insights_outlined so byIcon
-              // finders stay unambiguous (see the byicon gotcha).
+              // Distinct from the bottom nav's insights_outlined so byIcon finders stay unambiguous.
               icon: Icons.analytics_outlined,
               color: AppColors.primary,
               title: l10n.dashboardInsightsBannerTitle,
@@ -51,8 +50,7 @@ class DashboardExploreSection extends StatelessWidget {
               color: AppColors.secondary,
               title: l10n.dashboardExportTitle,
               subtitle: l10n.dashboardExportBody,
-              // Straight to Export. Landing on the Settings tab and leaving
-              // the user to find the row is not what the banner promised.
+              // Straight to Export — landing on Settings and hunting isn't what the banner promised.
               onTap: () => context.pushNamed(AppRoutes.export.name),
             ),
           ],

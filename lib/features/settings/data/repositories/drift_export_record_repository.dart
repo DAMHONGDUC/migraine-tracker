@@ -48,8 +48,7 @@ class DriftExportRecordRepository implements ExportRecordRepository {
   @override
   Future<void> deleteAll() => _db.delete(_db.exportRecords).go();
 
-  // An unknown kind means a row written by a newer build. Falling back to
-  // json keeps the history listable instead of crashing the screen.
+  // Unknown kind = a newer build's row; fall back to json so the screen doesn't crash.
   ExportRecord _toEntity(ExportRecordRow row) => ExportRecord(
     id: row.id,
     kind: ExportKind.values.firstWhere(

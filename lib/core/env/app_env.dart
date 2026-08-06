@@ -16,8 +16,7 @@ final class AppEnv {
 
   static bool get isProd => flavor == 'prod';
 
-  // --- Firebase (non-secret client identifiers; access control is in
-  // Firestore Security Rules, not these values). ---
+  // --- Firebase (non-secret identifiers; access control is Firestore rules). ---
   static const String firebaseAndroidApiKey = String.fromEnvironment(
     'FIREBASE_ANDROID_API_KEY',
   );
@@ -53,8 +52,7 @@ final class AppEnv {
       'Firebase config missing. Run with '
       '--dart-define-from-file=env/dev.json (or env/prod.json).';
 
-  // --- RevenueCat (public SDK keys; safe to ship in the binary — the
-  // entitlement itself is decided by RevenueCat's servers, never here). ---
+  // --- RevenueCat (public SDK keys; entitlement is decided server-side). ---
   static const String revenueCatIosKey = String.fromEnvironment(
     'REVENUECAT_IOS_KEY',
   );
@@ -97,4 +95,14 @@ final class AppEnv {
       'RevenueCat config missing. Add REVENUECAT_IOS_KEY / '
       'REVENUECAT_ANDROID_KEY to env/dev.json (or env/prod.json) and run with '
       '--dart-define-from-file.';
+
+  // --- Support ---
+
+  /// Inbox shown on the Contact support screen and used as the `mailto:`
+  /// recipient. Defaulted to a sample address rather than required — swap
+  /// SUPPORT_EMAIL in env/*.json for the real inbox when there is one.
+  static const String supportEmail = String.fromEnvironment(
+    'SUPPORT_EMAIL',
+    defaultValue: 'support@baroease.app',
+  );
 }

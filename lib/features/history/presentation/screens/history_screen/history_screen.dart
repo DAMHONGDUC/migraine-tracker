@@ -36,9 +36,7 @@ class HistoryScreen extends HookConsumerWidget {
     final filtered = ref.watch(filteredAttacksProvider);
     final mode = ref.watch(historyViewModeProvider);
 
-    // Whether each scrollable has scrolled past its in-list filter pill —
-    // tracked per view because IndexedStack keeps both alive with their own
-    // scroll offsets.
+    // Tracked per view: IndexedStack keeps both alive with their own scroll offsets.
     final listPastFilter = useState(false);
     final chartPastFilter = useState(false);
     final pastFilter = switch (mode) {
@@ -48,8 +46,8 @@ class HistoryScreen extends HookConsumerWidget {
     };
 
     return SdScaffoldV2(
-      // At rest the pill lives in the scroll content; once it scrolls away
-      // it takes over the title slot and the "History" heading hides.
+      // - at rest, the pill lives in the scroll content
+      // - once scrolled, it takes the title slot and the "History" heading hides
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 250),
         switchInCurve: Curves.easeOutCubic,
@@ -72,8 +70,7 @@ class HistoryScreen extends HookConsumerWidget {
         ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      // No outer top padding: each view pads INSIDE its own scrollable, so
-      // the content scrolls behind the translucent app bar and blurs out.
+      // No outer top padding: each view pads INSIDE its own scrollable, so content scrolls behind the app bar.
       body: SdRefreshIndicatorV2(
         onRefresh: () => SdRefreshIndicatorV2.run(
           () => ref.invalidate(attacksStreamProvider),
@@ -92,17 +89,14 @@ class HistoryScreen extends HookConsumerWidget {
                 AsyncData(value: final value) => value,
                 _ => const <Attack>[],
               };
-              // Computed once and passed down, so the three views can't
-              // drift apart. Unconditional floatingNav: the shell's nav
-              // pill floats on every device, so these views always scroll
-              // behind it.
+              // - computed once and passed down so the three views can't drift apart
+              // - floatingNav is unconditional: the shell's nav pill floats on every device
               final topInset = SdContentPaddingV2.top(context);
               final bottomInset = SdContentPaddingV2.bottom(
                 context,
                 floatingNav: true,
               );
-              // IndexedStack keeps ALL views alive so switching modes
-              // preserves state (scroll position, selected day, layout).
+              // IndexedStack keeps ALL views alive so switching modes preserves state (scroll position, selected day, layout).
               return IndexedStack(
                 index: HistoryViewMode.values.indexOf(mode),
                 children: [

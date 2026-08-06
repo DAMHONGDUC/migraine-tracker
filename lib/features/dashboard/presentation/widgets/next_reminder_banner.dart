@@ -74,8 +74,7 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
         highlight: remaining,
         color: AppColors.secondary,
       ),
-      // Straight to the medication this reminder belongs to — its detail
-      // screen is where the reminder can actually be changed.
+      // Straight to the medication's detail screen — that's where it can be changed.
       onTap: () => context.pushNamed(
         AppRoutes.medication.name,
         pathParameters: <String, String>{

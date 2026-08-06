@@ -204,10 +204,10 @@ class ExportController {
 
   Future<(pw.Font, pw.Font)> _reportFonts() async {
     _regularFont ??= pw.Font.ttf(
-      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+      await rootBundle.load('assets/fonts/noto_sans/NotoSans-Regular.ttf'),
     );
     _boldFont ??= pw.Font.ttf(
-      await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'),
+      await rootBundle.load('assets/fonts/noto_sans/NotoSans-Bold.ttf'),
     );
 
     return (_regularFont!, _boldFont!);

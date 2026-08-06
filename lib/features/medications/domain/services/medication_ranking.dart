@@ -21,8 +21,7 @@ class MedicationRanking {
   ) {
     if (medications.length < 2) return medications;
 
-    // First sighting of a name is its most recent use, so later duplicates
-    // never overwrite a better rank.
+    // First sighting is most recent use; later duplicates never overwrite it.
     final rankByName = <String, int>{};
     int rank = 0;
     for (final name in recentNamesNewestFirst) {
@@ -31,8 +30,7 @@ class MedicationRanking {
     }
     if (rankByName.isEmpty) return medications;
 
-    // Stable sort keeps the alphabetical tail intact: List.sort is not
-    // stable, so unranked meds are partitioned out instead of compared.
+    // List.sort isn't stable, so unranked meds are partitioned out, not compared.
     final ranked = <Medication>[];
     final unranked = <Medication>[];
     for (final medication in medications) {

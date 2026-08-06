@@ -49,8 +49,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    // Without this, the next sign-in skips the picker and silently lands
-    // back in the account just left.
+    // Without this, the next sign-in skips the picker and silently lands back in the account just left.
     try {
       await _google.signOut();
     } on GoogleSignInException {
@@ -98,8 +97,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   Future<AuthCredential> _appleCredential() async {
-    // Apple signs the nonce into the token and Firebase re-checks it —
-    // without it the token could be replayed against our project.
+    // Apple signs the nonce into the token; without it the token could be replayed.
     final String rawNonce = _nonce();
 
     try {
@@ -151,9 +149,8 @@ class FirebaseAuthRepository implements AuthRepository {
     AuthCredential credential,
   ) async {
     switch (e.code) {
-      // The account already exists on its own, so the anonymous UID cannot
-      // absorb it — sign into it instead, which is what the user asked for.
-      // Nothing on-device is lost; Drift is untouched by sign-in.
+      // - the account already exists, so the anonymous UID can't absorb it — sign into it instead
+      // - nothing on-device is lost; Drift is untouched by sign-in
       case 'credential-already-in-use':
       case 'email-already-in-use':
         final UserCredential result = await _auth.signInWithCredential(

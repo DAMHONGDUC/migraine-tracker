@@ -26,9 +26,8 @@ class PremiumSettingsTile extends ConsumerWidget {
           : Icons.workspace_premium_outlined,
       iconColor: premium ? context.colorScheme.primary : null,
       title: l10n.settingsPremium,
-      // The state is the row's value, so it reads at the end like every other
-      // one — and it is a chevron, never the PremiumBadge: that badge marks a
-      // locked teaser, and this row is a way in, not a gate.
+      // - The state reads as the row's value, at the end like every other row.
+      // - Uses a chevron, never PremiumBadge — that badge marks a locked teaser, this row is a way in.
       value: premium ? l10n.accountPremiumActive : l10n.accountPremiumFree,
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );

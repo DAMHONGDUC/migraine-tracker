@@ -21,8 +21,7 @@ class HistoryViewToggle extends StatelessWidget {
 
   static const _icons = {
     HistoryViewMode.list: Icons.list_alt,
-    // Not calendar_month — that's the History tab's own icon in the bottom
-    // nav, and one icon must not mean two things.
+    // Not calendar_month — that's the History tab's own icon in the bottom nav, and one icon must not mean two things.
     HistoryViewMode.calendar: Icons.calendar_view_month,
     HistoryViewMode.chart: Icons.bar_chart,
   };
@@ -35,8 +34,7 @@ class HistoryViewToggle extends StatelessWidget {
     final height = SdSpacingConstant.h42;
     final index = modes.indexOf(mode);
 
-    // Styled like the bottom nav pill: borderless glass surface, and the
-    // thumb floats inside the track with its own inset padding.
+    // Styled like the bottom nav pill: borderless glass surface, thumb floats inside the track with its own inset.
     final track = Container(
       width: segmentWidth * modes.length,
       height: height,
@@ -97,8 +95,7 @@ class HistoryViewToggle extends StatelessWidget {
     );
 
     if (!SdGlassV2.isSupported) return track;
-    // A frosted pill: it refracts the (glass) app bar and the content behind
-    // it. The thumb + icons paint crisply on top (glassContainsChild: false).
+    // A frosted pill: refracts the (glass) app bar and content behind it, thumb + icons paint crisply on top (glassContainsChild: false).
     return LiquidGlass.withOwnLayer(
       settings: kChromeGlass,
       shape: LiquidRoundedSuperellipse(borderRadius: height / 2),

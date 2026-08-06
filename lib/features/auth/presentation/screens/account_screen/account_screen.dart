@@ -128,8 +128,7 @@ class _SignOutButton extends ConsumerWidget {
 
     if (confirmed != true) return;
     await ref.read(accountControllerProvider).signOut();
-    // This screen assumes an account — without one there is nothing left on
-    // it, so it goes back to Settings rather than sitting there empty.
+    // This screen assumes an account — without one it goes back to Settings rather than sitting empty.
     if (context.mounted) context.pop();
   }
 

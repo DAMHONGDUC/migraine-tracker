@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/db/converters.dart';
+import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 
 @DataClassName('AttackRow')
@@ -20,6 +21,7 @@ class Attacks extends Table {
       .map(const StringListConverter())
       .withDefault(const Constant('[]'))();
   TextColumn get notes => text().nullable()();
+  TextColumn get exertionLevel => textEnum<ExertionLevel>().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

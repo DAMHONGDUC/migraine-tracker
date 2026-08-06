@@ -34,15 +34,13 @@ class ForceUpdateChecker {
       published.buildName,
     );
 
-    // A readable name settles it outright, in both directions — a newer
-    // name (TestFlight, a build already ahead) is never blocked.
+    // A readable name settles it outright, in both directions — a newer name is never blocked.
     if (byName != null && byName != 0) {
       return byName < 0 ? published : null;
     }
 
-    // Same version name, or a name we couldn't read: fall back to the
-    // build number. 0 on either side means unknown — block nobody on a
-    // comparison we can't make.
+    // - Same version name, or unreadable name: fall back to the build number.
+    // - 0 on either side means unknown — block nobody on a comparison we can't make.
     if (installed.buildNumber <= 0 || published.buildNumber <= 0) return null;
     if (installed.buildNumber >= published.buildNumber) return null;
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../features/alerts/presentation/screens/alerts_screen/alerts_screen.dart';
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
@@ -17,6 +18,7 @@ import '../../features/onboarding/presentation/controllers/onboarding_controller
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
+import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../analytics/app_analytics.dart';
@@ -76,6 +78,12 @@ final class AppRoutes {
 
   /// Export data and the history of past exports, pushed from Settings.
   static const export = AppRoute(name: 'export', path: '/export');
+
+  /// Pressure-drop alerts toggle + threshold, pushed from Settings.
+  static const alerts = AppRoute(name: 'alerts', path: '/alerts');
+
+  /// Support email, pushed from Settings' About section.
+  static const contact = AppRoute(name: 'contact', path: '/contact');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -91,12 +99,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: ref.watch(rootNavigatorKeyProvider),
     initialLocation: AppRoutes.dashboard.path,
-    // `screen_view` for pushed routes (log, login, paywall, attack detail).
-    // Empty outside a Firebase build — the shell's tabs are logged by hand
-    // in AppShell, since switching branches pushes nothing.
+    // - `screen_view` for pushed routes (log, login, paywall, attack detail).
+    // - Empty outside a Firebase build — tabs are logged by hand in AppShell instead.
     observers: AppAnalytics.navigatorObservers,
-    // First launch lands on onboarding until it's completed; afterwards
-    // /onboarding is never reachable again.
+    // First launch lands on onboarding until completed; afterwards /onboarding is never reachable again.
     redirect: (context, state) {
       final done =
           ref
@@ -106,8 +112,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
       if (done && onOnboarding) return AppRoutes.dashboard.path;
-      // Signing out (or a deep link without an account) must not land on a
-      // tab that has nothing to show.
+      // Signing out (or a deep link without an account) must not land on a tab with nothing to show.
       if (state.matchedLocation == AppRoutes.account.path &&
           !ref.read(isSignedInProvider)) {
         return AppRoutes.dashboard.path;
@@ -134,11 +139,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           medicationId: state.pathParameters[AppRoutes.medicationIdParam]!,
         ),
       ),
-      // The 3-tap log flow is a full-screen pushed route (opened from the
-      // dashboard's log button), not a tab: it takes over the screen so the
-      // sacred flow has no distractions, and its own step progress lives in
-      // the screen. Popping it (Cancel / Done) returns to wherever it was
-      // launched from.
+      // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
+      // - Popping it (Cancel / Done) returns to wherever it was launched from.
       GoRoute(
         name: AppRoutes.log.name,
         path: AppRoutes.log.path,
@@ -149,8 +151,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.login.path,
         builder: (context, state) => const LoginScreen(),
       ),
-      // Both are pushed from Settings, so they cover the tab bar and come
-      // back to where they were opened from.
+      // Both pushed from Settings, so they cover the tab bar and return to where they opened from.
       GoRoute(
         name: AppRoutes.account.name,
         path: AppRoutes.account.path,
@@ -166,9 +167,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.export.path,
         builder: (context, state) => const ExportScreen(),
       ),
-      // A routed page that PRESENTS as a modal bottom sheet: transparent
-      // route with a dim barrier, content slides up from the bottom and
-      // covers ~80% (see PaywallScreen). Tap above the sheet dismisses.
+      GoRoute(
+        name: AppRoutes.alerts.name,
+        path: AppRoutes.alerts.path,
+        builder: (context, state) => const AlertsScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.contact.name,
+        path: AppRoutes.contact.path,
+        builder: (context, state) => const ContactScreen(),
+      ),
+      // - Presents as a modal bottom sheet: transparent route, dim barrier, content covers ~80% (see PaywallScreen).
+      // - Tap above the sheet dismisses.
       GoRoute(
         name: AppRoutes.paywall.name,
         path: AppRoutes.paywall.path,

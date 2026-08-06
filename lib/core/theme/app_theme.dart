@@ -28,12 +28,12 @@ final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      // What System Design widgets read for the slots ColorScheme has no name
-      // for. Without this they fall back to neutral defaults — the app owns
-      // the palette, the package only owns the shape.
+      // - Fills the slots ColorScheme has no name for.
+      // - Without it, widgets fall back to neutral defaults — the app owns the palette, the package owns the shape.
       extensions: <ThemeExtension<dynamic>>[
         SdThemeV2(
           background: AppColors.background,
+          surfaceModal: AppColors.surfaceModal,
           surfaceElevated: AppColors.surfaceElevated,
           textPrimary: AppColors.textPrimary,
           textSecondary: AppColors.textSecondary,
@@ -41,8 +41,7 @@ final class AppTheme {
           barrier: AppColors.barrier,
         ),
       ],
-      // Ambient defaults (ListTile, AppBar, buttons) come from the same
-      // single source as explicit styles: AppTextStyle.
+      // Ambient defaults (ListTile, AppBar, buttons) share one source with explicit styles: AppTextStyle.
       textTheme: TextTheme(
         displaySmall: AppTextStyle.displaySmall,
         headlineMedium: AppTextStyle.headlineMedium,
@@ -63,8 +62,7 @@ final class AppTheme {
         elevation: 0,
         centerTitle: false,
       ),
-      // Facebook-style tabs: no M3 indicator pill; the active tab switches
-      // outline → solid (icon/selectedIcon pairs) and tints primary.
+      // Facebook-style tabs: no M3 indicator pill — active tab switches outline→solid and tints primary.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.transparent,
@@ -77,8 +75,7 @@ final class AppTheme {
                 : AppColors.textSecondary,
           ),
         ),
-        // Fixed size/weight — only the color changes on tab switch, so
-        // labels never jump.
+        // Fixed size/weight — only the color changes on tab switch, so labels never jump.
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => AppTextStyle.labelSmall.copyWith(
             color: states.contains(WidgetState.selected)
@@ -87,12 +84,19 @@ final class AppTheme {
           ),
         ),
       ),
-      cardTheme: const CardThemeData(color: AppColors.surface, elevation: 0),
-      dialogTheme: const DialogThemeData(
-        backgroundColor: AppColors.surfaceElevated,
+      // - Backstop only: every card in the app is an SdCardV2, which reads colorScheme.surface itself.
+      // - Keeps Flutter's internal Material Card on the same colour.
+      // - Avoids the invisible EdgeInsets.all(4) margin that made card lists lie about their gaps.
+      cardTheme: const CardThemeData(
+        color: AppColors.surface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
       ),
-      // A backstop only — the app's look lives in SdSnackBarUtilsV2. Without
-      // it, M3's default inverse surface is a bright bar on a dark screen.
+      dialogTheme: const DialogThemeData(
+        backgroundColor: AppColors.surfaceModal,
+      ),
+      // - Backstop only — the app's look lives in SdSnackBarUtilsV2.
+      // - Without it, M3's default inverse surface is a bright bar on a dark screen.
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,
         contentTextStyle: AppTextStyle.bodyMedium,

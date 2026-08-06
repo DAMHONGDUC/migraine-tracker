@@ -23,9 +23,8 @@ class HeadDiagram extends StatelessWidget {
     final targetAngle = selected == HeadLocation.back ? math.pi : 0.0;
     return AspectRatio(
       aspectRatio: _aspectRatio,
-      // The angle tween has NO key, so changing the target animates from the
-      // *current* angle — turning back to the front when you pick a side
-      // while facing away, instead of snapping.
+      // No key on the angle tween: animates from the *current* angle instead
+      // of snapping, so picking a side while facing away turns back smoothly.
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(end: targetAngle),
         duration: const Duration(milliseconds: 420),
@@ -35,8 +34,7 @@ class HeadDiagram extends StatelessWidget {
           transform: Matrix4.identity()
             ..setEntry(3, 2, 0.001)
             ..rotateY(angle),
-          // The ripple pulse DOES restart per selection (keyed), so a fresh
-          // pick re-animates the region fill from its centre.
+          // Ripple pulse restarts per selection (keyed): fresh pick re-animates.
           child: TweenAnimationBuilder<double>(
             key: ValueKey(selected),
             tween: Tween(begin: 0, end: 1),

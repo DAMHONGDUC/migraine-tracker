@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/exertion_level_label.dart';
 import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';

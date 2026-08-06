@@ -1,5 +1,6 @@
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/attack.dart';
+import '../enums/exertion_level.dart';
 import '../enums/head_location.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
@@ -31,6 +32,7 @@ abstract interface class AttackRepository {
     required List<String> symptoms,
     required List<String> triggers,
     String? notes,
+    ExertionLevel? exertionLevel,
   });
 
   /// Corrects the core fields of an already-logged attack (detail screen).

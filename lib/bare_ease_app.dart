@@ -26,15 +26,13 @@ class BaroEaseApp extends HookConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeControllerProvider);
 
-    // One backfill pass per app start: attacks logged offline get their
-    // weather snapshot (at their own start time) once we're back online.
+    // One backfill pass per app start: attacks logged offline get their weather snapshot once back online.
     useEffect(() {
       unawaited(ref.read(weatherAttachServiceProvider).backfillMissing());
       return null;
     }, const []);
 
-    // Keeps the analytics/crash identity in step with the account: the UID
-    // is opaque (never an email), and null once signed out.
+    // Keeps analytics/crash identity in step with the account — UID is opaque, null once signed out.
     ref.listen<AsyncValue<AuthUser?>>(authUserProvider, (previous, next) {
       final AuthUser? user = switch (next) {
         AsyncData(value: final AuthUser? value) => value,
@@ -43,17 +41,16 @@ class BaroEaseApp extends HookConsumerWidget {
 
       AppAnalytics.setUser(uid: user?.uid, signedIn: user?.isSignedIn ?? false);
       CrashReporter.setUserId(user?.uid);
-      // Sign-in, and every launch of a signed-in session: keep the account
-      // document in step with what the provider knows about the user.
+      // Sign-in, and every launch of a signed-in session: keep the account doc in step with the provider.
       if (user != null) {
         unawaited(ref.read(accountControllerProvider).syncProfile(user));
       }
-      // Bind purchases to the account, so an entitlement follows the person
-      // rather than the install — that is what makes a subscription survive
-      // a reinstall or a second device. Anonymous sessions stay unbound:
-      // there is nothing durable to attach a purchase to yet.
+      // - Bind purchases to the account so an entitlement follows the person, not the install — survives a reinstall or a second device.
+      // - Anonymous sessions stay unbound: nothing durable to attach a purchase to yet.
       unawaited(
-        ref.read(purchaseIdentityProvider).sync(user?.isSignedIn == true ? user!.uid : null),
+        ref
+            .read(purchaseIdentityProvider)
+            .sync(user?.isSignedIn == true ? user!.uid : null),
       );
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
@@ -75,8 +72,7 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
-        // Wraps every route: checks on each entry whether this build is
-        // still allowed to run (see ForceUpdateWrapper).
+        // Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
         builder: (context, child) =>
             ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
         localizationsDelegates: AppLocalizations.localizationsDelegates,

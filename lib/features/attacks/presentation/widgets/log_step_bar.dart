@@ -31,8 +31,7 @@ class LogStepBar extends StatelessWidget {
       child: _StepProgress(currentStep: currentStep),
     );
 
-    // Glass off: a plain surface bar that reserves its own slot + safe area,
-    // matching the old non-glass tracking bar.
+    // Glass off: plain surface bar, matching the old non-glass tracking bar.
     if (!SdGlassV2.isSupported) {
       return Material(
         color: AppColors.surface,
@@ -40,11 +39,8 @@ class LogStepBar extends StatelessWidget {
       );
     }
 
-    // Glass on: the floating frosted pill — same side margins and the same
-    // bottom offset as the shell's nav pill (SdContentPaddingV2), so the two
-    // bars this route swaps between never visibly disagree. The child's
-    // bottom inset is removed to avoid a double gap (see the shell's
-    // floating bar).
+    // - Glass on: floating frosted pill, same margins/offset as the nav pill.
+    // - Child's bottom inset removed to avoid a double gap.
     return Padding(
       padding: EdgeInsets.fromLTRB(
         SdContentPaddingV2.floatingBarHorizontal,

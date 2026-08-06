@@ -63,8 +63,7 @@ class LoginScreen extends ConsumerWidget {
 
     return SdScaffoldV2(
       title: Text(l10n.loginTitle, style: AppTextStyle.titleLarge),
-      // Pitch on top, buttons at the bottom, scrolls when it cannot fit —
-      // long locales and large text sizes make that a matter of when.
+      // Scrolls: long locales and large text sizes can make the pitch overflow.
       body: SdActionViewV2(
         content: const _Pitch(),
         actions: <Widget>[

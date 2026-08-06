@@ -12,21 +12,20 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 4', () {
+  test('database is at schema version 5', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
   });
 
-  // A database always migrates to AppDatabase.schemaVersion, so every
-  // starting point is validated against the current head — not against the
-  // version that happened to be head when the test was written.
+  // Always migrates to AppDatabase.schemaVersion, so every starting point is
+  // validated against the current head, not the head at write time.
   test('migrates from v1 all the way to current', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
   });
 
   test('v1 data survives every migration', () async {
@@ -38,7 +37,7 @@ void main() {
 
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
 
     final meds = await db.select(db.medications).get();
     expect(meds.map((m) => m.name), ['Ibuprofen']);
@@ -50,7 +49,7 @@ void main() {
     final db = AppDatabase(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
   });
 
   test('v2 medications survive v3 with an unknown createdAt', () async {
@@ -61,7 +60,7 @@ void main() {
 
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
 
     final med = (await db.select(db.medications).get()).single;
     expect(med.name, 'Sumatriptan');
@@ -75,7 +74,7 @@ void main() {
     final db = AppDatabase(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
 
     // The new table is usable, and starts empty — exports made before v4
     // were never recorded, so there is nothing to backfill.
@@ -91,7 +90,7 @@ void main() {
 
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
 
     expect((await db.select(db.attacks).get()).single.id, 'a1');
   });
@@ -107,10 +106,36 @@ void main() {
 
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
 
     // Rebuilding a table for addColumn can silently drop foreign keys.
     await (db.delete(db.medications)..where((m) => m.id.equals('m1'))).go();
     expect(await db.select(db.medicationReminders).get(), isEmpty);
+  });
+
+  test('migrates from v4 to v5 (adds attacks.exertion_level)', () async {
+    final connection = await verifier.startAt(4);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 5);
+  });
+
+  test('v4 attacks survive v5 with an unknown exertionLevel', () async {
+    final schema = await verifier.schemaAt(4);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location) '
+      "VALUES ('a1', 1750000000, 7, 'left')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 5);
+
+    final attack = (await db.select(db.attacks).get()).single;
+    expect(attack.id, 'a1');
+    // Nobody reported exertion before this shipped — null says so instead of
+    // inventing an answer.
+    expect(attack.exertionLevel, isNull);
   });
 }

@@ -193,4 +193,112 @@ void main() {
 
     expect(tester.getSize(row).width, lessThan(buttonWidth));
   });
+
+  group('size', () {
+    const IconData icon = Icons.star;
+
+    Future<void> pumpSized(WidgetTester tester, SdButtonSizeV2 size) async {
+      tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(393, 852),
+          builder: (BuildContext context, Widget? child) => MaterialApp(
+            home: Scaffold(
+              body: SdButtonV2(
+                variant: SdButtonVariantV2.primary,
+                icon: icon,
+                size: size,
+                label: 'Go',
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('medium is the unscaled baseline', (tester) async {
+      await pumpSized(tester, SdButtonSizeV2.medium);
+
+      expect(
+        tester.getSize(find.byIcon(icon)).width,
+        SdButtonV2.defaultIconSize,
+      );
+    });
+
+    testWidgets('small scales the icon down, large scales it up', (
+      tester,
+    ) async {
+      await pumpSized(tester, SdButtonSizeV2.small);
+      final double small = tester.getSize(find.byIcon(icon)).width;
+
+      await pumpSized(tester, SdButtonSizeV2.large);
+      final double large = tester.getSize(find.byIcon(icon)).width;
+
+      expect(small, moreOrLessEquals(SdButtonV2.defaultIconSize * 0.75));
+      expect(large, moreOrLessEquals(SdButtonV2.defaultIconSize * 1.25));
+    });
+
+    // Material's own 48-tall tap target can floor the rendered size at
+    // small — read the padding the style carries, not the final render box.
+    double verticalPadding(WidgetTester tester) {
+      final ButtonStyle style = tester.widget<FilledButton>(
+        find.byType(FilledButton),
+      ).style!;
+
+      return style.padding!.resolve(<WidgetState>{})!.vertical;
+    }
+
+    testWidgets('small pads less than medium, medium less than large', (
+      tester,
+    ) async {
+      await pumpSized(tester, SdButtonSizeV2.small);
+      final double small = verticalPadding(tester);
+
+      await pumpSized(tester, SdButtonSizeV2.medium);
+      final double medium = verticalPadding(tester);
+
+      await pumpSized(tester, SdButtonSizeV2.large);
+      final double large = verticalPadding(tester);
+
+      expect(small, lessThan(medium));
+      expect(medium, lessThan(large));
+    });
+
+    // Chrome-sized app-bar actions are always small, whatever `size` a call
+    // site passes alongside `compact` — the two must never disagree.
+    testWidgets('compact always scales as small, overriding size', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(393, 852),
+          builder: (BuildContext context, Widget? child) => MaterialApp(
+            home: Scaffold(
+              body: SdButtonV2(
+                variant: SdButtonVariantV2.primary,
+                icon: icon,
+                compact: true,
+                size: SdButtonSizeV2.large,
+                label: 'Go',
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byIcon(icon)).width,
+        moreOrLessEquals(SdButtonV2.defaultIconSize * 0.75),
+      );
+    });
+  });
 }

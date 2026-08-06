@@ -66,8 +66,7 @@ class SleepNightAggregator {
     DateTime end = sorted.first.end;
 
     for (final SleepInterval sample in sorted.skip(1)) {
-      // Touching blocks (one ends exactly where the next starts) are one
-      // stretch of sleep, so only a strictly later start opens a new block.
+      // Touching blocks (one ends where the next starts) are one stretch, so only a later start opens a new block.
       if (sample.start.isAfter(end)) {
         merged.add(SleepInterval(start: start, end: end));
         start = sample.start;
@@ -83,8 +82,7 @@ class SleepNightAggregator {
 
   /// Local midnight of the night a block ending at [end] belongs to.
   DateTime _nightOf(DateTime end) {
-    // Built from parts rather than `add(Duration(days: 1))`: across a DST
-    // shift adding 24 hours lands on 23:00 of the same day.
+    // Built from parts, not `add(Duration(days: 1))` — DST can land 24h later at 23:00 the same day.
     final int dayOffset = end.hour >= nightCutoffHour ? 1 : 0;
 
     return DateTime(end.year, end.month, end.day + dayOffset);

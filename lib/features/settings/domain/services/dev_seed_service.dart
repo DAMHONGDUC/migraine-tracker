@@ -179,8 +179,7 @@ class DevSeedService {
             id: _uuid.v4(),
             medicationId: shuffled[i].id,
             minuteOfDay: minuteOfDay,
-            // One in five is off: a disabled row draws differently, and the
-            // "has a reminder" filter must still count it.
+            // One in five is off — exercises the disabled row style and the filter count.
             enabled: random.nextInt(5) != 0,
           ),
         );
@@ -220,8 +219,7 @@ class DevSeedService {
         for (final String name in _medicationNames) '$name$dose',
     ]..shuffle(random);
 
-    // Without this, raising seedCount past the pool silently seeds fewer
-    // medications than it claims and every count in the app looks wrong.
+    // Without this, raising seedCount past the pool silently under-seeds.
     assert(
       names.length >= seedCount,
       'seedCount ($seedCount) exceeds the ${names.length} name/dose '
@@ -268,9 +266,8 @@ class DevSeedService {
     List<Medication> medications,
   ) {
     final int intensity = 1 + random.nextInt(10);
-    // Roughly one in seven stays weatherless — that is the offline-log case
-    // the backfill queue has to pick up. A chance, not every seventh row, so
-    // the gaps land somewhere different each run.
+    // - roughly one in seven stays weatherless, the offline-log case the backfill queue handles
+    // - a chance, not exact, so the gaps land differently each run
     final bool offline = random.nextInt(7) == 0;
     final bool untreated = random.nextInt(5) == 0;
     final bool annotated = random.nextInt(4) == 0;
@@ -340,8 +337,7 @@ class DevSeedService {
     );
     final Uint8List csvBytes = utf8.encode(_export.toCsv(attacks));
 
-    // Distinct hours again: the filename carries the timestamp, and two
-    // exports of the same kind in the same second would collide on it.
+    // Distinct hours again: same-second exports of the same kind would collide on the filename.
     for (final int hoursAgo in _scatteredHours(random)) {
       final ExportKind kind = random.nextBool()
           ? ExportKind.json

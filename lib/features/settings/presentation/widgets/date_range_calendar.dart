@@ -226,8 +226,7 @@ class _MonthGrid extends StatelessWidget {
               !date.isBefore(DateUtils.dateOnly(firstDate)) &&
               !date.isAfter(DateUtils.dateOnly(lastDate)),
           onTap: () => onDateSelected(date),
-          // A day between the two ends bands on both sides so the row reads
-          // as one block; the ends themselves band only toward the middle.
+          // A day between the two ends bands both sides so the row reads as one block.
           bandBefore: hasRange && (isEnd || isInside),
           bandAfter: hasRange && (isStart || isInside),
         ),
@@ -273,8 +272,7 @@ class _DayCell extends StatelessWidget {
     final Color textColor = switch (<bool>[isSelected, isEnabled]) {
       [true, _] => AppColors.onPrimary,
       [_, false] => AppColors.textSecondary.withValues(alpha: 0.35),
-      // In-range days are carried by the band behind them, so the number
-      // stays plain — a tinted number on a tinted cell is the weaker read.
+      // In-range days are carried by the band behind them, so the number stays plain.
       _ => isToday ? AppColors.primary : AppColors.textPrimary,
     };
     final TextStyle style = isSelected || isToday
@@ -290,12 +288,10 @@ class _DayCell extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            // Fills the cell, so consecutive days (and rows) read as one solid
-            // block rather than a thin stripe behind the numbers.
+            // Fills the cell, so consecutive days read as one solid block, not a thin stripe.
             Positioned.fill(
               child: Row(
-                // Stretch, or a childless ColoredBox takes zero height and
-                // the band never draws.
+                // Stretch, or a childless ColoredBox takes zero height and the band never draws.
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Expanded(

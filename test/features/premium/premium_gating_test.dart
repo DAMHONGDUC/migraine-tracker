@@ -45,6 +45,33 @@ PressureForecast forecast() => PressureForecast(
 );
 
 void main() {
+  testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await seedInsightData(tester, app);
+    await openInsights(tester);
+
+    // Signed out and with no entitlement, the analysis is teased.
+    expect(find.text('60%'), findsNothing);
+
+    // Driven through the row a developer actually taps: the override must
+    // reach the gates, not just the switch — the whole point of hasPremiumProvider.
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Premium (mock)'));
+
+    await openInsights(tester);
+    expect(find.text('60%'), findsOneWidget);
+
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Premium (mock)'));
+
+    await openInsights(tester);
+    expect(find.text('60%'), findsNothing);
+
+    await finishTest(tester);
+  });
+
   group('free user', () {
     testWidgets('never sees the correlation percentage, only the teaser', (
       tester,
@@ -90,9 +117,9 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      // Locked rows in place of the real controls: the alerts row is a name
-      // wearing the badge, never the toggle.
-      expect(find.byType(Switch), findsNothing);
+      // - locked rows replace the real controls: the alerts row is a name wearing the badge, never the toggle
+      // - SwitchListTile, not Switch: the dev-only premium mock is a Switch too; this asks about gated toggles only
+      expect(find.byType(SwitchListTile), findsNothing);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
@@ -221,10 +248,8 @@ void main() {
         await pumpApp(tester); // no attacks
         await openInsights(tester);
 
-        // The correlation card shows the "keep logging" progress, not a
-        // paywall tease — the tease only appears once there's enough data.
-        // (The forecast card above it is separately gated, so "Unlock" can
-        // still appear from there — this asserts the correlation branch.)
+        // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
+        // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
         expect(
           find.text(
             'Log 15 more attacks with weather data to unlock this insight.',
@@ -269,7 +294,16 @@ void main() {
       await pumpApp(tester, premium: true);
       await openSettings(tester);
 
-      expect(find.byType(Switch), findsOneWidget);
+      // The toggle lives on the alerts detail screen now, not on Settings —
+      // the row here only reports On/Off. Unlocked means the row opens it.
+      expect(find.byType(SwitchListTile), findsNothing);
+      await tapVisible(tester, find.text('Pressure-drop alerts'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(SwitchListTile), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pump(const Duration(milliseconds: 400));
+
       // No locked teaser left anywhere on the screen. (The Premium row is
       // titled 'Premium' now, so the badge is what marks a gate.)
       expect(find.byType(PremiumBadge), findsNothing);

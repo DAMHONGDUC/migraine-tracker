@@ -352,6 +352,22 @@
   "@detailsNotesLabel": {
     "description": "Label for the free-form notes field"
   },
+  "detailsExertionLabel": "Physical exertion",
+  "@detailsExertionLabel": {
+    "description": "Label above the exertion-level picker in the details sheet"
+  },
+  "exertionLevelLight": "Light",
+  "@exertionLevelLight": {
+    "description": "Exertion level option: light activity"
+  },
+  "exertionLevelModerate": "Moderate",
+  "@exertionLevelModerate": {
+    "description": "Exertion level option: moderate activity"
+  },
+  "exertionLevelSevere": "Severe",
+  "@exertionLevelSevere": {
+    "description": "Exertion level option: severe/strenuous activity"
+  },
   "detailsSave": "Save",
   "@detailsSave": {
     "description": "Save button in the details sheet"
@@ -542,6 +558,48 @@
       }
     }
   },
+  "insightsExertionTitle": "Physical exertion",
+  "@insightsExertionTitle": {
+    "description": "Title of the exertion correlation insight card"
+  },
+  "insightsExertionInsufficientData": "Log exertion on {remaining} more attacks to unlock this insight.",
+  "@insightsExertionInsufficientData": {
+    "description": "Shown while the user has answered fewer than the required attacks",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsExertionProgressCaption": "{withExertion} of {required} attacks with exertion logged",
+  "@insightsExertionProgressCaption": {
+    "description": "Progress caption under the exertion insufficient-data message",
+    "placeholders": {
+      "withExertion": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsExertionNoVariation": "You've reported about the same exertion level every time, so there's nothing to compare.",
+  "@insightsExertionNoVariation": {
+    "description": "Shown when every answered attack reports the identical exertion level"
+  },
+  "insightsExertionSentence": "of your attacks where you logged exertion involved moderate-to-severe activity.",
+  "@insightsExertionSentence": {
+    "description": "Sentence after the big percentage hero number on the exertion card"
+  },
+  "insightsExertionAnalyzedCaption": "Based on {count} attacks with exertion logged",
+  "@insightsExertionAnalyzedCaption": {
+    "description": "Sample-size caption under the exertion insight",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "insightsForecastTitle": "48h pressure forecast",
   "@insightsForecastTitle": {
     "description": "Title of the pressure forecast line chart card"
@@ -623,6 +681,70 @@
         "type": "int"
       },
       "restNights": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsStepsTitle": "Steps & attacks",
+  "@insightsStepsTitle": {
+    "description": "Title of the step correlation insight card"
+  },
+  "insightsStepsNotConnected": "Connect Apple Health steps in Settings to see whether your attacks follow low-activity days.",
+  "@insightsStepsNotConnected": {
+    "description": "Step card body when Apple Health has not been connected"
+  },
+  "insightsStepsInsufficientData": "This insight needs at least {required} days of step data, including {perGroup} days an attack started.",
+  "@insightsStepsInsufficientData": {
+    "description": "Shown while there is not yet enough step data for the comparison",
+    "placeholders": {
+      "required": {
+        "type": "int"
+      },
+      "perGroup": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsStepsProgressCaption": "{withSteps} of {required} days with step data",
+  "@insightsStepsProgressCaption": {
+    "description": "Progress caption under the step insufficient-data message",
+    "placeholders": {
+      "withSteps": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsStepsNoVariation": "You move about as much on attack days as on any other day.",
+  "@insightsStepsNoVariation": {
+    "description": "Shown when both step averages are within noise of each other"
+  },
+  "insightsStepsLessSentence": "fewer steps on the days your attacks started.",
+  "@insightsStepsLessSentence": {
+    "description": "Sentence after the hero step count when attacks follow low-activity days"
+  },
+  "insightsStepsMoreSentence": "more steps on the days your attacks started.",
+  "@insightsStepsMoreSentence": {
+    "description": "Sentence after the hero step count when attacks follow more active days"
+  },
+  "insightsStepsAttackDays": "Days with an attack",
+  "@insightsStepsAttackDays": {
+    "description": "Row label for the average steps on days an attack started"
+  },
+  "insightsStepsRestDays": "Other days",
+  "@insightsStepsRestDays": {
+    "description": "Row label for the average steps on every other day"
+  },
+  "insightsStepsAnalyzedCaption": "Based on {attackDays} days with an attack and {restDays} others",
+  "@insightsStepsAnalyzedCaption": {
+    "description": "Sample-size caption under the step insight, giving both group sizes",
+    "placeholders": {
+      "attackDays": {
+        "type": "int"
+      },
+      "restDays": {
         "type": "int"
       }
     }
@@ -778,6 +900,10 @@
   "@premiumLockedSleep": {
     "description": "Locked-state copy on the sleep correlation card and the Apple Health setting"
   },
+  "premiumLockedSteps": "Unlock to see whether your attacks follow your least active days.",
+  "@premiumLockedSteps": {
+    "description": "Locked-state copy on the step correlation card"
+  },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
     "description": "Title of the paywall screen"
@@ -913,6 +1039,18 @@
   "alertsToggleTitle": "Pressure-drop alerts",
   "@alertsToggleTitle": {
     "description": "Settings switch that registers this device for pressure push alerts"
+  },
+  "alertsScreenTitle": "Pressure alerts",
+  "@alertsScreenTitle": {
+    "description": "App bar title of the alerts detail screen (toggle + threshold)"
+  },
+  "alertsStatusOn": "On",
+  "@alertsStatusOn": {
+    "description": "Settings row value when pressure-drop alerts are enabled"
+  },
+  "alertsStatusOff": "Off",
+  "@alertsStatusOff": {
+    "description": "Settings row value when pressure-drop alerts are disabled"
   },
   "alertsThresholdTitle": "Alert threshold",
   "@alertsThresholdTitle": {
@@ -1300,6 +1438,10 @@
   "@settingsDevReset": {
     "description": "Dev-only tile: wipe everything and start over at onboarding"
   },
+  "settingsDevPremium": "Premium (mock)",
+  "@settingsDevPremium": {
+    "description": "Dev-only tile: force the premium state on or off"
+  },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
     "description": "Dev-only reset tile, confirm dialog title"
@@ -1686,6 +1828,38 @@
   "@settingsSectionData": {
     "description": "Settings section heading above export, the doctor report and the delete-everything row"
   },
+  "settingsSectionAbout": "About",
+  "@settingsSectionAbout": {
+    "description": "Settings section heading above the app version and contact support rows"
+  },
+  "settingsAppVersion": "App version",
+  "@settingsAppVersion": {
+    "description": "Settings row title for the env/version/build number string, e.g. \"dev - 1.4.0 - 12\""
+  },
+  "settingsContactSupport": "Contact support",
+  "@settingsContactSupport": {
+    "description": "Settings row title that opens the contact screen"
+  },
+  "contactScreenTitle": "Contact support",
+  "@contactScreenTitle": {
+    "description": "App bar title for the contact support screen"
+  },
+  "contactSupportIntro": "Having an issue or a question? Email us and we'll get back to you.",
+  "@contactSupportIntro": {
+    "description": "Short line above the support email address on the contact screen"
+  },
+  "contactSupportEmailButton": "Email support",
+  "@contactSupportEmailButton": {
+    "description": "Button on the contact screen that opens the mail app addressed to support"
+  },
+  "contactSupportEmailSubject": "BaroEase support",
+  "@contactSupportEmailSubject": {
+    "description": "Pre-filled subject line of the support email"
+  },
+  "contactSupportEmailFailed": "Couldn't open your mail app.",
+  "@contactSupportEmailFailed": {
+    "description": "Error snackbar when no mail app could handle the support email link"
+  },
   "loginErrorAppleSoon": "Sign in with Apple is coming soon. Please use Google for now.",
   "@loginErrorAppleSoon": {
     "description": "Shown when the Apple button is tapped while the Apple flow is offered but not yet wired up (appleSignInImplementedProvider)"
@@ -1820,6 +1994,15 @@
         "type": "int"
       },
       "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "commonStepsCount": "{count} steps",
+  "@commonStepsCount": {
+    "description": "A step count, e.g. a day's average steps",
+    "placeholders": {
+      "count": {
         "type": "int"
       }
     }

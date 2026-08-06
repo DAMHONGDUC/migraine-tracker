@@ -24,14 +24,10 @@ class DataWipeService {
 
   Future<void> wipeAll() async {
     await _attacks.deleteAll();
-    // Deleting medications cascades their reminder ROWS at the DB level,
-    // but that cascade never reaches the OS — without this, an already
-    // scheduled "time for your medication" notification keeps firing after
-    // the user asked for everything to be deleted.
+    // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.
     await _notifications.cancelAll();
     await _medications.deleteAll();
-    // Past exports are full copies of the data being deleted — leaving the
-    // files behind would defeat the whole wipe.
+    // Past exports are full copies of the deleted data — leave them and the wipe is incomplete.
     await _exportFiles.deleteAll();
     await _exportRecords.deleteAll();
   }

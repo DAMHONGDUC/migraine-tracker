@@ -6,6 +6,7 @@ import '../medications/providers.dart';
 import 'data/documents_export_file_store.dart';
 import 'data/file_dialog_file_saver.dart';
 import 'data/repositories/drift_export_record_repository.dart';
+import 'data/services/url_mail_launcher.dart';
 import 'data/share_plus_export_sharer.dart';
 import 'domain/entities/export_date_filter.dart';
 import 'domain/entities/export_record.dart';
@@ -17,6 +18,8 @@ import 'domain/services/export_file_store.dart';
 import 'domain/services/export_record_filterer.dart';
 import 'domain/services/export_sharer.dart';
 import 'domain/services/file_saver.dart';
+import 'domain/services/mail_launcher.dart';
+import 'presentation/controllers/contact_controller.dart';
 import 'presentation/controllers/export_controller.dart';
 import 'presentation/controllers/export_filter_controller.dart';
 import 'presentation/controllers/settings_controller.dart';
@@ -100,4 +103,13 @@ final devSeedServiceProvider = Provider<DevSeedService>(
 /// [ExportController].
 final settingsControllerProvider = Provider<SettingsController>(
   SettingsController.new,
+);
+
+final mailLauncherProvider = Provider<MailLauncher>(
+  (ref) => const UrlMailLauncher(),
+);
+
+/// Opens the support mail composer (see [ContactController]).
+final contactControllerProvider = Provider<ContactController>(
+  ContactController.new,
 );

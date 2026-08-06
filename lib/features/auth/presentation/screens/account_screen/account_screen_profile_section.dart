@@ -44,8 +44,7 @@ class _ProfileSection extends ConsumerWidget {
           leading: const SdIconV2(icon: Icons.alternate_email),
           title: Text(l10n.accountEmail, style: AppTextStyle.bodyLarge),
           subtitle: Text(
-            // Apple only sends the email on the very first sign-in, so an
-            // account can genuinely have none.
+            // Apple only sends the email on the very first sign-in, so it can genuinely be missing.
             email ?? l10n.accountEmailUnknown,
             style: AppTextStyle.bodyMedium.secondary,
           ),

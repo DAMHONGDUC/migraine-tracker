@@ -58,9 +58,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
           _channelName,
           importance: Importance.defaultImportance,
         ),
-        // Present a banner + sound even while the app is in the foreground —
-        // without these, iOS silently drops the notification when the app is
-        // open, which reads as "reminders don't work" during testing.
+        // Present banner + sound in foreground, or iOS silently drops it.
         iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBanner: true,

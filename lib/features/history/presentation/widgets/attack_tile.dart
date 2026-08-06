@@ -38,7 +38,7 @@ class AttackTile extends StatelessWidget {
   }
 
   Widget _card(BuildContext context, String when) {
-    return Card(
+    return SdCardV2(
       child: ListTile(
         // The avatar shows a bare number — tell VoiceOver what it means.
         leading: Semantics(
@@ -65,7 +65,7 @@ class AttackTile extends StatelessWidget {
           style: AppTextStyle.bodyMedium.secondary,
         ),
         trailing: SdIconV2(
-        icon:  Icons.chevron_right,
+          icon: Icons.chevron_right,
           size: SdSpacingConstant.r20,
           color: context.colorScheme.onSurfaceVariant,
         ),

@@ -35,15 +35,14 @@ abstract final class CrashReporter {
     await crashlytics.setCrashlyticsCollectionEnabled(enabled);
     _crashlytics = crashlytics;
 
-    // Chains: whatever handler was installed first (console logging, in
-    // `main`) still runs, then the crash is recorded.
+    // Chains: `main`'s console handler still runs first, then this records the crash.
     FlutterError.onError = (FlutterErrorDetails details) {
       previousOnError?.call(details);
       crashlytics.recordFlutterFatalError(details);
     };
 
-    // Anything that escapes the framework — a failed async gap, a platform
-    // channel error. Returning true marks it handled so the app survives.
+    // - Anything that escapes the framework: a failed async gap, a platform channel error.
+    // - Returning true marks it handled, so the app survives.
     PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
       AppLogger.error('Uncaught async error', error: error, stackTrace: stack);
       unawaited(crashlytics.recordError(error, stack, fatal: true));

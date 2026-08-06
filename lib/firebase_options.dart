@@ -1,12 +1,6 @@
-// Based on FlutterFire CLI output, hand-edited so the values come from the
-// central `Env` class (fed by --dart-define-from-file=env/<flavor>.json)
-// instead of being hardcoded. Firebase treats these as non-secret client
-// identifiers, not credentials — real access control is Firestore Security
-// Rules — but keeping them out of git avoids leaking which project backs
-// the app and keeps rotation easy.
-//
-// If you rerun `flutterfire configure`, reapply this file from git history —
-// it will overwrite these edits with hardcoded values again.
+// - Hand-edited from FlutterFire CLI output: values come from `AppEnv` (--dart-define-from-file=env/<flavor>.json).
+// - Non-secret client identifiers (real access control is Firestore Rules), kept out of git to avoid leaking the project.
+// - Rerunning `flutterfire configure` overwrites this — reapply from git history after.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;

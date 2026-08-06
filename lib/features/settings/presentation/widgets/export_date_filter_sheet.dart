@@ -45,13 +45,11 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
     setState(() {
       if (_editing == _Bound.from) {
         _from = date;
-        // A start later than the end the user already picked would leave an
-        // inverted window, so that end goes back to "any date".
+        // A start later than the picked end would invert the window, so reset the end.
         if (_to != null && date.isAfter(_to!)) {
           _to = null;
         }
-        // Straight on to the other end: picking a start almost always means
-        // an end is coming next.
+        // Straight on to the other end: picking a start almost always means an end is next.
         _editing = _Bound.to;
         return;
       }
@@ -65,8 +63,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
     final DateTime today = DateTime.now();
     final bool editingTo = _editing == _Bound.to;
     final DateTime? active = editingTo ? _to : _from;
-    // The end of the window can never be older than its start, so days before
-    // it are greyed out rather than picked and silently swapped.
+    // The end can never be older than the start, so earlier days grey out instead of silently swapping.
     final DateTime firstDate = editingTo && _from != null
         ? _from!
         : ExportDateFilterSheet.firstSelectableDate;
@@ -108,8 +105,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
             ],
           ),
           SizedBox(height: SdSpacingConstant.h8),
-          // Keyed on the bound, so switching ends re-centres the calendar on
-          // that end's own month instead of staying where the other one was.
+          // Keyed on the bound, so switching ends re-centres the calendar on that end's own month.
           DateRangeCalendar(
             key: ValueKey<_Bound>(_editing),
             from: _from,

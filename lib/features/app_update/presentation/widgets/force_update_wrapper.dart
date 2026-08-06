@@ -75,8 +75,7 @@ class _ForceUpdateWrapperState extends ConsumerState<ForceUpdateWrapper>
         .watch(forceUpdateControllerProvider)
         .blockingUpdate;
 
-    // After the frame: the navigator has to exist before a route can be
-    // pushed onto it, and on a cold start this runs during the first build.
+    // After the frame: the navigator must exist before pushing a route, and this runs during the first build on a cold start.
     if (blocking != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _showSheet(blocking));
     }

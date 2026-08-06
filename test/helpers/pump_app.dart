@@ -23,6 +23,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/auth_reposito
 import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
+import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -34,6 +35,7 @@ import 'package:migraine_tracker/features/premium/domain/enums/premium_period.da
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/purchase_repository.dart';
 import 'package:migraine_tracker/features/premium/providers.dart';
+import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -122,6 +124,29 @@ class FakeStoreLauncher implements StoreLauncher {
   @override
   Future<bool> open(String url) async {
     opened.add(url);
+    return succeeds;
+  }
+}
+
+/// Records the mailto: recipient/subject instead of leaving the test to
+/// url_launcher.
+class FakeMailLauncher implements MailLauncher {
+  String? to;
+  String? subject;
+  String? body;
+
+  /// Flip to false to exercise the "couldn't open the mail app" branch.
+  bool succeeds = true;
+
+  @override
+  Future<bool> open({
+    required String to,
+    required String subject,
+    String? body,
+  }) async {
+    this.to = to;
+    this.subject = subject;
+    this.body = body;
     return succeeds;
   }
 }
@@ -385,11 +410,18 @@ class FakeHealthRepository implements HealthRepository {
   /// they want analysed.
   List<SleepNight> nights = <SleepNight>[];
 
+  /// Served by [stepDays], unfiltered — tests hand over exactly the days they
+  /// want analysed.
+  List<StepDay> days = <StepDay>[];
+
   int authorizationRequests = 0;
 
   /// How many times sleep was actually read — the assertion behind "a free
   /// user never reaches a HealthKit read".
   int sleepReads = 0;
+
+  /// How many times steps were actually read — same role as [sleepReads].
+  int stepReads = 0;
 
   @override
   Future<bool> requestAuthorization() async {
@@ -404,6 +436,15 @@ class FakeHealthRepository implements HealthRepository {
   }) async {
     sleepReads++;
     return nights;
+  }
+
+  @override
+  Future<List<StepDay>> stepDays({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    stepReads++;
+    return days;
   }
 }
 
@@ -434,6 +475,7 @@ class PumpedApp {
     required this.auth,
     required this.appUpdate,
     required this.storeLauncher,
+    required this.mailLauncher,
     required this.profiles,
     required this.exportFiles,
     required this.health,
@@ -449,6 +491,7 @@ class PumpedApp {
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
+  final FakeMailLauncher mailLauncher;
   final FakeUserProfileRepository profiles;
 
   /// Stands in for HealthKit. Unavailable unless a test asks otherwise.
@@ -506,23 +549,23 @@ Future<PumpedApp> pumpApp(
   /// Nights the fake HealthKit serves to the sleep correlation.
   List<SleepNight> sleepNights = const <SleepNight>[],
 
+  /// Days the fake HealthKit serves to the step correlation.
+  List<StepDay> stepDays = const <StepDay>[],
+
   /// The build this fake device is running. Both are high by default, so a
   /// test that passes [appUpdate] still has to opt into being out of date.
   String installedBuildName = '99.0.0',
   int installedBuildNumber = 9999,
 }) async {
-  // Pin the test view to the 393×852 design size (an iPhone-class screen,
-  // DPR 3 = 1179×2556 physical). The default 800×600 surface makes
-  // screenutil scale `.sp`/`.w`/`.h` by ~2×, which distorts layout and
-  // pushes tap targets off-screen.
+  // - pin the test view to the 393×852 design size (an iPhone-class screen, DPR 3 = 1179×2556 physical)
+  // - the default 800×600 surface scales `.sp`/`.w`/`.h` ~2×, distorting layout and pushing tap targets off-screen
   tester.view.physicalSize = const Size(393 * 3, 852 * 3);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  // The test engine is Skia, so SdGlassV2.isSupported would always be false
-  // and every test would assert the fallback layout instead of the shipped
-  // one. The glass still renders as FakeGlass here; only the insets follow.
+  // - the test engine is Skia, so SdGlassV2.isSupported would always be false and tests would assert the fallback layout
+  // - glass still renders as FakeGlass here; only the insets follow
   SdGlassV2.debugSupported = glassSupported;
   addTearDown(() => SdGlassV2.debugSupported = null);
 
@@ -545,13 +588,16 @@ Future<PumpedApp> pumpApp(
     config: appUpdate,
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
+  final FakeMailLauncher mailLauncher = FakeMailLauncher();
   final FakeUserProfileRepository profiles = FakeUserProfileRepository(
     profile: userProfile,
   );
   addTearDown(profiles.dispose);
   final FakeHealthRepository health = FakeHealthRepository(
     isAvailable: healthAvailable,
-  )..nights = <SleepNight>[...sleepNights];
+  )
+    ..nights = <SleepNight>[...sleepNights]
+    ..days = <StepDay>[...stepDays];
   final FakePremiumRepository premiumRepository = FakePremiumRepository(
     premium: premium,
   );
@@ -575,6 +621,7 @@ Future<PumpedApp> pumpApp(
         userProfileRepositoryProvider.overrideWithValue(profiles),
         appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
+        mailLauncherProvider.overrideWithValue(mailLauncher),
         installedAppVersionProvider.overrideWith(
           (ref) async => InstalledAppVersion(
             buildName: installedBuildName,
@@ -604,6 +651,7 @@ Future<PumpedApp> pumpApp(
     auth: auth,
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
+    mailLauncher: mailLauncher,
     profiles: profiles,
     exportFiles: exportFiles,
     health: health,
@@ -657,11 +705,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // Only when there is something to scroll. A target inside a bottom sheet
-  // has no Scrollable ancestor, and `find.byType(SdAppBarV2)` still matches
-  // the bars sitting in the shell's IndexedStack *behind* the sheet — so
-  // without this guard the nudge tried to drag a scrollable that does not
-  // exist and threw `Bad state: No element`.
+  // - only when there's something to scroll: a bottom-sheet target has no Scrollable ancestor
+  // - `find.byType(SdAppBarV2)` still matches bars sitting behind the sheet in the shell's IndexedStack
+  // - without this guard the nudge dragged a scrollable that doesn't exist and threw `Bad state: No element`
   final Finder scrollable = find.ancestor(
     of: finder,
     matching: find.byType(Scrollable),
@@ -769,9 +815,8 @@ Future<void> logAttack(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 
-  // The medication step keeps both an expanded and a collapsed copy of the
-  // action rows mounted (they cross-fade on scroll), so the label matches
-  // twice — .first is the visible, tappable expanded one.
+  // Expanded and collapsed action rows both stay mounted (cross-fade on scroll),
+  // so the label matches twice — .first is the visible, tappable expanded one.
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

@@ -48,10 +48,9 @@ class HistoryCalendarView extends HookWidget {
     final collapsed = useState(false);
     final scrollController = useScrollController();
 
-    // Collapse once the list is meaningfully scrolled. Expanding is never
-    // automatic — merely returning to the top keeps the strip compact; the
-    // user expands it deliberately (pull past the top, or swipe down on
-    // the strip itself via onFormatChanged below).
+    // - collapses once the list is meaningfully scrolled
+    // - expanding is never automatic; returning to the top just keeps it compact
+    // - the user expands deliberately: pull past the top, or swipe the strip (onFormatChanged below)
     useEffect(() {
       void onScroll() {
         if (!collapsed.value &&
@@ -64,9 +63,8 @@ class HistoryCalendarView extends HookWidget {
       return () => scrollController.removeListener(onScroll);
     }, [scrollController]);
 
-    // A drag past the top edge re-expands the calendar. dragDetails filters
-    // out ballistic bounces: only a finger actually pulling counts, so a
-    // fling that overshoots the top doesn't pop the month grid open.
+    // - a drag past the top edge re-expands the calendar
+    // - dragDetails filters out ballistic bounces, so only an actual pull counts
     bool onScrollNotification(ScrollNotification notification) {
       if (!collapsed.value) return false;
       final pulling = switch (notification) {
@@ -85,8 +83,7 @@ class HistoryCalendarView extends HookWidget {
     final daysOfWeekH = SdSpacingConstant.h20;
     final rowH = SdSpacingConstant.h44;
 
-    // Top inset lives OUTSIDE the scroll view: the calendar must sit below
-    // the app bar, never slide behind it.
+    // Top inset lives OUTSIDE the scroll view: the calendar must sit below the app bar, never slide behind it.
     return Padding(
       padding: EdgeInsets.only(
         left: SdContentPaddingV2.horizontal,
@@ -95,9 +92,8 @@ class HistoryCalendarView extends HookWidget {
       ),
       child: Column(
         children: [
-          // Calm height animation between month grid and week strip (hard
-          // rule 3: nothing flashy). ClipRect keeps the mid-animation
-          // overflow invisible.
+          // - calm height animation between month grid and week strip (hard rule 3: nothing flashy)
+          // - ClipRect keeps the mid-animation overflow invisible
           ClipRect(
             child: AnimatedSize(
               duration: const Duration(milliseconds: 250),
@@ -113,8 +109,7 @@ class HistoryCalendarView extends HookWidget {
                 calendarFormat: collapsed.value
                     ? CalendarFormat.week
                     : CalendarFormat.month,
-                // The collapsed strip drops the month-title header too:
-                // just the weekday labels and the selected week.
+                // The collapsed strip drops the month-title header too: just the weekday labels and the selected week.
                 headerVisible: !collapsed.value,
                 rowHeight: rowH,
                 daysOfWeekHeight: daysOfWeekH,
@@ -125,8 +120,7 @@ class HistoryCalendarView extends HookWidget {
                   focused.value = focusedDay;
                 },
                 onPageChanged: (focusedDay) => focused.value = focusedDay,
-                // Vertical swipe on the calendar itself: down expands to
-                // the month grid, up collapses to the week strip.
+                // Vertical swipe on the calendar itself: down expands to the month grid, up collapses to the week strip.
                 onFormatChanged: (format) =>
                     collapsed.value = format == CalendarFormat.week,
                 availableCalendarFormats: const {
@@ -168,9 +162,7 @@ class HistoryCalendarView extends HookWidget {
                         peak,
                       ),
                       child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom: SdSpacingConstant.h4,
-                        ),
+                        padding: EdgeInsets.only(bottom: SdSpacingConstant.h4),
                         child: SdColorDotV2(
                           color: AppColors.intensity(peak),
                           size: SdSpacingConstant.r6,
@@ -187,10 +179,9 @@ class HistoryCalendarView extends HookWidget {
               onNotification: onScrollNotification,
               child: ListView(
                 controller: scrollController,
-                // No ambient MediaQuery padding: the app bar clearance is
-                // already handled by topInset above the calendar, and the
-                // bottom nav by the trailing SizedBox — the default would
-                // open a dead gap between the calendar and the legend.
+                // - app bar clearance is handled by topInset above the calendar
+                // - bottom nav clearance is handled by the trailing SizedBox
+                // - the default MediaQuery padding would leave a dead gap here
                 padding: EdgeInsets.zero,
                 children: [
                   Padding(
@@ -215,11 +206,11 @@ class HistoryCalendarView extends HookWidget {
                     )
                   else
                     for (final (i, attack) in selectedAttacks.indexed) ...[
-                      if (i > 0) SizedBox(height: SdSpacingConstant.h8),
+                      if (i > 0)
+                        SizedBox(height: SdContentPaddingV2.listItemGap),
                       AttackTile(attack: attack),
                     ],
-                  // Clearance so the last tile scrolls past the floating
-                  // glass nav.
+                  // Clearance so the last tile scrolls past the floating glass nav.
                   SizedBox(height: bottomInset + SdSpacingConstant.h16),
                 ],
               ),

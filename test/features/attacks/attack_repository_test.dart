@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -36,6 +37,7 @@ void main() {
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
     notes: 'woke up with it',
+    exertionLevel: ExertionLevel.moderate,
     weather: snapshot(),
   );
 
@@ -54,6 +56,7 @@ void main() {
     expect(a.symptoms, ['aura', 'nausea']);
     expect(a.triggers, ['stress']);
     expect(a.notes, 'woke up with it');
+    expect(a.exertionLevel, ExertionLevel.moderate);
     expect(a.weather, snapshot());
   });
 
@@ -119,15 +122,31 @@ void main() {
         symptoms: ['aura'],
         triggers: ['dehydration', 'heat'],
         notes: 'started at work',
+        exertionLevel: ExertionLevel.severe,
       );
 
       final attack = (await repository.watchAll().first).single;
       expect(attack.symptoms, ['aura']);
       expect(attack.triggers, ['dehydration', 'heat']);
       expect(attack.notes, 'started at work');
+      expect(attack.exertionLevel, ExertionLevel.severe);
       expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
     },
   );
+
+  test('updateDetails can clear a previously-answered exertion level', () async {
+    await repository.insert(fullAttack());
+
+    await repository.updateDetails(
+      'a1',
+      symptoms: fullAttack().symptoms,
+      triggers: fullAttack().triggers,
+      notes: fullAttack().notes,
+    );
+
+    final attack = (await repository.watchAll().first).single;
+    expect(attack.exertionLevel, isNull);
+  });
 
   group('detail screen support', () {
     test(
@@ -166,6 +185,7 @@ void main() {
         // Untouched:
         expect(a.symptoms, ['aura', 'nausea']);
         expect(a.notes, 'woke up with it');
+        expect(a.exertionLevel, ExertionLevel.moderate);
         expect(a.weather, snapshot());
       },
     );

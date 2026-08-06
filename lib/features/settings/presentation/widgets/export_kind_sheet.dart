@@ -71,8 +71,7 @@ class _KindTile extends ConsumerWidget {
         ),
         trailing: const PremiumBadge(),
         onTap: () {
-          // Close the picker first: the paywall is a sheet too, and two of
-          // them stacked is how the user loses track of where they are.
+          // Close the picker first — two stacked sheets loses the user's place.
           Navigator.of(context).pop();
           NavigationUtils.toPaywall(context, ref);
         },
