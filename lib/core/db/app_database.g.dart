@@ -97,6 +97,40 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<ExertionLevel?>($AttacksTable.$converterexertionLeveln);
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncedRevisionMeta = const VerificationMeta(
+    'syncedRevision',
+  );
+  @override
+  late final GeneratedColumn<int> syncedRevision = GeneratedColumn<int>(
+    'synced_revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -108,6 +142,9 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    updatedAt,
+    revision,
+    syncedRevision,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -155,6 +192,27 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('synced_revision')) {
+      context.handle(
+        _syncedRevisionMeta,
+        syncedRevision.isAcceptableOrUnknown(
+          data['synced_revision']!,
+          _syncedRevisionMeta,
+        ),
       );
     }
     return context;
@@ -210,6 +268,18 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}exertion_level'],
         ),
       ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_revision'],
+      ),
     );
   }
 
@@ -246,6 +316,20 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final List<String> triggers;
   final String? notes;
   final ExertionLevel? exertionLevel;
+
+  /// Wall clock of the last local mutation, used only to settle which of two
+  /// devices' versions wins. Null on rows that predate sync, which then fall
+  /// back to [startedAt] — the best "last modified" we actually have.
+  final DateTime? updatedAt;
+
+  /// Bumped on every local mutation. Deliberately not a timestamp: drift
+  /// stores dates as whole seconds, so an edit in the same second as the
+  /// push that preceded it would look unchanged and never sync.
+  final int revision;
+
+  /// The [revision] the server confirmed. Dirty is `syncedRevision !=
+  /// revision`, so a clock stepping backwards cannot hide an edit either.
+  final int? syncedRevision;
   const AttackRow({
     required this.id,
     required this.startedAt,
@@ -256,6 +340,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.triggers,
     this.notes,
     this.exertionLevel,
+    this.updatedAt,
+    required this.revision,
+    this.syncedRevision,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -289,6 +376,13 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel),
       );
     }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || syncedRevision != null) {
+      map['synced_revision'] = Variable<int>(syncedRevision);
+    }
     return map;
   }
 
@@ -309,6 +403,13 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: exertionLevel == null && nullToAbsent
           ? const Value.absent()
           : Value(exertionLevel),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      revision: Value(revision),
+      syncedRevision: syncedRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedRevision),
     );
   }
 
@@ -331,6 +432,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: $AttacksTable.$converterexertionLeveln.fromJson(
         serializer.fromJson<String?>(json['exertionLevel']),
       ),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
     );
   }
   @override
@@ -350,6 +454,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'exertionLevel': serializer.toJson<String?>(
         $AttacksTable.$converterexertionLeveln.toJson(exertionLevel),
       ),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+      'syncedRevision': serializer.toJson<int?>(syncedRevision),
     };
   }
 
@@ -363,6 +470,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     List<String>? triggers,
     Value<String?> notes = const Value.absent(),
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+    int? revision,
+    Value<int?> syncedRevision = const Value.absent(),
   }) => AttackRow(
     id: id ?? this.id,
     startedAt: startedAt ?? this.startedAt,
@@ -377,6 +487,11 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel: exertionLevel.present
         ? exertionLevel.value
         : this.exertionLevel,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    revision: revision ?? this.revision,
+    syncedRevision: syncedRevision.present
+        ? syncedRevision.value
+        : this.syncedRevision,
   );
   AttackRow copyWithCompanion(AttacksCompanion data) {
     return AttackRow(
@@ -393,6 +508,11 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: data.exertionLevel.present
           ? data.exertionLevel.value
           : this.exertionLevel,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedRevision: data.syncedRevision.present
+          ? data.syncedRevision.value
+          : this.syncedRevision,
     );
   }
 
@@ -407,7 +527,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('symptoms: $symptoms, ')
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
-          ..write('exertionLevel: $exertionLevel')
+          ..write('exertionLevel: $exertionLevel, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision')
           ..write(')'))
         .toString();
   }
@@ -423,6 +546,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    updatedAt,
+    revision,
+    syncedRevision,
   );
   @override
   bool operator ==(Object other) =>
@@ -436,7 +562,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.symptoms == this.symptoms &&
           other.triggers == this.triggers &&
           other.notes == this.notes &&
-          other.exertionLevel == this.exertionLevel);
+          other.exertionLevel == this.exertionLevel &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision &&
+          other.syncedRevision == this.syncedRevision);
 }
 
 class AttacksCompanion extends UpdateCompanion<AttackRow> {
@@ -449,6 +578,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<List<String>> triggers;
   final Value<String?> notes;
   final Value<ExertionLevel?> exertionLevel;
+  final Value<DateTime?> updatedAt;
+  final Value<int> revision;
+  final Value<int?> syncedRevision;
   final Value<int> rowid;
   const AttacksCompanion({
     this.id = const Value.absent(),
@@ -460,6 +592,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AttacksCompanion.insert({
@@ -472,6 +607,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        startedAt = Value(startedAt),
@@ -487,6 +625,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? triggers,
     Expression<String>? notes,
     Expression<String>? exertionLevel,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? syncedRevision,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -499,6 +640,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (triggers != null) 'triggers': triggers,
       if (notes != null) 'notes': notes,
       if (exertionLevel != null) 'exertion_level': exertionLevel,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (syncedRevision != null) 'synced_revision': syncedRevision,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -513,6 +657,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<List<String>>? triggers,
     Value<String?>? notes,
     Value<ExertionLevel?>? exertionLevel,
+    Value<DateTime?>? updatedAt,
+    Value<int>? revision,
+    Value<int?>? syncedRevision,
     Value<int>? rowid,
   }) {
     return AttacksCompanion(
@@ -525,6 +672,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
       exertionLevel: exertionLevel ?? this.exertionLevel,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      syncedRevision: syncedRevision ?? this.syncedRevision,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -567,6 +717,15 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel.value),
       );
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedRevision.present) {
+      map['synced_revision'] = Variable<int>(syncedRevision.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -585,6 +744,226 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AttackTombstonesTable extends AttackTombstones
+    with TableInfo<$AttackTombstonesTable, AttackTombstoneRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AttackTombstonesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, deletedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'attack_tombstones';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AttackTombstoneRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deletedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AttackTombstoneRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AttackTombstoneRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AttackTombstonesTable createAlias(String alias) {
+    return $AttackTombstonesTable(attachedDatabase, alias);
+  }
+}
+
+class AttackTombstoneRow extends DataClass
+    implements Insertable<AttackTombstoneRow> {
+  final String id;
+
+  /// Doubles as the row's `updatedAt` when a deletion races an edit made on
+  /// another device — latest wins either way.
+  final DateTime deletedAt;
+  const AttackTombstoneRow({required this.id, required this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['deleted_at'] = Variable<DateTime>(deletedAt);
+    return map;
+  }
+
+  AttackTombstonesCompanion toCompanion(bool nullToAbsent) {
+    return AttackTombstonesCompanion(
+      id: Value(id),
+      deletedAt: Value(deletedAt),
+    );
+  }
+
+  factory AttackTombstoneRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AttackTombstoneRow(
+      id: serializer.fromJson<String>(json['id']),
+      deletedAt: serializer.fromJson<DateTime>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'deletedAt': serializer.toJson<DateTime>(deletedAt),
+    };
+  }
+
+  AttackTombstoneRow copyWith({String? id, DateTime? deletedAt}) =>
+      AttackTombstoneRow(
+        id: id ?? this.id,
+        deletedAt: deletedAt ?? this.deletedAt,
+      );
+  AttackTombstoneRow copyWithCompanion(AttackTombstonesCompanion data) {
+    return AttackTombstoneRow(
+      id: data.id.present ? data.id.value : this.id,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttackTombstoneRow(')
+          ..write('id: $id, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AttackTombstoneRow &&
+          other.id == this.id &&
+          other.deletedAt == this.deletedAt);
+}
+
+class AttackTombstonesCompanion extends UpdateCompanion<AttackTombstoneRow> {
+  final Value<String> id;
+  final Value<DateTime> deletedAt;
+  final Value<int> rowid;
+  const AttackTombstonesCompanion({
+    this.id = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AttackTombstonesCompanion.insert({
+    required String id,
+    required DateTime deletedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       deletedAt = Value(deletedAt);
+  static Insertable<AttackTombstoneRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AttackTombstonesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return AttackTombstonesCompanion(
+      id: id ?? this.id,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttackTombstonesCompanion(')
+          ..write('id: $id, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2068,6 +2447,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $AttacksTable attacks = $AttacksTable(this);
+  late final $AttackTombstonesTable attackTombstones = $AttackTombstonesTable(
+    this,
+  );
   late final $WeatherSnapshotsTable weatherSnapshots = $WeatherSnapshotsTable(
     this,
   );
@@ -2081,6 +2463,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     attacks,
+    attackTombstones,
     weatherSnapshots,
     medications,
     medicationReminders,
@@ -2116,6 +2499,9 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
       Value<int> rowid,
     });
 typedef $$AttacksTableUpdateCompanionBuilder =
@@ -2129,6 +2515,9 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
       Value<int> rowid,
     });
 
@@ -2215,6 +2604,21 @@ class $$AttacksTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> weatherSnapshotsRefs(
     Expression<bool> Function($$WeatherSnapshotsTableFilterComposer f) f,
   ) {
@@ -2294,6 +2698,21 @@ class $$AttacksTableOrderingComposer
     column: $table.exertionLevel,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AttacksTableAnnotationComposer
@@ -2336,6 +2755,17 @@ class $$AttacksTableAnnotationComposer
         column: $table.exertionLevel,
         builder: (column) => column,
       );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => column,
+  );
 
   Expression<T> weatherSnapshotsRefs<T extends Object>(
     Expression<T> Function($$WeatherSnapshotsTableAnnotationComposer a) f,
@@ -2400,6 +2830,9 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttacksCompanion(
                 id: id,
@@ -2411,6 +2844,9 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2424,6 +2860,9 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttacksCompanion.insert(
                 id: id,
@@ -2435,6 +2874,9 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2493,6 +2935,159 @@ typedef $$AttacksTableProcessedTableManager =
       (AttackRow, $$AttacksTableReferences),
       AttackRow,
       PrefetchHooks Function({bool weatherSnapshotsRefs})
+    >;
+typedef $$AttackTombstonesTableCreateCompanionBuilder =
+    AttackTombstonesCompanion Function({
+      required String id,
+      required DateTime deletedAt,
+      Value<int> rowid,
+    });
+typedef $$AttackTombstonesTableUpdateCompanionBuilder =
+    AttackTombstonesCompanion Function({
+      Value<String> id,
+      Value<DateTime> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$AttackTombstonesTableFilterComposer
+    extends Composer<_$AppDatabase, $AttackTombstonesTable> {
+  $$AttackTombstonesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AttackTombstonesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AttackTombstonesTable> {
+  $$AttackTombstonesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AttackTombstonesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AttackTombstonesTable> {
+  $$AttackTombstonesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$AttackTombstonesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AttackTombstonesTable,
+          AttackTombstoneRow,
+          $$AttackTombstonesTableFilterComposer,
+          $$AttackTombstonesTableOrderingComposer,
+          $$AttackTombstonesTableAnnotationComposer,
+          $$AttackTombstonesTableCreateCompanionBuilder,
+          $$AttackTombstonesTableUpdateCompanionBuilder,
+          (
+            AttackTombstoneRow,
+            BaseReferences<
+              _$AppDatabase,
+              $AttackTombstonesTable,
+              AttackTombstoneRow
+            >,
+          ),
+          AttackTombstoneRow,
+          PrefetchHooks Function()
+        > {
+  $$AttackTombstonesTableTableManager(
+    _$AppDatabase db,
+    $AttackTombstonesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AttackTombstonesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AttackTombstonesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AttackTombstonesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AttackTombstonesCompanion(
+                id: id,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime deletedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => AttackTombstonesCompanion.insert(
+                id: id,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AttackTombstonesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AttackTombstonesTable,
+      AttackTombstoneRow,
+      $$AttackTombstonesTableFilterComposer,
+      $$AttackTombstonesTableOrderingComposer,
+      $$AttackTombstonesTableAnnotationComposer,
+      $$AttackTombstonesTableCreateCompanionBuilder,
+      $$AttackTombstonesTableUpdateCompanionBuilder,
+      (
+        AttackTombstoneRow,
+        BaseReferences<
+          _$AppDatabase,
+          $AttackTombstonesTable,
+          AttackTombstoneRow
+        >,
+      ),
+      AttackTombstoneRow,
+      PrefetchHooks Function()
     >;
 typedef $$WeatherSnapshotsTableCreateCompanionBuilder =
     WeatherSnapshotsCompanion Function({
@@ -3672,6 +4267,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$AttacksTableTableManager get attacks =>
       $$AttacksTableTableManager(_db, _db.attacks);
+  $$AttackTombstonesTableTableManager get attackTombstones =>
+      $$AttackTombstonesTableTableManager(_db, _db.attackTombstones);
   $$WeatherSnapshotsTableTableManager get weatherSnapshots =>
       $$WeatherSnapshotsTableTableManager(_db, _db.weatherSnapshots);
   $$MedicationsTableTableManager get medications =>

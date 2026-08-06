@@ -19,6 +19,7 @@ part 'app_database.g.dart';
 @DriftDatabase(
   tables: [
     Attacks,
+    AttackTombstones,
     WeatherSnapshots,
     Medications,
     MedicationReminders,
@@ -33,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,6 +57,15 @@ class AppDatabase extends _$AppDatabase {
       // - Existing rows get null — nobody reported exertion before this shipped.
       if (from < 5) {
         await m.addColumn(attacks, attacks.exertionLevel);
+      }
+      // - v6: sync state per attack, for encrypted upload once signed in.
+      // - Existing rows land at revision 0 with nothing confirmed, which is
+      //   what makes the first sync push the whole history.
+      if (from < 6) {
+        await m.addColumn(attacks, attacks.updatedAt);
+        await m.addColumn(attacks, attacks.revision);
+        await m.addColumn(attacks, attacks.syncedRevision);
+        await m.createTable(attackTombstones);
       }
     },
     beforeOpen: (details) async {
