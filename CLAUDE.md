@@ -7,6 +7,12 @@ stated.** A rule that lives only in a chat is gone by the next session — write
 it into the section it belongs to, with the reason, before doing the work it
 governs.
 
+**Explaining a change means showing before and after.** Not prose about what
+changed — the old code and the new one, side by side, then what the
+difference does. A description of a diff is the reader taking your word for
+it; the diff is the reader checking. This applies to any explanation of work
+already done: a rule, a refactor, a fix.
+
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
