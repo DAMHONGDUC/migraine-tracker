@@ -10,6 +10,14 @@ import '../repositories/sync_local_store.dart';
 import 'attack_cipher.dart';
 import 'sync_payload_codec.dart';
 
+/// How far a sync has got, 0 to 1.
+///
+/// Reported against a fixed number of steps — two per collection — rather
+/// than against records, so it only ever climbs. Counting records would mean
+/// discovering more work mid-pass, and a bar that jumps backwards reads as a
+/// bug even when the sync is fine.
+typedef SyncProgressCallback = void Function(double fraction);
+
 /// One kind of record and the two things sync needs to move it: where it
 /// lives locally, and how it becomes a payload.
 class SyncBinding<T> {
@@ -68,19 +76,31 @@ class SyncService {
   Future<bool> isFirstPull(String uid) async =>
       await _cursor.lastPulledAt(uid, SyncCollection.attacks) == null;
 
-  Future<SyncOutcome> sync(String uid) async {
+  Future<SyncOutcome> sync(String uid, {SyncProgressCallback? onProgress}) async {
+    final int steps = _bindings.length * 2;
     final String key = await _keys.keyFor(uid);
+    int stepsDone = 0;
     int pushed = 0;
     int pulled = 0;
     int unreadable = 0;
     bool remindersArrived = false;
 
-    for (final SyncBinding<dynamic> binding in _bindings) {
-      final SyncOutcome pull = await _pull(uid, binding, key);
+    /// [within] is how far the step in flight has got, so the fraction moves
+    /// during a long collection instead of sitting still and then jumping.
+    void report(double within) =>
+        onProgress?.call((stepsDone + within) / steps);
 
+    report(0);
+    for (final SyncBinding<dynamic> binding in _bindings) {
+      final SyncOutcome pull = await _pull(uid, binding, key, report);
+
+      stepsDone++;
+      report(0);
       pulled += pull.pulled;
       unreadable += pull.unreadable;
-      pushed += await _push(uid, binding, key);
+      pushed += await _push(uid, binding, key, report);
+      stepsDone++;
+      report(0);
       if (binding.collection == SyncCollection.medicationReminders &&
           pull.pulled > 0) {
         remindersArrived = true;
@@ -109,10 +129,12 @@ class SyncService {
     String uid,
     SyncBinding<dynamic> binding,
     String key,
+    SyncProgressCallback report,
   ) async {
     final List<SyncRecord<dynamic>> pending = await binding.store
         .pendingChanges();
     int pushed = 0;
+    int done = 0;
 
     for (final SyncRecord<dynamic> record in pending) {
       final Object? value = record.value;
@@ -140,6 +162,8 @@ class SyncService {
         await binding.store.markSynced(record.id, record.revision);
       }
       pushed++;
+      done++;
+      report(done / pending.length);
     }
     return pushed;
   }
@@ -148,6 +172,7 @@ class SyncService {
     String uid,
     SyncBinding<dynamic> binding,
     String key,
+    SyncProgressCallback report,
   ) async {
     final SyncCollection collection = binding.collection;
     final DateTime? since = await _cursor.lastPulledAt(uid, collection);
@@ -159,6 +184,7 @@ class SyncService {
     DateTime? newest = since;
     int pulled = 0;
     int unreadable = 0;
+    int done = 0;
 
     for (final EncryptedRecord change in changes) {
       if (change.isDeleted) {
@@ -180,6 +206,8 @@ class SyncService {
       if (newest == null || change.updatedAt.isAfter(newest)) {
         newest = change.updatedAt;
       }
+      done++;
+      report(done / changes.length);
     }
     // - Saved only once the batch is through: anything that threw above leaves
     //   the cursor put, and the next pass redoes the batch harmlessly.

@@ -333,4 +333,38 @@ void main() {
       expect(await attacks.watchAll().first, hasLength(1));
     });
   });
+
+  group('progress', () {
+    test('climbs from 0 to 1 and never goes backwards', () async {
+      await attacks.insert(attack('a1'));
+      await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+      final List<double> seen = <double>[];
+
+      await service.sync(uid, onProgress: seen.add);
+
+      expect(seen.first, 0);
+      expect(seen.last, 1);
+      // A bar that jumps backwards reads as a bug even when the sync is fine,
+      // which is why progress counts fixed steps and not records discovered.
+      for (int i = 1; i < seen.length; i++) {
+        expect(seen[i], greaterThanOrEqualTo(seen[i - 1]), reason: 'step $i');
+      }
+    });
+
+    test('reaches 1 even with nothing to move', () async {
+      final List<double> seen = <double>[];
+
+      await service.sync(uid, onProgress: seen.add);
+
+      // An empty account must not leave the row stuck partway.
+      expect(seen.last, 1);
+    });
+
+    test('is reported without a callback too', () async {
+      await attacks.insert(attack('a1'));
+
+      // The callback is optional; every other caller passes nothing.
+      await expectLater(service.sync(uid), completes);
+    });
+  });
 }

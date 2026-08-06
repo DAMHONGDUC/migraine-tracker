@@ -1,55 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../features/auth/providers.dart';
 import '../../../features/sync/domain/entities/sync_status.dart';
 import '../../../features/sync/providers.dart';
-import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
+import '../../router/app_router.dart';
+import '../../theme/app_text_style.dart';
 import '../settings_tile.dart';
 
-/// The one place sync is visible or steerable (hard rule 12): a row in
-/// Settings' "Your data" that runs a sync on tap and shows a spinner while
-/// one is in flight. Not a section of its own — sync is one more thing that
+/// The short version of sync, in Settings' "Your data" — one more thing that
 /// happens to the user's data, alongside export and delete.
 ///
-/// Absent without an account, because there is nowhere to sync to. Sync is
-/// automatic — this row exists for a deliberate retry, never as a step the
-/// user is expected to remember.
+/// A plain row that leads to `SyncScreen`, except while a pass is running:
+/// then the end of the row carries a spinner and how far it has got, so the
+/// state is visible without opening anything. Everything else about sync —
+/// the last run, the manual button — lives on that screen (hard rule 12).
+///
+/// Absent without an account, because there would be nowhere to sync to.
 class SyncSettingsTile extends ConsumerWidget {
   const SyncSettingsTile({super.key});
-
-  Future<void> _syncNow(BuildContext context, WidgetRef ref) async {
-    final AppLocalizations l10n = context.l10n;
-
-    await ref.read(syncControllerProvider.notifier).sync();
-
-    // The controller swallows failures by design — every other trigger is
-    // unawaited. A deliberate tap still deserves an answer, so the outcome is
-    // read back off the state rather than caught.
-    if (!context.mounted) return;
-    if (ref.read(syncControllerProvider).phase == SyncPhase.failed) {
-      SdSnackBarUtilsV2.error(context, l10n.settingsSyncFailed);
-    }
-  }
-
-  /// When it last finished, or why it did not. Null while a pass is running,
-  /// because the spinner is already saying so.
-  String? _status(BuildContext context, SyncStatus status) {
-    final AppLocalizations l10n = context.l10n;
-    final DateTime? at = status.lastSyncedAt;
-
-    if (status.isSyncing) return null;
-    if (status.phase == SyncPhase.failed) return l10n.settingsSyncStatusFailed;
-    if (at == null) return l10n.settingsSyncStatusNever;
-    // Time alone once it happened today — the date would be noise on the row
-    // it shares with the title.
-    return DateUtils.isSameDay(at, DateTime.now())
-        ? DateFormat.Hm(l10n.localeName).format(at)
-        : DateFormat.yMMMd(l10n.localeName).format(at);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,17 +32,41 @@ class SyncSettingsTile extends ConsumerWidget {
     return SettingsTile(
       icon: Icons.sync,
       title: context.l10n.settingsSync,
-      value: _status(context, status),
-      // Same spinner-in-the-trailing-slot as the dev tiles; reverts to the
-      // status + chevron once the pass is done.
+      // Only while syncing; otherwise the row falls back to the plain chevron
+      // that says "this leads somewhere", which is what it now does.
       trailing: status.isSyncing
-          ? SizedBox(
-              width: SdSpacingConstant.r20,
-              height: SdSpacingConstant.r20,
-              child: const CircularProgressIndicator(strokeWidth: 2),
-            )
+          ? _SyncProgress(percent: status.percent)
           : null,
-      onTap: status.isSyncing ? null : () => _syncNow(context, ref),
+      onTap: () => context.pushNamed(AppRoutes.sync.name),
+    );
+  }
+}
+
+/// Spinner then percentage, in the row's trailing slot.
+///
+/// Both, not either: the spinner says the pass is alive, the number says how
+/// far — a row that only spins cannot tell a slow sync from a stuck one.
+class _SyncProgress extends StatelessWidget {
+  const _SyncProgress({required this.percent});
+
+  final int percent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        SizedBox(
+          width: SdSpacingConstant.r20,
+          height: SdSpacingConstant.r20,
+          child: const CircularProgressIndicator(strokeWidth: 2),
+        ),
+        SizedBox(width: SdSpacingConstant.w8),
+        Text(
+          context.l10n.settingsSyncProgress(percent),
+          style: AppTextStyle.bodyMedium.secondary,
+        ),
+      ],
     );
   }
 }

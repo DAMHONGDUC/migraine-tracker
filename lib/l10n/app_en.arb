@@ -1167,7 +1167,23 @@
       }
     }
   },
-  "settingsSync": "Sync now",
+  "syncScreenTitle": "Sync",
+  "@syncScreenTitle": {
+    "description": "App bar title of the sync detail screen, pushed from the Settings row"
+  },
+  "syncScreenBody": "Your attacks, medications and reminders are backed up to your account, encrypted, and kept in step across your devices. This happens on its own — the button is only here for when you want to be sure.",
+  "@syncScreenBody": {
+    "description": "Explains what syncs and that the manual button is never required. Says encrypted, never that only the user can read it — the key is server-held"
+  },
+  "syncScreenLastSynced": "Last synced",
+  "@syncScreenLastSynced": {
+    "description": "Row label on the sync screen, followed by when the last pass finished"
+  },
+  "syncScreenSyncing": "Syncing…",
+  "@syncScreenSyncing": {
+    "description": "Shown in place of the last-synced time while a pass is running"
+  },
+  "settingsSync": "Sync data to cloud",
   "@settingsSync": {
     "description": "Settings row that runs a sync by hand. Sync is automatic; this is only for a deliberate retry, and the row is absent without an account"
   },
@@ -1178,6 +1194,11 @@
   "settingsSyncStatusNever": "Not synced yet",
   "@settingsSyncStatusNever": {
     "description": "End-of-row status on the sync row before the first sync of this session has finished"
+  },
+  "settingsSyncProgress": "{percent}%",
+  "@settingsSyncProgress": {
+    "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
+    "placeholders": { "percent": { "type": "int" } }
   },
   "settingsSyncStatusFailed": "Didn't finish",
   "@settingsSyncStatusFailed": {

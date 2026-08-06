@@ -49,12 +49,25 @@ class SyncController extends Notifier<SyncStatus> {
 
   Future<void> _run(String uid) async {
     final bool isFirstPull = await _isFirstPull(uid);
+    int shownPercent = 0;
 
-    state = state.copyWith(phase: SyncPhase.syncing, isFirstPull: isFirstPull);
+    state = SyncStatus(phase: SyncPhase.syncing, isFirstPull: isFirstPull);
     try {
       final SyncOutcome outcome = await ref
           .read(syncServiceProvider)
-          .sync(uid);
+          .sync(
+            uid,
+            // Only when the whole percent moves: the service reports once per
+            // record, and a thousand-record account would otherwise rebuild
+            // the row a thousand times to draw the same number.
+            onProgress: (double fraction) {
+              final int percent = (fraction * 100).round();
+
+              if (percent == shownPercent) return;
+              shownPercent = percent;
+              state = state.copyWith(progress: fraction);
+            },
+          );
 
       AppLogger.info('Attacks synced', {
         'pushed': outcome.pushed,
