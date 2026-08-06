@@ -98,8 +98,8 @@ void main() {
     expect((json! as Map<String, dynamic>)['v'], AttackPayloadCodec.schemaVersion);
   });
 
-  group('refuses what it cannot faithfully rebuild', () {
-    test('a version it does not know', () {
+  group('payload versions', () {
+    test('a newer payload than this build knows is refused', () {
       final Map<String, dynamic> json =
           jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
       json['v'] = AttackPayloadCodec.schemaVersion + 1;
@@ -110,6 +110,46 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test('an older payload still reads', () {
+      final Map<String, dynamic> json =
+          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+      json['v'] = 0;
+
+      // The day the version is bumped, everything already uploaded is a
+      // version behind. Refusing it would orphan the user's whole history.
+      expect(
+        AttackPayloadCodec.decode(jsonEncode(json), id: 'a1').intensity,
+        7,
+      );
+    });
+
+    test('an unknown field is ignored rather than fatal', () {
+      final Map<String, dynamic> json =
+          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+      json['fieldFromALaterBuild'] = 'whatever';
+
+      // Adding an optional field must not need a version bump, or two builds
+      // in the wild could never read each other.
+      expect(
+        AttackPayloadCodec.decode(jsonEncode(json), id: 'a1').notes,
+        'woke up with it',
+      );
+    });
+
+    test('a missing version is refused', () {
+      final Map<String, dynamic> json =
+          jsonDecode(AttackPayloadCodec.encode(full())) as Map<String, dynamic>;
+      json.remove('v');
+
+      expect(
+        () => AttackPayloadCodec.decode(jsonEncode(json), id: 'a1'),
+        throwsFormatException,
+      );
+    });
+  });
+
+  group('refuses what it cannot faithfully rebuild', () {
 
     test('an unknown head location', () {
       final Map<String, dynamic> json =

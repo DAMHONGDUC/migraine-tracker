@@ -16,6 +16,11 @@ final class AttackPayloadCodec {
   /// Bumped only when the shape changes incompatibly. Written on every
   /// payload so an older build can tell "I cannot read this" from "this is
   /// corrupt", instead of guessing.
+  ///
+  /// Adding an optional field is NOT a bump: [decode] ignores keys it does
+  /// not know, so an older build keeps reading the newer payload. Bump only
+  /// when an old build would misread the result — and expect it to skip every
+  /// record written by the new one from then on.
   static const int schemaVersion = 1;
 
   static const String _versionKey = 'v';
@@ -55,7 +60,11 @@ final class AttackPayloadCodec {
       throw const FormatException('attack payload is not an object');
     }
     final Object? version = decoded[_versionKey];
-    if (version != schemaVersion) {
+
+    // Only the future is unreadable. Refusing anything that merely differs
+    // would mean the first bump orphaned every record already uploaded — the
+    // new build would reject the user's entire history.
+    if (version is! int || version > schemaVersion) {
       throw FormatException('unsupported attack payload version $version');
     }
     final Object? weather = decoded['weather'];
