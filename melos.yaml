@@ -47,6 +47,12 @@ scripts:
     description: Regenerate localizations and build_runner output.
     run: sh tool/gen.sh
 
+  release-ios:
+    description: >
+      Build the TestFlight/App Store archive with env/prod.json attached.
+      Never archive from Xcode — it cannot pass the config flag.
+    run: sh tool/release-ios.sh
+
   analyze:
     description: Analyze every package. Must pass with zero findings.
     run: sh tool/analyze.sh

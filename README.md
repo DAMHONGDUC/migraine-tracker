@@ -73,6 +73,7 @@ running the app — setup says so loudly when it creates them.
 | `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
 | `melos run test` | The Flutter test suite. |
 | `melos run deep-set-up` | Setup, plus Xcode's DerivedData. Costs a cold build. |
+| `melos run release-ios` | The TestFlight/App Store archive, config flag attached. |
 
 Run the app:
 
@@ -82,6 +83,13 @@ flutter run --dart-define-from-file=env/dev.json
 
 The VS Code launch configs already pass that flag (dev → `env/dev.json`,
 prod → `env/prod.json`).
+
+**Never archive from Xcode.** Product > Archive knows nothing about
+`--dart-define-from-file`, so the build ships with empty Firebase and
+RevenueCat config and crashes on launch — with `[core/no-app] No Firebase App
+'[DEFAULT]' has been created`, which names nothing to do with the missing
+flag. Use `melos run release-ios`, then upload the `.ipa` it leaves in
+`build/ios/ipa/`.
 
 ## Layout
 
