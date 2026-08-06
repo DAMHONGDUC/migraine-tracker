@@ -1,15 +1,22 @@
+import { randomBytes } from "node:crypto";
+
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
-import { onRequest } from "firebase-functions/v2/https";
+import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
 import { runPressureAlerts } from "./core/alertRun";
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
+import {
+  ANONYMOUS_PROVIDER,
+  resolveSyncKey,
+  SYNC_KEY_BYTES,
+} from "./core/syncKey";
 import { premiumFromEvent } from "./revenuecat";
 import { fetchHourlyPressure } from "./weather/openMeteo";
 
@@ -116,6 +123,53 @@ export const pressureAlertJob = onSchedule(
     if (result.failedCells.length > 0) {
       throw new Error(`${result.failedCells.length} cells failed weather fetch`);
     }
+  },
+);
+
+/**
+ * Hands a signed-in user the key their devices encrypt attack payloads with,
+ * minting one on first use. Read-or-create runs in a transaction so two
+ * devices signing in at once cannot each mint a key, which would leave one
+ * writing payloads the other could not read.
+ *
+ * The key lives in `sync_keys/{uid}`, which no client can reach: rules deny
+ * that collection outright and only the Admin SDK bypasses them. This is
+ * server-held custody, NOT end-to-end encryption — the copy shown to the user
+ * must not claim otherwise.
+ */
+export const getSyncKey = onCall(
+  { region: REGION, maxInstances: 10, memory: "256MiB" },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "sign in first");
+    }
+    // Anonymous sessions never sync (hard rule 1), and their uid dies with
+    // the install, so a key issued to one could never be recovered.
+    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
+      throw new HttpsError("permission-denied", "account required");
+    }
+
+    const db = getFirestore();
+    const ref = db.collection("sync_keys").doc(uid);
+    const now = new Date();
+
+    const key = await db.runTransaction(async (tx) =>
+      resolveSyncKey(uid, {
+        now,
+        load: async () => {
+          const snapshot = await tx.get(ref);
+          const stored = snapshot.get("key");
+          return typeof stored === "string" ? stored : null;
+        },
+        save: async (_uid, value, at) => {
+          tx.set(ref, { key: value, createdAt: Timestamp.fromDate(at) });
+        },
+        generateKey: () => randomBytes(SYNC_KEY_BYTES).toString("base64"),
+      }),
+    );
+
+    return { key };
   },
 );
 

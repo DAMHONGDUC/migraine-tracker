@@ -12,6 +12,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // The per-user key that attack payloads are encrypted with. Denied to
+    // every client, including its owner: it is handed out only by the
+    // getSyncKey callable, which checks the caller is signed in (never
+    // anonymous) and reaches Firestore through the Admin SDK, which bypasses
+    // rules. Deny-by-default here means a leaked client can read keys for
+    // nobody, not even itself.
+    match /sync_keys/{uid} {
+      allow read, write: if false;
+    }
+
     // Each user may only touch their own settings doc. Hard rule 1: this
     // doc holds ONLY geohash5, fcmToken, alertThreshold, tz, premium and —
     // for signed-in users — the account fields displayName, email, photoUrl,
