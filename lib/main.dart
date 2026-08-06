@@ -43,8 +43,15 @@ final class _AppBootstrap {
     tz.setLocalLocation(tz.getLocation(localTz));
     AppLogger.info('App started', {'tz': localTz});
 
-    // - Firebase + RevenueCat config asserts removed — see CLAUDE.md "Pending setup" (TODO: one assert walking every AppEnv value).
-    // - `RevenueCatClient.apiKey` still throws (every call site catches it) if the key is missing.
+    // One assert walking every required AppEnv value, replacing the old
+    // per-field asserts — a missing --dart-define-from-file flag reports
+    // every gap at once instead of failing on the first field checked.
+    assert(
+      AppEnv.missingConfigKeys.isEmpty,
+      'Missing required config: ${AppEnv.missingConfigKeys.join(', ')}. '
+      'Run with --dart-define-from-file=env/dev.json (or env/prod.json).',
+    );
+    // `RevenueCatClient.apiKey` still throws (every call site catches it) if the key is missing.
 
     try {
       await Firebase.initializeApp(
