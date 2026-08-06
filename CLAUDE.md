@@ -367,9 +367,24 @@ one of them; under investigation) and have now been **replaced with one
 assert** — `AppEnv.missingConfigKeys` walks every required Firebase field
 plus the platform's own RevenueCat key and returns the names still empty;
 `main()` asserts that list is empty, reporting every gap in one message
-instead of failing on the first field checked. This is a deliberate re-add of
-an `assert()` in `main()` despite the still-open investigation above — if the
-TestFlight crash resurfaces, this is the first place to suspect and revert.
+instead of failing on the first field checked.
+
+**The assert was never capable of causing that TestFlight crash, and neither
+was RevenueCat. Both suspicions are closed.** Dart strips `assert()` from
+release builds, and TestFlight is release — so the assert cannot fire there.
+A missing RevenueCat key cannot crash either: `RevenueCatClient.apiKey` throws
+a `StateError`, and every call site catches it (`_prime()` in
+`RevenueCatPremiumRepository` swallows and logs).
+
+**The real cause is archiving without `--dart-define-from-file`.** Xcode's
+Product > Archive knows nothing about that flag, so the archive carries empty
+config; `Firebase.initializeApp` throws, `main()` swallows it, and the app
+then dies on the first `FirebaseAuth.instance` with `[core/no-app] No Firebase
+App '[DEFAULT]' has been created` — a crash naming nothing to do with the
+missing flag. **Always release with `melos run release-ios`**, never from
+Xcode. Note the shape of this trap: the one check meant to catch missing
+config is compiled out in precisely the build where it goes wrong.
+
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase
 action runs without a key, because every RevenueCat call site catches the
 `RevenueCatClient.apiKey` `StateError` — that guard is unchanged. What the
