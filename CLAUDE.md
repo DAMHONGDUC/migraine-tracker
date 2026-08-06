@@ -223,6 +223,11 @@ stdout is a terminal so CI logs stay readable.
     - **A payload codec refuses only versions NEWER than it knows, never merely different**, and ignores fields it does not recognise. The first bump would otherwise orphan every record already uploaded, and adding an optional field would stop two builds in the wild reading each other.
     - **`pumpApp` overrides `syncKeyRepositoryProvider` and `remoteSyncRepositoryProvider`** with the fakes in `test/helpers/sync_fakes.dart`, because the app root fires a sync on sign-in. Without them a widget test reaches for Firebase, the sync spinner renders, and every `pumpAndSettle` waits out its full 10-minute timeout — the suite goes from 30 seconds to 10 minutes.
     - **The GDPR wipe deletes the account's synced records BEFORE the device's**, and a failure there aborts the whole wipe. The other order leaves the cloud copy with nothing left to say it should go, and the next sync pulls every deleted record back down. What the wipe still misses is listed in `docs/REMAINING_WORK.md`.
+13. **Never read `env/`.** Not with Read, not with `cat`/`grep`/`sed`, not "just one field". `env/dev.json` and `env/prod.json` hold live Firebase and RevenueCat keys, and anything read there is copied into a transcript that outlives the session and was never meant to hold credentials. There is no read small enough to be safe, because the harm is the copy, not the size.
+    - **What to use instead**: `env/*.example.json` are committed, key-only templates — they answer "what keys exist" without any values. The Firebase project id is in `.firebaserc`, and `firebase use` prints it. For anything else, ask the owner rather than opening the file.
+    - Reading the *names* of files in `env/` is fine; it is the contents that never get read.
+    - `.claude/settings.json` denies the obvious paths, but note what that does NOT cover: `Bash` is broadly allowed, so no pattern list can close every way a shell command could read the folder. **The rule is the guarantee; the deny list is only a guard rail.**
+    - Writing to `env/` is still allowed — `melos run set-up` creates the two files from the templates, and that is the one thing that should touch them.
 
 ## Code style
 
