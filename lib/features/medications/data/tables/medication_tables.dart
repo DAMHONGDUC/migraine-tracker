@@ -14,6 +14,13 @@ class Medications extends Table {
   /// means "unknown", sorts last, and matches only the "all" filter.
   DateTimeColumn get createdAt => dateTime().nullable()();
 
+  /// Sync state, added in v7. Same three columns and same reasoning as
+  /// `Attacks`: a revision decides what is dirty because drift stores dates
+  /// to the second, and [updatedAt] only settles which device's version wins.
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  IntColumn get revision => integer().withDefault(const Constant(0))();
+  IntColumn get syncedRevision => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -28,6 +35,13 @@ class MedicationReminders extends Table {
   /// Local time-of-day, stored as minutes past midnight (0–1439).
   IntColumn get minuteOfDay => integer()();
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+
+  /// Sync state, added in v7. Note what syncs and what does not: the row
+  /// travels, the scheduled OS notification does not — it is local to each
+  /// device and gets re-scheduled after a pull.
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  IntColumn get revision => integer().withDefault(const Constant(0))();
+  IntColumn get syncedRevision => integer().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

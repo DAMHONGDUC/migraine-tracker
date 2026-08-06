@@ -12,10 +12,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 6', () {
+  test('database is at schema version 7', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 6);
+    expect(db.schemaVersion, 7);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -147,10 +147,10 @@ void main() {
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
     // Nothing was ever deleted before this shipped, so nothing to backfill.
-    expect(await db.select(db.attackTombstones).get(), isEmpty);
+    expect(await db.select(db.syncTombstones).get(), isEmpty);
   });
 
-  test('v5 attacks survive v6 unsynced', () async {
+  test('v5 attacks survive v7 unsynced', () async {
     final schema = await verifier.schemaAt(5);
     schema.rawDatabase.execute(
       'INSERT INTO attacks (id, started_at, intensity, location) '
@@ -190,5 +190,68 @@ void main() {
     // gets silently dropped.
     await (db.delete(db.attacks)..where((a) => a.id.equals('a1'))).go();
     expect(await db.select(db.weatherSnapshots).get(), isEmpty);
+  });
+
+  test('migrates from v6 to v7 (medications and reminders sync too)', () async {
+    final connection = await verifier.startAt(6);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  test('v6 medications survive v7 unsynced', () async {
+    final schema = await verifier.schemaAt(6);
+    schema.rawDatabase
+      ..execute("INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')")
+      ..execute(
+        'INSERT INTO medication_reminders (id, medication_id, minute_of_day, '
+        "enabled) VALUES ('r1', 'm1', 480, 1)",
+      );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    expect((await db.select(db.medications).get()).single.revision, 0);
+    expect(
+      (await db.select(db.medicationReminders).get()).single.syncedRevision,
+      isNull,
+    );
+  });
+
+  test('a v6 deletion still owed to the server survives v7', () async {
+    final schema = await verifier.schemaAt(6);
+    schema.rawDatabase.execute(
+      "INSERT INTO attack_tombstones (id, deleted_at) VALUES ('gone', 1750000000)",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Losing it would silently resurrect the attack on the next pull.
+    final tombstone = (await db.select(db.syncTombstones).get()).single;
+    expect(tombstone.id, 'gone');
+    expect(tombstone.collection, 'attacks');
+  });
+
+  test('reminders still cascade after v7', () async {
+    final schema = await verifier.schemaAt(6);
+    schema.rawDatabase
+      ..execute("INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')")
+      ..execute(
+        'INSERT INTO medication_reminders (id, medication_id, minute_of_day, '
+        "enabled) VALUES ('r1', 'm1', 480, 1)",
+      );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Six addColumns rebuild both tables — that is where a foreign key gets
+    // silently dropped.
+    await (db.delete(db.medications)..where((m) => m.id.equals('m1'))).go();
+    expect(await db.select(db.medicationReminders).get(), isEmpty);
   });
 }

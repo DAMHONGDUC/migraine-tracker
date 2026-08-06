@@ -41,25 +41,6 @@ class Attacks extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-/// A deleted attack's id, kept only until the server is told about the
-/// deletion. Without it, a delete on this device is resurrected by the next
-/// pull from another one.
-///
-/// Deliberately a table of its own rather than a flag on [Attacks]: the
-/// attack row is really gone the moment the user deletes it, so no intensity,
-/// location or note outlives a delete. All that survives is the opaque UUID.
-@DataClassName('AttackTombstoneRow')
-class AttackTombstones extends Table {
-  TextColumn get id => text()();
-
-  /// Doubles as the row's `updatedAt` when a deletion races an edit made on
-  /// another device — latest wins either way.
-  DateTimeColumn get deletedAt => dateTime()();
-
-  @override
-  Set<Column<Object>> get primaryKey => {id};
-}
-
 /// One optional snapshot per attack; missing while the attack was logged
 /// offline, backfilled later.
 @DataClassName('WeatherSnapshotRow')
