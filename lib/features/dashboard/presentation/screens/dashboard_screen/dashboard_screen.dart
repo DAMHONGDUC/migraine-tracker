@@ -53,6 +53,10 @@ class DashboardScreen extends ConsumerWidget {
         // The number, not a dot: how many are waiting is what decides
         // whether the user opens the list now or later.
         SdBadgeV2(
+          // Red, not the app's lavender accent: a notification count is the
+          // one badge people already read as "unattended", and the accent
+          // is what every non-urgent highlight in the app wears.
+          color: context.colorScheme.error,
           count: ref.watch(unreadNotificationCountProvider).value ?? 0,
           showing: (ref.watch(unreadNotificationCountProvider).value ?? 0) > 0,
           child: SdAppBarButtonV2(

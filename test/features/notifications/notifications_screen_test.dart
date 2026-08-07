@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_colors.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
@@ -31,9 +32,7 @@ Future<void> seedNotifications(PumpedApp app) async {
 }
 
 void main() {
-  testWidgets('the bell wears the unread count', (
-    tester,
-  ) async {
+  testWidgets('the bell wears the unread count', (tester) async {
     final PumpedApp app = await pumpApp(tester);
 
     expect(find.byIcon(Icons.notifications_none), findsOneWidget);
@@ -53,6 +52,8 @@ void main() {
 
     expect(badge.showing, isTrue);
     expect(badge.count, 2, reason: 'both seeded notifications are unread');
+    // Red, not the lavender accent every non-urgent highlight wears.
+    expect(badge.color, AppColors.error);
 
     await finishTest(tester);
   });
