@@ -16,7 +16,7 @@
     "{{app}} is a migraine tracker. Your attacks, medications and notes are stored on your device, an account is optional, and logging works offline. If you never sign in, we never receive any of it.",
     "Signing in turns on cross-device sync — there is no separate switch. Records upload as encrypted payloads, but the key is held by our backend, so this is not end-to-end encryption: Google's infrastructure, which hosts it, is able to decrypt them. We do not read them.",
     "Apple Health sleep and step data is read on-device only and is never uploaded. {{app}} does use crash reporting and usage analytics — they record what you did in the app, never what you logged.",
-    "Settings → Delete all data wipes your records but keeps your account. Account → Delete account removes everything. Neither cancels your subscription, which only you can do in the App Store.",
+    "Settings → Delete all data wipes your records and any files you exported — which are full copies of your data — but keeps your account. Account → Delete account removes everything. Neither cancels your subscription, which only you can do in the App Store.",
     "{{app}} is not directed at children under 16. If you believe a child has provided us with personal information, contact {{email}} and we will delete it.",
     "Medical disclaimer: {{app}} is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified clinician about your health."
   ],
