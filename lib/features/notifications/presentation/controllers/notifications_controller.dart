@@ -4,6 +4,7 @@ import '../../../../core/logging/app_logger.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
 import '../../../medications/providers.dart';
 import '../../domain/entities/app_notification.dart';
+import '../../domain/services/pressure_alert_mapper.dart';
 import '../../domain/services/reminder_occurrence_materialiser.dart';
 import '../../providers.dart';
 
@@ -40,6 +41,30 @@ class NotificationsController {
     } catch (error, stackTrace) {
       AppLogger.error(
         'Materialising reminder notifications failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Records a pressure alert that arrived as a push while the app was
+  /// open.
+  ///
+  /// Ignores anything that is not a pressure alert, or is missing what a
+  /// row needs: a push comes from outside the app, so a malformed one is
+  /// dropped rather than allowed to throw inside a platform callback.
+  Future<void> recordPush(Map<String, dynamic> data) async {
+    final AppNotification? alert = PressureAlertMapper.fromData(data);
+
+    if (alert == null) return;
+    try {
+      await _ref.read(notificationRepositoryProvider).addMissing(
+        <AppNotification>[alert],
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Recording a pushed alert failed',
         error: error,
         stackTrace: stackTrace,
       );

@@ -178,7 +178,15 @@ void main() {
     await tester.tap(find.text('9'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byType(SdAppBarButtonV2));
+    // Scoped to the app bar: the dashboard sits under the pushed log
+    // route, so both its own bar button and a row chevron drawn with the
+    // same glyph are still in the tree.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(SdAppBarV2),
+        matching: find.byIcon(SdAppBarButtonV2.backIcon),
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('How intense is the pain?'), findsOneWidget);

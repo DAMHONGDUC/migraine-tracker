@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,6 +43,23 @@ class BaroEaseApp extends HookConsumerWidget {
     useEffect(() {
       unawaited(ref.read(notificationsControllerProvider).materialise());
       return null;
+    }, const []);
+
+    // A pressure alert arriving while the app is open: record it now, so
+    // the list has it before the user goes looking. One arriving while the
+    // app is shut is picked up by the sync from whichever device did see
+    // it (hard rule 15).
+    useEffect(() {
+      final StreamSubscription<RemoteMessage> messages = FirebaseMessaging
+          .onMessage
+          .listen(
+            (RemoteMessage message) => unawaited(
+              ref
+                  .read(notificationsControllerProvider)
+                  .recordPush(message.data),
+            ),
+          );
+      return messages.cancel;
     }, const []);
 
     // Coming back from the background counts as entering the app: another
