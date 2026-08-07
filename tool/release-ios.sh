@@ -19,23 +19,22 @@ set -eu
 TARGET="${1:-}"
 [ $# -gt 0 ] && shift
 
-# dev defaults to ad-hoc so the build installs on a device without a
-# TestFlight round trip; prod defaults to the App Store export. Either can be
-# overridden by passing --export-method through.
+# Both go to TestFlight, so both export app-store — it is the only method
+# App Store Connect accepts. Override with --export-method to sideload one.
 case "$TARGET" in
   dev)
     ENV_FILE="env/dev.json"
-    EXPORT_METHOD="ad-hoc"
     ;;
   prod)
     ENV_FILE="env/prod.json"
-    EXPORT_METHOD="app-store"
     ;;
   *)
     warn "usage: release-ios.sh <dev|prod> [flutter build ipa args...]"
     exit 1
     ;;
 esac
+
+EXPORT_METHOD="app-store"
 
 # Existence only — never the contents (hard rule 13).
 if [ ! -f "$ENV_FILE" ]; then
@@ -57,4 +56,7 @@ $FL build ipa \
   "$@"
 
 done_msg "Built $TARGET from $ENV_FILE into $IPA_DIR."
-warn "App Store Connect refuses a build number it has already seen — pass --build-number to bump it."
+done_msg "Upload the .ipa there with Transporter, or from Xcode Organizer."
+# Both environments share one bundle id, so both land in the SAME TestFlight
+# app and the build number is the only thing telling them apart.
+warn "App Store Connect refuses a build number it has already seen — bump pubspec.yaml, or pass --build-number."

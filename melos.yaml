@@ -55,8 +55,8 @@ scripts:
 
   release-ios-dev:
     description: >
-      Same build with env/dev.json, exported ad-hoc so it installs on a
-      device without a TestFlight round trip.
+      Same TestFlight build with env/dev.json attached instead. One bundle
+      id, so it lands in the same TestFlight app — bump the build number.
     run: sh tool/release-ios.sh dev
 
   deploy-firebase:
