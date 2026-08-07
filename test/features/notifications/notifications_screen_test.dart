@@ -80,9 +80,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('the two types are split across tabs, each carrying its count', (
-    tester,
-  ) async {
+  testWidgets('the two types are split across tabs', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await seedNotifications(app);
     await tester.pump();
@@ -98,7 +96,8 @@ void main() {
       'Reminders',
       'Pressure',
     ]);
-    expect(tabs.segments.map((SdSegmentV2 s) => s.count), <int>[1, 1]);
+    // Bare labels: the list under a tab is already the count.
+    expect(tabs.segments.map((SdSegmentV2 s) => s.count), <int?>[null, null]);
     expect(tabs.selectedIndex, 0);
 
     // Reminders tab: the alert is not on it.

@@ -62,15 +62,12 @@ class NotificationsScreen extends HookConsumerWidget {
             child: SdSegmentedTabsV2(
               selectedIndex: selected.value,
               onSelected: (int index) => selected.value = index,
+              // No counts on the tabs: the list under one already answers
+              // "how many", and a tinted chip beside a label competes with
+              // the label for the same glance.
               segments: <SdSegmentV2>[
-                SdSegmentV2(
-                  label: l10n.notificationsTabReminders,
-                  count: reminders.length,
-                ),
-                SdSegmentV2(
-                  label: l10n.notificationsTabAlerts,
-                  count: alerts.length,
-                ),
+                SdSegmentV2(label: l10n.notificationsTabReminders),
+                SdSegmentV2(label: l10n.notificationsTabAlerts),
               ],
             ),
           ),
