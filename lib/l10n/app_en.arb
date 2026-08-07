@@ -1431,6 +1431,19 @@
     "description": "PDF table column: 24h pressure delta"
   },
   "settingsDelete": "Delete all data",
+  "settingsDeleteLocal": "Delete all local data",
+  "@settingsDeleteLocal": {
+    "description": "Settings row title when there is no account, so nothing was ever synced. Says local because that is all there is to delete"
+  },
+  "settingsDeleteLocalConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports from this device, and turns off pressure alerts. This cannot be undone.",
+  "@settingsDeleteLocalConfirmBody": {
+    "description": "Confirm body for the signed-out wipe. No mention of an account copy, because there is none — but alerts still stop, since even a signed-out device is registered for them"
+  },
+  "commonDeleting": "Deleting…",
+  "@commonDeleting": {
+    "description": "Button label while a destructive action is running, replacing the verb so the action reads as underway and cannot be tapped twice"
+  },
+
   "@settingsDelete": {
     "description": "Settings tile that starts the GDPR delete flow"
   },
@@ -1447,6 +1460,10 @@
     "description": "Confirm button of the delete dialog"
   },
   "settingsDeleteDone": "All data deleted.",
+  "settingsDeleteFailed": "Couldn't delete everything. Nothing was removed — please try again.",
+  "@settingsDeleteFailed": {
+    "description": "Shown when the wipe fails. Says nothing was removed because the wipe stops at the first failure rather than half-running, so retrying is safe"
+  },
   "@settingsDeleteDone": {
     "description": "Snackbar shown after a successful wipe"
   },

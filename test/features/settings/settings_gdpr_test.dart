@@ -17,7 +17,8 @@ void main() {
     ).upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
 
     await openSettings(tester);
-    await tapVisible(tester, find.text('Delete all data'));
+    // Signed out, so "local" is the honest label — nothing was ever synced.
+    await tapVisible(tester, find.text('Delete all local data'));
 
     expect(find.text('Delete everything?'), findsOneWidget);
     await tester.tap(find.text('Delete'));
@@ -37,12 +38,23 @@ void main() {
     await logAttack(tester);
 
     await openSettings(tester);
-    await tapVisible(tester, find.text('Delete all data'));
+    await tapVisible(tester, find.text('Delete all local data'));
     await tester.tap(find.text('Cancel'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(await app.db.select(app.db.attacks).get(), hasLength(1));
+
+    await finishTest(tester);
+  });
+
+  testWidgets('with an account the row stops saying local', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await openSettings(tester);
+
+    // There is an account copy to delete now, so the promise widens with it.
+    expect(find.text('Delete all data'), findsOneWidget);
+    expect(find.text('Delete all local data'), findsNothing);
 
     await finishTest(tester);
   });
