@@ -43,9 +43,7 @@ class MedicationPayloadCodec implements SyncPayloadCodec<Medication> {
       name: name,
       // Null stays null: a medication saved before v3 has no recorded date,
       // and inventing one would list it under "added this week".
-      createdAt: createdAt is String
-          ? DateTime.parse(createdAt).toUtc()
-          : null,
+      createdAt: createdAt is String ? DateTime.parse(createdAt).toUtc() : null,
     );
   }
 }

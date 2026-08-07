@@ -27,6 +27,10 @@ class MedicationReminderPayloadCodec
     'medicationId': value.medicationId,
     'minuteOfDay': value.minuteOfDay,
     'enabled': value.enabled,
+    // Optional field, so no version bump: an older build ignores keys it
+    // does not know. It travels because the notification list bounds its
+    // history by this, and every device has to agree where that starts.
+    'createdAt': value.createdAt?.toUtc().toIso8601String(),
   });
 
   @override
@@ -54,11 +58,16 @@ class MedicationReminderPayloadCodec
       throw FormatException('reminder payload has a bad time $minuteOfDay');
     }
 
+    final Object? createdAt = decoded['createdAt'];
+
     return MedicationReminder(
       id: id,
       medicationId: medicationId,
       minuteOfDay: minuteOfDay,
       enabled: decoded['enabled'] != false,
+      // Absent from anything written before this field existed, and an
+      // unparseable value is the same as absent: unknown, not invalid.
+      createdAt: createdAt is String ? DateTime.tryParse(createdAt) : null,
     );
   }
 }

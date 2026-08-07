@@ -23,10 +23,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
 
   @override
   Future<void> save(String uid, SyncCollection collection, DateTime at) =>
-      _prefs.setInt(
-        _key(uid, collection),
-        at.toUtc().millisecondsSinceEpoch,
-      );
+      _prefs.setInt(_key(uid, collection), at.toUtc().millisecondsSinceEpoch);
 
   @override
   Future<void> clear() async {

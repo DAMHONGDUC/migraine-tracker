@@ -36,10 +36,7 @@ final class EncryptedRecordMapper {
 
   /// Null when the document cannot be read as a record at all — a shape we do
   /// not recognise is skipped rather than guessed at.
-  static EncryptedRecord? fromDocument(
-    String id,
-    Map<String, Object?>? data,
-  ) {
+  static EncryptedRecord? fromDocument(String id, Map<String, Object?>? data) {
     if (data == null) return null;
 
     final Object? at = data[updatedAt];

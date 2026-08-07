@@ -63,12 +63,9 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
       writeSyncedRevision(id, revision);
 
   @override
-  Future<void> clearTombstone(String id) =>
-      (db.delete(db.syncTombstones)..where(
-            (t) =>
-                t.collection.equals(collection.name) & t.id.equals(id),
-          ))
-          .go();
+  Future<void> clearTombstone(String id) => (db.delete(
+    db.syncTombstones,
+  )..where((t) => t.collection.equals(collection.name) & t.id.equals(id))).go();
 
   @override
   Future<bool> applyRemote(T value, DateTime updatedAt) {
@@ -106,10 +103,9 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   }
 
   Future<List<SyncRecord<T>>> _tombstones() async {
-    final List<SyncTombstoneRow> rows =
-        await (db.select(db.syncTombstones)
-              ..where((t) => t.collection.equals(collection.name)))
-            .get();
+    final List<SyncTombstoneRow> rows = await (db.select(
+      db.syncTombstones,
+    )..where((t) => t.collection.equals(collection.name))).get();
 
     return rows
         .map(
@@ -165,7 +161,7 @@ final class SyncTombstoneWriter {
 
   /// Clears every tombstone of one kind (GDPR wipe).
   static Future<void> clearAll(AppDatabase db, SyncCollection collection) =>
-      (db.delete(db.syncTombstones)
-            ..where((t) => t.collection.equals(collection.name)))
-          .go();
+      (db.delete(
+        db.syncTombstones,
+      )..where((t) => t.collection.equals(collection.name))).go();
 }

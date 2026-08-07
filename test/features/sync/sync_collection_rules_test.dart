@@ -68,16 +68,15 @@ void main() {
       // On payload that is roughly 1.4 KB of index for a 572-byte string
       // nothing ever queries — more index than document. Exempting the three
       // opaque fields cuts most of the stored bytes and speeds up each write.
-      final Set<String?> exempt =
-          (indexes['fieldOverrides'] as List<dynamic>)
-              .cast<Map<String, dynamic>>()
-              .where(
-                (override) =>
-                    override['collectionGroup'] == collection.name &&
-                    (override['indexes'] as List<dynamic>).isEmpty,
-              )
-              .map((override) => override['fieldPath'] as String?)
-              .toSet();
+      final Set<String?> exempt = (indexes['fieldOverrides'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .where(
+            (override) =>
+                override['collectionGroup'] == collection.name &&
+                (override['indexes'] as List<dynamic>).isEmpty,
+          )
+          .map((override) => override['fieldPath'] as String?)
+          .toSet();
 
       expect(exempt, containsAll(<String>['payload', 'nonce', 'mac']));
     });

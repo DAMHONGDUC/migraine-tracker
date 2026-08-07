@@ -76,7 +76,10 @@ class SyncService {
   Future<bool> isFirstPull(String uid) async =>
       await _cursor.lastPulledAt(uid, SyncCollection.attacks) == null;
 
-  Future<SyncOutcome> sync(String uid, {SyncProgressCallback? onProgress}) async {
+  Future<SyncOutcome> sync(
+    String uid, {
+    SyncProgressCallback? onProgress,
+  }) async {
     final int steps = _bindings.length * 2;
     final String key = await _keys.keyFor(uid);
     int stepsDone = 0;

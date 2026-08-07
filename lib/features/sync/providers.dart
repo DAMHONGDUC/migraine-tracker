@@ -12,6 +12,8 @@ import '../medications/data/repositories/drift_medication_sync_store.dart';
 import '../medications/domain/entities/medication.dart';
 import '../medications/domain/entities/medication_reminder.dart';
 import '../medications/providers.dart';
+import '../notifications/data/repositories/drift_app_notification_sync_store.dart';
+import '../notifications/domain/entities/app_notification.dart';
 import 'data/repositories/firestore_sync_repository.dart';
 import 'data/repositories/functions_sync_key_repository.dart';
 import 'data/repositories/prefs_sync_cursor_store.dart';
@@ -20,6 +22,7 @@ import 'domain/entities/sync_status.dart';
 import 'domain/repositories/remote_sync_repository.dart';
 import 'domain/repositories/sync_cursor_store.dart';
 import 'domain/repositories/sync_key_repository.dart';
+import 'domain/services/app_notification_payload_codec.dart';
 import 'domain/services/attack_cipher.dart';
 import 'domain/services/attack_payload_codec.dart';
 import 'domain/services/medication_payload_codec.dart';
@@ -29,9 +32,7 @@ import 'presentation/controllers/sync_controller.dart';
 
 final syncKeyRepositoryProvider = Provider<SyncKeyRepository>(
   (ref) => FunctionsSyncKeyRepository(
-    FirebaseFunctions.instanceFor(
-      region: FirebaseConstants.functionsRegion,
-    ),
+    FirebaseFunctions.instanceFor(region: FirebaseConstants.functionsRegion),
   ),
 );
 
@@ -63,6 +64,12 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         const MedicationReminderPayloadCodec(),
       ),
       SyncBinding<Attack>(DriftAttackSyncStore(db), const AttackPayloadCodec()),
+      // Last: a notification names the reminder and medication it came
+      // from, so both are already here by the time the list renders it.
+      SyncBinding<AppNotification>(
+        DriftAppNotificationSyncStore(db),
+        const AppNotificationPayloadCodec(),
+      ),
     ],
     ref.watch(remoteSyncRepositoryProvider),
     ref.watch(syncKeyRepositoryProvider),

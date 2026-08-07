@@ -89,7 +89,10 @@ void main() {
 
       expect(outcome.pushed, 1);
       // Hard rule 1: nothing about the attack may reach the server in clear.
-      final EncryptedRecord stored = remote.of(SyncCollection.attacks).values.single;
+      final EncryptedRecord stored = remote
+          .of(SyncCollection.attacks)
+          .values
+          .single;
       expect(stored.payload!.ciphertext, isNot(contains('Sumatriptan')));
       expect(await service.sync(uid), isA<SyncOutcome>());
       expect(remote.putCount, 1);
@@ -124,8 +127,10 @@ void main() {
 
       expect((await service.sync(uid)).pushed, 1);
 
-      final EncryptedRecord stored =
-          remote.of(SyncCollection.medications).values.single;
+      final EncryptedRecord stored = remote
+          .of(SyncCollection.medications)
+          .values
+          .single;
       // The name is health data and never leaves in clear (hard rule 1).
       expect(stored.payload!.ciphertext, isNot(contains('Ibuprofen')));
     });
@@ -152,7 +157,11 @@ void main() {
     test('deleting one also owes the server its reminders', () async {
       await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
       await reminders.upsert(
-        const MedicationReminder(id: 'r1', medicationId: 'm1', minuteOfDay: 480),
+        const MedicationReminder(
+          id: 'r1',
+          medicationId: 'm1',
+          minuteOfDay: 480,
+        ),
       );
       await service.sync(uid);
 
@@ -297,7 +306,10 @@ void main() {
 
       await expectLater(service.sync(uid), throwsA(isA<Exception>()));
 
-      expect(await cursor.lastPulledAt(uid, SyncCollection.medications), isNull);
+      expect(
+        await cursor.lastPulledAt(uid, SyncCollection.medications),
+        isNull,
+      );
     });
   });
 

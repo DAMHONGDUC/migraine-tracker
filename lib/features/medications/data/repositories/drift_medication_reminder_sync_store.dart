@@ -41,6 +41,7 @@ class DriftMedicationReminderSyncStore
               medicationId: row.medicationId,
               minuteOfDay: row.minuteOfDay,
               enabled: row.enabled,
+              createdAt: row.createdAt,
             ),
           ),
         )
@@ -80,6 +81,7 @@ class DriftMedicationReminderSyncStore
             medicationId: value.medicationId,
             minuteOfDay: value.minuteOfDay,
             enabled: Value(value.enabled),
+            createdAt: Value(value.createdAt),
             updatedAt: Value(updatedAt),
             revision: Value(revision),
             syncedRevision: Value(revision),
