@@ -65,10 +65,10 @@ class DriftMedicationReminderSyncStore
     // deleted on the other device — inserting would break the foreign key, so
     // skip it: the next pull picks it up once its medication is here.
     final bool hasMedication =
-        await (db.select(db.medications)
-                  ..where((m) => m.id.equals(value.medicationId)))
-                .getSingleOrNull() !=
-            null;
+        await (db.select(
+          db.medications,
+        )..where((m) => m.id.equals(value.medicationId))).getSingleOrNull() !=
+        null;
 
     if (!hasMedication) return false;
 

@@ -3,47 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
-import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
-
-Future<void> addMedication(WidgetTester tester, String name) async {
-  // App bar "+" icon — a FAB would sit under the floating nav's hit region
-  // on a shell tab, so the add action lives here instead (see MedicationsScreen).
-  await tester.tap(find.byIcon(Icons.add));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-  await tester.enterText(
-    find.widgetWithText(TextField, 'Medication name'),
-    name,
-  );
-  await tester.tap(find.text('Add'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
-/// Opens a medication's detail screen from its row in the list.
-Future<void> openMedication(WidgetTester tester, String name) async {
-  await tester.tap(find.text(name));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 400));
-}
-
-/// The delete button ON a reminder row — the detail screen's app bar carries
-/// the same icon for deleting the medication itself, so a bare byIcon
-/// matches two.
-Finder reminderDelete() => find.descendant(
-  of: find.byType(SdCardV2),
-  matching: find.byIcon(Icons.delete_outline),
-);
-
-/// Opens the reminder picker. Reminders live on the detail screen, so the
-/// caller has to be there already.
-Future<void> openAddReminder(WidgetTester tester) async {
-  await tester.tap(find.text('Add reminder'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
 
 void main() {
   testWidgets('shows the empty state when no medications are saved', (

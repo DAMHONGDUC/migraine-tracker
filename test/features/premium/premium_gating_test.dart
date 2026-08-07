@@ -130,6 +130,26 @@ void main() {
       await finishTest(tester);
     });
 
+    testWidgets('gets one reminder; the second opens the paywall', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await openAddReminder(tester);
+      await confirmReminderTime(tester);
+      expect(find.byIcon(Icons.alarm), findsOneWidget);
+
+      // Budget spent: the same button now opens the pitch, not the picker.
+      await openAddReminder(tester);
+      expect(find.text('BaroEase Premium'), findsOneWidget);
+      expect(find.byType(ListWheelScrollView), findsNothing);
+
+      await finishTest(tester);
+    });
+
     testWidgets('cannot reach the alerts toggle or the PDF report', (
       tester,
     ) async {
@@ -317,6 +337,23 @@ void main() {
       expect(find.text('Moderate · 15'), findsOneWidget);
       // One row, not the sample's five: every seeded attack is `left`.
       expect(find.byType(SdProgressRowV2), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('gets a second reminder', (tester) async {
+      await pumpApp(tester, premium: true);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await openAddReminder(tester);
+      await confirmReminderTime(tester);
+      await openAddReminder(tester);
+      await confirmReminderTime(tester);
+
+      expect(find.byIcon(Icons.alarm), findsNWidgets(2));
+      expect(find.text('BaroEase Premium'), findsNothing);
 
       await finishTest(tester);
     });

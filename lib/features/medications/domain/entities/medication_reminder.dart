@@ -10,6 +10,10 @@ class MedicationReminder {
     this.enabled = true,
   });
 
+  /// How many reminders a free user may create, across every medication —
+  /// not one each. The second one anywhere is where premium is pitched.
+  static const int freeLimit = 1;
+
   final String id;
   final String medicationId;
 

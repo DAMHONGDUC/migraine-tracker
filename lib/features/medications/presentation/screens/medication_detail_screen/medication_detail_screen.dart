@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/permissions/app_permission.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -71,6 +72,14 @@ class MedicationDetailScreen extends ConsumerWidget {
     Medication medication,
   ) async {
     final AppLocalizations l10n = context.l10n;
+
+    // The pitch comes before the OS prompt: never ask for notification
+    // permission on behalf of a reminder that will not be created.
+    if (!ref.read(canAddReminderProvider)) {
+      await NavigationUtils.toPaywall(context, ref);
+      return;
+    }
+
     // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
         .read(appPermissionProvider)
@@ -175,7 +184,11 @@ class MedicationDetailScreen extends ConsumerWidget {
         actions: <Widget>[
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
-            icon: Icons.alarm_add,
+            // The button stays — it opens the paywall instead. Only the
+            // glyph says the budget is spent, so the label never changes.
+            icon: ref.watch(canAddReminderProvider)
+                ? Icons.alarm_add
+                : Icons.lock_outline,
             onPressed: () => _addReminder(context, ref, medication),
             label: l10n.remindersAdd,
           ),

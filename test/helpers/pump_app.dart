@@ -611,11 +611,10 @@ Future<PumpedApp> pumpApp(
     profile: userProfile,
   );
   addTearDown(profiles.dispose);
-  final FakeHealthRepository health = FakeHealthRepository(
-    isAvailable: healthAvailable,
-  )
-    ..nights = <SleepNight>[...sleepNights]
-    ..days = <StepDay>[...stepDays];
+  final FakeHealthRepository health =
+      FakeHealthRepository(isAvailable: healthAvailable)
+        ..nights = <SleepNight>[...sleepNights]
+        ..days = <StepDay>[...stepDays];
   final FakePremiumRepository premiumRepository = FakePremiumRepository(
     premium: premium,
   );
@@ -830,6 +829,53 @@ Future<void> openHistory(WidgetTester tester) async {
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
+
+/// Medications tab → the add dialog → a medication named [name].
+/// The "+" is in the app bar: a FAB would sit under the floating nav's hit
+/// region on a shell tab (see MedicationsScreen).
+Future<void> addMedication(WidgetTester tester, String name) async {
+  await tester.tap(find.byIcon(Icons.add));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.enterText(
+    find.widgetWithText(TextField, 'Medication name'),
+    name,
+  );
+  await tester.tap(find.text('Add'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Opens a medication's detail screen from its row in the list.
+Future<void> openMedication(WidgetTester tester, String name) async {
+  await tester.tap(find.text(name));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Taps "Add reminder" on a medication's detail screen. What comes up is the
+/// caller's business: the time picker when the budget allows one, the paywall
+/// when it does not.
+Future<void> openAddReminder(WidgetTester tester) async {
+  await tester.tap(find.text('Add reminder'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Confirms the reminder time picker at whatever time it opened on.
+Future<void> confirmReminderTime(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.check));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// The delete button ON a reminder row — the detail screen's app bar carries
+/// the same icon for deleting the medication itself, so a bare byIcon
+/// matches two.
+Finder reminderDelete() => find.descendant(
+  of: find.byType(SdCardV2),
+  matching: find.byIcon(Icons.delete_outline),
+);
 
 /// History, switched to the chart deck via the view toggle.
 Future<void> openHistoryCharts(WidgetTester tester) async {
