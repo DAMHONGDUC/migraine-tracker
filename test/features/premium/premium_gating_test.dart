@@ -111,6 +111,22 @@ void main() {
       await finishTest(tester);
     });
 
+    testWidgets('sees the History chart deck as a locked sample', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await seedInsightData(tester, app);
+      await openHistoryCharts(tester);
+
+      // Five charts, five covers.
+      expect(find.byType(PremiumChartLock), findsNWidgets(5));
+      // The seeded attacks are all intensity 5 — their own severity count is
+      // absent from the tree entirely, not merely hidden behind the blur.
+      expect(find.text('Moderate · 15'), findsNothing);
+
+      await finishTest(tester);
+    });
+
     testWidgets('cannot reach the alerts toggle or the PDF report', (
       tester,
     ) async {
@@ -286,6 +302,17 @@ void main() {
       await openInsights(tester);
 
       expect(find.byType(LineChart), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('sees the History chart deck, uncovered', (tester) async {
+      final app = await pumpApp(tester, premium: true);
+      await seedInsightData(tester, app);
+      await openHistoryCharts(tester);
+
+      expect(find.byType(PremiumChartLock), findsNothing);
+      expect(find.text('Moderate · 15'), findsOneWidget);
 
       await finishTest(tester);
     });

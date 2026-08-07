@@ -940,6 +940,10 @@
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
   },
+  "premiumLockedCharts": "Unlock to see every chart of your attack history.",
+  "@premiumLockedCharts": {
+    "description": "Accessibility label on a locked chart card in History, where only the unlock button is drawn"
+  },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
     "description": "Title of the paywall screen"

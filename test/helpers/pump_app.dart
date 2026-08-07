@@ -831,6 +831,14 @@ Future<void> openHistory(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// History, switched to the chart deck via the view toggle.
+Future<void> openHistoryCharts(WidgetTester tester) async {
+  await openHistory(tester);
+  await tester.tap(find.byIcon(Icons.bar_chart));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 /// Pumps real frames so the correlation count-up (700ms) can run — one big
 /// jump skips its start frame.
 Future<void> openInsights(WidgetTester tester) async {

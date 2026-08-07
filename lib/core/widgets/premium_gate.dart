@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
@@ -72,6 +74,68 @@ class _LockedCard extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// A locked chart: [sample] drawn blurred under a scrim, with the unlock
+/// button centred on it.
+///
+/// [sample] is fabricated data, never the user's own — this is a cover, and
+/// a cover over real numbers still leaves them in the tree, one screenshot
+/// or one accessibility dump away. The caller picks which data it draws, so
+/// [PremiumGate]'s rule still holds: the boundary is the data, and this
+/// widget only supplies the look.
+class PremiumChartLock extends ConsumerWidget {
+  const PremiumChartLock({required this.sample, super.key});
+
+  static const double blurSigma = 6;
+  static const double scrimOpacity = 0.55;
+
+  final Widget sample;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
+    return Semantics(
+      container: true,
+      // The sample is excluded below, so nothing says what this card is otherwise.
+      label: l10n.premiumLockedCharts,
+      child: Stack(
+        // Passthrough, not loose: the sample must keep the full-width
+        // constraint the chart card gives it, or the chart shrink-wraps.
+        fit: StackFit.passthrough,
+        children: [
+          // - ClipRect: a blur bleeds past its bounds and would fog the card's padding
+          // - ExcludeSemantics: VoiceOver must never read the made-up numbers out
+          ClipRect(
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: blurSigma,
+                sigmaY: blurSigma,
+              ),
+              child: ExcludeSemantics(child: IgnorePointer(child: sample)),
+            ),
+          ),
+          Positioned.fill(
+            child: ColoredBox(
+              color: context.colorScheme.surface.withValues(
+                alpha: scrimOpacity,
+              ),
+              child: Center(
+                child: SdButtonV2(
+                  variant: SdButtonVariantV2.primary,
+                  size: SdButtonSizeV2.small,
+                  icon: Icons.lock_open_outlined,
+                  onPressed: () => NavigationUtils.toPaywall(context, ref),
+                  label: l10n.premiumUnlock,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
