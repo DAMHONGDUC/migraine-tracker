@@ -8,6 +8,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dar
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -118,11 +119,13 @@ void main() {
       await seedInsightData(tester, app);
       await openHistoryCharts(tester);
 
-      // Five charts, five covers.
-      expect(find.byType(PremiumChartLock), findsNWidgets(5));
-      // The seeded attacks are all intensity 5 — their own severity count is
-      // absent from the tree entirely, not merely hidden behind the blur.
-      expect(find.text('Moderate · 15'), findsNothing);
+      // Four of the five: the severity donut is the dashboard's, free here too.
+      expect(find.byType(PremiumChartLock), findsNWidgets(4));
+      expect(find.text('Moderate · 15'), findsOneWidget);
+      // The locked four draw the sample, which spans all five head locations
+      // — the seeded attacks are all `left`, so a single row would mean the
+      // user's own data is sitting under the blur.
+      expect(find.byType(SdProgressRowV2), findsNWidgets(5));
 
       await finishTest(tester);
     });
@@ -258,28 +261,27 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets(
-      'below the data threshold it sees progress, not a paywall tease',
-      (tester) async {
-        await pumpApp(tester); // no attacks
-        await openInsights(tester);
+    testWidgets('below the data threshold it sees progress, not a paywall tease', (
+      tester,
+    ) async {
+      await pumpApp(tester); // no attacks
+      await openInsights(tester);
 
-        // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
-        // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
-        expect(
-          find.text(
-            'Log 15 more attacks with weather data to unlock this insight.',
-          ),
-          findsOneWidget,
-        );
-        expect(
-          find.text('Unlock to see how much of your pain follows the weather.'),
-          findsNothing,
-        );
+      // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
+      // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
+      expect(
+        find.text(
+          'Log 15 more attacks with weather data to unlock this insight.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Unlock to see how much of your pain follows the weather.'),
+        findsNothing,
+      );
 
-        await finishTest(tester);
-      },
-    );
+      await finishTest(tester);
+    });
   });
 
   group('premium user', () {
@@ -313,6 +315,8 @@ void main() {
 
       expect(find.byType(PremiumChartLock), findsNothing);
       expect(find.text('Moderate · 15'), findsOneWidget);
+      // One row, not the sample's five: every seeded attack is `left`.
+      expect(find.byType(SdProgressRowV2), findsOneWidget);
 
       await finishTest(tester);
     });
