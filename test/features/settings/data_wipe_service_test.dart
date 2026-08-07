@@ -11,6 +11,9 @@ import 'package:migraine_tracker/features/medications/data/repositories/drift_me
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
+import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
@@ -71,11 +74,21 @@ void main() {
       ),
     );
     await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+    await DriftNotificationRepository(db).addMissing(<AppNotification>[
+      AppNotification(
+        id: 'rem:r1:29000000',
+        kind: NotificationKind.medicationReminder,
+        occurredAt: DateTime.now().toUtc(),
+        medicationId: 'm1',
+        reminderId: 'r1',
+      ),
+    ]);
 
     await DataWipeService(
       attacks,
       medications,
       notifications,
+      DriftNotificationRepository(db),
       exportRecords,
       exportFiles,
       FakeAuthRepository(),
@@ -86,6 +99,9 @@ void main() {
     expect(notifications.cancelAllCalls, 1);
     expect(await attacks.getAll(), isEmpty);
     expect(await medications.getAll(), isEmpty);
+    // The list is derived from reminders but stored, so a wipe that
+    // skipped it would keep naming medications the user just deleted.
+    expect(await db.select(db.appNotifications).get(), isEmpty);
   });
 
   test('wipeAll deletes past exports — they are full copies of the data '
@@ -114,6 +130,7 @@ void main() {
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
       RecordingNotificationScheduler(),
+      DriftNotificationRepository(db),
       exportRecords,
       exportFiles,
       FakeAuthRepository(),
@@ -141,6 +158,7 @@ void main() {
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
       RecordingNotificationScheduler(),
+      DriftNotificationRepository(db),
       DriftExportRecordRepository(db),
       FakeExportFileStore(),
       auth,
@@ -196,6 +214,7 @@ void main() {
         DriftAttackRepository(db),
         DriftMedicationRepository(db),
         RecordingNotificationScheduler(),
+        DriftNotificationRepository(db),
         DriftExportRecordRepository(db),
         FakeExportFileStore(),
         FakeAuthRepository(signedIn: true),
@@ -218,11 +237,7 @@ void main() {
       await attacks.insert(anAttack());
 
       // Anonymous: nothing was ever uploaded, so nothing is owed a delete.
-      await wipeFor(
-        db,
-        auth: FakeAuthRepository(),
-        remote: remote,
-      ).wipeAll();
+      await wipeFor(db, auth: FakeAuthRepository(), remote: remote).wipeAll();
 
       expect(await attacks.getAll(), isEmpty);
     });

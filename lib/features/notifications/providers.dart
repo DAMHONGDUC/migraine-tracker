@@ -4,6 +4,7 @@ import '../../core/db/database_provider.dart';
 import 'data/repositories/drift_notification_repository.dart';
 import 'domain/entities/app_notification.dart';
 import 'domain/repositories/notification_repository.dart';
+import 'presentation/controllers/notifications_controller.dart';
 
 final notificationRepositoryProvider = Provider<NotificationRepository>(
   (ref) => DriftNotificationRepository(ref.watch(databaseProvider)),
@@ -18,4 +19,9 @@ final notificationsStreamProvider = StreamProvider<List<AppNotification>>(
 /// can carry a number later without changing what feeds it.
 final unreadNotificationCountProvider = StreamProvider<int>(
   (ref) => ref.watch(notificationRepositoryProvider).watchUnreadCount(),
+);
+
+/// Orchestrates the list (see [NotificationsController]).
+final notificationsControllerProvider = Provider<NotificationsController>(
+  NotificationsController.new,
 );

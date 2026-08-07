@@ -4,6 +4,7 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
+import '../../../notifications/domain/repositories/notification_repository.dart';
 import '../../../sync/domain/services/sync_service.dart';
 import '../repositories/export_record_repository.dart';
 import 'export_file_store.dart';
@@ -20,6 +21,7 @@ class DataWipeService {
     this._attacks,
     this._medications,
     this._notifications,
+    this._notificationList,
     this._exportRecords,
     this._exportFiles,
     this._auth,
@@ -30,6 +32,10 @@ class DataWipeService {
   final AttackRepository _attacks;
   final MedicationRepository _medications;
   final NotificationScheduler _notifications;
+
+  /// The notification LIST, as opposed to the OS scheduler above — two
+  /// different things, and both have to go (hard rule 8).
+  final NotificationRepository _notificationList;
   final ExportRecordRepository _exportRecords;
   final ExportFileStore _exportFiles;
   final AuthRepository _auth;
@@ -52,6 +58,9 @@ class DataWipeService {
     // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.
     await _notifications.cancelAll();
     await _medications.deleteAll();
+    // Derived from the reminders, but stored: leave them and the list
+    // still names medications the user just deleted.
+    await _notificationList.deleteAll();
     // Past exports are full copies of the deleted data — leave them and the wipe is incomplete.
     await _exportFiles.deleteAll();
     await _exportRecords.deleteAll();
