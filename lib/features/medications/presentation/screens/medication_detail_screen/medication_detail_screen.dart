@@ -14,6 +14,7 @@ import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
 import '../../../providers.dart';
+import '../../widgets/reminder_limit_dialog.dart';
 
 part 'medication_detail_screen_header.dart';
 part 'medication_detail_screen_reminder_row.dart';
@@ -73,9 +74,12 @@ class MedicationDetailScreen extends ConsumerWidget {
   ) async {
     final AppLocalizations l10n = context.l10n;
 
-    // The pitch comes before the OS prompt: never ask for notification
-    // permission on behalf of a reminder that will not be created.
+    // - the limit is named before the pitch: this button says "Add reminder", so a paywall out of nowhere reads as a bug
+    // - and both come before the OS prompt, which must never be raised for a reminder that will not be created
     if (!ref.read(canAddReminderProvider)) {
+      final bool? unlock = await const ReminderLimitDialog().show(context);
+
+      if (unlock != true || !context.mounted) return;
       await NavigationUtils.toPaywall(context, ref);
       return;
     }

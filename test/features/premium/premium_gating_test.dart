@@ -130,7 +130,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('gets one reminder; the second opens the paywall', (
+    testWidgets('gets one reminder; the second names the limit, then pitches', (
       tester,
     ) async {
       await pumpApp(tester);
@@ -142,10 +142,38 @@ void main() {
       await confirmReminderTime(tester);
       expect(find.byIcon(Icons.alarm), findsOneWidget);
 
-      // Budget spent: the same button now opens the pitch, not the picker.
+      // Budget spent: the limit is named, and no picker comes up.
       await openAddReminder(tester);
-      expect(find.text('BaroEase Premium'), findsOneWidget);
+      expect(find.text('One reminder on the free plan'), findsOneWidget);
       expect(find.byType(ListWheelScrollView), findsNothing);
+      expect(find.text('BaroEase Premium'), findsNothing);
+
+      // The pitch is the user's choice from there, not automatic.
+      await tapVisible(tester, find.text('Unlock'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('BaroEase Premium'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('declining the reminder limit dialog leaves it where it was', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await openAddReminder(tester);
+      await confirmReminderTime(tester);
+      await openAddReminder(tester);
+      await tapVisible(tester, find.text('Cancel'));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // No paywall, no second reminder, still on the medication.
+      expect(find.text('BaroEase Premium'), findsNothing);
+      expect(find.byIcon(Icons.alarm), findsOneWidget);
+      expect(find.text('Sumatriptan'), findsWidgets);
 
       await finishTest(tester);
     });
