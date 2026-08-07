@@ -7,7 +7,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/exertion_level.dart';
 
-/// The exertion-level tiles, one row, starting at "none".
+/// The exertion-level tiles, two to a row.
+///
+/// Same 2-up grid and the same tile shape as `MedicationGrid`, the step next
+/// door: four across one row left every label a cramped two-line scrap, and
+/// the two adjacent steps read as two different components.
 ///
 /// A tap always selects — there is no clearing back to "not answered",
 /// because [ExertionLevel.none] is the answer for "I wasn't exerting
@@ -23,25 +27,51 @@ class ExertionLevelPicker extends StatelessWidget {
   final ExertionLevel? selected;
   final ValueChanged<ExertionLevel> onSelected;
 
+  /// How many tiles share a row.
+  static const int perRow = 2;
+
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          for (final ExertionLevel level in ExertionLevel.values) ...[
-            if (level != ExertionLevel.values.first)
-              SizedBox(width: SdSpacingConstant.w4),
-            Expanded(
-              child: _ExertionTile(
-                level: level,
-                selected: selected == level,
-                onTap: () => onSelected(level),
-              ),
+    final List<ExertionLevel> levels = ExertionLevel.values;
+
+    // Rows of Expanded, not a GridView: this sits inside the log step's
+    // Column, where a shrink-wrapping scrollable is one more viewport to
+    // reason about for a fixed four tiles that never scroll.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (int start = 0; start < levels.length; start += perRow) ...<Widget>[
+          if (start > 0) SizedBox(height: SdSpacingConstant.h8),
+          SizedBox(
+            // A fixed row height: the tile is one line of text beside an
+            // icon, so how tall it is has nothing to do with how wide the
+            // screen made it.
+            height: SdSpacingConstant.h64,
+            child: Row(
+              // Stretch, or each tile sizes to its own content and the
+              // selected one — 2px of border against everyone else's 1 —
+              // comes out taller than the tile beside it.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                for (
+                  int i = start;
+                  i < start + perRow && i < levels.length;
+                  i++
+                ) ...<Widget>[
+                  if (i > start) SizedBox(width: SdSpacingConstant.w8),
+                  Expanded(
+                    child: _ExertionTile(
+                      level: levels[i],
+                      selected: selected == levels[i],
+                      onTap: () => onSelected(levels[i]),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -79,7 +109,7 @@ class _ExertionTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: EdgeInsets.all(SdSpacingConstant.w4),
+          padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
@@ -93,17 +123,21 @@ class _ExertionTile extends StatelessWidget {
               width: selected ? 2 : 1,
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: <Widget>[
-              SdIconV2(icon: _icons[level]!, color: color, size: SdSpacingConstant.r24),
-              SizedBox(height: SdSpacingConstant.h4),
-              Text(
-                level.label(l10n),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelTiny.copyWith(color: color),
+              SdIconV2(
+                icon: _icons[level]!,
+                color: color,
+                size: SdSpacingConstant.r24,
+              ),
+              SizedBox(width: SdSpacingConstant.w12),
+              Expanded(
+                child: Text(
+                  level.label(l10n),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.titleSmall.copyWith(color: color),
+                ),
               ),
             ],
           ),
