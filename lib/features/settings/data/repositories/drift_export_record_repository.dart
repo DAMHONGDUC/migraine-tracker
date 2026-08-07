@@ -29,8 +29,9 @@ class DriftExportRecordRepository implements ExportRecordRepository {
   }
 
   @override
-  Future<void> insert(ExportRecord record) =>
-      _db.into(_db.exportRecords).insertOnConflictUpdate(
+  Future<void> insert(ExportRecord record) => _db
+      .into(_db.exportRecords)
+      .insertOnConflictUpdate(
         ExportRecordRow(
           id: record.id,
           kind: record.kind.name,

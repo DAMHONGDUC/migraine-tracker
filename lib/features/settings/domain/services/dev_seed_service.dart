@@ -245,7 +245,11 @@ class DevSeedService {
     List<Medication> medications,
   ) => <Attack>[
     for (final int hoursAgo in _scatteredHours(random))
-      _buildAttack(random, now.subtract(Duration(hours: hoursAgo)), medications),
+      _buildAttack(
+        random,
+        now.subtract(Duration(hours: hoursAgo)),
+        medications,
+      ),
   ];
 
   /// [seedCount] distinct hour offsets inside the window. Distinct so no two

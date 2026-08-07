@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
+import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
@@ -205,6 +206,48 @@ void main() {
       find.widgetWithText(SdButtonV2, 'Open this medication'),
     );
     expect(button.onPressed, isNull);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('Settings has a row into the list, showing the unread count', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await seedNotifications(app);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await openSettings(tester);
+
+    // The count sits at the end of the row, next to the chevron.
+    final SettingsTile tile = tester.widget<SettingsTile>(
+      find.widgetWithText(SettingsTile, 'Notifications'),
+    );
+
+    expect(tile.value, '2');
+
+    await tapVisible(tester, find.text('Notifications'));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(SdSegmentedTabsV2), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the Settings row states no count when nothing is unread', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await openSettings(tester);
+
+    // Not "0" — an empty row saying zero is noise.
+    final SettingsTile tile = tester.widget<SettingsTile>(
+      find.widgetWithText(SettingsTile, 'Notifications'),
+    );
+
+    expect(tile.value, isNull);
 
     await finishTest(tester);
   });
