@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
+import '../../domain/entities/medication_reminder.dart';
 
 /// Says why the second reminder did not open the time picker, before the
 /// paywall does the selling.
@@ -19,8 +20,11 @@ class ReminderLimitDialog extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
 
     return SdDialogV2(
-      title: l10n.reminderLimitTitle,
-      content: Text(l10n.reminderLimitBody, style: AppTextStyle.bodyMedium),
+      title: l10n.reminderLimitTitle(MedicationReminder.freeLimit),
+      content: Text(
+        l10n.reminderLimitBody(MedicationReminder.freeLimit),
+        style: AppTextStyle.bodyMedium,
+      ),
       actions: <Widget>[
         SdButtonV2(
           variant: SdButtonVariantV2.text,

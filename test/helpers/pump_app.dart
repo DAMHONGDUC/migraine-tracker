@@ -869,6 +869,16 @@ Future<void> confirmReminderTime(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Adds [count] reminders from a medication's detail screen, each at the
+/// time the picker opens on. Only valid while the budget allows them — past
+/// the limit the dialog comes up instead and there is no picker to confirm.
+Future<void> addReminders(WidgetTester tester, int count) async {
+  for (int i = 0; i < count; i++) {
+    await openAddReminder(tester);
+    await confirmReminderTime(tester);
+  }
+}
+
 /// The delete button ON a reminder row — the detail screen's app bar carries
 /// the same icon for deleting the medication itself, so a bare byIcon
 /// matches two.

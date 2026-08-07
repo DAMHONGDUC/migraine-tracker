@@ -940,13 +940,23 @@
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
   },
-  "reminderLimitTitle": "One reminder on the free plan",
+  "reminderLimitTitle": "{count, plural, =1{One reminder on the free plan} other{{count} reminders on the free plan}}",
   "@reminderLimitTitle": {
-    "description": "Dialog title shown when a free user tries to add a second medication reminder"
+    "description": "Dialog title shown when a free user tries to add one reminder past the limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-  "reminderLimitBody": "The free plan includes a single reminder across all your medications. Unlock Premium to add as many as you need.",
+  "reminderLimitBody": "{count, plural, =1{The free plan includes one reminder across all your medications.} other{The free plan includes {count} reminders across all your medications.}} Unlock Premium to add as many as you need.",
   "@reminderLimitBody": {
-    "description": "Dialog body explaining the free plan's one-reminder limit"
+    "description": "Dialog body explaining the free plan's reminder limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "premiumLockedCharts": "Unlock to see every chart of your attack history.",
   "@premiumLockedCharts": {

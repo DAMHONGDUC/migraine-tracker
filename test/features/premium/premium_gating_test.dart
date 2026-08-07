@@ -6,6 +6,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -130,7 +131,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('gets one reminder; the second names the limit, then pitches', (
+    testWidgets('gets two reminders; the third names the limit, then pitches', (
       tester,
     ) async {
       await pumpApp(tester);
@@ -138,13 +139,15 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await openAddReminder(tester);
-      await confirmReminderTime(tester);
-      expect(find.byIcon(Icons.alarm), findsOneWidget);
+      await addReminders(tester, MedicationReminder.freeLimit);
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit),
+      );
 
       // Budget spent: the limit is named, and no picker comes up.
       await openAddReminder(tester);
-      expect(find.text('One reminder on the free plan'), findsOneWidget);
+      expect(find.text('2 reminders on the free plan'), findsOneWidget);
       expect(find.byType(ListWheelScrollView), findsNothing);
       expect(find.text('BaroEase Premium'), findsNothing);
 
@@ -164,15 +167,17 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await openAddReminder(tester);
-      await confirmReminderTime(tester);
+      await addReminders(tester, MedicationReminder.freeLimit);
       await openAddReminder(tester);
       await tapVisible(tester, find.text('Cancel'));
       await tester.pump(const Duration(milliseconds: 400));
 
-      // No paywall, no second reminder, still on the medication.
+      // No paywall, no extra reminder, still on the medication.
       expect(find.text('BaroEase Premium'), findsNothing);
-      expect(find.byIcon(Icons.alarm), findsOneWidget);
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit),
+      );
       expect(find.text('Sumatriptan'), findsWidgets);
 
       await finishTest(tester);
@@ -369,18 +374,19 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('gets a second reminder', (tester) async {
+    testWidgets('goes past the free reminder limit', (tester) async {
       await pumpApp(tester, premium: true);
       await openMedications(tester);
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await openAddReminder(tester);
-      await confirmReminderTime(tester);
-      await openAddReminder(tester);
-      await confirmReminderTime(tester);
+      await addReminders(tester, MedicationReminder.freeLimit + 1);
 
-      expect(find.byIcon(Icons.alarm), findsNWidgets(2));
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit + 1),
+      );
+      expect(find.textContaining('on the free plan'), findsNothing);
       expect(find.text('BaroEase Premium'), findsNothing);
 
       await finishTest(tester);
