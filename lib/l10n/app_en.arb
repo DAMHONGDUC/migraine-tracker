@@ -578,6 +578,10 @@
       }
     }
   },
+  "insightsActivityTitle": "Activity",
+  "@insightsActivityTitle": {
+    "description": "Title of the combined activity card on Insights (exertion + steps), which opens the activity detail screen"
+  },
   "insightsExertionTitle": "Physical exertion",
   "@insightsExertionTitle": {
     "description": "Title of the exertion correlation insight card"
@@ -640,6 +644,10 @@
         "type": "String"
       }
     }
+  },
+  "sleepScreenTitle": "Sleep",
+  "@sleepScreenTitle": {
+    "description": "Title of the sleep detail screen and its Settings row"
   },
   "insightsSleepTitle": "Sleep & attacks",
   "@insightsSleepTitle": {
@@ -2081,6 +2089,10 @@
     "description": "Settings row title for the signed-in account; deliberately not the email, which Settings should not put on screen"
   },
   "healthSleepTitle": "Apple Health sleep",
+  "healthStepsTitle": "Apple Health steps",
+  "@healthStepsTitle": {
+    "description": "Connect switch on the activity detail screen: lets the app read step counts"
+  },
   "@healthSleepTitle": {
     "description": "Settings row title for the Apple Health sleep connection"
   },

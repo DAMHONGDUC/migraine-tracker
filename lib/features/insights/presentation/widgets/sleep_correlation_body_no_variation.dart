@@ -1,4 +1,4 @@
-part of 'sleep_correlation_card.dart';
+part of 'sleep_correlation_body.dart';
 
 class _SleepNoVariationBody extends StatelessWidget {
   const _SleepNoVariationBody();

@@ -21,7 +21,7 @@ class SettingsController {
       await _ref.read(dataWipeServiceProvider).wipeAll();
       // - nothing from Apple Health is stored, so there is nothing to delete
       // - but leaving it connected keeps the app reading sleep after the wipe
-      await _ref.read(healthControllerProvider.notifier).disconnect();
+      await _ref.read(healthControllerProvider.notifier).disconnectAll();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Delete all data failed',

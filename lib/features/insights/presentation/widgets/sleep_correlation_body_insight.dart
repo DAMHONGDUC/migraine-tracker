@@ -1,4 +1,4 @@
-part of 'sleep_correlation_card.dart';
+part of 'sleep_correlation_body.dart';
 
 /// The headline: the gap between the two averages, then both averages so the
 /// number is never a claim the user has to take on trust.

@@ -25,6 +25,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
+import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -436,9 +437,13 @@ class FakeHealthRepository implements HealthRepository {
   /// How many times steps were actually read — same role as [sleepReads].
   int stepReads = 0;
 
+  /// Which sources were asked for: sleep and steps prompt separately now.
+  final List<HealthDataKind> requestedKinds = <HealthDataKind>[];
+
   @override
-  Future<bool> requestAuthorization() async {
+  Future<bool> requestAuthorization(HealthDataKind kind) async {
     authorizationRequests++;
+    requestedKinds.add(kind);
     return authorizes;
   }
 
@@ -746,6 +751,21 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
+  // - the same problem at the other end: a tab screen's floating nav pill
+  //   covers its last rows, and tap() only warns when it hits the pill
+  // - asks whether the row can be hit rather than measuring the chrome, so it
+  //   costs nothing on a screen that has none
+  for (int i = 0; i < 5; i++) {
+    if (finder.hitTestable().evaluate().isNotEmpty) break;
+    if (scrollable.evaluate().isEmpty) break;
+
+    await tester.drag(
+      scrollable.first,
+      Offset(0, -SdContentPaddingV2.floatingBarHeight),
+    );
+    await tester.pump();
+  }
+
   await tester.tap(finder);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
@@ -773,6 +793,21 @@ Future<void> openSettings(WidgetTester tester) async {
 Future<void> openExportScreen(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Export data'));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Settings → Sleep. Carries the sleep insight and its connect switch.
+Future<void> openSleepScreen(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(tester, find.text('Sleep'));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Settings → Activity. Carries the exertion report, the step insight and
+/// the step connect switch.
+Future<void> openActivityScreen(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(tester, find.text('Activity'));
   await tester.pump(const Duration(milliseconds: 400));
 }
 

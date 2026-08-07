@@ -13,8 +13,10 @@ import '../../widgets/pressure_forecast_card.dart';
 /// done to this user so far, and the alert that acts on both. Reached from
 /// Insights' `PressureCard` and from the Settings row.
 ///
-/// Full-bleed list because `AlertsSection` is `ListTile`s, which inset
-/// themselves; the cards above take the gutter on their own.
+/// Controls first, cards last: what the user came to change sits under the
+/// thumb, and the reading below it is what they scroll to. Full-bleed list
+/// because `AlertsSection` is `ListTile`s, which inset themselves; the cards
+/// take the gutter on their own.
 class PressureScreen extends ConsumerWidget {
   const PressureScreen({super.key});
 
@@ -30,6 +32,8 @@ class PressureScreen extends ConsumerWidget {
       body: ListView(
         padding: SdContentPaddingV2.fullBleed(context),
         children: <Widget>[
+          const AlertsSection(),
+          SizedBox(height: SdContentPaddingV2.sectionGap),
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: SdContentPaddingV2.horizontal,
@@ -47,8 +51,6 @@ class PressureScreen extends ConsumerWidget {
               ],
             ),
           ),
-          SizedBox(height: SdContentPaddingV2.sectionGap),
-          const AlertsSection(),
         ],
       ),
     );

@@ -49,7 +49,9 @@ final sleepCorrelationEngineProvider = Provider<SleepCorrelationEngine>(
 final sleepCorrelationProvider = FutureProvider<SleepCorrelationResult>((
   ref,
 ) async {
-  if (!ref.watch(healthControllerProvider)) return const SleepNotConnected();
+  if (!ref.watch(healthControllerProvider).sleep) {
+    return const SleepNotConnected();
+  }
 
   final SleepCorrelationEngine engine = ref.watch(sleepCorrelationEngineProvider);
   final List<Attack> attacks = await ref.watch(attacksStreamProvider.future);
@@ -77,7 +79,9 @@ final stepCorrelationEngineProvider = Provider<StepCorrelationEngine>(
 final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
   ref,
 ) async {
-  if (!ref.watch(healthControllerProvider)) return const StepNotConnected();
+  if (!ref.watch(healthControllerProvider).steps) {
+    return const StepNotConnected();
+  }
 
   final StepCorrelationEngine engine = ref.watch(stepCorrelationEngineProvider);
   final List<Attack> attacks = await ref.watch(attacksStreamProvider.future);

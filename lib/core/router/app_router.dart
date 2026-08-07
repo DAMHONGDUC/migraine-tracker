@@ -10,8 +10,10 @@ import '../../features/auth/presentation/screens/login_screen/login_screen.dart'
 import '../../features/auth/providers.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
+import '../../features/insights/presentation/screens/activity_screen/activity_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
 import '../../features/insights/presentation/screens/pressure_screen/pressure_screen.dart';
+import '../../features/insights/presentation/screens/sleep_screen/sleep_screen.dart';
 import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
@@ -87,6 +89,14 @@ final class AppRoutes {
   /// Forecast, correlation and the alert controls together. Pushed from
   /// Insights' pressure card and from the Settings row.
   static const pressure = AppRoute(name: 'pressure', path: '/pressure');
+
+  /// Exertion, steps and the step connect switch. Pushed from Insights'
+  /// activity card and from the Settings row.
+  static const activity = AppRoute(name: 'activity', path: '/activity');
+
+  /// The sleep insight and its connect switch. Pushed from Insights' sleep
+  /// card and from the Settings row.
+  static const sleep = AppRoute(name: 'sleep', path: '/sleep');
 
   /// Support email, pushed from Settings' About section.
   static const contact = AppRoute(name: 'contact', path: '/contact');
@@ -184,6 +194,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.pressure.name,
         path: AppRoutes.pressure.path,
         builder: (context, state) => const PressureScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.activity.name,
+        path: AppRoutes.activity.path,
+        builder: (context, state) => const ActivityScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.sleep.name,
+        path: AppRoutes.sleep.path,
+        builder: (context, state) => const SleepScreen(),
       ),
       GoRoute(
         name: AppRoutes.contact.name,

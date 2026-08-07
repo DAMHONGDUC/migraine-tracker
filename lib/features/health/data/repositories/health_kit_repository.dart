@@ -4,6 +4,7 @@ import '../../domain/entities/sleep_interval.dart';
 import '../../domain/entities/sleep_night.dart';
 import '../../domain/entities/step_day.dart';
 import '../../domain/entities/step_sample.dart';
+import '../../domain/enums/health_data_kind.dart';
 import '../../domain/repositories/health_repository.dart';
 import '../../domain/services/sleep_night_aggregator.dart';
 import '../../domain/services/step_day_aggregator.dart';
@@ -16,9 +17,9 @@ import '../datasources/step_sample_source.dart';
 /// on-device storage, and a second copy here would be one more pile of health
 /// data the "delete everything" wipe has to chase (hard rule 8).
 ///
-/// Owns the one `HealthFactory` authorization call for every source it
-/// composes, so connecting Apple Health is a single sheet covering sleep AND
-/// steps together, not one prompt per data type.
+/// Owns the `HealthFactory` authorization call, and asks for one kind at a
+/// time: sleep and steps are connected separately, so a sheet refused for one
+/// must not take the other down with it.
 class HealthKitRepository implements HealthRepository {
   HealthKitRepository(
     this._sleepSource,
@@ -38,13 +39,13 @@ class HealthKitRepository implements HealthRepository {
   bool get isAvailable => _sleepSource.isAvailable;
 
   @override
-  Future<bool> requestAuthorization() {
+  Future<bool> requestAuthorization(HealthDataKind kind) {
     if (!isAvailable) return Future.value(false);
 
-    return _health.requestAuthorization(<HealthDataType>[
-      ...HealthKitSleepSampleSource.types,
-      ...HealthKitStepSampleSource.types,
-    ]);
+    return _health.requestAuthorization(switch (kind) {
+      HealthDataKind.sleep => HealthKitSleepSampleSource.types,
+      HealthDataKind.steps => HealthKitStepSampleSource.types,
+    });
   }
 
   @override

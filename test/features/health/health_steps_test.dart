@@ -4,6 +4,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
+import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/presentation/controllers/health_controller.dart';
 
 import '../../helpers/pump_app.dart';
@@ -35,7 +36,13 @@ void main() {
       await pumpApp(tester, premium: true);
       await openInsights(tester);
 
-      expect(find.text('Steps & attacks'), findsNothing);
+      // The activity card still stands — its exertion half is free and needs
+      // no HealthKit — but the step half is gone with the source.
+      expect(find.text('Activity'), findsOneWidget);
+      expect(
+        find.textContaining('Connect Apple Health steps'),
+        findsNothing,
+      );
 
       await finishTest(tester);
     });
@@ -64,18 +71,40 @@ void main() {
     ) async {
       await pumpApp(tester, premium: true, healthAvailable: true);
       await openInsights(tester);
-      // The step card sits below the sleep card, off the initial viewport.
       await tester.dragUntilVisible(
-        find.text('Steps & attacks'),
+        find.textContaining('Connect Apple Health steps'),
         find.byType(Scrollable).first,
         const Offset(0, -300),
       );
 
-      expect(find.text('Steps & attacks'), findsOneWidget);
       expect(
-        find.textContaining('Connect Apple Health steps in Settings'),
+        find.textContaining('Connect Apple Health steps'),
         findsOneWidget,
       );
+
+      await finishTest(tester);
+    });
+
+    testWidgets('steps connect separately from sleep', (tester) async {
+      final PumpedApp app = await pumpApp(
+        tester,
+        premium: true,
+        healthAvailable: true,
+      );
+      await openActivityScreen(tester);
+
+      await tapVisible(
+        tester,
+        find.ancestor(
+          of: find.text('Apple Health steps'),
+          matching: find.byType(SwitchListTile),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(app.health.requestedKinds, <HealthDataKind>[HealthDataKind.steps]);
+      expect(app.prefs.getBool(HealthController.stepsKey), isTrue);
+      expect(app.prefs.getBool(HealthController.sleepKey), isNot(isTrue));
 
       await finishTest(tester);
     });
@@ -89,7 +118,7 @@ void main() {
         premium: true,
         healthAvailable: true,
         initialPrefs: const <String, Object>{
-          HealthController.connectedKey: true,
+          HealthController.stepsKey: true,
         },
         stepDays: <StepDay>[
           for (int i = 1; i <= 5; i++) steppedFor(i, steps: 2000),
@@ -103,9 +132,8 @@ void main() {
       }
 
       await openInsights(tester);
-      // The step card sits below the sleep card, off the initial viewport.
       await tester.dragUntilVisible(
-        find.text('Steps & attacks'),
+        find.text('6000 steps'),
         find.byType(Scrollable).first,
         const Offset(0, -300),
       );

@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'data/datasources/sleep_sample_source.dart';
 import 'data/datasources/step_sample_source.dart';
 import 'data/repositories/health_kit_repository.dart';
+import 'domain/entities/health_connections.dart';
 import 'domain/repositories/health_repository.dart';
 import 'domain/services/sleep_night_aggregator.dart';
 import 'domain/services/step_day_aggregator.dart';
@@ -31,7 +32,8 @@ final healthAvailableProvider = Provider<bool>(
   (ref) => ref.watch(healthRepositoryProvider).isAvailable,
 );
 
-/// Whether the user connected Apple Health (see [HealthController]).
-final healthControllerProvider = NotifierProvider<HealthController, bool>(
-  HealthController.new,
-);
+/// Which Apple Health sources the user connected (see [HealthController]).
+final healthControllerProvider =
+    NotifierProvider<HealthController, HealthConnections>(
+      HealthController.new,
+    );

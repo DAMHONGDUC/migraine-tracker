@@ -1,4 +1,4 @@
-part of 'step_correlation_card.dart';
+part of 'step_correlation_body.dart';
 
 class _StepNoVariationBody extends StatelessWidget {
   const _StepNoVariationBody();

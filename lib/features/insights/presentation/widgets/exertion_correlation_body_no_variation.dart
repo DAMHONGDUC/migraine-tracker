@@ -1,4 +1,4 @@
-part of 'exertion_correlation_card.dart';
+part of 'exertion_correlation_body.dart';
 
 class _NoVariation extends StatelessWidget {
   @override

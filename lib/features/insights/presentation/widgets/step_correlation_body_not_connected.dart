@@ -1,4 +1,4 @@
-part of 'step_correlation_card.dart';
+part of 'step_correlation_body.dart';
 
 /// No Apple Health, no analysis. The connect switch lives in Settings and
 /// stays there: the HealthKit prompt is asked once, next to the sentence

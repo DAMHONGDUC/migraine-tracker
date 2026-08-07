@@ -129,6 +129,7 @@
   "insightsDropShareSentence": "số cơn đau của bạn xảy ra khi áp suất giảm nhanh (≥{threshold} hPa trong 24h).",
   "insightsAnalyzedCaption": "Dựa trên {count} cơn đau có dữ liệu thời tiết",
   "insightsPreliminaryCaption": "Mới dựa trên {count} cơn đau — con số sẽ ổn định từ {required} cơn.",
+  "insightsActivityTitle": "Vận động",
   "insightsExertionTitle": "Vận động thể lực",
   "insightsExertionInsufficientData": "Ghi mức vận động cho {remaining} cơn đau nữa để mở khóa phân tích này.",
   "insightsExertionProgressCaption": "{withExertion}/{required} cơn đau có ghi mức vận động",
@@ -139,6 +140,7 @@
   "insightsForecastUnavailable": "Không có dự báo. Kiểm tra kết nối và quyền vị trí.",
   "insightsForecastNow": "Bây giờ",
   "insightsPressureValue": "{value} hPa",
+  "sleepScreenTitle": "Giấc ngủ",
   "insightsSleepTitle": "Giấc ngủ & cơn đau",
   "insightsSleepNotConnected": "Kết nối giấc ngủ Apple Health trong Cài đặt để xem cơn đau của bạn có đến sau những đêm ngủ ít hay không.",
   "insightsSleepInsufficientData": "Phân tích này cần ít nhất {required} đêm có dữ liệu giấc ngủ, trong đó {perGroup} đêm ngay trước một cơn đau.",
@@ -441,6 +443,7 @@
   "premiumScreenManageNote": "Bạn quản lý hoặc huỷ gói đăng ký trong App Store hoặc Google Play, ở mục gói đăng ký của tài khoản.",
   "settingsAccount": "Tài khoản",
   "healthSleepTitle": "Giấc ngủ từ Apple Health",
+  "healthStepsTitle": "Số bước từ Apple Health",
   "healthConnectFailed": "Không kết nối được Apple Health.",
   "commonDurationHoursMinutes": "{hours} giờ {minutes} phút",
   "commonStepsCount": "{count} bước"
