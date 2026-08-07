@@ -10,6 +10,7 @@ import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
@@ -45,6 +46,7 @@ import 'package:migraine_tracker/features/weather/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/index.dart';
 
+import 'alert_fakes.dart';
 import 'export_fakes.dart';
 import 'sync_fakes.dart';
 
@@ -639,6 +641,11 @@ Future<PumpedApp> pumpApp(
         syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
         remoteSyncRepositoryProvider.overrideWithValue(
           FakeRemoteSyncRepository(),
+        ),
+        // Same reason: the GDPR wipe gives up the push token, and the real
+        // repository reaches for FirebaseAuth and Firestore to do it.
+        alertRegistrationRepositoryProvider.overrideWithValue(
+          RecordingAlertRegistration(),
         ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),

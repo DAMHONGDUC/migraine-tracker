@@ -307,7 +307,7 @@
   "reportColPressureDelta": "Thay đổi 24h (hPa)",
   "settingsDelete": "Xóa toàn bộ dữ liệu",
   "settingsDeleteConfirmTitle": "Xóa tất cả?",
-  "settingsDeleteConfirmBody": "Thao tác này xóa vĩnh viễn toàn bộ cơn đau, dữ liệu thời tiết và thuốc khỏi thiết bị. Không thể hoàn tác.",
+  "settingsDeleteConfirmBody": "Thao tác này xoá vĩnh viễn cơn đau, thuốc, lời nhắc và các bản xuất trước đây — cả trên máy này lẫn trên tài khoản — và tắt cảnh báo áp suất. Tài khoản của bạn vẫn giữ nguyên. Không thể hoàn tác.",
   "settingsDeleteConfirmAction": "Xóa",
   "settingsDeleteDone": "Đã xóa toàn bộ dữ liệu.",
   "settingsSectionDev": "Nhà phát triển",

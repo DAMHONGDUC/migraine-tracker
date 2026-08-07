@@ -1438,7 +1438,7 @@
   "@settingsDeleteConfirmTitle": {
     "description": "Title of the destructive-delete confirmation dialog"
   },
-  "settingsDeleteConfirmBody": "This permanently deletes all attacks, weather snapshots, and medications from this device. This cannot be undone.",
+  "settingsDeleteConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports — on this device and in your account — and turns off pressure alerts. Your account itself stays. This cannot be undone.",
   "@settingsDeleteConfirmBody": {
     "description": "Body of the destructive-delete confirmation dialog"
   },

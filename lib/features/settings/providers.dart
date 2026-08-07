@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/db/database_provider.dart';
+import '../alerts/providers.dart';
 import '../attacks/providers.dart';
 import '../auth/providers.dart';
 import '../medications/providers.dart';
@@ -85,6 +86,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(exportFileStoreProvider),
     ref.watch(authRepositoryProvider),
     ref.watch(syncServiceProvider),
+    ref.watch(alertRegistrationRepositoryProvider),
   ),
 );
 

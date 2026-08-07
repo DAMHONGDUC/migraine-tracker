@@ -16,6 +16,7 @@ import 'package:migraine_tracker/features/settings/domain/entities/export_record
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 
+import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
@@ -79,6 +80,7 @@ void main() {
       exportFiles,
       FakeAuthRepository(),
       syncServiceOver(db),
+      RecordingAlertRegistration(),
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -116,6 +118,7 @@ void main() {
       exportFiles,
       FakeAuthRepository(),
       syncServiceOver(db),
+      RecordingAlertRegistration(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
@@ -142,6 +145,7 @@ void main() {
       FakeExportFileStore(),
       auth,
       syncServiceOver(db, remote: remote),
+      RecordingAlertRegistration(),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -181,6 +185,28 @@ void main() {
       // Wiping the device first would leave the cloud copy with nothing left
       // to say it should go, and the next sync would pull it all back down.
       expect(await attacks.getAll(), hasLength(1));
+    });
+
+    test('gives up the push token, or alerts keep arriving', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final alerts = RecordingAlertRegistration();
+
+      await DataWipeService(
+        DriftAttackRepository(db),
+        DriftMedicationRepository(db),
+        RecordingNotificationScheduler(),
+        DriftExportRecordRepository(db),
+        FakeExportFileStore(),
+        FakeAuthRepository(signedIn: true),
+        syncServiceOver(db),
+        alerts,
+      ).wipeAll();
+
+      // The FCM token is the one thing that can still reach someone after
+      // they deleted everything: the cron would go on pushing pressure
+      // alerts to a device with nothing left in it.
+      expect(alerts.forgetCalls, 1);
     });
 
     test('is not chased for an account that never existed', () async {

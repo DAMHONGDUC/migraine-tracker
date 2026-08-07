@@ -1,3 +1,4 @@
+import '../../../alerts/domain/repositories/alert_registration_repository.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -10,9 +11,10 @@ import 'export_file_store.dart';
 /// GDPR "delete everything" (hard rule 8): the on-device database, past
 /// exports, and the account's synced copy.
 ///
-/// Still missing, and tracked in `docs/REMAINING_WORK.md`: the `users/{uid}`
-/// document, the FCM token, and deleting the Firebase Auth account itself
-/// (App Store 5.1.1(v)).
+/// Keeps the account: this clears what the user put in, not who they are.
+/// Deleting the account is its own action (`deleteAccount`), because someone
+/// clearing their history usually wants to carry on using the app — and
+/// losing the account would unbind their subscription with it.
 class DataWipeService {
   const DataWipeService(
     this._attacks,
@@ -22,6 +24,7 @@ class DataWipeService {
     this._exportFiles,
     this._auth,
     this._sync,
+    this._alerts,
   );
 
   final AttackRepository _attacks;
@@ -31,6 +34,7 @@ class DataWipeService {
   final ExportFileStore _exportFiles;
   final AuthRepository _auth;
   final SyncService _sync;
+  final AlertRegistrationRepository _alerts;
 
   Future<void> wipeAll() async {
     // The server copy goes FIRST, and a failure here aborts the whole wipe.
@@ -38,6 +42,11 @@ class DataWipeService {
     // nothing left to say it should go — and the next sync would pull every
     // deleted attack straight back down.
     await _wipeRemote();
+
+    // Before the local data, because this is the one thing that can still
+    // reach the user after the wipe: leave the FCM token behind and the cron
+    // keeps pushing pressure alerts to a device with nothing left in it.
+    await _alerts.forgetRegistration();
 
     await _attacks.deleteAll();
     // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.
