@@ -77,8 +77,8 @@ packages/
 Features: `app_update` (force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather`
 (WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
 `alerts`, `auth` (Google/Apple + linkWithCredential, account screen, `users/{uid}` profile doc), `sync`, `paywall`,
-`settings`, `health` (HealthKit sleep, read-only). Create a layer folder only when it gets its first file — no empty
-placeholder folders.
+`settings`, `health` (HealthKit sleep, read-only), `notifications` (the notification list — see hard rule 15).
+Create a layer folder only when it gets its first file — no empty placeholder folders.
 
 Dependency rule: `presentation → domain ← data` inside a feature. Across
 features, import only another feature's `domain/` (or its `providers.dart`),
@@ -253,6 +253,16 @@ stdout is a terminal so CI logs stay readable.
     - **The pull query needs a composite index per collection** (`userId` + `updatedAt`), declared in `firestore.indexes.json`. Firestore will not serve an equality on one field with a range on another without one, and a missing index fails at runtime, not at build. **`firebase deploy --only firestore:indexes` is now a second deploy step alongside rules** — `sync_collection_rules_test.dart` checks the enum against BOTH files, but it can only prove the files are right, never that the project has them.
     - **Firestore has no foreign keys, in this layout or the old one.** `userId` is a plain field with no referential integrity and no cascade. The only real FK in the project is Drift's (`medicationId references Medications onDelete: cascade`); anything cascade-shaped on the server is written by hand, which is why deleting a medication tombstones its reminders explicitly.
     - **`SyncTombstones` is the one shared table, and it is deliberate.** It holds an id, a deletion time and which collection the id came from — no name, intensity or note, because the row itself is really gone by then. It is sync bookkeeping, not a user record, and three copies of the same two columns would be three chances to disagree.
+15. **The notification list syncs, and every device must show the same list.** Owner's call, and it is what shapes the whole feature. `AppNotifications` is a fourth `SyncCollection`, last in the order because a notification points at the reminder and medication it came from.
+    - **Ids are derived, never minted**: `rem:<reminderId>:<epochMinute>` and `pa:<eventId>` (`AppNotification.reminderOccurrenceId` / `.pressureAlertId`). Two devices computing the same reminder occurrence arrive at the same id without agreeing first, so **every writer is idempotent** — the materialiser, the foreground push, the background push and the launch reconcile can all write the same row and none of them can duplicate or fight. It is also what makes the reminder half of the list identical across devices almost for free: reminders already sync, so each device rebuilds the same occurrences itself.
+    - **Writes are insert-if-absent, never insert-or-replace** (`addMissing`). The materialiser re-derives the same occurrences on every run; replacing would wipe `readAt` each time and the unread badge would come back on every launch.
+    - **No title or body is stored.** The row carries the facts — which medication, how far pressure fell — and the strings render from ARB at display time, so changing language changes the list (hard rule 6). A stored string would freeze the locale that happened to be active, and the pressure alert's own text arrives from the server in English regardless.
+    - **`medicationId` and `reminderId` carry no foreign key**, unlike `MedicationReminders.medicationId`. Deleting a medication cascades its reminders away, and the history of having been reminded must survive that; the detail screen already handles a medication that is gone.
+    - **`MedicationReminders.createdAt` exists for this and syncs.** The list materialises past occurrences over a window, and without a lower bound it invents months of "you were reminded" for a reminder created yesterday. Every device has to agree where that history starts, so it travels in the payload. Rows predating v8 get null = "unknown", bounded by the window alone — the same call as `Medications.createdAt` in v3, and for the same reason: stamping the migration's clock would invent the very history the column exists to fence off.
+    - **A pull that brings reminders down already reschedules them** (`RemindersController.rescheduleAll`, hard rule 12) — that is what "sync về thì tự set up reminder" asks for, and it is not new work.
+    - **Deploy is part of shipping this**: `firebase deploy --only firestore:rules` AND `--only firestore:indexes`, **to prod**. `sync_collection_rules_test.dart` proves the files agree with the enum; it can never prove the project has them.
+    - **The 12h sync throttle the owner asked about is deliberately NOT built** (owner: skip it for now). It conflicted with hard rule 12's push-after-logging-an-attack, which exists so a freshly logged attack is not lost with the phone. If it comes back, throttle the full pull+push pass and leave that push path immediate.
+    - **Pressure alerts cannot fire on every device yet**: `users/{uid}` holds ONE `fcmToken`, so the last device to register is the only one that gets the push. The row syncs afterwards, so the *list* converges — only the banner is single-device. Fixing that means tokens as a collection plus fan-out in the cron, and is not in scope.
 
 ## Code style
 
