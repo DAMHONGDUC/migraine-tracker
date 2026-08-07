@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 
+import { getAuth } from "firebase-admin/auth";
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
@@ -12,6 +13,7 @@ import { runPressureAlerts } from "./core/alertRun";
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
+import { tearDownAccount } from "./core/accountTeardown";
 import {
   ANONYMOUS_PROVIDER,
   resolveSyncKey,
@@ -24,6 +26,9 @@ initializeApp();
 
 const REGION = "europe-west1";
 const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
+
+/** Firestore caps a batch at 500 writes. */
+const BATCH_LIMIT = 500;
 
 /**
  * Every 3h: group alert-enabled premium users by geohash cell, fetch ONE
@@ -170,6 +175,63 @@ export const getSyncKey = onCall(
     );
 
     return { key };
+  },
+);
+
+/**
+ * Deletes everything the backend holds about the caller, then their account.
+ *
+ * Server-side of necessity, not convenience: firestore.rules denies a client
+ * deleting users/{uid} — its write rule reads request.resource.data, which
+ * does not exist on a delete — and denies sync_keys/{uid} to everyone. Only
+ * the Admin SDK reaches them.
+ *
+ * The client still wipes its own device: this is the half it cannot do.
+ */
+export const deleteAccount = onCall(
+  { region: REGION, maxInstances: 10, memory: "256MiB" },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "sign in first");
+    }
+    // An anonymous session has nothing on the server to delete, and letting
+    // it through would delete an auth user the app still believes it has.
+    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
+      throw new HttpsError("permission-denied", "account required");
+    }
+
+    const db = getFirestore();
+
+    return tearDownAccount(uid, {
+      deleteRecords: async (owner, collection) => {
+        let deleted = 0;
+        // Paged: a long history would blow the 500-write batch limit, and a
+        // teardown that half-runs is what hard rule 8 forbids.
+        for (;;) {
+          const page = await db
+            .collection(collection)
+            .where("userId", "==", owner)
+            .limit(BATCH_LIMIT)
+            .get();
+
+          if (page.empty) return deleted;
+
+          const batch = db.batch();
+          for (const doc of page.docs) batch.delete(doc.ref);
+          await batch.commit();
+          deleted += page.size;
+        }
+      },
+      deleteUserDoc: async (owner) => {
+        await db.collection("users").doc(owner).delete();
+      },
+      deleteSyncKey: async (owner) => {
+        await db.collection("sync_keys").doc(owner).delete();
+      },
+      deleteAuthUser: async (owner) => getAuth().deleteUser(owner),
+      logInfo: (message, data) => logger.info(message, data),
+    });
   },
 );
 
