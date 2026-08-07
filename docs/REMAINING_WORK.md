@@ -134,8 +134,9 @@ the current repo state, still open:
 outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
-  submission. `site.url` in `privacy.json` is still `privacy.example.com`,
-  and `storeLinks.appStore` is a placeholder id.
+  submission. `privacy.json` now points at
+  `https://damhongduc.github.io/apps_privacy_policy`, but nothing is
+  published there yet, and `storeLinks.appStore` is still a placeholder id.
 - **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
   address is the owner's to supply and is a GDPR requirement.
 - **The App Privacy label must match the policy**, and the policy now says

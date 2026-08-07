@@ -7,20 +7,18 @@
   "effectiveDate": "2026-08-07",
   "lastUpdated": "2026-08-07",
   "contactEmail": "ducdam.dev@gmail.com",
+  "url": "https://damhongduc.github.io/apps_privacy_policy",
   "storeLinks": {
     "appStore": "https://apps.apple.com/app/id0000000000"
   },
   "overview": [
-    "This Privacy Policy describes how {{app}} handles information when you use the app. It applies to every version of {{app}} distributed by {{publisher}} on the app stores listed above.",
-    "{{app}} is a migraine tracker for people whose attacks may be linked to barometric-pressure changes. It is built local-first: your attacks, symptoms, notes, medications, reminders and notification history are stored on your device, an account is optional, and logging an attack works with no network at all. If you never sign in, we never receive any of it.",
-    "Signing in with Google or Apple turns on cross-device sync. There is no separate switch — the sign-in screen tells you this beforehand. Your attacks, medications, reminders and notification history are then uploaded as encrypted payloads. Two things travel with each record in readable form, because sync cannot work without them: which account owns it, and when it was last changed. Neither says anything about what is in the record. Exports never sync; they stay on the device that made them.",
-    "Important — this is encryption, but it is not end-to-end encryption. The key for your account is generated and held by our backend, so that a new device of yours can be given it after you sign in. That means Google's infrastructure, which hosts our backend, is technically able to decrypt these payloads. We do not read them and nothing in the app is designed to, but we will not tell you that only you can read them, because that would not be true.",
-    "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only. These are two separate permissions with two separate switches — allowing one does not allow the other. The analysis runs on your device. We never write to Apple Health, never store what we read in our own database, and never upload it, not even when you are signed in and sync is running.",
-    "{{app}} uses Firebase Crashlytics and Firebase Analytics. Analytics records actions, never content: that an attack was logged, that the paywall was opened, that an export was shared. It never carries intensity, head location, medication names, attack times or coordinates. While you are signed in, both are tagged with your account identifier — an opaque ID, not your name or email — so a crash can be traced to one account. Signing out clears it.",
-    "You can export everything from Settings as JSON, CSV or a PDF doctor report. Past exports are kept in the app so you can re-share them, and are full copies of your data. There are then two separate destructive actions. \"Delete all data\" wipes the local database and those export files, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold — but keeps your account, so your subscription binding survives. \"Delete account\" is the whole teardown: synced records, account record, encryption key, then the login itself. Neither cancels your subscription; that lives in the App Store and only you can cancel it there.",
-    "{{app}} is not directed at children under 16 and we do not knowingly collect personal information from them. If you believe a child has provided us with personal information, contact {{email}} and we will delete it.",
-    "Medical disclaimer: {{app}} is a self-tracking tool. It is not a substitute for professional medical advice, diagnosis, or treatment. It does not diagnose, treat, cure, or prevent any condition. Always consult a qualified clinician about your health.",
-    "If anything here is unclear, email {{email}} before you continue using the app."
+    "This Privacy Policy describes how {{app}} handles information when you use the app.",
+    "{{app}} is a migraine tracker. Your attacks, medications and notes are stored on your device, an account is optional, and logging works offline. If you never sign in, we never receive any of it.",
+    "Signing in turns on cross-device sync — there is no separate switch. Records upload as encrypted payloads, but the key is held by our backend, so this is not end-to-end encryption: Google's infrastructure, which hosts it, is able to decrypt them. We do not read them.",
+    "Apple Health sleep and step data is read on-device only and is never uploaded. {{app}} does use crash reporting and usage analytics — they record what you did in the app, never what you logged.",
+    "Settings → Delete all data wipes your records but keeps your account. Account → Delete account removes everything. Neither cancels your subscription, which only you can do in the App Store.",
+    "{{app}} is not directed at children under 16. If you believe a child has provided us with personal information, contact {{email}} and we will delete it.",
+    "Medical disclaimer: {{app}} is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified clinician about your health."
   ],
   "summary": [
     "Your attacks, medications and notes are stored on your device. Without an account, we never receive them.",
