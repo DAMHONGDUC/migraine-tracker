@@ -78,15 +78,29 @@ class FirebaseAlertRegistrationRepository
   }
 
   @override
-  Future<void> unregister() async {
+  Future<void> unregister() => _clear(<String>['fcmToken']);
+
+  @override
+  Future<void> forgetRegistration() => _clear(<String>[
+    'fcmToken',
+    'geohash5',
+    'alertThreshold',
+    'tz',
+  ]);
+
+  /// An update, never a delete: the document also carries `premium`, which
+  /// only the RevenueCat webhook may write and which the rules refuse to let
+  /// a client touch — a delete would take it with it, and a paying
+  /// subscriber would silently stop receiving alerts.
+  Future<void> _clear(List<String> fields) async {
     final user = _auth.currentUser;
     if (user == null) return;
     try {
-      await _firestore.collection('users').doc(user.uid).update({
-        'fcmToken': FieldValue.delete(),
+      await _firestore.collection('users').doc(user.uid).update(<String, Object?>{
+        for (final String field in fields) field: FieldValue.delete(),
       });
     } on FirebaseException catch (e) {
-      // Doc never created — nothing to unregister.
+      // Doc never created — nothing to forget.
       if (e.code != 'not-found') rethrow;
     }
   }

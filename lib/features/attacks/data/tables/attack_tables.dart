@@ -23,6 +23,20 @@ class Attacks extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get exertionLevel => textEnum<ExertionLevel>().nullable()();
 
+  /// Wall clock of the last local mutation, used only to settle which of two
+  /// devices' versions wins. Null on rows that predate sync, which then fall
+  /// back to [startedAt] — the best "last modified" we actually have.
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  /// Bumped on every local mutation. Deliberately not a timestamp: drift
+  /// stores dates as whole seconds, so an edit in the same second as the
+  /// push that preceded it would look unchanged and never sync.
+  IntColumn get revision => integer().withDefault(const Constant(0))();
+
+  /// The [revision] the server confirmed. Dirty is `syncedRevision !=
+  /// revision`, so a clock stepping backwards cannot hide an edit either.
+  IntColumn get syncedRevision => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }

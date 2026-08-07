@@ -15,7 +15,10 @@ import 'package:migraine_tracker/features/settings/domain/services/data_export_s
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
 
+import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
+import '../../helpers/pump_app.dart';
+import '../../helpers/sync_fakes.dart';
 
 class _SilentScheduler implements NotificationScheduler {
   @override
@@ -62,6 +65,9 @@ void main() {
         _SilentScheduler(),
         DriftExportRecordRepository(db),
         files,
+        FakeAuthRepository(),
+        syncServiceOver(db),
+        RecordingAlertRegistration(),
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),

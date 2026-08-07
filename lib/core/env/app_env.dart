@@ -43,8 +43,8 @@ final class AppEnv {
   );
 
   /// True once the required Firebase values were passed at build time.
-  /// Lets `main()` fail loud with a clear message instead of a cryptic
-  /// Firebase init error when the `--dart-define-from-file` flag is missing.
+  /// `main()`'s own check is [missingConfigKeys]; this getter stays as a
+  /// cheap yes/no for call sites that don't need the full gap list.
   static bool get hasFirebaseConfig => firebaseProjectId.isNotEmpty;
 
   /// Human-readable reminder for the fail-loud path in `main()`.
@@ -82,9 +82,9 @@ final class AppEnv {
   static String get revenueCatKey =>
       Platform.isAndroid ? revenueCatAndroidKey : revenueCatIosKey;
 
-  /// True once a RevenueCat key was passed at build time. `main()` asserts on
-  /// it, so a developer who forgets the flag finds out at launch instead of
-  /// on the paywall.
+  /// True once a RevenueCat key was passed at build time. `main()`'s own
+  /// check is [missingConfigKeys]; this getter stays as a cheap yes/no for
+  /// call sites that don't need the full gap list.
   static bool get hasPurchasesConfig => revenueCatKey.isNotEmpty;
 
   /// Reminder for the fail-loud path in the premium wiring. Purchases have
@@ -105,4 +105,34 @@ final class AppEnv {
     'SUPPORT_EMAIL',
     defaultValue: 'support@baroease.app',
   );
+
+  // --- Boot-time validation ---
+
+  /// Every config value the app cannot run without, keyed by its dart-define
+  /// name. Only the platform's own RevenueCat key is required — the other
+  /// platform's is allowed to stay empty (Android isn't polished yet).
+  /// `revenueCatOffering` and `supportEmail` are deliberately excluded: both
+  /// are meant to be empty/defaulted, not missing config.
+  static Map<String, String> get _requiredConfig => {
+    'FIREBASE_ANDROID_API_KEY': firebaseAndroidApiKey,
+    'FIREBASE_ANDROID_APP_ID': firebaseAndroidAppId,
+    'FIREBASE_IOS_API_KEY': firebaseIosApiKey,
+    'FIREBASE_IOS_APP_ID': firebaseIosAppId,
+    'FIREBASE_MESSAGING_SENDER_ID': firebaseMessagingSenderId,
+    'FIREBASE_PROJECT_ID': firebaseProjectId,
+    'FIREBASE_STORAGE_BUCKET': firebaseStorageBucket,
+    'FIREBASE_IOS_BUNDLE_ID': firebaseIosBundleId,
+    if (Platform.isAndroid)
+      'REVENUECAT_ANDROID_KEY': revenueCatAndroidKey
+    else
+      'REVENUECAT_IOS_KEY': revenueCatIosKey,
+  };
+
+  /// Names of every required key still empty. Walked by the single fail-loud
+  /// assert in `main()` so a missing `--dart-define-from-file` reports every
+  /// gap at once instead of a separate assert per config group.
+  static List<String> get missingConfigKeys => [
+    for (final MapEntry<String, String> entry in _requiredConfig.entries)
+      if (entry.value.isEmpty) entry.key,
+  ];
 }

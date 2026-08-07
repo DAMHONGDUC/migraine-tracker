@@ -1,4 +1,51 @@
 {
-  "indexes": [],
-  "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "attacks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "medications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "medication_reminders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    { "collectionGroup": "attacks", "fieldPath": "payload", "indexes": [] },
+    { "collectionGroup": "attacks", "fieldPath": "nonce", "indexes": [] },
+    { "collectionGroup": "attacks", "fieldPath": "mac", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "payload", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "nonce", "indexes": [] },
+    { "collectionGroup": "medications", "fieldPath": "mac", "indexes": [] },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "nonce",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "medication_reminders",
+      "fieldPath": "mac",
+      "indexes": []
+    }
+  ]
 }

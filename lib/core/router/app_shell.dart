@@ -57,7 +57,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       // - Lets branch content flow behind the floating glass bar so it refracts (hard rule 3: calm and dark).
       // - Unconditional: the nav is always the floating pill, so the body always reaches under it.
       extendBody: true,
-      body: navigationShell,
+      // Tells anything drawn over the app — a snackbar goes into the root
+      // overlay, above the shell — that the pill is down there to clear.
+      body: SdFloatingBarScopeV2(child: navigationShell),
       // The log flow is a pushed route now, not a tab, so the bar always shows the tab nav (no step-progress morph mid-log).
       bottomNavigationBar: _FloatingBar(
         child: _SlidingNavBar(

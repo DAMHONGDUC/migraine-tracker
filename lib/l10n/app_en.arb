@@ -1167,6 +1167,43 @@
       }
     }
   },
+  "syncScreenTitle": "Sync",
+  "@syncScreenTitle": {
+    "description": "App bar title of the sync detail screen, pushed from the Settings row"
+  },
+  "syncScreenBody": "Your attacks, medications and reminders are backed up to your account, encrypted, and kept in step across your devices. This happens on its own — the button is only here for when you want to be sure.",
+  "@syncScreenBody": {
+    "description": "Explains what syncs and that the manual button is never required. Says encrypted, never that only the user can read it — the key is server-held"
+  },
+  "syncScreenLastSynced": "Last synced",
+  "@syncScreenLastSynced": {
+    "description": "Row label on the sync screen, followed by when the last pass finished"
+  },
+  "syncScreenSyncing": "Syncing…",
+  "@syncScreenSyncing": {
+    "description": "Shown in place of the last-synced time while a pass is running"
+  },
+  "settingsSync": "Sync data to cloud",
+  "@settingsSync": {
+    "description": "Settings row that runs a sync by hand. Sync is automatic; this is only for a deliberate retry, and the row is absent without an account"
+  },
+  "settingsSyncFailed": "Sync didn't finish. It'll try again on its own.",
+  "@settingsSyncFailed": {
+    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
+  },
+  "settingsSyncStatusNever": "Not synced yet",
+  "@settingsSyncStatusNever": {
+    "description": "End-of-row status on the sync row before the first sync of this session has finished"
+  },
+  "settingsSyncProgress": "{percent}%",
+  "@settingsSyncProgress": {
+    "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "settingsSyncStatusFailed": "Didn't finish",
+  "@settingsSyncStatusFailed": {
+    "description": "End-of-row status on the sync row after a failed pass. Short by necessity — it shares the row with the title"
+  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export screen"
@@ -1394,6 +1431,19 @@
     "description": "PDF table column: 24h pressure delta"
   },
   "settingsDelete": "Delete all data",
+  "settingsDeleteLocal": "Delete all local data",
+  "@settingsDeleteLocal": {
+    "description": "Settings row title when there is no account, so nothing was ever synced. Says local because that is all there is to delete"
+  },
+  "settingsDeleteLocalConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports from this device, and turns off pressure alerts. This cannot be undone.",
+  "@settingsDeleteLocalConfirmBody": {
+    "description": "Confirm body for the signed-out wipe. No mention of an account copy, because there is none — but alerts still stop, since even a signed-out device is registered for them"
+  },
+  "commonDeleting": "Deleting…",
+  "@commonDeleting": {
+    "description": "Button label while a destructive action is running, replacing the verb so the action reads as underway and cannot be tapped twice"
+  },
+
   "@settingsDelete": {
     "description": "Settings tile that starts the GDPR delete flow"
   },
@@ -1401,7 +1451,7 @@
   "@settingsDeleteConfirmTitle": {
     "description": "Title of the destructive-delete confirmation dialog"
   },
-  "settingsDeleteConfirmBody": "This permanently deletes all attacks, weather snapshots, and medications from this device. This cannot be undone.",
+  "settingsDeleteConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports — on this device and in your account — and turns off pressure alerts. Your account itself stays. This cannot be undone.",
   "@settingsDeleteConfirmBody": {
     "description": "Body of the destructive-delete confirmation dialog"
   },
@@ -1410,6 +1460,10 @@
     "description": "Confirm button of the delete dialog"
   },
   "settingsDeleteDone": "All data deleted.",
+  "settingsDeleteFailed": "Couldn't delete everything. Nothing was removed — please try again.",
+  "@settingsDeleteFailed": {
+    "description": "Shown when the wipe fails. Says nothing was removed because the wipe stops at the first failure rather than half-running, so retrying is safe"
+  },
   "@settingsDeleteDone": {
     "description": "Snackbar shown after a successful wipe"
   },
@@ -1736,7 +1790,7 @@
   "@loginHeadline": {
     "description": "Headline of the login screen"
   },
-  "loginBody": "An account is only needed for your subscription. Everything else works without one.",
+  "loginBody": "An account keeps your subscription and backs up your attack history. Everything else works without one.",
   "@loginBody": {
     "description": "Sub-headline explaining why the app asks for an account"
   },
@@ -1756,9 +1810,9 @@
   "@loginBenefitRestoreBody": {
     "description": "Body of the restore-purchase login benefit"
   },
-  "loginPrivacyNote": "Your attacks stay on this device. Signing in never uploads your health data.",
+  "loginPrivacyNote": "Signing in backs up your attacks to your account, encrypted. They stay on this device too, and stay yours to delete at any time.",
   "@loginPrivacyNote": {
-    "description": "Privacy disclosure on the login screen (hard rule 1). Must stay accurate: update it only when encrypted attack sync actually ships."
+    "description": "Privacy disclosure on the login screen (hard rule 1). Must stay accurate. It says 'encrypted', never 'only you can read them': the key is held by the backend, so this is not end-to-end encryption and the copy must not imply it is."
   },
   "loginApple": "Sign in with Apple",
   "@loginApple": {
@@ -1954,9 +2008,37 @@
   "@accountPremiumFreeBody": {
     "description": "Account screen row subtitle listing what premium adds"
   },
-  "accountDataNote": "Your account holds your name, email and photo. Your attacks stay on this device.",
+  "accountDelete": "Delete account",
+  "@accountDelete": {
+    "description": "Destructive action on the account screen. App Store 5.1.1(v) requires in-app account deletion once accounts exist"
+  },
+  "accountDeleteConfirmTitle": "Delete your account?",
+  "@accountDeleteConfirmTitle": {
+    "description": "Title of the account-deletion confirm dialog"
+  },
+  "accountDeleteConfirmBody": "This permanently deletes your account and everything in it — attacks, medications, reminders, on this device and in the cloud. It does not cancel your subscription; manage that in the App Store. This cannot be undone.",
+  "@accountDeleteConfirmBody": {
+    "description": "Body of the account-deletion confirm dialog. Names the subscription explicitly because deleting the account does NOT cancel it, and a user who assumes otherwise keeps being charged"
+  },
+  "accountDeleteConfirmAction": "Delete account",
+  "@accountDeleteConfirmAction": {
+    "description": "Destructive confirm button in the account-deletion dialog"
+  },
+  "accountDeleteDone": "Your account has been deleted.",
+  "@accountDeleteDone": {
+    "description": "Confirmation shown after the account is gone"
+  },
+  "accountDeleteFailed": "Couldn't delete your account. Please try again.",
+  "@accountDeleteFailed": {
+    "description": "Shown when account deletion fails. The account survives, so retrying is the right advice"
+  },
+  "accountDataNote": "Your account holds your name, email and photo. Your attacks are backed up encrypted, and stay on this device too.",
   "@accountDataNote": {
-    "description": "Privacy note at the bottom of the account screen, stating that health data is not part of the account record"
+    "description": "Privacy note at the bottom of the account screen. Same accuracy bar as loginPrivacyNote: the backend holds the key, so never imply end-to-end encryption."
+  },
+  "historyFirstSyncLoading": "Getting your attacks from your account…",
+  "@historyFirstSyncLoading": {
+    "description": "Shown on the history list during the first pull after signing in, so an empty list does not read as 'you have no attacks'"
   },
   "settingsPremium": "Premium",
   "@settingsPremium": {

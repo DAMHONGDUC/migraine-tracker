@@ -1,13 +1,20 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../sync/data/repositories/drift_sync_local_store.dart';
+import '../../../sync/domain/entities/sync_collection.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 import '../../domain/repositories/attack_repository.dart';
+import 'attack_mapper.dart';
 
 /// Drift-backed [AttackRepository]. Returns domain models, never Drift rows.
+///
+/// Every mutation stamps `updatedAt`, which is what later marks the row as
+/// owed to the server. Nothing here talks to the network — sync reads this
+/// state separately, so logging an attack never waits on it (hard rule 4).
 class DriftAttackRepository implements AttackRepository {
   const DriftAttackRepository(this._db);
 
@@ -24,14 +31,7 @@ class DriftAttackRepository implements AttackRepository {
     ])..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
 
     return query.watch().map(
-      (rows) => rows
-          .map(
-            (row) => _toDomain(
-              row.readTable(_db.attacks),
-              row.readTableOrNull(_db.weatherSnapshots),
-            ),
-          )
-          .toList(),
+      (rows) => rows.map(_rowToDomain).toList(),
     );
   }
 
@@ -45,14 +45,7 @@ class DriftAttackRepository implements AttackRepository {
     ])..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
 
     final rows = await query.get();
-    return rows
-        .map(
-          (row) => _toDomain(
-            row.readTable(_db.attacks),
-            row.readTableOrNull(_db.weatherSnapshots),
-          ),
-        )
-        .toList();
+    return rows.map(_rowToDomain).toList();
   }
 
   @override
@@ -65,12 +58,7 @@ class DriftAttackRepository implements AttackRepository {
     ])..where(_db.attacks.id.equals(id));
 
     return query.watchSingleOrNull().map(
-      (row) => row == null
-          ? null
-          : _toDomain(
-              row.readTable(_db.attacks),
-              row.readTableOrNull(_db.weatherSnapshots),
-            ),
+      (row) => row == null ? null : _rowToDomain(row),
     );
   }
 
@@ -79,22 +67,37 @@ class DriftAttackRepository implements AttackRepository {
   @override
   Future<void> insert(Attack attack) {
     return _db.transaction(() async {
-      await _db.into(_db.attacks).insert(_toRow(attack));
+      await _db
+          .into(_db.attacks)
+          .insert(
+            AttackMapper.toRow(
+              attack,
+              updatedAt: DateTime.now().toUtc(),
+              revision: 1,
+            ),
+          );
+      // A re-used id would otherwise be deleted again by its stale tombstone.
+      await SyncTombstoneWriter.clear(_db, SyncCollection.attacks, [attack.id]);
       final weather = attack.weather;
       if (weather != null) {
         await _db
             .into(_db.weatherSnapshots)
-            .insert(_toWeatherRow(attack.id, weather));
+            .insert(AttackMapper.toWeatherRow(attack.id, weather));
       }
     });
   }
 
-  /// Backfills the weather snapshot for an attack logged offline.
+  /// Backfills the weather snapshot for an attack logged offline. Stamps the
+  /// attack too — the snapshot travels inside its payload, so without this a
+  /// backfill would never reach the server.
   @override
   Future<void> attachWeather(String attackId, WeatherSnapshot weather) {
-    return _db
-        .into(_db.weatherSnapshots)
-        .insertOnConflictUpdate(_toWeatherRow(attackId, weather));
+    return _db.transaction(() async {
+      await _db
+          .into(_db.weatherSnapshots)
+          .insertOnConflictUpdate(AttackMapper.toWeatherRow(attackId, weather));
+      await _touch(attackId);
+    });
   }
 
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
@@ -109,7 +112,7 @@ class DriftAttackRepository implements AttackRepository {
 
     final rows = await query.get();
     return rows
-        .map((row) => _toDomain(row.readTable(_db.attacks), null))
+        .map((row) => AttackMapper.toDomain(row.readTable(_db.attacks), null))
         .toList();
   }
 
@@ -120,15 +123,19 @@ class DriftAttackRepository implements AttackRepository {
     required List<String> triggers,
     String? notes,
     ExertionLevel? exertionLevel,
-  }) async {
-    await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
-      AttacksCompanion(
-        symptoms: Value(symptoms),
-        triggers: Value(triggers),
-        notes: Value(notes),
-        exertionLevel: Value(exertionLevel),
-      ),
-    );
+  }) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          symptoms: Value(symptoms),
+          triggers: Value(triggers),
+          notes: Value(notes),
+          exertionLevel: Value(exertionLevel),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
   }
 
   @override
@@ -137,67 +144,62 @@ class DriftAttackRepository implements AttackRepository {
     required int intensity,
     required HeadLocation location,
     String? medicationName,
-  }) async {
-    await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
-      AttacksCompanion(
-        intensity: Value(intensity),
-        location: Value(location),
-        medicationName: Value(medicationName),
-      ),
-    );
+  }) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          intensity: Value(intensity),
+          location: Value(location),
+          medicationName: Value(medicationName),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
   }
 
-  /// Weather snapshot goes with it via the FK cascade.
+  /// Deletes the attack outright — no soft-delete, so nothing about it
+  /// outlives the tap — and leaves a tombstone holding only its id, so the
+  /// deletion still reaches the user's other devices. Weather goes with it
+  /// via the FK cascade.
   @override
-  Future<void> deleteById(String id) =>
-      (_db.delete(_db.attacks)..where((t) => t.id.equals(id))).go();
+  Future<void> deleteById(String id) {
+    return _db.transaction(() async {
+      await (_db.delete(_db.attacks)..where((t) => t.id.equals(id))).go();
+      await SyncTombstoneWriter.write(_db, SyncCollection.attacks, [id]);
+    });
+  }
 
-  /// GDPR wipe. Weather snapshots go with their attacks via cascade.
+  /// GDPR wipe. Weather snapshots go with their attacks via cascade, and the
+  /// tombstones go too: the remote copy is being deleted wholesale in the
+  /// same pass, so there is nothing left to tell the server about.
   @override
-  Future<void> deleteAll() => _db.delete(_db.attacks).go();
+  Future<void> deleteAll() {
+    return _db.transaction(() async {
+      await _db.delete(_db.attacks).go();
+      await SyncTombstoneWriter.clearAll(_db, SyncCollection.attacks);
+    });
+  }
 
-  Attack _toDomain(AttackRow row, WeatherSnapshotRow? weather) => Attack(
-    id: row.id,
-    startedAt: row.startedAt,
-    intensity: row.intensity,
-    location: row.location,
-    medicationName: row.medicationName,
-    symptoms: row.symptoms,
-    triggers: row.triggers,
-    notes: row.notes,
-    exertionLevel: row.exertionLevel,
-    weather: weather == null
-        ? null
-        : WeatherSnapshot(
-            capturedAt: weather.capturedAt,
-            pressureHpa: weather.pressureHpa,
-            pressureDelta24hHpa: weather.pressureDelta24hHpa,
-            humidityPercent: weather.humidityPercent,
-            temperatureCelsius: weather.temperatureCelsius,
-          ),
-  );
+  Future<void> _touch(String id) async =>
+      (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
 
-  AttacksCompanion _toRow(Attack attack) => AttacksCompanion.insert(
-    id: attack.id,
-    startedAt: attack.startedAt,
-    intensity: attack.intensity,
-    location: attack.location,
-    medicationName: Value(attack.medicationName),
-    symptoms: Value(attack.symptoms),
-    triggers: Value(attack.triggers),
-    notes: Value(attack.notes),
-    exertionLevel: Value(attack.exertionLevel),
-  );
+  /// Read-modify-write, so callers must already be in a transaction.
+  Future<int> _nextRevision(String id) async {
+    final AttackRow? row = await (_db.select(
+      _db.attacks,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  WeatherSnapshotsCompanion _toWeatherRow(
-    String attackId,
-    WeatherSnapshot weather,
-  ) => WeatherSnapshotsCompanion.insert(
-    attackId: attackId,
-    capturedAt: weather.capturedAt,
-    pressureHpa: weather.pressureHpa,
-    pressureDelta24hHpa: weather.pressureDelta24hHpa,
-    humidityPercent: Value(weather.humidityPercent),
-    temperatureCelsius: Value(weather.temperatureCelsius),
+    return (row?.revision ?? 0) + 1;
+  }
+
+  Attack _rowToDomain(TypedResult row) => AttackMapper.toDomain(
+    row.readTable(_db.attacks),
+    row.readTableOrNull(_db.weatherSnapshots),
   );
 }

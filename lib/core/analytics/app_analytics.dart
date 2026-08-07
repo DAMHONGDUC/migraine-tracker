@@ -54,6 +54,8 @@ abstract final class AppAnalytics {
   static const String _exportSavedToDevice = 'export_saved_to_device';
   static const String _exportDeleted = 'export_deleted';
   static const String _dataWiped = 'data_wiped';
+  static const String _accountDeleted = 'account_deleted';
+  static const String _attacksSynced = 'attacks_synced';
 
   // --- Parameter keys. ---
   static const String _pStep = 'step';
@@ -65,6 +67,8 @@ abstract final class AppAnalytics {
   static const String _pAttackCount = 'attack_count';
   static const String _pSignedIn = 'signed_in';
   static const String _pPeriod = 'period';
+  static const String _pPushed = 'pushed';
+  static const String _pPulled = 'pulled';
 
   // --- User properties (cohorts we slice every other metric by). ---
   static const String _upSignedIn = 'signed_in';
@@ -155,6 +159,16 @@ abstract final class AppAnalytics {
 
   static void logAttackDeleted() => _log(_attackDeleted);
 
+  // --- Sync -------------------------------------------------------------
+
+  /// Counts only. What was in those attacks is health data, and so is when
+  /// they happened (hard rule 1).
+  static void logAttacksSynced({required int pushed, required int pulled}) =>
+      _log(_attacksSynced, <String, Object>{
+        _pPushed: pushed,
+        _pPulled: pulled,
+      });
+
   // --- Medications & reminders ------------------------------------------
   // No medication names: what someone takes is health data.
 
@@ -206,6 +220,10 @@ abstract final class AppAnalytics {
     required String reason,
   }) =>
       _log(_signInFailed, <String, Object>{_pMethod: method, _pReason: reason});
+
+  /// Deliberately parameterless: by the time this fires there is nothing
+  /// left to describe, and why someone left is not ours to record.
+  static void logAccountDeleted() => _log(_accountDeleted);
 
   static void logSignOut() => _log(_signOut);
 

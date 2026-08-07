@@ -10,5 +10,18 @@ abstract interface class AlertRegistrationRepository {
   Future<void> updateThreshold(double thresholdHpa);
 
   /// Removes the FCM token so the cron stops targeting this device.
+  ///
+  /// Only the token: turning alerts off should not forget the threshold the
+  /// user picked, which they will want again when they turn them back on.
   Future<void> unregister();
+
+  /// Forgets everything this device ever told the backend — the token, the
+  /// geohash, the threshold and the timezone.
+  ///
+  /// For the GDPR wipe, which must leave nothing behind that could still
+  /// reach the user or say where they were. Clears fields rather than
+  /// deleting the document: `premium` belongs to the RevenueCat webhook and
+  /// a paying subscriber must not lose alerts by clearing their history —
+  /// and the rules forbid a client touching that key anyway.
+  Future<void> forgetRegistration();
 }

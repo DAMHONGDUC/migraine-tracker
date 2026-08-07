@@ -16,7 +16,10 @@ import 'package:migraine_tracker/features/settings/domain/entities/export_record
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 
+import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
+import '../../helpers/pump_app.dart';
+import '../../helpers/sync_fakes.dart';
 
 class RecordingNotificationScheduler implements NotificationScheduler {
   int cancelAllCalls = 0;
@@ -75,6 +78,9 @@ void main() {
       notifications,
       exportRecords,
       exportFiles,
+      FakeAuthRepository(),
+      syncServiceOver(db),
+      RecordingAlertRegistration(),
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -110,9 +116,115 @@ void main() {
       RecordingNotificationScheduler(),
       exportRecords,
       exportFiles,
+      FakeAuthRepository(),
+      syncServiceOver(db),
+      RecordingAlertRegistration(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
     expect(exportFiles.files, isEmpty);
+  });
+
+  group('the account copy', () {
+    Attack anAttack() => Attack(
+      id: 'a1',
+      startedAt: DateTime.now().toUtc(),
+      intensity: 5,
+      location: HeadLocation.left,
+    );
+
+    DataWipeService wipeFor(
+      AppDatabase db, {
+      required FakeAuthRepository auth,
+      required FakeRemoteSyncRepository remote,
+    }) => DataWipeService(
+      DriftAttackRepository(db),
+      DriftMedicationRepository(db),
+      RecordingNotificationScheduler(),
+      DriftExportRecordRepository(db),
+      FakeExportFileStore(),
+      auth,
+      syncServiceOver(db, remote: remote),
+      RecordingAlertRegistration(),
+    );
+
+    test('is deleted too, or the wipe leaves the data online', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final attacks = DriftAttackRepository(db);
+      final remote = FakeRemoteSyncRepository();
+      final auth = FakeAuthRepository(signedIn: true);
+
+      await attacks.insert(anAttack());
+      await syncServiceOver(db, remote: remote).sync('test-uid');
+      expect(remote.documents, isNotEmpty);
+
+      await wipeFor(db, auth: auth, remote: remote).wipeAll();
+
+      expect(remote.documents, isEmpty);
+      expect(await attacks.getAll(), isEmpty);
+    });
+
+    test('failing to clear it aborts the whole wipe', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final attacks = DriftAttackRepository(db);
+      final remote = FakeRemoteSyncRepository()..failNextDeleteAll = true;
+
+      await attacks.insert(anAttack());
+
+      await expectLater(
+        wipeFor(
+          db,
+          auth: FakeAuthRepository(signedIn: true),
+          remote: remote,
+        ).wipeAll(),
+        throwsA(isA<Exception>()),
+      );
+
+      // Wiping the device first would leave the cloud copy with nothing left
+      // to say it should go, and the next sync would pull it all back down.
+      expect(await attacks.getAll(), hasLength(1));
+    });
+
+    test('gives up the push token, or alerts keep arriving', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final alerts = RecordingAlertRegistration();
+
+      await DataWipeService(
+        DriftAttackRepository(db),
+        DriftMedicationRepository(db),
+        RecordingNotificationScheduler(),
+        DriftExportRecordRepository(db),
+        FakeExportFileStore(),
+        FakeAuthRepository(signedIn: true),
+        syncServiceOver(db),
+        alerts,
+      ).wipeAll();
+
+      // The FCM token is the one thing that can still reach someone after
+      // they deleted everything: the cron would go on pushing pressure
+      // alerts to a device with nothing left in it.
+      expect(alerts.forgetCalls, 1);
+    });
+
+    test('is not chased for an account that never existed', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final attacks = DriftAttackRepository(db);
+      final remote = FakeRemoteSyncRepository();
+
+      await attacks.insert(anAttack());
+
+      // Anonymous: nothing was ever uploaded, so nothing is owed a delete.
+      await wipeFor(
+        db,
+        auth: FakeAuthRepository(),
+        remote: remote,
+      ).wipeAll();
+
+      expect(await attacks.getAll(), isEmpty);
+    });
   });
 }

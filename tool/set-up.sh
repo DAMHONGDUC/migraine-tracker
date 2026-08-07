@@ -1,7 +1,16 @@
 #!/bin/sh
 # Everything a fresh clone needs, in order. Safe to re-run.
+#
+# Always wipes first (tool/_clean.sh: flutter clean, gradle, pods), so set-up
+# is the one answer to "it built yesterday and not today". Xcode's DerivedData
+# is deliberately NOT part of it — clearing that costs a full cold build, and
+# lives in `melos run deep-set-up` for when a stale module cache is the actual
+# problem. Reach for `melos run gen` when all you changed is a table or a
+# string.
 set -eu
 . "$(dirname "$0")/_common.sh"
+
+sh "$(dirname "$0")/_clean.sh"
 
 # Submodules land on their branch and follow it, rather than sitting detached
 # at the commit the gitlink records. That is deliberate: the design system is
@@ -60,12 +69,24 @@ if [ "$(uname)" = "Darwin" ] && [ -f ios/Podfile ] && command -v pod >/dev/null 
   step "ios pods"
   # CocoaPods is Ruby, and Ruby without a UTF-8 locale reads the Podfile as
   # ASCII-8BIT and dies inside its own error reporter — a stack trace that
-  # says nothing about the missing LANG. Terminals set it; stripped
-  # environments do not.
-  [ -n "${LANG:-}" ] || LANG=en_US.UTF-8
+  # says nothing about the missing LANG.
+  #
+  # Forced, not defaulted: a LANG that is set but not UTF-8 (LANG=C, a
+  # stripped CI environment, a terminal configured for another charset)
+  # breaks it exactly the same way, and only an unset one used to be caught.
+  case "${LANG:-}" in
+    *UTF-8 | *utf8) ;;
+    *) LANG=en_US.UTF-8 ;;
+  esac
   export LANG
   $FL precache --ios
-  (cd ios && pod install)
+  # - Warnings on stderr, and melos labels every stderr line "ERROR:", which
+  #   makes a clean run read as a failed one.
+  # - CocoaPods writes two here that cannot be silenced at the source: a Ruby
+  #   gem note, and Firebase's own CocoaPods-deprecation notice.
+  # - Folding them into stdout loses nothing: `set -e` still stops the script
+  #   on a real failure, and the message is still printed either way.
+  (cd ios && pod install 2>&1)
 fi
 
 if [ -n "$MISSING" ]; then

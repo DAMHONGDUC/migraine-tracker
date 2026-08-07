@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
@@ -109,6 +110,9 @@ class LogController extends Notifier<LogFlowState> {
       AppAnalytics.logAttackLogged();
       AppAnalytics.logLogFlowStep(LogStep.saved.name);
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
+      // Same best-effort shape: the attack is already saved, so a failure
+      // here just leaves it pending for the next sync (hard rule 4).
+      unawaited(ref.read(syncControllerProvider.notifier).sync());
       state = LogFlowState(savedId: attack.id, step: LogStep.saved);
     } catch (error, stackTrace) {
       AppLogger.error(

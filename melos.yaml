@@ -31,14 +31,33 @@ ide:
 # `tool/*.sh`, which also makes them lintable and runnable under dash — the
 # shell melos actually uses on Linux, and the one macOS hides from you.
 scripts:
-  setup:
+  set-up:
     description: >
-      Everything a fresh clone needs, in order. Safe to re-run.
-    run: sh tool/setup.sh
+      Wipe build artefacts, then set up everything a clone needs.
+      Safe to re-run.
+    run: sh tool/set-up.sh
+
+  deep-set-up:
+    description: >
+      set-up, plus Xcode's DerivedData. For a build failure the code cannot
+      explain. Costs a full cold build afterwards.
+    run: sh tool/deep-set-up.sh
 
   gen:
     description: Regenerate localizations and build_runner output.
     run: sh tool/gen.sh
+
+  release-ios:
+    description: >
+      Build the TestFlight/App Store archive with env/prod.json attached.
+      Never archive from Xcode — it cannot pass the config flag.
+    run: sh tool/release-ios.sh
+
+  deploy-firebase:
+    description: >
+      Deploy firestore rules, indexes and functions. Confirms the project
+      first — dev and prod share one, so this reaches real users.
+    run: sh tool/deploy-firebase.sh
 
   analyze:
     description: Analyze every package. Must pass with zero findings.
@@ -48,7 +67,3 @@ scripts:
     description: Run the Flutter test suite.
     run: sh tool/test.sh
 
-  clean:
-    description: >
-      Wipe Android + iOS build artefacts. Follow with `melos run setup`.
-    run: sh tool/clean.sh

@@ -14,6 +14,7 @@ import '../../../domain/entities/user_profile.dart';
 import '../../../providers.dart';
 import '../../widgets/display_name_dialog.dart';
 
+part 'account_screen_delete_button.dart';
 part 'account_screen_header.dart';
 part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
@@ -56,7 +57,7 @@ class AccountScreen extends ConsumerWidget {
             const _DataNote(),
           ],
         ),
-        actions: const <Widget>[_SignOutButton()],
+        actions: const <Widget>[_SignOutButton(), _DeleteAccountButton()],
       ),
     );
   }

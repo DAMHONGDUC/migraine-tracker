@@ -1,12 +1,20 @@
+import '../../../alerts/domain/repositories/alert_registration_repository.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
+import '../../../auth/domain/entities/auth_user.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
+import '../../../sync/domain/services/sync_service.dart';
 import '../repositories/export_record_repository.dart';
 import 'export_file_store.dart';
 
-/// GDPR "delete everything" (hard rule 8). v1 wipes the on-device database;
-/// the auth/sync and alerts phases MUST extend this with Firestore doc +
-/// synced attacks deletion, FCM token revocation, and account deletion.
+/// GDPR "delete everything" (hard rule 8): the on-device database, past
+/// exports, and the account's synced copy.
+///
+/// Keeps the account: this clears what the user put in, not who they are.
+/// Deleting the account is its own action (`deleteAccount`), because someone
+/// clearing their history usually wants to carry on using the app — and
+/// losing the account would unbind their subscription with it.
 class DataWipeService {
   const DataWipeService(
     this._attacks,
@@ -14,6 +22,9 @@ class DataWipeService {
     this._notifications,
     this._exportRecords,
     this._exportFiles,
+    this._auth,
+    this._sync,
+    this._alerts,
   );
 
   final AttackRepository _attacks;
@@ -21,8 +32,22 @@ class DataWipeService {
   final NotificationScheduler _notifications;
   final ExportRecordRepository _exportRecords;
   final ExportFileStore _exportFiles;
+  final AuthRepository _auth;
+  final SyncService _sync;
+  final AlertRegistrationRepository _alerts;
 
   Future<void> wipeAll() async {
+    // The server copy goes FIRST, and a failure here aborts the whole wipe.
+    // Wiping the device first would leave the cloud history intact with
+    // nothing left to say it should go — and the next sync would pull every
+    // deleted attack straight back down.
+    await _wipeRemote();
+
+    // Before the local data, because this is the one thing that can still
+    // reach the user after the wipe: leave the FCM token behind and the cron
+    // keeps pushing pressure alerts to a device with nothing left in it.
+    await _alerts.forgetRegistration();
+
     await _attacks.deleteAll();
     // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.
     await _notifications.cancelAll();
@@ -30,5 +55,14 @@ class DataWipeService {
     // Past exports are full copies of the deleted data — leave them and the wipe is incomplete.
     await _exportFiles.deleteAll();
     await _exportRecords.deleteAll();
+  }
+
+  /// Nothing to do without an account: an anonymous session never uploaded
+  /// anything, so there is no server copy to chase.
+  Future<void> _wipeRemote() async {
+    final AuthUser? user = _auth.currentUser;
+
+    if (user == null || !user.isSignedIn) return;
+    await _sync.wipeRemote(user.uid);
   }
 }

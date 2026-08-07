@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../sync/data/repositories/drift_sync_local_store.dart';
+import '../../../sync/domain/entities/sync_collection.dart';
 import '../../domain/entities/medication_reminder.dart';
 import '../../domain/repositories/medication_reminder_repository.dart';
 
@@ -39,23 +41,57 @@ class DriftMedicationReminderRepository
   }
 
   @override
-  Future<void> upsert(MedicationReminder reminder) => _db
-      .into(_db.medicationReminders)
-      .insertOnConflictUpdate(
-        MedicationRemindersCompanion.insert(
-          id: reminder.id,
-          medicationId: reminder.medicationId,
-          minuteOfDay: reminder.minuteOfDay,
-          enabled: Value(reminder.enabled),
-        ),
+  Future<void> upsert(MedicationReminder reminder) {
+    return _db.transaction(() async {
+      final MedicationReminderRow? existing = await (_db.select(
+        _db.medicationReminders,
+      )..where((t) => t.id.equals(reminder.id))).getSingleOrNull();
+
+      await _db
+          .into(_db.medicationReminders)
+          .insertOnConflictUpdate(
+            MedicationRemindersCompanion.insert(
+              id: reminder.id,
+              medicationId: reminder.medicationId,
+              minuteOfDay: reminder.minuteOfDay,
+              enabled: Value(reminder.enabled),
+              updatedAt: Value(DateTime.now().toUtc()),
+              revision: Value((existing?.revision ?? 0) + 1),
+              syncedRevision: Value(existing?.syncedRevision),
+            ),
+          );
+      await SyncTombstoneWriter.clear(_db, SyncCollection.medicationReminders, [
+        reminder.id,
+      ]);
+    });
+  }
+
+  /// Really deletes, and leaves a tombstone holding only the id so the
+  /// deletion still reaches the user's other devices.
+  @override
+  Future<void> deleteById(String id) {
+    return _db.transaction(() async {
+      await (_db.delete(
+        _db.medicationReminders,
+      )..where((t) => t.id.equals(id))).go();
+      await SyncTombstoneWriter.write(_db, SyncCollection.medicationReminders, [
+        id,
+      ]);
+    });
+  }
+
+  /// GDPR wipe. Tombstones go too: the remote copy is deleted wholesale in
+  /// the same pass, so there is nothing left to tell the server about.
+  @override
+  Future<void> deleteAll() {
+    return _db.transaction(() async {
+      await _db.delete(_db.medicationReminders).go();
+      await SyncTombstoneWriter.clearAll(
+        _db,
+        SyncCollection.medicationReminders,
       );
-
-  @override
-  Future<void> deleteById(String id) =>
-      (_db.delete(_db.medicationReminders)..where((t) => t.id.equals(id))).go();
-
-  @override
-  Future<void> deleteAll() => _db.delete(_db.medicationReminders).go();
+    });
+  }
 
   MedicationReminder _toDomain(MedicationReminderRow row) => MedicationReminder(
     id: row.id,

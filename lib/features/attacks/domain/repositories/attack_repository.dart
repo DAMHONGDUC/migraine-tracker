@@ -4,7 +4,12 @@ import '../enums/exertion_level.dart';
 import '../enums/head_location.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
-/// implementation — the sync phase will decorate it with a cloud-syncing one.
+/// implementation.
+///
+/// Deliberately knows nothing about sync: every mutation records that the row
+/// changed, and `AttackSyncRepository` reads that separately. A decorator that
+/// uploaded on write would put the network in front of the log flow, which
+/// hard rule 4 forbids.
 abstract interface class AttackRepository {
   /// All attacks, newest first, with their weather snapshot when present.
   Stream<List<Attack>> watchAll();
@@ -44,7 +49,9 @@ abstract interface class AttackRepository {
     String? medicationName,
   });
 
-  /// Removes one attack; its weather snapshot goes with it via cascade.
+  /// Removes one attack; its weather snapshot goes with it via cascade. The
+  /// row is really deleted — what is left behind is a tombstone holding only
+  /// the id, so the deletion can still reach the user's other devices.
   Future<void> deleteById(String id);
 
   /// GDPR wipe.

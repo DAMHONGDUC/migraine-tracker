@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/logging/crash_reporter.dart';
+import '../../../settings/providers.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
@@ -83,6 +84,32 @@ class AccountController {
     AppLogger.action('Sign out');
     AppAnalytics.logSignOut();
     await _ref.read(authRepositoryProvider).signOut();
+  }
+
+  /// Deletes the account, everything the backend held about it, and this
+  /// device's copy (App Store 5.1.1(v)).
+  ///
+  /// The device goes FIRST, and a failure there stops the rest: once the auth
+  /// user is gone nothing can authorise the server wipe, and the account's
+  /// records would be stranded with nobody left who could ask for them to go.
+  ///
+  /// Rethrows — unlike the background flows, someone is watching this one and
+  /// the account still exists to retry with.
+  Future<void> deleteAccount() async {
+    AppLogger.action('Delete account');
+    try {
+      await _ref.read(dataWipeServiceProvider).wipeAll();
+      await _ref.read(authRepositoryProvider).deleteAccount();
+      AppAnalytics.logAccountDeleted();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Delete account failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      CrashReporter.recordError(error, stackTrace, reason: 'Account deletion');
+      rethrow;
+    }
   }
 
   /// Pushes what the auth provider knows into `users/{uid}`. Called on

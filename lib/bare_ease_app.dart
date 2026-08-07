@@ -16,6 +16,7 @@ import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
 import 'features/premium/providers.dart';
+import 'features/sync/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
 class BaroEaseApp extends HookConsumerWidget {
@@ -32,6 +33,16 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
+    // Coming back from the background counts as entering the app: another
+    // device may have logged something while this one was away.
+    useEffect(() {
+      final AppLifecycleListener listener = AppLifecycleListener(
+        onResume: () =>
+            unawaited(ref.read(syncControllerProvider.notifier).sync()),
+      );
+      return listener.dispose;
+    }, const []);
+
     // Keeps analytics/crash identity in step with the account — UID is opaque, null once signed out.
     ref.listen<AsyncValue<AuthUser?>>(authUserProvider, (previous, next) {
       final AuthUser? user = switch (next) {
@@ -44,6 +55,13 @@ class BaroEaseApp extends HookConsumerWidget {
       // Sign-in, and every launch of a signed-in session: keep the account doc in step with the provider.
       if (user != null) {
         unawaited(ref.read(accountControllerProvider).syncProfile(user));
+      }
+      // - Same moments for attack sync: sign-in, and each launch of a signed-in session.
+      // - Unawaited and best-effort, exactly like the profile write above — nothing on screen waits on it.
+      if (user?.isSignedIn == true) {
+        unawaited(ref.read(syncControllerProvider.notifier).sync());
+      } else {
+        unawaited(ref.read(syncControllerProvider.notifier).onSignedOut());
       }
       // - Bind purchases to the account so an entitlement follows the person, not the install — survives a reinstall or a second device.
       // - Anonymous sessions stay unbound: nothing durable to attach a purchase to yet.

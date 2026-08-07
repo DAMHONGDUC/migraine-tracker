@@ -10,6 +10,7 @@ import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
@@ -37,6 +38,7 @@ import 'package:migraine_tracker/features/premium/domain/repositories/purchase_r
 import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
@@ -44,7 +46,9 @@ import 'package:migraine_tracker/features/weather/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/index.dart';
 
+import 'alert_fakes.dart';
 import 'export_fakes.dart';
+import 'sync_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
 /// the network.
@@ -211,6 +215,15 @@ class FakeAuthRepository implements AuthRepository {
     signOutCalls++;
     _user = AuthUser(uid: _user.uid, isAnonymous: true);
     _controller.add(_user);
+  }
+
+  /// Records that the account was torn down, without pretending to do it.
+  int deleteAccountCalls = 0;
+
+  @override
+  Future<void> deleteAccount() async {
+    deleteAccountCalls++;
+    await signOut();
   }
 
   @override
@@ -632,6 +645,17 @@ Future<PumpedApp> pumpApp(
         // Always overridden: the real store needs path_provider, which a
         // widget test does not have.
         exportFileStoreProvider.overrideWithValue(exportFiles),
+        // Always overridden too: the app root fires a sync on sign-in, and
+        // the real repositories reach for Firebase, which no widget test has.
+        syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
+        remoteSyncRepositoryProvider.overrideWithValue(
+          FakeRemoteSyncRepository(),
+        ),
+        // Same reason: the GDPR wipe gives up the push token, and the real
+        // repository reaches for FirebaseAuth and Firestore to do it.
+        alertRegistrationRepositoryProvider.overrideWithValue(
+          RecordingAlertRegistration(),
+        ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),
         if (fileSaver != null) fileSaverProvider.overrideWithValue(fileSaver),

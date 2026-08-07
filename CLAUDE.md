@@ -7,6 +7,12 @@ stated.** A rule that lives only in a chat is gone by the next session — write
 it into the section it belongs to, with the reason, before doing the work it
 governs.
 
+**Explaining a change means showing before and after.** Not prose about what
+changed — the old code and the new one, side by side, then what the
+difference does. A description of a diff is the reader taking your word for
+it; the diff is the reader checking. This applies to any explanation of work
+already done: a rule, a refactor, a fix.
+
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
@@ -22,13 +28,16 @@ Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). N
 - **Backend**: Firebase — Firestore (region europe-west1), Cloud Functions (TypeScript, Node 20), Cloud Scheduler, FCM, Remote Config
 - **Auth**: anonymous by default (app fully usable without an account). Optional sign-in via Google (`google_sign_in`) and Apple (`sign_in_with_apple`) using `linkWithCredential` so the anonymous UID is upgraded, never replaced. Sign in with Apple is mandatory because Google login is offered (App Store 4.8).
 - **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
+- **Sync crypto**: `cryptography` (AES-GCM, pure Dart) for record payloads, `cloud_functions` to fetch the account key from the `getSyncKey` callable. The key is server-held, so this is not end-to-end encryption — see hard rule 12.
 - **Weather**: WeatherKit REST in-app is the target; Open-Meteo is the temporary in-app source until the WeatherKit key is configured (swap inside `weatherRepositoryProvider` — everything depends on the `WeatherRepository` interface). Open-Meteo in backend cron permanently.
 - **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
 - **Observability**: Firebase Crashlytics (crashes + non-fatals) and Firebase Analytics (usage). Both are initialized in `main` and stay no-ops until then, so tests and pure-Dart paths never touch the SDKs.
 - **Files out**: `share_plus` for the share sheet, `flutter_file_dialog` for "save to device" (the platform's own save picker). `flutter_file_dialog` is below the usual ">1k likes" bar and is a deliberate exception: `file_picker` is the popular choice but every version from 8.3.3 up pins `win32 ^5.9.0`, which `share_plus` >=13.1.0 (`win32 ^6.0.1`) cannot resolve against, and there is no stable `file_picker` 12. Do not "fix" this with a `win32` dependency override — the app ships iOS first and a resolution hack to satisfy a preference is the clever-over-boring trade CLAUDE.md warns against. Revisit only when `file_picker` ships a stable release on `win32 ^6`.
-- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`, which is a deliberate exception. Every other plugin the app uses resolves as a Swift Package (`flutter_file_dialog` included — Flutter adapts podspec-only plugins). If an `ios/Podfile` reappears for any OTHER reason, something added CocoaPods scaffolding the project does not need: run `pod deintegrate`, delete the `Podfile`, and drop the `#include?` lines from `ios/Flutter/{Debug,Release}.xcconfig`. `flutter build ios` prints this same advice when the integration is present.
+- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`, which is a deliberate exception. Every other plugin the app uses resolves as a Swift Package (`flutter_file_dialog` included — Flutter adapts podspec-only plugins). If an `ios/Podfile` reappears for any OTHER reason, something added CocoaPods scaffolding the project does not need: run `pod deintegrate`, delete the `Podfile`, and drop the `#include?` lines from `ios/Flutter/{Debug,Release}.xcconfig`.
+  - **This was tried the other way and reverted, so do not re-litigate it without new facts.** The whole app was moved to CocoaPods (`flutter: config: enable-swift-package-manager: false`) to escape the `exact:` pin conflicts that break the Firebase plugin family whenever one of them bumps `firebase-ios-sdk`. Two things killed it: a cold build went from ~80s to ~390s, and — the decisive one — **Firebase is dropping CocoaPods**. Its own pod prints the notice: no new versions published to CocoaPods after **October 2026**, registry read-only from **December 2026**, existing versions kept indefinitely, and SPM is the recommended path (`firebase.google.com/docs/ios/cocoapods-deprecation`). Staying on pods would have frozen the Firebase SDK at 12.17.0 with no security fixes, which is not a place a health app can sit.
+  - So the `exact:` pin conflicts stay a fact of life here, and the fix is the one already used: bump every `firebase_*` plugin to the newest patch its existing caret constraint allows, so they all pin the same `firebase-ios-sdk`, then verify with `xcodebuild -resolvePackageDependencies`. **There are TWO `Package.resolved` files** — `ios/Runner.xcodeproj/…` and `ios/Runner.xcworkspace/…` — and Xcode reads the workspace one. Fixing only the project copy leaves the mismatch one Xcode launch away from coming back.
   - `health: ^3.0.6` pins its old, unmaintained `device_info` dependency (last published 2021, no SPM support and none coming). `pod install`/`pod build` therefore stays required for `health` + `device_info` specifically; `ios/Podfile` and its `#include?` lines in `Debug.xcconfig`/`Release.xcconfig`/`Profile.xcconfig` are intentional, not leftover scaffolding — don't delete them per the rule above. **All three configs exist and each points at its own Pods xcconfig**: Flutter's template ships only two and maps Profile onto `Release.xcconfig`, which makes `pod install` warn that it never set the base configuration and leaves Profile builds using the *release* pod settings. The Podfile also declares `platform :ios, '15.0'` to match `IPHONEOS_DEPLOYMENT_TARGET`; without it CocoaPods picks its own default and says so every run. The build prints `"The following plugins do not support Swift Package Manager for ios: device_info, health"`; that warning is expected and non-fatal (every other plugin still resolves via SPM).
-  - Do not "fix" the warning by bumping `health`: every version through the latest (13.3.1) caps its `device_info_plus` dependency below `win32 ^6`, which conflicts with `package_info_plus`/`share_plus`'s `win32 ^6.0.1` requirement — the same class of conflict as the `flutter_file_dialog`/`win32` note below. Don't override `win32` to force it through. Revisit only if `health` widens its `device_info_plus` range to `^13.0.0`+, or if `health` migrates off `device_info_plus` entirely.
+  - Do not "fix" that warning by bumping `health`: every version through the latest (13.3.1) caps its `device_info_plus` dependency below `win32 ^6`, which conflicts with `package_info_plus`/`share_plus`'s `win32 ^6.0.1` requirement — the same class of conflict as the `flutter_file_dialog`/`win32` note below. Don't override `win32` to force it through. Revisit only if `health` widens its `device_info_plus` range to `^13.0.0`+, or if `health` migrates off `device_info_plus` entirely.
   - If `ios/Podfile` is ever missing (e.g. after a clean checkout), `pod install` fails at the post-install hook with `Flutter.xcframework must exist`. Run `flutter precache --ios` first, then `pod install` in `ios/`.
 
 ## Repo layout
@@ -131,10 +140,14 @@ against the other's asset templates and bootstrap dies; that is why the
 dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 `melos.yaml` explains the two costs of the workspace-based versions.
 
-- `melos run setup` — everything a fresh clone needs, in order: submodules,
+- `melos run set-up` — **always wipes first** (`tool/_clean.sh`: `flutter
+  clean`, gradle, pods), then everything a clone needs, in order: submodules,
   `pub get` for both packages, `gen-l10n`, `build_runner`, `env/*.json` from
   the templates, `npm ci` in `functions/`, and `pod install` on macOS.
-  Idempotent — re-run it any time, and after `melos run clean`.
+  Idempotent — re-run it any time.
+  **The wipe is unconditional on purpose**: setup is the one answer to "it
+  built yesterday and not today". Don't reach for it when `melos run gen`
+  would do.
   **It puts each submodule on the branch named in `.gitmodules` (`main`) and
   fast-forwards it, rather than leaving it detached at the recorded gitlink.**
   So the design system is always editable in place — and what you build is
@@ -144,11 +157,37 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
 - `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.
-- `melos run test` — the whole suite. **Run it only when the change reaches the whole app** (theme, spacing, the design system) or just before a commit. While iterating, run the file that covers what you changed — `flutter test test/features/<x>/<y>_test.dart`, narrowed with `--plain-name` when one case is failing. The full suite is minutes of waiting to re-learn what one file already tells you.
-- `melos run clean` — wipe Android + iOS build artefacts, then `setup`
+- `melos run test` — the whole suite. **Never run the whole suite to verify a change, no exception** — not even one that touches shared code (theme, spacing, the design system) and not "just before a commit" either. Always scope to what changed: `flutter test test/features/<x>/<y>_test.dart`, narrowed with `--plain-name` when one case is failing. The full suite is minutes of wall clock through the harness to re-learn what one scoped file already tells you — that cost is why this is absolute, not a judgment call per change.
+- `melos run deep-set-up` — setup, plus **Xcode's DerivedData**. The only
+  difference, and the reason it is separate: clearing that cache costs a full
+  cold build every time. Reach for it when a build fails in a way the code
+  cannot explain — a precompiled module Xcode refuses to reuse ("has been
+  modified since the module file was built"), a header resolving to a version
+  you no longer depend on, a failure that comes and goes on one commit —
+  which is almost always right after a native dependency moved.
+  **DerivedData is matched on the workspace path each cache records, never on
+  the folder name**: every Flutter app builds a target called `Runner`, so
+  deleting `Runner-*` would take other projects' caches with it.
+- **There are exactly two entry points, `set-up` and `deep-set-up`.** The wipe
+  itself is `tool/_clean.sh`, underscore-prefixed like `_common.sh` because it
+  is not a command — it is never run on its own, and `melos.yaml` does not
+  name it. Don't add a third clean-shaped command; the choice is only ever
+  "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
-- `firebase emulators:start` — test functions locally; never test cron against production
+- **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run build`.**
+  The standalone Firebase CLI is a pkg snapshot bundling its *own* Node 20 and npm
+  8.19.4, whatever the machine has; that npm crashes inside `promiseSpawnUid` reading
+  `process.stdin`, which does not exist in a snapshot. The failure looks like a broken
+  build script — `tsc` even prints first — but the same command run by hand succeeds,
+  and the npm debug log is the only place the bundled versions show up. Don't "fix" it
+  by putting npm back.
+- `firebase emulators:start` — test functions locally; never test cron against production.
+  **Needs a JDK on PATH** (11+): the Firestore emulator is a Java program. macOS ships
+  `/usr/bin/java` as a stub whose only job is to tell you Java is missing, so the failure
+  looks like a broken PATH rather than a missing install — and it lands *after* the
+  TypeScript tests pass, which reads as the tests having broken something. `sdk install
+  java 21.0.12-tem` if you use SDKMAN. Deploying needs no JDK; only the emulator does.
 
 **Every script's body lives in `tool/<name>.sh`; `melos.yaml` only names it.**
 Melos echoes the whole `run:` block before AND after each run, with no flag to
@@ -169,17 +208,44 @@ stdout is a terminal so CI logs stay readable.
 
 ## Hard rules
 
-1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Signing in adds account fields to the same `users/{uid}` doc — display name, email, photo URL, created/updated timestamps — and nothing else. Attack data is uploaded ONLY for signed-in users, as encrypted payloads under `users/{uid}/attacks`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
+1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Signing in adds account fields to the same `users/{uid}` doc — display name, email, photo URL, created/updated timestamps — and nothing else. Health data is uploaded ONLY for signed-in users, as encrypted payloads in the top-level `attacks`/`medications`/`medication_reminders` collections, each document tagged with its `userId`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
 2. **Location**: request While-Using + reduced accuracy only. Never request Always.
 3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
 4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.
 5. **The 3-tap log flow is sacred**: intensity → head location → medication → saved. Any new required field in this flow needs explicit approval. Optional fields go behind "Add details".
 6. Every user-facing string goes through `intl` ARB files. Two locales ship in v1: `app_en.arb` (template, with `@` descriptions) and `app_vi.arb` — every new key must be added to BOTH. Access strings via the `context.l10n` extension (`core/extensions/context_extensions.dart`), never `AppLocalizations.of(context)` directly. The user's language choice lives in `localeControllerProvider` (persisted via shared_preferences; null = follow system).
 7. Pressure math: alerts trigger on **delta** (default ≥5 hPa drop within 24h forecast), not absolute values. Threshold is user-tunable and stored per-user.
-8. GDPR: `settings/` must always keep working "Export all data (JSON/CSV)" and "Delete everything" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist. Export lives on its own screen and keeps a history: each export is written to the app's documents directory and recorded, so it can be re-shared or saved to the device later. That makes past exports full copies of the user's health data on disk — **the wipe MUST delete the export files and their rows too**, or "delete everything" leaves the data sitting in `Documents/exports/`. Anything new that persists a copy of health data inherits the same obligation.
+8. GDPR: **two destructive actions, deliberately separate.** "Delete all data" (Settings) clears the records — device, account copy, past exports — and gives up the FCM token, geohash and threshold, but KEEPS the account: someone clearing their history usually wants to carry on, and losing the account would unbind their subscription with it. "Delete account" (Account screen) is the whole teardown, and App Store 5.1.1(v) requires it in-app now that accounts exist. Its server half is the `deleteAccount` callable, of necessity not convenience: `firestore.rules` denies a client deleting `users/{uid}` (its write rule reads `request.resource.data`, absent on a delete) and denies `sync_keys/{uid}` to everyone. The auth user is deleted LAST — delete it first and every remaining step is unauthorised, leaving records nobody can reach. The dialog says the subscription is not cancelled, because a user who assumes otherwise keeps being charged. `settings/` must always keep working "Export all data (JSON/CSV)" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist. Export lives on its own screen and keeps a history: each export is written to the app's documents directory and recorded, so it can be re-shared or saved to the device later. That makes past exports full copies of the user's health data on disk — **the wipe MUST delete the export files and their rows too**, or "delete everything" leaves the data sitting in `Documents/exports/`. Anything new that persists a copy of health data inherits the same obligation.
 9. **Force update fails open.** The launch check (`app_update`) reads the public, read-only `app_updates` collection and blocks ONLY on an explicit `enable_force_update` against a strictly newer `build_number`. Offline, a missing record, an unreadable field or a malformed link must let the user in — someone mid-attack has to reach the log button. Compare `build_name` first (via `VersionUtils`, segment by segment as numbers — never as strings, `"1.10.0" < "1.9.0"` is true for a string), then `build_number` as the tiebreaker for two builds of the same version.
 10. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
 11. Medical disclaimer must appear in onboarding and App Store description. Never generate copy that promises diagnosis, treatment, or prevention.
+12. **Sync (signed-in users) never blocks UI — automatic, with one manual control in Settings.** Sync runs silently in the background: triggered on sign-in, on app launch/resume, and after logging a new attack, same best-effort/retry-on-next-launch shape as `WeatherAttachService` — no screen, especially the log flow, ever waits on it (hard rule 4). **Three kinds of record sync**, in this order and for this reason: medications, then their reminders (a reminder points at a medication, so the other order hits a foreign key that is not there yet), then attacks. Export records deliberately do NOT sync — `filePath` is local to one device, and uploading them would multiply the copies hard rule 8 has to chase.
+    - **Sync is a row in Settings' "Your data" that leads to `SyncScreen`** (`features/sync/presentation/screens/sync_screen/`), sitting with export and delete because it is one more thing that happens to the user's data. The row (`SyncSettingsTile`, `core/widgets/sections/sync_settings_tile.dart`) is a plain chevron row **except while a pass runs**: then its trailing slot carries a spinner and the percentage — spinner first, then the number — so the state is visible without opening anything. Both, never just the spinner: a row that only spins cannot tell a slow sync from a stuck one. The row is absent without an account, and the router turns `/sync` away while signed out.
+    - **`SyncScreen` is where sync is visible in full**: a determinate bar with the percentage while a pass runs, the last-synced time when it does not, and the one manual button. Determinate on purpose — an indeterminate bar next to "42%" says two things at once. **Nothing about sync appears on the Account screen**, and no other row anywhere shows an indicator.
+    - **Progress counts fixed steps, never records** — two per collection, plus the fraction of the step in flight. Counting records means discovering more work mid-pass, and a bar that jumps backwards reads as a bug even when the sync is fine. `SyncController` only pushes a new state when the whole percent changes, so a thousand-record account rebuilds the row a hundred times, not a thousand.
+    - The History list has ONE extra, scoped to the very first pull after signing in on a device: an empty list there says "getting your attacks" instead of "you have none", because it is empty only because the history has not arrived yet. No flow is ever gated on sync completing.
+    - **Built. Sync is encrypted but NOT end-to-end, and the copy must never imply otherwise.** The `getSyncKey` callable mints and holds a per-account AES-256 key in `sync_keys/{uid}`, which `firestore.rules` denies to every client — only the Admin SDK behind that function reaches it, and anonymous callers are refused (hard rule 1). Google infrastructure can therefore decrypt. `loginPrivacyNote` and `accountDataNote` say "encrypted" and deliberately never say "only you can read them"; keep any new copy to that bar.
+    - **Local change tracking is a `revision` counter, never a timestamp.** Drift stores dates as whole seconds, so an edit in the same second as the push before it looks unchanged and silently never syncs; a counter also survives the clock stepping backwards. `updatedAt` still exists on each synced table but only settles which device's version wins. Deleting really deletes the row and leaves a `SyncTombstones` entry holding the opaque id and its collection — no intensity, note or medication name may outlive a delete, and reads then need no filter that could be forgotten. **Deleting a medication tombstones its reminders too**: the FK cascade removes them on every device that pulls the deletion, but the server's copies belong to no cascade.
+    - **Mark synced only after the server confirms, and pull before pushing.** A kill mid-pass must cost a re-push, never a lost record. Pull goes first because the other order re-downloads everything it just uploaded (a device signing in has no cursor). A payload that will not decrypt is counted and skipped, never retried forever — one bad record must not wedge every later one behind it. Each collection keeps its own cursor, so a pull that failed on reminders cannot look finished because attacks got through.
+    - **Reminders sync as rows; their OS notifications do not.** A notification is registered with the device that made it, so a reminder pulled from another phone would sit in the list and never fire. A pull that brought reminders down calls `RemindersController.rescheduleAll()`, which reads its strings through `lookupAppLocalizations` — there is no `BuildContext` in a background sync.
+    - **A payload codec refuses only versions NEWER than it knows, never merely different**, and ignores fields it does not recognise. The first bump would otherwise orphan every record already uploaded, and adding an optional field would stop two builds in the wild reading each other.
+    - **`pumpApp` overrides `syncKeyRepositoryProvider` and `remoteSyncRepositoryProvider`** with the fakes in `test/helpers/sync_fakes.dart`, because the app root fires a sync on sign-in. Without them a widget test reaches for Firebase, the sync spinner renders, and every `pumpAndSettle` waits out its full 10-minute timeout — the suite goes from 30 seconds to 10 minutes.
+    - **Adding to `SyncCollection` means editing `firestore.rules` in the same change, and deploying it.** The root-level allowlist must name every value of the enum, and `firestore.indexes.json` must carry its composite index; a bare wildcard is deliberately not used, because at the root it would match `sync_keys` and `app_updates` too. `sync_collection_rules_test.dart` fails when the two drift. They drifted once: medications and reminders were added while the rules named only `attacks`, so every sync died on its first query with `permission-denied` — and so did the dev seed, which wipes the account copy before reseeding. **A change is only live once `firebase deploy --only firestore:rules` AND `--only firestore:indexes` both run**; the test proves the files are right, never that the project has them.
+    - **The GDPR wipe deletes the account's synced records BEFORE the device's**, and a failure there aborts the whole wipe. The other order leaves the cloud copy with nothing left to say it should go, and the next sync pulls every deleted record back down. What the wipe still misses is listed in `docs/REMAINING_WORK.md`.
+13. **Never read `env/`.** Not with Read, not with `cat`/`grep`/`sed`, not "just one field". `env/dev.json` and `env/prod.json` hold live Firebase and RevenueCat keys, and anything read there is copied into a transcript that outlives the session and was never meant to hold credentials. There is no read small enough to be safe, because the harm is the copy, not the size.
+    - **What to use instead**: `env/*.example.json` are committed, key-only templates — they answer "what keys exist" without any values. The Firebase project id is in `.firebaserc`, and `firebase use` prints it. For anything else, ask the owner rather than opening the file.
+    - Reading the *names* of files in `env/` is fine; it is the contents that never get read.
+    - `.claude/settings.json` denies the obvious paths, but note what that does NOT cover: `Bash` is broadly allowed, so no pattern list can close every way a shell command could read the folder. **The rule is the guarantee; the deny list is only a guard rail.**
+    - Writing to `env/` is still allowed — `melos run set-up` creates the two files from the templates, and that is the one thing that should touch them.
+14. **Never put two kinds of record in one table or collection.** Each entity gets its own, on both sides: `Attacks`, `Medications`, `MedicationReminders` in Drift, and the top-level `attacks`, `medications`, `medication_reminders` in Firestore. No shared table with a `type` column standing in for three schemas.
+    - **Firestore is flat and relational-shaped, by the owner's call.** Documents live at `<collection>/{docId}` and carry a `userId` field; the id is the record's own UUID. This replaced `users/{uid}/<collection>/{docId}`, which was equally separate — a subcollection is an independent collection, not part of the parent document — but kept ownership in the path. The trade was made knowingly: the flat shape reads like SQL and browses in the console, and costs the three things below.
+    - **`userId` is now the entire boundary between one user's records and another's**, so two things must always hold. First, `firestore.rules` checks it: `ownsStored()` on the document already there, `ownsIncoming()` on the one being written — without the second a user can rewrite `userId` and plant a record in someone else's account. Second, **every query must filter on it**: rules cannot be evaluated over a whole collection, so an unfiltered query is refused outright. `OwnedCollection` (`features/sync/data/repositories/`) is the only thing that builds a reference to these collections, and it has no method that omits the filter — do not reach past it to `FirebaseFirestore.collection` for a synced collection.
+    - **`read` gets its own rule; never fold it into `allow read, write`.** A query has no single document, so Firestore proves it safe from the query's own filters — and that proof only works when the read condition is a plain constraint on a field. One combined rule needs a disjunction to cover creates (`resource == null || …`), which leaves a branch constraining nothing; the proof fails and **every query is denied while writes still succeed**. That exact mistake shipped here, and `permission-denied` on a pull looks identical to rules that were never deployed. `functions/test/firestoreRules.test.ts` runs the real rules against the emulator and catches it — verified by putting the combined rule back and watching the three query tests fail.
+    - **Rules tests need the emulator running separately**: `firebase emulators:start --only firestore`, then `cd functions && npx vitest run test/firestoreRules.test.ts`. Not `emulators:exec` — that runs the script through the CLI's own bundled Node, which cannot `require()` vitest's ESM (the same snapshot that broke the npm predeploy). The suite skips itself when no emulator answers, so plain `npm test` stays useful.
+    - **`payload`, `nonce` and `mac` are exempted from indexing** via `fieldOverrides`. Firestore indexes every field by default, ascending and descending, so a 572-byte ciphertext string costs roughly 1.4 KB of index that nothing ever queries — more index than document. Exempting the three opaque fields cuts most of the stored bytes and a little write latency. Only `userId` and `updatedAt` are ever queried; anything new that is queryable must stay indexed.
+    - **The pull query needs a composite index per collection** (`userId` + `updatedAt`), declared in `firestore.indexes.json`. Firestore will not serve an equality on one field with a range on another without one, and a missing index fails at runtime, not at build. **`firebase deploy --only firestore:indexes` is now a second deploy step alongside rules** — `sync_collection_rules_test.dart` checks the enum against BOTH files, but it can only prove the files are right, never that the project has them.
+    - **Firestore has no foreign keys, in this layout or the old one.** `userId` is a plain field with no referential integrity and no cascade. The only real FK in the project is Drift's (`medicationId references Medications onDelete: cascade`); anything cascade-shaped on the server is written by hand, which is why deleting a medication tombstones its reminders explicitly.
+    - **`SyncTombstones` is the one shared table, and it is deliberate.** It holds an id, a deletion time and which collection the id came from — no name, intensity or note, because the row itself is really gone by then. It is sync bookkeeping, not a user record, and three copies of the same two columns would be three chances to disagree.
 
 ## Code style
 
@@ -198,6 +264,8 @@ stdout is a terminal so CI logs stay readable.
 - **Icons: every icon is an `SdIconV2`** (`system_design`) — never a raw `Icon(...)` in feature or core code (the only raw `Icon` lives inside `SdIconV2`). `SdIconV2` always resolves to a concrete size: it defaults to `SdSpacingConstant.r24`, and any other size is passed explicitly via `size:` (never let an icon inherit an ambient size). `color` falls back to the ambient `IconTheme` when omitted.
 - Buttons: every labeled button is an `SdButtonV2` (`system_design`), and **the look is a prop, never a named constructor** — `SdButtonV2(variant: SdButtonVariantV2.primary, ...)`. Variants: `primary` (main CTA), `secondary` (tonal), `outlined`, `text` (low emphasis / dialog cancel), `destructive` (error-filled confirm), `positive` (teal additive). Never raw `FilledButton`/`OutlinedButton`/`TextButton` in feature code. **Icon-only actions in an app bar — leading back arrow and trailing actions alike — are `SdAppBarButtonV2`** (`system_design`), never a raw `IconButton`: `SdAppBarButtonV2.iconSize` (20) glyph inside an invisible `SdAppBarButtonV2.tapSize` (48) target, and a `SdPopScaleV2` swell on touch (it grows out from under the fingertip; a press-*in* would vanish under it). `SdAppBarV2` inserts one for any route that can pop, and wraps each `SdAppBarButtonV2` action in the glass circle — an action that is not one passes through undecorated. `IconButton` is still fine inside content (list rows, text-field suffixes). With an `icon`, `SdButtonV2` lays the content out itself — `SdButtonV2.iconSize` glyph, `SdButtonV2.iconGap`, then the label — and deliberately avoids Material's `.icon` constructors, whose per-variant padding is what made the filled Apple button and the outlined Google button sit differently. Placement is a second prop: `SdButtonIconPlacementV2.inline` (default) is a centred cluster that shrink-wraps, so a longer label pushes the glyph sideways; `aligned` is the same centred cluster with the label start-aligned in a slot of `SdButtonV2.alignedLabelWidth`, so **stacked buttons put their glyphs on the same x and start their labels on the same x whatever the label lengths** — that is what the login screen's Apple/Google pair uses. The slot is a minimum, not a cage: a label too long for it widens, then wraps, and never ellipses. The glyph is `SdButtonV2.defaultIconSize` unless a call site passes `iconSize` (an `SdSpacingConstant.r*`, never a raw number) to optically correct a brand mark — under `aligned` that resizes the glyph but not the slot it is centred in, so the pair stays lined up. **Padding is one fixed value for every variant, not a per-variant default**: `SdContentPaddingV2.button`, so a filled, outlined and text button never sit a different size next to each other. `size` (`SdButtonSizeV2.small` / `medium` / `large`, scale 0.75 / 1 / 1.25) multiplies that padding plus the icon and icon gap together, so a smaller button is a scaled-down version of the same shape, never a differently-proportioned one — `medium` is the default and unscaled. **A labeled `SdButtonV2` placed in an app bar's actions (`SdScaffoldV2.actions`) is always `size: SdButtonSizeV2.small`** — see `LogScreen`'s "Next" button. `compact` (chrome-sized app-bar buttons) forces this scale on its own regardless of what `size` a call site passes, so the two can never disagree; a plain `size: small` without `compact` still gets the scaled icon/padding but not `compact`'s own tighter fixed padding and `h34` minimum height.
 - **Analytics: every event goes through `AppAnalytics`** (`core/analytics/app_analytics.dart`) — a typed method per event, so the full inventory of what we send is one file. Never call `FirebaseAnalytics` directly and never type an event name at a call site. Events live next to the matching `AppLogger.action` in a `presentation/controllers/` Notifier, never in a widget's build. Health data never becomes a parameter (hard rule 1).
+- **`main.dart` holds `main()` and nothing else.** Startup work lives in `AppBootstrap` (`core/bootstrap/app_bootstrap.dart`), so the entry point stays a list of what happens rather than how. Anything new that must run before `runApp` goes there, not back into `main.dart`.
+- **`AppBootstrap.init` guards each step separately, never the whole function.** Its concerns are independent, and one `try` around all of them lets the first failure skip everything after it — including the crash reporting that would have named it. **Firebase goes first** so Crashlytics is up before anything else can fail; it used to run last, which left a timezone failure reported nowhere. Anything added here runs **before `runApp`**, where an unhandled throw does not show an error screen — it stops the app from starting at all — so it needs its own `try`/`catch` and a fallback that leaves the app usable.
 - **Crash reporting goes through `CrashReporter`** (`core/logging/crash_reporter.dart`): `recordError` for a caught failure worth seeing in production, alongside the `AppLogger.error` that serves the debug console. `domain/` stays pure Dart — report from the presentation/data layer that catches it.
 - Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
 - Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
@@ -313,16 +381,44 @@ one thing this project must not ship. Tests override
 `premiumRepositoryProvider` with a fake instead; nothing else may.
 
 Missing config used to fail loud via `assert(AppEnv.hasFirebaseConfig, …)` and
-`assert(AppEnv.hasPurchasesConfig, …)` in `main()` — **both asserts are
-removed** (owner call: a TestFlight build crashing on launch was suspected to
-trace back to one of them; under investigation). The paywall still surfaces
-`PurchaseError.notConfigured` when a purchase action runs without a key,
-because every RevenueCat call site catches the `RevenueCatClient.apiKey`
-`StateError` — that guard stays; only the two `main()` asserts are gone.
-**TODO (owner):** replace them with a single assert in `main()` that walks
-every `AppEnv` value and checks each is non-null and non-empty, instead of a
-per-field assert — not done yet, doing it later. What the owner must do by
-hand:
+`assert(AppEnv.hasPurchasesConfig, …)` in `main()`; both were removed (owner
+call: a TestFlight build crashing on launch was suspected to trace back to
+one of them; under investigation) and have now been **replaced with one
+assert** — `AppEnv.missingConfigKeys` walks every required Firebase field
+plus the platform's own RevenueCat key and returns the names still empty;
+`main()` asserts that list is empty, reporting every gap in one message
+instead of failing on the first field checked.
+
+**The assert was never capable of causing that TestFlight crash — that
+suspicion is closed.** Dart strips `assert()` from release builds, and
+TestFlight is release, so it cannot fire there. Note the shape of that trap:
+the one check meant to catch missing config is compiled out in precisely the
+build where the mistake happens.
+
+**The crash was RevenueCat, and it was a bad API key — `test_...` left in
+`REVENUECAT_IOS_KEY`.** RevenueCat's native SDK answers a key carrying
+another platform's prefix with `fatalError`, which kills the process.
+**No Dart `catch` can survive that**, so the guards around `ensureConfigured`
+never applied — they only ever caught Dart throws — and Swift keeps
+`fatalError` in release, so it lands on TestFlight and nowhere else.
+`RevenueCatClient.isUsableKey` now rejects such a key before it reaches
+`Purchases.configure`, turning an uncatchable crash back into the
+already-handled `StateError` path. An **empty** key is therefore safer than a
+placeholder: empty has always been handled, a plausible-looking placeholder
+is fatal. Keys with no prefix are let through — those are RevenueCat's legacy
+keys and it merely warns.
+
+**Separately, never archive from Xcode.** Product > Archive knows nothing
+about `--dart-define-from-file`, so the archive carries empty config;
+`Firebase.initializeApp` throws, `main()` swallows it, and the app dies on
+the first `FirebaseAuth.instance` with `[core/no-app] No Firebase App
+'[DEFAULT]' has been created`. **Always release with `melos run
+release-ios`.**
+
+The paywall still surfaces `PurchaseError.notConfigured` when a purchase
+action runs without a key, because every RevenueCat call site catches the
+`RevenueCatClient.apiKey` `StateError` — that guard is unchanged. What the
+owner must do by hand:
 
 1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
    already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and

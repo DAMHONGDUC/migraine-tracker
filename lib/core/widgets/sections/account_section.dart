@@ -29,6 +29,7 @@ class AccountSection extends ConsumerWidget {
 
     // - Signed in: the account lives on its own screen; this row only points there, so sign-out exists in one place.
     // - The email stays off this row — Settings is scrolled past in public, and the account screen is one tap away.
+    // - Nothing about sync here: it is a row in "Your data" now (SyncSettingsTile).
     return SettingsTile(
       icon: Icons.account_circle,
       title: l10n.settingsAccount,

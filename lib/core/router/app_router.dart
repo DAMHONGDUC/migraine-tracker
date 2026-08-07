@@ -21,6 +21,7 @@ import '../../features/premium/presentation/screens/premium_screen/premium_scree
 import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
+import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
@@ -76,6 +77,10 @@ final class AppRoutes {
   /// sheet; this is the status page that leads to it.
   static const premium = AppRoute(name: 'premium', path: '/premium');
 
+  /// Sync status and the manual run, pushed from Settings. Guarded by the
+  /// redirect below, like [account]: there is nowhere to sync to without one.
+  static const sync = AppRoute(name: 'sync', path: '/sync');
+
   /// Export data and the history of past exports, pushed from Settings.
   static const export = AppRoute(name: 'export', path: '/export');
 
@@ -112,9 +117,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;
       if (done && onOnboarding) return AppRoutes.dashboard.path;
-      // Signing out (or a deep link without an account) must not land on a tab with nothing to show.
-      if (state.matchedLocation == AppRoutes.account.path &&
-          !ref.read(isSignedInProvider)) {
+      // Signing out (or a deep link without an account) must not land on a screen with nothing to show.
+      final needsAccount =
+          state.matchedLocation == AppRoutes.account.path ||
+          state.matchedLocation == AppRoutes.sync.path;
+      if (needsAccount && !ref.read(isSignedInProvider)) {
         return AppRoutes.dashboard.path;
       }
       return null;
@@ -156,6 +163,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.account.name,
         path: AppRoutes.account.path,
         builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.sync.name,
+        path: AppRoutes.sync.path,
+        builder: (context, state) => const SyncScreen(),
       ),
       GoRoute(
         name: AppRoutes.premium.name,

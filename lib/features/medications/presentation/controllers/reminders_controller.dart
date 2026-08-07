@@ -1,9 +1,15 @@
+import 'dart:ui';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../l10n/gen/app_localizations.dart';
+import '../../domain/entities/medication.dart';
 import '../../domain/entities/medication_reminder.dart';
+import '../../domain/services/notification_scheduler.dart';
 import '../../providers.dart';
 
 /// Orchestrates reminders: persists them AND (re)schedules the matching OS
@@ -129,6 +135,70 @@ class RemindersController {
       );
       rethrow;
     }
+  }
+
+  /// Re-lays the OS notification for every enabled reminder.
+  ///
+  /// Sync moves the rows but not the schedules: a notification is registered
+  /// with the OS of the device that made it, so a reminder pulled from
+  /// another phone would sit in the list and never fire. Called after a pull
+  /// brought reminders down.
+  ///
+  /// Never throws — this is background work behind a sync that nothing waits
+  /// on, and a reminder that failed to schedule is fixed by the next pull or
+  /// by the user touching it.
+  Future<void> rescheduleAll() async {
+    try {
+      final List<MedicationReminder> reminders = await _ref
+          .read(medicationReminderRepositoryProvider)
+          .getAllEnabled();
+      final List<Medication> medications = await _ref
+          .read(medicationRepositoryProvider)
+          .getAll();
+      final Map<String, String> names = <String, String>{
+        for (final Medication medication in medications)
+          medication.id: medication.name,
+      };
+      final AppLocalizations l10n = lookupAppLocalizations(_notificationLocale);
+      final NotificationScheduler scheduler = _ref.read(
+        notificationSchedulerProvider,
+      );
+
+      AppLogger.info('Rescheduling reminders', reminders.length);
+      for (final MedicationReminder reminder in reminders) {
+        final String? medicationName = names[reminder.medicationId];
+
+        // The medication has not arrived yet; the pull that brings it will
+        // bring this reminder's schedule with it.
+        if (medicationName == null) continue;
+        await scheduler.schedule(
+          reminder,
+          medicationName: medicationName,
+          title: l10n.reminderNotificationTitle,
+          bodyTemplate: l10n.reminderNotificationBody('{name}'),
+        );
+      }
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Rescheduling reminders failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// The user's chosen language, or the platform's — falling back to the
+  /// template locale when neither is one this app ships.
+  Locale get _notificationLocale {
+    final Locale chosen =
+        _ref.read(localeControllerProvider) ??
+        PlatformDispatcher.instance.locale;
+
+    return AppLocalizations.supportedLocales.any(
+          (Locale locale) => locale.languageCode == chosen.languageCode,
+        )
+        ? Locale(chosen.languageCode)
+        : const Locale('en');
   }
 
   /// Debug-only: fires a one-off notification shortly from now so a developer
