@@ -67,6 +67,8 @@
   "medicationsAddedUnknown": "Không rõ ngày thêm",
   "medicationsReminderCount": "{count, plural, =0{Chưa có lời nhắc} other{{count} lời nhắc}}",
   "medicationDetailName": "Tên thuốc",
+  "medicationDetailEditName": "Sửa tên",
+  "medicationDetailSaveName": "Lưu tên",
   "medicationDetailReminders": "Lời nhắc",
   "medicationDetailNoReminders": "Chưa có lời nhắc nào. Thêm một lời nhắc để được nhắc mỗi ngày vào giờ bạn chọn.",
   "medicationDetailMissing": "Thuốc này đã bị xoá.",

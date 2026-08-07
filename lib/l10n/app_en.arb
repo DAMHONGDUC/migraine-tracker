@@ -284,6 +284,14 @@
   "@medicationDetailName": {
     "description": "Label over the editable name field on the medication detail screen"
   },
+  "medicationDetailEditName": "Edit name",
+  "@medicationDetailEditName": {
+    "description": "Tooltip on the pencil in the name field, which focuses it for editing"
+  },
+  "medicationDetailSaveName": "Save name",
+  "@medicationDetailSaveName": {
+    "description": "Tooltip on the tick in the name field while editing, which commits the rename"
+  },
   "medicationDetailReminders": "Reminders",
   "@medicationDetailReminders": {
     "description": "Section header over the reminder list on the medication detail screen"

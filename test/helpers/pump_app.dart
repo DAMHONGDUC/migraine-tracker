@@ -862,9 +862,16 @@ Future<void> openAddReminder(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Confirms the reminder time picker at whatever time it opened on.
+/// Confirms the reminder time picker at whatever time it opened on. Scoped
+/// to the sheet's own header: a focused medication name field carries a tick
+/// too, and a bare `byIcon` would match both.
 Future<void> confirmReminderTime(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.check));
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSheetHeaderV2),
+      matching: find.byIcon(Icons.check),
+    ),
+  );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
