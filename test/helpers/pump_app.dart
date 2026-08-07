@@ -894,6 +894,18 @@ Finder reminderDelete() => find.descendant(
   matching: find.byIcon(Icons.delete_outline),
 );
 
+/// The notification list, from the dashboard's app-bar bell.
+///
+/// The extra frame is the medication stream's first emission: it only
+/// starts once the list watches it, so a row renders its generic label for
+/// one frame before it can name the medication.
+Future<void> openNotifications(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.notifications_none));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump(const Duration(milliseconds: 100));
+}
+
 /// History, switched to the chart deck via the view toggle.
 Future<void> openHistoryCharts(WidgetTester tester) async {
   await openHistory(tester);

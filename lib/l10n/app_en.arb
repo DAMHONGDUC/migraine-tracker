@@ -970,6 +970,40 @@
   "@premiumLockedCharts": {
     "description": "Accessibility label on a locked chart card in History, where only the unlock button is drawn"
   },
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": {
+    "description": "Title of the notification list screen"
+  },
+  "notificationsEmpty": "Nothing yet. Reminders and pressure alerts show up here.",
+  "@notificationsEmpty": {
+    "description": "Empty state on the notification list"
+  },
+  "notificationsA11yOpen": "Notifications",
+  "@notificationsA11yOpen": {
+    "description": "Tooltip on the dashboard's bell, which opens the notification list"
+  },
+  "notificationReminderTitle": "Time for {medication}",
+  "@notificationReminderTitle": {
+    "description": "A medication reminder row in the notification list",
+    "placeholders": { "medication": { "type": "String" } }
+  },
+  "notificationReminderUnknown": "Time for your medication",
+  "@notificationReminderUnknown": {
+    "description": "A reminder row whose medication has since been deleted"
+  },
+  "notificationPressureTitle": "Pressure drop ahead",
+  "@notificationPressureTitle": {
+    "description": "A pressure alert row in the notification list"
+  },
+  "notificationPressureBody": "Barometric pressure was forecast to fall {drop} hPa within 24 hours.",
+  "@notificationPressureBody": {
+    "description": "Body of the pressure alert sheet; drop is a formatted number",
+    "placeholders": { "drop": { "type": "String" } }
+  },
+  "notificationPressureAction": "See the forecast",
+  "@notificationPressureAction": {
+    "description": "Button on the pressure alert sheet, opens the pressure screen"
+  },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
     "description": "Title of the paywall screen"

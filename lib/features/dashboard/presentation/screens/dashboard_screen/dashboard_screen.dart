@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
+import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
@@ -46,6 +49,20 @@ class DashboardScreen extends ConsumerWidget {
 
     return SdScaffoldV2(
       title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
+      actions: <Widget>[
+        // The dot is the whole state: a count on a notification badge is
+        // a demand, and this app is used mid-migraine.
+        SdBadgeDotV2(
+          showing: (ref.watch(unreadNotificationCountProvider).value ?? 0) > 0,
+          child: SdAppBarButtonV2(
+            icon: Icons.notifications_none,
+            tooltip: l10n.notificationsA11yOpen,
+            onPressed: () =>
+                context.pushNamed<void>(AppRoutes.notifications.name),
+          ),
+        ),
+        SizedBox(width: SdSpacingConstant.w12),
+      ],
       body: SdRefreshIndicatorV2(
         onRefresh: () => SdRefreshIndicatorV2.run(() {
           ref

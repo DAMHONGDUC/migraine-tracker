@@ -16,6 +16,7 @@ import '../../features/insights/presentation/screens/pressure_screen/pressure_sc
 import '../../features/insights/presentation/screens/sleep_screen/sleep_screen.dart';
 import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen/notifications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
@@ -49,6 +50,12 @@ final class AppRoutes {
   static const medications = AppRoute(
     name: 'medications',
     path: '/medications',
+  );
+
+  /// The notification list, pushed from the dashboard's app bar.
+  static const notifications = AppRoute(
+    name: 'notifications',
+    path: '/notifications',
   );
 
   /// Detail of one logged attack, pushed from History.
@@ -204,6 +211,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.sleep.name,
         path: AppRoutes.sleep.path,
         builder: (context, state) => const SleepScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.notifications.name,
+        path: AppRoutes.notifications.path,
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         name: AppRoutes.contact.name,
