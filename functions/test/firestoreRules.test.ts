@@ -134,6 +134,37 @@ describe.skipIf(!available)("firestore.rules", () => {
         );
       });
 
+      it("lets the owner delete their own record", async () => {
+        await seed(collection, "mine", "alice");
+        const db = env.authenticatedContext("alice").firestore();
+
+        await assertSucceeds(db.collection(collection).doc("mine").delete());
+      });
+
+      it("lets the owner batch-delete, which is what the wipe does", async () => {
+        await seed(collection, "one", "alice");
+        await seed(collection, "two", "alice");
+        const db = env.authenticatedContext("alice").firestore();
+
+        // The GDPR wipe pages through and commits a batch; a batch is
+        // evaluated per write, so this can fail where a single delete passes.
+        const page = await db
+          .collection(collection)
+          .where("userId", "==", "alice")
+          .get();
+        const batch = db.batch();
+        for (const doc of page.docs) batch.delete(doc.ref);
+
+        await assertSucceeds(batch.commit());
+      });
+
+      it("refuses deleting someone else's record", async () => {
+        await seed(collection, "hers", "alice");
+        const db = env.authenticatedContext("mallory").firestore();
+
+        await assertFails(db.collection(collection).doc("hers").delete());
+      });
+
       it("refuses an anonymous caller", async () => {
         await seed(collection, "mine", "alice");
         const db = env.unauthenticatedContext().firestore();
