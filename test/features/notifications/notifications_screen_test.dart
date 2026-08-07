@@ -31,14 +31,14 @@ Future<void> seedNotifications(PumpedApp app) async {
 }
 
 void main() {
-  testWidgets('the bell wears a dot only while something is unread', (
+  testWidgets('the bell wears the unread count', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester);
 
     expect(find.byIcon(Icons.notifications_none), findsOneWidget);
     expect(
-      tester.widget<SdBadgeDotV2>(find.byType(SdBadgeDotV2)).showing,
+      tester.widget<SdBadgeV2>(find.byType(SdBadgeV2)).showing,
       isFalse,
       reason: 'nothing has arrived yet',
     );
@@ -47,15 +47,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(
-      tester.widget<SdBadgeDotV2>(find.byType(SdBadgeDotV2).first).showing,
-      isTrue,
+    final SdBadgeV2 badge = tester.widget<SdBadgeV2>(
+      find.byType(SdBadgeV2).first,
     );
+
+    expect(badge.showing, isTrue);
+    expect(badge.count, 2, reason: 'both seeded notifications are unread');
 
     await finishTest(tester);
   });
 
-  testWidgets('opening the list clears the dot', (tester) async {
+  testWidgets('opening the list clears the badge', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await seedNotifications(app);
     await tester.pump();
@@ -69,7 +71,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(
-      tester.widget<SdBadgeDotV2>(find.byType(SdBadgeDotV2).first).showing,
+      tester.widget<SdBadgeV2>(find.byType(SdBadgeV2).first).showing,
       isFalse,
       reason: 'opening the list marks everything read',
     );
@@ -77,7 +79,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('rows read newest first, and name the medication', (
+  testWidgets('the two types are split across tabs, each carrying its count', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester);
@@ -87,15 +89,46 @@ void main() {
 
     await openNotifications(tester);
 
-    // Two hours ago beats five hours ago.
-    final double reminderY = tester
-        .getTopLeft(find.text('Time for Sumatriptan'))
-        .dy;
-    final double alertY = tester
-        .getTopLeft(find.text('Pressure drop ahead'))
-        .dy;
+    final SdSegmentedTabsV2 tabs = tester.widget<SdSegmentedTabsV2>(
+      find.byType(SdSegmentedTabsV2),
+    );
 
-    expect(reminderY, lessThan(alertY));
+    expect(tabs.segments.map((SdSegmentV2 s) => s.label), <String>[
+      'Reminders',
+      'Pressure',
+    ]);
+    expect(tabs.segments.map((SdSegmentV2 s) => s.count), <int>[1, 1]);
+    expect(tabs.selectedIndex, 0);
+
+    // Reminders tab: the alert is not on it.
+    expect(find.text('Time for Sumatriptan'), findsOneWidget);
+    expect(find.text('Pressure drop ahead'), findsNothing);
+
+    await tapVisible(tester, find.text('Pressure'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Pressure drop ahead'), findsOneWidget);
+    expect(find.text('Time for Sumatriptan'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('each tab says so when it is the empty one', (tester) async {
+    final PumpedApp app = await pumpApp(tester);
+    await seedNotifications(app);
+    await app.db.delete(app.db.appNotifications).go();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await openNotifications(tester);
+    expect(
+      find.text('No reminders yet. They show up here once you set one.'),
+      findsOneWidget,
+    );
+
+    await tapVisible(tester, find.text('Pressure'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('No pressure alerts yet.'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -132,6 +165,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     await openNotifications(tester);
+    await tapVisible(tester, find.text('Pressure'));
+    await tester.pump(const Duration(milliseconds: 300));
     await tapVisible(tester, find.text('Pressure drop ahead'));
     await tester.pump(const Duration(milliseconds: 400));
 
@@ -161,19 +196,6 @@ void main() {
       find.widgetWithText(SdButtonV2, 'Open this medication'),
     );
     expect(button.onPressed, isNull);
-
-    await finishTest(tester);
-  });
-
-  testWidgets('an empty list says so', (tester) async {
-    await pumpApp(tester);
-
-    await openNotifications(tester);
-
-    expect(
-      find.text('Nothing yet. Reminders and pressure alerts show up here.'),
-      findsOneWidget,
-    );
 
     await finishTest(tester);
   });

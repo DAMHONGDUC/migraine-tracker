@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/db/database_provider.dart';
 import 'data/repositories/drift_notification_repository.dart';
 import 'domain/entities/app_notification.dart';
+import 'domain/enums/notification_type.dart';
 import 'domain/repositories/notification_repository.dart';
 import 'presentation/controllers/notifications_controller.dart';
 
@@ -20,6 +21,21 @@ final notificationsStreamProvider = StreamProvider<List<AppNotification>>(
 final unreadNotificationCountProvider = StreamProvider<int>(
   (ref) => ref.watch(notificationRepositoryProvider).watchUnreadCount(),
 );
+
+/// One tab's rows. The counts beside the tab labels are these lengths —
+/// how many of that type there are, not how many are unread: opening the
+/// list marks everything read, so an unread count would be zero by the
+/// time the tabs are on screen.
+final notificationsOfTypeProvider =
+    Provider.family<List<AppNotification>, NotificationType>((ref, type) {
+      final List<AppNotification> all =
+          ref.watch(notificationsStreamProvider).value ??
+          const <AppNotification>[];
+
+      return all
+          .where((AppNotification n) => n.type == type)
+          .toList(growable: false);
+    });
 
 /// One notification by id, for [NotificationDetailScreen]. Null once the
 /// GDPR wipe has taken it — the screen says so rather than showing a

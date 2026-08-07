@@ -50,9 +50,10 @@ class DashboardScreen extends ConsumerWidget {
     return SdScaffoldV2(
       title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
       actions: <Widget>[
-        // The dot is the whole state: a count on a notification badge is
-        // a demand, and this app is used mid-migraine.
-        SdBadgeDotV2(
+        // The number, not a dot: how many are waiting is what decides
+        // whether the user opens the list now or later.
+        SdBadgeV2(
+          count: ref.watch(unreadNotificationCountProvider).value ?? 0,
           showing: (ref.watch(unreadNotificationCountProvider).value ?? 0) > 0,
           child: SdAppBarButtonV2(
             icon: Icons.notifications_none,

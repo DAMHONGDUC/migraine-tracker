@@ -9,7 +9,8 @@ abstract interface class NotificationRepository {
   /// Newest first — what the list screen renders.
   Stream<List<AppNotification>> watchAll();
 
-  /// Drives the dashboard's unread dot.
+  /// Drives the dashboard's badge — how many the user has not opened the
+  /// list for yet.
   Stream<int> watchUnreadCount();
 
   /// Adds any of [notifications] not already stored, and **leaves rows that

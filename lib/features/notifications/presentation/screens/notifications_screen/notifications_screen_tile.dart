@@ -57,9 +57,9 @@ class _NotificationTile extends ConsumerWidget {
           DateFormat.yMMMd(l10n.localeName).add_Hm().format(at),
           style: AppTextStyle.bodyMedium.secondary,
         ),
-        // Unread is told by weight as well as the dot on the dashboard —
-        // colour alone would be the only signal otherwise.
-        trailing: SdBadgeDotV2(
+        // A dot, not a count: per row there is only ever one of it, so a
+        // number would say nothing the dot does not.
+        trailing: SdBadgeV2(
           showing: !notification.isRead,
           child: SdIconV2(
             icon: Icons.chevron_right,

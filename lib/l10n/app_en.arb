@@ -974,9 +974,21 @@
   "@notificationsTitle": {
     "description": "Title of the notification list screen"
   },
-  "notificationsEmpty": "Nothing yet. Reminders and pressure alerts show up here.",
-  "@notificationsEmpty": {
-    "description": "Empty state on the notification list"
+  "notificationsTabReminders": "Reminders",
+  "@notificationsTabReminders": {
+    "description": "Tab of medication reminders on the notification list"
+  },
+  "notificationsTabAlerts": "Pressure",
+  "@notificationsTabAlerts": {
+    "description": "Tab of pressure alerts on the notification list"
+  },
+  "notificationsEmptyReminders": "No reminders yet. They show up here once you set one.",
+  "@notificationsEmptyReminders": {
+    "description": "Empty state on the reminders tab"
+  },
+  "notificationsEmptyAlerts": "No pressure alerts yet.",
+  "@notificationsEmptyAlerts": {
+    "description": "Empty state on the pressure alerts tab"
   },
   "notificationsA11yOpen": "Notifications",
   "@notificationsA11yOpen": {

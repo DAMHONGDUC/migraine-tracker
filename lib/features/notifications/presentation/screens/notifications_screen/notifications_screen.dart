@@ -16,20 +16,31 @@ import '../../../providers.dart';
 
 part 'notifications_screen_tile.dart';
 
-/// Everything the app has told the user, newest first: medication reminders
-/// that came round, and pressure alerts that arrived.
+/// Everything the app has told the user, split by what told it: medication
+/// reminders on one tab, pressure alerts on the other.
 ///
-/// Opening it marks the lot read — one act, and the rows only differ by when
-/// they arrived, so there is no per-row read state to fiddle with.
+/// Two tabs rather than one mixed list because the two answer different
+/// questions — "have I been taking this" and "was there weather" — and a
+/// reminder arriving every day would otherwise bury the alerts entirely.
+///
+/// Opening the screen marks the lot read, both tabs at once: it is one act,
+/// and the rows only differ by when they arrived.
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final List<AppNotification> notifications =
-        ref.watch(notificationsStreamProvider).value ??
-        const <AppNotification>[];
+    final ValueNotifier<int> selected = useState<int>(0);
+    final List<AppNotification> reminders = ref.watch(
+      notificationsOfTypeProvider(NotificationType.medicationReminder),
+    );
+    final List<AppNotification> alerts = ref.watch(
+      notificationsOfTypeProvider(NotificationType.pressureAlert),
+    );
+    final List<AppNotification> shown = selected.value == 0
+        ? reminders
+        : alerts;
 
     // Once per mount, not on every rebuild: the stream ticks as rows arrive.
     useEffect(() {
@@ -39,22 +50,54 @@ class NotificationsScreen extends HookConsumerWidget {
 
     return SdScaffoldV2(
       title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),
-      body: notifications.isEmpty
-          ? SdScrollFillV2(
-              topInset: SdContentPaddingV2.appBarInset(context),
-              child: SdEmptyStateV2(
-                icon: Icons.notifications_none,
-                message: l10n.notificationsEmpty,
-              ),
-            )
-          : ListView.separated(
-              padding: SdContentPaddingV2.screen(context),
-              itemCount: notifications.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  SizedBox(height: SdContentPaddingV2.listItemGap),
-              itemBuilder: (BuildContext context, int index) =>
-                  _NotificationTile(notification: notifications[index]),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              SdContentPaddingV2.horizontal,
+              SdContentPaddingV2.top(context),
+              SdContentPaddingV2.horizontal,
+              0,
             ),
+            child: SdSegmentedTabsV2(
+              selectedIndex: selected.value,
+              onSelected: (int index) => selected.value = index,
+              segments: <SdSegmentV2>[
+                SdSegmentV2(
+                  label: l10n.notificationsTabReminders,
+                  count: reminders.length,
+                ),
+                SdSegmentV2(
+                  label: l10n.notificationsTabAlerts,
+                  count: alerts.length,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: shown.isEmpty
+                ? SdEmptyStateV2(
+                    icon: Icons.notifications_none,
+                    message: selected.value == 0
+                        ? l10n.notificationsEmptyReminders
+                        : l10n.notificationsEmptyAlerts,
+                  )
+                : ListView.separated(
+                    padding: EdgeInsets.fromLTRB(
+                      SdContentPaddingV2.horizontal,
+                      SdContentPaddingV2.listItemGap,
+                      SdContentPaddingV2.horizontal,
+                      SdContentPaddingV2.bottom(context),
+                    ),
+                    itemCount: shown.length,
+                    separatorBuilder: (BuildContext context, int index) =>
+                        SizedBox(height: SdContentPaddingV2.listItemGap),
+                    itemBuilder: (BuildContext context, int index) =>
+                        _NotificationTile(notification: shown[index]),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
