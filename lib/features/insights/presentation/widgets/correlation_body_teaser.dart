@@ -1,4 +1,4 @@
-part of 'correlation_card.dart';
+part of 'correlation_body.dart';
 
 /// Shown once the user HAS enough data but isn't premium — the value moment
 /// the paywall is sold on. Deliberately carries no analysis output.

@@ -1,4 +1,4 @@
-part of 'sleep_correlation_card.dart';
+part of 'sleep_correlation_body.dart';
 
 /// The headline: the gap between the two averages, then both averages so the
 /// number is never a claim the user has to take on trust.
@@ -14,18 +14,22 @@ class _SleepInsightBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          result.shortfall.label(l10n),
-          style: AppTextStyle.displaySmall.w600,
-        ),
-        SizedBox(height: SdSpacingConstant.h4),
-        Text(
-          result.sleptLessBeforeAttacks
-              ? l10n.insightsSleepLessSentence
-              : l10n.insightsSleepMoreSentence,
-          style: AppTextStyle.bodyMedium,
-        ),
-        SizedBox(height: SdSpacingConstant.h16),
+        // One thin side makes the gap between the averages a claim neither
+        // supports — show what was measured and skip the headline.
+        if (!result.isCountOnly) ...<Widget>[
+          Text(
+            result.shortfall.label(l10n),
+            style: AppTextStyle.displaySmall.w600,
+          ),
+          SizedBox(height: SdSpacingConstant.h4),
+          Text(
+            result.sleptLessBeforeAttacks
+                ? l10n.insightsSleepLessSentence
+                : l10n.insightsSleepMoreSentence,
+            style: AppTextStyle.bodyMedium,
+          ),
+          SizedBox(height: SdSpacingConstant.h16),
+        ],
         _AverageRow(
           label: l10n.insightsSleepAttackNights,
           value: result.attackNightAverage.label(l10n),
@@ -43,6 +47,7 @@ class _SleepInsightBody extends StatelessWidget {
           ),
           style: AppTextStyle.bodySmall.secondary,
         ),
+        if (result.isPreliminary) const InsightSettlingNote(),
       ],
     );
   }

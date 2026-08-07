@@ -7,8 +7,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/exertion_level.dart';
 
-/// The three exertion-level tiles, one row. Optional field: tapping the
-/// already-selected level clears it back to "not answered."
+/// The exertion-level tiles, two to a row.
+///
+/// Same 2-up grid and the same tile shape as `MedicationGrid`, the step next
+/// door: four across one row left every label a cramped two-line scrap, and
+/// the two adjacent steps read as two different components.
+///
+/// A tap always selects — there is no clearing back to "not answered",
+/// because [ExertionLevel.none] is the answer for "I wasn't exerting
+/// myself". [selected] is still nullable so an attack logged before the
+/// step existed renders with nothing highlighted.
 class ExertionLevelPicker extends StatelessWidget {
   const ExertionLevelPicker({
     required this.selected,
@@ -17,26 +25,37 @@ class ExertionLevelPicker extends StatelessWidget {
   });
 
   final ExertionLevel? selected;
-  final ValueChanged<ExertionLevel?> onSelected;
+  final ValueChanged<ExertionLevel> onSelected;
+
+  /// How many tiles share a row.
+  static const int perRow = 2;
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          for (final ExertionLevel level in ExertionLevel.values) ...[
-            if (level != ExertionLevel.values.first)
-              SizedBox(width: SdSpacingConstant.w8),
-            Expanded(
-              child: _ExertionTile(
-                level: level,
-                selected: selected == level,
-                onTap: () => onSelected(selected == level ? null : level),
-              ),
-            ),
-          ],
-        ],
+    final List<ExertionLevel> levels = ExertionLevel.values;
+
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      // Whatever holds this owns the scrolling — the log step needs none,
+      // the sheet has its own.
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: perRow,
+        mainAxisSpacing: SdSpacingConstant.h8,
+        crossAxisSpacing: SdSpacingConstant.w8,
+        // A fixed row height, not an aspect ratio: the tile is one line of
+        // text beside an icon, so how tall it is has nothing to do with how
+        // wide the screen made it. Every cell is the same box, which is also
+        // what keeps the selected tile — 2px of border against everyone
+        // else's 1 — the same size as the one beside it.
+        mainAxisExtent: SdSpacingConstant.h64,
+      ),
+      itemCount: levels.length,
+      itemBuilder: (BuildContext context, int index) => _ExertionTile(
+        level: levels[index],
+        selected: selected == levels[index],
+        onTap: () => onSelected(levels[index]),
       ),
     );
   }
@@ -54,6 +73,7 @@ class _ExertionTile extends StatelessWidget {
   final VoidCallback onTap;
 
   static const Map<ExertionLevel, IconData> _icons = <ExertionLevel, IconData>{
+    ExertionLevel.none: Icons.self_improvement,
     ExertionLevel.light: Icons.directions_walk,
     ExertionLevel.moderate: Icons.directions_run,
     ExertionLevel.severe: Icons.fitness_center,
@@ -74,7 +94,7 @@ class _ExertionTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: EdgeInsets.all(SdSpacingConstant.w4),
+          padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.14)
@@ -88,17 +108,21 @@ class _ExertionTile extends StatelessWidget {
               width: selected ? 2 : 1,
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: <Widget>[
-              SdIconV2(icon: _icons[level]!, color: color, size: SdSpacingConstant.r24),
-              SizedBox(height: SdSpacingConstant.h4),
-              Text(
-                level.label(l10n),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelTiny.copyWith(color: color),
+              SdIconV2(
+                icon: _icons[level]!,
+                color: color,
+                size: SdSpacingConstant.r24,
+              ),
+              SizedBox(width: SdSpacingConstant.w12),
+              Expanded(
+                child: Text(
+                  level.label(l10n),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.titleSmall.copyWith(color: color),
+                ),
               ),
             ],
           ),

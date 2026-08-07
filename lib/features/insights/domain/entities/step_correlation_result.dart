@@ -13,9 +13,9 @@ class StepNotConnected extends StepCorrelationResult {
   const StepNotConnected();
 }
 
-/// Too few days, or too few of one kind. Both groups need entries: an
+/// One of the two groups is empty, so no comparison exists at all: an
 /// average over "attack days" means nothing without "every other day" to
-/// compare it against.
+/// compare it against. Thin-but-present groups still get a result.
 class StepInsufficientData extends StepCorrelationResult {
   const StepInsufficientData({
     required this.daysWithSteps,
@@ -53,6 +53,8 @@ class StepInsight extends StepCorrelationResult {
     required this.restDayAverage,
     required this.attackDays,
     required this.restDays,
+    required this.requiredDays,
+    required this.requiredPerGroup,
   });
 
   /// Mean steps on days an attack started.
@@ -64,7 +66,23 @@ class StepInsight extends StepCorrelationResult {
   final int attackDays;
   final int restDays;
 
+  /// Where the comparison settles, and the minimum each side needs before
+  /// the difference between them is worth stating as one number.
+  final int requiredDays;
+  final int requiredPerGroup;
+
   int get daysAnalyzed => attackDays + restDays;
+
+  /// The figure is real but still moves with every day, so say so beside it.
+  bool get isPreliminary =>
+      daysAnalyzed < requiredDays ||
+      attackDays < requiredPerGroup ||
+      restDays < requiredPerGroup;
+
+  /// One side is too thin for the difference to be worth a headline — show
+  /// the two averages that were measured instead of the gap between them.
+  bool get isCountOnly =>
+      attackDays < requiredPerGroup || restDays < requiredPerGroup;
 
   /// How many fewer steps the user took on an attack day. Negative means
   /// they moved *more* — an honest engine has to be able to say that.

@@ -57,9 +57,9 @@ class SleepCorrelationEngine {
       (attackDates.contains(date) ? attackNights : restNights).add(night);
     }
 
-    if (nights.length < minNights ||
-        attackNights.length < minNightsPerGroup ||
-        restNights.length < minNightsPerGroup) {
+    // An empty side is the one thing no result can be built from: there is
+    // no comparison, not merely a thin one.
+    if (attackNights.isEmpty || restNights.isEmpty) {
       return SleepInsufficientData(
         nightsWithSleep: nights.length,
         requiredNights: minNights,
@@ -71,8 +71,14 @@ class SleepCorrelationEngine {
 
     final Duration attackAverage = _average(attackNights);
     final Duration restAverage = _average(restNights);
+    final bool settled =
+        nights.length >= minNights &&
+        attackNights.length >= minNightsPerGroup &&
+        restNights.length >= minNightsPerGroup;
 
-    if ((restAverage - attackAverage).abs() < variationEpsilon) {
+    // "The same night's sleep" is only a verdict at a real sample; below it
+    // the card shows the two averages, which need no spread to be true.
+    if (settled && (restAverage - attackAverage).abs() < variationEpsilon) {
       return SleepNoVariation(nightsAnalyzed: nights.length);
     }
 
@@ -81,6 +87,8 @@ class SleepCorrelationEngine {
       restNightAverage: restAverage,
       attackNights: attackNights.length,
       restNights: restNights.length,
+      requiredNights: minNights,
+      requiredPerGroup: minNightsPerGroup,
     );
   }
 

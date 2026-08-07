@@ -51,7 +51,13 @@ scripts:
     description: >
       Build the TestFlight/App Store archive with env/prod.json attached.
       Never archive from Xcode — it cannot pass the config flag.
-    run: sh tool/release-ios.sh
+    run: sh tool/release-ios.sh prod
+
+  release-ios-dev:
+    description: >
+      Same TestFlight build with env/dev.json attached instead. One bundle
+      id, so it lands in the same TestFlight app — bump the build number.
+    run: sh tool/release-ios.sh dev
 
   deploy-firebase:
     description: >

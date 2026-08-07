@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('3 taps log an attack: intensity → location → no medication', (
-    tester,
-  ) async {
+  testWidgets('3 taps then the exertion default log an attack', (tester) async {
     final app = await pumpApp(tester);
     await openLog(tester);
 
@@ -32,6 +32,13 @@ void main() {
     await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Were you exerting yourself?'), findsOneWidget);
+
+    // Nothing touched: the step arrives on "None", so Next is already armed
+    // and this step can never stand between the user and a saved attack.
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Logged.'), findsOneWidget);
 
     final rows = await app.db.select(app.db.attacks).get();
@@ -39,6 +46,80 @@ void main() {
     expect(rows.single.intensity, 7);
     expect(rows.single.location, HeadLocation.right);
     expect(rows.single.medicationName, isNull);
+    expect(rows.single.exertionLevel, ExertionLevel.none);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('picking an exertion level stores it on the attack', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+
+    await logAttack(tester, exertion: 'Severe');
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.exertionLevel, ExertionLevel.severe);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the exertion options sit two to a row, each half the width', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    // Walk to the exertion step without leaving it (logAttack taps past it).
+    await openLog(tester);
+    await tester.tap(find.text('7'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Right side'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('No medication').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Were you exerting yourself?'), findsOneWidget);
+
+    final Finder tiles = find.descendant(
+      of: find.byType(ExertionLevelPicker),
+      matching: find.byType(SdPressableScaleV2),
+    );
+    expect(tiles, findsNWidgets(ExertionLevel.values.length));
+
+    final List<Rect> rects = <Rect>[
+      for (int i = 0; i < ExertionLevel.values.length; i++)
+        tester.getRect(tiles.at(i)),
+    ];
+
+    // Two to a row: 0|1 share a top edge, 2|3 share a lower one.
+    expect(rects[0].top, rects[1].top);
+    expect(rects[2].top, rects[3].top);
+    expect(rects[2].top, greaterThan(rects[0].top));
+
+    // Half the width each: the four tiles are one width, the two columns
+    // line up across both rows, and the pair spans the step edge to edge.
+    final double width = rects.first.width;
+    for (final Rect rect in rects) {
+      expect(rect.width, moreOrLessEquals(width, epsilon: 0.01));
+    }
+    expect(rects[0].left, rects[2].left);
+    expect(rects[1].left, rects[3].left);
+    expect(
+      rects[1].right - rects[0].left,
+      moreOrLessEquals(
+        tester.view.physicalSize.width / tester.view.devicePixelRatio -
+            SdContentPaddingV2.horizontal * 2,
+        epsilon: 1,
+      ),
+    );
 
     await finishTest(tester);
   });

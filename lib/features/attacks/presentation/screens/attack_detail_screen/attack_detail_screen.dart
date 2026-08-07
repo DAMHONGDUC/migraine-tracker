@@ -10,9 +10,11 @@ import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../domain/entities/attack.dart';
+import '../../../domain/enums/exertion_level.dart';
 import '../../../domain/enums/head_location.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
+import '../../widgets/exertion_picker_sheet.dart';
 import '../../widgets/head_diagram.dart';
 import '../../widgets/intensity_disc.dart';
 import '../../widgets/intensity_sheet.dart';
@@ -95,6 +97,21 @@ class AttackDetailScreen extends ConsumerWidget {
         );
   }
 
+  Future<void> _editExertion(
+    BuildContext context,
+    WidgetRef ref,
+    Attack attack,
+  ) async {
+    final ExertionLevel? picked = await ExertionPickerSheet(
+      selected: attack.exertionLevel,
+    ).show(context);
+
+    if (picked == null) return;
+    await ref
+        .read(attackDetailControllerProvider)
+        .updateExertion(attack.id, picked);
+  }
+
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final l10n = context.l10n;
     final confirmed = await showSdDialogV2<bool>(
@@ -169,6 +186,14 @@ class AttackDetailScreen extends ConsumerWidget {
                   label: l10n.attackDetailMedication,
                   value: a.medicationName ?? l10n.logNoMedication,
                   onTap: () => _editMedication(context, ref, a),
+                ),
+                _EditableRow(
+                  label: l10n.detailsExertionLabel,
+                  // Attacks logged before the step existed read as "None",
+                  // which is the same answer their blank column means.
+                  value:
+                      (a.exertionLevel ?? ExertionLevel.none).label(l10n),
+                  onTap: () => _editExertion(context, ref, a),
                 ),
               ],
             ),

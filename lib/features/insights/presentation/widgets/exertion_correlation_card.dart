@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/exertion_correlation_result.dart';
+import 'exertion_correlation_body.dart';
 import 'insight_card.dart';
-import 'insight_progress_body.dart';
 
-part 'exertion_correlation_card_insight.dart';
-part 'exertion_correlation_card_no_variation.dart';
-
-/// Stat tile for the exertion self-report insight.
-///
-/// Free, unlike [CorrelationCard]: exertion is self-reported, not read from
-/// HealthKit, so there is no premium data boundary to gate — the analysis
-/// itself is always built.
+/// The exertion self-report on its own card, as the activity detail screen
+/// shows it. Insights folds this into `ActivityCard` alongside the steps.
 class ExertionCorrelationCard extends StatelessWidget {
   const ExertionCorrelationCard({required this.result, super.key});
 
@@ -24,21 +16,7 @@ class ExertionCorrelationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InsightCard(
       title: context.l10n.insightsExertionTitle,
-      child: switch (result) {
-        final ExertionInsufficientData r => InsightProgressBody(
-          icon: Icons.lock_outline,
-          message: context.l10n.insightsExertionInsufficientData(
-            r.requiredAttacks - r.attacksWithExertion,
-          ),
-          progress: r.attacksWithExertion / r.requiredAttacks,
-          caption: context.l10n.insightsExertionProgressCaption(
-            r.attacksWithExertion,
-            r.requiredAttacks,
-          ),
-        ),
-        ExertionNoVariation() => _NoVariation(),
-        final ExertionInsight r => _Insight(result: r),
-      },
+      child: ExertionCorrelationBody(result: result),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/permissions/app_permission.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -13,6 +14,7 @@ import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
 import '../../../providers.dart';
+import '../../widgets/reminder_limit_dialog.dart';
 
 part 'medication_detail_screen_header.dart';
 part 'medication_detail_screen_reminder_row.dart';
@@ -71,6 +73,17 @@ class MedicationDetailScreen extends ConsumerWidget {
     Medication medication,
   ) async {
     final AppLocalizations l10n = context.l10n;
+
+    // - the limit is named before the pitch: this button says "Add reminder", so a paywall out of nowhere reads as a bug
+    // - and both come before the OS prompt, which must never be raised for a reminder that will not be created
+    if (!ref.read(canAddReminderProvider)) {
+      final bool? unlock = await const ReminderLimitDialog().show(context);
+
+      if (unlock != true || !context.mounted) return;
+      await NavigationUtils.toPaywall(context, ref);
+      return;
+    }
+
     // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
         .read(appPermissionProvider)
@@ -136,6 +149,9 @@ class MedicationDetailScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w12),
       ],
       body: SdActionViewV2(
+        // The reminder list grows without bound, and a user with a dozen of
+        // them would have to scroll to the end to reach "Add reminder".
+        placement: SdActionsPlacementV2.pinned,
         // - Full-bleed: header/"no reminders" text and `SdSectionHeaderV2` pad themselves.
         // - Reminders card takes the gutter as margin instead.
         // - Default `contentPadding` would stack a second one on top (see `account_screen.dart`).
@@ -164,8 +180,13 @@ class MedicationDetailScreen extends ConsumerWidget {
                 child: SdCardV2(
                   child: Column(
                     children: <Widget>[
-                      for (final MedicationReminderView view in reminders)
+                      // Between rows only — a rule above the first or below
+                      // the last would draw a line on the card's own edge.
+                      for (final (int index, MedicationReminderView view)
+                          in reminders.indexed) ...<Widget>[
+                        if (index > 0) const SdDividerV2(),
                         _ReminderRow(view: view),
+                      ],
                     ],
                   ),
                 ),
@@ -175,7 +196,11 @@ class MedicationDetailScreen extends ConsumerWidget {
         actions: <Widget>[
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
-            icon: Icons.alarm_add,
+            // The button stays — it opens the paywall instead. Only the
+            // glyph says the budget is spent, so the label never changes.
+            icon: ref.watch(canAddReminderProvider)
+                ? Icons.alarm_add
+                : Icons.lock_outline,
             onPressed: () => _addReminder(context, ref, medication),
             label: l10n.remindersAdd,
           ),

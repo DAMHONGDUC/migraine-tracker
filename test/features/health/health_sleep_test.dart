@@ -6,12 +6,13 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
+import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/presentation/controllers/health_controller.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The Apple Health switch specifically — Settings also carries the alerts
-/// one, so a bare `byType(SwitchListTile)` matches two.
+/// The sleep connect switch, which lives on the sleep detail screen now —
+/// steps have their own on the activity screen, so name the row it sits in.
 Finder healthSwitch() => find.ancestor(
   of: find.text('Apple Health sleep'),
   matching: find.byType(SwitchListTile),
@@ -46,23 +47,21 @@ void main() {
       await pumpApp(tester, premium: true);
       await openSettings(tester);
 
-      expect(find.text('Apple Health sleep'), findsNothing);
+      expect(find.text('Sleep'), findsNothing);
 
       await finishTest(tester);
     });
 
-    testWidgets('is locked for free users, with no switch to flip', (
+    testWidgets('is locked for free users, with no way through', (
       tester,
     ) async {
       await pumpApp(tester, healthAvailable: true);
       await openSettings(tester);
 
-      expect(find.text('Apple Health sleep'), findsOneWidget);
-      // The locked row wears the badge, not a switch.
-      expect(healthSwitch(), findsNothing);
+      expect(find.text('Sleep'), findsOneWidget);
       expect(
         find.ancestor(
-          of: find.text('Apple Health sleep'),
+          of: find.text('Sleep'),
           matching: find.byType(SettingsTile),
         ),
         findsOneWidget,
@@ -72,20 +71,24 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('a premium user can connect Apple Health', (tester) async {
+    testWidgets('a premium user can connect sleep from the detail screen', (
+      tester,
+    ) async {
       final PumpedApp app = await pumpApp(
         tester,
         premium: true,
         healthAvailable: true,
       );
-      await openSettings(tester);
+      await openSleepScreen(tester);
 
       await tapVisible(tester, healthSwitch());
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(app.health.authorizationRequests, 1);
-      expect(app.prefs.getBool(HealthController.connectedKey), isTrue);
-      // The switch itself is the state now — the row carries no second line.
+      // One sheet, for sleep alone: steps are a separate switch.
+      expect(app.health.requestedKinds, <HealthDataKind>[HealthDataKind.sleep]);
+      expect(app.prefs.getBool(HealthController.sleepKey), isTrue);
+      expect(app.prefs.getBool(HealthController.stepsKey), isNot(isTrue));
       expect(tester.widget<SwitchListTile>(healthSwitch()).value, isTrue);
 
       await finishTest(tester);
@@ -100,13 +103,34 @@ void main() {
         healthAvailable: true,
       );
       app.health.authorizes = false;
-      await openSettings(tester);
+      await openSleepScreen(tester);
 
       await tapVisible(tester, healthSwitch());
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(app.prefs.getBool(HealthController.connectedKey), isNot(isTrue));
+      expect(app.prefs.getBool(HealthController.sleepKey), isNot(isTrue));
       expect(find.text("Couldn't connect to Apple Health."), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('the old single flag still counts as connected', (
+      tester,
+    ) async {
+      // Someone who connected before sleep and steps split apart must not
+      // find themselves silently disconnected.
+      final PumpedApp app = await pumpApp(
+        tester,
+        premium: true,
+        healthAvailable: true,
+        initialPrefs: const <String, Object>{
+          HealthController.connectedKey: true,
+        },
+      );
+      await openSleepScreen(tester);
+
+      expect(tester.widget<SwitchListTile>(healthSwitch()).value, isTrue);
+      expect(app.health.authorizationRequests, 0);
 
       await finishTest(tester);
     });
@@ -163,7 +187,7 @@ void main() {
         premium: true,
         healthAvailable: true,
         initialPrefs: const <String, Object>{
-          HealthController.connectedKey: true,
+          HealthController.sleepKey: true,
         },
         sleepNights: <SleepNight>[
           for (int i = 1; i <= 5; i++) sleptFor(i, hours: 5),

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
-import '../../widgets/correlation_card.dart';
-import '../../widgets/exertion_correlation_card.dart';
-import '../../widgets/pressure_forecast_card.dart';
+import '../../widgets/activity_card.dart';
+import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_correlation_card.dart';
-import '../../widgets/step_correlation_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -40,29 +40,22 @@ class InsightsScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: SdContentPaddingV2.screen(context, floatingNav: true),
               children: [
-                // Free users never build the forecast card, so no forecast is fetched or held for them.
-                PremiumGate(
-                  lockedIcon: Symbols.show_chart,
-                  lockedMessage: context.l10n.premiumLockedForecast,
-                  child: const PressureForecastCard(),
-                ),
+                // Forecast + correlation on one card; it opens the detail
+                // screen, where the alert they drive is set.
+                PressureCard(result: value),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
-                CorrelationCard(result: value),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                ExertionCorrelationCard(result: exertionValue),
-                // iOS only: off HealthKit there is no sleep/step source, so the cards would only say "unavailable".
+                // Exertion + steps on one card: both ask how much the user
+                // moved. Sleep stays its own — the night is another question.
+                ActivityCard(result: exertionValue),
+                // iOS only: off HealthKit there is no sleep source, so the card would only say "unavailable".
                 if (ref.watch(healthAvailableProvider)) ...<Widget>[
                   SizedBox(height: SdContentPaddingV2.sectionGap),
                   PremiumGate(
                     lockedIcon: Symbols.bedtime,
                     lockedMessage: context.l10n.premiumLockedSleep,
-                    child: const SleepCorrelationCard(),
-                  ),
-                  SizedBox(height: SdContentPaddingV2.sectionGap),
-                  PremiumGate(
-                    lockedIcon: Symbols.directions_walk,
-                    lockedMessage: context.l10n.premiumLockedSteps,
-                    child: const StepCorrelationCard(),
+                    child: SleepCorrelationCard(
+                      onTap: () => context.pushNamed(AppRoutes.sleep.name),
+                    ),
                   ),
                 ],
               ],

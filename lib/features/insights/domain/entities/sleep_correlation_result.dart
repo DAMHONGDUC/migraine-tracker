@@ -13,9 +13,9 @@ class SleepNotConnected extends SleepCorrelationResult {
   const SleepNotConnected();
 }
 
-/// Too few nights, or too few of one kind. Both groups need entries: an
+/// One of the two groups is empty, so no comparison exists at all: an
 /// average over "nights before an attack" means nothing without "every other
-/// night" to compare it against.
+/// night" to compare it against. Thin-but-present groups still get a result.
 class SleepInsufficientData extends SleepCorrelationResult {
   const SleepInsufficientData({
     required this.nightsWithSleep,
@@ -53,6 +53,8 @@ class SleepInsight extends SleepCorrelationResult {
     required this.restNightAverage,
     required this.attackNights,
     required this.restNights,
+    required this.requiredNights,
+    required this.requiredPerGroup,
   });
 
   /// Mean sleep on nights followed by an attack.
@@ -64,7 +66,23 @@ class SleepInsight extends SleepCorrelationResult {
   final int attackNights;
   final int restNights;
 
+  /// Where the comparison settles, and the minimum each side needs before
+  /// the difference between them is worth stating as one number.
+  final int requiredNights;
+  final int requiredPerGroup;
+
   int get nightsAnalyzed => attackNights + restNights;
+
+  /// The figure is real but still moves with every night, so say so beside it.
+  bool get isPreliminary =>
+      nightsAnalyzed < requiredNights ||
+      attackNights < requiredPerGroup ||
+      restNights < requiredPerGroup;
+
+  /// One side is too thin for the difference to be worth a headline — show
+  /// the two averages that were measured instead of the gap between them.
+  bool get isCountOnly =>
+      attackNights < requiredPerGroup || restNights < requiredPerGroup;
 
   /// How much less the user slept before an attack. Negative means they
   /// slept *more* — an honest engine has to be able to say that.

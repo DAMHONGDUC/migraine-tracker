@@ -7,45 +7,118 @@ import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-Future<void> addMedication(WidgetTester tester, String name) async {
-  // App bar "+" icon — a FAB would sit under the floating nav's hit region
-  // on a shell tab, so the add action lives here instead (see MedicationsScreen).
-  await tester.tap(find.byIcon(Icons.add));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-  await tester.enterText(
-    find.widgetWithText(TextField, 'Medication name'),
-    name,
-  );
-  await tester.tap(find.text('Add'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
-/// Opens a medication's detail screen from its row in the list.
-Future<void> openMedication(WidgetTester tester, String name) async {
-  await tester.tap(find.text(name));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 400));
-}
-
-/// The delete button ON a reminder row — the detail screen's app bar carries
-/// the same icon for deleting the medication itself, so a bare byIcon
-/// matches two.
-Finder reminderDelete() => find.descendant(
-  of: find.byType(SdCardV2),
-  matching: find.byIcon(Icons.delete_outline),
-);
-
-/// Opens the reminder picker. Reminders live on the detail screen, so the
-/// caller has to be there already.
-Future<void> openAddReminder(WidgetTester tester) async {
-  await tester.tap(find.text('Add reminder'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
 void main() {
+  testWidgets('the add button holds the bottom edge past a scrollful of '
+      'reminders', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    for (int i = 0; i < 15; i++) {
+      await app.db
+          .into(app.db.medicationReminders)
+          .insert(
+            MedicationRemindersCompanion.insert(
+              id: 'r$i',
+              medicationId: 'm1',
+              minuteOfDay: i * 60,
+            ),
+          );
+    }
+
+    await openMedications(tester);
+    await openMedication(tester, 'Sumatriptan');
+
+    final Finder button = find.text('Add reminder');
+    final Finder firstRow = find.text('00:00');
+    final double buttonBefore = tester.getTopLeft(button).dy;
+    final double rowBefore = tester.getTopLeft(firstRow).dy;
+
+    // Drag a reminder row, so the gesture lands inside the list's scroll view.
+    await tester.drag(find.byIcon(Icons.alarm).first, const Offset(0, -300));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Proves the drag scrolled something — otherwise the button holding
+    // still would say nothing at all.
+    expect(
+      tester.getTopLeft(firstRow).dy,
+      lessThan(rowBefore),
+      reason: 'the list scrolled',
+    );
+    expect(
+      tester.getTopLeft(button).dy,
+      buttonBefore,
+      reason: 'the action is pinned, not scrolled with the list',
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('reminders are separated by a rule, never edged by one', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    for (int i = 0; i < 3; i++) {
+      await app.db
+          .into(app.db.medicationReminders)
+          .insert(
+            MedicationRemindersCompanion.insert(
+              id: 'r$i',
+              medicationId: 'm1',
+              minuteOfDay: i * 60,
+            ),
+          );
+    }
+
+    await openMedications(tester);
+    await openMedication(tester, 'Sumatriptan');
+
+    // Three rows, two rules — the card's own top and bottom edges stay clean.
+    expect(find.byType(SdDividerV2), findsNWidgets(2));
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the name field shows a pencil, then a tick that saves', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+
+    await openMedications(tester);
+    await openMedication(tester, 'Sumatriptan');
+
+    // At rest the pencil says the name can be changed.
+    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
+
+    // Tapping it focuses the field, and the glyph becomes the save action.
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.byIcon(Icons.edit_outlined), findsNothing);
+
+    await tester.enterText(find.byType(TextField).first, 'Rizatriptan');
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Saved, and the field is back to its resting state.
+    final rows = await app.db.select(app.db.medications).get();
+    expect(rows.single.name, 'Rizatriptan');
+    expect(rows.single.id, 'm1', reason: 'renames in place');
+    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('shows the empty state when no medications are saved', (
     tester,
   ) async {

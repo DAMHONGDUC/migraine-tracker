@@ -122,7 +122,6 @@ class DriftAttackRepository implements AttackRepository {
     required List<String> symptoms,
     required List<String> triggers,
     String? notes,
-    ExertionLevel? exertionLevel,
   }) {
     return _db.transaction(() async {
       await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
@@ -130,6 +129,18 @@ class DriftAttackRepository implements AttackRepository {
           symptoms: Value(symptoms),
           triggers: Value(triggers),
           notes: Value(notes),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
+  Future<void> updateExertion(String id, ExertionLevel? exertionLevel) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
           exertionLevel: Value(exertionLevel),
           updatedAt: Value(DateTime.now().toUtc()),
           revision: Value(await _nextRevision(id)),

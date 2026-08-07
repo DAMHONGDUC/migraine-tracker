@@ -59,39 +59,7 @@ void main() {
       expect(result.requiredNights, 15);
     });
 
-    test('14 nights is one short of the minimum', () {
-      final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
-        attackNightHours: List<double>.filled(5, 5),
-        restNightHours: List<double>.filled(9, 8),
-      );
-      final SleepCorrelationResult result = engine.analyze(
-        attacks: data.attacks,
-        nights: data.nights,
-      );
-
-      expect(result, isA<SleepInsufficientData>());
-      expect((result as SleepInsufficientData).nightsWithSleep, 14);
-    });
-
-    test('enough nights but too few before an attack', () {
-      // 2 attack nights against the 3-per-group floor.
-      final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
-        attackNightHours: List<double>.filled(2, 5),
-        restNightHours: List<double>.filled(18, 8),
-      );
-      final SleepCorrelationResult result = engine.analyze(
-        attacks: data.attacks,
-        nights: data.nights,
-      );
-
-      expect(result, isA<SleepInsufficientData>());
-      result as SleepInsufficientData;
-      expect(result.attackNights, 2);
-      expect(result.restNights, 18);
-      expect(result.requiredPerGroup, 3);
-    });
-
-    test('enough nights but every one of them follows an attack', () {
+    test('every night follows an attack, so there is nothing to compare', () {
       final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
         attackNightHours: List<double>.filled(20, 5),
         restNightHours: const <double>[],
@@ -103,6 +71,56 @@ void main() {
 
       expect(result, isA<SleepInsufficientData>());
       expect((result as SleepInsufficientData).restNights, 0);
+    });
+  });
+
+  group('below the minimum the comparison still runs', () {
+    test('one night each side already yields both averages', () {
+      final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
+        attackNightHours: const <double>[5],
+        restNightHours: const <double>[8],
+      );
+      final SleepCorrelationResult result = engine.analyze(
+        attacks: data.attacks,
+        nights: data.nights,
+      );
+
+      expect(result, isA<SleepInsight>());
+      result as SleepInsight;
+      expect(result.attackNightAverage, const Duration(hours: 5));
+      expect(result.restNightAverage, const Duration(hours: 8));
+      // One side under the per-group floor: the gap is not a headline yet.
+      expect(result.isCountOnly, isTrue);
+      expect(result.isPreliminary, isTrue);
+    });
+
+    test('identical averages are not judged while a side is thin', () {
+      final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
+        attackNightHours: const <double>[7],
+        restNightHours: const <double>[7],
+      );
+      final SleepCorrelationResult result = engine.analyze(
+        attacks: data.attacks,
+        nights: data.nights,
+      );
+
+      expect(result, isA<SleepInsight>());
+    });
+
+    test('both groups past the floor but too few nights is preliminary', () {
+      final ({List<Attack> attacks, List<SleepNight> nights}) data = history(
+        attackNightHours: List<double>.filled(4, 5),
+        restNightHours: List<double>.filled(6, 8),
+      );
+      final SleepCorrelationResult result = engine.analyze(
+        attacks: data.attacks,
+        nights: data.nights,
+      );
+
+      result as SleepInsight;
+      expect(result.nightsAnalyzed, 10);
+      expect(result.isCountOnly, isFalse);
+      expect(result.isPreliminary, isTrue);
     });
   });
 
@@ -257,7 +275,7 @@ void main() {
   });
 
   group('tuning', () {
-    test('a stricter minimum pushes a valid sample back to insufficient', () {
+    test('a stricter minimum keeps a settled sample preliminary', () {
       const SleepCorrelationEngine strict = SleepCorrelationEngine(
         minNights: 30,
       );
@@ -265,11 +283,13 @@ void main() {
         attackNightHours: List<double>.filled(5, 5),
         restNightHours: List<double>.filled(10, 8),
       );
-
-      expect(
-        strict.analyze(attacks: data.attacks, nights: data.nights),
-        isA<SleepInsufficientData>(),
+      final SleepCorrelationResult result = strict.analyze(
+        attacks: data.attacks,
+        nights: data.nights,
       );
+
+      expect(result, isA<SleepInsight>());
+      expect((result as SleepInsight).isPreliminary, isTrue);
     });
 
     test('a wider epsilon swallows a small difference', () {

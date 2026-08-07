@@ -9,9 +9,10 @@ import '../../router/app_router.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
 
-/// Settings row for pressure-drop alerts: says whether they're On/Off and
-/// opens `AlertsScreen` for the switch + threshold. Premium-gated as a
-/// whole — a free user gets the locked tile, never the state or the way in.
+/// Settings row for everything pressure: says whether alerts are On/Off and
+/// opens `PressureScreen`, where the forecast and the correlation sit beside
+/// the switch + threshold. Premium-gated as a whole — a free user gets the
+/// locked tile, never the state or the way in.
 class AlertsSettingsTile extends ConsumerWidget {
   const AlertsSettingsTile({super.key});
 
@@ -34,7 +35,7 @@ class AlertsSettingsTile extends ConsumerWidget {
         value: (settings?.enabled ?? false)
             ? context.l10n.alertsStatusOn
             : context.l10n.alertsStatusOff,
-        onTap: () => context.pushNamed(AppRoutes.alerts.name),
+        onTap: () => context.pushNamed(AppRoutes.pressure.name),
       ),
     );
   }

@@ -6,8 +6,10 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -107,6 +109,76 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      await finishTest(tester);
+    });
+
+    testWidgets('sees the History chart deck as a locked sample', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await seedInsightData(tester, app);
+      await openHistoryCharts(tester);
+
+      // Four of the five: the severity donut is the dashboard's, free here too.
+      expect(find.byType(PremiumChartLock), findsNWidgets(4));
+      expect(find.text('Moderate · 15'), findsOneWidget);
+      // The locked four draw the sample, which spans all five head locations
+      // — the seeded attacks are all `left`, so a single row would mean the
+      // user's own data is sitting under the blur.
+      expect(find.byType(SdProgressRowV2), findsNWidgets(5));
+
+      await finishTest(tester);
+    });
+
+    testWidgets('gets two reminders; the third names the limit, then pitches', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await addReminders(tester, MedicationReminder.freeLimit);
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit),
+      );
+
+      // Budget spent: the limit is named, and no picker comes up.
+      await openAddReminder(tester);
+      expect(find.text('2 reminders on the free plan'), findsOneWidget);
+      expect(find.byType(ListWheelScrollView), findsNothing);
+      expect(find.text('BaroEase Premium'), findsNothing);
+
+      // The pitch is the user's choice from there, not automatic.
+      await tapVisible(tester, find.text('Unlock'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('BaroEase Premium'), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('declining the reminder limit dialog leaves it where it was', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await addReminders(tester, MedicationReminder.freeLimit);
+      await openAddReminder(tester);
+      await tapVisible(tester, find.text('Cancel'));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // No paywall, no extra reminder, still on the medication.
+      expect(find.text('BaroEase Premium'), findsNothing);
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit),
+      );
+      expect(find.text('Sumatriptan'), findsWidgets);
 
       await finishTest(tester);
     });
@@ -242,28 +314,27 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets(
-      'below the data threshold it sees progress, not a paywall tease',
-      (tester) async {
-        await pumpApp(tester); // no attacks
-        await openInsights(tester);
+    testWidgets('below the data threshold it sees progress, not a paywall tease', (
+      tester,
+    ) async {
+      await pumpApp(tester); // no attacks
+      await openInsights(tester);
 
-        // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
-        // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
-        expect(
-          find.text(
-            'Log 15 more attacks with weather data to unlock this insight.',
-          ),
-          findsOneWidget,
-        );
-        expect(
-          find.text('Unlock to see how much of your pain follows the weather.'),
-          findsNothing,
-        );
+      // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
+      // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
+      expect(
+        find.text(
+          'Log 15 more attacks with weather data to unlock this insight.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Unlock to see how much of your pain follows the weather.'),
+        findsNothing,
+      );
 
-        await finishTest(tester);
-      },
-    );
+      await finishTest(tester);
+    });
   });
 
   group('premium user', () {
@@ -286,6 +357,37 @@ void main() {
       await openInsights(tester);
 
       expect(find.byType(LineChart), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('sees the History chart deck, uncovered', (tester) async {
+      final app = await pumpApp(tester, premium: true);
+      await seedInsightData(tester, app);
+      await openHistoryCharts(tester);
+
+      expect(find.byType(PremiumChartLock), findsNothing);
+      expect(find.text('Moderate · 15'), findsOneWidget);
+      // One row, not the sample's five: every seeded attack is `left`.
+      expect(find.byType(SdProgressRowV2), findsOneWidget);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('goes past the free reminder limit', (tester) async {
+      await pumpApp(tester, premium: true);
+      await openMedications(tester);
+      await addMedication(tester, 'Sumatriptan');
+      await openMedication(tester, 'Sumatriptan');
+
+      await addReminders(tester, MedicationReminder.freeLimit + 1);
+
+      expect(
+        find.byIcon(Icons.alarm),
+        findsNWidgets(MedicationReminder.freeLimit + 1),
+      );
+      expect(find.textContaining('on the free plan'), findsNothing);
+      expect(find.text('BaroEase Premium'), findsNothing);
 
       await finishTest(tester);
     });

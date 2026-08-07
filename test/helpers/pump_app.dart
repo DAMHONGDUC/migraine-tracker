@@ -25,6 +25,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
+import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -436,9 +437,13 @@ class FakeHealthRepository implements HealthRepository {
   /// How many times steps were actually read — same role as [sleepReads].
   int stepReads = 0;
 
+  /// Which sources were asked for: sleep and steps prompt separately now.
+  final List<HealthDataKind> requestedKinds = <HealthDataKind>[];
+
   @override
-  Future<bool> requestAuthorization() async {
+  Future<bool> requestAuthorization(HealthDataKind kind) async {
     authorizationRequests++;
+    requestedKinds.add(kind);
     return authorizes;
   }
 
@@ -606,11 +611,10 @@ Future<PumpedApp> pumpApp(
     profile: userProfile,
   );
   addTearDown(profiles.dispose);
-  final FakeHealthRepository health = FakeHealthRepository(
-    isAvailable: healthAvailable,
-  )
-    ..nights = <SleepNight>[...sleepNights]
-    ..days = <StepDay>[...stepDays];
+  final FakeHealthRepository health =
+      FakeHealthRepository(isAvailable: healthAvailable)
+        ..nights = <SleepNight>[...sleepNights]
+        ..days = <StepDay>[...stepDays];
   final FakePremiumRepository premiumRepository = FakePremiumRepository(
     premium: premium,
   );
@@ -746,6 +750,21 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
+  // - the same problem at the other end: a tab screen's floating nav pill
+  //   covers its last rows, and tap() only warns when it hits the pill
+  // - asks whether the row can be hit rather than measuring the chrome, so it
+  //   costs nothing on a screen that has none
+  for (int i = 0; i < 5; i++) {
+    if (finder.hitTestable().evaluate().isNotEmpty) break;
+    if (scrollable.evaluate().isEmpty) break;
+
+    await tester.drag(
+      scrollable.first,
+      Offset(0, -SdContentPaddingV2.floatingBarHeight),
+    );
+    await tester.pump();
+  }
+
   await tester.tap(finder);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
@@ -776,6 +795,21 @@ Future<void> openExportScreen(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+/// Settings → Sleep. Carries the sleep insight and its connect switch.
+Future<void> openSleepScreen(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(tester, find.text('Sleep'));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Settings → Activity. Carries the exertion report, the step insight and
+/// the step connect switch.
+Future<void> openActivityScreen(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(tester, find.text('Activity'));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
 /// Runs the export flow's chain of awaits (repository reads, the file
 /// write, the record insert) to completion on the fake event loop.
 Future<void> settleExport(WidgetTester tester) async {
@@ -792,6 +826,78 @@ Future<void> openMedications(WidgetTester tester) async {
 
 Future<void> openHistory(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Medications tab → the add dialog → a medication named [name].
+/// The "+" is in the app bar: a FAB would sit under the floating nav's hit
+/// region on a shell tab (see MedicationsScreen).
+Future<void> addMedication(WidgetTester tester, String name) async {
+  await tester.tap(find.byIcon(Icons.add));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.enterText(
+    find.widgetWithText(TextField, 'Medication name'),
+    name,
+  );
+  await tester.tap(find.text('Add'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Opens a medication's detail screen from its row in the list.
+Future<void> openMedication(WidgetTester tester, String name) async {
+  await tester.tap(find.text(name));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Taps "Add reminder" on a medication's detail screen. What comes up is the
+/// caller's business: the time picker when the budget allows one, the paywall
+/// when it does not.
+Future<void> openAddReminder(WidgetTester tester) async {
+  await tester.tap(find.text('Add reminder'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Confirms the reminder time picker at whatever time it opened on. Scoped
+/// to the sheet's own header: a focused medication name field carries a tick
+/// too, and a bare `byIcon` would match both.
+Future<void> confirmReminderTime(WidgetTester tester) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSheetHeaderV2),
+      matching: find.byIcon(Icons.check),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// Adds [count] reminders from a medication's detail screen, each at the
+/// time the picker opens on. Only valid while the budget allows them — past
+/// the limit the dialog comes up instead and there is no picker to confirm.
+Future<void> addReminders(WidgetTester tester, int count) async {
+  for (int i = 0; i < count; i++) {
+    await openAddReminder(tester);
+    await confirmReminderTime(tester);
+  }
+}
+
+/// The delete button ON a reminder row — the detail screen's app bar carries
+/// the same icon for deleting the medication itself, so a bare byIcon
+/// matches two.
+Finder reminderDelete() => find.descendant(
+  of: find.byType(SdCardV2),
+  matching: find.byIcon(Icons.delete_outline),
+);
+
+/// History, switched to the chart deck via the view toggle.
+Future<void> openHistoryCharts(WidgetTester tester) async {
+  await openHistory(tester);
+  await tester.tap(find.byIcon(Icons.bar_chart));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -816,14 +922,17 @@ Future<void> openLog(WidgetTester tester) async {
 /// Taps through the sacred flow with sensible defaults, starting from the
 /// dashboard. Intensity advances immediately; location and medication are
 /// pick-then-confirm — each pick is followed by a tap on the app bar's Next
-/// (see LogScreen/LogController). By default it also taps "Done" on the
-/// saved screen to return to the dashboard; pass finish: false to stay on the
-/// saved step (e.g. to open "Add details").
+/// (see LogScreen/LogController). Exertion is skipped unless [exertion] names
+/// a level, which is what most tests want: it is the one optional step. By
+/// default it also taps "Done" on the saved screen to return to the
+/// dashboard; pass finish: false to stay on the saved step (e.g. to open
+/// "Add details").
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
   String location = 'Right side',
   String medication = 'No medication',
+  String? exertion,
   bool finish = true,
 }) async {
   await openLog(tester);
@@ -844,6 +953,16 @@ Future<void> logAttack(
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+  await tester.tap(find.text('Next'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+
+  // Exertion: skippable, so Next alone passes it when no level is asked for.
+  if (exertion != null) {
+    await tester.tap(find.text(exertion));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+  }
   await tester.tap(find.text('Next'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

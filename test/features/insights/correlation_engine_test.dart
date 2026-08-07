@@ -41,25 +41,65 @@ void main() {
       final result = engine.analyze([]);
       expect(result, isA<CorrelationInsufficientData>());
       result as CorrelationInsufficientData;
-      expect(result.attacksWithWeather, 0);
+      expect(result.attacksAnalyzed, 0);
       expect(result.requiredAttacks, 15);
     });
 
-    test('14 attacks with weather is one short of the minimum', () {
-      final result = engine.analyze(attacksWithDeltas(List.filled(14, -6.0)));
+    test('attacks logged offline carry no weather, so nothing is analyzed', () {
+      final result = engine.analyze(
+        attacksWithDeltas(List<double?>.filled(5, null)),
+      );
       expect(result, isA<CorrelationInsufficientData>());
-      expect((result as CorrelationInsufficientData).attacksWithWeather, 14);
+      expect((result as CorrelationInsufficientData).attacksAnalyzed, 0);
+    });
+  });
+
+  group('below the minimum the analysis still runs', () {
+    test('a single attack reports counts, not a percentage', () {
+      final result = engine.analyze(attacksWithDeltas([-7.0]));
+      expect(result, isA<CorrelationInsight>());
+      result as CorrelationInsight;
+      expect(result.attacksAnalyzed, 1);
+      expect(result.attacksDuringPressureDrop, 1);
+      expect(result.isCountOnly, isTrue);
+      expect(result.isPreliminary, isTrue);
+    });
+
+    test('flat weather is not judged while the sample is count-only', () {
+      // The same 4 identical deltas would be "no variation" at a larger n.
+      final result = engine.analyze(attacksWithDeltas(List.filled(4, -6.0)));
+      expect(result, isA<CorrelationInsight>());
+      expect((result as CorrelationInsight).isCountOnly, isTrue);
+    });
+
+    test('the share appears from 5 attacks, still flagged preliminary', () {
+      final deltas = <double?>[...List.filled(3, -7.0), ...List.filled(2, 2.0)];
+      final result = engine.analyze(attacksWithDeltas(deltas));
+      result as CorrelationInsight;
+      expect(result.isCountOnly, isFalse);
+      expect(result.isPreliminary, isTrue);
+      expect(result.dropSharePercent, closeTo(60.0, 0.001));
+    });
+
+    test('14 attacks is one short of settled', () {
+      final deltas = <double?>[...List.filled(8, -7.0), ...List.filled(6, 2.0)];
+      final result = engine.analyze(attacksWithDeltas(deltas));
+      result as CorrelationInsight;
+      expect(result.attacksAnalyzed, 14);
+      expect(result.isPreliminary, isTrue);
     });
 
     test('attacks without snapshots do not count toward the minimum', () {
       // 20 attacks logged, but only 10 have weather (offline logging).
       final deltas = <double?>[
-        ...List.filled(10, -6.0),
+        ...List.filled(6, -6.0),
+        ...List.filled(4, 2.0),
         ...List<double?>.filled(10, null),
       ];
       final result = engine.analyze(attacksWithDeltas(deltas));
-      expect(result, isA<CorrelationInsufficientData>());
-      expect((result as CorrelationInsufficientData).attacksWithWeather, 10);
+      result as CorrelationInsight;
+      expect(result.attacksAnalyzed, 10);
+      expect(result.isPreliminary, isTrue);
     });
   });
 
@@ -87,6 +127,8 @@ void main() {
       expect(result.attacksAnalyzed, 15);
       expect(result.attacksDuringPressureDrop, 9);
       expect(result.dropSharePercent, closeTo(60.0, 0.001));
+      expect(result.isPreliminary, isFalse);
+      expect(result.isCountOnly, isFalse);
     });
 
     test('a drop of exactly the threshold counts; just under does not', () {

@@ -57,9 +57,9 @@ class StepCorrelationEngine {
       (attackDates.contains(date) ? attackDays : restDays).add(day);
     }
 
-    if (days.length < minDays ||
-        attackDays.length < minDaysPerGroup ||
-        restDays.length < minDaysPerGroup) {
+    // An empty side is the one thing no result can be built from: there is
+    // no comparison, not merely a thin one.
+    if (attackDays.isEmpty || restDays.isEmpty) {
       return StepInsufficientData(
         daysWithSteps: days.length,
         requiredDays: minDays,
@@ -71,8 +71,14 @@ class StepCorrelationEngine {
 
     final double attackAverage = _average(attackDays);
     final double restAverage = _average(restDays);
+    final bool settled =
+        days.length >= minDays &&
+        attackDays.length >= minDaysPerGroup &&
+        restDays.length >= minDaysPerGroup;
 
-    if ((restAverage - attackAverage).abs() < variationEpsilonSteps) {
+    // "The same activity" is only a verdict at a real sample; below it the
+    // card shows the two averages, which need no spread to be true.
+    if (settled && (restAverage - attackAverage).abs() < variationEpsilonSteps) {
       return StepNoVariation(daysAnalyzed: days.length);
     }
 
@@ -81,6 +87,8 @@ class StepCorrelationEngine {
       restDayAverage: restAverage,
       attackDays: attackDays.length,
       restDays: restDays.length,
+      requiredDays: minDays,
+      requiredPerGroup: minDaysPerGroup,
     );
   }
 

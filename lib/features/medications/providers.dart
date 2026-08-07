@@ -4,10 +4,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/db/database_provider.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
+import '../premium/providers.dart';
 import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'data/services/local_notification_scheduler.dart';
 import 'domain/entities/medication.dart';
+import 'domain/entities/medication_reminder.dart';
 import 'domain/entities/next_reminder.dart';
 import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
@@ -172,6 +174,23 @@ final remindersForMedicationProvider =
           .where((view) => view.reminder.medicationId == medicationId)
           .toList();
     });
+
+/// Whether another reminder may be created.
+///
+/// Free users get [MedicationReminder.freeLimit] across every medication,
+/// not one each. **Only the add path asks.** A free user who already has
+/// more — from before this limit existed, or pulled down by a sync from a
+/// device that had premium — keeps every one of them: taking back a reminder
+/// someone relies on to take medication is not a paywall, it is a regression.
+final canAddReminderProvider = Provider<bool>((ref) {
+  if (ref.watch(hasPremiumProvider)) return true;
+
+  final List<MedicationReminderView> all =
+      ref.watch(medicationRemindersStreamProvider).value ??
+      const <MedicationReminderView>[];
+
+  return all.length < MedicationReminder.freeLimit;
+});
 
 /// The flutter_local_notifications plugin, initialized once (timezone setup
 /// happens in main()). Override in tests with a fake NotificationScheduler.

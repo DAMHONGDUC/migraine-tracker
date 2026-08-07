@@ -193,6 +193,18 @@
   "@logNext": {
     "description": "App bar button that confirms the current step's pick (location or medication) and advances to the next step"
   },
+  "logExertionTitle": "Were you exerting yourself?",
+  "@logExertionTitle": {
+    "description": "Question on the log flow's exertion step"
+  },
+  "logExertionOptional": "Optional — tap Next to skip.",
+  "@logExertionOptional": {
+    "description": "Hint under the exertion picker saying the step can be passed without an answer"
+  },
+  "stepExertion": "Exertion",
+  "@stepExertion": {
+    "description": "Label of the exertion node in the log flow's step bar"
+  },
   "logMedicationTitle": "Did you take medication?",
   "@logMedicationTitle": {
     "description": "Title above the medication picker, third tap of the log flow"
@@ -271,6 +283,14 @@
   "medicationDetailName": "Name",
   "@medicationDetailName": {
     "description": "Label over the editable name field on the medication detail screen"
+  },
+  "medicationDetailEditName": "Edit name",
+  "@medicationDetailEditName": {
+    "description": "Tooltip on the pencil in the name field, which focuses it for editing"
+  },
+  "medicationDetailSaveName": "Save name",
+  "@medicationDetailSaveName": {
+    "description": "Tooltip on the tick in the name field while editing, which commits the rename"
   },
   "medicationDetailReminders": "Reminders",
   "@medicationDetailReminders": {
@@ -355,6 +375,10 @@
   "detailsExertionLabel": "Physical exertion",
   "@detailsExertionLabel": {
     "description": "Label above the exertion-level picker in the details sheet"
+  },
+  "exertionLevelNone": "None",
+  "@exertionLevelNone": {
+    "description": "Exertion level: the user was not exerting themselves. The log step's default."
   },
   "exertionLevelLight": "Light",
   "@exertionLevelLight": {
@@ -511,6 +535,18 @@
   "@insightsTitle": {
     "description": "Title of the insights screen"
   },
+  "insightsPressureTitle": "Pressure",
+  "@insightsPressureTitle": {
+    "description": "Title of the combined pressure card on Insights, which opens the pressure detail screen"
+  },
+  "pressureScreenTitle": "Pressure",
+  "@pressureScreenTitle": {
+    "description": "Title of the pressure detail screen: forecast, correlation and alert controls"
+  },
+  "insightsStillSettling": "Still settling — the figure will move as you log more.",
+  "@insightsStillSettling": {
+    "description": "Shown under any insight whose sample is below its minimum; the figure is real but not yet stable"
+  },
   "insightsCorrelationTitle": "Pressure correlation",
   "@insightsCorrelationTitle": {
     "description": "Title of the correlation insight card"
@@ -549,7 +585,7 @@
       }
     }
   },
-  "insightsAnalyzedCaption": "Based on {count} attacks with weather data",
+  "insightsAnalyzedCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} with weather data",
   "@insightsAnalyzedCaption": {
     "description": "Sample-size caption under the correlation insight",
     "placeholders": {
@@ -557,6 +593,10 @@
         "type": "int"
       }
     }
+  },
+  "insightsActivityTitle": "Activity",
+  "@insightsActivityTitle": {
+    "description": "Title of the combined activity card on Insights (exertion + steps), which opens the activity detail screen"
   },
   "insightsExertionTitle": "Physical exertion",
   "@insightsExertionTitle": {
@@ -591,7 +631,7 @@
   "@insightsExertionSentence": {
     "description": "Sentence after the big percentage hero number on the exertion card"
   },
-  "insightsExertionAnalyzedCaption": "Based on {count} attacks with exertion logged",
+  "insightsExertionAnalyzedCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} with exertion logged",
   "@insightsExertionAnalyzedCaption": {
     "description": "Sample-size caption under the exertion insight",
     "placeholders": {
@@ -620,6 +660,10 @@
         "type": "String"
       }
     }
+  },
+  "sleepScreenTitle": "Sleep",
+  "@sleepScreenTitle": {
+    "description": "Title of the sleep detail screen and its Settings row"
   },
   "insightsSleepTitle": "Sleep & attacks",
   "@insightsSleepTitle": {
@@ -673,7 +717,7 @@
   "@insightsSleepRestNights": {
     "description": "Row label for the average sleep on every other night"
   },
-  "insightsSleepAnalyzedCaption": "Based on {attackNights} nights before an attack and {restNights} others",
+  "insightsSleepAnalyzedCaption": "Based on {attackNights, plural, =1{1 night} other{{attackNights} nights}} before an attack and {restNights, plural, =1{1 other} other{{restNights} others}}",
   "@insightsSleepAnalyzedCaption": {
     "description": "Sample-size caption under the sleep insight, giving both group sizes",
     "placeholders": {
@@ -737,7 +781,7 @@
   "@insightsStepsRestDays": {
     "description": "Row label for the average steps on every other day"
   },
-  "insightsStepsAnalyzedCaption": "Based on {attackDays} days with an attack and {restDays} others",
+  "insightsStepsAnalyzedCaption": "Based on {attackDays, plural, =1{1 day} other{{attackDays} days}} with an attack and {restDays, plural, =1{1 other} other{{restDays} others}}",
   "@insightsStepsAnalyzedCaption": {
     "description": "Sample-size caption under the step insight, giving both group sizes",
     "placeholders": {
@@ -903,6 +947,28 @@
   "premiumLockedSteps": "Unlock to see whether your attacks follow your least active days.",
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
+  },
+  "reminderLimitTitle": "{count, plural, =1{One reminder on the free plan} other{{count} reminders on the free plan}}",
+  "@reminderLimitTitle": {
+    "description": "Dialog title shown when a free user tries to add one reminder past the limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderLimitBody": "{count, plural, =1{The free plan includes one reminder across all your medications.} other{The free plan includes {count} reminders across all your medications.}} Unlock Premium to add as many as you need.",
+  "@reminderLimitBody": {
+    "description": "Dialog body explaining the free plan's reminder limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "premiumLockedCharts": "Unlock to see every chart of your attack history.",
+  "@premiumLockedCharts": {
+    "description": "Accessibility label on a locked chart card in History, where only the unlock button is drawn"
   },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
@@ -2061,6 +2127,10 @@
     "description": "Settings row title for the signed-in account; deliberately not the email, which Settings should not put on screen"
   },
   "healthSleepTitle": "Apple Health sleep",
+  "healthStepsTitle": "Apple Health steps",
+  "@healthStepsTitle": {
+    "description": "Connect switch on the activity detail screen: lets the app read step counts"
+  },
   "@healthSleepTitle": {
     "description": "Settings row title for the Apple Health sleep connection"
   },

@@ -25,10 +25,14 @@ class _HeaderState extends ConsumerState<_Header> {
   );
   final FocusNode _focus = FocusNode();
 
+  /// Drives the suffix glyph: a pencil says the name can be changed, a tick
+  /// says the change is saved by tapping it.
+  bool _editing = false;
+
   @override
   void initState() {
     super.initState();
-    _focus.addListener(_commitOnBlur);
+    _focus.addListener(_onFocusChanged);
   }
 
   @override
@@ -43,13 +47,16 @@ class _HeaderState extends ConsumerState<_Header> {
   @override
   void dispose() {
     _focus
-      ..removeListener(_commitOnBlur)
+      ..removeListener(_onFocusChanged)
       ..dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  void _commitOnBlur() {
+  /// Blur is still the one commit path — the tick just unfocuses, so tapping
+  /// it and tapping away save through exactly the same line.
+  void _onFocusChanged() {
+    setState(() => _editing = _focus.hasFocus);
     if (!_focus.hasFocus) _commit();
   }
 
@@ -91,6 +98,20 @@ class _HeaderState extends ConsumerState<_Header> {
             prefixIcon: Icons.medication_outlined,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _focus.unfocus(),
+            suffix: SdIconButtonV2(
+              icon: SdIconV2(
+                icon: _editing ? Icons.check : Icons.edit_outlined,
+                size: SdSpacingConstant.r20,
+                color: _editing
+                    ? context.colorScheme.secondary
+                    : context.colorScheme.onSurfaceVariant,
+              ),
+              tooltip: _editing
+                  ? l10n.medicationDetailSaveName
+                  : l10n.medicationDetailEditName,
+              onPressed: () =>
+                  _editing ? _focus.unfocus() : _focus.requestFocus(),
+            ),
           ),
           SizedBox(height: SdSpacingConstant.h8),
           Text(addedLabel, style: AppTextStyle.bodySmall.secondary),

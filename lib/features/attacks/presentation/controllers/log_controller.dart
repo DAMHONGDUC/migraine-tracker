@@ -8,11 +8,16 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
 
 /// Steps of the sacred flow: pick a value, then confirm with Next/Done.
-enum LogStep { intensity, location, medication, saved }
+///
+/// [medication] and [exertion] both arrive with their common answer already
+/// selected ("No medication", "None"), so Next is armed on arrival and
+/// neither can stand between the user and a saved attack.
+enum LogStep { intensity, location, medication, exertion, saved }
 
 @immutable
 class LogFlowState {
@@ -20,6 +25,7 @@ class LogFlowState {
     this.step = LogStep.intensity,
     this.intensity,
     this.location,
+    this.medicationName,
     this.savedId,
     this.hasDraft = false,
     this.draft,
@@ -28,6 +34,11 @@ class LogFlowState {
   final LogStep step;
   final int? intensity;
   final HeadLocation? location;
+
+  /// Committed on the medication step, held until the save at the end of the
+  /// exertion step. Null is a real answer here ("No medication").
+  final String? medicationName;
+
   final String? savedId;
 
   /// Whether the active step currently has a pick worth confirming — arms
@@ -36,7 +47,8 @@ class LogFlowState {
   final bool hasDraft;
 
   /// The active step's picked-but-not-yet-confirmed value: an `int`
-  /// (intensity), a [HeadLocation], or a `String?` (medication name).
+  /// (intensity), a [HeadLocation], a `String?` (medication name) or an
+  /// [ExertionLevel].
   final Object? draft;
 }
 
@@ -56,14 +68,14 @@ class LogController extends Notifier<LogFlowState> {
     AppAnalytics.logLogFlowStep(LogStep.location.name);
   }
 
-  /// Called by the location/medication step whenever the user picks or
-  /// changes a value. Only arms the app bar's Next button — doesn't
-  /// advance the flow.
+  /// Called by a step whenever the user picks or changes a value. Only arms
+  /// the app bar's Next button — doesn't advance the flow.
   void updateDraft(Object? value) {
     state = LogFlowState(
       step: state.step,
       intensity: state.intensity,
       location: state.location,
+      medicationName: state.medicationName,
       savedId: state.savedId,
       hasDraft: true,
       draft: value,
@@ -71,7 +83,7 @@ class LogController extends Notifier<LogFlowState> {
   }
 
   /// App bar Next: commits the active step's draft and advances. On the
-  /// medication step this also persists the attack.
+  /// exertion step this also persists the attack.
   Future<void> confirmStep() async {
     switch (state.step) {
       case LogStep.location:
@@ -79,10 +91,26 @@ class LogController extends Notifier<LogFlowState> {
           step: LogStep.medication,
           intensity: state.intensity,
           location: state.draft! as HeadLocation,
+          // Defaults to "No medication": the common answer costs no tap, and
+          // Next is armed on arrival rather than after a pick.
+          hasDraft: true,
         );
         AppAnalytics.logLogFlowStep(LogStep.medication.name);
       case LogStep.medication:
-        await _save(state.draft as String?);
+        state = LogFlowState(
+          step: LogStep.exertion,
+          intensity: state.intensity,
+          location: state.location,
+          medicationName: state.draft as String?,
+          // Same idea: "None" is the common answer and the step's default.
+          hasDraft: true,
+          draft: ExertionLevel.none,
+        );
+        AppAnalytics.logLogFlowStep(LogStep.exertion.name);
+      case LogStep.exertion:
+        // Never blocks: the step arrives on [ExertionLevel.none], so Next
+        // works before the user touches anything (hard rule 5).
+        await _save(state.medicationName, state.draft as ExertionLevel?);
       case LogStep.intensity:
       case LogStep.saved:
         break;
@@ -91,13 +119,14 @@ class LogController extends Notifier<LogFlowState> {
 
   /// Persists the attack and moves to the saved confirmation. Weather is
   /// attached best-effort; logging never waits for the network.
-  Future<void> _save(String? medicationName) async {
+  Future<void> _save(String? medicationName, ExertionLevel? exertionLevel) async {
     final attack = Attack(
       id: _uuid.v4(),
       startedAt: DateTime.now().toUtc(),
       intensity: state.intensity!,
       location: state.location!,
       medicationName: medicationName,
+      exertionLevel: exertionLevel,
     );
 
     try {
@@ -106,6 +135,7 @@ class LogController extends Notifier<LogFlowState> {
         'intensity': attack.intensity,
         'location': attack.location.name,
         'medication': medicationName,
+        'exertion': exertionLevel?.name,
       });
       AppAnalytics.logAttackLogged();
       AppAnalytics.logLogFlowStep(LogStep.saved.name);
@@ -141,6 +171,16 @@ class LogController extends Notifier<LogFlowState> {
         location: state.location,
         draft: state.location,
         hasDraft: state.location != null,
+      ),
+      // Medication was confirmed to get here, and "No medication" is a valid
+      // confirmed pick — so Next is armed even though the draft is null.
+      LogStep.exertion => LogFlowState(
+        step: LogStep.medication,
+        intensity: state.intensity,
+        location: state.location,
+        medicationName: state.medicationName,
+        draft: state.medicationName,
+        hasDraft: true,
       ),
       _ => state,
     };

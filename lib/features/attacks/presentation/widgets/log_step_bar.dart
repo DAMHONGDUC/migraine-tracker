@@ -8,7 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../controllers/log_controller.dart' show LogStep;
 
-/// The 3-tap progress as a floating bottom bar — the same slot, glass
+/// The flow's progress as a floating bottom bar — the same slot, glass
 /// treatment, side margin and bottom offset the shell's bottom nav used to
 /// morph into while logging (both read `SdContentPaddingV2.
 /// floatingBarHorizontal` and `.navBarOffset`, never their own copy). Sits in
@@ -23,6 +23,7 @@ class LogStepBar extends StatelessWidget {
     final currentStep = switch (step) {
       LogStep.location => 1,
       LogStep.medication => 2,
+      LogStep.exertion => 3,
       _ => 0,
     };
     final content = SizedBox(
@@ -75,17 +76,18 @@ class _StepProgress extends StatelessWidget {
     final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w48,
+        horizontal: SdSpacingConstant.w16,
       ).copyWith(top: SdSpacingConstant.h2),
       child: Center(
         child: StepProgress(
-          totalSteps: 3,
+          totalSteps: 4,
           currentStep: currentStep,
           stepNodeSize: SdSpacingConstant.r20,
           nodeTitles: [
             l10n.stepIntensity,
             l10n.stepLocation,
             l10n.stepMedication,
+            l10n.stepExertion,
           ],
           visibilityOptions: StepProgressVisibilityOptions.nodeThenLine,
           theme: StepProgressThemeData(
@@ -94,7 +96,7 @@ class _StepProgress extends StatelessWidget {
             stepAnimationDuration: const Duration(milliseconds: 200),
             nodeLabelAlignment: StepLabelAlignment.bottom,
             nodeLabelStyle: StepLabelStyle(
-              maxWidth: 72,
+              maxWidth: 64,
               activeColor: scheme.primary,
               defualtColor: AppColors.textSecondary,
               titleStyle: AppTextStyle.labelTiny,

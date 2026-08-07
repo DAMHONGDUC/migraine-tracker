@@ -1,5 +1,6 @@
 import '../entities/sleep_night.dart';
 import '../entities/step_day.dart';
+import '../enums/health_data_kind.dart';
 
 /// Read-only access to the platform health store (Apple HealthKit).
 ///
@@ -13,9 +14,9 @@ abstract interface class HealthRepository {
   /// everywhere else.
   bool get isAvailable;
 
-  /// Shows Apple's HealthKit sheet and resolves once it is answered, for
-  /// every source this repository composes (sleep AND steps) in one call —
-  /// "one switch, one sheet".
+  /// Shows Apple's HealthKit sheet for one [kind] and resolves once it is
+  /// answered. One sheet per source, because sleep and steps are connected
+  /// separately — a refusal must cost only the source it was asked about.
   ///
   /// True means the sheet completed, NOT that anything was granted: iOS
   /// deliberately never discloses a *read* denial (that would leak which
@@ -23,7 +24,7 @@ abstract interface class HealthRepository {
   /// can still be followed by [sleepNights]/[stepDays] returning nothing, and
   /// the UI must treat "empty" as "no access or no data" without guessing
   /// which.
-  Future<bool> requestAuthorization();
+  Future<bool> requestAuthorization(HealthDataKind kind);
 
   /// Sleep between [from] and [to] (local time), grouped into one entry per
   /// night, oldest first.

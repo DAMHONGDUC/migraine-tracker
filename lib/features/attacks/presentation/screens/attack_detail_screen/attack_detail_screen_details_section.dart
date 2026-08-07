@@ -11,15 +11,13 @@ class _DetailsSection extends StatelessWidget {
     final isEmpty =
         attack.symptoms.isEmpty &&
         attack.triggers.isEmpty &&
-        (attack.notes?.isEmpty ?? true) &&
-        attack.exertionLevel == null;
+        (attack.notes?.isEmpty ?? true);
 
     void edit() => AttackDetailsSheet(
       attackId: attack.id,
       initialSymptoms: attack.symptoms,
       initialTriggers: attack.triggers,
       initialNotes: attack.notes,
-      initialExertionLevel: attack.exertionLevel,
     ).show(context);
 
     return _Section(
@@ -55,11 +53,6 @@ class _DetailsSection extends StatelessWidget {
                 attack.notes!,
                 style: AppTextStyle.bodyMedium.secondary,
               ),
-            ),
-          if (attack.exertionLevel != null)
-            _ReadOnlyRow(
-              label: l10n.detailsExertionLabel,
-              value: attack.exertionLevel!.label(l10n),
             ),
           Padding(
             padding: EdgeInsets.only(
