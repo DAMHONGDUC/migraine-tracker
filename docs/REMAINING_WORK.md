@@ -5,7 +5,30 @@ handling the App Store Connect side separately. This is what is left in the
 codebase, ordered top to bottom by priority. Re-check before acting on an
 item; this is a point-in-time survey, not a live tracker.
 
-## 1. GDPR "Delete everything" is still incomplete (hard rule 8)
+## 1. ~~GDPR "Delete everything" is incomplete~~ — done
+
+Both halves now exist and are separate on purpose. **"Delete all data"**
+(Settings) clears the records on device and in the account, past exports, and
+gives up the FCM token, geohash and threshold — but keeps the account, so
+someone clearing their history does not lose their subscription binding with
+it. **"Delete account"** (Account screen) tears the whole thing down through
+the `deleteAccount` callable: synced records, `users/{uid}`, `sync_keys/{uid}`,
+then the auth user, in that order — deleting the auth user first would leave
+every later step unauthorised and the records stranded.
+
+The server half had to be a Cloud Function, not a choice: rules deny a client
+deleting `users/{uid}` (the write rule reads `request.resource.data`, which
+does not exist on a delete) and deny `sync_keys` to everyone.
+
+What is still worth knowing:
+
+- The confirm dialog says deleting the account does NOT cancel the
+  subscription. It cannot — that lives in the App Store — and a user who
+  assumes otherwise keeps being charged.
+- Nothing revokes the FCM token from the *device*, only from the server
+  record. The cron can no longer target it, which is what matters.
+
+## Old note (superseded)
 
 `DataWipeService.wipeAll()` (`lib/features/settings/domain/services/data_wipe_service.dart`)
 now deletes the account's synced records (the top-level collections, filtered by `userId`) before it

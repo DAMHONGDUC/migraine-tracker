@@ -54,6 +54,7 @@ abstract final class AppAnalytics {
   static const String _exportSavedToDevice = 'export_saved_to_device';
   static const String _exportDeleted = 'export_deleted';
   static const String _dataWiped = 'data_wiped';
+  static const String _accountDeleted = 'account_deleted';
   static const String _attacksSynced = 'attacks_synced';
 
   // --- Parameter keys. ---
@@ -219,6 +220,10 @@ abstract final class AppAnalytics {
     required String reason,
   }) =>
       _log(_signInFailed, <String, Object>{_pMethod: method, _pReason: reason});
+
+  /// Deliberately parameterless: by the time this fires there is nothing
+  /// left to describe, and why someone left is not ours to record.
+  static void logAccountDeleted() => _log(_accountDeleted);
 
   static void logSignOut() => _log(_signOut);
 

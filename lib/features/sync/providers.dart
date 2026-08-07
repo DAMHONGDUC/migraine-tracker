@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
 import '../../core/l10n/locale_provider.dart';
 import '../attacks/data/repositories/drift_attack_sync_store.dart';
@@ -26,13 +27,11 @@ import 'domain/services/medication_reminder_payload_codec.dart';
 import 'domain/services/sync_service.dart';
 import 'presentation/controllers/sync_controller.dart';
 
-/// Same region as the functions themselves — the default (us-central1) would
-/// miss them, and Firestore lives in europe-west1 for GDPR.
-const String syncFunctionsRegion = 'europe-west1';
-
 final syncKeyRepositoryProvider = Provider<SyncKeyRepository>(
   (ref) => FunctionsSyncKeyRepository(
-    FirebaseFunctions.instanceFor(region: syncFunctionsRegion),
+    FirebaseFunctions.instanceFor(
+      region: FirebaseConstants.functionsRegion,
+    ),
   ),
 );
 

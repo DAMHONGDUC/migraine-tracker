@@ -23,4 +23,15 @@ abstract interface class AuthRepository {
   /// Renames the account on the auth record itself, so a reinstall or a
   /// second device sees the name the user chose. No-op when signed out.
   Future<void> updateDisplayName(String displayName);
+
+  /// Deletes the account and everything the backend holds about it, then
+  /// leaves the app signed out.
+  ///
+  /// The server half runs in a Cloud Function: `firestore.rules` denies a
+  /// client deleting `users/{uid}` and denies `sync_keys/{uid}` to everyone,
+  /// so this could never have been done from here. Local data is the
+  /// caller's job — see `DataWipeService`.
+  ///
+  /// App Store 5.1.1(v) requires this to exist in-app once accounts do.
+  Future<void> deleteAccount();
 }

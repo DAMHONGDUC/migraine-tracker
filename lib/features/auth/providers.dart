@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../../core/constants/firebase_constants.dart';
 
 import 'data/repositories/firebase_auth_repository.dart';
 import 'data/repositories/firestore_user_profile_repository.dart';
@@ -14,7 +17,14 @@ import 'presentation/controllers/auth_controller.dart';
 /// Widget tests MUST override this: [authUserProvider] is watched at build
 /// time, so a real repository drags Firebase into the test tree.
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => FirebaseAuthRepository(FirebaseAuth.instance, GoogleSignIn.instance),
+  (ref) => FirebaseAuthRepository(
+    FirebaseAuth.instance,
+    GoogleSignIn.instance,
+    // Same region as the functions themselves; the default would miss them.
+    FirebaseFunctions.instanceFor(
+      region: FirebaseConstants.functionsRegion,
+    ),
+  ),
 );
 
 /// Null while Firebase restores it, and after sign-out until something

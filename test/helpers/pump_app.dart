@@ -217,6 +217,15 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(_user);
   }
 
+  /// Records that the account was torn down, without pretending to do it.
+  int deleteAccountCalls = 0;
+
+  @override
+  Future<void> deleteAccount() async {
+    deleteAccountCalls++;
+    await signOut();
+  }
+
   @override
   Future<void> updateDisplayName(String displayName) async {
     _user = AuthUser(

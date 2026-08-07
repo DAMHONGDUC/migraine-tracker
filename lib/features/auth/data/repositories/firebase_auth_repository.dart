@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,10 +16,14 @@ import '../../domain/repositories/auth_repository.dart';
 /// Signs in via `linkWithCredential` so the anonymous UID already written
 /// to Firestore survives. See [_link] for the one case where it cannot.
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository(this._auth, this._google);
+  FirebaseAuthRepository(this._auth, this._google, this._functions);
+
+  /// Name of the callable that does the server half of account deletion.
+  static const String deleteAccountCallable = 'deleteAccount';
 
   final FirebaseAuth _auth;
   final GoogleSignIn _google;
+  final FirebaseFunctions _functions;
 
   /// `initialize()` runs once before `authenticate()`; cached so concurrent
   /// taps share the one call.
@@ -45,6 +50,15 @@ class FirebaseAuthRepository implements AuthRepository {
     };
 
     return _link(credential);
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    // The function deletes the auth user too, so by the time it returns there
+    // is nothing left to sign out of — but the local session still holds a
+    // stale user until signOut clears it.
+    await _functions.httpsCallable(deleteAccountCallable).call<dynamic>();
+    await signOut();
   }
 
   @override

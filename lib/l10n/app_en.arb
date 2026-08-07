@@ -1991,6 +1991,30 @@
   "@accountPremiumFreeBody": {
     "description": "Account screen row subtitle listing what premium adds"
   },
+  "accountDelete": "Delete account",
+  "@accountDelete": {
+    "description": "Destructive action on the account screen. App Store 5.1.1(v) requires in-app account deletion once accounts exist"
+  },
+  "accountDeleteConfirmTitle": "Delete your account?",
+  "@accountDeleteConfirmTitle": {
+    "description": "Title of the account-deletion confirm dialog"
+  },
+  "accountDeleteConfirmBody": "This permanently deletes your account and everything in it — attacks, medications, reminders, on this device and in the cloud. It does not cancel your subscription; manage that in the App Store. This cannot be undone.",
+  "@accountDeleteConfirmBody": {
+    "description": "Body of the account-deletion confirm dialog. Names the subscription explicitly because deleting the account does NOT cancel it, and a user who assumes otherwise keeps being charged"
+  },
+  "accountDeleteConfirmAction": "Delete account",
+  "@accountDeleteConfirmAction": {
+    "description": "Destructive confirm button in the account-deletion dialog"
+  },
+  "accountDeleteDone": "Your account has been deleted.",
+  "@accountDeleteDone": {
+    "description": "Confirmation shown after the account is gone"
+  },
+  "accountDeleteFailed": "Couldn't delete your account. Please try again.",
+  "@accountDeleteFailed": {
+    "description": "Shown when account deletion fails. The account survives, so retrying is the right advice"
+  },
   "accountDataNote": "Your account holds your name, email and photo. Your attacks are backed up encrypted, and stay on this device too.",
   "@accountDataNote": {
     "description": "Privacy note at the bottom of the account screen. Same accuracy bar as loginPrivacyNote: the backend holds the key, so never imply end-to-end encryption."
