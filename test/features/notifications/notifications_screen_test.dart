@@ -101,6 +101,14 @@ void main() {
     expect(tabs.segments.map((SdSegmentV2 s) => s.count), <int>[1, 1]);
     expect(tabs.selectedIndex, 0);
 
+    // Centred in the track, not sitting against its top edge: the Stack
+    // hands its children loose constraints, so the row of segments has to
+    // be told to fill the height.
+    final Rect track = tester.getRect(find.byType(SdSegmentedTabsV2));
+    final Rect label = tester.getRect(find.text('Reminders'));
+
+    expect(label.center.dy, moreOrLessEquals(track.center.dy, epsilon: 1));
+
     // Reminders tab: the alert is not on it.
     expect(find.text('Time for Sumatriptan'), findsOneWidget);
     expect(find.text('Pressure drop ahead'), findsNothing);
