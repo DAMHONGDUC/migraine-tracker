@@ -59,7 +59,7 @@ void main() {
     test('14 days is one short of the minimum', () {
       final ({List<Attack> attacks, List<StepDay> days}) data = history(
         attackDaySteps: List<int>.filled(5, 2000),
-        restDaySteps: List<int>.filled(9, 8000),
+        restDaySteps: const <int>[],
       );
       final StepCorrelationResult result = engine.analyze(
         attacks: data.attacks,
@@ -67,24 +67,56 @@ void main() {
       );
 
       expect(result, isA<StepInsufficientData>());
-      expect((result as StepInsufficientData).daysWithSteps, 14);
+      expect((result as StepInsufficientData).restDays, 0);
+    });
+  });
+
+  group('below the minimum the comparison still runs', () {
+    test('one day each side already yields both averages', () {
+      final ({List<Attack> attacks, List<StepDay> days}) data = history(
+        attackDaySteps: const <int>[2000],
+        restDaySteps: const <int>[8000],
+      );
+      final StepCorrelationResult result = engine.analyze(
+        attacks: data.attacks,
+        days: data.days,
+      );
+
+      expect(result, isA<StepInsight>());
+      result as StepInsight;
+      expect(result.attackDayAverage, 2000);
+      expect(result.restDayAverage, 8000);
+      // One side under the per-group floor: the gap is not a headline yet.
+      expect(result.isCountOnly, isTrue);
+      expect(result.isPreliminary, isTrue);
     });
 
-    test('enough days but too few attack days', () {
+    test('identical averages are not judged while a side is thin', () {
       final ({List<Attack> attacks, List<StepDay> days}) data = history(
-        attackDaySteps: List<int>.filled(2, 2000),
-        restDaySteps: List<int>.filled(18, 8000),
+        attackDaySteps: const <int>[7000],
+        restDaySteps: const <int>[7000],
+      );
+
+      expect(
+        engine.analyze(attacks: data.attacks, days: data.days),
+        isA<StepInsight>(),
+      );
+    });
+
+    test('both groups past the floor but too few days is preliminary', () {
+      final ({List<Attack> attacks, List<StepDay> days}) data = history(
+        attackDaySteps: List<int>.filled(4, 2000),
+        restDaySteps: List<int>.filled(6, 8000),
       );
       final StepCorrelationResult result = engine.analyze(
         attacks: data.attacks,
         days: data.days,
       );
 
-      expect(result, isA<StepInsufficientData>());
-      result as StepInsufficientData;
-      expect(result.attackDays, 2);
-      expect(result.restDays, 18);
-      expect(result.requiredPerGroup, 3);
+      result as StepInsight;
+      expect(result.daysAnalyzed, 10);
+      expect(result.isCountOnly, isFalse);
+      expect(result.isPreliminary, isTrue);
     });
   });
 
@@ -197,17 +229,19 @@ void main() {
   });
 
   group('tuning', () {
-    test('a stricter minimum pushes a valid sample back to insufficient', () {
+    test('a stricter minimum keeps a valid sample preliminary', () {
       const StepCorrelationEngine strict = StepCorrelationEngine(minDays: 30);
       final ({List<Attack> attacks, List<StepDay> days}) data = history(
         attackDaySteps: List<int>.filled(5, 2000),
         restDaySteps: List<int>.filled(10, 8000),
       );
-
-      expect(
-        strict.analyze(attacks: data.attacks, days: data.days),
-        isA<StepInsufficientData>(),
+      final StepCorrelationResult result = strict.analyze(
+        attacks: data.attacks,
+        days: data.days,
       );
+
+      expect(result, isA<StepInsight>());
+      expect((result as StepInsight).isPreliminary, isTrue);
     });
 
     test('a wider epsilon swallows a small difference', () {

@@ -28,30 +28,62 @@ void main() {
       final result = engine.analyze([]);
       expect(result, isA<ExertionInsufficientData>());
       result as ExertionInsufficientData;
-      expect(result.attacksWithExertion, 0);
+      expect(result.attacksAnalyzed, 0);
       expect(result.requiredAttacks, 15);
     });
 
-    test('14 attacks with exertion is one short of the minimum', () {
+    test('attacks left unanswered carry nothing to analyse', () {
       final result = engine.analyze(
-        attacksWithLevels(List.filled(14, ExertionLevel.light)),
+        attacksWithLevels(List<ExertionLevel?>.filled(5, null)),
       );
       expect(result, isA<ExertionInsufficientData>());
-      expect(
-        (result as ExertionInsufficientData).attacksWithExertion,
-        14,
+      expect((result as ExertionInsufficientData).attacksAnalyzed, 0);
+    });
+  });
+
+  group('below the minimum the analysis still runs', () {
+    test('a single answered attack reports counts, not a percentage', () {
+      final result = engine.analyze(
+        attacksWithLevels(const <ExertionLevel?>[ExertionLevel.severe]),
       );
+      expect(result, isA<ExertionInsight>());
+      result as ExertionInsight;
+      expect(result.attacksAnalyzed, 1);
+      expect(result.moderateOrSevereCount, 1);
+      expect(result.isCountOnly, isTrue);
+      expect(result.isPreliminary, isTrue);
     });
 
-    test('attacks left unanswered do not count toward the minimum', () {
-      // 20 attacks logged, but only 10 have an exertion answer.
+    test('one level everywhere is not judged while the sample is count-only', () {
+      final result = engine.analyze(
+        attacksWithLevels(List.filled(4, ExertionLevel.light)),
+      );
+      expect(result, isA<ExertionInsight>());
+      expect((result as ExertionInsight).isCountOnly, isTrue);
+    });
+
+    test('the share appears from 5 attacks, still flagged preliminary', () {
       final levels = <ExertionLevel?>[
-        ...List.filled(10, ExertionLevel.moderate),
+        ...List.filled(3, ExertionLevel.severe),
+        ...List.filled(2, ExertionLevel.light),
+      ];
+      final result = engine.analyze(attacksWithLevels(levels));
+      result as ExertionInsight;
+      expect(result.isCountOnly, isFalse);
+      expect(result.isPreliminary, isTrue);
+      expect(result.moderateOrSeverePercent, closeTo(60.0, 0.001));
+    });
+
+    test('unanswered attacks do not count toward the minimum', () {
+      final levels = <ExertionLevel?>[
+        ...List.filled(6, ExertionLevel.moderate),
+        ...List.filled(4, ExertionLevel.light),
         ...List<ExertionLevel?>.filled(10, null),
       ];
       final result = engine.analyze(attacksWithLevels(levels));
-      expect(result, isA<ExertionInsufficientData>());
-      expect((result as ExertionInsufficientData).attacksWithExertion, 10);
+      result as ExertionInsight;
+      expect(result.attacksAnalyzed, 10);
+      expect(result.isPreliminary, isTrue);
     });
   });
 
@@ -95,17 +127,16 @@ void main() {
       expect(result.lightCount, 6);
     });
 
-    test('respects a custom user-tuned minimum', () {
+    test('a custom minimum keeps a settled sample preliminary', () {
       const strictEngine = ExertionCorrelationEngine(minAttacks: 30);
       final levels = <ExertionLevel?>[
         ...List.filled(9, ExertionLevel.severe),
         ...List.filled(6, ExertionLevel.light),
       ];
+      final result = strictEngine.analyze(attacksWithLevels(levels));
 
-      expect(
-        strictEngine.analyze(attacksWithLevels(levels)),
-        isA<ExertionInsufficientData>(),
-      );
+      expect(result, isA<ExertionInsight>());
+      expect((result as ExertionInsight).isPreliminary, isTrue);
     });
   });
 

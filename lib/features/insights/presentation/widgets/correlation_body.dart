@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'insight_progress_body.dart';
+import 'insight_settling_note.dart';
 
 part 'correlation_body_insight.dart';
 part 'correlation_body_no_variation.dart';

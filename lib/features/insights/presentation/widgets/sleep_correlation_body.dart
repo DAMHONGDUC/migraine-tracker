@@ -9,6 +9,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/sleep_correlation_result.dart';
 import '../../providers.dart';
 import 'insight_progress_body.dart';
+import 'insight_settling_note.dart';
 
 part 'sleep_correlation_body_insight.dart';
 part 'sleep_correlation_body_not_connected.dart';

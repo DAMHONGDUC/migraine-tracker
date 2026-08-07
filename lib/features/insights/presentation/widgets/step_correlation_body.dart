@@ -9,6 +9,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/step_correlation_result.dart';
 import '../../providers.dart';
 import 'insight_progress_body.dart';
+import 'insight_settling_note.dart';
 
 part 'step_correlation_body_insight.dart';
 part 'step_correlation_body_not_connected.dart';

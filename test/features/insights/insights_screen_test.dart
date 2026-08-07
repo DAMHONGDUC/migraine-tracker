@@ -79,8 +79,9 @@ void main() {
 
     expect(find.text('1/1'), findsOneWidget);
     expect(find.text('100%'), findsNothing);
+    expect(find.text('Based on 1 attack with weather data'), findsOneWidget);
     expect(
-      find.text('Based on 1 attack so far — the figure steadies from 15.'),
+      find.text('Still settling — the figure will move as you log more.'),
       findsOneWidget,
     );
 
@@ -103,8 +104,9 @@ void main() {
     await openInsights(tester);
 
     expect(find.text('60%'), findsOneWidget);
+    expect(find.text('Based on 10 attacks with weather data'), findsOneWidget);
     expect(
-      find.text('Based on 10 attacks so far — the figure steadies from 15.'),
+      find.text('Still settling — the figure will move as you log more.'),
       findsOneWidget,
     );
 

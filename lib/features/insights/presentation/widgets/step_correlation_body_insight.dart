@@ -14,18 +14,22 @@ class _StepInsightBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          result.shortfall.abs().label(l10n),
-          style: AppTextStyle.displaySmall.w600,
-        ),
-        SizedBox(height: SdSpacingConstant.h4),
-        Text(
-          result.movedLessOnAttackDays
-              ? l10n.insightsStepsLessSentence
-              : l10n.insightsStepsMoreSentence,
-          style: AppTextStyle.bodyMedium,
-        ),
-        SizedBox(height: SdSpacingConstant.h16),
+        // One thin side makes the gap between the averages a claim neither
+        // supports — show what was measured and skip the headline.
+        if (!result.isCountOnly) ...<Widget>[
+          Text(
+            result.shortfall.abs().label(l10n),
+            style: AppTextStyle.displaySmall.w600,
+          ),
+          SizedBox(height: SdSpacingConstant.h4),
+          Text(
+            result.movedLessOnAttackDays
+                ? l10n.insightsStepsLessSentence
+                : l10n.insightsStepsMoreSentence,
+            style: AppTextStyle.bodyMedium,
+          ),
+          SizedBox(height: SdSpacingConstant.h16),
+        ],
         _AverageRow(
           label: l10n.insightsStepsAttackDays,
           value: result.attackDayAverage.label(l10n),
@@ -40,6 +44,7 @@ class _StepInsightBody extends StatelessWidget {
           l10n.insightsStepsAnalyzedCaption(result.attackDays, result.restDays),
           style: AppTextStyle.bodySmall.secondary,
         ),
+        if (result.isPreliminary) const InsightSettlingNote(),
       ],
     );
   }

@@ -519,6 +519,10 @@
   "@pressureScreenTitle": {
     "description": "Title of the pressure detail screen: forecast, correlation and alert controls"
   },
+  "insightsStillSettling": "Still settling — the figure will move as you log more.",
+  "@insightsStillSettling": {
+    "description": "Shown under any insight whose sample is below its minimum; the figure is real but not yet stable"
+  },
   "insightsCorrelationTitle": "Pressure correlation",
   "@insightsCorrelationTitle": {
     "description": "Title of the correlation insight card"
@@ -557,23 +561,11 @@
       }
     }
   },
-  "insightsAnalyzedCaption": "Based on {count} attacks with weather data",
+  "insightsAnalyzedCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} with weather data",
   "@insightsAnalyzedCaption": {
     "description": "Sample-size caption under the correlation insight",
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },
-  "insightsPreliminaryCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} so far — the figure steadies from {required}.",
-  "@insightsPreliminaryCaption": {
-    "description": "Caption under the correlation insight while the sample is still below the minimum",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "required": {
         "type": "int"
       }
     }
@@ -615,7 +607,7 @@
   "@insightsExertionSentence": {
     "description": "Sentence after the big percentage hero number on the exertion card"
   },
-  "insightsExertionAnalyzedCaption": "Based on {count} attacks with exertion logged",
+  "insightsExertionAnalyzedCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} with exertion logged",
   "@insightsExertionAnalyzedCaption": {
     "description": "Sample-size caption under the exertion insight",
     "placeholders": {
@@ -701,7 +693,7 @@
   "@insightsSleepRestNights": {
     "description": "Row label for the average sleep on every other night"
   },
-  "insightsSleepAnalyzedCaption": "Based on {attackNights} nights before an attack and {restNights} others",
+  "insightsSleepAnalyzedCaption": "Based on {attackNights, plural, =1{1 night} other{{attackNights} nights}} before an attack and {restNights, plural, =1{1 other} other{{restNights} others}}",
   "@insightsSleepAnalyzedCaption": {
     "description": "Sample-size caption under the sleep insight, giving both group sizes",
     "placeholders": {
@@ -765,7 +757,7 @@
   "@insightsStepsRestDays": {
     "description": "Row label for the average steps on every other day"
   },
-  "insightsStepsAnalyzedCaption": "Based on {attackDays} days with an attack and {restDays} others",
+  "insightsStepsAnalyzedCaption": "Based on {attackDays, plural, =1{1 day} other{{attackDays} days}} with an attack and {restDays, plural, =1{1 other} other{{restDays} others}}",
   "@insightsStepsAnalyzedCaption": {
     "description": "Sample-size caption under the step insight, giving both group sizes",
     "placeholders": {

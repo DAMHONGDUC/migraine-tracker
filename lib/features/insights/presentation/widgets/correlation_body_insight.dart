@@ -36,14 +36,10 @@ class _Insight extends StatelessWidget {
         ),
         SizedBox(height: SdSpacingConstant.h12),
         Text(
-          result.isPreliminary
-              ? l10n.insightsPreliminaryCaption(
-                  result.attacksAnalyzed,
-                  result.requiredAttacks,
-                )
-              : l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
+          l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
           style: AppTextStyle.bodySmall.secondary,
         ),
+        if (result.isPreliminary) const InsightSettlingNote(),
       ],
     );
   }
