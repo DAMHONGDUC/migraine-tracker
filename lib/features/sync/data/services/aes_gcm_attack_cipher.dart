@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/services/attack_cipher.dart';
@@ -12,6 +13,18 @@ class AesGcmAttackCipher implements AttackCipher {
 
   /// 96 bits, the nonce size AES-GCM is defined against.
   static const int nonceBytes = 12;
+
+  /// How many records a pull has to carry before [decryptAll] pays for an
+  /// isolate instead of doing the work where it stands.
+  ///
+  /// Below this the whole batch is roughly one frame's worth (~0.27ms a
+  /// record on the machine this was measured on), and the hop would cost
+  /// more than it saves — an ordinary pull carries a handful of records,
+  /// and paying an isolate for each of four collections every sync would
+  /// be slower than the jank it set out to remove. **A guess pending a
+  /// measurement on a real device**, where the hop is the part that
+  /// differs most from a desktop host.
+  static const int isolateThreshold = 50;
 
   static final AesGcm _algorithm = AesGcm.with256bits();
 
@@ -47,6 +60,56 @@ class AesGcmAttackCipher implements AttackCipher {
     return utf8.decode(
       await _algorithm.decrypt(box, secretKey: _key(base64Key)),
     );
+  }
+
+  @override
+  Future<List<String?>> decryptAll({
+    required List<EncryptedPayload?> payloads,
+    required String base64Key,
+  }) async {
+    final int openable = payloads.whereType<EncryptedPayload>().length;
+
+    if (openable < isolateThreshold) {
+      return _decryptEach(payloads, base64Key);
+    }
+    // Records and plain objects both travel the port; nothing here holds a
+    // closure or a native handle.
+    return compute(_decryptBatch, (payloads, base64Key));
+  }
+
+  /// The isolate's entry point. A static rather than a top-level function:
+  /// `compute` needs one of the two, and this project does not have
+  /// top-level functions.
+  static Future<List<String?>> _decryptBatch(
+    (List<EncryptedPayload?>, String) job,
+  ) {
+    final (List<EncryptedPayload?> payloads, String key) = job;
+
+    return const AesGcmAttackCipher()._decryptEach(payloads, key);
+  }
+
+  /// Shared by both paths, so the isolate and the inline route cannot
+  /// answer differently.
+  Future<List<String?>> _decryptEach(
+    List<EncryptedPayload?> payloads,
+    String base64Key,
+  ) async {
+    final List<String?> results = <String?>[];
+
+    for (final EncryptedPayload? payload in payloads) {
+      if (payload == null) {
+        results.add(null);
+        continue;
+      }
+      try {
+        results.add(await decrypt(payload: payload, base64Key: base64Key));
+      } catch (_) {
+        // Counted by the caller, never rethrown: the ciphertext will not
+        // change, so retrying it forever would wedge the pull.
+        results.add(null);
+      }
+    }
+    return results;
   }
 
   SecretKey _key(String base64Key) => SecretKey(base64Decode(base64Key));

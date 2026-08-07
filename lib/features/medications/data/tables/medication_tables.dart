@@ -36,6 +36,18 @@ class MedicationReminders extends Table {
   IntColumn get minuteOfDay => integer()();
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
 
+  /// When this reminder was created (UTC). Added in schema v8, and it syncs:
+  /// the notification list materialises past occurrences over a window, and
+  /// without a lower bound it would invent months of "you were reminded" for
+  /// a reminder created yesterday. Every device has to agree where that
+  /// history starts, which is why it travels in the payload.
+  ///
+  /// Nullable for the same reason `Medications.createdAt` is: rows that
+  /// predate v8 have no recorded creation date, and stamping them with the
+  /// migration's timestamp would invent the very bound this exists to give.
+  /// Null means "unknown" and the window alone bounds them.
+  DateTimeColumn get createdAt => dateTime().nullable()();
+
   /// Sync state, added in v7. Note what syncs and what does not: the row
   /// travels, the scheduled OS notification does not — it is local to each
   /// device and gets re-scheduled after a pull.

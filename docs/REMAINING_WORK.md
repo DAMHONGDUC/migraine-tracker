@@ -28,27 +28,10 @@ What is still worth knowing:
 - Nothing revokes the FCM token from the *device*, only from the server
   record. The cron can no longer target it, which is what matters.
 
-## Old note (superseded)
-
-`DataWipeService.wipeAll()` (`lib/features/settings/domain/services/data_wipe_service.dart`)
-now deletes the account's synced records (the top-level collections, filtered by `userId`) before it
-touches the device — that order matters, and a failure aborts the wipe, or
-the next sync would pull every deleted attack back down. What is left:
-
-- No deletion of the Firestore `users/{uid}` doc itself.
-- No FCM token revocation on wipe. `AlertRegistrationRepository.unregister()`
-  (`lib/features/alerts/domain/repositories/`) already does exactly this and
-  just needs calling.
-- No Firebase Auth account deletion — `AuthRepository`
-  (`lib/features/auth/domain/repositories/auth_repository.dart`) doesn't
-  even have a `deleteAccount()` method yet; add it to the interface and
-  both implementations first.
-- No deletion of the encryption key at `sync_keys/{uid}`. It is unreachable
-  from any client (rules deny it outright), so this has to be a Cloud
-  Function — most naturally the same one that deletes the account.
-
-This also blocks App Store requirement 5.1.1(v) (in-app account deletion is
-mandatory once accounts exist).
+The old "what is left" list under this item is gone: every point on it
+(the `users/{uid}` doc, FCM token revocation, `AuthRepository.deleteAccount`,
+the `sync_keys/{uid}` teardown) is now built and covered by
+`data_wipe_service_test.dart`.
 
 ## 2. Push notifications can't deliver on a real device
 
@@ -68,10 +51,15 @@ auto-sync on sign-in, launch, resume and after logging an attack, all
 unawaited; one row in Settings' "Your data" that runs a sync on tap and
 carries its status; a scoped first-pull state on the History list.
 
-**Three collections sync** — medications, then their reminders, then
-attacks, in that order because a reminder points at a medication. Export
-records deliberately stay local: `filePath` belongs to one device, and
-uploading them would multiply the copies hard rule 8 has to chase.
+**Four collections sync** — medications, then their reminders, then attacks,
+then the notification list, in that order because each points at the one
+before it. Export records deliberately stay local: `filePath` belongs to one
+device, and uploading them would multiply the copies hard rule 8 has to
+chase.
+
+Automatic passes have a six-hour floor (`SyncController.automaticCooldown`);
+`manual` and `record` triggers skip it. A pull decrypts the batch off the UI
+isolate above 50 records.
 
 They are **top-level collections tagged with `userId`**, not subcollections
 of the user — the owner's call, for a layout that reads like SQL. That makes
@@ -124,8 +112,14 @@ Deliberately not done, and worth knowing before extending this:
 Already documented in `CLAUDE.md` under "Pending setup"; re-verified against
 the current repo state, still open:
 
-- `firestore.rules` exists in-repo but there's no `.firebaserc` and no
-  evidence it's been deployed (`firebase deploy --only firestore:rules`).
+- `.firebaserc` now names the project (`migraine-tracker-9f7b2`), but there is
+  still no evidence `firestore.rules` or `firestore.indexes.json` have been
+  deployed. Both are separate steps (`firebase deploy --only firestore:rules`
+  and `--only firestore:indexes`), and the notification collection added to
+  `SyncCollection` needs them or every pull dies on `permission-denied`.
+- `functions/src/index.ts` now sends `data` + `content-available` on the
+  pressure-alert push. That needs `firebase deploy --only functions` before
+  alerts land in the in-app notification list.
 - The `app_updates` collection doesn't exist yet — the first release record
   has to be created by hand in the Firebase console before force-update can
   ever fire (it fails open until then, which is safe but silent).
@@ -133,7 +127,30 @@ the current repo state, still open:
   portal, plus a real-device test pass (Simulator has no HealthKit) and the
   App Privacy label (Health & Fitness, collected-but-not-linked).
 
-## 5. ~~`main.dart` config-assert TODO~~ — done
+## 5. The privacy policy is written but not published
+
+`docs/PRIVACY_POLICY.md` and `docs/privacy.json` are current as of
+7 Aug 2026 and agree with each other (hard rule 17). What is left is all
+outside the repo:
+
+- **Host it.** A HealthKit app needs a reachable privacy policy URL before
+  submission. `privacy.json` now points at
+  `https://damhongduc.github.io/apps_privacy_policy`, but nothing is
+  published there yet, and `storeLinks.appStore` is still a placeholder id.
+- **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
+  address is the owner's to supply and is a GDPR requirement.
+- The shared `defaults.sections` on the site supply retention, your rights,
+  security and the rest; `privacy.json` carries only BaroEase's own sections
+  and overrides `children` to read 16 rather than the shared 13.
+- **The App Privacy label must match the policy**, and the policy now says
+  more than the old draft did: Firebase Analytics and Crashlytics are used
+  and are tied to the account identifier while signed in, so those are
+  linked-to-identity, and synced health data is linked too. Only Apple
+  Health sleep/steps stay collected-but-not-linked, because they never
+  leave the device.
+- Have a lawyer read it before submission.
+
+## 6. ~~`main.dart` config-assert TODO~~ — done
 
 `AppEnv.missingConfigKeys` (`lib/core/env/app_env.dart`) now walks every
 required Firebase field plus the platform's own RevenueCat key and returns
@@ -143,7 +160,7 @@ reporting every gap at once. Note this deliberately re-adds an `assert()` to
 is still under investigation (see `CLAUDE.md`'s RevenueCat section) — if that
 crash resurfaces, this is the first thing to suspect and revert.
 
-## 6. WeatherKit not swapped in yet
+## 7. WeatherKit not swapped in yet
 
 In-app weather source is still Open-Meteo (the documented temporary stand-in
 behind `weatherRepositoryProvider`); WeatherKit REST is the target once a key
@@ -158,7 +175,7 @@ part of this item.
 - The 4 testing priorities CLAUDE.md calls out explicitly — correlation
   engine, Drift migrations, pressure alert function, paywall entitlement
   gating — all already have dedicated tests. Nothing to do there.
-- `l10n/app_en.arb` and `app_vi.arb` are fully in sync (420/420 keys,
+- `l10n/app_en.arb` and `app_vi.arb` are fully in sync (468/468 keys,
   zero diff either direction).
 - `firestore.indexes.json` now carries a composite index per synced
   collection (`userId` + `updatedAt`). Deploying is a SECOND step beside

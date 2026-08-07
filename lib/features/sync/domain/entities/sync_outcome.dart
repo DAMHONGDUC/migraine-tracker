@@ -3,11 +3,7 @@ import 'package:meta/meta.dart';
 /// What one sync pass actually moved.
 @immutable
 class SyncOutcome {
-  const SyncOutcome({
-    this.pushed = 0,
-    this.pulled = 0,
-    this.unreadable = 0,
-  });
+  const SyncOutcome({this.pushed = 0, this.pulled = 0, this.unreadable = 0});
 
   /// Local changes the server accepted.
   final int pushed;

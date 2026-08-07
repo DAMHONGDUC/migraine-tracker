@@ -1696,6 +1696,17 @@ class $MedicationRemindersTable extends MedicationReminders
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -1736,6 +1747,7 @@ class $MedicationRemindersTable extends MedicationReminders
     medicationId,
     minuteOfDay,
     enabled,
+    createdAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -1785,6 +1797,12 @@ class $MedicationRemindersTable extends MedicationReminders
         enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
       );
     }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -1831,6 +1849,10 @@ class $MedicationRemindersTable extends MedicationReminders
         DriftSqlType.bool,
         data['${effectivePrefix}enabled'],
       )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -1861,6 +1883,18 @@ class MedicationReminderRow extends DataClass
   final int minuteOfDay;
   final bool enabled;
 
+  /// When this reminder was created (UTC). Added in schema v8, and it syncs:
+  /// the notification list materialises past occurrences over a window, and
+  /// without a lower bound it would invent months of "you were reminded" for
+  /// a reminder created yesterday. Every device has to agree where that
+  /// history starts, which is why it travels in the payload.
+  ///
+  /// Nullable for the same reason `Medications.createdAt` is: rows that
+  /// predate v8 have no recorded creation date, and stamping them with the
+  /// migration's timestamp would invent the very bound this exists to give.
+  /// Null means "unknown" and the window alone bounds them.
+  final DateTime? createdAt;
+
   /// Sync state, added in v7. Note what syncs and what does not: the row
   /// travels, the scheduled OS notification does not — it is local to each
   /// device and gets re-scheduled after a pull.
@@ -1872,6 +1906,7 @@ class MedicationReminderRow extends DataClass
     required this.medicationId,
     required this.minuteOfDay,
     required this.enabled,
+    this.createdAt,
     this.updatedAt,
     required this.revision,
     this.syncedRevision,
@@ -1883,6 +1918,9 @@ class MedicationReminderRow extends DataClass
     map['medication_id'] = Variable<String>(medicationId);
     map['minute_of_day'] = Variable<int>(minuteOfDay);
     map['enabled'] = Variable<bool>(enabled);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
@@ -1899,6 +1937,9 @@ class MedicationReminderRow extends DataClass
       medicationId: Value(medicationId),
       minuteOfDay: Value(minuteOfDay),
       enabled: Value(enabled),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
@@ -1919,6 +1960,7 @@ class MedicationReminderRow extends DataClass
       medicationId: serializer.fromJson<String>(json['medicationId']),
       minuteOfDay: serializer.fromJson<int>(json['minuteOfDay']),
       enabled: serializer.fromJson<bool>(json['enabled']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       revision: serializer.fromJson<int>(json['revision']),
       syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
@@ -1932,6 +1974,7 @@ class MedicationReminderRow extends DataClass
       'medicationId': serializer.toJson<String>(medicationId),
       'minuteOfDay': serializer.toJson<int>(minuteOfDay),
       'enabled': serializer.toJson<bool>(enabled),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'revision': serializer.toJson<int>(revision),
       'syncedRevision': serializer.toJson<int?>(syncedRevision),
@@ -1943,6 +1986,7 @@ class MedicationReminderRow extends DataClass
     String? medicationId,
     int? minuteOfDay,
     bool? enabled,
+    Value<DateTime?> createdAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
     int? revision,
     Value<int?> syncedRevision = const Value.absent(),
@@ -1951,6 +1995,7 @@ class MedicationReminderRow extends DataClass
     medicationId: medicationId ?? this.medicationId,
     minuteOfDay: minuteOfDay ?? this.minuteOfDay,
     enabled: enabled ?? this.enabled,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
     revision: revision ?? this.revision,
     syncedRevision: syncedRevision.present
@@ -1967,6 +2012,7 @@ class MedicationReminderRow extends DataClass
           ? data.minuteOfDay.value
           : this.minuteOfDay,
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       revision: data.revision.present ? data.revision.value : this.revision,
       syncedRevision: data.syncedRevision.present
@@ -1982,6 +2028,7 @@ class MedicationReminderRow extends DataClass
           ..write('medicationId: $medicationId, ')
           ..write('minuteOfDay: $minuteOfDay, ')
           ..write('enabled: $enabled, ')
+          ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision')
@@ -1995,6 +2042,7 @@ class MedicationReminderRow extends DataClass
     medicationId,
     minuteOfDay,
     enabled,
+    createdAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -2007,6 +2055,7 @@ class MedicationReminderRow extends DataClass
           other.medicationId == this.medicationId &&
           other.minuteOfDay == this.minuteOfDay &&
           other.enabled == this.enabled &&
+          other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.revision == this.revision &&
           other.syncedRevision == this.syncedRevision);
@@ -2018,6 +2067,7 @@ class MedicationRemindersCompanion
   final Value<String> medicationId;
   final Value<int> minuteOfDay;
   final Value<bool> enabled;
+  final Value<DateTime?> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> revision;
   final Value<int?> syncedRevision;
@@ -2027,6 +2077,7 @@ class MedicationRemindersCompanion
     this.medicationId = const Value.absent(),
     this.minuteOfDay = const Value.absent(),
     this.enabled = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -2037,6 +2088,7 @@ class MedicationRemindersCompanion
     required String medicationId,
     required int minuteOfDay,
     this.enabled = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -2049,6 +2101,7 @@ class MedicationRemindersCompanion
     Expression<String>? medicationId,
     Expression<int>? minuteOfDay,
     Expression<bool>? enabled,
+    Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? revision,
     Expression<int>? syncedRevision,
@@ -2059,6 +2112,7 @@ class MedicationRemindersCompanion
       if (medicationId != null) 'medication_id': medicationId,
       if (minuteOfDay != null) 'minute_of_day': minuteOfDay,
       if (enabled != null) 'enabled': enabled,
+      if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (revision != null) 'revision': revision,
       if (syncedRevision != null) 'synced_revision': syncedRevision,
@@ -2071,6 +2125,7 @@ class MedicationRemindersCompanion
     Value<String>? medicationId,
     Value<int>? minuteOfDay,
     Value<bool>? enabled,
+    Value<DateTime?>? createdAt,
     Value<DateTime?>? updatedAt,
     Value<int>? revision,
     Value<int?>? syncedRevision,
@@ -2081,6 +2136,7 @@ class MedicationRemindersCompanion
       medicationId: medicationId ?? this.medicationId,
       minuteOfDay: minuteOfDay ?? this.minuteOfDay,
       enabled: enabled ?? this.enabled,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       revision: revision ?? this.revision,
       syncedRevision: syncedRevision ?? this.syncedRevision,
@@ -2102,6 +2158,9 @@ class MedicationRemindersCompanion
     }
     if (enabled.present) {
       map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -2125,6 +2184,660 @@ class MedicationRemindersCompanion
           ..write('medicationId: $medicationId, ')
           ..write('minuteOfDay: $minuteOfDay, ')
           ..write('enabled: $enabled, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AppNotificationsTable extends AppNotifications
+    with TableInfo<$AppNotificationsTable, AppNotificationRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AppNotificationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<NotificationType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<NotificationType>($AppNotificationsTable.$convertertype);
+  static const VerificationMeta _occurredAtMeta = const VerificationMeta(
+    'occurredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> occurredAt = GeneratedColumn<DateTime>(
+    'occurred_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _readAtMeta = const VerificationMeta('readAt');
+  @override
+  late final GeneratedColumn<DateTime> readAt = GeneratedColumn<DateTime>(
+    'read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _medicationIdMeta = const VerificationMeta(
+    'medicationId',
+  );
+  @override
+  late final GeneratedColumn<String> medicationId = GeneratedColumn<String>(
+    'medication_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderIdMeta = const VerificationMeta(
+    'reminderId',
+  );
+  @override
+  late final GeneratedColumn<String> reminderId = GeneratedColumn<String>(
+    'reminder_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pressureDropHpaMeta = const VerificationMeta(
+    'pressureDropHpa',
+  );
+  @override
+  late final GeneratedColumn<double> pressureDropHpa = GeneratedColumn<double>(
+    'pressure_drop_hpa',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncedRevisionMeta = const VerificationMeta(
+    'syncedRevision',
+  );
+  @override
+  late final GeneratedColumn<int> syncedRevision = GeneratedColumn<int>(
+    'synced_revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    type,
+    occurredAt,
+    readAt,
+    medicationId,
+    reminderId,
+    pressureDropHpa,
+    updatedAt,
+    revision,
+    syncedRevision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'app_notifications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AppNotificationRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('occurred_at')) {
+      context.handle(
+        _occurredAtMeta,
+        occurredAt.isAcceptableOrUnknown(data['occurred_at']!, _occurredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_occurredAtMeta);
+    }
+    if (data.containsKey('read_at')) {
+      context.handle(
+        _readAtMeta,
+        readAt.isAcceptableOrUnknown(data['read_at']!, _readAtMeta),
+      );
+    }
+    if (data.containsKey('medication_id')) {
+      context.handle(
+        _medicationIdMeta,
+        medicationId.isAcceptableOrUnknown(
+          data['medication_id']!,
+          _medicationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_id')) {
+      context.handle(
+        _reminderIdMeta,
+        reminderId.isAcceptableOrUnknown(data['reminder_id']!, _reminderIdMeta),
+      );
+    }
+    if (data.containsKey('pressure_drop_hpa')) {
+      context.handle(
+        _pressureDropHpaMeta,
+        pressureDropHpa.isAcceptableOrUnknown(
+          data['pressure_drop_hpa']!,
+          _pressureDropHpaMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('synced_revision')) {
+      context.handle(
+        _syncedRevisionMeta,
+        syncedRevision.isAcceptableOrUnknown(
+          data['synced_revision']!,
+          _syncedRevisionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AppNotificationRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AppNotificationRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      type: $AppNotificationsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      occurredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}occurred_at'],
+      )!,
+      readAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}read_at'],
+      ),
+      medicationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}medication_id'],
+      ),
+      reminderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_id'],
+      ),
+      pressureDropHpa: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pressure_drop_hpa'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_revision'],
+      ),
+    );
+  }
+
+  @override
+  $AppNotificationsTable createAlias(String alias) {
+    return $AppNotificationsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<NotificationType, String, String> $convertertype =
+      const EnumNameConverter<NotificationType>(NotificationType.values);
+}
+
+class AppNotificationRow extends DataClass
+    implements Insertable<AppNotificationRow> {
+  /// Derived: `rem:<reminderId>:<epochMinute>` or `pa:<eventId>`.
+  final String id;
+  final NotificationType type;
+
+  /// When it fired (UTC).
+  final DateTime occurredAt;
+
+  /// Null while unread. Syncs like everything else, so reading on one device
+  /// clears the badge on the others.
+  final DateTime? readAt;
+
+  /// No `references` on purpose, unlike `MedicationReminders.medicationId`:
+  /// deleting a medication cascades its reminders away, and the history of
+  /// having been reminded must survive that.
+  final String? medicationId;
+  final String? reminderId;
+  final double? pressureDropHpa;
+
+  /// Sync state, same three columns and same reasoning as every other synced
+  /// table: a revision decides what is dirty, [updatedAt] only settles which
+  /// device's version wins.
+  final DateTime? updatedAt;
+  final int revision;
+  final int? syncedRevision;
+  const AppNotificationRow({
+    required this.id,
+    required this.type,
+    required this.occurredAt,
+    this.readAt,
+    this.medicationId,
+    this.reminderId,
+    this.pressureDropHpa,
+    this.updatedAt,
+    required this.revision,
+    this.syncedRevision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    {
+      map['type'] = Variable<String>(
+        $AppNotificationsTable.$convertertype.toSql(type),
+      );
+    }
+    map['occurred_at'] = Variable<DateTime>(occurredAt);
+    if (!nullToAbsent || readAt != null) {
+      map['read_at'] = Variable<DateTime>(readAt);
+    }
+    if (!nullToAbsent || medicationId != null) {
+      map['medication_id'] = Variable<String>(medicationId);
+    }
+    if (!nullToAbsent || reminderId != null) {
+      map['reminder_id'] = Variable<String>(reminderId);
+    }
+    if (!nullToAbsent || pressureDropHpa != null) {
+      map['pressure_drop_hpa'] = Variable<double>(pressureDropHpa);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || syncedRevision != null) {
+      map['synced_revision'] = Variable<int>(syncedRevision);
+    }
+    return map;
+  }
+
+  AppNotificationsCompanion toCompanion(bool nullToAbsent) {
+    return AppNotificationsCompanion(
+      id: Value(id),
+      type: Value(type),
+      occurredAt: Value(occurredAt),
+      readAt: readAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readAt),
+      medicationId: medicationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicationId),
+      reminderId: reminderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderId),
+      pressureDropHpa: pressureDropHpa == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pressureDropHpa),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      revision: Value(revision),
+      syncedRevision: syncedRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedRevision),
+    );
+  }
+
+  factory AppNotificationRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AppNotificationRow(
+      id: serializer.fromJson<String>(json['id']),
+      type: $AppNotificationsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
+      readAt: serializer.fromJson<DateTime?>(json['readAt']),
+      medicationId: serializer.fromJson<String?>(json['medicationId']),
+      reminderId: serializer.fromJson<String?>(json['reminderId']),
+      pressureDropHpa: serializer.fromJson<double?>(json['pressureDropHpa']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(
+        $AppNotificationsTable.$convertertype.toJson(type),
+      ),
+      'occurredAt': serializer.toJson<DateTime>(occurredAt),
+      'readAt': serializer.toJson<DateTime?>(readAt),
+      'medicationId': serializer.toJson<String?>(medicationId),
+      'reminderId': serializer.toJson<String?>(reminderId),
+      'pressureDropHpa': serializer.toJson<double?>(pressureDropHpa),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+      'syncedRevision': serializer.toJson<int?>(syncedRevision),
+    };
+  }
+
+  AppNotificationRow copyWith({
+    String? id,
+    NotificationType? type,
+    DateTime? occurredAt,
+    Value<DateTime?> readAt = const Value.absent(),
+    Value<String?> medicationId = const Value.absent(),
+    Value<String?> reminderId = const Value.absent(),
+    Value<double?> pressureDropHpa = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+    int? revision,
+    Value<int?> syncedRevision = const Value.absent(),
+  }) => AppNotificationRow(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    occurredAt: occurredAt ?? this.occurredAt,
+    readAt: readAt.present ? readAt.value : this.readAt,
+    medicationId: medicationId.present ? medicationId.value : this.medicationId,
+    reminderId: reminderId.present ? reminderId.value : this.reminderId,
+    pressureDropHpa: pressureDropHpa.present
+        ? pressureDropHpa.value
+        : this.pressureDropHpa,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    revision: revision ?? this.revision,
+    syncedRevision: syncedRevision.present
+        ? syncedRevision.value
+        : this.syncedRevision,
+  );
+  AppNotificationRow copyWithCompanion(AppNotificationsCompanion data) {
+    return AppNotificationRow(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      occurredAt: data.occurredAt.present
+          ? data.occurredAt.value
+          : this.occurredAt,
+      readAt: data.readAt.present ? data.readAt.value : this.readAt,
+      medicationId: data.medicationId.present
+          ? data.medicationId.value
+          : this.medicationId,
+      reminderId: data.reminderId.present
+          ? data.reminderId.value
+          : this.reminderId,
+      pressureDropHpa: data.pressureDropHpa.present
+          ? data.pressureDropHpa.value
+          : this.pressureDropHpa,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedRevision: data.syncedRevision.present
+          ? data.syncedRevision.value
+          : this.syncedRevision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppNotificationRow(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('readAt: $readAt, ')
+          ..write('medicationId: $medicationId, ')
+          ..write('reminderId: $reminderId, ')
+          ..write('pressureDropHpa: $pressureDropHpa, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    type,
+    occurredAt,
+    readAt,
+    medicationId,
+    reminderId,
+    pressureDropHpa,
+    updatedAt,
+    revision,
+    syncedRevision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AppNotificationRow &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.occurredAt == this.occurredAt &&
+          other.readAt == this.readAt &&
+          other.medicationId == this.medicationId &&
+          other.reminderId == this.reminderId &&
+          other.pressureDropHpa == this.pressureDropHpa &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision &&
+          other.syncedRevision == this.syncedRevision);
+}
+
+class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
+  final Value<String> id;
+  final Value<NotificationType> type;
+  final Value<DateTime> occurredAt;
+  final Value<DateTime?> readAt;
+  final Value<String?> medicationId;
+  final Value<String?> reminderId;
+  final Value<double?> pressureDropHpa;
+  final Value<DateTime?> updatedAt;
+  final Value<int> revision;
+  final Value<int?> syncedRevision;
+  final Value<int> rowid;
+  const AppNotificationsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.occurredAt = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.medicationId = const Value.absent(),
+    this.reminderId = const Value.absent(),
+    this.pressureDropHpa = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AppNotificationsCompanion.insert({
+    required String id,
+    required NotificationType type,
+    required DateTime occurredAt,
+    this.readAt = const Value.absent(),
+    this.medicationId = const Value.absent(),
+    this.reminderId = const Value.absent(),
+    this.pressureDropHpa = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       type = Value(type),
+       occurredAt = Value(occurredAt);
+  static Insertable<AppNotificationRow> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<DateTime>? occurredAt,
+    Expression<DateTime>? readAt,
+    Expression<String>? medicationId,
+    Expression<String>? reminderId,
+    Expression<double>? pressureDropHpa,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? syncedRevision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (occurredAt != null) 'occurred_at': occurredAt,
+      if (readAt != null) 'read_at': readAt,
+      if (medicationId != null) 'medication_id': medicationId,
+      if (reminderId != null) 'reminder_id': reminderId,
+      if (pressureDropHpa != null) 'pressure_drop_hpa': pressureDropHpa,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (syncedRevision != null) 'synced_revision': syncedRevision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AppNotificationsCompanion copyWith({
+    Value<String>? id,
+    Value<NotificationType>? type,
+    Value<DateTime>? occurredAt,
+    Value<DateTime?>? readAt,
+    Value<String?>? medicationId,
+    Value<String?>? reminderId,
+    Value<double?>? pressureDropHpa,
+    Value<DateTime?>? updatedAt,
+    Value<int>? revision,
+    Value<int?>? syncedRevision,
+    Value<int>? rowid,
+  }) {
+    return AppNotificationsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      occurredAt: occurredAt ?? this.occurredAt,
+      readAt: readAt ?? this.readAt,
+      medicationId: medicationId ?? this.medicationId,
+      reminderId: reminderId ?? this.reminderId,
+      pressureDropHpa: pressureDropHpa ?? this.pressureDropHpa,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      syncedRevision: syncedRevision ?? this.syncedRevision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $AppNotificationsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (occurredAt.present) {
+      map['occurred_at'] = Variable<DateTime>(occurredAt.value);
+    }
+    if (readAt.present) {
+      map['read_at'] = Variable<DateTime>(readAt.value);
+    }
+    if (medicationId.present) {
+      map['medication_id'] = Variable<String>(medicationId.value);
+    }
+    if (reminderId.present) {
+      map['reminder_id'] = Variable<String>(reminderId.value);
+    }
+    if (pressureDropHpa.present) {
+      map['pressure_drop_hpa'] = Variable<double>(pressureDropHpa.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedRevision.present) {
+      map['synced_revision'] = Variable<int>(syncedRevision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppNotificationsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('readAt: $readAt, ')
+          ..write('medicationId: $medicationId, ')
+          ..write('reminderId: $reminderId, ')
+          ..write('pressureDropHpa: $pressureDropHpa, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision, ')
@@ -2828,6 +3541,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MedicationsTable medications = $MedicationsTable(this);
   late final $MedicationRemindersTable medicationReminders =
       $MedicationRemindersTable(this);
+  late final $AppNotificationsTable appNotifications = $AppNotificationsTable(
+    this,
+  );
   late final $ExportRecordsTable exportRecords = $ExportRecordsTable(this);
   late final $SyncTombstonesTable syncTombstones = $SyncTombstonesTable(this);
   @override
@@ -2839,6 +3555,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     weatherSnapshots,
     medications,
     medicationReminders,
+    appNotifications,
     exportRecords,
     syncTombstones,
   ];
@@ -4007,6 +4724,7 @@ typedef $$MedicationRemindersTableCreateCompanionBuilder =
       required String medicationId,
       required int minuteOfDay,
       Value<bool> enabled,
+      Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -4018,6 +4736,7 @@ typedef $$MedicationRemindersTableUpdateCompanionBuilder =
       Value<String> medicationId,
       Value<int> minuteOfDay,
       Value<bool> enabled,
+      Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -4077,6 +4796,11 @@ class $$MedicationRemindersTableFilterComposer
 
   ColumnFilters<bool> get enabled => $composableBuilder(
     column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4143,6 +4867,11 @@ class $$MedicationRemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4201,6 +4930,9 @@ class $$MedicationRemindersTableAnnotationComposer
 
   GeneratedColumn<bool> get enabled =>
       $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -4277,6 +5009,7 @@ class $$MedicationRemindersTableTableManager
                 Value<String> medicationId = const Value.absent(),
                 Value<int> minuteOfDay = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -4286,6 +5019,7 @@ class $$MedicationRemindersTableTableManager
                 medicationId: medicationId,
                 minuteOfDay: minuteOfDay,
                 enabled: enabled,
+                createdAt: createdAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
@@ -4297,6 +5031,7 @@ class $$MedicationRemindersTableTableManager
                 required String medicationId,
                 required int minuteOfDay,
                 Value<bool> enabled = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -4306,6 +5041,7 @@ class $$MedicationRemindersTableTableManager
                 medicationId: medicationId,
                 minuteOfDay: minuteOfDay,
                 enabled: enabled,
+                createdAt: createdAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
@@ -4379,6 +5115,322 @@ typedef $$MedicationRemindersTableProcessedTableManager =
       (MedicationReminderRow, $$MedicationRemindersTableReferences),
       MedicationReminderRow,
       PrefetchHooks Function({bool medicationId})
+    >;
+typedef $$AppNotificationsTableCreateCompanionBuilder =
+    AppNotificationsCompanion Function({
+      required String id,
+      required NotificationType type,
+      required DateTime occurredAt,
+      Value<DateTime?> readAt,
+      Value<String?> medicationId,
+      Value<String?> reminderId,
+      Value<double?> pressureDropHpa,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+typedef $$AppNotificationsTableUpdateCompanionBuilder =
+    AppNotificationsCompanion Function({
+      Value<String> id,
+      Value<NotificationType> type,
+      Value<DateTime> occurredAt,
+      Value<DateTime?> readAt,
+      Value<String?> medicationId,
+      Value<String?> reminderId,
+      Value<double?> pressureDropHpa,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+
+class $$AppNotificationsTableFilterComposer
+    extends Composer<_$AppDatabase, $AppNotificationsTable> {
+  $$AppNotificationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<NotificationType, NotificationType, String>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get medicationId => $composableBuilder(
+    column: $table.medicationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get pressureDropHpa => $composableBuilder(
+    column: $table.pressureDropHpa,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AppNotificationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppNotificationsTable> {
+  $$AppNotificationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get medicationId => $composableBuilder(
+    column: $table.medicationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get pressureDropHpa => $composableBuilder(
+    column: $table.pressureDropHpa,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AppNotificationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppNotificationsTable> {
+  $$AppNotificationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<NotificationType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => column);
+
+  GeneratedColumn<String> get medicationId => $composableBuilder(
+    column: $table.medicationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get pressureDropHpa => $composableBuilder(
+    column: $table.pressureDropHpa,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => column,
+  );
+}
+
+class $$AppNotificationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AppNotificationsTable,
+          AppNotificationRow,
+          $$AppNotificationsTableFilterComposer,
+          $$AppNotificationsTableOrderingComposer,
+          $$AppNotificationsTableAnnotationComposer,
+          $$AppNotificationsTableCreateCompanionBuilder,
+          $$AppNotificationsTableUpdateCompanionBuilder,
+          (
+            AppNotificationRow,
+            BaseReferences<
+              _$AppDatabase,
+              $AppNotificationsTable,
+              AppNotificationRow
+            >,
+          ),
+          AppNotificationRow,
+          PrefetchHooks Function()
+        > {
+  $$AppNotificationsTableTableManager(
+    _$AppDatabase db,
+    $AppNotificationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AppNotificationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AppNotificationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AppNotificationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<NotificationType> type = const Value.absent(),
+                Value<DateTime> occurredAt = const Value.absent(),
+                Value<DateTime?> readAt = const Value.absent(),
+                Value<String?> medicationId = const Value.absent(),
+                Value<String?> reminderId = const Value.absent(),
+                Value<double?> pressureDropHpa = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AppNotificationsCompanion(
+                id: id,
+                type: type,
+                occurredAt: occurredAt,
+                readAt: readAt,
+                medicationId: medicationId,
+                reminderId: reminderId,
+                pressureDropHpa: pressureDropHpa,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required NotificationType type,
+                required DateTime occurredAt,
+                Value<DateTime?> readAt = const Value.absent(),
+                Value<String?> medicationId = const Value.absent(),
+                Value<String?> reminderId = const Value.absent(),
+                Value<double?> pressureDropHpa = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AppNotificationsCompanion.insert(
+                id: id,
+                type: type,
+                occurredAt: occurredAt,
+                readAt: readAt,
+                medicationId: medicationId,
+                reminderId: reminderId,
+                pressureDropHpa: pressureDropHpa,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AppNotificationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AppNotificationsTable,
+      AppNotificationRow,
+      $$AppNotificationsTableFilterComposer,
+      $$AppNotificationsTableOrderingComposer,
+      $$AppNotificationsTableAnnotationComposer,
+      $$AppNotificationsTableCreateCompanionBuilder,
+      $$AppNotificationsTableUpdateCompanionBuilder,
+      (
+        AppNotificationRow,
+        BaseReferences<
+          _$AppDatabase,
+          $AppNotificationsTable,
+          AppNotificationRow
+        >,
+      ),
+      AppNotificationRow,
+      PrefetchHooks Function()
     >;
 typedef $$ExportRecordsTableCreateCompanionBuilder =
     ExportRecordsCompanion Function({
@@ -4781,6 +5833,8 @@ class $AppDatabaseManager {
       $$MedicationsTableTableManager(_db, _db.medications);
   $$MedicationRemindersTableTableManager get medicationReminders =>
       $$MedicationRemindersTableTableManager(_db, _db.medicationReminders);
+  $$AppNotificationsTableTableManager get appNotifications =>
+      $$AppNotificationsTableTableManager(_db, _db.appNotifications);
   $$ExportRecordsTableTableManager get exportRecords =>
       $$ExportRecordsTableTableManager(_db, _db.exportRecords);
   $$SyncTombstonesTableTableManager get syncTombstones =>

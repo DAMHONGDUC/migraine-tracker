@@ -11,9 +11,7 @@ void main() {
 
   String aKey([int seed = 1]) {
     final Random random = Random(seed);
-    return base64Encode(
-      List<int>.generate(32, (_) => random.nextInt(256)),
-    );
+    return base64Encode(List<int>.generate(32, (_) => random.nextInt(256)));
   }
 
   test('what goes in comes back out', () async {
@@ -36,8 +34,10 @@ void main() {
       base64Key: aKey(),
     );
 
-    expect(utf8.decode(base64Decode(payload.ciphertext), allowMalformed: true),
-        isNot(contains('Sumatriptan')));
+    expect(
+      utf8.decode(base64Decode(payload.ciphertext), allowMalformed: true),
+      isNot(contains('Sumatriptan')),
+    );
   });
 
   test('non-ASCII survives the round trip', () async {
@@ -75,7 +75,10 @@ void main() {
       base64Key: aKey(),
     );
 
-    expect(base64Decode(payload.nonce), hasLength(AesGcmAttackCipher.nonceBytes));
+    expect(
+      base64Decode(payload.nonce),
+      hasLength(AesGcmAttackCipher.nonceBytes),
+    );
   });
 
   test('the wrong key fails loudly instead of returning nonsense', () async {

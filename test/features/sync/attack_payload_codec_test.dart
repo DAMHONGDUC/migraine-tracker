@@ -95,13 +95,17 @@ void main() {
   test('the payload carries its version', () {
     final Object? json = jsonDecode(const AttackPayloadCodec().encode(full()));
 
-    expect((json! as Map<String, dynamic>)['v'], AttackPayloadCodec.schemaVersion);
+    expect(
+      (json! as Map<String, dynamic>)['v'],
+      AttackPayloadCodec.schemaVersion,
+    );
   });
 
   group('payload versions', () {
     test('a newer payload than this build knows is refused', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json['v'] = AttackPayloadCodec.schemaVersion + 1;
 
       // Half-reading would overwrite a good local copy with a worse one.
@@ -113,7 +117,8 @@ void main() {
 
     test('an older payload still reads', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json['v'] = 0;
 
       // The day the version is bumped, everything already uploaded is a
@@ -126,7 +131,8 @@ void main() {
 
     test('an unknown field is ignored rather than fatal', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json['fieldFromALaterBuild'] = 'whatever';
 
       // Adding an optional field must not need a version bump, or two builds
@@ -139,7 +145,8 @@ void main() {
 
     test('a missing version is refused', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json.remove('v');
 
       expect(
@@ -150,10 +157,10 @@ void main() {
   });
 
   group('refuses what it cannot faithfully rebuild', () {
-
     test('an unknown head location', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json['location'] = 'sideways';
 
       expect(
@@ -164,7 +171,8 @@ void main() {
 
     test('a missing required field', () {
       final Map<String, dynamic> json =
-          jsonDecode(const AttackPayloadCodec().encode(full())) as Map<String, dynamic>;
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
       json.remove('intensity');
 
       expect(

@@ -25,7 +25,8 @@ service cloud.firestore {
     }
 
     function isSynced(collection) {
-      return collection in ['attacks', 'medications', 'medication_reminders'];
+      return collection in ['attacks', 'medications', 'medication_reminders',
+                            'notifications'];
     }
 
     // Release metadata the app reads on every launch to decide whether the

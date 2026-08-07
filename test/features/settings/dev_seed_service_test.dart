@@ -10,6 +10,7 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/repositories/medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
+import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
@@ -64,6 +65,7 @@ void main() {
         DriftAttackRepository(db),
         DriftMedicationRepository(db),
         _SilentScheduler(),
+        DriftNotificationRepository(db),
         DriftExportRecordRepository(db),
         files,
         FakeAuthRepository(),

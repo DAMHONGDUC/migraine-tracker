@@ -23,9 +23,10 @@ part 'account_screen_profile_section.dart';
 /// and the way out. Pushed from the Settings account row; the router's
 /// redirect turns it away while signed out, so it can assume an account.
 ///
-/// Health data is deliberately absent: attacks live on the device and in
-/// their own encrypted subcollection, never in the account document
-/// (hard rule 1). [_DataNote] says so on the screen, not just in a comment.
+/// Health data is deliberately absent: attacks live on the device and as
+/// encrypted payloads in their own top-level collection, never in the account
+/// document (hard rule 1). [_DataNote] says so on the screen, not just in a
+/// comment.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 

@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../sync/domain/enums/sync_trigger.dart';
 import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
@@ -119,7 +120,10 @@ class LogController extends Notifier<LogFlowState> {
 
   /// Persists the attack and moves to the saved confirmation. Weather is
   /// attached best-effort; logging never waits for the network.
-  Future<void> _save(String? medicationName, ExertionLevel? exertionLevel) async {
+  Future<void> _save(
+    String? medicationName,
+    ExertionLevel? exertionLevel,
+  ) async {
     final attack = Attack(
       id: _uuid.v4(),
       startedAt: DateTime.now().toUtc(),
@@ -142,7 +146,13 @@ class LogController extends Notifier<LogFlowState> {
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
       // Same best-effort shape: the attack is already saved, so a failure
       // here just leaves it pending for the next sync (hard rule 4).
-      unawaited(ref.read(syncControllerProvider.notifier).sync());
+      // Exempt from the sync cooldown: this one exists so a just-logged
+      // attack reaches the server before the phone can be lost.
+      unawaited(
+        ref
+            .read(syncControllerProvider.notifier)
+            .sync(trigger: SyncTrigger.record),
+      );
       state = LogFlowState(savedId: attack.id, step: LogStep.saved);
     } catch (error, stackTrace) {
       AppLogger.error(

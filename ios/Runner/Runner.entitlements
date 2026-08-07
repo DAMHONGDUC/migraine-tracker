@@ -6,8 +6,8 @@
 	<true/>
 	<!-- Empty on purpose: the "access" array is only for clinical health
 	     records (lab results, medications on file with a provider). The app
-	     reads sleep samples, which the plain HealthKit entitlement covers,
-	     and asking for clinical records would fail App Review. -->
+	     reads sleep and step samples, which the plain HealthKit entitlement
+	     covers, and asking for clinical records would fail App Review. -->
 	<key>com.apple.developer.healthkit.access</key>
 	<array/>
 </dict>

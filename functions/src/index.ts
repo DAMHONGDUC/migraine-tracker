@@ -100,7 +100,21 @@ export const pressureAlertJob = onSchedule(
               `Barometric pressure is forecast to fall ` +
               `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
           },
-          apns: { payload: { aps: { sound: "default" } } },
+          // - The app renders the row from its own ARB: the strings above are
+          //   English whatever language the user picked, so only numbers travel.
+          // - eventId is what keeps every writer of this row idempotent.
+          data: {
+            type: "pressureAlert",
+            eventId: drop.eventId,
+            dropHpa: String(drop.dropHpa),
+            at: now.toISOString(),
+          },
+          // Sent so a background handler can be added later without touching
+          // the cron. There is none today, so an alert arriving while the app
+          // is shut reaches the list only via sync from a device that saw it.
+          apns: {
+            payload: { aps: { sound: "default", "content-available": 1 } },
+          },
         });
       },
       recordAlert: async (uid, eventId, at) => {

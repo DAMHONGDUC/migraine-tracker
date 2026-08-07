@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
+import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
@@ -46,6 +49,25 @@ class DashboardScreen extends ConsumerWidget {
 
     return SdScaffoldV2(
       title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
+      actions: <Widget>[
+        // The number, not a dot: how many are waiting is what decides
+        // whether the user opens the list now or later.
+        SdBadgeV2(
+          // Red, not the app's lavender accent: a notification count is the
+          // one badge people already read as "unattended", and the accent
+          // is what every non-urgent highlight in the app wears.
+          color: context.colorScheme.error,
+          count: ref.watch(unreadNotificationCountProvider).value ?? 0,
+          showing: (ref.watch(unreadNotificationCountProvider).value ?? 0) > 0,
+          child: SdAppBarButtonV2(
+            icon: Icons.notifications_none,
+            tooltip: l10n.notificationsA11yOpen,
+            onPressed: () =>
+                context.pushNamed<void>(AppRoutes.notifications.name),
+          ),
+        ),
+        SizedBox(width: SdSpacingConstant.w12),
+      ],
       body: SdRefreshIndicatorV2(
         onRefresh: () => SdRefreshIndicatorV2.run(() {
           ref

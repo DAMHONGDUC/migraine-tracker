@@ -970,6 +970,60 @@
   "@premiumLockedCharts": {
     "description": "Accessibility label on a locked chart card in History, where only the unlock button is drawn"
   },
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": {
+    "description": "Title of the notification list screen"
+  },
+  "notificationsTabReminders": "Reminders",
+  "@notificationsTabReminders": {
+    "description": "Tab of medication reminders on the notification list"
+  },
+  "notificationsTabAlerts": "Pressure",
+  "@notificationsTabAlerts": {
+    "description": "Tab of pressure alerts on the notification list"
+  },
+  "notificationsEmptyReminders": "No reminders yet. They show up here once you set one.",
+  "@notificationsEmptyReminders": {
+    "description": "Empty state on the reminders tab"
+  },
+  "notificationsEmptyAlerts": "No pressure alerts yet.",
+  "@notificationsEmptyAlerts": {
+    "description": "Empty state on the pressure alerts tab"
+  },
+  "notificationsA11yOpen": "Notifications",
+  "@notificationsA11yOpen": {
+    "description": "Tooltip on the dashboard's bell, which opens the notification list"
+  },
+  "notificationReminderTitle": "Time for {medication}",
+  "@notificationReminderTitle": {
+    "description": "A medication reminder row in the notification list",
+    "placeholders": { "medication": { "type": "String" } }
+  },
+  "notificationReminderUnknown": "Time for your medication",
+  "@notificationReminderUnknown": {
+    "description": "A reminder row whose medication has since been deleted"
+  },
+  "notificationPressureTitle": "Pressure drop ahead",
+  "@notificationPressureTitle": {
+    "description": "A pressure alert row in the notification list"
+  },
+  "notificationPressureBody": "Barometric pressure was forecast to fall {drop} hPa within 24 hours.",
+  "@notificationPressureBody": {
+    "description": "Body of the pressure alert sheet; drop is a formatted number",
+    "placeholders": { "drop": { "type": "String" } }
+  },
+  "notificationMedicationAction": "Open this medication",
+  "@notificationMedicationAction": {
+    "description": "Button on a reminder notification's detail, opens the medication"
+  },
+  "notificationDetailMissing": "This notification is no longer here.",
+  "@notificationDetailMissing": {
+    "description": "Shown when a notification opened by link has since been deleted"
+  },
+  "notificationPressureAction": "See the forecast",
+  "@notificationPressureAction": {
+    "description": "Button on the pressure alert sheet, opens the pressure screen"
+  },
   "paywallTitle": "BaroEase Premium",
   "@paywallTitle": {
     "description": "Title of the paywall screen"

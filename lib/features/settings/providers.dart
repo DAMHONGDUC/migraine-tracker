@@ -5,6 +5,7 @@ import '../alerts/providers.dart';
 import '../attacks/providers.dart';
 import '../auth/providers.dart';
 import '../medications/providers.dart';
+import '../notifications/providers.dart';
 import '../sync/providers.dart';
 import 'data/documents_export_file_store.dart';
 import 'data/file_dialog_file_saver.dart';
@@ -66,10 +67,12 @@ final filteredExportHistoryProvider = Provider<AsyncValue<List<ExportRecord>>>((
 ) {
   final ExportDateFilter filter = ref.watch(exportFilterControllerProvider);
 
-  return ref.watch(exportHistoryProvider).whenData(
-    (List<ExportRecord> records) =>
-        const ExportRecordFilterer().apply(records, filter),
-  );
+  return ref
+      .watch(exportHistoryProvider)
+      .whenData(
+        (List<ExportRecord> records) =>
+            const ExportRecordFilterer().apply(records, filter),
+      );
 });
 
 /// Produces exports and acts on past ones (see [ExportController]).
@@ -82,6 +85,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(attackRepositoryProvider),
     ref.watch(medicationRepositoryProvider),
     ref.watch(notificationSchedulerProvider),
+    ref.watch(notificationRepositoryProvider),
     ref.watch(exportRecordRepositoryProvider),
     ref.watch(exportFileStoreProvider),
     ref.watch(authRepositoryProvider),

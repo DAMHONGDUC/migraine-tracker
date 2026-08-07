@@ -29,10 +29,10 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     String uid,
     SyncCollection collection,
     EncryptedRecord record,
-  ) => _owned(uid, collection).write(
-    record.id,
-    EncryptedRecordMapper.toDocument(record, uid),
-  );
+  ) => _owned(
+    uid,
+    collection,
+  ).write(record.id, EncryptedRecordMapper.toDocument(record, uid));
 
   @override
   Future<List<EncryptedRecord>> changesSince(

@@ -15,4 +15,20 @@ abstract interface class AttackCipher {
     required EncryptedPayload payload,
     required String base64Key,
   });
+
+  /// A whole pull's worth at once, **index for index** with [payloads].
+  ///
+  /// Null at a position means that one could not be opened — a null
+  /// payload, a wrong key, a ciphertext that was tampered with. It never
+  /// throws for one bad row, because one unreadable record must not wedge
+  /// every later one behind it (hard rule 12), and the caller counts the
+  /// nulls.
+  ///
+  /// Batched rather than looped by the caller so an implementation is free
+  /// to move the work off the UI isolate — which is the whole reason this
+  /// exists next to [decrypt].
+  Future<List<String?>> decryptAll({
+    required List<EncryptedPayload?> payloads,
+    required String base64Key,
+  });
 }

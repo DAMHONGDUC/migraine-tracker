@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,6 +16,7 @@ import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
+import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
 import 'features/sync/providers.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -33,12 +35,42 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
+    // - Reminder notifications are derived rather than recorded as they
+    //   fire, so this catches up the ones that came round while the app
+    //   was closed (hard rule 16).
+    // - Needs no account: reminders are on-device, so the list works
+    //   signed out too.
+    useEffect(() {
+      unawaited(ref.read(notificationsControllerProvider).materialise());
+      return null;
+    }, const []);
+
+    // A pressure alert arriving while the app is open: record it now, so
+    // the list has it before the user goes looking. One arriving while the
+    // app is shut is picked up by the sync from whichever device did see
+    // it (hard rule 16).
+    useEffect(() {
+      final StreamSubscription<RemoteMessage> messages = FirebaseMessaging
+          .onMessage
+          .listen(
+            (RemoteMessage message) => unawaited(
+              ref
+                  .read(notificationsControllerProvider)
+                  .recordPush(message.data),
+            ),
+          );
+      return messages.cancel;
+    }, const []);
+
     // Coming back from the background counts as entering the app: another
-    // device may have logged something while this one was away.
+    // device may have logged something while this one was away, and
+    // reminders will have come round while it slept.
     useEffect(() {
       final AppLifecycleListener listener = AppLifecycleListener(
-        onResume: () =>
-            unawaited(ref.read(syncControllerProvider.notifier).sync()),
+        onResume: () {
+          unawaited(ref.read(syncControllerProvider.notifier).sync());
+          unawaited(ref.read(notificationsControllerProvider).materialise());
+        },
       );
       return listener.dispose;
     }, const []);
