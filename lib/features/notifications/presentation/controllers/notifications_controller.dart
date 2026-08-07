@@ -72,18 +72,17 @@ class NotificationsController {
     }
   }
 
-  /// Called when the list screen opens. One pass over everything unread —
-  /// opening the list is a single act, and the rows only differ by when they
-  /// arrived.
-  Future<void> markAllRead() async {
-    AppLogger.action('Mark notifications read');
+  /// Called when one notification's detail screen opens — the only thing
+  /// that counts as reading it.
+  Future<void> markRead(String id) async {
+    AppLogger.action('Mark notification read', id);
     try {
       await _ref
           .read(notificationRepositoryProvider)
-          .markAllRead(DateTime.now().toUtc());
+          .markRead(id, DateTime.now().toUtc());
     } catch (error, stackTrace) {
       AppLogger.error(
-        'Marking notifications read failed',
+        'Marking a notification read failed',
         error: error,
         stackTrace: stackTrace,
       );

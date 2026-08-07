@@ -23,8 +23,8 @@ part 'notifications_screen_tile.dart';
 /// questions — "have I been taking this" and "was there weather" — and a
 /// reminder arriving every day would otherwise bury the alerts entirely.
 ///
-/// Opening the screen marks the lot read, both tabs at once: it is one act,
-/// and the rows only differ by when they arrived.
+/// Opening the screen reads nothing: a row is read when its detail is
+/// opened, so the dot on a row means what it says.
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -41,12 +41,6 @@ class NotificationsScreen extends HookConsumerWidget {
     final List<AppNotification> shown = selected.value == 0
         ? reminders
         : alerts;
-
-    // Once per mount, not on every rebuild: the stream ticks as rows arrive.
-    useEffect(() {
-      ref.read(notificationsControllerProvider).markAllRead();
-      return null;
-    }, const <Object?>[]);
 
     return SdScaffoldV2(
       title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),

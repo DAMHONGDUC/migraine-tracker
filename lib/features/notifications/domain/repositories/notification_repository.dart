@@ -22,10 +22,15 @@ abstract interface class NotificationRepository {
   /// time the app opened.
   Future<void> addMissing(List<AppNotification> notifications);
 
-  /// Marks everything unread as read at [at]. One pass rather than per row:
-  /// opening the list is a single act, and the rows only differ by when they
-  /// arrived.
-  Future<void> markAllRead(DateTime at);
+  /// Marks one notification read at [at].
+  ///
+  /// Per row, not per screen: opening the list is not reading anything, so
+  /// the unread dot on a row means what it says and the bell's count comes
+  /// down one at a time as they are opened.
+  ///
+  /// A no-op for a row already read, so re-entering a detail screen does
+  /// not bump its revision and push it again.
+  Future<void> markRead(String id, DateTime at);
 
   /// GDPR wipe.
   Future<void> deleteAll();

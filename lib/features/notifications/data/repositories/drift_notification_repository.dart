@@ -59,27 +59,25 @@ class DriftNotificationRepository implements NotificationRepository {
   }
 
   @override
-  Future<void> markAllRead(DateTime at) {
+  Future<void> markRead(String id, DateTime at) {
     return _db.transaction(() async {
-      final List<AppNotificationRow> unread = await (_db.select(
+      final AppNotificationRow? row = await (_db.select(
         _db.appNotifications,
-      )..where((t) => t.readAt.isNull())).get();
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
 
-      // Row by row rather than one `write`: the revision has to go up by one
-      // per row, and that is what carries the read state to the other
-      // devices — a row whose revision did not move never syncs. The loop is
-      // over unread rows only, so it is short by construction.
-      for (final AppNotificationRow row in unread) {
-        await (_db.update(
-          _db.appNotifications,
-        )..where((t) => t.id.equals(row.id))).write(
-          AppNotificationsCompanion(
-            readAt: Value(at.toUtc()),
-            updatedAt: Value(DateTime.now().toUtc()),
-            revision: Value(row.revision + 1),
-          ),
-        );
-      }
+      // Already read, or gone: bumping the revision would push a row that
+      // says exactly what the server already has.
+      if (row == null || row.readAt != null) return;
+      await (_db.update(
+        _db.appNotifications,
+      )..where((t) => t.id.equals(id))).write(
+        AppNotificationsCompanion(
+          readAt: Value(at.toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+          // Bumped, or the read state looks unchanged and never syncs.
+          revision: Value(row.revision + 1),
+        ),
+      );
     });
   }
 

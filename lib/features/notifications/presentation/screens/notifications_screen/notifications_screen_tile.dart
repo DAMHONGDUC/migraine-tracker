@@ -58,8 +58,10 @@ class _NotificationTile extends ConsumerWidget {
           style: AppTextStyle.bodyMedium.secondary,
         ),
         // A dot, not a count: per row there is only ever one of it, so a
-        // number would say nothing the dot does not.
+        // number would say nothing the dot does not. Red, like the bell —
+        // the two mark the same thing and must not read as two.
         trailing: SdBadgeV2(
+          color: context.colorScheme.error,
           showing: !notification.isRead,
           child: SdIconV2(
             icon: Icons.chevron_right,
