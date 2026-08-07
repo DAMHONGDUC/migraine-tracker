@@ -36,9 +36,15 @@ class CorrelationCard extends ConsumerWidget {
       trailing: hasPremium ? null : const PremiumBadge(),
       child: switch (result) {
         // Nothing carries weather yet — there is no figure, for anyone.
-        CorrelationInsufficientData() => _Progress(result: result),
-        // Free: how far off the insight is.
-        _ when !hasPremium && result.isPreliminary => _Progress(result: result),
+        CorrelationInsufficientData() => _Progress(
+          result: result,
+          icon: Icons.timeline,
+        ),
+        // Free: how far off the insight is, and premium is the door.
+        _ when !hasPremium && result.isPreliminary => _Progress(
+          result: result,
+          icon: Icons.lock_outline,
+        ),
         // Free, enough data: teased, never computed into the tree.
         _ when !hasPremium => const _Teaser(),
         CorrelationNoVariation() => _NoVariation(),

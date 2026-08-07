@@ -25,8 +25,9 @@ class ExertionCorrelationCard extends StatelessWidget {
     return InsightCard(
       title: context.l10n.insightsExertionTitle,
       child: switch (result) {
+        // No padlock: this card is free, so nothing here is ever locked.
         final ExertionInsufficientData r => InsightProgressBody(
-          icon: Icons.lock_outline,
+          icon: Icons.timeline,
           message: context.l10n.insightsExertionInsufficientData(
             r.requiredAttacks - r.attacksWithExertion,
           ),
