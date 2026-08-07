@@ -126,6 +126,7 @@
   "insightsNoVariation": "Thời tiết trong các cơn đau của bạn quá giống nhau để rút ra kết luận.",
   "insightsDropShareSentence": "số cơn đau của bạn xảy ra khi áp suất giảm nhanh (≥{threshold} hPa trong 24h).",
   "insightsAnalyzedCaption": "Dựa trên {count} cơn đau có dữ liệu thời tiết",
+  "insightsPreliminaryCaption": "Mới dựa trên {count} cơn đau — con số sẽ ổn định từ {required} cơn.",
   "insightsExertionTitle": "Vận động thể lực",
   "insightsExertionInsufficientData": "Ghi mức vận động cho {remaining} cơn đau nữa để mở khóa phân tích này.",
   "insightsExertionProgressCaption": "{withExertion}/{required} cơn đau có ghi mức vận động",

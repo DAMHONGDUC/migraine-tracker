@@ -68,6 +68,67 @@ void main() {
     },
   );
 
+  testWidgets('a premium user with one attack sees counts, not a percentage', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester, premium: true);
+    final repository = DriftAttackRepository(app.db);
+    await repository.insert(seededAttack(0, pressureDelta: -7));
+
+    await openInsights(tester);
+
+    expect(find.text('1/1'), findsOneWidget);
+    expect(find.text('100%'), findsNothing);
+    expect(
+      find.text('Based on 1 attack so far — the figure steadies from 15.'),
+      findsOneWidget,
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a premium user below the minimum sees a flagged percentage', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester, premium: true);
+    final repository = DriftAttackRepository(app.db);
+    // 6 during rapid drops, 4 during stable weather → 60% off 10 attacks.
+    for (var i = 0; i < 6; i++) {
+      await repository.insert(seededAttack(i, pressureDelta: -7));
+    }
+    for (var i = 6; i < 10; i++) {
+      await repository.insert(seededAttack(i, pressureDelta: 2));
+    }
+
+    await openInsights(tester);
+
+    expect(find.text('60%'), findsOneWidget);
+    expect(
+      find.text('Based on 10 attacks so far — the figure steadies from 15.'),
+      findsOneWidget,
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a free user below the minimum still sees only progress', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repository = DriftAttackRepository(app.db);
+    for (var i = 0; i < 10; i++) {
+      await repository.insert(seededAttack(i, pressureDelta: -7));
+    }
+
+    await openInsights(tester);
+
+    expect(find.text('10 of 15 attacks with weather'), findsOneWidget);
+    expect(find.text('60%'), findsNothing);
+    expect(find.text('10/10'), findsNothing);
+
+    await finishTest(tester);
+  });
+
   testWidgets('history shows the weekly frequency chart once attacks exist', (
     tester,
   ) async {

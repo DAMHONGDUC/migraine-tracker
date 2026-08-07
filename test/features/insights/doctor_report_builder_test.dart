@@ -55,8 +55,10 @@ void main() {
         ],
         correlation: const CorrelationInsight(
           attacksAnalyzed: 15,
+          requiredAttacks: 15,
           attacksDuringPressureDrop: 9,
           dropThresholdHpa: 5,
+          minAttacksForShare: 5,
         ),
         strings: strings(),
         now: now,
@@ -73,7 +75,7 @@ void main() {
     final bytes = await const DoctorReportBuilder().build(
       attacks: [],
       correlation: const CorrelationInsufficientData(
-        attacksWithWeather: 0,
+        attacksAnalyzed: 0,
         requiredAttacks: 15,
       ),
       strings: strings(),

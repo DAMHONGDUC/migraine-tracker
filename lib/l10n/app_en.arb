@@ -558,6 +558,18 @@
       }
     }
   },
+  "insightsPreliminaryCaption": "Based on {count, plural, =1{1 attack} other{{count} attacks}} so far — the figure steadies from {required}.",
+  "@insightsPreliminaryCaption": {
+    "description": "Caption under the correlation insight while the sample is still below the minimum",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
   "insightsExertionTitle": "Physical exertion",
   "@insightsExertionTitle": {
     "description": "Title of the exertion correlation insight card"

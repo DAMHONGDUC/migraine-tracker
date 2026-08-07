@@ -131,7 +131,10 @@ class DoctorReportBuilder {
         ],
       if (attacks.isNotEmpty)
         [strings.commonLocation, _modalLocation(attacks, strings)],
+      // Mature figures only: a share still settling has no business in a
+      // document a doctor reads as settled.
       if (correlation case CorrelationInsight(
+        isPreliminary: false,
         :final dropSharePercent,
         :final dropThresholdHpa,
       ))
