@@ -32,7 +32,7 @@ final class PressureAlertMapper {
 
     return AppNotification(
       // Keyed by the event the backend already dedupes on, so the foreground
-      // handler and the launch reconcile land on one row rather than two.
+      // handler and a pull of the same alert land on one row, not two.
       id: AppNotification.pressureAlertId(eventId),
       type: NotificationType.pressureAlert,
       occurredAt: occurredAt.toUtc(),
@@ -40,8 +40,9 @@ final class PressureAlertMapper {
     );
   }
 
-  /// The row survives a missing or unparseable drop — the sheet leaves the
-  /// reading out rather than printing a number the forecast never gave.
+  /// The row survives a missing or unparseable drop — the detail screen
+  /// leaves the reading out rather than printing a number the forecast
+  /// never gave.
   static double? _drop(Object? value) => switch (value) {
     final num number => number.toDouble(),
     final String text => double.tryParse(text),

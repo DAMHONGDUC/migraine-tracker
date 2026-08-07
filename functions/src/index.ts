@@ -100,20 +100,18 @@ export const pressureAlertJob = onSchedule(
               `Barometric pressure is forecast to fall ` +
               `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
           },
-          // The app records this alert in its notification list, and renders
-          // the text itself from its own ARB - the strings above are English
-          // whatever language the user picked, so only the numbers travel.
-          // eventId is what makes the record idempotent across the foreground
-          // handler and the app's launch reconcile.
+          // - The app renders the row from its own ARB: the strings above are
+          //   English whatever language the user picked, so only numbers travel.
+          // - eventId is what keeps every writer of this row idempotent.
           data: {
             type: "pressureAlert",
             eventId: drop.eventId,
             dropHpa: String(drop.dropHpa),
             at: now.toISOString(),
           },
-          // Without content-available iOS never hands a background message to
-          // the app, so an alert arriving while it is shut would reach the
-          // list only via the reconcile on next launch.
+          // Sent so a background handler can be added later without touching
+          // the cron. There is none today, so an alert arriving while the app
+          // is shut reaches the list only via sync from a device that saw it.
           apns: {
             payload: { aps: { sound: "default", "content-available": 1 } },
           },

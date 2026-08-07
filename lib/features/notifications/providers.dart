@@ -16,16 +16,15 @@ final notificationsStreamProvider = StreamProvider<List<AppNotification>>(
   (ref) => ref.watch(notificationRepositoryProvider).watchAll(),
 );
 
-/// Drives the dashboard's unread dot. A count rather than a bool so the dot
-/// can carry a number later without changing what feeds it.
+/// The number on the dashboard's bell, and the value on the Settings row.
+/// Comes down one at a time — a row is read by opening its detail.
 final unreadNotificationCountProvider = StreamProvider<int>(
   (ref) => ref.watch(notificationRepositoryProvider).watchUnreadCount(),
 );
 
 /// One tab's rows. The counts beside the tab labels are these lengths —
-/// how many of that type there are, not how many are unread: opening the
-/// list marks everything read, so an unread count would be zero by the
-/// time the tabs are on screen.
+/// how many of that type there are, not how many are unread: the list is a
+/// history, and its tabs say how much of each kind it holds.
 final notificationsOfTypeProvider =
     Provider.family<List<AppNotification>, NotificationType>((ref, type) {
       final List<AppNotification> all =

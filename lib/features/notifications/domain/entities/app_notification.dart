@@ -65,8 +65,8 @@ class AppNotification {
       'rem:$reminderId:${occurredAt.toUtc().millisecondsSinceEpoch ~/ 60000}';
 
   /// The id for one pressure alert, keyed by the event the backend already
-  /// dedupes on — so a push handled in the foreground, the background and the
-  /// launch reconcile all land on one row.
+  /// dedupes on — so the foreground handler, a pull of the same alert, and
+  /// any background handler added later all land on one row.
   static String pressureAlertId(String eventId) => 'pa:$eventId';
 
   AppNotification copyWith({DateTime? readAt}) => AppNotification(

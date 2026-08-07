@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 /// The signed-in user's account record, as stored in `users/{uid}`.
 ///
 /// Account data only — name, email, avatar, when the account started.
-/// NEVER health data: attacks live on-device and, for signed-in users, in
-/// the separate encrypted `users/{uid}/attacks` subcollection (hard rule 1).
+/// NEVER health data: attacks live on-device and, for signed-in users, as
+/// encrypted payloads in the top-level `attacks` collection (hard rule 1).
 @immutable
 class UserProfile {
   const UserProfile({

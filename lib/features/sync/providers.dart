@@ -85,8 +85,8 @@ final syncControllerProvider = NotifierProvider<SyncController, SyncStatus>(
   SyncController.new,
 );
 
-/// True while a sync is in flight. Watched by Settings' sync row, and
-/// nowhere else (hard rule 12).
+/// True while a sync is in flight. Watched by `SyncScreen` to arm its manual
+/// button, and nowhere else — no flow is ever gated on it (hard rule 12).
 final isSyncingProvider = Provider<bool>(
   (ref) => ref.watch(syncControllerProvider).isSyncing,
 );
