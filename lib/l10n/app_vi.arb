@@ -120,6 +120,8 @@
   "attackDetailPressureValue": "{value} hPa",
   "historyEmpty": "Chưa có cơn đau nào được ghi.",
   "insightsTitle": "Phân tích",
+  "insightsPressureTitle": "Áp suất",
+  "pressureScreenTitle": "Áp suất",
   "insightsCorrelationTitle": "Tương quan áp suất",
   "insightsInsufficientData": "Ghi thêm {remaining} cơn đau có dữ liệu thời tiết để mở khóa phân tích này.",
   "insightsProgressCaption": "{withWeather}/{required} cơn đau có dữ liệu thời tiết",

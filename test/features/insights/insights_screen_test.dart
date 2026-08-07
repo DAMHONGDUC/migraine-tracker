@@ -129,6 +129,48 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('the pressure card opens the detail screen with the alerts', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester, premium: true);
+    final repository = DriftAttackRepository(app.db);
+    await repository.insert(seededAttack(0, pressureDelta: -7));
+
+    await openInsights(tester);
+
+    // One pressure card now, not a forecast card and a correlation card.
+    expect(find.text('Pressure'), findsOneWidget);
+    expect(find.text('Pressure correlation'), findsNothing);
+    expect(find.text('48h pressure forecast'), findsNothing);
+
+    await tapVisible(tester, find.text('Pressure'));
+
+    // The detail screen: both cards in full, plus the controls they drive.
+    expect(find.text('Pressure correlation'), findsOneWidget);
+    expect(find.text('Pressure-drop alerts'), findsOneWidget);
+    expect(find.byType(SwitchListTile), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a free user gets no way into the pressure detail screen', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repository = DriftAttackRepository(app.db);
+    await repository.insert(seededAttack(0, pressureDelta: -7));
+
+    await openInsights(tester);
+    await tapVisible(tester, find.text('Pressure'));
+
+    // Still on Insights: the detail screen is the forecast and the alert
+    // controls, both of which are premium's.
+    expect(find.text('Pressure-drop alerts'), findsNothing);
+    expect(find.byType(SwitchListTile), findsNothing);
+
+    await finishTest(tester);
+  });
+
   testWidgets('history shows the weekly frequency chart once attacks exist', (
     tester,
   ) async {

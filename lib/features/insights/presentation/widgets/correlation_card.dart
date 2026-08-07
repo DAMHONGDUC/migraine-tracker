@@ -1,27 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/navigation_utils.dart';
-import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
+import 'correlation_body.dart';
 import 'insight_card.dart';
-import 'insight_progress_body.dart';
 
-part 'correlation_card_insight.dart';
-part 'correlation_card_no_variation.dart';
-part 'correlation_card_progress.dart';
-part 'correlation_card_teaser.dart';
-
-/// Stat tile for the headline correlation insight.
-///
-/// Premium sees the analysis from the first attack — as counts while the
-/// sample is tiny, then as a percentage carrying a "still settling" note.
-/// Free keeps the "keep logging" progress until the insight is worth paying
-/// for: that's the road to the value moment, and no number reaches the tree.
+/// The correlation on its own card, as the pressure detail screen shows it.
+/// Insights folds this into `PressureCard` alongside the forecast instead.
 class CorrelationCard extends ConsumerWidget {
   const CorrelationCard({required this.result, super.key});
 
@@ -34,22 +22,7 @@ class CorrelationCard extends ConsumerWidget {
     return InsightCard(
       title: context.l10n.insightsCorrelationTitle,
       trailing: hasPremium ? null : const PremiumBadge(),
-      child: switch (result) {
-        // Nothing carries weather yet — there is no figure, for anyone.
-        CorrelationInsufficientData() => _Progress(
-          result: result,
-          icon: Icons.timeline,
-        ),
-        // Free: how far off the insight is, and premium is the door.
-        _ when !hasPremium && result.isPreliminary => _Progress(
-          result: result,
-          icon: Icons.lock_outline,
-        ),
-        // Free, enough data: teased, never computed into the tree.
-        _ when !hasPremium => const _Teaser(),
-        CorrelationNoVariation() => _NoVariation(),
-        final CorrelationInsight r => _Insight(result: r),
-      },
+      child: CorrelationBody(result: result),
     );
   }
 }

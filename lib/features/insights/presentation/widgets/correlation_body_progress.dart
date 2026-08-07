@@ -1,4 +1,4 @@
-part of 'correlation_card.dart';
+part of 'correlation_body.dart';
 
 /// The "keep logging" road: shown to free users short of the minimum, and to
 /// everyone while no attack carries weather at all.

@@ -511,6 +511,14 @@
   "@insightsTitle": {
     "description": "Title of the insights screen"
   },
+  "insightsPressureTitle": "Pressure",
+  "@insightsPressureTitle": {
+    "description": "Title of the combined pressure card on Insights, which opens the pressure detail screen"
+  },
+  "pressureScreenTitle": "Pressure",
+  "@pressureScreenTitle": {
+    "description": "Title of the pressure detail screen: forecast, correlation and alert controls"
+  },
   "insightsCorrelationTitle": "Pressure correlation",
   "@insightsCorrelationTitle": {
     "description": "Title of the correlation insight card"

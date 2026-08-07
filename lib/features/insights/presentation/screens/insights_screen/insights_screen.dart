@@ -10,9 +10,8 @@ import '../../../../attacks/providers.dart';
 import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
-import '../../widgets/correlation_card.dart';
 import '../../widgets/exertion_correlation_card.dart';
-import '../../widgets/pressure_forecast_card.dart';
+import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_correlation_card.dart';
 import '../../widgets/step_correlation_card.dart';
 
@@ -40,14 +39,9 @@ class InsightsScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: SdContentPaddingV2.screen(context, floatingNav: true),
               children: [
-                // Free users never build the forecast card, so no forecast is fetched or held for them.
-                PremiumGate(
-                  lockedIcon: Symbols.show_chart,
-                  lockedMessage: context.l10n.premiumLockedForecast,
-                  child: const PressureForecastCard(),
-                ),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                CorrelationCard(result: value),
+                // Forecast + correlation on one card; it opens the detail
+                // screen, where the alert they drive is set.
+                PressureCard(result: value),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 ExertionCorrelationCard(result: exertionValue),
                 // iOS only: off HealthKit there is no sleep/step source, so the cards would only say "unavailable".
