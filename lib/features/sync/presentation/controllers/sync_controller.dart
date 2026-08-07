@@ -7,6 +7,7 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/providers.dart';
 import '../../domain/entities/sync_outcome.dart';
 import '../../domain/entities/sync_status.dart';
+import '../../domain/enums/sync_trigger.dart';
 import '../../providers.dart';
 
 /// Runs attack sync and holds the only state the UI may see.
@@ -17,6 +18,17 @@ import '../../providers.dart';
 class SyncController extends Notifier<SyncStatus> {
   Future<void>? _inFlight;
 
+  /// The floor between two [SyncTrigger.automatic] passes.
+  ///
+  /// Without it every launch and every resume ran a whole pass: ten app
+  /// opens in ten minutes were ten passes, each a callable plus a query
+  /// and a push per collection, usually to find nothing had changed.
+  ///
+  /// Six hours is the owner's number, and the cost is stated plainly: a
+  /// change made on another device can wait that long to arrive unless
+  /// the user logs an attack or syncs by hand — both of which skip this.
+  static const Duration automaticCooldown = Duration(hours: 6);
+
   @override
   SyncStatus build() => const SyncStatus();
 
@@ -25,10 +37,17 @@ class SyncController extends Notifier<SyncStatus> {
   /// Concurrent calls join the running pass instead of starting a second: the
   /// launch, resume and after-logging triggers all overlap in normal use, and
   /// two passes at once would push the same records twice.
-  Future<void> sync() async {
+  ///
+  /// An [SyncTrigger.automatic] call inside [automaticCooldown] of the last
+  /// finished pass does nothing at all — no state change, so a skipped pass
+  /// is invisible rather than looking like a failure or a fresh sync.
+  Future<void> sync({SyncTrigger trigger = SyncTrigger.automatic}) async {
     final AuthUser? user = _currentUser();
 
     if (user == null || !user.isSignedIn) return;
+    if (trigger == SyncTrigger.automatic && await _isCoolingDown(user.uid)) {
+      return;
+    }
     return _inFlight ??= _run(user.uid).whenComplete(() => _inFlight = null);
   }
 
@@ -86,6 +105,7 @@ class SyncController extends Notifier<SyncStatus> {
           reason: 'Undecryptable synced attacks skipped',
         );
       }
+      await _stampSyncedAt(uid);
       state = SyncStatus(lastSyncedAt: DateTime.now());
     } catch (error, stackTrace) {
       AppLogger.error(
@@ -101,6 +121,44 @@ class SyncController extends Notifier<SyncStatus> {
       // Deliberately not rethrown: the next launch, resume or logged attack
       // retries, and nothing on screen was waiting on this.
       state = state.copyWith(phase: SyncPhase.failed, isFirstPull: false);
+    }
+  }
+
+  /// Whether a pass finished recently enough to skip this one.
+  ///
+  /// A store that will not answer means no cooldown: syncing once too
+  /// often is wasteful, and never syncing is wrong.
+  Future<bool> _isCoolingDown(String uid) async {
+    try {
+      final DateTime? last = await ref
+          .read(syncCursorStoreProvider)
+          .lastSyncedAt(uid);
+
+      if (last == null) return false;
+      return DateTime.now().toUtc().difference(last) < automaticCooldown;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Reading the sync cooldown failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return false;
+    }
+  }
+
+  /// Only after a pass that worked: a failure must be retried by the next
+  /// open, not held off for another six hours.
+  Future<void> _stampSyncedAt(String uid) async {
+    try {
+      await ref
+          .read(syncCursorStoreProvider)
+          .saveSyncedAt(uid, DateTime.now().toUtc());
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Recording the sync time failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 

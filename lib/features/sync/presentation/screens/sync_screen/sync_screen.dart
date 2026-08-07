@@ -7,6 +7,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/sync_status.dart';
+import '../../../domain/enums/sync_trigger.dart';
 import '../../../providers.dart';
 
 /// Where sync is visible in full: how far the pass in flight has got, when
@@ -115,7 +116,11 @@ class _SyncNowButton extends ConsumerWidget {
   Future<void> _syncNow(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l10n = context.l10n;
 
-    await ref.read(syncControllerProvider.notifier).sync();
+    // Never held back by the cooldown: the user is watching this screen
+    // for the answer.
+    await ref
+        .read(syncControllerProvider.notifier)
+        .sync(trigger: SyncTrigger.manual);
 
     // The controller swallows failures by design — every other trigger is
     // unawaited. A deliberate tap still deserves an answer.

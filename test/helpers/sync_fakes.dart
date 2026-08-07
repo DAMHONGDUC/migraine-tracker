@@ -154,6 +154,7 @@ class FakeSyncKeyRepository implements SyncKeyRepository {
 
 class FakeSyncCursorStore implements SyncCursorStore {
   final Map<String, DateTime> _positions = <String, DateTime>{};
+  final Map<String, DateTime> _syncedAt = <String, DateTime>{};
 
   @override
   Future<DateTime?> lastPulledAt(String uid, SyncCollection collection) async =>
@@ -164,5 +165,15 @@ class FakeSyncCursorStore implements SyncCursorStore {
       _positions['${collection.name}_$uid'] = at;
 
   @override
-  Future<void> clear() async => _positions.clear();
+  Future<DateTime?> lastSyncedAt(String uid) async => _syncedAt[uid];
+
+  @override
+  Future<void> saveSyncedAt(String uid, DateTime at) async =>
+      _syncedAt[uid] = at;
+
+  @override
+  Future<void> clear() async {
+    _positions.clear();
+    _syncedAt.clear();
+  }
 }

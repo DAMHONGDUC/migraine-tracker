@@ -12,6 +12,17 @@ abstract interface class SyncCursorStore {
 
   Future<void> save(String uid, SyncCollection collection, DateTime at);
 
-  /// Forgets every account's position (sign-out, GDPR wipe).
+  /// When a whole pass last finished for [uid], or null if none has.
+  ///
+  /// Lives here rather than in memory because the automatic triggers are
+  /// launch and resume: a cooldown the app forgets when it closes would
+  /// let ten cold starts run ten passes, which is the case it exists for.
+  Future<DateTime?> lastSyncedAt(String uid);
+
+  Future<void> saveSyncedAt(String uid, DateTime at);
+
+  /// Forgets every account's position AND its cooldown (sign-out, GDPR
+  /// wipe). Signing into another account must sync at once rather than
+  /// inherit the previous one's window.
   Future<void> clear();
 }

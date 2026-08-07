@@ -9,6 +9,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
   const PrefsSyncCursorStore(this._prefs);
 
   static const String keyPrefix = 'sync_last_pulled_at_';
+  static const String syncedAtKeyPrefix = 'sync_last_synced_at_';
 
   final SharedPreferences _prefs;
 
@@ -26,10 +27,28 @@ class PrefsSyncCursorStore implements SyncCursorStore {
       _prefs.setInt(_key(uid, collection), at.toUtc().millisecondsSinceEpoch);
 
   @override
+  Future<DateTime?> lastSyncedAt(String uid) async {
+    final int? millis = _prefs.getInt('$syncedAtKeyPrefix$uid');
+
+    return millis == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
+  }
+
+  @override
+  Future<void> saveSyncedAt(String uid, DateTime at) => _prefs.setInt(
+    '$syncedAtKeyPrefix$uid',
+    at.toUtc().millisecondsSinceEpoch,
+  );
+
+  @override
   Future<void> clear() async {
     final Iterable<String> keys = _prefs
         .getKeys()
-        .where((key) => key.startsWith(keyPrefix))
+        .where(
+          (key) =>
+              key.startsWith(keyPrefix) || key.startsWith(syncedAtKeyPrefix),
+        )
         .toList();
 
     for (final String key in keys) {
