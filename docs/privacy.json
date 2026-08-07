@@ -3,7 +3,9 @@
   "tagline": "Migraine tracker with barometric pressure alerts. Your health data lives on your device; an account is optional.",
   "icon": "🌧️",
   "accent": "#A594F9",
-  "platforms": ["iOS"],
+  "platforms": [
+    "iOS"
+  ],
   "effectiveDate": "2026-08-07",
   "lastUpdated": "2026-08-07",
   "contactEmail": "ducdam.dev@gmail.com",
@@ -12,13 +14,9 @@
     "appStore": "https://apps.apple.com/app/id0000000000"
   },
   "overview": [
-    "This Privacy Policy describes how {{app}} handles information when you use the app.",
-    "{{app}} is a migraine tracker. Your attacks, medications and notes are stored on your device, an account is optional, and logging works offline. If you never sign in, we never receive any of it.",
-    "Signing in turns on cross-device sync — there is no separate switch. Records upload as encrypted payloads, but the key is held by our backend, so this is not end-to-end encryption: Google's infrastructure, which hosts it, is able to decrypt them. We do not read them.",
-    "Apple Health sleep and step data is read on-device only and is never uploaded. {{app}} does use crash reporting and usage analytics — they record what you did in the app, never what you logged.",
-    "Settings → Delete all data wipes your records and any files you exported — which are full copies of your data — but keeps your account. Account → Delete account removes everything. Neither cancels your subscription, which only you can do in the App Store.",
-    "{{app}} is not directed at children under 16. If you believe a child has provided us with personal information, contact {{email}} and we will delete it.",
-    "Medical disclaimer: {{app}} is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified clinician about your health."
+    "This Privacy Policy describes how {{app}} handles information when you use the app. It applies to every version of {{app}} distributed by {{publisher}} on the app stores listed above.",
+    "{{app}} is a migraine tracker for people whose attacks may be linked to barometric-pressure changes. It is built local-first: your health data is stored on your device, an account is optional, and logging an attack works with no network at all. The sections below set out exactly what is handled, why it is needed, and how you can have it removed.",
+    "If anything here is unclear, email {{email}} before you continue using the app."
   ],
   "summary": [
     "Your attacks, medications and notes are stored on your device. Without an account, we never receive them.",
@@ -50,7 +48,9 @@
     },
     {
       "category": "Coarse location",
-      "items": ["A 5-character geohash — an area of roughly 5 km"],
+      "items": [
+        "A 5-character geohash — an area of roughly 5 km"
+      ],
       "purpose": "Group nearby users into a single weather-forecast lookup and decide whether a pressure drop is coming. Precise coordinates are never requested or stored.",
       "linked": false
     },
@@ -78,7 +78,12 @@
     },
     {
       "category": "Diagnostics",
-      "items": ["Crash logs", "Non-fatal errors", "Device model", "OS version"],
+      "items": [
+        "Crash logs",
+        "Non-fatal errors",
+        "Device model",
+        "OS version"
+      ],
       "purpose": "Identify and fix crashes and performance problems. Tagged with your opaque account identifier while you are signed in.",
       "linked": true
     },
@@ -156,6 +161,61 @@
       "name": "Google Sign-In",
       "purpose": "Optional sign-in.",
       "url": "https://policies.google.com/privacy"
+    }
+  ],
+  "sections": [
+    {
+      "id": "local-first",
+      "title": "Local-first, account optional",
+      "body": [
+        "{{app}} stores your migraine attacks, symptoms, triggers, notes, medications, reminders and notification history on your device. The app is fully usable with no account and no internet connection — logging an attack works entirely offline.",
+        "Signing in is optional and costs you nothing if you skip it. The only thing an account adds is cross-device sync."
+      ]
+    },
+    {
+      "id": "sync",
+      "title": "Sync is encrypted, but not end-to-end",
+      "body": [
+        "Signing in turns on cross-device sync. There is no separate switch — the sign-in screen tells you this before you sign in. Your attacks, medications, reminders and notification history are then uploaded as encrypted payloads and pulled down on your other devices. Your on-device copy always remains the source of truth.",
+        "Two things travel with each record in readable form, because sync cannot work without them: which account owns it, and when it was last changed. Neither says anything about what is in the record.",
+        "The encryption key for your account is generated and held by our backend, so that a new device of yours can be given it after you sign in. That means Google's infrastructure, which hosts our backend, is technically able to decrypt these payloads. We do not read them and nothing in the app is designed to — but we will not tell you that only you can read them, because that would not be true.",
+        "Exports never sync. They stay on the device that made them."
+      ]
+    },
+    {
+      "id": "health-data",
+      "title": "Apple Health",
+      "body": [
+        "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only, to look for a correlation with your attacks. These are two separate permissions with two separate switches — allowing one does not allow the other.",
+        "The analysis runs on your device. We never write to Apple Health, never store what we read in our own database, and never upload it — not even when you are signed in and sync is running. You can revoke access at any time in the iOS Health settings."
+      ]
+    },
+    {
+      "id": "deleting",
+      "title": "Exporting and deleting your data",
+      "body": [
+        "{{app}} gives you two destructive actions, deliberately kept separate."
+      ],
+      "list": [
+        "Export everything — Settings → Export data, as JSON, CSV or a PDF doctor report. Past exports are kept in the app so you can re-share them, and are full copies of your data.",
+        "Delete all data — Settings → Delete all data. Wipes the local database and those export files, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold. Your account stays, so your subscription binding survives.",
+        "Delete your account — Account screen → Delete account. The whole teardown: synced records, account record, encryption key, then the login itself.",
+        "Neither action cancels your subscription. That lives in the App Store and only you can cancel it there."
+      ]
+    },
+    {
+      "id": "children",
+      "title": "Children's privacy",
+      "body": [
+        "{{app}} is not directed at children under 16 and we do not knowingly collect personal information from them. If you believe a child has provided us with personal information, contact {{email}} and we will delete it."
+      ]
+    },
+    {
+      "id": "medical-disclaimer",
+      "title": "Medical disclaimer",
+      "body": [
+        "{{app}} is a self-tracking tool. It is not a substitute for professional medical advice, diagnosis, or treatment. It does not diagnose, treat, cure, or prevent any condition. Always consult a qualified clinician about your health."
+      ]
     }
   ]
 }

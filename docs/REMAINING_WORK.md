@@ -139,6 +139,9 @@ outside the repo:
   published there yet, and `storeLinks.appStore` is still a placeholder id.
 - **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
   address is the owner's to supply and is a GDPR requirement.
+- The shared `defaults.sections` on the site supply retention, your rights,
+  security and the rest; `privacy.json` carries only BaroEase's own sections
+  and overrides `children` to read 16 rather than the shared 13.
 - **The App Privacy label must match the policy**, and the policy now says
   more than the old draft did: Firebase Analytics and Crashlytics are used
   and are tied to the account identifier while signed in, so those are
