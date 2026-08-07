@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -119,6 +119,18 @@ class AppDatabase extends _$AppDatabase {
         if (from >= 2) {
           await m.addColumn(medicationReminders, medicationReminders.createdAt);
         }
+      }
+      // - v9: the notifications table's type column was called `kind` in a
+      //   v8 that only ever existed on dev devices; it was renamed in
+      //   place before shipping, which leaves those databases at v8 with
+      //   the old column and no step that would fix it.
+      // - Recreated rather than renamed, because there is no record of
+      //   what that intermediate v8 looked like — a drop works whatever
+      //   it was. Nothing durable is lost: reminder rows re-materialise on
+      //   the next launch, and pressure alerts come back from sync.
+      if (from < 9) {
+        await customStatement('DROP TABLE IF EXISTS app_notifications');
+        await m.createTable(appNotifications);
       }
     },
     beforeOpen: (details) async {

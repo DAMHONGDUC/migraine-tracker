@@ -11,7 +11,7 @@ import '../../providers.dart';
 /// Keeps the notification list up to date, and marks it read.
 ///
 /// [materialise] is safe to call as often as you like — ids are derived and
-/// the store only inserts what is missing (hard rule 15) — which is why it
+/// the store only inserts what is missing (hard rule 16) — which is why it
 /// runs on every launch and every resume rather than tracking when it last
 /// ran.
 class NotificationsController {

@@ -7,7 +7,7 @@ import '../enums/notification_type.dart';
 ///
 /// Pure and deterministic, which is the whole point: reminders already sync,
 /// so every device runs this over the same input and derives the same ids
-/// (hard rule 15). That is what makes the list match across devices without
+/// (hard rule 16). That is what makes the list match across devices without
 /// any of them uploading a reminder notification first.
 ///
 /// It answers "which reminders have already come round", not "which

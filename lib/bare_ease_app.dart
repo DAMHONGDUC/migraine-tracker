@@ -37,7 +37,7 @@ class BaroEaseApp extends HookConsumerWidget {
 
     // - Reminder notifications are derived rather than recorded as they
     //   fire, so this catches up the ones that came round while the app
-    //   was closed (hard rule 15).
+    //   was closed (hard rule 16).
     // - Needs no account: reminders are on-device, so the list works
     //   signed out too.
     useEffect(() {
@@ -48,7 +48,7 @@ class BaroEaseApp extends HookConsumerWidget {
     // A pressure alert arriving while the app is open: record it now, so
     // the list has it before the user goes looking. One arriving while the
     // app is shut is picked up by the sync from whichever device did see
-    // it (hard rule 15).
+    // it (hard rule 16).
     useEffect(() {
       final StreamSubscription<RemoteMessage> messages = FirebaseMessaging
           .onMessage

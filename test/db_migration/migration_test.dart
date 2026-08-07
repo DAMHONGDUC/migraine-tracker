@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 
 import 'generated/schema.dart';
 
@@ -12,10 +13,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 8', () {
+  test('database is at schema version 9', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 8);
+    expect(db.schemaVersion, 9);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -263,6 +264,47 @@ void main() {
     expect(reminder.id, 'r1');
     expect(reminder.createdAt, isNull);
   });
+
+  test('migrates from v8 to v9 (notifications table recreated)', () async {
+    final connection = await verifier.startAt(8);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  test(
+    'v9 recreates the notifications table whatever v8 left behind',
+    () async {
+      final schema = await verifier.schemaAt(8);
+      // The shape the intermediate v8 actually had on a dev device: the
+      // type column under its old name. No generated class describes it,
+      // which is exactly why v9 drops rather than renames.
+      schema.rawDatabase
+        ..execute('DROP TABLE IF EXISTS app_notifications')
+        ..execute(
+          'CREATE TABLE app_notifications (id TEXT NOT NULL PRIMARY KEY, '
+          'kind TEXT NOT NULL, occurred_at INTEGER NOT NULL)',
+        );
+
+      final db = AppDatabase(schema.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, db.schemaVersion);
+
+      // Writable under today's definition — the failure this fixes was an
+      // insert against a table that had no `type` column.
+      await db
+          .into(db.appNotifications)
+          .insert(
+            AppNotificationsCompanion.insert(
+              id: 'rem:r1:1',
+              type: NotificationType.medicationReminder,
+              occurredAt: DateTime.now().toUtc(),
+            ),
+          );
+      expect(await db.select(db.appNotifications).get(), hasLength(1));
+    },
+  );
 
   test('reminders still cascade after v8', () async {
     final schema = await verifier.schemaAt(6);
