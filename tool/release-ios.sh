@@ -48,15 +48,20 @@ fi
 IPA_DIR="build/ios/ipa"
 rm -rf "$IPA_DIR"
 
-step "ios release archive — $TARGET ($ENV_FILE), export $EXPORT_METHOD"
+# Version and build number are edited in pubspec.yaml, never passed as a
+# flag: `--build-number` ships a build whose version exists nowhere in git.
+# So print what is about to go out, and let the number speak for itself.
+VERSION=$(grep '^version:' pubspec.yaml | head -1 | cut -d' ' -f2)
+
+step "ios release archive — $TARGET ($ENV_FILE), version $VERSION, export $EXPORT_METHOD"
 $FL build ipa \
   --release \
   --dart-define-from-file="$ENV_FILE" \
   --export-method "$EXPORT_METHOD" \
   "$@"
 
-done_msg "Built $TARGET from $ENV_FILE into $IPA_DIR."
+done_msg "Built $TARGET $VERSION from $ENV_FILE into $IPA_DIR."
 done_msg "Upload the .ipa there with Transporter, or from Xcode Organizer."
 # Both environments share one bundle id, so both land in the SAME TestFlight
 # app and the build number is the only thing telling them apart.
-warn "App Store Connect refuses a build number it has already seen — bump pubspec.yaml, or pass --build-number."
+warn "Bump version: in pubspec.yaml before the next build — App Store Connect refuses a build number it has already seen."
