@@ -149,6 +149,9 @@ class MedicationDetailScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w12),
       ],
       body: SdActionViewV2(
+        // The reminder list grows without bound, and a user with a dozen of
+        // them would have to scroll to the end to reach "Add reminder".
+        placement: SdActionsPlacementV2.pinned,
         // - Full-bleed: header/"no reminders" text and `SdSectionHeaderV2` pad themselves.
         // - Reminders card takes the gutter as margin instead.
         // - Default `contentPadding` would stack a second one on top (see `account_screen.dart`).
