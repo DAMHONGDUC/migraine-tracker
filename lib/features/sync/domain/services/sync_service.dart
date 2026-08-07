@@ -184,12 +184,22 @@ class SyncService {
       collection,
       since,
     );
+    // The whole batch at once, index for index: an implementation is then
+    // free to take the AES off this isolate, which is the only part of a
+    // pull that holds the UI thread (the writes below await real I/O).
+    final List<String?> plaintexts = await _cipher.decryptAll(
+      payloads: <EncryptedPayload?>[
+        for (final EncryptedRecord change in changes)
+          change.isDeleted ? null : change.payload,
+      ],
+      base64Key: key,
+    );
     DateTime? newest = since;
     int pulled = 0;
     int unreadable = 0;
     int done = 0;
 
-    for (final EncryptedRecord change in changes) {
+    for (final (int index, EncryptedRecord change) in changes.indexed) {
       if (change.isDeleted) {
         if (await binding.store.applyRemoteDeletion(
           change.id,
@@ -198,7 +208,7 @@ class SyncService {
           pulled++;
         }
       } else {
-        final Object? value = await _decodeOrNull(binding, change, key);
+        final Object? value = _decodeOrNull(binding, change, plaintexts[index]);
 
         if (value == null) {
           unreadable++;
@@ -221,23 +231,19 @@ class SyncService {
     return SyncOutcome(pulled: pulled, unreadable: unreadable);
   }
 
-  /// Null when the record cannot be opened or parsed. Counted and skipped
-  /// rather than retried forever: the ciphertext will not change, so one bad
-  /// record must never wedge every later one behind it. The count travels out
-  /// in [SyncOutcome] because domain code does not report errors itself.
-  Future<Object?> _decodeOrNull(
+  /// Null when the record could not be opened ([plaintext] is null) or will
+  /// not parse. Counted and skipped rather than retried forever: the
+  /// ciphertext will not change, so one bad record must never wedge every
+  /// later one behind it. The count travels out in [SyncOutcome] because
+  /// domain code does not report errors itself.
+  Object? _decodeOrNull(
     SyncBinding<dynamic> binding,
     EncryptedRecord change,
-    String key,
-  ) async {
-    final EncryptedPayload? payload = change.payload;
-
-    if (payload == null) return null;
+    String? plaintext,
+  ) {
+    if (plaintext == null) return null;
     try {
-      return binding.codec.decode(
-        await _cipher.decrypt(payload: payload, base64Key: key),
-        id: change.id,
-      );
+      return binding.codec.decode(plaintext, id: change.id);
     } catch (_) {
       return null;
     }
