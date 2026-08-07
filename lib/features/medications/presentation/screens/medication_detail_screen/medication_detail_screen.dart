@@ -180,8 +180,13 @@ class MedicationDetailScreen extends ConsumerWidget {
                 child: SdCardV2(
                   child: Column(
                     children: <Widget>[
-                      for (final MedicationReminderView view in reminders)
+                      // Between rows only — a rule above the first or below
+                      // the last would draw a line on the card's own edge.
+                      for (final (int index, MedicationReminderView view)
+                          in reminders.indexed) ...<Widget>[
+                        if (index > 0) const SdDividerV2(),
                         _ReminderRow(view: view),
+                      ],
                     ],
                   ),
                 ),

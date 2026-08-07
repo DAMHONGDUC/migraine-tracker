@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -50,6 +51,34 @@ void main() {
       buttonBefore,
       reason: 'the action is pinned, not scrolled with the list',
     );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('reminders are separated by a rule, never edged by one', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftMedicationRepository(
+      app.db,
+    ).upsert(const Medication(id: 'm1', name: 'Sumatriptan'));
+    for (int i = 0; i < 3; i++) {
+      await app.db
+          .into(app.db.medicationReminders)
+          .insert(
+            MedicationRemindersCompanion.insert(
+              id: 'r$i',
+              medicationId: 'm1',
+              minuteOfDay: i * 60,
+            ),
+          );
+    }
+
+    await openMedications(tester);
+    await openMedication(tester, 'Sumatriptan');
+
+    // Three rows, two rules — the card's own top and bottom edges stay clean.
+    expect(find.byType(SdDividerV2), findsNWidgets(2));
 
     await finishTest(tester);
   });
