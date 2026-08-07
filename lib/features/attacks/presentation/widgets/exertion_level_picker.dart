@@ -34,44 +34,29 @@ class ExertionLevelPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<ExertionLevel> levels = ExertionLevel.values;
 
-    // Rows of Expanded, not a GridView: this sits inside the log step's
-    // Column, where a shrink-wrapping scrollable is one more viewport to
-    // reason about for a fixed four tiles that never scroll.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        for (int start = 0; start < levels.length; start += perRow) ...<Widget>[
-          if (start > 0) SizedBox(height: SdSpacingConstant.h8),
-          SizedBox(
-            // A fixed row height: the tile is one line of text beside an
-            // icon, so how tall it is has nothing to do with how wide the
-            // screen made it.
-            height: SdSpacingConstant.h64,
-            child: Row(
-              // Stretch, or each tile sizes to its own content and the
-              // selected one — 2px of border against everyone else's 1 —
-              // comes out taller than the tile beside it.
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                for (
-                  int i = start;
-                  i < start + perRow && i < levels.length;
-                  i++
-                ) ...<Widget>[
-                  if (i > start) SizedBox(width: SdSpacingConstant.w8),
-                  Expanded(
-                    child: _ExertionTile(
-                      level: levels[i],
-                      selected: selected == levels[i],
-                      onTap: () => onSelected(levels[i]),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ],
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      // Whatever holds this owns the scrolling — the log step needs none,
+      // the sheet has its own.
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: perRow,
+        mainAxisSpacing: SdSpacingConstant.h8,
+        crossAxisSpacing: SdSpacingConstant.w8,
+        // A fixed row height, not an aspect ratio: the tile is one line of
+        // text beside an icon, so how tall it is has nothing to do with how
+        // wide the screen made it. Every cell is the same box, which is also
+        // what keeps the selected tile — 2px of border against everyone
+        // else's 1 — the same size as the one beside it.
+        mainAxisExtent: SdSpacingConstant.h64,
+      ),
+      itemCount: levels.length,
+      itemBuilder: (BuildContext context, int index) => _ExertionTile(
+        level: levels[index],
+        selected: selected == levels[index],
+        onTap: () => onSelected(levels[index]),
+      ),
     );
   }
 }
