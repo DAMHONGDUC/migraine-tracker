@@ -168,6 +168,9 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   **DerivedData is matched on the workspace path each cache records, never on
   the folder name**: every Flutter app builds a target called `Runner`, so
   deleting `Runner-*` would take other projects' caches with it.
+- `melos run release-ios` / `release-ios-dev` — the IPA, per environment. **One `tool/release-ios.sh` takes the environment as its argument**, rather than a script each: the two differ only by which `env/*.json` is attached and which export method is the sane default (prod → `app-store`, dev → `ad-hoc`, so a dev build installs on a device without a TestFlight round trip). Anything after the environment passes straight to `flutter build ipa`, which is how `--build-number` and a different `--export-method` get in.
+  - **It wipes `build/ios/ipa` first.** Both environments write the same filename to the same folder, so a leftover IPA from the other one is indistinguishable from the build you just made — and the two carry different Firebase and RevenueCat keys. Clearing first means the folder holds exactly one file and it is the one just built.
+  - Why the script exists at all is in its header and in the RevenueCat section below: Xcode's Product > Archive cannot pass `--dart-define-from-file`, and the resulting crash names nothing to do with the missing flag.
 - **There are exactly two entry points, `set-up` and `deep-set-up`.** The wipe
   itself is `tool/_clean.sh`, underscore-prefixed like `_common.sh` because it
   is not a command — it is never run on its own, and `melos.yaml` does not
@@ -423,7 +426,7 @@ about `--dart-define-from-file`, so the archive carries empty config;
 `Firebase.initializeApp` throws, `main()` swallows it, and the app dies on
 the first `FirebaseAuth.instance` with `[core/no-app] No Firebase App
 '[DEFAULT]' has been created`. **Always release with `melos run
-release-ios`.**
+release-ios`** (prod) or `melos run release-ios-dev`.
 
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase
 action runs without a key, because every RevenueCat call site catches the
