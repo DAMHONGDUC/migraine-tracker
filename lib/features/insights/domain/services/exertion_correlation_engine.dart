@@ -51,12 +51,15 @@ class ExertionCorrelationEngine {
       );
     }
 
+    int noneCount = 0;
     int lightCount = 0;
     int moderateCount = 0;
     int severeCount = 0;
 
     for (final Attack attack in withExertion) {
       switch (attack.exertionLevel!) {
+        case ExertionLevel.none:
+          noneCount++;
         case ExertionLevel.light:
           lightCount++;
         case ExertionLevel.moderate:
@@ -69,6 +72,7 @@ class ExertionCorrelationEngine {
     return ExertionInsight(
       attacksAnalyzed: withExertion.length,
       requiredAttacks: minAttacks,
+      noneCount: noneCount,
       lightCount: lightCount,
       moderateCount: moderateCount,
       severeCount: severeCount,

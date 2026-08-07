@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 import '../../providers.dart';
 
@@ -33,6 +34,22 @@ class AttackDetailController {
     } catch (error, stackTrace) {
       AppLogger.error(
         'Update attack failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Corrects the exertion answer, which the log flow's fourth step set.
+  Future<void> updateExertion(String id, ExertionLevel? exertionLevel) async {
+    AppLogger.action('Edit attack exertion', id);
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref.read(attackRepositoryProvider).updateExertion(id, exertionLevel);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack exertion failed',
         error: error,
         stackTrace: stackTrace,
       );

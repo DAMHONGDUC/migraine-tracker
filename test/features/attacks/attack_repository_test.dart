@@ -122,19 +122,19 @@ void main() {
         symptoms: ['aura'],
         triggers: ['dehydration', 'heat'],
         notes: 'started at work',
-        exertionLevel: ExertionLevel.severe,
       );
 
       final attack = (await repository.watchAll().first).single;
       expect(attack.symptoms, ['aura']);
       expect(attack.triggers, ['dehydration', 'heat']);
       expect(attack.notes, 'started at work');
-      expect(attack.exertionLevel, ExertionLevel.severe);
       expect(attack.intensity, 6, reason: 'tap-flow fields must be untouched');
     },
   );
 
-  test('updateDetails can clear a previously-answered exertion level', () async {
+  test('updateDetails leaves the exertion answer alone', () async {
+    // The details sheet does not show exertion any more, so saving it must
+    // not blank an answer the log flow's fourth step recorded.
     await repository.insert(fullAttack());
 
     await repository.updateDetails(
@@ -145,7 +145,19 @@ void main() {
     );
 
     final attack = (await repository.watchAll().first).single;
-    expect(attack.exertionLevel, isNull);
+    expect(attack.exertionLevel, fullAttack().exertionLevel);
+  });
+
+  test('updateExertion corrects the answer without touching the rest', () async {
+    await repository.insert(fullAttack());
+
+    await repository.updateExertion('a1', ExertionLevel.none);
+
+    final attack = (await repository.watchAll().first).single;
+    expect(attack.exertionLevel, ExertionLevel.none);
+    expect(attack.symptoms, fullAttack().symptoms);
+    expect(attack.notes, fullAttack().notes);
+    expect(attack.intensity, fullAttack().intensity);
   });
 
   group('detail screen support', () {

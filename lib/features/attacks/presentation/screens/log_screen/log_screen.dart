@@ -41,8 +41,9 @@ class LogScreen extends ConsumerWidget {
         state.step == LogStep.location ||
         state.step == LogStep.medication ||
         state.step == LogStep.exertion;
-    // Exertion is skippable, so Next is armed before anything is picked.
-    final canAdvance = state.hasDraft || state.step == LogStep.exertion;
+    // Medication and exertion arrive pre-selected, so Next is armed on
+    // arrival; location is the only step that waits for a pick.
+    final canAdvance = state.hasDraft;
 
     final question = switch (state.step) {
       LogStep.intensity => l10n.logIntensityTitle,

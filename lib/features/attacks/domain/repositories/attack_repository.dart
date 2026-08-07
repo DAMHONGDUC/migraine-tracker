@@ -37,8 +37,12 @@ abstract interface class AttackRepository {
     required List<String> symptoms,
     required List<String> triggers,
     String? notes,
-    ExertionLevel? exertionLevel,
   });
+
+  /// Exertion on its own, because it is no longer a "detail": it is a step of
+  /// the log flow, and folding it into [updateDetails] would let a save from
+  /// the details sheet blank an answer that sheet never showed.
+  Future<void> updateExertion(String id, ExertionLevel? exertionLevel);
 
   /// Corrects the core fields of an already-logged attack (detail screen).
   /// The weather snapshot is untouched — it belongs to [startedAt].

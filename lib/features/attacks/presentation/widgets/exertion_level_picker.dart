@@ -7,8 +7,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/exertion_level.dart';
 
-/// The three exertion-level tiles, one row. Optional field: tapping the
-/// already-selected level clears it back to "not answered."
+/// The exertion-level tiles, one row, starting at "none".
+///
+/// A tap always selects — there is no clearing back to "not answered",
+/// because [ExertionLevel.none] is the answer for "I wasn't exerting
+/// myself". [selected] is still nullable so an attack logged before the
+/// step existed renders with nothing highlighted.
 class ExertionLevelPicker extends StatelessWidget {
   const ExertionLevelPicker({
     required this.selected,
@@ -17,7 +21,7 @@ class ExertionLevelPicker extends StatelessWidget {
   });
 
   final ExertionLevel? selected;
-  final ValueChanged<ExertionLevel?> onSelected;
+  final ValueChanged<ExertionLevel> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +31,12 @@ class ExertionLevelPicker extends StatelessWidget {
         children: <Widget>[
           for (final ExertionLevel level in ExertionLevel.values) ...[
             if (level != ExertionLevel.values.first)
-              SizedBox(width: SdSpacingConstant.w8),
+              SizedBox(width: SdSpacingConstant.w4),
             Expanded(
               child: _ExertionTile(
                 level: level,
                 selected: selected == level,
-                onTap: () => onSelected(selected == level ? null : level),
+                onTap: () => onSelected(level),
               ),
             ),
           ],
@@ -54,6 +58,7 @@ class _ExertionTile extends StatelessWidget {
   final VoidCallback onTap;
 
   static const Map<ExertionLevel, IconData> _icons = <ExertionLevel, IconData>{
+    ExertionLevel.none: Icons.self_improvement,
     ExertionLevel.light: Icons.directions_walk,
     ExertionLevel.moderate: Icons.directions_run,
     ExertionLevel.severe: Icons.fitness_center,

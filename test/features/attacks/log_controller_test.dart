@@ -70,7 +70,8 @@ void main() {
     await controller().confirmStep();
     expect(state().step, LogStep.medication);
     expect(state().location, HeadLocation.right);
-    expect(state().hasDraft, isFalse);
+    // Armed on arrival now: the medication step defaults to "No medication".
+    expect(state().hasDraft, isTrue);
   });
 
   test('confirmStep on the exertion step persists the attack', () async {
@@ -94,22 +95,29 @@ void main() {
     expect(rows.single.exertionLevel, ExertionLevel.severe);
   });
 
-  test('the exertion step can be passed without an answer', () async {
+  test('medication and exertion arrive on their defaults, Next armed', () async {
     controller().selectIntensity(4);
     controller().updateDraft(HeadLocation.front);
     await controller().confirmStep();
-    controller().updateDraft(null);
-    await controller().confirmStep();
 
-    // Nothing picked, straight to Next: the flow must never hold an attack
-    // hostage to an optional field (hard rule 5).
+    // "No medication" is the default: armed before the user picks anything.
+    expect(state().step, LogStep.medication);
+    expect(state().hasDraft, isTrue);
+    expect(state().draft, isNull);
+
+    await controller().confirmStep();
     expect(state().step, LogStep.exertion);
-    expect(state().hasDraft, isFalse);
+    expect(state().hasDraft, isTrue);
+    expect(state().draft, ExertionLevel.none);
+
+    // Straight through both without touching either: neither step may hold
+    // an attack hostage (hard rule 5).
     await controller().confirmStep();
 
     expect(state().step, LogStep.saved);
     final rows = await db.select(db.attacks).get();
-    expect(rows.single.exertionLevel, isNull);
+    expect(rows.single.medicationName, isNull);
+    expect(rows.single.exertionLevel, ExertionLevel.none);
   });
 
   test('confirming "No medication" is a valid pick (null draft)', () async {

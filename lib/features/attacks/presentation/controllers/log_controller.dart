@@ -14,9 +14,9 @@ import '../../providers.dart';
 
 /// Steps of the sacred flow: pick a value, then confirm with Next/Done.
 ///
-/// [exertion] is the one step that can be passed without picking anything —
-/// it is the only optional field in the flow, and the three taps before it
-/// are unchanged.
+/// [medication] and [exertion] both arrive with their common answer already
+/// selected ("No medication", "None"), so Next is armed on arrival and
+/// neither can stand between the user and a saved attack.
 enum LogStep { intensity, location, medication, exertion, saved }
 
 @immutable
@@ -91,6 +91,9 @@ class LogController extends Notifier<LogFlowState> {
           step: LogStep.medication,
           intensity: state.intensity,
           location: state.draft! as HeadLocation,
+          // Defaults to "No medication": the common answer costs no tap, and
+          // Next is armed on arrival rather than after a pick.
+          hasDraft: true,
         );
         AppAnalytics.logLogFlowStep(LogStep.medication.name);
       case LogStep.medication:
@@ -99,12 +102,14 @@ class LogController extends Notifier<LogFlowState> {
           intensity: state.intensity,
           location: state.location,
           medicationName: state.draft as String?,
+          // Same idea: "None" is the common answer and the step's default.
+          hasDraft: true,
+          draft: ExertionLevel.none,
         );
         AppAnalytics.logLogFlowStep(LogStep.exertion.name);
       case LogStep.exertion:
-        // Skippable: an unanswered step commits null, same as any other
-        // optional field — it must never stand between a user and a saved
-        // attack (hard rule 5).
+        // Never blocks: the step arrives on [ExertionLevel.none], so Next
+        // works before the user touches anything (hard rule 5).
         await _save(state.medicationName, state.draft as ExertionLevel?);
       case LogStep.intensity:
       case LogStep.saved:

@@ -8,14 +8,18 @@ import 'exertion_level_picker.dart';
 
 /// Fourth step: how hard the user was moving around the attack.
 ///
-/// The only step that can be passed without an answer — Next stays armed
-/// from the moment it opens, and the hint says so, because the three taps
-/// before it are the ones that must never grow (hard rule 5).
+/// Arrives on [ExertionLevel.none] — the common answer — so Next works
+/// immediately and this step can never stand between the user and a saved
+/// attack (hard rule 5).
 class ExertionStep extends StatelessWidget {
-  const ExertionStep({required this.selected, required this.onSelected, super.key});
+  const ExertionStep({
+    required this.selected,
+    required this.onSelected,
+    super.key,
+  });
 
   final ExertionLevel? selected;
-  final ValueChanged<ExertionLevel?> onSelected;
+  final ValueChanged<ExertionLevel> onSelected;
 
   @override
   Widget build(BuildContext context) {

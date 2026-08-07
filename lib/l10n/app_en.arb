@@ -368,6 +368,10 @@
   "@detailsExertionLabel": {
     "description": "Label above the exertion-level picker in the details sheet"
   },
+  "exertionLevelNone": "None",
+  "@exertionLevelNone": {
+    "description": "Exertion level: the user was not exerting themselves. The log step's default."
+  },
   "exertionLevelLight": "Light",
   "@exertionLevelLight": {
     "description": "Exertion level option: light activity"

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:uuid/uuid.dart';
 
 import '../../../attacks/domain/entities/attack.dart';
+import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../medications/domain/entities/medication.dart';
@@ -283,8 +284,27 @@ class DevSeedService {
       symptoms: _pick(_symptoms, random),
       triggers: _pick(_triggers, random),
       notes: annotated ? _buildNote(random) : null,
+      exertionLevel: _buildExertion(random, intensity),
       weather: offline ? null : _buildWeather(startedAt, intensity, random),
     );
+  }
+
+  /// Exertion tracks intensity the way the seeded weather does, so the
+  /// exertion engine sees a signal rather than noise — and every level shows
+  /// up, including [ExertionLevel.none].
+  ///
+  /// A few stay null on purpose: attacks logged before the step existed, a
+  /// case the detail screen and the engine both still have to handle.
+  ExertionLevel? _buildExertion(Random random, int intensity) {
+    if (random.nextInt(8) == 0) return null;
+
+    final int roll = random.nextInt(10) + intensity;
+
+    if (roll >= 14) return ExertionLevel.severe;
+    if (roll >= 10) return ExertionLevel.moderate;
+    if (roll >= 6) return ExertionLevel.light;
+
+    return ExertionLevel.none;
   }
 
   /// Notes vary in length as well as content: a one-word note and a rambling

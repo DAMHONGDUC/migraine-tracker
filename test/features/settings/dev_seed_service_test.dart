@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -216,6 +217,22 @@ void main() {
       isNot(equals(secondIntensities)),
       reason: 'the attack data repeated itself between runs',
     );
+  });
+
+  test('every exertion level shows up, including none', () async {
+    await seeder.seed();
+
+    final Set<ExertionLevel?> levels = (await attacks())
+        .map((Attack a) => a.exertionLevel)
+        .toSet();
+
+    // All four, so the exertion card has a spread to analyse rather than one
+    // level repeated (which the engine correctly refuses to read anything into).
+    for (final ExertionLevel level in ExertionLevel.values) {
+      expect(levels, contains(level), reason: '$level missing from the seed');
+    }
+    // Plus the pre-step case the detail screen still has to render.
+    expect(levels, contains(null));
   });
 
   test('every attack without weather is a backfill candidate, not a hole in '

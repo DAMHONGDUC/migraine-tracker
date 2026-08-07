@@ -40,12 +40,14 @@ class ExertionInsight extends ExertionCorrelationResult {
   const ExertionInsight({
     required super.attacksAnalyzed,
     required super.requiredAttacks,
+    required this.noneCount,
     required this.lightCount,
     required this.moderateCount,
     required this.severeCount,
     required this.minAttacksForShare,
   });
 
+  final int noneCount;
   final int lightCount;
   final int moderateCount;
   final int severeCount;
