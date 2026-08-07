@@ -12,10 +12,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 7', () {
+  test('database is at schema version 8', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 7);
+    expect(db.schemaVersion, 8);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -236,7 +236,35 @@ void main() {
     expect(tombstone.collection, 'attacks');
   });
 
-  test('reminders still cascade after v7', () async {
+  test('migrates from v7 to v8 (notifications, reminder created_at)', () async {
+    final connection = await verifier.startAt(7);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  test('v7 reminders survive v8 with an unknown createdAt', () async {
+    final schema = await verifier.schemaAt(7);
+    schema.rawDatabase
+      ..execute("INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')")
+      ..execute(
+        'INSERT INTO medication_reminders (id, medication_id, minute_of_day, '
+        "enabled, revision) VALUES ('r1', 'm1', 480, 1, 0)",
+      );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Null, not the migration's own clock: a stamped date would hand the
+    // notification window months of reminders that never fired.
+    final reminder = (await db.select(db.medicationReminders).get()).single;
+    expect(reminder.id, 'r1');
+    expect(reminder.createdAt, isNull);
+  });
+
+  test('reminders still cascade after v8', () async {
     final schema = await verifier.schemaAt(6);
     schema.rawDatabase
       ..execute("INSERT INTO medications (id, name) VALUES ('m1', 'Ibuprofen')")

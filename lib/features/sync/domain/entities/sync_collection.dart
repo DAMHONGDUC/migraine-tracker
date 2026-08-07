@@ -8,7 +8,10 @@
 enum SyncCollection {
   medications('medications'),
   medicationReminders('medication_reminders'),
-  attacks('attacks');
+  attacks('attacks'),
+  // Last: a notification points at the reminder and medication it came
+  // from, so both have to be here before it arrives.
+  notifications('notifications');
 
   const SyncCollection(this.name);
 

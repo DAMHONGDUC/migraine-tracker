@@ -5,12 +5,15 @@ import '../../features/attacks/data/tables/attack_tables.dart';
 import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
+import '../../features/notifications/data/tables/notification_tables.dart';
+import '../../features/notifications/domain/enums/notification_kind.dart';
 import '../../features/settings/data/tables/export_tables.dart';
 import '../../features/sync/data/tables/sync_tables.dart';
 import 'converters.dart';
 
 export '../../features/attacks/data/tables/attack_tables.dart';
 export '../../features/medications/data/tables/medication_tables.dart';
+export '../../features/notifications/data/tables/notification_tables.dart';
 export '../../features/settings/data/tables/export_tables.dart';
 export '../../features/sync/data/tables/sync_tables.dart';
 
@@ -24,6 +27,7 @@ part 'app_database.g.dart';
     WeatherSnapshots,
     Medications,
     MedicationReminders,
+    AppNotifications,
     ExportRecords,
     SyncTombstones,
   ],
@@ -36,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -102,6 +106,19 @@ class AppDatabase extends _$AppDatabase {
           "SELECT 'attacks', id, deleted_at FROM attack_tombstones",
         );
         await customStatement('DROP TABLE IF EXISTS attack_tombstones');
+      }
+      // - v8: the notification list, and the bound its reminder half needs.
+      // - Existing reminders get a null createdAt — stamping them with this
+      //   migration's clock would invent the very history the column exists
+      //   to fence off (same call as `Medications.createdAt` in v3).
+      if (from < 8) {
+        await m.createTable(appNotifications);
+        // Same guard as v7's: `createTable` builds from today's definition,
+        // so a database young enough to have just run the v2 step already
+        // has this column.
+        if (from >= 2) {
+          await m.addColumn(medicationReminders, medicationReminders.createdAt);
+        }
       }
     },
     beforeOpen: (details) async {

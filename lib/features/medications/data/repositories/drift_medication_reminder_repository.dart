@@ -55,6 +55,13 @@ class DriftMedicationReminderRepository
               medicationId: reminder.medicationId,
               minuteOfDay: reminder.minuteOfDay,
               enabled: Value(reminder.enabled),
+              // Stamped once and preserved: an edit must not move the bound
+              // the notification window reads off it.
+              createdAt: Value(
+                existing?.createdAt ??
+                    reminder.createdAt ??
+                    DateTime.now().toUtc(),
+              ),
               updatedAt: Value(DateTime.now().toUtc()),
               revision: Value((existing?.revision ?? 0) + 1),
               syncedRevision: Value(existing?.syncedRevision),
@@ -98,5 +105,6 @@ class DriftMedicationReminderRepository
     medicationId: row.medicationId,
     minuteOfDay: row.minuteOfDay,
     enabled: row.enabled,
+    createdAt: row.createdAt,
   );
 }
