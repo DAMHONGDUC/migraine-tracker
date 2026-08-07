@@ -2210,14 +2210,14 @@ class $AppNotificationsTable extends AppNotifications
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<NotificationKind, String> kind =
+  late final GeneratedColumnWithTypeConverter<NotificationType, String> type =
       GeneratedColumn<String>(
-        'kind',
+        'type',
         aliasedName,
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<NotificationKind>($AppNotificationsTable.$converterkind);
+      ).withConverter<NotificationType>($AppNotificationsTable.$convertertype);
   static const VerificationMeta _occurredAtMeta = const VerificationMeta(
     'occurredAt',
   );
@@ -2308,7 +2308,7 @@ class $AppNotificationsTable extends AppNotifications
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    kind,
+    type,
     occurredAt,
     readAt,
     medicationId,
@@ -2407,10 +2407,10 @@ class $AppNotificationsTable extends AppNotifications
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      kind: $AppNotificationsTable.$converterkind.fromSql(
+      type: $AppNotificationsTable.$convertertype.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
-          data['${effectivePrefix}kind'],
+          data['${effectivePrefix}type'],
         )!,
       ),
       occurredAt: attachedDatabase.typeMapping.read(
@@ -2453,15 +2453,15 @@ class $AppNotificationsTable extends AppNotifications
     return $AppNotificationsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<NotificationKind, String, String> $converterkind =
-      const EnumNameConverter<NotificationKind>(NotificationKind.values);
+  static JsonTypeConverter2<NotificationType, String, String> $convertertype =
+      const EnumNameConverter<NotificationType>(NotificationType.values);
 }
 
 class AppNotificationRow extends DataClass
     implements Insertable<AppNotificationRow> {
   /// Derived: `rem:<reminderId>:<epochMinute>` or `pa:<eventId>`.
   final String id;
-  final NotificationKind kind;
+  final NotificationType type;
 
   /// When it fired (UTC).
   final DateTime occurredAt;
@@ -2485,7 +2485,7 @@ class AppNotificationRow extends DataClass
   final int? syncedRevision;
   const AppNotificationRow({
     required this.id,
-    required this.kind,
+    required this.type,
     required this.occurredAt,
     this.readAt,
     this.medicationId,
@@ -2500,8 +2500,8 @@ class AppNotificationRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     {
-      map['kind'] = Variable<String>(
-        $AppNotificationsTable.$converterkind.toSql(kind),
+      map['type'] = Variable<String>(
+        $AppNotificationsTable.$convertertype.toSql(type),
       );
     }
     map['occurred_at'] = Variable<DateTime>(occurredAt);
@@ -2530,7 +2530,7 @@ class AppNotificationRow extends DataClass
   AppNotificationsCompanion toCompanion(bool nullToAbsent) {
     return AppNotificationsCompanion(
       id: Value(id),
-      kind: Value(kind),
+      type: Value(type),
       occurredAt: Value(occurredAt),
       readAt: readAt == null && nullToAbsent
           ? const Value.absent()
@@ -2561,8 +2561,8 @@ class AppNotificationRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AppNotificationRow(
       id: serializer.fromJson<String>(json['id']),
-      kind: $AppNotificationsTable.$converterkind.fromJson(
-        serializer.fromJson<String>(json['kind']),
+      type: $AppNotificationsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
       ),
       occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
       readAt: serializer.fromJson<DateTime?>(json['readAt']),
@@ -2579,8 +2579,8 @@ class AppNotificationRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'kind': serializer.toJson<String>(
-        $AppNotificationsTable.$converterkind.toJson(kind),
+      'type': serializer.toJson<String>(
+        $AppNotificationsTable.$convertertype.toJson(type),
       ),
       'occurredAt': serializer.toJson<DateTime>(occurredAt),
       'readAt': serializer.toJson<DateTime?>(readAt),
@@ -2595,7 +2595,7 @@ class AppNotificationRow extends DataClass
 
   AppNotificationRow copyWith({
     String? id,
-    NotificationKind? kind,
+    NotificationType? type,
     DateTime? occurredAt,
     Value<DateTime?> readAt = const Value.absent(),
     Value<String?> medicationId = const Value.absent(),
@@ -2606,7 +2606,7 @@ class AppNotificationRow extends DataClass
     Value<int?> syncedRevision = const Value.absent(),
   }) => AppNotificationRow(
     id: id ?? this.id,
-    kind: kind ?? this.kind,
+    type: type ?? this.type,
     occurredAt: occurredAt ?? this.occurredAt,
     readAt: readAt.present ? readAt.value : this.readAt,
     medicationId: medicationId.present ? medicationId.value : this.medicationId,
@@ -2623,7 +2623,7 @@ class AppNotificationRow extends DataClass
   AppNotificationRow copyWithCompanion(AppNotificationsCompanion data) {
     return AppNotificationRow(
       id: data.id.present ? data.id.value : this.id,
-      kind: data.kind.present ? data.kind.value : this.kind,
+      type: data.type.present ? data.type.value : this.type,
       occurredAt: data.occurredAt.present
           ? data.occurredAt.value
           : this.occurredAt,
@@ -2649,7 +2649,7 @@ class AppNotificationRow extends DataClass
   String toString() {
     return (StringBuffer('AppNotificationRow(')
           ..write('id: $id, ')
-          ..write('kind: $kind, ')
+          ..write('type: $type, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('readAt: $readAt, ')
           ..write('medicationId: $medicationId, ')
@@ -2665,7 +2665,7 @@ class AppNotificationRow extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
-    kind,
+    type,
     occurredAt,
     readAt,
     medicationId,
@@ -2680,7 +2680,7 @@ class AppNotificationRow extends DataClass
       identical(this, other) ||
       (other is AppNotificationRow &&
           other.id == this.id &&
-          other.kind == this.kind &&
+          other.type == this.type &&
           other.occurredAt == this.occurredAt &&
           other.readAt == this.readAt &&
           other.medicationId == this.medicationId &&
@@ -2693,7 +2693,7 @@ class AppNotificationRow extends DataClass
 
 class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   final Value<String> id;
-  final Value<NotificationKind> kind;
+  final Value<NotificationType> type;
   final Value<DateTime> occurredAt;
   final Value<DateTime?> readAt;
   final Value<String?> medicationId;
@@ -2705,7 +2705,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   final Value<int> rowid;
   const AppNotificationsCompanion({
     this.id = const Value.absent(),
-    this.kind = const Value.absent(),
+    this.type = const Value.absent(),
     this.occurredAt = const Value.absent(),
     this.readAt = const Value.absent(),
     this.medicationId = const Value.absent(),
@@ -2718,7 +2718,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   });
   AppNotificationsCompanion.insert({
     required String id,
-    required NotificationKind kind,
+    required NotificationType type,
     required DateTime occurredAt,
     this.readAt = const Value.absent(),
     this.medicationId = const Value.absent(),
@@ -2729,11 +2729,11 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
     this.syncedRevision = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       kind = Value(kind),
+       type = Value(type),
        occurredAt = Value(occurredAt);
   static Insertable<AppNotificationRow> custom({
     Expression<String>? id,
-    Expression<String>? kind,
+    Expression<String>? type,
     Expression<DateTime>? occurredAt,
     Expression<DateTime>? readAt,
     Expression<String>? medicationId,
@@ -2746,7 +2746,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (kind != null) 'kind': kind,
+      if (type != null) 'type': type,
       if (occurredAt != null) 'occurred_at': occurredAt,
       if (readAt != null) 'read_at': readAt,
       if (medicationId != null) 'medication_id': medicationId,
@@ -2761,7 +2761,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
 
   AppNotificationsCompanion copyWith({
     Value<String>? id,
-    Value<NotificationKind>? kind,
+    Value<NotificationType>? type,
     Value<DateTime>? occurredAt,
     Value<DateTime?>? readAt,
     Value<String?>? medicationId,
@@ -2774,7 +2774,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   }) {
     return AppNotificationsCompanion(
       id: id ?? this.id,
-      kind: kind ?? this.kind,
+      type: type ?? this.type,
       occurredAt: occurredAt ?? this.occurredAt,
       readAt: readAt ?? this.readAt,
       medicationId: medicationId ?? this.medicationId,
@@ -2793,9 +2793,9 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (kind.present) {
-      map['kind'] = Variable<String>(
-        $AppNotificationsTable.$converterkind.toSql(kind.value),
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $AppNotificationsTable.$convertertype.toSql(type.value),
       );
     }
     if (occurredAt.present) {
@@ -2832,7 +2832,7 @@ class AppNotificationsCompanion extends UpdateCompanion<AppNotificationRow> {
   String toString() {
     return (StringBuffer('AppNotificationsCompanion(')
           ..write('id: $id, ')
-          ..write('kind: $kind, ')
+          ..write('type: $type, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('readAt: $readAt, ')
           ..write('medicationId: $medicationId, ')
@@ -5119,7 +5119,7 @@ typedef $$MedicationRemindersTableProcessedTableManager =
 typedef $$AppNotificationsTableCreateCompanionBuilder =
     AppNotificationsCompanion Function({
       required String id,
-      required NotificationKind kind,
+      required NotificationType type,
       required DateTime occurredAt,
       Value<DateTime?> readAt,
       Value<String?> medicationId,
@@ -5133,7 +5133,7 @@ typedef $$AppNotificationsTableCreateCompanionBuilder =
 typedef $$AppNotificationsTableUpdateCompanionBuilder =
     AppNotificationsCompanion Function({
       Value<String> id,
-      Value<NotificationKind> kind,
+      Value<NotificationType> type,
       Value<DateTime> occurredAt,
       Value<DateTime?> readAt,
       Value<String?> medicationId,
@@ -5159,9 +5159,9 @@ class $$AppNotificationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<NotificationKind, NotificationKind, String>
-  get kind => $composableBuilder(
-    column: $table.kind,
+  ColumnWithTypeConverterFilters<NotificationType, NotificationType, String>
+  get type => $composableBuilder(
+    column: $table.type,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -5220,8 +5220,8 @@ class $$AppNotificationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get kind => $composableBuilder(
-    column: $table.kind,
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5278,8 +5278,8 @@ class $$AppNotificationsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<NotificationKind, String> get kind =>
-      $composableBuilder(column: $table.kind, builder: (column) => column);
+  GeneratedColumnWithTypeConverter<NotificationType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
     column: $table.occurredAt,
@@ -5354,7 +5354,7 @@ class $$AppNotificationsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<NotificationKind> kind = const Value.absent(),
+                Value<NotificationType> type = const Value.absent(),
                 Value<DateTime> occurredAt = const Value.absent(),
                 Value<DateTime?> readAt = const Value.absent(),
                 Value<String?> medicationId = const Value.absent(),
@@ -5366,7 +5366,7 @@ class $$AppNotificationsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => AppNotificationsCompanion(
                 id: id,
-                kind: kind,
+                type: type,
                 occurredAt: occurredAt,
                 readAt: readAt,
                 medicationId: medicationId,
@@ -5380,7 +5380,7 @@ class $$AppNotificationsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required NotificationKind kind,
+                required NotificationType type,
                 required DateTime occurredAt,
                 Value<DateTime?> readAt = const Value.absent(),
                 Value<String?> medicationId = const Value.absent(),
@@ -5392,7 +5392,7 @@ class $$AppNotificationsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => AppNotificationsCompanion.insert(
                 id: id,
-                kind: kind,
+                type: type,
                 occurredAt: occurredAt,
                 readAt: readAt,
                 medicationId: medicationId,

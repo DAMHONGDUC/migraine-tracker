@@ -16,6 +16,7 @@ import '../../features/insights/presentation/screens/pressure_screen/pressure_sc
 import '../../features/insights/presentation/screens/sleep_screen/sleep_screen.dart';
 import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
+import '../../features/notifications/presentation/screens/notification_detail_screen/notification_detail_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen/notifications_screen.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
@@ -57,6 +58,14 @@ final class AppRoutes {
     name: 'notifications',
     path: '/notifications',
   );
+
+  /// One notification in full, pushed from the list.
+  /// Path parameter: [notificationIdParam].
+  static const notification = AppRoute(
+    name: 'notificationDetail',
+    path: '/notification/:id',
+  );
+  static const notificationIdParam = 'id';
 
   /// Detail of one logged attack, pushed from History.
   /// Path parameter: [attackIdParam].
@@ -216,6 +225,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.notifications.name,
         path: AppRoutes.notifications.path,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.notification.name,
+        path: AppRoutes.notification.path,
+        builder: (context, state) => NotificationDetailScreen(
+          notificationId: state.pathParameters[AppRoutes.notificationIdParam]!,
+        ),
       ),
       GoRoute(
         name: AppRoutes.contact.name,

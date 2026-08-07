@@ -437,8 +437,8 @@ class AppNotifications extends Table with TableInfo {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
-  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
-    'kind',
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -513,7 +513,7 @@ class AppNotifications extends Table with TableInfo {
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    kind,
+    type,
     occurredAt,
     readAt,
     medicationId,

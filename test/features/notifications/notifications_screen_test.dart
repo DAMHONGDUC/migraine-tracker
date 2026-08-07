@@ -4,7 +4,7 @@ import 'package:migraine_tracker/features/medications/data/repositories/drift_me
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
-import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
@@ -16,14 +16,14 @@ Future<void> seedNotifications(PumpedApp app) async {
   await DriftNotificationRepository(app.db).addMissing(<AppNotification>[
     AppNotification(
       id: 'rem:r1:100',
-      kind: NotificationKind.medicationReminder,
+      type: NotificationType.medicationReminder,
       occurredAt: DateTime.now().toUtc().subtract(const Duration(hours: 2)),
       medicationId: 'm1',
       reminderId: 'r1',
     ),
     AppNotification(
       id: 'pa:evt-1',
-      kind: NotificationKind.pressureAlert,
+      type: NotificationType.pressureAlert,
       occurredAt: DateTime.now().toUtc().subtract(const Duration(hours: 5)),
       pressureDropHpa: -7.5,
     ),
@@ -100,7 +100,9 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a medication reminder opens its medication', (tester) async {
+  testWidgets('a reminder opens a detail that leads to its medication', (
+    tester,
+  ) async {
     final PumpedApp app = await pumpApp(tester);
     await seedNotifications(app);
     await tester.pump();
@@ -110,13 +112,20 @@ void main() {
     await tapVisible(tester, find.text('Time for Sumatriptan'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // The medication detail screen, not a sheet.
+    // The detail screen, not the medication itself: one tap, one stop.
+    expect(find.text('Open this medication'), findsOneWidget);
+    expect(find.text('Reminders'), findsNothing);
+
+    await tapVisible(tester, find.text('Open this medication'));
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Reminders'), findsOneWidget);
 
     await finishTest(tester);
   });
 
-  testWidgets('a pressure alert opens a sheet, not a screen', (tester) async {
+  testWidgets('a pressure alert opens a detail with the reading', (
+    tester,
+  ) async {
     final PumpedApp app = await pumpApp(tester);
     await seedNotifications(app);
     await tester.pump();
@@ -127,9 +136,31 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.textContaining('7.5 hPa'), findsOneWidget);
+    // The alert branch offers the forecast, never a medication.
     expect(find.text('See the forecast'), findsOneWidget);
-    // Still on the list underneath — a sheet, not a push.
-    expect(find.byType(SdSheetContentV2), findsOneWidget);
+    expect(find.text('Open this medication'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a reminder whose medication is gone cannot open it', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await seedNotifications(app);
+    await app.db.delete(app.db.medications).go();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await openNotifications(tester);
+    await tapVisible(tester, find.text('Time for your medication'));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The button stays, disabled — one that vanished would read as a bug.
+    final SdButtonV2 button = tester.widget<SdButtonV2>(
+      find.widgetWithText(SdButtonV2, 'Open this medication'),
+    );
+    expect(button.onPressed, isNull);
 
     await finishTest(tester);
   });

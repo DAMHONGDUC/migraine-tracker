@@ -1000,6 +1000,14 @@
     "description": "Body of the pressure alert sheet; drop is a formatted number",
     "placeholders": { "drop": { "type": "String" } }
   },
+  "notificationMedicationAction": "Open this medication",
+  "@notificationMedicationAction": {
+    "description": "Button on a reminder notification's detail, opens the medication"
+  },
+  "notificationDetailMissing": "This notification is no longer here.",
+  "@notificationDetailMissing": {
+    "description": "Shown when a notification opened by link has since been deleted"
+  },
   "notificationPressureAction": "See the forecast",
   "@notificationPressureAction": {
     "description": "Button on the pressure alert sheet, opens the pressure screen"

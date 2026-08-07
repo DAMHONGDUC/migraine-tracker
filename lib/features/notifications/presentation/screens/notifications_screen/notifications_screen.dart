@@ -11,9 +11,8 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../medications/providers.dart';
 import '../../../domain/entities/app_notification.dart';
-import '../../../domain/enums/notification_kind.dart';
+import '../../../domain/enums/notification_type.dart';
 import '../../../providers.dart';
-import '../../widgets/pressure_alert_sheet.dart';
 
 part 'notifications_screen_tile.dart';
 

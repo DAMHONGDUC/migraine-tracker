@@ -1,5 +1,5 @@
 import '../entities/app_notification.dart';
-import '../enums/notification_kind.dart';
+import '../enums/notification_type.dart';
 
 /// Turns the `data` payload of a pressure-alert push into a list row.
 ///
@@ -12,16 +12,16 @@ import '../enums/notification_kind.dart';
 final class PressureAlertMapper {
   const PressureAlertMapper._();
 
-  /// The value the backend sets on `kind`, so a future message of some other
-  /// kind is not mistaken for this one.
-  static const String kindValue = 'pressureAlert';
+  /// The value the backend sets on `type`, so a future message of some
+  /// other type is not mistaken for this one.
+  static const String typeValue = 'pressureAlert';
 
   /// Null when the message is not a pressure alert, or is missing the two
   /// fields the row cannot be built without. Returning null rather than
   /// throwing is deliberate: a push arrives from outside the app, and a
   /// malformed one must be ignored, not crash a handler.
   static AppNotification? fromData(Map<String, dynamic> data) {
-    if (data['kind'] != kindValue) return null;
+    if (data['type'] != typeValue) return null;
 
     final Object? eventId = data['eventId'];
     final Object? at = data['at'];
@@ -34,7 +34,7 @@ final class PressureAlertMapper {
       // Keyed by the event the backend already dedupes on, so the foreground
       // handler and the launch reconcile land on one row rather than two.
       id: AppNotification.pressureAlertId(eventId),
-      kind: NotificationKind.pressureAlert,
+      type: NotificationType.pressureAlert,
       occurredAt: occurredAt.toUtc(),
       pressureDropHpa: _drop(data['dropHpa']),
     );

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
-import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/sync/domain/services/app_notification_payload_codec.dart';
 
 void main() {
@@ -11,7 +11,7 @@ void main() {
   test('a reminder notification survives a round trip', () {
     final AppNotification value = AppNotification(
       id: 'rem:r1:29000000',
-      kind: NotificationKind.medicationReminder,
+      type: NotificationType.medicationReminder,
       occurredAt: DateTime.utc(2026, 8, 7, 9),
       readAt: DateTime.utc(2026, 8, 7, 10),
       medicationId: 'm1',
@@ -24,7 +24,7 @@ void main() {
     );
 
     expect(back.id, value.id);
-    expect(back.kind, NotificationKind.medicationReminder);
+    expect(back.type, NotificationType.medicationReminder);
     expect(back.occurredAt, value.occurredAt);
     expect(back.readAt, value.readAt);
     expect(back.medicationId, 'm1');
@@ -35,7 +35,7 @@ void main() {
   test('a pressure alert survives a round trip', () {
     final AppNotification value = AppNotification(
       id: 'pa:evt-1',
-      kind: NotificationKind.pressureAlert,
+      type: NotificationType.pressureAlert,
       occurredAt: DateTime.utc(2026, 8, 7, 6),
       pressureDropHpa: -7.5,
     );
@@ -45,7 +45,7 @@ void main() {
       id: value.id,
     );
 
-    expect(back.kind, NotificationKind.pressureAlert);
+    expect(back.type, NotificationType.pressureAlert);
     expect(back.pressureDropHpa, -7.5);
     expect(back.readAt, isNull);
     expect(back.medicationId, isNull);
@@ -57,7 +57,7 @@ void main() {
               codec.encode(
                 AppNotification(
                   id: 'rem:r1:29000000',
-                  kind: NotificationKind.medicationReminder,
+                  type: NotificationType.medicationReminder,
                   occurredAt: DateTime.utc(2026, 8, 7, 9),
                 ),
               ),
@@ -72,7 +72,7 @@ void main() {
   test('an unknown kind is refused, not guessed at', () {
     final String json = jsonEncode(<String, dynamic>{
       'v': 1,
-      'kind': 'somethingNewer',
+      'type': 'somethingNewer',
       'occurredAt': DateTime.utc(2026, 8, 7).toIso8601String(),
     });
 
@@ -84,7 +84,7 @@ void main() {
   test('a newer payload version is refused, an older one is not', () {
     String payload(int version) => jsonEncode(<String, dynamic>{
       'v': version,
-      'kind': 'pressureAlert',
+      'type': 'pressureAlert',
       'occurredAt': DateTime.utc(2026, 8, 7).toIso8601String(),
     });
 
@@ -98,8 +98,8 @@ void main() {
     expect(
       codec
           .decode(payload(AppNotificationPayloadCodec.schemaVersion), id: 'x')
-          .kind,
-      NotificationKind.pressureAlert,
+          .type,
+      NotificationType.pressureAlert,
     );
   });
 
@@ -108,14 +108,14 @@ void main() {
     () {
       final String json = jsonEncode(<String, dynamic>{
         'v': 1,
-        'kind': 'pressureAlert',
+        'type': 'pressureAlert',
         'occurredAt': DateTime.utc(2026, 8, 7).toIso8601String(),
         'somethingAddedLater': 'whatever',
       });
 
       expect(
-        codec.decode(json, id: 'pa:1').kind,
-        NotificationKind.pressureAlert,
+        codec.decode(json, id: 'pa:1').type,
+        NotificationType.pressureAlert,
       );
     },
   );
@@ -123,7 +123,7 @@ void main() {
   test('a payload with no usable time is refused', () {
     final String json = jsonEncode(<String, dynamic>{
       'v': 1,
-      'kind': 'pressureAlert',
+      'type': 'pressureAlert',
       'occurredAt': 'not a date',
     });
 

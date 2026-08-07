@@ -40,7 +40,7 @@ class DriftNotificationRepository implements NotificationRepository {
           for (final AppNotification notification in notifications)
             AppNotificationsCompanion.insert(
               id: notification.id,
-              kind: notification.kind,
+              type: notification.type,
               occurredAt: notification.occurredAt,
               readAt: Value(notification.readAt),
               medicationId: Value(notification.medicationId),
@@ -95,7 +95,7 @@ class DriftNotificationRepository implements NotificationRepository {
 
   AppNotification _toDomain(AppNotificationRow row) => AppNotification(
     id: row.id,
-    kind: row.kind,
+    type: row.type,
     occurredAt: row.occurredAt,
     readAt: row.readAt,
     medicationId: row.medicationId,

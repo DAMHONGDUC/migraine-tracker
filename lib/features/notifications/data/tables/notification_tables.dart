@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/enums/notification_kind.dart';
+import '../../domain/enums/notification_type.dart';
 
 /// Notifications the user was shown. Added in schema v8.
 ///
@@ -16,7 +16,7 @@ class AppNotifications extends Table {
   /// Derived: `rem:<reminderId>:<epochMinute>` or `pa:<eventId>`.
   TextColumn get id => text()();
 
-  TextColumn get kind => textEnum<NotificationKind>()();
+  TextColumn get type => textEnum<NotificationType>()();
 
   /// When it fired (UTC).
   DateTimeColumn get occurredAt => dateTime()();

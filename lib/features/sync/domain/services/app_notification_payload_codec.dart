@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import '../../../notifications/domain/entities/app_notification.dart';
-import '../../../notifications/domain/enums/notification_kind.dart';
+import '../../../notifications/domain/enums/notification_type.dart';
 import 'sync_payload_codec.dart';
 
 /// Notification ↔ the JSON that gets encrypted.
@@ -25,7 +25,7 @@ class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
   @override
   String encode(AppNotification value) => jsonEncode(<String, dynamic>{
     _versionKey: schemaVersion,
-    'kind': value.kind.name,
+    'type': value.type.name,
     'occurredAt': value.occurredAt.toUtc().toIso8601String(),
     'readAt': value.readAt?.toUtc().toIso8601String(),
     'medicationId': value.medicationId,
@@ -46,18 +46,18 @@ class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
         'unsupported notification payload version $version',
       );
     }
-    final Object? kind = decoded['kind'];
+    final Object? type = decoded['type'];
     final Object? occurredAt = decoded['occurredAt'];
     final DateTime? at = occurredAt is String
         ? DateTime.tryParse(occurredAt)
         : null;
 
-    // A kind this build has never heard of is refused, not guessed at: the
+    // A type this build has never heard of is refused, not guessed at: the
     // sync counts it unreadable and moves on, which shows one row fewer
     // rather than a row labelled as the wrong thing.
-    final NotificationKind? parsed = _kindByName(kind);
+    final NotificationType? parsed = _typeByName(type);
     if (parsed == null) {
-      throw FormatException('unknown notification kind $kind');
+      throw FormatException('unknown notification type $type');
     }
     if (at == null) {
       throw FormatException('notification payload has a bad time $occurredAt');
@@ -69,7 +69,7 @@ class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
 
     return AppNotification(
       id: id,
-      kind: parsed,
+      type: parsed,
       occurredAt: at.toUtc(),
       readAt: readAt is String ? DateTime.tryParse(readAt)?.toUtc() : null,
       medicationId: medicationId is String ? medicationId : null,
@@ -78,9 +78,9 @@ class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
     );
   }
 
-  NotificationKind? _kindByName(Object? name) {
-    for (final NotificationKind kind in NotificationKind.values) {
-      if (kind.name == name) return kind;
+  NotificationType? _typeByName(Object? name) {
+    for (final NotificationType type in NotificationType.values) {
+      if (type.name == name) return type;
     }
     return null;
   }

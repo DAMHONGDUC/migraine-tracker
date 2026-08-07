@@ -13,7 +13,7 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
-import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
@@ -77,7 +77,7 @@ void main() {
     await DriftNotificationRepository(db).addMissing(<AppNotification>[
       AppNotification(
         id: 'rem:r1:29000000',
-        kind: NotificationKind.medicationReminder,
+        type: NotificationType.medicationReminder,
         occurredAt: DateTime.now().toUtc(),
         medicationId: 'm1',
         reminderId: 'r1',

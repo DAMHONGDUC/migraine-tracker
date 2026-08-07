@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
-import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/notifications/domain/services/pressure_alert_mapper.dart';
 
 Map<String, dynamic> data({
-  String kind = 'pressureAlert',
+  String type = 'pressureAlert',
   Object? eventId = 'evt-1',
   Object? at = '2026-08-07T06:00:00.000Z',
   Object? dropHpa = '-7.5',
 }) => <String, dynamic>{
-  'kind': kind,
+  'type': type,
   'eventId': ?eventId,
   'at': ?at,
   'dropHpa': ?dropHpa,
@@ -20,7 +20,7 @@ void main() {
     final AppNotification? result = PressureAlertMapper.fromData(data());
 
     expect(result, isNotNull);
-    expect(result!.kind, NotificationKind.pressureAlert);
+    expect(result!.type, NotificationType.pressureAlert);
     expect(result.id, 'pa:evt-1');
     expect(result.occurredAt, DateTime.utc(2026, 8, 7, 6));
     expect(result.pressureDropHpa, -7.5);
@@ -36,7 +36,7 @@ void main() {
   });
 
   test('a message of another kind is not ours', () {
-    expect(PressureAlertMapper.fromData(data(kind: 'somethingElse')), isNull);
+    expect(PressureAlertMapper.fromData(data(type: 'somethingElse')), isNull);
   });
 
   test('no event id and no time mean no row', () {

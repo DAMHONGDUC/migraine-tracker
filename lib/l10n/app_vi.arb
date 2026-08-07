@@ -209,6 +209,8 @@
   "notificationReminderUnknown": "Đến giờ uống thuốc",
   "notificationPressureTitle": "Áp suất sắp giảm",
   "notificationPressureBody": "Áp suất khí quyển được dự báo giảm {drop} hPa trong 24 giờ.",
+  "notificationMedicationAction": "Mở thuốc này",
+  "notificationDetailMissing": "Thông báo này không còn nữa.",
   "notificationPressureAction": "Xem dự báo",
   "premiumLockedCharts": "Mở khoá để xem mọi biểu đồ trong lịch sử cơn đau của bạn.",
   "paywallTitle": "BaroEase Premium",

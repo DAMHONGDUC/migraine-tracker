@@ -21,6 +21,22 @@ final unreadNotificationCountProvider = StreamProvider<int>(
   (ref) => ref.watch(notificationRepositoryProvider).watchUnreadCount(),
 );
 
+/// One notification by id, for [NotificationDetailScreen]. Null once the
+/// GDPR wipe has taken it — the screen says so rather than showing a
+/// stale row.
+final notificationByIdProvider = Provider.family<AppNotification?, String>((
+  ref,
+  id,
+) {
+  final List<AppNotification> all =
+      ref.watch(notificationsStreamProvider).value ?? const <AppNotification>[];
+
+  for (final AppNotification notification in all) {
+    if (notification.id == id) return notification;
+  }
+  return null;
+});
+
 /// Orchestrates the list (see [NotificationsController]).
 final notificationsControllerProvider = Provider<NotificationsController>(
   NotificationsController.new,

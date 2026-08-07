@@ -6,7 +6,7 @@ import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
-import '../../features/notifications/domain/enums/notification_kind.dart';
+import '../../features/notifications/domain/enums/notification_type.dart';
 import '../../features/settings/data/tables/export_tables.dart';
 import '../../features/sync/data/tables/sync_tables.dart';
 import 'converters.dart';

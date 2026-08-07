@@ -106,7 +106,7 @@ export const pressureAlertJob = onSchedule(
           // eventId is what makes the record idempotent across the foreground
           // handler and the app's launch reconcile.
           data: {
-            kind: "pressureAlert",
+            type: "pressureAlert",
             eventId: drop.eventId,
             dropHpa: String(drop.dropHpa),
             at: now.toISOString(),

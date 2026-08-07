@@ -1,6 +1,6 @@
 import '../../../medications/domain/entities/medication_reminder.dart';
 import '../entities/app_notification.dart';
-import '../enums/notification_kind.dart';
+import '../enums/notification_type.dart';
 
 /// Rebuilds the reminder half of the notification list from the reminders
 /// themselves.
@@ -88,7 +88,7 @@ class ReminderOccurrenceMaterialiser {
       final DateTime occurredAt = at.toUtc();
       yield AppNotification(
         id: AppNotification.reminderOccurrenceId(reminder.id, occurredAt),
-        kind: NotificationKind.medicationReminder,
+        type: NotificationType.medicationReminder,
         occurredAt: occurredAt,
         medicationId: reminder.medicationId,
         reminderId: reminder.id,

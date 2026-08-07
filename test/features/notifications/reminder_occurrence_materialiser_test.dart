@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
-import 'package:migraine_tracker/features/notifications/domain/enums/notification_kind.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/notifications/domain/services/reminder_occurrence_materialiser.dart';
 
 MedicationReminder reminder({
@@ -147,7 +147,7 @@ void main() {
       now: DateTime(2026, 8, 7, 12),
     );
 
-    expect(result.first.kind, NotificationKind.medicationReminder);
+    expect(result.first.type, NotificationType.medicationReminder);
     expect(result.first.medicationId, 'sumatriptan');
     expect(result.first.reminderId, 'r1');
     expect(result.first.pressureDropHpa, isNull);

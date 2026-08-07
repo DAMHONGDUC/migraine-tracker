@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../enums/notification_kind.dart';
+import '../enums/notification_type.dart';
 
 /// One notification the user was shown, as the list renders it.
 ///
@@ -17,7 +17,7 @@ import '../enums/notification_kind.dart';
 class AppNotification {
   const AppNotification({
     required this.id,
-    required this.kind,
+    required this.type,
     required this.occurredAt,
     this.readAt,
     this.medicationId,
@@ -31,7 +31,7 @@ class AppNotification {
   /// across devices without any of them agreeing first.
   final String id;
 
-  final NotificationKind kind;
+  final NotificationType type;
 
   /// When the notification actually fired, in UTC.
   final DateTime occurredAt;
@@ -51,7 +51,7 @@ class AppNotification {
   /// for the same reason.
   final String? reminderId;
 
-  /// How far pressure was forecast to fall, for a [NotificationKind.pressureAlert].
+  /// How far pressure was forecast to fall, for a [NotificationType.pressureAlert].
   final double? pressureDropHpa;
 
   bool get isRead => readAt != null;
@@ -71,7 +71,7 @@ class AppNotification {
 
   AppNotification copyWith({DateTime? readAt}) => AppNotification(
     id: id,
-    kind: kind,
+    type: type,
     occurredAt: occurredAt,
     readAt: readAt ?? this.readAt,
     medicationId: medicationId,

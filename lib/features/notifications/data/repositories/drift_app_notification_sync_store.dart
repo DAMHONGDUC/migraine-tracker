@@ -63,7 +63,7 @@ class DriftAppNotificationSyncStore
         .insertOnConflictUpdate(
           AppNotificationsCompanion.insert(
             id: value.id,
-            kind: value.kind,
+            type: value.type,
             occurredAt: value.occurredAt,
             readAt: Value(value.readAt),
             medicationId: Value(value.medicationId),
@@ -90,7 +90,7 @@ class DriftAppNotificationSyncStore
 
   AppNotification _toDomain(AppNotificationRow row) => AppNotification(
     id: row.id,
-    kind: row.kind,
+    type: row.type,
     occurredAt: row.occurredAt,
     readAt: row.readAt,
     medicationId: row.medicationId,

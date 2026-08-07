@@ -1,8 +1,7 @@
 part of 'notifications_screen.dart';
 
-/// One row. The two kinds go to different places on tap — a reminder opens
-/// the medication it was about, an alert opens a sheet explaining it — which
-/// is the whole reason `kind` is stored rather than inferred.
+/// One row: what it was and when. Tapping opens the detail screen, which
+/// is where the type decides what the user is offered.
 class _NotificationTile extends ConsumerWidget {
   const _NotificationTile({required this.notification});
 
@@ -13,9 +12,9 @@ class _NotificationTile extends ConsumerWidget {
   String _title(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    return switch (notification.kind) {
-      NotificationKind.pressureAlert => l10n.notificationPressureTitle,
-      NotificationKind.medicationReminder =>
+    return switch (notification.type) {
+      NotificationType.pressureAlert => l10n.notificationPressureTitle,
+      NotificationType.medicationReminder =>
         _medicationName(ref) == null
             ? l10n.notificationReminderUnknown
             : l10n.notificationReminderTitle(_medicationName(ref)!),
@@ -29,31 +28,23 @@ class _NotificationTile extends ConsumerWidget {
     return ref.watch(medicationByIdProvider(id))?.name;
   }
 
-  Future<void> _open(BuildContext context, WidgetRef ref) async {
-    switch (notification.kind) {
-      case NotificationKind.pressureAlert:
-        await PressureAlertSheet(notification: notification).show(context);
-      case NotificationKind.medicationReminder:
-        final String? id = notification.medicationId;
-
-        // Deleted since: the detail screen says so itself rather than this
-        // row guessing at what to do instead.
-        if (id == null) return;
-        await context.pushNamed<void>(
-          AppRoutes.medication.name,
-          pathParameters: <String, String>{AppRoutes.medicationIdParam: id},
-        );
-    }
-  }
+  /// One destination for every row, whatever the type. What the type decides
+  /// is what the detail screen offers, not whether the user gets one.
+  void _open(BuildContext context) => context.pushNamed<void>(
+    AppRoutes.notification.name,
+    pathParameters: <String, String>{
+      AppRoutes.notificationIdParam: notification.id,
+    },
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final bool isAlert = notification.kind == NotificationKind.pressureAlert;
+    final bool isAlert = notification.type == NotificationType.pressureAlert;
     final DateTime at = notification.occurredAt.toLocal();
 
     return SdCardV2(
-      onTap: () => _open(context, ref),
+      onTap: () => _open(context),
       child: ListTile(
         leading: SdIconBadgeV2(
           icon: isAlert ? Icons.trending_down : Icons.alarm,
