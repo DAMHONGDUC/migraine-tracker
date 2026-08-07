@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -7,7 +8,7 @@ import 'package:system_design/index.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('3 taps log an attack: intensity → location → no medication', (
+  testWidgets('3 taps then a skipped exertion step log an attack', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -32,6 +33,13 @@ void main() {
     await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Were you exerting yourself?'), findsOneWidget);
+
+    // Nothing picked: Next is armed from the moment the step opens, because
+    // an optional field must never stand between a user and a saved attack.
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Logged.'), findsOneWidget);
 
     final rows = await app.db.select(app.db.attacks).get();
@@ -39,6 +47,20 @@ void main() {
     expect(rows.single.intensity, 7);
     expect(rows.single.location, HeadLocation.right);
     expect(rows.single.medicationName, isNull);
+    expect(rows.single.exertionLevel, isNull);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('picking an exertion level stores it on the attack', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+
+    await logAttack(tester, exertion: 'Severe');
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.exertionLevel, ExertionLevel.severe);
 
     await finishTest(tester);
   });

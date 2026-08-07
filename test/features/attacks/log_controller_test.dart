@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
@@ -72,11 +73,14 @@ void main() {
     expect(state().hasDraft, isFalse);
   });
 
-  test('confirmStep on the medication step persists the attack', () async {
+  test('confirmStep on the exertion step persists the attack', () async {
     controller().selectIntensity(8);
     controller().updateDraft(HeadLocation.left);
     await controller().confirmStep();
     controller().updateDraft('Sumatriptan');
+    await controller().confirmStep();
+    expect(state().step, LogStep.exertion, reason: 'medication commits first');
+    controller().updateDraft(ExertionLevel.severe);
     await controller().confirmStep();
 
     expect(state().step, LogStep.saved);
@@ -87,6 +91,25 @@ void main() {
     expect(rows.single.intensity, 8);
     expect(rows.single.location, HeadLocation.left);
     expect(rows.single.medicationName, 'Sumatriptan');
+    expect(rows.single.exertionLevel, ExertionLevel.severe);
+  });
+
+  test('the exertion step can be passed without an answer', () async {
+    controller().selectIntensity(4);
+    controller().updateDraft(HeadLocation.front);
+    await controller().confirmStep();
+    controller().updateDraft(null);
+    await controller().confirmStep();
+
+    // Nothing picked, straight to Next: the flow must never hold an attack
+    // hostage to an optional field (hard rule 5).
+    expect(state().step, LogStep.exertion);
+    expect(state().hasDraft, isFalse);
+    await controller().confirmStep();
+
+    expect(state().step, LogStep.saved);
+    final rows = await db.select(db.attacks).get();
+    expect(rows.single.exertionLevel, isNull);
   });
 
   test('confirming "No medication" is a valid pick (null draft)', () async {
@@ -96,10 +119,24 @@ void main() {
     controller().updateDraft(null);
     expect(state().hasDraft, isTrue, reason: 'null is a valid medication pick');
     await controller().confirmStep();
+    await controller().confirmStep();
 
     expect(state().step, LogStep.saved);
     final rows = await db.select(db.attacks).get();
     expect(rows.single.medicationName, isNull);
+  });
+
+  test('back from exertion re-arms the confirmed medication pick', () async {
+    controller().selectIntensity(5);
+    controller().updateDraft(HeadLocation.left);
+    await controller().confirmStep();
+    controller().updateDraft('Ibuprofen');
+    await controller().confirmStep();
+    controller().back();
+
+    expect(state().step, LogStep.medication);
+    expect(state().draft, 'Ibuprofen');
+    expect(state().hasDraft, isTrue);
   });
 
   test('back steps to the previous screen, keeping its value pre-filled', () {
@@ -128,6 +165,7 @@ void main() {
     controller().updateDraft(HeadLocation.whole);
     await controller().confirmStep();
     controller().updateDraft(null);
+    await controller().confirmStep();
     await controller().confirmStep();
     controller().reset();
 

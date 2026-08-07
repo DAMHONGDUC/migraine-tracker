@@ -851,14 +851,17 @@ Future<void> openLog(WidgetTester tester) async {
 /// Taps through the sacred flow with sensible defaults, starting from the
 /// dashboard. Intensity advances immediately; location and medication are
 /// pick-then-confirm — each pick is followed by a tap on the app bar's Next
-/// (see LogScreen/LogController). By default it also taps "Done" on the
-/// saved screen to return to the dashboard; pass finish: false to stay on the
-/// saved step (e.g. to open "Add details").
+/// (see LogScreen/LogController). Exertion is skipped unless [exertion] names
+/// a level, which is what most tests want: it is the one optional step. By
+/// default it also taps "Done" on the saved screen to return to the
+/// dashboard; pass finish: false to stay on the saved step (e.g. to open
+/// "Add details").
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
   String location = 'Right side',
   String medication = 'No medication',
+  String? exertion,
   bool finish = true,
 }) async {
   await openLog(tester);
@@ -879,6 +882,16 @@ Future<void> logAttack(
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+  await tester.tap(find.text('Next'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+
+  // Exertion: skippable, so Next alone passes it when no level is asked for.
+  if (exertion != null) {
+    await tester.tap(find.text(exertion));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+  }
   await tester.tap(find.text('Next'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

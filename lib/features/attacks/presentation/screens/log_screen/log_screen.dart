@@ -5,16 +5,19 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../domain/enums/exertion_level.dart';
 import '../../../domain/enums/head_location.dart';
 import '../../../providers.dart';
 import '../../controllers/log_controller.dart' show LogStep;
+import '../../widgets/exertion_step.dart';
 import '../../widgets/intensity_step.dart';
 import '../../widgets/location_step.dart';
 import '../../widgets/log_step_bar.dart';
 import '../../widgets/medication_step.dart';
 import '../../widgets/saved_step.dart';
 
-/// The sacred flow: intensity → head location → medication → saved. Pure
+/// The sacred flow: intensity → head location → medication → saved, with a
+/// skippable exertion step before the save. Pure
 /// rendering — all state lives in [logControllerProvider]. Intensity
 /// advances immediately on tap (fastest way in, mid-attack); location and
 /// medication are pick-then-confirm — the app bar's Next button commits
@@ -22,7 +25,7 @@ import '../../widgets/saved_step.dart';
 /// the saved screen itself, so Next never needs to relabel).
 ///
 /// This is a full-screen pushed route (opened from the dashboard's log
-/// button). The 3-step progress lives in a floating bottom bar ([LogStepBar])
+/// button). The step progress lives in a floating bottom bar ([LogStepBar])
 /// — the same slot the shell's bottom nav used to morph into. The app bar's
 /// leading button cancels the flow (pops the route) on the first step and
 /// steps back on later ones. "Done" on the saved screen pops back.
@@ -35,12 +38,17 @@ class LogScreen extends ConsumerWidget {
     final state = ref.watch(logControllerProvider);
     final controller = ref.read(logControllerProvider.notifier);
     final showNext =
-        state.step == LogStep.location || state.step == LogStep.medication;
+        state.step == LogStep.location ||
+        state.step == LogStep.medication ||
+        state.step == LogStep.exertion;
+    // Exertion is skippable, so Next is armed before anything is picked.
+    final canAdvance = state.hasDraft || state.step == LogStep.exertion;
 
     final question = switch (state.step) {
       LogStep.intensity => l10n.logIntensityTitle,
       LogStep.location => l10n.logLocationTitle,
       LogStep.medication => l10n.logMedicationTitle,
+      LogStep.exertion => l10n.logExertionTitle,
       LogStep.saved => null,
     };
 
@@ -79,12 +87,12 @@ class LogScreen extends ConsumerWidget {
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
             size: SdButtonSizeV2.small,
-            onPressed: state.hasDraft ? () => controller.confirmStep() : null,
+            onPressed: canAdvance ? () => controller.confirmStep() : null,
             label: l10n.logNext,
           ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      // 3-tap progress lives in the bottom bar slot (same floating spot the
+      // Step progress lives in the bottom bar slot (same floating spot the
       // shell's nav morphs into); hidden once saved, body uses a plain inset.
       bottomNavigationBar: question != null
           ? LogStepBar(step: state.step)
@@ -142,6 +150,10 @@ class LogScreen extends ConsumerWidget {
                       selectedName: state.draft as String?,
                       onSelected: controller.updateDraft,
                       scrollBottomInset: bottomInset,
+                    ),
+                    LogStep.exertion => ExertionStep(
+                      selected: state.draft as ExertionLevel?,
+                      onSelected: controller.updateDraft,
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,

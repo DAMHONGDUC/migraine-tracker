@@ -193,6 +193,18 @@
   "@logNext": {
     "description": "App bar button that confirms the current step's pick (location or medication) and advances to the next step"
   },
+  "logExertionTitle": "Were you exerting yourself?",
+  "@logExertionTitle": {
+    "description": "Question on the log flow's exertion step"
+  },
+  "logExertionOptional": "Optional — tap Next to skip.",
+  "@logExertionOptional": {
+    "description": "Hint under the exertion picker saying the step can be passed without an answer"
+  },
+  "stepExertion": "Exertion",
+  "@stepExertion": {
+    "description": "Label of the exertion node in the log flow's step bar"
+  },
   "logMedicationTitle": "Did you take medication?",
   "@logMedicationTitle": {
     "description": "Title above the medication picker, third tap of the log flow"
