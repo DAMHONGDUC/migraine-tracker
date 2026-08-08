@@ -35,6 +35,11 @@ class ExportActionsSheet extends StatelessWidget {
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
           _ActionTile(
+            icon: Icons.visibility_outlined,
+            label: l10n.exportPreviewAction,
+            action: ExportAction.preview,
+          ),
+          _ActionTile(
             icon: Icons.ios_share,
             label: l10n.exportShareAction,
             action: ExportAction.share,

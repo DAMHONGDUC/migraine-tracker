@@ -23,6 +23,7 @@ import '../../features/onboarding/presentation/screens/onboarding_screen/onboard
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
 import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
+import '../../features/settings/presentation/screens/export_preview_screen/export_preview_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
@@ -101,6 +102,14 @@ final class AppRoutes {
 
   /// Export data and the history of past exports, pushed from Settings.
   static const export = AppRoute(name: 'export', path: '/export');
+
+  /// What is inside one past export, pushed from the history's actions sheet.
+  /// Path parameter: [exportIdParam].
+  static const exportPreview = AppRoute(
+    name: 'exportPreview',
+    path: '/export/:id',
+  );
+  static const exportIdParam = 'id';
 
   /// Forecast, correlation and the alert controls together. Pushed from
   /// Insights' pressure card and from the Settings row.
@@ -205,6 +214,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.export.name,
         path: AppRoutes.export.path,
         builder: (context, state) => const ExportScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.exportPreview.name,
+        path: AppRoutes.exportPreview.path,
+        builder: (context, state) => ExportPreviewScreen(
+          exportId: state.pathParameters[AppRoutes.exportIdParam]!,
+        ),
       ),
       GoRoute(
         name: AppRoutes.pressure.name,

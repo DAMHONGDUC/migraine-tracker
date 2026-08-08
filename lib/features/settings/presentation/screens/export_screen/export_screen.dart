@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
@@ -7,6 +8,7 @@ import '../../../../../core/constants/file_size_utils.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
+import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_date_filter.dart';
@@ -78,6 +80,11 @@ class ExportScreen extends ConsumerWidget {
     if (!context.mounted) return;
 
     switch (action) {
+      case ExportAction.preview:
+        await context.pushNamed<void>(
+          AppRoutes.exportPreview.name,
+          pathParameters: <String, String>{AppRoutes.exportIdParam: record.id},
+        );
       case ExportAction.share:
         await controller.share(record);
       case ExportAction.saveToDevice:

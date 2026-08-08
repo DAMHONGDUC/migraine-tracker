@@ -14,6 +14,10 @@ abstract interface class ExportFileStore {
 
   Future<bool> exists(String path);
 
+  /// The bytes of a stored export, for the preview screen. Callers check
+  /// [exists] first — a file taken out from under us throws here.
+  Future<Uint8List> read(String path);
+
   /// Best-effort: a file that is already gone is not an error.
   Future<void> delete(String path);
 

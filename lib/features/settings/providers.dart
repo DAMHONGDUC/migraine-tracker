@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/db/database_provider.dart';
@@ -13,6 +15,7 @@ import 'data/repositories/drift_export_record_repository.dart';
 import 'data/services/url_mail_launcher.dart';
 import 'data/share_plus_export_sharer.dart';
 import 'domain/entities/export_date_filter.dart';
+import 'domain/entities/export_preview.dart';
 import 'domain/entities/export_record.dart';
 import 'domain/repositories/export_record_repository.dart';
 import 'domain/services/data_export_service.dart';
@@ -73,6 +76,45 @@ final filteredExportHistoryProvider = Provider<AsyncValue<List<ExportRecord>>>((
         (List<ExportRecord> records) =>
             const ExportRecordFilterer().apply(records, filter),
       );
+});
+
+/// One export by id, for the preview screen. Null once it is deleted — the
+/// screen says so rather than reading a file that is no longer anybody's.
+final exportRecordByIdProvider = Provider.family<ExportRecord?, String>((
+  ref,
+  id,
+) {
+  final List<ExportRecord> records =
+      ref.watch(exportHistoryProvider).value ?? const <ExportRecord>[];
+
+  for (final ExportRecord record in records) {
+    if (record.id == id) return record;
+  }
+  return null;
+});
+
+/// A JSON or CSV export read back as text (see [ExportController.preview]).
+final exportPreviewProvider = FutureProvider.family<ExportPreview, String>((
+  ref,
+  id,
+) async {
+  final ExportRecord? record = ref.watch(exportRecordByIdProvider(id));
+
+  if (record == null) throw StateError('No export $id');
+
+  return ref.watch(exportControllerProvider).preview(record);
+});
+
+/// A PDF export's bytes, for the page renderer.
+final exportPreviewBytesProvider = FutureProvider.family<Uint8List, String>((
+  ref,
+  id,
+) async {
+  final ExportRecord? record = ref.watch(exportRecordByIdProvider(id));
+
+  if (record == null) throw StateError('No export $id');
+
+  return ref.watch(exportControllerProvider).previewBytes(record);
 });
 
 /// Produces exports and acts on past ones (see [ExportController]).

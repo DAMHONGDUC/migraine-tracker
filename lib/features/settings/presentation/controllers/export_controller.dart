@@ -15,6 +15,7 @@ import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../insights/providers.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
+import '../../domain/entities/export_preview.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_kind.dart';
 import '../../domain/services/export_file_store.dart';
@@ -141,6 +142,40 @@ class ExportController {
   /// clean-up can take it out from under us.
   Future<bool> fileExists(ExportRecord record) =>
       _ref.read(exportFileStoreProvider).exists(record.filePath);
+
+  /// A JSON or CSV export as text for the preview screen, cut to
+  /// [ExportPreview.maxCharacters].
+  Future<ExportPreview> preview(ExportRecord record) async {
+    try {
+      final Uint8List bytes = await _ref
+          .read(exportFileStoreProvider)
+          .read(record.filePath);
+
+      return ExportPreview.fromBytes(bytes);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Preview export failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// A PDF export's own bytes — the preview screen renders them as pages
+  /// rather than showing them as text.
+  Future<Uint8List> previewBytes(ExportRecord record) async {
+    try {
+      return await _ref.read(exportFileStoreProvider).read(record.filePath);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Preview export failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
 
   Future<Uint8List> _jsonBytes(List<Attack> attacks, DateTime now) async {
     final List<Medication> medications = await _ref

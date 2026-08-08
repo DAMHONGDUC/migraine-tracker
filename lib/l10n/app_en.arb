@@ -1430,6 +1430,18 @@
   "@exportFilterNoMatchBody": {
     "description": "Body shown when the picked date window matches none of the exports"
   },
+  "exportPreviewAction": "Preview",
+  "@exportPreviewAction": {
+    "description": "Row action that opens one export to read what is inside it"
+  },
+  "exportPreviewTitle": "Preview",
+  "@exportPreviewTitle": {
+    "description": "App bar title of the export preview screen"
+  },
+  "exportPreviewTruncated": "Only the start of this file is shown. Share or save it to get all of it.",
+  "@exportPreviewTruncated": {
+    "description": "Note under a text preview that was cut short because the file is long"
+  },
   "exportShareAction": "Share",
   "@exportShareAction": {
     "description": "Row action that opens the system share sheet"

@@ -30,6 +30,9 @@ class DocumentsExportFileStore implements ExportFileStore {
   Future<bool> exists(String path) async => File(path).existsSync();
 
   @override
+  Future<Uint8List> read(String path) => File(path).readAsBytes();
+
+  @override
   Future<void> delete(String path) async {
     final File file = File(path);
 
