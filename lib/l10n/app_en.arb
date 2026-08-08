@@ -1491,10 +1491,6 @@
   "@exportPreviewTitle": {
     "description": "App bar title of the export preview screen"
   },
-  "exportPreviewEmpty": "This export has no rows.",
-  "@exportPreviewEmpty": {
-    "description": "Shown when a CSV export contains only its header, or nothing at all"
-  },
   "exportPreviewTruncated": "Only the start of this file is shown. Share or save it to get all of it.",
   "@exportPreviewTruncated": {
     "description": "Note under a text preview that was cut short because the file is long"

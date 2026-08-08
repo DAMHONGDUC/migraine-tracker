@@ -15,15 +15,19 @@ Future<void> createExport(WidgetTester tester, String kind) async {
   await tester.pump(const Duration(milliseconds: 600));
 }
 
-Future<void> openPreview(WidgetTester tester) async {
+Future<void> openActions(WidgetTester tester) async {
   await tapVisible(tester, find.byIcon(Icons.more_horiz));
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+Future<void> openPreview(WidgetTester tester) async {
+  await openActions(tester);
   await tapVisible(tester, find.text('Preview'));
   await tester.pump(const Duration(milliseconds: 600));
 }
 
 void main() {
-  testWidgets('a CSV export previews its own rows', (tester) async {
+  testWidgets('a CSV export is not offered a preview at all', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await DriftAttackRepository(app.db).insert(
       Attack(
@@ -38,19 +42,18 @@ void main() {
 
     await openExportScreen(tester);
     await createExport(tester, 'CSV');
-    await openPreview(tester);
+    await openActions(tester);
 
-    // A table, not a wall of wrapped text: the header names its columns and
-    // the record sits under them.
-    expect(find.text('intensity'), findsOneWidget);
-    expect(find.text('medication'), findsOneWidget);
-    expect(find.text('Sumatriptan'), findsOneWidget);
-    expect(find.text('7'), findsOneWidget);
+    // 14 columns of comma-separated text say nothing on a phone — share or
+    // save it and open it in something that reads spreadsheets.
+    expect(find.text('Preview'), findsNothing);
+    expect(find.text('Share'), findsOneWidget);
+    expect(find.text('Save to device'), findsOneWidget);
 
     await finishTest(tester);
   });
 
-  testWidgets('a JSON export previews too', (tester) async {
+  testWidgets('a JSON export still previews its own text', (tester) async {
     final PumpedApp app = await pumpApp(tester);
     await DriftAttackRepository(app.db).insert(
       Attack(
