@@ -1,9 +1,84 @@
-# Remaining work (premium assumed done)
+# Remaining work
 
-Snapshot taken with RevenueCat/premium treated as finished — the owner is
-handling the App Store Connect side separately. This is what is left in the
-codebase, ordered top to bottom by priority. Re-check before acting on an
-item; this is a point-in-time survey, not a live tracker.
+Snapshot of 8 Aug 2026. Re-check before acting on an item; this is a
+point-in-time survey, not a live tracker.
+
+**Nothing on this list is code any more.** Every open item is a console, a
+portal or a piece of paper — the repo half of each one is built and tested.
+The numbered sections below are the detail and the reasoning; the checklist
+here is the whole of what is actually left to do.
+
+## Owner checklist
+
+Grouped by where the work happens, because that is how it gets done — one
+console at a time. The "why it matters" column is what breaks if the item is
+skipped, since several of these fail **silently**.
+
+### Firebase (CLI + console)
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 1 | `firebase deploy --only firestore:rules` | Every sync pull dies on `permission-denied`. The rules in the repo name all four `SyncCollection` values; the project may still have an older set that names only `attacks`. |
+| 2 | `firebase deploy --only firestore:indexes` | A **separate** step from rules. The pull query is an equality on `userId` plus a range on `updatedAt`; without the composite index it fails at runtime, not at build. |
+| 3 | `firebase deploy --only functions` | The pressure-alert push now carries `data` + `content-available`. Until this deploys, alerts show a banner but never reach the in-app notification list. |
+| 4 | Configure an APNs auth key | FCM has nothing to hand APNs, so every send fails server-side. No client change can work around it. |
+| 5 | Create the first `app_updates` record by hand | Force-update can never fire. It fails open until then — safe, but silent, so "no sheet appeared" is not evidence it works. `create_date` **must** be a Firestore `timestamp`; a string sorts below every timestamp and the query never sees it. |
+
+`sync_collection_rules_test.dart` proves the two files agree with the enum.
+It can never prove the project has them — only 1 and 2 do that.
+
+### Apple Developer portal / App Store Connect
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 6 | Enable **Push Notifications** on the App ID | Signing fails: "provisioning profile doesn't include the aps-environment entitlement". Automatic signing offers to do it on the first device build. |
+| 7 | Enable **HealthKit** on the App ID | Same failure, for `com.apple.developer.healthkit`. |
+| 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
+| 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
+| 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
+| 11 | Replace the placeholder `storeLinks.appStore` id in `docs/privacy.json` | The published policy links to nothing. |
+
+### RevenueCat
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 12 | Real keys in `env/dev.json` and `env/prod.json` | An **empty** key is handled and safe. A plausible-looking placeholder (`test_...`) is **fatal**: RevenueCat's native SDK answers a wrong-prefix key with `fatalError`, which no Dart `catch` survives and which only appears in release — i.e. on TestFlight. `RevenueCatClient.isUsableKey` now rejects those before they reach `configure`, but the right fix is a real key. |
+| 13 | Attach the three products to an offering | Same visible symptom as 8 — "no plans available". |
+
+These two have no detail section below — the survey was taken with premium
+treated as finished. `CLAUDE.md`'s RevenueCat section is their authority, and
+it carries the full account of the TestFlight crash behind item 12.
+
+### Outside every console
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 14 | Publish the policy at `https://damhongduc.github.io/apps_privacy_policy` | A HealthKit app cannot be submitted without a reachable privacy policy URL. |
+| 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
+| 16 | Have a lawyer read the policy | Before submission. |
+| 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
+
+### Not blocking
+
+| # | What | Why it can wait |
+|---|---|---|
+| 18 | Swap WeatherKit in for Open-Meteo | Open-Meteo is the documented stand-in behind `weatherRepositoryProvider`, and everything depends on the `WeatherRepository` interface, so the swap is one provider. Needs a WeatherKit key first. The backend cron stays on Open-Meteo permanently — that is not part of this item. |
+| 19 | `FirebaseAlertRegistrationRepository` has no test | It takes concrete `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it means extracting three interfaces or adding a mocking package. Both are bigger than the gap. Item 17 is what proves it works. |
+
+### Order
+
+4 → 6 → 17 is the push chain, and nothing before the end of it proves push
+works. 1 and 2 should go together and before any device testing that signs
+in, or the first sync fails and looks like a client bug. 8, 9, 12 and 13 are
+one errand; the paywall says the same thing whichever of them is missing.
+
+## Detail
+
+The sections below are the survey the checklist was drawn from, kept because
+each one carries *why* a decision went the way it did. Several are struck
+through: those were open when the survey was written and have since been
+built, and they stay here so a reader does not go looking for work that is
+already done.
 
 ## 1. ~~GDPR "Delete everything" is incomplete~~ — done
 
@@ -35,7 +110,7 @@ the `sync_keys/{uid}` teardown) is now built and covered by
 
 ## 2. Push notifications — the repo half is done, the console half is not
 
-`ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
+Checklist items 4, 6 and 17. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
 HealthKit. It says `development` on purpose: one entitlements file serves all
 three build configs, and the app-store export re-signs it to `production`
 from the distribution profile — hardcoding `production` would break push on
@@ -120,8 +195,8 @@ Deliberately not done, and worth knowing before extending this:
 
 ## 4. Manual Firebase/Apple console setup still pending
 
-Already documented in `CLAUDE.md` under "Pending setup"; re-verified against
-the current repo state, still open:
+Checklist items 1–7 and 17. Also documented in `CLAUDE.md` under "Pending
+setup"; re-verified against the current repo state, still open:
 
 - `.firebaserc` now names the project (`migraine-tracker-9f7b2`), but there is
   still no evidence `firestore.rules` or `firestore.indexes.json` have been
@@ -140,9 +215,9 @@ the current repo state, still open:
 
 ## 5. The privacy policy is written but not published
 
-`docs/PRIVACY_POLICY.md` and `docs/privacy.json` are current as of
-7 Aug 2026 and agree with each other (hard rule 17). What is left is all
-outside the repo:
+Checklist items 10, 11, 14, 15 and 16. `docs/PRIVACY_POLICY.md` and
+`docs/privacy.json` are current as of 7 Aug 2026 and agree with each other
+(hard rule 17). What is left is all outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
   submission. `privacy.json` now points at
@@ -173,7 +248,7 @@ crash resurfaces, this is the first thing to suspect and revert.
 
 ## 7. WeatherKit not swapped in yet
 
-In-app weather source is still Open-Meteo (the documented temporary stand-in
+Checklist item 18. In-app weather source is still Open-Meteo (the documented temporary stand-in
 behind `weatherRepositoryProvider`); WeatherKit REST is the target once a key
 exists. Backend cron staying on Open-Meteo permanently is intentional, not
 part of this item.
@@ -186,11 +261,12 @@ part of this item.
   leave prefs saying alerts are on), and
   `open_meteo_weather_repository_test.dart` covers the null-location branch
   both methods share — no position means no network call at all.
-  `FirebaseAlertRegistrationRepository` is still untested and stays that way
-  while there is no mocking package: it takes concrete `FirebaseAuth`,
-  `FirebaseMessaging` and `FirebaseFirestore`, so covering it means either
-  extracting interfaces for all three or adding `mockito`/`fake_cloud_firestore`
-  — both bigger than the item. The real-device pass above is what proves it.
+  `FirebaseAlertRegistrationRepository` is still untested (checklist item 19)
+  and stays that way while there is no mocking package: it takes concrete
+  `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it
+  means either extracting interfaces for all three or adding
+  `mockito`/`fake_cloud_firestore` — both bigger than the item. The
+  real-device pass (item 17) is what proves it.
 - The 4 testing priorities CLAUDE.md calls out explicitly — correlation
   engine, Drift migrations, pressure alert function, paywall entitlement
   gating — all already have dedicated tests. Nothing to do there.
