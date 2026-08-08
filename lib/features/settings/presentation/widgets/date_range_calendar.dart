@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/calendar_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/calendar_utils.dart';
 
 /// A month calendar that shows the whole picked window, not just one day.
 ///
@@ -28,10 +30,6 @@ class DateRangeCalendar extends StatefulWidget {
   /// Diameter of a day's disc. The band behind it fills the whole cell.
   static double get daySize => SdSpacingConstant.r36;
 
-  /// Six rows always, so navigating months never changes the height.
-  static const int _weekRows = 6;
-  static const int _daysPerWeek = 7;
-
   /// Start of the window, or null for "any".
   final DateTime? from;
 
@@ -53,10 +51,7 @@ class DateRangeCalendar extends StatefulWidget {
 }
 
 class _DateRangeCalendarState extends State<DateRangeCalendar> {
-  late DateTime _month = _monthOf(widget.initialMonth ?? widget.lastDate);
-
-  /// First day of [date]'s month — the calendar navigates whole months.
-  DateTime _monthOf(DateTime date) => DateTime(date.year, date.month);
+  late DateTime _month = CalendarUtils.monthOf(widget.initialMonth ?? widget.lastDate);
 
   void _showMonth(int delta) {
     setState(() {
@@ -66,8 +61,8 @@ class _DateRangeCalendarState extends State<DateRangeCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime firstMonth = _monthOf(widget.firstDate);
-    final DateTime lastMonth = _monthOf(widget.lastDate);
+    final DateTime firstMonth = CalendarUtils.monthOf(widget.firstDate);
+    final DateTime lastMonth = CalendarUtils.monthOf(widget.lastDate);
 
     return Column(
       children: <Widget>[
@@ -147,9 +142,9 @@ class _WeekdayLabels extends StatelessWidget {
     final MaterialLocalizations material = MaterialLocalizations.of(context);
     final List<Widget> labels = <Widget>[];
 
-    for (int i = 0; i < DateRangeCalendar._daysPerWeek; i++) {
+    for (int i = 0; i < CalendarConstant.daysPerWeek; i++) {
       final int weekday =
-          (material.firstDayOfWeekIndex + i) % DateRangeCalendar._daysPerWeek;
+          (material.firstDayOfWeekIndex + i) % CalendarConstant.daysPerWeek;
 
       labels.add(
         Expanded(
@@ -201,7 +196,7 @@ class _MonthGrid extends StatelessWidget {
 
     for (
       int i = 0;
-      i < DateRangeCalendar._weekRows * DateRangeCalendar._daysPerWeek;
+      i < CalendarConstant.weekRows * CalendarConstant.daysPerWeek;
       i++
     ) {
       final int day = i - leadingBlanks + 1;
@@ -237,7 +232,7 @@ class _MonthGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      crossAxisCount: DateRangeCalendar._daysPerWeek,
+      crossAxisCount: CalendarConstant.daysPerWeek,
       children: cells,
     );
   }

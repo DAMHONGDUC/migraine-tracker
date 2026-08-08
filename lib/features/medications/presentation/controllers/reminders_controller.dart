@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/utils/locale_utils.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/entities/medication_reminder.dart';
@@ -159,7 +160,13 @@ class RemindersController {
         for (final Medication medication in medications)
           medication.id: medication.name,
       };
-      final AppLocalizations l10n = lookupAppLocalizations(_notificationLocale);
+      final AppLocalizations l10n = lookupAppLocalizations(
+        LocaleUtils.resolve(
+          chosen: _ref.read(localeControllerProvider),
+          platform: PlatformDispatcher.instance.locale,
+          supported: AppLocalizations.supportedLocales,
+        ),
+      );
       final NotificationScheduler scheduler = _ref.read(
         notificationSchedulerProvider,
       );
@@ -185,20 +192,6 @@ class RemindersController {
         stackTrace: stackTrace,
       );
     }
-  }
-
-  /// The user's chosen language, or the platform's — falling back to the
-  /// template locale when neither is one this app ships.
-  Locale get _notificationLocale {
-    final Locale chosen =
-        _ref.read(localeControllerProvider) ??
-        PlatformDispatcher.instance.locale;
-
-    return AppLocalizations.supportedLocales.any(
-          (Locale locale) => locale.languageCode == chosen.languageCode,
-        )
-        ? Locale(chosen.languageCode)
-        : const Locale('en');
   }
 
   /// Debug-only: fires a one-off notification shortly from now so a developer

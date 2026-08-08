@@ -1,0 +1,26 @@
+[
+  {
+    "attackId": "a1000000-0000-4000-8000-000000000001",
+    "capturedAt": "2026-08-07T06:30:00.000Z",
+    "pressureHpa": 1002.4,
+    "pressureDelta24hHpa": -11.8,
+    "humidityPercent": 78.5,
+    "temperatureCelsius": 19.3
+  },
+  {
+    "attackId": "a1000000-0000-4000-8000-000000000003",
+    "capturedAt": "2026-07-28T21:05:00.000Z",
+    "pressureHpa": 1016.9,
+    "pressureDelta24hHpa": -1.2,
+    "humidityPercent": 52.0,
+    "temperatureCelsius": 24.6
+  },
+  {
+    "attackId": "a1000000-0000-4000-8000-000000000005",
+    "capturedAt": "2026-08-02T04:40:00.000Z",
+    "pressureHpa": 996.1,
+    "pressureDelta24hHpa": -14.5,
+    "humidityPercent": null,
+    "temperatureCelsius": null
+  }
+]

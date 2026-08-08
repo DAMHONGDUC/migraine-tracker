@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:uuid/uuid.dart';
 
@@ -19,6 +18,7 @@ import '../../domain/entities/export_preview.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_kind.dart';
 import '../../domain/services/export_file_store.dart';
+import '../../domain/services/export_filename_utils.dart';
 import '../../providers.dart';
 
 /// Owns the export screen's actions: producing an export, and acting on one
@@ -30,10 +30,6 @@ class ExportController {
   final Ref _ref;
 
   static const Uuid _uuid = Uuid();
-
-  /// Timestamped to the second: two exports on the same day must not
-  /// overwrite each other's file.
-  static final DateFormat _stampFormat = DateFormat('yyyy-MM-dd_HHmmss');
 
   /// Builds [kind], stores it, and records it in the history.
   ///
@@ -54,7 +50,7 @@ class ExportController {
         ExportKind.csv => _csvBytes(attacks),
         ExportKind.pdf => await _pdfBytes(attacks, reportStrings, now),
       };
-      final String filename = _filename(kind, now);
+      final String filename = ExportFilenameUtils.of(kind, now);
       final StoredExportFile stored = await _ref
           .read(exportFileStoreProvider)
           .write(filename: filename, bytes: bytes);
@@ -211,15 +207,6 @@ class ExportController {
       regularFont: regular,
       boldFont: bold,
     );
-  }
-
-  String _filename(ExportKind kind, DateTime now) {
-    final String stamp = _stampFormat.format(now);
-    final String prefix = kind == ExportKind.pdf
-        ? 'baroease_report'
-        : 'baroease_export';
-
-    return '${prefix}_$stamp.${kind.fileExtension}';
   }
 
   // Attack count only — never what was in them (hard rule 1).

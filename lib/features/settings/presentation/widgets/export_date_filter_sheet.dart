@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/calendar_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -26,7 +27,6 @@ class ExportDateFilterSheet extends StatefulWidget {
 
   /// Oldest day the calendar will go back to. Nothing older can exist — an
   /// export is created on the device, and the app is younger than this.
-  static final DateTime firstSelectableDate = DateTime(2025);
 
   /// The window currently applied, so re-opening the sheet starts where the
   /// user left off.
@@ -66,7 +66,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
     // The end can never be older than the start, so earlier days grey out instead of silently swapping.
     final DateTime firstDate = editingTo && _from != null
         ? _from!
-        : ExportDateFilterSheet.firstSelectableDate;
+        : CalendarConstant.exportFilterFirstDay;
 
     return SdSheetContentV2(
       title: l10n.exportFilterTitle,

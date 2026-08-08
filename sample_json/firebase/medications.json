@@ -1,0 +1,29 @@
+[
+  {
+    "__id__": "b1000000-0000-4000-8000-000000000001",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-08-01T07:20:00.000Z",
+    "deleted": false,
+    "payload": "zYujFMQ/kRDoG+W/LsDtDW+nBOzvkVAsd5n0MgPfXy/kUAsfmbihqMrbZS4emeAOQL39+sHv23l3Gxce7GsOUCiIMNXoDsAX",
+    "nonce": "2cKQ0Jp96voqUvY8",
+    "mac": "P09paRSsBgFc9Yq9Ek2xgw=="
+  },
+  {
+    "__id__": "b1000000-0000-4000-8000-000000000002",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-08-06T19:02:00.000Z",
+    "deleted": false,
+    "payload": "tQhuycdcTV4TTmqvpYEftZ0AyDw16YyzT+EnoBKZ2ypOzYf/sYuPkvX3uKSLAdLAZvivESY25gSczRK8PaqxtNW1GJ5TL7de",
+    "nonce": "lWX2Tmey4UELSgQS",
+    "mac": "1drcjWxNZqegDwovrBDjQQ=="
+  },
+  {
+    "__id__": "b1000000-0000-4000-8000-000000000099",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-08-04T15:31:00.000Z",
+    "deleted": true,
+    "payload": null,
+    "nonce": null,
+    "mac": null
+  }
+]

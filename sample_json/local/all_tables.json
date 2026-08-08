@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 9,
+  "tables": {
+    "attacks": [
+      {
+        "id": "a1000000-0000-4000-8000-000000000001",
+        "startedAt": "2026-08-07T06:30:00.000Z",
+        "intensity": 8,
+        "location": "left",
+        "medicationName": "Sumatriptan 50mg",
+        "symptoms": [
+          "nausea",
+          "light sensitivity"
+        ],
+        "triggers": [
+          "pressure drop",
+          "poor sleep"
+        ],
+        "notes": "Woke up with it. Eased off after lying down in the dark.",
+        "exertionLevel": "moderate",
+        "updatedAt": "2026-08-07T09:10:00.000Z",
+        "revision": 3,
+        "syncedRevision": 3
+      },
+      {
+        "id": "a1000000-0000-4000-8000-000000000002",
+        "startedAt": "2026-08-05T14:23:00.000Z",
+        "intensity": 5,
+        "location": "front",
+        "medicationName": "Ibuprofen 400mg",
+        "symptoms": [
+          "sound sensitivity"
+        ],
+        "triggers": [],
+        "notes": null,
+        "exertionLevel": "light",
+        "updatedAt": "2026-08-05T14:23:00.000Z",
+        "revision": 1,
+        "syncedRevision": null
+      },
+      {
+        "id": "a1000000-0000-4000-8000-000000000003",
+        "startedAt": "2026-07-28T21:05:00.000Z",
+        "intensity": 3,
+        "location": "whole",
+        "medicationName": null,
+        "symptoms": [],
+        "triggers": [],
+        "notes": null,
+        "exertionLevel": "none",
+        "updatedAt": "2026-07-28T21:05:00.000Z",
+        "revision": 1,
+        "syncedRevision": 1
+      },
+      {
+        "id": "a1000000-0000-4000-8000-000000000004",
+        "startedAt": "2026-04-12T11:40:00.000Z",
+        "intensity": 6,
+        "location": "right",
+        "medicationName": "Paracetamol",
+        "symptoms": [
+          "aura",
+          "dizziness",
+          "neck pain"
+        ],
+        "triggers": [
+          "stress",
+          "skipped meal"
+        ],
+        "notes": "Had to leave work early.",
+        "exertionLevel": null,
+        "updatedAt": null,
+        "revision": 0,
+        "syncedRevision": null
+      },
+      {
+        "id": "a1000000-0000-4000-8000-000000000005",
+        "startedAt": "2026-08-02T03:55:00.000Z",
+        "intensity": 10,
+        "location": "back",
+        "medicationName": "Propranolol 40mg",
+        "symptoms": [
+          "nausea",
+          "aura",
+          "light sensitivity"
+        ],
+        "triggers": [
+          "pressure drop"
+        ],
+        "notes": "Second one this week.",
+        "exertionLevel": "severe",
+        "updatedAt": "2026-08-06T08:12:00.000Z",
+        "revision": 5,
+        "syncedRevision": 4
+      }
+    ],
+    "weather_snapshots": [
+      {
+        "attackId": "a1000000-0000-4000-8000-000000000001",
+        "capturedAt": "2026-08-07T06:30:00.000Z",
+        "pressureHpa": 1002.4,
+        "pressureDelta24hHpa": -11.8,
+        "humidityPercent": 78.5,
+        "temperatureCelsius": 19.3
+      },
+      {
+        "attackId": "a1000000-0000-4000-8000-000000000003",
+        "capturedAt": "2026-07-28T21:05:00.000Z",
+        "pressureHpa": 1016.9,
+        "pressureDelta24hHpa": -1.2,
+        "humidityPercent": 52.0,
+        "temperatureCelsius": 24.6
+      },
+      {
+        "attackId": "a1000000-0000-4000-8000-000000000005",
+        "capturedAt": "2026-08-02T04:40:00.000Z",
+        "pressureHpa": 996.1,
+        "pressureDelta24hHpa": -14.5,
+        "humidityPercent": null,
+        "temperatureCelsius": null
+      }
+    ],
+    "medications": [
+      {
+        "id": "b1000000-0000-4000-8000-000000000001",
+        "name": "Sumatriptan 50mg",
+        "createdAt": "2026-05-02T09:14:00.000Z",
+        "updatedAt": "2026-08-01T07:20:00.000Z",
+        "revision": 2,
+        "syncedRevision": 2
+      },
+      {
+        "id": "b1000000-0000-4000-8000-000000000002",
+        "name": "Propranolol 40mg",
+        "createdAt": "2026-06-18T20:05:00.000Z",
+        "updatedAt": "2026-08-06T19:02:00.000Z",
+        "revision": 4,
+        "syncedRevision": 3
+      },
+      {
+        "id": "b1000000-0000-4000-8000-000000000003",
+        "name": "Magnesium",
+        "createdAt": "2026-07-11T06:40:00.000Z",
+        "updatedAt": "2026-07-11T06:40:00.000Z",
+        "revision": 1,
+        "syncedRevision": null
+      },
+      {
+        "id": "b1000000-0000-4000-8000-000000000004",
+        "name": "Ibuprofen 400mg",
+        "createdAt": null,
+        "updatedAt": null,
+        "revision": 0,
+        "syncedRevision": null
+      }
+    ],
+    "medication_reminders": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000001",
+        "medicationId": "b1000000-0000-4000-8000-000000000001",
+        "minuteOfDay": 480,
+        "enabled": true,
+        "createdAt": "2026-05-02T09:15:00.000Z",
+        "updatedAt": "2026-05-02T09:15:00.000Z",
+        "revision": 1,
+        "syncedRevision": 1
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000000002",
+        "medicationId": "b1000000-0000-4000-8000-000000000002",
+        "minuteOfDay": 1290,
+        "enabled": true,
+        "createdAt": "2026-06-18T20:06:00.000Z",
+        "updatedAt": "2026-08-06T19:02:00.000Z",
+        "revision": 3,
+        "syncedRevision": 2
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000000003",
+        "medicationId": "b1000000-0000-4000-8000-000000000003",
+        "minuteOfDay": 435,
+        "enabled": false,
+        "createdAt": "2026-07-11T06:41:00.000Z",
+        "updatedAt": "2026-07-30T12:00:00.000Z",
+        "revision": 2,
+        "syncedRevision": null
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000000004",
+        "medicationId": "b1000000-0000-4000-8000-000000000004",
+        "minuteOfDay": 1380,
+        "enabled": true,
+        "createdAt": null,
+        "updatedAt": null,
+        "revision": 0,
+        "syncedRevision": null
+      }
+    ],
+    "app_notifications": [
+      {
+        "id": "rem:c1000000-0000-4000-8000-000000000001:29768160",
+        "type": "medicationReminder",
+        "occurredAt": "2026-08-07T08:00:00.000Z",
+        "readAt": "2026-08-07T08:04:00.000Z",
+        "medicationId": "b1000000-0000-4000-8000-000000000001",
+        "reminderId": "c1000000-0000-4000-8000-000000000001",
+        "pressureDropHpa": null,
+        "updatedAt": "2026-08-07T08:04:00.000Z",
+        "revision": 2,
+        "syncedRevision": 2
+      },
+      {
+        "id": "rem:c1000000-0000-4000-8000-000000000002:29767530",
+        "type": "medicationReminder",
+        "occurredAt": "2026-08-06T21:30:00.000Z",
+        "readAt": null,
+        "medicationId": "b1000000-0000-4000-8000-000000000002",
+        "reminderId": "c1000000-0000-4000-8000-000000000002",
+        "pressureDropHpa": null,
+        "updatedAt": "2026-08-06T21:30:00.000Z",
+        "revision": 1,
+        "syncedRevision": 1
+      },
+      {
+        "id": "rem:c1000000-0000-4000-8000-000000000009:29764485",
+        "type": "medicationReminder",
+        "occurredAt": "2026-08-04T18:45:00.000Z",
+        "readAt": null,
+        "medicationId": "b1000000-0000-4000-8000-000000000009",
+        "reminderId": "c1000000-0000-4000-8000-000000000009",
+        "pressureDropHpa": null,
+        "updatedAt": "2026-08-04T18:45:00.000Z",
+        "revision": 1,
+        "syncedRevision": 1
+      },
+      {
+        "id": "pa:evt_2026_08_08_0312_ew1",
+        "type": "pressureAlert",
+        "occurredAt": "2026-08-08T03:12:00.000Z",
+        "readAt": null,
+        "medicationId": null,
+        "reminderId": null,
+        "pressureDropHpa": -9.4,
+        "updatedAt": "2026-08-08T03:12:00.000Z",
+        "revision": 1,
+        "syncedRevision": null
+      },
+      {
+        "id": "pa:evt_2026_08_01_1800_ew1",
+        "type": "pressureAlert",
+        "occurredAt": "2026-08-01T18:00:00.000Z",
+        "readAt": "2026-08-01T18:22:00.000Z",
+        "medicationId": null,
+        "reminderId": null,
+        "pressureDropHpa": -6.1,
+        "updatedAt": "2026-08-01T18:22:00.000Z",
+        "revision": 2,
+        "syncedRevision": 2
+      }
+    ],
+    "export_records": [
+      {
+        "id": "d1000000-0000-4000-8000-000000000001",
+        "kind": "json",
+        "filename": "baroease_export_2026-08-07_091500.json",
+        "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_export_2026-08-07_091500.json",
+        "sizeBytes": 48213,
+        "createdAt": "2026-08-07T09:15:00.000Z"
+      },
+      {
+        "id": "d1000000-0000-4000-8000-000000000002",
+        "kind": "csv",
+        "filename": "baroease_export_2026-08-03_174022.csv",
+        "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_export_2026-08-03_174022.csv",
+        "sizeBytes": 9126,
+        "createdAt": "2026-08-03T17:40:22.000Z"
+      },
+      {
+        "id": "d1000000-0000-4000-8000-000000000003",
+        "kind": "pdf",
+        "filename": "baroease_report_2026-07-30_082001.pdf",
+        "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_report_2026-07-30_082001.pdf",
+        "sizeBytes": 204877,
+        "createdAt": "2026-07-30T08:20:01.000Z"
+      }
+    ],
+    "sync_tombstones": [
+      {
+        "collection": "attacks",
+        "id": "a1000000-0000-4000-8000-000000000099",
+        "deletedAt": "2026-08-06T10:02:00.000Z"
+      },
+      {
+        "collection": "medications",
+        "id": "b1000000-0000-4000-8000-000000000099",
+        "deletedAt": "2026-08-04T15:31:00.000Z"
+      },
+      {
+        "collection": "medication_reminders",
+        "id": "c1000000-0000-4000-8000-000000000099",
+        "deletedAt": "2026-08-04T15:31:00.000Z"
+      },
+      {
+        "collection": "notifications",
+        "id": "pa:evt_2026_07_02_0900_ew1",
+        "deletedAt": "2026-07-20T08:00:00.000Z"
+      }
+    ]
+  }
+}

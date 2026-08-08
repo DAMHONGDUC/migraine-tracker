@@ -8,6 +8,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/time_of_day_utils.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
 import 'highlighted_time_text.dart';
@@ -53,9 +54,7 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
     final reminder = _calculator.compute(views, now: DateTime.now());
     if (reminder == null) return const SizedBox.shrink();
 
-    final time =
-        '${reminder.hour.toString().padLeft(2, '0')}:'
-        '${reminder.minute.toString().padLeft(2, '0')}';
+    final time = TimeOfDayUtils.hhmm(reminder.hour, reminder.minute);
     final remaining = _remaining(context, reminder.timeUntil);
     final subtitle = l10n.dashboardNextReminderBody(
       reminder.medicationName,

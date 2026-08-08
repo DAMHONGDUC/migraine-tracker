@@ -1,0 +1,21 @@
+{
+  "token": "fSAMPLE_TOKEN_0000:APA91bH_sample_registration_token_value",
+  "notification": {
+    "title": "Pressure drop ahead",
+    "body": "Barometric pressure is forecast to fall 9.4 hPa within 24 hours."
+  },
+  "data": {
+    "type": "pressureAlert",
+    "eventId": "evt_2026_08_08_0312_ew1",
+    "dropHpa": "-9.4",
+    "at": "2026-08-08T03:12:00.000Z"
+  },
+  "apns": {
+    "payload": {
+      "aps": {
+        "sound": "default",
+        "content-available": 1
+      }
+    }
+  }
+}
