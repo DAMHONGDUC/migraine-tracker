@@ -6,8 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
@@ -128,6 +130,18 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   Future<void> _add() async {
+    // The limit is named before the pitch — this button says "Add
+    // medication", so a purchase screen out of it reads as a bug.
+    if (!ref.read(canAddMedicationProvider)) {
+      await NavigationUtils.toPaywallFromLimit(
+        context,
+        ref,
+        title: context.l10n.medicationLimitTitle(PremiumLimitConstant.medications),
+        body: context.l10n.medicationLimitBody(PremiumLimitConstant.medications),
+      );
+      return;
+    }
+
     final String? name = await const MedicationNameDialog().show(context);
 
     if (name == null) return;

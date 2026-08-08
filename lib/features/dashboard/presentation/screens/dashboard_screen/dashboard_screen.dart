@@ -10,6 +10,7 @@ import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../widgets/attack_limit_banner.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
 import '../../widgets/dashboard_severity_card.dart';
@@ -34,11 +35,16 @@ class DashboardScreen extends ConsumerWidget {
     // Data-driven sections only show once there's something to show.
     final hasAttacks =
         ref.watch(attacksStreamProvider).value?.isNotEmpty ?? false;
+    // Null unless the free plan's log limit is close (see attacksLeftProvider).
+    final int? logsLeft = ref.watch(attacksLeftProvider);
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
       // A limited-time discount promo pinned right under the app bar.
       const DashboardLogButton(),
+      // Directly under the button it warns about, and only in the last few
+      // logs — the wall itself lands mid-attack, so it must not be news.
+      if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
       if (showPremium) const PremiumCountdownBanner(),
       if (nextReminder != null) const NextReminderBanner(),

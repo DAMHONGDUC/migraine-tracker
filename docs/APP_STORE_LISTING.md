@@ -53,8 +53,9 @@ uploaded unless you choose to sign in and sync. No ads. No tracking. Coarse
 • PDF doctor report
 • Apple Health sleep correlation
 
-Premium is available monthly ($4.99), yearly ($29.99, with a 7-day free trial),
-or as a one-time lifetime purchase ($44.99). Prices may vary by region.
+The free plan covers 40 logged attacks, 5 medications and 2 reminders.
+Premium lifts those limits and is available monthly ($4.99), yearly ($29.99,
+with a 7-day free trial), or as a one-time lifetime purchase ($44.99). Prices may vary by region.
 
 **Full control**
 Export everything as JSON or CSV, or delete all your data — including your

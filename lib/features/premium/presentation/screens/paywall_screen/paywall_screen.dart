@@ -220,6 +220,10 @@ class PaywallScreen extends HookConsumerWidget {
                         ),
                         SizedBox(height: SdSpacingConstant.h20),
                         SdBenefitRowV2(
+                          icon: Icons.all_inclusive,
+                          title: l10n.paywallBenefitUnlimited,
+                        ),
+                        SdBenefitRowV2(
                           icon: Icons.notifications_active_outlined,
                           title: l10n.paywallBenefitAlerts,
                         ),

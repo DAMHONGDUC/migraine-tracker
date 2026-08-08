@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
-import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -139,10 +139,10 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await addReminders(tester, MedicationReminder.freeLimit);
+      await addReminders(tester, PremiumLimitConstant.reminders);
       expect(
         find.byIcon(Icons.alarm),
-        findsNWidgets(MedicationReminder.freeLimit),
+        findsNWidgets(PremiumLimitConstant.reminders),
       );
 
       // Budget spent: the limit is named, and no picker comes up.
@@ -167,7 +167,7 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await addReminders(tester, MedicationReminder.freeLimit);
+      await addReminders(tester, PremiumLimitConstant.reminders);
       await openAddReminder(tester);
       await tapVisible(tester, find.text('Cancel'));
       await tester.pump(const Duration(milliseconds: 400));
@@ -176,7 +176,7 @@ void main() {
       expect(find.text('BaroEase Premium'), findsNothing);
       expect(
         find.byIcon(Icons.alarm),
-        findsNWidgets(MedicationReminder.freeLimit),
+        findsNWidgets(PremiumLimitConstant.reminders),
       );
       expect(find.text('Sumatriptan'), findsWidgets);
 
@@ -380,11 +380,11 @@ void main() {
       await addMedication(tester, 'Sumatriptan');
       await openMedication(tester, 'Sumatriptan');
 
-      await addReminders(tester, MedicationReminder.freeLimit + 1);
+      await addReminders(tester, PremiumLimitConstant.reminders + 1);
 
       expect(
         find.byIcon(Icons.alarm),
-        findsNWidgets(MedicationReminder.freeLimit + 1),
+        findsNWidgets(PremiumLimitConstant.reminders + 1),
       );
       expect(find.textContaining('on the free plan'), findsNothing);
       expect(find.text('BaroEase Premium'), findsNothing);

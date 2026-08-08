@@ -57,7 +57,7 @@
   "@onboardingFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "onboardingFeaturesBody": "Tracking is free forever. The analysis that explains your attacks is Premium.",
+  "onboardingFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
   "@onboardingFeaturesBody": {
     "description": "Onboarding feature-list sheet body"
   },
@@ -948,6 +948,55 @@
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
   },
+  "attackLimitTitle": "{count, plural, other{{count} attacks on the free plan}}",
+  "@attackLimitTitle": {
+    "description": "Dialog title when a free user reaches the logged-attack limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBody": "{count, plural, other{The free plan holds {count} logged attacks, and yours are all still here.}} Unlock Premium to keep logging.",
+  "@attackLimitBody": {
+    "description": "Dialog body explaining the free plan's attack limit, and that nothing is deleted",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBannerTitle": "{count, plural, =1{1 log left on the free plan} other{{count} logs left on the free plan}}",
+  "@attackLimitBannerTitle": {
+    "description": "Dashboard banner counting down the last free attack logs",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBannerBody": "Unlock Premium to keep logging without a limit.",
+  "@attackLimitBannerBody": {
+    "description": "Supporting line under the free-log countdown banner"
+  },
+  "medicationLimitTitle": "{count, plural, other{{count} medications on the free plan}}",
+  "@medicationLimitTitle": {
+    "description": "Dialog title when a free user tries to add one medication past the limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationLimitBody": "{count, plural, other{The free plan includes {count} medications.}} Unlock Premium to add as many as you need.",
+  "@medicationLimitBody": {
+    "description": "Dialog body explaining the free plan's medication limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reminderLimitTitle": "{count, plural, =1{One reminder on the free plan} other{{count} reminders on the free plan}}",
   "@reminderLimitTitle": {
     "description": "Dialog title shown when a free user tries to add one reminder past the limit",
@@ -1031,6 +1080,10 @@
   "paywallHeadline": "Know your storm before it hits",
   "@paywallHeadline": {
     "description": "Paywall headline"
+  },
+  "paywallBenefitUnlimited": "Unlimited attacks, medications and reminders",
+  "@paywallBenefitUnlimited": {
+    "description": "Paywall benefit row for lifting the free record limits"
   },
   "paywallBenefitAlerts": "Pressure-drop alerts",
   "@paywallBenefitAlerts": {

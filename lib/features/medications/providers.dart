@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
@@ -11,7 +12,6 @@ import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'data/services/local_notification_scheduler.dart';
 import 'domain/entities/medication.dart';
-import 'domain/entities/medication_reminder.dart';
 import 'domain/entities/next_reminder.dart';
 import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
@@ -177,9 +177,25 @@ final remindersForMedicationProvider =
           .toList();
     });
 
+/// Whether another medication may be added.
+///
+/// Asked by both add paths — the medications tab and the log flow's own
+/// picker. The log flow is the one place a gate normally may not appear
+/// (hard rule 5), and it is here by the owner's call: the limit dialog names
+/// it first, and "No medication" plus every medication already on file stay
+/// reachable, so the three taps still complete.
+final canAddMedicationProvider = Provider<bool>((ref) {
+  if (ref.watch(hasPremiumProvider)) return true;
+
+  final List<Medication> medications =
+      ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
+
+  return medications.length < PremiumLimitConstant.medications;
+});
+
 /// Whether another reminder may be created.
 ///
-/// Free users get [MedicationReminder.freeLimit] across every medication,
+/// Free users get [PremiumLimitConstant.reminders] across every medication,
 /// not one each. **Only the add path asks.** A free user who already has
 /// more — from before this limit existed, or pulled down by a sync from a
 /// device that had premium — keeps every one of them: taking back a reminder
@@ -191,7 +207,7 @@ final canAddReminderProvider = Provider<bool>((ref) {
       ref.watch(medicationRemindersStreamProvider).value ??
       const <MedicationReminderView>[];
 
-  return all.length < MedicationReminder.freeLimit;
+  return all.length < PremiumLimitConstant.reminders;
 });
 
 /// The flutter_local_notifications plugin, initialized once (timezone setup
