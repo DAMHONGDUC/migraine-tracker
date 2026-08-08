@@ -17,7 +17,8 @@ already done: a rule, a refactor, a fix.
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
 Local-first data; Firebase backend for pressure alerts, optional sign-in (Google/Apple), and encrypted attack sync for signed-in users.
-Monetization: RevenueCat subscriptions ($5.99/mo, $39.99/yr, $79.99 lifetime). No ads.
+Monetization: RevenueCat subscriptions ($4.99/mo, $29.99/yr, $44.99 lifetime). No ads.
+The premium rules — what is gated, the free record limits and why each number is what it is — live in `docs/PREMIUM_RULES.md`, which is the authority; this file only points at it.
 
 ## Tech stack
 
@@ -495,8 +496,8 @@ owner must do by hand:
    already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
    optionally `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and
    `REVENUECAT_OFFERING` (empty = whatever the dashboard marks current).
-2. **Products in App Store Connect** — monthly $5.99, yearly $39.99,
-   lifetime $79.99 — plus the Paid Apps Agreement, then the same three
+2. **Products in App Store Connect** — monthly $4.99, yearly $29.99,
+   lifetime $44.99 — plus the Paid Apps Agreement, then the same three
    attached to a RevenueCat offering. Until an offering exists the paywall
    correctly shows "no plans available"; that is not a bug.
 3. **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the
