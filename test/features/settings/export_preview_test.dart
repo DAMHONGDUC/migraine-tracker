@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/constants/export_constant.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_preview.dart';
 
 void main() {
@@ -18,16 +19,16 @@ void main() {
 
   test('a long export is cut, and says so', () {
     final ExportPreview preview = ExportPreview.fromBytes(
-      bytesOf('x' * (ExportPreview.maxCharacters + 500)),
+      bytesOf('x' * (ExportConstant.previewMaxCharacters + 500)),
     );
 
-    expect(preview.text, hasLength(ExportPreview.maxCharacters));
+    expect(preview.text, hasLength(ExportConstant.previewMaxCharacters));
     expect(preview.isTruncated, isTrue);
   });
 
   test('exactly the limit is not truncated', () {
     final ExportPreview preview = ExportPreview.fromBytes(
-      bytesOf('x' * ExportPreview.maxCharacters),
+      bytesOf('x' * ExportConstant.previewMaxCharacters),
     );
 
     expect(preview.isTruncated, isFalse);

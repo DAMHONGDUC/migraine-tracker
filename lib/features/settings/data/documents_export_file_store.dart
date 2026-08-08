@@ -3,14 +3,13 @@ import 'dart:typed_data';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/constants/export_constant.dart';
 import '../domain/services/export_file_store.dart';
 
 /// Keeps exports in an `exports/` folder inside the app's documents
 /// directory, so the history screen can re-share and save them later.
 class DocumentsExportFileStore implements ExportFileStore {
   const DocumentsExportFileStore();
-
-  static const String folderName = 'exports';
 
   @override
   Future<StoredExportFile> write({
@@ -48,7 +47,7 @@ class DocumentsExportFileStore implements ExportFileStore {
 
   Future<Directory> _exportsDir() async {
     final Directory documents = await getApplicationDocumentsDirectory();
-    final Directory dir = Directory('${documents.path}/$folderName');
+    final Directory dir = Directory('${documents.path}/${ExportConstant.folderName}');
 
     return dir.create(recursive: true);
   }

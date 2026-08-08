@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/sync_constant.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_outcome.dart';
 import 'package:migraine_tracker/features/sync/domain/enums/sync_trigger.dart';
@@ -86,7 +87,7 @@ void main() {
     await cursor.saveSyncedAt(
       'test-uid',
       DateTime.now().toUtc().subtract(
-        SyncController.automaticCooldown + const Duration(minutes: 1),
+        SyncConstant.automaticCooldown + const Duration(minutes: 1),
       ),
     );
 

@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../weather/providers.dart';
@@ -12,8 +13,6 @@ class OnboardingController {
 
   final Ref _ref;
 
-  static const completedKey = 'onboarding_completed';
-  static const thresholdKey = 'alert_threshold';
 
   /// Triggers the While-Using permission prompt (reduced accuracy) by
   /// requesting one coarse fix. Best-effort: denial is fine — weather is
@@ -42,8 +41,8 @@ class OnboardingController {
     final prefs = _ref.read(sharedPreferencesProvider);
 
     try {
-      await prefs.remove(completedKey);
-      await prefs.remove(thresholdKey);
+      await prefs.remove(PrefsKeyConstant.onboardingCompleted);
+      await prefs.remove(PrefsKeyConstant.alertThreshold);
     } catch (error, stackTrace) {
       AppLogger.error(
         'Reset onboarding failed',
@@ -60,8 +59,8 @@ class OnboardingController {
     final prefs = _ref.read(sharedPreferencesProvider);
 
     try {
-      await prefs.setDouble(thresholdKey, thresholdHpa);
-      await prefs.setBool(completedKey, true);
+      await prefs.setDouble(PrefsKeyConstant.alertThreshold, thresholdHpa);
+      await prefs.setBool(PrefsKeyConstant.onboardingCompleted, true);
       AppAnalytics.logOnboardingCompleted(thresholdHpa: thresholdHpa);
     } catch (error, stackTrace) {
       AppLogger.error(

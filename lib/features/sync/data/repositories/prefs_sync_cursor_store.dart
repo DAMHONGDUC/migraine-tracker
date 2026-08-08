@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/prefs_key_constant.dart';
+
 import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/sync_cursor_store.dart';
 
@@ -8,8 +10,6 @@ import '../../domain/repositories/sync_cursor_store.dart';
 class PrefsSyncCursorStore implements SyncCursorStore {
   const PrefsSyncCursorStore(this._prefs);
 
-  static const String keyPrefix = 'sync_last_pulled_at_';
-  static const String syncedAtKeyPrefix = 'sync_last_synced_at_';
 
   final SharedPreferences _prefs;
 
@@ -28,7 +28,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
 
   @override
   Future<DateTime?> lastSyncedAt(String uid) async {
-    final int? millis = _prefs.getInt('$syncedAtKeyPrefix$uid');
+    final int? millis = _prefs.getInt('$PrefsKeyConstant.syncLastSyncedAtPrefix$uid');
 
     return millis == null
         ? null
@@ -37,7 +37,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
 
   @override
   Future<void> saveSyncedAt(String uid, DateTime at) => _prefs.setInt(
-    '$syncedAtKeyPrefix$uid',
+    '$PrefsKeyConstant.syncLastSyncedAtPrefix$uid',
     at.toUtc().millisecondsSinceEpoch,
   );
 
@@ -47,7 +47,7 @@ class PrefsSyncCursorStore implements SyncCursorStore {
         .getKeys()
         .where(
           (key) =>
-              key.startsWith(keyPrefix) || key.startsWith(syncedAtKeyPrefix),
+              key.startsWith(PrefsKeyConstant.syncCursorPrefix) || key.startsWith(PrefsKeyConstant.syncLastSyncedAtPrefix),
         )
         .toList();
 
@@ -57,5 +57,5 @@ class PrefsSyncCursorStore implements SyncCursorStore {
   }
 
   String _key(String uid, SyncCollection collection) =>
-      '$keyPrefix${collection.name}_$uid';
+      '$PrefsKeyConstant.syncCursorPrefix${collection.name}_$uid';
 }

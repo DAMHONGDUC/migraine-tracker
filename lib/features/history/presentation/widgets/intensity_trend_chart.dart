@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -17,8 +18,6 @@ class IntensityTrendChart extends StatelessWidget {
 
   /// The 0–10 pain scale is fixed, so the axis is too — a trend that rescales
   /// itself week to week would read as movement that isn't there.
-  static const double maxIntensity = 10;
-  static const double gridInterval = 2;
 
   final List<IntensityTrendPoint> points;
 
@@ -38,13 +37,13 @@ class IntensityTrendChart extends StatelessWidget {
       child: LineChart(
         LineChartData(
           minY: 0,
-          maxY: maxIntensity,
+          maxY: LogFlowConstant.intensityMax,
           minX: 0,
           maxX: (points.length - 1).toDouble(),
-          gridData: SdChartStyleV2.horizontalGrid(context, gridInterval),
+          gridData: SdChartStyleV2.horizontalGrid(context, LogFlowConstant.intensityGridInterval),
           borderData: FlBorderData(show: false),
           titlesData: SdChartStyleV2.titles(
-            left: SdChartStyleV2.countLeftTitles(context, gridInterval),
+            left: SdChartStyleV2.countLeftTitles(context, LogFlowConstant.intensityGridInterval),
             // Label every other week to avoid collisions.
             bottom: SdChartStyleV2.categoryBottomTitles(context, 
               (int index) => index.isOdd || index >= points.length

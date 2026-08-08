@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/sync_constant.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/logging/crash_reporter.dart';
 import '../../../auth/domain/entities/auth_user.dart';
@@ -27,7 +28,6 @@ class SyncController extends Notifier<SyncStatus> {
   /// Six hours is the owner's number, and the cost is stated plainly: a
   /// change made on another device can wait that long to arrive unless
   /// the user logs an attack or syncs by hand — both of which skip this.
-  static const Duration automaticCooldown = Duration(hours: 6);
 
   @override
   SyncStatus build() => const SyncStatus();
@@ -38,7 +38,7 @@ class SyncController extends Notifier<SyncStatus> {
   /// launch, resume and after-logging triggers all overlap in normal use, and
   /// two passes at once would push the same records twice.
   ///
-  /// An [SyncTrigger.automatic] call inside [automaticCooldown] of the last
+  /// An [SyncTrigger.automatic] call inside [SyncConstant.automaticCooldown] of the last
   /// finished pass does nothing at all — no state change, so a skipped pass
   /// is invisible rather than looking like a failure or a fresh sync.
   Future<void> sync({SyncTrigger trigger = SyncTrigger.automatic}) async {
@@ -135,7 +135,7 @@ class SyncController extends Notifier<SyncStatus> {
           .lastSyncedAt(uid);
 
       if (last == null) return false;
-      return DateTime.now().toUtc().difference(last) < automaticCooldown;
+      return DateTime.now().toUtc().difference(last) < SyncConstant.automaticCooldown;
     } catch (error, stackTrace) {
       AppLogger.error(
         'Reading the sync cooldown failed',

@@ -18,7 +18,6 @@ import '../../features/medications/presentation/screens/medication_detail_screen
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import '../../features/notifications/presentation/screens/notification_detail_screen/notification_detail_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen/notifications_screen.dart';
-import '../../features/onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
@@ -28,6 +27,7 @@ import '../../features/settings/presentation/screens/export_screen/export_screen
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
 import '../analytics/app_analytics.dart';
+import '../constants/prefs_key_constant.dart';
 import '../l10n/locale_provider.dart';
 import 'app_shell.dart';
 
@@ -148,7 +148,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final done =
           ref
               .read(sharedPreferencesProvider)
-              .getBool(OnboardingController.completedKey) ??
+              .getBool(PrefsKeyConstant.onboardingCompleted) ??
           false;
       final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;
       if (!done && !onOnboarding) return AppRoutes.onboarding.path;

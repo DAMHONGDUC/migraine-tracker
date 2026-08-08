@@ -1,10 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/logging/crash_reporter.dart';
-import '../../../onboarding/presentation/controllers/onboarding_controller.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
@@ -12,14 +12,13 @@ import '../../providers.dart';
 /// for the UI; the Firestore registration is a side effect of the actions
 /// so the whole screen keeps working offline (errors just surface).
 class AlertsController extends AsyncNotifier<AlertsSettings> {
-  static const enabledKey = 'alerts_enabled';
 
   @override
   AlertsSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     return AlertsSettings(
-      enabled: prefs.getBool(enabledKey) ?? false,
-      thresholdHpa: prefs.getDouble(OnboardingController.thresholdKey) ?? 5,
+      enabled: prefs.getBool(PrefsKeyConstant.alertsEnabled) ?? false,
+      thresholdHpa: prefs.getDouble(PrefsKeyConstant.alertThreshold) ?? 5,
     );
   }
 
@@ -36,7 +35,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
       } else {
         await repo.unregister();
       }
-      await ref.read(sharedPreferencesProvider).setBool(enabledKey, enabled);
+      await ref.read(sharedPreferencesProvider).setBool(PrefsKeyConstant.alertsEnabled, enabled);
       return current.copyWith(enabled: enabled);
     });
     if (state case AsyncError(:final error, :final stackTrace)) {
@@ -61,7 +60,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     try {
       await ref
           .read(sharedPreferencesProvider)
-          .setDouble(OnboardingController.thresholdKey, thresholdHpa);
+          .setDouble(PrefsKeyConstant.alertThreshold, thresholdHpa);
       if (current.enabled) {
         await ref
             .read(alertRegistrationRepositoryProvider)

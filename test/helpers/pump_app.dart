@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
+import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
@@ -31,7 +32,6 @@ import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
-import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
@@ -606,7 +606,7 @@ Future<PumpedApp> pumpApp(
   // Onboarding is considered done by default so existing tests land on the
   // dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
-    OnboardingController.completedKey: true,
+    PrefsKeyConstant.onboardingCompleted: true,
     ...initialPrefs,
   });
   final prefs = await SharedPreferences.getInstance();

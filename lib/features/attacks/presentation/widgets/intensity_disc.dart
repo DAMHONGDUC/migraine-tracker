@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 
@@ -12,8 +13,6 @@ import '../../../../core/theme/app_text_style.dart';
 class IntensityDisc extends StatelessWidget {
   const IntensityDisc({required this.value, required this.size, super.key});
 
-  static const double fillAlpha = 0.45;
-  static const double borderWidth = 1.5;
 
   final int value;
 
@@ -30,8 +29,8 @@ class IntensityDisc extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: color.withValues(alpha: fillAlpha),
-        border: Border.all(color: color, width: borderWidth),
+        color: color.withValues(alpha: LogFlowConstant.intensityDiscFillAlpha),
+        border: Border.all(color: color, width: LogFlowConstant.intensityDiscBorderWidth),
       ),
       child: FittedBox(
         child: Text(
