@@ -53,8 +53,8 @@ uploaded unless you choose to sign in and sync. No ads. No tracking. Coarse
 • PDF doctor report
 • Apple Health sleep correlation
 
-Premium is available monthly ($5.99), yearly ($39.99, with a 7-day free trial),
-or as a one-time lifetime purchase ($79.99). Prices may vary by region.
+Premium is available monthly ($4.99), yearly ($29.99, with a 7-day free trial),
+or as a one-time lifetime purchase ($44.99). Prices may vary by region.
 
 **Full control**
 Export everything as JSON or CSV, or delete all your data — including your
@@ -79,9 +79,9 @@ treat, cure, or prevent any condition. Always consult a qualified clinician.
 ## In-app purchases (App Store Connect)
 | Product | Type | Price |
 |---------|------|-------|
-| Premium Monthly | Auto-renewable subscription | $5.99/mo |
-| Premium Yearly | Auto-renewable subscription (7-day free trial) | $39.99/yr |
-| Premium Lifetime | Non-consumable | $79.99 |
+| Premium Monthly | Auto-renewable subscription | $4.99/mo |
+| Premium Yearly | Auto-renewable subscription (7-day free trial) | $29.99/yr |
+| Premium Lifetime | Non-consumable | $44.99 |
 
 ## App Privacy nutrition label (answers to draft in App Store Connect)
 

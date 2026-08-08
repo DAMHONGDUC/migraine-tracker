@@ -23,9 +23,9 @@ Positioning: *"Know your storm before it hits."*
 | Tier | Price | Contents |
 |------|-------|----------|
 | Free | $0 | Unlimited attack logging, severity donut, weather snapshot attached to each log, physical exertion self-report + correlation, 2 medication reminders across all medications |
-| Premium monthly | $5.99/mo | Pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, the other four history charts, PDF doctor report, HealthKit sleep + step-count correlation, unlimited reminders |
-| Premium yearly | $39.99/yr | Same as monthly (44% discount framing) |
-| Lifetime | $79.99 | Same, one-time (chronic illness communities love lifetime) |
+| Premium monthly | $4.99/mo | Pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, the other four history charts, PDF doctor report, HealthKit sleep + step-count correlation, unlimited reminders |
+| Premium yearly | $29.99/yr | Same as monthly (50% discount framing) |
+| Lifetime | $44.99 | Same, one-time (chronic illness communities love lifetime) |
 
 - Managed via **RevenueCat** (free < $2.5k MRR). 7-day free trial on yearly.
 - **No ads.** "No ads, we don't sell your data" is a selling point in this niche.

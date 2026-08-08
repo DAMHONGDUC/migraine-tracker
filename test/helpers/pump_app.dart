@@ -345,18 +345,18 @@ class FakePurchaseRepository implements PurchaseRepository {
     PremiumOffer(
       id: r'$rc_monthly',
       period: PremiumPeriod.monthly,
-      priceLabel: r'$5.99',
+      priceLabel: r'$4.99',
     ),
     PremiumOffer(
       id: r'$rc_annual',
       period: PremiumPeriod.yearly,
-      priceLabel: r'$39.99',
+      priceLabel: r'$29.99',
       trialDays: 7,
     ),
     PremiumOffer(
       id: r'$rc_lifetime',
       period: PremiumPeriod.lifetime,
-      priceLabel: r'$79.99',
+      priceLabel: r'$44.99',
     ),
   ];
 
