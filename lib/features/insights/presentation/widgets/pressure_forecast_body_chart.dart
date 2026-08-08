@@ -16,7 +16,7 @@ class _Chart extends StatelessWidget {
     final past = <FlSpot>[];
     final future = <FlSpot>[];
     for (final point in forecast.points) {
-      final x = ChartAxisUtils.hoursBetween(forecast.generatedAt, point.time);
+      final x = DateTimeUtils.hoursBetween(forecast.generatedAt, point.time);
       final spot = FlSpot(x, point.pressureHpa);
       if (x <= 0) past.add(spot);
       if (x >= 0) future.add(spot);
@@ -30,7 +30,7 @@ class _Chart extends StatelessWidget {
     final gridInterval = ChartAxisUtils.interval(minY, maxY);
 
     DateTime timeAt(double x) =>
-        ChartAxisUtils.timeAt(forecast.generatedAt, x);
+        DateTimeUtils.timeAt(forecast.generatedAt, x);
 
     // Chart pixels mean nothing to VoiceOver — describe the trend instead.
     final nowHpa = (past.isNotEmpty ? past.last.y : future.first.y);

@@ -8,7 +8,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/utils/time_of_day_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../premium/providers.dart';
 import 'highlighted_time_text.dart';
 
@@ -87,8 +87,8 @@ class _PremiumCountdownBannerState
                       SizedBox(width: SdSpacingConstant.w6),
                       Flexible(
                         child: HighlightedTimeText(
-                          full: l10n.dashboardSaleEndsIn(TimeOfDayUtils.untilMidnight(DateTime.now())),
-                          highlight: TimeOfDayUtils.untilMidnight(DateTime.now()),
+                          full: l10n.dashboardSaleEndsIn(DateTimeUtils.untilMidnight(DateTime.now())),
+                          highlight: DateTimeUtils.untilMidnight(DateTime.now()),
                           color: AppColors.primary,
                         ),
                       ),

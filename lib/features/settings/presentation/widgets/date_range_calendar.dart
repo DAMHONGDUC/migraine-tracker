@@ -6,7 +6,7 @@ import '../../../../core/constants/calendar_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/utils/calendar_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 
 /// A month calendar that shows the whole picked window, not just one day.
 ///
@@ -51,7 +51,7 @@ class DateRangeCalendar extends StatefulWidget {
 }
 
 class _DateRangeCalendarState extends State<DateRangeCalendar> {
-  late DateTime _month = CalendarUtils.monthOf(widget.initialMonth ?? widget.lastDate);
+  late DateTime _month = DateTimeUtils.monthOf(widget.initialMonth ?? widget.lastDate);
 
   void _showMonth(int delta) {
     setState(() {
@@ -61,8 +61,8 @@ class _DateRangeCalendarState extends State<DateRangeCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime firstMonth = CalendarUtils.monthOf(widget.firstDate);
-    final DateTime lastMonth = CalendarUtils.monthOf(widget.lastDate);
+    final DateTime firstMonth = DateTimeUtils.monthOf(widget.firstDate);
+    final DateTime lastMonth = DateTimeUtils.monthOf(widget.lastDate);
 
     return Column(
       children: <Widget>[

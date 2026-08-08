@@ -1,7 +1,7 @@
 import 'dart:math';
 
-/// Axis arithmetic for the plotted charts — bounds, gridline spacing, and the
-/// x-axis a forecast is drawn against.
+/// Axis arithmetic for the plotted charts: bounds and gridline spacing. The
+/// time half of an axis lives in [DateTimeUtils], where all date maths does.
 ///
 /// Out of the chart widgets because it is the one part of them that can be
 /// wrong rather than merely ugly, and because two call sites in the same
@@ -12,16 +12,6 @@ final class ChartAxisUtils {
 
   /// Roughly how many gridlines to draw between the bounds.
   static const int targetGridLines = 3;
-
-  /// Hours from [from] to [to], fractional — the x axis a forecast is plotted
-  /// on, where 0 is "now" and negatives are the past.
-  static double hoursBetween(DateTime from, DateTime to) =>
-      to.difference(from).inMinutes / 60;
-
-  /// The instant an x of [hours] lands on. The inverse of [hoursBetween], so
-  /// a tooltip names the time the point was actually plotted at.
-  static DateTime timeAt(DateTime from, double hours) =>
-      from.add(Duration(minutes: (hours * 60).round()));
 
   static double minBound(Iterable<double> values) =>
       (values.reduce(min) - bounds).floorToDouble();

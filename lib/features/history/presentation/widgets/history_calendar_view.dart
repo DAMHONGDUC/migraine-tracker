@@ -7,7 +7,7 @@ import '../../../../core/constants/calendar_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/utils/calendar_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -103,7 +103,7 @@ class HistoryCalendarView extends HookWidget {
               alignment: Alignment.topCenter,
               child: TableCalendar<Attack>(
                 firstDay: CalendarConstant.historyFirstDay,
-                lastDay: CalendarUtils.lastSelectableDay(today),
+                lastDay: DateTimeUtils.lastSelectableDay(today),
                 focusedDay: focused.value,
                 currentDay: today,
                 startingDayOfWeek: StartingDayOfWeek.monday,

@@ -1,28 +1,27 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/utils/calendar_utils.dart';
 import 'package:migraine_tracker/core/utils/chart_axis_utils.dart';
 import 'package:migraine_tracker/core/utils/comma_list_utils.dart';
+import 'package:migraine_tracker/core/utils/date_time_utils.dart';
 import 'package:migraine_tracker/core/utils/locale_utils.dart';
-import 'package:migraine_tracker/core/utils/time_of_day_utils.dart';
 
 /// The logic that used to live inside widgets and controllers. Testable now,
 /// which is most of the point of moving it.
 void main() {
-  group('TimeOfDayUtils', () {
+  group('DateTimeUtils — clock', () {
     test('pads both halves of a clock time', () {
-      expect(TimeOfDayUtils.hhmm(7, 5), '07:05');
-      expect(TimeOfDayUtils.hhmm(0, 0), '00:00');
-      expect(TimeOfDayUtils.hhmm(23, 59), '23:59');
+      expect(DateTimeUtils.hhmm(7, 5), '07:05');
+      expect(DateTimeUtils.hhmm(0, 0), '00:00');
+      expect(DateTimeUtils.hhmm(23, 59), '23:59');
     });
 
     test('counts down to local midnight', () {
       expect(
-        TimeOfDayUtils.untilMidnight(DateTime(2026, 8, 8, 23, 59, 30)),
+        DateTimeUtils.untilMidnight(DateTime(2026, 8, 8, 23, 59, 30)),
         '00:00:30',
       );
-      expect(TimeOfDayUtils.untilMidnight(DateTime(2026, 8, 8)), '24:00:00');
+      expect(DateTimeUtils.untilMidnight(DateTime(2026, 8, 8)), '24:00:00');
     });
   });
 
@@ -60,10 +59,10 @@ void main() {
     test('hours and times are inverses across the axis origin', () {
       final DateTime from = DateTime(2026, 8, 8, 12);
 
-      expect(ChartAxisUtils.hoursBetween(from, DateTime(2026, 8, 8, 13, 30)),
+      expect(DateTimeUtils.hoursBetween(from, DateTime(2026, 8, 8, 13, 30)),
           1.5);
-      expect(ChartAxisUtils.hoursBetween(from, DateTime(2026, 8, 8, 11)), -1);
-      expect(ChartAxisUtils.timeAt(from, 1.5), DateTime(2026, 8, 8, 13, 30));
+      expect(DateTimeUtils.hoursBetween(from, DateTime(2026, 8, 8, 11)), -1);
+      expect(DateTimeUtils.timeAt(from, 1.5), DateTime(2026, 8, 8, 13, 30));
     });
   });
 
@@ -104,14 +103,14 @@ void main() {
     });
   });
 
-  group('CalendarUtils', () {
+  group('DateTimeUtils — calendar', () {
     test('a month is its first day', () {
-      expect(CalendarUtils.monthOf(DateTime(2026, 8, 8, 23)), DateTime(2026, 8));
+      expect(DateTimeUtils.monthOf(DateTime(2026, 8, 8, 23)), DateTime(2026, 8));
     });
 
     test('selection runs to the end of next year, not to today', () {
       expect(
-        CalendarUtils.lastSelectableDay(DateTime(2026, 8, 8)),
+        DateTimeUtils.lastSelectableDay(DateTime(2026, 8, 8)),
         DateTime(2027, 12, 31),
       );
     });

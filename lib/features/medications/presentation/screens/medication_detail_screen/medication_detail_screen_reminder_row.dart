@@ -47,7 +47,7 @@ class _ReminderRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final MedicationReminder reminder = view.reminder;
-    final String time = TimeOfDayUtils.hhmm(reminder.hour, reminder.minute);
+    final String time = DateTimeUtils.hhmm(reminder.hour, reminder.minute);
 
     return ListTile(
       // Tap the row to change the time (the switch/delete keep their own taps).
