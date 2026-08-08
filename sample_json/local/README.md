@@ -1,52 +1,57 @@
-# local/ — dữ liệu trên máy (Drift / SQLite)
+# local/ — on-device data (Drift / SQLite)
 
-7 bảng của `AppDatabase`, schema v9. Đây là **nguồn sự thật** của mọi dữ liệu
-sức khoẻ (hard rule 1); Firebase chỉ là bản sao đã mã hoá.
+The 7 tables of `AppDatabase`, schema v9. This is the **source of truth** for
+every piece of health data (hard rule 1); Firebase only ever holds an encrypted
+copy.
 
-| File | Bảng SQL | Class Drift | Sync? |
+| File | SQL table | Drift class | Syncs? |
 | --- | --- | --- | --- |
-| `attacks.json` | `attacks` | `Attacks` | có |
-| `weather_snapshots.json` | `weather_snapshots` | `WeatherSnapshots` | đi kèm trong payload của attack |
-| `medications.json` | `medications` | `Medications` | có |
-| `medication_reminders.json` | `medication_reminders` | `MedicationReminders` | có |
-| `app_notifications.json` | `app_notifications` | `AppNotifications` | có |
-| `export_records.json` | `export_records` | `ExportRecords` | **không** — `filePath` chỉ đúng trên một máy |
-| `sync_tombstones.json` | `sync_tombstones` | `SyncTombstones` | là sổ sách của sync, không phải bản ghi |
+| `attacks.json` | `attacks` | `Attacks` | yes |
+| `weather_snapshots.json` | `weather_snapshots` | `WeatherSnapshots` | travels inside the attack's payload |
+| `medications.json` | `medications` | `Medications` | yes |
+| `medication_reminders.json` | `medication_reminders` | `MedicationReminders` | yes |
+| `app_notifications.json` | `app_notifications` | `AppNotifications` | yes |
+| `export_records.json` | `export_records` | `ExportRecords` | **no** — `filePath` is true on one device only |
+| `sync_tombstones.json` | `sync_tombstones` | `SyncTombstones` | sync bookkeeping, not a user record |
 
-`all_tables.json` gộp cả 7, sinh ra từ 7 file kia.
+`all_tables.json` merges all 7, generated from the files above.
 
-## Quy ước
+## Conventions
 
-- **Ngày giờ là chuỗi ISO-8601 UTC** cho dễ đọc. Trong SQLite, Drift lưu
-  `DateTimeColumn` thành **unix seconds**, nên khi nạp phải parse rồi đổi sang
-  epoch giây — mất phần mili giây, đúng như thật.
-- **`symptoms` / `triggers` để dạng mảng JSON.** Cột thật là `TEXT` chứa chuỗi
-  JSON (`StringListConverter`), mặc định `"[]"`.
-- **Enum lưu bằng `.name`**: `location` ∈ left/right/front/back/whole,
-  `exertionLevel` ∈ none/light/moderate/severe (null = "chưa từng hỏi"),
+- **Dates are ISO-8601 UTC strings** for readability. In SQLite, Drift stores a
+  `DateTimeColumn` as **unix seconds**, so loading these means parsing and
+  converting to epoch seconds — milliseconds are lost, exactly as in the real
+  database.
+- **`symptoms` / `triggers` are JSON arrays here.** The real column is `TEXT`
+  holding a JSON string (`StringListConverter`), defaulting to `"[]"`.
+- **Enums are stored by `.name`**: `location` ∈ left/right/front/back/whole,
+  `exertionLevel` ∈ none/light/moderate/severe (null = "never asked"),
   `type` ∈ medicationReminder/pressureAlert, `kind` ∈ json/csv/pdf,
   `collection` ∈ attacks/medications/medication_reminders/notifications.
-- **Ba cột sync** (`updatedAt`, `revision`, `syncedRevision`) có ở `attacks`,
-  `medications`, `medication_reminders`, `app_notifications`. Dirty là
-  `syncedRevision != revision`. `export_records` và `sync_tombstones` không có.
-- **`minuteOfDay`** là phút từ nửa đêm giờ máy: 480 = 08:00, 1290 = 21:30.
+- **The three sync columns** (`updatedAt`, `revision`, `syncedRevision`) exist
+  on `attacks`, `medications`, `medication_reminders` and `app_notifications`.
+  Dirty means `syncedRevision != revision`. `export_records` and
+  `sync_tombstones` have none.
+- **`minuteOfDay`** is minutes from local midnight: 480 = 08:00, 1290 = 21:30.
 
-## Những ca cố tình đưa vào
+## Cases included on purpose
 
-- `attacks[0]` — đầy đủ, đã đồng bộ (`revision == syncedRevision`).
-- `attacks[1]` — **không có weather**: log lúc offline, chờ backfill; đang dirty
-  (`syncedRevision: null`) nên chưa có mặt bên `firebase/`.
-- `attacks[2]` — không thuốc, `symptoms`/`triggers` rỗng, `exertionLevel: none`
-  (một câu trả lời thật, không phải thiếu dữ liệu).
-- `attacks[3]` — dòng cũ trước v5/v6: `exertionLevel` và `updatedAt` null,
-  `revision: 0`, chưa từng đẩy lên.
-- `attacks[4]` — sửa sau khi push: `revision: 5` > `syncedRevision: 4`, nên bản
-  trên server là bản cũ hơn.
-- `medications[3]` / `medication_reminders[3]` — `createdAt: null`, dòng có
-  trước v3 / v8; null nghĩa là "không rõ", không phải ngày chạy migration.
-- `app_notifications[2]` — reminder và medication của nó **không còn** trong
-  `medications.json`: xoá thuốc thì reminder bị cascade, còn lịch sử "đã được
-  nhắc" vẫn phải sống (`medicationId`/`reminderId` không có FK).
-- `sync_tombstones` — id ở đây **không** trùng dòng nào trong các file khác, vì
-  bản ghi đã bị xoá thật; tombstone chỉ giữ id, không giữ tên hay ghi chú. Bốn
-  id này xuất hiện lại bên `firebase/` dưới dạng document `deleted: true`.
+- `attacks[0]` — complete, and synced (`revision == syncedRevision`).
+- `attacks[1]` — **no weather**: logged offline, waiting on the backfill; still
+  dirty (`syncedRevision: null`), so it is absent from `firebase/`.
+- `attacks[2]` — no medication, empty `symptoms`/`triggers`, `exertionLevel:
+  none` (a real answer, not missing data).
+- `attacks[3]` — a row predating v5/v6: `exertionLevel` and `updatedAt` null,
+  `revision: 0`, never pushed.
+- `attacks[4]` — edited after a push: `revision: 5` > `syncedRevision: 4`, so
+  the server's copy is the older one.
+- `medications[3]` / `medication_reminders[3]` — `createdAt: null`, rows
+  predating v3 / v8; null means "unknown", not the date the migration ran.
+- `app_notifications[2]` — its reminder and medication are **gone** from
+  `medications.json`: deleting a medication cascades its reminders away, but
+  the history of having been reminded has to survive (`medicationId` /
+  `reminderId` carry no foreign key).
+- `sync_tombstones` — the ids here match **no** row in the other files, because
+  those records were really deleted; a tombstone keeps an id and nothing else,
+  no name and no note. The same four ids reappear in `firebase/` as documents
+  with `deleted: true`.

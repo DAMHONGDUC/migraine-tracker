@@ -1,30 +1,32 @@
-# sample_json — dữ liệu mẫu
+# sample_json — sample data
 
-Fixture để đọc và để test, không phải file app đọc lúc chạy —
-`DevSeedService` vẫn là thứ seed máy dev.
+Fixtures to read and to test against, not files the app loads at runtime —
+`DevSeedService` is still what seeds a dev device.
 
 ```
 sample_json/
-  local/      dữ liệu trên máy — 7 bảng Drift (SQLite), schema v9
-  firebase/   dữ liệu trên Firestore — 7 collection + payload đã giải mã
+  local/      on-device data — 7 Drift (SQLite) tables, schema v9
+  firebase/   Firestore data — 7 collections + the decrypted payloads
 ```
 
-Hai bên **cùng một người dùng và cùng một tập id**, nên đọc chéo được: một
-attack dưới máy và document đã mã hoá của nó trên server có chung `id`.
+Both sides describe **the same user and the same set of ids**, so they can be
+read against each other: an attack on the device and its encrypted document on
+the server share one `id`.
 
-Điểm khác nhau đáng chú ý, và cũng là điểm chính của việc tách hai thư mục:
+The differences worth knowing, which are also the whole point of splitting the
+two folders:
 
-- **Máy giữ dữ liệu dạng rõ, server chỉ giữ ciphertext.** Toàn bộ intensity,
-  ghi chú, tên thuốc nằm trong `payload` base64; server chỉ đọc được `userId`
-  và `updatedAt`.
-- **Server không có mọi thứ máy có.** `export_records` và `sync_tombstones`
-  không bao giờ lên server, và dòng nào `syncedRevision: null` thì cũng chưa
-  lên.
-- **Máy không có mọi thứ server có.** `users/{uid}`, `sync_keys/{uid}` và
-  `app_updates` chỉ tồn tại trên Firestore.
-- **Xoá thì hai bên khác hẳn nhau.** Dưới máy dòng bị xoá thật, để lại một
-  tombstone chỉ có id; trên server document vẫn còn nhưng `deleted: true` và
-  ciphertext bị xoá trắng.
+- **The device holds plaintext, the server holds only ciphertext.** Every
+  intensity, note and medication name sits inside the base64 `payload`; the
+  server can read only `userId` and `updatedAt`.
+- **The server does not have everything the device has.** `export_records` and
+  `sync_tombstones` never leave the device, and any row with
+  `syncedRevision: null` has not been pushed yet either.
+- **The device does not have everything the server has.** `users/{uid}`,
+  `sync_keys/{uid}` and `app_updates` exist only in Firestore.
+- **Deletion looks completely different on each side.** On the device the row
+  is really gone, leaving a tombstone that holds nothing but an id; on the
+  server the document remains with `deleted: true` and its ciphertext blanked.
 
-Chi tiết từng file, quy ước ngày giờ/enum, và danh sách các ca biên: đọc
-`local/README.md` và `firebase/README.md`.
+For per-file detail, the date/enum conventions and the list of edge cases, read
+`local/README.md` and `firebase/README.md`.
