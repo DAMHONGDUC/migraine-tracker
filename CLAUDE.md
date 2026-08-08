@@ -450,10 +450,16 @@ build never reaches TestFlight. Do not "clean up" that string as dead config.
    apps whose usage string doesn't say what is read and why; the shipped one
    names sleep specifically.
 
-Note the entitlements file is new, so it currently declares HealthKit and
-nothing else — **push notifications (`aps-environment`) are still missing**,
-which the `alerts` feature will need before FCM can deliver anything on a
-real device. Add that key when wiring push, don't assume it is there.
+The entitlements file now declares `aps-environment` alongside HealthKit, and
+its value is **`development`, deliberately**: one file serves all three build
+configs, and the app-store export re-signs it to `production` from the
+distribution profile. Hardcoding `production` there would break push on every
+debug build instead. Push still cannot reach a device until the console side
+is done — an APNs auth key in Firebase, and Push Notifications enabled on the
+App ID — and `getToken()` returns null on the Simulator (no APNs), which
+`FirebaseAlertRegistrationRepository` maps to
+`AlertRegistrationError.pushUnavailable`. That refusal is expected on the
+Simulator; never read it as a bug.
 
 ### RevenueCat — code is wired, the dashboard and store are not
 
