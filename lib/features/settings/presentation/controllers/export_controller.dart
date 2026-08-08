@@ -147,7 +147,10 @@ class ExportController {
           .read(exportFileStoreProvider)
           .read(record.filePath);
 
-      return ExportPreview.fromBytes(bytes);
+      return ExportPreview.fromBytes(
+        bytes,
+        asTable: record.kind == ExportKind.csv,
+      );
     } catch (error, stackTrace) {
       AppLogger.error(
         'Preview export failed',

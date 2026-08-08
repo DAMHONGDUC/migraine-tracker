@@ -40,7 +40,12 @@ void main() {
     await createExport(tester, 'CSV');
     await openPreview(tester);
 
-    expect(find.textContaining('Sumatriptan'), findsOneWidget);
+    // A table, not a wall of wrapped text: the header names its columns and
+    // the record sits under them.
+    expect(find.text('intensity'), findsOneWidget);
+    expect(find.text('medication'), findsOneWidget);
+    expect(find.text('Sumatriptan'), findsOneWidget);
+    expect(find.text('7'), findsOneWidget);
 
     await finishTest(tester);
   });
