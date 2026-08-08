@@ -1708,6 +1708,56 @@
       }
     }
   },
+  "sleepSummaryLatest": "Last night",
+  "@sleepSummaryLatest": {
+    "description": "Label above the most recent night's sleep on the sleep screen"
+  },
+  "sleepSummaryAverage": "7-night average",
+  "@sleepSummaryAverage": {
+    "description": "Label beside the mean sleep across the recent window"
+  },
+  "sleepSummaryChartTitle": "Last 7 nights",
+  "@sleepSummaryChartTitle": {
+    "description": "Title above the bar chart of recent nights"
+  },
+  "sleepSummaryEmpty": "No sleep recorded on this device yet.",
+  "@sleepSummaryEmpty": {
+    "description": "Shown when Apple Health sleep is connected but returned nothing"
+  },
+  "a11ySleepSummaryChart": "Bar chart of sleep over the last {count, plural, =1{1 night} other{{count} nights}}.",
+  "@a11ySleepSummaryChart": {
+    "description": "VoiceOver summary of the recent sleep bar chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stepsSummaryLatest": "Today",
+  "@stepsSummaryLatest": {
+    "description": "Label above today's step count on the activity screen"
+  },
+  "stepsSummaryAverage": "7-day average",
+  "@stepsSummaryAverage": {
+    "description": "Label beside the mean step count across the recent window"
+  },
+  "stepsSummaryChartTitle": "Last 7 days",
+  "@stepsSummaryChartTitle": {
+    "description": "Title above the bar chart of recent step counts"
+  },
+  "stepsSummaryEmpty": "No steps recorded on this device yet.",
+  "@stepsSummaryEmpty": {
+    "description": "Shown when Apple Health steps is connected but returned nothing"
+  },
+  "a11yStepsSummaryChart": "Bar chart of steps over the last {count, plural, =1{1 day} other{{count} days}}.",
+  "@a11yStepsSummaryChart": {
+    "description": "VoiceOver summary of the recent steps bar chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "a11yWeeklyChart": "Bar chart of attacks per week, {total, plural, =1{1 attack} other{{total} attacks}} over {weeks} weeks.",
   "@a11yWeeklyChart": {
     "description": "VoiceOver summary of the weekly frequency bar chart",
