@@ -51,6 +51,7 @@ class RemindersController {
             medicationName: medicationName,
             title: notificationTitle,
             bodyTemplate: notificationBody,
+            sound: _ref.read(reminderSoundProvider),
           );
     } catch (error, stackTrace) {
       AppLogger.error(
@@ -89,6 +90,7 @@ class RemindersController {
             medicationName: medicationName,
             title: notificationTitle,
             bodyTemplate: notificationBody,
+            sound: _ref.read(reminderSoundProvider),
           );
     } catch (error, stackTrace) {
       AppLogger.error(
@@ -123,6 +125,7 @@ class RemindersController {
           medicationName: medicationName,
           title: notificationTitle,
           bodyTemplate: notificationBody,
+          sound: _ref.read(reminderSoundProvider),
         );
       } else {
         await scheduler.cancel(reminder.id);
@@ -163,6 +166,7 @@ class RemindersController {
       final NotificationScheduler scheduler = _ref.read(
         notificationSchedulerProvider,
       );
+      final bool sound = _ref.read(reminderSoundProvider);
 
       AppLogger.info('Rescheduling reminders', reminders.length);
       for (final MedicationReminder reminder in reminders) {
@@ -176,6 +180,7 @@ class RemindersController {
           medicationName: medicationName,
           title: l10n.reminderNotificationTitle,
           bodyTemplate: l10n.reminderNotificationBody('{name}'),
+          sound: sound,
         );
       }
     } catch (error, stackTrace) {
@@ -215,7 +220,12 @@ class RemindersController {
     try {
       await _ref
           .read(notificationSchedulerProvider)
-          .scheduleTest(title: title, body: body, delay: delay);
+          .scheduleTest(
+            title: title,
+            body: body,
+            delay: delay,
+            sound: _ref.read(reminderSoundProvider),
+          );
     } catch (error, stackTrace) {
       AppLogger.error(
         'Send test notification failed',

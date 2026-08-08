@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
-import '../../../../../core/router/app_router.dart';
+import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../medications/providers.dart';
 import '../../../domain/entities/app_notification.dart';
 import '../../../domain/enums/notification_type.dart';
 import '../../../providers.dart';
+import '../../widgets/reminder_sound_tile.dart';
 
 part 'notifications_screen_tile.dart';
 
@@ -46,10 +46,16 @@ class NotificationsScreen extends HookConsumerWidget {
       title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),
       body: Column(
         children: <Widget>[
+          // Above the tabs: it governs what the app does next, where the two
+          // lists are a record of what it already did.
+          Padding(
+            padding: EdgeInsets.only(top: SdContentPaddingV2.top(context)),
+            child: const ReminderSoundTile(),
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,
-              SdContentPaddingV2.top(context),
+              SdContentPaddingV2.listItemGap,
               SdContentPaddingV2.horizontal,
               0,
             ),
