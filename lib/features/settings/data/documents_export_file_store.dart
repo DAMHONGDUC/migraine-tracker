@@ -26,17 +26,40 @@ class DocumentsExportFileStore implements ExportFileStore {
 
   // existsSync, not the async form — avoid_slow_async_io flags async as the slow path.
   @override
-  Future<bool> exists(String path) async => File(path).existsSync();
+  Future<bool> exists(String path) async => (await _resolve(path)).existsSync();
 
   @override
-  Future<Uint8List> read(String path) => File(path).readAsBytes();
+  Future<Uint8List> read(String path) async =>
+      (await _resolve(path)).readAsBytes();
 
   @override
   Future<void> delete(String path) async {
-    final File file = File(path);
+    final File file = await _resolve(path);
 
     if (file.existsSync()) await file.delete();
   }
+
+  /// The file a stored path means *now*.
+  ///
+  /// iOS gives the app container a new UUID on reinstall and can move it on
+  /// update, so the absolute path a record was written with stops resolving
+  /// while the file itself is still sitting in the new container under the
+  /// same name. Falling back to today's exports folder keeps every past
+  /// export shareable across an update instead of silently becoming "no
+  /// longer on this device".
+  Future<File> _resolve(String path) async {
+    final File direct = File(path);
+
+    if (direct.existsSync()) return direct;
+
+    final Directory dir = await _exportsDir();
+
+    return File('${dir.path}/${_basename(path)}');
+  }
+
+  /// Last segment of [path], for either separator — the records were written
+  /// on this device, but the separator is not worth assuming.
+  String _basename(String path) => path.split(RegExp(r'[/\\]')).last;
 
   @override
   Future<void> deleteAll() async {
