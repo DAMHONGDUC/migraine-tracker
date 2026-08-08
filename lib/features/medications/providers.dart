@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -20,6 +22,7 @@ import 'domain/services/next_reminder_calculator.dart';
 import 'domain/services/notification_scheduler.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
+import 'presentation/controllers/reminder_sound_controller.dart';
 import 'presentation/controllers/reminders_controller.dart';
 
 final medicationRepositoryProvider = Provider<MedicationRepository>(
@@ -195,24 +198,23 @@ final canAddReminderProvider = Provider<bool>((ref) {
 /// The flutter_local_notifications plugin, initialized once (timezone setup
 /// happens in main()). Override in tests with a fake NotificationScheduler.
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
-  final plugin = FlutterLocalNotificationsPlugin();
-  plugin.initialize(
-    settings: const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-      iOS: DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestSoundPermission: false,
-        // These drive the plugin's own willPresent handler; without them
-        // iOS drops foreground notifications and reminders only show backgrounded.
-        defaultPresentAlert: true,
-        defaultPresentSound: true,
-        defaultPresentBanner: true,
-        defaultPresentList: true,
-      ),
-    ),
+  final scheduler = LocalNotificationScheduler(
+    FlutterLocalNotificationsPlugin(),
   );
-  return LocalNotificationScheduler(plugin);
+
+  // Unawaited like the plugin call it replaced: nothing here waits on the
+  // plugin being ready, and a scheduled reminder is queued behind it anyway.
+  unawaited(scheduler.initialize());
+  ref.onDispose(scheduler.dispose);
+
+  return scheduler;
 });
+
+/// Whether reminders make a sound — the switch on the notification list
+/// screen (see [ReminderSoundController]).
+final reminderSoundProvider = NotifierProvider<ReminderSoundController, bool>(
+  ReminderSoundController.new,
+);
 
 /// Orchestrates reminders (see [RemindersController]).
 final remindersControllerProvider = Provider<RemindersController>(

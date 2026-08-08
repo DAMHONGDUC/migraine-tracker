@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -7,12 +9,80 @@ import '../../domain/services/notification_scheduler.dart';
 /// flutter_local_notifications implementation. Assumes timezone data has
 /// been initialized once at app start (see medications/providers.dart).
 class LocalNotificationScheduler implements NotificationScheduler {
-  const LocalNotificationScheduler(this._plugin);
+  LocalNotificationScheduler(this._plugin);
 
   final FlutterLocalNotificationsPlugin _plugin;
 
   static const _channelId = 'medication_reminders';
   static const _channelName = 'Medication reminders';
+
+  /// The muted twin of the channel above. Android fixes a channel's sound at
+  /// creation, so silencing reminders means a second channel, never an edit.
+  static const _silentChannelId = 'medication_reminders_silent';
+  static const _silentChannelName = 'Medication reminders (silent)';
+
+  /// Broadcast: nobody may be listening when a tap lands (the app can be
+  /// mid-launch), and a single-subscription stream would keep that event
+  /// buffered for whoever listened first.
+  final StreamController<String> _taps = StreamController<String>.broadcast();
+
+  /// True once the launch details have been handed over, so a resume does
+  /// not reopen the screen the app was started on.
+  bool _launchTapTaken = false;
+
+  /// Wires the plugin up, including the tap callback. Called once, from the
+  /// provider that builds this.
+  ///
+  /// The callback lives here rather than in the provider because the payload
+  /// it carries is this class's own — [schedule] is what put it there.
+  Future<void> initialize() async {
+    await _plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestSoundPermission: false,
+          // These drive the plugin's own willPresent handler; without them
+          // iOS drops foreground notifications and reminders only show
+          // backgrounded.
+          defaultPresentAlert: true,
+          defaultPresentSound: true,
+          defaultPresentBanner: true,
+          defaultPresentList: true,
+        ),
+      ),
+      onDidReceiveNotificationResponse: _onResponse,
+    );
+  }
+
+  Future<void> dispose() => _taps.close();
+
+  @override
+  Stream<String> get reminderTaps => _taps.stream;
+
+  @override
+  Future<String?> takeLaunchReminderId() async {
+    if (_launchTapTaken) return null;
+    _launchTapTaken = true;
+
+    final NotificationAppLaunchDetails? details = await _plugin
+        .getNotificationAppLaunchDetails();
+
+    if (details == null || !details.didNotificationLaunchApp) return null;
+
+    return _reminderIdOf(details.notificationResponse?.payload);
+  }
+
+  void _onResponse(NotificationResponse response) {
+    final String? reminderId = _reminderIdOf(response.payload);
+
+    if (reminderId != null) _taps.add(reminderId);
+  }
+
+  /// The payload a reminder carries is its own id and nothing else. The debug
+  /// test notification has none, which is what an empty answer means here.
+  String? _reminderIdOf(String? payload) =>
+      payload == null || payload.isEmpty ? null : payload;
 
   /// Stable per-reminder int id for the plugin (which keys on int).
   int _notificationId(String reminderId) => reminderId.hashCode & 0x7fffffff;
@@ -43,6 +113,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
     required String medicationName,
     required String title,
     required String bodyTemplate,
+    bool sound = true,
   }) async {
     await cancel(reminder.id);
     if (!reminder.enabled) return;
@@ -52,24 +123,35 @@ class LocalNotificationScheduler implements NotificationScheduler {
       title: title,
       body: bodyTemplate.replaceFirst('{name}', medicationName),
       scheduledDate: _nextInstanceOf(reminder.hour, reminder.minute),
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          importance: Importance.defaultImportance,
-        ),
-        // Present banner + sound in foreground, or iOS silently drops it.
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBanner: true,
-          presentSound: true,
-          presentList: true,
-        ),
-      ),
+      // What the tap handler resolves back to a row in the notification
+      // list. The id alone: no medication name, so nothing about the user's
+      // health sits in an OS payload.
+      payload: reminder.id,
+      notificationDetails: _details(sound: sound),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // repeat daily
     );
   }
+
+  /// - `presentSound` is the whole sound switch on iOS: the plugin sets the
+  ///   content's default sound from it, and it also governs the foreground
+  ///   banner. Without it iOS delivers the reminder silently.
+  /// - Android keeps a second channel instead, because a channel's sound is
+  ///   fixed the moment it is created and can never be changed again.
+  NotificationDetails _details({required bool sound}) => NotificationDetails(
+    android: AndroidNotificationDetails(
+      sound ? _channelId : _silentChannelId,
+      sound ? _channelName : _silentChannelName,
+      importance: Importance.defaultImportance,
+      playSound: sound,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: sound,
+      presentList: true,
+    ),
+  );
 
   @override
   Future<void> cancel(String reminderId) =>
@@ -87,6 +169,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
     required String title,
     required String body,
     Duration delay = const Duration(seconds: 10),
+    bool sound = true,
   }) async {
     await ensurePermission();
     await _plugin.zonedSchedule(
@@ -94,19 +177,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
       title: title,
       body: body,
       scheduledDate: tz.TZDateTime.now(tz.local).add(delay),
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          importance: Importance.defaultImportance,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBanner: true,
-          presentSound: true,
-          presentList: true,
-        ),
-      ),
+      notificationDetails: _details(sound: sound),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       // No matchDateTimeComponents → fires once, not daily.
     );

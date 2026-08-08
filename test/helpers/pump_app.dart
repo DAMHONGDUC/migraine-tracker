@@ -75,6 +75,24 @@ class FakeNotificationScheduler implements NotificationScheduler {
   /// "test notification" action reached the scheduler.
   bool testScheduled = false;
 
+  /// Whether the last [schedule] call asked for a sound — what the
+  /// notification list's sound switch is asserted through.
+  bool? scheduledWithSound;
+
+  /// Reminder id a test replays as a tap on a running app.
+  final StreamController<String> taps = StreamController<String>.broadcast();
+
+  /// Reminder id a test says the app was launched by. Null = opened normally.
+  String? launchReminderId;
+
+  Future<void> dispose() => taps.close();
+
+  @override
+  Stream<String> get reminderTaps => taps.stream;
+
+  @override
+  Future<String?> takeLaunchReminderId() async => launchReminderId;
+
   @override
   Future<bool> ensurePermission() async => true;
 
@@ -84,7 +102,10 @@ class FakeNotificationScheduler implements NotificationScheduler {
     required String medicationName,
     required String title,
     required String bodyTemplate,
-  }) async {}
+    bool sound = true,
+  }) async {
+    scheduledWithSound = sound;
+  }
 
   @override
   Future<void> cancel(String reminderId) async {}
@@ -97,6 +118,7 @@ class FakeNotificationScheduler implements NotificationScheduler {
     required String title,
     required String body,
     Duration delay = const Duration(seconds: 10),
+    bool sound = true,
   }) async {
     testScheduled = true;
   }
@@ -598,6 +620,7 @@ Future<PumpedApp> pumpApp(
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
+  addTearDown(scheduler.dispose);
   final permissions = FakeAppPermissionGateway();
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);

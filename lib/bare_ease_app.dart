@@ -16,6 +16,7 @@ import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
+import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
 import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
 import 'features/sync/providers.dart';
@@ -122,9 +123,11 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
-        // Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
-        builder: (context, child) =>
-            ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
+        // - Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
+        // - And catches notification taps wherever the user is, including nowhere yet (see NotificationTapListener).
+        builder: (context, child) => NotificationTapListener(
+          child: ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
+        ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,

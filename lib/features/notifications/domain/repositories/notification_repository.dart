@@ -22,6 +22,14 @@ abstract interface class NotificationRepository {
   /// time the app opened.
   Future<void> addMissing(List<AppNotification> notifications);
 
+  /// The newest occurrence of one reminder, or null when none has been
+  /// derived yet.
+  ///
+  /// What a tapped reminder notification resolves to: the OS hands back the
+  /// reminder it was scheduled from, and the row the user wants is the
+  /// occurrence that just fired.
+  Future<AppNotification?> latestForReminder(String reminderId);
+
   /// Marks one notification read at [at].
   ///
   /// Per row, not per screen: opening the list is not reading anything, so

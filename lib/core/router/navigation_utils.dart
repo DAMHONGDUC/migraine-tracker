@@ -16,6 +16,18 @@ final class NavigationUtils {
     return signedIn ?? false;
   }
 
+  /// One notification in full. Both the list's rows and a tapped OS
+  /// notification land here, so the route's path parameter is named once.
+  static Future<void> toNotification(
+    BuildContext context,
+    String notificationId,
+  ) => context.pushNamed<void>(
+    AppRoutes.notification.name,
+    pathParameters: <String, String>{
+      AppRoutes.notificationIdParam: notificationId,
+    },
+  );
+
   /// Every locked surface goes here, signed in or not — one door, so the
   /// paywall is what a gate opens and nothing else.
   ///
