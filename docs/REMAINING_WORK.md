@@ -33,16 +33,27 @@ The old "what is left" list under this item is gone: every point on it
 the `sync_keys/{uid}` teardown) is now built and covered by
 `data_wipe_service_test.dart`.
 
-## 2. Push notifications can't deliver on a real device
+## 2. Push notifications — the repo half is done, the console half is not
 
-`ios/Runner/Runner.entitlements` only declares `com.apple.developer.healthkit`
-— `aps-environment` is missing. Client code in `alerts`
-(`firebase_alert_registration_repository.dart`: request permission, get
-token, drop stale tokens) is fully implemented, but nothing can reach a
-device until:
+`ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
+HealthKit. It says `development` on purpose: one entitlements file serves all
+three build configs, and the app-store export re-signs it to `production`
+from the distribution profile — hardcoding `production` would break push on
+every debug build instead.
 
-- `aps-environment` is added to the entitlements file.
-- An APNs auth key is configured in the Firebase console.
+Client code in `alerts` (`firebase_alert_registration_repository.dart`:
+request permission, get token, drop stale tokens) was already complete. What
+is left is outside the repo:
+
+- **An APNs auth key configured in the Firebase console.** Without it FCM has
+  nothing to hand APNs and every send fails server-side.
+- **Push Notifications enabled on the App ID** in the Apple Developer portal,
+  same as HealthKit below. Automatic signing offers this on the first device
+  build; until it is done, signing fails on the missing entitlement.
+- **A real-device test pass.** `getToken()` returns null on the Simulator (no
+  APNs), which the repository already maps to
+  `AlertRegistrationError.pushUnavailable` — so a Simulator refusal is
+  expected behaviour, not a bug to chase.
 
 ## 3. ~~`sync` feature doesn't exist yet~~ — built
 
@@ -169,9 +180,17 @@ part of this item.
 
 ## Smaller, non-blocking
 
-- Test coverage is thin in `alerts` (only `geohash_test.dart` — no test for
-  `AlertsController` or the FCM permission/getToken registration flow) and
-  `weather` (only the Open-Meteo datasource is tested, not the repository).
+- ~~Test coverage is thin in `alerts` and `weather`~~ — closed for the parts
+  that can be tested in pure Dart. `alerts_controller_test.dart` covers the
+  toggle, the threshold and the failure path (a failed registration must not
+  leave prefs saying alerts are on), and
+  `open_meteo_weather_repository_test.dart` covers the null-location branch
+  both methods share — no position means no network call at all.
+  `FirebaseAlertRegistrationRepository` is still untested and stays that way
+  while there is no mocking package: it takes concrete `FirebaseAuth`,
+  `FirebaseMessaging` and `FirebaseFirestore`, so covering it means either
+  extracting interfaces for all three or adding `mockito`/`fake_cloud_firestore`
+  — both bigger than the item. The real-device pass above is what proves it.
 - The 4 testing priorities CLAUDE.md calls out explicitly — correlation
   engine, Drift migrations, pressure alert function, paywall entitlement
   gating — all already have dedicated tests. Nothing to do there.

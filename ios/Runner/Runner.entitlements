@@ -10,5 +10,11 @@
 	     covers, and asking for clinical records would fail App Review. -->
 	<key>com.apple.developer.healthkit.access</key>
 	<array/>
+	<!-- One entitlements file serves all three build configs, so this says
+	     "development" and the app-store export re-signs it to "production"
+	     from the distribution profile. Hardcoding "production" instead
+	     breaks push on every debug build. -->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>
