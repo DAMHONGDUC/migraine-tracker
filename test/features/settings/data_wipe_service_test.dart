@@ -42,7 +42,6 @@ class RecordingNotificationScheduler implements NotificationScheduler {
     required String medicationName,
     required String title,
     required String bodyTemplate,
-    bool sound = true,
   }) async {}
 
   @override
@@ -58,7 +57,6 @@ class RecordingNotificationScheduler implements NotificationScheduler {
     required String title,
     required String body,
     Duration delay = const Duration(seconds: 10),
-    bool sound = true,
   }) async {}
 }
 

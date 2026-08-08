@@ -24,15 +24,13 @@ abstract interface class NotificationScheduler {
   /// Schedules a repeating daily notification for [reminder] using
   /// [medicationName] in the body. Cancels any existing one with the same id.
   ///
-  /// [sound] carries the user's own choice (see the notification list's
-  /// switch). It is fixed into the scheduled notification, so changing it
-  /// means rescheduling every reminder — there is nothing to update in place.
+  /// Always audible: there is no app-level mute, because the OS already owns
+  /// that switch.
   Future<void> schedule(
     MedicationReminder reminder, {
     required String medicationName,
     required String title,
     required String bodyTemplate,
-    bool sound,
   });
 
   Future<void> cancel(String reminderId);
@@ -46,6 +44,5 @@ abstract interface class NotificationScheduler {
     required String title,
     required String body,
     Duration delay,
-    bool sound,
   });
 }

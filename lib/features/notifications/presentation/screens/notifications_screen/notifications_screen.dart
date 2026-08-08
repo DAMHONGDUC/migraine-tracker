@@ -12,7 +12,6 @@ import '../../../../medications/providers.dart';
 import '../../../domain/entities/app_notification.dart';
 import '../../../domain/enums/notification_type.dart';
 import '../../../providers.dart';
-import '../../widgets/reminder_sound_tile.dart';
 
 part 'notifications_screen_tile.dart';
 
@@ -46,16 +45,10 @@ class NotificationsScreen extends HookConsumerWidget {
       title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),
       body: Column(
         children: <Widget>[
-          // Above the tabs: it governs what the app does next, where the two
-          // lists are a record of what it already did.
-          Padding(
-            padding: EdgeInsets.only(top: SdContentPaddingV2.top(context)),
-            child: const ReminderSoundTile(),
-          ),
           Padding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,
-              SdContentPaddingV2.listItemGap,
+              SdContentPaddingV2.top(context),
               SdContentPaddingV2.horizontal,
               0,
             ),

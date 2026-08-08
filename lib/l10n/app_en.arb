@@ -974,18 +974,6 @@
   "@notificationsTitle": {
     "description": "Title of the notification list screen"
   },
-  "reminderSoundTitle": "Reminder sound",
-  "@reminderSoundTitle": {
-    "description": "Switch on the notification list that mutes or unmutes medication reminders"
-  },
-  "reminderSoundSubtitle": "Pressure alerts follow your phone's notification settings.",
-  "@reminderSoundSubtitle": {
-    "description": "Says the sound switch covers reminders only, since alert sound comes from the push itself"
-  },
-  "reminderSoundFailed": "Couldn't change the reminder sound.",
-  "@reminderSoundFailed": {
-    "description": "Error shown when saving or rescheduling after the sound switch failed"
-  },
   "notificationsTabReminders": "Reminders",
   "@notificationsTabReminders": {
     "description": "Tab of medication reminders on the notification list"

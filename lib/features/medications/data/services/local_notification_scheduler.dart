@@ -16,10 +16,24 @@ class LocalNotificationScheduler implements NotificationScheduler {
   static const _channelId = 'medication_reminders';
   static const _channelName = 'Medication reminders';
 
-  /// The muted twin of the channel above. Android fixes a channel's sound at
-  /// creation, so silencing reminders means a second channel, never an edit.
-  static const _silentChannelId = 'medication_reminders_silent';
-  static const _silentChannelName = 'Medication reminders (silent)';
+  /// - `presentSound` is what makes a reminder audible on iOS: the plugin
+  ///   builds the content's default sound from it, and it also governs the
+  ///   foreground banner. Without it iOS delivers the reminder silently.
+  /// - Always on, with no app-level switch — muting is the OS's own job
+  ///   (Settings › Notifications, the ring switch, Focus).
+  static const NotificationDetails _details = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      importance: Importance.defaultImportance,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      presentList: true,
+    ),
+  );
 
   /// Broadcast: nobody may be listening when a tap lands (the app can be
   /// mid-launch), and a single-subscription stream would keep that event
@@ -113,7 +127,6 @@ class LocalNotificationScheduler implements NotificationScheduler {
     required String medicationName,
     required String title,
     required String bodyTemplate,
-    bool sound = true,
   }) async {
     await cancel(reminder.id);
     if (!reminder.enabled) return;
@@ -127,31 +140,11 @@ class LocalNotificationScheduler implements NotificationScheduler {
       // list. The id alone: no medication name, so nothing about the user's
       // health sits in an OS payload.
       payload: reminder.id,
-      notificationDetails: _details(sound: sound),
+      notificationDetails: _details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // repeat daily
     );
   }
-
-  /// - `presentSound` is the whole sound switch on iOS: the plugin sets the
-  ///   content's default sound from it, and it also governs the foreground
-  ///   banner. Without it iOS delivers the reminder silently.
-  /// - Android keeps a second channel instead, because a channel's sound is
-  ///   fixed the moment it is created and can never be changed again.
-  NotificationDetails _details({required bool sound}) => NotificationDetails(
-    android: AndroidNotificationDetails(
-      sound ? _channelId : _silentChannelId,
-      sound ? _channelName : _silentChannelName,
-      importance: Importance.defaultImportance,
-      playSound: sound,
-    ),
-    iOS: DarwinNotificationDetails(
-      presentAlert: true,
-      presentBanner: true,
-      presentSound: sound,
-      presentList: true,
-    ),
-  );
 
   @override
   Future<void> cancel(String reminderId) =>
@@ -169,7 +162,6 @@ class LocalNotificationScheduler implements NotificationScheduler {
     required String title,
     required String body,
     Duration delay = const Duration(seconds: 10),
-    bool sound = true,
   }) async {
     await ensurePermission();
     await _plugin.zonedSchedule(
@@ -177,7 +169,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
       title: title,
       body: body,
       scheduledDate: tz.TZDateTime.now(tz.local).add(delay),
-      notificationDetails: _details(sound: sound),
+      notificationDetails: _details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       // No matchDateTimeComponents → fires once, not daily.
     );

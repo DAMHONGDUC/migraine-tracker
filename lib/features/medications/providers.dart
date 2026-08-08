@@ -22,7 +22,6 @@ import 'domain/services/next_reminder_calculator.dart';
 import 'domain/services/notification_scheduler.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
-import 'presentation/controllers/reminder_sound_controller.dart';
 import 'presentation/controllers/reminders_controller.dart';
 
 final medicationRepositoryProvider = Provider<MedicationRepository>(
@@ -209,12 +208,6 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
 
   return scheduler;
 });
-
-/// Whether reminders make a sound — the switch on the notification list
-/// screen (see [ReminderSoundController]).
-final reminderSoundProvider = NotifierProvider<ReminderSoundController, bool>(
-  ReminderSoundController.new,
-);
 
 /// Orchestrates reminders (see [RemindersController]).
 final remindersControllerProvider = Provider<RemindersController>(

@@ -38,7 +38,6 @@ class _SilentScheduler implements NotificationScheduler {
     required String medicationName,
     required String title,
     required String bodyTemplate,
-    bool sound = true,
   }) async {}
 
   @override
@@ -52,7 +51,6 @@ class _SilentScheduler implements NotificationScheduler {
     required String title,
     required String body,
     Duration delay = Duration.zero,
-    bool sound = true,
   }) async {}
 }
 
