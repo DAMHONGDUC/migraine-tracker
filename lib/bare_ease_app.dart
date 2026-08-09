@@ -46,6 +46,14 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
+    // The alert half of the same catch-up: the push handler below only runs
+    // with the app open, so an alert the user never tapped would otherwise
+    // never reach this device's list.
+    useEffect(() {
+      unawaited(ref.read(notificationsControllerProvider).reconcileLastAlert());
+      return null;
+    }, const []);
+
     // A pressure alert arriving while the app is open: record it now, so
     // the list has it before the user goes looking. One arriving while the
     // app is shut is picked up by the sync from whichever device did see
@@ -71,6 +79,9 @@ class BaroEaseApp extends HookConsumerWidget {
         onResume: () {
           unawaited(ref.read(syncControllerProvider.notifier).sync());
           unawaited(ref.read(notificationsControllerProvider).materialise());
+          unawaited(
+            ref.read(notificationsControllerProvider).reconcileLastAlert(),
+          );
         },
       );
       return listener.dispose;

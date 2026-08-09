@@ -23,20 +23,39 @@ final class PressureAlertMapper {
   static AppNotification? fromData(Map<String, dynamic> data) {
     if (data['type'] != typeValue) return null;
 
-    final Object? eventId = data['eventId'];
     final Object? at = data['at'];
 
+    return fromRecord(
+      eventId: data['eventId'],
+      occurredAt: at is String ? DateTime.tryParse(at) : null,
+      dropHpa: data['dropHpa'],
+    );
+  }
+
+  /// The same row from the `lastAlert*` fields on `users/{uid}`, which the
+  /// cron writes after every push.
+  ///
+  /// This is how an alert that arrived while the app was shut reaches the
+  /// list: the push handler only runs with the app open, so without a
+  /// reconcile a user who never taps the banner never gets the row.
+  ///
+  /// Takes plain Dart values — the caller converts the Firestore `Timestamp`
+  /// — so `domain/` keeps no dependency on cloud_firestore.
+  static AppNotification? fromRecord({
+    required Object? eventId,
+    required DateTime? occurredAt,
+    Object? dropHpa,
+  }) {
     if (eventId is! String || eventId.isEmpty) return null;
-    final DateTime? occurredAt = at is String ? DateTime.tryParse(at) : null;
     if (occurredAt == null) return null;
 
     return AppNotification(
       // Keyed by the event the backend already dedupes on, so the foreground
-      // handler and a pull of the same alert land on one row, not two.
+      // handler, a reconcile and a pull of the same alert land on one row.
       id: AppNotification.pressureAlertId(eventId),
       type: NotificationType.pressureAlert,
       occurredAt: occurredAt.toUtc(),
-      pressureDropHpa: _drop(data['dropHpa']),
+      pressureDropHpa: _drop(dropHpa),
     );
   }
 

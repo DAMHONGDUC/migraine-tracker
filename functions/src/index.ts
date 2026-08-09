@@ -117,10 +117,15 @@ export const pressureAlertJob = onSchedule(
           },
         });
       },
-      recordAlert: async (uid, eventId, at) => {
+      // lastAlertDropHpa is written for the client, not for dedupe: the
+      // launch reconcile rebuilds the missed notification row from these
+      // three fields, and without the reading the row cannot say how far
+      // pressure fell.
+      recordAlert: async (uid, drop, at) => {
         await db.collection("users").doc(uid).update({
           lastAlertAt: Timestamp.fromDate(at),
-          lastAlertEventId: eventId,
+          lastAlertEventId: drop.eventId,
+          lastAlertDropHpa: drop.dropHpa,
         });
       },
       removeToken: async (uid) => {

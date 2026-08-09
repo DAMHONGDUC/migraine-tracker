@@ -66,11 +66,14 @@ describe("runPressureAlerts", () => {
   });
 
   it("pushes and records dedupe state for users over threshold", async () => {
-    const { deps, recordAlert } = harness(async () => drop({ eventId: "E1" }));
+    const forecast = drop({ eventId: "E1" });
+    const { deps, recordAlert } = harness(async () => forecast);
     const result = await runPressureAlerts([user("a", "u1234")], deps);
 
     expect(deps.sendPush).toHaveBeenCalledTimes(1);
-    expect(recordAlert).toHaveBeenCalledWith("a", "E1", now);
+    // The whole forecast, not just its id: the client's launch reconcile
+    // rebuilds the notification row from the recorded drop.
+    expect(recordAlert).toHaveBeenCalledWith("a", forecast, now);
     expect(result.pushesSent).toBe(1);
   });
 

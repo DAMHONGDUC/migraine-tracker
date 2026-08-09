@@ -32,6 +32,7 @@ import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
+import 'package:migraine_tracker/features/notifications/providers.dart';
 import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
@@ -49,6 +50,7 @@ import 'package:system_design/index.dart';
 
 import 'alert_fakes.dart';
 import 'export_fakes.dart';
+import 'notification_fakes.dart';
 import 'sync_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
@@ -674,6 +676,11 @@ Future<PumpedApp> pumpApp(
         // repository reaches for FirebaseAuth and Firestore to do it.
         alertRegistrationRepositoryProvider.overrideWithValue(
           RecordingAlertRegistration(),
+        ),
+        // And again: the app root reconciles the last pressure alert on
+        // launch, which is a Firestore read of `users/{uid}`.
+        lastAlertRepositoryProvider.overrideWithValue(
+          FakeLastAlertRepository(),
         ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),

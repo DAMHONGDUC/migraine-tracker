@@ -71,4 +71,74 @@ void main() {
       isNull,
     );
   });
+
+  group('fromRecord', () {
+    test('the users/{uid} record becomes the same row as the push', () {
+      final AppNotification? fromRecord = PressureAlertMapper.fromRecord(
+        eventId: 'evt-1',
+        occurredAt: DateTime.utc(2026, 8, 7, 6),
+        dropHpa: -7.5,
+      );
+      final AppNotification? fromPush = PressureAlertMapper.fromData(data());
+
+      expect(fromRecord, isNotNull);
+      // Same id is the whole point: the reconcile must land on the row the
+      // push handler would have written, not beside it.
+      expect(fromRecord!.id, fromPush!.id);
+      expect(fromRecord.occurredAt, fromPush.occurredAt);
+      expect(fromRecord.pressureDropHpa, fromPush.pressureDropHpa);
+      expect(fromRecord.type, NotificationType.pressureAlert);
+    });
+
+    // An account that has never been sent an alert has none of these fields,
+    // which is the ordinary case on every launch — not an error.
+    test('an empty or half-written record is no row', () {
+      expect(
+        PressureAlertMapper.fromRecord(eventId: null, occurredAt: null),
+        isNull,
+      );
+      expect(
+        PressureAlertMapper.fromRecord(
+          eventId: 'evt-1',
+          occurredAt: null,
+        ),
+        isNull,
+      );
+      expect(
+        PressureAlertMapper.fromRecord(
+          eventId: '',
+          occurredAt: DateTime.utc(2026, 8, 7, 6),
+        ),
+        isNull,
+      );
+      expect(
+        PressureAlertMapper.fromRecord(
+          eventId: 42,
+          occurredAt: DateTime.utc(2026, 8, 7, 6),
+        ),
+        isNull,
+      );
+    });
+
+    test('a local timestamp is stored in UTC like every other row', () {
+      final AppNotification? result = PressureAlertMapper.fromRecord(
+        eventId: 'evt-1',
+        occurredAt: DateTime(2026, 8, 7, 13),
+      );
+
+      expect(result!.occurredAt.isUtc, isTrue);
+    });
+
+    // The record predates lastAlertDropHpa, so old accounts carry an alert
+    // with no reading. The row is still worth having.
+    test('a record with no drop still yields a row', () {
+      final AppNotification? result = PressureAlertMapper.fromRecord(
+        eventId: 'evt-1',
+        occurredAt: DateTime.utc(2026, 8, 7, 6),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.pressureDropHpa, isNull);
+    });
+  });
 }
