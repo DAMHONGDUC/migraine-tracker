@@ -7,6 +7,7 @@ import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
+import 'domain/services/medication_effect_tally.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
 import 'presentation/controllers/log_controller.dart';
@@ -24,6 +25,20 @@ final attacksStreamProvider = StreamProvider<List<Attack>>(
 final attackByIdProvider = StreamProvider.autoDispose.family<Attack?, String>(
   (ref, id) => ref.watch(attackRepositoryProvider).watchById(id),
 );
+
+/// How often one medication worked, for the medication screen that shows it.
+///
+/// Lives here rather than in `medications/` because the answers are stored on
+/// attacks: a provider over there would have to reach into this feature's
+/// data layer, which the dependency rule forbids.
+final medicationEffectCountProvider =
+    Provider.family<MedicationEffectCount, String>((ref, medicationName) {
+      const MedicationEffectTally tally = MedicationEffectTally();
+      final List<Attack> attacks =
+          ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+
+      return tally.forMedication(attacks, medicationName);
+    });
 
 final weatherAttachServiceProvider = Provider<WeatherAttachService>(
   (ref) => WeatherAttachService(

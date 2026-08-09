@@ -2,6 +2,7 @@ import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/attack.dart';
 import '../enums/exertion_level.dart';
 import '../enums/head_location.dart';
+import '../enums/medication_effect.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
 /// implementation.
@@ -48,6 +49,10 @@ abstract interface class AttackRepository {
   /// for the same reason [updateExertion] is: it is never shown by the details
   /// sheet, so a save from there must not be able to blank it.
   Future<void> updateEndedAt(String id, DateTime? endedAt);
+
+  /// Whether the medication helped, or null to take the answer back. Its own
+  /// method for the same reason [updateExertion] is.
+  Future<void> updateMedicationEffect(String id, MedicationEffect? effect);
 
   /// Corrects the core fields of an already-logged attack (detail screen).
   /// The weather snapshot is untouched — it belongs to [startedAt].

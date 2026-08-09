@@ -7,6 +7,8 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/medication_effect.dart';
+import '../../../attacks/domain/services/medication_effect_tally.dart';
 import '../entities/correlation_result.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
@@ -28,6 +30,8 @@ class DoctorReportStrings {
     required this.colDate,
     required this.colIntensity,
     required this.colDuration,
+    required this.colMedicationEffect,
+    required this.medicationEffectLabels,
     required this.colLocation,
     required this.colMedication,
     required this.colPressureDelta,
@@ -48,6 +52,8 @@ class DoctorReportStrings {
   final String colDate;
   final String colIntensity;
   final String colDuration;
+  final String colMedicationEffect;
+  final Map<MedicationEffect, String> medicationEffectLabels;
   final String colLocation;
   final String colMedication;
   final String colPressureDelta;
@@ -144,6 +150,15 @@ class DoctorReportBuilder {
           ])
           case final Duration typical)
         [strings.typicalDuration, _durationLabel(typical)],
+      // One row per medication that has outcomes. This is the part a doctor
+      // acts on: a drug that only ever partly works is a drug being changed.
+      for (final MapEntry<String, MedicationEffectCount> entry
+          in const MedicationEffectTally().byMedication(attacks).entries)
+        [
+          entry.key,
+          '${entry.value.helped}/${entry.value.answered} '
+              '(${strings.colMedicationEffect.toLowerCase()})',
+        ],
       // Mature figures only: a share still settling has no business in a
       // document a doctor reads as settled.
       if (correlation case CorrelationInsight(
@@ -212,6 +227,7 @@ class DoctorReportBuilder {
         strings.colDuration,
         strings.colLocation,
         strings.colMedication,
+        strings.colMedicationEffect,
         strings.colPressureDelta,
       ],
       data: [
@@ -222,6 +238,10 @@ class DoctorReportBuilder {
             a.duration == null ? '-' : _durationLabel(a.duration!),
             strings.locationLabels[a.location] ?? a.location.name,
             a.medicationName ?? '-',
+            a.medicationEffect == null
+                ? '-'
+                : strings.medicationEffectLabels[a.medicationEffect] ??
+                      a.medicationEffect!.name,
             a.weather?.pressureDelta24hHpa.toStringAsFixed(1) ?? '-',
           ],
       ],

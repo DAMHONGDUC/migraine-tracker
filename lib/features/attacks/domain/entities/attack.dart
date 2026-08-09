@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../enums/exertion_level.dart';
 import '../enums/head_location.dart';
+import '../enums/medication_effect.dart';
 
 /// A single migraine attack. The three required fields ([intensity],
 /// [location], [medicationName]) mirror the 3-tap log flow; everything else
@@ -19,6 +20,7 @@ class Attack {
     this.triggers = const [],
     this.notes,
     this.exertionLevel,
+    this.medicationEffect,
     DateTime? endedAt,
     this.weather,
   }) : startedAt = startedAt.toUtc(),
@@ -46,6 +48,12 @@ class Attack {
   final List<String> triggers;
   final String? notes;
   final ExertionLevel? exertionLevel;
+
+  /// Whether [medicationName] helped, once the user has said. Null is "not
+  /// answered", which is also every attack where nothing was taken — the
+  /// medication row is what tells the two apart, so nothing here needs a
+  /// fourth state.
+  final MedicationEffect? medicationEffect;
 
   /// When the attack stopped, in UTC. Null means "still going, or never
   /// said" — the two are deliberately one state, because the app cannot tell
@@ -76,6 +84,7 @@ class Attack {
     triggers: triggers,
     notes: notes,
     exertionLevel: exertionLevel,
+    medicationEffect: medicationEffect,
     endedAt: endedAt,
     weather: weather ?? this.weather,
   );

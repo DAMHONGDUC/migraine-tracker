@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/sync/domain/services/attack_payload_codec.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -19,6 +20,7 @@ void main() {
     notes: 'woke up with it',
     exertionLevel: ExertionLevel.moderate,
     endedAt: DateTime.utc(2026, 7, 1, 14, 30),
+    medicationEffect: MedicationEffect.partly,
     weather: WeatherSnapshot(
       capturedAt: DateTime.utc(2026, 7, 1, 8),
       pressureHpa: 1008.2,
@@ -44,6 +46,7 @@ void main() {
     expect(decoded.notes, 'woke up with it');
     expect(decoded.exertionLevel, ExertionLevel.moderate);
     expect(decoded.endedAt, DateTime.utc(2026, 7, 1, 14, 30));
+    expect(decoded.medicationEffect, MedicationEffect.partly);
     expect(decoded.weather, full().weather);
   });
 
@@ -200,6 +203,7 @@ void main() {
           jsonDecode(const AttackPayloadCodec().encode(full()))
               as Map<String, dynamic>;
       old.remove('endedAt');
+      old.remove('medicationEffect');
 
       final Attack decoded = const AttackPayloadCodec().decode(
         jsonEncode(old),
@@ -207,6 +211,7 @@ void main() {
       );
 
       expect(decoded.endedAt, isNull);
+      expect(decoded.medicationEffect, isNull);
       expect(decoded.intensity, 7);
     });
 

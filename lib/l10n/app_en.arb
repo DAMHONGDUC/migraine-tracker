@@ -510,6 +510,54 @@
   "@reportTypicalDuration": {
     "description": "Doctor report summary row: the median attack duration"
   },
+  "attackDetailMedicationEffect": "Did it help?",
+  "@attackDetailMedicationEffect": {
+    "description": "Field label: whether the medication taken helped"
+  },
+  "medicationEffectHelped": "It helped",
+  "@medicationEffectHelped": {
+    "description": "Medication outcome: the attack stopped or eased a lot"
+  },
+  "medicationEffectPartly": "It helped a little",
+  "@medicationEffectPartly": {
+    "description": "Medication outcome: took the edge off but did not stop it"
+  },
+  "medicationEffectDidNotHelp": "It did not help",
+  "@medicationEffectDidNotHelp": {
+    "description": "Medication outcome: no effect"
+  },
+  "medicationEffectNotRecorded": "Not recorded",
+  "@medicationEffectNotRecorded": {
+    "description": "Value shown when the medication outcome was never answered"
+  },
+  "medicationEffectSheetTitle": "Did the medication help?",
+  "@medicationEffectSheetTitle": {
+    "description": "Title of the sheet recording whether a medication worked"
+  },
+  "medicationDetailEffectiveness": "How well it works",
+  "@medicationDetailEffectiveness": {
+    "description": "Section header on a medication screen, above its outcome tally"
+  },
+  "medicationEffectTally": "Helped {helped} of {total} times",
+  "@medicationEffectTally": {
+    "description": "How often a medication helped, out of the times it was answered",
+    "placeholders": {
+      "helped": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationEffectNoAnswers": "No outcomes recorded yet. Open an attack you took this for and say whether it helped.",
+  "@medicationEffectNoAnswers": {
+    "description": "Shown on a medication screen when no attack has an outcome for it"
+  },
+  "reportColMedicationEffect": "Helped",
+  "@reportColMedicationEffect": {
+    "description": "Doctor report table column: whether the medication helped"
+  },
   "attackDetailWeatherTitle": "Weather at the time",
   "@attackDetailWeatherTitle": {
     "description": "Section header for the attached weather snapshot"

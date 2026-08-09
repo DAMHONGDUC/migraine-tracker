@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../../features/attacks/data/tables/attack_tables.dart';
 import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
 import '../../features/notifications/domain/enums/notification_type.dart';
@@ -40,7 +41,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -138,6 +139,13 @@ class AppDatabase extends _$AppDatabase {
       //   duration in the doctor report the user never gave.
       if (from < 10) {
         await m.addColumn(attacks, attacks.endedAt);
+      }
+      // - v11: whether the medication taken for an attack helped.
+      // - Existing rows get null, which reads as "never answered" — the same
+      //   state as an attack where nothing was taken. Backfilling "helped"
+      //   would invent the very evidence a prescription gets changed on.
+      if (from < 11) {
+        await m.addColumn(attacks, attacks.medicationEffect);
       }
     },
     beforeOpen: (details) async {

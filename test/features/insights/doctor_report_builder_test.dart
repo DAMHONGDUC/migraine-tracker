@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/doctor_report_builder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -20,6 +21,8 @@ DoctorReportStrings strings() => DoctorReportStrings(
   colDate: 'Date',
   colIntensity: 'Intensity',
   colDuration: 'Duration',
+  colMedicationEffect: 'Helped',
+  medicationEffectLabels: {for (final e in MedicationEffect.values) e: e.name},
   colLocation: 'Location',
   colMedication: 'Medication',
   colPressureDelta: 'D24h (hPa)',

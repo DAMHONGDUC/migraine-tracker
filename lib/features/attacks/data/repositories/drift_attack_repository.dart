@@ -7,6 +7,7 @@ import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
+import '../../domain/enums/medication_effect.dart';
 import '../../domain/repositories/attack_repository.dart';
 import 'attack_mapper.dart';
 
@@ -155,6 +156,19 @@ class DriftAttackRepository implements AttackRepository {
       await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
         AttacksCompanion(
           endedAt: Value(endedAt?.toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
+  Future<void> updateMedicationEffect(String id, MedicationEffect? effect) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          medicationEffect: Value(effect),
           updatedAt: Value(DateTime.now().toUtc()),
           revision: Value(await _nextRevision(id)),
         ),

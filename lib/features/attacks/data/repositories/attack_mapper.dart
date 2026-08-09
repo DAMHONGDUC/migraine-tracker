@@ -19,6 +19,7 @@ final class AttackMapper {
     triggers: row.triggers,
     notes: row.notes,
     exertionLevel: row.exertionLevel,
+    medicationEffect: row.medicationEffect,
     endedAt: row.endedAt,
     weather: weather == null ? null : toWeatherDomain(weather),
   );
@@ -49,6 +50,7 @@ final class AttackMapper {
     triggers: Value(attack.triggers),
     notes: Value(attack.notes),
     exertionLevel: Value(attack.exertionLevel),
+    medicationEffect: Value(attack.medicationEffect),
     endedAt: Value(attack.endedAt),
     updatedAt: Value(updatedAt),
     revision: Value(revision),

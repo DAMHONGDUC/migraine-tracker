@@ -97,6 +97,15 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<ExertionLevel?>($AttacksTable.$converterexertionLeveln);
+  @override
+  late final GeneratedColumnWithTypeConverter<MedicationEffect?, String>
+  medicationEffect = GeneratedColumn<String>(
+    'medication_effect',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<MedicationEffect?>($AttacksTable.$convertermedicationEffectn);
   static const VerificationMeta _endedAtMeta = const VerificationMeta(
     'endedAt',
   );
@@ -153,6 +162,7 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    medicationEffect,
     endedAt,
     updatedAt,
     revision,
@@ -286,6 +296,12 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}exertion_level'],
         ),
       ),
+      medicationEffect: $AttacksTable.$convertermedicationEffectn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}medication_effect'],
+        ),
+      ),
       endedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}ended_at'],
@@ -324,6 +340,14 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
   $converterexertionLeveln = JsonTypeConverter2.asNullable(
     $converterexertionLevel,
   );
+  static JsonTypeConverter2<MedicationEffect, String, String>
+  $convertermedicationEffect = const EnumNameConverter<MedicationEffect>(
+    MedicationEffect.values,
+  );
+  static JsonTypeConverter2<MedicationEffect?, String?, String?>
+  $convertermedicationEffectn = JsonTypeConverter2.asNullable(
+    $convertermedicationEffect,
+  );
 }
 
 class AttackRow extends DataClass implements Insertable<AttackRow> {
@@ -338,6 +362,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final List<String> triggers;
   final String? notes;
   final ExertionLevel? exertionLevel;
+
+  /// Whether the medication helped. Null is "never answered", which also
+  /// covers every attack where nothing was taken.
+  final MedicationEffect? medicationEffect;
 
   /// When the attack stopped, UTC. Null is "still going, or never said" —
   /// one state on purpose, since nothing here can tell those apart.
@@ -366,6 +394,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.triggers,
     this.notes,
     this.exertionLevel,
+    this.medicationEffect,
     this.endedAt,
     this.updatedAt,
     required this.revision,
@@ -403,6 +432,11 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel),
       );
     }
+    if (!nullToAbsent || medicationEffect != null) {
+      map['medication_effect'] = Variable<String>(
+        $AttacksTable.$convertermedicationEffectn.toSql(medicationEffect),
+      );
+    }
     if (!nullToAbsent || endedAt != null) {
       map['ended_at'] = Variable<DateTime>(endedAt);
     }
@@ -433,6 +467,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: exertionLevel == null && nullToAbsent
           ? const Value.absent()
           : Value(exertionLevel),
+      medicationEffect: medicationEffect == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicationEffect),
       endedAt: endedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(endedAt),
@@ -465,6 +502,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: $AttacksTable.$converterexertionLeveln.fromJson(
         serializer.fromJson<String?>(json['exertionLevel']),
       ),
+      medicationEffect: $AttacksTable.$convertermedicationEffectn.fromJson(
+        serializer.fromJson<String?>(json['medicationEffect']),
+      ),
       endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       revision: serializer.fromJson<int>(json['revision']),
@@ -488,6 +528,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'exertionLevel': serializer.toJson<String?>(
         $AttacksTable.$converterexertionLeveln.toJson(exertionLevel),
       ),
+      'medicationEffect': serializer.toJson<String?>(
+        $AttacksTable.$convertermedicationEffectn.toJson(medicationEffect),
+      ),
       'endedAt': serializer.toJson<DateTime?>(endedAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'revision': serializer.toJson<int>(revision),
@@ -505,6 +548,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     List<String>? triggers,
     Value<String?> notes = const Value.absent(),
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
+    Value<MedicationEffect?> medicationEffect = const Value.absent(),
     Value<DateTime?> endedAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
     int? revision,
@@ -523,6 +567,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel: exertionLevel.present
         ? exertionLevel.value
         : this.exertionLevel,
+    medicationEffect: medicationEffect.present
+        ? medicationEffect.value
+        : this.medicationEffect,
     endedAt: endedAt.present ? endedAt.value : this.endedAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
     revision: revision ?? this.revision,
@@ -545,6 +592,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: data.exertionLevel.present
           ? data.exertionLevel.value
           : this.exertionLevel,
+      medicationEffect: data.medicationEffect.present
+          ? data.medicationEffect.value
+          : this.medicationEffect,
       endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       revision: data.revision.present ? data.revision.value : this.revision,
@@ -566,6 +616,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('medicationEffect: $medicationEffect, ')
           ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
@@ -585,6 +636,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    medicationEffect,
     endedAt,
     updatedAt,
     revision,
@@ -603,6 +655,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.triggers == this.triggers &&
           other.notes == this.notes &&
           other.exertionLevel == this.exertionLevel &&
+          other.medicationEffect == this.medicationEffect &&
           other.endedAt == this.endedAt &&
           other.updatedAt == this.updatedAt &&
           other.revision == this.revision &&
@@ -619,6 +672,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<List<String>> triggers;
   final Value<String?> notes;
   final Value<ExertionLevel?> exertionLevel;
+  final Value<MedicationEffect?> medicationEffect;
   final Value<DateTime?> endedAt;
   final Value<DateTime?> updatedAt;
   final Value<int> revision;
@@ -634,6 +688,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.medicationEffect = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
@@ -650,6 +705,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.medicationEffect = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
@@ -669,6 +725,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? triggers,
     Expression<String>? notes,
     Expression<String>? exertionLevel,
+    Expression<String>? medicationEffect,
     Expression<DateTime>? endedAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? revision,
@@ -685,6 +742,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (triggers != null) 'triggers': triggers,
       if (notes != null) 'notes': notes,
       if (exertionLevel != null) 'exertion_level': exertionLevel,
+      if (medicationEffect != null) 'medication_effect': medicationEffect,
       if (endedAt != null) 'ended_at': endedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (revision != null) 'revision': revision,
@@ -703,6 +761,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<List<String>>? triggers,
     Value<String?>? notes,
     Value<ExertionLevel?>? exertionLevel,
+    Value<MedicationEffect?>? medicationEffect,
     Value<DateTime?>? endedAt,
     Value<DateTime?>? updatedAt,
     Value<int>? revision,
@@ -719,6 +778,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
       exertionLevel: exertionLevel ?? this.exertionLevel,
+      medicationEffect: medicationEffect ?? this.medicationEffect,
       endedAt: endedAt ?? this.endedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       revision: revision ?? this.revision,
@@ -765,6 +825,11 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel.value),
       );
     }
+    if (medicationEffect.present) {
+      map['medication_effect'] = Variable<String>(
+        $AttacksTable.$convertermedicationEffectn.toSql(medicationEffect.value),
+      );
+    }
     if (endedAt.present) {
       map['ended_at'] = Variable<DateTime>(endedAt.value);
     }
@@ -795,6 +860,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('medicationEffect: $medicationEffect, ')
           ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
@@ -3641,6 +3707,7 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<MedicationEffect?> medicationEffect,
       Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
@@ -3658,6 +3725,7 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<MedicationEffect?> medicationEffect,
       Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
@@ -3745,6 +3813,12 @@ class $$AttacksTableFilterComposer
   ColumnWithTypeConverterFilters<ExertionLevel?, ExertionLevel, String>
   get exertionLevel => $composableBuilder(
     column: $table.exertionLevel,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<MedicationEffect?, MedicationEffect, String>
+  get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -3848,6 +3922,11 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get endedAt => $composableBuilder(
     column: $table.endedAt,
     builder: (column) => ColumnOrderings(column),
@@ -3909,6 +3988,12 @@ class $$AttacksTableAnnotationComposer
         column: $table.exertionLevel,
         builder: (column) => column,
       );
+
+  GeneratedColumnWithTypeConverter<MedicationEffect?, String>
+  get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get endedAt =>
       $composableBuilder(column: $table.endedAt, builder: (column) => column);
@@ -3987,6 +4072,8 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<MedicationEffect?> medicationEffect =
+                    const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
@@ -4002,6 +4089,7 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                medicationEffect: medicationEffect,
                 endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
@@ -4019,6 +4107,8 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<MedicationEffect?> medicationEffect =
+                    const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
@@ -4034,6 +4124,7 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                medicationEffect: medicationEffect,
                 endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
