@@ -31,49 +31,37 @@ class QuickAccessSection extends ConsumerWidget {
       context.goNamed(AppRoutes.medications.name);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: SdSpacingConstant.w4),
-          child: Text(
-            l10n.dashboardQuickAccess,
-            style: AppTextStyle.titleSmall.secondary,
+    // Matches all three chips to the tallest — only "Add medication" wraps,
+    // and a row of unequal chips reads as a mistake.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _QuickAccessCard(
+              icon: Icons.history,
+              label: l10n.navHistory,
+              onTap: () => openHistory(HistoryViewMode.list),
+            ),
           ),
-        ),
-        SizedBox(height: SdSpacingConstant.h12),
-        // Matches all three cards to the tallest ("Add medication" wraps to two lines).
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.history,
-                  label: l10n.navHistory,
-                  onTap: () => openHistory(HistoryViewMode.list),
-                ),
-              ),
-              SizedBox(width: SdSpacingConstant.w12),
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.bar_chart,
-                  label: l10n.dashboardChartShortcut,
-                  onTap: () => openHistory(HistoryViewMode.chart),
-                ),
-              ),
-              SizedBox(width: SdSpacingConstant.w12),
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.add_circle_outline,
-                  label: l10n.dashboardAddMedication,
-                  onTap: addMedication,
-                ),
-              ),
-            ],
+          SizedBox(width: SdSpacingConstant.w12),
+          Expanded(
+            child: _QuickAccessCard(
+              icon: Icons.bar_chart,
+              label: l10n.dashboardChartShortcut,
+              onTap: () => openHistory(HistoryViewMode.chart),
+            ),
           ),
-        ),
-      ],
+          SizedBox(width: SdSpacingConstant.w12),
+          Expanded(
+            child: _QuickAccessCard(
+              icon: Icons.add_circle_outline,
+              label: l10n.dashboardAddMedication,
+              onTap: addMedication,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -98,21 +86,24 @@ class _QuickAccessCard extends StatelessWidget {
           vertical: SdSpacingConstant.h12,
           horizontal: SdSpacingConstant.w8,
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r24,
+              size: SdSpacingConstant.r20,
               color: context.colorScheme.primary,
             ),
-            SizedBox(height: SdSpacingConstant.h6),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.labelSmall,
+            SizedBox(width: SdSpacingConstant.w6),
+            // Two lines, because "Add medication" does not fit beside a glyph
+            // in a third of the screen — and Vietnamese runs longer still.
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.labelSmall,
+              ),
             ),
           ],
         ),

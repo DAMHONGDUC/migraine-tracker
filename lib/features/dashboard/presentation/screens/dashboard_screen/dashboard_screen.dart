@@ -13,11 +13,10 @@ import '../../../../premium/providers.dart';
 import '../../widgets/attack_limit_banner.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
-import '../../widgets/dashboard_severity_card.dart';
+import '../../widgets/dashboard_summary_group.dart';
 import '../../widgets/next_reminder_banner.dart';
 import '../../widgets/premium_countdown_banner.dart';
 import '../../widgets/quick_access_section.dart';
-import '../../widgets/week_summary_card.dart';
 
 /// The app's home tab (replaces the old Log tab). A calm, scrollable overview,
 /// top to bottom: premium nudge (free users), the log call-to-action, the next
@@ -48,8 +47,7 @@ class DashboardScreen extends ConsumerWidget {
       const QuickAccessSection(),
       if (showPremium) const PremiumCountdownBanner(),
       if (nextReminder != null) const NextReminderBanner(),
-      if (hasAttacks) const WeekSummaryCard(),
-      if (hasAttacks) const DashboardSeverityCard(),
+      if (hasAttacks) const DashboardSummaryGroup(),
       const DashboardExploreSection(),
     ];
 

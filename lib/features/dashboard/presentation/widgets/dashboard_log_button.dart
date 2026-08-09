@@ -68,34 +68,22 @@ class DashboardLogButton extends ConsumerWidget {
             ),
           ],
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SdIconV2(
-                  icon: Icons.add_rounded,
-                  size: SdSpacingConstant.r28,
+            SdIconV2(
+              icon: Icons.add_rounded,
+              size: SdSpacingConstant.r28,
+              color: AppColors.onPrimary,
+            ),
+            SizedBox(width: SdSpacingConstant.w12),
+            Flexible(
+              child: Text(
+                l10n.dashboardLogButton,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.headlineSmall.w600.copyWith(
                   color: AppColors.onPrimary,
                 ),
-                SizedBox(width: SdSpacingConstant.w12),
-                Flexible(
-                  child: Text(
-                    l10n.dashboardLogButton,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.headlineSmall.w600.copyWith(
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: SdSpacingConstant.h6),
-            Text(
-              l10n.dashboardLogButtonSubtitle,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.bodySmall.copyWith(
-                color: AppColors.onPrimary.withValues(alpha: 0.75),
               ),
             ),
           ],

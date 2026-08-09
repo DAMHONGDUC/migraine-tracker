@@ -1851,10 +1851,6 @@
   "@dashboardLogButton": {
     "description": "Big primary call-to-action on the dashboard that opens the 3-tap log flow"
   },
-  "dashboardLogButtonSubtitle": "Track a migraine in 3 taps",
-  "@dashboardLogButtonSubtitle": {
-    "description": "Supporting line under the dashboard log button"
-  },
   "dashboardThisWeek": "This week",
   "@dashboardThisWeek": {
     "description": "Title of the weekly summary card on the dashboard"
@@ -1898,10 +1894,6 @@
         "type": "String"
       }
     }
-  },
-  "dashboardQuickAccess": "Quick access",
-  "@dashboardQuickAccess": {
-    "description": "Section header above the dashboard quick-access shortcuts"
   },
   "dashboardPremiumTitle": "Unlock Premium",
   "@dashboardPremiumTitle": {

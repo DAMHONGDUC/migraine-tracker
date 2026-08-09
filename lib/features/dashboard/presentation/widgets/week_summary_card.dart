@@ -33,9 +33,10 @@ class WeekSummaryCard extends ConsumerWidget {
     }
 
     return SdCardV2(
+      surface: SdCardSurfaceV2.elevated,
       onTap: () => openHistory(HistoryViewMode.calendar),
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w20),
+        padding: EdgeInsets.all(SdSpacingConstant.w16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
