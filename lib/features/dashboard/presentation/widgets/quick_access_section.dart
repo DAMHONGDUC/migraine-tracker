@@ -48,25 +48,30 @@ class QuickAccessSection extends ConsumerWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
-      child: Row(
-        spacing: SdContentPaddingV2.listItemGap,
-        children: [
-          _QuickAccessCard(
-            icon: Icons.history,
-            label: l10n.navHistory,
-            onTap: () => openHistory(HistoryViewMode.list),
-          ),
-          _QuickAccessCard(
-            icon: Icons.bar_chart,
-            label: l10n.dashboardChartShortcut,
-            onTap: () => openHistory(HistoryViewMode.chart),
-          ),
-          _QuickAccessCard(
-            icon: Icons.add_circle_outline,
-            label: l10n.dashboardAddMedication,
-            onTap: addMedication,
-          ),
-        ],
+      // Stretch is what makes every chip as tall as the tallest — without it
+      // the two one-line chips come out shorter than the wrapping one.
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: SdContentPaddingV2.listItemGap,
+          children: [
+            _QuickAccessCard(
+              icon: Icons.history,
+              label: l10n.navHistory,
+              onTap: () => openHistory(HistoryViewMode.list),
+            ),
+            _QuickAccessCard(
+              icon: Icons.bar_chart,
+              label: l10n.dashboardChartShortcut,
+              onTap: () => openHistory(HistoryViewMode.chart),
+            ),
+            _QuickAccessCard(
+              icon: Icons.add_circle_outline,
+              label: l10n.dashboardAddMedication,
+              onTap: addMedication,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -83,31 +88,40 @@ class _QuickAccessCard extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
+  /// Every chip is this wide, whatever its label — the row is a set of three
+  /// of the same thing, not three differently sized objects. Wide enough that
+  /// the longest label in either locale ("Add medication", "Thêm thuốc") fits
+  /// in two lines beside the glyph without ellipsing.
+  static double get width => SdSpacingConstant.w160;
+
   @override
   Widget build(BuildContext context) {
-    return SdCardV2(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: SdSpacingConstant.h12,
-          horizontal: SdSpacingConstant.w16,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Plain text colour, not the accent: three lavender glyphs in a
-            // row under the lavender log button was two accents arguing.
-            SdIconV2(
-              icon: icon,
-              size: SdSpacingConstant.r20,
-              color: AppColors.textPrimary,
-            ),
-            SizedBox(width: SdSpacingConstant.w6),
-            // One line, never wrapping: a chip sized to its content is what
-            // lets the row overflow and scroll, and a wrapped label would make
-            // one chip taller than its neighbours.
-            Text(label, maxLines: 1, style: AppTextStyle.labelLarge),
-          ],
+    return SizedBox(
+      width: width,
+      child: SdCardV2(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: SdSpacingConstant.h12,
+            horizontal: SdSpacingConstant.w16,
+          ),
+          child: Row(
+            children: [
+              // Plain text colour, not the accent: three lavender glyphs in a
+              // row under the lavender log button was two accents arguing.
+              SdIconV2(
+                icon: icon,
+                size: SdSpacingConstant.r20,
+                color: AppColors.textPrimary,
+              ),
+              SizedBox(width: SdSpacingConstant.w6),
+              // Two lines rather than an ellipsis: a shortcut whose name is
+              // cut off is one the user cannot identify before tapping it.
+              Expanded(
+                child: Text(label, maxLines: 2, style: AppTextStyle.labelLarge),
+              ),
+            ],
+          ),
         ),
       ),
     );
