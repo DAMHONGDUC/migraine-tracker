@@ -11,10 +11,23 @@ import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
 import '../../../medications/providers.dart';
 
-/// Three shortcuts on one row: History (list), the History chart, and "Add
-/// medication" — which opens the Medications tab AND kicks off the add dialog
-/// via [medicationAddRequestProvider]. History cards set the view mode before
-/// switching branch so they land on the right view.
+/// Shortcuts on one horizontally scrolling row: History (list), the History
+/// chart, and "Add medication" — which opens the Medications tab AND kicks off
+/// the add dialog via [medicationAddRequestProvider]. History cards set the
+/// view mode before switching branch so they land on the right view.
+///
+/// **The row is full-bleed and this is what tells the user it scrolls.** It
+/// carries the screen gutter as its own scroll padding, so the first chip
+/// still lines up with everything above it — but an overflowing chip runs to
+/// the physical edge of the screen and is cut by it, which reads as "there is
+/// more that way" the way a chip stopping short of a margin never does. No
+/// fade, no arrows, no dots: on a near-black background an edge fade is
+/// invisible, and the other two are chrome announcing a gesture the cut edge
+/// already announces.
+///
+/// It degrades on its own. `AppScrollBehavior` refuses to scroll content that
+/// fits, so on a wide screen the chips simply sit there — no bounce, and no
+/// affordance promising something that is not there.
 class QuickAccessSection extends ConsumerWidget {
   const QuickAccessSection({super.key});
 
@@ -32,34 +45,26 @@ class QuickAccessSection extends ConsumerWidget {
       context.goNamed(AppRoutes.medications.name);
     }
 
-    // Matches all three chips to the tallest — only "Add medication" wraps,
-    // and a row of unequal chips reads as a mistake.
-    return IntrinsicHeight(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: SdContentPaddingV2.listItemGap,
         children: [
-          Expanded(
-            child: _QuickAccessCard(
-              icon: Icons.history,
-              label: l10n.navHistory,
-              onTap: () => openHistory(HistoryViewMode.list),
-            ),
+          _QuickAccessCard(
+            icon: Icons.history,
+            label: l10n.navHistory,
+            onTap: () => openHistory(HistoryViewMode.list),
           ),
-          SizedBox(width: SdSpacingConstant.w12),
-          Expanded(
-            child: _QuickAccessCard(
-              icon: Icons.bar_chart,
-              label: l10n.dashboardChartShortcut,
-              onTap: () => openHistory(HistoryViewMode.chart),
-            ),
+          _QuickAccessCard(
+            icon: Icons.bar_chart,
+            label: l10n.dashboardChartShortcut,
+            onTap: () => openHistory(HistoryViewMode.chart),
           ),
-          SizedBox(width: SdSpacingConstant.w12),
-          Expanded(
-            child: _QuickAccessCard(
-              icon: Icons.add_circle_outline,
-              label: l10n.dashboardAddMedication,
-              onTap: addMedication,
-            ),
+          _QuickAccessCard(
+            icon: Icons.add_circle_outline,
+            label: l10n.dashboardAddMedication,
+            onTap: addMedication,
           ),
         ],
       ),
@@ -85,10 +90,10 @@ class _QuickAccessCard extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: SdSpacingConstant.h12,
-          horizontal: SdSpacingConstant.w8,
+          horizontal: SdSpacingConstant.w16,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Plain text colour, not the accent: three lavender glyphs in a
             // row under the lavender log button was two accents arguing.
@@ -98,16 +103,10 @@ class _QuickAccessCard extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
             SizedBox(width: SdSpacingConstant.w6),
-            // Two lines, because "Add medication" does not fit beside a glyph
-            // in a third of the screen — and Vietnamese runs longer still.
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelLarge,
-              ),
-            ),
+            // One line, never wrapping: a chip sized to its content is what
+            // lets the row overflow and scroll, and a wrapped label would make
+            // one chip taller than its neighbours.
+            Text(label, maxLines: 1, style: AppTextStyle.labelLarge),
           ],
         ),
       ),
