@@ -1919,29 +1919,29 @@
   "@dashboardExplore": {
     "description": "Section header above the dashboard feature banners"
   },
-  "dashboardReminderTitle": "Medication reminders",
+  "dashboardReminderTitle": "Reminders",
   "@dashboardReminderTitle": {
-    "description": "Title of the dashboard banner promoting medication reminders"
+    "description": "Title of the dashboard Explore card for medication reminders. These cards sit two to a row, so a title is one or two words — a longer one wraps and pushes the card taller than the one beside it"
   },
-  "dashboardReminderBody": "Never miss a dose — set reminders for your medications.",
+  "dashboardReminderBody": "Never miss a dose.",
   "@dashboardReminderBody": {
-    "description": "Body of the dashboard medication-reminders banner"
+    "description": "Body of the dashboard Explore card for medication reminders. Two lines at most, so keep it to about four words"
   },
-  "dashboardInsightsBannerTitle": "Pressure & pain insights",
+  "dashboardInsightsBannerTitle": "Insights",
   "@dashboardInsightsBannerTitle": {
-    "description": "Title of the dashboard banner linking to Insights"
+    "description": "Title of the dashboard Explore card linking to Insights. One or two words — see dashboardReminderTitle"
   },
-  "dashboardInsightsBannerBody": "See how weather pressure lines up with your migraines.",
+  "dashboardInsightsBannerBody": "Pressure and your pain.",
   "@dashboardInsightsBannerBody": {
-    "description": "Body of the dashboard Insights banner"
+    "description": "Body of the dashboard Explore card for Insights. About four words"
   },
-  "dashboardExportTitle": "Export your data",
+  "dashboardExportTitle": "Export",
   "@dashboardExportTitle": {
-    "description": "Title of the dashboard banner linking to data export in Settings"
+    "description": "Title of the dashboard Explore card linking to data export. One or two words — see dashboardReminderTitle"
   },
-  "dashboardExportBody": "Share a JSON, CSV, or a PDF report for your doctor.",
+  "dashboardExportBody": "JSON, CSV or a PDF report.",
   "@dashboardExportBody": {
-    "description": "Body of the dashboard export banner"
+    "description": "Body of the dashboard Explore card for data export. About four words"
   },
   "dashboardNextReminderBody": "{name} at {time} · {remaining}",
   "@dashboardNextReminderBody": {
