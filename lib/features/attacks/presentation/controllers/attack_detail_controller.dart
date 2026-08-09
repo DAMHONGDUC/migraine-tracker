@@ -57,6 +57,22 @@ class AttackDetailController {
     }
   }
 
+  /// Records (or takes back) when the attack stopped.
+  Future<void> updateEndedAt(String id, DateTime? endedAt) async {
+    AppLogger.action('Edit attack end', id);
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref.read(attackRepositoryProvider).updateEndedAt(id, endedAt);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack end failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
   Future<void> delete(String id) async {
     AppLogger.action('Delete attack', id);
     AppAnalytics.logAttackDeleted();

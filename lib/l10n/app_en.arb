@@ -456,6 +456,60 @@
   "@attackDetailMedication": {
     "description": "Field label: medication taken"
   },
+  "attackDetailDuration": "Duration",
+  "@attackDetailDuration": {
+    "description": "Field label: how long the attack lasted"
+  },
+  "attackDurationNotRecorded": "Not recorded",
+  "@attackDurationNotRecorded": {
+    "description": "Value shown when no end time was ever given for an attack"
+  },
+  "attackDurationSheetTitle": "How long did it last?",
+  "@attackDurationSheetTitle": {
+    "description": "Title of the sheet that records how long an attack lasted"
+  },
+  "attackDurationEndedNow": "It just ended",
+  "@attackDurationEndedNow": {
+    "description": "Option that ends the attack at the current time"
+  },
+  "attackDurationHm": "{hours}h {minutes}m",
+  "@attackDurationHm": {
+    "description": "A duration in whole hours and minutes",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "attackDurationH": "{hours}h",
+  "@attackDurationH": {
+    "description": "A duration in whole hours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "attackDurationM": "{minutes}m",
+  "@attackDurationM": {
+    "description": "A duration under an hour, in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "reportColDuration": "Duration",
+  "@reportColDuration": {
+    "description": "Doctor report table column: how long the attack lasted"
+  },
+  "reportTypicalDuration": "Typical duration",
+  "@reportTypicalDuration": {
+    "description": "Doctor report summary row: the median attack duration"
+  },
   "attackDetailWeatherTitle": "Weather at the time",
   "@attackDetailWeatherTitle": {
     "description": "Section header for the attached weather snapshot"

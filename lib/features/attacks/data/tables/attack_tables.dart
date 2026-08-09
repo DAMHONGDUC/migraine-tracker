@@ -23,6 +23,10 @@ class Attacks extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get exertionLevel => textEnum<ExertionLevel>().nullable()();
 
+  /// When the attack stopped, UTC. Null is "still going, or never said" —
+  /// one state on purpose, since nothing here can tell those apart.
+  DateTimeColumn get endedAt => dateTime().nullable()();
+
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall
   /// back to [startedAt] — the best "last modified" we actually have.

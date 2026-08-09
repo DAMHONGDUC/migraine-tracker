@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../entities/correlation_result.dart';
@@ -21,10 +22,12 @@ class DoctorReportStrings {
     required this.totalAttacks,
     required this.avgIntensity,
     required this.commonLocation,
+    required this.typicalDuration,
     required this.attacksDuringDrops,
     required this.tableTitle,
     required this.colDate,
     required this.colIntensity,
+    required this.colDuration,
     required this.colLocation,
     required this.colMedication,
     required this.colPressureDelta,
@@ -39,10 +42,12 @@ class DoctorReportStrings {
   final String totalAttacks;
   final String avgIntensity;
   final String commonLocation;
+  final String typicalDuration;
   final String attacksDuringDrops;
   final String tableTitle;
   final String colDate;
   final String colIntensity;
+  final String colDuration;
   final String colLocation;
   final String colMedication;
   final String colPressureDelta;
@@ -131,6 +136,14 @@ class DoctorReportBuilder {
         ],
       if (attacks.isNotEmpty)
         [strings.commonLocation, _modalLocation(attacks, strings)],
+      // Only the attacks the user actually timed. Median, so one 72-hour
+      // outlier cannot move the figure a doctor reads as typical.
+      if (DateTimeUtils.median(<Duration>[
+            for (final Attack a in attacks)
+              if (a.duration case final Duration d) d,
+          ])
+          case final Duration typical)
+        [strings.typicalDuration, _durationLabel(typical)],
       // Mature figures only: a share still settling has no business in a
       // document a doctor reads as settled.
       if (correlation case CorrelationInsight(
@@ -166,6 +179,16 @@ class DoctorReportBuilder {
     );
   }
 
+  /// Locale-free on purpose: `DoctorReportStrings` carries no plural forms,
+  /// and "6h 30m" reads the same in both locales the app ships.
+  String _durationLabel(Duration duration) {
+    final (int hours, int minutes) = DateTimeUtils.splitHm(duration);
+
+    if (hours > 0 && minutes > 0) return '${hours}h ${minutes}m';
+    if (hours > 0) return '${hours}h';
+    return '${minutes}m';
+  }
+
   String _modalLocation(List<Attack> attacks, DoctorReportStrings strings) {
     final counts = <HeadLocation, int>{};
     for (final a in attacks) {
@@ -186,6 +209,7 @@ class DoctorReportBuilder {
       headers: [
         strings.colDate,
         strings.colIntensity,
+        strings.colDuration,
         strings.colLocation,
         strings.colMedication,
         strings.colPressureDelta,
@@ -195,6 +219,7 @@ class DoctorReportBuilder {
           [
             dateFormat.format(a.startedAt.toLocal()),
             '${a.intensity}',
+            a.duration == null ? '-' : _durationLabel(a.duration!),
             strings.locationLabels[a.location] ?? a.location.name,
             a.medicationName ?? '-',
             a.weather?.pressureDelta24hHpa.toStringAsFixed(1) ?? '-',

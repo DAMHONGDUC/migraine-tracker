@@ -40,6 +40,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       'triggers': attack.triggers,
       'notes': attack.notes,
       'exertionLevel': attack.exertionLevel?.name,
+      'endedAt': attack.endedAt?.toUtc().toIso8601String(),
       'weather': weather == null
           ? null
           : <String, dynamic>{
@@ -88,6 +89,9 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
               ExertionLevel.values,
               'exertionLevel',
             ),
+      // Optional and additive, so schemaVersion stays 1: a build that
+      // predates this reads the payload and simply drops the field.
+      endedAt: _dateOrNull(decoded['endedAt']),
       weather: weather == null
           ? null
           : _weather(weather as Map<String, dynamic>),
@@ -119,6 +123,9 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
     if (value is! num) throw FormatException('$field is not a number');
     return value.toDouble();
   }
+
+  static DateTime? _dateOrNull(Object? value) =>
+      value is String ? DateTime.tryParse(value)?.toUtc() : null;
 
   static double? _doubleOrNull(Object? value) =>
       value is num ? value.toDouble() : null;

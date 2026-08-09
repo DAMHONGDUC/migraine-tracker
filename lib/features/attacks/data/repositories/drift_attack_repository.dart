@@ -150,6 +150,19 @@ class DriftAttackRepository implements AttackRepository {
   }
 
   @override
+  Future<void> updateEndedAt(String id, DateTime? endedAt) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          endedAt: Value(endedAt?.toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
   Future<void> updateCore(
     String id, {
     required int intensity,

@@ -45,5 +45,32 @@ final class DateTimeUtils {
   static DateTime timeAt(DateTime from, double hours) =>
       from.add(Duration(minutes: (hours * 60).round()));
 
+  /// A duration split into whole hours and the leftover minutes, so a call
+  /// site can pick the ARB key that fits ("3h 20m", "3h", "20m") without
+  /// doing the `% 60` itself. Days stay folded into the hours: a 3-day attack
+  /// reads as 72h, which is the unit the 4–72h migraine band is stated in.
+  static (int hours, int minutes) splitHm(Duration duration) => (
+    duration.inHours,
+    duration.inMinutes % 60,
+  );
+
+  /// The middle duration of [durations], or null when there are none.
+  ///
+  /// Median, never a mean: one 72-hour attack among a dozen short ones would
+  /// drag an average somewhere no attack actually was, and the report states
+  /// this as what a typical attack looks like.
+  static Duration? median(List<Duration> durations) {
+    if (durations.isEmpty) return null;
+    final List<Duration> sorted = List<Duration>.of(durations)..sort();
+    final int middle = sorted.length ~/ 2;
+
+    if (sorted.length.isOdd) return sorted[middle];
+    return Duration(
+      microseconds:
+          (sorted[middle - 1].inMicroseconds + sorted[middle].inMicroseconds) ~/
+          2,
+    );
+  }
+
   static String _two(int value) => value.toString().padLeft(2, '0');
 }

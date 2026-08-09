@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -131,6 +131,13 @@ class AppDatabase extends _$AppDatabase {
       if (from < 9) {
         await customStatement('DROP TABLE IF EXISTS app_notifications');
         await m.createTable(appNotifications);
+      }
+      // - v10: how long an attack lasted, recorded after the fact.
+      // - Existing rows get null, which reads as "never said" — the same
+      //   state as an attack still running. Inventing an end would put a
+      //   duration in the doctor report the user never gave.
+      if (from < 10) {
+        await m.addColumn(attacks, attacks.endedAt);
       }
     },
     beforeOpen: (details) async {

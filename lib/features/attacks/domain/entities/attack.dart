@@ -19,11 +19,17 @@ class Attack {
     this.triggers = const [],
     this.notes,
     this.exertionLevel,
+    DateTime? endedAt,
     this.weather,
   }) : startedAt = startedAt.toUtc(),
+       endedAt = endedAt?.toUtc(),
        assert(
          intensity >= 1 && intensity <= 10,
          'intensity must be within 1..10',
+       ),
+       assert(
+         endedAt == null || !endedAt.toUtc().isBefore(startedAt.toUtc()),
+         'an attack cannot end before it started',
        );
 
   final String id;
@@ -40,7 +46,25 @@ class Attack {
   final List<String> triggers;
   final String? notes;
   final ExertionLevel? exertionLevel;
+
+  /// When the attack stopped, in UTC. Null means "still going, or never
+  /// said" — the two are deliberately one state, because the app cannot tell
+  /// them apart and guessing either way would put a number in the doctor
+  /// report that the user never gave.
+  ///
+  /// Never asked during the log flow: at the moment an attack is logged
+  /// nobody knows how long it will last, and the three taps are sacred
+  /// (hard rule 5). It is recorded afterwards, from the detail screen.
+  final DateTime? endedAt;
+
   final WeatherSnapshot? weather;
+
+  /// How long the attack lasted, or null while [endedAt] is unset.
+  ///
+  /// The 4–72h band is what separates a migraine from a tension headache, so
+  /// this is the first thing a neurologist asks and the report could not
+  /// answer before.
+  Duration? get duration => endedAt?.difference(startedAt);
 
   Attack copyWith({WeatherSnapshot? weather}) => Attack(
     id: id,
@@ -52,6 +76,7 @@ class Attack {
     triggers: triggers,
     notes: notes,
     exertionLevel: exertionLevel,
+    endedAt: endedAt,
     weather: weather ?? this.weather,
   );
 }

@@ -44,6 +44,11 @@ abstract interface class AttackRepository {
   /// the details sheet blank an answer that sheet never showed.
   Future<void> updateExertion(String id, ExertionLevel? exertionLevel);
 
+  /// When the attack stopped, or null to take the answer back. Its own method
+  /// for the same reason [updateExertion] is: it is never shown by the details
+  /// sheet, so a save from there must not be able to blank it.
+  Future<void> updateEndedAt(String id, DateTime? endedAt);
+
   /// Corrects the core fields of an already-logged attack (detail screen).
   /// The weather snapshot is untouched — it belongs to [startedAt].
   Future<void> updateCore(

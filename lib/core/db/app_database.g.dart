@@ -97,6 +97,17 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<ExertionLevel?>($AttacksTable.$converterexertionLeveln);
+  static const VerificationMeta _endedAtMeta = const VerificationMeta(
+    'endedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endedAt = GeneratedColumn<DateTime>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -142,6 +153,7 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    endedAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -192,6 +204,12 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('ended_at')) {
+      context.handle(
+        _endedAtMeta,
+        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
       );
     }
     if (data.containsKey('updated_at')) {
@@ -268,6 +286,10 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}exertion_level'],
         ),
       ),
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}ended_at'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -317,6 +339,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final String? notes;
   final ExertionLevel? exertionLevel;
 
+  /// When the attack stopped, UTC. Null is "still going, or never said" —
+  /// one state on purpose, since nothing here can tell those apart.
+  final DateTime? endedAt;
+
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall
   /// back to [startedAt] — the best "last modified" we actually have.
@@ -340,6 +366,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.triggers,
     this.notes,
     this.exertionLevel,
+    this.endedAt,
     this.updatedAt,
     required this.revision,
     this.syncedRevision,
@@ -376,6 +403,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel),
       );
     }
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<DateTime>(endedAt);
+    }
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
@@ -403,6 +433,9 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: exertionLevel == null && nullToAbsent
           ? const Value.absent()
           : Value(exertionLevel),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
@@ -432,6 +465,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: $AttacksTable.$converterexertionLeveln.fromJson(
         serializer.fromJson<String?>(json['exertionLevel']),
       ),
+      endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       revision: serializer.fromJson<int>(json['revision']),
       syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
@@ -454,6 +488,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'exertionLevel': serializer.toJson<String?>(
         $AttacksTable.$converterexertionLeveln.toJson(exertionLevel),
       ),
+      'endedAt': serializer.toJson<DateTime?>(endedAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'revision': serializer.toJson<int>(revision),
       'syncedRevision': serializer.toJson<int?>(syncedRevision),
@@ -470,6 +505,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     List<String>? triggers,
     Value<String?> notes = const Value.absent(),
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
+    Value<DateTime?> endedAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
     int? revision,
     Value<int?> syncedRevision = const Value.absent(),
@@ -487,6 +523,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel: exertionLevel.present
         ? exertionLevel.value
         : this.exertionLevel,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
     revision: revision ?? this.revision,
     syncedRevision: syncedRevision.present
@@ -508,6 +545,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: data.exertionLevel.present
           ? data.exertionLevel.value
           : this.exertionLevel,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       revision: data.revision.present ? data.revision.value : this.revision,
       syncedRevision: data.syncedRevision.present
@@ -528,6 +566,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision')
@@ -546,6 +585,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    endedAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -563,6 +603,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.triggers == this.triggers &&
           other.notes == this.notes &&
           other.exertionLevel == this.exertionLevel &&
+          other.endedAt == this.endedAt &&
           other.updatedAt == this.updatedAt &&
           other.revision == this.revision &&
           other.syncedRevision == this.syncedRevision);
@@ -578,6 +619,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<List<String>> triggers;
   final Value<String?> notes;
   final Value<ExertionLevel?> exertionLevel;
+  final Value<DateTime?> endedAt;
   final Value<DateTime?> updatedAt;
   final Value<int> revision;
   final Value<int?> syncedRevision;
@@ -592,6 +634,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -607,6 +650,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -625,6 +669,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? triggers,
     Expression<String>? notes,
     Expression<String>? exertionLevel,
+    Expression<DateTime>? endedAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? revision,
     Expression<int>? syncedRevision,
@@ -640,6 +685,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (triggers != null) 'triggers': triggers,
       if (notes != null) 'notes': notes,
       if (exertionLevel != null) 'exertion_level': exertionLevel,
+      if (endedAt != null) 'ended_at': endedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (revision != null) 'revision': revision,
       if (syncedRevision != null) 'synced_revision': syncedRevision,
@@ -657,6 +703,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<List<String>>? triggers,
     Value<String?>? notes,
     Value<ExertionLevel?>? exertionLevel,
+    Value<DateTime?>? endedAt,
     Value<DateTime?>? updatedAt,
     Value<int>? revision,
     Value<int?>? syncedRevision,
@@ -672,6 +719,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
       exertionLevel: exertionLevel ?? this.exertionLevel,
+      endedAt: endedAt ?? this.endedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       revision: revision ?? this.revision,
       syncedRevision: syncedRevision ?? this.syncedRevision,
@@ -717,6 +765,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel.value),
       );
     }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<DateTime>(endedAt.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -744,6 +795,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision, ')
@@ -3589,6 +3641,7 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -3605,6 +3658,7 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -3692,6 +3746,11 @@ class $$AttacksTableFilterComposer
   get exertionLevel => $composableBuilder(
     column: $table.exertionLevel,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
@@ -3789,6 +3848,11 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -3845,6 +3909,9 @@ class $$AttacksTableAnnotationComposer
         column: $table.exertionLevel,
         builder: (column) => column,
       );
+
+  GeneratedColumn<DateTime> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -3920,6 +3987,7 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -3934,6 +4002,7 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
@@ -3950,6 +4019,7 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -3964,6 +4034,7 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
