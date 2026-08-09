@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
@@ -89,10 +90,12 @@ class _QuickAccessCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Plain text colour, not the accent: three lavender glyphs in a
+            // row under the lavender log button was two accents arguing.
             SdIconV2(
               icon: icon,
               size: SdSpacingConstant.r20,
-              color: context.colorScheme.primary,
+              color: AppColors.textPrimary,
             ),
             SizedBox(width: SdSpacingConstant.w6),
             // Two lines, because "Add medication" does not fit beside a glyph
@@ -102,7 +105,7 @@ class _QuickAccessCard extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelSmall,
+                style: AppTextStyle.labelLarge,
               ),
             ),
           ],

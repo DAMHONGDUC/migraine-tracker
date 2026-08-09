@@ -1943,10 +1943,6 @@
   "@dashboardExportBody": {
     "description": "Body of the dashboard export banner"
   },
-  "dashboardNextReminderTitle": "Next reminder",
-  "@dashboardNextReminderTitle": {
-    "description": "Title of the dashboard banner showing the soonest medication reminder"
-  },
   "dashboardNextReminderBody": "{name} at {time} · {remaining}",
   "@dashboardNextReminderBody": {
     "description": "Body of the next-reminder banner: medication name, time, and time remaining",
