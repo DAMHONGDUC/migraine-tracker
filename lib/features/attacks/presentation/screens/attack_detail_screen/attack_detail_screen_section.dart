@@ -20,7 +20,7 @@ class _Section extends StatelessWidget {
             child: Text(title!, style: AppTextStyle.titleSmall.secondary),
           ),
         ],
-        Card(child: Column(children: children)),
+        SdCardV2(child: Column(children: children)),
       ],
     );
   }

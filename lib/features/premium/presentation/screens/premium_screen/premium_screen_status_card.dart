@@ -10,7 +10,7 @@ class _StatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return Card(
+    return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
