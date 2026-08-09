@@ -13,10 +13,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 11', () {
+  test('database is at schema version 12', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 11);
+    expect(db.schemaVersion, 12);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -378,5 +378,17 @@ void main() {
 
     expect(stored.medicationName, 'Sumatriptan');
     expect(stored.medicationEffect, isNull);
+  });
+
+  test('migrates from v11 to v12 (adds the daily_weather table)', () async {
+    final connection = await verifier.startAt(11);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Empty, and nothing to backfill: no weather was ever stored for a day
+    // that had no attack.
+    expect(await db.select(db.dailyWeather).get(), isEmpty);
   });
 }

@@ -9,6 +9,7 @@ import '../auth/providers.dart';
 import '../medications/providers.dart';
 import '../notifications/providers.dart';
 import '../sync/providers.dart';
+import '../weather/providers.dart';
 import 'data/documents_export_file_store.dart';
 import 'data/file_dialog_file_saver.dart';
 import 'data/repositories/drift_export_record_repository.dart';
@@ -133,6 +134,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(authRepositoryProvider),
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
+    ref.watch(dailyPressureRepositoryProvider),
   ),
 );
 

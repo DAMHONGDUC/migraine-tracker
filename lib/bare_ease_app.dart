@@ -20,6 +20,7 @@ import 'features/notifications/presentation/widgets/notification_tap_listener.da
 import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
 import 'features/sync/providers.dart';
+import 'features/weather/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
 class BaroEaseApp extends HookConsumerWidget {
@@ -33,6 +34,13 @@ class BaroEaseApp extends HookConsumerWidget {
     // One backfill pass per app start: attacks logged offline get their weather snapshot once back online.
     useEffect(() {
       unawaited(ref.read(weatherAttachServiceProvider).backfillMissing());
+      return null;
+    }, const []);
+
+    // One pressure reading per day, attack or not — the denominator the
+    // correlation compares against. Fetches at most once per local day.
+    useEffect(() {
+      unawaited(ref.read(dailyPressureRecorderProvider).recordToday());
       return null;
     }, const []);
 
@@ -82,6 +90,8 @@ class BaroEaseApp extends HookConsumerWidget {
           unawaited(
             ref.read(notificationsControllerProvider).reconcileLastAlert(),
           );
+          // Covers the app left open across midnight.
+          unawaited(ref.read(dailyPressureRecorderProvider).recordToday());
         },
       );
       return listener.dispose;

@@ -5,6 +5,8 @@ import '../attacks/providers.dart';
 import '../health/domain/entities/sleep_night.dart';
 import '../health/domain/entities/step_day.dart';
 import '../health/providers.dart';
+import '../weather/domain/entities/daily_pressure.dart';
+import '../weather/providers.dart';
 import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/sleep_correlation_result.dart';
@@ -25,7 +27,15 @@ final correlationResultProvider = Provider<AsyncValue<CorrelationResult>>((
 ) {
   final attacks = ref.watch(attacksStreamProvider);
   final engine = ref.watch(correlationEngineProvider);
-  return attacks.whenData(engine.analyze);
+  // Days are best-effort: while they are loading, or if the read failed, the
+  // card still shows the share rather than waiting on a baseline it may
+  // never get.
+  final List<DailyPressure> days =
+      ref.watch(dailyPressureHistoryProvider).value ?? const <DailyPressure>[];
+
+  return attacks.whenData(
+    (List<Attack> list) => engine.analyze(list, days: days),
+  );
 });
 
 final exertionCorrelationEngineProvider = Provider<ExertionCorrelationEngine>(

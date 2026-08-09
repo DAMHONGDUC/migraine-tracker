@@ -35,6 +35,24 @@ class _Insight extends StatelessWidget {
           style: AppTextStyle.bodyMedium,
         ),
         SizedBox(height: SdSpacingConstant.h12),
+        // The share alone says nothing about risk — someone in a stormy
+        // climate scores high whatever causes their migraines. This is the
+        // comparison against days that had no attack.
+        if (result.baseline case final PressureBaseline baseline) ...<Widget>[
+          Text(
+            l10n.insightsBaselineSentence(
+              baseline.dropDayAttackPercent.round(),
+              baseline.calmDayAttackPercent.round(),
+            ),
+            style: AppTextStyle.bodyMedium,
+          ),
+          SizedBox(height: SdSpacingConstant.h12),
+          Text(
+            l10n.insightsBaselineDays(baseline.dropDays, baseline.calmDays),
+            style: AppTextStyle.bodySmall.secondary,
+          ),
+          SizedBox(height: SdSpacingConstant.h4),
+        ],
         Text(
           l10n.insightsAnalyzedCaption(result.attacksAnalyzed),
           style: AppTextStyle.bodySmall.secondary,

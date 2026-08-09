@@ -6,6 +6,7 @@ import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
 import '../../../notifications/domain/repositories/notification_repository.dart';
 import '../../../sync/domain/services/sync_service.dart';
+import '../../../weather/domain/repositories/daily_pressure_repository.dart';
 import '../repositories/export_record_repository.dart';
 import 'export_file_store.dart';
 
@@ -27,6 +28,7 @@ class DataWipeService {
     this._auth,
     this._sync,
     this._alerts,
+    this._dailyPressure,
   );
 
   final AttackRepository _attacks;
@@ -41,6 +43,7 @@ class DataWipeService {
   final AuthRepository _auth;
   final SyncService _sync;
   final AlertRegistrationRepository _alerts;
+  final DailyPressureRepository _dailyPressure;
 
   Future<void> wipeAll() async {
     // The server copy goes FIRST, and a failure here aborts the whole wipe.
@@ -64,6 +67,10 @@ class DataWipeService {
     // Past exports are full copies of the deleted data — leave them and the wipe is incomplete.
     await _exportFiles.deleteAll();
     await _exportRecords.deleteAll();
+    // Never synced, but still the user's: a per-day pressure trail is a
+    // record of where they were (hard rule 1), so it goes with everything
+    // else rather than surviving a "delete all data".
+    await _dailyPressure.deleteAll();
   }
 
   /// Nothing to do without an account: an anonymous session never uploaded

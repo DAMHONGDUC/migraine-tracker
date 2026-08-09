@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -18,6 +17,8 @@ import 'package:migraine_tracker/features/settings/data/repositories/drift_expor
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
+import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
+
 
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
@@ -100,6 +101,7 @@ void main() {
       FakeAuthRepository(),
       syncServiceOver(db),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -142,6 +144,7 @@ void main() {
       FakeAuthRepository(),
       syncServiceOver(db),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
@@ -170,6 +173,7 @@ void main() {
       auth,
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -226,6 +230,7 @@ void main() {
         FakeAuthRepository(signedIn: true),
         syncServiceOver(db),
         alerts,
+        DriftDailyPressureRepository(db),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after

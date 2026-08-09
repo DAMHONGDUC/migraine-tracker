@@ -10,6 +10,7 @@ import '../../features/notifications/data/tables/notification_tables.dart';
 import '../../features/notifications/domain/enums/notification_type.dart';
 import '../../features/settings/data/tables/export_tables.dart';
 import '../../features/sync/data/tables/sync_tables.dart';
+import '../../features/weather/data/tables/daily_weather_tables.dart';
 import 'converters.dart';
 
 export '../../features/attacks/data/tables/attack_tables.dart';
@@ -17,6 +18,7 @@ export '../../features/medications/data/tables/medication_tables.dart';
 export '../../features/notifications/data/tables/notification_tables.dart';
 export '../../features/settings/data/tables/export_tables.dart';
 export '../../features/sync/data/tables/sync_tables.dart';
+export '../../features/weather/data/tables/daily_weather_tables.dart';
 
 part 'app_database.g.dart';
 
@@ -31,6 +33,7 @@ part 'app_database.g.dart';
     AppNotifications,
     ExportRecords,
     SyncTombstones,
+    DailyWeather,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -41,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -146,6 +149,13 @@ class AppDatabase extends _$AppDatabase {
       //   would invent the very evidence a prescription gets changed on.
       if (from < 11) {
         await m.addColumn(attacks, attacks.medicationEffect);
+      }
+      // - v12: a pressure reading per day, so the correlation finally has a
+      //   denominator — the days without an attack.
+      // - Nothing to backfill: no weather was ever stored for a day that had
+      //   no attack, and Open-Meteo's past window is days, not months.
+      if (from < 12) {
+        await m.createTable(dailyWeather);
       }
     },
     beforeOpen: (details) async {

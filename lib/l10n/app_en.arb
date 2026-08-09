@@ -558,6 +558,34 @@
   "@reportColMedicationEffect": {
     "description": "Doctor report table column: whether the medication helped"
   },
+  "insightsBaselineSentence": "You had an attack on {dropRate}% of days pressure fell, against {calmRate}% of other days.",
+  "@insightsBaselineSentence": {
+    "description": "Compares the attack rate on pressure-drop days against all other days",
+    "placeholders": {
+      "dropRate": {
+        "type": "int"
+      },
+      "calmRate": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsBaselineDays": "Based on {dropDays} days pressure fell and {calmDays} days it did not.",
+  "@insightsBaselineDays": {
+    "description": "Caption naming how many days each side of the comparison holds",
+    "placeholders": {
+      "dropDays": {
+        "type": "int"
+      },
+      "calmDays": {
+        "type": "int"
+      }
+    }
+  },
+  "reportBaseline": "Attack rate, drop days vs other days",
+  "@reportBaseline": {
+    "description": "Doctor report summary row comparing attack rates by day type"
+  },
   "attackDetailWeatherTitle": "Weather at the time",
   "@attackDetailWeatherTitle": {
     "description": "Section header for the attached weather snapshot"

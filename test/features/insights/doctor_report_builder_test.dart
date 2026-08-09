@@ -17,6 +17,7 @@ DoctorReportStrings strings() => DoctorReportStrings(
   commonLocation: 'Most frequent location',
   typicalDuration: 'Typical duration',
   attacksDuringDrops: 'During rapid pressure drops',
+  baseline: 'Attack rate, drop days vs other days',
   tableTitle: 'Attack log',
   colDate: 'Date',
   colIntensity: 'Intensity',

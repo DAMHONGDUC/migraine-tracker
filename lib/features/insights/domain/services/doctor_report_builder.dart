@@ -26,6 +26,7 @@ class DoctorReportStrings {
     required this.commonLocation,
     required this.typicalDuration,
     required this.attacksDuringDrops,
+    required this.baseline,
     required this.tableTitle,
     required this.colDate,
     required this.colIntensity,
@@ -48,6 +49,7 @@ class DoctorReportStrings {
   final String commonLocation;
   final String typicalDuration;
   final String attacksDuringDrops;
+  final String baseline;
   final String tableTitle;
   final String colDate;
   final String colIntensity;
@@ -169,6 +171,18 @@ class DoctorReportBuilder {
         [
           strings.attacksDuringDrops,
           '${dropSharePercent.round()}% (>=$dropThresholdHpa hPa/24h)',
+        ],
+      // The comparison, where there is one. Without it the row above states a
+      // share with no denominator, which a doctor would rightly discount.
+      if (correlation case CorrelationInsight(
+        isPreliminary: false,
+        baseline: final PressureBaseline b?,
+      ))
+        [
+          strings.baseline,
+          '${b.dropDayAttackPercent.round()}% vs '
+              '${b.calmDayAttackPercent.round()}% '
+              '(${b.dropDays}/${b.calmDays} days)',
         ],
     ];
     return pw.Table(
