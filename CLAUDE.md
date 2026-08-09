@@ -138,6 +138,36 @@ package. A file needing both imports both — that is normal, not a smell.
 Run `flutter analyze` inside `packages/system_design` too: it must pass on
 its own, without the app.
 
+### Redesign mockups are reference, not authority — owner's rule
+
+`docs/UI_SPEC.md` briefs a redesign whose mockups come from an AI design tool
+(Stitch). **Those mockups are visual direction only.** Where a mockup and the
+rules in this file disagree, the rules win, silently and without asking —
+build what the rules say and tell the owner what was overridden. The reason is
+what the first two mockups did: asked for an exact 13-colour palette, the tool
+returned a Material 3 scheme with tonal ramps running to `#FFFFFF`, a
+near-white "inverted" button, two invented colour roles, and no severity scale
+at all. It then ignored a correction listing all five. A tool that answers a
+palette with its own palette cannot be the source of truth for one.
+
+Specifically, and never up for negotiation no matter how good the mockup looks:
+
+- **Every colour comes from `AppColors`.** No hex is read off a mockup. The
+  four `AppColors.intensity` bands are measured for colour-blind separation —
+  a mockup that shifts, harmonises or drops them is wrong, not a proposal.
+- **Every dimension goes through `SdSpacingConstant` and `SdContentPaddingV2`**,
+  snapped to the existing ladder. A mockup measuring 13 becomes 12.
+- **Every text style comes from `AppTextStyle`**; the app ships no UI font, so
+  mockups drawn in Inter render in SF Pro and come out slightly smaller. Never
+  approve a label that only fits at the mockup's metrics.
+- **Flat opaque surfaces stay flat**, Liquid Glass stays on chrome plus the
+  paywall, and `surfaceModal` stays darker than `surface` — Material trains
+  every one of these tools to raise a modal instead.
+- **The log flow does not grow a step**, whatever a mockup suggests (rule 5).
+
+What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a
+card is composed, what a chart should say. Take that; leave the tokens.
+
 ## Commands
 
 **Melos is the task runner** (`melos.yaml`). Installed once per machine at the
