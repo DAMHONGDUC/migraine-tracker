@@ -1,0 +1,26 @@
+[
+  {
+    "id": "d1000000-0000-4000-8000-000000000001",
+    "kind": "json",
+    "filename": "baroease_export_2026-08-07_091500.json",
+    "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_export_2026-08-07_091500.json",
+    "sizeBytes": 48213,
+    "createdAt": "2026-08-07T09:15:00.000Z"
+  },
+  {
+    "id": "d1000000-0000-4000-8000-000000000002",
+    "kind": "csv",
+    "filename": "baroease_export_2026-08-03_174022.csv",
+    "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_export_2026-08-03_174022.csv",
+    "sizeBytes": 9126,
+    "createdAt": "2026-08-03T17:40:22.000Z"
+  },
+  {
+    "id": "d1000000-0000-4000-8000-000000000003",
+    "kind": "pdf",
+    "filename": "baroease_report_2026-07-30_082001.pdf",
+    "filePath": "/var/mobile/Containers/Data/Application/BAROEASE/Documents/exports/baroease_report_2026-07-30_082001.pdf",
+    "sizeBytes": 204877,
+    "createdAt": "2026-07-30T08:20:01.000Z"
+  }
+]

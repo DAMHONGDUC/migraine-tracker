@@ -1,0 +1,62 @@
+[
+  {
+    "id": "rem:c1000000-0000-4000-8000-000000000001:29768160",
+    "type": "medicationReminder",
+    "occurredAt": "2026-08-07T08:00:00.000Z",
+    "readAt": "2026-08-07T08:04:00.000Z",
+    "medicationId": "b1000000-0000-4000-8000-000000000001",
+    "reminderId": "c1000000-0000-4000-8000-000000000001",
+    "pressureDropHpa": null,
+    "updatedAt": "2026-08-07T08:04:00.000Z",
+    "revision": 2,
+    "syncedRevision": 2
+  },
+  {
+    "id": "rem:c1000000-0000-4000-8000-000000000002:29767530",
+    "type": "medicationReminder",
+    "occurredAt": "2026-08-06T21:30:00.000Z",
+    "readAt": null,
+    "medicationId": "b1000000-0000-4000-8000-000000000002",
+    "reminderId": "c1000000-0000-4000-8000-000000000002",
+    "pressureDropHpa": null,
+    "updatedAt": "2026-08-06T21:30:00.000Z",
+    "revision": 1,
+    "syncedRevision": 1
+  },
+  {
+    "id": "rem:c1000000-0000-4000-8000-000000000009:29764485",
+    "type": "medicationReminder",
+    "occurredAt": "2026-08-04T18:45:00.000Z",
+    "readAt": null,
+    "medicationId": "b1000000-0000-4000-8000-000000000009",
+    "reminderId": "c1000000-0000-4000-8000-000000000009",
+    "pressureDropHpa": null,
+    "updatedAt": "2026-08-04T18:45:00.000Z",
+    "revision": 1,
+    "syncedRevision": 1
+  },
+  {
+    "id": "pa:evt_2026_08_08_0312_ew1",
+    "type": "pressureAlert",
+    "occurredAt": "2026-08-08T03:12:00.000Z",
+    "readAt": null,
+    "medicationId": null,
+    "reminderId": null,
+    "pressureDropHpa": -9.4,
+    "updatedAt": "2026-08-08T03:12:00.000Z",
+    "revision": 1,
+    "syncedRevision": null
+  },
+  {
+    "id": "pa:evt_2026_08_01_1800_ew1",
+    "type": "pressureAlert",
+    "occurredAt": "2026-08-01T18:00:00.000Z",
+    "readAt": "2026-08-01T18:22:00.000Z",
+    "medicationId": null,
+    "reminderId": null,
+    "pressureDropHpa": -6.1,
+    "updatedAt": "2026-08-01T18:22:00.000Z",
+    "revision": 2,
+    "syncedRevision": 2
+  }
+]

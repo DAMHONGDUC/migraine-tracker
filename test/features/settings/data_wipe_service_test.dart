@@ -28,6 +28,12 @@ class RecordingNotificationScheduler implements NotificationScheduler {
   int cancelAllCalls = 0;
 
   @override
+  Stream<String> get reminderTaps => const Stream<String>.empty();
+
+  @override
+  Future<String?> takeLaunchReminderId() async => null;
+
+  @override
   Future<bool> ensurePermission() async => true;
 
   @override

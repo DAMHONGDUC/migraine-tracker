@@ -59,6 +59,17 @@ class DriftNotificationRepository implements NotificationRepository {
   }
 
   @override
+  Future<AppNotification?> latestForReminder(String reminderId) async {
+    final query = _db.select(_db.appNotifications)
+      ..where((t) => t.reminderId.equals(reminderId))
+      ..orderBy([(t) => OrderingTerm.desc(t.occurredAt)])
+      ..limit(1);
+    final AppNotificationRow? row = await query.getSingleOrNull();
+
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
   Future<void> markRead(String id, DateTime at) {
     return _db.transaction(() async {
       final AppNotificationRow? row = await (_db.select(

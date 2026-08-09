@@ -30,12 +30,8 @@ class _NotificationTile extends ConsumerWidget {
 
   /// One destination for every row, whatever the type. What the type decides
   /// is what the detail screen offers, not whether the user gets one.
-  void _open(BuildContext context) => context.pushNamed<void>(
-    AppRoutes.notification.name,
-    pathParameters: <String, String>{
-      AppRoutes.notificationIdParam: notification.id,
-    },
-  );
+  void _open(BuildContext context) =>
+      NavigationUtils.toNotification(context, notification.id);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,7 +48,14 @@ class _NotificationTile extends ConsumerWidget {
               ? context.colorScheme.secondary
               : context.colorScheme.primary,
         ),
-        title: Text(_title(context, ref), style: AppTextStyle.bodyLarge),
+        // One line, always: a long medication name would otherwise wrap and
+        // make one row twice the height of the one under it.
+        title: Text(
+          _title(context, ref),
+          style: AppTextStyle.bodyLarge,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         subtitle: Text(
           DateFormat.yMMMd(l10n.localeName).add_Hm().format(at),
           style: AppTextStyle.bodyMedium.secondary,

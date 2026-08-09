@@ -1,6 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
+import '../premium/providers.dart';
 import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
 import 'domain/entities/attack.dart';
@@ -29,6 +31,34 @@ final weatherAttachServiceProvider = Provider<WeatherAttachService>(
     ref.watch(weatherRepositoryProvider),
   ),
 );
+
+/// Whether another attack may be logged.
+///
+/// Only the log button asks. A free user who already holds more — from
+/// before this limit existed, or pulled down by a sync from a device that had
+/// premium — keeps every one of them and never loses a record: taking back
+/// someone's own medical history is not a paywall, it is data loss.
+final canLogAttackProvider = Provider<bool>((ref) {
+  if (ref.watch(hasPremiumProvider)) return true;
+
+  final List<Attack> attacks =
+      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+
+  return attacks.length < PremiumLimitConstant.attacks;
+});
+
+/// How many logs are left before the wall, once it is close enough to be
+/// worth saying. Null while premium, and while the end is still far off —
+/// the dashboard shows its warning only for a non-null answer.
+final attacksLeftProvider = Provider<int?>((ref) {
+  if (ref.watch(hasPremiumProvider)) return null;
+
+  final List<Attack> attacks =
+      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+  final int left = PremiumLimitConstant.attacks - attacks.length;
+
+  return left <= PremiumLimitConstant.attacksWarnAt && left > 0 ? left : null;
+});
 
 /// Owns the 3-tap flow state machine (see [LogController]).
 final logControllerProvider = NotifierProvider<LogController, LogFlowState>(

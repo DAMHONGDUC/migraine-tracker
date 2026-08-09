@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
+import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
@@ -31,7 +32,6 @@ import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
-import 'package:migraine_tracker/features/onboarding/presentation/controllers/onboarding_controller.dart';
 import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
@@ -74,6 +74,20 @@ class FakeNotificationScheduler implements NotificationScheduler {
   /// Set when [scheduleTest] is called, so a test can assert the debug
   /// "test notification" action reached the scheduler.
   bool testScheduled = false;
+
+  /// Reminder id a test replays as a tap on a running app.
+  final StreamController<String> taps = StreamController<String>.broadcast();
+
+  /// Reminder id a test says the app was launched by. Null = opened normally.
+  String? launchReminderId;
+
+  Future<void> dispose() => taps.close();
+
+  @override
+  Stream<String> get reminderTaps => taps.stream;
+
+  @override
+  Future<String?> takeLaunchReminderId() async => launchReminderId;
 
   @override
   Future<bool> ensurePermission() async => true;
@@ -331,18 +345,18 @@ class FakePurchaseRepository implements PurchaseRepository {
     PremiumOffer(
       id: r'$rc_monthly',
       period: PremiumPeriod.monthly,
-      priceLabel: r'$5.99',
+      priceLabel: r'$4.99',
     ),
     PremiumOffer(
       id: r'$rc_annual',
       period: PremiumPeriod.yearly,
-      priceLabel: r'$39.99',
+      priceLabel: r'$29.99',
       trialDays: 7,
     ),
     PremiumOffer(
       id: r'$rc_lifetime',
       period: PremiumPeriod.lifetime,
-      priceLabel: r'$79.99',
+      priceLabel: r'$44.99',
     ),
   ];
 
@@ -592,12 +606,13 @@ Future<PumpedApp> pumpApp(
   // Onboarding is considered done by default so existing tests land on the
   // dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
-    OnboardingController.completedKey: true,
+    PrefsKeyConstant.onboardingCompleted: true,
     ...initialPrefs,
   });
   final prefs = await SharedPreferences.getInstance();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
+  addTearDown(scheduler.dispose);
   final permissions = FakeAppPermissionGateway();
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);

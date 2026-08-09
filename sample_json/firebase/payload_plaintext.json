@@ -1,0 +1,119 @@
+{
+  "attacks/a1000000-0000-4000-8000-000000000001": {
+    "v": 1,
+    "startedAt": "2026-08-07T06:30:00.000Z",
+    "intensity": 8,
+    "location": "left",
+    "medicationName": "Sumatriptan 50mg",
+    "symptoms": [
+      "nausea",
+      "light sensitivity"
+    ],
+    "triggers": [
+      "pressure drop",
+      "poor sleep"
+    ],
+    "notes": "Woke up with it. Eased off after lying down in the dark.",
+    "exertionLevel": "moderate",
+    "weather": {
+      "capturedAt": "2026-08-07T06:30:00.000Z",
+      "pressureHpa": 1002.4,
+      "pressureDelta24hHpa": -11.8,
+      "humidityPercent": 78.5,
+      "temperatureCelsius": 19.3
+    }
+  },
+  "attacks/a1000000-0000-4000-8000-000000000003": {
+    "v": 1,
+    "startedAt": "2026-07-28T21:05:00.000Z",
+    "intensity": 3,
+    "location": "whole",
+    "medicationName": null,
+    "symptoms": [],
+    "triggers": [],
+    "notes": null,
+    "exertionLevel": "none",
+    "weather": {
+      "capturedAt": "2026-07-28T21:05:00.000Z",
+      "pressureHpa": 1016.9,
+      "pressureDelta24hHpa": -1.2,
+      "humidityPercent": 52.0,
+      "temperatureCelsius": 24.6
+    }
+  },
+  "attacks/a1000000-0000-4000-8000-000000000005": {
+    "v": 1,
+    "startedAt": "2026-08-02T03:55:00.000Z",
+    "intensity": 10,
+    "location": "back",
+    "medicationName": "Propranolol 40mg",
+    "symptoms": [
+      "nausea",
+      "aura",
+      "light sensitivity"
+    ],
+    "triggers": [
+      "pressure drop"
+    ],
+    "notes": "Second one this week.",
+    "exertionLevel": "severe",
+    "weather": {
+      "capturedAt": "2026-08-02T04:40:00.000Z",
+      "pressureHpa": 996.1,
+      "pressureDelta24hHpa": -14.5,
+      "humidityPercent": null,
+      "temperatureCelsius": null
+    }
+  },
+  "medications/b1000000-0000-4000-8000-000000000001": {
+    "v": 1,
+    "name": "Sumatriptan 50mg",
+    "createdAt": "2026-05-02T09:14:00.000Z"
+  },
+  "medications/b1000000-0000-4000-8000-000000000002": {
+    "v": 1,
+    "name": "Propranolol 40mg",
+    "createdAt": "2026-06-18T20:05:00.000Z"
+  },
+  "medication_reminders/c1000000-0000-4000-8000-000000000001": {
+    "v": 1,
+    "medicationId": "b1000000-0000-4000-8000-000000000001",
+    "minuteOfDay": 480,
+    "enabled": true,
+    "createdAt": "2026-05-02T09:15:00.000Z"
+  },
+  "medication_reminders/c1000000-0000-4000-8000-000000000002": {
+    "v": 1,
+    "medicationId": "b1000000-0000-4000-8000-000000000002",
+    "minuteOfDay": 1290,
+    "enabled": true,
+    "createdAt": "2026-06-18T20:06:00.000Z"
+  },
+  "notifications/rem:c1000000-0000-4000-8000-000000000001:29768160": {
+    "v": 1,
+    "type": "medicationReminder",
+    "occurredAt": "2026-08-07T08:00:00.000Z",
+    "readAt": "2026-08-07T08:04:00.000Z",
+    "medicationId": "b1000000-0000-4000-8000-000000000001",
+    "reminderId": "c1000000-0000-4000-8000-000000000001",
+    "pressureDropHpa": null
+  },
+  "notifications/rem:c1000000-0000-4000-8000-000000000002:29767530": {
+    "v": 1,
+    "type": "medicationReminder",
+    "occurredAt": "2026-08-06T21:30:00.000Z",
+    "readAt": null,
+    "medicationId": "b1000000-0000-4000-8000-000000000002",
+    "reminderId": "c1000000-0000-4000-8000-000000000002",
+    "pressureDropHpa": null
+  },
+  "notifications/pa:evt_2026_08_01_1800_ew1": {
+    "v": 1,
+    "type": "pressureAlert",
+    "occurredAt": "2026-08-01T18:00:00.000Z",
+    "readAt": "2026-08-01T18:22:00.000Z",
+    "medicationId": null,
+    "reminderId": null,
+    "pressureDropHpa": -6.1
+  }
+}

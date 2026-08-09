@@ -7,7 +7,9 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/health_connection_tile.dart';
 import '../../../../health/domain/enums/health_data_kind.dart';
+import '../../../../health/providers.dart';
 import '../../widgets/sleep_correlation_card.dart';
+import '../../widgets/sleep_summary_card.dart';
 
 /// The sleep insight and the switch that lets the app read it. Its own screen,
 /// not folded in with activity: the night is a different question from the day.
@@ -38,10 +40,21 @@ class SleepScreen extends ConsumerWidget {
             padding: EdgeInsets.symmetric(
               horizontal: SdContentPaddingV2.horizontal,
             ),
-            child: PremiumGate(
-              lockedIcon: Icons.bedtime_outlined,
-              lockedMessage: context.l10n.premiumLockedSleep,
-              child: const SleepCorrelationCard(),
+            child: Column(
+              children: <Widget>[
+                // What was read comes before what is drawn from it — and
+                // only while sleep is connected, since there is nothing to
+                // show otherwise.
+                if (ref.watch(healthControllerProvider).sleep) ...<Widget>[
+                  const SleepSummaryCard(),
+                  SizedBox(height: SdContentPaddingV2.sectionGap),
+                ],
+                PremiumGate(
+                  lockedIcon: Icons.bedtime_outlined,
+                  lockedMessage: context.l10n.premiumLockedSleep,
+                  child: const SleepCorrelationCard(),
+                ),
+              ],
             ),
           ),
         ],

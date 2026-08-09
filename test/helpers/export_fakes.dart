@@ -26,6 +26,15 @@ class FakeExportFileStore implements ExportFileStore {
   Future<bool> exists(String path) async => files.containsKey(path);
 
   @override
+  Future<Uint8List> read(String path) async {
+    final Uint8List? bytes = files[path];
+
+    if (bytes == null) throw StateError('No export at $path');
+
+    return bytes;
+  }
+
+  @override
   Future<void> delete(String path) async {
     files.remove(path);
   }

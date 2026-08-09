@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/health_connections.dart';
@@ -18,14 +19,11 @@ import '../../providers.dart';
 class HealthController extends Notifier<HealthConnections> {
   /// The single flag both sources shared before they could be connected
   /// separately. Read once, to carry an existing user across.
-  static const String connectedKey = 'health_connected';
 
-  static const String sleepKey = 'health_sleep_connected';
-  static const String stepsKey = 'health_steps_connected';
 
   static String keyOf(HealthDataKind kind) => switch (kind) {
-    HealthDataKind.sleep => sleepKey,
-    HealthDataKind.steps => stepsKey,
+    HealthDataKind.sleep => PrefsKeyConstant.healthSleep,
+    HealthDataKind.steps => PrefsKeyConstant.healthSteps,
   };
 
   @override
@@ -33,11 +31,11 @@ class HealthController extends Notifier<HealthConnections> {
     final SharedPreferences prefs = ref.watch(sharedPreferencesProvider);
     // Someone who connected under the old single switch had both; splitting
     // the flag must not read as the app quietly disconnecting on them.
-    final bool legacy = prefs.getBool(connectedKey) ?? false;
+    final bool legacy = prefs.getBool(PrefsKeyConstant.healthConnected) ?? false;
 
     return HealthConnections(
-      sleep: prefs.getBool(sleepKey) ?? legacy,
-      steps: prefs.getBool(stepsKey) ?? legacy,
+      sleep: prefs.getBool(PrefsKeyConstant.healthSleep) ?? legacy,
+      steps: prefs.getBool(PrefsKeyConstant.healthSteps) ?? legacy,
     );
   }
 
@@ -100,7 +98,7 @@ class HealthController extends Notifier<HealthConnections> {
   Future<void> disconnectAll() async {
     final SharedPreferences prefs = ref.read(sharedPreferencesProvider);
 
-    await prefs.setBool(connectedKey, false);
+    await prefs.setBool(PrefsKeyConstant.healthConnected, false);
     for (final HealthDataKind kind in HealthDataKind.values) {
       await disconnect(kind);
     }

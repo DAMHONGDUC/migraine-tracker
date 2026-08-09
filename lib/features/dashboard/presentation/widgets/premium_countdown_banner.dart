@@ -8,6 +8,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../premium/providers.dart';
 import 'highlighted_time_text.dart';
 
@@ -41,16 +42,6 @@ class _PremiumCountdownBannerState
   void dispose() {
     _ticker?.cancel();
     super.dispose();
-  }
-
-  /// Time left until local midnight, as HH:MM:SS.
-  String get _remaining {
-    final now = DateTime.now();
-    final endOfDay = DateTime(now.year, now.month, now.day + 1);
-    final left = endOfDay.difference(now);
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(left.inHours)}:${two(left.inMinutes % 60)}:'
-        '${two(left.inSeconds % 60)}';
   }
 
   @override
@@ -96,8 +87,8 @@ class _PremiumCountdownBannerState
                       SizedBox(width: SdSpacingConstant.w6),
                       Flexible(
                         child: HighlightedTimeText(
-                          full: l10n.dashboardSaleEndsIn(_remaining),
-                          highlight: _remaining,
+                          full: l10n.dashboardSaleEndsIn(DateTimeUtils.untilMidnight(DateTime.now())),
+                          highlight: DateTimeUtils.untilMidnight(DateTime.now()),
                           color: AppColors.primary,
                         ),
                       ),

@@ -82,7 +82,7 @@ void main() {
 
     // No prices behind a sign-in wall: tapping one could not complete.
     expect(find.text('Sign in to continue'), findsOneWidget);
-    expect(find.text(r'$39.99'), findsNothing);
+    expect(find.text(r'$29.99'), findsNothing);
     expect(find.text('Restore purchases'), findsNothing);
     expect(app.purchases.purchased, isEmpty);
 
@@ -98,9 +98,9 @@ void main() {
     expect(find.text('Monthly'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
     expect(find.text('Lifetime'), findsOneWidget);
-    expect(find.text(r'$5.99'), findsOneWidget);
-    expect(find.text(r'$39.99'), findsOneWidget);
-    expect(find.text(r'$79.99'), findsOneWidget);
+    expect(find.text(r'$4.99'), findsOneWidget);
+    expect(find.text(r'$29.99'), findsOneWidget);
+    expect(find.text(r'$44.99'), findsOneWidget);
     // The trial belongs to the package, not to copy in the app.
     expect(find.text('7-day free trial'), findsOneWidget);
 

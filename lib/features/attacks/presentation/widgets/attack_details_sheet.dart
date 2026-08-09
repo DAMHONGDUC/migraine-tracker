@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/comma_list_utils.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
@@ -26,17 +27,14 @@ class AttackDetailsSheet extends HookConsumerWidget {
   final List<String> initialTriggers;
   final String? initialNotes;
 
-  List<String> _split(String input) =>
-      input.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final symptomsController = useTextEditingController(
-      text: initialSymptoms.join(', '),
+      text: CommaListUtils.join(initialSymptoms),
     );
     final triggersController = useTextEditingController(
-      text: initialTriggers.join(', '),
+      text: CommaListUtils.join(initialTriggers),
     );
     final notesController = useTextEditingController(text: initialNotes ?? '');
 
@@ -46,8 +44,8 @@ class AttackDetailsSheet extends HookConsumerWidget {
           .read(attackRepositoryProvider)
           .updateDetails(
             attackId,
-            symptoms: _split(symptomsController.text),
-            triggers: _split(triggersController.text),
+            symptoms: CommaListUtils.split(symptomsController.text),
+            triggers: CommaListUtils.split(triggersController.text),
             notes: notes.isEmpty ? null : notes,
           );
       if (context.mounted) Navigator.of(context).pop();

@@ -4,17 +4,18 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/permissions/app_permission.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
 import '../../../providers.dart';
-import '../../widgets/reminder_limit_dialog.dart';
 
 part 'medication_detail_screen_header.dart';
 part 'medication_detail_screen_reminder_row.dart';
@@ -77,10 +78,12 @@ class MedicationDetailScreen extends ConsumerWidget {
     // - the limit is named before the pitch: this button says "Add reminder", so a paywall out of nowhere reads as a bug
     // - and both come before the OS prompt, which must never be raised for a reminder that will not be created
     if (!ref.read(canAddReminderProvider)) {
-      final bool? unlock = await const ReminderLimitDialog().show(context);
-
-      if (unlock != true || !context.mounted) return;
-      await NavigationUtils.toPaywall(context, ref);
+      await NavigationUtils.toPaywallFromLimit(
+        context,
+        ref,
+        title: l10n.reminderLimitTitle(PremiumLimitConstant.reminders),
+        body: l10n.reminderLimitBody(PremiumLimitConstant.reminders),
+      );
       return;
     }
 

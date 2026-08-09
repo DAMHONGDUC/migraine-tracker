@@ -24,6 +24,12 @@ import '../../helpers/sync_fakes.dart';
 
 class _SilentScheduler implements NotificationScheduler {
   @override
+  Stream<String> get reminderTaps => const Stream<String>.empty();
+
+  @override
+  Future<String?> takeLaunchReminderId() async => null;
+
+  @override
   Future<bool> ensurePermission() async => true;
 
   @override

@@ -22,12 +22,13 @@ Positioning: *"Know your storm before it hits."*
 
 | Tier | Price | Contents |
 |------|-------|----------|
-| Free | $0 | Unlimited attack logging, severity donut, weather snapshot attached to each log, physical exertion self-report + correlation, 2 medication reminders across all medications |
-| Premium monthly | $5.99/mo | Pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, the other four history charts, PDF doctor report, HealthKit sleep + step-count correlation, unlimited reminders |
-| Premium yearly | $39.99/yr | Same as monthly (44% discount framing) |
-| Lifetime | $79.99 | Same, one-time (chronic illness communities love lifetime) |
+| Free | $0 | 40 logged attacks, 5 medications, 2 reminders across all medications; severity donut, weather snapshot attached to each log, physical exertion self-report + correlation, sleep/step summary cards, export + wipe |
+| Premium monthly | $4.99/mo | Unlimited attacks/medications/reminders, pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, the other four history charts, PDF doctor report, HealthKit sleep + step-count correlation |
+| Premium yearly | $29.99/yr | Same as monthly (50% discount framing) |
+| Lifetime | $44.99 | Same, one-time (chronic illness communities love lifetime) |
 
 - Managed via **RevenueCat** (free < $2.5k MRR). 7-day free trial on yearly.
+- The full rules — every limit, why each number is what it is, and how a gate behaves — live in `docs/PREMIUM_RULES.md`, which is the authority.
 - **No ads.** "No ads, we don't sell your data" is a selling point in this niche.
 
 ## 4. MVP Scope (v1.0)
@@ -47,7 +48,7 @@ need is tracked separately — `CLAUDE.md`'s "Pending setup" and
 - [x] Pressure alert push notifications (premium) — backend cron, geohash-grouped
 - [x] 48h pressure forecast chart (premium)
 - [x] PDF export report for doctors (premium), with an export history that can be re-shared
-- [x] Medication reminders (local notifications), 2 free across all medications
+- [x] Medication reminders (local notifications), 2 free across all medications (see `docs/PREMIUM_RULES.md`)
 - [x] Notification list — reminders and pressure alerts, synced so every device shows the same list
 - [x] HealthKit read: sleep hours (premium correlation)
 - [x] Physical exertion self-report (free correlation) + HealthKit step count (premium correlation)

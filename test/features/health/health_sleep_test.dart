@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
@@ -7,7 +8,6 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
-import 'package:migraine_tracker/features/health/presentation/controllers/health_controller.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -87,8 +87,8 @@ void main() {
       expect(app.health.authorizationRequests, 1);
       // One sheet, for sleep alone: steps are a separate switch.
       expect(app.health.requestedKinds, <HealthDataKind>[HealthDataKind.sleep]);
-      expect(app.prefs.getBool(HealthController.sleepKey), isTrue);
-      expect(app.prefs.getBool(HealthController.stepsKey), isNot(isTrue));
+      expect(app.prefs.getBool(PrefsKeyConstant.healthSleep), isTrue);
+      expect(app.prefs.getBool(PrefsKeyConstant.healthSteps), isNot(isTrue));
       expect(tester.widget<SwitchListTile>(healthSwitch()).value, isTrue);
 
       await finishTest(tester);
@@ -108,7 +108,7 @@ void main() {
       await tapVisible(tester, healthSwitch());
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(app.prefs.getBool(HealthController.sleepKey), isNot(isTrue));
+      expect(app.prefs.getBool(PrefsKeyConstant.healthSleep), isNot(isTrue));
       expect(find.text("Couldn't connect to Apple Health."), findsOneWidget);
 
       await finishTest(tester);
@@ -124,7 +124,7 @@ void main() {
         premium: true,
         healthAvailable: true,
         initialPrefs: const <String, Object>{
-          HealthController.connectedKey: true,
+          PrefsKeyConstant.healthConnected: true,
         },
       );
       await openSleepScreen(tester);
@@ -151,7 +151,7 @@ void main() {
         tester,
         healthAvailable: true,
         initialPrefs: const <String, Object>{
-          HealthController.connectedKey: true,
+          PrefsKeyConstant.healthConnected: true,
         },
       );
       await openInsights(tester);
@@ -187,7 +187,7 @@ void main() {
         premium: true,
         healthAvailable: true,
         initialPrefs: const <String, Object>{
-          HealthController.sleepKey: true,
+          PrefsKeyConstant.healthSleep: true,
         },
         sleepNights: <SleepNight>[
           for (int i = 1; i <= 5; i++) sleptFor(i, hours: 5),

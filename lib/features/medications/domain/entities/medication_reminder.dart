@@ -11,14 +11,6 @@ class MedicationReminder {
     this.createdAt,
   });
 
-  /// How many reminders a free user may create, across every medication —
-  /// not one each. The one past this, anywhere, is where premium is pitched.
-  ///
-  /// Two, not one: a preventive taken morning and evening — or one preventive
-  /// plus a supplement — is the ordinary regimen, and a limit that blocks it
-  /// on day one reads as broken rather than tiered.
-  static const int freeLimit = 2;
-
   final String id;
   final String medicationId;
 

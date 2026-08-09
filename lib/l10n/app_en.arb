@@ -57,7 +57,7 @@
   "@onboardingFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "onboardingFeaturesBody": "Tracking is free forever. The analysis that explains your attacks is Premium.",
+  "onboardingFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
   "@onboardingFeaturesBody": {
     "description": "Onboarding feature-list sheet body"
   },
@@ -948,6 +948,55 @@
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
   },
+  "attackLimitTitle": "{count, plural, other{{count} attacks on the free plan}}",
+  "@attackLimitTitle": {
+    "description": "Dialog title when a free user reaches the logged-attack limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBody": "{count, plural, other{The free plan holds {count} logged attacks, and yours are all still here.}} Unlock Premium to keep logging.",
+  "@attackLimitBody": {
+    "description": "Dialog body explaining the free plan's attack limit, and that nothing is deleted",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBannerTitle": "{count, plural, =1{1 log left on the free plan} other{{count} logs left on the free plan}}",
+  "@attackLimitBannerTitle": {
+    "description": "Dashboard banner counting down the last free attack logs",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attackLimitBannerBody": "Unlock Premium to keep logging without a limit.",
+  "@attackLimitBannerBody": {
+    "description": "Supporting line under the free-log countdown banner"
+  },
+  "medicationLimitTitle": "{count, plural, other{{count} medications on the free plan}}",
+  "@medicationLimitTitle": {
+    "description": "Dialog title when a free user tries to add one medication past the limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationLimitBody": "{count, plural, other{The free plan includes {count} medications.}} Unlock Premium to add as many as you need.",
+  "@medicationLimitBody": {
+    "description": "Dialog body explaining the free plan's medication limit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reminderLimitTitle": "{count, plural, =1{One reminder on the free plan} other{{count} reminders on the free plan}}",
   "@reminderLimitTitle": {
     "description": "Dialog title shown when a free user tries to add one reminder past the limit",
@@ -1031,6 +1080,10 @@
   "paywallHeadline": "Know your storm before it hits",
   "@paywallHeadline": {
     "description": "Paywall headline"
+  },
+  "paywallBenefitUnlimited": "Unlimited attacks, medications and reminders",
+  "@paywallBenefitUnlimited": {
+    "description": "Paywall benefit row for lifting the free record limits"
   },
   "paywallBenefitAlerts": "Pressure-drop alerts",
   "@paywallBenefitAlerts": {
@@ -1430,6 +1483,18 @@
   "@exportFilterNoMatchBody": {
     "description": "Body shown when the picked date window matches none of the exports"
   },
+  "exportPreviewAction": "Preview",
+  "@exportPreviewAction": {
+    "description": "Row action that opens one export to read what is inside it"
+  },
+  "exportPreviewTitle": "Preview",
+  "@exportPreviewTitle": {
+    "description": "App bar title of the export preview screen"
+  },
+  "exportPreviewTruncated": "Only the start of this file is shown. Share or save it to get all of it.",
+  "@exportPreviewTruncated": {
+    "description": "Note under a text preview that was cut short because the file is long"
+  },
   "exportShareAction": "Share",
   "@exportShareAction": {
     "description": "Row action that opens the system share sheet"
@@ -1693,6 +1758,56 @@
       },
       "min": {
         "type": "String"
+      }
+    }
+  },
+  "sleepSummaryLatest": "Last night",
+  "@sleepSummaryLatest": {
+    "description": "Label above the most recent night's sleep on the sleep screen"
+  },
+  "sleepSummaryAverage": "7-night average",
+  "@sleepSummaryAverage": {
+    "description": "Label beside the mean sleep across the recent window"
+  },
+  "sleepSummaryChartTitle": "Last 7 nights",
+  "@sleepSummaryChartTitle": {
+    "description": "Title above the bar chart of recent nights"
+  },
+  "sleepSummaryEmpty": "No sleep recorded on this device yet.",
+  "@sleepSummaryEmpty": {
+    "description": "Shown when Apple Health sleep is connected but returned nothing"
+  },
+  "a11ySleepSummaryChart": "Bar chart of sleep over the last {count, plural, =1{1 night} other{{count} nights}}.",
+  "@a11ySleepSummaryChart": {
+    "description": "VoiceOver summary of the recent sleep bar chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stepsSummaryLatest": "Today",
+  "@stepsSummaryLatest": {
+    "description": "Label above today's step count on the activity screen"
+  },
+  "stepsSummaryAverage": "7-day average",
+  "@stepsSummaryAverage": {
+    "description": "Label beside the mean step count across the recent window"
+  },
+  "stepsSummaryChartTitle": "Last 7 days",
+  "@stepsSummaryChartTitle": {
+    "description": "Title above the bar chart of recent step counts"
+  },
+  "stepsSummaryEmpty": "No steps recorded on this device yet.",
+  "@stepsSummaryEmpty": {
+    "description": "Shown when Apple Health steps is connected but returned nothing"
+  },
+  "a11yStepsSummaryChart": "Bar chart of steps over the last {count, plural, =1{1 day} other{{count} days}}.",
+  "@a11yStepsSummaryChart": {
+    "description": "VoiceOver summary of the recent steps bar chart",
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   },

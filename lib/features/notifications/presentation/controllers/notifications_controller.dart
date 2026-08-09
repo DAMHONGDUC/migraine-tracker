@@ -72,6 +72,47 @@ class NotificationsController {
     }
   }
 
+  /// The row a tapped reminder notification leads to, or null when there is
+  /// none to open.
+  ///
+  /// Materialises first: reminder occurrences are derived rather than
+  /// recorded as they fire, so the one the user just tapped may not exist
+  /// until this runs.
+  Future<String?> reminderTapTarget(String reminderId) async {
+    AppLogger.action('Open tapped reminder', reminderId);
+    try {
+      await materialise();
+
+      final AppNotification? latest = await _ref
+          .read(notificationRepositoryProvider)
+          .latestForReminder(reminderId);
+
+      return latest?.id;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Opening a tapped reminder failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// The row a tapped pressure alert leads to, or null when the push is not
+  /// one.
+  ///
+  /// Records it on the way through: an alert that arrived while the app was
+  /// shut has no row yet, and [recordPush] is idempotent (hard rule 16).
+  Future<String?> pushTapTarget(Map<String, dynamic> data) async {
+    final AppNotification? alert = PressureAlertMapper.fromData(data);
+
+    if (alert == null) return null;
+    AppLogger.action('Open tapped alert', alert.id);
+    await recordPush(data);
+
+    return alert.id;
+  }
+
   /// Called when one notification's detail screen opens — the only thing
   /// that counts as reading it.
   Future<void> markRead(String id) async {

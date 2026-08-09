@@ -47,11 +47,7 @@ class _ReminderRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final MedicationReminder reminder = view.reminder;
-    // Zero-padded 24h matching the wheel picker, not TimeOfDay.format's
-    // locale-dependent 12h/AM-PM — picking and reading must never disagree.
-    final String time =
-        '${reminder.hour.toString().padLeft(2, '0')}:'
-        '${reminder.minute.toString().padLeft(2, '0')}';
+    final String time = DateTimeUtils.hhmm(reminder.hour, reminder.minute);
 
     return ListTile(
       // Tap the row to change the time (the switch/delete keep their own taps).

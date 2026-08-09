@@ -3,7 +3,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/medication_name_dialog.dart';
@@ -44,6 +46,19 @@ class MedicationGrid extends ConsumerWidget {
   final String query;
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
+    // The one gate inside the sacred flow, by the owner's call. It names the
+    // limit first and never blocks the log itself: "No medication" and every
+    // medication already on file are still there, so the three taps complete.
+    if (!ref.read(canAddMedicationProvider)) {
+      await NavigationUtils.toPaywallFromLimit(
+        context,
+        ref,
+        title: context.l10n.medicationLimitTitle(PremiumLimitConstant.medications),
+        body: context.l10n.medicationLimitBody(PremiumLimitConstant.medications),
+      );
+      return;
+    }
+
     final String? name = await const MedicationNameDialog().show(context);
 
     if (name == null) return;

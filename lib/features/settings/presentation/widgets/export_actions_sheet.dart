@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_action.dart';
+import '../../domain/enums/export_kind.dart';
 
 /// What to do with one export from the history. Pops the chosen action, or
 /// null when dismissed.
@@ -34,6 +35,15 @@ class ExportActionsSheet extends StatelessWidget {
             ),
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
+          // No preview for CSV: 14 columns of comma-separated text tell a
+          // reader nothing a phone screen can show usefully. Share or save it
+          // and open it in something that reads spreadsheets.
+          if (record.kind != ExportKind.csv)
+            _ActionTile(
+              icon: Icons.visibility_outlined,
+              label: l10n.exportPreviewAction,
+              action: ExportAction.preview,
+            ),
           _ActionTile(
             icon: Icons.ios_share,
             label: l10n.exportShareAction,

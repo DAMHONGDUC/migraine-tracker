@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/exertion_level_label.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -28,7 +29,6 @@ class ExertionLevelPicker extends StatelessWidget {
   final ValueChanged<ExertionLevel> onSelected;
 
   /// How many tiles share a row.
-  static const int perRow = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class ExertionLevelPicker extends StatelessWidget {
       // the sheet has its own.
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: perRow,
+        crossAxisCount: LogFlowConstant.optionsPerRow,
         mainAxisSpacing: SdSpacingConstant.h8,
         crossAxisSpacing: SdSpacingConstant.w8,
         // A fixed row height, not an aspect ratio: the tile is one line of

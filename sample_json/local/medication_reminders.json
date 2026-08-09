@@ -1,0 +1,42 @@
+[
+  {
+    "id": "c1000000-0000-4000-8000-000000000001",
+    "medicationId": "b1000000-0000-4000-8000-000000000001",
+    "minuteOfDay": 480,
+    "enabled": true,
+    "createdAt": "2026-05-02T09:15:00.000Z",
+    "updatedAt": "2026-05-02T09:15:00.000Z",
+    "revision": 1,
+    "syncedRevision": 1
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000002",
+    "medicationId": "b1000000-0000-4000-8000-000000000002",
+    "minuteOfDay": 1290,
+    "enabled": true,
+    "createdAt": "2026-06-18T20:06:00.000Z",
+    "updatedAt": "2026-08-06T19:02:00.000Z",
+    "revision": 3,
+    "syncedRevision": 2
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000003",
+    "medicationId": "b1000000-0000-4000-8000-000000000003",
+    "minuteOfDay": 435,
+    "enabled": false,
+    "createdAt": "2026-07-11T06:41:00.000Z",
+    "updatedAt": "2026-07-30T12:00:00.000Z",
+    "revision": 2,
+    "syncedRevision": null
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000004",
+    "medicationId": "b1000000-0000-4000-8000-000000000004",
+    "minuteOfDay": 1380,
+    "enabled": true,
+    "createdAt": null,
+    "updatedAt": null,
+    "revision": 0,
+    "syncedRevision": null
+  }
+]

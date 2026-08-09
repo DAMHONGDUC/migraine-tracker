@@ -1,0 +1,29 @@
+[
+  {
+    "__id__": "c1000000-0000-4000-8000-000000000001",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-05-02T09:15:00.000Z",
+    "deleted": false,
+    "payload": "KFebyGvYlOws2vYqss8goUzNbEF69bZ94HQhl5v4mZqFsu3wTK92U+W54hMRtXpgCLTD9eI/0pOGd/XMvZFeobLaUndjraNNRmHG8uV0guJjz9nnxeUasiLtXDTSmwMqDJIyvCjqBZxYYL/oAa146BN3EHd4JXA5y43ATfsVoeXnmGcIEw==",
+    "nonce": "Wa7Tr2O1LCdm4tAO",
+    "mac": "Ol5rHfx6PskjyKM91sMheg=="
+  },
+  {
+    "__id__": "c1000000-0000-4000-8000-000000000002",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-08-06T19:02:00.000Z",
+    "deleted": false,
+    "payload": "shXxl8SPaqmgOih+iYeGWGCwCDQ7HTeHyX8vq3i9mHpXbOKB76+GfnpF7rBh4Yfeap0Fvtq+fzoUtd9YkcrQNvH7fiS0Uz/IOlqO0MEgeMVKD7k4ql79UJlF5xQ/nRyLZ/0DbD2EQiWrdfp168N1ZDqGCUhxQtLMx1HCsm3pXKAzidDBoOU=",
+    "nonce": "Jc6ePtnKmGA5+xOD",
+    "mac": "SQMQskhHZ0N0lJKugdofpA=="
+  },
+  {
+    "__id__": "c1000000-0000-4000-8000-000000000099",
+    "userId": "uid_7Xq2mKp9ZbR4tLwE",
+    "updatedAt": "2026-08-04T15:31:00.000Z",
+    "deleted": true,
+    "payload": null,
+    "nonce": null,
+    "mac": null
+  }
+]

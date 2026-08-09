@@ -3,9 +3,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:system_design/index.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/constants/calendar_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
@@ -100,8 +102,8 @@ class HistoryCalendarView extends HookWidget {
               curve: Curves.easeOutCubic,
               alignment: Alignment.topCenter,
               child: TableCalendar<Attack>(
-                firstDay: DateTime(2020),
-                lastDay: DateTime(today.year + 1, 12, 31),
+                firstDay: CalendarConstant.historyFirstDay,
+                lastDay: DateTimeUtils.lastSelectableDay(today),
                 focusedDay: focused.value,
                 currentDay: today,
                 startingDayOfWeek: StartingDayOfWeek.monday,

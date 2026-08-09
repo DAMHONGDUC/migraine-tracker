@@ -5,9 +5,6 @@ class _Chart extends StatelessWidget {
 
   final PressureForecast forecast;
 
-  double _hoursFromNow(DateTime time) =>
-      time.difference(forecast.generatedAt).inMinutes / 60;
-
   @override
   Widget build(BuildContext context) {
     final labelStyle = AppTextStyle.bodySmall.copyWith(
@@ -19,18 +16,21 @@ class _Chart extends StatelessWidget {
     final past = <FlSpot>[];
     final future = <FlSpot>[];
     for (final point in forecast.points) {
-      final x = _hoursFromNow(point.time);
+      final x = DateTimeUtils.hoursBetween(forecast.generatedAt, point.time);
       final spot = FlSpot(x, point.pressureHpa);
       if (x <= 0) past.add(spot);
       if (x >= 0) future.add(spot);
     }
 
     final pressures = forecast.points.map((p) => p.pressureHpa);
-    final minY = (pressures.reduce(min) - 2).floorToDouble();
-    final maxY = (pressures.reduce(max) + 2).ceilToDouble();
+    final minY = ChartAxisUtils.minBound(pressures);
+    final maxY = ChartAxisUtils.maxBound(pressures);
+    // One interval for the grid and the axis labels both — computing it
+    // twice is how the two drift apart.
+    final gridInterval = ChartAxisUtils.interval(minY, maxY);
 
     DateTime timeAt(double x) =>
-        forecast.generatedAt.add(Duration(minutes: (x * 60).round()));
+        DateTimeUtils.timeAt(forecast.generatedAt, x);
 
     // Chart pixels mean nothing to VoiceOver — describe the trend instead.
     final nowHpa = (past.isNotEmpty ? past.last.y : future.first.y);
@@ -50,7 +50,7 @@ class _Chart extends StatelessWidget {
               maxY: maxY,
               gridData: FlGridData(
                 drawVerticalLine: false,
-                horizontalInterval: max(((maxY - minY) / 3).ceilToDouble(), 1),
+                horizontalInterval: gridInterval,
                 getDrawingHorizontalLine: (value) =>
                     const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
               ),
@@ -61,7 +61,7 @@ class _Chart extends StatelessWidget {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: max(((maxY - minY) / 3).ceilToDouble(), 1),
+                    interval: gridInterval,
                     reservedSize: SdSpacingConstant.w32,
                     getTitlesWidget: (value, meta) =>
                         Text(value.toInt().toString(), style: labelStyle),

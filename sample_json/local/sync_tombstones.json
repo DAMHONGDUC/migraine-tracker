@@ -1,0 +1,22 @@
+[
+  {
+    "collection": "attacks",
+    "id": "a1000000-0000-4000-8000-000000000099",
+    "deletedAt": "2026-08-06T10:02:00.000Z"
+  },
+  {
+    "collection": "medications",
+    "id": "b1000000-0000-4000-8000-000000000099",
+    "deletedAt": "2026-08-04T15:31:00.000Z"
+  },
+  {
+    "collection": "medication_reminders",
+    "id": "c1000000-0000-4000-8000-000000000099",
+    "deletedAt": "2026-08-04T15:31:00.000Z"
+  },
+  {
+    "collection": "notifications",
+    "id": "pa:evt_2026_07_02_0900_ew1",
+    "deletedAt": "2026-07-20T08:00:00.000Z"
+  }
+]
