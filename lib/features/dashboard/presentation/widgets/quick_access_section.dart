@@ -91,34 +91,30 @@ class _QuickAccessCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: SdSpacingConstant.h12,
-            horizontal: SdSpacingConstant.w8,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SdIconV2(
-                icon: icon,
-                size: SdSpacingConstant.r24,
-                color: context.colorScheme.primary,
-              ),
-              SizedBox(height: SdSpacingConstant.h6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelSmall,
-              ),
-            ],
-          ),
+    return SdCardV2(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: SdSpacingConstant.h12,
+          horizontal: SdSpacingConstant.w8,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SdIconV2(
+              icon: icon,
+              size: SdSpacingConstant.r24,
+              color: context.colorScheme.primary,
+            ),
+            SizedBox(height: SdSpacingConstant.h6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.labelSmall,
+            ),
+          ],
         ),
       ),
     );

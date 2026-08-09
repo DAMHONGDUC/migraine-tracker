@@ -13,11 +13,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../attacks/providers.dart';
 
-/// The dashboard's hero call-to-action: a soft-gradient card with an icon
-/// badge, title and subtitle that opens the sacred 3-tap log flow (a pushed
-/// route). Calm by design (hard rule 3) — a static glow and a gentle press
-/// scale, no motion. Resets any stale flow state before pushing so it always
-/// starts fresh at intensity.
+/// The dashboard's hero call-to-action: a tall lavender block, centred glyph
+/// and label, that opens the sacred 3-tap log flow (a pushed route).
+///
+/// Deliberately breaks the rhythm of the cards below it. Someone reaching for
+/// this is mid-attack — squinting, maybe in the dark — so it has to be found
+/// without reading, which is why it is centred, full-width and the tallest
+/// thing on the screen. Calm all the same (hard rule 3): a flat fill, a static
+/// glow and a gentle press scale, no motion. Resets any stale flow state
+/// before pushing so it always starts fresh at intensity.
 class DashboardLogButton extends ConsumerWidget {
   const DashboardLogButton({super.key});
 
@@ -48,16 +52,13 @@ class DashboardLogButton extends ConsumerWidget {
       pressedScale: 0.97,
       onTap: () => unawaited(_open(context, ref)),
       child: Container(
+        width: double.infinity,
         padding: EdgeInsets.symmetric(
           horizontal: SdSpacingConstant.w20,
-          vertical: SdSpacingConstant.h20,
+          vertical: SdSpacingConstant.h32,
         ),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.chartSeries],
-          ),
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(SdSpacingConstant.r24),
           boxShadow: [
             BoxShadow(
@@ -67,41 +68,35 @@ class DashboardLogButton extends ConsumerWidget {
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           children: [
-            // Opaque fill, not a tint, so the badge reads crisp on the lavender gradient.
-            SdIconBadgeV2(
-              icon: Icons.add,
-              color: AppColors.primary,
-              background: AppColors.onPrimary,
-              iconSize: SdSpacingConstant.r24,
-            ),
-            SizedBox(width: SdSpacingConstant.w16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SdIconV2(
+                  icon: Icons.add_rounded,
+                  size: SdSpacingConstant.r28,
+                  color: AppColors.onPrimary,
+                ),
+                SizedBox(width: SdSpacingConstant.w12),
+                Flexible(
+                  child: Text(
                     l10n.dashboardLogButton,
-                    style: AppTextStyle.titleLarge.w600.copyWith(
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.headlineSmall.w600.copyWith(
                       color: AppColors.onPrimary,
                     ),
                   ),
-                  SizedBox(height: SdSpacingConstant.h2),
-                  Text(
-                    l10n.dashboardLogButtonSubtitle,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColors.onPrimary.withValues(alpha: 0.75),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            SizedBox(width: SdSpacingConstant.w8),
-            SdIconV2(
-              icon: Icons.arrow_forward_rounded,
-              size: SdSpacingConstant.r22,
-              color: AppColors.onPrimary,
+            SizedBox(height: SdSpacingConstant.h6),
+            Text(
+              l10n.dashboardLogButtonSubtitle,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodySmall.copyWith(
+                color: AppColors.onPrimary.withValues(alpha: 0.75),
+              ),
             ),
           ],
         ),

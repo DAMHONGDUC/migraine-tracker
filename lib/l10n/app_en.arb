@@ -1859,9 +1859,9 @@
   "@dashboardThisWeek": {
     "description": "Title of the weekly summary card on the dashboard"
   },
-  "dashboardAttacksCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
-  "@dashboardAttacksCount": {
-    "description": "Attack count for the current week on the dashboard summary card",
+  "dashboardAttacksLabel": "{count, plural, =1{attack logged} other{attacks logged}}",
+  "@dashboardAttacksLabel": {
+    "description": "Label beside the big attack count on the dashboard week card. The number itself is rendered separately so it can carry its own size",
     "placeholders": {
       "count": {
         "type": "int"
