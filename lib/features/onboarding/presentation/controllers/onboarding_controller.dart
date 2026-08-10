@@ -4,6 +4,7 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../../core/permissions/app_permission.dart';
 import '../../../weather/providers.dart';
 
 /// Orchestrates onboarding: the location permission request and persisting
@@ -14,12 +15,16 @@ class OnboardingController {
   final Ref _ref;
 
 
-  /// Triggers the While-Using permission prompt (reduced accuracy) by
-  /// requesting one coarse fix. Best-effort: denial is fine — weather is
-  /// simply skipped until the user grants it later.
+  /// Raises the While-Using prompt (reduced accuracy).
+  ///
+  /// **This is the only place the app asks for location.** It used to ask by
+  /// requesting a position, which meant every weather read could prompt —
+  /// launch, resume, logging an attack. Here the ask sits next to the screen
+  /// explaining why it is wanted, which is the only place it can be answered
+  /// well. Best-effort: denial is fine, weather is simply skipped.
   Future<void> requestLocation() async {
     try {
-      await _ref.read(locationSourceProvider).currentPosition();
+      await _ref.read(locationSourceProvider).requestPermission();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Location permission request failed',
@@ -46,6 +51,31 @@ class OnboardingController {
     } catch (error, stackTrace) {
       AppLogger.error(
         'Reset onboarding failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Raises the notification prompt, once, at the end of onboarding.
+  ///
+  /// **Last, and separate from location.** Two OS dialogs stacked on one
+  /// screen get dismissed as a pair, and the second one is never read. This
+  /// one comes after the pages are done, when the user has seen what the
+  /// reminders and alerts are for.
+  ///
+  /// No settings sheet on refusal — [AppPermission.ensure] needs a context
+  /// and there is nothing to recover here: a user who says no still gets the
+  /// whole app, and the features that need it ask again where they live.
+  Future<void> requestNotifications() async {
+    try {
+      await _ref
+          .read(appPermissionProvider)
+          .request(AppPermissionType.notification);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Notification permission request failed',
         error: error,
         stackTrace: stackTrace,
       );

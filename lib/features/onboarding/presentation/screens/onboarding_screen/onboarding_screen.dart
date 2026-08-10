@@ -44,6 +44,12 @@ class OnboardingScreen extends HookConsumerWidget {
 
     Future<void> finish() async {
       await controller.complete(thresholdHpa: threshold.value);
+      // Asked here rather than on a page of its own: the user has just set a
+      // pressure threshold, so what the notification is for is as clear as it
+      // will ever be. Awaited so the dashboard does not slide in under the
+      // OS dialog.
+      await controller.requestNotifications();
+
       if (context.mounted) context.goNamed(AppRoutes.dashboard.name);
     }
 

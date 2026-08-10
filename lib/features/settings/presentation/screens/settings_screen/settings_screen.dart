@@ -70,9 +70,18 @@ class SettingsScreen extends ConsumerWidget {
             // Fixture tooling — only where FLAVOR is not prod.
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev),
-              const _DevPremiumTile(),
-              const _DevOffersTile(),
-              const _DevPushTile(),
+              // Both of these need a real account, so neither is shown
+              // without one — each would otherwise fail in a way that reads
+              // as a broken tool rather than a missing precondition.
+              // Premium binds to an account (`PurchaseIdentity`), so forcing
+              // it on an anonymous session simulates a state production
+              // cannot reach; and `sendTestPush` refuses anonymous callers
+              // outright (hard rule 7).
+              if (ref.watch(isSignedInProvider)) ...<Widget>[
+                const _DevPremiumTile(),
+                const _DevPushTile(),
+                const _DevOffersTile(),
+              ],
               const _DevSeedTile(),
               const _DevResetTile(),
             ],
