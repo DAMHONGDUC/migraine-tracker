@@ -35,6 +35,8 @@ can never prove the project has them, which is what the deploy did.
 |---|---|---|
 | 6 | Enable **Push Notifications** on the App ID | Signing fails: "provisioning profile doesn't include the aps-environment entitlement". Automatic signing offers to do it on the first device build. |
 | 7 | Enable **HealthKit** on the App ID | Same failure, for `com.apple.developer.healthkit`. |
+| 20 | Create a **Key with WeatherKit enabled** (Keys → ＋ → tick WeatherKit) | The backend has nothing to sign its JWT with, so every weather read fails. Downloadable once, and a **different** key from the APNs one. |
+| 21 | Register a **Services ID** (Identifiers → Services IDs) | It is the JWT's subject. The app's Bundle ID will not work in its place. |
 | 7b | Enable App Group `group.app.dd.migraine.tracker` on the App ID **and** on `…​.BaroEaseWidgetExtension` | The widget extension will not sign on device, and its shared container silently returns nothing. App Groups work unprovisioned on the Simulator, so "it works there" proves nothing. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
@@ -59,6 +61,7 @@ it carries the full account of the TestFlight crash behind item 12.
 | 14 | Publish the policy at `https://damhongduc.github.io/apps_privacy_policy` | A HealthKit app cannot be submitted without a reachable privacy policy URL. |
 | 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
+| 22 | Put the WeatherKit `.p8` in Secret Manager | Never in the repo, never in `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
 | 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
 | 17b | Place the home screen widget and look at it | The extension builds, embeds and receives its data, but nothing has ever seen it drawn — the SwiftUI layout is the one unverified part. Check the log button lands on the log flow while you are there. |
 
@@ -66,7 +69,7 @@ it carries the full account of the TestFlight crash behind item 12.
 
 | # | What | Why it can wait |
 |---|---|---|
-| 18 | Swap WeatherKit in for Open-Meteo | Open-Meteo is the documented stand-in behind `weatherRepositoryProvider`, and everything depends on the `WeatherRepository` interface, so the swap is one provider. Needs a WeatherKit key first. The backend cron stays on Open-Meteo permanently — that is not part of this item. |
+| 18 | Move weather to WeatherKit | **Decided 10 Aug**: WeatherKit for everything, called only from Cloud Functions. No longer a swap of one provider — the app loses its own weather API entirely and reads through the backend, because the signing key cannot ship in a binary. Blocked on 20 and 21. |
 | 19 | `FirebaseAlertRegistrationRepository` has no test | It takes concrete `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it means extracting three interfaces or adding a mocking package. Both are bigger than the gap. Item 17 is what proves it works. |
 
 ### Order
