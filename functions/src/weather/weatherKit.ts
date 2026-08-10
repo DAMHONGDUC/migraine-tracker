@@ -134,20 +134,62 @@ function readCredentials(): WeatherKitCredentials {
 export async function fetchHourlyPressure(
   lat: number,
   lon: number,
-  deps: {
-    fetchImpl?: FetchLike;
-    sleep?: (ms: number) => Promise<void>;
-    credentials?: WeatherKitCredentials;
-    now?: Date;
-  } = {},
+  deps: WeatherKitDeps = {},
 ): Promise<HourlyForecast> {
+  const hours = await fetchHourlyWeather(lat, lon, {}, deps);
+  const times: Date[] = [];
+  const pressuresHpa: number[] = [];
+
+  for (const hour of hours) {
+    times.push(new Date(hour.time));
+    pressuresHpa.push(hour.pressureHpa);
+  }
+
+  return { times, pressuresHpa };
+}
+
+export interface WeatherKitDeps {
+  fetchImpl?: FetchLike;
+  sleep?: (ms: number) => Promise<void>;
+  credentials?: WeatherKitCredentials;
+  now?: Date;
+}
+
+/** One hour of the forecast, in the units the app already speaks. */
+export interface WeatherHour {
+  /** ISO-8601, UTC. */
+  time: string;
+  pressureHpa: number;
+  humidityPercent?: number;
+  temperatureCelsius?: number;
+}
+
+/**
+ * The hourly series, optionally over an explicit window.
+ *
+ * `hourlyStart`/`hourlyEnd` are what let the app backfill an attack logged
+ * offline days ago with the weather *at its start time* — without them
+ * WeatherKit answers from the current hour forward, which cannot describe
+ * something that already happened.
+ */
+export async function fetchHourlyWeather(
+  lat: number,
+  lon: number,
+  window: { start?: Date; end?: Date } = {},
+  deps: WeatherKitDeps = {},
+): Promise<WeatherHour[]> {
   const fetchImpl = deps.fetchImpl ?? (fetch as unknown as FetchLike);
   const sleep =
     deps.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   const credentials = deps.credentials ?? readCredentials();
+  const params = new URLSearchParams({ dataSets: "forecastHourly" });
+
+  if (window.start) params.set("hourlyStart", window.start.toISOString());
+  if (window.end) params.set("hourlyEnd", window.end.toISOString());
+
   const url =
     "https://weatherkit.apple.com/api/v1/weather/en" +
-    `/${lat}/${lon}?dataSets=forecastHourly`;
+    `/${lat}/${lon}?${params.toString()}`;
 
   let lastError: unknown;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -164,7 +206,7 @@ export async function fetchHourlyPressure(
         throw new Error(`weatherkit HTTP ${response.status}`);
       }
 
-      return parseForecast(await response.json());
+      return parseHours(await response.json());
     } catch (error) {
       lastError = error;
     }
@@ -178,14 +220,19 @@ export async function fetchHourlyPressure(
 interface ForecastHour {
   forecastStart?: string;
   pressure?: number | null;
+  humidity?: number | null;
+  temperature?: number | null;
 }
 
 /**
  * WeatherKit reports `pressure` in millibars, which is hPa — the same unit
  * Open-Meteo returned and the unit the alert threshold is already in, so
  * nothing downstream converts.
+ *
+ * `humidity` is the one that does convert: Apple sends a 0–1 fraction and
+ * every surface in the app says a percentage.
  */
-function parseForecast(body: unknown): HourlyForecast {
+function parseHours(body: unknown): WeatherHour[] {
   const hours = (body as { forecastHourly?: { hours?: unknown } })
     ?.forecastHourly?.hours;
 
@@ -193,8 +240,7 @@ function parseForecast(body: unknown): HourlyForecast {
     throw new Error("weatherkit: malformed body");
   }
 
-  const times: Date[] = [];
-  const pressuresHpa: number[] = [];
+  const parsed: WeatherHour[] = [];
 
   for (const hour of hours as ForecastHour[]) {
     const pressure = hour?.pressure;
@@ -202,9 +248,16 @@ function parseForecast(body: unknown): HourlyForecast {
     if (pressure === null || pressure === undefined) continue;
     if (!hour.forecastStart) continue;
 
-    times.push(new Date(hour.forecastStart));
-    pressuresHpa.push(pressure);
+    parsed.push({
+      time: new Date(hour.forecastStart).toISOString(),
+      pressureHpa: pressure,
+      humidityPercent:
+        hour.humidity === null || hour.humidity === undefined
+          ? undefined
+          : hour.humidity * 100,
+      temperatureCelsius: hour.temperature ?? undefined,
+    });
   }
 
-  return { times, pressuresHpa };
+  return parsed;
 }

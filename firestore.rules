@@ -77,6 +77,10 @@ service cloud.firestore {
     // list drift apart — which is how medications and reminders once shipped
     // denied, breaking sync AND the dev seed on their first query.
     //
+    // `weather_cache` relies on this being an allowlist: it is written only by
+    // the Admin SDK behind `getWeather` and must stay unreachable from a
+    // client, so it is deliberately absent rather than overlooked.
+    //
     // Note what these rules can NOT do: a query over one of these collections
     // has no single document to evaluate, so Firestore refuses it unless the
     // client filters by userId itself. `OwnedCollection` is what guarantees

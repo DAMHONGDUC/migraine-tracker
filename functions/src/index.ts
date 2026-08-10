@@ -21,8 +21,15 @@ import {
 } from "./core/syncKey";
 import { premiumFromEvent } from "./revenuecat";
 import {
+  cellCenter,
+  cellKey,
+  isFresh,
+} from "./weather/hourlyCache";
+import {
   fetchHourlyPressure,
+  fetchHourlyWeather,
   weatherKitPrivateKey,
+  WeatherHour,
 } from "./weather/weatherKit";
 
 initializeApp();
@@ -321,6 +328,87 @@ export const revenuecatWebhook = onRequest(
  * uses, not a simpler one. `eventId` is stamped `test:` so the client's
  * idempotent writers cannot mistake it for a real event.
  */
+/**
+ * The app's only weather source. It has none of its own: WeatherKit's signing
+ * key cannot ship in a binary, so the app asks here and here asks Apple
+ * (CLAUDE.md's tech-stack rule).
+ *
+ * **Anonymous callers are allowed, unlike `getSyncKey` and `sendTestPush`.**
+ * Weather is what pairs a logged attack with the pressure at that moment, and
+ * hard rule 1 says every feature except sync and alerts works without an
+ * account. Refusing anonymous sessions here would break logging for exactly
+ * the users the app is designed around.
+ *
+ * **Cached per cell, which is the rate limit.** Coordinates round to ~11km and
+ * the series is reused for an hour, so WeatherKit calls scale with populated
+ * cells rather than with users or with taps — the 500k monthly quota now lands
+ * on one key instead of being spread across users' own devices. The rounding
+ * also means no precise position is ever stored, matching what hard rule 1
+ * allows for alerts.
+ */
+export const getWeather = onCall(
+  {
+    region: REGION,
+    maxInstances: 10,
+    memory: "256MiB",
+    secrets: [weatherKitPrivateKey],
+  },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "sign in first");
+    }
+
+    const lat = Number(request.data?.lat);
+    const lon = Number(request.data?.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      throw new HttpsError("invalid-argument", "lat and lon are required");
+    }
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      throw new HttpsError("invalid-argument", "lat or lon out of range");
+    }
+
+    // Hours before and after now. Bounded so one caller cannot ask for a
+    // decade and turn a cache miss into an enormous fetch.
+    const hoursBack = Math.min(Math.max(Number(request.data?.hoursBack) || 0, 0), 240);
+    const hoursForward = Math.min(
+      Math.max(Number(request.data?.hoursForward) || 0, 0),
+      240,
+    );
+
+    const now = new Date();
+    const key = `${cellKey(lat, lon)}_${hoursBack}_${hoursForward}`;
+    const db = getFirestore();
+    const doc = db.collection("weather_cache").doc(key);
+    const cached = await doc.get();
+
+    if (cached.exists && isFresh(cached.get("cachedAt")?.toDate(), now)) {
+      return { hours: cached.get("hours") as WeatherHour[], cached: true };
+    }
+
+    const center = cellCenter(cellKey(lat, lon));
+    const hours = await fetchHourlyWeather(
+      center.lat,
+      center.lon,
+      {
+        start: new Date(now.getTime() - hoursBack * 3_600_000),
+        end: new Date(now.getTime() + hoursForward * 3_600_000),
+      },
+      {},
+    );
+
+    // Best-effort: a cache that fails to write must not fail the request the
+    // caller actually made.
+    try {
+      await doc.set({ hours, cachedAt: now });
+    } catch (error) {
+      logger.warn("weather cache write failed", { key, error: String(error) });
+    }
+
+    return { hours, cached: false };
+  },
+);
+
 export const sendTestPush = onCall(
   { region: REGION, maxInstances: 5, memory: "256MiB" },
   async (request) => {
