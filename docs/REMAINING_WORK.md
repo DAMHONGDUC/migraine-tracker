@@ -33,11 +33,11 @@ can never prove the project has them, which is what the deploy did.
 
 | # | What | Why it matters if skipped |
 |---|---|---|
-| 6 | Enable **Push Notifications** on the App ID | Signing fails: "provisioning profile doesn't include the aps-environment entitlement". Automatic signing offers to do it on the first device build. |
-| 7 | Enable **HealthKit** on the App ID | Same failure, for `com.apple.developer.healthkit`. |
+| ~~6~~ | ~~Push Notifications on the App ID~~ | **Done 10 Aug.** |
+| ~~7~~ | ~~HealthKit on the App ID~~ | **Done 10 Aug.** |
 | 20 | Create a **Key with WeatherKit enabled** (Keys → ＋ → tick WeatherKit) | The backend has nothing to sign its JWT with, so every weather read fails. Downloadable once, and a **different** key from the APNs one. |
 | 21 | Register a **Services ID** (Identifiers → Services IDs) | It is the JWT's subject. The app's Bundle ID will not work in its place. |
-| 7b | Enable App Group `group.app.dd.migraine.tracker` on the App ID **and** on `…​.BaroEaseWidgetExtension` | The widget extension will not sign on device, and its shared container silently returns nothing. App Groups work unprovisioned on the Simulator, so "it works there" proves nothing. |
+| ~~7b~~ | ~~App Group on both App IDs~~ | **Done 10 Aug**, on the app's App ID and on `…​.BaroEaseWidgetExtension`. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
 | 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
@@ -75,10 +75,16 @@ it carries the full account of the TestFlight crash behind item 12.
 ### Order
 
 4 → 6 → 17 is the push chain, and nothing before the end of it proves push
-works. 1-4 are done, so **6 then 17 is all that is left of it**. 7, 7b and 6
-are one visit to Identifiers; 7b belongs before any device build, or the
-widget extension will not sign. 8, 9, 12 and 13 are
-one errand; the paywall says the same thing whichever of them is missing.
+works. 1-4 and 6 are done, so **17 is all that is left of it**.
+
+17 is now the gate on three separate things at once — push, HealthKit and the
+widget's shared container — because none of them exists on the Simulator and
+each fails there in a way that looks exactly like a refusal. Everything a
+device build needs (6, 7, 7b) is in place, so the next device build should
+sign.
+
+8, 9, 12 and 13 are one errand; the paywall says the same thing whichever of
+them is missing.
 
 ## Detail
 
@@ -116,9 +122,9 @@ The old "what is left" list under this item is gone: every point on it
 the `sync_keys/{uid}` teardown) is now built and covered by
 `data_wipe_service_test.dart`.
 
-## 2. Push notifications — the repo half is done, the console half is not
+## 2. Push notifications — only the device test is left
 
-Checklist items 6 and 17; item 4 is done. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
+Checklist item 17; items 4 and 6 are done. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
 HealthKit. It says `development` on purpose: one entitlements file serves all
 three build configs, and the app-store export re-signs it to `production`
 from the distribution profile — hardcoding `production` would break push on
@@ -131,13 +137,20 @@ is left is outside the repo:
 - ~~An APNs auth key configured in the Firebase console.~~ **Done 10 Aug.**
   A `.p8`, which covers sandbox and production together — the environment is
   decided by the build's own `aps-environment`, not by anything in Firebase.
-- **Push Notifications enabled on the App ID** in the Apple Developer portal,
-  same as HealthKit below. Automatic signing offers this on the first device
-  build; until it is done, signing fails on the missing entitlement.
+- ~~**Push Notifications enabled on the App ID.**~~ **Done 10 Aug**, in the
+  same visit to Identifiers as HealthKit and the App Group.
 - **A real-device test pass.** `getToken()` returns null on the Simulator (no
   APNs), which the repository already maps to
   `AlertRegistrationError.pushUnavailable` — so a Simulator refusal is
   expected behaviour, not a bug to chase.
+
+  `sendTestPush` is what proves it, and it refuses three ways, each naming a
+  different cause: `unauthenticated` (not signed in), `permission-denied`
+  (signed in anonymously — an account is required), and `failed-precondition`
+  (signed in, but this device never registered an `fcmToken`, so turn alerts
+  on once first). The dev row that calls it is behind `!AppEnv.isProd`, so the
+  build has to be the dev flavour. Premium is not required — only the cron
+  filters on it.
 
 ## 3. ~~`sync` feature doesn't exist yet~~ — built
 
@@ -202,7 +215,7 @@ Deliberately not done, and worth knowing before extending this:
   `RemindersController.rescheduleAll()` afterwards. Anything else that ends
   up device-local like this needs the same treatment.
 
-## 4. Manual Firebase/Apple console setup — the Firebase half is done
+## 4. Manual Firebase/Apple console setup — both consoles are done
 
 Checklist items 4-7b and 17. Also documented in `CLAUDE.md` under "Pending
 setup"; re-verified against the current repo state:
@@ -216,12 +229,13 @@ setup"; re-verified against the current repo state:
 - The `app_updates` collection doesn't exist yet — the first release record
   has to be created by hand in the Firebase console before force-update can
   ever fire (it fails open until then, which is safe but silent).
-- HealthKit capability needs enabling on the App ID in the Apple Developer
-  portal, plus a real-device test pass (Simulator has no HealthKit) and the
-  App Privacy label (Health & Fitness, collected-but-not-linked).
-- The App Group behind the home screen widget needs enabling on two App IDs —
-  the app's and the extension's own. Unlike HealthKit and push, this one is
-  invisible on the Simulator, where App Groups work unprovisioned.
+- **Push, HealthKit and the App Group were all enabled on 10 Aug**, in one
+  visit to Identifiers — the App Group on both App IDs, the app's and the
+  widget extension's own. What each of them still owes is a real-device pass
+  (item 17): the Simulator has no APNs and no HealthKit, and App Groups work
+  there unprovisioned, so it cannot confirm any of the three.
+- The App Privacy label (Health & Fitness, collected-but-not-linked) is
+  separate and still open — see item 10.
 
 ## 5. The privacy policy is written but not published
 
