@@ -11,6 +11,7 @@ import '../../../../../core/extensions/head_location_label.dart';
 import '../../../../../core/extensions/medication_effect_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/utils/signed_number_utils.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/exertion_level.dart';
 import '../../../domain/enums/head_location.dart';

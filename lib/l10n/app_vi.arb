@@ -368,7 +368,6 @@
   "settingsDeleteLocal": "Xoá toàn bộ dữ liệu trên máy",
   "settingsDeleteLocalConfirmBody": "Thao tác này xoá vĩnh viễn cơn đau, thuốc, lời nhắc và các bản xuất trước đây khỏi máy này, đồng thời tắt cảnh báo áp suất. Không thể hoàn tác.",
   "commonDeleting": "Đang xoá…",
-
   "settingsDeleteConfirmTitle": "Xóa tất cả?",
   "settingsDeleteConfirmBody": "Thao tác này xoá vĩnh viễn cơn đau, thuốc, lời nhắc và các bản xuất trước đây — cả trên máy này lẫn trên tài khoản — và tắt cảnh báo áp suất. Tài khoản của bạn vẫn giữ nguyên. Không thể hoàn tác.",
   "settingsDeleteConfirmAction": "Xóa",
@@ -507,5 +506,14 @@
   "healthStepsTitle": "Số bước từ Apple Health",
   "healthConnectFailed": "Không kết nối được Apple Health.",
   "commonDurationHoursMinutes": "{hours} giờ {minutes} phút",
-  "commonStepsCount": "{count} bước"
+  "commonStepsCount": "{count} bước",
+  "homeWidgetSettingsTitle": "Widget màn hình chính",
+  "homeWidgetLogLabel": "Ghi cơn đau",
+  "homeWidgetWeekLabel": "Tuần này",
+  "homeWidgetWeekValue": "{count, plural, =0{Chưa có cơn nào} other{{count} cơn}}",
+  "homeWidgetPressureLabel": "Áp suất",
+  "homeWidgetPressureValue": "{value} hPa",
+  "homeWidgetPressureDetail": "{value} hPa / 24 giờ",
+  "homeWidgetPressureNone": "—",
+  "homeWidgetFailed": "Không cập nhật được widget màn hình chính."
 }

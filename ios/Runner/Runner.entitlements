@@ -16,5 +16,12 @@
 	     breaks push on every debug build. -->
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- Shared with the BaroEaseWidget extension: the app writes the widget's
+	     already-worded strings here and asks WidgetKit to redraw. Must match
+	     BaroEaseWidget.entitlements and HomeWidgetConstant.appGroupId. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.app.dd.migraine.tracker</string>
+	</array>
 </dict>
 </plist>

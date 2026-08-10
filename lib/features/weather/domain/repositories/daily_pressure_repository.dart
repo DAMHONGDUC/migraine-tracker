@@ -12,6 +12,13 @@ abstract interface class DailyPressureRepository {
   /// recorder fetching again on every app open.
   Future<bool> hasDay(DateTime day);
 
+  /// The newest reading, or null on a device that has never recorded one.
+  ///
+  /// Its own method rather than the tail of [since]: the home widget wants
+  /// one row and nothing else, and a year of readings loaded to keep the last
+  /// of them is a query the caller cannot see the cost of.
+  Future<DailyPressure?> latest();
+
   /// Writes (or overwrites) one day's reading.
   Future<void> upsert(DailyPressure reading);
 

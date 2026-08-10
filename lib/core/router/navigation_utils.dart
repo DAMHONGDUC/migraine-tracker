@@ -2,8 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../features/attacks/providers.dart';
 import '../../features/auth/providers.dart';
 import '../analytics/app_analytics.dart';
+import '../constants/premium_limit_constant.dart';
+import '../extensions/context_extensions.dart';
 import '../widgets/record_limit_dialog.dart';
 import 'app_router.dart';
 
@@ -15,6 +18,30 @@ final class NavigationUtils {
     final bool? signedIn = await context.pushNamed<bool>(AppRoutes.login.name);
 
     return signedIn ?? false;
+  }
+
+  /// The 3-tap log flow, with the two things that must happen before it.
+  ///
+  /// The free plan's attack limit is the one gate that lands here, and it
+  /// names itself first like every other record limit. The flow state is then
+  /// reset so the screen always starts fresh at intensity.
+  ///
+  /// Two ways in — the dashboard's button and the home-screen widget — and
+  /// the rule is why this lives here: a second entry point that forgot the
+  /// gate would be a free user walking past the wall.
+  static Future<void> toLog(BuildContext context, WidgetRef ref) async {
+    if (!ref.read(canLogAttackProvider)) {
+      await toPaywallFromLimit(
+        context,
+        ref,
+        title: context.l10n.attackLimitTitle(PremiumLimitConstant.attacks),
+        body: context.l10n.attackLimitBody(PremiumLimitConstant.attacks),
+      );
+      return;
+    }
+
+    ref.read(logControllerProvider.notifier).reset();
+    if (context.mounted) await context.pushNamed<void>(AppRoutes.log.name);
   }
 
   /// One notification in full. Both the list's rows and a tapped OS

@@ -21,6 +21,10 @@ final class PrefsKeyConstant {
   static const String healthSleep = 'health_sleep_connected';
   static const String healthSteps = 'health_steps_connected';
 
+  /// Whether the home-screen widget is fed. Absent means on: a widget the
+  /// user placed themselves and then found empty reads as broken.
+  static const String homeWidgetEnabled = 'home_widget_enabled';
+
   /// Prefixes, not keys: the uid and the collection are appended (see
   /// `PrefsSyncCursorStore`).
   static const String syncCursorPrefix = 'sync_last_pulled_at_';

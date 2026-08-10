@@ -11,7 +11,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 7 August 2026
+**Last updated:** 10 August 2026
 **Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
 **Contact:** ducdam.dev@gmail.com
 
@@ -39,6 +39,13 @@ triggers, notes, medications and their reminders, the weather snapshot
 attached to each attack, and the in-app notification history. If you are not
 signed in, we never receive any of it. You can export or delete it at any
 time (§8).
+
+If you turn on the **home screen widget** (Settings → Home screen widget), the
+app also writes what the widget shows — the number of attacks you logged this
+week and the most recent barometric pressure reading — into a container shared
+between the app and the widget on your device. Nothing leaves the phone, and
+switching the widget off empties that container immediately. A "delete all
+data" clears it too.
 
 ### b. Data sent to our backend — even without an account
 
@@ -147,10 +154,11 @@ entitlement follows you rather than one installation.
   report). Past exports are kept in the app so you can re-share them; they
   are full copies of your data and are deleted along with everything else
   below.
-- **Delete all data:** Settings → Delete all data. Wipes the local database
-  and past export files, deletes your synced records and your backend alert
-  record, and gives up your push token, geohash and threshold. **Your account
-  stays**, so your subscription binding survives.
+- **Delete all data:** Settings → Delete all data. Wipes the local database,
+  past export files and the home screen widget's shared container, deletes
+  your synced records and your backend alert record, and gives up your push
+  token, geohash and threshold. **Your account stays**, so your subscription
+  binding survives.
 - **Delete your account:** Account screen → Delete account. The whole
   teardown: synced records, your account record, your encryption key, then
   the login itself. This does **not** cancel your subscription — that lives

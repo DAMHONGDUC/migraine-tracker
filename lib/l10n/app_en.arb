@@ -1176,7 +1176,11 @@
   "notificationReminderTitle": "Time for {medication}",
   "@notificationReminderTitle": {
     "description": "A medication reminder row in the notification list",
-    "placeholders": { "medication": { "type": "String" } }
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      }
+    }
   },
   "notificationReminderUnknown": "Time for your medication",
   "@notificationReminderUnknown": {
@@ -1189,7 +1193,11 @@
   "notificationPressureBody": "Barometric pressure was forecast to fall {drop} hPa within 24 hours.",
   "@notificationPressureBody": {
     "description": "Body of the pressure alert sheet; drop is a formatted number",
-    "placeholders": { "drop": { "type": "String" } }
+    "placeholders": {
+      "drop": {
+        "type": "String"
+      }
+    }
   },
   "notificationMedicationAction": "Open this medication",
   "@notificationMedicationAction": {
@@ -1501,7 +1509,11 @@
   "settingsSyncProgress": "{percent}%",
   "@settingsSyncProgress": {
     "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "settingsSyncStatusFailed": "Didn't finish",
   "@settingsSyncStatusFailed": {
@@ -1758,7 +1770,6 @@
   "@commonDeleting": {
     "description": "Button label while a destructive action is running, replacing the verb so the action reads as underway and cannot be tapped twice"
   },
-
   "@settingsDelete": {
     "description": "Settings tile that starts the GDPR delete flow"
   },
@@ -2445,5 +2456,56 @@
         "type": "int"
       }
     }
+  },
+  "homeWidgetSettingsTitle": "Home screen widget",
+  "@homeWidgetSettingsTitle": {
+    "description": "Settings switch that turns the iOS home screen widget's data on or off"
+  },
+  "homeWidgetLogLabel": "Log attack",
+  "@homeWidgetLogLabel": {
+    "description": "Fixed button on the home screen widget; opens the log flow"
+  },
+  "homeWidgetWeekLabel": "This week",
+  "@homeWidgetWeekLabel": {
+    "description": "Home screen widget label above the count of attacks logged this week"
+  },
+  "homeWidgetWeekValue": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "@homeWidgetWeekValue": {
+    "description": "Home screen widget value: attacks logged this week",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeWidgetPressureLabel": "Pressure",
+  "@homeWidgetPressureLabel": {
+    "description": "Home screen widget label above the latest pressure reading"
+  },
+  "homeWidgetPressureValue": "{value} hPa",
+  "@homeWidgetPressureValue": {
+    "description": "Home screen widget value: the latest pressure reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeWidgetPressureDetail": "{value} hPa / 24h",
+  "@homeWidgetPressureDetail": {
+    "description": "Home screen widget detail: the signed 24h pressure change under the reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeWidgetPressureNone": "—",
+  "@homeWidgetPressureNone": {
+    "description": "Home screen widget placeholder when there is no recent pressure reading"
+  },
+  "homeWidgetFailed": "Couldn't update the home screen widget.",
+  "@homeWidgetFailed": {
+    "description": "Error snackbar when writing the widget's shared data failed"
   }
 }

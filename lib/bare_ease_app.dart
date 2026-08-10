@@ -13,9 +13,12 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
+import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
+import 'features/home_widget/presentation/widgets/home_widget_tap_listener.dart';
+import 'features/home_widget/providers.dart';
 import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
 import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
@@ -25,6 +28,30 @@ import 'l10n/gen/app_localizations.dart';
 
 class BaroEaseApp extends HookConsumerWidget {
   const BaroEaseApp({super.key});
+
+  /// Today's pressure reading, then the home-screen widget that shows it.
+  ///
+  /// In that order, not side by side: the widget reads the row the recorder
+  /// writes, so racing the two leaves it drawing yesterday's number until the
+  /// next launch.
+  Future<void> _recordPressureThenRedraw(WidgetRef ref) async {
+    await ref.read(dailyPressureRecorderProvider).recordToday();
+    await _redrawHomeWidget(ref);
+  }
+
+  /// The home-screen widget, best-effort.
+  ///
+  /// Swallowed rather than rethrown, unlike the controller it calls: every
+  /// caller here runs unawaited from the app root, where a throw has no
+  /// screen to land on and would take app start with it. The controller has
+  /// already logged whatever went wrong.
+  Future<void> _redrawHomeWidget(WidgetRef ref) async {
+    try {
+      await ref.read(homeWidgetControllerProvider.notifier).refresh();
+    } catch (_) {
+      // Already logged where it happened.
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +67,7 @@ class BaroEaseApp extends HookConsumerWidget {
     // One pressure reading per day, attack or not — the denominator the
     // correlation compares against. Fetches at most once per local day.
     useEffect(() {
-      unawaited(ref.read(dailyPressureRecorderProvider).recordToday());
+      unawaited(_recordPressureThenRedraw(ref));
       return null;
     }, const []);
 
@@ -91,11 +118,24 @@ class BaroEaseApp extends HookConsumerWidget {
             ref.read(notificationsControllerProvider).reconcileLastAlert(),
           );
           // Covers the app left open across midnight.
-          unawaited(ref.read(dailyPressureRecorderProvider).recordToday());
+          unawaited(_recordPressureThenRedraw(ref));
         },
       );
       return listener.dispose;
     }, const []);
+
+    // - The widget's week count comes from the attack list, so it is redrawn
+    //   whenever that list moves — a fresh log, an edit, a sync pull.
+    // - The language too: the widget is native and cannot reach the ARB
+    //   files, so its strings are only ever as current as the last publish.
+    ref.listen<AsyncValue<List<Attack>>>(
+      attacksStreamProvider,
+      (previous, next) => unawaited(_redrawHomeWidget(ref)),
+    );
+    ref.listen<Locale?>(
+      localeControllerProvider,
+      (previous, next) => unawaited(_redrawHomeWidget(ref)),
+    );
 
     // Keeps analytics/crash identity in step with the account — UID is opaque, null once signed out.
     ref.listen<AsyncValue<AuthUser?>>(authUserProvider, (previous, next) {
@@ -147,7 +187,9 @@ class BaroEaseApp extends HookConsumerWidget {
         // - Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
         // - And catches notification taps wherever the user is, including nowhere yet (see NotificationTapListener).
         builder: (context, child) => NotificationTapListener(
-          child: ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
+          child: HomeWidgetTapListener(
+            child: ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
+          ),
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

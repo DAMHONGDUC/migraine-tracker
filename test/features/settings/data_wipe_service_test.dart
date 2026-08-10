@@ -18,10 +18,9 @@ import 'package:migraine_tracker/features/settings/domain/entities/export_record
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
-
-
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
+import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
@@ -71,6 +70,7 @@ void main() {
     final notifications = RecordingNotificationScheduler();
     final exportRecords = DriftExportRecordRepository(db);
     final exportFiles = FakeExportFileStore();
+    final homeWidget = RecordingHomeWidgetRepository();
 
     await attacks.insert(
       Attack(
@@ -102,6 +102,7 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      homeWidget,
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -110,6 +111,9 @@ void main() {
     // The list is derived from reminders but stored, so a wipe that
     // skipped it would keep naming medications the user just deleted.
     expect(await db.select(db.appNotifications).get(), isEmpty);
+    // The App Group is off the database entirely, so nothing else here
+    // would notice the week count still sitting on the home screen.
+    expect(homeWidget.clears, 1);
   });
 
   test('wipeAll deletes past exports — they are full copies of the data '
@@ -145,6 +149,7 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
@@ -174,6 +179,7 @@ void main() {
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -231,6 +237,7 @@ void main() {
         syncServiceOver(db),
         alerts,
         DriftDailyPressureRepository(db),
+        RecordingHomeWidgetRepository(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after

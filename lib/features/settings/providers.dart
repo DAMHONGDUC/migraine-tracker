@@ -6,6 +6,7 @@ import '../../core/db/database_provider.dart';
 import '../alerts/providers.dart';
 import '../attacks/providers.dart';
 import '../auth/providers.dart';
+import '../home_widget/providers.dart';
 import '../medications/providers.dart';
 import '../notifications/providers.dart';
 import '../sync/providers.dart';
@@ -135,6 +136,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
     ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(homeWidgetRepositoryProvider),
   ),
 );
 

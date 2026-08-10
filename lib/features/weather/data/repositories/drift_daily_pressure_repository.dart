@@ -42,6 +42,17 @@ class DriftDailyPressureRepository implements DailyPressureRepository {
   }
 
   @override
+  Future<DailyPressure?> latest() async {
+    final DailyWeatherRow? row =
+        await (_db.select(_db.dailyWeather)
+              ..orderBy([(t) => OrderingTerm.desc(t.day)])
+              ..limit(1))
+            .getSingleOrNull();
+
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
   Future<void> upsert(DailyPressure reading) =>
       _db.into(_db.dailyWeather).insertOnConflictUpdate(
         DailyWeatherCompanion.insert(
