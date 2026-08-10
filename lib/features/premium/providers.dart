@@ -5,9 +5,11 @@ import '../auth/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
 import 'data/repositories/revenue_cat_purchase_repository.dart';
+import 'data/services/url_link_launcher.dart';
 import 'domain/entities/premium_offer.dart';
 import 'domain/repositories/premium_repository.dart';
 import 'domain/repositories/purchase_repository.dart';
+import 'domain/services/link_launcher.dart';
 import 'presentation/controllers/paywall_controller.dart';
 import 'presentation/controllers/purchase_identity.dart';
 
@@ -95,4 +97,10 @@ final paywallControllerProvider =
 /// from the app root's auth listener.
 final purchaseIdentityProvider = Provider<PurchaseIdentity>(
   PurchaseIdentity.new,
+);
+
+/// Opens the paywall's Terms and Privacy links. Widget tests override it —
+/// otherwise tapping either one reaches the url_launcher plugin.
+final linkLauncherProvider = Provider<LinkLauncher>(
+  (ref) => const UrlLinkLauncher(),
 );

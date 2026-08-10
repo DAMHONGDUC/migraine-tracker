@@ -1315,6 +1315,18 @@
   "@paywallRestore": {
     "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
   },
+  "paywallTermsOfUse": "Terms of Use",
+  "@paywallTermsOfUse": {
+    "description": "Paywall footer link to Apple's standard EULA. App Store guideline 3.1.2 requires it in the binary beside an auto-renewable subscription, not only in the store listing"
+  },
+  "paywallPrivacyPolicy": "Privacy Policy",
+  "@paywallPrivacyPolicy": {
+    "description": "Paywall footer link to the app's published privacy policy, required alongside the Terms of Use by the same guideline"
+  },
+  "paywallLinkFailed": "Couldn't open that link.",
+  "@paywallLinkFailed": {
+    "description": "Shown when the Terms or Privacy link cannot be opened, so a silent no-op does not read as a broken tap"
+  },
   "paywallRestoreNothing": "Nothing to restore on this account.",
   "@paywallRestoreNothing": {
     "description": "Result message when a restore found no previous purchase"
