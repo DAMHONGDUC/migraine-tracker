@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -14,12 +15,17 @@ class FirebaseAlertRegistrationRepository
     this._messaging,
     this._firestore,
     this._location,
+    this._functions,
   );
+
+  /// Pushes to the caller's own device. Dev tooling — see `sendTestPush`.
+  static const String testPushCallable = 'sendTestPush';
 
   final FirebaseAuth _auth;
   final FirebaseMessaging _messaging;
   final FirebaseFirestore _firestore;
   final LocationSource _location;
+  final FirebaseFunctions _functions;
 
   Future<String> _uid() async {
     final existing = _auth.currentUser;
@@ -87,6 +93,10 @@ class FirebaseAlertRegistrationRepository
     'alertThreshold',
     'tz',
   ]);
+
+  @override
+  Future<void> sendTestPush() =>
+      _functions.httpsCallable(testPushCallable).call<dynamic>();
 
   /// An update, never a delete: the document also carries `premium`, which
   /// only the RevenueCat webhook may write and which the rules refuse to let

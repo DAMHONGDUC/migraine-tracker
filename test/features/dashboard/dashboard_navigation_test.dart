@@ -3,6 +3,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/next_reminder_banner.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
@@ -28,12 +29,10 @@ Future<void> _settle(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// Some banners sit below the fold on the scrollable dashboard — scroll the
-/// target into view before tapping it.
-Future<void> _tapBanner(WidgetTester tester, String label) async {
-  await tester.ensureVisible(find.text(label));
-  await _settle(tester);
-  await tester.tap(find.text(label));
+/// The explore grid sits below the fold, and its last row is under the
+/// floating nav pill — [tapVisible] is what clears both.
+Future<void> _tapExploreCard(WidgetTester tester, String title) async {
+  await tapVisible(tester, find.text(title));
   await _settle(tester);
 }
 
@@ -130,11 +129,20 @@ void main() {
     );
     await _settle(tester);
 
-    expect(find.text('Next reminder'), findsOneWidget);
-    // The subtitle is a Text.rich (the countdown is highlighted), so match
-    // the rich text too.
+    // Two lines, name over time — there is no "Next reminder" title any more.
+    expect(find.byType(NextReminderBanner), findsOneWidget);
     expect(
-      find.textContaining('Ibuprofen', findRichText: true),
+      find.descendant(
+        of: find.byType(NextReminderBanner),
+        matching: find.text('Ibuprofen'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(NextReminderBanner),
+        matching: find.textContaining('at 09:00'),
+      ),
       findsOneWidget,
     );
 
@@ -157,7 +165,7 @@ void main() {
     );
     await _settle(tester);
 
-    await tester.tap(find.text('Next reminder'));
+    await tapVisible(tester, find.byType(NextReminderBanner));
     await _settle(tester);
 
     // Landed on that medication's own screen, with the reminder on it —
@@ -169,32 +177,32 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('reminder banner opens Medications', (tester) async {
+  testWidgets('reminder card opens Medications', (tester) async {
     await pumpApp(tester);
 
-    await _tapBanner(tester, 'Medication reminders');
+    await _tapExploreCard(tester, 'Reminders');
 
     expect(find.text('Medications'), findsWidgets);
 
     await finishTest(tester);
   });
 
-  testWidgets('insights banner opens Insights', (tester) async {
+  testWidgets('insights card opens Insights', (tester) async {
     await pumpApp(tester);
 
-    await _tapBanner(tester, 'Pressure & pain insights');
+    await _tapExploreCard(tester, 'Insights');
 
     expect(find.text('Insights'), findsWidgets);
 
     await finishTest(tester);
   });
 
-  testWidgets('export banner opens the Export screen itself', (tester) async {
+  testWidgets('export card opens the Export screen itself', (tester) async {
     await pumpApp(tester);
 
-    await _tapBanner(tester, 'Export your data');
+    await _tapExploreCard(tester, 'Export');
 
-    // - not the Settings tab with an "Export data" row — the banner must land on the screen it advertised
+    // - not the Settings tab with an "Export data" row — the card must land on the screen it advertised
     // - both surfaces carry that title, so match the screen itself, not the text
     expect(find.byType(ExportScreen), findsOneWidget);
     expect(find.text('No exports yet'), findsOneWidget);

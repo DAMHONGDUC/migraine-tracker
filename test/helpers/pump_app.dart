@@ -745,6 +745,23 @@ Finder findLabelledField(String label) => find.descendant(
 /// So: scroll only when the target really is off-screen, then make sure
 /// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  // A long list builds lazily, so a row far enough down does not exist yet
+  // and every measurement below throws on an empty finder — as `Bad state:
+  // No element` from `_appBarBottom`, which reads as a broken helper rather
+  // than as "scroll further". Two rows added to Settings is all it took.
+  if (finder.evaluate().isEmpty) {
+    final Finder scrollable = find.byType(Scrollable);
+
+    if (scrollable.evaluate().isNotEmpty) {
+      await tester.dragUntilVisible(
+        finder,
+        scrollable.first,
+        const Offset(0, -200),
+      );
+      await tester.pump();
+    }
+  }
+
   final double chromeBottom = _appBarBottom(tester, finder);
   final double screenBottom =
       tester.view.physicalSize.height / tester.view.devicePixelRatio;

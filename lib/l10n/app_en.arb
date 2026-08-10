@@ -2576,5 +2576,22 @@
   "dashboardHealthConnect": "Connect",
   "@dashboardHealthConnect": {
     "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
+  },
+  "settingsDevPush": "Send a test push",
+  "@settingsDevPush": {
+    "description": "Dev-only Settings row showing whether this device registered for push"
+  },
+  "settingsDevPushSent": "Test push sent. It should arrive in a moment.",
+  "@settingsDevPushSent": {
+    "description": "Snackbar after the backend accepted the test push request"
+  },
+  "settingsDevPushFailed": "Test push failed: {reason}",
+  "@settingsDevPushFailed": {
+    "description": "Snackbar when the test push callable refused or failed",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
   }
 }

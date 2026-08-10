@@ -533,5 +533,8 @@
   "homeWidgetFailed": "Không cập nhật được widget màn hình chính.",
   "dashboardSleepTitle": "Giấc ngủ",
   "dashboardStepsTitle": "Số bước",
-  "dashboardHealthConnect": "Kết nối"
+  "dashboardHealthConnect": "Kết nối",
+  "settingsDevPush": "Gửi push thử",
+  "settingsDevPushSent": "Đã gửi push thử. Nó sẽ tới trong giây lát.",
+  "settingsDevPushFailed": "Gửi push thử thất bại: {reason}"
 }
