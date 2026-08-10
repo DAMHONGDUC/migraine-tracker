@@ -103,6 +103,9 @@ Premium:
 
 - Pressure-drop push alerts and the 48h forecast chart
 - The pressure trigger correlation
+- `/pressure` itself, and **every door into it is locked** — Insights'
+  `PressureCard`, the Settings row, and the dashboard's Weather shortcut. That
+  last one was open, which made it a wall the user could walk past
 - Every chart except the severity donut and the two health summary cards —
   and any chart added later is covered unless the owner says otherwise
 - The PDF doctor report
