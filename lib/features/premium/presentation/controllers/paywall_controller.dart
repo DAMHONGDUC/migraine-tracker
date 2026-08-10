@@ -1,10 +1,12 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/env/app_env.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/logging/crash_reporter.dart';
 import '../../domain/entities/premium_offer.dart';
 import '../../domain/enums/purchase_error.dart';
+import '../../domain/services/mock_premium_offers.dart';
 import '../../providers.dart';
 
 /// Loads what can be bought and runs the store flows.
@@ -14,8 +16,15 @@ import '../../providers.dart';
 /// never decides that, so a bug here cannot unlock anything.
 class PaywallController extends AsyncNotifier<List<PremiumOffer>> {
   @override
-  Future<List<PremiumOffer>> build() =>
-      ref.watch(purchaseRepositoryProvider).offers();
+  Future<List<PremiumOffer>> build() {
+    // Dev-only, for App Store screenshots taken before the store products
+    // exist. Never true in a prod flavour — see DevMockOffers.
+    if (!AppEnv.isProd && ref.watch(devMockOffersProvider)) {
+      return Future<List<PremiumOffer>>.value(MockPremiumOffers.all);
+    }
+
+    return ref.watch(purchaseRepositoryProvider).offers();
+  }
 
   /// Returns true once the entitlement is active.
   ///

@@ -33,6 +33,7 @@ import '../../../providers.dart';
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
+part 'settings_screen_dev_offers_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
 part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
@@ -70,6 +71,7 @@ class SettingsScreen extends ConsumerWidget {
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev),
               const _DevPremiumTile(),
+              const _DevOffersTile(),
               const _DevPushTile(),
               const _DevSeedTile(),
               const _DevResetTile(),

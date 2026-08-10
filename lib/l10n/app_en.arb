@@ -1853,6 +1853,10 @@
   "@settingsDevPremium": {
     "description": "Dev-only tile: force the premium state on or off"
   },
+  "settingsDevMockOffers": "Paywall plans (mock)",
+  "@settingsDevMockOffers": {
+    "description": "Dev-only tile: show three fake plans on the paywall so it can be screenshotted before the store products exist"
+  },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
     "description": "Dev-only reset tile, confirm dialog title"

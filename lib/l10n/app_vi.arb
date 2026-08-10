@@ -383,6 +383,7 @@
   "settingsDevSeedFailed": "Tạo dữ liệu mẫu thất bại.",
   "settingsDevReset": "Đặt lại ứng dụng",
   "settingsDevPremium": "Premium (giả lập)",
+  "settingsDevMockOffers": "Gói trên paywall (giả lập)",
   "settingsDevResetConfirmTitle": "Đặt lại ứng dụng?",
   "settingsDevResetConfirmBody": "Mọi thứ trên máy này sẽ mất, và bạn quay lại màn giới thiệu như vừa cài mới. Không thể hoàn tác.",
   "settingsDevResetConfirmAction": "Đặt lại",
