@@ -37,20 +37,18 @@ class DashboardScreen extends ConsumerWidget {
     // Null unless the free plan's log limit is close (see attacksLeftProvider).
     final int? logsLeft = ref.watch(attacksLeftProvider);
 
-    // - Only sections that should show; gaps inserted below avoid a double gap.
-    // - Every one carries the screen gutter itself, because QuickAccessSection
-    //   must run to the physical edge to show that it scrolls.
+    // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
       // A limited-time discount promo pinned right under the app bar.
-      const _Gutter(child: DashboardLogButton()),
+      const DashboardLogButton(),
       // Directly under the button it warns about, and only in the last few
       // logs — the wall itself lands mid-attack, so it must not be news.
-      if (logsLeft != null) const _Gutter(child: AttackLimitBanner()),
+      if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
-      if (showPremium) const _Gutter(child: PremiumCountdownBanner()),
-      if (nextReminder != null) const _Gutter(child: NextReminderBanner()),
-      if (hasAttacks) const _Gutter(child: DashboardSummaryGroup()),
-      const _Gutter(child: DashboardExploreSection()),
+      if (showPremium) const PremiumCountdownBanner(),
+      if (nextReminder != null) const NextReminderBanner(),
+      if (hasAttacks) const DashboardSummaryGroup(),
+      const DashboardExploreSection(),
     ];
 
     return SdScaffoldV2(
@@ -83,8 +81,7 @@ class DashboardScreen extends ConsumerWidget {
         }),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          // Vertical insets only — the gutter belongs to each section now.
-          padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
+          padding: SdContentPaddingV2.screen(context, floatingNav: true),
           children: [
             for (int i = 0; i < sections.length; i++) ...[
               if (i > 0) SizedBox(height: SdContentPaddingV2.sectionGap),
@@ -97,21 +94,3 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// The screen gutter, applied per section rather than to the list.
-///
-/// The list cannot apply it: `QuickAccessSection` scrolls sideways and has to
-/// reach the physical edge of the screen for its cut-off chip to read as
-/// "there is more". Everything else wears this and stays on the same grid.
-class _Gutter extends StatelessWidget {
-  const _Gutter({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
-      child: child,
-    );
-  }
-}

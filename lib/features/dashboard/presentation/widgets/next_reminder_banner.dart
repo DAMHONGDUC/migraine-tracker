@@ -12,7 +12,6 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
-import 'highlighted_time_text.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
 /// current time), tapping through to that medication's detail screen.
@@ -57,11 +56,6 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
 
     final time = DateTimeUtils.hhmm(reminder.hour, reminder.minute);
     final remaining = _remaining(context, reminder.timeUntil);
-    final subtitle = l10n.dashboardNextReminderBody(
-      reminder.medicationName,
-      time,
-      remaining,
-    );
 
     return SdCardV2(
       // Straight to the medication's detail screen — that's where it can be changed.
@@ -80,14 +74,30 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
               color: AppColors.secondary,
             ),
             SizedBox(width: SdSpacingConstant.w16),
-            // One line, not a title over a subtitle: the medication name is
-            // the only part worth picking out, so it takes the accent.
+            // Two lines, name over time: the name is what the user is
+            // looking for, and picking it out of a run-on sentence by colour
+            // alone left it competing with the time beside it.
             Expanded(
-              child: HighlightedTimeText(
-                full: subtitle,
-                highlight: reminder.medicationName,
-                color: AppColors.secondary,
-                baseStyle: AppTextStyle.bodyMedium,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    reminder.medicationName,
+                    style: AppTextStyle.bodyLarge.w600.copyWith(
+                      color: AppColors.secondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: SdSpacingConstant.h2),
+                  Text(
+                    l10n.dashboardNextReminderWhen(time, remaining),
+                    style: AppTextStyle.bodySmall.secondary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
             SizedBox(width: SdSpacingConstant.w8),

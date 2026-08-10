@@ -90,21 +90,6 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('Add medication shortcut opens the add dialog on Medications', (
-    tester,
-  ) async {
-    await pumpApp(tester);
-
-    await tester.tap(find.text('Add medication'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    // The add-name dialog auto-opens after landing on the Medications tab.
-    expect(find.text('Add a medication'), findsOneWidget);
-
-    await finishTest(tester);
-  });
-
   testWidgets('premium sale banner counts down and opens the paywall', (
     tester,
   ) async {

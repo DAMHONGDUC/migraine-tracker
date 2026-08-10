@@ -2052,9 +2052,9 @@
   "@dashboardChartShortcut": {
     "description": "Dashboard quick-access card opening History in chart view"
   },
-  "dashboardAddMedication": "Add medication",
-  "@dashboardAddMedication": {
-    "description": "Dashboard quick-access card that opens Medications and starts adding one"
+  "dashboardWeatherShortcut": "Weather",
+  "@dashboardWeatherShortcut": {
+    "description": "Dashboard quick-access tile that opens the pressure screen"
   },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
@@ -2084,13 +2084,10 @@
   "@dashboardExportBody": {
     "description": "Body of the dashboard Explore card for data export. About four words"
   },
-  "dashboardNextReminderBody": "{name} at {time} · {remaining}",
-  "@dashboardNextReminderBody": {
-    "description": "Body of the next-reminder banner: medication name, time, and time remaining",
+  "dashboardNextReminderWhen": "at {time} · {remaining}",
+  "@dashboardNextReminderWhen": {
+    "description": "Second line of the dashboard's next-reminder banner; the medication name is the line above",
     "placeholders": {
-      "name": {
-        "type": "String"
-      },
       "time": {
         "type": "String"
       },
@@ -2567,5 +2564,17 @@
   "homeWidgetFailed": "Couldn't update the home screen widget.",
   "@homeWidgetFailed": {
     "description": "Error snackbar when writing the widget's shared data failed"
+  },
+  "dashboardSleepTitle": "Sleep",
+  "@dashboardSleepTitle": {
+    "description": "Dashboard explore card title for last night's sleep"
+  },
+  "dashboardStepsTitle": "Steps",
+  "@dashboardStepsTitle": {
+    "description": "Dashboard explore card title for today's step count"
+  },
+  "dashboardHealthConnect": "Connect",
+  "@dashboardHealthConnect": {
+    "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
   }
 }

@@ -419,7 +419,7 @@
   "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn.",
   "dashboardCalendarShortcut": "Lịch",
   "dashboardChartShortcut": "Biểu đồ",
-  "dashboardAddMedication": "Thêm thuốc",
+  "dashboardWeatherShortcut": "Thời tiết",
   "dashboardExplore": "Khám phá",
   "dashboardReminderTitle": "Nhắc thuốc",
   "dashboardReminderBody": "Đừng bỏ lỡ liều nào.",
@@ -427,7 +427,7 @@
   "dashboardInsightsBannerBody": "Áp suất và cơn đau.",
   "dashboardExportTitle": "Xuất dữ liệu",
   "dashboardExportBody": "JSON, CSV hoặc báo cáo PDF.",
-  "dashboardNextReminderBody": "{name} lúc {time} · {remaining}",
+  "dashboardNextReminderWhen": "lúc {time} · {remaining}",
   "dashboardRemainingHm": "sau {hours} giờ {minutes} phút",
   "dashboardRemainingH": "sau {hours} giờ",
   "dashboardRemainingM": "sau {minutes} phút",
@@ -530,5 +530,8 @@
   "homeWidgetPressureValue": "{value} hPa",
   "homeWidgetPressureDetail": "{value} hPa / 24 giờ",
   "homeWidgetPressureNone": "—",
-  "homeWidgetFailed": "Không cập nhật được widget màn hình chính."
+  "homeWidgetFailed": "Không cập nhật được widget màn hình chính.",
+  "dashboardSleepTitle": "Giấc ngủ",
+  "dashboardStepsTitle": "Số bước",
+  "dashboardHealthConnect": "Kết nối"
 }
