@@ -297,6 +297,12 @@ So the swap is two call sites, not one:
 Both are blocked on the same three credentials (items 20, 21, 22) — the key,
 the Services ID, and the `.p8` in Secret Manager.
 
+`docs/WEATHERKIT_SETUP.md` is the step-by-step, in dependency order, and
+carries two things this list does not: the JWT's exact claims (the Services ID
+is the `sub`, and a Bundle ID in its place returns a bare 401), and the two
+requirements that are easy to finish the migration without — rate-limiting the
+callable the app can reach, and Apple's mandatory weather attribution.
+
 ## Smaller, non-blocking
 
 - ~~Test coverage is thin in `alerts` and `weather`~~ — closed for the parts
