@@ -8,6 +8,11 @@ on:
 jobs:
   flutter:
     runs-on: ubuntu-latest
+    # A test that throws before its `finishTest` leaves the widget tree
+    # undisposed, and the pending timer wedges the whole file rather than
+    # failing it. Without a cap that costs the runner's six-hour default and
+    # reads as a stuck queue, not a broken test.
+    timeout-minutes: 30
     steps:
       # The design system lives in packages/system_design as a submodule;
       # without this the checkout is empty there and `pub get` fails.
@@ -64,6 +69,7 @@ jobs:
 
   functions:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: functions
