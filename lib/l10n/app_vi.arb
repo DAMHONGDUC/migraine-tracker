@@ -532,7 +532,7 @@
   "homeWidgetSettingsTitle": "Widget màn hình chính",
   "homeWidgetLogLabel": "Ghi cơn đau",
   "homeWidgetWeekLabel": "Tuần này",
-  "homeWidgetWeekValue": "{count, plural, =0{Chưa có cơn nào} other{{count} cơn}}",
+  "homeWidgetWeekValue": "{count, plural, other{{count} cơn}}",
   "homeWidgetPressureLabel": "Áp suất",
   "homeWidgetPressureValue": "{value} hPa",
   "homeWidgetPressureDetail": "{value} hPa / 24 giờ",

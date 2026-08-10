@@ -2574,7 +2574,7 @@
   "@homeWidgetWeekLabel": {
     "description": "Home screen widget label above the count of attacks logged this week"
   },
-  "homeWidgetWeekValue": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "homeWidgetWeekValue": "{count, plural, =1{1 attack} other{{count} attacks}}",
   "@homeWidgetWeekValue": {
     "description": "Home screen widget value: attacks logged this week",
     "placeholders": {

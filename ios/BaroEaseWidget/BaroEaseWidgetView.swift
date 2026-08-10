@@ -88,7 +88,10 @@ private struct StatRow: View {
           .font(.system(size: 12, weight: .medium))
           .foregroundColor(BaroEasePalette.textSecondary)
           .lineLimit(1)
-          .minimumScaleFactor(0.8)
+          // Shrinks further than the value does before it gives up: a
+          // truncated "This week" was the visible overflow, and a slightly
+          // small label still names its row while an ellipsis does not.
+          .minimumScaleFactor(0.7)
         Spacer(minLength: 2)
         if let symbol {
           Image(systemName: symbol)
@@ -98,7 +101,7 @@ private struct StatRow: View {
         // The value wins the squeeze: a clipped label still names the row,
         // a clipped number says nothing.
         Text(value)
-          .font(.system(size: 16, weight: .semibold))
+          .font(.system(size: 14, weight: .semibold))
           .foregroundColor(BaroEasePalette.textPrimary)
           .lineLimit(1)
           .minimumScaleFactor(0.75)
