@@ -121,23 +121,25 @@ private extension View {
   /// that modifier does not exist, so the plain background is the fallback —
   /// the extension ships to the same iOS 15 floor as the app.
   ///
-  /// Tighter at the sides than top and bottom: a small widget is ~155pt wide,
-  /// so every point spent on side air is a point the log button and the
-  /// readings do not get.
+  /// The widget's only padding — and how much of it we owe depends on the OS.
   ///
-  /// These are the ONLY horizontal margins, and only because the widget
-  /// disables the system's own — iOS 17 adds ~16pt of content margin of its
-  /// own, which stacked on top of this and took roughly a third of the width.
-  /// See `contentMarginsDisabled` in BaroEaseWidget.swift: remove that and
-  /// these numbers are wrong again.
+  /// iOS 17 gives every widget ~16pt of content margin of its own. On a small
+  /// widget that is ~155pt wide, adding our own on top took roughly a third of
+  /// the width before anything was drawn, so on 17+ we add none horizontally
+  /// and let the system's be the whole of it.
+  ///
+  /// Removing the system's instead would be tighter still, but
+  /// `contentMarginsDisabled()` is iOS 17+ with no conditional form — see
+  /// BaroEaseWidget.swift. An `if #available` is legal *here* because
+  /// `@ViewBuilder` allows it where the widget builders do not.
   @ViewBuilder
   func widgetBackground(_ color: Color) -> some View {
-    let insets = EdgeInsets(top: 12, leading: 10, bottom: 12, trailing: 10)
-
     if #available(iOSApplicationExtension 17.0, *) {
-      padding(insets).containerBackground(color, for: .widget)
+      padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
+        .containerBackground(color, for: .widget)
     } else {
-      padding(insets).background(color)
+      padding(EdgeInsets(top: 12, leading: 10, bottom: 12, trailing: 10))
+        .background(color)
     }
   }
 }
