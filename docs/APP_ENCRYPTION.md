@@ -96,3 +96,51 @@ The key answers App Store Connect's export question at upload time rather than
 asking a human on every build. That is worth keeping — but it is also why a
 stale value is dangerous rather than merely untidy: nothing prompts anyone to
 re-read it, and the declaration goes out with every upload unexamined.
+
+## The filing record
+
+What was actually given to Apple, kept verbatim. A regulatory answer is only
+useful later if the exact words are recoverable — "roughly what we said" is not
+something to reconstruct under a follow-up question.
+
+### App Encryption Documentation, step 1 of 3 — "App Purpose" (10 Aug 2026)
+
+> BaroEase is a consumer health-tracking app for people who experience migraine
+> attacks, in particular those whose attacks are associated with changes in
+> barometric pressure.
+>
+> The app allows a user to record a migraine attack in a few taps — intensity,
+> head location, and any medication taken — and stores that history on their
+> device. Each entry is paired with the barometric pressure at the time it was
+> recorded. The app presents the user's own history back to them as charts and
+> summaries, shows a 48-hour barometric pressure forecast, can send a
+> notification when a significant pressure drop is forecast for their area,
+> manages medication reminders, and can generate a PDF summary the user may
+> choose to share with their physician. With the user's explicit permission, it
+> can also read sleep and step data from Apple Health to display alongside
+> their history. Subscriptions are offered for the forecasting and analysis
+> features.
+>
+> The app's primary function is personal health tracking. It is not an
+> information-security product: it provides no security capability to the user,
+> offers no key management, and exposes no cryptographic interface. Its use of
+> cryptography is ancillary and limited to protecting the user's own records —
+> TLS for network communication, and AES-256-GCM applied to the user's records
+> only if they choose to enable the optional account-based sync feature.
+
+Three things in it are deliberate, and a rewrite should keep them:
+
+- **The third paragraph answers Note 4, not the question asked.** The whole
+  classification turns on whether the cryptography is ancillary, so the case is
+  made at the first opportunity rather than left for a reviewer to infer.
+- **No word promises diagnosis, treatment or prevention.** That is hard rule 11,
+  and it also keeps the app out of the medical end-use exemption, which
+  BaroEase would not qualify for and should not appear to claim.
+- **"on their device", "only if they choose", "explicit permission"** are load
+  bearing. Each one narrows what the encryption protects to the user's own
+  data, which is the ancillary argument in miniature.
+
+### Steps 2 and 3
+
+Not yet recorded — add them here when answered, with the same verbatim
+treatment.
