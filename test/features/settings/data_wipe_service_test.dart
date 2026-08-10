@@ -156,6 +156,34 @@ void main() {
     expect(exportFiles.files, isEmpty);
   });
 
+  test('reports every step in order, ending on the last one', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final reported = <int>[];
+
+    await DataWipeService(
+      DriftAttackRepository(db),
+      DriftMedicationRepository(db),
+      RecordingNotificationScheduler(),
+      DriftNotificationRepository(db),
+      DriftExportRecordRepository(db),
+      FakeExportFileStore(),
+      FakeAuthRepository(),
+      syncServiceOver(db),
+      RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
+    ).wipeAll(onProgress: (done, steps) {
+      expect(steps, DataWipeService.steps);
+      reported.add(done);
+    });
+
+    // Starts at 0 so the row can show a bar before the first step lands, then
+    // climbs one at a time and stops on the last — a count that skipped or
+    // repeated would show a bar that jumps or stalls.
+    expect(reported, <int>[for (int i = 0; i <= DataWipeService.steps; i++) i]);
+  });
+
   group('the account copy', () {
     Attack anAttack() => Attack(
       id: 'a1',

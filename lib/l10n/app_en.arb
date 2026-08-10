@@ -1506,8 +1506,8 @@
   "@settingsSyncStatusNever": {
     "description": "End-of-row status on the sync row before the first sync of this session has finished"
   },
-  "settingsSyncProgress": "{percent}%",
-  "@settingsSyncProgress": {
+  "commonProgressPercent": "{percent}%",
+  "@commonProgressPercent": {
     "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
     "placeholders": {
       "percent": {

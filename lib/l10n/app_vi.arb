@@ -312,7 +312,7 @@
   "settingsSync": "Đồng bộ dữ liệu lên cloud",
   "settingsSyncFailed": "Đồng bộ chưa xong. Ứng dụng sẽ tự thử lại.",
   "settingsSyncStatusNever": "Chưa đồng bộ",
-  "settingsSyncProgress": "{percent}%",
+  "commonProgressPercent": "{percent}%",
   "settingsSyncStatusFailed": "Chưa xong",
   "settingsExport": "Xuất dữ liệu",
   "exportTitle": "Xuất dữ liệu",

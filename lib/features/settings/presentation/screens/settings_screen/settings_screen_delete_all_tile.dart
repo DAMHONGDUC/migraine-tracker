@@ -5,20 +5,22 @@ part of 'settings_screen.dart';
 ///
 /// Says "local" without an account, because on device is all there is —
 /// nothing was ever synced, so promising more than that overstates it.
-class _DeleteAllTile extends ConsumerStatefulWidget {
+///
+/// While it runs the row's end carries a spinner and how far it has got, the
+/// same pair the sync row shows: a wipe reaches the network, the OS scheduler
+/// and several tables, so it can take long enough that a row which only spins
+/// cannot tell slow from stuck.
+class _DeleteAllTile extends ConsumerWidget {
   const _DeleteAllTile();
 
-  @override
-  ConsumerState<_DeleteAllTile> createState() => _DeleteAllTileState();
-}
-
-class _DeleteAllTileState extends ConsumerState<_DeleteAllTile> {
-  bool _running = false;
-
-  Future<void> _deleteAll(bool signedIn) async {
+  Future<void> _deleteAll(
+    BuildContext context,
+    WidgetRef ref,
+    bool signedIn,
+  ) async {
     final AppLocalizations l10n = context.l10n;
 
-    if (_running) return;
+    if (ref.read(settingsControllerProvider).isRunning) return;
 
     final bool? confirmed = await showSdDialogV2<bool>(
       context,
@@ -45,39 +47,37 @@ class _DeleteAllTileState extends ConsumerState<_DeleteAllTile> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !context.mounted) return;
 
-    setState(() => _running = true);
     try {
-      await ref.read(settingsControllerProvider).deleteAll();
+      await ref.read(settingsControllerProvider.notifier).deleteAll();
 
-      if (mounted) SdSnackBarUtilsV2.success(context, l10n.settingsDeleteDone);
+      if (context.mounted) {
+        SdSnackBarUtilsV2.success(context, l10n.settingsDeleteDone);
+      }
     } catch (_) {
       // The wipe aborts at the first failure rather than half-running, so
       // there is something to say beyond "it broke": nothing went.
-      if (mounted) SdSnackBarUtilsV2.error(context, l10n.settingsDeleteFailed);
-    } finally {
-      if (mounted) setState(() => _running = false);
+      if (context.mounted) {
+        SdSnackBarUtilsV2.error(context, l10n.settingsDeleteFailed);
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final bool signedIn = ref.watch(isSignedInProvider);
+    final WipeStatus status = ref.watch(settingsControllerProvider);
 
     return SettingsTile(
       icon: Icons.delete_forever_outlined,
       titleColor: context.colorScheme.error,
       title: signedIn ? l10n.settingsDelete : l10n.settingsDeleteLocal,
-      trailing: _running
-          ? SizedBox(
-              width: SdSpacingConstant.r20,
-              height: SdSpacingConstant.r20,
-              child: const CircularProgressIndicator(strokeWidth: 2),
-            )
+      trailing: status.isRunning
+          ? SettingsRowProgress(percent: status.percent)
           : null,
-      onTap: () => _deleteAll(signedIn),
+      onTap: () => _deleteAll(context, ref, signedIn),
     );
   }
 }
