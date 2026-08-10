@@ -9,6 +9,14 @@ from the code and are checkable. The classification drawn from them is a legal
 determination and belongs to the owner and their counsel — the same bar as the
 privacy policy (`REMAINING_WORK.md` item 16).
 
+**This file is internal and must not be sent to Apple.** It says the shipped
+`Info.plist` declaration is wrong, which is exactly what an internal note is
+for and exactly what a submission must not volunteer. What goes to Apple is
+`APP_ENCRYPTION_SUBMISSION.md`, rendered as
+`BaroEase-App-Encryption-Documentation.pdf` — same facts, no internal
+commentary, nothing about open checklist items. Keep the two in step: a change
+to the crypto changes both.
+
 ## The state of it today
 
 `ios/Runner/Info.plist` declares `ITSAppUsesNonExemptEncryption` as **`false`**,
