@@ -41,6 +41,12 @@ env/*.json
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
 
+# The Cloud Functions dotenv the Firebase CLI reads at deploy. Its contents are
+# identifiers rather than secrets — the WeatherKit `.p8` is in Secret Manager —
+# but it is per-developer, so only the template is tracked.
+functions/.env
+!functions/.env.example
+
 # Symbolication related
 app.*.symbols
 

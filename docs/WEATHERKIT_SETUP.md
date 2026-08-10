@@ -54,12 +54,34 @@ not a secret store (hard rule 13).
 gcloud secrets create WEATHERKIT_PRIVATE_KEY --data-file=AuthKey_XXXXXXXXXX.p8
 ```
 
-The Key ID, Team ID and Services ID are identifiers rather than secrets, so
-they can be plain environment config — but keep them beside the secret so all
-four move together.
-
 Grant the functions runtime access, then declare it with `defineSecret` from
 `firebase-functions/params` so the deployed function can read it.
+
+### The other three go in `functions/.env`
+
+The Key ID, Team ID and Services ID are identifiers rather than secrets — they
+name a key, a team and a service, and none of them signs anything. They are
+`defineString` params, and **the Firebase CLI reads them from `functions/.env`
+at deploy time**:
+
+```
+WEATHERKIT_KEY_ID=ABC123XYZ
+WEATHERKIT_TEAM_ID=A1B2C3D4E5
+WEATHERKIT_SERVICE_ID=app.dd.migraine.tracker.weather
+```
+
+`melos run set-up` copies `functions/.env.example` into place; the file itself
+is gitignored, because the values are per-developer.
+
+**Leaving it empty fails the deploy rather than prompting**, with:
+
+> In non-interactive mode but have no value for the following environment
+> variables: WEATHERKIT_KEY_ID, WEATHERKIT_TEAM_ID, WEATHERKIT_SERVICE_ID
+
+That reads like a CLI bug and is not one: melos pipes the deploy script's
+stdout, so the CLI correctly decides it cannot ask a human and stops. Filling
+the file is the fix; running `firebase deploy` by hand in a real terminal is
+the workaround.
 
 ## Step 5 — Write the WeatherKit client
 
