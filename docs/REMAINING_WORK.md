@@ -58,7 +58,10 @@ it carries the full account of the TestFlight crash behind item 12.
 
 | # | What | Why it matters if skipped |
 |---|---|---|
-| 14 | Publish the policy at `https://damhongduc.github.io/apps_privacy_policy` | A HealthKit app cannot be submitted without a reachable privacy policy URL. |
+| ~~14~~ | ~~Publish the policy~~ | **Done**, verified live 10 Aug at `…/apps_privacy_policy/baro-ease/privacy_policy/`, effective 7 Aug 2026. Note the path — the App Store field wants the app's own page, not the directory index. |
+| 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/APP_STORE_LISTING.md` carries the wording. |
+| 26 | Put Terms of Use and Privacy Policy links on the paywall itself | The same guideline (3.1.2) requires them **in the binary**, not only in metadata, and the paywall has neither today — only the Restore button. Not what was rejected, but the same rule, so it is the next one to be caught on. |
+| 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. |
 | 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
 | 23 | Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |

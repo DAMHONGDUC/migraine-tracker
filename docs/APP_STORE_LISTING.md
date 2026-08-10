@@ -65,6 +65,18 @@ with a 7-day free trial), or as a one-time lifetime purchase ($44.99). Prices ma
 Export everything as JSON or CSV, or delete all your data — including your
 account — from Settings, any time.
 
+**Subscription terms**
+Premium Monthly ($4.99) and Premium Yearly ($29.99, with a 7-day free trial)
+are auto-renewable subscriptions. Payment is charged to your Apple Account at
+confirmation of purchase. A subscription renews automatically unless it is
+cancelled at least 24 hours before the end of the current period; your account
+is charged for renewal within 24 hours of the end of that period. Manage or
+cancel your subscription in your Apple Account settings after purchase. Premium
+Lifetime ($44.99) is a one-time purchase and does not renew.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/
+
 —
 
 Medical disclaimer: BaroEase is a self-tracking tool and is not a substitute
@@ -77,9 +89,26 @@ treat, cure, or prevent any condition. Always consult a qualified clinician.
 > widget, and a PDF doctor report. Fully usable offline, dark by default.
 
 ## URLs
-- Support URL: [https://baroease.app/support]
-- Marketing URL: [https://baroease.app]
-- Privacy Policy URL: [https://baroease.app/privacy]  *(see docs/PRIVACY_POLICY.md)*
+- Support URL: [https://baroease.app/support]  *(still a placeholder — a
+  non-functional Support URL is its own rejection)*
+- Marketing URL: [https://baroease.app]  *(optional field; leave blank rather
+  than point at nothing)*
+- Privacy Policy URL:
+  `https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/`
+  — **published and verified live**, effective 7 Aug 2026. This is the same
+  link the App Description must carry alongside the EULA for the
+  auto-renewable subscriptions (guideline 3.1.2).
+
+### Terms of Use (EULA)
+
+BaroEase uses **Apple's standard EULA**, so nothing is uploaded to App Store
+Connect's custom-licence field. The requirement is that the App Description
+carries a functional link to it:
+
+`https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+
+This is what the 10 Aug 2026 rejection was about — the description offered
+auto-renewable subscriptions with no Terms of Use link.
 
 ## In-app purchases (App Store Connect)
 | Product | Type | Price |
