@@ -12,7 +12,12 @@ struct BaroEaseWidgetView: View {
   let entry: BaroEaseEntry
 
   /// The app's own scheme. `HomeWidgetTapListener` reads the host.
-  private let logURL = URL(string: "baroease://log")!
+  ///
+  /// **The `homeWidget` query item is load-bearing.** The plugin's
+  /// `isWidgetUrl` matches on that parameter's presence and silently ignores
+  /// any URL without it, so `baroease://log` reached the app and went
+  /// nowhere — the app just opened on the dashboard. Its value is never read.
+  private let logURL = URL(string: "baroease://log?homeWidget=true")!
 
   var body: some View {
     Link(destination: logURL) {

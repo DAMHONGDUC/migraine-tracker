@@ -46,6 +46,21 @@
 				<string>com.googleusercontent.apps.765346078229-mk2pqms48l76tvk8aalg0lgcdqbncb6h</string>
 			</array>
 		</dict>
+		<dict>
+			<!-- The home screen widget's own link. WidgetKit routes a widget URL
+			     to its containing app without this, but registering it is what
+			     makes the path testable (`xcrun simctl openurl`) and what a
+			     future deep link would use. The only thing it can do is open the
+			     log flow. -->
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>app.dd.migraine.tracker.widget</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>baroease</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

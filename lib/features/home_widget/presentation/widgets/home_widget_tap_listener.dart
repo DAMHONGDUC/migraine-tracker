@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
+import '../../domain/services/home_widget_link.dart';
 import '../../providers.dart';
 
 /// Turns a tap on the home-screen widget into the screen it points at.
@@ -22,12 +23,10 @@ class HomeWidgetTapListener extends HookConsumerWidget {
 
   final Widget child;
 
-  /// The only destination the widget offers today. A path rather than a bare
-  /// scheme so a second button later is a second `case`, not a new listener.
-  static const String logHost = 'log';
-
   Future<void> _open(WidgetRef ref, Uri? uri) async {
-    if (uri == null || _target(uri) != logHost) return;
+    final HomeWidgetDestination? destination = HomeWidgetLink.resolve(uri);
+
+    if (destination == null) return;
 
     final BuildContext? context = ref
         .read(rootNavigatorKeyProvider)
@@ -35,14 +34,11 @@ class HomeWidgetTapListener extends HookConsumerWidget {
 
     if (context == null || !context.mounted) return;
 
-    await NavigationUtils.toLog(context, ref);
+    switch (destination) {
+      case HomeWidgetDestination.log:
+        await NavigationUtils.toLog(context, ref);
+    }
   }
-
-  /// WidgetKit hands back the `widgetURL` as written. `baroease://log` puts
-  /// the word in the host, `baroease:///log` in the path, and which one turns
-  /// up depends on the Swift side — read either rather than depend on it.
-  String _target(Uri uri) =>
-      uri.host.isNotEmpty ? uri.host : uri.pathSegments.firstOrNull ?? '';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
