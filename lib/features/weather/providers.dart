@@ -1,11 +1,12 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
 
+import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
+import 'data/datasources/backend_weather_data_source.dart';
 import 'data/datasources/location_source.dart';
-import 'data/datasources/open_meteo_data_source.dart';
+import 'data/repositories/backend_weather_repository.dart';
 import 'data/repositories/drift_daily_pressure_repository.dart';
-import 'data/repositories/open_meteo_weather_repository.dart';
 import 'domain/entities/daily_pressure.dart';
 import 'domain/repositories/daily_pressure_repository.dart';
 import 'domain/repositories/weather_repository.dart';
@@ -15,14 +16,16 @@ final locationSourceProvider = Provider<LocationSource>(
   (ref) => const GeolocatorLocationSource(),
 );
 
-final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
-  final client = http.Client();
-  ref.onDispose(client.close);
-  return OpenMeteoWeatherRepository(
+/// The app's only weather source, and it is the backend — there is no HTTP
+/// client here any more, because the app calls no weather API of its own.
+final weatherRepositoryProvider = Provider<WeatherRepository>(
+  (ref) => BackendWeatherRepository(
     ref.watch(locationSourceProvider),
-    OpenMeteoDataSource(client),
-  );
-});
+    BackendWeatherDataSource(
+      FirebaseFunctions.instanceFor(region: FirebaseConstants.functionsRegion),
+    ),
+  ),
+);
 
 /// One fetch per screen visit; null = offline / no permission (the card
 /// shows its unavailable state).
