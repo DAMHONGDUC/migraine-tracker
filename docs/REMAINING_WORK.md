@@ -21,7 +21,7 @@ skipped, since several of these fail **silently**.
 | ~~1~~ | ~~firestore rules~~ | **Done 10 Aug**, via `melos run deploy-firebase`. |
 | ~~2~~ | ~~firestore indexes~~ | **Done 10 Aug**, same run. `firebase firestore:indexes` reads back a composite index and field overrides for all four `SyncCollection` values. |
 | ~~3~~ | ~~functions~~ | **Done 10 Aug**, same run. |
-| 4 | Configure an APNs auth key | FCM has nothing to hand APNs, so every send fails server-side. No client change can work around it. |
+| ~~4~~ | ~~APNs auth key~~ | **Done 10 Aug.** A `.p8` key uploaded to `migraine-tracker-9f7b2`. One key serves the whole Apple team and both APNs environments, so there is nothing per-app or per-environment left to configure. |
 | 5 | Create the first `app_updates` record by hand | Force-update can never fire. It fails open until then — safe, but silent, so "no sheet appeared" is not evidence it works. `create_date` **must** be a Firestore `timestamp`; a string sorts below every timestamp and the query never sees it. |
 
 `melos run deploy-firebase` is the one command for 1-3: it sends rules and
@@ -72,8 +72,9 @@ it carries the full account of the TestFlight crash behind item 12.
 ### Order
 
 4 → 6 → 17 is the push chain, and nothing before the end of it proves push
-works. 1-3 are done. 7b belongs before any device build, or the widget
-extension will not sign. 8, 9, 12 and 13 are
+works. 1-4 are done, so **6 then 17 is all that is left of it**. 7, 7b and 6
+are one visit to Identifiers; 7b belongs before any device build, or the
+widget extension will not sign. 8, 9, 12 and 13 are
 one errand; the paywall says the same thing whichever of them is missing.
 
 ## Detail
@@ -114,7 +115,7 @@ the `sync_keys/{uid}` teardown) is now built and covered by
 
 ## 2. Push notifications — the repo half is done, the console half is not
 
-Checklist items 4, 6 and 17. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
+Checklist items 6 and 17; item 4 is done. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
 HealthKit. It says `development` on purpose: one entitlements file serves all
 three build configs, and the app-store export re-signs it to `production`
 from the distribution profile — hardcoding `production` would break push on
@@ -124,8 +125,9 @@ Client code in `alerts` (`firebase_alert_registration_repository.dart`:
 request permission, get token, drop stale tokens) was already complete. What
 is left is outside the repo:
 
-- **An APNs auth key configured in the Firebase console.** Without it FCM has
-  nothing to hand APNs and every send fails server-side.
+- ~~An APNs auth key configured in the Firebase console.~~ **Done 10 Aug.**
+  A `.p8`, which covers sandbox and production together — the environment is
+  decided by the build's own `aps-environment`, not by anything in Firebase.
 - **Push Notifications enabled on the App ID** in the Apple Developer portal,
   same as HealthKit below. Automatic signing offers this on the first device
   build; until it is done, signing fails on the missing entitlement.
