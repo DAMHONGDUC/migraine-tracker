@@ -21,7 +21,7 @@ struct BaroEaseWidgetView: View {
 
   var body: some View {
     Link(destination: logURL) {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: 10) {
         LogButton(label: entry.logLabel)
         StatRow(label: entry.weekLabel, value: entry.weekValue, detail: "", symbol: nil)
         StatRow(
@@ -30,6 +30,7 @@ struct BaroEaseWidgetView: View {
           detail: entry.pressureDetail,
           symbol: entry.pressureDetail.isEmpty ? nil : entry.trend.symbol
         )
+        Spacer(minLength: 0)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -53,14 +54,18 @@ private struct LogButton: View {
     }
     .foregroundColor(BaroEasePalette.onPrimary)
     .frame(maxWidth: .infinity)
-    .padding(.vertical, 10)
+    .padding(.vertical, 11)
     .background(BaroEasePalette.primary)
-    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
   }
 }
 
-/// A quiet label with its number under it. [detail] and [symbol] are the
+/// A quiet label with its number opposite. [detail] and [symbol] are the
 /// pressure row's extra; the week row passes neither.
+///
+/// Label and value share a line rather than stacking, which is what keeps a
+/// small widget from spending most of its height on two-line rows — and it
+/// puts both values on one right edge, so they read as a pair.
 private struct StatRow: View {
   let label: String
   let value: String
@@ -68,27 +73,34 @@ private struct StatRow: View {
   let symbol: String?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(label)
-        .font(.system(size: 11, weight: .medium))
-        .foregroundColor(BaroEasePalette.textSecondary)
-      HStack(spacing: 4) {
+    VStack(alignment: .trailing, spacing: 1) {
+      HStack(alignment: .firstTextBaseline, spacing: 6) {
+        Text(label)
+          .font(.system(size: 12, weight: .medium))
+          .foregroundColor(BaroEasePalette.textSecondary)
+          .lineLimit(1)
+          .minimumScaleFactor(0.8)
+        Spacer(minLength: 2)
         if let symbol {
           Image(systemName: symbol)
             .font(.system(size: 11, weight: .semibold))
             .foregroundColor(BaroEasePalette.textSecondary)
         }
+        // The value wins the squeeze: a clipped label still names the row,
+        // a clipped number says nothing.
         Text(value)
-          .font(.system(size: 15, weight: .semibold))
+          .font(.system(size: 16, weight: .semibold))
           .foregroundColor(BaroEasePalette.textPrimary)
           .lineLimit(1)
-          .minimumScaleFactor(0.8)
+          .minimumScaleFactor(0.75)
+          .layoutPriority(1)
       }
       if !detail.isEmpty {
         Text(detail)
           .font(.system(size: 11))
           .foregroundColor(BaroEasePalette.textSecondary)
           .lineLimit(1)
+          .minimumScaleFactor(0.8)
       }
     }
   }
@@ -99,12 +111,18 @@ private extension View {
   /// `containerBackground`, and refuses to draw one that does not. Below 17
   /// that modifier does not exist, so the plain background is the fallback —
   /// the extension ships to the same iOS 15 floor as the app.
+  ///
+  /// Tighter at the sides than top and bottom: a small widget is ~155pt wide,
+  /// so 16 either side spent a fifth of it on air and left the log button and
+  /// the readings crowding a narrow column.
   @ViewBuilder
   func widgetBackground(_ color: Color) -> some View {
+    let insets = EdgeInsets(top: 14, leading: 12, bottom: 14, trailing: 12)
+
     if #available(iOSApplicationExtension 17.0, *) {
-      padding(16).containerBackground(color, for: .widget)
+      padding(insets).containerBackground(color, for: .widget)
     } else {
-      padding(16).background(color)
+      padding(insets).background(color)
     }
   }
 }
