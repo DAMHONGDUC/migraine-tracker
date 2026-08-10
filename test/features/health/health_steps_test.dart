@@ -47,7 +47,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('a free user never reaches a step HealthKit read', (
+    testWidgets('a free user never reaches the premium step correlation', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(
@@ -57,11 +57,15 @@ void main() {
           PrefsKeyConstant.healthConnected: true,
         },
       );
+      // The dashboard's step card is free and reads for everyone, so the
+      // count is already non-zero — what is gated is the correlation.
+      final int readsOnDashboard = app.health.stepReads;
+
       await openInsights(tester);
 
       // The gate shows its pitch; nothing behind it was built or fetched.
       expect(find.text('Steps & attacks'), findsNothing);
-      expect(app.health.stepReads, 0);
+      expect(app.health.stepReads, readsOnDashboard);
 
       await finishTest(tester);
     });

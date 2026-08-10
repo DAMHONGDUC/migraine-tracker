@@ -44,9 +44,7 @@ class _WeatherSection extends StatelessWidget {
             style: AppTextStyle.bodyLarge,
           ),
           trailing: Text(
-            l10n.attackDetailPressureValue(
-              '${delta > 0 ? '+' : ''}${delta.toStringAsFixed(1)}',
-            ),
+            l10n.attackDetailPressureValue(SignedNumberUtils.format(delta)),
             style: AppTextStyle.bodyLarge.copyWith(
               // A drop is what this app is about — mark it.
               color: delta <= -5 ? AppColors.error : null,

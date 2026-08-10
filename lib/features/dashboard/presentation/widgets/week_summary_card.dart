@@ -9,78 +9,139 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
 
 /// "This week" glance card: attack count, trend vs last week, and average
 /// intensity. Tapping it jumps to the History tab for the full picture.
+///
+/// The count is the card, so it is set at [AppTextStyle.displaySmall] with its
+/// unit demoted to muted body text beside it — the two used to share one
+/// string and one size, which left the number reading as a sentence.
 class WeekSummaryCard extends ConsumerWidget {
   const WeekSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final summary = ref.watch(weekSummaryProvider);
-    final hasData = summary.thisWeekCount > 0 || summary.lastWeekCount > 0;
+    final WeekSummary summary = ref.watch(weekSummaryProvider);
+    final bool hasData = summary.thisWeekCount > 0 || summary.lastWeekCount > 0;
 
     void openHistory(HistoryViewMode mode) {
       ref.read(historyViewModeProvider.notifier).select(mode);
       context.goNamed(AppRoutes.history.name);
     }
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => openHistory(HistoryViewMode.calendar),
-        child: Padding(
-          padding: EdgeInsets.all(SdSpacingConstant.w20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.dashboardThisWeek,
-                      style: AppTextStyle.titleMedium,
-                    ),
+    return SdCardV2(
+      surface: SdCardSurfaceV2.elevated,
+      onTap: () => openHistory(HistoryViewMode.calendar),
+      child: Padding(
+        padding: EdgeInsets.all(SdSpacingConstant.w16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Demoted to a caption so the count below it is unmistakably
+                // the thing being read.
+                Expanded(
+                  child: Text(
+                    l10n.dashboardThisWeek,
+                    style: AppTextStyle.labelSmall.secondary,
                   ),
-                  SdIconV2(
-                    icon: Icons.chevron_right,
-                    size: SdSpacingConstant.r20,
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-              SizedBox(height: SdSpacingConstant.h12),
-              Text(
-                l10n.dashboardAttacksCount(summary.thisWeekCount),
-                style: AppTextStyle.headlineSmall.w600,
-              ),
-              if (hasData) ...[
-                SizedBox(height: SdSpacingConstant.h4),
-                Text(
-                  _trendText(l10n, summary),
-                  style: AppTextStyle.bodySmall.secondary,
+                ),
+                SdIconV2(
+                  icon: Icons.chevron_right,
+                  size: SdSpacingConstant.r20,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
               ],
-              if (summary.averageIntensity != null) ...[
-                SizedBox(height: SdSpacingConstant.h16),
-                _AvgIntensityChip(value: summary.averageIntensity!),
-              ],
+            ),
+            SizedBox(height: SdSpacingConstant.h8),
+            _CountRow(count: summary.thisWeekCount),
+            if (hasData) ...[
+              SizedBox(height: SdSpacingConstant.h8),
+              _TrendRow(summary: summary),
             ],
-          ),
+            if (summary.averageIntensity != null) ...[
+              SizedBox(height: SdSpacingConstant.h16),
+              _AvgIntensityChip(value: summary.averageIntensity!),
+            ],
+          ],
         ),
       ),
     );
   }
+}
 
-  String _trendText(AppLocalizations l10n, WeekSummary summary) {
-    final trend = summary.trend;
-    if (trend > 0) return l10n.dashboardTrendUp(trend);
-    if (trend < 0) return l10n.dashboardTrendDown(-trend);
-    return l10n.dashboardTrendSame;
+/// The number at display size with its unit beside it, sitting on a shared
+/// baseline so the two read as one phrase rather than two stacked lines.
+class _CountRow extends StatelessWidget {
+  const _CountRow({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text('$count', style: AppTextStyle.displaySmall.w600),
+        SizedBox(width: SdSpacingConstant.w8),
+        // Flexible, not Expanded: Vietnamese runs longer and must be free to
+        // wrap without the number losing its baseline.
+        Flexible(
+          child: Text(
+            context.l10n.dashboardAttacksLabel(count),
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The week-over-week trend, with an arrow so the direction never rests on
+/// colour alone.
+class _TrendRow extends StatelessWidget {
+  const _TrendRow({required this.summary});
+
+  final WeekSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final int trend = summary.trend;
+    // - Teal marks the good direction; up and flat stay muted.
+    // - Deliberately not the error red: telling someone in the middle of a bad
+    //   week that they are in the red is an alarm, not information.
+    final Color color = trend < 0
+        ? AppColors.secondary
+        : AppColors.textSecondary;
+    final IconData icon = switch (trend) {
+      < 0 => Icons.trending_down,
+      > 0 => Icons.trending_up,
+      _ => Icons.trending_flat,
+    };
+    final String label = switch (trend) {
+      < 0 => l10n.dashboardTrendDown(-trend),
+      > 0 => l10n.dashboardTrendUp(trend),
+      _ => l10n.dashboardTrendSame,
+    };
+
+    return Row(
+      children: [
+        SdIconV2(icon: icon, size: SdSpacingConstant.r16, color: color),
+        SizedBox(width: SdSpacingConstant.w6),
+        Flexible(
+          child: Text(
+            label,
+            style: AppTextStyle.bodySmall.copyWith(color: color),
+          ),
+        ),
+      ],
+    );
   }
 }
 

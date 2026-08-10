@@ -202,13 +202,15 @@ void main() {
 
       await openInsights(tester);
 
-      expect(find.text('3h 0m'), findsOneWidget);
+      // A whole number of hours drops the minutes: DurationLabel renders
+      // "3h", not "3h 0m".
+      expect(find.text('3h'), findsOneWidget);
       expect(
         find.text('less sleep on the nights before an attack.'),
         findsOneWidget,
       );
-      expect(find.text('5h 0m'), findsOneWidget);
-      expect(find.text('8h 0m'), findsOneWidget);
+      expect(find.text('5h'), findsOneWidget);
+      expect(find.text('8h'), findsOneWidget);
       expect(
         find.text('Based on 5 nights before an attack and 10 others'),
         findsOneWidget,

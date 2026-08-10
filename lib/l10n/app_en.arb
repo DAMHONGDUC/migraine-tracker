@@ -53,92 +53,92 @@
   "@onboardingFeaturesAction": {
     "description": "Button on the last onboarding step that opens the feature-list sheet"
   },
-  "onboardingFeaturesTitle": "Everything BaroEase does",
-  "@onboardingFeaturesTitle": {
+  "appFeaturesTitle": "Everything BaroEase does",
+  "@appFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "onboardingFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
-  "@onboardingFeaturesBody": {
+  "appFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
+  "@appFeaturesBody": {
     "description": "Onboarding feature-list sheet body"
   },
-  "onboardingFeaturesFree": "Free forever",
-  "@onboardingFeaturesFree": {
+  "appFeaturesFree": "Free forever",
+  "@appFeaturesFree": {
     "description": "Header above the free features"
   },
-  "onboardingFeaturesPremium": "Premium",
-  "@onboardingFeaturesPremium": {
+  "appFeaturesPremium": "Premium",
+  "@appFeaturesPremium": {
     "description": "Header above the premium features"
   },
-  "onboardingFeatureLogTitle": "Three-tap attack log",
-  "@onboardingFeatureLogTitle": {
+  "appFeatureLogTitle": "Three-tap attack log",
+  "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "onboardingFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
-  "@onboardingFeatureLogBody": {
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
+  "@appFeatureLogBody": {
     "description": "Free feature: attack logging, detail"
   },
-  "onboardingFeatureHistoryTitle": "History and charts",
-  "@onboardingFeatureHistoryTitle": {
+  "appFeatureHistoryTitle": "History and charts",
+  "@appFeatureHistoryTitle": {
     "description": "Free feature: history"
   },
-  "onboardingFeatureHistoryBody": "Every attack on a calendar, plus trends by week, time of day and where the pain sits.",
-  "@onboardingFeatureHistoryBody": {
+  "appFeatureHistoryBody": "Every attack on a calendar, plus trends by week, time of day and where the pain sits.",
+  "@appFeatureHistoryBody": {
     "description": "Free feature: history, detail"
   },
-  "onboardingFeatureRemindersTitle": "Medication reminders",
-  "@onboardingFeatureRemindersTitle": {
+  "appFeatureRemindersTitle": "Medication reminders",
+  "@appFeatureRemindersTitle": {
     "description": "Free feature: medication reminders"
   },
-  "onboardingFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
-  "@onboardingFeatureRemindersBody": {
+  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
+  "@appFeatureRemindersBody": {
     "description": "Free feature: medication reminders, detail"
   },
-  "onboardingFeatureExportTitle": "Export your data",
-  "@onboardingFeatureExportTitle": {
+  "appFeatureExportTitle": "Export your data",
+  "@appFeatureExportTitle": {
     "description": "Free feature: data export"
   },
-  "onboardingFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
-  "@onboardingFeatureExportBody": {
+  "appFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
+  "@appFeatureExportBody": {
     "description": "Free feature: data export, detail"
   },
-  "onboardingFeatureAlertsTitle": "Pressure-drop alerts",
-  "@onboardingFeatureAlertsTitle": {
+  "appFeatureAlertsTitle": "Pressure-drop alerts",
+  "@appFeatureAlertsTitle": {
     "description": "Premium feature: pressure alerts"
   },
-  "onboardingFeatureAlertsBody": "A notification up to 24 hours before the air pressure falls.",
-  "@onboardingFeatureAlertsBody": {
+  "appFeatureAlertsBody": "A notification up to 24 hours before the air pressure falls.",
+  "@appFeatureAlertsBody": {
     "description": "Premium feature: pressure alerts, detail"
   },
-  "onboardingFeatureForecastTitle": "48-hour pressure forecast",
-  "@onboardingFeatureForecastTitle": {
+  "appFeatureForecastTitle": "48-hour pressure forecast",
+  "@appFeatureForecastTitle": {
     "description": "Premium feature: pressure forecast"
   },
-  "onboardingFeatureForecastBody": "See what the air is about to do, so you can plan around it.",
-  "@onboardingFeatureForecastBody": {
+  "appFeatureForecastBody": "See what the air is about to do, so you can plan around it.",
+  "@appFeatureForecastBody": {
     "description": "Premium feature: pressure forecast, detail"
   },
-  "onboardingFeatureCorrelationTitle": "Weather correlation",
-  "@onboardingFeatureCorrelationTitle": {
+  "appFeatureCorrelationTitle": "Weather correlation",
+  "@appFeatureCorrelationTitle": {
     "description": "Premium feature: weather correlation"
   },
-  "onboardingFeatureCorrelationBody": "How much of your pain actually follows the pressure — measured on your own attacks.",
-  "@onboardingFeatureCorrelationBody": {
+  "appFeatureCorrelationBody": "How much of your pain actually follows the pressure — measured on your own attacks.",
+  "@appFeatureCorrelationBody": {
     "description": "Premium feature: weather correlation, detail"
   },
-  "onboardingFeatureSleepTitle": "Sleep correlation",
-  "@onboardingFeatureSleepTitle": {
+  "appFeatureSleepTitle": "Sleep correlation",
+  "@appFeatureSleepTitle": {
     "description": "Premium feature: sleep correlation"
   },
-  "onboardingFeatureSleepBody": "Whether your attacks follow the nights you sleep least, read from Apple Health.",
-  "@onboardingFeatureSleepBody": {
+  "appFeatureSleepBody": "Whether your attacks follow the nights you sleep least, read from Apple Health.",
+  "@appFeatureSleepBody": {
     "description": "Premium feature: sleep correlation, detail"
   },
-  "onboardingFeatureReportTitle": "Doctor report",
-  "@onboardingFeatureReportTitle": {
+  "appFeatureReportTitle": "Doctor report",
+  "@appFeatureReportTitle": {
     "description": "Premium feature: doctor report"
   },
-  "onboardingFeatureReportBody": "A clean PDF of your history to bring to an appointment.",
-  "@onboardingFeatureReportBody": {
+  "appFeatureReportBody": "A clean PDF of your history to bring to an appointment.",
+  "@appFeatureReportBody": {
     "description": "Premium feature: doctor report, detail"
   },
   "onboardingContinue": "Continue",
@@ -455,6 +455,136 @@
   "attackDetailMedication": "Medication",
   "@attackDetailMedication": {
     "description": "Field label: medication taken"
+  },
+  "attackDetailDuration": "Duration",
+  "@attackDetailDuration": {
+    "description": "Field label: how long the attack lasted"
+  },
+  "attackDurationNotRecorded": "Not recorded",
+  "@attackDurationNotRecorded": {
+    "description": "Value shown when no end time was ever given for an attack"
+  },
+  "attackDurationSheetTitle": "How long did it last?",
+  "@attackDurationSheetTitle": {
+    "description": "Title of the sheet that records how long an attack lasted"
+  },
+  "attackDurationEndedNow": "It just ended",
+  "@attackDurationEndedNow": {
+    "description": "Option that ends the attack at the current time"
+  },
+  "attackDurationHm": "{hours}h {minutes}m",
+  "@attackDurationHm": {
+    "description": "A duration in whole hours and minutes",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "attackDurationH": "{hours}h",
+  "@attackDurationH": {
+    "description": "A duration in whole hours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "attackDurationM": "{minutes}m",
+  "@attackDurationM": {
+    "description": "A duration under an hour, in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "reportColDuration": "Duration",
+  "@reportColDuration": {
+    "description": "Doctor report table column: how long the attack lasted"
+  },
+  "reportTypicalDuration": "Typical duration",
+  "@reportTypicalDuration": {
+    "description": "Doctor report summary row: the median attack duration"
+  },
+  "attackDetailMedicationEffect": "Did it help?",
+  "@attackDetailMedicationEffect": {
+    "description": "Field label: whether the medication taken helped"
+  },
+  "medicationEffectHelped": "It helped",
+  "@medicationEffectHelped": {
+    "description": "Medication outcome: the attack stopped or eased a lot"
+  },
+  "medicationEffectPartly": "It helped a little",
+  "@medicationEffectPartly": {
+    "description": "Medication outcome: took the edge off but did not stop it"
+  },
+  "medicationEffectDidNotHelp": "It did not help",
+  "@medicationEffectDidNotHelp": {
+    "description": "Medication outcome: no effect"
+  },
+  "medicationEffectNotRecorded": "Not recorded",
+  "@medicationEffectNotRecorded": {
+    "description": "Value shown when the medication outcome was never answered"
+  },
+  "medicationEffectSheetTitle": "Did the medication help?",
+  "@medicationEffectSheetTitle": {
+    "description": "Title of the sheet recording whether a medication worked"
+  },
+  "medicationDetailEffectiveness": "How well it works",
+  "@medicationDetailEffectiveness": {
+    "description": "Section header on a medication screen, above its outcome tally"
+  },
+  "medicationEffectTally": "Helped {helped} of {total} times",
+  "@medicationEffectTally": {
+    "description": "How often a medication helped, out of the times it was answered",
+    "placeholders": {
+      "helped": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationEffectNoAnswers": "No outcomes recorded yet. Open an attack you took this for and say whether it helped.",
+  "@medicationEffectNoAnswers": {
+    "description": "Shown on a medication screen when no attack has an outcome for it"
+  },
+  "reportColMedicationEffect": "Helped",
+  "@reportColMedicationEffect": {
+    "description": "Doctor report table column: whether the medication helped"
+  },
+  "insightsBaselineSentence": "You had an attack on {dropRate}% of days pressure fell, against {calmRate}% of other days.",
+  "@insightsBaselineSentence": {
+    "description": "Compares the attack rate on pressure-drop days against all other days",
+    "placeholders": {
+      "dropRate": {
+        "type": "int"
+      },
+      "calmRate": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsBaselineDays": "Based on {dropDays} days pressure fell and {calmDays} days it did not.",
+  "@insightsBaselineDays": {
+    "description": "Caption naming how many days each side of the comparison holds",
+    "placeholders": {
+      "dropDays": {
+        "type": "int"
+      },
+      "calmDays": {
+        "type": "int"
+      }
+    }
+  },
+  "reportBaseline": "Attack rate, drop days vs other days",
+  "@reportBaseline": {
+    "description": "Doctor report summary row comparing attack rates by day type"
   },
   "attackDetailWeatherTitle": "Weather at the time",
   "@attackDetailWeatherTitle": {
@@ -1046,7 +1176,11 @@
   "notificationReminderTitle": "Time for {medication}",
   "@notificationReminderTitle": {
     "description": "A medication reminder row in the notification list",
-    "placeholders": { "medication": { "type": "String" } }
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      }
+    }
   },
   "notificationReminderUnknown": "Time for your medication",
   "@notificationReminderUnknown": {
@@ -1059,7 +1193,11 @@
   "notificationPressureBody": "Barometric pressure was forecast to fall {drop} hPa within 24 hours.",
   "@notificationPressureBody": {
     "description": "Body of the pressure alert sheet; drop is a formatted number",
-    "placeholders": { "drop": { "type": "String" } }
+    "placeholders": {
+      "drop": {
+        "type": "String"
+      }
+    }
   },
   "notificationMedicationAction": "Open this medication",
   "@notificationMedicationAction": {
@@ -1368,10 +1506,14 @@
   "@settingsSyncStatusNever": {
     "description": "End-of-row status on the sync row before the first sync of this session has finished"
   },
-  "settingsSyncProgress": "{percent}%",
-  "@settingsSyncProgress": {
+  "commonProgressPercent": "{percent}%",
+  "@commonProgressPercent": {
     "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "settingsSyncStatusFailed": "Didn't finish",
   "@settingsSyncStatusFailed": {
@@ -1628,7 +1770,6 @@
   "@commonDeleting": {
     "description": "Button label while a destructive action is running, replacing the verb so the action reads as underway and cannot be tapped twice"
   },
-
   "@settingsDelete": {
     "description": "Settings tile that starts the GDPR delete flow"
   },
@@ -1851,17 +1992,13 @@
   "@dashboardLogButton": {
     "description": "Big primary call-to-action on the dashboard that opens the 3-tap log flow"
   },
-  "dashboardLogButtonSubtitle": "Track a migraine in 3 taps",
-  "@dashboardLogButtonSubtitle": {
-    "description": "Supporting line under the dashboard log button"
-  },
   "dashboardThisWeek": "This week",
   "@dashboardThisWeek": {
     "description": "Title of the weekly summary card on the dashboard"
   },
-  "dashboardAttacksCount": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
-  "@dashboardAttacksCount": {
-    "description": "Attack count for the current week on the dashboard summary card",
+  "dashboardAttacksLabel": "{count, plural, =1{attack logged} other{attacks logged}}",
+  "@dashboardAttacksLabel": {
+    "description": "Label beside the big attack count on the dashboard week card. The number itself is rendered separately so it can carry its own size",
     "placeholders": {
       "count": {
         "type": "int"
@@ -1899,10 +2036,6 @@
       }
     }
   },
-  "dashboardQuickAccess": "Quick access",
-  "@dashboardQuickAccess": {
-    "description": "Section header above the dashboard quick-access shortcuts"
-  },
   "dashboardPremiumTitle": "Unlock Premium",
   "@dashboardPremiumTitle": {
     "description": "Title of the premium promo card on the dashboard"
@@ -1919,49 +2052,42 @@
   "@dashboardChartShortcut": {
     "description": "Dashboard quick-access card opening History in chart view"
   },
-  "dashboardAddMedication": "Add medication",
-  "@dashboardAddMedication": {
-    "description": "Dashboard quick-access card that opens Medications and starts adding one"
+  "dashboardWeatherShortcut": "Weather",
+  "@dashboardWeatherShortcut": {
+    "description": "Dashboard quick-access tile that opens the pressure screen"
   },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
     "description": "Section header above the dashboard feature banners"
   },
-  "dashboardReminderTitle": "Medication reminders",
+  "dashboardReminderTitle": "Reminders",
   "@dashboardReminderTitle": {
-    "description": "Title of the dashboard banner promoting medication reminders"
+    "description": "Title of the dashboard Explore card for medication reminders. These cards sit two to a row, so a title is one or two words — a longer one wraps and pushes the card taller than the one beside it"
   },
-  "dashboardReminderBody": "Never miss a dose — set reminders for your medications.",
+  "dashboardReminderBody": "Never miss a dose.",
   "@dashboardReminderBody": {
-    "description": "Body of the dashboard medication-reminders banner"
+    "description": "Body of the dashboard Explore card for medication reminders. Two lines at most, so keep it to about four words"
   },
-  "dashboardInsightsBannerTitle": "Pressure & pain insights",
+  "dashboardInsightsBannerTitle": "Insights",
   "@dashboardInsightsBannerTitle": {
-    "description": "Title of the dashboard banner linking to Insights"
+    "description": "Title of the dashboard Explore card linking to Insights. One or two words — see dashboardReminderTitle"
   },
-  "dashboardInsightsBannerBody": "See how weather pressure lines up with your migraines.",
+  "dashboardInsightsBannerBody": "Pressure and your pain.",
   "@dashboardInsightsBannerBody": {
-    "description": "Body of the dashboard Insights banner"
+    "description": "Body of the dashboard Explore card for Insights. About four words"
   },
-  "dashboardExportTitle": "Export your data",
+  "dashboardExportTitle": "Export",
   "@dashboardExportTitle": {
-    "description": "Title of the dashboard banner linking to data export in Settings"
+    "description": "Title of the dashboard Explore card linking to data export. One or two words — see dashboardReminderTitle"
   },
-  "dashboardExportBody": "Share a JSON, CSV, or a PDF report for your doctor.",
+  "dashboardExportBody": "JSON, CSV or a PDF report.",
   "@dashboardExportBody": {
-    "description": "Body of the dashboard export banner"
+    "description": "Body of the dashboard Explore card for data export. About four words"
   },
-  "dashboardNextReminderTitle": "Next reminder",
-  "@dashboardNextReminderTitle": {
-    "description": "Title of the dashboard banner showing the soonest medication reminder"
-  },
-  "dashboardNextReminderBody": "{name} at {time} · {remaining}",
-  "@dashboardNextReminderBody": {
-    "description": "Body of the next-reminder banner: medication name, time, and time remaining",
+  "dashboardNextReminderWhen": "at {time} · {remaining}",
+  "@dashboardNextReminderWhen": {
+    "description": "Second line of the dashboard's next-reminder banner; the medication name is the line above",
     "placeholders": {
-      "name": {
-        "type": "String"
-      },
       "time": {
         "type": "String"
       },
@@ -2325,6 +2451,146 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "appFeatureMedicationsTitle": "Your medication list",
+  "@appFeatureMedicationsTitle": {
+    "description": "Feature row title: the medications screen"
+  },
+  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped.",
+  "@appFeatureMedicationsBody": {
+    "description": "Feature row body: the medications screen"
+  },
+  "appFeatureWidgetTitle": "Home screen widget",
+  "@appFeatureWidgetTitle": {
+    "description": "Feature row title: the iOS home screen widget"
+  },
+  "appFeatureWidgetBody": "The log button, this week's count and the latest pressure, without opening the app.",
+  "@appFeatureWidgetBody": {
+    "description": "Feature row body: the iOS home screen widget"
+  },
+  "appFeatureNotificationsTitle": "Notification history",
+  "@appFeatureNotificationsTitle": {
+    "description": "Feature row title: the in-app notification list"
+  },
+  "appFeatureNotificationsBody": "Every reminder and pressure alert kept in a list, so a missed banner is not a lost one.",
+  "@appFeatureNotificationsBody": {
+    "description": "Feature row body: the in-app notification list"
+  },
+  "appFeatureSyncTitle": "Encrypted backup",
+  "@appFeatureSyncTitle": {
+    "description": "Feature row title: optional signed-in sync"
+  },
+  "appFeatureSyncBody": "Sign in and your records are backed up encrypted, and follow you to a second device.",
+  "@appFeatureSyncBody": {
+    "description": "Feature row body: optional signed-in sync. Never claim end-to-end encryption (hard rule 12)"
+  },
+  "appFeatureCalmTitle": "Built for sensitive eyes",
+  "@appFeatureCalmTitle": {
+    "description": "Feature row title: the dark, calm design"
+  },
+  "appFeatureCalmBody": "Dark by default, no white glare, nothing that flashes. English and Vietnamese.",
+  "@appFeatureCalmBody": {
+    "description": "Feature row body: the dark, calm design"
+  },
+  "appFeatureActivityTitle": "Exertion and steps",
+  "@appFeatureActivityTitle": {
+    "description": "Feature row title: the activity insight"
+  },
+  "appFeatureActivityBody": "Whether your attacks follow the days you pushed hardest.",
+  "@appFeatureActivityBody": {
+    "description": "Feature row body: the activity insight"
+  },
+  "aboutTitle": "About BaroEase",
+  "@aboutTitle": {
+    "description": "Settings row title and screen title for the About screen"
+  },
+  "aboutTagline": "A calm, private migraine tracker for people whose attacks follow the weather.",
+  "@aboutTagline": {
+    "description": "One-line description under the app name on the About screen"
+  },
+  "aboutVersionLabel": "Version",
+  "@aboutVersionLabel": {
+    "description": "Label of the version row on the About screen"
+  },
+  "homeWidgetSettingsTitle": "Home screen widget",
+  "@homeWidgetSettingsTitle": {
+    "description": "Settings switch that turns the iOS home screen widget's data on or off"
+  },
+  "homeWidgetLogLabel": "Log attack",
+  "@homeWidgetLogLabel": {
+    "description": "Fixed button on the home screen widget; opens the log flow"
+  },
+  "homeWidgetWeekLabel": "This week",
+  "@homeWidgetWeekLabel": {
+    "description": "Home screen widget label above the count of attacks logged this week"
+  },
+  "homeWidgetWeekValue": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "@homeWidgetWeekValue": {
+    "description": "Home screen widget value: attacks logged this week",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeWidgetPressureLabel": "Pressure",
+  "@homeWidgetPressureLabel": {
+    "description": "Home screen widget label above the latest pressure reading"
+  },
+  "homeWidgetPressureValue": "{value} hPa",
+  "@homeWidgetPressureValue": {
+    "description": "Home screen widget value: the latest pressure reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeWidgetPressureDetail": "{value} hPa / 24h",
+  "@homeWidgetPressureDetail": {
+    "description": "Home screen widget detail: the signed 24h pressure change under the reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "homeWidgetPressureNone": "—",
+  "@homeWidgetPressureNone": {
+    "description": "Home screen widget placeholder when there is no recent pressure reading"
+  },
+  "homeWidgetFailed": "Couldn't update the home screen widget.",
+  "@homeWidgetFailed": {
+    "description": "Error snackbar when writing the widget's shared data failed"
+  },
+  "dashboardSleepTitle": "Sleep",
+  "@dashboardSleepTitle": {
+    "description": "Dashboard explore card title for last night's sleep"
+  },
+  "dashboardStepsTitle": "Steps",
+  "@dashboardStepsTitle": {
+    "description": "Dashboard explore card title for today's step count"
+  },
+  "dashboardHealthConnect": "Connect",
+  "@dashboardHealthConnect": {
+    "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
+  },
+  "settingsDevPush": "Send a test push",
+  "@settingsDevPush": {
+    "description": "Dev-only Settings row showing whether this device registered for push"
+  },
+  "settingsDevPushSent": "Test push sent. It should arrive in a moment.",
+  "@settingsDevPushSent": {
+    "description": "Snackbar after the backend accepted the test push request"
+  },
+  "settingsDevPushFailed": "Test push failed: {reason}",
+  "@settingsDevPushFailed": {
+    "description": "Snackbar when the test push callable refused or failed",
+    "placeholders": {
+      "reason": {
+        "type": "String"
       }
     }
   }

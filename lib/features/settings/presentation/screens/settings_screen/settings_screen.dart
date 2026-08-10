@@ -11,16 +11,20 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
 import '../../../../../core/widgets/sections/alerts_settings_tile.dart';
+import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
 import '../../../../../core/widgets/sections/sync_settings_tile.dart';
+import '../../../../../core/widgets/settings_row_progress.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../alerts/providers.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../../domain/entities/wipe_status.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../domain/services/dev_seed_service.dart';
@@ -30,6 +34,7 @@ part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
+part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
@@ -62,6 +67,7 @@ class SettingsScreen extends ConsumerWidget {
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev),
               const _DevPremiumTile(),
+              const _DevPushTile(),
               const _DevSeedTile(),
               const _DevResetTile(),
             ],

@@ -91,7 +91,7 @@ class _SyncState extends StatelessWidget {
               children: <Widget>[
                 Text(l10n.syncScreenSyncing, style: AppTextStyle.bodyLarge),
                 Text(
-                  l10n.settingsSyncProgress(status.percent),
+                  l10n.commonProgressPercent(status.percent),
                   style: AppTextStyle.bodyMedium.secondary,
                 ),
               ],

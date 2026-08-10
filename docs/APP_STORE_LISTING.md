@@ -38,6 +38,10 @@ a pattern you can bring to your doctor.
 Turn on alerts and BaroEase warns you before pressure is forecast to fall past
 a threshold you choose — time to hydrate, rest, or take your usual steps early.
 
+**One tap from your home screen**
+Add the BaroEase widget and the log button, this week's count and the latest
+pressure are there without opening the app.
+
 **Built for sensitive eyes**
 Dark by default, no harsh white screens, no flashing. Designed for photophobia.
 
@@ -69,8 +73,8 @@ treat, cure, or prevent any condition. Always consult a qualified clinician.
 
 ## What's New (v1.0)
 > First release. Three-tap attack logging, barometric pressure pairing, history
-> calendar and charts, pressure-drop alerts, correlation insights, and a PDF
-> doctor report. Fully usable offline, dark by default.
+> calendar and charts, pressure-drop alerts, correlation insights, a home screen
+> widget, and a PDF doctor report. Fully usable offline, dark by default.
 
 ## URLs
 - Support URL: [https://baroease.app/support]

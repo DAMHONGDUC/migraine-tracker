@@ -1,9 +1,11 @@
 import 'package:intl/intl.dart';
 
 import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/insights/domain/services/doctor_report_builder.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'head_location_label.dart';
+import 'medication_effect_label.dart';
 
 /// Collects the doctor report's localized strings in one place. The builder
 /// is pure Dart and takes its copy as data; this is the only translation of
@@ -17,10 +19,18 @@ extension DoctorReportStringsL10n on AppLocalizations {
     totalAttacks: reportTotalAttacks,
     avgIntensity: reportAvgIntensity,
     commonLocation: reportCommonLocation,
+    typicalDuration: reportTypicalDuration,
     attacksDuringDrops: reportAttacksDuringDrops,
+    baseline: reportBaseline,
     tableTitle: reportTableTitle,
     colDate: reportColDate,
     colIntensity: reportColIntensity,
+    colDuration: reportColDuration,
+    colMedicationEffect: reportColMedicationEffect,
+    medicationEffectLabels: <MedicationEffect, String>{
+      for (final MedicationEffect effect in MedicationEffect.values)
+        effect: effect.label(this),
+    },
     colLocation: reportColLocation,
     colMedication: reportColMedication,
     colPressureDelta: reportColPressureDelta,

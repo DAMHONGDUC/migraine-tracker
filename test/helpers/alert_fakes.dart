@@ -39,6 +39,9 @@ class RecordingAlertRegistration implements AlertRegistrationRepository {
   }
 
   @override
+  Future<void> sendTestPush() async {}
+
+  @override
   Future<void> forgetRegistration() async {
     _failIfAsked();
     forgetCalls++;

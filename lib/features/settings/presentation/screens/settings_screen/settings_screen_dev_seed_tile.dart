@@ -20,7 +20,7 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
 
     setState(() => _running = true);
     try {
-      await ref.read(settingsControllerProvider).seedDevData();
+      await ref.read(settingsControllerProvider.notifier).seedDevData();
       if (mounted) {
         SdSnackBarUtilsV2.success(
           context,

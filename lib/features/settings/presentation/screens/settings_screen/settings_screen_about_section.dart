@@ -1,7 +1,11 @@
 part of 'settings_screen.dart';
 
-/// One diagnostic row (env, version, build in one string — always shown, no
-/// gating), and one way to reach a human. Nothing else belongs here.
+/// One way to reach a human, and the way into [AboutScreen] — which carries
+/// the full feature list. Nothing else belongs here.
+///
+/// The About row's value is the same diagnostic string the version row used
+/// to show on its own (env, version, build): a bug report still names its
+/// build without anyone opening a screen.
 class _AboutSection extends ConsumerWidget {
   const _AboutSection();
 
@@ -21,8 +25,9 @@ class _AboutSection extends ConsumerWidget {
         ),
         SettingsTile(
           icon: Icons.info_outline,
-          title: l10n.settingsAppVersion,
+          title: l10n.aboutTitle,
           value: AppVersionLabel.build(version),
+          onTap: () => context.pushNamed(AppRoutes.about.name),
         ),
       ],
     );

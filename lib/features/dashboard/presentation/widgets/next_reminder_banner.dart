@@ -8,10 +8,10 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
-import 'highlighted_time_text.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the
 /// current time), tapping through to that medication's detail screen.
@@ -56,29 +56,58 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
 
     final time = DateTimeUtils.hhmm(reminder.hour, reminder.minute);
     final remaining = _remaining(context, reminder.timeUntil);
-    final subtitle = l10n.dashboardNextReminderBody(
-      reminder.medicationName,
-      time,
-      remaining,
-    );
 
-    return SdBannerV2(
-      icon: Icons.alarm,
-      color: AppColors.secondary,
-      title: l10n.dashboardNextReminderTitle,
-      subtitle: subtitle,
-      // Gently highlight the live countdown within the line.
-      subtitleChild: HighlightedTimeText(
-        full: subtitle,
-        highlight: remaining,
-        color: AppColors.secondary,
-      ),
+    return SdCardV2(
       // Straight to the medication's detail screen — that's where it can be changed.
       onTap: () => context.pushNamed(
         AppRoutes.medication.name,
         pathParameters: <String, String>{
           AppRoutes.medicationIdParam: reminder.medicationId,
         },
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(SdSpacingConstant.w16),
+        child: Row(
+          children: [
+            SdIconBadgeV2(
+              icon: Icons.medication_outlined,
+              color: AppColors.secondary,
+            ),
+            SizedBox(width: SdSpacingConstant.w16),
+            // Two lines, name over time: the name is what the user is
+            // looking for, and picking it out of a run-on sentence by colour
+            // alone left it competing with the time beside it.
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    reminder.medicationName,
+                    style: AppTextStyle.bodyLarge.w600.copyWith(
+                      color: AppColors.secondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: SdSpacingConstant.h2),
+                  Text(
+                    l10n.dashboardNextReminderWhen(time, remaining),
+                    style: AppTextStyle.bodySmall.secondary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            SdIconV2(
+              icon: Icons.chevron_right,
+              size: SdSpacingConstant.r20,
+              color: AppColors.textSecondary,
+            ),
+          ],
+        ),
       ),
     );
   }

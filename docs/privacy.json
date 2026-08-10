@@ -7,7 +7,7 @@
     "iOS"
   ],
   "effectiveDate": "2026-08-07",
-  "lastUpdated": "2026-08-07",
+  "lastUpdated": "2026-08-10",
   "contactEmail": "ducdam.dev@gmail.com",
   "url": "https://damhongduc.github.io/apps_privacy_policy",
   "storeLinks": {
@@ -32,7 +32,8 @@
         "Symptoms, triggers and notes",
         "Medications and medication reminders",
         "Weather snapshot attached to each attack",
-        "In-app notification history"
+        "In-app notification history",
+        "Home screen widget — this week's attack count and the latest pressure reading, in a container shared between the app and the widget"
       ],
       "purpose": "This is what the app is for. It is stored locally and, if you are not signed in, we never receive it.",
       "linked": false
@@ -198,7 +199,7 @@
       ],
       "list": [
         "Export everything — Settings → Export data, as JSON, CSV or a PDF doctor report. Past exports are kept in the app so you can re-share them, and are full copies of your data.",
-        "Delete all data — Settings → Delete all data. Wipes the local database and those export files, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold. Your account stays, so your subscription binding survives.",
+        "Delete all data — Settings → Delete all data. Wipes the local database, those export files and the home screen widget's shared container, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold. Your account stays, so your subscription binding survives.",
         "Delete your account — Account screen → Delete account. The whole teardown: synced records, account record, encryption key, then the login itself.",
         "Neither action cancels your subscription. That lives in the App Store and only you can cancel it there."
       ]

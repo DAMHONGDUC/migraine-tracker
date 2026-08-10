@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
+
+import 'dashboard_severity_card.dart';
+import 'week_summary_card.dart';
+
+/// The week count and the severity mix, nested inside one outer card.
+///
+/// They answer the same question — how was this week — so grouping them is
+/// what stops the dashboard reading as an undifferentiated stack of cards.
+/// The nesting uses the two surfaces the app already has: the group takes the
+/// card colour, the two inside it step up to `surfaceElevated`, which is what
+/// that token has always been for.
+class DashboardSummaryGroup extends ConsumerWidget {
+  const DashboardSummaryGroup({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SdCardV2(
+      child: Padding(
+        padding: EdgeInsets.all(SdSpacingConstant.w12),
+        child: Column(
+          children: [
+            const WeekSummaryCard(),
+            SizedBox(height: SdSpacingConstant.h12),
+            const DashboardSeverityCard(),
+          ],
+        ),
+      ),
+    );
+  }
+}

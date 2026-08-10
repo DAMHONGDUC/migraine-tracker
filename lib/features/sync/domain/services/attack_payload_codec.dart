@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/medication_effect.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import 'sync_payload_codec.dart';
 
@@ -40,6 +41,8 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       'triggers': attack.triggers,
       'notes': attack.notes,
       'exertionLevel': attack.exertionLevel?.name,
+      'endedAt': attack.endedAt?.toUtc().toIso8601String(),
+      'medicationEffect': attack.medicationEffect?.name,
       'weather': weather == null
           ? null
           : <String, dynamic>{
@@ -88,6 +91,16 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
               ExertionLevel.values,
               'exertionLevel',
             ),
+      // Optional and additive, so schemaVersion stays 1: a build that
+      // predates this reads the payload and simply drops the field.
+      endedAt: _dateOrNull(decoded['endedAt']),
+      medicationEffect: decoded['medicationEffect'] == null
+          ? null
+          : _enum(
+              decoded['medicationEffect'],
+              MedicationEffect.values,
+              'medicationEffect',
+            ),
       weather: weather == null
           ? null
           : _weather(weather as Map<String, dynamic>),
@@ -119,6 +132,9 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
     if (value is! num) throw FormatException('$field is not a number');
     return value.toDouble();
   }
+
+  static DateTime? _dateOrNull(Object? value) =>
+      value is String ? DateTime.tryParse(value)?.toUtc() : null;
 
   static double? _doubleOrNull(Object? value) =>
       value is num ? value.toDouble() : null;

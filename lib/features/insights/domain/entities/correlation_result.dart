@@ -36,6 +36,49 @@ class CorrelationNoVariation extends CorrelationResult {
   });
 }
 
+/// The comparison that turns the share into a claim about risk.
+///
+/// Without it the card can only say what share of the user's attacks fell
+/// during drops — which is high for anyone living somewhere stormy, whether
+/// or not pressure has anything to do with their migraines. This says how
+/// often a drop day ended in an attack against how often a calm day did.
+@immutable
+class PressureBaseline {
+  const PressureBaseline({
+    required this.dropDays,
+    required this.dropDaysWithAttack,
+    required this.calmDays,
+    required this.calmDaysWithAttack,
+    required this.minDaysPerSide,
+  });
+
+  final int dropDays;
+  final int dropDaysWithAttack;
+  final int calmDays;
+  final int calmDaysWithAttack;
+
+  /// How many days each side needs before the comparison is worth stating.
+  final int minDaysPerSide;
+
+  /// Share of drop days that ended in an attack, 0–100.
+  double get dropDayAttackPercent => dropDaysWithAttack * 100 / dropDays;
+
+  /// The same for days pressure did not fall.
+  double get calmDayAttackPercent => calmDaysWithAttack * 100 / calmDays;
+
+  /// How many times more likely an attack is on a drop day. Null when no calm
+  /// day ended in an attack — dividing by zero would print "infinitely more
+  /// likely", which is a claim four quiet days cannot support.
+  double? get timesMoreLikely => calmDaysWithAttack == 0
+      ? null
+      : dropDayAttackPercent / calmDayAttackPercent;
+
+  /// Both sides need days in them: one drop day that happened to end in an
+  /// attack is 100%, and reads as a finding.
+  bool get isReliable =>
+      dropDays >= minDaysPerSide && calmDays >= minDaysPerSide;
+}
+
 /// The headline insight: "X% of your attacks occurred during rapid
 /// pressure drops."
 class CorrelationInsight extends CorrelationResult {
@@ -45,7 +88,13 @@ class CorrelationInsight extends CorrelationResult {
     required this.attacksDuringPressureDrop,
     required this.dropThresholdHpa,
     required this.minAttacksForShare,
+    this.baseline,
   });
+
+  /// Null until enough days have been recorded — the app only started
+  /// keeping days without attacks recently, so an existing user's history
+  /// has none and the card falls back to the share alone.
+  final PressureBaseline? baseline;
 
   final int attacksDuringPressureDrop;
 

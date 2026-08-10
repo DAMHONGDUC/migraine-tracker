@@ -14,6 +14,26 @@ import '../../theme/app_colors.dart';
 /// counts come from the pure [SeverityBreakdownCalculator]. The slices and
 /// legend are `SdDonutChartV2`; what stays here is the app's own vocabulary —
 /// which bands exist, what they are called, and what colour each one is.
+/// The app's severity vocabulary in one place: which bands exist, what each is
+/// called, and what colour it wears.
+///
+/// Both the full chart below and the dashboard's compact row read it, so the
+/// two surfaces can never name or colour a band differently — the layouts
+/// differ, the meaning cannot.
+final class SeverityBreakdownSlices {
+  static List<SdDonutSliceV2> of(
+    List<SeverityCount> counts,
+    AppLocalizations l10n,
+  ) => <SdDonutSliceV2>[
+    for (final SeverityCount entry in counts)
+      SdDonutSliceV2(
+        value: entry.count.toDouble(),
+        color: AppColors.intensity(entry.band.sampleIntensity),
+        label: '${entry.band.label(l10n)} · ${entry.count}',
+      ),
+  ];
+}
+
 class SeverityBreakdownChart extends StatelessWidget {
   const SeverityBreakdownChart({required this.counts, super.key});
 
@@ -22,14 +42,10 @@ class SeverityBreakdownChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
-    final List<SdDonutSliceV2> slices = <SdDonutSliceV2>[
-      for (final SeverityCount entry in counts)
-        SdDonutSliceV2(
-          value: entry.count.toDouble(),
-          color: AppColors.intensity(entry.band.sampleIntensity),
-          label: '${entry.band.label(l10n)} · ${entry.count}',
-        ),
-    ];
+    final List<SdDonutSliceV2> slices = SeverityBreakdownSlices.of(
+      counts,
+      l10n,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

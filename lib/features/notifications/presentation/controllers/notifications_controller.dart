@@ -72,6 +72,36 @@ class NotificationsController {
     }
   }
 
+  /// Catches up the pressure alert that arrived while the app was shut.
+  ///
+  /// [recordPush] only runs with the app open, so without this an alert the
+  /// user never tapped is missing from the list on this device forever.
+  /// Idempotent like every other writer (hard rule 16): the id is derived
+  /// from the event, so re-running it on every launch cannot duplicate a row
+  /// or un-read one the user has already opened.
+  ///
+  /// Never rethrows. It runs unawaited at launch beside the sync, and a
+  /// failure here means the list is missing one row — not a reason to break
+  /// starting the app.
+  Future<void> reconcileLastAlert() async {
+    try {
+      final AppNotification? alert = await _ref
+          .read(lastAlertRepositoryProvider)
+          .latest();
+
+      if (alert == null) return;
+      await _ref.read(notificationRepositoryProvider).addMissing(
+        <AppNotification>[alert],
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Reconciling the last pressure alert failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   /// The row a tapped reminder notification leads to, or null when there is
   /// none to open.
   ///

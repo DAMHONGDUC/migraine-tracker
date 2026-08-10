@@ -1,6 +1,6 @@
 # Remaining work
 
-Snapshot of 8 Aug 2026. Re-check before acting on an item; this is a
+Snapshot of 10 Aug 2026. Re-check before acting on an item; this is a
 point-in-time survey, not a live tracker.
 
 **Nothing on this list is code any more.** Every open item is a console, a
@@ -18,14 +18,16 @@ skipped, since several of these fail **silently**.
 
 | # | What | Why it matters if skipped |
 |---|---|---|
-| 1 | `firebase deploy --only firestore:rules` | Every sync pull dies on `permission-denied`. The rules in the repo name all four `SyncCollection` values; the project may still have an older set that names only `attacks`. |
-| 2 | `firebase deploy --only firestore:indexes` | A **separate** step from rules. The pull query is an equality on `userId` plus a range on `updatedAt`; without the composite index it fails at runtime, not at build. |
-| 3 | `firebase deploy --only functions` | The pressure-alert push now carries `data` + `content-available`. Until this deploys, alerts show a banner but never reach the in-app notification list. |
-| 4 | Configure an APNs auth key | FCM has nothing to hand APNs, so every send fails server-side. No client change can work around it. |
+| ~~1~~ | ~~firestore rules~~ | **Done 10 Aug**, via `melos run deploy-firebase`. |
+| ~~2~~ | ~~firestore indexes~~ | **Done 10 Aug**, same run. `firebase firestore:indexes` reads back a composite index and field overrides for all four `SyncCollection` values. |
+| ~~3~~ | ~~functions~~ | **Done 10 Aug**, same run. |
+| ~~4~~ | ~~APNs auth key~~ | **Done 10 Aug.** A `.p8` key uploaded to `migraine-tracker-9f7b2`. One key serves the whole Apple team and both APNs environments, so there is nothing per-app or per-environment left to configure. |
 | 5 | Create the first `app_updates` record by hand | Force-update can never fire. It fails open until then — safe, but silent, so "no sheet appeared" is not evidence it works. `create_date` **must** be a Firestore `timestamp`; a string sorts below every timestamp and the query never sees it. |
 
-`sync_collection_rules_test.dart` proves the two files agree with the enum.
-It can never prove the project has them — only 1 and 2 do that.
+`melos run deploy-firebase` is the one command for 1-3: it sends rules and
+indexes together, and the functions after their own tests pass.
+`sync_collection_rules_test.dart` proves the two files agree with the enum; it
+can never prove the project has them, which is what the deploy did.
 
 ### Apple Developer portal / App Store Connect
 
@@ -33,6 +35,9 @@ It can never prove the project has them — only 1 and 2 do that.
 |---|---|---|
 | 6 | Enable **Push Notifications** on the App ID | Signing fails: "provisioning profile doesn't include the aps-environment entitlement". Automatic signing offers to do it on the first device build. |
 | 7 | Enable **HealthKit** on the App ID | Same failure, for `com.apple.developer.healthkit`. |
+| 20 | Create a **Key with WeatherKit enabled** (Keys → ＋ → tick WeatherKit) | The backend has nothing to sign its JWT with, so every weather read fails. Downloadable once, and a **different** key from the APNs one. |
+| 21 | Register a **Services ID** (Identifiers → Services IDs) | It is the JWT's subject. The app's Bundle ID will not work in its place. |
+| 7b | Enable App Group `group.app.dd.migraine.tracker` on the App ID **and** on `…​.BaroEaseWidgetExtension` | The widget extension will not sign on device, and its shared container silently returns nothing. App Groups work unprovisioned on the Simulator, so "it works there" proves nothing. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
 | 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
@@ -56,20 +61,23 @@ it carries the full account of the TestFlight crash behind item 12.
 | 14 | Publish the policy at `https://damhongduc.github.io/apps_privacy_policy` | A HealthKit app cannot be submitted without a reachable privacy policy URL. |
 | 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
+| 22 | Put the WeatherKit `.p8` in Secret Manager | Never in the repo, never in `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
 | 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
+| 17b | Place the home screen widget and look at it | The extension builds, embeds and receives its data, but nothing has ever seen it drawn — the SwiftUI layout is the one unverified part. Check the log button lands on the log flow while you are there. |
 
 ### Not blocking
 
 | # | What | Why it can wait |
 |---|---|---|
-| 18 | Swap WeatherKit in for Open-Meteo | Open-Meteo is the documented stand-in behind `weatherRepositoryProvider`, and everything depends on the `WeatherRepository` interface, so the swap is one provider. Needs a WeatherKit key first. The backend cron stays on Open-Meteo permanently — that is not part of this item. |
+| 18 | Move weather to WeatherKit | **Decided 10 Aug**: WeatherKit for everything, called only from Cloud Functions. No longer a swap of one provider — the app loses its own weather API entirely and reads through the backend, because the signing key cannot ship in a binary. Blocked on 20 and 21. |
 | 19 | `FirebaseAlertRegistrationRepository` has no test | It takes concrete `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it means extracting three interfaces or adding a mocking package. Both are bigger than the gap. Item 17 is what proves it works. |
 
 ### Order
 
 4 → 6 → 17 is the push chain, and nothing before the end of it proves push
-works. 1 and 2 should go together and before any device testing that signs
-in, or the first sync fails and looks like a client bug. 8, 9, 12 and 13 are
+works. 1-4 are done, so **6 then 17 is all that is left of it**. 7, 7b and 6
+are one visit to Identifiers; 7b belongs before any device build, or the
+widget extension will not sign. 8, 9, 12 and 13 are
 one errand; the paywall says the same thing whichever of them is missing.
 
 ## Detail
@@ -110,7 +118,7 @@ the `sync_keys/{uid}` teardown) is now built and covered by
 
 ## 2. Push notifications — the repo half is done, the console half is not
 
-Checklist items 4, 6 and 17. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
+Checklist items 6 and 17; item 4 is done. `ios/Runner/Runner.entitlements` now declares `aps-environment` alongside
 HealthKit. It says `development` on purpose: one entitlements file serves all
 three build configs, and the app-store export re-signs it to `production`
 from the distribution profile — hardcoding `production` would break push on
@@ -120,8 +128,9 @@ Client code in `alerts` (`firebase_alert_registration_repository.dart`:
 request permission, get token, drop stale tokens) was already complete. What
 is left is outside the repo:
 
-- **An APNs auth key configured in the Firebase console.** Without it FCM has
-  nothing to hand APNs and every send fails server-side.
+- ~~An APNs auth key configured in the Firebase console.~~ **Done 10 Aug.**
+  A `.p8`, which covers sandbox and production together — the environment is
+  decided by the build's own `aps-environment`, not by anything in Firebase.
 - **Push Notifications enabled on the App ID** in the Apple Developer portal,
   same as HealthKit below. Automatic signing offers this on the first device
   build; until it is done, signing fails on the missing entitlement.
@@ -193,25 +202,26 @@ Deliberately not done, and worth knowing before extending this:
   `RemindersController.rescheduleAll()` afterwards. Anything else that ends
   up device-local like this needs the same treatment.
 
-## 4. Manual Firebase/Apple console setup still pending
+## 4. Manual Firebase/Apple console setup — the Firebase half is done
 
-Checklist items 1–7 and 17. Also documented in `CLAUDE.md` under "Pending
-setup"; re-verified against the current repo state, still open:
+Checklist items 4-7b and 17. Also documented in `CLAUDE.md` under "Pending
+setup"; re-verified against the current repo state:
 
-- `.firebaserc` now names the project (`migraine-tracker-9f7b2`), but there is
-  still no evidence `firestore.rules` or `firestore.indexes.json` have been
-  deployed. Both are separate steps (`firebase deploy --only firestore:rules`
-  and `--only firestore:indexes`), and the notification collection added to
-  `SyncCollection` needs them or every pull dies on `permission-denied`.
-- `functions/src/index.ts` now sends `data` + `content-available` on the
-  pressure-alert push. That needs `firebase deploy --only functions` before
-  alerts land in the in-app notification list.
+- **Rules, indexes and functions were deployed on 10 Aug** with
+  `melos run deploy-firebase` (project `migraine-tracker-9f7b2`).
+  `firebase firestore:indexes` reads back the `userId` + `updatedAt`
+  composite index and the `payload`/`nonce`/`mac` field overrides for all
+  four `SyncCollection` values, which is what proves it landed — the repo
+  test can only prove the files agree with the enum.
 - The `app_updates` collection doesn't exist yet — the first release record
   has to be created by hand in the Firebase console before force-update can
   ever fire (it fails open until then, which is safe but silent).
 - HealthKit capability needs enabling on the App ID in the Apple Developer
   portal, plus a real-device test pass (Simulator has no HealthKit) and the
   App Privacy label (Health & Fitness, collected-but-not-linked).
+- The App Group behind the home screen widget needs enabling on two App IDs —
+  the app's and the extension's own. Unlike HealthKit and push, this one is
+  invisible on the Simulator, where App Groups work unprovisioned.
 
 ## 5. The privacy policy is written but not published
 

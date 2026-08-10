@@ -11,12 +11,14 @@ void main() {
 
     await openSettings(tester);
     await tester.dragUntilVisible(
-      find.text('App version'),
+      find.text('About BaroEase'),
       find.byType(Scrollable).first,
       const Offset(0, -200),
     );
 
-    expect(find.text('App version'), findsOneWidget);
+    // The version row is gone: the About row carries the same diagnostic
+    // string as its value, so a bug report still names its build.
+    expect(find.text('About BaroEase'), findsOneWidget);
     expect(find.text('dev - 99.0.0 - 9999'), findsOneWidget);
 
     await finishTest(tester);

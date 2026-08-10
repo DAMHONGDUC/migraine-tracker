@@ -4,24 +4,48 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../health/providers.dart';
 import '../../../onboarding/providers.dart';
+import '../../domain/entities/wipe_status.dart';
 import '../../providers.dart';
 
 /// Orchestrates the settings actions so the widget only shows dialogs and
 /// delegates. Exports live in `ExportController` — this is the GDPR wipe.
-class SettingsController {
-  const SettingsController(this._ref);
-
-  final Ref _ref;
+///
+/// Its state is how far a wipe has got, so the Settings row can show a
+/// spinner and a percentage while one runs. It lives here rather than in the
+/// row because the wipe outlives no screen but does outlive a rebuild, and
+/// because the dev reset runs the same wipe and gets the same indicator free.
+class SettingsController extends Notifier<WipeStatus> {
+  @override
+  WipeStatus build() => WipeStatus.idle;
 
   /// GDPR wipe of all on-device data.
+  ///
+  /// The wipe service reports against its own steps; the Apple Health
+  /// disconnect below is one more, so the bar only reaches 100% once
+  /// everything is actually done.
   Future<void> deleteAll() async {
+    int shownPercent = -1;
+
     AppLogger.action('Delete all data (GDPR wipe)');
     AppAnalytics.logDataWiped();
+    state = const WipeStatus(isRunning: true);
     try {
-      await _ref.read(dataWipeServiceProvider).wipeAll();
+      await ref.read(dataWipeServiceProvider).wipeAll(
+        // Only when the whole percent moves: ten steps would otherwise
+        // rebuild the row for changes it cannot show.
+        onProgress: (int done, int steps) {
+          final double progress = done / (steps + 1);
+          final int percent = (progress * 100).round();
+
+          if (percent == shownPercent) return;
+          shownPercent = percent;
+          state = WipeStatus(isRunning: true, progress: progress);
+        },
+      );
       // - nothing from Apple Health is stored, so there is nothing to delete
       // - but leaving it connected keeps the app reading sleep after the wipe
-      await _ref.read(healthControllerProvider.notifier).disconnectAll();
+      await ref.read(healthControllerProvider.notifier).disconnectAll();
+      state = const WipeStatus(isRunning: true, progress: 1);
     } catch (error, stackTrace) {
       AppLogger.error(
         'Delete all data failed',
@@ -29,6 +53,8 @@ class SettingsController {
         stackTrace: stackTrace,
       );
       rethrow;
+    } finally {
+      state = WipeStatus.idle;
     }
   }
 
@@ -43,7 +69,7 @@ class SettingsController {
     AppLogger.action('Reset to onboarding (dev)');
     try {
       await deleteAll();
-      await _ref.read(onboardingControllerProvider).reset();
+      await ref.read(onboardingControllerProvider).reset();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Reset to onboarding failed',
@@ -59,7 +85,7 @@ class SettingsController {
   Future<void> seedDevData() async {
     AppLogger.action('Seed dev data');
     try {
-      await _ref.read(devSeedServiceProvider).seed();
+      await ref.read(devSeedServiceProvider).seed();
     } catch (error, stackTrace) {
       AppLogger.error(
         'Seed dev data failed',
@@ -69,4 +95,5 @@ class SettingsController {
       rethrow;
     }
   }
+
 }

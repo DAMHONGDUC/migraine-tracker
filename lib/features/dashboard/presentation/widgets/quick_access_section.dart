@@ -5,15 +5,32 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
-import '../../../medications/providers.dart';
 
-/// Three shortcuts on one row: History (list), the History chart, and "Add
-/// medication" — which opens the Medications tab AND kicks off the add dialog
-/// via [medicationAddRequestProvider]. History cards set the view mode before
-/// switching branch so they land on the right view.
+/// Shortcuts on one row: History (list), the History chart, and Weather.
+/// History tiles set the view mode before switching branch so they land on the
+/// right view; Weather pushes `/pressure`.
+///
+/// **Weather replaced an "Add medication" tile**, whose two-line label was the
+/// only thing forcing the row taller than one line of text. Ungated on
+/// purpose: Insights' pressure card already lets a free user through to the
+/// same screen, where the forecast shows its locked pitch — it is the Settings
+/// row, not the screen, that a free user is kept out of.
+///
+/// **All three fit on the screen, and no part of the row scrolls.** Owner's
+/// rule. It was a horizontally scrolling row of fixed-width chips, where the
+/// third was cut by the screen edge to say "there is more that way" — but
+/// there never was more than these three, so the cut edge was advertising a
+/// gesture that revealed nothing.
+///
+/// Each tile takes a third of the row, so they are the same width whatever
+/// their labels, and `IntrinsicHeight` makes them the same height as the
+/// tallest. The glyph sits above the label rather than beside it: a third of
+/// the screen is too narrow to put both on one line, and a shortcut whose name
+/// is cut off is one the user cannot identify before tapping it.
 class QuickAccessSection extends ConsumerWidget {
   const QuickAccessSection({super.key});
 
@@ -26,54 +43,37 @@ class QuickAccessSection extends ConsumerWidget {
       context.goNamed(AppRoutes.history.name);
     }
 
-    void addMedication() {
-      ref.read(medicationAddRequestProvider.notifier).request();
-      context.goNamed(AppRoutes.medications.name);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: SdSpacingConstant.w4),
-          child: Text(
-            l10n.dashboardQuickAccess,
-            style: AppTextStyle.titleSmall.secondary,
+    // No padding of its own any more: it sat outside the dashboard's gutter
+    // to reach the physical screen edge, and nothing needs that now.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: SdContentPaddingV2.listItemGap,
+        children: <Widget>[
+          Expanded(
+            child: _QuickAccessCard(
+              icon: Icons.history,
+              label: l10n.navHistory,
+              onTap: () => openHistory(HistoryViewMode.list),
+            ),
           ),
-        ),
-        SizedBox(height: SdSpacingConstant.h12),
-        // Matches all three cards to the tallest ("Add medication" wraps to two lines).
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.history,
-                  label: l10n.navHistory,
-                  onTap: () => openHistory(HistoryViewMode.list),
-                ),
-              ),
-              SizedBox(width: SdSpacingConstant.w12),
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.bar_chart,
-                  label: l10n.dashboardChartShortcut,
-                  onTap: () => openHistory(HistoryViewMode.chart),
-                ),
-              ),
-              SizedBox(width: SdSpacingConstant.w12),
-              Expanded(
-                child: _QuickAccessCard(
-                  icon: Icons.add_circle_outline,
-                  label: l10n.dashboardAddMedication,
-                  onTap: addMedication,
-                ),
-              ),
-            ],
+          Expanded(
+            child: _QuickAccessCard(
+              icon: Icons.bar_chart,
+              label: l10n.dashboardChartShortcut,
+              onTap: () => openHistory(HistoryViewMode.chart),
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: _QuickAccessCard(
+              // The app's pressure glyph everywhere else (alerts, onboarding).
+              icon: Icons.compress,
+              label: l10n.dashboardWeatherShortcut,
+              onTap: () => context.pushNamed(AppRoutes.pressure.name),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -91,34 +91,33 @@ class _QuickAccessCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: SdSpacingConstant.h12,
-            horizontal: SdSpacingConstant.w8,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SdIconV2(
-                icon: icon,
-                size: SdSpacingConstant.r24,
-                color: context.colorScheme.primary,
-              ),
-              SizedBox(height: SdSpacingConstant.h6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.labelSmall,
-              ),
-            ],
-          ),
+    return SdCardV2(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: SdSpacingConstant.h12,
+          horizontal: SdSpacingConstant.w8,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            // Plain text colour, not the accent: three lavender glyphs in a
+            // row under the lavender log button was two accents arguing.
+            SdIconV2(
+              icon: icon,
+              size: SdSpacingConstant.r20,
+              color: AppColors.textPrimary,
+            ),
+            SizedBox(height: SdSpacingConstant.h6),
+            // Two lines rather than an ellipsis: a shortcut whose name is
+            // cut off is one the user cannot identify before tapping it.
+            Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.labelLarge,
+            ),
+          ],
         ),
       ),
     );

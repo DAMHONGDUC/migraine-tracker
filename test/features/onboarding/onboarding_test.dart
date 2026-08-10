@@ -28,6 +28,8 @@ void main() {
 
     expect(find.text('Track your migraines'), findsOneWidget);
     expect(find.text('Log an attack'), findsNothing);
+
+    await finishTest(tester);
   });
 
   testWidgets(
@@ -50,13 +52,16 @@ void main() {
       expect(find.text('Medication reminders'), findsOneWidget);
       expect(find.text('Export your data'), findsOneWidget);
 
-      // Premium — one badge each, and the group heading is the sixth.
+      // Premium — one badge each, and the group heading is the seventh.
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.text('48-hour pressure forecast'), findsOneWidget);
       expect(find.text('Weather correlation'), findsOneWidget);
+      expect(find.text('Exertion and steps'), findsOneWidget);
       expect(find.text('Sleep correlation'), findsOneWidget);
       expect(find.text('Doctor report'), findsOneWidget);
-      expect(find.text('Premium'), findsNWidgets(6));
+      expect(find.text('Premium'), findsNWidgets(7));
+
+      await finishTest(tester);
     },
   );
 
@@ -75,5 +80,7 @@ void main() {
     await tapButton(tester, 'Not now');
     expect(find.text('When should we warn you?'), findsOneWidget);
     expect(find.text('Start tracking'), findsOneWidget);
+
+    await finishTest(tester);
   });
 }

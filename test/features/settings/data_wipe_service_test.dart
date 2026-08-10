@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -18,9 +17,10 @@ import 'package:migraine_tracker/features/settings/data/repositories/drift_expor
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
-
+import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
+import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
@@ -70,6 +70,7 @@ void main() {
     final notifications = RecordingNotificationScheduler();
     final exportRecords = DriftExportRecordRepository(db);
     final exportFiles = FakeExportFileStore();
+    final homeWidget = RecordingHomeWidgetRepository();
 
     await attacks.insert(
       Attack(
@@ -100,6 +101,8 @@ void main() {
       FakeAuthRepository(),
       syncServiceOver(db),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
+      homeWidget,
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -108,6 +111,9 @@ void main() {
     // The list is derived from reminders but stored, so a wipe that
     // skipped it would keep naming medications the user just deleted.
     expect(await db.select(db.appNotifications).get(), isEmpty);
+    // The App Group is off the database entirely, so nothing else here
+    // would notice the week count still sitting on the home screen.
+    expect(homeWidget.clears, 1);
   });
 
   test('wipeAll deletes past exports — they are full copies of the data '
@@ -142,10 +148,40 @@ void main() {
       FakeAuthRepository(),
       syncServiceOver(db),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
     expect(exportFiles.files, isEmpty);
+  });
+
+  test('reports every step in order, ending on the last one', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final reported = <int>[];
+
+    await DataWipeService(
+      DriftAttackRepository(db),
+      DriftMedicationRepository(db),
+      RecordingNotificationScheduler(),
+      DriftNotificationRepository(db),
+      DriftExportRecordRepository(db),
+      FakeExportFileStore(),
+      FakeAuthRepository(),
+      syncServiceOver(db),
+      RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
+    ).wipeAll(onProgress: (done, steps) {
+      expect(steps, DataWipeService.steps);
+      reported.add(done);
+    });
+
+    // Starts at 0 so the row can show a bar before the first step lands, then
+    // climbs one at a time and stops on the last — a count that skipped or
+    // repeated would show a bar that jumps or stalls.
+    expect(reported, <int>[for (int i = 0; i <= DataWipeService.steps; i++) i]);
   });
 
   group('the account copy', () {
@@ -170,6 +206,8 @@ void main() {
       auth,
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
+      DriftDailyPressureRepository(db),
+      RecordingHomeWidgetRepository(),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -226,6 +264,8 @@ void main() {
         FakeAuthRepository(signedIn: true),
         syncServiceOver(db),
         alerts,
+        DriftDailyPressureRepository(db),
+        RecordingHomeWidgetRepository(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after

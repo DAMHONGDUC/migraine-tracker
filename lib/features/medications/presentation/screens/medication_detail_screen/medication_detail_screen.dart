@@ -12,6 +12,8 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../attacks/domain/services/medication_effect_tally.dart';
+import '../../../../attacks/providers.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
@@ -19,6 +21,7 @@ import '../../../providers.dart';
 
 part 'medication_detail_screen_header.dart';
 part 'medication_detail_screen_reminder_row.dart';
+part 'medication_detail_screen_effectiveness.dart';
 part 'medication_detail_screen_reminder_snack.dart';
 
 /// One medication: when it was added, and every reminder set for it. Reached
@@ -164,7 +167,13 @@ class MedicationDetailScreen extends ConsumerWidget {
           children: <Widget>[
             _Header(medication: medication),
             SizedBox(height: SdSpacingConstant.h24),
-            SdSectionHeaderV2(l10n.medicationDetailReminders, first: true),
+            SdSectionHeaderV2(
+              l10n.medicationDetailEffectiveness,
+              first: true,
+            ),
+            _Effectiveness(medicationName: medication.name),
+            SizedBox(height: SdSpacingConstant.h24),
+            SdSectionHeaderV2(l10n.medicationDetailReminders),
             if (reminders.isEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(

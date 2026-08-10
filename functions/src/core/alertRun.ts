@@ -24,8 +24,13 @@ export interface AlertRunDeps {
   fetchCellDrop: (geohash5: string) => Promise<DropForecast | null>;
   /** Sends the push. Throws on failure; `error.code` drives token cleanup. */
   sendPush: (user: AlertUser, drop: DropForecast) => Promise<void>;
-  /** Persists dedupe state (lastAlertAt/lastAlertEventId) after a push. */
-  recordAlert: (uid: string, eventId: string, now: Date) => Promise<void>;
+  /**
+   * Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa)
+   * after a push. Takes the whole forecast, not just its id: the client's
+   * launch reconcile rebuilds the notification row from this record, and a
+   * row without the reading is an alert that cannot say how far pressure fell.
+   */
+  recordAlert: (uid: string, drop: DropForecast, now: Date) => Promise<void>;
   /** Removes a stale FCM token so the doc stops costing work. */
   removeToken: (uid: string) => Promise<void>;
   logError?: (message: string, data: Record<string, unknown>) => void;
@@ -85,7 +90,7 @@ export async function runPressureAlerts(
       }
       try {
         await deps.sendPush(user, drop);
-        await deps.recordAlert(user.uid, drop.eventId, now);
+        await deps.recordAlert(user.uid, drop, now);
         pushesSent++;
       } catch (error) {
         const code = (error as { code?: string }).code;

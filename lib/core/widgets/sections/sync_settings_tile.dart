@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/index.dart';
 
 import '../../../features/auth/providers.dart';
 import '../../../features/sync/domain/entities/sync_status.dart';
 import '../../../features/sync/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
-import '../../theme/app_text_style.dart';
+import '../settings_row_progress.dart';
 import '../settings_tile.dart';
 
 /// The short version of sync, in Settings' "Your data" — one more thing that
@@ -35,38 +34,9 @@ class SyncSettingsTile extends ConsumerWidget {
       // Only while syncing; otherwise the row falls back to the plain chevron
       // that says "this leads somewhere", which is what it now does.
       trailing: status.isSyncing
-          ? _SyncProgress(percent: status.percent)
+          ? SettingsRowProgress(percent: status.percent)
           : null,
       onTap: () => context.pushNamed(AppRoutes.sync.name),
-    );
-  }
-}
-
-/// Spinner then percentage, in the row's trailing slot.
-///
-/// Both, not either: the spinner says the pass is alive, the number says how
-/// far — a row that only spins cannot tell a slow sync from a stuck one.
-class _SyncProgress extends StatelessWidget {
-  const _SyncProgress({required this.percent});
-
-  final int percent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(
-          width: SdSpacingConstant.r20,
-          height: SdSpacingConstant.r20,
-          child: const CircularProgressIndicator(strokeWidth: 2),
-        ),
-        SizedBox(width: SdSpacingConstant.w8),
-        Text(
-          context.l10n.settingsSyncProgress(percent),
-          style: AppTextStyle.bodyMedium.secondary,
-        ),
-      ],
     );
   }
 }

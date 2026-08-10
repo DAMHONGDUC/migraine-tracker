@@ -32,6 +32,7 @@ import 'package:migraine_tracker/features/health/providers.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/medications/providers.dart';
+import 'package:migraine_tracker/features/notifications/providers.dart';
 import 'package:migraine_tracker/features/premium/domain/entities/premium_offer.dart';
 import 'package:migraine_tracker/features/premium/domain/enums/premium_period.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
@@ -49,6 +50,7 @@ import 'package:system_design/index.dart';
 
 import 'alert_fakes.dart';
 import 'export_fakes.dart';
+import 'notification_fakes.dart';
 import 'sync_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
@@ -675,6 +677,11 @@ Future<PumpedApp> pumpApp(
         alertRegistrationRepositoryProvider.overrideWithValue(
           RecordingAlertRegistration(),
         ),
+        // And again: the app root reconciles the last pressure alert on
+        // launch, which is a Firestore read of `users/{uid}`.
+        lastAlertRepositoryProvider.overrideWithValue(
+          FakeLastAlertRepository(),
+        ),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),
         if (fileSaver != null) fileSaverProvider.overrideWithValue(fileSaver),
@@ -738,6 +745,23 @@ Finder findLabelledField(String label) => find.descendant(
 /// So: scroll only when the target really is off-screen, then make sure
 /// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  // A long list builds lazily, so a row far enough down does not exist yet
+  // and every measurement below throws on an empty finder — as `Bad state:
+  // No element` from `_appBarBottom`, which reads as a broken helper rather
+  // than as "scroll further". Two rows added to Settings is all it took.
+  if (finder.evaluate().isEmpty) {
+    final Finder scrollable = find.byType(Scrollable);
+
+    if (scrollable.evaluate().isNotEmpty) {
+      await tester.dragUntilVisible(
+        finder,
+        scrollable.first,
+        const Offset(0, -200),
+      );
+      await tester.pump();
+    }
+  }
+
   final double chromeBottom = _appBarBottom(tester, finder);
   final double screenBottom =
       tester.view.physicalSize.height / tester.view.devicePixelRatio;

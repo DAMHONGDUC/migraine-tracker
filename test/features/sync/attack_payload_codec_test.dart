@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/sync/domain/services/attack_payload_codec.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -18,6 +19,8 @@ void main() {
     triggers: const ['stress'],
     notes: 'woke up with it',
     exertionLevel: ExertionLevel.moderate,
+    endedAt: DateTime.utc(2026, 7, 1, 14, 30),
+    medicationEffect: MedicationEffect.partly,
     weather: WeatherSnapshot(
       capturedAt: DateTime.utc(2026, 7, 1, 8),
       pressureHpa: 1008.2,
@@ -42,6 +45,8 @@ void main() {
     expect(decoded.triggers, ['stress']);
     expect(decoded.notes, 'woke up with it');
     expect(decoded.exertionLevel, ExertionLevel.moderate);
+    expect(decoded.endedAt, DateTime.utc(2026, 7, 1, 14, 30));
+    expect(decoded.medicationEffect, MedicationEffect.partly);
     expect(decoded.weather, full().weather);
   });
 
@@ -186,6 +191,62 @@ void main() {
         () => const AttackPayloadCodec().decode('[]', id: 'a1'),
         throwsFormatException,
       );
+    });
+  });
+
+  group('endedAt', () {
+    // It arrived after schemaVersion 1 shipped, and adding an optional field
+    // is deliberately not a bump — so a payload written by the older build
+    // must still decode, with the duration simply unknown.
+    test('a payload written before it existed still decodes', () {
+      final Map<String, dynamic> old =
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
+      old.remove('endedAt');
+      old.remove('medicationEffect');
+
+      final Attack decoded = const AttackPayloadCodec().decode(
+        jsonEncode(old),
+        id: 'a1',
+      );
+
+      expect(decoded.endedAt, isNull);
+      expect(decoded.medicationEffect, isNull);
+      expect(decoded.intensity, 7);
+    });
+
+    test('an attack that never ended round-trips as null', () {
+      final Attack open = Attack(
+        id: 'a2',
+        startedAt: DateTime.utc(2026, 7, 1, 8),
+        intensity: 4,
+        location: HeadLocation.left,
+      );
+      final Attack decoded = const AttackPayloadCodec().decode(
+        const AttackPayloadCodec().encode(open),
+        id: 'a2',
+      );
+
+      expect(decoded.endedAt, isNull);
+      expect(decoded.duration, isNull);
+    });
+
+    test('a local end time is carried as UTC', () {
+      final Attack decoded = const AttackPayloadCodec().decode(
+        const AttackPayloadCodec().encode(
+          Attack(
+            id: 'a3',
+            startedAt: DateTime.utc(2026, 7, 1, 8),
+            intensity: 4,
+            location: HeadLocation.left,
+            endedAt: DateTime(2026, 7, 1, 20),
+          ),
+        ),
+        id: 'a3',
+      );
+
+      expect(decoded.endedAt!.isUtc, isTrue);
+      expect(decoded.endedAt, DateTime(2026, 7, 1, 20).toUtc());
     });
   });
 }

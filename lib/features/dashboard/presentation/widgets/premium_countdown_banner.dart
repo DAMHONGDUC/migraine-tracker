@@ -87,8 +87,12 @@ class _PremiumCountdownBannerState
                       SizedBox(width: SdSpacingConstant.w6),
                       Flexible(
                         child: HighlightedTimeText(
-                          full: l10n.dashboardSaleEndsIn(DateTimeUtils.untilMidnight(DateTime.now())),
-                          highlight: DateTimeUtils.untilMidnight(DateTime.now()),
+                          full: l10n.dashboardSaleEndsIn(
+                            DateTimeUtils.untilMidnight(DateTime.now()),
+                          ),
+                          highlight: DateTimeUtils.untilMidnight(
+                            DateTime.now(),
+                          ),
                           color: AppColors.primary,
                         ),
                       ),

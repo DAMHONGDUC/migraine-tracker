@@ -4,6 +4,7 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
+import '../../domain/enums/medication_effect.dart';
 import '../../providers.dart';
 
 /// Edits/deletes an already-logged attack from the detail screen. The
@@ -50,6 +51,43 @@ class AttackDetailController {
     } catch (error, stackTrace) {
       AppLogger.error(
         'Update attack exertion failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Records (or takes back) when the attack stopped.
+  Future<void> updateEndedAt(String id, DateTime? endedAt) async {
+    AppLogger.action('Edit attack end', id);
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref.read(attackRepositoryProvider).updateEndedAt(id, endedAt);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack end failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Records (or takes back) whether the medication helped.
+  Future<void> updateMedicationEffect(
+    String id,
+    MedicationEffect? effect,
+  ) async {
+    AppLogger.action('Edit attack medication effect', id);
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateMedicationEffect(id, effect);
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Update attack medication effect failed',
         error: error,
         stackTrace: stackTrace,
       );

@@ -16,9 +16,11 @@ import 'package:migraine_tracker/features/settings/domain/entities/export_record
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
+import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
 
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
+import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
@@ -77,6 +79,8 @@ void main() {
         FakeAuthRepository(),
         syncServiceOver(db),
         RecordingAlertRegistration(),
+        DriftDailyPressureRepository(db),
+        RecordingHomeWidgetRepository(),
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),

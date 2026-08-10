@@ -49,7 +49,7 @@ class _DevResetTileState extends ConsumerState<_DevResetTile> {
 
     setState(() => _running = true);
     try {
-      await ref.read(settingsControllerProvider).resetToOnboarding();
+      await ref.read(settingsControllerProvider.notifier).resetToOnboarding();
 
       // The router only redirects to onboarding on a route change — send the user there directly.
       if (mounted) context.goNamed(AppRoutes.onboarding.name);

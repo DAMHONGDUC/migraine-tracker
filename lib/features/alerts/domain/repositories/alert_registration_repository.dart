@@ -24,4 +24,11 @@ abstract interface class AlertRegistrationRepository {
   /// a paying subscriber must not lose alerts by clearing their history —
   /// and the rules forbid a client touching that key anyway.
   Future<void> forgetRegistration();
+
+  /// Asks the backend to push to this device's own registered token.
+  ///
+  /// The one thing no test can prove: that the APNs key, the entitlement and
+  /// the token line up on real hardware. Throws when the device never
+  /// registered, which is itself the answer.
+  Future<void> sendTestPush();
 }

@@ -4,8 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/medication_effect.dart';
+import '../../../attacks/domain/services/medication_effect_tally.dart';
 import '../entities/correlation_result.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
@@ -21,10 +24,15 @@ class DoctorReportStrings {
     required this.totalAttacks,
     required this.avgIntensity,
     required this.commonLocation,
+    required this.typicalDuration,
     required this.attacksDuringDrops,
+    required this.baseline,
     required this.tableTitle,
     required this.colDate,
     required this.colIntensity,
+    required this.colDuration,
+    required this.colMedicationEffect,
+    required this.medicationEffectLabels,
     required this.colLocation,
     required this.colMedication,
     required this.colPressureDelta,
@@ -39,10 +47,15 @@ class DoctorReportStrings {
   final String totalAttacks;
   final String avgIntensity;
   final String commonLocation;
+  final String typicalDuration;
   final String attacksDuringDrops;
+  final String baseline;
   final String tableTitle;
   final String colDate;
   final String colIntensity;
+  final String colDuration;
+  final String colMedicationEffect;
+  final Map<MedicationEffect, String> medicationEffectLabels;
   final String colLocation;
   final String colMedication;
   final String colPressureDelta;
@@ -131,6 +144,23 @@ class DoctorReportBuilder {
         ],
       if (attacks.isNotEmpty)
         [strings.commonLocation, _modalLocation(attacks, strings)],
+      // Only the attacks the user actually timed. Median, so one 72-hour
+      // outlier cannot move the figure a doctor reads as typical.
+      if (DateTimeUtils.median(<Duration>[
+            for (final Attack a in attacks)
+              if (a.duration case final Duration d) d,
+          ])
+          case final Duration typical)
+        [strings.typicalDuration, _durationLabel(typical)],
+      // One row per medication that has outcomes. This is the part a doctor
+      // acts on: a drug that only ever partly works is a drug being changed.
+      for (final MapEntry<String, MedicationEffectCount> entry
+          in const MedicationEffectTally().byMedication(attacks).entries)
+        [
+          entry.key,
+          '${entry.value.helped}/${entry.value.answered} '
+              '(${strings.colMedicationEffect.toLowerCase()})',
+        ],
       // Mature figures only: a share still settling has no business in a
       // document a doctor reads as settled.
       if (correlation case CorrelationInsight(
@@ -141,6 +171,18 @@ class DoctorReportBuilder {
         [
           strings.attacksDuringDrops,
           '${dropSharePercent.round()}% (>=$dropThresholdHpa hPa/24h)',
+        ],
+      // The comparison, where there is one. Without it the row above states a
+      // share with no denominator, which a doctor would rightly discount.
+      if (correlation case CorrelationInsight(
+        isPreliminary: false,
+        baseline: final PressureBaseline b?,
+      ))
+        [
+          strings.baseline,
+          '${b.dropDayAttackPercent.round()}% vs '
+              '${b.calmDayAttackPercent.round()}% '
+              '(${b.dropDays}/${b.calmDays} days)',
         ],
     ];
     return pw.Table(
@@ -166,6 +208,16 @@ class DoctorReportBuilder {
     );
   }
 
+  /// Locale-free on purpose: `DoctorReportStrings` carries no plural forms,
+  /// and "6h 30m" reads the same in both locales the app ships.
+  String _durationLabel(Duration duration) {
+    final (int hours, int minutes) = DateTimeUtils.splitHm(duration);
+
+    if (hours > 0 && minutes > 0) return '${hours}h ${minutes}m';
+    if (hours > 0) return '${hours}h';
+    return '${minutes}m';
+  }
+
   String _modalLocation(List<Attack> attacks, DoctorReportStrings strings) {
     final counts = <HeadLocation, int>{};
     for (final a in attacks) {
@@ -186,8 +238,10 @@ class DoctorReportBuilder {
       headers: [
         strings.colDate,
         strings.colIntensity,
+        strings.colDuration,
         strings.colLocation,
         strings.colMedication,
+        strings.colMedicationEffect,
         strings.colPressureDelta,
       ],
       data: [
@@ -195,8 +249,13 @@ class DoctorReportBuilder {
           [
             dateFormat.format(a.startedAt.toLocal()),
             '${a.intensity}',
+            a.duration == null ? '-' : _durationLabel(a.duration!),
             strings.locationLabels[a.location] ?? a.location.name,
             a.medicationName ?? '-',
+            a.medicationEffect == null
+                ? '-'
+                : strings.medicationEffectLabels[a.medicationEffect] ??
+                      a.medicationEffect!.name,
             a.weather?.pressureDelta24hHpa.toStringAsFixed(1) ?? '-',
           ],
       ],

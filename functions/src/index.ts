@@ -117,10 +117,15 @@ export const pressureAlertJob = onSchedule(
           },
         });
       },
-      recordAlert: async (uid, eventId, at) => {
+      // lastAlertDropHpa is written for the client, not for dedupe: the
+      // launch reconcile rebuilds the missed notification row from these
+      // three fields, and without the reading the row cannot say how far
+      // pressure fell.
+      recordAlert: async (uid, drop, at) => {
         await db.collection("users").doc(uid).update({
           lastAlertAt: Timestamp.fromDate(at),
-          lastAlertEventId: eventId,
+          lastAlertEventId: drop.eventId,
+          lastAlertDropHpa: drop.dropHpa,
         });
       },
       removeToken: async (uid) => {
@@ -286,5 +291,68 @@ export const revenuecatWebhook = onRequest(
       });
     }
     res.status(200).send("ok");
+  },
+);
+
+/**
+ * Sends a push to the caller's own registered device. Dev tooling for the
+ * one thing no test can prove: that the APNs key, the entitlement and the
+ * token all line up on real hardware.
+ *
+ * **It never takes a token or a uid.** The target is always
+ * `request.auth.uid`'s own `fcmToken`, so the worst anyone can do with it is
+ * notify themselves. That is the whole of its security model, and it is why
+ * it can ship to the same project real users are on — there is no dev
+ * project to hide it in (`env/dev.json` and `env/prod.json` share one).
+ *
+ * Anonymous callers are refused, like `getSyncKey` and `deleteAccount`.
+ * Premium requires an account, alerts require premium, so the cron can never
+ * target an anonymous session — letting one test push here would prove a path
+ * that does not exist in production.
+ *
+ * The payload mirrors a real pressure alert — same `data` keys, same
+ * `content-available` — so a successful test exercises the path the cron
+ * uses, not a simpler one. `eventId` is stamped `test:` so the client's
+ * idempotent writers cannot mistake it for a real event.
+ */
+export const sendTestPush = onCall(
+  { region: REGION, maxInstances: 5, memory: "256MiB" },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "sign in first");
+    }
+    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
+      throw new HttpsError("permission-denied", "account required for alerts");
+    }
+
+    const snapshot = await getFirestore().collection("users").doc(uid).get();
+    const token = snapshot.get("fcmToken");
+    if (typeof token !== "string" || token.length === 0) {
+      // Not an error on our side: the device never registered, which is
+      // itself the diagnosis the caller is looking for.
+      throw new HttpsError("failed-precondition", "no fcmToken registered");
+    }
+
+    const now = new Date();
+    await getMessaging().send({
+      token,
+      notification: {
+        title: "BaroEase test",
+        body: "If you can see this, push works on this device.",
+      },
+      data: {
+        type: "pressureAlert",
+        eventId: `test:${now.toISOString()}`,
+        dropHpa: "0",
+        at: now.toISOString(),
+      },
+      apns: {
+        payload: { aps: { sound: "default", "content-available": 1 } },
+      },
+    });
+
+    logger.info("test push sent", { uid });
+    return { sent: true };
   },
 );

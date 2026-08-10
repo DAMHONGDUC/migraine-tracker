@@ -13,10 +13,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 9', () {
+  test('database is at schema version 12', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 9);
+    expect(db.schemaVersion, 12);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -323,5 +323,72 @@ void main() {
     // silently dropped.
     await (db.delete(db.medications)..where((m) => m.id.equals('m1'))).go();
     expect(await db.select(db.medicationReminders).get(), isEmpty);
+  });
+
+  test('migrates from v9 to v10 (adds attacks.ended_at)', () async {
+    final connection = await verifier.startAt(9);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // Null is "never said", which is also what a still-running attack looks
+  // like. Stamping v9 rows with anything would invent a duration the user
+  // never gave — and it would land in the doctor report.
+  test('v9 attacks survive v10 with an unknown end', () async {
+    final schema = await verifier.schemaAt(9);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location) '
+      "VALUES ('a1', 1750000000, 7, 'front')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final List<AttackRow> attacks = await db.select(db.attacks).get();
+
+    expect(attacks.single.id, 'a1');
+    expect(attacks.single.endedAt, isNull);
+  });
+
+  test('migrates from v10 to v11 (adds attacks.medication_effect)', () async {
+    final connection = await verifier.startAt(10);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // Backfilling "helped" would invent the very evidence a prescription gets
+  // changed on. Null means the question was never answered.
+  test('v10 attacks survive v11 with no outcome recorded', () async {
+    final schema = await verifier.schemaAt(10);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location, '
+      "medication_name) VALUES ('a1', 1750000000, 7, 'front', 'Sumatriptan')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final AttackRow stored = (await db.select(db.attacks).get()).single;
+
+    expect(stored.medicationName, 'Sumatriptan');
+    expect(stored.medicationEffect, isNull);
+  });
+
+  test('migrates from v11 to v12 (adds the daily_weather table)', () async {
+    final connection = await verifier.startAt(11);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Empty, and nothing to backfill: no weather was ever stored for a day
+    // that had no attack.
+    expect(await db.select(db.dailyWeather).get(), isEmpty);
   });
 }

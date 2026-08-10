@@ -6,9 +6,11 @@ import '../../core/db/database_provider.dart';
 import '../alerts/providers.dart';
 import '../attacks/providers.dart';
 import '../auth/providers.dart';
+import '../home_widget/providers.dart';
 import '../medications/providers.dart';
 import '../notifications/providers.dart';
 import '../sync/providers.dart';
+import '../weather/providers.dart';
 import 'data/documents_export_file_store.dart';
 import 'data/file_dialog_file_saver.dart';
 import 'data/repositories/drift_export_record_repository.dart';
@@ -17,6 +19,7 @@ import 'data/share_plus_export_sharer.dart';
 import 'domain/entities/export_date_filter.dart';
 import 'domain/entities/export_preview.dart';
 import 'domain/entities/export_record.dart';
+import 'domain/entities/wipe_status.dart';
 import 'domain/repositories/export_record_repository.dart';
 import 'domain/services/data_export_service.dart';
 import 'domain/services/data_wipe_service.dart';
@@ -133,6 +136,8 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(authRepositoryProvider),
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
+    ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(homeWidgetRepositoryProvider),
   ),
 );
 
@@ -153,9 +158,8 @@ final devSeedServiceProvider = Provider<DevSeedService>(
 /// Orchestrates what is left of the settings actions — the GDPR wipe (see
 /// [SettingsController]). Everything export-shaped moved to
 /// [ExportController].
-final settingsControllerProvider = Provider<SettingsController>(
-  SettingsController.new,
-);
+final settingsControllerProvider =
+    NotifierProvider<SettingsController, WipeStatus>(SettingsController.new);
 
 final mailLauncherProvider = Provider<MailLauncher>(
   (ref) => const UrlMailLauncher(),

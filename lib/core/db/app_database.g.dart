@@ -97,6 +97,26 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<ExertionLevel?>($AttacksTable.$converterexertionLeveln);
+  @override
+  late final GeneratedColumnWithTypeConverter<MedicationEffect?, String>
+  medicationEffect = GeneratedColumn<String>(
+    'medication_effect',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<MedicationEffect?>($AttacksTable.$convertermedicationEffectn);
+  static const VerificationMeta _endedAtMeta = const VerificationMeta(
+    'endedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endedAt = GeneratedColumn<DateTime>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -142,6 +162,8 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    medicationEffect,
+    endedAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -192,6 +214,12 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('ended_at')) {
+      context.handle(
+        _endedAtMeta,
+        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
       );
     }
     if (data.containsKey('updated_at')) {
@@ -268,6 +296,16 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}exertion_level'],
         ),
       ),
+      medicationEffect: $AttacksTable.$convertermedicationEffectn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}medication_effect'],
+        ),
+      ),
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}ended_at'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -302,6 +340,14 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
   $converterexertionLeveln = JsonTypeConverter2.asNullable(
     $converterexertionLevel,
   );
+  static JsonTypeConverter2<MedicationEffect, String, String>
+  $convertermedicationEffect = const EnumNameConverter<MedicationEffect>(
+    MedicationEffect.values,
+  );
+  static JsonTypeConverter2<MedicationEffect?, String?, String?>
+  $convertermedicationEffectn = JsonTypeConverter2.asNullable(
+    $convertermedicationEffect,
+  );
 }
 
 class AttackRow extends DataClass implements Insertable<AttackRow> {
@@ -316,6 +362,14 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final List<String> triggers;
   final String? notes;
   final ExertionLevel? exertionLevel;
+
+  /// Whether the medication helped. Null is "never answered", which also
+  /// covers every attack where nothing was taken.
+  final MedicationEffect? medicationEffect;
+
+  /// When the attack stopped, UTC. Null is "still going, or never said" —
+  /// one state on purpose, since nothing here can tell those apart.
+  final DateTime? endedAt;
 
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall
@@ -340,6 +394,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.triggers,
     this.notes,
     this.exertionLevel,
+    this.medicationEffect,
+    this.endedAt,
     this.updatedAt,
     required this.revision,
     this.syncedRevision,
@@ -376,6 +432,14 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel),
       );
     }
+    if (!nullToAbsent || medicationEffect != null) {
+      map['medication_effect'] = Variable<String>(
+        $AttacksTable.$convertermedicationEffectn.toSql(medicationEffect),
+      );
+    }
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<DateTime>(endedAt);
+    }
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
@@ -403,6 +467,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: exertionLevel == null && nullToAbsent
           ? const Value.absent()
           : Value(exertionLevel),
+      medicationEffect: medicationEffect == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicationEffect),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
@@ -432,6 +502,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: $AttacksTable.$converterexertionLeveln.fromJson(
         serializer.fromJson<String?>(json['exertionLevel']),
       ),
+      medicationEffect: $AttacksTable.$convertermedicationEffectn.fromJson(
+        serializer.fromJson<String?>(json['medicationEffect']),
+      ),
+      endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       revision: serializer.fromJson<int>(json['revision']),
       syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
@@ -454,6 +528,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'exertionLevel': serializer.toJson<String?>(
         $AttacksTable.$converterexertionLeveln.toJson(exertionLevel),
       ),
+      'medicationEffect': serializer.toJson<String?>(
+        $AttacksTable.$convertermedicationEffectn.toJson(medicationEffect),
+      ),
+      'endedAt': serializer.toJson<DateTime?>(endedAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'revision': serializer.toJson<int>(revision),
       'syncedRevision': serializer.toJson<int?>(syncedRevision),
@@ -470,6 +548,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     List<String>? triggers,
     Value<String?> notes = const Value.absent(),
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
+    Value<MedicationEffect?> medicationEffect = const Value.absent(),
+    Value<DateTime?> endedAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
     int? revision,
     Value<int?> syncedRevision = const Value.absent(),
@@ -487,6 +567,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel: exertionLevel.present
         ? exertionLevel.value
         : this.exertionLevel,
+    medicationEffect: medicationEffect.present
+        ? medicationEffect.value
+        : this.medicationEffect,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
     revision: revision ?? this.revision,
     syncedRevision: syncedRevision.present
@@ -508,6 +592,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       exertionLevel: data.exertionLevel.present
           ? data.exertionLevel.value
           : this.exertionLevel,
+      medicationEffect: data.medicationEffect.present
+          ? data.medicationEffect.value
+          : this.medicationEffect,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       revision: data.revision.present ? data.revision.value : this.revision,
       syncedRevision: data.syncedRevision.present
@@ -528,6 +616,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('medicationEffect: $medicationEffect, ')
+          ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision')
@@ -546,6 +636,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     triggers,
     notes,
     exertionLevel,
+    medicationEffect,
+    endedAt,
     updatedAt,
     revision,
     syncedRevision,
@@ -563,6 +655,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.triggers == this.triggers &&
           other.notes == this.notes &&
           other.exertionLevel == this.exertionLevel &&
+          other.medicationEffect == this.medicationEffect &&
+          other.endedAt == this.endedAt &&
           other.updatedAt == this.updatedAt &&
           other.revision == this.revision &&
           other.syncedRevision == this.syncedRevision);
@@ -578,6 +672,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<List<String>> triggers;
   final Value<String?> notes;
   final Value<ExertionLevel?> exertionLevel;
+  final Value<MedicationEffect?> medicationEffect;
+  final Value<DateTime?> endedAt;
   final Value<DateTime?> updatedAt;
   final Value<int> revision;
   final Value<int?> syncedRevision;
@@ -592,6 +688,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.medicationEffect = const Value.absent(),
+    this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -607,6 +705,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.triggers = const Value.absent(),
     this.notes = const Value.absent(),
     this.exertionLevel = const Value.absent(),
+    this.medicationEffect = const Value.absent(),
+    this.endedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.revision = const Value.absent(),
     this.syncedRevision = const Value.absent(),
@@ -625,6 +725,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? triggers,
     Expression<String>? notes,
     Expression<String>? exertionLevel,
+    Expression<String>? medicationEffect,
+    Expression<DateTime>? endedAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? revision,
     Expression<int>? syncedRevision,
@@ -640,6 +742,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (triggers != null) 'triggers': triggers,
       if (notes != null) 'notes': notes,
       if (exertionLevel != null) 'exertion_level': exertionLevel,
+      if (medicationEffect != null) 'medication_effect': medicationEffect,
+      if (endedAt != null) 'ended_at': endedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (revision != null) 'revision': revision,
       if (syncedRevision != null) 'synced_revision': syncedRevision,
@@ -657,6 +761,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<List<String>>? triggers,
     Value<String?>? notes,
     Value<ExertionLevel?>? exertionLevel,
+    Value<MedicationEffect?>? medicationEffect,
+    Value<DateTime?>? endedAt,
     Value<DateTime?>? updatedAt,
     Value<int>? revision,
     Value<int?>? syncedRevision,
@@ -672,6 +778,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       triggers: triggers ?? this.triggers,
       notes: notes ?? this.notes,
       exertionLevel: exertionLevel ?? this.exertionLevel,
+      medicationEffect: medicationEffect ?? this.medicationEffect,
+      endedAt: endedAt ?? this.endedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       revision: revision ?? this.revision,
       syncedRevision: syncedRevision ?? this.syncedRevision,
@@ -717,6 +825,14 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterexertionLeveln.toSql(exertionLevel.value),
       );
     }
+    if (medicationEffect.present) {
+      map['medication_effect'] = Variable<String>(
+        $AttacksTable.$convertermedicationEffectn.toSql(medicationEffect.value),
+      );
+    }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<DateTime>(endedAt.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -744,6 +860,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('triggers: $triggers, ')
           ..write('notes: $notes, ')
           ..write('exertionLevel: $exertionLevel, ')
+          ..write('medicationEffect: $medicationEffect, ')
+          ..write('endedAt: $endedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('revision: $revision, ')
           ..write('syncedRevision: $syncedRevision, ')
@@ -3531,6 +3649,345 @@ class SyncTombstonesCompanion extends UpdateCompanion<SyncTombstoneRow> {
   }
 }
 
+class $DailyWeatherTable extends DailyWeather
+    with TableInfo<$DailyWeatherTable, DailyWeatherRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyWeatherTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<DateTime> day = GeneratedColumn<DateTime>(
+    'day',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pressureHpaMeta = const VerificationMeta(
+    'pressureHpa',
+  );
+  @override
+  late final GeneratedColumn<double> pressureHpa = GeneratedColumn<double>(
+    'pressure_hpa',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pressureDelta24hHpaMeta =
+      const VerificationMeta('pressureDelta24hHpa');
+  @override
+  late final GeneratedColumn<double> pressureDelta24hHpa =
+      GeneratedColumn<double>(
+        'pressure_delta24h_hpa',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    day,
+    capturedAt,
+    pressureHpa,
+    pressureDelta24hHpa,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_weather';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyWeatherRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('day')) {
+      context.handle(
+        _dayMeta,
+        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('pressure_hpa')) {
+      context.handle(
+        _pressureHpaMeta,
+        pressureHpa.isAcceptableOrUnknown(
+          data['pressure_hpa']!,
+          _pressureHpaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_pressureHpaMeta);
+    }
+    if (data.containsKey('pressure_delta24h_hpa')) {
+      context.handle(
+        _pressureDelta24hHpaMeta,
+        pressureDelta24hHpa.isAcceptableOrUnknown(
+          data['pressure_delta24h_hpa']!,
+          _pressureDelta24hHpaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_pressureDelta24hHpaMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {day};
+  @override
+  DailyWeatherRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyWeatherRow(
+      day: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}day'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      )!,
+      pressureHpa: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pressure_hpa'],
+      )!,
+      pressureDelta24hHpa: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}pressure_delta24h_hpa'],
+      )!,
+    );
+  }
+
+  @override
+  $DailyWeatherTable createAlias(String alias) {
+    return $DailyWeatherTable(attachedDatabase, alias);
+  }
+}
+
+class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
+  /// Local midnight of the day this reading belongs to — the identity of a
+  /// day as the user lived it, not a UTC one, since "the day I had an attack"
+  /// is a local idea.
+  final DateTime day;
+  final DateTime capturedAt;
+  final double pressureHpa;
+  final double pressureDelta24hHpa;
+  const DailyWeatherRow({
+    required this.day,
+    required this.capturedAt,
+    required this.pressureHpa,
+    required this.pressureDelta24hHpa,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['day'] = Variable<DateTime>(day);
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    map['pressure_hpa'] = Variable<double>(pressureHpa);
+    map['pressure_delta24h_hpa'] = Variable<double>(pressureDelta24hHpa);
+    return map;
+  }
+
+  DailyWeatherCompanion toCompanion(bool nullToAbsent) {
+    return DailyWeatherCompanion(
+      day: Value(day),
+      capturedAt: Value(capturedAt),
+      pressureHpa: Value(pressureHpa),
+      pressureDelta24hHpa: Value(pressureDelta24hHpa),
+    );
+  }
+
+  factory DailyWeatherRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyWeatherRow(
+      day: serializer.fromJson<DateTime>(json['day']),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+      pressureHpa: serializer.fromJson<double>(json['pressureHpa']),
+      pressureDelta24hHpa: serializer.fromJson<double>(
+        json['pressureDelta24hHpa'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'day': serializer.toJson<DateTime>(day),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+      'pressureHpa': serializer.toJson<double>(pressureHpa),
+      'pressureDelta24hHpa': serializer.toJson<double>(pressureDelta24hHpa),
+    };
+  }
+
+  DailyWeatherRow copyWith({
+    DateTime? day,
+    DateTime? capturedAt,
+    double? pressureHpa,
+    double? pressureDelta24hHpa,
+  }) => DailyWeatherRow(
+    day: day ?? this.day,
+    capturedAt: capturedAt ?? this.capturedAt,
+    pressureHpa: pressureHpa ?? this.pressureHpa,
+    pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+  );
+  DailyWeatherRow copyWithCompanion(DailyWeatherCompanion data) {
+    return DailyWeatherRow(
+      day: data.day.present ? data.day.value : this.day,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      pressureHpa: data.pressureHpa.present
+          ? data.pressureHpa.value
+          : this.pressureHpa,
+      pressureDelta24hHpa: data.pressureDelta24hHpa.present
+          ? data.pressureDelta24hHpa.value
+          : this.pressureDelta24hHpa,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyWeatherRow(')
+          ..write('day: $day, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('pressureHpa: $pressureHpa, ')
+          ..write('pressureDelta24hHpa: $pressureDelta24hHpa')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(day, capturedAt, pressureHpa, pressureDelta24hHpa);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyWeatherRow &&
+          other.day == this.day &&
+          other.capturedAt == this.capturedAt &&
+          other.pressureHpa == this.pressureHpa &&
+          other.pressureDelta24hHpa == this.pressureDelta24hHpa);
+}
+
+class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
+  final Value<DateTime> day;
+  final Value<DateTime> capturedAt;
+  final Value<double> pressureHpa;
+  final Value<double> pressureDelta24hHpa;
+  final Value<int> rowid;
+  const DailyWeatherCompanion({
+    this.day = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.pressureHpa = const Value.absent(),
+    this.pressureDelta24hHpa = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyWeatherCompanion.insert({
+    required DateTime day,
+    required DateTime capturedAt,
+    required double pressureHpa,
+    required double pressureDelta24hHpa,
+    this.rowid = const Value.absent(),
+  }) : day = Value(day),
+       capturedAt = Value(capturedAt),
+       pressureHpa = Value(pressureHpa),
+       pressureDelta24hHpa = Value(pressureDelta24hHpa);
+  static Insertable<DailyWeatherRow> custom({
+    Expression<DateTime>? day,
+    Expression<DateTime>? capturedAt,
+    Expression<double>? pressureHpa,
+    Expression<double>? pressureDelta24hHpa,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (day != null) 'day': day,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (pressureHpa != null) 'pressure_hpa': pressureHpa,
+      if (pressureDelta24hHpa != null)
+        'pressure_delta24h_hpa': pressureDelta24hHpa,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyWeatherCompanion copyWith({
+    Value<DateTime>? day,
+    Value<DateTime>? capturedAt,
+    Value<double>? pressureHpa,
+    Value<double>? pressureDelta24hHpa,
+    Value<int>? rowid,
+  }) {
+    return DailyWeatherCompanion(
+      day: day ?? this.day,
+      capturedAt: capturedAt ?? this.capturedAt,
+      pressureHpa: pressureHpa ?? this.pressureHpa,
+      pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (day.present) {
+      map['day'] = Variable<DateTime>(day.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (pressureHpa.present) {
+      map['pressure_hpa'] = Variable<double>(pressureHpa.value);
+    }
+    if (pressureDelta24hHpa.present) {
+      map['pressure_delta24h_hpa'] = Variable<double>(
+        pressureDelta24hHpa.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyWeatherCompanion(')
+          ..write('day: $day, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('pressureHpa: $pressureHpa, ')
+          ..write('pressureDelta24hHpa: $pressureDelta24hHpa, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3546,6 +4003,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $ExportRecordsTable exportRecords = $ExportRecordsTable(this);
   late final $SyncTombstonesTable syncTombstones = $SyncTombstonesTable(this);
+  late final $DailyWeatherTable dailyWeather = $DailyWeatherTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3558,6 +4016,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     appNotifications,
     exportRecords,
     syncTombstones,
+    dailyWeather,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3589,6 +4048,8 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<MedicationEffect?> medicationEffect,
+      Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -3605,6 +4066,8 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<List<String>> triggers,
       Value<String?> notes,
       Value<ExertionLevel?> exertionLevel,
+      Value<MedicationEffect?> medicationEffect,
+      Value<DateTime?> endedAt,
       Value<DateTime?> updatedAt,
       Value<int> revision,
       Value<int?> syncedRevision,
@@ -3692,6 +4155,17 @@ class $$AttacksTableFilterComposer
   get exertionLevel => $composableBuilder(
     column: $table.exertionLevel,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<MedicationEffect?, MedicationEffect, String>
+  get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
@@ -3789,6 +4263,16 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -3845,6 +4329,15 @@ class $$AttacksTableAnnotationComposer
         column: $table.exertionLevel,
         builder: (column) => column,
       );
+
+  GeneratedColumnWithTypeConverter<MedicationEffect?, String>
+  get medicationEffect => $composableBuilder(
+    column: $table.medicationEffect,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -3920,6 +4413,9 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<MedicationEffect?> medicationEffect =
+                    const Value.absent(),
+                Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -3934,6 +4430,8 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                medicationEffect: medicationEffect,
+                endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
@@ -3950,6 +4448,9 @@ class $$AttacksTableTableManager
                 Value<List<String>> triggers = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<ExertionLevel?> exertionLevel = const Value.absent(),
+                Value<MedicationEffect?> medicationEffect =
+                    const Value.absent(),
+                Value<DateTime?> endedAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> revision = const Value.absent(),
                 Value<int?> syncedRevision = const Value.absent(),
@@ -3964,6 +4465,8 @@ class $$AttacksTableTableManager
                 triggers: triggers,
                 notes: notes,
                 exertionLevel: exertionLevel,
+                medicationEffect: medicationEffect,
+                endedAt: endedAt,
                 updatedAt: updatedAt,
                 revision: revision,
                 syncedRevision: syncedRevision,
@@ -5821,6 +6324,193 @@ typedef $$SyncTombstonesTableProcessedTableManager =
       SyncTombstoneRow,
       PrefetchHooks Function()
     >;
+typedef $$DailyWeatherTableCreateCompanionBuilder =
+    DailyWeatherCompanion Function({
+      required DateTime day,
+      required DateTime capturedAt,
+      required double pressureHpa,
+      required double pressureDelta24hHpa,
+      Value<int> rowid,
+    });
+typedef $$DailyWeatherTableUpdateCompanionBuilder =
+    DailyWeatherCompanion Function({
+      Value<DateTime> day,
+      Value<DateTime> capturedAt,
+      Value<double> pressureHpa,
+      Value<double> pressureDelta24hHpa,
+      Value<int> rowid,
+    });
+
+class $$DailyWeatherTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyWeatherTable> {
+  $$DailyWeatherTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get pressureHpa => $composableBuilder(
+    column: $table.pressureHpa,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get pressureDelta24hHpa => $composableBuilder(
+    column: $table.pressureDelta24hHpa,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyWeatherTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyWeatherTable> {
+  $$DailyWeatherTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get pressureHpa => $composableBuilder(
+    column: $table.pressureHpa,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get pressureDelta24hHpa => $composableBuilder(
+    column: $table.pressureDelta24hHpa,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyWeatherTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyWeatherTable> {
+  $$DailyWeatherTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get pressureHpa => $composableBuilder(
+    column: $table.pressureHpa,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get pressureDelta24hHpa => $composableBuilder(
+    column: $table.pressureDelta24hHpa,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyWeatherTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyWeatherTable,
+          DailyWeatherRow,
+          $$DailyWeatherTableFilterComposer,
+          $$DailyWeatherTableOrderingComposer,
+          $$DailyWeatherTableAnnotationComposer,
+          $$DailyWeatherTableCreateCompanionBuilder,
+          $$DailyWeatherTableUpdateCompanionBuilder,
+          (
+            DailyWeatherRow,
+            BaseReferences<_$AppDatabase, $DailyWeatherTable, DailyWeatherRow>,
+          ),
+          DailyWeatherRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyWeatherTableTableManager(_$AppDatabase db, $DailyWeatherTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyWeatherTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyWeatherTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyWeatherTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> day = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
+                Value<double> pressureHpa = const Value.absent(),
+                Value<double> pressureDelta24hHpa = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyWeatherCompanion(
+                day: day,
+                capturedAt: capturedAt,
+                pressureHpa: pressureHpa,
+                pressureDelta24hHpa: pressureDelta24hHpa,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required DateTime day,
+                required DateTime capturedAt,
+                required double pressureHpa,
+                required double pressureDelta24hHpa,
+                Value<int> rowid = const Value.absent(),
+              }) => DailyWeatherCompanion.insert(
+                day: day,
+                capturedAt: capturedAt,
+                pressureHpa: pressureHpa,
+                pressureDelta24hHpa: pressureDelta24hHpa,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyWeatherTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyWeatherTable,
+      DailyWeatherRow,
+      $$DailyWeatherTableFilterComposer,
+      $$DailyWeatherTableOrderingComposer,
+      $$DailyWeatherTableAnnotationComposer,
+      $$DailyWeatherTableCreateCompanionBuilder,
+      $$DailyWeatherTableUpdateCompanionBuilder,
+      (
+        DailyWeatherRow,
+        BaseReferences<_$AppDatabase, $DailyWeatherTable, DailyWeatherRow>,
+      ),
+      DailyWeatherRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5839,4 +6529,6 @@ class $AppDatabaseManager {
       $$ExportRecordsTableTableManager(_db, _db.exportRecords);
   $$SyncTombstonesTableTableManager get syncTombstones =>
       $$SyncTombstonesTableTableManager(_db, _db.syncTombstones);
+  $$DailyWeatherTableTableManager get dailyWeather =>
+      $$DailyWeatherTableTableManager(_db, _db.dailyWeather);
 }

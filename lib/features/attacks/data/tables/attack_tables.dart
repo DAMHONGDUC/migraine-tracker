@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../../core/db/converters.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
+import '../../domain/enums/medication_effect.dart';
 
 @DataClassName('AttackRow')
 class Attacks extends Table {
@@ -22,6 +23,15 @@ class Attacks extends Table {
       .withDefault(const Constant('[]'))();
   TextColumn get notes => text().nullable()();
   TextColumn get exertionLevel => textEnum<ExertionLevel>().nullable()();
+
+  /// Whether the medication helped. Null is "never answered", which also
+  /// covers every attack where nothing was taken.
+  TextColumn get medicationEffect =>
+      textEnum<MedicationEffect>().nullable()();
+
+  /// When the attack stopped, UTC. Null is "still going, or never said" —
+  /// one state on purpose, since nothing here can tell those apart.
+  DateTimeColumn get endedAt => dateTime().nullable()();
 
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall
