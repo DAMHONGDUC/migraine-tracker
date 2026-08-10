@@ -305,9 +305,10 @@ export const revenuecatWebhook = onRequest(
  * it can ship to the same project real users are on — there is no dev
  * project to hide it in (`env/dev.json` and `env/prod.json` share one).
  *
- * Anonymous callers are allowed, unlike `getSyncKey` and `deleteAccount`:
- * alerts are registered by anonymous sessions too (hard rule 1), so refusing
- * them would refuse to diagnose the commonest case.
+ * Anonymous callers are refused, like `getSyncKey` and `deleteAccount`.
+ * Premium requires an account, alerts require premium, so the cron can never
+ * target an anonymous session — letting one test push here would prove a path
+ * that does not exist in production.
  *
  * The payload mirrors a real pressure alert — same `data` keys, same
  * `content-available` — so a successful test exercises the path the cron
@@ -320,6 +321,9 @@ export const sendTestPush = onCall(
     const uid = request.auth?.uid;
     if (!uid) {
       throw new HttpsError("unauthenticated", "sign in first");
+    }
+    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
+      throw new HttpsError("permission-denied", "account required for alerts");
     }
 
     const snapshot = await getFirestore().collection("users").doc(uid).get();
