@@ -31,9 +31,6 @@ class DashboardScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final showPremium = !ref.watch(hasPremiumProvider);
     final nextReminder = ref.watch(nextReminderProvider);
-    // Data-driven sections only show once there's something to show.
-    final hasAttacks =
-        ref.watch(attacksStreamProvider).value?.isNotEmpty ?? false;
     // Null unless the free plan's log limit is close (see attacksLeftProvider).
     final int? logsLeft = ref.watch(attacksLeftProvider);
 
@@ -47,7 +44,11 @@ class DashboardScreen extends ConsumerWidget {
       const QuickAccessSection(),
       if (showPremium) const PremiumCountdownBanner(),
       if (nextReminder != null) const NextReminderBanner(),
-      if (hasAttacks) const DashboardSummaryGroup(),
+      // Unconditional, owner's call: hidden until the first attack it left a
+      // new install with a log button and a grid of links and nothing in
+      // between. Both cards inside carry their own empty state, so what shows
+      // on day one is the shape of what is coming, not a pile of zeroes.
+      const DashboardSummaryGroup(),
       const DashboardExploreSection(),
     ];
 

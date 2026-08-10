@@ -155,7 +155,11 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a free user gets no way into the pressure detail screen', (
+  // Reversed by the owner: the forecast is free, so the detail screen opens
+  // for everyone. The alert switch on it is still premium's, and does its own
+  // gating — reaching the screen and being able to arm the alert are now two
+  // different questions.
+  testWidgets('a free user reaches the pressure detail screen', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -165,10 +169,7 @@ void main() {
     await openInsights(tester);
     await tapVisible(tester, find.text('Pressure'));
 
-    // Still on Insights: the detail screen is the forecast and the alert
-    // controls, both of which are premium's.
-    expect(find.text('Pressure-drop alerts'), findsNothing);
-    expect(find.byType(SwitchListTile), findsNothing);
+    expect(find.text('Pressure-drop alerts'), findsWidgets);
 
     await finishTest(tester);
   });

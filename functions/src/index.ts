@@ -334,21 +334,20 @@ export const revenuecatWebhook = onRequest(
  * key cannot ship in a binary, so the app asks here and here asks Apple
  * (CLAUDE.md's tech-stack rule).
  *
- * **A real account is required, and anonymous callers are refused** — the
- * same bar as `getSyncKey` and `sendTestPush`. Owner's rule: weather is read
- * through our WeatherKit key, and the 500k monthly quota is a resource that
- * cannot be bought back, so nothing spends it without an account behind it.
+ * **Any signed-in caller, anonymous included.** Weather is free: it is what
+ * pairs a logged attack with the pressure at that moment, and hard rule 1
+ * keeps every feature except sync and alerts working without an account. Auth
+ * is required only so the endpoint has a caller at all — the app signs in
+ * anonymously at launch, so this costs the user nothing.
  *
- * The cost is deliberate and large: a signed-out user gets **no weather at
- * all** — no pressure paired with a logged attack, no forecast, no daily
- * reading for the correlation baseline. Logging still works offline and the
- * attack is still saved (hard rule 4); it simply has no weather beside it,
- * and no backfill can recover what was never fetched.
+ * Only the *alert* is premium, and that is enforced in the cron, which reads
+ * `users` where `premium == true`. Nothing about it belongs here.
  *
- * The cache stays, because auth bounds *who* calls and not *how often*:
- * coordinates round to ~11km and a series is reused for an hour, so
- * WeatherKit calls scale with populated cells rather than with taps. The
- * rounding pays twice — no precise position is ever stored.
+ * **The cache is what protects the quota.** Coordinates round to ~11km and a
+ * series is reused for an hour, so WeatherKit calls scale with populated cells
+ * rather than with users or taps — the 500k monthly quota now lands on one key
+ * instead of being spread across users' own devices. The rounding pays twice:
+ * no precise position is ever stored, matching what hard rule 1 allows.
  */
 export const getWeather = onCall(
   {
@@ -358,25 +357,11 @@ export const getWeather = onCall(
     secrets: [weatherKitPrivateKey],
   },
   async (request) => {
-    const uid = request.auth?.uid;
-
-    if (!uid) {
+    if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "sign in first");
     }
-    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
-      throw new HttpsError("permission-denied", "account required for weather");
-    }
 
-    // The last link of the chain, and the one no client check can stand in
-    // for: `premium` is written by the RevenueCat webhook and denied to every
-    // client (see firestore.rules), so this is the only statement of it the
-    // server will trust.
     const db = getFirestore();
-    const profile = await db.collection("users").doc(uid).get();
-
-    if (profile.get("premium") !== true) {
-      throw new HttpsError("permission-denied", "premium required for weather");
-    }
 
     const lat = Number(request.data?.lat);
     const lon = Number(request.data?.lon);

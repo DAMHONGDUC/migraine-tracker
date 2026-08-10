@@ -21,6 +21,11 @@ import '../../theme/app_colors.dart';
 /// two surfaces can never name or colour a band differently — the layouts
 /// differ, the meaning cannot.
 final class SeverityBreakdownSlices {
+  /// How far the placeholder's colours are dialled back. Enough to still name
+  /// each band, far enough from full strength that it cannot be taken for a
+  /// reading.
+  static const double _placeholderAlpha = 0.4;
+
   static List<SdDonutSliceV2> of(
     List<SeverityCount> counts,
     AppLocalizations l10n,
@@ -32,6 +37,25 @@ final class SeverityBreakdownSlices {
         label: '${entry.band.label(l10n)} · ${entry.count}',
       ),
   ];
+
+  /// The scale itself, for a surface with nothing to split yet: four equal
+  /// arcs in the real band colours, dialled back, named but uncounted.
+  ///
+  /// It is the app's severity key drawn as a ring rather than a stand-in for
+  /// data — three things say so at once: the arcs are equal, the colours are
+  /// faded, and no label carries a number. A card showing this teaches what
+  /// it is about to become, which an empty grey ring cannot.
+  static List<SdDonutSliceV2> placeholder(AppLocalizations l10n) =>
+      <SdDonutSliceV2>[
+        for (final SeverityBand band in SeverityBand.values)
+          SdDonutSliceV2(
+            value: 1,
+            color: AppColors.intensity(
+              band.sampleIntensity,
+            ).withValues(alpha: _placeholderAlpha),
+            label: band.label(l10n),
+          ),
+      ];
 }
 
 class SeverityBreakdownChart extends StatelessWidget {

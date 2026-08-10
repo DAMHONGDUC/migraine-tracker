@@ -421,6 +421,8 @@
   "dashboardTrendUp": "{count, plural, other{Nhiều hơn tuần trước {count}}}",
   "dashboardTrendDown": "{count, plural, other{Ít hơn tuần trước {count}}}",
   "dashboardTrendSame": "Bằng tuần trước",
+  "dashboardWeekEmpty": "Chưa ghi nhận cơn nào tuần này.",
+  "dashboardSeverityEmpty": "Tỉ lệ sẽ hiện sau lần ghi đầu tiên.",
   "dashboardAvgIntensity": "Cường độ TB {value}",
   "dashboardPremiumTitle": "Mở khóa Premium",
   "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn.",

@@ -2070,6 +2070,14 @@
   "@dashboardTrendSame": {
     "description": "Weekly trend caption when this week matches last week"
   },
+  "dashboardWeekEmpty": "No attacks logged this week.",
+  "@dashboardWeekEmpty": {
+    "description": "Stands in for the trend line on the dashboard week card when neither this week nor last week has an attack, so there is no trend to state"
+  },
+  "dashboardSeverityEmpty": "The split appears after your first log.",
+  "@dashboardSeverityEmpty": {
+    "description": "Sits under the band names on the dashboard severity card before any attack exists, where the ring shows the scale rather than a reading"
+  },
   "dashboardAvgIntensity": "Avg intensity {value}",
   "@dashboardAvgIntensity": {
     "description": "Average pain intensity for the week on the dashboard summary card",

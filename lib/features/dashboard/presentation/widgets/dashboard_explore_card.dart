@@ -33,18 +33,23 @@ class DashboardExploreCard extends StatelessWidget {
     return SdCardV2(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w16),
+        // Tighter than a full-width card's w16, like the quick-access tiles
+        // above: half a screen wide, the cell can spend the room on its
+        // content or on its own margins, not on both.
+        padding: EdgeInsets.all(SdSpacingConstant.w12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // A bare glyph, not a tinted badge: at two cards a row the badge's
             // disc was most of the card's top edge.
+            // r20 like the quick-access tiles above, not r24: at half a
+            // screen wide the glyph is a marker, not the subject.
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r24,
+              size: SdSpacingConstant.r20,
               color: AppColors.primary,
             ),
-            SizedBox(height: SdSpacingConstant.h12),
+            SizedBox(height: SdSpacingConstant.h8),
             Text(
               title,
               style: AppTextStyle.titleMedium.w600,

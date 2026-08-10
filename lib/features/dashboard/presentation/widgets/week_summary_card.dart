@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
+import 'dashboard_chevron.dart';
 
 /// "This week" glance card: attack count, trend vs last week, and average
 /// intensity. Tapping it jumps to the History tab for the full picture.
@@ -50,19 +51,21 @@ class WeekSummaryCard extends ConsumerWidget {
                     style: AppTextStyle.labelSmall.secondary,
                   ),
                 ),
-                SdIconV2(
-                  icon: Icons.chevron_right,
-                  size: SdSpacingConstant.r20,
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                const DashboardChevron(),
               ],
             ),
             SizedBox(height: SdSpacingConstant.h8),
             _CountRow(count: summary.thisWeekCount),
-            if (hasData) ...[
-              SizedBox(height: SdSpacingConstant.h8),
-              _TrendRow(summary: summary),
-            ],
+            SizedBox(height: SdSpacingConstant.h8),
+            // Two weeks with nothing in them have no trend to state, and a
+            // bare "0" on its own reads as a card that failed to load.
+            if (hasData)
+              _TrendRow(summary: summary)
+            else
+              Text(
+                l10n.dashboardWeekEmpty,
+                style: AppTextStyle.bodySmall.secondary,
+              ),
             if (summary.averageIntensity != null) ...[
               SizedBox(height: SdSpacingConstant.h16),
               _AvgIntensityChip(value: summary.averageIntensity!),
