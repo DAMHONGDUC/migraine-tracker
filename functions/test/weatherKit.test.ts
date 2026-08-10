@@ -167,6 +167,21 @@ describe("fetchHourlyPressure", () => {
     ).rejects.toThrow(/after 3 attempts/);
   });
 
+  it("names the empty credentials instead of asking Apple", async () => {
+    const fetchImpl = vi.fn();
+
+    await expect(
+      fetchHourlyPressure(21, 105, {
+        fetchImpl,
+        sleep: noSleep,
+        credentials: { ...credentials, keyId: "", teamId: "  " },
+      }),
+    ).rejects.toThrow(
+      /WEATHERKIT_KEY_ID, WEATHERKIT_TEAM_ID empty/,
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("throws on malformed bodies", async () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,

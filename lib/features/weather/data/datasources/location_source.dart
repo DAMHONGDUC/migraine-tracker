@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/geo_point.dart';
 
 /// Abstracts geolocator so repositories are testable without the plugin.
@@ -25,11 +26,23 @@ class GeolocatorLocationSource implements LocationSource {
   @override
   Future<GeoPoint?> currentPosition() async {
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        AppLogger.warning('No position: location services are off');
+
+        return null;
+      }
 
       // Read-only: an undecided permission means no position, not a prompt.
       // Whoever wants the prompt calls requestPermission.
-      if (!_granted(await Geolocator.checkPermission())) return null;
+      final LocationPermission permission = await Geolocator.checkPermission();
+
+      if (!_granted(permission)) {
+        // Every weather read starts here, so the reason there is no weather
+        // is usually this line rather than anything the backend did.
+        AppLogger.warning('No position: permission', permission.name);
+
+        return null;
+      }
 
       final Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -42,7 +55,13 @@ class GeolocatorLocationSource implements LocationSource {
         latitude: position.latitude,
         longitude: position.longitude,
       );
-    } on Exception {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Reading position failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
       return null;
     }
   }
@@ -58,8 +77,16 @@ class GeolocatorLocationSource implements LocationSource {
         permission = await Geolocator.requestPermission();
       }
 
+      AppLogger.info('Location permission', permission.name);
+
       return _granted(permission);
-    } on Exception {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Requesting location permission failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
       return false;
     }
   }

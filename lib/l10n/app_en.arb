@@ -1402,6 +1402,10 @@
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"
   },
+  "alertsErrorAccount": "Sign in and unlock Premium to get pressure alerts.",
+  "@alertsErrorAccount": {
+    "description": "Shown when alerts are enabled without a signed-in account. Alerts need premium and premium needs an account, so both are named"
+  },
   "alertsErrorNotifications": "Notification permission is required for alerts.",
   "@alertsErrorNotifications": {
     "description": "Error when the user denied notification permission"

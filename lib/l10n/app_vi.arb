@@ -286,6 +286,7 @@
   "alertsStatusOn": "Bật",
   "alertsStatusOff": "Tắt",
   "alertsThresholdTitle": "Ngưỡng cảnh báo",
+  "alertsErrorAccount": "Đăng nhập và mở khoá Premium để nhận cảnh báo áp suất.",
   "alertsErrorNotifications": "Cần quyền thông báo để bật cảnh báo.",
   "alertsErrorLocation": "Cần vị trí để biết áp suất nơi bạn ở.",
   "alertsErrorPush": "Thiết bị này không hỗ trợ thông báo đẩy.",

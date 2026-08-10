@@ -25,10 +25,15 @@ abstract interface class AlertRegistrationRepository {
   /// and the rules forbid a client touching that key anyway.
   Future<void> forgetRegistration();
 
-  /// Asks the backend to push to this device's own registered token.
+  /// Registers this device's push token, then asks the backend to push to it.
   ///
   /// The one thing no test can prove: that the APNs key, the entitlement and
-  /// the token line up on real hardware. Throws when the device never
-  /// registered, which is itself the answer.
+  /// the token line up on real hardware.
+  ///
+  /// **It registers the token itself**, rather than requiring [register] to
+  /// have run. The token is written only when the user turns alerts on, which
+  /// needs premium and a location fix — so without this the row failed with
+  /// "no fcmToken registered" on every device that had not, and tested the
+  /// alerts toggle instead of push.
   Future<void> sendTestPush();
 }

@@ -51,6 +51,34 @@ export interface WeatherKitCredentials {
   serviceId: string;
 }
 
+/**
+ * A credential is missing, so no request was made.
+ *
+ * Its own type because it is the one weather failure retrying cannot fix, and
+ * the one a caller should report differently: Apple answers an empty `kid`,
+ * `iss` or `sub` with a bare `401 MISSING_AUTH`, which reads as a revoked key
+ * rather than as an unset deploy variable — three attempts and several
+ * seconds later.
+ */
+export class WeatherKitConfigError extends Error {
+  constructor(readonly missing: string[]) {
+    super(`weatherkit not configured: ${missing.join(", ")} empty`);
+    this.name = "WeatherKitConfigError";
+  }
+}
+
+/** The deploy variables behind [credentials] that carry no value. */
+function missingCredentials(credentials: WeatherKitCredentials): string[] {
+  const missing: string[] = [];
+
+  if (!credentials.privateKey.trim()) missing.push("WEATHERKIT_PRIVATE_KEY");
+  if (!credentials.keyId.trim()) missing.push("WEATHERKIT_KEY_ID");
+  if (!credentials.teamId.trim()) missing.push("WEATHERKIT_TEAM_ID");
+  if (!credentials.serviceId.trim()) missing.push("WEATHERKIT_SERVICE_ID");
+
+  return missing;
+}
+
 let cachedToken: { value: string; expiresAt: number } | undefined;
 
 /** Drops the memoized JWT. For tests, and for a credential rotation. */
@@ -182,7 +210,12 @@ export async function fetchHourlyWeather(
   const sleep =
     deps.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   const credentials = deps.credentials ?? readCredentials();
+  const missing = missingCredentials(credentials);
   const params = new URLSearchParams({ dataSets: "forecastHourly" });
+
+  // Before the retry loop: an unset variable is not an outage, and three
+  // round trips to Apple cannot discover what is already known here.
+  if (missing.length > 0) throw new WeatherKitConfigError(missing);
 
   if (window.start) params.set("hourlyStart", window.start.toISOString());
   if (window.end) params.set("hourlyEnd", window.end.toISOString());

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../domain/services/home_widget_link.dart';
@@ -57,7 +58,14 @@ class HomeWidgetTapListener extends HookConsumerWidget {
             .then((Uri? uri) => _open(ref, uri))
             // Swallowed on purpose: there is no screen of ours to report a
             // failed deep link on, and the user is already where they landed.
-            .catchError((Object _) {}),
+            // Logged, so "the widget did nothing" is answerable.
+            .catchError((Object error, StackTrace stackTrace) {
+              AppLogger.error(
+                'Home widget launch tap failed',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            }),
       );
 
       return taps.cancel;

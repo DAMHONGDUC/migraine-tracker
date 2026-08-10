@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../../../core/env/app_env.dart';
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/premium_offer.dart';
 import '../../domain/enums/premium_period.dart';
 import '../../domain/enums/purchase_error.dart';
@@ -113,13 +114,30 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
       return await action();
-    } on PlatformException catch (error) {
-      throw PurchaseException(
-        _mapError(PurchasesErrorHelper.getErrorCode(error)),
-        error.message,
+    } on PlatformException catch (error, stackTrace) {
+      final PurchaseError mapped = _mapError(
+        PurchasesErrorHelper.getErrorCode(error),
       );
-    } on StateError catch (error) {
+
+      // - Mapping drops the SDK's own code, which is the readable half.
+      // - Cancelling is the user's choice, not a failure.
+      if (mapped != PurchaseError.cancelled) {
+        AppLogger.error(
+          'RevenueCat call failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+
+      throw PurchaseException(mapped, error.message);
+    } on StateError catch (error, stackTrace) {
       // The missing-key throw from RevenueCatClient.apiKey.
+      AppLogger.error(
+        'RevenueCat is not configured',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
       throw PurchaseException(PurchaseError.notConfigured, error.message);
     }
   }

@@ -30,6 +30,7 @@ import {
   fetchHourlyWeather,
   weatherKitPrivateKey,
   WeatherHour,
+  WeatherKitConfigError,
 } from "./weather/weatherKit";
 
 initializeApp();
@@ -333,18 +334,21 @@ export const revenuecatWebhook = onRequest(
  * key cannot ship in a binary, so the app asks here and here asks Apple
  * (CLAUDE.md's tech-stack rule).
  *
- * **Anonymous callers are allowed, unlike `getSyncKey` and `sendTestPush`.**
- * Weather is what pairs a logged attack with the pressure at that moment, and
- * hard rule 1 says every feature except sync and alerts works without an
- * account. Refusing anonymous sessions here would break logging for exactly
- * the users the app is designed around.
+ * **A real account is required, and anonymous callers are refused** — the
+ * same bar as `getSyncKey` and `sendTestPush`. Owner's rule: weather is read
+ * through our WeatherKit key, and the 500k monthly quota is a resource that
+ * cannot be bought back, so nothing spends it without an account behind it.
  *
- * **Cached per cell, which is the rate limit.** Coordinates round to ~11km and
- * the series is reused for an hour, so WeatherKit calls scale with populated
- * cells rather than with users or with taps — the 500k monthly quota now lands
- * on one key instead of being spread across users' own devices. The rounding
- * also means no precise position is ever stored, matching what hard rule 1
- * allows for alerts.
+ * The cost is deliberate and large: a signed-out user gets **no weather at
+ * all** — no pressure paired with a logged attack, no forecast, no daily
+ * reading for the correlation baseline. Logging still works offline and the
+ * attack is still saved (hard rule 4); it simply has no weather beside it,
+ * and no backfill can recover what was never fetched.
+ *
+ * The cache stays, because auth bounds *who* calls and not *how often*:
+ * coordinates round to ~11km and a series is reused for an hour, so
+ * WeatherKit calls scale with populated cells rather than with taps. The
+ * rounding pays twice — no precise position is ever stored.
  */
 export const getWeather = onCall(
   {
@@ -354,8 +358,24 @@ export const getWeather = onCall(
     secrets: [weatherKitPrivateKey],
   },
   async (request) => {
-    if (!request.auth?.uid) {
+    const uid = request.auth?.uid;
+
+    if (!uid) {
       throw new HttpsError("unauthenticated", "sign in first");
+    }
+    if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
+      throw new HttpsError("permission-denied", "account required for weather");
+    }
+
+    // The last link of the chain, and the one no client check can stand in
+    // for: `premium` is written by the RevenueCat webhook and denied to every
+    // client (see firestore.rules), so this is the only statement of it the
+    // server will trust.
+    const db = getFirestore();
+    const profile = await db.collection("users").doc(uid).get();
+
+    if (profile.get("premium") !== true) {
+      throw new HttpsError("permission-denied", "premium required for weather");
     }
 
     const lat = Number(request.data?.lat);
@@ -378,7 +398,6 @@ export const getWeather = onCall(
 
     const now = new Date();
     const key = `${cellKey(lat, lon)}_${hoursBack}_${hoursForward}`;
-    const db = getFirestore();
     const doc = db.collection("weather_cache").doc(key);
     const cached = await doc.get();
 
@@ -387,15 +406,29 @@ export const getWeather = onCall(
     }
 
     const center = cellCenter(cellKey(lat, lon));
-    const hours = await fetchHourlyWeather(
-      center.lat,
-      center.lon,
-      {
-        start: new Date(now.getTime() - hoursBack * 3_600_000),
-        end: new Date(now.getTime() + hoursForward * 3_600_000),
-      },
-      {},
-    );
+    let hours: WeatherHour[];
+
+    // Named rather than left to become a bare `internal`: the app treats any
+    // weather failure as "no weather" (hard rule 4), so this log is the only
+    // place the reason is ever stated.
+    try {
+      hours = await fetchHourlyWeather(
+        center.lat,
+        center.lon,
+        {
+          start: new Date(now.getTime() - hoursBack * 3_600_000),
+          end: new Date(now.getTime() + hoursForward * 3_600_000),
+        },
+        {},
+      );
+    } catch (error) {
+      if (error instanceof WeatherKitConfigError) {
+        logger.error("weatherkit not configured", { missing: error.missing });
+        throw new HttpsError("failed-precondition", error.message);
+      }
+      logger.error("weatherkit fetch failed", { key, error: String(error) });
+      throw new HttpsError("unavailable", String(error));
+    }
 
     // Best-effort: a cache that fails to write must not fail the request the
     // caller actually made.
@@ -424,27 +457,44 @@ export const sendTestPush = onCall(
     const token = snapshot.get("fcmToken");
     if (typeof token !== "string" || token.length === 0) {
       // Not an error on our side: the device never registered, which is
-      // itself the diagnosis the caller is looking for.
+      // itself the diagnosis the caller is looking for. Logged all the same —
+      // an HttpsError reaches the caller and nothing else, so without this
+      // the run leaves no trace at all in the function's own log.
+      logger.warn("test push refused: no fcmToken", {
+        uid,
+        userDocExists: snapshot.exists,
+      });
       throw new HttpsError("failed-precondition", "no fcmToken registered");
     }
 
     const now = new Date();
-    await getMessaging().send({
-      token,
-      notification: {
-        title: "BaroEase test",
-        body: "If you can see this, push works on this device.",
-      },
-      data: {
-        type: "pressureAlert",
-        eventId: `test:${now.toISOString()}`,
-        dropHpa: "0",
-        at: now.toISOString(),
-      },
-      apns: {
-        payload: { aps: { sound: "default", "content-available": 1 } },
-      },
-    });
+
+    // FCM's own refusals are the answer this row exists to get — a missing
+    // APNs key, a token from another project, a token the device dropped.
+    // Unhandled they reach the app as a bare `internal` with nothing in it.
+    try {
+      await getMessaging().send({
+        token,
+        notification: {
+          title: "BaroEase test",
+          body: "If you can see this, push works on this device.",
+        },
+        data: {
+          type: "pressureAlert",
+          eventId: `test:${now.toISOString()}`,
+          dropHpa: "0",
+          at: now.toISOString(),
+        },
+        apns: {
+          payload: { aps: { sound: "default", "content-available": 1 } },
+        },
+      });
+    } catch (error) {
+      const code = (error as { code?: string })?.code ?? "unknown";
+
+      logger.error("test push failed", { uid, code, error: String(error) });
+      throw new HttpsError("unavailable", `${code}: ${String(error)}`);
+    }
 
     logger.info("test push sent", { uid });
     return { sent: true };

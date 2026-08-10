@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_snapshot.dart';
 
@@ -50,7 +51,16 @@ class BackendWeatherDataSource {
           .map(_Hour.fromMap)
           .whereType<_Hour>()
           .toList();
-    } on Exception {
+    } catch (error, stackTrace) {
+      // Best-effort by rule, silent by accident: every weather failure —
+      // a missing WeatherKit credential, a refused call, being offline —
+      // arrives at the UI as "no weather" and nowhere else.
+      AppLogger.error(
+        'Weather fetch failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
       return null;
     }
   }
@@ -72,8 +82,7 @@ class BackendWeatherDataSource {
 
     final List<PressurePoint> points = hours
         .map(
-          (_Hour h) =>
-              PressurePoint(time: h.time, pressureHpa: h.pressureHpa),
+          (_Hour h) => PressurePoint(time: h.time, pressureHpa: h.pressureHpa),
         )
         .toList();
 
@@ -109,7 +118,10 @@ class BackendWeatherDataSource {
     if (index == null) return null;
 
     final _Hour hour = hours[index];
-    final _Hour? dayBefore = _at(hours, hour.time.subtract(const Duration(hours: 24)));
+    final _Hour? dayBefore = _at(
+      hours,
+      hour.time.subtract(const Duration(hours: 24)),
+    );
 
     if (dayBefore == null) return null;
 

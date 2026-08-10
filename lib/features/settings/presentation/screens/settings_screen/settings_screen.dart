@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 import '../../../../../core/env/app_env.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/l10n/locale_provider.dart';
+import '../../../../../core/logging/app_logger.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -79,8 +80,8 @@ class SettingsScreen extends ConsumerWidget {
               // outright (hard rule 7).
               if (ref.watch(isSignedInProvider)) ...<Widget>[
                 const _DevPremiumTile(),
-                const _DevPushTile(),
                 const _DevOffersTile(),
+                const _DevPushTile(),
               ],
               const _DevSeedTile(),
               const _DevResetTile(),
