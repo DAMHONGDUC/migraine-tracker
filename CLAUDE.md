@@ -19,6 +19,15 @@ difference does. A description of a diff is the reader taking your word for
 it; the diff is the reader checking. This applies to any explanation of work
 already done: a rule, a refactor, a fix.
 
+**An explanation goes straight to the point — no rambling.** Owner's rule.
+Answer the question that was asked, then stop. Don't re-establish what the
+owner already knows, don't pad with background they did not ask for, and
+don't narrate the options that were not taken. Length is not thoroughness: two
+labelled rows and a sentence each beat three paragraphs saying the same thing.
+This sharpens the before/after rule above rather than competing with it — the
+diff is still what an explanation is built on; this governs the prose around
+it, which is where the padding gets in.
+
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
