@@ -105,40 +105,32 @@ something to reconstruct under a follow-up question.
 
 ### App Encryption Documentation, step 1 of 3 — "App Purpose" (10 Aug 2026)
 
-> BaroEase is a consumer health-tracking app for people who experience migraine
-> attacks, in particular those whose attacks are associated with changes in
-> barometric pressure.
->
-> The app allows a user to record a migraine attack in a few taps — intensity,
-> head location, and any medication taken — and stores that history on their
-> device. Each entry is paired with the barometric pressure at the time it was
-> recorded. The app presents the user's own history back to them as charts and
-> summaries, shows a 48-hour barometric pressure forecast, can send a
-> notification when a significant pressure drop is forecast for their area,
-> manages medication reminders, and can generate a PDF summary the user may
-> choose to share with their physician. With the user's explicit permission, it
-> can also read sleep and step data from Apple Health to display alongside
-> their history. Subscriptions are offered for the forecasting and analysis
-> features.
->
-> The app's primary function is personal health tracking. It is not an
-> information-security product: it provides no security capability to the user,
-> offers no key management, and exposes no cryptographic interface. Its use of
-> cryptography is ancillary and limited to protecting the user's own records —
-> TLS for network communication, and AES-256-GCM applied to the user's records
-> only if they choose to enable the optional account-based sync feature.
+**The field caps at 300 characters, not 300 words**, which is the single fact
+that shapes this answer. Submitted at 293:
 
-Three things in it are deliberate, and a rewrite should keep them:
+> BaroEase is a personal migraine tracker. Users log attacks in a few taps; the
+> app pairs each with barometric pressure, charts their history and warns of
+> forecast pressure drops. Its primary function is health tracking, not
+> information security: encryption only protects the user's own records.
 
-- **The third paragraph answers Note 4, not the question asked.** The whole
-  classification turns on whether the cryptography is ancillary, so the case is
-  made at the first opportunity rather than left for a reviewer to infer.
-- **No word promises diagnosis, treatment or prevention.** That is hard rule 11,
-  and it also keeps the app out of the medical end-use exemption, which
-  BaroEase would not qualify for and should not appear to claim.
-- **"on their device", "only if they choose", "explicit permission"** are load
-  bearing. Each one narrows what the encryption protects to the user's own
-  data, which is the ancillary argument in miniature.
+At that length almost everything true about the app has to go — Apple Health,
+the PDF report, reminders, subscriptions, the offline-first storage. What
+survived did so on purpose:
+
+- **The last sentence is half the budget and earns it.** The classification
+  turns on whether the cryptography is ancillary, so the Note 4 argument is
+  stated outright rather than left for a reviewer to infer from a feature list.
+  A 300-character answer that spends everything on features would describe the
+  app well and answer the wrong question.
+- **"only protects the user's own records"** is the compressed form of the
+  three qualifiers a longer draft used — on device, opt-in sync, explicit
+  permission. It narrows what the encryption covers, which is the whole point.
+- **Nothing claims diagnosis, treatment or prevention.** Hard rule 11, and it
+  also keeps the app clear of the medical end-use exemption, which BaroEase
+  would not qualify for and should not appear to claim.
+
+The fuller account is not lost — it is this document, and the sections above
+are what to draw on if a reviewer asks a follow-up.
 
 ### Step 2 of 3 — "Which encryption algorithms does your app implement" (10 Aug 2026)
 
