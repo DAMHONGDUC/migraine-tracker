@@ -53,92 +53,92 @@
   "@onboardingFeaturesAction": {
     "description": "Button on the last onboarding step that opens the feature-list sheet"
   },
-  "onboardingFeaturesTitle": "Everything BaroEase does",
-  "@onboardingFeaturesTitle": {
+  "appFeaturesTitle": "Everything BaroEase does",
+  "@appFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "onboardingFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
-  "@onboardingFeaturesBody": {
+  "appFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
+  "@appFeaturesBody": {
     "description": "Onboarding feature-list sheet body"
   },
-  "onboardingFeaturesFree": "Free forever",
-  "@onboardingFeaturesFree": {
+  "appFeaturesFree": "Free forever",
+  "@appFeaturesFree": {
     "description": "Header above the free features"
   },
-  "onboardingFeaturesPremium": "Premium",
-  "@onboardingFeaturesPremium": {
+  "appFeaturesPremium": "Premium",
+  "@appFeaturesPremium": {
     "description": "Header above the premium features"
   },
-  "onboardingFeatureLogTitle": "Three-tap attack log",
-  "@onboardingFeatureLogTitle": {
+  "appFeatureLogTitle": "Three-tap attack log",
+  "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "onboardingFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
-  "@onboardingFeatureLogBody": {
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
+  "@appFeatureLogBody": {
     "description": "Free feature: attack logging, detail"
   },
-  "onboardingFeatureHistoryTitle": "History and charts",
-  "@onboardingFeatureHistoryTitle": {
+  "appFeatureHistoryTitle": "History and charts",
+  "@appFeatureHistoryTitle": {
     "description": "Free feature: history"
   },
-  "onboardingFeatureHistoryBody": "Every attack on a calendar, plus trends by week, time of day and where the pain sits.",
-  "@onboardingFeatureHistoryBody": {
+  "appFeatureHistoryBody": "Every attack on a calendar, plus trends by week, time of day and where the pain sits.",
+  "@appFeatureHistoryBody": {
     "description": "Free feature: history, detail"
   },
-  "onboardingFeatureRemindersTitle": "Medication reminders",
-  "@onboardingFeatureRemindersTitle": {
+  "appFeatureRemindersTitle": "Medication reminders",
+  "@appFeatureRemindersTitle": {
     "description": "Free feature: medication reminders"
   },
-  "onboardingFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
-  "@onboardingFeatureRemindersBody": {
+  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
+  "@appFeatureRemindersBody": {
     "description": "Free feature: medication reminders, detail"
   },
-  "onboardingFeatureExportTitle": "Export your data",
-  "@onboardingFeatureExportTitle": {
+  "appFeatureExportTitle": "Export your data",
+  "@appFeatureExportTitle": {
     "description": "Free feature: data export"
   },
-  "onboardingFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
-  "@onboardingFeatureExportBody": {
+  "appFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
+  "@appFeatureExportBody": {
     "description": "Free feature: data export, detail"
   },
-  "onboardingFeatureAlertsTitle": "Pressure-drop alerts",
-  "@onboardingFeatureAlertsTitle": {
+  "appFeatureAlertsTitle": "Pressure-drop alerts",
+  "@appFeatureAlertsTitle": {
     "description": "Premium feature: pressure alerts"
   },
-  "onboardingFeatureAlertsBody": "A notification up to 24 hours before the air pressure falls.",
-  "@onboardingFeatureAlertsBody": {
+  "appFeatureAlertsBody": "A notification up to 24 hours before the air pressure falls.",
+  "@appFeatureAlertsBody": {
     "description": "Premium feature: pressure alerts, detail"
   },
-  "onboardingFeatureForecastTitle": "48-hour pressure forecast",
-  "@onboardingFeatureForecastTitle": {
+  "appFeatureForecastTitle": "48-hour pressure forecast",
+  "@appFeatureForecastTitle": {
     "description": "Premium feature: pressure forecast"
   },
-  "onboardingFeatureForecastBody": "See what the air is about to do, so you can plan around it.",
-  "@onboardingFeatureForecastBody": {
+  "appFeatureForecastBody": "See what the air is about to do, so you can plan around it.",
+  "@appFeatureForecastBody": {
     "description": "Premium feature: pressure forecast, detail"
   },
-  "onboardingFeatureCorrelationTitle": "Weather correlation",
-  "@onboardingFeatureCorrelationTitle": {
+  "appFeatureCorrelationTitle": "Weather correlation",
+  "@appFeatureCorrelationTitle": {
     "description": "Premium feature: weather correlation"
   },
-  "onboardingFeatureCorrelationBody": "How much of your pain actually follows the pressure — measured on your own attacks.",
-  "@onboardingFeatureCorrelationBody": {
+  "appFeatureCorrelationBody": "How much of your pain actually follows the pressure — measured on your own attacks.",
+  "@appFeatureCorrelationBody": {
     "description": "Premium feature: weather correlation, detail"
   },
-  "onboardingFeatureSleepTitle": "Sleep correlation",
-  "@onboardingFeatureSleepTitle": {
+  "appFeatureSleepTitle": "Sleep correlation",
+  "@appFeatureSleepTitle": {
     "description": "Premium feature: sleep correlation"
   },
-  "onboardingFeatureSleepBody": "Whether your attacks follow the nights you sleep least, read from Apple Health.",
-  "@onboardingFeatureSleepBody": {
+  "appFeatureSleepBody": "Whether your attacks follow the nights you sleep least, read from Apple Health.",
+  "@appFeatureSleepBody": {
     "description": "Premium feature: sleep correlation, detail"
   },
-  "onboardingFeatureReportTitle": "Doctor report",
-  "@onboardingFeatureReportTitle": {
+  "appFeatureReportTitle": "Doctor report",
+  "@appFeatureReportTitle": {
     "description": "Premium feature: doctor report"
   },
-  "onboardingFeatureReportBody": "A clean PDF of your history to bring to an appointment.",
-  "@onboardingFeatureReportBody": {
+  "appFeatureReportBody": "A clean PDF of your history to bring to an appointment.",
+  "@appFeatureReportBody": {
     "description": "Premium feature: doctor report, detail"
   },
   "onboardingContinue": "Continue",
@@ -2456,6 +2456,66 @@
         "type": "int"
       }
     }
+  },
+  "appFeatureMedicationsTitle": "Your medication list",
+  "@appFeatureMedicationsTitle": {
+    "description": "Feature row title: the medications screen"
+  },
+  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped.",
+  "@appFeatureMedicationsBody": {
+    "description": "Feature row body: the medications screen"
+  },
+  "appFeatureWidgetTitle": "Home screen widget",
+  "@appFeatureWidgetTitle": {
+    "description": "Feature row title: the iOS home screen widget"
+  },
+  "appFeatureWidgetBody": "The log button, this week's count and the latest pressure, without opening the app.",
+  "@appFeatureWidgetBody": {
+    "description": "Feature row body: the iOS home screen widget"
+  },
+  "appFeatureNotificationsTitle": "Notification history",
+  "@appFeatureNotificationsTitle": {
+    "description": "Feature row title: the in-app notification list"
+  },
+  "appFeatureNotificationsBody": "Every reminder and pressure alert kept in a list, so a missed banner is not a lost one.",
+  "@appFeatureNotificationsBody": {
+    "description": "Feature row body: the in-app notification list"
+  },
+  "appFeatureSyncTitle": "Encrypted backup",
+  "@appFeatureSyncTitle": {
+    "description": "Feature row title: optional signed-in sync"
+  },
+  "appFeatureSyncBody": "Sign in and your records are backed up encrypted, and follow you to a second device.",
+  "@appFeatureSyncBody": {
+    "description": "Feature row body: optional signed-in sync. Never claim end-to-end encryption (hard rule 12)"
+  },
+  "appFeatureCalmTitle": "Built for sensitive eyes",
+  "@appFeatureCalmTitle": {
+    "description": "Feature row title: the dark, calm design"
+  },
+  "appFeatureCalmBody": "Dark by default, no white glare, nothing that flashes. English and Vietnamese.",
+  "@appFeatureCalmBody": {
+    "description": "Feature row body: the dark, calm design"
+  },
+  "appFeatureActivityTitle": "Exertion and steps",
+  "@appFeatureActivityTitle": {
+    "description": "Feature row title: the activity insight"
+  },
+  "appFeatureActivityBody": "Whether your attacks follow the days you pushed hardest.",
+  "@appFeatureActivityBody": {
+    "description": "Feature row body: the activity insight"
+  },
+  "aboutTitle": "About BaroEase",
+  "@aboutTitle": {
+    "description": "Settings row title and screen title for the About screen"
+  },
+  "aboutTagline": "A calm, private migraine tracker for people whose attacks follow the weather.",
+  "@aboutTagline": {
+    "description": "One-line description under the app name on the About screen"
+  },
+  "aboutVersionLabel": "Version",
+  "@aboutVersionLabel": {
+    "description": "Label of the version row on the About screen"
   },
   "homeWidgetSettingsTitle": "Home screen widget",
   "@homeWidgetSettingsTitle": {

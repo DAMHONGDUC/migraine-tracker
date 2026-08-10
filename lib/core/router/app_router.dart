@@ -21,6 +21,7 @@ import '../../features/notifications/presentation/screens/notifications_screen/n
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
+import '../../features/settings/presentation/screens/about_screen/about_screen.dart';
 import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
 import '../../features/settings/presentation/screens/export_preview_screen/export_preview_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
@@ -125,6 +126,9 @@ final class AppRoutes {
 
   /// Support email, pushed from Settings' About section.
   static const contact = AppRoute(name: 'contact', path: '/contact');
+
+  /// What the app is and everything it does, pushed from the same section.
+  static const about = AppRoute(name: 'about', path: '/about');
 }
 
 /// The router's own navigator. Anything that has to present over the whole
@@ -253,6 +257,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.contact.name,
         path: AppRoutes.contact.path,
         builder: (context, state) => const ContactScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.about.name,
+        path: AppRoutes.about.path,
+        builder: (context, state) => const AboutScreen(),
       ),
       // - Presents as a modal bottom sheet: transparent route, dim barrier, content covers ~80% (see PaywallScreen).
       // - Tap above the sheet dismisses.
