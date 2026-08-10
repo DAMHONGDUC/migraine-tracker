@@ -140,7 +140,37 @@ Three things in it are deliberate, and a rewrite should keep them:
   bearing. Each one narrows what the encryption protects to the user's own
   data, which is the ancillary argument in miniature.
 
-### Steps 2 and 3
+### Step 2 of 3 — "Which encryption algorithms does your app implement" (10 Aug 2026)
 
-Not yet recorded — add them here when answered, with the same verbatim
-treatment.
+Two checkboxes were offered. **Only the second was selected:**
+
+| Selected | Option |
+|---|---|
+| No | Proprietary, or not accepted as standard by international standard bodies |
+| **Yes** | **Standard algorithms instead of, or in addition to, the encryption within Apple's operating system** |
+
+The first is false and answering it would be costly as well as wrong:
+AES-256-GCM and SHA-256 are NIST/IETF standards, and proprietary cryptography
+is the case that draws the heaviest review.
+
+The second is true for the reason set out in the table above — `cryptography`
+resolves `AesGcm.with256bits()` to a pure-Dart implementation, so the AES runs
+as the app's own code rather than through CryptoKit or CommonCrypto. This
+answer is a direct consequence of that dependency choice: adding
+`cryptography_flutter` would route the same algorithm through Apple's
+implementation and change what is true here, so it is not a dependency to add
+or drop casually.
+
+### Step 3 of 3 — "Available for distribution in France" (10 Aug 2026)
+
+**Yes.**
+
+Not a fact about the code — it asks whether the app is sold in France. App
+Store availability is left at all territories, so France is included, and any
+other answer would be inconsistent with what is actually shipped.
+
+**This answer carries an obligation.** France regulates the import and use of
+cryptography and expects a declaration to ANSSI. Mass-market software using
+standard algorithms normally falls under the simplified regime, but "simplified"
+is not "none" — see checklist item 24. The two are tied: if France is ever
+removed from availability, this answer and that obligation both change.
