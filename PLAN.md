@@ -96,8 +96,8 @@ Flutter app (local-first)
     └── Remote Config (default threshold, feature flags)
 
 Weather data
-├── In-app: Open-Meteo today; WeatherKit REST once a key exists
-└── Backend cron: Open-Meteo — 1 call per geohash cell, fan-out to users
+└── WeatherKit REST, called only from Cloud Functions — the signing key
+    never ships in a binary, so the app asks the backend, not Apple
 ```
 
 ### Pressure alert flow

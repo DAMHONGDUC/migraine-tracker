@@ -36,7 +36,10 @@ The premium rules — what is gated, the free record limits and why each number 
 - **Auth**: anonymous by default (app fully usable without an account). Optional sign-in via Google (`google_sign_in`) and Apple (`sign_in_with_apple`) using `linkWithCredential` so the anonymous UID is upgraded, never replaced. Sign in with Apple is mandatory because Google login is offered (App Store 4.8).
 - **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
 - **Sync crypto**: `cryptography` (AES-GCM, pure Dart) for record payloads, `cloud_functions` to fetch the account key from the `getSyncKey` callable. The key is server-held, so this is not end-to-end encryption — see hard rule 12.
-- **Weather**: WeatherKit REST in-app is the target; Open-Meteo is the temporary in-app source until the WeatherKit key is configured (swap inside `weatherRepositoryProvider` — everything depends on the `WeatherRepository` interface). Open-Meteo in backend cron permanently.
+- **Weather is WeatherKit, and it is only ever called from Cloud Functions.** Owner's call — one source for the whole app, no second provider anywhere. The private `.p8` that signs WeatherKit's ES256 JWT must never ship in a binary, on any platform, so the app has no weather API of its own: it asks the backend, and the backend asks Apple. Everything in the app still depends on the `WeatherRepository` interface, so the swap is a data source, not a rewrite.
+  - **Not yet built.** The code still calls the previous provider; it is being replaced, and nothing can be tested until the WeatherKit key and Services ID exist (see "Pending setup").
+  - **Apple requires visible attribution** — the Weather trademark plus a link to Apple's legal page — wherever weather is shown. That is a shipping requirement, not a nicety.
+  - **Quota is 500k calls/month with the developer membership, and a proxy concentrates it.** Calls used to come from users' own devices; now every one lands on our key. Anything the app can reach must be rate-limited, or one caller can burn the month.
 - **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
 - **Observability**: Firebase Crashlytics (crashes + non-fatals) and Firebase Analytics (usage). Both are initialized in `main` and stay no-ops until then, so tests and pure-Dart paths never touch the SDKs.
 - **Home screen widget**: `home_widget` for the App Group bridge; the WidgetKit extension itself is hand-written SwiftUI in `ios/BaroEaseWidget/` (hard rule 18)
@@ -533,6 +536,23 @@ App ID — and `getToken()` returns null on the Simulator (no APNs), which
 `FirebaseAlertRegistrationRepository` maps to
 `AlertRegistrationError.pushUnavailable`. That refusal is expected on the
 Simulator; never read it as a bug.
+
+### WeatherKit — decided, nothing on the Apple side exists yet
+
+Weather moves to WeatherKit, called only from Cloud Functions (see the tech
+stack note). None of the credentials exist, so this is blocked on:
+
+1. **A key with WeatherKit enabled** — Certificates, Identifiers & Profiles →
+   **Keys** → tick WeatherKit. Gives the `.p8` and a **Key ID**. Downloadable
+   once, like the APNs key, and it is a different key from that one.
+2. **A Services ID** — Identifiers → **Services IDs**. This is the JWT's
+   subject; the app's Bundle ID is not it.
+3. **The `.p8` in Secret Manager**, never in the repo and never in `env/`
+   (hard rule 13 covers why a build-time define is not a secret store).
+
+Until all three land the backend has nothing to sign with, and every weather
+read fails — which the app already treats as "no weather", never as an error
+(hard rule 4).
 
 ### Home screen widget — the target is checked in, the App ID is not
 
