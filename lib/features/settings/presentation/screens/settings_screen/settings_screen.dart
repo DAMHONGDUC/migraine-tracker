@@ -38,10 +38,11 @@ part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
+part 'settings_screen_tracking_section.dart';
 
-/// Two groups: "General" is how the app behaves for you, "Your data" is
-/// what it holds. Deleting closes the second one — same subject as the
-/// exports, last because it is the irreversible end of it.
+/// Three groups: "General" is the app itself, "Tracking" is what it watches
+/// on your behalf, "Your data" is what it holds. Deleting closes the last
+/// one — same subject as the exports, and the irreversible end of it.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -61,6 +62,8 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             SdSectionHeaderV2(l10n.settingsSectionGeneral, first: true),
             const _GeneralSection(),
+            SdSectionHeaderV2(l10n.settingsSectionTracking),
+            const _TrackingSection(),
             SdSectionHeaderV2(l10n.settingsSectionData),
             const _DataSection(),
             // Fixture tooling — only where FLAVOR is not prod.

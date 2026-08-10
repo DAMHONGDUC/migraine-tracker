@@ -2246,7 +2246,11 @@
   },
   "settingsSectionGeneral": "General",
   "@settingsSectionGeneral": {
-    "description": "Settings section heading above the account, alert and language rows"
+    "description": "Settings section heading above the account, notifications and language rows"
+  },
+  "settingsSectionTracking": "Tracking",
+  "@settingsSectionTracking": {
+    "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
