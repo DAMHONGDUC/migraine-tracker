@@ -20,7 +20,10 @@ import {
   SYNC_KEY_BYTES,
 } from "./core/syncKey";
 import { premiumFromEvent } from "./revenuecat";
-import { fetchHourlyPressure } from "./weather/openMeteo";
+import {
+  fetchHourlyPressure,
+  weatherKitPrivateKey,
+} from "./weather/weatherKit";
 
 initializeApp();
 
@@ -46,6 +49,9 @@ export const pressureAlertJob = onSchedule(
     maxInstances: 1,
     memory: "256MiB",
     timeoutSeconds: 540,
+    // Without this the signing key is empty at runtime and every WeatherKit
+    // request 401s — a deploy-time binding, not something the code can check.
+    secrets: [weatherKitPrivateKey],
   },
   async () => {
     const db = getFirestore();

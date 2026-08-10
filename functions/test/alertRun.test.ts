@@ -111,7 +111,7 @@ describe("runPressureAlerts", () => {
 
   it("records a failed cell and keeps processing the rest (fail loud, don't skip cohort)", async () => {
     const { deps } = harness(async (cell) => {
-      if (cell === "bad00") throw new Error("open-meteo HTTP 503");
+      if (cell === "bad00") throw new Error("weatherkit HTTP 503");
       return drop();
     });
     const result = await runPressureAlerts(
