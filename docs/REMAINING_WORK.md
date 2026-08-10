@@ -277,10 +277,25 @@ crash resurfaces, this is the first thing to suspect and revert.
 
 ## 7. WeatherKit not swapped in yet
 
-Checklist item 18. In-app weather source is still Open-Meteo (the documented temporary stand-in
-behind `weatherRepositoryProvider`); WeatherKit REST is the target once a key
-exists. Backend cron staying on Open-Meteo permanently is intentional, not
-part of this item.
+Checklist item 18. In-app weather source is still Open-Meteo (the documented
+temporary stand-in behind `weatherRepositoryProvider`); WeatherKit REST is the
+target once a key exists.
+
+**The pressure-alert cron is in scope too.** An earlier version of this section
+said the backend would stay on Open-Meteo permanently and that this was
+intentional. That is wrong — the owner's rule is one provider for the whole
+app, backend included, so `functions/src/weather/openMeteo.ts` is replaced
+rather than kept. Two providers would let the 3am alert disagree with the
+forecast the app draws at breakfast, and the alert is the thing being paid for.
+
+So the swap is two call sites, not one:
+
+- `weatherRepositoryProvider` in the app, which after this reads through the
+  backend rather than calling any weather API itself.
+- `fetchHourlyPressure` in `functions/src/index.ts`, the cron's own source.
+
+Both are blocked on the same three credentials (items 20, 21, 22) — the key,
+the Services ID, and the `.p8` in Secret Manager.
 
 ## Smaller, non-blocking
 
