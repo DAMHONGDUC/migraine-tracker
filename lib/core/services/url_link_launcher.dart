@@ -1,6 +1,6 @@
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../domain/services/link_launcher.dart';
+import 'link_launcher.dart';
 
 class UrlLinkLauncher implements LinkLauncher {
   const UrlLinkLauncher();

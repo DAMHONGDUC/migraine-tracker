@@ -11,6 +11,7 @@ import '../../../../../core/analytics/app_analytics.dart';
 import '../../../../../core/constants/legal_url_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';

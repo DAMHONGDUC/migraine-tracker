@@ -129,6 +129,9 @@ class HomeWidgetController extends Notifier<bool> {
       pressureExpiresAtEpochSeconds: expiresAt == null
           ? ''
           : '${expiresAt.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond}',
+      // Only when a reading is actually drawn — attributing a blank is noise,
+      // and the widget blanks itself once the reading expires.
+      attribution: snapshot.hasPressure ? l10n.weatherAttribution : '',
       trend: snapshot.trend,
     );
   }

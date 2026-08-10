@@ -1315,6 +1315,10 @@
   "@paywallRestore": {
     "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
   },
+  "weatherAttribution": " Weather",
+  "@weatherAttribution": {
+    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it; the glyph is Apple's logo character and both locales carry the same value"
+  },
   "paywallTermsOfUse": "Terms of Use",
   "@paywallTermsOfUse": {
     "description": "Paywall footer link to Apple's standard EULA. App Store guideline 3.1.2 requires it in the binary beside an auto-renewable subscription, not only in the store listing"

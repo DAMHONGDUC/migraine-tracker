@@ -31,6 +31,15 @@ struct BaroEaseWidgetView: View {
           symbol: entry.pressureDetail.isEmpty ? nil : entry.trend.symbol
         )
         Spacer(minLength: 0)
+        if !entry.attribution.isEmpty {
+          // Required wherever WeatherKit data is shown. Quiet and last: it
+          // has to be legible, not prominent.
+          Text(entry.attribution)
+            .font(.system(size: 9))
+            .foregroundColor(BaroEasePalette.textSecondary)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -113,11 +122,17 @@ private extension View {
   /// the extension ships to the same iOS 15 floor as the app.
   ///
   /// Tighter at the sides than top and bottom: a small widget is ~155pt wide,
-  /// so 16 either side spent a fifth of it on air and left the log button and
-  /// the readings crowding a narrow column.
+  /// so every point spent on side air is a point the log button and the
+  /// readings do not get.
+  ///
+  /// These are the ONLY horizontal margins, and only because the widget
+  /// disables the system's own — iOS 17 adds ~16pt of content margin of its
+  /// own, which stacked on top of this and took roughly a third of the width.
+  /// See `contentMarginsDisabled` in BaroEaseWidget.swift: remove that and
+  /// these numbers are wrong again.
   @ViewBuilder
   func widgetBackground(_ color: Color) -> some View {
-    let insets = EdgeInsets(top: 14, leading: 12, bottom: 14, trailing: 12)
+    let insets = EdgeInsets(top: 12, leading: 10, bottom: 12, trailing: 10)
 
     if #available(iOSApplicationExtension 17.0, *) {
       padding(insets).containerBackground(color, for: .widget)

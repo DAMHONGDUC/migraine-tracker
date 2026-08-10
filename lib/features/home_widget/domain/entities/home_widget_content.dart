@@ -20,6 +20,7 @@ class HomeWidgetContent {
     required this.pressureValue,
     required this.pressureDetail,
     required this.pressureExpiresAtEpochSeconds,
+    required this.attribution,
     required this.trend,
   });
 
@@ -46,6 +47,12 @@ class HomeWidgetContent {
   /// on its own.
   final String pressureExpiresAtEpochSeconds;
 
+  /// Apple's weather trademark. Required wherever WeatherKit data is shown,
+  /// and the widget shows a pressure reading — so it travels with the payload
+  /// like every other finished string (hard rule 18: the extension cannot
+  /// reach the ARB files). Empty when there is no reading to attribute.
+  final String attribution;
+
   final PressureTrend trend;
 
   /// Nothing to say — what the widget holds once it is switched off. Its keys
@@ -59,6 +66,7 @@ class HomeWidgetContent {
     pressureValue: '',
     pressureDetail: '',
     pressureExpiresAtEpochSeconds: '',
+    attribution: '',
     trend: PressureTrend.unknown,
   );
 
@@ -72,6 +80,7 @@ class HomeWidgetContent {
     'pressure_value': pressureValue,
     'pressure_detail': pressureDetail,
     'pressure_expires_at': pressureExpiresAtEpochSeconds,
+    'attribution': attribution,
     'trend': trend.token,
   };
 }
