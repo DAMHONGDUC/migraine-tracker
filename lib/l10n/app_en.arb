@@ -1173,6 +1173,15 @@
   "@notificationsA11yOpen": {
     "description": "Tooltip on the dashboard's bell, which opens the notification list"
   },
+  "notificationsA11yUnread": "{count, plural, =1{1 unread} other{{count} unread}}",
+  "@notificationsA11yUnread": {
+    "description": "Screen-reader label for the unread count shown in the notification list's app bar. The visible text is the bare number, which says nothing on its own",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationReminderTitle": "Time for {medication}",
   "@notificationReminderTitle": {
     "description": "A medication reminder row in the notification list",

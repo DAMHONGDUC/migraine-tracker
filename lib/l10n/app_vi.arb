@@ -236,6 +236,7 @@
   "notificationsEmptyReminders": "Chưa có lời nhắc nào. Đặt một lời nhắc là nó hiện ở đây.",
   "notificationsEmptyAlerts": "Chưa có cảnh báo áp suất nào.",
   "notificationsA11yOpen": "Thông báo",
+  "notificationsA11yUnread": "{count, plural, other{{count} chưa đọc}}",
   "notificationReminderTitle": "Đến giờ uống {medication}",
   "notificationReminderUnknown": "Đến giờ uống thuốc",
   "notificationPressureTitle": "Áp suất sắp giảm",
