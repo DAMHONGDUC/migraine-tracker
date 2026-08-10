@@ -219,6 +219,8 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
 - `cd functions && npm run build && npm test` — after touching Cloud Functions
+- `melos run deploy-firebase` — the whole Firebase side: firestore rules and indexes, then the functions, after running the functions' own tests. **Rules and indexes always deploy together** (`--only firestore:rules,firestore:indexes`), because a missing composite index fails at runtime rather than at build, so shipping one without the other is a live breakage. Takes an optional target — `rules` or `functions` — to do half of it.
+  - **It prints `firebase use` and asks before deploying, on purpose.** `env/dev.json` and `env/prod.json` point at the SAME project, so there is no dev target to practise on and a rules deploy reaches real users immediately. The prompt reads from `/dev/tty` first because melos pipes the script's stdout.
 - **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run build`.**
   The standalone Firebase CLI is a pkg snapshot bundling its *own* Node 20 and npm
   8.19.4, whatever the machine has; that npm crashes inside `promiseSpawnUid` reading
