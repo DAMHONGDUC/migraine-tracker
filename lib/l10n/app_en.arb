@@ -73,9 +73,14 @@
   "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal. Up to {count} attacks on the free plan.",
   "@appFeatureLogBody": {
-    "description": "Free feature: attack logging, detail"
+    "description": "Free feature: attack logging, detail. The count is the free-plan attack limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureHistoryTitle": "History and charts",
   "@appFeatureHistoryTitle": {
@@ -89,9 +94,14 @@
   "@appFeatureRemindersTitle": {
     "description": "Free feature: medication reminders"
   },
-  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
+  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips. Up to {count} reminders on the free plan.",
   "@appFeatureRemindersBody": {
-    "description": "Free feature: medication reminders, detail"
+    "description": "Free feature: medication reminders, detail. The count is the free-plan reminder limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureExportTitle": "Export your data",
   "@appFeatureExportTitle": {
@@ -2471,9 +2481,14 @@
   "@appFeatureMedicationsTitle": {
     "description": "Feature row title: the medications screen"
   },
-  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped.",
+  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped. Up to {count} medications on the free plan.",
   "@appFeatureMedicationsBody": {
-    "description": "Feature row body: the medications screen"
+    "description": "Feature row body: the medications screen. The count is the free-plan medication limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureWidgetTitle": "Home screen widget",
   "@appFeatureWidgetTitle": {

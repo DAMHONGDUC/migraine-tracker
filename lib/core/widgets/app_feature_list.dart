@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 
 import '../../features/premium/providers.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
 import 'premium_gate.dart';
@@ -72,19 +73,28 @@ enum AppFeature {
       values.where((AppFeature feature) => feature.premium);
 
   /// Title and body together, so the pair can only ever come from one branch.
+  ///
+  /// The three capped features say their limit in the row itself, and the
+  /// number comes from [PremiumLimitConstant] rather than the string: the
+  /// About screen is where a user goes to find out what the free plan holds,
+  /// and a copy of "40" in an ARB file is a copy that outlives the change
+  /// that moves the limit.
   (String, String) copy(AppLocalizations l10n) => switch (this) {
-    AppFeature.log => (l10n.appFeatureLogTitle, l10n.appFeatureLogBody),
+    AppFeature.log => (
+      l10n.appFeatureLogTitle,
+      l10n.appFeatureLogBody(PremiumLimitConstant.attacks),
+    ),
     AppFeature.history => (
       l10n.appFeatureHistoryTitle,
       l10n.appFeatureHistoryBody,
     ),
     AppFeature.medications => (
       l10n.appFeatureMedicationsTitle,
-      l10n.appFeatureMedicationsBody,
+      l10n.appFeatureMedicationsBody(PremiumLimitConstant.medications),
     ),
     AppFeature.reminders => (
       l10n.appFeatureRemindersTitle,
-      l10n.appFeatureRemindersBody,
+      l10n.appFeatureRemindersBody(PremiumLimitConstant.reminders),
     ),
     AppFeature.widget => (
       l10n.appFeatureWidgetTitle,
