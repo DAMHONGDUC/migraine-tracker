@@ -61,6 +61,7 @@ it carries the full account of the TestFlight crash behind item 12.
 | 14 | Publish the policy at `https://damhongduc.github.io/apps_privacy_policy` | A HealthKit app cannot be submitted without a reachable privacy policy URL. |
 | 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
+| 23 | Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
 | 22 | Put the WeatherKit `.p8` in Secret Manager | Never in the repo, never in `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
 | 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
 | 17b | Place the home screen widget and look at it | The extension builds, embeds and receives its data, but nothing has ever seen it drawn — the SwiftUI layout is the one unverified part. Check the log button lands on the log flow while you are there. |
