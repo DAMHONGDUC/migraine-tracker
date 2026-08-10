@@ -322,7 +322,7 @@ class PaywallScreen extends HookConsumerWidget {
             child: sheet,
           );
 
-    // ~85% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
+    // ~94% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
