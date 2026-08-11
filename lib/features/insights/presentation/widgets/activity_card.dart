@@ -43,7 +43,6 @@ class ActivityCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = context.l10n;
     // Off iOS there is no step source at all, so the free half would only
     // ever say "connect", pointing at a switch that is not there.
     final bool hasHealth = ref.watch(healthAvailableProvider);
@@ -54,9 +53,8 @@ class ActivityCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(l10n.activityCardTitle, style: AppTextStyle.titleMedium),
+            // No heading — the tab above the card is it.
             if (hasHealth) ...<Widget>[
-              SizedBox(height: SdSpacingConstant.h16),
               const _StepsSection(),
               SizedBox(height: SdContentPaddingV2.sectionGap),
               const SdDividerV2(),

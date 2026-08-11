@@ -4,69 +4,82 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
+import '../../../domain/entities/correlation_result.dart';
+import '../../../domain/entities/exertion_correlation_result.dart';
+import '../../../domain/enums/insights_tab.dart';
 import '../../../providers.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_card.dart';
 import '../../widgets/weather_card.dart';
 
+part 'insights_screen_body.dart';
+
+/// One card at a time, behind a segmented switch under the app bar.
+///
+/// The four used to stack in one scroll view, which made the screen a long
+/// column of unrelated subjects and left the card a user came for several
+/// screens down. A tab per card is the same content with a way to aim at it.
+///
+/// **The strip is built from the tabs that exist, not from the enum.** Sleep
+/// is absent off iOS, so it is four segments there and three elsewhere, and
+/// nothing offers a tab that could only say "unavailable".
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final result = ref.watch(correlationResultProvider);
-    final exertionResult = ref.watch(exertionCorrelationResultProvider);
+    final AppLocalizations l10n = context.l10n;
+    final List<InsightsTab> tabs = <InsightsTab>[
+      InsightsTab.weather,
+      InsightsTab.pressure,
+      InsightsTab.activity,
+      // iOS only: off HealthKit there is no sleep source at all.
+      if (ref.watch(healthAvailableProvider)) InsightsTab.sleep,
+    ];
+    // Fall back rather than trust the stored tab: Sleep leaves the list off
+    // iOS, and indexing a shorter strip with it would throw.
+    final InsightsTab watched = ref.watch(insightsTabProvider);
+    final InsightsTab selected = tabs.contains(watched) ? watched : tabs.first;
 
     return SdScaffoldV2(
-      title: Text(context.l10n.insightsTitle, style: AppTextStyle.titleLarge),
-      body: switch ((result, exertionResult)) {
-        (AsyncData(value: final value), AsyncData(value: final exertionValue)) =>
-          SdRefreshIndicatorV2(
-            onRefresh: () => SdRefreshIndicatorV2.run(() {
-              ref
-                ..invalidate(attacksStreamProvider)
-                ..invalidate(pressureForecastProvider)
-                ..invalidate(weatherReportProvider)
-                ..invalidate(sleepCorrelationProvider)
-                ..invalidate(rangedStepDaysProvider)
-                ..invalidate(rangedSleepNightsProvider)
-                ..invalidate(stepHoursProvider)
-                ..invalidate(stepCorrelationProvider);
-            }),
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: SdContentPaddingV2.screen(context, floatingNav: true),
-              children: [
-                // Card 1: the weather, free for everyone, with the alert it
-                // drives set from the card itself. The pressure correlation
-                // stays below it — the reading and the analysis of it are
-                // different questions, and one card carrying both was already
-                // the longest on the screen.
-                const WeatherCard(),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                PressureCard(result: value),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                // Exertion + steps on one card: both ask how much the user
-                // moved. Sleep stays its own — the night is another question.
-                ActivityCard(result: exertionValue),
-                // iOS only: off HealthKit there is no sleep source, so the
-                // card would only say "unavailable". No PremiumGate around it
-                // any more — the card's own top half is free, and gating the
-                // whole thing would hide the reading that answers "did
-                // connecting work".
-                if (ref.watch(healthAvailableProvider)) ...<Widget>[
-                  SizedBox(height: SdContentPaddingV2.sectionGap),
-                  const SleepCard(),
-                ],
+      title: Text(l10n.insightsTitle, style: AppTextStyle.titleLarge),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            // Clears the app bar; the card below still scrolls under it.
+            padding: EdgeInsets.fromLTRB(
+              SdContentPaddingV2.horizontal,
+              SdContentPaddingV2.top(context),
+              SdContentPaddingV2.horizontal,
+              0,
+            ),
+            child: SdSegmentedTabsV2(
+              selectedIndex: tabs.indexOf(selected),
+              onSelected: (int index) =>
+                  ref.read(insightsTabProvider.notifier).set(tabs[index]),
+              segments: <SdSegmentV2>[
+                for (final InsightsTab tab in tabs)
+                  SdSegmentV2(label: _label(l10n, tab)),
               ],
             ),
           ),
-        _ => const SizedBox.shrink(),
-      },
+          Expanded(child: _TabBody(tab: selected)),
+        ],
+      ),
     );
   }
+
+  /// A tab's name is its card's name — one string for both, so the segment
+  /// and the heading under it can never come to disagree.
+  String _label(AppLocalizations l10n, InsightsTab tab) => switch (tab) {
+    InsightsTab.weather => l10n.weatherCardTitle,
+    InsightsTab.pressure => l10n.insightsPressureTitle,
+    InsightsTab.activity => l10n.activityCardTitle,
+    InsightsTab.sleep => l10n.sleepCardTitle,
+  };
 }

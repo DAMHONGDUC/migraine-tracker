@@ -53,8 +53,8 @@ class WeatherCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(l10n.weatherCardTitle, style: AppTextStyle.titleMedium),
-            SizedBox(height: SdSpacingConstant.h16),
+            // No heading: the tab above the card already names it, and the
+            // two read as one label stated twice.
             if (report == null)
               // One state for offline, no permission and a backend with no
               // WeatherKit credentials — hard rule 4 makes them the same

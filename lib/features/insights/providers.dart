@@ -14,12 +14,14 @@ import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
 import 'domain/enums/health_range.dart';
+import 'domain/enums/insights_tab.dart';
 import 'domain/enums/weather_metric.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
+import 'presentation/controllers/insights_tab_controller.dart';
 import 'presentation/controllers/weather_card_controllers.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold
@@ -203,3 +205,9 @@ final sampleSleepCorrelationProvider = Provider<SleepCorrelationResult>((ref) {
         nights: SampleChartData.sleepNights(now: now),
       );
 });
+
+/// Which of Insights' cards is showing. See [InsightsTabController].
+final insightsTabProvider =
+    NotifierProvider<InsightsTabController, InsightsTab>(
+      InsightsTabController.new,
+    );

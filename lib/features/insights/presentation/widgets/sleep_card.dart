@@ -38,7 +38,6 @@ class SleepCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = context.l10n;
 
     return SdCardV2(
       child: Padding(
@@ -46,8 +45,7 @@ class SleepCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(l10n.sleepCardTitle, style: AppTextStyle.titleMedium),
-            SizedBox(height: SdSpacingConstant.h16),
+            // No heading — the tab above the card is it.
             const _NightsSection(),
             SizedBox(height: SdContentPaddingV2.sectionGap),
             const SdDividerV2(),
