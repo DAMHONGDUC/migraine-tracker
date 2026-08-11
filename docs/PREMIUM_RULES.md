@@ -110,10 +110,10 @@ Free forever, up to the limits above:
   `ActivityCard`, including the D / W / M / 6M range selector over each. They
   are the answer to "did connecting Apple Health work", so locking them would
   leave a user who just flipped the switch looking at nothing
-- **The weather**, in full: current conditions, the hourly strip, the daily
-  forecast and the details grid on `WeatherCard`, plus the 48h pressure chart
-  and `/pressure` itself. Seeing the pressure you live in is the app's own
-  promise — only the *alert* is sold
+- **The weather, in full, minus pressure**: `WeatherCard` gives every user a
+  week of days and, for the day they pick, the hours — conditions, UV, wind,
+  chance of rain, humidity and visibility. `/pressure` still opens for
+  everyone, but what it shows there is the pitch
 - Physical exertion self-report (the answer is still asked for and stored;
   only the correlation drawn from it is premium — see below)
 - Export to JSON/CSV, the export history, preview, and the GDPR wipe
@@ -121,11 +121,16 @@ Free forever, up to the limits above:
 
 Premium:
 
-- Pressure-drop push alerts — the switch and the threshold, wherever they
-  appear: `AlertsSection` on `/pressure` and the bottom half of `WeatherCard`.
-  **A free user is shown neither control**, only a badge, one line on what
-  the alert does, and Unlock. They were shown inert first; a switch that will
-  not switch reads as broken rather than as an offer
+- **Everything pressure.** The 48h forecast chart (`PressureForecastBody`,
+  which gates itself so a free user issues no WeatherKit call for it), the
+  correlation, and the drop alert — the switch and the threshold both, on
+  `/pressure` and on the bottom of `WeatherCard`. **A free user is shown
+  neither control**, only a badge, one line on what the alert does, and
+  Unlock: they were shown inert first, and a switch that will not switch
+  reads as broken rather than as an offer.
+  This is the line the free tier is drawn on now — weather is free, pressure
+  is the product. It has flipped twice; see CLAUDE.md before flipping it
+  again
 - The pressure trigger correlation
 - **The analysis half of `ActivityCard` and `SleepCard`** — the exertion
   correlation, the step correlation and the sleep correlation, together under
