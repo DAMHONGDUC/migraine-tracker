@@ -42,6 +42,11 @@ class HistoryViewToggle extends StatelessWidget {
         // Opaque fill only when glass is off; the glass supplies the surface.
         color: SdGlassV2.isSupported ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
+        // A hairline edge so the track reads as a control against the app
+        // bar behind it — frosted glass alone left its bounds guessable.
+        border: Border.all(
+          color: scheme.onSurfaceVariant.withValues(alpha: 0.28),
+        ),
       ),
       child: Stack(
         children: [
@@ -62,9 +67,12 @@ class HistoryViewToggle extends StatelessWidget {
                   horizontal: SdSpacingConstant.w4,
                   vertical: SdSpacingConstant.h4,
                 ),
+                // Solid, not a 22% wash. Over a frosted track on a dark
+                // background that tint was almost invisible, and "which view
+                // am I in" is the only thing this control says.
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.22),
+                    color: scheme.primary,
                     borderRadius: BorderRadius.circular(
                       SdSpacingConstant.r999,
                     ),
@@ -135,7 +143,9 @@ class _Segment extends StatelessWidget {
           child: SdIconV2(
             icon: icon,
             size: SdSpacingConstant.r20,
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            // Dark on the filled thumb, light off it — the pair inverts, so
+            // the selected one is legible rather than merely tinted.
+            color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
           ),
         ),
       ),
