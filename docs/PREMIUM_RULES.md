@@ -4,7 +4,7 @@ The authority on what Premium costs, what it unlocks, and what the free plan
 holds. `CLAUDE.md` points here rather than restating any of it, so there is
 one place to change when the offer changes.
 
-Last updated: 2026-08-11.
+Last updated: 2026-08-12.
 
 ## Prices
 
@@ -131,7 +131,6 @@ Premium:
   This is the line the free tier is drawn on now — weather is free, pressure
   is the product. It has flipped twice; see CLAUDE.md before flipping it
   again
-- The pressure trigger correlation
 - **The analysis half of `ActivityCard` and `SleepCard`** — the exertion
   correlation, the step correlation and the sleep correlation, together under
   one "Analysis" heading per card
