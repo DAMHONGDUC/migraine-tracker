@@ -122,7 +122,10 @@ Free forever, up to the limits above:
 Premium:
 
 - Pressure-drop push alerts — the switch and the threshold, wherever they
-  appear: `AlertsSection` on `/pressure` and the bottom half of `WeatherCard`
+  appear: `AlertsSection` on `/pressure` and the bottom half of `WeatherCard`.
+  **A free user is shown neither control**, only a badge, one line on what
+  the alert does, and Unlock. They were shown inert first; a switch that will
+  not switch reads as broken rather than as an offer
 - The pressure trigger correlation
 - **The analysis half of `ActivityCard` and `SleepCard`** — the exertion
   correlation, the step correlation and the sleep correlation, together under
