@@ -5,24 +5,24 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
-import '../../../premium/providers.dart';
 
-/// Shortcuts on one row: History (list), the History chart, and Weather.
+/// Shortcuts on one row: History (list), the History chart, and Insights.
 /// History tiles set the view mode before switching branch so they land on the
-/// right view; Weather opens `/pressure`.
+/// right view; Insights switches branch to that tab.
 ///
-/// **Weather replaced an "Add medication" tile**, whose two-line label was the
-/// only thing forcing the row taller than one line of text.
+/// **Insights replaced a Weather tile** (owner's call), which opened
+/// `/pressure` and was premium-gated because everything on that screen is
+/// sold. Insights is the free door: its weather card is free for everyone and
+/// each card gates its own analysis half, so this tile needs no lock and no
+/// paywall of its own — the shortcut lands somewhere every user has something
+/// to see.
 ///
-/// **Weather is premium-gated**, like every other way into `/pressure`: the
-/// screen is the forecast and the alert controls, both premium's, and
-/// `PressureCard` on Insights stopped opening for free users. This tile was
-/// the one door left unlocked — a wall the user could walk past.
+/// The tile it replaced had itself replaced an "Add medication" tile, whose
+/// two-line label was the only thing forcing the row taller than one line.
 ///
 /// **All three fit on the screen, and no part of the row scrolls.** Owner's
 /// rule. It was a horizontally scrolling row of fixed-width chips, where the
@@ -41,7 +41,6 @@ class QuickAccessSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final bool hasPremium = ref.watch(hasPremiumProvider);
 
     void openHistory(HistoryViewMode mode) {
       ref.read(historyViewModeProvider.notifier).select(mode);
@@ -71,16 +70,10 @@ class QuickAccessSection extends ConsumerWidget {
           ),
           Expanded(
             child: _QuickAccessCard(
-              // Locked, the glyph becomes the lock and the label stays put —
-              // the same swap the "Add reminder" button makes. A shortcut has
-              // to keep saying what it opens; it never becomes the pitch.
-              icon: hasPremium ? Icons.compress : Icons.lock_outline,
-              label: l10n.dashboardWeatherShortcut,
-              // Straight to the paywall: the lock is the announcement, so
-              // there is nothing for a dialog in front of it to add.
-              onTap: hasPremium
-                  ? () => context.pushNamed(AppRoutes.pressure.name)
-                  : () => NavigationUtils.toPaywall(context, ref),
+              // The nav bar's own Insights glyph — one icon, one destination.
+              icon: Icons.insights_outlined,
+              label: l10n.navInsights,
+              onTap: () => context.goNamed(AppRoutes.insights.name),
             ),
           ),
         ],
