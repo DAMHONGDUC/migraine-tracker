@@ -2870,5 +2870,9 @@
         "type": "String"
       }
     }
+  },
+  "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
+  "@premiumLockedPressure": {
+    "description": "The pressure card's single locked pitch, covering forecast, correlation and alert"
   }
 }

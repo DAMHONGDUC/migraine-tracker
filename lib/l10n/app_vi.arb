@@ -585,5 +585,6 @@
   "insightsAnalysisTitle": "Phân tích",
   "weatherMetricConditions": "Điều kiện",
   "weatherMetricSheetTitle": "Hiển thị",
-  "weatherRange": "{low} / {high}"
+  "weatherRange": "{low} / {high}",
+  "premiumLockedPressure": "Xem dự báo áp suất, mức độ cơn đau của bạn đi theo nó, và nhận cảnh báo trước đợt giảm tiếp theo."
 }

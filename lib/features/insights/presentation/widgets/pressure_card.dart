@@ -41,24 +41,23 @@ class PressureCard extends ConsumerWidget {
     return InsightCard(
       title: context.l10n.insightsPressureTitle,
       trailing: hasPremium ? null : const PremiumBadge(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Gates itself, and a free user issues no WeatherKit call for it.
-          const PressureForecastBody(),
-          SizedBox(height: SdContentPaddingV2.sectionGap),
-          CorrelationBody(result: result),
-          // Premium only, and NOT a second pitch when locked: the forecast
-          // above already carries the card's one Unlock button, and three
-          // stacked pitches read as three broken sections.
-          if (hasPremium) ...<Widget>[
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const SdDividerV2(),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const _AlertControls(),
-          ],
-        ],
-      ),
+      // ONE pitch for the whole card when locked, not one per section. All
+      // three sections are the same purchase, and each carrying its own line
+      // and its own button made a single offer look like three.
+      child: hasPremium
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const PressureForecastBody(),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                CorrelationBody(result: result),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                const SdDividerV2(),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                const _AlertControls(),
+              ],
+            )
+          : PremiumUnlockPrompt(message: context.l10n.premiumLockedPressure),
     );
   }
 }

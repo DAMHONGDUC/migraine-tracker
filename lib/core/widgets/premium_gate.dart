@@ -54,8 +54,6 @@ class PremiumLockedBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -74,15 +72,38 @@ class PremiumLockedBody extends ConsumerWidget {
         SizedBox(height: SdSpacingConstant.h12),
         Text(message, style: AppTextStyle.bodyMedium),
         SizedBox(height: SdSpacingConstant.h12),
-        Align(
+        const Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: SdButtonV2(
-            variant: SdButtonVariantV2.secondary,
-            onPressed: () => NavigationUtils.toPaywall(context, ref),
-            label: l10n.premiumUnlock,
-          ),
+          child: PremiumUnlockButton(),
         ),
       ],
+    );
+  }
+}
+
+/// The app's one Unlock button.
+///
+/// Every locked surface uses it — the prompts below, the locked card, the
+/// blurred chart cover — so the offer looks the same wherever it is met.
+/// Compact and small: it sits inside a card next to content, not as a
+/// screen's primary action, and at full size it read as the loudest thing on
+/// a card whose subject is something else.
+class PremiumUnlockButton extends ConsumerWidget {
+  const PremiumUnlockButton({this.variant = SdButtonVariantV2.secondary, super.key});
+
+  /// Filled only where it sits on a scrim with nothing else to compete with
+  /// (the blurred chart cover); tonal everywhere else.
+  final SdButtonVariantV2 variant;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SdButtonV2(
+      variant: variant,
+      size: SdButtonSizeV2.small,
+      compact: true,
+      icon: Icons.lock_open_outlined,
+      onPressed: () => NavigationUtils.toPaywall(context, ref),
+      label: context.l10n.premiumUnlock,
     );
   }
 }
@@ -107,15 +128,9 @@ class PremiumUnlockPrompt extends ConsumerWidget {
       children: <Widget>[
         Text(message, style: AppTextStyle.bodyMedium.secondary),
         SizedBox(height: SdSpacingConstant.h12),
-        Align(
+        const Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: SdButtonV2(
-            variant: SdButtonVariantV2.secondary,
-            size: SdButtonSizeV2.small,
-            icon: Icons.lock_open_outlined,
-            onPressed: () => NavigationUtils.toPaywall(context, ref),
-            label: context.l10n.premiumUnlock,
-          ),
+          child: PremiumUnlockButton(),
         ),
       ],
     );
@@ -184,13 +199,9 @@ class PremiumChartLock extends ConsumerWidget {
               color: context.colorScheme.surface.withValues(
                 alpha: scrimOpacity,
               ),
-              child: Center(
-                child: SdButtonV2(
+              child: const Center(
+                child: PremiumUnlockButton(
                   variant: SdButtonVariantV2.primary,
-                  size: SdButtonSizeV2.small,
-                  icon: Icons.lock_open_outlined,
-                  onPressed: () => NavigationUtils.toPaywall(context, ref),
-                  label: l10n.premiumUnlock,
                 ),
               ),
             ),

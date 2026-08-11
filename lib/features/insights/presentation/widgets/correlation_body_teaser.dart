@@ -13,13 +13,9 @@ class _Teaser extends ConsumerWidget {
       children: [
         Text(l10n.premiumLockedCorrelation, style: AppTextStyle.bodyMedium),
         SizedBox(height: SdSpacingConstant.h12),
-        Align(
+        const Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: SdButtonV2(
-            variant: SdButtonVariantV2.secondary,
-            onPressed: () => NavigationUtils.toPaywall(context, ref),
-            label: l10n.premiumUnlock,
-          ),
+          child: PremiumUnlockButton(),
         ),
       ],
     );
