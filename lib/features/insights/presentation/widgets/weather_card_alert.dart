@@ -5,10 +5,14 @@ part of 'weather_card.dart';
 /// **The one premium thing on this card.** With premium the switch and the
 /// threshold are both live here — that is the whole point of moving them onto
 /// the card, so the number and the alert it drives are read in one place.
-/// Without it the same two rows are shown inert, under a pitch: a locked
-/// control that still says what it would do sells better than a blank space,
-/// and it is the surface announcing itself as premium, so the tap goes
-/// straight to the paywall with no [RecordLimitDialog] in front.
+///
+/// **Without premium neither control is built at all** (owner's call). They
+/// were shown inert first, on the theory that a locked control still says
+/// what it would do; a switch that will not switch and a threshold that will
+/// not open read as a broken card rather than as an offer. A free user gets
+/// the pitch and one Unlock button, which is the same shape `PremiumGate`
+/// uses everywhere else — and the same rule holds, that the locked branch
+/// never builds the premium branch.
 class _AlertControls extends ConsumerWidget {
   const _AlertControls();
 
@@ -43,6 +47,10 @@ class _AlertControls extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
+    // Before the settings are even read: without premium there is no control
+    // to fill in, so the alert state is none of this branch's business.
+    if (!ref.watch(hasPremiumProvider)) return const _AlertPitch();
+
     ref.listen(alertsControllerProvider, (_, AsyncValue<AlertsSettings> next) {
       if (next.hasError && !next.isLoading) {
         SdSnackBarUtilsV2.error(context, _errorMessage(l10n, next.error));
@@ -59,8 +67,59 @@ class _AlertControls extends ConsumerWidget {
 
     if (settings == null) return const SizedBox.shrink();
 
-    final bool hasPremium = ref.watch(hasPremiumProvider);
     final double threshold = settings.thresholdHpa;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(l10n.alertsToggleTitle, style: AppTextStyle.titleMedium),
+        SizedBox(height: SdSpacingConstant.h4),
+        Text(
+          l10n.weatherAlertActiveBody(
+            l10n.onboardingThresholdValue(threshold.round()),
+          ),
+          style: AppTextStyle.bodySmall.secondary,
+        ),
+        SizedBox(height: SdSpacingConstant.h12),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary: const SdIconV2(
+            icon: Icons.notifications_active_outlined,
+          ),
+          title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
+          value: settings.enabled,
+          onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const SdIconV2(icon: Icons.compress),
+          title: Text(
+            l10n.alertsThresholdTitle,
+            style: AppTextStyle.bodyLarge,
+          ),
+          trailing: Text(
+            l10n.onboardingThresholdValue(threshold.round()),
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
+          onTap: () => _pickThreshold(context, ref, threshold),
+        ),
+      ],
+    );
+  }
+}
+
+/// What a free user gets in place of the two controls: what the alert would
+/// do, and the one way to get it.
+///
+/// No switch and no threshold row — see [_AlertControls]. The badge marks it
+/// as premium, so this goes straight to the paywall with no
+/// `RecordLimitDialog` in front: there is no record limit here to name.
+class _AlertPitch extends ConsumerWidget {
+  const _AlertPitch();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,53 +132,24 @@ class _AlertControls extends ConsumerWidget {
                 style: AppTextStyle.titleMedium,
               ),
             ),
-            if (!hasPremium) const PremiumBadge(),
+            const PremiumBadge(),
           ],
         ),
         SizedBox(height: SdSpacingConstant.h4),
         Text(
-          hasPremium
-              ? l10n.weatherAlertActiveBody(
-                  l10n.onboardingThresholdValue(threshold.round()),
-                )
-              : l10n.weatherAlertLockedBody,
+          l10n.weatherAlertLockedBody,
           style: AppTextStyle.bodySmall.secondary,
         ),
         SizedBox(height: SdSpacingConstant.h12),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          secondary: SdIconV2(
-            icon: hasPremium
-                ? Icons.notifications_active_outlined
-                : Icons.lock_outline,
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: SdButtonV2(
+            variant: SdButtonVariantV2.secondary,
+            size: SdButtonSizeV2.small,
+            icon: Icons.lock_open_outlined,
+            onPressed: () => NavigationUtils.toPaywall(context, ref),
+            label: l10n.premiumUnlock,
           ),
-          title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-          // Never on without premium, whatever a stale setting says.
-          value: hasPremium && settings.enabled == true,
-          // The chain, enforced where the user meets it: alerts need premium,
-          // premium needs an account, and the paywall asks for the account
-          // itself — so a free user goes there, not to a login screen for
-          // something they have not been offered yet.
-          onChanged: (bool value) => hasPremium
-              ? ref.read(alertsControllerProvider.notifier).setEnabled(value)
-              : NavigationUtils.toPaywall(context, ref),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: SdIconV2(
-            icon: hasPremium ? Icons.compress : Icons.lock_outline,
-          ),
-          title: Text(
-            l10n.alertsThresholdTitle,
-            style: AppTextStyle.bodyLarge,
-          ),
-          trailing: Text(
-            l10n.onboardingThresholdValue(threshold.round()),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
-          onTap: () => hasPremium
-              ? _pickThreshold(context, ref, threshold)
-              : NavigationUtils.toPaywall(context, ref),
         ),
       ],
     );

@@ -8,13 +8,18 @@ import '../../../features/alerts/providers.dart';
 import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
-import '../../router/navigation_utils.dart';
 import '../alert_threshold_dialog.dart';
+import '../premium_gate.dart';
 import '../settings_tile.dart';
 
 /// The alerts detail screen's body: enable switch + threshold. Pushed from
 /// the Settings row (`AlertsSettingsTile`), which only shows On/Off.
 /// Registration errors surface as snackbars here.
+///
+/// **Neither control is built without premium** (owner's call), same as the
+/// weather card's copy of them — a free user gets [PremiumTileGate]'s locked
+/// row instead. `/pressure` is open to everyone for the free forecast, so
+/// this is the wall, and it has to be one that cannot be half-operated.
 class AlertsSection extends ConsumerWidget {
   const AlertsSection({super.key});
 
@@ -49,6 +54,17 @@ class AlertsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
+    // Ahead of the settings read: without premium there is no control to
+    // fill in, so the alert state is none of this branch's business.
+    if (!ref.watch(hasPremiumProvider)) {
+      return PremiumTileGate(
+        icon: Icons.notifications_active_outlined,
+        title: l10n.alertsToggleTitle,
+        // Never built for a free user — that is the gate, not the styling.
+        child: const SizedBox.shrink(),
+      );
+    }
+
     ref.listen(alertsControllerProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
         SdSnackBarUtilsV2.error(context, _errorMessage(l10n, next.error));
@@ -62,26 +78,15 @@ class AlertsSection extends ConsumerWidget {
     };
     if (settings == null) return const SizedBox.shrink();
 
-    final bool hasPremium = ref.watch(hasPremiumProvider);
-
     return Column(
       children: [
         SwitchListTile(
-          secondary: SdIconV2(
-            icon: hasPremium
-                ? Icons.notifications_active_outlined
-                : Icons.lock_outline,
+          secondary: const SdIconV2(
+            icon: Icons.notifications_active_outlined,
           ),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-          // Never on without premium, whatever a stale setting says.
-          value: hasPremium && settings.enabled,
-          // The chain, enforced where the user meets it: alerts need premium,
-          // premium needs an account. The paywall asks for the account itself,
-          // so a free user goes there rather than to a login screen for
-          // something they have not been offered yet.
-          onChanged: (value) => hasPremium
-              ? ref.read(alertsControllerProvider.notifier).setEnabled(value)
-              : NavigationUtils.toPaywall(context, ref),
+          value: settings.enabled,
+          onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
         ),
         SettingsTile(
           icon: Icons.compress,
