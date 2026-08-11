@@ -19,21 +19,29 @@ class _DayStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        for (final (int index, WeatherDaily day) in week.indexed) ...<Widget>[
-          if (index > 0) SizedBox(width: gap),
-          Expanded(
-            child: _DayCell(
-              day: day,
-              isToday: index == 0,
-              isSelected: index == selected,
-              onTap: () => ref.read(weatherDayProvider.notifier).set(index),
+    // IntrinsicHeight, and it is not optional: `stretch` tells a Row its
+    // children must fill the cross axis, and inside a Column in a ListView
+    // that axis is unbounded — which asserts "BoxConstraints forces an
+    // infinite height" on every frame and takes the whole screen with it.
+    // This bounds the height to the tallest cell first, so stretch has
+    // something finite to match, and every cell comes out that height.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (final (int index, WeatherDaily day) in week.indexed) ...<Widget>[
+            if (index > 0) SizedBox(width: gap),
+            Expanded(
+              child: _DayCell(
+                day: day,
+                isToday: index == 0,
+                isSelected: index == selected,
+                onTap: () => ref.read(weatherDayProvider.notifier).set(index),
+              ),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

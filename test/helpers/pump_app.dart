@@ -980,7 +980,9 @@ Future<void> openHistoryCharts(WidgetTester tester) async {
 /// Pumps real frames so the correlation count-up (700ms) can run — one big
 /// jump skips its start frame.
 Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.insights_outlined));
+  // `.last` is the nav bar: the dashboard's quick-access tile now carries the
+  // same glyph, and the bottom bar is built after the body, so it comes last.
+  await tester.tap(find.byIcon(Icons.insights_outlined).last);
   for (int i = 0; i < 15; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
