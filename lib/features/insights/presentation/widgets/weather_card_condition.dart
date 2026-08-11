@@ -43,14 +43,6 @@ final class WeatherConditionUtils {
         null => null,
       };
 
-  static String? trend(AppLocalizations l10n, PressureTrend? trend) =>
-      switch (trend) {
-        PressureTrend.rising => l10n.weatherTrendRising,
-        PressureTrend.falling => l10n.weatherTrendFalling,
-        PressureTrend.steady => l10n.weatherTrendSteady,
-        null => null,
-      };
-
   /// A temperature as the card says it: rounded, degree sign, no unit.
   ///
   /// Null in means null out, so a caller can pass a field straight through

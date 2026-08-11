@@ -23,6 +23,29 @@ class WeatherReport {
 
   /// Whether there is anything at all worth drawing.
   bool get isEmpty => current == null && hours.isEmpty && days.isEmpty;
+
+  /// How many days the card offers. A week: far enough to plan around, near
+  /// enough that every day still has hours behind it.
+  static const int weekLength = 7;
+
+  /// The days the day-strip offers, today first.
+  List<WeatherDaily> get week => days.take(weekLength).toList();
+
+  /// The hours falling on [day], by local calendar date.
+  ///
+  /// Local and not UTC: the user picks "Wednesday" from a strip drawn in
+  /// their own timezone, so the hours under it have to be their Wednesday.
+  List<WeatherHourly> hoursOn(DateTime day) {
+    final DateTime local = day.toLocal();
+
+    return hours.where((WeatherHourly hour) {
+      final DateTime at = hour.time.toLocal();
+
+      return at.year == local.year &&
+          at.month == local.month &&
+          at.day == local.day;
+    }).toList();
+  }
 }
 
 /// Conditions at one instant — what the top of the card reads.
@@ -73,6 +96,7 @@ class WeatherHourly {
     this.precipitationChancePercent,
     this.windSpeedKph,
     this.cloudCoverPercent,
+    this.visibilityKm,
   });
 
   /// UTC, hour resolution.
@@ -90,6 +114,7 @@ class WeatherHourly {
   final double? precipitationChancePercent;
   final double? windSpeedKph;
   final double? cloudCoverPercent;
+  final double? visibilityKm;
 }
 
 /// One day of the forecast.

@@ -224,6 +224,7 @@ const bundleBody = {
         precipitationChance: 0.2,
         windSpeed: 12.5,
         cloudCover: 0.4,
+        visibility: 16000,
       },
     ],
   },
@@ -288,6 +289,9 @@ describe("fetchWeatherBundle", () => {
       precipitationChancePercent: 20,
       apparentTemperatureCelsius: 31.2,
       conditionCode: "PartlyCloudy",
+      // Hourly visibility too, not just current: the weather card offers it
+      // as one of the readings its dropdown switches between.
+      visibilityKm: 16,
     });
     expect(bundle.days[0]).toMatchObject({
       temperatureMaxCelsius: 31,

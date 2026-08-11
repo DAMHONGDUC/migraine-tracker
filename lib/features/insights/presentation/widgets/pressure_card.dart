@@ -28,17 +28,16 @@ class PressureCard extends ConsumerWidget {
 
     return InsightCard(
       title: context.l10n.insightsPressureTitle,
-      // The badge marks the alert, which is the premium half of this screen —
-      // the forecast below it is free.
+      // The badge marks the whole card now: the forecast chart and the alert
+      // are both premium, and the correlation under them already was.
       trailing: hasPremium ? null : const PremiumBadge(),
-      // Open for everyone: the detail screen carries the free forecast as
-      // well as the alert controls, and the switch there does its own gating.
+      // Still open to everyone — the screen says what it would show and how
+      // to unlock it, which is the pitch. Free weather lives on `WeatherCard`.
       onTap: () => context.pushNamed(AppRoutes.pressure.name),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Free, and fetched for everyone: seeing the pressure they live in
-          // is the app's own promise, and the alert is what is sold.
+          // Gates itself, and a free user issues no WeatherKit call for it.
           const PressureForecastBody(),
           SizedBox(height: SdContentPaddingV2.sectionGap),
           CorrelationBody(result: result),

@@ -1,6 +1,3 @@
-import 'dart:math' show min;
-
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -10,8 +7,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/utils/chart_axis_utils.dart';
-import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/alert_threshold_dialog.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -21,29 +16,29 @@ import '../../../alerts/providers.dart';
 import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/weather_report.dart';
 import '../../../weather/providers.dart';
-import '../../domain/enums/weather_view.dart';
+import '../../domain/enums/weather_metric.dart';
 import '../../providers.dart';
 
 part 'weather_card_alert.dart';
-part 'weather_card_chart.dart';
 part 'weather_card_condition.dart';
-part 'weather_card_current.dart';
-part 'weather_card_daily.dart';
-part 'weather_card_details.dart';
-part 'weather_card_hourly.dart';
+part 'weather_card_day_strip.dart';
+part 'weather_card_metric.dart';
+part 'weather_card_summary.dart';
 
-/// Insights' weather card: what the air is doing, then the alert that acts
-/// on it.
+/// Insights' weather card: pick a day, pick a reading, see it hour by hour —
+/// the shape iOS Weather uses.
 ///
-/// **The top half is free for everyone** — seeing the pressure you live in is
-/// the app's own promise (hard rule 1), and this card widens that from the
-/// pressure line alone to everything WeatherKit returns for the location.
-/// **Only the alert below is premium**, and it is the one thing on the card
-/// that gates.
+/// **The whole top half is free** (hard rule 1): seeing the weather you live
+/// in is the app's own promise. **Only the alert below is premium**, and it
+/// is the one thing on the card that gates.
 ///
-/// The card is not tappable as a whole, unlike the other insight cards: it
-/// owns a segmented control and a switch, and a card-level tap would fight
-/// both. Which is also why it carries no chevron.
+/// **There is no pressure here, deliberately.** Pressure is `/pressure`'s
+/// subject and its chart is premium; carrying it on this free card would be
+/// the same reading given away on one screen and sold on another.
+///
+/// The card is not tappable as a whole: it owns a day strip, a dropdown and
+/// a switch, and a card-level tap would fight all three. Which is also why it
+/// carries no chevron.
 class WeatherCard extends ConsumerWidget {
   const WeatherCard({super.key});
 
@@ -68,19 +63,8 @@ class WeatherCard extends ConsumerWidget {
                 l10n.weatherUnavailable,
                 style: AppTextStyle.bodyMedium.secondary,
               )
-            else ...<Widget>[
-              _Current(current: report.current),
-              SizedBox(height: SdSpacingConstant.h20),
-              _ViewToggle(),
-              SizedBox(height: SdSpacingConstant.h16),
-              _ViewBody(report: report),
-              // Apple requires the trademark wherever weather is shown.
-              SizedBox(height: SdSpacingConstant.h12),
-              Text(
-                l10n.weatherAttribution,
-                style: AppTextStyle.bodySmall.secondary,
-              ),
-            ],
+            else
+              _Forecast(report: report),
             SizedBox(height: SdContentPaddingV2.sectionGap),
             const SdDividerV2(),
             SizedBox(height: SdContentPaddingV2.sectionGap),
@@ -92,43 +76,60 @@ class WeatherCard extends ConsumerWidget {
   }
 }
 
-/// The segmented control that picks which face shows.
-class _ViewToggle extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = context.l10n;
-    final WeatherView view = ref.watch(weatherViewProvider);
-
-    return SdSegmentedTabsV2(
-      segments: <SdSegmentV2>[
-        SdSegmentV2(label: l10n.weatherViewChart),
-        SdSegmentV2(label: l10n.weatherViewHourly),
-        SdSegmentV2(label: l10n.weatherViewDaily),
-        SdSegmentV2(label: l10n.weatherViewDetails),
-      ],
-      selectedIndex: WeatherView.values.indexOf(view),
-      onSelected: (int index) =>
-          ref.read(weatherViewProvider.notifier).set(WeatherView.values[index]),
-    );
-  }
-}
-
-/// Whichever face the toggle selected.
-class _ViewBody extends ConsumerWidget {
-  const _ViewBody({required this.report});
+/// Day strip, the selected day's summary, the metric dropdown, then the
+/// hours.
+class _Forecast extends ConsumerWidget {
+  const _Forecast({required this.report});
 
   final WeatherReport report;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return switch (ref.watch(weatherViewProvider)) {
-      WeatherView.chart => _PressureChart(hours: report.hours),
-      WeatherView.hourly => _HourlyStrip(hours: report.hours),
-      WeatherView.daily => _DailyList(days: report.days),
-      WeatherView.details => _DetailsGrid(
-        current: report.current,
-        hours: report.hours,
-      ),
-    };
+    final AppLocalizations l10n = context.l10n;
+    final WeatherMetric metric = ref.watch(weatherMetricProvider);
+    final List<WeatherDaily> week = report.week;
+    // Clamped rather than trusted: the week slides forward at midnight, and
+    // a report that came back short must not index off the end of it.
+    final int selected = week.isEmpty
+        ? 0
+        : ref.watch(weatherDayProvider).clamp(0, week.length - 1);
+    final WeatherDaily? day = week.isEmpty ? null : week[selected];
+    final List<WeatherHourly> hours = day == null
+        ? report.hours
+        : report.hoursOn(day.date);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (week.isNotEmpty) ...<Widget>[
+          _DayStrip(week: week, selected: selected),
+          SizedBox(height: SdSpacingConstant.h16),
+        ],
+        _DaySummary(
+          day: day,
+          // The live reading belongs to today alone — on any other day the
+          // summary is the forecast's own high and low.
+          current: selected == 0 ? report.current : null,
+        ),
+        SizedBox(height: SdSpacingConstant.h16),
+        SdFilterChipV2<WeatherMetric>(
+          label: WeatherMetricUtils.label(l10n, metric),
+          selected: metric,
+          options: WeatherMetric.values,
+          optionLabelBuilder: (WeatherMetric value) =>
+              WeatherMetricUtils.label(l10n, value),
+          onSelected: ref.read(weatherMetricProvider.notifier).set,
+          sheetTitle: l10n.weatherMetricSheetTitle,
+        ),
+        SizedBox(height: SdSpacingConstant.h16),
+        _MetricStrip(hours: hours, metric: metric),
+        // Apple requires the trademark wherever weather is shown.
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(
+          l10n.weatherAttribution,
+          style: AppTextStyle.bodySmall.secondary,
+        ),
+      ],
+    );
   }
 }

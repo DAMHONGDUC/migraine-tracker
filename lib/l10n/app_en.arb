@@ -2692,18 +2692,6 @@
   "@weatherUnavailable": {
     "description": "Shown when the weather report could not be fetched"
   },
-  "weatherViewHourly": "Hourly",
-  "@weatherViewHourly": {
-    "description": "Weather card segment showing the hours ahead"
-  },
-  "weatherViewDaily": "Daily",
-  "@weatherViewDaily": {
-    "description": "Weather card segment showing the days ahead"
-  },
-  "weatherViewDetails": "Details",
-  "@weatherViewDetails": {
-    "description": "Weather card segment showing humidity, UV and the rest"
-  },
   "weatherNow": "Now",
   "@weatherNow": {
     "description": "Label for the current hour in the hourly strip"
@@ -2717,7 +2705,7 @@
       }
     }
   },
-  "weatherTemperature": "{value}\u00b0",
+  "weatherTemperature": "{value}°",
   "@weatherTemperature": {
     "description": "A temperature in degrees, unit-less by design",
     "placeholders": {
@@ -2778,29 +2766,9 @@
   "@weatherDetailVisibility": {
     "description": "Weather detail label"
   },
-  "weatherDetailPressure": "Pressure",
-  "@weatherDetailPressure": {
-    "description": "Weather detail label"
-  },
-  "weatherDetailCloudCover": "Cloud cover",
-  "@weatherDetailCloudCover": {
-    "description": "Weather detail label"
-  },
   "weatherDetailPrecipitation": "Chance of rain",
   "@weatherDetailPrecipitation": {
     "description": "Weather detail label"
-  },
-  "weatherTrendRising": "Rising",
-  "@weatherTrendRising": {
-    "description": "Pressure trend"
-  },
-  "weatherTrendFalling": "Falling",
-  "@weatherTrendFalling": {
-    "description": "Pressure trend"
-  },
-  "weatherTrendSteady": "Steady",
-  "@weatherTrendSteady": {
-    "description": "Pressure trend"
   },
   "weatherConditionClear": "Clear",
   "@weatherConditionClear": {
@@ -2887,12 +2855,28 @@
   "@insightsAnalysisTitle": {
     "description": "Heading of the premium half of an insight card"
   },
-  "weatherViewChart": "Chart",
-  "@weatherViewChart": {
-    "description": "Weather card segment showing the pressure line"
+  "weatherMetricConditions": "Conditions",
+  "@weatherMetricConditions": {
+    "description": "Weather card dropdown option: the hourly weather itself"
   },
-  "weatherDetailTrend": "Trend",
-  "@weatherDetailTrend": {
-    "description": "Weather detail label for the pressure trend"
+  "weatherMetricSheetTitle": "Show",
+  "@weatherMetricSheetTitle": {
+    "description": "Title of the sheet that picks which hourly reading to show"
+  },
+  "weatherToday": "Today",
+  "@weatherToday": {
+    "description": "First cell of the weather card's day strip"
+  },
+  "weatherRange": "{low} / {high}",
+  "@weatherRange": {
+    "description": "A day's low and high temperature",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -197,6 +197,7 @@ export interface WeatherHour {
   precipitationChancePercent?: number;
   windSpeedKph?: number;
   cloudCoverPercent?: number;
+  visibilityKm?: number;
 }
 
 /** Conditions right now, for the top of the weather card. */
@@ -357,6 +358,12 @@ interface ForecastHour {
   precipitationChance?: number | null;
   windSpeed?: number | null;
   cloudCover?: number | null;
+  visibility?: number | null;
+}
+
+/** Metres as Apple sends it, as the kilometres every surface says. */
+function asKm(value: number | null | undefined): number | undefined {
+  return value === null || value === undefined ? undefined : value / 1000;
 }
 
 /** A 0–1 fraction as Apple sends it, as the percentage every surface says. */
@@ -408,6 +415,7 @@ function parseHours(body: unknown): WeatherHour[] {
       precipitationChancePercent: asPercent(hour.precipitationChance),
       windSpeedKph: asNumber(hour.windSpeed),
       cloudCoverPercent: asPercent(hour.cloudCover),
+      visibilityKm: asKm(hour.visibility),
     });
   }
 
@@ -453,11 +461,7 @@ function parseCurrent(body: unknown): WeatherCurrent | undefined {
     conditionCode: asText(current.conditionCode),
     windSpeedKph: asNumber(current.windSpeed),
     cloudCoverPercent: asPercent(current.cloudCover),
-    // Metres, and every surface in the app says kilometres.
-    visibilityKm:
-      current.visibility === null || current.visibility === undefined
-        ? undefined
-        : current.visibility / 1000,
+    visibilityKm: asKm(current.visibility),
     daylight: current.daylight ?? undefined,
   };
 }

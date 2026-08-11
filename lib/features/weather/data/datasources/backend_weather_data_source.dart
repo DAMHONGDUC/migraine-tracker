@@ -27,8 +27,11 @@ class BackendWeatherDataSource {
   /// backfilled with the weather at *its* start time rather than today's.
   static const int _backfillDays = 7;
 
-  /// How far the weather card looks ahead: two days of hours, ten of days.
-  static const int _reportHoursForward = 48;
+  /// How far the weather card looks ahead.
+  ///
+  /// A week of hours, because the card's day strip offers a week and every
+  /// day on it needs hours behind it — `WeatherReport.weekLength` days at 24.
+  static const int _reportHoursForward = WeatherReport.weekLength * 24;
 
   Future<Map<Object?, Object?>?> _call({
     required double latitude,
@@ -163,6 +166,7 @@ class BackendWeatherDataSource {
       precipitationChancePercent: _double(raw['precipitationChancePercent']),
       windSpeedKph: _double(raw['windSpeedKph']),
       cloudCoverPercent: _double(raw['cloudCoverPercent']),
+      visibilityKm: _double(raw['visibilityKm']),
     );
   }
 
