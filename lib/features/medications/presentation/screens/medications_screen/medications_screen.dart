@@ -12,6 +12,7 @@ import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/medication.dart';
@@ -176,6 +177,10 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     // Gap cards leave for the bar/filter strip; fixed regardless of collapse
     // state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final filterBarHeight = SdContentPaddingV2.belowPinnedFilterBar(context);
+    // Null while premium. When shown it takes the filter strip's gap, so
+    // whatever follows starts flush against it instead of clearing the bar twice.
+    final int? used = ref.watch(medicationsUsedProvider);
+    final double contentTop = used == null ? filterBarHeight : 0;
 
     return SdCollapsingFilterScaffoldV2(
       // - While searching: title slot is the search field, close button leads.
@@ -249,12 +254,32 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            // Ahead of the first card, and ahead of the empty state too — how
+            // many the free plan holds is worth saying before any exist.
+            if (used != null)
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  SdContentPaddingV2.horizontal,
+                  filterBarHeight,
+                  SdContentPaddingV2.horizontal,
+                  SdContentPaddingV2.listItemGap,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: FreeLimitProgress(
+                    icon: Icons.medication_outlined,
+                    used: used,
+                    limit: PremiumLimitConstant.medications,
+                    titleBuilder: (int left) =>
+                        l10n.freeLimitMedications(left),
+                  ),
+                ),
+              ),
             if (medications.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 // Clears the app bar + filter strip so the empty state centers below them.
                 child: Padding(
-                  padding: EdgeInsets.only(top: filterBarHeight),
+                  padding: EdgeInsets.only(top: contentTop),
                   child: SdEmptyStateV2(
                     icon: Icons.medication_outlined,
                     message: searchQuery.trim().isEmpty
@@ -267,7 +292,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
                   SdContentPaddingV2.horizontal,
-                  filterBarHeight,
+                  contentTop,
                   SdContentPaddingV2.horizontal,
                   SdContentPaddingV2.bottom(context, floatingNav: true),
                 ),

@@ -193,6 +193,18 @@ final canAddMedicationProvider = Provider<bool>((ref) {
   return medications.length < PremiumLimitConstant.medications;
 });
 
+/// How many of the free plan's medications are spent, for
+/// [FreeLimitProgress]. Null while premium — there is no limit to draw.
+///
+/// One provider for both surfaces that show it, the medications tab and a
+/// medication's own detail screen, so the two can never count differently.
+final medicationsUsedProvider = Provider<int?>((ref) {
+  if (ref.watch(hasPremiumProvider)) return null;
+
+  return (ref.watch(medicationsStreamProvider).value ?? const <Medication>[])
+      .length;
+});
+
 /// Whether another reminder may be created.
 ///
 /// Free users get [PremiumLimitConstant.reminders] across every medication,

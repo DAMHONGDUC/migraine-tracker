@@ -1,6 +1,6 @@
 part of 'history_screen.dart';
 
-class _AttackList extends StatelessWidget {
+class _AttackList extends ConsumerWidget {
   const _AttackList({
     required this.attacks,
     required this.topInset,
@@ -16,7 +16,10 @@ class _AttackList extends StatelessWidget {
   final ValueChanged<bool> onPastFilterChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Null while premium — no limit, so nothing to show.
+    final int? used = ref.watch(attacksUsedProvider);
+
     return NotificationListener<ScrollUpdateNotification>(
       onNotification: (notification) {
         onPastFilterChanged(
@@ -38,6 +41,28 @@ class _AttackList extends StatelessWidget {
               child: _FilterRow(count: attacks.length),
             ),
           ),
+          // Under the filter row rather than above it: the pill has to start
+          // at offset 0 or `_FilterRow.scrolledPastExtent` fires while it is
+          // still on screen. Still ahead of the first attack tile.
+          if (used != null)
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                SdContentPaddingV2.horizontal,
+                0,
+                SdContentPaddingV2.horizontal,
+                SdContentPaddingV2.listItemGap,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: FreeLimitProgress(
+                  icon: Icons.edit_note_outlined,
+                  used: used,
+                  limit: PremiumLimitConstant.attacks,
+                  titleBuilder: (int left) => context.l10n.freeLimitAttacks(
+                    left,
+                  ),
+                ),
+              ),
+            ),
           if (attacks.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,

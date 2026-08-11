@@ -2653,5 +2653,35 @@
         "type": "String"
       }
     }
+  },
+  "freeLimitUsed": "{used} of {limit} used",
+  "@freeLimitUsed": {
+    "description": "Caption under the free-plan usage bar",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "freeLimitAttacks": "{count, plural, =0{No free logs left} =1{1 free log left} other{{count} free logs left}}",
+  "@freeLimitAttacks": {
+    "description": "Headline of the free-plan attack log usage indicator",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
+  "@freeLimitMedications": {
+    "description": "Headline of the free-plan medication usage indicator",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

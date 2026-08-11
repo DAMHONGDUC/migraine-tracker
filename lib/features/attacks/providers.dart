@@ -75,6 +75,18 @@ final attacksLeftProvider = Provider<int?>((ref) {
   return left <= PremiumLimitConstant.attacksWarnAt && left > 0 ? left : null;
 });
 
+/// How many of the free plan's logs are spent, for [FreeLimitProgress].
+///
+/// Null while premium, which is what hides the indicator — unlike
+/// [attacksLeftProvider] it does not go quiet as the wall approaches: History
+/// shows the count all the way along, and the dashboard banner is the one
+/// that only speaks near the end.
+final attacksUsedProvider = Provider<int?>((ref) {
+  if (ref.watch(hasPremiumProvider)) return null;
+
+  return (ref.watch(attacksStreamProvider).value ?? const <Attack>[]).length;
+});
+
 /// Owns the 3-tap flow state machine (see [LogController]).
 final logControllerProvider = NotifierProvider<LogController, LogFlowState>(
   LogController.new,
