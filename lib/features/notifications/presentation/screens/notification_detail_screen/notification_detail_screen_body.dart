@@ -48,7 +48,7 @@ class _Body extends ConsumerWidget {
         ],
       ),
       actions: <Widget>[
-        _action(context, isAlert: isAlert, medication: medication),
+        _action(context, ref, isAlert: isAlert, medication: medication),
       ],
     );
   }
@@ -91,7 +91,8 @@ class _Body extends ConsumerWidget {
   /// button rather than none: the row still says what it was, and a button
   /// that vanishes reads as a bug.
   Widget _action(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
     required bool isAlert,
     required Medication? medication,
   }) {
@@ -101,7 +102,7 @@ class _Body extends ConsumerWidget {
       return SdButtonV2(
         variant: SdButtonVariantV2.secondary,
         icon: Icons.show_chart,
-        onPressed: () => context.pushNamed<void>(AppRoutes.pressure.name),
+        onPressed: () => NavigationUtils.toPressure(context, ref),
         label: l10n.notificationPressureAction,
       );
     }

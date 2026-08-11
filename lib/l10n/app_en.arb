@@ -809,7 +809,7 @@
   "@insightsSleepTitle": {
     "description": "Title of the sleep correlation insight card"
   },
-  "insightsSleepNotConnected": "Connect Apple Health sleep in Settings to see whether your attacks follow short nights.",
+  "insightsSleepNotConnected": "Connect Apple Health sleep to see whether your attacks follow short nights.",
   "@insightsSleepNotConnected": {
     "description": "Sleep card body when Apple Health has not been connected"
   },
@@ -873,7 +873,7 @@
   "@insightsStepsTitle": {
     "description": "Title of the step correlation insight card"
   },
-  "insightsStepsNotConnected": "Connect Apple Health steps in Settings to see whether your attacks follow low-activity days.",
+  "insightsStepsNotConnected": "Connect Apple Health steps to see whether your attacks follow low-activity days.",
   "@insightsStepsNotConnected": {
     "description": "Step card body when Apple Health has not been connected"
   },
@@ -2480,9 +2480,9 @@
   "@healthSleepTitle": {
     "description": "Settings row title for the Apple Health sleep connection"
   },
-  "healthConnectFailed": "Couldn't connect to Apple Health.",
+  "healthConnectFailed": "Couldn't connect Apple Health. Try again from the Health app if it keeps failing.",
   "@healthConnectFailed": {
-    "description": "Error snackbar when the HealthKit authorization sheet could not be completed"
+    "description": "Shown when the Apple Health permission sheet did not complete"
   },
   "commonDurationHoursMinutes": "{hours}h {minutes}m",
   "@commonDurationHoursMinutes": {

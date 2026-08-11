@@ -6,7 +6,6 @@ import '../health/domain/entities/sleep_night.dart';
 import '../health/domain/entities/step_day.dart';
 import '../health/domain/entities/step_hour.dart';
 import '../health/providers.dart';
-import '../history/domain/services/sample_chart_data.dart';
 import '../weather/domain/entities/daily_pressure.dart';
 import '../weather/providers.dart';
 import 'domain/entities/correlation_result.dart';
@@ -180,32 +179,6 @@ final rangedSleepNightsProvider = FutureProvider<List<SleepNight>>((ref) async {
         to: now,
       );
 });
-
-/// The fabricated results behind a locked analysis card.
-///
-/// Run through the SAME engines as the real ones, so a blurred preview cannot
-/// drift from what premium actually unlocks — and built from
-/// [SampleChartData], never the user's own attacks: a cover over real numbers
-/// still leaves them in the tree, one screenshot away.
-final sampleExertionCorrelationProvider = Provider<ExertionCorrelationResult>((
-  ref,
-) {
-  return ref
-      .watch(exertionCorrelationEngineProvider)
-      .analyze(SampleChartData.attacks(now: DateTime.now()));
-});
-
-final sampleSleepCorrelationProvider = Provider<SleepCorrelationResult>((ref) {
-  final DateTime now = DateTime.now();
-
-  return ref
-      .watch(sleepCorrelationEngineProvider)
-      .analyze(
-        attacks: SampleChartData.attacks(now: now),
-        nights: SampleChartData.sleepNights(now: now),
-      );
-});
-
 /// Which of Insights' cards is showing. See [InsightsTabController].
 final insightsTabProvider =
     NotifierProvider<InsightsTabController, InsightsTab>(

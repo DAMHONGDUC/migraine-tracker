@@ -87,6 +87,41 @@ class PremiumLockedBody extends ConsumerWidget {
   }
 }
 
+/// The smallest locked state there is: one line saying what premium would
+/// show here, and the button that gets it.
+///
+/// No badge and no blur. For a slot INSIDE a card that already carries its
+/// own `PremiumBadge` — repeating the badge per section, or covering each one
+/// with a blurred sample, made a single card look like three separate pitches
+/// stacked up.
+class PremiumUnlockPrompt extends ConsumerWidget {
+  const PremiumUnlockPrompt({required this.message, super.key});
+
+  /// Already localized: what premium would show in this slot.
+  final String message;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(message, style: AppTextStyle.bodyMedium.secondary),
+        SizedBox(height: SdSpacingConstant.h12),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: SdButtonV2(
+            variant: SdButtonVariantV2.secondary,
+            size: SdButtonSizeV2.small,
+            icon: Icons.lock_open_outlined,
+            onPressed: () => NavigationUtils.toPaywall(context, ref),
+            label: context.l10n.premiumUnlock,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _LockedCard extends StatelessWidget {
   const _LockedCard({required this.message, required this.icon});
 

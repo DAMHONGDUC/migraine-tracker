@@ -8,13 +8,11 @@ class _NightsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    // The switch lives on `/sleep`. The Apple Health sheet is only ever
-    // raised on the screen that owns it, so this says where to go rather
-    // than offering a Connect button here.
+    // The sheet is raised right here now (owner's call), same as steps.
     if (!ref.watch(healthControllerProvider).sleep) {
-      return Text(
-        l10n.insightsSleepNotConnected,
-        style: AppTextStyle.bodyMedium.secondary,
+      return HealthConnectPrompt(
+        kind: HealthDataKind.sleep,
+        message: l10n.insightsSleepNotConnected,
       );
     }
 

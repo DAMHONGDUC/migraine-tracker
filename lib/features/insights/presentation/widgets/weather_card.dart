@@ -4,22 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/alert_threshold_dialog.dart';
-import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
-import '../../../alerts/domain/entities/alerts_settings.dart';
-import '../../../alerts/domain/enums/alert_registration_error.dart';
-import '../../../alerts/providers.dart';
-import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/weather_report.dart';
 import '../../../weather/providers.dart';
 import '../../domain/enums/weather_metric.dart';
 import '../../providers.dart';
 
-part 'weather_card_alert.dart';
 part 'weather_card_condition.dart';
 part 'weather_card_day_strip.dart';
 part 'weather_card_metric.dart';
@@ -28,17 +20,16 @@ part 'weather_card_summary.dart';
 /// Insights' weather card: pick a day, pick a reading, see it hour by hour —
 /// the shape iOS Weather uses.
 ///
-/// **The whole top half is free** (hard rule 1): seeing the weather you live
-/// in is the app's own promise. **Only the alert below is premium**, and it
-/// is the one thing on the card that gates.
+/// **The whole card is free** (hard rule 1): seeing the weather you live in
+/// is the app's own promise, and nothing here gates.
 ///
-/// **There is no pressure here, deliberately.** Pressure is `/pressure`'s
-/// subject and its chart is premium; carrying it on this free card would be
-/// the same reading given away on one screen and sold on another.
+/// **No pressure, deliberately** — not the reading and not the alert. Both
+/// belong to `PressureCard`, which is where they are sold; the alert sat here
+/// first, which put a threshold next to readings it has nothing to do with.
 ///
-/// The card is not tappable as a whole: it owns a day strip, a dropdown and
-/// a switch, and a card-level tap would fight all three. Which is also why it
-/// carries no chevron.
+/// The card is not tappable as a whole: it owns a day strip and a dropdown,
+/// and a card-level tap would fight both. Which is also why it carries no
+/// chevron.
 class WeatherCard extends ConsumerWidget {
   const WeatherCard({super.key});
 
@@ -65,10 +56,6 @@ class WeatherCard extends ConsumerWidget {
               )
             else
               _Forecast(report: report),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const SdDividerV2(),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const _AlertControls(),
           ],
         ),
       ),

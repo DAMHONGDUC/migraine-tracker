@@ -12,7 +12,6 @@ import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/activity_screen/activity_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
-import '../../features/insights/presentation/screens/pressure_screen/pressure_screen.dart';
 import '../../features/insights/presentation/screens/sleep_screen/sleep_screen.dart';
 import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
@@ -114,7 +113,6 @@ final class AppRoutes {
 
   /// Forecast, correlation and the alert controls together. Pushed from
   /// Insights' pressure card and from the Settings row.
-  static const pressure = AppRoute(name: 'pressure', path: '/pressure');
 
   /// Exertion, steps and the step connect switch. Pushed from Insights'
   /// activity card and from the Settings row.
@@ -225,11 +223,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ExportPreviewScreen(
           exportId: state.pathParameters[AppRoutes.exportIdParam]!,
         ),
-      ),
-      GoRoute(
-        name: AppRoutes.pressure.name,
-        path: AppRoutes.pressure.path,
-        builder: (context, state) => const PressureScreen(),
       ),
       GoRoute(
         name: AppRoutes.activity.name,

@@ -46,11 +46,7 @@ class _Analysis extends ConsumerWidget {
             ],
           )
         else
-          PremiumChartLock(
-            sample: ExertionCorrelationBody(
-              result: ref.watch(sampleExertionCorrelationProvider),
-            ),
-          ),
+          PremiumUnlockPrompt(message: l10n.premiumLockedSteps),
       ],
     );
   }

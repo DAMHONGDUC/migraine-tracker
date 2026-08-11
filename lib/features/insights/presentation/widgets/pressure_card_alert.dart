@@ -1,10 +1,11 @@
-part of 'weather_card.dart';
+part of 'pressure_card.dart';
 
-/// The pressure alert, set from the card itself.
+/// The pressure alert, set from the pressure card itself.
 ///
-/// **The one premium thing on this card.** With premium the switch and the
-/// threshold are both live here — that is the whole point of moving them onto
-/// the card, so the number and the alert it drives are read in one place.
+/// **It lives with the forecast it acts on.** It sat on the weather card
+/// first, which put the threshold next to readings it has nothing to do with;
+/// pressure is its subject, so it belongs under the pressure line. There is
+/// no detail screen behind it any more — this IS where alerts are set.
 ///
 /// **Without premium neither control is built at all** (owner's call). They
 /// were shown inert first, on the theory that a locked control still says

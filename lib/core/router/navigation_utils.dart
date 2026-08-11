@@ -4,6 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../features/attacks/providers.dart';
 import '../../features/auth/providers.dart';
+import '../../features/insights/domain/enums/insights_tab.dart';
+import '../../features/insights/providers.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
@@ -42,6 +44,16 @@ final class NavigationUtils {
 
     ref.read(logControllerProvider.notifier).reset();
     if (context.mounted) await context.pushNamed<void>(AppRoutes.log.name);
+  }
+
+  /// Insights, with the pressure card showing.
+  ///
+  /// The rule is why this lives here: `/pressure` is gone — the alert is set
+  /// on the card now — so "take me to pressure" is a tab selection plus a
+  /// branch switch, and two call sites would otherwise each half-remember it.
+  static void toPressure(BuildContext context, WidgetRef ref) {
+    ref.read(insightsTabProvider.notifier).set(InsightsTab.pressure);
+    context.goNamed(AppRoutes.insights.name);
   }
 
   /// One notification in full. Both the list's rows and a tapped OS

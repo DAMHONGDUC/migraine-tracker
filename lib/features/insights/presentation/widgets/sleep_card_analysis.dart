@@ -2,8 +2,8 @@ part of 'sleep_card.dart';
 
 /// The premium half: whether attacks follow short nights.
 ///
-/// Free users see the shape of it blurred, drawn from the sample nights, not
-/// their own — same rule as [ActivityCard]'s analysis.
+/// Free users get one line and an Unlock button, no blurred sample — same
+/// call as [ActivityCard]'s analysis.
 class _Analysis extends ConsumerWidget {
   const _Analysis();
 
@@ -30,11 +30,7 @@ class _Analysis extends ConsumerWidget {
         if (hasPremium)
           const SleepCorrelationBody()
         else
-          PremiumChartLock(
-            sample: SleepCorrelationBody(
-              result: ref.watch(sampleSleepCorrelationProvider),
-            ),
-          ),
+          PremiumUnlockPrompt(message: l10n.premiumLockedSleep),
       ],
     );
   }

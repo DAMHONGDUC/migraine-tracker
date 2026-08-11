@@ -8,13 +8,12 @@ class _StepsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    // The switch itself lives on `/activity`. A Connect button here would
-    // raise the Apple Health sheet from a card, and the prompt is only ever
-    // raised on the screen that owns the switch.
+    // The sheet is raised right here now (owner's call) — the user is
+    // looking at the empty reading, so the fix belongs where they look.
     if (!ref.watch(healthControllerProvider).steps) {
-      return Text(
-        l10n.insightsStepsNotConnected,
-        style: AppTextStyle.bodyMedium.secondary,
+      return HealthConnectPrompt(
+        kind: HealthDataKind.steps,
+        message: l10n.insightsStepsNotConnected,
       );
     }
 

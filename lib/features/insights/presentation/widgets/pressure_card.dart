@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/router/app_router.dart';
+import '../../../../core/router/navigation_utils.dart';
+import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/alert_threshold_dialog.dart';
 import '../../../../core/widgets/premium_gate.dart';
+import '../../../../l10n/gen/app_localizations.dart';
+import '../../../alerts/domain/entities/alerts_settings.dart';
+import '../../../alerts/domain/enums/alert_registration_error.dart';
+import '../../../alerts/providers.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 import 'pressure_forecast_body.dart';
 
-/// Insights' one pressure entry: the forecast and the correlation on a single
-/// card, opening the detail screen where the alert controls live.
+part 'pressure_card_alert.dart';
+
+/// Everything pressure, on one card: the forecast, what it has done to this
+/// user, and the alert that acts on both.
 ///
-/// Two cards before, which put the same subject in two places and neither of
-/// them next to the alert it drives.
+/// **There is no detail screen behind it.** `/pressure` existed to hold the
+/// alert controls; they are here now, so the card is the destination rather
+/// than a preview of one — which is why it takes no `onTap` and draws no
+/// chevron.
+///
+/// The whole card is premium: the forecast chart gates itself, the
+/// correlation already did, and the alert is what is being sold.
 class PressureCard extends ConsumerWidget {
   const PressureCard({required this.result, super.key});
 
@@ -24,16 +36,11 @@ class PressureCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasPremium = ref.watch(hasPremiumProvider);
+    final bool hasPremium = ref.watch(hasPremiumProvider);
 
     return InsightCard(
       title: context.l10n.insightsPressureTitle,
-      // The badge marks the whole card now: the forecast chart and the alert
-      // are both premium, and the correlation under them already was.
       trailing: hasPremium ? null : const PremiumBadge(),
-      // Still open to everyone — the screen says what it would show and how
-      // to unlock it, which is the pitch. Free weather lives on `WeatherCard`.
-      onTap: () => context.pushNamed(AppRoutes.pressure.name),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -41,6 +48,15 @@ class PressureCard extends ConsumerWidget {
           const PressureForecastBody(),
           SizedBox(height: SdContentPaddingV2.sectionGap),
           CorrelationBody(result: result),
+          // Premium only, and NOT a second pitch when locked: the forecast
+          // above already carries the card's one Unlock button, and three
+          // stacked pitches read as three broken sections.
+          if (hasPremium) ...<Widget>[
+            SizedBox(height: SdContentPaddingV2.sectionGap),
+            const SdDividerV2(),
+            SizedBox(height: SdContentPaddingV2.sectionGap),
+            const _AlertControls(),
+          ],
         ],
       ),
     );

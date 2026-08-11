@@ -43,10 +43,7 @@ class PressureForecastBody extends ConsumerWidget {
     // Cardless: this body is always drawn inside someone else's card, so a
     // `PremiumGate` here would put a card inside a card.
     if (!ref.watch(hasPremiumProvider)) {
-      return PremiumLockedBody(
-        icon: Icons.show_chart,
-        message: context.l10n.premiumLockedForecast,
-      );
+      return PremiumUnlockPrompt(message: context.l10n.premiumLockedForecast);
     }
 
     final forecast = ref.watch(pressureForecastProvider);
