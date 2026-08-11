@@ -9,7 +9,7 @@ import '../../domain/enums/weather_view.dart';
 /// snapped back to "Hourly" every time would read as a bug.
 class WeatherViewController extends Notifier<WeatherView> {
   @override
-  WeatherView build() => WeatherView.hourly;
+  WeatherView build() => WeatherView.chart;
 
   void set(WeatherView view) => state = view;
 }

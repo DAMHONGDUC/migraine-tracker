@@ -1,3 +1,6 @@
+import 'dart:math' show min;
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +10,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/chart_axis_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/alert_threshold_dialog.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -20,6 +25,7 @@ import '../../domain/enums/weather_view.dart';
 import '../../providers.dart';
 
 part 'weather_card_alert.dart';
+part 'weather_card_chart.dart';
 part 'weather_card_condition.dart';
 part 'weather_card_current.dart';
 part 'weather_card_daily.dart';
@@ -95,6 +101,7 @@ class _ViewToggle extends ConsumerWidget {
 
     return SdSegmentedTabsV2(
       segments: <SdSegmentV2>[
+        SdSegmentV2(label: l10n.weatherViewChart),
         SdSegmentV2(label: l10n.weatherViewHourly),
         SdSegmentV2(label: l10n.weatherViewDaily),
         SdSegmentV2(label: l10n.weatherViewDetails),
@@ -115,6 +122,7 @@ class _ViewBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return switch (ref.watch(weatherViewProvider)) {
+      WeatherView.chart => _PressureChart(hours: report.hours),
       WeatherView.hourly => _HourlyStrip(hours: report.hours),
       WeatherView.daily => _DailyList(days: report.days),
       WeatherView.details => _DetailsGrid(

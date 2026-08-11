@@ -591,5 +591,7 @@
   "healthRangeEmpty": "Không có dữ liệu trong khoảng này.",
   "activityCardTitle": "Vận động",
   "sleepCardTitle": "Giấc ngủ",
-  "insightsAnalysisTitle": "Phân tích"
+  "insightsAnalysisTitle": "Phân tích",
+  "weatherViewChart": "Biểu đồ",
+  "weatherDetailTrend": "Xu hướng"
 }

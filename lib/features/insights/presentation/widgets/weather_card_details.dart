@@ -15,8 +15,18 @@ class _DetailsGrid extends StatelessWidget {
   /// Two to a row, like the log flow's option grids.
   static const int _columns = 2;
 
-  /// Wide enough for a label and its value side by side at the design width.
-  static const double _cellAspectRatio = 2.6;
+  /// The cell's height, stated outright rather than derived from an aspect
+  /// ratio.
+  ///
+  /// A ratio ties height to width, and the width here is whatever is left of
+  /// the screen after the gutter, the card and the column gap — so the cell
+  /// was 60pt tall for 64pt of content and every tile overflowed. Summed from
+  /// what is actually in one: the padding, the label row, the gap, the value.
+  static double get _cellHeight =>
+      SdSpacingConstant.h12 * 2 +
+      SdSpacingConstant.h20 +
+      SdSpacingConstant.h4 +
+      SdSpacingConstant.h24;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +65,16 @@ class _DetailsGrid extends StatelessWidget {
           icon: Icons.compress,
           label: l10n.weatherDetailPressure,
           value: l10n.insightsPressureValue('${value.round()}'),
-          // The trend is the one thing on this card the alert acts on, so it
-          // rides along with the reading rather than needing its own cell.
-          caption: WeatherConditionUtils.trend(l10n, now?.pressureTrend),
+        ),
+      // Its own cell rather than a second line inside the pressure one: a
+      // cell that is taller than its neighbours makes the whole grid taller,
+      // and every tile then carries the empty line the trend needed.
+      if (WeatherConditionUtils.trend(l10n, now?.pressureTrend)
+          case final String trend)
+        _Detail(
+          icon: Icons.trending_down,
+          label: l10n.weatherDetailTrend,
+          value: trend,
         ),
       if (now?.cloudCoverPercent case final double value)
         _Detail(
@@ -91,7 +108,7 @@ class _DetailsGrid extends StatelessWidget {
         crossAxisCount: _columns,
         crossAxisSpacing: SdSpacingConstant.w8,
         mainAxisSpacing: SdSpacingConstant.h8,
-        childAspectRatio: _cellAspectRatio,
+        mainAxisExtent: _cellHeight,
       ),
       itemBuilder: (BuildContext context, int index) =>
           _DetailCell(detail: details[index]),
@@ -100,12 +117,14 @@ class _DetailsGrid extends StatelessWidget {
 }
 
 /// One reading, ready to draw.
+///
+/// No optional extra line: every cell is the same two rows, which is what
+/// lets the grid state one height for all of them.
 class _Detail {
   const _Detail({
     required this.icon,
     required this.label,
     required this.value,
-    this.caption,
   });
 
   final IconData icon;
@@ -113,9 +132,6 @@ class _Detail {
   /// Both already localized.
   final String label;
   final String value;
-
-  /// An extra word under the value, where one adds something.
-  final String? caption;
 }
 
 class _DetailCell extends StatelessWidget {
@@ -161,13 +177,6 @@ class _DetailCell extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          if (detail.caption case final String caption)
-            Text(
-              caption,
-              style: AppTextStyle.bodySmall.secondary,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
         ],
       ),
     );
