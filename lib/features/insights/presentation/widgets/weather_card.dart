@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/weather_attribution.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../weather/domain/entities/weather_report.dart';
 import '../../../weather/providers.dart';
@@ -54,8 +55,15 @@ class WeatherCard extends ConsumerWidget {
                 l10n.weatherUnavailable,
                 style: AppTextStyle.bodyMedium.secondary,
               )
-            else
+            else ...<Widget>[
               _Forecast(report: report),
+              // Bottom-right of the card, always, whenever Apple's data is
+              // what was drawn. The real widget, not a plain Text: WeatherKit
+              // requires the mark to LINK to Apple's attribution page, and
+              // App Review checks for it.
+              SizedBox(height: SdSpacingConstant.h12),
+              const WeatherAttribution(),
+            ],
           ],
         ),
       ),
@@ -119,12 +127,6 @@ class _Forecast extends ConsumerWidget {
         ),
         SizedBox(height: SdSpacingConstant.h16),
         _MetricStrip(hours: hours, metric: metric),
-        // Apple requires the trademark wherever weather is shown.
-        SizedBox(height: SdSpacingConstant.h12),
-        Text(
-          l10n.weatherAttribution,
-          style: AppTextStyle.bodySmall.secondary,
-        ),
       ],
     );
   }
