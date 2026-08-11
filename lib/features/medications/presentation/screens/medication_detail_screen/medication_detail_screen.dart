@@ -215,7 +215,6 @@ class MedicationDetailScreen extends ConsumerWidget {
           // one budget, never a second tally that could disagree.
           if (used != null)
             FreeLimitProgress(
-              icon: Icons.medication_outlined,
               used: used,
               limit: PremiumLimitConstant.medications,
               titleBuilder: (int left) => l10n.freeLimitMedications(left),

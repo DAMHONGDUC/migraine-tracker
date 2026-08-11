@@ -54,7 +54,6 @@ class _AttackList extends ConsumerWidget {
               ),
               sliver: SliverToBoxAdapter(
                 child: FreeLimitProgress(
-                  icon: Icons.edit_note_outlined,
                   used: used,
                   limit: PremiumLimitConstant.attacks,
                   titleBuilder: (int left) => context.l10n.freeLimitAttacks(

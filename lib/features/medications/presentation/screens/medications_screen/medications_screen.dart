@@ -266,7 +266,6 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 ),
                 sliver: SliverToBoxAdapter(
                   child: FreeLimitProgress(
-                    icon: Icons.medication_outlined,
                     used: used,
                     limit: PremiumLimitConstant.medications,
                     titleBuilder: (int left) =>
