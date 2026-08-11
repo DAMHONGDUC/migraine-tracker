@@ -15,34 +15,34 @@ import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
 import '../../widgets/dashboard_summary_group.dart';
 import '../../widgets/next_reminder_banner.dart';
-import '../../widgets/premium_countdown_banner.dart';
 import '../../widgets/quick_access_section.dart';
 
 /// The app's home tab (replaces the old Log tab). A calm, scrollable overview,
-/// top to bottom: premium nudge (free users), the log call-to-action, the next
-/// medication reminder (when one is scheduled), this-week stats, quick-access
-/// shortcuts, and the feature banners. Logging itself opens as a pushed route
-/// from [DashboardLogButton] — the 3-tap flow is unchanged.
+/// top to bottom: the log call-to-action, the next medication reminder (when
+/// one is scheduled), this-week stats, quick-access shortcuts, and the feature
+/// banners. Logging itself opens as a pushed route from [DashboardLogButton] —
+/// the 3-tap flow is unchanged.
+///
+/// The premium promo used to sit here and now leads Settings instead (owner's
+/// call). [AttackLimitBanner] stays: the log wall lands mid-attack, so it has
+/// to be announced somewhere calm first.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final showPremium = !ref.watch(hasPremiumProvider);
     final nextReminder = ref.watch(nextReminderProvider);
     // Null unless the free plan's log limit is close (see attacksLeftProvider).
     final int? logsLeft = ref.watch(attacksLeftProvider);
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
-      // A limited-time discount promo pinned right under the app bar.
       const DashboardLogButton(),
       // Directly under the button it warns about, and only in the last few
       // logs — the wall itself lands mid-attack, so it must not be news.
       if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
-      if (showPremium) const PremiumCountdownBanner(),
       if (nextReminder != null) const NextReminderBanner(),
       // Unconditional, owner's call: hidden until the first attack it left a
       // new install with a log button and a grid of links and nothing in
