@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+// KeepAliveLink is not in the main barrel.
+import 'package:hooks_riverpod/misc.dart' show KeepAliveLink;
 
 import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
@@ -33,12 +37,36 @@ final pressureForecastProvider = FutureProvider.autoDispose(
   (ref) => ref.watch(weatherRepositoryProvider).pressureForecast(),
 );
 
+/// How long a fetched report is kept after nothing is watching it.
+///
+/// Matches the backend's own cache TTL: past it the callable would answer
+/// from a fresh WeatherKit fetch anyway, so holding it longer would serve
+/// numbers the server has already replaced.
+const Duration weatherReportTtl = Duration(minutes: 60);
+
 /// Everything the weather card draws. Null = offline, no permission, or a
 /// backend with no WeatherKit credentials — the card shows one unavailable
 /// state for all of them (hard rule 4).
-final weatherReportProvider = FutureProvider.autoDispose(
-  (ref) => ref.watch(weatherRepositoryProvider).report(),
-);
+///
+/// **Kept alive for [weatherReportTtl] after its last listener goes.** The
+/// card is built only on the Insights weather tab, so plain `autoDispose`
+/// threw the report away on every tab switch and refetched on the way back —
+/// which emptied the card for the length of a round trip each time. Holding
+/// it means switching tabs is silent: the same data is still there.
+///
+/// Still `autoDispose` underneath, so it does eventually go rather than
+/// pinning a location-derived payload in memory for the whole session.
+final weatherReportProvider = FutureProvider.autoDispose((ref) {
+  // One timer, and it is cancelled on dispose: an uncancelled one outlives
+  // the provider, and a widget test then fails on a pending timer rather than
+  // on anything it was testing.
+  final KeepAliveLink link = ref.keepAlive();
+  final Timer expiry = Timer(weatherReportTtl, link.close);
+
+  ref.onDispose(expiry.cancel);
+
+  return ref.watch(weatherRepositoryProvider).report();
+});
 
 final dailyPressureRepositoryProvider = Provider<DailyPressureRepository>(
   (ref) => DriftDailyPressureRepository(ref.watch(databaseProvider)),
