@@ -6,6 +6,7 @@ import '../../features/attacks/providers.dart';
 import '../../features/auth/providers.dart';
 import '../../features/insights/domain/enums/insights_tab.dart';
 import '../../features/insights/providers.dart';
+import '../../features/premium/providers.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
@@ -50,9 +51,27 @@ final class NavigationUtils {
   ///
   /// The rule is why this lives here: `/pressure` is gone — the alert is set
   /// on the card now — so "take me to pressure" is a tab selection plus a
-  /// branch switch, and two call sites would otherwise each half-remember it.
-  static void toPressure(BuildContext context, WidgetRef ref) {
+  /// branch switch, and three call sites would otherwise each half-remember
+  /// it.
+  ///
+  /// [highlightAlert] is for the doors that mean *alerts* rather than
+  /// pressure in general — the dashboard tile, the Settings row, the alert
+  /// notification. The switch is the last thing on a tall card, so landing on
+  /// the card without pointing at it leaves the user hunting.
+  ///
+  /// **Only with premium**, and that check belongs here rather than at each
+  /// call site: without it the card renders one pitch and no controls, so
+  /// there would be no row to scroll to and the request would sit unconsumed
+  /// until it fired at some unrelated later visit.
+  static void toPressure(
+    BuildContext context,
+    WidgetRef ref, {
+    bool highlightAlert = false,
+  }) {
     ref.read(insightsTabProvider.notifier).set(InsightsTab.pressure);
+    if (highlightAlert && ref.read(hasPremiumProvider)) {
+      ref.read(pressureAlertHighlightProvider.notifier).request();
+    }
     context.goNamed(AppRoutes.insights.name);
   }
 

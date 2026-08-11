@@ -14,8 +14,59 @@ part of 'pressure_card.dart';
 /// the pitch and one Unlock button, which is the same shape `PremiumGate`
 /// uses everywhere else — and the same rule holds, that the locked branch
 /// never builds the premium branch.
-class _AlertControls extends ConsumerWidget {
+class _AlertControls extends ConsumerStatefulWidget {
   const _AlertControls();
+
+  /// How long the row stays lit after being scrolled to. Long enough to find
+  /// with the eye, short enough not to become part of the design.
+  static const Duration highlightHold = Duration(milliseconds: 1800);
+
+  @override
+  ConsumerState<_AlertControls> createState() => _AlertControlsState();
+}
+
+class _AlertControlsState extends ConsumerState<_AlertControls> {
+  /// Anchors `Scrollable.ensureVisible` on the switch row itself, not on the
+  /// section — the section's top is already on screen when the card is.
+  final GlobalKey _rowKey = GlobalKey();
+  Timer? _fade;
+  bool _lit = false;
+
+  @override
+  void dispose() {
+    _fade?.cancel();
+    super.dispose();
+  }
+
+  /// Consumes the pending request, scrolls the row up and lights it.
+  ///
+  /// Runs after the frame: it is triggered from `build`, and both the scroll
+  /// and the provider write are things a build must not do while it is
+  /// running.
+  void _reveal() {
+    if (!mounted) return;
+
+    ref.read(pressureAlertHighlightProvider.notifier).consume();
+
+    final BuildContext? row = _rowKey.currentContext;
+
+    if (row != null) {
+      Scrollable.ensureVisible(
+        row,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+        // Centred rather than merely on-screen: the row is the last thing on
+        // a tall card, so "just visible" leaves it against the bottom edge.
+        alignment: 0.5,
+      );
+    }
+
+    setState(() => _lit = true);
+    _fade?.cancel();
+    _fade = Timer(_AlertControls.highlightHold, () {
+      if (mounted) setState(() => _lit = false);
+    });
+  }
 
   String _errorMessage(AppLocalizations l10n, Object? error) => switch (error) {
     AlertRegistrationException(:final error) => switch (error) {
@@ -45,12 +96,15 @@ class _AlertControls extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    // Before the settings are even read: without premium there is no control
-    // to fill in, so the alert state is none of this branch's business.
-    if (!ref.watch(hasPremiumProvider)) return const _AlertPitch();
+    // Watched, not listened to: the request is usually set before this card
+    // is built at all, so a listener would be subscribing to something that
+    // has already fired.
+    if (ref.watch(pressureAlertHighlightProvider)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
+    }
 
     ref.listen(alertsControllerProvider, (_, AsyncValue<AlertsSettings> next) {
       if (next.hasError && !next.isLoading) {
@@ -82,14 +136,28 @@ class _AlertControls extends ConsumerWidget {
           style: AppTextStyle.bodySmall.secondary,
         ),
         SizedBox(height: SdSpacingConstant.h12),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          secondary: const SdIconV2(
-            icon: Icons.notifications_active_outlined,
+        // A tint that fades in and back out — calm, no flash (hard rule 3).
+        AnimatedContainer(
+          key: _rowKey,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: _lit
+                ? context.colorScheme.primary.withValues(alpha: 0.16)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
-          title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-          value: settings.enabled,
-          onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: SdSpacingConstant.w8,
+            ),
+            secondary: const SdIconV2(
+              icon: Icons.notifications_active_outlined,
+            ),
+            title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
+            value: settings.enabled,
+            onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
+          ),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
@@ -103,54 +171,6 @@ class _AlertControls extends ConsumerWidget {
             style: AppTextStyle.bodyMedium.secondary,
           ),
           onTap: () => _pickThreshold(context, ref, threshold),
-        ),
-      ],
-    );
-  }
-}
-
-/// What a free user gets in place of the two controls: what the alert would
-/// do, and the one way to get it.
-///
-/// No switch and no threshold row — see [_AlertControls]. The badge marks it
-/// as premium, so this goes straight to the paywall with no
-/// `RecordLimitDialog` in front: there is no record limit here to name.
-class _AlertPitch extends ConsumerWidget {
-  const _AlertPitch();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = context.l10n;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                l10n.alertsToggleTitle,
-                style: AppTextStyle.titleMedium,
-              ),
-            ),
-            const PremiumBadge(),
-          ],
-        ),
-        SizedBox(height: SdSpacingConstant.h4),
-        Text(
-          l10n.weatherAlertLockedBody,
-          style: AppTextStyle.bodySmall.secondary,
-        ),
-        SizedBox(height: SdSpacingConstant.h12),
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: SdButtonV2(
-            variant: SdButtonVariantV2.secondary,
-            size: SdButtonSizeV2.small,
-            icon: Icons.lock_open_outlined,
-            onPressed: () => NavigationUtils.toPaywall(context, ref),
-            label: l10n.premiumUnlock,
-          ),
         ),
       ],
     );

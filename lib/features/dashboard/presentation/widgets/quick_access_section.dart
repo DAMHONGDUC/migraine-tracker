@@ -76,7 +76,8 @@ class QuickAccessSection extends ConsumerWidget {
         // Through NavigationUtils, like the Settings row: the alert lives on
         // Insights' pressure card now, so "take me to it" is a tab selection
         // plus a branch switch and neither caller should half-remember it.
-        onTap: () => NavigationUtils.toPressure(context, ref),
+        onTap: () =>
+            NavigationUtils.toPressure(context, ref, highlightAlert: true),
       ),
       _Shortcut(
         icon: Icons.medication_outlined,

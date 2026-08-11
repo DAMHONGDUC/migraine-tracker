@@ -34,7 +34,8 @@ class AlertsSettingsTile extends ConsumerWidget {
         value: (settings?.enabled ?? false)
             ? context.l10n.alertsStatusOn
             : context.l10n.alertsStatusOff,
-        onTap: () => NavigationUtils.toPressure(context, ref),
+        onTap: () =>
+            NavigationUtils.toPressure(context, ref, highlightAlert: true),
       ),
     );
   }
