@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   fetchHourlyPressure,
+  fetchWeatherBundle,
   resetWeatherKitToken,
   weatherKitToken,
   WeatherKitCredentials,
@@ -192,5 +193,148 @@ describe("fetchHourlyPressure", () => {
     await expect(
       fetchHourlyPressure(21, 105, { fetchImpl, sleep: noSleep, credentials }),
     ).rejects.toThrow(/malformed|after 3/);
+  });
+});
+
+const bundleBody = {
+  currentWeather: {
+    asOf: "2026-07-08T12:00:00Z",
+    pressure: 1009,
+    pressureTrend: "falling",
+    temperature: 28.4,
+    temperatureApparent: 31.2,
+    humidity: 0.74,
+    uvIndex: 7,
+    conditionCode: "PartlyCloudy",
+    windSpeed: 12.5,
+    cloudCover: 0.4,
+    visibility: 16000,
+    daylight: true,
+  },
+  forecastHourly: {
+    hours: [
+      {
+        forecastStart: "2026-07-08T12:00:00Z",
+        pressure: 1009,
+        temperature: 28.4,
+        temperatureApparent: 31.2,
+        humidity: 0.74,
+        uvIndex: 7,
+        conditionCode: "PartlyCloudy",
+        precipitationChance: 0.2,
+        windSpeed: 12.5,
+        cloudCover: 0.4,
+      },
+    ],
+  },
+  forecastDaily: {
+    days: [
+      {
+        forecastStart: "2026-07-08T00:00:00Z",
+        conditionCode: "Rain",
+        temperatureMax: 31,
+        temperatureMin: 24,
+        precipitationChance: 0.8,
+        maxUvIndex: 9,
+        sunrise: "2026-07-08T22:15:00Z",
+        sunset: "2026-07-09T11:30:00Z",
+      },
+    ],
+  },
+};
+
+describe("fetchWeatherBundle", () => {
+  beforeEach(resetWeatherKitToken);
+
+  function respond(body: unknown) {
+    return vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => body,
+    });
+  }
+
+  it("asks for all three datasets in one request", async () => {
+    const fetchImpl = respond(bundleBody);
+
+    await fetchWeatherBundle(21, 105, {}, { fetchImpl, sleep: noSleep, credentials });
+
+    const url = String(fetchImpl.mock.calls[0][0]);
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(decodeURIComponent(url)).toContain(
+      "dataSets=currentWeather,forecastHourly,forecastDaily",
+    );
+  });
+
+  it("converts Apple's fractions to percentages and metres to kilometres", async () => {
+    const bundle = await fetchWeatherBundle(
+      21,
+      105,
+      {},
+      { fetchImpl: respond(bundleBody), sleep: noSleep, credentials },
+    );
+
+    expect(bundle.current).toMatchObject({
+      pressureHpa: 1009,
+      pressureTrend: "falling",
+      humidityPercent: 74,
+      cloudCoverPercent: 40,
+      visibilityKm: 16,
+      uvIndex: 7,
+      daylight: true,
+    });
+    expect(bundle.hours[0]).toMatchObject({
+      precipitationChancePercent: 20,
+      apparentTemperatureCelsius: 31.2,
+      conditionCode: "PartlyCloudy",
+    });
+    expect(bundle.days[0]).toMatchObject({
+      temperatureMaxCelsius: 31,
+      temperatureMinCelsius: 24,
+      precipitationChancePercent: 80,
+      uvIndexMax: 9,
+    });
+  });
+
+  it("still returns the hourly series when Apple omits the other datasets", async () => {
+    const bundle = await fetchWeatherBundle(
+      21,
+      105,
+      {},
+      { fetchImpl: respond(okBody), sleep: noSleep, credentials },
+    );
+
+    expect(bundle.current).toBeUndefined();
+    expect(bundle.days).toEqual([]);
+    expect(bundle.hours).toHaveLength(2);
+  });
+
+  it("reads a null field as absent rather than as zero", async () => {
+    const bundle = await fetchWeatherBundle(
+      21,
+      105,
+      {},
+      {
+        fetchImpl: respond({
+          currentWeather: {
+            asOf: "2026-07-08T12:00:00Z",
+            humidity: null,
+            uvIndex: null,
+            conditionCode: null,
+            visibility: null,
+          },
+          forecastHourly: { hours: [] },
+        }),
+        sleep: noSleep,
+        credentials,
+      },
+    );
+
+    expect(bundle.current).toMatchObject({ time: "2026-07-08T12:00:00.000Z" });
+    expect(bundle.current?.humidityPercent).toBeUndefined();
+    expect(bundle.current?.uvIndex).toBeUndefined();
+    expect(bundle.current?.conditionCode).toBeUndefined();
+    expect(bundle.current?.visibilityKm).toBeUndefined();
   });
 });

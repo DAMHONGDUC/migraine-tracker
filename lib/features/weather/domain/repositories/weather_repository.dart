@@ -1,4 +1,5 @@
 import '../entities/pressure_forecast.dart';
+import '../entities/weather_report.dart';
 import '../entities/weather_snapshot.dart';
 
 /// Provides weather snapshots for the user's current location.
@@ -15,4 +16,11 @@ abstract interface class WeatherRepository {
   /// Hourly pressure for the forecast chart: ~12h behind and 48h ahead of
   /// now at the user's location.
   Future<PressureForecast?> pressureForecast();
+
+  /// Everything the weather card shows — conditions now, the hours ahead and
+  /// the days after — for the user's current location.
+  ///
+  /// Best-effort like the rest: null on any failure, and any field inside it
+  /// may be null where Apple has no data for that place.
+  Future<WeatherReport?> report();
 }

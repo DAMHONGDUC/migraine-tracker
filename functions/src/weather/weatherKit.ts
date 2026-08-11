@@ -190,35 +190,76 @@ export interface WeatherHour {
   pressureHpa: number;
   humidityPercent?: number;
   temperatureCelsius?: number;
+  apparentTemperatureCelsius?: number;
+  uvIndex?: number;
+  /** Apple's own vocabulary ("Clear", "Rain"); the app maps it to a glyph. */
+  conditionCode?: string;
+  precipitationChancePercent?: number;
+  windSpeedKph?: number;
+  cloudCoverPercent?: number;
+}
+
+/** Conditions right now, for the top of the weather card. */
+export interface WeatherCurrent {
+  /** ISO-8601, UTC. */
+  time: string;
+  pressureHpa?: number;
+  /** Apple's own trend word: "rising", "falling", "steady". */
+  pressureTrend?: string;
+  temperatureCelsius?: number;
+  apparentTemperatureCelsius?: number;
+  humidityPercent?: number;
+  uvIndex?: number;
+  conditionCode?: string;
+  windSpeedKph?: number;
+  cloudCoverPercent?: number;
+  visibilityKm?: number;
+  daylight?: boolean;
+}
+
+/** One day of the multi-day forecast. */
+export interface WeatherDay {
+  /** ISO-8601, UTC — the day's start. */
+  date: string;
+  conditionCode?: string;
+  temperatureMaxCelsius?: number;
+  temperatureMinCelsius?: number;
+  precipitationChancePercent?: number;
+  uvIndexMax?: number;
+  /** ISO-8601, UTC. */
+  sunrise?: string;
+  sunset?: string;
+}
+
+/** Everything the weather card draws, from one round trip to Apple. */
+export interface WeatherBundle {
+  current?: WeatherCurrent;
+  hours: WeatherHour[];
+  days: WeatherDay[];
 }
 
 /**
- * The hourly series, optionally over an explicit window.
+ * One request to Apple, with the token handling and the backoff.
  *
- * `hourlyStart`/`hourlyEnd` are what let the app backfill an attack logged
- * offline days ago with the weather *at its start time* — without them
- * WeatherKit answers from the current hour forward, which cannot describe
- * something that already happened.
+ * Shared by both fetches below rather than written twice: the 401-resets-the-
+ * token rule is the kind of thing that gets fixed in one copy and not the
+ * other.
  */
-export async function fetchHourlyWeather(
+async function requestWeather(
   lat: number,
   lon: number,
-  window: { start?: Date; end?: Date } = {},
-  deps: WeatherKitDeps = {},
-): Promise<WeatherHour[]> {
+  params: URLSearchParams,
+  deps: WeatherKitDeps,
+): Promise<unknown> {
   const fetchImpl = deps.fetchImpl ?? (fetch as unknown as FetchLike);
   const sleep =
     deps.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   const credentials = deps.credentials ?? readCredentials();
   const missing = missingCredentials(credentials);
-  const params = new URLSearchParams({ dataSets: "forecastHourly" });
 
   // Before the retry loop: an unset variable is not an outage, and three
   // round trips to Apple cannot discover what is already known here.
   if (missing.length > 0) throw new WeatherKitConfigError(missing);
-
-  if (window.start) params.set("hourlyStart", window.start.toISOString());
-  if (window.end) params.set("hourlyEnd", window.end.toISOString());
 
   const url =
     "https://weatherkit.apple.com/api/v1/weather/en" +
@@ -239,7 +280,7 @@ export async function fetchHourlyWeather(
         throw new Error(`weatherkit HTTP ${response.status}`);
       }
 
-      return parseHours(await response.json());
+      return await response.json();
     } catch (error) {
       lastError = error;
     }
@@ -250,11 +291,86 @@ export async function fetchHourlyWeather(
   );
 }
 
+/**
+ * The hourly series, optionally over an explicit window.
+ *
+ * `hourlyStart`/`hourlyEnd` are what let the app backfill an attack logged
+ * offline days ago with the weather *at its start time* — without them
+ * WeatherKit answers from the current hour forward, which cannot describe
+ * something that already happened.
+ */
+export async function fetchHourlyWeather(
+  lat: number,
+  lon: number,
+  window: { start?: Date; end?: Date } = {},
+  deps: WeatherKitDeps = {},
+): Promise<WeatherHour[]> {
+  const params = new URLSearchParams({ dataSets: "forecastHourly" });
+
+  if (window.start) params.set("hourlyStart", window.start.toISOString());
+  if (window.end) params.set("hourlyEnd", window.end.toISOString());
+
+  return parseHours(await requestWeather(lat, lon, params, deps));
+}
+
+/**
+ * Current conditions, the hourly series and the daily forecast together.
+ *
+ * One request for all three datasets rather than three: WeatherKit bills per
+ * call, not per dataset, so this costs the 500k quota exactly what the
+ * pressure-only fetch already cost.
+ *
+ * Every field is optional all the way down. Apple omits what it has no data
+ * for at a location, and the card renders what arrived — hard rule 4's
+ * "weather is best-effort" applies to a field as much as to a request.
+ */
+export async function fetchWeatherBundle(
+  lat: number,
+  lon: number,
+  window: { start?: Date; end?: Date } = {},
+  deps: WeatherKitDeps = {},
+): Promise<WeatherBundle> {
+  const params = new URLSearchParams({
+    dataSets: "currentWeather,forecastHourly,forecastDaily",
+  });
+
+  if (window.start) params.set("hourlyStart", window.start.toISOString());
+  if (window.end) params.set("hourlyEnd", window.end.toISOString());
+
+  const body = await requestWeather(lat, lon, params, deps);
+
+  return {
+    current: parseCurrent(body),
+    hours: parseHours(body),
+    days: parseDays(body),
+  };
+}
+
 interface ForecastHour {
   forecastStart?: string;
   pressure?: number | null;
   humidity?: number | null;
   temperature?: number | null;
+  temperatureApparent?: number | null;
+  uvIndex?: number | null;
+  conditionCode?: string | null;
+  precipitationChance?: number | null;
+  windSpeed?: number | null;
+  cloudCover?: number | null;
+}
+
+/** A 0–1 fraction as Apple sends it, as the percentage every surface says. */
+function asPercent(value: number | null | undefined): number | undefined {
+  return value === null || value === undefined ? undefined : value * 100;
+}
+
+/** Apple's nulls and the absent key mean the same thing here: no data. */
+function asNumber(value: number | null | undefined): number | undefined {
+  return value === null || value === undefined ? undefined : value;
+}
+
+function asText(value: string | null | undefined): string | undefined {
+  return value === null || value === undefined || value === "" ? undefined : value;
 }
 
 /**
@@ -284,11 +400,100 @@ function parseHours(body: unknown): WeatherHour[] {
     parsed.push({
       time: new Date(hour.forecastStart).toISOString(),
       pressureHpa: pressure,
-      humidityPercent:
-        hour.humidity === null || hour.humidity === undefined
-          ? undefined
-          : hour.humidity * 100,
-      temperatureCelsius: hour.temperature ?? undefined,
+      humidityPercent: asPercent(hour.humidity),
+      temperatureCelsius: asNumber(hour.temperature),
+      apparentTemperatureCelsius: asNumber(hour.temperatureApparent),
+      uvIndex: asNumber(hour.uvIndex),
+      conditionCode: asText(hour.conditionCode),
+      precipitationChancePercent: asPercent(hour.precipitationChance),
+      windSpeedKph: asNumber(hour.windSpeed),
+      cloudCoverPercent: asPercent(hour.cloudCover),
+    });
+  }
+
+  return parsed;
+}
+
+interface CurrentWeatherBody {
+  asOf?: string;
+  pressure?: number | null;
+  pressureTrend?: string | null;
+  temperature?: number | null;
+  temperatureApparent?: number | null;
+  humidity?: number | null;
+  uvIndex?: number | null;
+  conditionCode?: string | null;
+  windSpeed?: number | null;
+  cloudCover?: number | null;
+  visibility?: number | null;
+  daylight?: boolean | null;
+}
+
+/**
+ * Current conditions, or undefined when the dataset is absent.
+ *
+ * Undefined rather than a throw: the hourly series is what the pressure
+ * feature needs, and a location Apple has no `currentWeather` for must still
+ * answer the alert maths.
+ */
+function parseCurrent(body: unknown): WeatherCurrent | undefined {
+  const current = (body as { currentWeather?: CurrentWeatherBody })
+    ?.currentWeather;
+
+  if (!current?.asOf) return undefined;
+
+  return {
+    time: new Date(current.asOf).toISOString(),
+    pressureHpa: asNumber(current.pressure),
+    pressureTrend: asText(current.pressureTrend),
+    temperatureCelsius: asNumber(current.temperature),
+    apparentTemperatureCelsius: asNumber(current.temperatureApparent),
+    humidityPercent: asPercent(current.humidity),
+    uvIndex: asNumber(current.uvIndex),
+    conditionCode: asText(current.conditionCode),
+    windSpeedKph: asNumber(current.windSpeed),
+    cloudCoverPercent: asPercent(current.cloudCover),
+    // Metres, and every surface in the app says kilometres.
+    visibilityKm:
+      current.visibility === null || current.visibility === undefined
+        ? undefined
+        : current.visibility / 1000,
+    daylight: current.daylight ?? undefined,
+  };
+}
+
+interface ForecastDay {
+  forecastStart?: string;
+  conditionCode?: string | null;
+  temperatureMax?: number | null;
+  temperatureMin?: number | null;
+  precipitationChance?: number | null;
+  maxUvIndex?: number | null;
+  sunrise?: string | null;
+  sunset?: string | null;
+}
+
+/** The daily forecast, or an empty list when the dataset is absent. */
+function parseDays(body: unknown): WeatherDay[] {
+  const days = (body as { forecastDaily?: { days?: unknown } })?.forecastDaily
+    ?.days;
+
+  if (!Array.isArray(days)) return [];
+
+  const parsed: WeatherDay[] = [];
+
+  for (const day of days as ForecastDay[]) {
+    if (!day?.forecastStart) continue;
+
+    parsed.push({
+      date: new Date(day.forecastStart).toISOString(),
+      conditionCode: asText(day.conditionCode),
+      temperatureMaxCelsius: asNumber(day.temperatureMax),
+      temperatureMinCelsius: asNumber(day.temperatureMin),
+      precipitationChancePercent: asPercent(day.precipitationChance),
+      uvIndexMax: asNumber(day.maxUvIndex),
+      sunrise: day.sunrise ? new Date(day.sunrise).toISOString() : undefined,
+      sunset: day.sunset ? new Date(day.sunset).toISOString() : undefined,
     });
   }
 

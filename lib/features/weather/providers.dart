@@ -33,6 +33,13 @@ final pressureForecastProvider = FutureProvider.autoDispose(
   (ref) => ref.watch(weatherRepositoryProvider).pressureForecast(),
 );
 
+/// Everything the weather card draws. Null = offline, no permission, or a
+/// backend with no WeatherKit credentials — the card shows one unavailable
+/// state for all of them (hard rule 4).
+final weatherReportProvider = FutureProvider.autoDispose(
+  (ref) => ref.watch(weatherRepositoryProvider).report(),
+);
+
 final dailyPressureRepositoryProvider = Provider<DailyPressureRepository>(
   (ref) => DriftDailyPressureRepository(ref.watch(databaseProvider)),
 );

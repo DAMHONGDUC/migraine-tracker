@@ -11,10 +11,12 @@ import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
+import 'domain/enums/weather_view.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
+import 'presentation/controllers/weather_view_controller.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold
 /// becomes user-tunable in the alerts phase.
@@ -108,3 +110,9 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
 
   return engine.analyze(attacks: attacks, days: days);
 });
+
+/// Which face of the weather card is showing. See [WeatherViewController].
+final weatherViewProvider =
+    NotifierProvider<WeatherViewController, WeatherView>(
+      WeatherViewController.new,
+    );

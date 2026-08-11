@@ -8,6 +8,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dar
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -18,6 +19,11 @@ class _NoWeather implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => null;
+
+  // The weather card's payload. No widget test draws it, and no non-UI
+  // test needs it, so every fake answers "no weather".
+  @override
+  Future<WeatherReport?> report() async => null;
 }
 
 void main() {

@@ -2683,5 +2683,176 @@
         "type": "int"
       }
     }
+  },
+  "weatherCardTitle": "Weather",
+  "@weatherCardTitle": {
+    "description": "Title of the weather and pressure alert card on Insights"
+  },
+  "weatherUnavailable": "Weather is unavailable right now.",
+  "@weatherUnavailable": {
+    "description": "Shown when the weather report could not be fetched"
+  },
+  "weatherViewHourly": "Hourly",
+  "@weatherViewHourly": {
+    "description": "Weather card segment showing the hours ahead"
+  },
+  "weatherViewDaily": "Daily",
+  "@weatherViewDaily": {
+    "description": "Weather card segment showing the days ahead"
+  },
+  "weatherViewDetails": "Details",
+  "@weatherViewDetails": {
+    "description": "Weather card segment showing humidity, UV and the rest"
+  },
+  "weatherNow": "Now",
+  "@weatherNow": {
+    "description": "Label for the current hour in the hourly strip"
+  },
+  "weatherFeelsLike": "Feels like {value}",
+  "@weatherFeelsLike": {
+    "description": "Apparent temperature under the current reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherTemperature": "{value}\u00b0",
+  "@weatherTemperature": {
+    "description": "A temperature in degrees, unit-less by design",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherPercent": "{value}%",
+  "@weatherPercent": {
+    "description": "Humidity, cloud cover or chance of precipitation",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherWindValue": "{value} km/h",
+  "@weatherWindValue": {
+    "description": "Wind speed",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherVisibilityValue": "{value} km",
+  "@weatherVisibilityValue": {
+    "description": "Visibility distance",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherUvValue": "{value}",
+  "@weatherUvValue": {
+    "description": "UV index, an unit-less number",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherDetailHumidity": "Humidity",
+  "@weatherDetailHumidity": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailUv": "UV index",
+  "@weatherDetailUv": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailWind": "Wind",
+  "@weatherDetailWind": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailVisibility": "Visibility",
+  "@weatherDetailVisibility": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailPressure": "Pressure",
+  "@weatherDetailPressure": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailCloudCover": "Cloud cover",
+  "@weatherDetailCloudCover": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailPrecipitation": "Chance of rain",
+  "@weatherDetailPrecipitation": {
+    "description": "Weather detail label"
+  },
+  "weatherTrendRising": "Rising",
+  "@weatherTrendRising": {
+    "description": "Pressure trend"
+  },
+  "weatherTrendFalling": "Falling",
+  "@weatherTrendFalling": {
+    "description": "Pressure trend"
+  },
+  "weatherTrendSteady": "Steady",
+  "@weatherTrendSteady": {
+    "description": "Pressure trend"
+  },
+  "weatherConditionClear": "Clear",
+  "@weatherConditionClear": {
+    "description": "Weather condition"
+  },
+  "weatherConditionCloudy": "Cloudy",
+  "@weatherConditionCloudy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionPartlyCloudy": "Partly cloudy",
+  "@weatherConditionPartlyCloudy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionRain": "Rain",
+  "@weatherConditionRain": {
+    "description": "Weather condition"
+  },
+  "weatherConditionSnow": "Snow",
+  "@weatherConditionSnow": {
+    "description": "Weather condition"
+  },
+  "weatherConditionSleet": "Sleet",
+  "@weatherConditionSleet": {
+    "description": "Weather condition"
+  },
+  "weatherConditionThunderstorms": "Thunderstorms",
+  "@weatherConditionThunderstorms": {
+    "description": "Weather condition"
+  },
+  "weatherConditionFog": "Fog",
+  "@weatherConditionFog": {
+    "description": "Weather condition"
+  },
+  "weatherConditionWindy": "Windy",
+  "@weatherConditionWindy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionHazy": "Hazy",
+  "@weatherConditionHazy": {
+    "description": "Weather condition"
+  },
+  "weatherAlertLockedBody": "Get notified before pressure drops enough to trigger an attack.",
+  "@weatherAlertLockedBody": {
+    "description": "Pitch under the locked pressure alert half of the weather card"
+  },
+  "weatherAlertActiveBody": "You are alerted when pressure falls by {value} or more within 24 hours.",
+  "@weatherAlertActiveBody": {
+    "description": "Describes the active pressure alert, with the threshold",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   }
 }

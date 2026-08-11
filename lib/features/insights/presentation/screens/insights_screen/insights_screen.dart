@@ -15,6 +15,7 @@ import '../../../providers.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_correlation_card.dart';
+import '../../widgets/weather_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -33,6 +34,7 @@ class InsightsScreen extends ConsumerWidget {
               ref
                 ..invalidate(attacksStreamProvider)
                 ..invalidate(pressureForecastProvider)
+                ..invalidate(weatherReportProvider)
                 ..invalidate(sleepCorrelationProvider)
                 ..invalidate(stepCorrelationProvider);
             }),
@@ -40,8 +42,13 @@ class InsightsScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: SdContentPaddingV2.screen(context, floatingNav: true),
               children: [
-                // Forecast + correlation on one card; it opens the detail
-                // screen, where the alert they drive is set.
+                // Card 1: the weather, free for everyone, with the alert it
+                // drives set from the card itself. The pressure correlation
+                // stays below it — the reading and the analysis of it are
+                // different questions, and one card carrying both was already
+                // the longest on the screen.
+                const WeatherCard(),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
                 PressureCard(result: value),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 // Exertion + steps on one card: both ask how much the user

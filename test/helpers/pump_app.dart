@@ -42,6 +42,7 @@ import 'package:migraine_tracker/features/settings/domain/services/mail_launcher
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -69,6 +70,11 @@ class FakeWeatherRepository implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
+
+  // The weather card's payload. No widget test draws it, and no non-UI
+  // test needs it, so every fake answers "no weather".
+  @override
+  Future<WeatherReport?> report() async => null;
 }
 
 /// No-op scheduler so widget tests never touch the notifications plugin.

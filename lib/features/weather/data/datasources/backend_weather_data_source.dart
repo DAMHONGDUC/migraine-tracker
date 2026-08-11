@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/pressure_forecast.dart';
+import '../../domain/entities/weather_report.dart';
 import '../../domain/entities/weather_snapshot.dart';
 
 /// Reads weather through the `getWeather` callable.
@@ -26,11 +27,15 @@ class BackendWeatherDataSource {
   /// backfilled with the weather at *its* start time rather than today's.
   static const int _backfillDays = 7;
 
-  Future<List<_Hour>?> _hours({
+  /// How far the weather card looks ahead: two days of hours, ten of days.
+  static const int _reportHoursForward = 48;
+
+  Future<Map<Object?, Object?>?> _call({
     required double latitude,
     required double longitude,
     required int hoursBack,
     required int hoursForward,
+    bool full = false,
   }) async {
     try {
       final HttpsCallableResult<dynamic> result = await _functions
@@ -40,17 +45,10 @@ class BackendWeatherDataSource {
             'lon': longitude,
             'hoursBack': hoursBack,
             'hoursForward': hoursForward,
+            if (full) 'full': true,
           });
-      final List<Object?>? raw =
-          (result.data as Map<Object?, Object?>?)?['hours'] as List<Object?>?;
 
-      if (raw == null) return null;
-
-      return raw
-          .whereType<Map<Object?, Object?>>()
-          .map(_Hour.fromMap)
-          .whereType<_Hour>()
-          .toList();
+      return result.data as Map<Object?, Object?>?;
     } catch (error, stackTrace) {
       // Best-effort by rule, silent by accident: every weather failure —
       // a missing WeatherKit credential, a refused call, being offline —
@@ -64,6 +62,128 @@ class BackendWeatherDataSource {
       return null;
     }
   }
+
+  Future<List<_Hour>?> _hours({
+    required double latitude,
+    required double longitude,
+    required int hoursBack,
+    required int hoursForward,
+  }) async {
+    final Map<Object?, Object?>? data = await _call(
+      latitude: latitude,
+      longitude: longitude,
+      hoursBack: hoursBack,
+      hoursForward: hoursForward,
+    );
+    final List<Object?>? raw = data?['hours'] as List<Object?>?;
+
+    if (raw == null) return null;
+
+    return raw
+        .whereType<Map<Object?, Object?>>()
+        .map(_Hour.fromMap)
+        .whereType<_Hour>()
+        .toList();
+  }
+
+  /// Conditions now, the hours ahead and the days after — the weather card's
+  /// whole payload, from one call.
+  Future<WeatherReport?> report({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final Map<Object?, Object?>? data = await _call(
+      latitude: latitude,
+      longitude: longitude,
+      hoursBack: 0,
+      hoursForward: _reportHoursForward,
+      full: true,
+    );
+
+    if (data == null) return null;
+
+    final WeatherReport report = WeatherReport(
+      current: _conditions(data['current']),
+      hours: (data['hours'] as List<Object?>? ?? const <Object?>[])
+          .whereType<Map<Object?, Object?>>()
+          .map(_hourly)
+          .whereType<WeatherHourly>()
+          .toList(),
+      days: (data['days'] as List<Object?>? ?? const <Object?>[])
+          .whereType<Map<Object?, Object?>>()
+          .map(_daily)
+          .whereType<WeatherDaily>()
+          .toList(),
+    );
+
+    // Nothing to draw is the same answer as no answer, so the card has one
+    // empty state rather than two that look identical.
+    return report.isEmpty ? null : report;
+  }
+
+  WeatherConditions? _conditions(Object? raw) {
+    if (raw is! Map<Object?, Object?>) return null;
+
+    final DateTime? time = DateTime.tryParse('${raw['time']}');
+
+    if (time == null) return null;
+
+    return WeatherConditions(
+      time: time.toUtc(),
+      pressureHpa: _double(raw['pressureHpa']),
+      pressureTrend: PressureTrend.fromCode(raw['pressureTrend'] as String?),
+      temperatureCelsius: _double(raw['temperatureCelsius']),
+      apparentTemperatureCelsius: _double(raw['apparentTemperatureCelsius']),
+      humidityPercent: _double(raw['humidityPercent']),
+      uvIndex: _double(raw['uvIndex']),
+      condition: WeatherCondition.fromCode(raw['conditionCode'] as String?),
+      windSpeedKph: _double(raw['windSpeedKph']),
+      cloudCoverPercent: _double(raw['cloudCoverPercent']),
+      visibilityKm: _double(raw['visibilityKm']),
+      daylight: raw['daylight'] as bool?,
+    );
+  }
+
+  /// Null for an hour with no time or no pressure, so one unusable entry does
+  /// not cost the series around it.
+  WeatherHourly? _hourly(Map<Object?, Object?> raw) {
+    final DateTime? time = DateTime.tryParse('${raw['time']}');
+    final double? pressure = _double(raw['pressureHpa']);
+
+    if (time == null || pressure == null) return null;
+
+    return WeatherHourly(
+      time: time.toUtc(),
+      pressureHpa: pressure,
+      temperatureCelsius: _double(raw['temperatureCelsius']),
+      apparentTemperatureCelsius: _double(raw['apparentTemperatureCelsius']),
+      humidityPercent: _double(raw['humidityPercent']),
+      uvIndex: _double(raw['uvIndex']),
+      condition: WeatherCondition.fromCode(raw['conditionCode'] as String?),
+      precipitationChancePercent: _double(raw['precipitationChancePercent']),
+      windSpeedKph: _double(raw['windSpeedKph']),
+      cloudCoverPercent: _double(raw['cloudCoverPercent']),
+    );
+  }
+
+  WeatherDaily? _daily(Map<Object?, Object?> raw) {
+    final DateTime? date = DateTime.tryParse('${raw['date']}');
+
+    if (date == null) return null;
+
+    return WeatherDaily(
+      date: date.toUtc(),
+      condition: WeatherCondition.fromCode(raw['conditionCode'] as String?),
+      temperatureMaxCelsius: _double(raw['temperatureMaxCelsius']),
+      temperatureMinCelsius: _double(raw['temperatureMinCelsius']),
+      precipitationChancePercent: _double(raw['precipitationChancePercent']),
+      uvIndexMax: _double(raw['uvIndexMax']),
+      sunrise: DateTime.tryParse('${raw['sunrise']}')?.toUtc(),
+      sunset: DateTime.tryParse('${raw['sunset']}')?.toUtc(),
+    );
+  }
+
+  double? _double(Object? value) => (value as num?)?.toDouble();
 
   /// Hourly pressure for the forecast chart: 12h behind, 48h ahead.
   Future<List<PressurePoint>?> pressureSeries({

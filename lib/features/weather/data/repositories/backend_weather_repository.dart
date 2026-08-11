@@ -1,6 +1,7 @@
 import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/geo_point.dart';
 import '../../domain/entities/pressure_forecast.dart';
+import '../../domain/entities/weather_report.dart';
 import '../../domain/entities/weather_snapshot.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../datasources/backend_weather_data_source.dart';
@@ -58,5 +59,25 @@ class BackendWeatherRepository implements WeatherRepository {
     if (points == null) return null;
 
     return PressureForecast(generatedAt: now, points: points);
+  }
+
+  @override
+  Future<WeatherReport?> report() async {
+    final GeoPoint? point = await _location.currentPosition();
+
+    if (point == null) {
+      AppLogger.info('Weather report skipped: no location/permission');
+
+      return null;
+    }
+
+    final WeatherReport? report = await _dataSource.report(
+      latitude: point.latitude,
+      longitude: point.longitude,
+    );
+
+    AppLogger.debug('Weather report fetched', report?.hours.length);
+
+    return report;
   }
 }

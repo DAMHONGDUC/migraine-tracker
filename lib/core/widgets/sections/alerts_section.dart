@@ -9,6 +9,7 @@ import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/navigation_utils.dart';
+import '../alert_threshold_dialog.dart';
 import '../settings_tile.dart';
 
 /// The alerts detail screen's body: enable switch + threshold. Pushed from
@@ -34,11 +35,11 @@ class AlertsSection extends ConsumerWidget {
     WidgetRef ref,
     double current,
   ) async {
-    final picked = await showSdDialogV2<double>(
-      context,
-      builder: (dialogContext) =>
-          _ThresholdDialog(initial: current, l10n: context.l10n),
-    );
+    final double? picked = await AlertThresholdDialog(
+      initial: current,
+      l10n: context.l10n,
+    ).show(context);
+
     if (picked != null) {
       await ref.read(alertsControllerProvider.notifier).setThreshold(picked);
     }
@@ -87,58 +88,6 @@ class AlertsSection extends ConsumerWidget {
           title: l10n.alertsThresholdTitle,
           value: l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
           onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
-        ),
-      ],
-    );
-  }
-}
-
-class _ThresholdDialog extends StatefulWidget {
-  const _ThresholdDialog({required this.initial, required this.l10n});
-
-  final double initial;
-  final AppLocalizations l10n;
-
-  @override
-  State<_ThresholdDialog> createState() => _ThresholdDialogState();
-}
-
-class _ThresholdDialogState extends State<_ThresholdDialog> {
-  late double _value = widget.initial;
-
-  @override
-  Widget build(BuildContext context) {
-    return SdDialogV2(
-      title: widget.l10n.alertsThresholdTitle,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.l10n.onboardingThresholdValue(_value.round()),
-            style: AppTextStyle.headlineMedium.copyWith(
-              fontWeight: FontWeight.w600,
-              color: context.colorScheme.primary,
-            ),
-          ),
-          Slider(
-            value: _value,
-            min: 3,
-            max: 10,
-            divisions: 7,
-            onChanged: (v) => setState(() => _value = v),
-          ),
-        ],
-      ),
-      actions: [
-        SdButtonV2(
-          variant: SdButtonVariantV2.text,
-          onPressed: () => Navigator.of(context).pop(),
-          label: widget.l10n.commonCancel,
-        ),
-        SdButtonV2(
-          variant: SdButtonVariantV2.primary,
-          onPressed: () => Navigator.of(context).pop(_value),
-          label: widget.l10n.detailsSave,
         ),
       ],
     );

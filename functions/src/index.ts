@@ -28,7 +28,10 @@ import {
 import {
   fetchHourlyPressure,
   fetchHourlyWeather,
+  fetchWeatherBundle,
   weatherKitPrivateKey,
+  WeatherCurrent,
+  WeatherDay,
   WeatherHour,
   WeatherKitConfigError,
 } from "./weather/weatherKit";
@@ -381,31 +384,54 @@ export const getWeather = onCall(
       240,
     );
 
+    // Whether the caller wants current conditions and the daily forecast on
+    // top of the hourly series. Costs the quota nothing extra — one request
+    // to Apple carries all three datasets — but the pressure paths ask for
+    // neither, so they are not cached against the same key.
+    const full = request.data?.full === true;
+
     const now = new Date();
-    const key = `${cellKey(lat, lon)}_${hoursBack}_${hoursForward}`;
+    const key = `${cellKey(lat, lon)}_${hoursBack}_${hoursForward}${full ? "_full" : ""}`;
     const doc = db.collection("weather_cache").doc(key);
     const cached = await doc.get();
 
     if (cached.exists && isFresh(cached.get("cachedAt")?.toDate(), now)) {
-      return { hours: cached.get("hours") as WeatherHour[], cached: true };
+      return {
+        hours: cached.get("hours") as WeatherHour[],
+        current: cached.get("current") ?? null,
+        days: cached.get("days") ?? [],
+        cached: true,
+      };
     }
 
     const center = cellCenter(cellKey(lat, lon));
     let hours: WeatherHour[];
+    let current: WeatherCurrent | null = null;
+    let days: WeatherDay[] = [];
 
     // Named rather than left to become a bare `internal`: the app treats any
     // weather failure as "no weather" (hard rule 4), so this log is the only
     // place the reason is ever stated.
     try {
-      hours = await fetchHourlyWeather(
-        center.lat,
-        center.lon,
-        {
-          start: new Date(now.getTime() - hoursBack * 3_600_000),
-          end: new Date(now.getTime() + hoursForward * 3_600_000),
-        },
-        {},
-      );
+      const window = {
+        start: new Date(now.getTime() - hoursBack * 3_600_000),
+        end: new Date(now.getTime() + hoursForward * 3_600_000),
+      };
+
+      if (full) {
+        const bundle = await fetchWeatherBundle(
+          center.lat,
+          center.lon,
+          window,
+          {},
+        );
+
+        hours = bundle.hours;
+        current = bundle.current ?? null;
+        days = bundle.days;
+      } else {
+        hours = await fetchHourlyWeather(center.lat, center.lon, window, {});
+      }
     } catch (error) {
       if (error instanceof WeatherKitConfigError) {
         logger.error("weatherkit not configured", { missing: error.missing });
@@ -418,12 +444,12 @@ export const getWeather = onCall(
     // Best-effort: a cache that fails to write must not fail the request the
     // caller actually made.
     try {
-      await doc.set({ hours, cachedAt: now });
+      await doc.set({ hours, current, days, cachedAt: now });
     } catch (error) {
       logger.warn("weather cache write failed", { key, error: String(error) });
     }
 
-    return { hours, cached: false };
+    return { hours, current, days, cached: false };
   },
 );
 
