@@ -34,46 +34,71 @@ class PremiumGate extends ConsumerWidget {
   }
 }
 
-class _LockedCard extends ConsumerWidget {
-  const _LockedCard({required this.message, required this.icon});
+/// The locked pitch WITHOUT a card around it: the glyph and the badge, what
+/// premium would show here, and the way to get it.
+///
+/// Cardless on purpose, so a body that is already inside someone else's card
+/// can lock itself without nesting one card in another — which is exactly
+/// what `PressureForecastBody` inside `InsightCard` did before this existed.
+/// [PremiumGate] wraps this in an `SdCardV2` for the standalone case.
+class PremiumLockedBody extends ConsumerWidget {
+  const PremiumLockedBody({
+    required this.message,
+    this.icon = Icons.lock_outline,
+    super.key,
+  });
 
+  /// Already localized: what premium would show in this slot.
   final String message;
   final IconData icon;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            SdIconV2(
+              icon: icon,
+              size: SdSpacingConstant.r20,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            const PremiumBadge(),
+          ],
+        ),
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(message, style: AppTextStyle.bodyMedium),
+        SizedBox(height: SdSpacingConstant.h12),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: SdButtonV2(
+            variant: SdButtonVariantV2.secondary,
+            onPressed: () => NavigationUtils.toPaywall(context, ref),
+            label: l10n.premiumUnlock,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LockedCard extends StatelessWidget {
+  const _LockedCard({required this.message, required this.icon});
+
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
     return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SdIconV2(
-                  icon: icon,
-                  size: SdSpacingConstant.r20,
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
-                SizedBox(width: SdSpacingConstant.w8),
-                const PremiumBadge(),
-              ],
-            ),
-            SizedBox(height: SdSpacingConstant.h12),
-            Text(message, style: AppTextStyle.bodyMedium),
-            SizedBox(height: SdSpacingConstant.h12),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: SdButtonV2(
-                variant: SdButtonVariantV2.secondary,
-                onPressed: () => NavigationUtils.toPaywall(context, ref),
-                label: l10n.premiumUnlock,
-              ),
-            ),
-          ],
-        ),
+        child: PremiumLockedBody(message: message, icon: icon),
       ),
     );
   }

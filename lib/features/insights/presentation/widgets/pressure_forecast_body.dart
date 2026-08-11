@@ -40,13 +40,12 @@ class PressureForecastBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Cardless: this body is always drawn inside someone else's card, so a
+    // `PremiumGate` here would put a card inside a card.
     if (!ref.watch(hasPremiumProvider)) {
-      return PremiumGate(
-        lockedIcon: Icons.show_chart,
-        lockedMessage: context.l10n.premiumLockedForecast,
-        // Never built without premium — the gate is the data, not a blur
-        // over it.
-        child: const SizedBox.shrink(),
+      return PremiumLockedBody(
+        icon: Icons.show_chart,
+        message: context.l10n.premiumLockedForecast,
       );
     }
 
