@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
-import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../health/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/pressure_card.dart';
-import '../../widgets/sleep_correlation_card.dart';
+import '../../widgets/sleep_card.dart';
 import '../../widgets/weather_card.dart';
 
 class InsightsScreen extends ConsumerWidget {
@@ -36,6 +32,9 @@ class InsightsScreen extends ConsumerWidget {
                 ..invalidate(pressureForecastProvider)
                 ..invalidate(weatherReportProvider)
                 ..invalidate(sleepCorrelationProvider)
+                ..invalidate(rangedStepDaysProvider)
+                ..invalidate(rangedSleepNightsProvider)
+                ..invalidate(stepHoursProvider)
                 ..invalidate(stepCorrelationProvider);
             }),
             child: ListView(
@@ -54,16 +53,14 @@ class InsightsScreen extends ConsumerWidget {
                 // Exertion + steps on one card: both ask how much the user
                 // moved. Sleep stays its own — the night is another question.
                 ActivityCard(result: exertionValue),
-                // iOS only: off HealthKit there is no sleep source, so the card would only say "unavailable".
+                // iOS only: off HealthKit there is no sleep source, so the
+                // card would only say "unavailable". No PremiumGate around it
+                // any more — the card's own top half is free, and gating the
+                // whole thing would hide the reading that answers "did
+                // connecting work".
                 if (ref.watch(healthAvailableProvider)) ...<Widget>[
                   SizedBox(height: SdContentPaddingV2.sectionGap),
-                  PremiumGate(
-                    lockedIcon: Symbols.bedtime,
-                    lockedMessage: context.l10n.premiumLockedSleep,
-                    child: SleepCorrelationCard(
-                      onTap: () => context.pushNamed(AppRoutes.sleep.name),
-                    ),
-                  ),
+                  const SleepCard(),
                 ],
               ],
             ),

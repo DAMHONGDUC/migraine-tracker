@@ -12,6 +12,7 @@ import 'domain/repositories/health_repository.dart';
 import 'domain/services/health_summariser.dart';
 import 'domain/services/sleep_night_aggregator.dart';
 import 'domain/services/step_day_aggregator.dart';
+import 'domain/services/step_hour_aggregator.dart';
 import 'presentation/controllers/health_controller.dart';
 
 final sleepSampleSourceProvider = Provider<SleepSampleSource>(
@@ -28,6 +29,7 @@ final healthRepositoryProvider = Provider<HealthRepository>(
     const SleepNightAggregator(),
     ref.watch(stepSampleSourceProvider),
     const StepDayAggregator(),
+    const StepHourAggregator(),
   ),
 );
 

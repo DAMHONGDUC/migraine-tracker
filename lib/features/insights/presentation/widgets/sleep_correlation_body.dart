@@ -25,15 +25,22 @@ part 'sleep_correlation_body_no_variation.dart';
 /// card that pops in half a second later is calmer than one that flickers a
 /// placeholder first.
 class SleepCorrelationBody extends ConsumerWidget {
-  const SleepCorrelationBody({super.key});
+  const SleepCorrelationBody({this.result, super.key});
+
+  /// Draw this instead of the user's own analysis.
+  ///
+  /// Only the locked preview passes it, with fabricated nights. Passing it
+  /// also means the provider is never watched, so a free user still issues no
+  /// HealthKit read — the gate stays at the data, not at the blur.
+  final SleepCorrelationResult? result;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<SleepCorrelationResult> result = ref.watch(
-      sleepCorrelationProvider,
-    );
+    final AsyncValue<SleepCorrelationResult> value = result == null
+        ? ref.watch(sleepCorrelationProvider)
+        : AsyncValue<SleepCorrelationResult>.data(result!);
 
-    return switch (result) {
+    return switch (value) {
       AsyncData(value: final SleepCorrelationResult value) => switch (value) {
         SleepNotConnected() => const _NotConnected(),
         final SleepInsufficientData r => InsightProgressBody(

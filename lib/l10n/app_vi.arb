@@ -583,5 +583,13 @@
   "weatherConditionWindy": "Gió mạnh",
   "weatherConditionHazy": "Sương mờ",
   "weatherAlertLockedBody": "Nhận cảnh báo trước khi áp suất giảm đủ để gây ra cơn đau.",
-  "weatherAlertActiveBody": "Bạn sẽ được cảnh báo khi áp suất giảm từ {value} trở lên trong vòng 24 giờ."
+  "weatherAlertActiveBody": "Bạn sẽ được cảnh báo khi áp suất giảm từ {value} trở lên trong vòng 24 giờ.",
+  "healthRangeDay": "N",
+  "healthRangeWeek": "T",
+  "healthRangeMonth": "Th",
+  "healthRangeHalfYear": "6Th",
+  "healthRangeEmpty": "Không có dữ liệu trong khoảng này.",
+  "activityCardTitle": "Vận động",
+  "sleepCardTitle": "Giấc ngủ",
+  "insightsAnalysisTitle": "Phân tích"
 }

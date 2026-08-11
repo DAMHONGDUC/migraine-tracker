@@ -26,6 +26,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
+import 'package:migraine_tracker/features/health/domain/entities/step_hour.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
@@ -450,6 +451,9 @@ class FakeHealthRepository implements HealthRepository {
   /// want analysed.
   List<StepDay> days = <StepDay>[];
 
+  /// Served by [stepHours], unfiltered — the step chart's Day range.
+  List<StepHour> hours = <StepHour>[];
+
   int authorizationRequests = 0;
 
   /// How many times sleep was actually read — the assertion behind "a free
@@ -458,6 +462,10 @@ class FakeHealthRepository implements HealthRepository {
 
   /// How many times steps were actually read — same role as [sleepReads].
   int stepReads = 0;
+
+  /// Reads of the hourly series, counted separately: the Day range is its own
+  /// query, so a test can tell which one a card issued.
+  int stepHourReads = 0;
 
   /// Which sources were asked for: sleep and steps prompt separately now.
   final List<HealthDataKind> requestedKinds = <HealthDataKind>[];
@@ -485,6 +493,16 @@ class FakeHealthRepository implements HealthRepository {
   }) async {
     stepReads++;
     return days;
+  }
+
+  @override
+  Future<List<StepHour>> stepHours({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    stepHourReads++;
+
+    return hours;
   }
 }
 

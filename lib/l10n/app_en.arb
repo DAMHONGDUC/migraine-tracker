@@ -2854,5 +2854,37 @@
         "type": "String"
       }
     }
+  },
+  "healthRangeDay": "D",
+  "@healthRangeDay": {
+    "description": "Health chart range selector: today, by hour"
+  },
+  "healthRangeWeek": "W",
+  "@healthRangeWeek": {
+    "description": "Health chart range selector: the last 7 days"
+  },
+  "healthRangeMonth": "M",
+  "@healthRangeMonth": {
+    "description": "Health chart range selector: the last 30 days"
+  },
+  "healthRangeHalfYear": "6M",
+  "@healthRangeHalfYear": {
+    "description": "Health chart range selector: the last 6 months, by week"
+  },
+  "healthRangeEmpty": "No data for this range.",
+  "@healthRangeEmpty": {
+    "description": "Shown when Apple Health returned nothing over the selected range"
+  },
+  "activityCardTitle": "Activity",
+  "@activityCardTitle": {
+    "description": "Title of the steps and exertion card on Insights"
+  },
+  "sleepCardTitle": "Sleep",
+  "@sleepCardTitle": {
+    "description": "Title of the sleep card on Insights"
+  },
+  "insightsAnalysisTitle": "Analysis",
+  "@insightsAnalysisTitle": {
+    "description": "Heading of the premium half of an insight card"
   }
 }
