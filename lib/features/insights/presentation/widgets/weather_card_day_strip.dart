@@ -1,33 +1,44 @@
 part of 'weather_card.dart';
 
-/// The week across the top: one cell a day, scrolling sideways, the picked
-/// one filled.
+/// The week across the top: seven cells sharing the card's width, no
+/// scrolling.
+///
+/// A `Row` of `Expanded`, not a horizontal `ListView`: a week is a fixed,
+/// small number and it fits, so a scroll gesture here would hide days behind
+/// an edge for no reason. That is also what makes every cell the same width
+/// whatever its label.
 class _DayStrip extends ConsumerWidget {
   const _DayStrip({required this.week, required this.selected});
 
   final List<WeatherDaily> week;
   final int selected;
 
+  /// Tight, because seven cells share ~321pt at the design width and the
+  /// gaps come out of the same budget as the labels.
+  static double get gap => SdSpacingConstant.w4;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: _DayCell.height,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: week.length,
-        separatorBuilder: (_, _) => SizedBox(width: SdSpacingConstant.w8),
-        itemBuilder: (BuildContext context, int index) => _DayCell(
-          day: week[index],
-          isToday: index == 0,
-          isSelected: index == selected,
-          onTap: () => ref.read(weatherDayProvider.notifier).set(index),
-        ),
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (final (int index, WeatherDaily day) in week.indexed) ...<Widget>[
+          if (index > 0) SizedBox(width: gap),
+          Expanded(
+            child: _DayCell(
+              day: day,
+              isToday: index == 0,
+              isSelected: index == selected,
+              onTap: () => ref.read(weatherDayProvider.notifier).set(index),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
 
-/// One day: the weekday, its glyph, and its high.
+/// One day: the weekday, its glyph, its high.
 class _DayCell extends StatelessWidget {
   const _DayCell({
     required this.day,
@@ -37,23 +48,14 @@ class _DayCell extends StatelessWidget {
   });
 
   final WeatherDaily day;
+
+  /// Today is named by its own weekday like every other cell — "Today" and
+  /// "Hôm nay" are both too wide for a seventh of the card. What marks it is
+  /// the accent on the label, which costs no width at all.
   final bool isToday;
+
   final bool isSelected;
   final VoidCallback onTap;
-
-  /// Stated outright, like the details grid learned to: the strip is inside a
-  /// horizontal `ListView`, which gives its children unbounded height, so
-  /// nothing else here would size them.
-  static double get height =>
-      SdSpacingConstant.h8 * 2 +
-      SdSpacingConstant.h16 +
-      SdSpacingConstant.h4 +
-      SdSpacingConstant.r20 +
-      SdSpacingConstant.h4 +
-      SdSpacingConstant.h20;
-
-  /// Wide enough for a weekday abbreviation in either locale.
-  static double get width => SdSpacingConstant.w56;
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +64,18 @@ class _DayCell extends StatelessWidget {
       l10n,
       day.temperatureMaxCelsius,
     );
+    final Color labelColour = isSelected || isToday
+        ? context.colorScheme.primary
+        : AppColors.textSecondary;
 
     return SdPressableScaleV2(
       pressedScale: 0.96,
       onTap: onTap,
       child: Container(
-        width: width,
-        padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h8),
+        padding: EdgeInsets.symmetric(
+          vertical: SdSpacingConstant.h8,
+          horizontal: SdSpacingConstant.w2,
+        ),
         decoration: BoxDecoration(
           // Filled when picked; a step up from the card otherwise, like
           // everything else that sits on one.
@@ -78,17 +85,15 @@ class _DayCell extends StatelessWidget {
           borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
-              isToday
-                  ? l10n.weatherToday
-                  : DateFormat.E(l10n.localeName).format(day.date.toLocal()),
+              DateFormat.E(l10n.localeName).format(day.date.toLocal()),
               style: AppTextStyle.bodySmall.copyWith(
-                color: isSelected
-                    ? context.colorScheme.primary
-                    : AppColors.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: labelColour,
+                fontWeight: isSelected || isToday
+                    ? FontWeight.w600
+                    : FontWeight.w400,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -104,7 +109,7 @@ class _DayCell extends StatelessWidget {
             SizedBox(height: SdSpacingConstant.h4),
             Text(
               high ?? '',
-              style: AppTextStyle.bodyMedium,
+              style: AppTextStyle.bodySmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

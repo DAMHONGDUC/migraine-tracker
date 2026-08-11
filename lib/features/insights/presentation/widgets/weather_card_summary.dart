@@ -30,23 +30,38 @@ class _DaySummary extends StatelessWidget {
 
     return Row(
       children: <Widget>[
+        // Smaller glyph and gap than the full-width version this replaced:
+        // the dropdown now shares the row, and those pixels are the caption's.
         SdIconV2(
           icon: WeatherConditionUtils.icon(
             condition,
             daylight: now?.daylight,
           ),
-          size: SdSpacingConstant.r36,
+          size: SdSpacingConstant.r28,
           color: AppColors.primary,
         ),
-        SizedBox(width: SdSpacingConstant.w16),
+        SizedBox(width: SdSpacingConstant.w8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               if (headline != null)
-                Text(headline, style: AppTextStyle.headlineMedium),
+                Text(
+                  headline,
+                  style: AppTextStyle.titleLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              // Two lines rather than an ellipsis: the condition and what it
+              // feels like are both the point, and a Vietnamese pair of them
+              // does not fit one line beside the pill.
               if (caption != null)
-                Text(caption, style: AppTextStyle.bodyMedium.secondary),
+                Text(
+                  caption,
+                  style: AppTextStyle.bodySmall.secondary,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
             ],
           ),
         ),

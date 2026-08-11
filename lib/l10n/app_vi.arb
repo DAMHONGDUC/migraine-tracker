@@ -428,7 +428,6 @@
   "dashboardPremiumBody": "Cảnh báo áp suất, biểu đồ dự báo 48h và phân tích tác nhân của bạn.",
   "dashboardCalendarShortcut": "Lịch",
   "dashboardChartShortcut": "Biểu đồ",
-  "dashboardWeatherShortcut": "Thời tiết",
   "dashboardExplore": "Khám phá",
   "dashboardReminderTitle": "Nhắc thuốc",
   "dashboardReminderBody": "Đừng bỏ lỡ liều nào.",
@@ -584,8 +583,7 @@
   "activityCardTitle": "Vận động",
   "sleepCardTitle": "Giấc ngủ",
   "insightsAnalysisTitle": "Phân tích",
-  "weatherMetricConditions": "Điều kiện thời tiết",
+  "weatherMetricConditions": "Điều kiện",
   "weatherMetricSheetTitle": "Hiển thị",
-  "weatherToday": "Hôm nay",
   "weatherRange": "{low} / {high}"
 }

@@ -105,21 +105,30 @@ class _Forecast extends ConsumerWidget {
           _DayStrip(week: week, selected: selected),
           SizedBox(height: SdSpacingConstant.h16),
         ],
-        _DaySummary(
-          day: day,
-          // The live reading belongs to today alone — on any other day the
-          // summary is the forecast's own high and low.
-          current: selected == 0 ? report.current : null,
-        ),
-        SizedBox(height: SdSpacingConstant.h16),
-        SdFilterChipV2<WeatherMetric>(
-          label: WeatherMetricUtils.label(l10n, metric),
-          selected: metric,
-          options: WeatherMetric.values,
-          optionLabelBuilder: (WeatherMetric value) =>
-              WeatherMetricUtils.label(l10n, value),
-          onSelected: ref.read(weatherMetricProvider.notifier).set,
-          sheetTitle: l10n.weatherMetricSheetTitle,
+        // Summary and dropdown share a row. The summary takes what is left
+        // after the pill, which sizes to its own label — so the pill can
+        // never be squeezed into an overflow, and the summary wraps instead.
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: _DaySummary(
+                day: day,
+                // The live reading belongs to today alone — on any other day
+                // the summary is the forecast's own high and low.
+                current: selected == 0 ? report.current : null,
+              ),
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            SdFilterChipV2<WeatherMetric>(
+              label: WeatherMetricUtils.label(l10n, metric),
+              selected: metric,
+              options: WeatherMetric.values,
+              optionLabelBuilder: (WeatherMetric value) =>
+                  WeatherMetricUtils.label(l10n, value),
+              onSelected: ref.read(weatherMetricProvider.notifier).set,
+              sheetTitle: l10n.weatherMetricSheetTitle,
+            ),
+          ],
         ),
         SizedBox(height: SdSpacingConstant.h16),
         _MetricStrip(hours: hours, metric: metric),

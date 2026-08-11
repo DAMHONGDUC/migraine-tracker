@@ -2103,10 +2103,6 @@
   "@dashboardChartShortcut": {
     "description": "Dashboard quick-access card opening History in chart view"
   },
-  "dashboardWeatherShortcut": "Weather",
-  "@dashboardWeatherShortcut": {
-    "description": "Dashboard quick-access tile that opens the pressure screen"
-  },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
     "description": "Section header above the dashboard feature banners"
@@ -2862,10 +2858,6 @@
   "weatherMetricSheetTitle": "Show",
   "@weatherMetricSheetTitle": {
     "description": "Title of the sheet that picks which hourly reading to show"
-  },
-  "weatherToday": "Today",
-  "@weatherToday": {
-    "description": "First cell of the weather card's day strip"
   },
   "weatherRange": "{low} / {high}",
   "@weatherRange": {
