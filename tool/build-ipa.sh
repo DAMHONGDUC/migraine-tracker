@@ -1,7 +1,10 @@
 #!/bin/sh
 # Build an iOS release archive for one environment, with its config attached.
 #
-#   sh tool/release-ios.sh <dev|prod> [extra `flutter build ipa` args...]
+#   sh tool/build-ipa.sh <dev|prod> [extra `flutter build ipa` args...]
+#
+# It builds and nothing else. Uploading is the fastlane lane's job — hence the
+# name: `release-ios` claimed a release this script never performed.
 #
 # This exists because Xcode's own Product > Archive cannot work here: the
 # app's Firebase and RevenueCat values arrive through
@@ -29,7 +32,7 @@ case "$TARGET" in
     ENV_FILE="env/prod.json"
     ;;
   *)
-    warn "usage: release-ios.sh <dev|prod> [flutter build ipa args...]"
+    warn "usage: build-ipa.sh <dev|prod> [flutter build ipa args...]"
     exit 1
     ;;
 esac

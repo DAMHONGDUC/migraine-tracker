@@ -1,5 +1,5 @@
 # Fastlane never archives in this project — it signs, exports and distributes
-# what `tool/release-ios.sh` builds.
+# what `tool/build-ipa.sh` builds.
 #
 # Firebase and RevenueCat config arrive through `--dart-define-from-file`, a
 # flag xcodebuild and `gym` know nothing about. An archive made by them carries
@@ -7,7 +7,7 @@
 # app dies on the first `FirebaseAuth.instance` with "[core/no-app] No Firebase
 # App '[DEFAULT]' has been created" — a crash naming nothing to do with the
 # missing flag. That is the same trap as archiving from Xcode, and the reason
-# `tool/release-ios.sh` exists at all. Do not replace the `sh` call below with
+# `tool/build-ipa.sh` exists at all. Do not replace the `sh` call below with
 # `build_app`.
 
 require "tmpdir"
@@ -19,19 +19,19 @@ WIDGET_ID = "app.dd.migraine.tracker.BaroEaseWidgetExtension".freeze
 TEAM_ID = "WNG5UWNJ6H".freeze
 
 platform :ios do
-  desc "Build through tool/release-ios.sh and upload to TestFlight. flavor: dev|prod"
+  desc "Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false"
   lane :beta do |options|
     flavor = (options[:flavor] || "prod").to_s
     UI.user_error!("flavor must be dev or prod, got #{flavor.inspect}") unless %w[dev prod].include?(flavor)
 
+    bump = options[:bump].to_s != "false"
+
     root = repo_root
     key = asc_api_key
 
-    # Checked BEFORE the build, not after App Store Connect rejects the
-    # upload — an iOS build is the expensive half of this lane. Version and
-    # build number live in pubspec.yaml and nowhere else, so a build that
-    # cannot go out is a `version:` that was not bumped, and saying so here
-    # costs nothing.
+    # Resolved BEFORE the build, either way — an iOS build is the expensive
+    # half of this lane, and both the bump and the guard are answered by the
+    # same question App Store Connect will ask at the end.
     version, build = pubspec_version(root)
     latest = latest_testflight_build_number(
       api_key: key,
@@ -39,10 +39,24 @@ platform :ios do
       version: version,
       initial_build_number: 0,
     )
-    if build.to_i <= latest.to_i
+
+    if bump
+      # The number is written INTO pubspec.yaml and committed back after the
+      # upload — never passed as `--build-number`. That flag would ship a build
+      # whose version exists nowhere in git, and the repo could no longer say
+      # what went out; see docs/rules/COMMANDS.md. Writing the file keeps that
+      # property and still spares a human from remembering.
+      #
+      # Taken from TestFlight rather than from pubspec alone: App Store Connect
+      # refuses a build number it has already seen for this version, and it has
+      # seen builds from every branch that ever ran this lane.
+      build = ([build.to_i, latest.to_i].max + 1).to_s
+      set_pubspec_build_number(root, version, build)
+      UI.message("Building #{version}+#{build} (TestFlight was at #{latest}).")
+    elsif build.to_i <= latest.to_i
       UI.user_error!(
         "pubspec.yaml is at #{version}+#{build}, but TestFlight already has build " \
-        "#{latest} for #{version}. Bump `version:` in pubspec.yaml, merge, then run again.",
+        "#{latest} for #{version}. Bump `version:` in pubspec.yaml, or run with bump:true.",
       )
     end
 
@@ -92,11 +106,11 @@ platform :ios do
       )
     end
 
-    command = ["sh", "tool/release-ios.sh", flavor]
+    command = ["sh", "tool/build-ipa.sh", flavor]
     command << "--export-options-plist=#{export_plist}" if export_plist
     Dir.chdir(root) { sh(*command) }
 
-    # release-ios.sh wipes build/ios/ipa before every build, so this glob
+    # build-ipa.sh wipes build/ios/ipa before every build, so this glob
     # matches exactly one file and it is the one just built.
     ipa = Dir["#{root}/build/ios/ipa/*.ipa"].first
     UI.user_error!("No IPA under build/ios/ipa — the build produced nothing.") if ipa.nil?
@@ -110,6 +124,13 @@ platform :ios do
       app_identifier: APP_ID,
       skip_waiting_for_build_processing: true,
     )
+
+    # Pushed AFTER the upload, on purpose. A bump commit for a build that never
+    # shipped is only a gap in the numbering; a build on TestFlight whose
+    # number is in no commit is the thing this whole rule exists to prevent.
+    # If the push fails here the job fails loudly with the build already up —
+    # commit the number by hand rather than releasing over it.
+    commit_build_number(root, version, build) if bump && is_ci
 
     UI.success("Uploaded #{flavor} #{version}+#{build} to TestFlight.")
   end
@@ -135,13 +156,48 @@ end
 
 # Returns ["1.0.0", "12"] from `version: 1.0.0+12`.
 def pubspec_version(root)
-  raw = File.read("#{root}/pubspec.yaml")[/^version:\s*(\S+)/, 1]
+  raw = read_pubspec(root)[/^version:\s*(\S+)/, 1]
   UI.user_error!("pubspec.yaml has no `version:` line.") if raw.nil?
 
   name, build = raw.split("+")
   UI.user_error!("pubspec.yaml version #{raw} carries no +build number.") if build.nil?
 
   [name, build]
+end
+
+# The encoding is stated, never inherited. pubspec.yaml holds em dashes, and
+# Ruby with no UTF-8 locale reads it as US-ASCII — then the first regex against
+# it dies with "invalid byte sequence in US-ASCII", a failure that names the
+# encoding and not the missing LANG. Same trap CocoaPods falls into in
+# tool/set-up.sh, and a runner is exactly the stripped environment that has no
+# locale set.
+def read_pubspec(root)
+  File.read("#{root}/pubspec.yaml", encoding: "UTF-8")
+end
+
+# Rewrites the `version:` line, keeping the name and replacing the +build.
+def set_pubspec_build_number(root, version_name, build)
+  before = read_pubspec(root)
+  after = before.sub(/^version:\s*\S+$/, "version: #{version_name}+#{build}")
+  UI.user_error!("Could not rewrite the `version:` line in pubspec.yaml.") if after == before
+  File.write("#{root}/pubspec.yaml", after, encoding: "UTF-8")
+end
+
+# Commits the bumped pubspec.yaml back to the branch the workflow ran on.
+#
+# `git add pubspec.yaml` and nothing else: on CI the checkout is also carrying
+# a pbxproj switched to manual signing and an env/*.json written from a secret,
+# and neither may ever reach a commit. `[skip ci]` keeps the push from starting
+# the analyze-and-test workflow over a one-line version change.
+def commit_build_number(root, version_name, build)
+  branch = ENV["GITHUB_REF_NAME"]
+  UI.user_error!("GITHUB_REF_NAME is unset — no branch to push the bump to.") if branch.nil? || branch.empty?
+
+  Dir.chdir(root) do
+    sh("git", "add", "pubspec.yaml")
+    sh("git", "commit", "-m", "chore: release - build #{version_name}+#{build} [skip ci]")
+    sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
+  end
 end
 
 # App Store Connect API key, from a file locally and from a secret in CI.

@@ -1,8 +1,10 @@
 name: Release iOS
 
-# Manual only, and deliberately so. The build number comes from pubspec.yaml
-# and nowhere else, so a release is an act taken after that file was bumped and
-# merged — not something a push to main should start on its own.
+# Manual only, and deliberately so — a release is an act, not a side effect of
+# a push. "Use workflow from" picks the branch, and the run uses that branch's
+# code and its copy of this file. GitHub only lists a workflow_dispatch entry
+# once the file exists on the DEFAULT branch, so this has to reach main once
+# before any branch can be chosen.
 on:
   workflow_dispatch:
     inputs:
@@ -11,10 +13,18 @@ on:
         type: choice
         options: [prod, dev]
         default: prod
+      bump:
+        description: Bump the build number in pubspec.yaml and commit it back
+        type: boolean
+        default: true
 
 jobs:
   testflight:
     runs-on: macos-15
+    # The bump is written into pubspec.yaml and pushed to the branch after the
+    # upload, so the number that shipped is in git. Nothing else here writes.
+    permissions:
+      contents: write
     # A cold iOS build with SPM resolution is ~20 minutes; the cap is there so
     # a hung signing prompt cannot sit on a macOS runner for six hours.
     timeout-minutes: 90
@@ -24,6 +34,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      # The bump commit is authored by the Actions bot rather than by whoever
+      # pressed the button: it is a machine-written line, and attributing it to
+      # a person makes `git log` say they bumped a file they never opened.
+      - name: Git identity for the bump commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Verify the submodule checked out
         run: |
@@ -117,7 +135,7 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           # Fastlane's own output is long and its failures are near the end.
           FASTLANE_SKIP_UPDATE_CHECK: 'true'
-        run: bundle exec fastlane beta flavor:${{ inputs.flavor }}
+        run: bundle exec fastlane beta flavor:${{ inputs.flavor }} bump:${{ inputs.bump }}
 
       # Kept for the case the upload succeeded but TestFlight later rejects the
       # binary: the exact IPA that went out is then still available.
