@@ -882,7 +882,10 @@ Future<void> settleExport(WidgetTester tester) async {
 }
 
 Future<void> openMedications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.medication_outlined));
+  // `.last` is the nav bar, same as `openInsights`: the dashboard's
+  // quick-access tile carries this glyph too, and the bottom bar is built
+  // after the body, so it comes last.
+  await tester.tap(find.byIcon(Icons.medication_outlined).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
