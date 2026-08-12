@@ -144,6 +144,10 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
             icon: Icons.notifications_active_outlined,
             title: l10n.alertsToggleTitle,
             trailing: Switch(
+              // Without this the switch brings Material's 48pt tap target
+              // with it, which makes its row taller than the threshold row
+              // and leaves the divider sitting closer to one than the other.
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               value: settings.enabled,
               onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
             ),
@@ -209,32 +213,42 @@ class _AlertRow extends StatelessWidget {
   /// label of a switch row would be a second, invisible way to toggle it.
   final VoidCallback? onTap;
 
+  /// Both rows are exactly this tall, whatever they hold.
+  ///
+  /// A switch and a line of text are different heights, so without a floor
+  /// the two rows differ and the divider between them sits closer to one than
+  /// the other. It is also the minimum a row carrying a control may be.
+  static double get height => SdSpacingConstant.h44;
+
   @override
   Widget build(BuildContext context) {
-    final Widget row = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w8,
-        vertical: SdSpacingConstant.h8,
-      ),
-      child: Row(
-        children: <Widget>[
-          SdIconV2(
-            icon: icon,
-            size: SdSpacingConstant.r20,
-            color: context.colorScheme.onSurfaceVariant,
-          ),
-          SizedBox(width: SdSpacingConstant.w12),
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyle.bodyLarge,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+    // ConstrainedBox, not a Container with an `alignment`: that one sizes
+    // through Align, whose height under an unbounded parent depends on its
+    // child. This states the floor and lets the Row centre inside it.
+    final Widget row = ConstrainedBox(
+      constraints: BoxConstraints(minHeight: height),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w8),
+        child: Row(
+          children: <Widget>[
+            SdIconV2(
+              icon: icon,
+              size: SdSpacingConstant.r20,
+              color: context.colorScheme.onSurfaceVariant,
             ),
-          ),
-          SizedBox(width: SdSpacingConstant.w8),
-          trailing,
-        ],
+            SizedBox(width: SdSpacingConstant.w12),
+            Expanded(
+              child: Text(
+                title,
+                style: AppTextStyle.bodyLarge,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            trailing,
+          ],
+        ),
       ),
     );
 
