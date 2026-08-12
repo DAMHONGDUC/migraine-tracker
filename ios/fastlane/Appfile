@@ -1,0 +1,10 @@
+# One bundle id serves both dev and prod, so both land in the SAME TestFlight
+# app and the build number is the only thing telling them apart. Separating
+# them means a second App Store Connect record, a second Firebase iOS app and
+# a second RevenueCat app — see docs/rules/COMMANDS.md.
+app_identifier("app.dd.migraine.tracker")
+
+# The Apple Developer team. No `apple_id` here on purpose: every lane
+# authenticates with an App Store Connect API key, which needs no Apple ID and
+# no 2FA prompt a CI runner could never answer.
+team_id("WNG5UWNJ6H")
