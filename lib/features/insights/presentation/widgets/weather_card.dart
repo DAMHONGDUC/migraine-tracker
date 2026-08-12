@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +9,8 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/utils/chart_axis_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/weather_attribution.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../weather/domain/entities/weather_report.dart';
@@ -16,6 +21,7 @@ import '../../providers.dart';
 part 'weather_card_condition.dart';
 part 'weather_card_day_strip.dart';
 part 'weather_card_metric.dart';
+part 'weather_card_metric_chart.dart';
 part 'weather_card_summary.dart';
 
 /// Insights' weather card: pick a day, pick a reading, see it hour by hour —

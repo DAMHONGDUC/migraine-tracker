@@ -67,6 +67,91 @@ final class WeatherMetricUtils {
       metric == WeatherMetric.conditions
       ? WeatherConditionUtils.icon(hour.condition)
       : glyph(metric);
+
+  /// The top of the UV axis whatever the day holds — the WHO scale's own
+  /// "extreme" band. Without a floor, a day peaking at 3 would draw a
+  /// full-height curve and read as a dangerous one.
+  static const double uvScaleTop = 11;
+
+  /// The plotted number, unformatted.
+  ///
+  /// Deliberately beside [value], which prints the same field: a chart reading
+  /// a different field from the label above it is the one bug this shape can
+  /// have, and two switches in one class cannot drift unseen.
+  static double? number(WeatherMetric metric, WeatherHourly hour) =>
+      switch (metric) {
+        WeatherMetric.conditions => hour.temperatureCelsius,
+        WeatherMetric.uvIndex => hour.uvIndex,
+        WeatherMetric.wind => hour.windSpeedKph,
+        WeatherMetric.precipitation => hour.precipitationChancePercent,
+        WeatherMetric.humidity => hour.humidityPercent,
+        WeatherMetric.visibility => hour.visibilityKm,
+      };
+
+  /// Bars for an amount counted from zero, a curve for a level.
+  ///
+  /// Rain and UV are quantities an hour either has or does not, and a line
+  /// sloping between two of them draws readings Apple never reported.
+  static bool isBars(WeatherMetric metric) => switch (metric) {
+    WeatherMetric.precipitation || WeatherMetric.uvIndex => true,
+    WeatherMetric.conditions ||
+    WeatherMetric.wind ||
+    WeatherMetric.humidity ||
+    WeatherMetric.visibility => false,
+  };
+
+  /// The day's readings as runs of consecutive hours, split wherever Apple
+  /// had no value.
+  ///
+  /// Runs rather than one series: `fl_chart` takes no nulls, so a gap left in
+  /// would be drawn as a straight line between the hours either side of it —
+  /// a reading invented to cover a missing one.
+  static List<List<FlSpot>> segments(
+    WeatherMetric metric,
+    List<WeatherHourly> hours,
+  ) {
+    final List<List<FlSpot>> runs = <List<FlSpot>>[];
+    List<FlSpot> run = <FlSpot>[];
+
+    for (final (int index, WeatherHourly hour) in hours.indexed) {
+      final double? value = number(metric, hour);
+
+      if (value == null) {
+        if (run.isNotEmpty) runs.add(run);
+        run = <FlSpot>[];
+        continue;
+      }
+
+      run.add(FlSpot(index.toDouble(), value));
+    }
+
+    if (run.isNotEmpty) runs.add(run);
+
+    return runs;
+  }
+
+  /// The y range the day is drawn against, from the values it actually has.
+  ///
+  /// Percentages are pinned to 0–100 and UV to its own scale: auto-scaling a
+  /// bounded reading turns a three-point wiggle into a mountain, and this is
+  /// an app whose users make decisions off the shape.
+  static (double min, double max) range(
+    WeatherMetric metric,
+    Iterable<double> values,
+  ) => switch (metric) {
+    WeatherMetric.precipitation || WeatherMetric.humidity => (0, 100),
+    WeatherMetric.uvIndex => (
+      0,
+      max(uvScaleTop, ChartAxisUtils.maxBound(values)),
+    ),
+    // Calm IS zero and says so; headroom underneath it would say nothing.
+    WeatherMetric.wind => (0, ChartAxisUtils.maxBound(values)),
+    // Levels around a baseline — a 20° day must not start its axis at 0.
+    WeatherMetric.conditions || WeatherMetric.visibility => (
+      ChartAxisUtils.minBound(values),
+      ChartAxisUtils.maxBound(values),
+    ),
+  };
 }
 
 /// The closed metric picker: the current reading's glyph and a chevron, and
@@ -144,8 +229,16 @@ class _MetricPicker extends ConsumerWidget {
   }
 }
 
-/// The picked day's hours, scrolling sideways — iOS Weather's own row, with
-/// the dropdown deciding what the numbers under the glyphs mean.
+/// The picked day's hours — iOS Weather's own row, with the dropdown deciding
+/// what the numbers under the glyphs mean, and the chart under them drawn from
+/// those same numbers.
+///
+/// **One scroll region, not two.** The cells and the chart share a single
+/// `SingleChildScrollView` of a stated width, so hour 14 is at the same x in
+/// both however far the user has scrolled. Two scroll views side by side would
+/// need their offsets kept in sync, which is a thing to get wrong every frame.
+///
+/// Not lazy, and that is fine: a day is at most 24 cells.
 class _MetricStrip extends StatelessWidget {
   const _MetricStrip({required this.hours, required this.metric});
 
@@ -155,6 +248,7 @@ class _MetricStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final DateTime now = DateTime.now();
 
     if (hours.isEmpty) {
       return Text(
@@ -163,30 +257,35 @@ class _MetricStrip extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: _MetricCell.height,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: hours.length,
-        separatorBuilder: (_, _) => SizedBox(width: SdSpacingConstant.w16),
-        itemBuilder: (BuildContext context, int index) => _MetricCell(
-          hour: hours[index],
-          metric: metric,
-          isNow: index == 0 && _isToday(hours[index].time),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: _MetricCell.width * hours.length,
+        child: Column(
+          // Stretch, not optional: the chart states only its height, and a
+          // loose width constraint would let it shrink off the cells it is
+          // drawn to line up with.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                for (final (int index, WeatherHourly hour) in hours.indexed)
+                  _MetricCell(
+                    hour: hour,
+                    metric: metric,
+                    // Only the first hour of the current day is "Now"; on any
+                    // other day it is just that day's first hour.
+                    isNow:
+                        index == 0 && DateTimeUtils.isSameDay(hour.time, now),
+                  ),
+              ],
+            ),
+            SizedBox(height: SdSpacingConstant.h8),
+            _MetricChart(hours: hours, metric: metric),
+          ],
         ),
       ),
     );
-  }
-
-  /// Only the first hour of the current day is "Now"; on any other day the
-  /// first cell is just that day's first hour.
-  bool _isToday(DateTime time) {
-    final DateTime now = DateTime.now();
-    final DateTime local = time.toLocal();
-
-    return local.year == now.year &&
-        local.month == now.month &&
-        local.day == now.day;
   }
 }
 
@@ -202,8 +301,8 @@ class _MetricCell extends StatelessWidget {
   final WeatherMetric metric;
   final bool isNow;
 
-  /// Stated outright: a horizontal `ListView` gives its children unbounded
-  /// height, so nothing else here would size them.
+  /// Stated outright: a horizontal scroll view gives its child unbounded
+  /// space, so nothing else here would size a cell.
   static double get height =>
       SdSpacingConstant.h16 +
       SdSpacingConstant.h8 +
@@ -211,29 +310,43 @@ class _MetricCell extends StatelessWidget {
       SdSpacingConstant.h8 +
       SdSpacingConstant.h20;
 
+  /// **Fixed, and that is what makes the chart line up.** The chart below
+  /// spans `width * hours.length` and maps hour i to the centre of cell i —
+  /// an intrinsic width plus a separator would put every column somewhere the
+  /// chart cannot compute.
+  static double get width => SdSpacingConstant.w56;
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(
-          isNow ? l10n.weatherNow : DateFormat.j().format(hour.time.toLocal()),
-          style: AppTextStyle.bodySmall.secondary,
-          maxLines: 1,
-        ),
-        SdIconV2(
-          icon: WeatherMetricUtils.icon(metric, hour),
-          size: SdSpacingConstant.r24,
-          color: AppColors.primary,
-        ),
-        Text(
-          WeatherMetricUtils.value(l10n, metric, hour) ?? '',
-          style: AppTextStyle.bodyMedium,
-          maxLines: 1,
-        ),
-      ],
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            isNow
+                ? l10n.weatherNow
+                : DateFormat.j().format(hour.time.toLocal()),
+            style: AppTextStyle.bodySmall.secondary,
+            maxLines: 1,
+          ),
+          SdIconV2(
+            icon: WeatherMetricUtils.icon(metric, hour),
+            size: SdSpacingConstant.r24,
+            color: AppColors.primary,
+          ),
+          Text(
+            // An em dash, not a blank: an hour Apple had no value for should
+            // say so, and an empty slot under a glyph reads as a render bug.
+            WeatherMetricUtils.value(l10n, metric, hour) ?? '—',
+            style: AppTextStyle.bodyMedium,
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../../../core/utils/date_time_utils.dart';
+
 /// Everything the weather card draws: conditions now, the hours ahead, and
 /// the days after that.
 ///
@@ -35,17 +37,9 @@ class WeatherReport {
   ///
   /// Local and not UTC: the user picks "Wednesday" from a strip drawn in
   /// their own timezone, so the hours under it have to be their Wednesday.
-  List<WeatherHourly> hoursOn(DateTime day) {
-    final DateTime local = day.toLocal();
-
-    return hours.where((WeatherHourly hour) {
-      final DateTime at = hour.time.toLocal();
-
-      return at.year == local.year &&
-          at.month == local.month &&
-          at.day == local.day;
-    }).toList();
-  }
+  List<WeatherHourly> hoursOn(DateTime day) => hours
+      .where((WeatherHourly hour) => DateTimeUtils.isSameDay(hour.time, day))
+      .toList();
 }
 
 /// Conditions at one instant — what the top of the card reads.
