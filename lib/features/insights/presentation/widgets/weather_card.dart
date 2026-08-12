@@ -37,25 +37,20 @@ class WeatherCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final WeatherReport? report = ref.watch(weatherReportProvider).value;
+    final AsyncValue<WeatherReport?> async = ref.watch(weatherReportProvider);
+    // Survives a refresh: AsyncValue keeps the last value while refetching,
+    // so a reload redraws the forecast it already had rather than blanking.
+    final WeatherReport? report = async.value;
 
     return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          // No heading: the tab above the card already names it, and the two
+          // read as one label stated twice.
           children: <Widget>[
-            // No heading: the tab above the card already names it, and the
-            // two read as one label stated twice.
-            if (report == null)
-              // One state for offline, no permission and a backend with no
-              // WeatherKit credentials — hard rule 4 makes them the same
-              // answer, so they must not look like three different bugs.
-              Text(
-                l10n.weatherUnavailable,
-                style: AppTextStyle.bodyMedium.secondary,
-              )
-            else ...<Widget>[
+            if (report != null) ...<Widget>[
               _Forecast(report: report),
               // Bottom-right of the card, always, whenever Apple's data is
               // what was drawn. The real widget, not a plain Text: WeatherKit
@@ -63,7 +58,22 @@ class WeatherCard extends ConsumerWidget {
               // App Review checks for it.
               SizedBox(height: SdSpacingConstant.h12),
               const WeatherAttribution(),
-            ],
+            ] else if (async.isLoading)
+              // Loading is NOT unavailable. Saying so while the first fetch
+              // is still in flight told every user the feature was broken
+              // for the length of a round trip.
+              SizedBox(
+                height: SdChartStyleV2.plotHeight,
+                child: const Center(child: CircularProgressIndicator()),
+              )
+            else
+              // One state for offline, no permission and a backend with no
+              // WeatherKit credentials — hard rule 4 makes them the same
+              // answer, so they must not look like three different bugs.
+              Text(
+                l10n.weatherUnavailable,
+                style: AppTextStyle.bodyMedium.secondary,
+              ),
           ],
         ),
       ),

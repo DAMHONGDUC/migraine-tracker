@@ -76,7 +76,17 @@ class BackendWeatherRepository implements WeatherRepository {
       longitude: point.longitude,
     );
 
-    AppLogger.debug('Weather report fetched', report?.hours.length);
+    // Not `report?.hours.length`: that logs "— null" for a failed fetch,
+    // which reads the same as a fetch that returned nothing.
+    if (report == null) {
+      AppLogger.warning('Weather report unavailable — see the getWeather line');
+    } else {
+      AppLogger.info('Weather report fetched', <String, Object?>{
+        'hours': report.hours.length,
+        'days': report.days.length,
+        'current': report.current != null,
+      });
+    }
 
     return report;
   }
