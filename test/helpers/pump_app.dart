@@ -986,9 +986,35 @@ Future<void> openInsights(WidgetTester tester) async {
   // `.last` is the nav bar: the dashboard's quick-access tile now carries the
   // same glyph, and the bottom bar is built after the body, so it comes last.
   await tester.tap(find.byIcon(Icons.insights_outlined).last);
+  await pumpCountUp(tester);
+}
+
+/// Real frames, enough of them for the correlation's 700ms count-up to land.
+///
+/// One big `pump` skips its start frame, and `pumpAndSettle` cannot be used
+/// while it is running — so the frames are walked by hand.
+Future<void> pumpCountUp(WidgetTester tester) async {
   for (int i = 0; i < 15; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+}
+
+/// Insights, then its Pressure tab — which is where the correlation lives.
+///
+/// Insights opens on Weather now (`InsightsTabController.build`), so a test
+/// that wants the correlation has to say so. A test asserting the tab switch
+/// ITSELF should still tap the segment inline; this is for the ones that only
+/// need to be standing on that card.
+///
+/// **The count-up is pumped AFTER the switch, and that is the whole point of
+/// this helper.** The tabs build lazily, so the correlation card does not
+/// exist until the segment is tapped — frames spent inside `openInsights` are
+/// spent on the weather card, and the hero number is still counting when the
+/// assertion runs.
+Future<void> openPressureInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tapVisible(tester, find.text('Pressure'));
+  await pumpCountUp(tester);
 }
 
 /// Opens the log flow from the dashboard's hero button (the flow is a pushed

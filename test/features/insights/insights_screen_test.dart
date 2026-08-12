@@ -26,19 +26,26 @@ Attack seededAttack(int i, {double? pressureDelta}) {
 }
 
 void main() {
-  testWidgets('locked state shows remaining count and progress', (
-    tester,
-  ) async {
+  testWidgets('a locked pressure card is one pitch, not three', (tester) async {
     await pumpApp(tester);
-    await openInsights(tester);
+    await openPressureInsight(tester);
 
+    // The whole card is the purchase now, so the forecast, the correlation and
+    // the alert share ONE offer — each carrying its own line made a single
+    // offer read as three.
+    expect(
+      find.text(
+        'See the pressure forecast, how closely your attacks track it, and '
+        'get alerted before the next drop.',
+      ),
+      findsOneWidget,
+    );
     expect(
       find.text(
         'Log 15 more attacks with weather data to unlock this insight.',
       ),
-      findsOneWidget,
+      findsNothing,
     );
-    expect(find.text('0 of 15 attacks with weather'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -56,7 +63,7 @@ void main() {
         await repository.insert(seededAttack(i, pressureDelta: 2));
       }
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       expect(find.text('60%'), findsOneWidget);
       expect(
@@ -75,7 +82,7 @@ void main() {
     final repository = DriftAttackRepository(app.db);
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
-    await openInsights(tester);
+    await openPressureInsight(tester);
 
     expect(find.text('1/1'), findsOneWidget);
     expect(find.text('100%'), findsNothing);
@@ -101,7 +108,7 @@ void main() {
       await repository.insert(seededAttack(i, pressureDelta: 2));
     }
 
-    await openInsights(tester);
+    await openPressureInsight(tester);
 
     expect(find.text('60%'), findsOneWidget);
     expect(find.text('Based on 10 attacks with weather data'), findsOneWidget);
@@ -113,7 +120,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a free user below the minimum still sees only progress', (
+  testWidgets('a free user with attacks still gets no figure in the tree', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -122,16 +129,19 @@ void main() {
       await repository.insert(seededAttack(i, pressureDelta: -7));
     }
 
-    await openInsights(tester);
+    await openPressureInsight(tester);
 
-    expect(find.text('10 of 15 attacks with weather'), findsOneWidget);
+    // The point of the lock is that the number is never computed into a free
+    // user's widget tree — not that it is computed and then hidden.
     expect(find.text('60%'), findsNothing);
+    expect(find.text('100%'), findsNothing);
     expect(find.text('10/10'), findsNothing);
+    expect(find.text('10 of 15 attacks with weather'), findsNothing);
 
     await finishTest(tester);
   });
 
-  testWidgets('the pressure card opens the detail screen with the alerts', (
+  testWidgets('the pressure tab is one card: forecast, correlation, alerts', (
     tester,
   ) async {
     final app = await pumpApp(tester, premium: true);
@@ -140,36 +150,41 @@ void main() {
 
     await openInsights(tester);
 
-    // One pressure card now, not a forecast card and a correlation card.
+    // Insights opens on Weather, and the tabs build lazily — so only the
+    // segment naming this card is on screen, none of the card itself.
     expect(find.text('Pressure'), findsOneWidget);
-    expect(find.text('Pressure correlation'), findsNothing);
-    expect(find.text('48h pressure forecast'), findsNothing);
+    expect(find.text('Pressure-drop alerts'), findsNothing);
 
     await tapVisible(tester, find.text('Pressure'));
+    await pumpCountUp(tester);
 
-    // The detail screen: both cards in full, plus the controls they drive.
-    expect(find.text('Pressure correlation'), findsOneWidget);
+    // ONE card, not a forecast card beside a correlation card: the bodies are
+    // cardless and folded in, so the standalone `Pressure correlation` title
+    // never appears here.
+    expect(find.text('Pressure correlation'), findsNothing);
     expect(find.text('Pressure-drop alerts'), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsOneWidget);
+    // A bare Switch inside `_AlertRow`, never a SwitchListTile — that one
+    // brings Material's 48pt tap target and makes the two rows different
+    // heights, which is what made the pair look unfinished.
+    expect(find.byType(Switch), findsOneWidget);
 
     await finishTest(tester);
   });
 
-  // Reversed by the owner: the forecast is free, so the detail screen opens
-  // for everyone. The alert switch on it is still premium's, and does its own
-  // gating — reaching the screen and being able to arm the alert are now two
-  // different questions.
-  testWidgets('a free user reaches the pressure detail screen', (
+  testWidgets('a free user gets no alert controls, not disabled ones', (
     tester,
   ) async {
     final app = await pumpApp(tester);
     final repository = DriftAttackRepository(app.db);
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
-    await openInsights(tester);
-    await tapVisible(tester, find.text('Pressure'));
+    await openPressureInsight(tester);
 
-    expect(find.text('Pressure-drop alerts'), findsWidgets);
+    // Owner's call, and it reversed the first version: a switch that will not
+    // switch and a threshold row that will not open read as a broken screen
+    // rather than as an offer, so neither control is built at all.
+    expect(find.text('Pressure-drop alerts'), findsNothing);
+    expect(find.byType(Switch), findsNothing);
 
     await finishTest(tester);
   });
