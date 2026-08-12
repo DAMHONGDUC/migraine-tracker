@@ -22,17 +22,18 @@ final weekSummaryProvider = Provider<WeekSummary>((ref) {
 /// between every entry — a widget that hides itself would leave the gap
 /// behind it, which is the double-gap the list is built to avoid.
 ///
-/// Premium only: a free user is not shown a readout of analyses they cannot
-/// open. And only fields that actually carry a value count, so a device with
-/// no weather and no Apple Health drops the section rather than printing a
-/// card of dashes.
+/// Each row follows the gating of its own reading, so a free user still has
+/// weather, steps and sleep — only the pressure row is premium. Counting it
+/// for a free user would place a section they then see one row short.
+///
+/// Only fields that actually carry a value count, so a device with no weather
+/// and no Apple Health drops the section rather than printing a card of
+/// dashes.
 final hasTodayReadingsProvider = Provider<bool>((ref) {
-  if (!ref.watch(hasPremiumProvider)) return false;
-
   final WeatherConditions? now = ref.watch(weatherReportProvider).value?.current;
 
   return now?.temperatureCelsius != null ||
-      now?.pressureHpa != null ||
+      (ref.watch(hasPremiumProvider) && now?.pressureHpa != null) ||
       ref.watch(stepSummaryProvider).value?.latest != null ||
       ref.watch(sleepSummaryProvider).value?.latest != null;
 });

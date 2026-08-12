@@ -20,10 +20,14 @@ import '../../../weather/providers.dart';
 /// What today's readings say, in one line each, straight to the card that
 /// explains them.
 ///
-/// **Premium only, and only what actually has a value.** A free user is not
-/// shown a readout of the analyses they cannot open, and a row with nothing
-/// behind it is left out rather than printed as a dash — so the section is
-/// absent entirely on a device where none of the four has data.
+/// **Each row follows the gating of the reading it shows**, not the section's
+/// — weather, steps and sleep are free readings (hard rule 1 and
+/// `docs/PREMIUM_RULES.md`), so a free user sees them here; only pressure is
+/// premium and only that row is withheld.
+///
+/// **And only what actually has a value.** A row with nothing behind it is
+/// left out rather than printed as a dash, so the section is absent entirely
+/// on a device where none of them has data.
 ///
 /// Deliberately terse: it is a glance on the way past, and every row is a
 /// door into the Insights tab that carries the whole story.
@@ -32,8 +36,6 @@ class DashboardTodaySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(hasPremiumProvider)) return const SizedBox.shrink();
-
     final AppLocalizations l10n = context.l10n;
     final List<_Reading> readings = _readings(l10n, ref);
 
@@ -65,6 +67,7 @@ class DashboardTodaySection extends ConsumerWidget {
     final StepSummary? steps = ref.watch(stepSummaryProvider).value;
     final SleepSummary? sleep = ref.watch(sleepSummaryProvider).value;
     final WeatherConditions? now = weather?.current;
+    final bool hasPremium = ref.watch(hasPremiumProvider);
 
     return <_Reading>[
       if (now?.temperatureCelsius case final double value)
@@ -74,7 +77,9 @@ class DashboardTodaySection extends ConsumerWidget {
           value: l10n.weatherTemperature(value.round()),
           tab: InsightsTab.weather,
         ),
-      if (now?.pressureHpa case final double value)
+      // The one premium row: the pressure reading is what is sold, and a
+      // free user tapping through would land on a card of pitches.
+      if (now?.pressureHpa case final double value when hasPremium)
         _Reading(
           icon: Icons.compress,
           label: l10n.insightsPressureTitle,
