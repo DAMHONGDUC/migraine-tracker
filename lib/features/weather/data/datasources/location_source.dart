@@ -19,6 +19,37 @@ abstract interface class LocationSource {
   Future<bool> requestPermission();
 }
 
+/// Dev-only: answers a fixed point and never touches the plugin.
+///
+/// **It reports permission as granted, because there is nothing to ask.** The
+/// point is already known, so raising the OS prompt would be theatre — and on
+/// the Simulator the prompt is answered by a device that then still has no
+/// position to give.
+///
+/// Only ever built by `locationSourceProvider`, and only when the dev-only
+/// `DevLocation` preference is set — a prod flavour cannot reach the row that
+/// writes it.
+class FakeLocationSource implements LocationSource {
+  const FakeLocationSource(this.point);
+
+  final GeoPoint point;
+
+  @override
+  Future<GeoPoint?> currentPosition() async {
+    // Loud on purpose: every weather number downstream is from somewhere the
+    // device is not, and that must be obvious in the log rather than deduced.
+    AppLogger.warning('Faked position', <String, Object?>{
+      'latitude': point.latitude,
+      'longitude': point.longitude,
+    });
+
+    return point;
+  }
+
+  @override
+  Future<bool> requestPermission() async => true;
+}
+
 /// Hard rule 2: While-Using permission + reduced accuracy only, never Always.
 class GeolocatorLocationSource implements LocationSource {
   const GeolocatorLocationSource();

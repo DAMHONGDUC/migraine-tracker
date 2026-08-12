@@ -21,6 +21,11 @@ final class PrefsKeyConstant {
   static const String healthSleep = 'health_sleep_connected';
   static const String healthSteps = 'health_steps_connected';
 
+  /// A `DevLocation` name, pinning weather reads to a fixed city instead of
+  /// the device position. Absent = off. Dev builds only — the controller
+  /// ignores it outright in a prod flavour.
+  static const String devFakeLocation = 'dev_fake_location';
+
   /// Seeds the dev-only fake HealthKit. Absent = off, so the real plugin is
   /// used; present = the dev seed has run and the number generates a stable
   /// history. Dev builds only — nothing in prod ever writes it.

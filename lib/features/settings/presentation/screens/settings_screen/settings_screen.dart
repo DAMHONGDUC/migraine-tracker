@@ -25,6 +25,8 @@ import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../../../weather/domain/enums/dev_location.dart';
+import '../../../../weather/providers.dart';
 import '../../../domain/entities/wipe_status.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/app_version_label.dart';
@@ -35,6 +37,7 @@ import '../../widgets/premium_countdown_banner.dart';
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
+part 'settings_screen_dev_location_tile.dart';
 part 'settings_screen_dev_offers_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
 part 'settings_screen_dev_push_tile.dart';
@@ -97,6 +100,10 @@ class SettingsScreen extends ConsumerWidget {
                 const _DevOffersTile(),
                 const _DevPushTile(),
               ],
+              // First in the group: it is the one that decides whether the
+              // weather card has anything to draw on a Simulator, so it is
+              // what a dev reaches for before the fixtures.
+              const _DevLocationTile(),
               const _DevSeedTile(),
               const _DevResetTile(),
             ],

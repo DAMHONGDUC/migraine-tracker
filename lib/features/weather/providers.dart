@@ -12,14 +12,31 @@ import 'data/datasources/location_source.dart';
 import 'data/repositories/backend_weather_repository.dart';
 import 'data/repositories/drift_daily_pressure_repository.dart';
 import 'domain/entities/daily_pressure.dart';
+import 'domain/entities/geo_point.dart';
 import 'domain/entities/weather_report.dart';
+import 'domain/enums/dev_location.dart';
 import 'domain/repositories/daily_pressure_repository.dart';
 import 'domain/repositories/weather_repository.dart';
 import 'domain/services/daily_pressure_recorder.dart';
+import 'presentation/controllers/dev_location_controller.dart';
 
-final locationSourceProvider = Provider<LocationSource>(
-  (ref) => const GeolocatorLocationSource(),
+/// The dev-only faked position. [DevLocation.off] everywhere in a prod
+/// flavour, whatever is stored.
+final devLocationProvider = NotifierProvider<DevLocationController, DevLocation>(
+  DevLocationController.new,
 );
+
+/// The real device position, unless a dev build has pinned a city.
+///
+/// **Watched, not read**: picking a city has to rebuild this, and everything
+/// downstream of it, or the change would not land until the next launch.
+final locationSourceProvider = Provider<LocationSource>((ref) {
+  final GeoPoint? faked = ref.watch(devLocationProvider).point;
+
+  return faked == null
+      ? const GeolocatorLocationSource()
+      : FakeLocationSource(faked);
+});
 
 /// The app's only weather source, and it is the backend — there is no HTTP
 /// client here any more, because the app calls no weather API of its own.

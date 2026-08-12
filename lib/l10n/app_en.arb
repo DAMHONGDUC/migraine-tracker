@@ -1836,6 +1836,34 @@
   "@settingsSectionDev": {
     "description": "Section heading for dev-only tools, hidden in prod builds"
   },
+  "settingsDevLocation": "Fake location",
+  "@settingsDevLocation": {
+    "description": "Dev-only settings tile that pins weather reads to a fixed city"
+  },
+  "settingsDevLocationSheetTitle": "Read weather at",
+  "@settingsDevLocationSheetTitle": {
+    "description": "Title of the dev-only sheet that picks a faked location"
+  },
+  "settingsDevLocationOff": "Device location",
+  "@settingsDevLocationOff": {
+    "description": "The dev-only fake location option meaning the real device position"
+  },
+  "settingsDevLocationHanoi": "Hanoi",
+  "@settingsDevLocationHanoi": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationTokyo": "Tokyo",
+  "@settingsDevLocationTokyo": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationLondon": "London",
+  "@settingsDevLocationLondon": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationSanFrancisco": "San Francisco",
+  "@settingsDevLocationSanFrancisco": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
   "settingsDevSeed": "Reset with sample data",
   "@settingsDevSeed": {
     "description": "Dev-only settings tile that wipes the device and seeds fixtures"
