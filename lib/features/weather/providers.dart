@@ -12,6 +12,7 @@ import 'data/datasources/location_source.dart';
 import 'data/repositories/backend_weather_repository.dart';
 import 'data/repositories/drift_daily_pressure_repository.dart';
 import 'domain/entities/daily_pressure.dart';
+import 'domain/entities/weather_report.dart';
 import 'domain/repositories/daily_pressure_repository.dart';
 import 'domain/repositories/weather_repository.dart';
 import 'domain/services/daily_pressure_recorder.dart';
@@ -56,16 +57,40 @@ const Duration weatherReportTtl = Duration(minutes: 60);
 ///
 /// Still `autoDispose` underneath, so it does eventually go rather than
 /// pinning a location-derived payload in memory for the whole session.
-final weatherReportProvider = FutureProvider.autoDispose((ref) {
-  // One timer, and it is cancelled on dispose: an uncancelled one outlives
-  // the provider, and a widget test then fails on a pending timer rather than
-  // on anything it was testing.
+///
+/// **Only a success is kept.** Keeping the result unconditionally pinned a
+/// FAILURE for the same hour: one early miss — location not answered yet, the
+/// anonymous session not up — and the card said "unavailable" until the TTL
+/// expired, with every return to the tab serving the same cached nothing
+/// instead of retrying. A failed read must cost the next visit a retry.
+final weatherReportProvider = FutureProvider.autoDispose((ref) async {
   final KeepAliveLink link = ref.keepAlive();
-  final Timer expiry = Timer(weatherReportTtl, link.close);
+  Timer? expiry;
 
-  ref.onDispose(expiry.cancel);
+  // Cancelled on dispose: an uncancelled timer outlives the provider, and a
+  // widget test then fails on a pending timer rather than on what it tests.
+  ref.onDispose(() => expiry?.cancel());
 
-  return ref.watch(weatherRepositoryProvider).report();
+  try {
+    final WeatherReport? report = await ref
+        .watch(weatherRepositoryProvider)
+        .report();
+
+    // Null is the best-effort failure (hard rule 4), not an empty forecast —
+    // so it is not worth an hour of memory either.
+    if (report == null) {
+      link.close();
+
+      return null;
+    }
+
+    expiry = Timer(weatherReportTtl, link.close);
+
+    return report;
+  } catch (_) {
+    link.close();
+    rethrow;
+  }
 });
 
 final dailyPressureRepositoryProvider = Provider<DailyPressureRepository>(
