@@ -199,8 +199,9 @@ keys and it merely warns.
 about `--dart-define-from-file`, so the archive carries empty config;
 `Firebase.initializeApp` throws, `main()` swallows it, and the app dies on
 the first `FirebaseAuth.instance` with `[core/no-app] No Firebase App
-'[DEFAULT]' has been created`. **Always release with `melos run
-release-ios`** (prod) or `melos run release-ios-dev`.
+'[DEFAULT]' has been created`. **Always build with `melos run
+build-ipa-prod`** (or `build-ipa-dev`), or let the Release iOS workflow do
+it — the fastlane lane calls the same script for the same reason.
 
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase
 action runs without a key, because every RevenueCat call site catches the
