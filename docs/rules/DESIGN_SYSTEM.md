@@ -50,7 +50,7 @@ its own, without the app.
 
 ### Redesign mockups are reference, not authority — owner's rule
 
-`docs/UI_SPEC.md` briefs a redesign whose mockups come from an AI design tool
+`docs/archive/UI_SPEC.md` briefs a redesign whose mockups come from an AI design tool
 (Stitch). **Those mockups are visual direction only.** Where a mockup and the
 rules in this file disagree, the rules win, silently and without asking —
 build what the rules say and tell the owner what was overridden. The reason is

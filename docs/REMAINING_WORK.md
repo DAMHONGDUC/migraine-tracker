@@ -1,7 +1,13 @@
 # Remaining work
 
-Snapshot of 10 Aug 2026. Re-check before acting on an item; this is a
-point-in-time survey, not a live tracker.
+Snapshot of 10 Aug 2026, partially re-checked 12 Aug. Re-check before acting
+on an item; this is a point-in-time survey, not a live tracker.
+
+> **Known stale since the snapshot:** the WeatherKit migration is done —
+> the app and the alert cron both read WeatherKit through the `getWeather`
+> callable, and `functions/src/weather/openMeteo.ts` is deleted. Anything
+> below describing Open-Meteo as the current source is out of date; what
+> remains is the Apple-side credentials, in `docs/setup/WEATHERKIT_SETUP.md`.
 
 **Nothing on this list is code any more.** Every open item is a console, a
 portal or a piece of paper — the repo half of each one is built and tested.
@@ -41,7 +47,7 @@ can never prove the project has them, which is what the deploy did.
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
 | 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
-| 11 | Replace the placeholder `storeLinks.appStore` id in `docs/privacy.json` | The published policy links to nothing. |
+| 11 | Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | The published policy links to nothing. |
 
 ### RevenueCat
 
@@ -59,12 +65,12 @@ it carries the full account of the TestFlight crash behind item 12.
 | # | What | Why it matters if skipped |
 |---|---|---|
 | ~~14~~ | ~~Publish the policy~~ | **Done**, verified live 10 Aug at `…/apps_privacy_policy/baro-ease/privacy_policy/`, effective 7 Aug 2026. Note the path — the App Store field wants the app's own page, not the directory index. |
-| 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/APP_STORE_LISTING.md` carries the wording. |
+| 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/release/APP_STORE_LISTING.md` carries the wording. |
 | 26 | Put Terms of Use and Privacy Policy links on the paywall itself | The same guideline (3.1.2) requires them **in the binary**, not only in metadata, and the paywall has neither today — only the Restore button. Not what was rejected, but the same rule, so it is the next one to be caught on. |
 | 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. |
-| 15 | Fill `[ADDRESS/COUNTRY]` in `docs/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
+| 15 | Fill `[ADDRESS/COUNTRY]` in `docs/privacy/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
-| 23 | Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
+| 23 | Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
 | 24 | The French declaration to ANSSI | Apple's step 3 was answered **Yes** — the app is distributed in France — and France expects a declaration for the import and use of cryptography. Mass-market software on standard algorithms normally takes the simplified regime, but simplified is not none. Tied to availability: drop France and this goes away, along with the answer given. |
 | 22 | Put the WeatherKit `.p8` in Secret Manager | Never in the repo, never in `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
 | 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
@@ -244,8 +250,8 @@ setup"; re-verified against the current repo state:
 
 ## 5. The privacy policy is written but not published
 
-Checklist items 10, 11, 14, 15 and 16. `docs/PRIVACY_POLICY.md` and
-`docs/privacy.json` are current as of 7 Aug 2026 and agree with each other
+Checklist items 10, 11, 14, 15 and 16. `docs/privacy/PRIVACY_POLICY.md` and
+`docs/privacy/privacy.json` are current as of 7 Aug 2026 and agree with each other
 (hard rule 17). What is left is all outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
@@ -272,14 +278,19 @@ required Firebase field plus the platform's own RevenueCat key and returns
 the names still empty; `main.dart` asserts that list is empty in one place,
 reporting every gap at once. Note this deliberately re-adds an `assert()` to
 `main()` while the earlier "TestFlight crash traced to an assert" suspicion
-is still under investigation (see `CLAUDE.md`'s RevenueCat section) — if that
+is still under investigation (see `docs/rules/PENDING_SETUP.md`'s RevenueCat section) — if that
 crash resurfaces, this is the first thing to suspect and revert.
 
-## 7. WeatherKit not swapped in yet
+## 7. WeatherKit — code done, Apple side outstanding
 
-Checklist item 18. In-app weather source is still Open-Meteo (the documented
-temporary stand-in behind `weatherRepositoryProvider`); WeatherKit REST is the
-target once a key exists.
+Checklist item 18. **Done since this snapshot:** the app reads weather through
+the `getWeather` callable and has no weather API of its own; the alert cron
+reads WeatherKit too; `functions/src/weather/openMeteo.ts` is deleted.
+
+**Still outstanding, and it is all Apple-side:** the key with WeatherKit
+enabled, the Services ID, and the `.p8` in Secret Manager. Until those exist
+every weather read fails, which the app treats as "no weather" rather than as
+an error. Steps: `docs/setup/WEATHERKIT_SETUP.md`.
 
 **The pressure-alert cron is in scope too.** An earlier version of this section
 said the backend would stay on Open-Meteo permanently and that this was
@@ -297,7 +308,7 @@ So the swap is two call sites, not one:
 Both are blocked on the same three credentials (items 20, 21, 22) — the key,
 the Services ID, and the `.p8` in Secret Manager.
 
-`docs/WEATHERKIT_SETUP.md` is the step-by-step, in dependency order, and
+`docs/setup/WEATHERKIT_SETUP.md` is the step-by-step, in dependency order, and
 carries two things this list does not: the JWT's exact claims (the Services ID
 is the `sub`, and a Bundle ID in its place returns a bare 401), and the two
 requirements that are easy to finish the migration without — rate-limiting the

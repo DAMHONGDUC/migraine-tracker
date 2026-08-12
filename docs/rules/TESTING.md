@@ -9,7 +9,7 @@ What is tested, what is suspended, and what is still owed.
 
 ### Tests are suspended for the UI redesign — owner's call, and it has an end
 
-While the redesign described in `docs/UI_SPEC.md` is in flight, a UI change
+While the redesign described in `docs/archive/UI_SPEC.md` is in flight, a UI change
 ships without updating the widget tests it breaks, and `melos run test` is not
 a gate on any of that work. The reason is the churn: a redesign moves layout,
 sizes and widget identity across ~22 screens plus the design system, so most

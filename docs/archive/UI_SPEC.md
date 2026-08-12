@@ -1,8 +1,16 @@
-# BaroEase — Current UI Spec
+# BaroEase — UI spec (ARCHIVED, 9 Aug 2026)
 
-A brief for a design tool. Everything below describes what the app looks like
-**today**, so a redesign can be measured against it. Section 1 is
-non-negotiable; everything after it is open to being redrawn.
+> **Archived. This describes the app BEFORE the Insights redesign** — before
+> the tabbed Insights cards, the weather card's day strip and metric picker,
+> the six quick-access tiles and the four-card explore grid. It is kept as the
+> brief the redesign was measured against, not as a description of the app.
+>
+> For what the UI is now, the rules are the authority:
+> `docs/rules/DESIGN_SYSTEM.md` and each `lib/features/<x>/CLAUDE.md`.
+
+A brief for a design tool. Everything below described what the app looked like
+at the time. Section 1 is non-negotiable and still holds; everything after it
+was open to being redrawn — and most of it was.
 
 ---
 

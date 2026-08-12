@@ -1,5 +1,5 @@
 <!--
-  Keep this file and docs/privacy.json saying the same thing — the JSON is
+  Keep this file and docs/privacy/privacy.json saying the same thing — the JSON is
   what the published site renders, this is the readable source.
   Two claims are load-bearing and must never soften:
   - sync is encrypted but NOT end-to-end (we hold the key), and

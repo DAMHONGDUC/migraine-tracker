@@ -4,7 +4,7 @@
 /// Constants because more than one surface has to carry the same URL: the
 /// paywall and the App Store description for the first two, and every screen
 /// drawing weather for the third. A submission was already rejected over the
-/// subscription pair being absent. `docs/APP_STORE_LISTING.md` is the other
+/// subscription pair being absent. `docs/release/APP_STORE_LISTING.md` is the other
 /// half of that one.
 final class LegalUrlConstant {
   const LegalUrlConstant._();
