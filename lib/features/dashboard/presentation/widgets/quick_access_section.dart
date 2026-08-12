@@ -30,14 +30,18 @@ class QuickAccessSection extends ConsumerWidget {
 
   static const int _columns = 3;
 
-  /// Summed from a cell's contents: the padding, the glyph, the gap, and two
-  /// lines of label — two because "Pressure-drop alerts" needs them at a
-  /// third of the design width, and every cell is sized for the longest.
+  /// Summed from a cell's contents: the padding, the glyph, the gap and ONE
+  /// line of label.
+  ///
+  /// One line since the alert tile stopped spelling out "Pressure-drop
+  /// alerts" — that label was the only thing that needed two, and every cell
+  /// is sized for the longest. "Medications" is now the widest and fits a
+  /// third of the design width on its own line.
   static double get cellHeight =>
       SdSpacingConstant.h12 * 2 +
       SdSpacingConstant.r20 +
       SdSpacingConstant.h6 +
-      SdSpacingConstant.h20 * 2;
+      SdSpacingConstant.h20;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,7 +76,7 @@ class QuickAccessSection extends ConsumerWidget {
       ),
       _Shortcut(
         icon: Icons.notifications_active_outlined,
-        label: l10n.alertsToggleTitle,
+        label: l10n.dashboardAlertShortcut,
         // Through NavigationUtils, like the Settings row: the alert lives on
         // Insights' pressure card now, so "take me to it" is a tab selection
         // plus a branch switch and neither caller should half-remember it.
@@ -145,11 +149,12 @@ class _QuickAccessCard extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
             SizedBox(height: SdSpacingConstant.h6),
-            // Two lines rather than an ellipsis: a shortcut whose name is
-            // cut off is one the user cannot identify before tapping it.
+            // One line now that every label fits one. A longer locale string
+            // would ellipse rather than overflow the fixed cell — check a new
+            // label against the third-width before adding it.
             Text(
               shortcut.label,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyle.labelLarge,

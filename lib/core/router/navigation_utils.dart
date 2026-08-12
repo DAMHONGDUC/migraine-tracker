@@ -47,6 +47,19 @@ final class NavigationUtils {
     if (context.mounted) await context.pushNamed<void>(AppRoutes.log.name);
   }
 
+  /// Insights, showing [tab].
+  ///
+  /// The tab is a branch selection plus a provider write, so every shortcut
+  /// into a card goes through here rather than each remembering both halves.
+  static void toInsights(
+    BuildContext context,
+    WidgetRef ref,
+    InsightsTab tab,
+  ) {
+    ref.read(insightsTabProvider.notifier).set(tab);
+    context.goNamed(AppRoutes.insights.name);
+  }
+
   /// Insights, with the pressure card showing.
   ///
   /// The rule is why this lives here: `/pressure` is gone — the alert is set
@@ -68,11 +81,10 @@ final class NavigationUtils {
     WidgetRef ref, {
     bool highlightAlert = false,
   }) {
-    ref.read(insightsTabProvider.notifier).set(InsightsTab.pressure);
     if (highlightAlert && ref.read(hasPremiumProvider)) {
       ref.read(pressureAlertHighlightProvider.notifier).request();
     }
-    context.goNamed(AppRoutes.insights.name);
+    toInsights(context, ref, InsightsTab.pressure);
   }
 
   /// One notification in full. Both the list's rows and a tapped OS

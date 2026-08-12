@@ -10,10 +10,12 @@ import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../../providers.dart';
 import '../../widgets/attack_limit_banner.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
 import '../../widgets/dashboard_summary_group.dart';
+import '../../widgets/dashboard_today_section.dart';
 import '../../widgets/next_reminder_banner.dart';
 import '../../widgets/quick_access_section.dart';
 
@@ -43,6 +45,9 @@ class DashboardScreen extends ConsumerWidget {
       // logs — the wall itself lands mid-attack, so it must not be news.
       if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
+      // Asked here rather than left to the widget: a section that hid itself
+      // would leave the gap the list inserts before it (see the loop below).
+      if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
       if (nextReminder != null) const NextReminderBanner(),
       // Unconditional, owner's call: hidden until the first attack it left a
       // new install with a log button and a grid of links and nothing in
