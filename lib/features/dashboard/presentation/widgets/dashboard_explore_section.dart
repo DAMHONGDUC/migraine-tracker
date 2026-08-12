@@ -9,7 +9,11 @@ import '../../../../core/theme/app_text_style.dart';
 import 'dashboard_explore_card.dart';
 
 /// Feature banners that surface capabilities living on other tabs —
-/// reminders, insights and data export — each tapping straight through.
+/// reminders, insights, data export and About — each tapping straight
+/// through.
+///
+/// Four of them, so the two-column grid comes out square: with three, the
+/// last row carried one card and half a row of nothing.
 ///
 /// **One grid, two to a row: every card is exactly the same size.**
 /// Owner's rule, and it is why this is a `GridView`. It was hand-laid rows
@@ -99,6 +103,15 @@ class DashboardExploreSection extends ConsumerWidget {
               // Straight to Export — landing on Settings and hunting isn't
               // what the card promised.
               onTap: () => context.pushNamed(AppRoutes.export.name),
+            ),
+            DashboardExploreCard(
+              icon: Icons.info_outline,
+              title: l10n.dashboardAboutTitle,
+              content: DashboardExploreSubtitle(l10n.dashboardAboutBody),
+              // Same screen the Settings row opens: the feature list and the
+              // free plan's limits, which is what someone asking "what is
+              // this" wants — not a marketing page.
+              onTap: () => context.pushNamed(AppRoutes.about.name),
             ),
           ],
         ),

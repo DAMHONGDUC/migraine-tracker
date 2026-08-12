@@ -586,5 +586,7 @@
   "weatherRange": "{low} / {high}",
   "premiumLockedPressure": "Xem dự báo áp suất, mức độ cơn đau của bạn đi theo nó, và nhận cảnh báo trước đợt giảm tiếp theo.",
   "dashboardAlertShortcut": "Cảnh báo",
-  "dashboardTodayTitle": "Hôm nay"
+  "dashboardTodayTitle": "Hôm nay",
+  "dashboardAboutTitle": "Về chúng tôi",
+  "dashboardAboutBody": "BaroEase theo dõi những gì, gói miễn phí có gì, và cách liên hệ với chúng tôi."
 }
