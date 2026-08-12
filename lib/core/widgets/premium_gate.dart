@@ -81,27 +81,28 @@ class PremiumLockedBody extends ConsumerWidget {
   }
 }
 
-/// The app's one Unlock button.
+/// The app's one Unlock button, and it takes no options.
 ///
-/// Every locked surface uses it — the prompts below, the locked card, the
-/// blurred chart cover — so the offer looks the same wherever it is met.
-/// Compact and small: it sits inside a card next to content, not as a
-/// screen's primary action, and at full size it read as the loudest thing on
-/// a card whose subject is something else.
+/// Every locked surface draws exactly this — the prompts below, the locked
+/// card, the blurred chart cover — so the offer looks the same wherever it is
+/// met. It used to take a `variant` so the chart cover could be louder than
+/// the prompts, which is the drift this exists to prevent.
+///
+/// **Filled, small, compact, and no glyph.** Filled because it is the one
+/// action on a surface that is otherwise inert, and because it has to read
+/// against the chart cover's scrim. Small and compact because it sits inside
+/// a card beside content, not as a screen's primary action. No padlock: the
+/// word is unambiguous on its own, and the glyph was a fifth of the button's
+/// width buying nothing.
 class PremiumUnlockButton extends ConsumerWidget {
-  const PremiumUnlockButton({this.variant = SdButtonVariantV2.secondary, super.key});
-
-  /// Filled only where it sits on a scrim with nothing else to compete with
-  /// (the blurred chart cover); tonal everywhere else.
-  final SdButtonVariantV2 variant;
+  const PremiumUnlockButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SdButtonV2(
-      variant: variant,
+      variant: SdButtonVariantV2.primary,
       size: SdButtonSizeV2.small,
       compact: true,
-      icon: Icons.lock_open_outlined,
       onPressed: () => NavigationUtils.toPaywall(context, ref),
       label: context.l10n.premiumUnlock,
     );
@@ -199,11 +200,7 @@ class PremiumChartLock extends ConsumerWidget {
               color: context.colorScheme.surface.withValues(
                 alpha: scrimOpacity,
               ),
-              child: const Center(
-                child: PremiumUnlockButton(
-                  variant: SdButtonVariantV2.primary,
-                ),
-              ),
+              child: const Center(child: PremiumUnlockButton()),
             ),
           ),
         ],
