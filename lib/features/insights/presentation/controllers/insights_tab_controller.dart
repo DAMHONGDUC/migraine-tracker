@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/insights_tab.dart';
 
 /// Which of Insights' cards is showing.
@@ -15,5 +16,8 @@ class InsightsTabController extends Notifier<InsightsTab> {
   @override
   InsightsTab build() => InsightsTab.weather;
 
-  void set(InsightsTab tab) => state = tab;
+  void set(InsightsTab tab) {
+    AppLogger.action('Insights tab', tab.name);
+    state = tab;
+  }
 }

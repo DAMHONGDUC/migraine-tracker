@@ -40,6 +40,18 @@ class BackendWeatherDataSource {
     required int hoursForward,
     bool full = false,
   }) async {
+    // Coordinates are rounded before they are logged: the backend already
+    // rounds to ~11km before storing anything, and a log is no place to be
+    // more precise about where the user is than the server is.
+    final Map<String, Object?> request = <String, Object?>{
+      'lat': latitude.toStringAsFixed(1),
+      'lon': longitude.toStringAsFixed(1),
+      'hoursBack': hoursBack,
+      'hoursForward': hoursForward,
+      'full': full,
+    };
+
+    AppLogger.action('Call getWeather', request);
     try {
       final HttpsCallableResult<dynamic> result = await _functions
           .httpsCallable('getWeather')
@@ -50,16 +62,42 @@ class BackendWeatherDataSource {
             'hoursForward': hoursForward,
             if (full) 'full': true,
           });
+      final Map<Object?, Object?>? data = result.data as Map<Object?, Object?>?;
 
-      return result.data as Map<Object?, Object?>?;
-    } catch (error, stackTrace) {
+      AppLogger.info('getWeather ok', <String, Object?>{
+        ...request,
+        'hours': (data?['hours'] as List<Object?>?)?.length ?? 0,
+        'days': (data?['days'] as List<Object?>?)?.length ?? 0,
+        'current': data?['current'] != null,
+        // Says whether this cost a WeatherKit call or came off the cache.
+        'cached': data?['cached'],
+      });
+
+      return data;
+    } on FirebaseFunctionsException catch (error, stackTrace) {
       // Best-effort by rule, silent by accident: every weather failure —
       // a missing WeatherKit credential, a refused call, being offline —
-      // arrives at the UI as "no weather" and nowhere else.
+      // arrives at the UI as "no weather" and nowhere else. `failed-
+      // precondition` here is the backend saying its credentials are unset.
       AppLogger.error(
-        'Weather fetch failed',
+        'getWeather failed',
         error: error,
         stackTrace: stackTrace,
+        data: <String, Object?>{
+          ...request,
+          'code': error.code,
+          'message': error.message,
+          'details': error.details,
+        },
+      );
+
+      return null;
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'getWeather failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: request,
       );
 
       return null;

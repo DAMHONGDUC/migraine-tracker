@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/logging/app_logger.dart';
+
 import '../../domain/entities/auth_user.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
@@ -51,15 +53,53 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
     if (!existing.exists) {
       write[UserProfileMapper.createdAtField] = FieldValue.serverTimestamp();
     }
-    await _doc(user.uid).set(write, SetOptions(merge: true));
+
+    // Field names, never their values: this document holds the user's name,
+    // email and photo URL, and none of that belongs in a console.
+    final Map<String, Object?> what = <String, Object?>{
+      'uid': user.uid,
+      'isNew': !existing.exists,
+      'fields': write.keys.toList(),
+    };
+
+    AppLogger.action('Write profile', what);
+    try {
+      await _doc(user.uid).set(write, SetOptions(merge: true));
+      AppLogger.info('Profile written', what);
+    } on FirebaseException catch (error, stackTrace) {
+      AppLogger.error(
+        'Write profile failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{...what, 'code': error.code},
+      );
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateDisplayName({
     required String uid,
     required String displayName,
-  }) => _doc(uid).set(<String, Object?>{
-    UserProfileMapper.displayNameField: displayName,
-    UserProfileMapper.updatedAtField: FieldValue.serverTimestamp(),
-  }, SetOptions(merge: true));
+  }) async {
+    AppLogger.action('Write profile name', <String, Object?>{
+      'uid': uid,
+      'length': displayName.length,
+    });
+    try {
+      await _doc(uid).set(<String, Object?>{
+        UserProfileMapper.displayNameField: displayName,
+        UserProfileMapper.updatedAtField: FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      AppLogger.info('Profile name written', <String, Object?>{'uid': uid});
+    } on FirebaseException catch (error, stackTrace) {
+      AppLogger.error(
+        'Write profile name failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'uid': uid, 'code': error.code},
+      );
+      rethrow;
+    }
+  }
 }

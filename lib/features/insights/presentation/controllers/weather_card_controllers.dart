@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/weather_metric.dart';
 
 /// Which reading the weather card's hourly row is showing.
@@ -11,7 +12,10 @@ class WeatherMetricController extends Notifier<WeatherMetric> {
   @override
   WeatherMetric build() => WeatherMetric.conditions;
 
-  void set(WeatherMetric metric) => state = metric;
+  void set(WeatherMetric metric) {
+    AppLogger.action('Weather metric', metric.name);
+    state = metric;
+  }
 }
 
 /// Which day of the card's week is selected, 0 being today.
@@ -23,5 +27,8 @@ class WeatherDayController extends Notifier<int> {
   @override
   int build() => 0;
 
-  void set(int index) => state = index;
+  void set(int index) {
+    AppLogger.action('Weather day', index);
+    state = index;
+  }
 }

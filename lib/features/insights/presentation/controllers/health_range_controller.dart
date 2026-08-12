@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/enums/health_range.dart';
 
 /// Which range a health chart is showing.
@@ -13,12 +14,18 @@ class StepRangeController extends Notifier<HealthRange> {
   @override
   HealthRange build() => HealthRange.week;
 
-  void set(HealthRange range) => state = range;
+  void set(HealthRange range) {
+    AppLogger.action('Step range', range.name);
+    state = range;
+  }
 }
 
 class SleepRangeController extends Notifier<HealthRange> {
   @override
   HealthRange build() => HealthRange.week;
 
-  void set(HealthRange range) => state = range;
+  void set(HealthRange range) {
+    AppLogger.action('Sleep range', range.name);
+    state = range;
+  }
 }

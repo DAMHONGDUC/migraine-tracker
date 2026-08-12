@@ -19,7 +19,10 @@ import 'package:logger/logger.dart';
 /// - [debug]   — fine-grained detail while chasing something down
 ///
 /// Optional [data] is appended to the message, e.g.
-/// `AppLogger.action('Attack logged', {'intensity': 7})`.
+/// `AppLogger.action('Attack logged', {'intensity': 7})`, and it is not
+/// optional in spirit: CLAUDE.md's rule is that every action logs with its
+/// data, because "Sync failed" answers nothing that
+/// "Sync failed — {collection: attacks, pushed: 12}" does not.
 final class AppLogger {
   /// True only in debug builds (asserts run) — the on/off switch for all
   /// logging. Mutable so tests can silence it.
@@ -54,9 +57,22 @@ final class AppLogger {
     _logger.w(_compose(message, data));
   }
 
-  static void error(String message, {Object? error, StackTrace? stackTrace}) {
+  /// [data] is what the call was doing — the arguments, the collection, the
+  /// record id — and [error] is the thing that was thrown, unmodified.
+  ///
+  /// Both, always: the message says what failed, [data] says on what, and
+  /// [error] carries the parts nothing else has (a
+  /// `FirebaseFunctionsException`'s `code` and `details`, a callable's
+  /// response body). Folding any of it into the message string throws away
+  /// exactly what makes the line worth reading.
+  static void error(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+    Object? data,
+  }) {
     if (!enabled) return;
-    _logger.e(message, error: error, stackTrace: stackTrace);
+    _logger.e(_compose(message, data), error: error, stackTrace: stackTrace);
   }
 
   static String _compose(String message, Object? data) =>

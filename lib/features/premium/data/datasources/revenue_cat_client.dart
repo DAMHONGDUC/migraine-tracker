@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../../../core/env/app_env.dart';
+import '../../../../core/logging/app_logger.dart';
 
 /// Owns the one-time `Purchases.configure` and the entitlement name.
 ///
@@ -65,9 +66,32 @@ class RevenueCatClient {
   /// Configures the SDK once. Concurrent callers await the same future
   /// rather than each starting their own `configure`.
   Future<void> ensureConfigured() {
-    return _configuring ??= Purchases.configure(
-      PurchasesConfiguration(apiKey),
-    );
+    return _configuring ??= _configure();
+  }
+
+  Future<void> _configure() async {
+    // The key itself is never logged; its prefix is what diagnoses a
+    // misconfigured build, and a `test_` one is the crash this guards.
+    final Map<String, Object?> what = <String, Object?>{
+      'keyPrefix': apiKey.length < 5 ? '' : apiKey.substring(0, 5),
+      'entitlement': entitlementId,
+    };
+
+    AppLogger.action('Configure RevenueCat', what);
+    try {
+      await Purchases.configure(PurchasesConfiguration(apiKey));
+      AppLogger.info('RevenueCat configured', what);
+    } catch (error, stackTrace) {
+      // A StateError from `apiKey` lands here, which is the handled
+      // "no key in this build" path the paywall reports as notConfigured.
+      AppLogger.error(
+        'Configure RevenueCat failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: what,
+      );
+      rethrow;
+    }
   }
 
   /// Whether [info] carries the premium entitlement right now.
