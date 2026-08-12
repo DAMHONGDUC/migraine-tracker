@@ -37,7 +37,7 @@ class _DaySummary extends StatelessWidget {
             condition,
             daylight: now?.daylight,
           ),
-          size: SdSpacingConstant.r28,
+          size: SdSpacingConstant.r24,
           color: AppColors.primary,
         ),
         SizedBox(width: SdSpacingConstant.w8),

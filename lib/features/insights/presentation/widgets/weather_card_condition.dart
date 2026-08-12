@@ -16,7 +16,9 @@ final class WeatherConditionUtils {
       WeatherCondition.partlyCloudy =>
         night ? Icons.nights_stay_outlined : Icons.wb_cloudy_outlined,
       WeatherCondition.cloudy => Icons.cloud_outlined,
-      WeatherCondition.rain => Icons.water_drop_outlined,
+      // A cloud shedding drops, not `water_drop_outlined` — a bare droplet is
+      // the humidity glyph, so a rainy hour read as a humidity readout.
+      WeatherCondition.rain => Icons.cloudy_snowing,
       WeatherCondition.snow => Icons.ac_unit,
       WeatherCondition.sleet => Icons.grain,
       WeatherCondition.thunderstorms => Icons.thunderstorm_outlined,

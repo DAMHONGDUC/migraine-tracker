@@ -48,9 +48,16 @@ class WeatherCard extends ConsumerWidget {
     // so a reload redraws the forecast it already had rather than blanking.
     final WeatherReport? report = async.value;
 
+    // **One inset for the whole card, 12 on both axes** (owner's call). It was
+    // 20, and the hourly region briefly gave it up to run to the card's edges;
+    // dropping to 12 buys that width back without letting content touch an
+    // edge, so the region keeps a real margin like everything else here.
     return SdCardV2(
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w20),
+        padding: EdgeInsets.symmetric(
+          horizontal: SdSpacingConstant.w12,
+          vertical: SdSpacingConstant.h12,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           // No heading: the tab above the card already names it, and the two

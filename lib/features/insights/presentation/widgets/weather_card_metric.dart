@@ -26,23 +26,26 @@ final class WeatherMetricUtils {
       l10n,
       hour.temperatureCelsius,
     ),
-    WeatherMetric.uvIndex => hour.uvIndex == null
-        ? null
-        : l10n.weatherUvValue(hour.uvIndex!.round()),
-    WeatherMetric.wind => hour.windSpeedKph == null
-        ? null
-        : l10n.weatherWindValue(hour.windSpeedKph!.round()),
-    WeatherMetric.precipitation => hour.precipitationChancePercent == null
-        ? null
-        : l10n.weatherPercent(hour.precipitationChancePercent!.round()),
-    WeatherMetric.humidity => hour.humidityPercent == null
-        ? null
-        : l10n.weatherPercent(hour.humidityPercent!.round()),
+    WeatherMetric.uvIndex =>
+      hour.uvIndex == null ? null : l10n.weatherUvValue(hour.uvIndex!.round()),
+    WeatherMetric.wind =>
+      hour.windSpeedKph == null
+          ? null
+          : l10n.weatherWindValue(hour.windSpeedKph!.round()),
+    WeatherMetric.precipitation =>
+      hour.precipitationChancePercent == null
+          ? null
+          : l10n.weatherPercent(hour.precipitationChancePercent!.round()),
+    WeatherMetric.humidity =>
+      hour.humidityPercent == null
+          ? null
+          : l10n.weatherPercent(hour.humidityPercent!.round()),
     // Already kilometres off the wire, and rounded: a city block's
     // difference in visibility is not worth a decimal place.
-    WeatherMetric.visibility => hour.visibilityKm == null
-        ? null
-        : l10n.weatherVisibilityValue(hour.visibilityKm!.round()),
+    WeatherMetric.visibility =>
+      hour.visibilityKm == null
+          ? null
+          : l10n.weatherVisibilityValue(hour.visibilityKm!.round()),
   };
 
   /// The metric's own glyph, standing for the reading rather than for any
@@ -211,14 +214,14 @@ class _MetricPicker extends ConsumerWidget {
             children: <Widget>[
               SdIconV2(
                 icon: WeatherMetricUtils.glyph(metric),
-                size: SdSpacingConstant.r20,
+                size: SdSpacingConstant.r18,
                 color: context.colorScheme.primary,
               ),
               // The chevron is what says this opens something; without it an
               // icon on a tinted pill reads as a status, not a control.
               SdIconV2(
                 icon: Icons.expand_more,
-                size: SdSpacingConstant.r18,
+                size: SdSpacingConstant.r16,
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ],
@@ -237,6 +240,12 @@ class _MetricPicker extends ConsumerWidget {
 /// `SingleChildScrollView` of a stated width, so hour 14 is at the same x in
 /// both however far the user has scrolled. Two scroll views side by side would
 /// need their offsets kept in sync, which is a thing to get wrong every frame.
+///
+/// **It sits inside the card's own inset like everything else** (owner's
+/// call). It was briefly full-bleed, with the inset re-applied as scroll
+/// padding so the hours could pass under the card's edge; the width that was
+/// after came from dropping the card's inset to 12 instead, which leaves the
+/// region's edges lined up with the summary above at every scroll offset.
 ///
 /// Not lazy, and that is fine: a day is at most 24 cells.
 class _MetricStrip extends StatelessWidget {
@@ -306,9 +315,14 @@ class _MetricCell extends StatelessWidget {
   static double get height =>
       SdSpacingConstant.h16 +
       SdSpacingConstant.h8 +
-      SdSpacingConstant.r24 +
+      glyphSize +
       SdSpacingConstant.h8 +
       SdSpacingConstant.h20;
+
+  /// Read by [height] as well as drawn, so the two can never disagree — the
+  /// stated height is a sum of what the cell holds, and an icon resized
+  /// without it becomes a cell reserving space for something else.
+  static double get glyphSize => SdSpacingConstant.r20;
 
   /// **Fixed, and that is what makes the chart line up.** The chart below
   /// spans `width * hours.length` and maps hour i to the centre of cell i —
@@ -335,7 +349,7 @@ class _MetricCell extends StatelessWidget {
           ),
           SdIconV2(
             icon: WeatherMetricUtils.icon(metric, hour),
-            size: SdSpacingConstant.r24,
+            size: glyphSize,
             color: AppColors.primary,
           ),
           Text(
