@@ -68,7 +68,7 @@ class InsightsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          Expanded(child: _TabBody(tab: selected)),
+          Expanded(child: _TabBody(tabs: tabs, selected: selected)),
         ],
       ),
     );

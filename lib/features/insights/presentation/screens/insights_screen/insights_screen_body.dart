@@ -1,13 +1,72 @@
 part of 'insights_screen.dart';
 
-/// The selected tab's card, scrollable and refreshable.
+/// Keeps every tab that has been opened alive behind the one on screen.
+///
+/// **An `IndexedStack`, so switching tabs does not throw the last one away.**
+/// A `switch` that built only the selected card unmounted the others, and
+/// coming back rebuilt from nothing: the scroll offset was gone, every chart
+/// replayed its entry animation, and the card read as reloading. The provider
+/// data was never the problem — none of these providers is `autoDispose` —
+/// which is why the reload looked like one but never refetched.
+///
+/// **Lazily, though: a tab is built the first time it is selected, not
+/// before.** Mounting all four up front would fire a weather fetch, a
+/// forecast fetch and two HealthKit reads on a screen showing one card — the
+/// eager cost the tabbed layout exists to avoid.
+class _TabBody extends ConsumerStatefulWidget {
+  const _TabBody({required this.tabs, required this.selected});
+
+  final List<InsightsTab> tabs;
+  final InsightsTab selected;
+
+  @override
+  ConsumerState<_TabBody> createState() => _TabBodyState();
+}
+
+class _TabBodyState extends ConsumerState<_TabBody> {
+  /// Every tab opened so far. Grows, never shrinks — that is what "keeps its
+  /// state" means, and four cards is not a memory problem.
+  final Set<InsightsTab> _opened = <InsightsTab>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _opened.add(widget.selected);
+  }
+
+  @override
+  void didUpdateWidget(covariant _TabBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Recorded here rather than in build: build must not have side effects,
+    // and this is the only place the selection actually changes.
+    _opened.add(widget.selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: widget.tabs.indexOf(widget.selected),
+      // Expand, or the stack takes the height of its tallest child and the
+      // scroll views inside get unbounded constraints.
+      sizing: StackFit.expand,
+      children: <Widget>[
+        for (final InsightsTab tab in widget.tabs)
+          if (_opened.contains(tab))
+            _TabCard(tab: tab)
+          else
+            const SizedBox.shrink(),
+      ],
+    );
+  }
+}
+
+/// One tab's card, scrollable and refreshable.
 ///
 /// **Each tab waits only on what it draws.** The screen used to hold every
 /// card behind one `switch` on both correlation providers, so the weather —
-/// which needs neither — was blank until the engines had run. Here the
-/// weather tab renders immediately and only the two analysis tabs wait.
-class _TabBody extends ConsumerWidget {
-  const _TabBody({required this.tab});
+/// which needs neither — was blank until the engines had run.
+class _TabCard extends ConsumerWidget {
+  const _TabCard({required this.tab});
 
   final InsightsTab tab;
 
@@ -30,6 +89,9 @@ class _TabBody extends ConsumerWidget {
     return SdRefreshIndicatorV2(
       onRefresh: () => SdRefreshIndicatorV2.run(() => _refresh(ref)),
       child: ListView(
+        // Its own controller per tab, kept by the IndexedStack above — which
+        // is what makes a tab come back where it was left.
+        key: PageStorageKey<InsightsTab>(tab),
         physics: const AlwaysScrollableScrollPhysics(),
         // The tab strip already took the app bar's gap, so this adds only
         // the strip's own separation and the bottom clearance.
