@@ -540,8 +540,6 @@
   "homeWidgetPressureDetail": "{value} hPa / 24 giờ",
   "homeWidgetPressureNone": "—",
   "homeWidgetFailed": "Không cập nhật được widget màn hình chính.",
-  "dashboardSleepTitle": "Giấc ngủ",
-  "dashboardStepsTitle": "Số bước",
   "dashboardHealthConnect": "Kết nối",
   "settingsDevPush": "Gửi push thử",
   "settingsDevPushSent": "Đã gửi push thử. Nó sẽ tới trong giây lát.",

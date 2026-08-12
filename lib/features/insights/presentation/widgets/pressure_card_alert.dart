@@ -148,9 +148,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
             borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
           child: SwitchListTile(
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: SdSpacingConstant.w8,
-            ),
+            contentPadding: EdgeInsets.zero,
             secondary: const SdIconV2(
               icon: Icons.notifications_active_outlined,
             ),
@@ -162,10 +160,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const SdIconV2(icon: Icons.compress),
-          title: Text(
-            l10n.alertsThresholdTitle,
-            style: AppTextStyle.bodyLarge,
-          ),
+          title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
           trailing: Text(
             l10n.onboardingThresholdValue(threshold.round()),
             style: AppTextStyle.bodyMedium.secondary,
