@@ -71,8 +71,7 @@ class WeatherCard extends ConsumerWidget {
   }
 }
 
-/// Day strip, the selected day's summary, the metric dropdown, then the
-/// hours.
+/// Day strip, the selected day's summary, the metric picker, then the hours.
 class _Forecast extends ConsumerWidget {
   const _Forecast({required this.report});
 
@@ -80,7 +79,6 @@ class _Forecast extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AppLocalizations l10n = context.l10n;
     final WeatherMetric metric = ref.watch(weatherMetricProvider);
     final List<WeatherDaily> week = report.week;
     // Clamped rather than trusted: the week slides forward at midnight, and
@@ -114,15 +112,7 @@ class _Forecast extends ConsumerWidget {
               ),
             ),
             SizedBox(width: SdSpacingConstant.w8),
-            SdFilterChipV2<WeatherMetric>(
-              label: WeatherMetricUtils.label(l10n, metric),
-              selected: metric,
-              options: WeatherMetric.values,
-              optionLabelBuilder: (WeatherMetric value) =>
-                  WeatherMetricUtils.label(l10n, value),
-              onSelected: ref.read(weatherMetricProvider.notifier).set,
-              sheetTitle: l10n.weatherMetricSheetTitle,
-            ),
+            _MetricPicker(metric: metric),
           ],
         ),
         SizedBox(height: SdSpacingConstant.h16),

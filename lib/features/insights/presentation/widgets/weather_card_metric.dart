@@ -45,19 +45,103 @@ final class WeatherMetricUtils {
         : l10n.weatherVisibilityValue(hour.visibilityKm!.round()),
   };
 
+  /// The metric's own glyph, standing for the reading rather than for any
+  /// one hour of it — what the picker shows when it is closed.
+  ///
+  /// Conditions takes a thermometer because that is what its cells actually
+  /// read: the hour's temperature, with the sky drawn above it.
+  static IconData glyph(WeatherMetric metric) => switch (metric) {
+    WeatherMetric.conditions => Icons.thermostat,
+    WeatherMetric.uvIndex => Icons.wb_sunny_outlined,
+    WeatherMetric.wind => Icons.air,
+    WeatherMetric.precipitation => Icons.umbrella_outlined,
+    WeatherMetric.humidity => Icons.water_drop_outlined,
+    WeatherMetric.visibility => Icons.visibility_outlined,
+  };
+
   /// The glyph over an hour's value.
   ///
   /// Conditions vary hour to hour, so that one draws the hour's own weather;
-  /// every other reading is a single quantity and takes one fixed glyph.
+  /// every other reading is a single quantity and reuses [glyph].
   static IconData icon(WeatherMetric metric, WeatherHourly hour) =>
-      switch (metric) {
-        WeatherMetric.conditions => WeatherConditionUtils.icon(hour.condition),
-        WeatherMetric.uvIndex => Icons.wb_sunny_outlined,
-        WeatherMetric.wind => Icons.air,
-        WeatherMetric.precipitation => Icons.umbrella_outlined,
-        WeatherMetric.humidity => Icons.water_drop_outlined,
-        WeatherMetric.visibility => Icons.visibility_outlined,
-      };
+      metric == WeatherMetric.conditions
+      ? WeatherConditionUtils.icon(hour.condition)
+      : glyph(metric);
+}
+
+/// The closed metric picker: the current reading's glyph and a chevron, and
+/// nothing else.
+///
+/// **Icon-only on purpose.** It shares a row with the day summary, and a
+/// spelled-out label ("Chance of rain", "Điều kiện") took enough of that row
+/// to squeeze the summary — the sheet it opens names every option in full, so
+/// the closed state does not have to.
+///
+/// The sheet is `showSdFilterSheetV2` inlined rather than wrapped: a widget
+/// that only forwards to the generic presenter is dead weight (CLAUDE.md
+/// § Bottom sheets).
+class _MetricPicker extends ConsumerWidget {
+  const _MetricPicker({required this.metric});
+
+  final WeatherMetric metric;
+
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    final AppLocalizations l10n = context.l10n;
+    final WeatherMetric? picked = await showSdFilterSheetV2<WeatherMetric>(
+      context,
+      title: l10n.weatherMetricSheetTitle,
+      options: WeatherMetric.values,
+      selected: metric,
+      labelBuilder: (WeatherMetric value) =>
+          WeatherMetricUtils.label(l10n, value),
+    );
+
+    if (picked == null) return;
+
+    ref.read(weatherMetricProvider.notifier).set(picked);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = context.l10n;
+
+    return Semantics(
+      button: true,
+      // Icon-only, so the control says nothing to VoiceOver on its own — the
+      // reading it is showing is the whole label.
+      label: WeatherMetricUtils.label(l10n, metric),
+      child: SdPressableScaleV2(
+        onTap: () => _open(context, ref),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: SdSpacingConstant.w8,
+            vertical: SdSpacingConstant.h8,
+          ),
+          decoration: BoxDecoration(
+            color: context.sdTheme.surfaceElevated,
+            borderRadius: BorderRadius.circular(SdSpacingConstant.r20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SdIconV2(
+                icon: WeatherMetricUtils.glyph(metric),
+                size: SdSpacingConstant.r20,
+                color: context.colorScheme.primary,
+              ),
+              // The chevron is what says this opens something; without it an
+              // icon on a tinted pill reads as a status, not a control.
+              SdIconV2(
+                icon: Icons.expand_more,
+                size: SdSpacingConstant.r18,
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// The picked day's hours, scrolling sideways — iOS Weather's own row, with
