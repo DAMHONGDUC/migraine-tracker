@@ -125,6 +125,12 @@ platform :ios do
       skip_waiting_for_build_processing: true,
     )
 
+    # Crashlytics cannot symbolicate a crash without the dSYMs, and with bitcode
+    # gone nothing on Apple's side uploads them. Best effort on purpose: the
+    # build is already on TestFlight by now, and a symbol upload that fails must
+    # not take the build-number commit down with it. It says so loudly instead.
+    upload_dsyms(root)
+
     # Pushed AFTER the upload, on purpose. A bump commit for a build that never
     # shipped is only a gap in the numbering; a build on TestFlight whose
     # number is in no commit is the thing this whole rule exists to prevent.
@@ -173,6 +179,45 @@ end
 # locale set.
 def read_pubspec(root)
   File.read("#{root}/pubspec.yaml", encoding: "UTF-8")
+end
+
+# Sends the archive's dSYMs to Crashlytics, or explains why it could not.
+#
+# Two of fastlane's defaults do not hold in this project:
+#   - the action looks for `Pods/FirebaseCrashlytics/upload-symbols`, and
+#     Firebase resolves through Swift Package Manager here, so that path does
+#     not exist. The binary ships as a package artifact under DerivedData in a
+#     folder whose name carries a build-specific hash — hence searched for,
+#     never hardcoded.
+#   - `gsp_path` is not available either: ios/Runner/GoogleService-Info.plist
+#     is gitignored and absent from a CI checkout. The app id arrives as an env
+#     var instead, which also keeps this lane from parsing env/*.json.
+#
+# Every exit is a warning and a return, never a raise. Missing symbols are
+# something to go and fix; they are not a reason to re-cut a build that is
+# already on TestFlight.
+def upload_dsyms(root)
+  app_id = ENV["FIREBASE_IOS_APP_ID"]
+  if app_id.nil? || app_id.empty?
+    UI.important("FIREBASE_IOS_APP_ID is unset — skipping the Crashlytics symbol upload.")
+    return
+  end
+
+  dsyms = "#{root}/build/ios/archive/Runner.xcarchive/dSYMs"
+  unless Dir.exist?(dsyms)
+    UI.important("No dSYMs at #{dsyms} — skipping the Crashlytics symbol upload.")
+    return
+  end
+
+  binary = Dir.glob(File.expand_path("~/Library/Developer/Xcode/DerivedData/Runner-*/SourcePackages/artifacts/**/upload-symbols")).first
+  if binary.nil?
+    UI.important("Crashlytics upload-symbols is not under DerivedData — skipping the symbol upload.")
+    return
+  end
+
+  upload_symbols_to_crashlytics(dsym_path: dsyms, app_id: app_id, binary_path: binary)
+rescue StandardError => e
+  UI.important("Crashlytics symbol upload failed, the build is still up: #{e.message}")
 end
 
 # Rewrites the `version:` line, keeping the name and replacing the +build.

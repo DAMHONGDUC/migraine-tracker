@@ -133,6 +133,8 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          # Unset simply skips the Crashlytics symbol upload with a warning.
+          FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           # Fastlane's own output is long and its failures are near the end.
           FASTLANE_SKIP_UPDATE_CHECK: 'true'
         run: bundle exec fastlane beta flavor:${{ inputs.flavor }} bump:${{ inputs.bump }}
