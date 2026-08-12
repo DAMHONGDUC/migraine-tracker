@@ -25,9 +25,13 @@ jobs:
     # upload, so the number that shipped is in git. Nothing else here writes.
     permissions:
       contents: write
-    # A cold iOS build with SPM resolution is ~20 minutes; the cap is there so
-    # a hung signing prompt cannot sit on a macOS runner for six hours.
-    timeout-minutes: 90
+    # A cold iOS build with SPM resolution runs ~25-35 minutes. The cap is set
+    # against the BILL, not against the build: macOS minutes bill at 10x, so
+    # the free tier's 2000 minutes is 200 real ones. A job that hangs until a
+    # 90-minute cap would spend 900 of them — nearly half the month on one run
+    # that produced nothing. 60 leaves room for a cold SPM resolve and still
+    # costs under a third of the budget in the worst case.
+    timeout-minutes: 60
     steps:
       # The design system lives in packages/system_design as a submodule;
       # without this the checkout is empty there and `pub get` fails.
