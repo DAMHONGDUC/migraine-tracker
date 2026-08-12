@@ -127,15 +127,8 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(l10n.alertsToggleTitle, style: AppTextStyle.titleMedium),
-        SizedBox(height: SdSpacingConstant.h4),
-        Text(
-          l10n.weatherAlertActiveBody(
-            l10n.onboardingThresholdValue(threshold.round()),
-          ),
-          style: AppTextStyle.bodySmall.secondary,
-        ),
-        SizedBox(height: SdSpacingConstant.h12),
+        // No section heading: it said "Pressure-drop alerts" directly above a
+        // row whose title said the same thing.
         // A tint that fades in and back out — calm, no flash (hard rule 3).
         AnimatedContainer(
           key: _rowKey,
@@ -147,27 +140,110 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
-          child: SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            secondary: const SdIconV2(
-              icon: Icons.notifications_active_outlined,
+          child: _AlertRow(
+            icon: Icons.notifications_active_outlined,
+            title: l10n.alertsToggleTitle,
+            trailing: Switch(
+              value: settings.enabled,
+              onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
             ),
-            title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-            value: settings.enabled,
-            onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
           ),
         ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const SdIconV2(icon: Icons.compress),
-          title: Text(l10n.alertsThresholdTitle, style: AppTextStyle.bodyLarge),
-          trailing: Text(
-            l10n.onboardingThresholdValue(threshold.round()),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        const SdDividerV2(),
+        _AlertRow(
+          icon: Icons.compress,
+          title: l10n.alertsThresholdTitle,
           onTap: () => _pickThreshold(context, ref, threshold),
+          // The value, then the chevron that says it can be changed. Without
+          // the glyph the row reads as a readout, and nothing else on it
+          // suggests a sheet is one tap away.
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                l10n.onboardingThresholdValue(threshold.round()),
+                style: AppTextStyle.bodyMedium.secondary,
+              ),
+              SizedBox(width: SdSpacingConstant.w4),
+              SdIconV2(
+                icon: Icons.chevron_right,
+                size: SdSpacingConstant.r20,
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(
+          l10n.weatherAlertActiveBody(
+            l10n.onboardingThresholdValue(threshold.round()),
+          ),
+          style: AppTextStyle.bodySmall.secondary,
         ),
       ],
+    );
+  }
+}
+
+/// One alert setting: glyph and name on the left, whatever changes it on the
+/// right.
+///
+/// Both rows share it so the switch and the threshold line up on the same two
+/// edges — a `SwitchListTile` beside a `ListTile` put their titles at
+/// different insets and their controls at different heights.
+class _AlertRow extends StatelessWidget {
+  const _AlertRow({
+    required this.icon,
+    required this.title,
+    required this.trailing,
+    this.onTap,
+  });
+
+  final IconData icon;
+
+  /// Already localized.
+  final String title;
+  final Widget trailing;
+
+  /// Null for a row whose control is the whole interaction — tapping the
+  /// label of a switch row would be a second, invisible way to toggle it.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget row = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: SdSpacingConstant.w8,
+        vertical: SdSpacingConstant.h8,
+      ),
+      child: Row(
+        children: <Widget>[
+          SdIconV2(
+            icon: icon,
+            size: SdSpacingConstant.r20,
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+          SizedBox(width: SdSpacingConstant.w12),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.bodyLarge,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(width: SdSpacingConstant.w8),
+          trailing,
+        ],
+      ),
+    );
+
+    if (onTap == null) return row;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
+      child: row,
     );
   }
 }
