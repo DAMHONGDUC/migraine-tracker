@@ -1,7 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/env/app_env.dart';
 import 'data/datasources/sleep_sample_source.dart';
 import 'data/datasources/step_sample_source.dart';
+import 'data/repositories/dev_seeded_health_repository.dart';
 import 'data/repositories/health_kit_repository.dart';
 import 'domain/entities/health_connections.dart';
 import 'domain/entities/sleep_night.dart';
@@ -13,6 +15,7 @@ import 'domain/services/health_summariser.dart';
 import 'domain/services/sleep_night_aggregator.dart';
 import 'domain/services/step_day_aggregator.dart';
 import 'domain/services/step_hour_aggregator.dart';
+import 'presentation/controllers/dev_health_seed_controller.dart';
 import 'presentation/controllers/health_controller.dart';
 
 final sleepSampleSourceProvider = Provider<SleepSampleSource>(
@@ -23,15 +26,30 @@ final stepSampleSourceProvider = Provider<StepSampleSource>(
   (ref) => HealthKitStepSampleSource(),
 );
 
-final healthRepositoryProvider = Provider<HealthRepository>(
-  (ref) => HealthKitRepository(
+/// The seed behind the dev-only fake HealthKit (see [DevHealthSeedController]).
+final devHealthSeedProvider = NotifierProvider<DevHealthSeedController, int?>(
+  DevHealthSeedController.new,
+);
+
+/// HealthKit, or the dev fake when the dev seed has run.
+///
+/// The fake is gated on `!AppEnv.isProd` as well as the seed, so a stray
+/// preference could never put invented health data in front of a real user.
+final healthRepositoryProvider = Provider<HealthRepository>((ref) {
+  final int? devSeed = ref.watch(devHealthSeedProvider);
+
+  if (!AppEnv.isProd && devSeed != null) {
+    return DevSeededHealthRepository(devSeed);
+  }
+
+  return HealthKitRepository(
     ref.watch(sleepSampleSourceProvider),
     const SleepNightAggregator(),
     ref.watch(stepSampleSourceProvider),
     const StepDayAggregator(),
     const StepHourAggregator(),
-  ),
-);
+  );
+});
 
 /// Whether to offer the feature at all — false off iOS, where the plugin
 /// would talk to Google Fit. Every health surface checks this first.
