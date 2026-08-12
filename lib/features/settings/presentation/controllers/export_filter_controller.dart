@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/export_date_filter.dart';
 
 /// The date window the export screen's history is filtered to. Holds state
@@ -10,5 +11,8 @@ class ExportFilterController extends Notifier<ExportDateFilter> {
   ExportDateFilter build() => const ExportDateFilter();
 
   /// Applies a window, or clears the filter when handed an inactive one.
-  void select(ExportDateFilter filter) => state = filter;
+  void select(ExportDateFilter filter) {
+    AppLogger.action('Export date filter', filter);
+    state = filter;
+  }
 }

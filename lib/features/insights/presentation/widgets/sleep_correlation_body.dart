@@ -29,11 +29,11 @@ class SleepCorrelationBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<SleepCorrelationResult> result = ref.watch(
+    final AsyncValue<SleepCorrelationResult> value = ref.watch(
       sleepCorrelationProvider,
     );
 
-    return switch (result) {
+    return switch (value) {
       AsyncData(value: final SleepCorrelationResult value) => switch (value) {
         SleepNotConnected() => const _NotConnected(),
         final SleepInsufficientData r => InsightProgressBody(

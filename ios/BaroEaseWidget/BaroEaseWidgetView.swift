@@ -21,7 +21,7 @@ struct BaroEaseWidgetView: View {
 
   var body: some View {
     Link(destination: logURL) {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: 10) {
         LogButton(label: entry.logLabel)
         StatRow(label: entry.weekLabel, value: entry.weekValue, detail: "", symbol: nil)
         StatRow(
@@ -30,6 +30,16 @@ struct BaroEaseWidgetView: View {
           detail: entry.pressureDetail,
           symbol: entry.pressureDetail.isEmpty ? nil : entry.trend.symbol
         )
+        Spacer(minLength: 0)
+        if !entry.attribution.isEmpty {
+          // Required wherever WeatherKit data is shown. Quiet and last: it
+          // has to be legible, not prominent.
+          Text(entry.attribution)
+            .font(.system(size: 9))
+            .foregroundColor(BaroEasePalette.textSecondary)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -53,14 +63,18 @@ private struct LogButton: View {
     }
     .foregroundColor(BaroEasePalette.onPrimary)
     .frame(maxWidth: .infinity)
-    .padding(.vertical, 10)
+    .padding(.vertical, 11)
     .background(BaroEasePalette.primary)
-    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
   }
 }
 
-/// A quiet label with its number under it. [detail] and [symbol] are the
+/// A quiet label with its number opposite. [detail] and [symbol] are the
 /// pressure row's extra; the week row passes neither.
+///
+/// Label and value share a line rather than stacking, which is what keeps a
+/// small widget from spending most of its height on two-line rows — and it
+/// puts both values on one right edge, so they read as a pair.
 private struct StatRow: View {
   let label: String
   let value: String
@@ -68,27 +82,37 @@ private struct StatRow: View {
   let symbol: String?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(label)
-        .font(.system(size: 11, weight: .medium))
-        .foregroundColor(BaroEasePalette.textSecondary)
-      HStack(spacing: 4) {
+    VStack(alignment: .trailing, spacing: 1) {
+      HStack(alignment: .firstTextBaseline, spacing: 6) {
+        Text(label)
+          .font(.system(size: 12, weight: .medium))
+          .foregroundColor(BaroEasePalette.textSecondary)
+          .lineLimit(1)
+          // Shrinks further than the value does before it gives up: a
+          // truncated "This week" was the visible overflow, and a slightly
+          // small label still names its row while an ellipsis does not.
+          .minimumScaleFactor(0.7)
+        Spacer(minLength: 2)
         if let symbol {
           Image(systemName: symbol)
             .font(.system(size: 11, weight: .semibold))
             .foregroundColor(BaroEasePalette.textSecondary)
         }
+        // The value wins the squeeze: a clipped label still names the row,
+        // a clipped number says nothing.
         Text(value)
-          .font(.system(size: 15, weight: .semibold))
+          .font(.system(size: 14, weight: .semibold))
           .foregroundColor(BaroEasePalette.textPrimary)
           .lineLimit(1)
-          .minimumScaleFactor(0.8)
+          .minimumScaleFactor(0.75)
+          .layoutPriority(1)
       }
       if !detail.isEmpty {
         Text(detail)
           .font(.system(size: 11))
           .foregroundColor(BaroEasePalette.textSecondary)
           .lineLimit(1)
+          .minimumScaleFactor(0.8)
       }
     }
   }
@@ -99,12 +123,26 @@ private extension View {
   /// `containerBackground`, and refuses to draw one that does not. Below 17
   /// that modifier does not exist, so the plain background is the fallback —
   /// the extension ships to the same iOS 15 floor as the app.
+  ///
+  /// The widget's only padding — and how much of it we owe depends on the OS.
+  ///
+  /// iOS 17 gives every widget ~16pt of content margin of its own. On a small
+  /// widget that is ~155pt wide, adding our own on top took roughly a third of
+  /// the width before anything was drawn, so on 17+ we add none horizontally
+  /// and let the system's be the whole of it.
+  ///
+  /// Removing the system's instead would be tighter still, but
+  /// `contentMarginsDisabled()` is iOS 17+ with no conditional form — see
+  /// BaroEaseWidget.swift. An `if #available` is legal *here* because
+  /// `@ViewBuilder` allows it where the widget builders do not.
   @ViewBuilder
   func widgetBackground(_ color: Color) -> some View {
     if #available(iOSApplicationExtension 17.0, *) {
-      padding(16).containerBackground(color, for: .widget)
+      padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
+        .containerBackground(color, for: .widget)
     } else {
-      padding(16).background(color)
+      padding(EdgeInsets(top: 12, leading: 10, bottom: 12, trailing: 10))
+        .background(color)
     }
   }
 }

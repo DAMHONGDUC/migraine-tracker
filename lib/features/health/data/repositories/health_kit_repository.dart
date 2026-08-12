@@ -3,11 +3,13 @@ import 'package:health/health.dart';
 import '../../domain/entities/sleep_interval.dart';
 import '../../domain/entities/sleep_night.dart';
 import '../../domain/entities/step_day.dart';
+import '../../domain/entities/step_hour.dart';
 import '../../domain/entities/step_sample.dart';
 import '../../domain/enums/health_data_kind.dart';
 import '../../domain/repositories/health_repository.dart';
 import '../../domain/services/sleep_night_aggregator.dart';
 import '../../domain/services/step_day_aggregator.dart';
+import '../../domain/services/step_hour_aggregator.dart';
 import '../datasources/sleep_sample_source.dart';
 import '../datasources/step_sample_source.dart';
 
@@ -26,12 +28,14 @@ class HealthKitRepository implements HealthRepository {
     this._sleepAggregator,
     this._stepSource,
     this._stepAggregator,
+    this._stepHourAggregator,
   );
 
   final SleepSampleSource _sleepSource;
   final SleepNightAggregator _sleepAggregator;
   final StepSampleSource _stepSource;
   final StepDayAggregator _stepAggregator;
+  final StepHourAggregator _stepHourAggregator;
 
   final HealthFactory _health = HealthFactory();
 
@@ -72,5 +76,18 @@ class HealthKitRepository implements HealthRepository {
     );
 
     return _stepAggregator.aggregate(samples);
+  }
+
+  @override
+  Future<List<StepHour>> stepHours({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final List<StepSample> samples = await _stepSource.stepSamples(
+      from: from,
+      to: to,
+    );
+
+    return _stepHourAggregator.aggregate(samples);
   }
 }

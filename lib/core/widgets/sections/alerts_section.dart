@@ -5,18 +5,27 @@ import 'package:system_design/index.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
+import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
+import '../alert_threshold_dialog.dart';
+import '../premium_gate.dart';
 import '../settings_tile.dart';
 
 /// The alerts detail screen's body: enable switch + threshold. Pushed from
 /// the Settings row (`AlertsSettingsTile`), which only shows On/Off.
 /// Registration errors surface as snackbars here.
+///
+/// **Neither control is built without premium** (owner's call), same as the
+/// weather card's copy of them — a free user gets [PremiumTileGate]'s locked
+/// row instead. `/pressure` is open to everyone for the free forecast, so
+/// this is the wall, and it has to be one that cannot be half-operated.
 class AlertsSection extends ConsumerWidget {
   const AlertsSection({super.key});
 
   String _errorMessage(AppLocalizations l10n, Object? error) => switch (error) {
     AlertRegistrationException(:final error) => switch (error) {
+      AlertRegistrationError.accountRequired => l10n.alertsErrorAccount,
       AlertRegistrationError.notificationsDenied =>
         l10n.alertsErrorNotifications,
       AlertRegistrationError.locationUnavailable => l10n.alertsErrorLocation,
@@ -31,11 +40,11 @@ class AlertsSection extends ConsumerWidget {
     WidgetRef ref,
     double current,
   ) async {
-    final picked = await showSdDialogV2<double>(
-      context,
-      builder: (dialogContext) =>
-          _ThresholdDialog(initial: current, l10n: context.l10n),
-    );
+    final double? picked = await AlertThresholdDialog(
+      initial: current,
+      l10n: context.l10n,
+    ).show(context);
+
     if (picked != null) {
       await ref.read(alertsControllerProvider.notifier).setThreshold(picked);
     }
@@ -44,6 +53,17 @@ class AlertsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+
+    // Ahead of the settings read: without premium there is no control to
+    // fill in, so the alert state is none of this branch's business.
+    if (!ref.watch(hasPremiumProvider)) {
+      return PremiumTileGate(
+        icon: Icons.notifications_active_outlined,
+        title: l10n.alertsToggleTitle,
+        // Never built for a free user — that is the gate, not the styling.
+        child: const SizedBox.shrink(),
+      );
+    }
 
     ref.listen(alertsControllerProvider, (previous, next) {
       if (next.hasError && !next.isLoading) {
@@ -61,69 +81,18 @@ class AlertsSection extends ConsumerWidget {
     return Column(
       children: [
         SwitchListTile(
-          secondary: const SdIconV2(icon: Icons.notifications_active_outlined),
+          secondary: const SdIconV2(
+            icon: Icons.notifications_active_outlined,
+          ),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
           value: settings.enabled,
-          onChanged: (value) =>
-              ref.read(alertsControllerProvider.notifier).setEnabled(value),
+          onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
         ),
         SettingsTile(
           icon: Icons.compress,
           title: l10n.alertsThresholdTitle,
           value: l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
           onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
-        ),
-      ],
-    );
-  }
-}
-
-class _ThresholdDialog extends StatefulWidget {
-  const _ThresholdDialog({required this.initial, required this.l10n});
-
-  final double initial;
-  final AppLocalizations l10n;
-
-  @override
-  State<_ThresholdDialog> createState() => _ThresholdDialogState();
-}
-
-class _ThresholdDialogState extends State<_ThresholdDialog> {
-  late double _value = widget.initial;
-
-  @override
-  Widget build(BuildContext context) {
-    return SdDialogV2(
-      title: widget.l10n.alertsThresholdTitle,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.l10n.onboardingThresholdValue(_value.round()),
-            style: AppTextStyle.headlineMedium.copyWith(
-              fontWeight: FontWeight.w600,
-              color: context.colorScheme.primary,
-            ),
-          ),
-          Slider(
-            value: _value,
-            min: 3,
-            max: 10,
-            divisions: 7,
-            onChanged: (v) => setState(() => _value = v),
-          ),
-        ],
-      ),
-      actions: [
-        SdButtonV2(
-          variant: SdButtonVariantV2.text,
-          onPressed: () => Navigator.of(context).pop(),
-          label: widget.l10n.commonCancel,
-        ),
-        SdButtonV2(
-          variant: SdButtonVariantV2.primary,
-          onPressed: () => Navigator.of(context).pop(_value),
-          label: widget.l10n.detailsSave,
         ),
       ],
     );

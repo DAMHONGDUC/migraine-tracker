@@ -8,8 +8,10 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
+import '../../../../../core/constants/legal_url_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -19,6 +21,7 @@ import '../../../domain/enums/premium_period.dart';
 import '../../../domain/enums/purchase_error.dart';
 import '../../../providers.dart';
 
+part 'paywall_screen_legal_links.dart';
 part 'paywall_screen_plans.dart';
 
 /// The premium pitch, and the only place a purchase is started.
@@ -288,6 +291,10 @@ class PaywallScreen extends HookConsumerWidget {
                         onPressed: () => unawaited(_restore(context, ref)),
                         label: l10n.paywallRestore,
                       ),
+                    SizedBox(height: SdSpacingConstant.h12),
+                    // App Store 3.1.2 requires these in the binary too, not
+                    // only in the listing's metadata.
+                    const _LegalLinks(),
                   ],
                 ),
               ],
@@ -316,11 +323,11 @@ class PaywallScreen extends HookConsumerWidget {
             child: sheet,
           );
 
-    // ~85% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
+    // ~94% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
-        heightFactor: 0.87,
+        heightFactor: 0.94,
         widthFactor: 1,
         child: surface,
       ),

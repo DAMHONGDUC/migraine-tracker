@@ -11,12 +11,15 @@ import 'package:migraine_tracker/features/medications/domain/entities/medication
 import 'package:migraine_tracker/features/medications/domain/repositories/medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
+import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
+import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
 
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/export_fakes.dart';
@@ -88,6 +91,8 @@ void main() {
       const DataExportService(),
       files,
       DriftExportRecordRepository(db),
+      DriftNotificationRepository(db),
+      DriftDailyPressureRepository(db),
     );
   });
 
@@ -100,12 +105,16 @@ void main() {
       DriftExportRecordRepository(db).watchAll().first;
   Future<List<MedicationReminderView>> reminders() =>
       DriftMedicationReminderRepository(db).watchAll().first;
+  Future<List<AppNotification>> notifications() =>
+      DriftNotificationRepository(db).watchAll().first;
 
   test('seeds the promised number of rows of each kind', () async {
     await seeder.seed();
 
-    expect((await attacks()).length, DevSeedService.seedCount);
-    expect((await medications()).length, DevSeedService.seedCount);
+    // Fewer than seedCount: the seed deletes a handful again on purpose, so
+    // SyncTombstones has rows that a real delete produced.
+    expect((await attacks()).length, lessThan(DevSeedService.seedCount));
+    expect((await medications()).length, lessThan(DevSeedService.seedCount));
     expect((await exports()).length, DevSeedService.seedCount);
   });
 
@@ -194,10 +203,14 @@ void main() {
 
   test('re-seeding replaces the data rather than adding to it', () async {
     await seeder.seed();
+    final int afterFirst = (await attacks()).length;
+
     await seeder.seed();
 
-    expect((await attacks()).length, DevSeedService.seedCount);
-    expect((await medications()).length, DevSeedService.seedCount);
+    // Equal, not doubled — and below seedCount either way, because each run
+    // deletes a few again to leave tombstones behind.
+    expect((await attacks()).length, afterFirst);
+    expect(afterFirst, lessThan(DevSeedService.seedCount));
   });
 
   test('two runs produce different data', () async {
@@ -258,5 +271,48 @@ void main() {
     // test is asserting the RNG rather than the intent.
     expect(weatherless, greaterThan(0));
     expect(weatherless, lessThan(all.length ~/ 3));
+  });
+
+  test('fills the tables the charts and the list read, not just attacks', () async {
+    await seeder.seed();
+
+    // One reading per day across the window: the correlation's denominator,
+    // without which the pressure card can only talk about attacks.
+    final List<DailyPressure> days = await DriftDailyPressureRepository(
+      db,
+    ).since(DateTime(2000));
+
+    expect(days, isNotEmpty);
+    expect(
+      days.map((DailyPressure d) => d.day).toSet().length,
+      days.length,
+      reason: 'one row per day, never two',
+    );
+
+    final List<AppNotification> rows = await notifications();
+
+    expect(rows, isNotEmpty);
+    // Both tabs of the list have something, and the bell has a count.
+    expect(
+      rows.any((AppNotification n) => n.type == NotificationType.medicationReminder),
+      isTrue,
+    );
+    expect(
+      rows.any((AppNotification n) => n.type == NotificationType.pressureAlert),
+      isTrue,
+    );
+    expect(rows.any((AppNotification n) => n.readAt == null), isTrue);
+    expect(rows.any((AppNotification n) => n.readAt != null), isTrue);
+  });
+
+  test('a pressure alert row carries how far it fell', () async {
+    await seeder.seed();
+
+    final Iterable<AppNotification> alerts = (await notifications()).where(
+      (AppNotification n) => n.type == NotificationType.pressureAlert,
+    );
+
+    // Without it a reconciled row cannot say what the alert was about.
+    expect(alerts.every((AppNotification n) => n.pressureDropHpa != null), isTrue);
   });
 }

@@ -38,6 +38,9 @@ struct BaroEaseEntry: TimelineEntry {
   let pressureLabel: String
   let pressureValue: String
   let pressureDetail: String
+  /// Apple's weather trademark, required wherever WeatherKit data is drawn.
+  /// Arrives already worded — the extension cannot reach the ARB files.
+  let attribution: String
   let trend: BaroEasePressureTrend
 
   static let noReading = "—"
@@ -50,6 +53,7 @@ struct BaroEaseEntry: TimelineEntry {
     pressureLabel: "Pressure",
     pressureValue: noReading,
     pressureDetail: "",
+    attribution: "",
     trend: .unknown
   )
 
@@ -68,6 +72,8 @@ struct BaroEaseEntry: TimelineEntry {
         ? (BaroEaseWidgetStore.string("pressure_value") ?? noReading)
         : noReading,
       pressureDetail: hasPressure ? (BaroEaseWidgetStore.string("pressure_detail") ?? "") : "",
+      // Blanked with the reading: attributing a dash credits Apple for nothing.
+      attribution: hasPressure ? (BaroEaseWidgetStore.string("attribution") ?? "") : "",
       trend: hasPressure
         ? BaroEasePressureTrend(token: BaroEaseWidgetStore.string("trend"))
         : .unknown

@@ -26,6 +26,7 @@ import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
+import 'package:migraine_tracker/features/health/domain/entities/step_hour.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/health/providers.dart';
@@ -42,6 +43,7 @@ import 'package:migraine_tracker/features/settings/domain/services/mail_launcher
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
@@ -69,6 +71,11 @@ class FakeWeatherRepository implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
+
+  // The weather card's payload. No widget test draws it, and no non-UI
+  // test needs it, so every fake answers "no weather".
+  @override
+  Future<WeatherReport?> report() async => null;
 }
 
 /// No-op scheduler so widget tests never touch the notifications plugin.
@@ -444,6 +451,9 @@ class FakeHealthRepository implements HealthRepository {
   /// want analysed.
   List<StepDay> days = <StepDay>[];
 
+  /// Served by [stepHours], unfiltered — the step chart's Day range.
+  List<StepHour> hours = <StepHour>[];
+
   int authorizationRequests = 0;
 
   /// How many times sleep was actually read — the assertion behind "a free
@@ -452,6 +462,10 @@ class FakeHealthRepository implements HealthRepository {
 
   /// How many times steps were actually read — same role as [sleepReads].
   int stepReads = 0;
+
+  /// Reads of the hourly series, counted separately: the Day range is its own
+  /// query, so a test can tell which one a card issued.
+  int stepHourReads = 0;
 
   /// Which sources were asked for: sleep and steps prompt separately now.
   final List<HealthDataKind> requestedKinds = <HealthDataKind>[];
@@ -479,6 +493,16 @@ class FakeHealthRepository implements HealthRepository {
   }) async {
     stepReads++;
     return days;
+  }
+
+  @override
+  Future<List<StepHour>> stepHours({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    stepHourReads++;
+
+    return hours;
   }
 }
 
@@ -858,7 +882,10 @@ Future<void> settleExport(WidgetTester tester) async {
 }
 
 Future<void> openMedications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.medication_outlined));
+  // `.last` is the nav bar, same as `openInsights`: the dashboard's
+  // quick-access tile carries this glyph too, and the bottom bar is built
+  // after the body, so it comes last.
+  await tester.tap(find.byIcon(Icons.medication_outlined).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -956,10 +983,38 @@ Future<void> openHistoryCharts(WidgetTester tester) async {
 /// Pumps real frames so the correlation count-up (700ms) can run — one big
 /// jump skips its start frame.
 Future<void> openInsights(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.insights_outlined));
+  // `.last` is the nav bar: the dashboard's quick-access tile now carries the
+  // same glyph, and the bottom bar is built after the body, so it comes last.
+  await tester.tap(find.byIcon(Icons.insights_outlined).last);
+  await pumpCountUp(tester);
+}
+
+/// Real frames, enough of them for the correlation's 700ms count-up to land.
+///
+/// One big `pump` skips its start frame, and `pumpAndSettle` cannot be used
+/// while it is running — so the frames are walked by hand.
+Future<void> pumpCountUp(WidgetTester tester) async {
   for (int i = 0; i < 15; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+}
+
+/// Insights, then its Pressure tab — which is where the correlation lives.
+///
+/// Insights opens on Weather now (`InsightsTabController.build`), so a test
+/// that wants the correlation has to say so. A test asserting the tab switch
+/// ITSELF should still tap the segment inline; this is for the ones that only
+/// need to be standing on that card.
+///
+/// **The count-up is pumped AFTER the switch, and that is the whole point of
+/// this helper.** The tabs build lazily, so the correlation card does not
+/// exist until the segment is tapped — frames spent inside `openInsights` are
+/// spent on the weather card, and the hero number is still counting when the
+/// assertion runs.
+Future<void> openPressureInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tapVisible(tester, find.text('Pressure'));
+  await pumpCountUp(tester);
 }
 
 /// Opens the log flow from the dashboard's hero button (the flow is a pushed

@@ -1,3 +1,4 @@
+import '../../../../core/logging/app_logger.dart';
 import '../entities/encrypted_payload.dart';
 import '../entities/encrypted_record.dart';
 import '../entities/sync_collection.dart';
@@ -244,7 +245,13 @@ class SyncService {
     if (plaintext == null) return null;
     try {
       return binding.codec.decode(plaintext, id: change.id);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Decoding a synced ${binding.collection.name} record failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+
       return null;
     }
   }

@@ -4,7 +4,7 @@ The authority on what Premium costs, what it unlocks, and what the free plan
 holds. `CLAUDE.md` points here rather than restating any of it, so there is
 one place to change when the offer changes.
 
-Last updated: 2026-08-08.
+Last updated: 2026-08-12.
 
 ## Prices
 
@@ -76,6 +76,21 @@ them hard taxes the behaviour that feeds the best pitch.
 - **The attack wall is never a surprise.** It lands on the log button, which
   is tapped mid-attack. `AttackLimitBanner` counts down the last
   `attacksWarnAt` logs on the dashboard, where the user is calm.
+- **How much is left is always visible, not only near the end.**
+  `FreeLimitProgress` (`core/widgets/`) states it as a sentence plus a bar,
+  from an `attacksUsedProvider` / `medicationsUsedProvider` that returns null
+  while premium — which is what hides the whole block for a paying user.
+  Three surfaces show one: History (logs, under the filter row), the
+  medications tab (medications, above the first card), and a medication's
+  detail screen (medications again, in the pinned footer beside the add
+  button, from the same provider so the two can never disagree).
+  Tapping it opens the paywall directly — the surface has already named the
+  limit, which is the only job `RecordLimitDialog` does elsewhere.
+- **The limits are lifetime totals, not a monthly allowance.** There is no
+  reset. A cap that refilled every month would make 40 logs a rate limit on
+  the one action the app exists for, and 40 was chosen as a *lifetime* number
+  against `CorrelationEngine.minAttacks` — the reasoning above only holds if
+  it is never topped up.
 - **The medication limit applies inside the log flow too**, by the owner's
   call — the one gate that may appear there (hard rule 5). It never blocks the
   log itself: "No medication" and every medication already on file stay
@@ -91,24 +106,51 @@ Free forever, up to the limits above:
   attached to each one
 - The severity donut, wherever it appears — the dashboard preview and
   History's copy draw the user's real counts
-- The sleep and step summary cards: what HealthKit handed over, last night /
-  today plus the 7-entry average. They are the answer to "did connecting Apple
-  Health work", so locking them would leave a user who just flipped the switch
-  looking at nothing
-- Physical exertion self-report and its correlation
+- The sleep and step readings themselves — the top half of `SleepCard` and
+  `ActivityCard`, including the D / W / M / 6M range selector over each. They
+  are the answer to "did connecting Apple Health work", so locking them would
+  leave a user who just flipped the switch looking at nothing
+- **The weather, in full, minus pressure**: `WeatherCard` gives every user a
+  week of days and, for the day they pick, the hours — conditions, UV, wind,
+  chance of rain, humidity and visibility. `/pressure` still opens for
+  everyone, but what it shows there is the pitch
+- Physical exertion self-report (the answer is still asked for and stored;
+  only the correlation drawn from it is premium — see below)
 - Export to JSON/CSV, the export history, preview, and the GDPR wipe
 - The notification list, and medication reminders up to the limit
 
 Premium:
 
-- Pressure-drop push alerts and the 48h forecast chart
-- The pressure trigger correlation
-- Every chart except the severity donut and the two health summary cards —
-  and any chart added later is covered unless the owner says otherwise
+- **Everything pressure.** The 48h forecast chart (`PressureForecastBody`,
+  which gates itself so a free user issues no WeatherKit call for it), the
+  correlation, and the drop alert — the switch and the threshold both, on
+  `/pressure` and on the bottom of `WeatherCard`. **A free user is shown
+  neither control**, only a badge, one line on what the alert does, and
+  Unlock: they were shown inert first, and a switch that will not switch
+  reads as broken rather than as an offer.
+  This is the line the free tier is drawn on now — weather is free, pressure
+  is the product. It has flipped twice; see CLAUDE.md before flipping it
+  again
+- **The analysis half of `ActivityCard` and `SleepCard`** — the exertion
+  correlation, the step correlation and the sleep correlation, together under
+  one "Analysis" heading per card
+- Every chart except the severity donut, the weather card, and the sleep and
+  step readings — and any chart added later is covered unless the owner says
+  otherwise
 - The PDF doctor report
-- HealthKit sleep and step-count *correlations* (the raw summary cards are
-  free)
 - Unlimited attacks, medications and reminders
+
+### The exertion correlation moved to premium
+
+It was free, on the grounds that exertion is the one insight the user supplies
+by hand. The owner's Insights spec put it in the premium analysis half of
+`ActivityCard` alongside the step correlation, so it is premium now.
+
+What did **not** change: the exertion step in the log flow, which is still
+free, still one tap, and still arrives on `ExertionLevel.none` so it can never
+block (hard rule 5). Only the correlation drawn from the answers is gated —
+the app still asks the question of everyone, because the data has to exist
+before the paywall has anything to sell.
 
 ## Two rules that outrank the pitch
 

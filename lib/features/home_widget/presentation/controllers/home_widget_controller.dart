@@ -25,6 +25,10 @@ import '../../providers.dart';
 /// in here to fall out of step with the database.
 class HomeWidgetController extends Notifier<bool> {
   @override
+  /// On by default. Adding the widget is itself the opt-in — iOS has no API
+  /// for placing one, so nothing is published anywhere the user did not put
+  /// it — and defaulting the feed off would show dashes on a widget they just
+  /// added, with the fix two taps away in Settings.
   bool build() =>
       ref
           .watch(sharedPreferencesProvider)
@@ -129,6 +133,9 @@ class HomeWidgetController extends Notifier<bool> {
       pressureExpiresAtEpochSeconds: expiresAt == null
           ? ''
           : '${expiresAt.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond}',
+      // Only when a reading is actually drawn — attributing a blank is noise,
+      // and the widget blanks itself once the reading expires.
+      attribution: snapshot.hasPressure ? l10n.weatherAttribution : '',
       trend: snapshot.trend,
     );
   }

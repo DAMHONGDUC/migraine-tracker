@@ -4,6 +4,7 @@ import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
 import '../health/domain/entities/sleep_night.dart';
 import '../health/domain/entities/step_day.dart';
+import '../health/domain/entities/step_hour.dart';
 import '../health/providers.dart';
 import '../weather/domain/entities/daily_pressure.dart';
 import '../weather/providers.dart';
@@ -11,10 +12,17 @@ import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
+import 'domain/enums/health_range.dart';
+import 'domain/enums/insights_tab.dart';
+import 'domain/enums/weather_metric.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
+import 'presentation/controllers/health_range_controller.dart';
+import 'presentation/controllers/insights_tab_controller.dart';
+import 'presentation/controllers/pressure_alert_highlight_controller.dart';
+import 'presentation/controllers/weather_card_controllers.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold
 /// becomes user-tunable in the alerts phase.
@@ -108,3 +116,79 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
 
   return engine.analyze(attacks: attacks, days: days);
 });
+
+/// Which reading the weather card's hourly row shows, and which day of its
+/// week is selected. See [WeatherMetricController] / [WeatherDayController].
+final weatherMetricProvider =
+    NotifierProvider<WeatherMetricController, WeatherMetric>(
+      WeatherMetricController.new,
+    );
+
+final weatherDayProvider = NotifierProvider<WeatherDayController, int>(
+  WeatherDayController.new,
+);
+
+/// The range each health chart is showing. Two controllers, not one: someone
+/// looking at six months of steps has not asked to leave last night's sleep.
+final stepRangeProvider = NotifierProvider<StepRangeController, HealthRange>(
+  StepRangeController.new,
+);
+
+final sleepRangeProvider = NotifierProvider<SleepRangeController, HealthRange>(
+  SleepRangeController.new,
+);
+
+/// Step days over the selected range. Empty while steps are disconnected —
+/// the read stops at the source rather than being discarded afterwards.
+final rangedStepDaysProvider = FutureProvider<List<StepDay>>((ref) async {
+  if (!ref.watch(healthControllerProvider).steps) return const <StepDay>[];
+
+  final HealthRange range = ref.watch(stepRangeProvider);
+  final DateTime now = DateTime.now();
+
+  return ref
+      .watch(healthRepositoryProvider)
+      .stepDays(
+        from: DateTime(now.year, now.month, now.day - (range.days - 1)),
+        to: now,
+      );
+});
+
+/// Today's steps by hour — the Day range only, where a single daily total
+/// would be one bar.
+final stepHoursProvider = FutureProvider<List<StepHour>>((ref) async {
+  if (!ref.watch(healthControllerProvider).steps) return const <StepHour>[];
+
+  final DateTime now = DateTime.now();
+
+  return ref
+      .watch(healthRepositoryProvider)
+      .stepHours(from: DateTime(now.year, now.month, now.day), to: now);
+});
+
+/// Sleep nights over the selected range. Same shape as the step one.
+final rangedSleepNightsProvider = FutureProvider<List<SleepNight>>((ref) async {
+  if (!ref.watch(healthControllerProvider).sleep) return const <SleepNight>[];
+
+  final HealthRange range = ref.watch(sleepRangeProvider);
+  final DateTime now = DateTime.now();
+
+  return ref
+      .watch(healthRepositoryProvider)
+      .sleepNights(
+        from: DateTime(now.year, now.month, now.day - (range.days - 1)),
+        to: now,
+      );
+});
+/// Which of Insights' cards is showing. See [InsightsTabController].
+final insightsTabProvider =
+    NotifierProvider<InsightsTabController, InsightsTab>(
+      InsightsTabController.new,
+    );
+
+/// Whether the pressure card should scroll to its alert row and light it up.
+/// See [PressureAlertHighlightController].
+final pressureAlertHighlightProvider =
+    NotifierProvider<PressureAlertHighlightController, bool>(
+      PressureAlertHighlightController.new,
+    );

@@ -1,7 +1,10 @@
 part of 'settings_screen.dart';
 
-/// Account, alerts, language. Anything about what the app *holds* goes in
-/// [_DataSection] instead.
+/// Account, notifications, language — the app itself.
+///
+/// Anything about what the app *holds* goes in [_DataSection], and anything
+/// about what it *watches* in [_TrackingSection]; pressure, activity, sleep
+/// and the widget all moved out to the latter.
 class _GeneralSection extends ConsumerWidget {
   const _GeneralSection();
 
@@ -35,10 +38,6 @@ class _GeneralSection extends ConsumerWidget {
         // Only with an account: a subscription needs one to belong to.
         if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
         const NotificationsSettingsTile(),
-        const HomeWidgetSettingsTile(),
-        const AlertsSettingsTile(),
-        const ActivitySettingsTile(),
-        const SleepSettingsTile(),
         SettingsTile(
           icon: Icons.language,
           title: context.l10n.settingsLanguage,

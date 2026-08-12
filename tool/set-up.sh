@@ -58,6 +58,13 @@ for f in dev prod; do
   fi
 done
 
+# The Firebase CLI reads this at deploy, and melos pipes stdout so it cannot
+# prompt for the values — an absent file fails the deploy rather than asking.
+if [ -f functions/.env.example ] && [ ! -f functions/.env ]; then
+  cp functions/.env.example functions/.env
+  MISSING="$MISSING functions/.env"
+fi
+
 if [ -d functions ] && command -v npm >/dev/null 2>&1; then
   step "cloud functions"
   (cd functions && npm ci --silent)

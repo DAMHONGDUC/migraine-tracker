@@ -4,6 +4,7 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/domain/services/daily_pressure_recorder.dart';
@@ -33,6 +34,11 @@ class _CountingWeather implements WeatherRepository {
 
   @override
   Future<PressureForecast?> pressureForecast() async => null;
+
+  // The weather card's payload. No widget test draws it, and no non-UI
+  // test needs it, so every fake answers "no weather".
+  @override
+  Future<WeatherReport?> report() async => null;
 }
 
 void main() {

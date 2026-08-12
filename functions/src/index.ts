@@ -20,7 +20,21 @@ import {
   SYNC_KEY_BYTES,
 } from "./core/syncKey";
 import { premiumFromEvent } from "./revenuecat";
-import { fetchHourlyPressure } from "./weather/openMeteo";
+import {
+  cellCenter,
+  cellKey,
+  isFresh,
+} from "./weather/hourlyCache";
+import {
+  fetchHourlyPressure,
+  fetchHourlyWeather,
+  fetchWeatherBundle,
+  weatherKitPrivateKey,
+  WeatherCurrent,
+  WeatherDay,
+  WeatherHour,
+  WeatherKitConfigError,
+} from "./weather/weatherKit";
 
 initializeApp();
 
@@ -46,6 +60,9 @@ export const pressureAlertJob = onSchedule(
     maxInstances: 1,
     memory: "256MiB",
     timeoutSeconds: 540,
+    // Without this the signing key is empty at runtime and every WeatherKit
+    // request 401s — a deploy-time binding, not something the code can check.
+    secrets: [weatherKitPrivateKey],
   },
   async () => {
     const db = getFirestore();
@@ -315,6 +332,127 @@ export const revenuecatWebhook = onRequest(
  * uses, not a simpler one. `eventId` is stamped `test:` so the client's
  * idempotent writers cannot mistake it for a real event.
  */
+/**
+ * The app's only weather source. It has none of its own: WeatherKit's signing
+ * key cannot ship in a binary, so the app asks here and here asks Apple
+ * (CLAUDE.md's tech-stack rule).
+ *
+ * **Any signed-in caller, anonymous included.** Weather is free: it is what
+ * pairs a logged attack with the pressure at that moment, and hard rule 1
+ * keeps every feature except sync and alerts working without an account. Auth
+ * is required only so the endpoint has a caller at all — the app signs in
+ * anonymously at launch, so this costs the user nothing.
+ *
+ * Only the *alert* is premium, and that is enforced in the cron, which reads
+ * `users` where `premium == true`. Nothing about it belongs here.
+ *
+ * **The cache is what protects the quota.** Coordinates round to ~11km and a
+ * series is reused for an hour, so WeatherKit calls scale with populated cells
+ * rather than with users or taps — the 500k monthly quota now lands on one key
+ * instead of being spread across users' own devices. The rounding pays twice:
+ * no precise position is ever stored, matching what hard rule 1 allows.
+ */
+export const getWeather = onCall(
+  {
+    region: REGION,
+    maxInstances: 10,
+    memory: "256MiB",
+    secrets: [weatherKitPrivateKey],
+  },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "sign in first");
+    }
+
+    const db = getFirestore();
+
+    const lat = Number(request.data?.lat);
+    const lon = Number(request.data?.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      throw new HttpsError("invalid-argument", "lat and lon are required");
+    }
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      throw new HttpsError("invalid-argument", "lat or lon out of range");
+    }
+
+    // Hours before and after now. Bounded so one caller cannot ask for a
+    // decade and turn a cache miss into an enormous fetch.
+    const hoursBack = Math.min(Math.max(Number(request.data?.hoursBack) || 0, 0), 240);
+    const hoursForward = Math.min(
+      Math.max(Number(request.data?.hoursForward) || 0, 0),
+      240,
+    );
+
+    // Whether the caller wants current conditions and the daily forecast on
+    // top of the hourly series. Costs the quota nothing extra — one request
+    // to Apple carries all three datasets — but the pressure paths ask for
+    // neither, so they are not cached against the same key.
+    const full = request.data?.full === true;
+
+    const now = new Date();
+    const key = `${cellKey(lat, lon)}_${hoursBack}_${hoursForward}${full ? "_full" : ""}`;
+    const doc = db.collection("weather_cache").doc(key);
+    const cached = await doc.get();
+
+    if (cached.exists && isFresh(cached.get("cachedAt")?.toDate(), now)) {
+      return {
+        hours: cached.get("hours") as WeatherHour[],
+        current: cached.get("current") ?? null,
+        days: cached.get("days") ?? [],
+        cached: true,
+      };
+    }
+
+    const center = cellCenter(cellKey(lat, lon));
+    let hours: WeatherHour[];
+    let current: WeatherCurrent | null = null;
+    let days: WeatherDay[] = [];
+
+    // Named rather than left to become a bare `internal`: the app treats any
+    // weather failure as "no weather" (hard rule 4), so this log is the only
+    // place the reason is ever stated.
+    try {
+      const window = {
+        start: new Date(now.getTime() - hoursBack * 3_600_000),
+        end: new Date(now.getTime() + hoursForward * 3_600_000),
+      };
+
+      if (full) {
+        const bundle = await fetchWeatherBundle(
+          center.lat,
+          center.lon,
+          window,
+          {},
+        );
+
+        hours = bundle.hours;
+        current = bundle.current ?? null;
+        days = bundle.days;
+      } else {
+        hours = await fetchHourlyWeather(center.lat, center.lon, window, {});
+      }
+    } catch (error) {
+      if (error instanceof WeatherKitConfigError) {
+        logger.error("weatherkit not configured", { missing: error.missing });
+        throw new HttpsError("failed-precondition", error.message);
+      }
+      logger.error("weatherkit fetch failed", { key, error: String(error) });
+      throw new HttpsError("unavailable", String(error));
+    }
+
+    // Best-effort: a cache that fails to write must not fail the request the
+    // caller actually made.
+    try {
+      await doc.set({ hours, current, days, cachedAt: now });
+    } catch (error) {
+      logger.warn("weather cache write failed", { key, error: String(error) });
+    }
+
+    return { hours, current, days, cached: false };
+  },
+);
+
 export const sendTestPush = onCall(
   { region: REGION, maxInstances: 5, memory: "256MiB" },
   async (request) => {
@@ -330,27 +468,44 @@ export const sendTestPush = onCall(
     const token = snapshot.get("fcmToken");
     if (typeof token !== "string" || token.length === 0) {
       // Not an error on our side: the device never registered, which is
-      // itself the diagnosis the caller is looking for.
+      // itself the diagnosis the caller is looking for. Logged all the same —
+      // an HttpsError reaches the caller and nothing else, so without this
+      // the run leaves no trace at all in the function's own log.
+      logger.warn("test push refused: no fcmToken", {
+        uid,
+        userDocExists: snapshot.exists,
+      });
       throw new HttpsError("failed-precondition", "no fcmToken registered");
     }
 
     const now = new Date();
-    await getMessaging().send({
-      token,
-      notification: {
-        title: "BaroEase test",
-        body: "If you can see this, push works on this device.",
-      },
-      data: {
-        type: "pressureAlert",
-        eventId: `test:${now.toISOString()}`,
-        dropHpa: "0",
-        at: now.toISOString(),
-      },
-      apns: {
-        payload: { aps: { sound: "default", "content-available": 1 } },
-      },
-    });
+
+    // FCM's own refusals are the answer this row exists to get — a missing
+    // APNs key, a token from another project, a token the device dropped.
+    // Unhandled they reach the app as a bare `internal` with nothing in it.
+    try {
+      await getMessaging().send({
+        token,
+        notification: {
+          title: "BaroEase test",
+          body: "If you can see this, push works on this device.",
+        },
+        data: {
+          type: "pressureAlert",
+          eventId: `test:${now.toISOString()}`,
+          dropHpa: "0",
+          at: now.toISOString(),
+        },
+        apns: {
+          payload: { aps: { sound: "default", "content-available": 1 } },
+        },
+      });
+    } catch (error) {
+      const code = (error as { code?: string })?.code ?? "unknown";
+
+      logger.error("test push failed", { uid, code, error: String(error) });
+      throw new HttpsError("unavailable", `${code}: ${String(error)}`);
+    }
 
     logger.info("test push sent", { uid });
     return { sent: true };

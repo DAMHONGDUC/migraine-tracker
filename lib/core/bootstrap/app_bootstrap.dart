@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -63,6 +64,7 @@ final class AppBootstrap {
             badge: true,
             sound: true,
           );
+      await _ensureAnonymousSession();
     } catch (err, stackTrace) {
       AppLogger.error(
         'Firebase init failed',
@@ -70,6 +72,29 @@ final class AppBootstrap {
         stackTrace: stackTrace,
       );
     }
+  }
+
+  /// "Anonymous by default": the app is fully usable without an account, but
+  /// the callables behind it still need a caller.
+  ///
+  /// `getWeather` is why. Weather is free (hard rule 1) and is what pairs a
+  /// logged attack with the pressure at that moment, but the endpoint spends
+  /// our WeatherKit key, so it will not serve a caller it cannot name. Without
+  /// this a fresh install got no forecast and no pressure on a logged attack,
+  /// both failing silently as "no weather".
+  ///
+  /// Awaited rather than fired off: a race would show that empty state on
+  /// first launch and nowhere else, which is the kind of bug reproduced once
+  /// and never again. Firebase persists the session, so this is one network
+  /// call on first launch and a no-op after.
+  ///
+  /// **Needs Anonymous enabled in the Firebase console.** Without it this
+  /// throws `admin-restricted-operation`, which the caller's guard swallows —
+  /// the app still starts, and weather is simply dead.
+  static Future<void> _ensureAnonymousSession() async {
+    if (FirebaseAuth.instance.currentUser != null) return;
+
+    await FirebaseAuth.instance.signInAnonymously();
   }
 
   /// Timezone DB, so reminders fire at local wall time.

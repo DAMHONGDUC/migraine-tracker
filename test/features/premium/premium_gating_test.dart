@@ -50,11 +50,15 @@ void main() {
   testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
     tester,
   ) async {
-    final PumpedApp app = await pumpApp(tester);
+    // Signed in, because the dev row now sits behind an account: premium
+    // binds to one, so forcing it without one simulates a state production
+    // cannot reach. Signed in and unentitled is still not premium, which is
+    // what the first assertion checks.
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
     await seedInsightData(tester, app);
     await openInsights(tester);
 
-    // Signed out and with no entitlement, the analysis is teased.
+    // With no entitlement, the analysis is teased.
     expect(find.text('60%'), findsNothing);
 
     // Driven through the row a developer actually taps: the override must
@@ -96,19 +100,16 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('never sees the forecast chart', (tester) async {
+    // Reversed by the owner: the forecast is free, and only the alert is
+    // sold. This asserts the chart IS drawn without premium, which is the
+    // opposite of what it used to check.
+    testWidgets('sees the forecast chart, which is free', (tester) async {
       final app = await pumpApp(tester);
       app.weather.forecast = forecast();
 
       await openInsights(tester);
 
-      expect(find.byType(LineChart), findsNothing);
-      expect(
-        find.text(
-          'See the pressure forecast 48 hours ahead, so you can plan around it.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.byType(LineChart), findsWidgets);
 
       await finishTest(tester);
     });

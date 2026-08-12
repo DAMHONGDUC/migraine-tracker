@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
@@ -44,25 +45,86 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<AuthUser> signIn(AuthProviderKind provider) async {
-    final AuthCredential credential = switch (provider) {
-      AuthProviderKind.google => await _googleCredential(),
-      AuthProviderKind.apple => await _appleCredential(),
-    };
+    AppLogger.action('Sign in', <String, Object?>{'provider': provider.name});
+    try {
+      final AuthCredential credential = switch (provider) {
+        AuthProviderKind.google => await _googleCredential(),
+        AuthProviderKind.apple => await _appleCredential(),
+      };
+      final AuthUser user = await _link(credential);
 
-    return _link(credential);
+      AppLogger.info('Sign in ok', <String, Object?>{
+        'provider': provider.name,
+        'uid': user.uid,
+      });
+
+      return user;
+    } on FirebaseAuthException catch (error, stackTrace) {
+      AppLogger.error(
+        'Sign in failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{
+          'provider': provider.name,
+          'code': error.code,
+          'message': error.message,
+        },
+      );
+      rethrow;
+    } catch (error, stackTrace) {
+      // Cancellation lands here too and is not a failure, but it is worth a
+      // line: a sign-in that "did nothing" otherwise looks like a dead button.
+      AppLogger.error(
+        'Sign in failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'provider': provider.name},
+      );
+      rethrow;
+    }
   }
 
   @override
   Future<void> deleteAccount() async {
-    // The function deletes the auth user too, so by the time it returns there
-    // is nothing left to sign out of — but the local session still holds a
-    // stale user until signOut clears it.
-    await _functions.httpsCallable(deleteAccountCallable).call<dynamic>();
-    await signOut();
+    final String? uid = _auth.currentUser?.uid;
+
+    AppLogger.action('Call $deleteAccountCallable', <String, Object?>{
+      'uid': uid,
+    });
+    try {
+      // The function deletes the auth user too, so by the time it returns
+      // there is nothing left to sign out of — but the local session still
+      // holds a stale user until signOut clears it.
+      final HttpsCallableResult<dynamic> result = await _functions
+          .httpsCallable(deleteAccountCallable)
+          .call<dynamic>();
+
+      AppLogger.info('$deleteAccountCallable ok', <String, Object?>{
+        'uid': uid,
+        'response': result.data,
+      });
+      await signOut();
+    } on FirebaseFunctionsException catch (error, stackTrace) {
+      AppLogger.error(
+        '$deleteAccountCallable failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{
+          'uid': uid,
+          'code': error.code,
+          'message': error.message,
+          'details': error.details,
+        },
+      );
+      rethrow;
+    }
   }
 
   @override
   Future<void> signOut() async {
+    AppLogger.action('Sign out', <String, Object?>{
+      'uid': _auth.currentUser?.uid,
+    });
     // Without this, the next sign-in skips the picker and silently lands back in the account just left.
     try {
       await _google.signOut();
@@ -76,10 +138,32 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<void> updateDisplayName(String displayName) async {
     final User? user = _auth.currentUser;
 
-    if (user == null || user.isAnonymous) return;
-    await user.updateDisplayName(displayName);
-    // userChanges() does not fire for a profile write on its own.
-    await user.reload();
+    if (user == null || user.isAnonymous) {
+      AppLogger.warning('Display name skipped: no account');
+
+      return;
+    }
+
+    AppLogger.action('Update display name', <String, Object?>{
+      'uid': user.uid,
+      'length': displayName.length,
+    });
+    try {
+      await user.updateDisplayName(displayName);
+      // userChanges() does not fire for a profile write on its own.
+      await user.reload();
+      AppLogger.info('Display name updated', <String, Object?>{
+        'uid': user.uid,
+      });
+    } on FirebaseAuthException catch (error, stackTrace) {
+      AppLogger.error(
+        'Update display name failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'uid': user.uid, 'code': error.code},
+      );
+      rethrow;
+    }
   }
 
   Future<AuthCredential> _googleCredential() async {

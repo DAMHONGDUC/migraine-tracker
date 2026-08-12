@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/enums/history_period.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -12,7 +13,10 @@ class HistoryController extends Notifier<HistoryPeriod> {
   @override
   HistoryPeriod build() => HistoryPeriod.all;
 
-  void select(HistoryPeriod period) => state = period;
+  void select(HistoryPeriod period) {
+    AppLogger.action('History period', period.name);
+    state = period;
+  }
 
   /// Attacks whose local start time falls within the selected period.
   List<Attack> filter(List<Attack> attacks) =>
@@ -24,5 +28,8 @@ class HistoryViewModeController extends Notifier<HistoryViewMode> {
   @override
   HistoryViewMode build() => HistoryViewMode.list;
 
-  void select(HistoryViewMode mode) => state = mode;
+  void select(HistoryViewMode mode) {
+    AppLogger.action('History view', mode.name);
+    state = mode;
+  }
 }

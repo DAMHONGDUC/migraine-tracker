@@ -1,4 +1,5 @@
 import '../../../attacks/domain/entities/attack.dart';
+import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 
 /// Fabricated attacks that draw the shape of the History chart deck for a
@@ -20,6 +21,18 @@ final class SampleChartData {
 
   /// Cycled per attack, spread across all four quarters of the day.
   static const List<int> _hours = <int>[3, 9, 14, 20, 11, 16, 22, 7];
+
+  /// Cycled per attack. Weighted toward the harder end so the locked exertion
+  /// preview shows a lean rather than a flat split — a blurred chart saying
+  /// "no pattern" sells nothing.
+  static const List<ExertionLevel> _exertions = <ExertionLevel>[
+    ExertionLevel.severe,
+    ExertionLevel.moderate,
+    ExertionLevel.severe,
+    ExertionLevel.light,
+    ExertionLevel.moderate,
+    ExertionLevel.none,
+  ];
 
   /// The last 8 calendar weeks of made-up attacks, relative to [now].
   static List<Attack> attacks({required DateTime now}) {
@@ -44,6 +57,7 @@ final class SampleChartData {
             ),
             intensity: _intensities[index % _intensities.length],
             location: HeadLocation.values[index % HeadLocation.values.length],
+            exertionLevel: _exertions[index % _exertions.length],
           ),
         );
         index++;

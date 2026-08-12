@@ -152,6 +152,8 @@ final devSeedServiceProvider = Provider<DevSeedService>(
     ref.watch(dataExportServiceProvider),
     ref.watch(exportFileStoreProvider),
     ref.watch(exportRecordRepositoryProvider),
+    ref.watch(notificationRepositoryProvider),
+    ref.watch(dailyPressureRepositoryProvider),
   ),
 );
 

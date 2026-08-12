@@ -24,6 +24,11 @@ part 'notifications_screen_tile.dart';
 ///
 /// Opening the screen reads nothing: a row is read when its detail is
 /// opened, so the dot on a row means what it says.
+///
+/// The app bar carries the unread count in full, uncapped — unlike the bell
+/// and the Settings row, which cap at [SdBadgeV2.maxCount] because a badge
+/// that grows covers the icon under it. Here it is a line of text with a bar
+/// to itself, so there is nothing to protect it from and no reason to round.
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -40,9 +45,16 @@ class NotificationsScreen extends HookConsumerWidget {
     final List<AppNotification> shown = selected.value == 0
         ? reminders
         : alerts;
+    final int unread = ref.watch(unreadNotificationCountProvider).value ?? 0;
 
     return SdScaffoldV2(
       title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),
+      actions: unread == 0
+          ? null
+          : <Widget>[
+              _UnreadCount(unread: unread),
+              SizedBox(width: SdContentPaddingV2.horizontal),
+            ],
       body: Column(
         children: <Widget>[
           Padding(
@@ -90,6 +102,33 @@ class NotificationsScreen extends HookConsumerWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// How many are unread, at the end of the app bar.
+///
+/// The error colour, like the bell's badge and the rows' dots — the three
+/// mark the same thing and must not read as three different things. Plain
+/// text and not a chip: the bell is the one place a count wears a filled
+/// pill, and a second one here would compete with the title beside it.
+class _UnreadCount extends StatelessWidget {
+  const _UnreadCount({required this.unread});
+
+  final int unread;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: context.l10n.notificationsA11yUnread(unread),
+      child: ExcludeSemantics(
+        child: Text(
+          '$unread',
+          style: AppTextStyle.titleMedium.copyWith(
+            color: context.colorScheme.error,
+          ),
+        ),
       ),
     );
   }

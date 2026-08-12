@@ -68,6 +68,24 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
   DevPremiumOverride.new,
 );
 
+/// Dev-only: render [MockPremiumOffers] instead of asking the store.
+///
+/// Exists for App Store screenshots. Until the products and the RevenueCat
+/// offering are created the paywall correctly shows "no plans available",
+/// which is honest and unshippable as a screenshot. Same shape as
+/// [DevPremiumOverride]: in memory for the run, written nowhere, and read
+/// only behind `!AppEnv.isProd`.
+class DevMockOffers extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set({required bool value}) => state = value;
+}
+
+final devMockOffersProvider = NotifierProvider<DevMockOffers, bool>(
+  DevMockOffers.new,
+);
+
 final hasPremiumProvider = Provider<bool>((ref) {
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {

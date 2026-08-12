@@ -73,9 +73,14 @@
   "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal.",
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal. Up to {count} attacks on the free plan.",
   "@appFeatureLogBody": {
-    "description": "Free feature: attack logging, detail"
+    "description": "Free feature: attack logging, detail. The count is the free-plan attack limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureHistoryTitle": "History and charts",
   "@appFeatureHistoryTitle": {
@@ -89,9 +94,14 @@
   "@appFeatureRemindersTitle": {
     "description": "Free feature: medication reminders"
   },
-  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips.",
+  "appFeatureRemindersBody": "A daily nudge at the time you choose, so a dose never slips. Up to {count} reminders on the free plan.",
   "@appFeatureRemindersBody": {
-    "description": "Free feature: medication reminders, detail"
+    "description": "Free feature: medication reminders, detail. The count is the free-plan reminder limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureExportTitle": "Export your data",
   "@appFeatureExportTitle": {
@@ -799,7 +809,7 @@
   "@insightsSleepTitle": {
     "description": "Title of the sleep correlation insight card"
   },
-  "insightsSleepNotConnected": "Connect Apple Health sleep in Settings to see whether your attacks follow short nights.",
+  "insightsSleepNotConnected": "Connect Apple Health sleep to see whether your attacks follow short nights.",
   "@insightsSleepNotConnected": {
     "description": "Sleep card body when Apple Health has not been connected"
   },
@@ -863,7 +873,7 @@
   "@insightsStepsTitle": {
     "description": "Title of the step correlation insight card"
   },
-  "insightsStepsNotConnected": "Connect Apple Health steps in Settings to see whether your attacks follow low-activity days.",
+  "insightsStepsNotConnected": "Connect Apple Health steps to see whether your attacks follow low-activity days.",
   "@insightsStepsNotConnected": {
     "description": "Step card body when Apple Health has not been connected"
   },
@@ -1173,6 +1183,15 @@
   "@notificationsA11yOpen": {
     "description": "Tooltip on the dashboard's bell, which opens the notification list"
   },
+  "notificationsA11yUnread": "{count, plural, =1{1 unread} other{{count} unread}}",
+  "@notificationsA11yUnread": {
+    "description": "Screen-reader label for the unread count shown in the notification list's app bar. The visible text is the bare number, which says nothing on its own",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationReminderTitle": "Time for {medication}",
   "@notificationReminderTitle": {
     "description": "A medication reminder row in the notification list",
@@ -1296,6 +1315,22 @@
   "@paywallRestore": {
     "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
   },
+  "weatherAttribution": " Weather",
+  "@weatherAttribution": {
+    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it; the glyph is Apple's logo character and both locales carry the same value"
+  },
+  "paywallTermsOfUse": "Terms of Use",
+  "@paywallTermsOfUse": {
+    "description": "Paywall footer link to Apple's standard EULA. App Store guideline 3.1.2 requires it in the binary beside an auto-renewable subscription, not only in the store listing"
+  },
+  "paywallPrivacyPolicy": "Privacy Policy",
+  "@paywallPrivacyPolicy": {
+    "description": "Paywall footer link to the app's published privacy policy, required alongside the Terms of Use by the same guideline"
+  },
+  "paywallLinkFailed": "Couldn't open that link.",
+  "@paywallLinkFailed": {
+    "description": "Shown when the Terms or Privacy link cannot be opened, so a silent no-op does not read as a broken tap"
+  },
   "paywallRestoreNothing": "Nothing to restore on this account.",
   "@paywallRestoreNothing": {
     "description": "Result message when a restore found no previous purchase"
@@ -1366,6 +1401,10 @@
   "alertsThresholdTitle": "Alert threshold",
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"
+  },
+  "alertsErrorAccount": "Sign in and unlock Premium to get pressure alerts.",
+  "@alertsErrorAccount": {
+    "description": "Shown when alerts are enabled without a signed-in account. Alerts need premium and premium needs an account, so both are named"
   },
   "alertsErrorNotifications": "Notification permission is required for alerts.",
   "@alertsErrorNotifications": {
@@ -1797,6 +1836,34 @@
   "@settingsSectionDev": {
     "description": "Section heading for dev-only tools, hidden in prod builds"
   },
+  "settingsDevLocation": "Fake location",
+  "@settingsDevLocation": {
+    "description": "Dev-only settings tile that pins weather reads to a fixed city"
+  },
+  "settingsDevLocationSheetTitle": "Read weather at",
+  "@settingsDevLocationSheetTitle": {
+    "description": "Title of the dev-only sheet that picks a faked location"
+  },
+  "settingsDevLocationOff": "Device location",
+  "@settingsDevLocationOff": {
+    "description": "The dev-only fake location option meaning the real device position"
+  },
+  "settingsDevLocationHanoi": "Hanoi",
+  "@settingsDevLocationHanoi": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationTokyo": "Tokyo",
+  "@settingsDevLocationTokyo": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationLondon": "London",
+  "@settingsDevLocationLondon": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
+  "settingsDevLocationSanFrancisco": "San Francisco",
+  "@settingsDevLocationSanFrancisco": {
+    "description": "A city offered by the dev-only fake location picker"
+  },
   "settingsDevSeed": "Reset with sample data",
   "@settingsDevSeed": {
     "description": "Dev-only settings tile that wipes the device and seeds fixtures"
@@ -1821,6 +1888,10 @@
   "settingsDevPremium": "Premium (mock)",
   "@settingsDevPremium": {
     "description": "Dev-only tile: force the premium state on or off"
+  },
+  "settingsDevMockOffers": "Paywall plans (mock)",
+  "@settingsDevMockOffers": {
+    "description": "Dev-only tile: show three fake plans on the paywall so it can be screenshotted before the store products exist"
   },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
@@ -2027,6 +2098,14 @@
   "@dashboardTrendSame": {
     "description": "Weekly trend caption when this week matches last week"
   },
+  "dashboardWeekEmpty": "No attacks logged this week.",
+  "@dashboardWeekEmpty": {
+    "description": "Stands in for the trend line on the dashboard week card when neither this week nor last week has an attack, so there is no trend to state"
+  },
+  "dashboardSeverityEmpty": "The split appears after your first log.",
+  "@dashboardSeverityEmpty": {
+    "description": "Sits under the band names on the dashboard severity card before any attack exists, where the ring shows the scale rather than a reading"
+  },
   "dashboardAvgIntensity": "Avg intensity {value}",
   "@dashboardAvgIntensity": {
     "description": "Average pain intensity for the week on the dashboard summary card",
@@ -2051,10 +2130,6 @@
   "dashboardChartShortcut": "Chart",
   "@dashboardChartShortcut": {
     "description": "Dashboard quick-access card opening History in chart view"
-  },
-  "dashboardWeatherShortcut": "Weather",
-  "@dashboardWeatherShortcut": {
-    "description": "Dashboard quick-access tile that opens the pressure screen"
   },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
@@ -2237,7 +2312,11 @@
   },
   "settingsSectionGeneral": "General",
   "@settingsSectionGeneral": {
-    "description": "Settings section heading above the account, alert and language rows"
+    "description": "Settings section heading above the account, notifications and language rows"
+  },
+  "settingsSectionTracking": "Tracking",
+  "@settingsSectionTracking": {
+    "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
@@ -2429,9 +2508,9 @@
   "@healthSleepTitle": {
     "description": "Settings row title for the Apple Health sleep connection"
   },
-  "healthConnectFailed": "Couldn't connect to Apple Health.",
+  "healthConnectFailed": "Couldn't connect Apple Health. Try again from the Health app if it keeps failing.",
   "@healthConnectFailed": {
-    "description": "Error snackbar when the HealthKit authorization sheet could not be completed"
+    "description": "Shown when the Apple Health permission sheet did not complete"
   },
   "commonDurationHoursMinutes": "{hours}h {minutes}m",
   "@commonDurationHoursMinutes": {
@@ -2458,9 +2537,14 @@
   "@appFeatureMedicationsTitle": {
     "description": "Feature row title: the medications screen"
   },
-  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped.",
+  "appFeatureMedicationsBody": "Keep every drug in one place, and see how often each one actually helped. Up to {count} medications on the free plan.",
   "@appFeatureMedicationsBody": {
-    "description": "Feature row body: the medications screen"
+    "description": "Feature row body: the medications screen. The count is the free-plan medication limit and comes from PremiumLimitConstant, never typed into the string",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appFeatureWidgetTitle": "Home screen widget",
   "@appFeatureWidgetTitle": {
@@ -2526,7 +2610,7 @@
   "@homeWidgetWeekLabel": {
     "description": "Home screen widget label above the count of attacks logged this week"
   },
-  "homeWidgetWeekValue": "{count, plural, =0{No attacks} =1{1 attack} other{{count} attacks}}",
+  "homeWidgetWeekValue": "{count, plural, =1{1 attack} other{{count} attacks}}",
   "@homeWidgetWeekValue": {
     "description": "Home screen widget value: attacks logged this week",
     "placeholders": {
@@ -2565,14 +2649,6 @@
   "@homeWidgetFailed": {
     "description": "Error snackbar when writing the widget's shared data failed"
   },
-  "dashboardSleepTitle": "Sleep",
-  "@dashboardSleepTitle": {
-    "description": "Dashboard explore card title for last night's sleep"
-  },
-  "dashboardStepsTitle": "Steps",
-  "@dashboardStepsTitle": {
-    "description": "Dashboard explore card title for today's step count"
-  },
   "dashboardHealthConnect": "Connect",
   "@dashboardHealthConnect": {
     "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
@@ -2593,5 +2669,246 @@
         "type": "String"
       }
     }
+  },
+  "freeLimitUsed": "{used} of {limit} used",
+  "@freeLimitUsed": {
+    "description": "Caption under the free-plan usage bar",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "freeLimitAttacks": "{count, plural, =0{No free logs left} =1{1 free log left} other{{count} free logs left}}",
+  "@freeLimitAttacks": {
+    "description": "Headline of the free-plan attack log usage indicator",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
+  "@freeLimitMedications": {
+    "description": "Headline of the free-plan medication usage indicator",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherCardTitle": "Weather",
+  "@weatherCardTitle": {
+    "description": "Title of the weather and pressure alert card on Insights"
+  },
+  "weatherUnavailable": "Weather is unavailable right now.",
+  "@weatherUnavailable": {
+    "description": "Shown when the weather report could not be fetched"
+  },
+  "weatherNow": "Now",
+  "@weatherNow": {
+    "description": "Label for the current hour in the hourly strip"
+  },
+  "weatherFeelsLike": "Feels like {value}",
+  "@weatherFeelsLike": {
+    "description": "Apparent temperature under the current reading",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherTemperature": "{value}°",
+  "@weatherTemperature": {
+    "description": "A temperature in degrees, unit-less by design",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherPercent": "{value}%",
+  "@weatherPercent": {
+    "description": "Humidity, cloud cover or chance of precipitation",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherWindValue": "{value} km/h",
+  "@weatherWindValue": {
+    "description": "Wind speed",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherVisibilityValue": "{value} km",
+  "@weatherVisibilityValue": {
+    "description": "Visibility distance",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherUvValue": "{value}",
+  "@weatherUvValue": {
+    "description": "UV index, an unit-less number",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherDetailHumidity": "Humidity",
+  "@weatherDetailHumidity": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailUv": "UV index",
+  "@weatherDetailUv": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailWind": "Wind",
+  "@weatherDetailWind": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailVisibility": "Visibility",
+  "@weatherDetailVisibility": {
+    "description": "Weather detail label"
+  },
+  "weatherDetailPrecipitation": "Chance of rain",
+  "@weatherDetailPrecipitation": {
+    "description": "Weather detail label"
+  },
+  "weatherConditionClear": "Clear",
+  "@weatherConditionClear": {
+    "description": "Weather condition"
+  },
+  "weatherConditionCloudy": "Cloudy",
+  "@weatherConditionCloudy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionPartlyCloudy": "Partly cloudy",
+  "@weatherConditionPartlyCloudy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionRain": "Rain",
+  "@weatherConditionRain": {
+    "description": "Weather condition"
+  },
+  "weatherConditionSnow": "Snow",
+  "@weatherConditionSnow": {
+    "description": "Weather condition"
+  },
+  "weatherConditionSleet": "Sleet",
+  "@weatherConditionSleet": {
+    "description": "Weather condition"
+  },
+  "weatherConditionThunderstorms": "Thunderstorms",
+  "@weatherConditionThunderstorms": {
+    "description": "Weather condition"
+  },
+  "weatherConditionFog": "Fog",
+  "@weatherConditionFog": {
+    "description": "Weather condition"
+  },
+  "weatherConditionWindy": "Windy",
+  "@weatherConditionWindy": {
+    "description": "Weather condition"
+  },
+  "weatherConditionHazy": "Hazy",
+  "@weatherConditionHazy": {
+    "description": "Weather condition"
+  },
+  "weatherAlertLockedBody": "Get notified before pressure drops enough to trigger an attack.",
+  "@weatherAlertLockedBody": {
+    "description": "Pitch under the locked pressure alert half of the weather card"
+  },
+  "weatherAlertActiveBody": "You are alerted when pressure falls by {value} or more within 24 hours.",
+  "@weatherAlertActiveBody": {
+    "description": "Describes the active pressure alert, with the threshold",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "healthRangeDay": "D",
+  "@healthRangeDay": {
+    "description": "Health chart range selector: today, by hour"
+  },
+  "healthRangeWeek": "W",
+  "@healthRangeWeek": {
+    "description": "Health chart range selector: the last 7 days"
+  },
+  "healthRangeMonth": "M",
+  "@healthRangeMonth": {
+    "description": "Health chart range selector: the last 30 days"
+  },
+  "healthRangeHalfYear": "6M",
+  "@healthRangeHalfYear": {
+    "description": "Health chart range selector: the last 6 months, by week"
+  },
+  "healthRangeEmpty": "No data for this range.",
+  "@healthRangeEmpty": {
+    "description": "Shown when Apple Health returned nothing over the selected range"
+  },
+  "activityCardTitle": "Activity",
+  "@activityCardTitle": {
+    "description": "Title of the steps and exertion card on Insights"
+  },
+  "sleepCardTitle": "Sleep",
+  "@sleepCardTitle": {
+    "description": "Title of the sleep card on Insights"
+  },
+  "insightsAnalysisTitle": "Analysis",
+  "@insightsAnalysisTitle": {
+    "description": "Heading of the premium half of an insight card"
+  },
+  "weatherMetricConditions": "Conditions",
+  "@weatherMetricConditions": {
+    "description": "Weather card dropdown option: the hourly weather itself"
+  },
+  "weatherMetricSheetTitle": "Show",
+  "@weatherMetricSheetTitle": {
+    "description": "Title of the sheet that picks which hourly reading to show"
+  },
+  "weatherRange": "{low} / {high}",
+  "@weatherRange": {
+    "description": "A day's low and high temperature",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
+  "@premiumLockedPressure": {
+    "description": "The pressure card's single locked pitch, covering forecast, correlation and alert"
+  },
+  "dashboardAlertShortcut": "Alert",
+  "@dashboardAlertShortcut": {
+    "description": "Quick-access tile for the pressure-drop alert settings"
+  },
+  "dashboardTodayTitle": "Today",
+  "@dashboardTodayTitle": {
+    "description": "Heading of the dashboard's at-a-glance readings section"
+  },
+  "dashboardAboutTitle": "About us",
+  "@dashboardAboutTitle": {
+    "description": "Explore card leading to the About screen"
+  },
+  "dashboardAboutBody": "What BaroEase tracks, what the free plan includes, and how to reach us.",
+  "@dashboardAboutBody": {
+    "description": "Subtitle of the About explore card"
   }
 }

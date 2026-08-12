@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/encrypted_record.dart';
 import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/remote_sync_repository.dart';
@@ -29,10 +30,33 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     String uid,
     SyncCollection collection,
     EncryptedRecord record,
-  ) => _owned(
-    uid,
-    collection,
-  ).write(record.id, EncryptedRecordMapper.toDocument(record, uid));
+  ) async {
+    // Ids and timestamps only — the payload is ciphertext and the plaintext
+    // never reaches this class, so there is nothing here to leak.
+    final Map<String, Object?> what = <String, Object?>{
+      'collection': collection.name,
+      'id': record.id,
+      'updatedAt': record.updatedAt.toIso8601String(),
+    };
+
+    try {
+      await _owned(
+        uid,
+        collection,
+      ).write(record.id, EncryptedRecordMapper.toDocument(record, uid));
+      AppLogger.debug('Sync push ok', what);
+    } on FirebaseException catch (error, stackTrace) {
+      AppLogger.error(
+        'Sync push failed',
+        error: error,
+        stackTrace: stackTrace,
+        // `permission-denied` here almost always means the rules or the
+        // indexes were never deployed — worth saying which collection.
+        data: <String, Object?>{...what, 'code': error.code},
+      );
+      rethrow;
+    }
+  }
 
   @override
   Future<List<EncryptedRecord>> changesSince(
@@ -54,12 +78,36 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
         isGreaterThan: Timestamp.fromDate(since),
       );
     }
-    final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+      final List<EncryptedRecord> records = snapshot.docs
+          .map((doc) => EncryptedRecordMapper.fromDocument(doc.id, doc.data()))
+          .nonNulls
+          .toList();
 
-    return snapshot.docs
-        .map((doc) => EncryptedRecordMapper.fromDocument(doc.id, doc.data()))
-        .nonNulls
-        .toList();
+      AppLogger.info('Sync pull ok', <String, Object?>{
+        'collection': collection.name,
+        'since': since?.toIso8601String(),
+        'documents': snapshot.docs.length,
+        // A gap between the two means rows that would not map — a payload
+        // version this build cannot read, which is otherwise silent.
+        'usable': records.length,
+      });
+
+      return records;
+    } on FirebaseException catch (error, stackTrace) {
+      AppLogger.error(
+        'Sync pull failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{
+          'collection': collection.name,
+          'since': since?.toIso8601String(),
+          'code': error.code,
+        },
+      );
+      rethrow;
+    }
   }
 
   @override

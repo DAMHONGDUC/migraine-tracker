@@ -24,6 +24,17 @@ final class DateTimeUtils {
         '${_two(left.inSeconds % 60)}';
   }
 
+  /// Whether two instants land on the same local calendar day.
+  ///
+  /// Local on both sides: a weather hour is stored UTC, and "is this today" is
+  /// a question about the user's own day rather than Greenwich's.
+  static bool isSameDay(DateTime first, DateTime second) {
+    final DateTime a = first.toLocal();
+    final DateTime b = second.toLocal();
+
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   /// First day of [date]'s month — the calendars move whole months at a time,
   /// so this is what a month is identified by.
   static DateTime monthOf(DateTime date) => DateTime(date.year, date.month);

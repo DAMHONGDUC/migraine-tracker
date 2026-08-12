@@ -5,16 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "dev-ios",
+            "name": "dev-17-pro-max",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "args": ["--dart-define-from-file=env/dev.json"],
             "deviceId": "A1435826-B732-4BE8-A6BC-E360A720E0D5"
         },
-         {
+        {
             "name": "dev-android",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "args": ["--dart-define-from-file=env/dev.json"],
             "deviceId": "emulator-5554"
         },
@@ -22,6 +24,7 @@
             "name": "prod",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "flutterMode": "profile",
             "args": ["--dart-define-from-file=env/prod.json"]
         },

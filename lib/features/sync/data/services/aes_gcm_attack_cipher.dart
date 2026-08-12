@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/services/attack_cipher.dart';
 
@@ -103,9 +104,15 @@ class AesGcmAttackCipher implements AttackCipher {
       }
       try {
         results.add(await decrypt(payload: payload, base64Key: base64Key));
-      } catch (_) {
+      } catch (error, stackTrace) {
         // Counted by the caller, never rethrown: the ciphertext will not
-        // change, so retrying it forever would wedge the pull.
+        // change, so retrying it forever would wedge the pull. Logged
+        // because a wrong key looks exactly like an empty sync otherwise.
+        AppLogger.error(
+          'Decrypting a synced record failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
         results.add(null);
       }
     }

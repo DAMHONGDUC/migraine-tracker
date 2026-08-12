@@ -2,22 +2,28 @@
 
 Read `PLAN.md` for full product spec before making architectural decisions.
 
-**Every rule the owner states goes into this file, in the same turn it is
-stated.** A rule that lives only in a chat is gone by the next session — write
-it into the section it belongs to, with the reason, before doing the work it
-governs.
+**This file is an index, not the rulebook.** It holds what applies to *every*
+change; everything else is split out and read when the work touches it. The
+routing table below is the map.
+
+**Every rule the owner states goes into the right file, in the same turn it is
+stated** — with the reason, before the work it governs. A rule that lives only
+in a chat is gone by the next session. If it applies everywhere it belongs
+here; if it belongs to one feature it goes in that feature's own `CLAUDE.md`.
 
 **Every document in this repo is written in English, in full.** Owner's rule.
 `CLAUDE.md`, `PLAN.md`, everything under `docs/` and every `README.md`,
 including the sample-data ones — no mixed-language paragraphs and no
 untranslated quotes. The app's user-facing strings are the exception and the
-opposite: those live in ARB files and ship in both locales (hard rule 6).
+opposite: those live in ARB files and ship in both locales.
 
 **Explaining a change means showing before and after.** Not prose about what
 changed — the old code and the new one, side by side, then what the
 difference does. A description of a diff is the reader taking your word for
-it; the diff is the reader checking. This applies to any explanation of work
-already done: a rule, a refactor, a fix.
+it; the diff is the reader checking.
+
+**An explanation goes straight to the point — no rambling.** Owner's rule.
+Answer the question that was asked, then stop. Length is not thoroughness.
 
 ## What this project is
 
@@ -26,30 +32,57 @@ Local-first data; Firebase backend for pressure alerts, optional sign-in (Google
 Monetization: RevenueCat subscriptions ($4.99/mo, $29.99/yr, $44.99 lifetime). No ads.
 The premium rules — what is gated, the free record limits and why each number is what it is — live in `docs/PREMIUM_RULES.md`, which is the authority; this file only points at it.
 
-## Tech stack
+## Where the rules live
 
-- **Flutter** (stable channel), Dart 3, iOS first (keep Android compiling, don't polish it yet)
-- **State**: Riverpod (hooks_riverpod). No BLoC, no GetX.
-- **Local DB**: Drift (SQLite). Source of truth for health data is always on-device; cloud is a synced copy, never the only copy.
-- **Navigation**: go_router
-- **Backend**: Firebase — Firestore (region europe-west1), Cloud Functions (TypeScript, Node 20), Cloud Scheduler, FCM, Remote Config
-- **Auth**: anonymous by default (app fully usable without an account). Optional sign-in via Google (`google_sign_in`) and Apple (`sign_in_with_apple`) using `linkWithCredential` so the anonymous UID is upgraded, never replaced. Sign in with Apple is mandatory because Google login is offered (App Store 4.8).
-- **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
-- **Sync crypto**: `cryptography` (AES-GCM, pure Dart) for record payloads, `cloud_functions` to fetch the account key from the `getSyncKey` callable. The key is server-held, so this is not end-to-end encryption — see hard rule 12.
-- **Weather is WeatherKit, and it is only ever called from Cloud Functions.** Owner's call — one source for the whole app, no second provider anywhere. The private `.p8` that signs WeatherKit's ES256 JWT must never ship in a binary, on any platform, so the app has no weather API of its own: it asks the backend, and the backend asks Apple. Everything in the app still depends on the `WeatherRepository` interface, so the swap is a data source, not a rewrite.
-  - **Not yet built.** The code still calls the previous provider; it is being replaced, and nothing can be tested until the WeatherKit key and Services ID exist (see "Pending setup").
-  - **Apple requires visible attribution** — the Weather trademark plus a link to Apple's legal page — wherever weather is shown. That is a shipping requirement, not a nicety.
-  - **Quota is 500k calls/month with the developer membership, and a proxy concentrates it.** Calls used to come from users' own devices; now every one lands on our key. Anything the app can reach must be rate-limited, or one caller can burn the month.
-- **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
-- **Observability**: Firebase Crashlytics (crashes + non-fatals) and Firebase Analytics (usage). Both are initialized in `main` and stay no-ops until then, so tests and pure-Dart paths never touch the SDKs.
-- **Home screen widget**: `home_widget` for the App Group bridge; the WidgetKit extension itself is hand-written SwiftUI in `ios/BaroEaseWidget/` (hard rule 18)
-- **Files out**: `share_plus` for the share sheet, `flutter_file_dialog` for "save to device" (the platform's own save picker). `flutter_file_dialog` is below the usual ">1k likes" bar and is a deliberate exception: `file_picker` is the popular choice but every version from 8.3.3 up pins `win32 ^5.9.0`, which `share_plus` >=13.1.0 (`win32 ^6.0.1`) cannot resolve against, and there is no stable `file_picker` 12. Do not "fix" this with a `win32` dependency override — the app ships iOS first and a resolution hack to satisfy a preference is the clever-over-boring trade CLAUDE.md warns against. Revisit only when `file_picker` ships a stable release on `win32 ^6`.
-- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`, which is a deliberate exception. Every other plugin the app uses resolves as a Swift Package (`flutter_file_dialog` included — Flutter adapts podspec-only plugins). If an `ios/Podfile` reappears for any OTHER reason, something added CocoaPods scaffolding the project does not need: run `pod deintegrate`, delete the `Podfile`, and drop the `#include?` lines from `ios/Flutter/{Debug,Release}.xcconfig`.
-  - **This was tried the other way and reverted, so do not re-litigate it without new facts.** The whole app was moved to CocoaPods (`flutter: config: enable-swift-package-manager: false`) to escape the `exact:` pin conflicts that break the Firebase plugin family whenever one of them bumps `firebase-ios-sdk`. Two things killed it: a cold build went from ~80s to ~390s, and — the decisive one — **Firebase is dropping CocoaPods**. Its own pod prints the notice: no new versions published to CocoaPods after **October 2026**, registry read-only from **December 2026**, existing versions kept indefinitely, and SPM is the recommended path (`firebase.google.com/docs/ios/cocoapods-deprecation`). Staying on pods would have frozen the Firebase SDK at 12.17.0 with no security fixes, which is not a place a health app can sit.
-  - So the `exact:` pin conflicts stay a fact of life here, and the fix is the one already used: bump every `firebase_*` plugin to the newest patch its existing caret constraint allows, so they all pin the same `firebase-ios-sdk`, then verify with `xcodebuild -resolvePackageDependencies`. **There are TWO `Package.resolved` files** — `ios/Runner.xcodeproj/…` and `ios/Runner.xcworkspace/…` — and Xcode reads the workspace one. Fixing only the project copy leaves the mismatch one Xcode launch away from coming back.
-  - `health: ^3.0.6` pins its old, unmaintained `device_info` dependency (last published 2021, no SPM support and none coming). `pod install`/`pod build` therefore stays required for `health` + `device_info` specifically; `ios/Podfile` and its `#include?` lines in `Debug.xcconfig`/`Release.xcconfig`/`Profile.xcconfig` are intentional, not leftover scaffolding — don't delete them per the rule above. **All three configs exist and each points at its own Pods xcconfig**: Flutter's template ships only two and maps Profile onto `Release.xcconfig`, which makes `pod install` warn that it never set the base configuration and leaves Profile builds using the *release* pod settings. The Podfile also declares `platform :ios, '15.0'` to match `IPHONEOS_DEPLOYMENT_TARGET`; without it CocoaPods picks its own default and says so every run. The build prints `"The following plugins do not support Swift Package Manager for ios: device_info, health"`; that warning is expected and non-fatal (every other plugin still resolves via SPM).
-  - Do not "fix" that warning by bumping `health`: every version through the latest (13.3.1) caps its `device_info_plus` dependency below `win32 ^6`, which conflicts with `package_info_plus`/`share_plus`'s `win32 ^6.0.1` requirement — the same class of conflict as the `flutter_file_dialog`/`win32` note below. Don't override `win32` to force it through. Revisit only if `health` widens its `device_info_plus` range to `^13.0.0`+, or if `health` migrates off `device_info_plus` entirely.
-  - If `ios/Podfile` is ever missing (e.g. after a clean checkout), `pod install` fails at the post-install hook with `Flutter.xcframework must exist`. Run `flutter precache --ios` first, then `pod install` in `ios/`.
+Read the file whose trigger matches the work. Do not read them all.
+
+| Working on | Read |
+|---|---|
+| running, building, seeding, deploying | `docs/rules/COMMANDS.md` |
+| any Dart file | `docs/rules/CODE_STYLE.md` |
+| anything with a look — widgets, spacing, colour, text | `docs/rules/DESIGN_SYSTEM.md` |
+| Drift tables, schema versions, Firestore collections | `docs/rules/DATA_AND_SYNC.md` |
+| anything touching user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
+| Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
+| WeatherKit, iOS build/SPM/CocoaPods | `docs/rules/TECH_STACK.md` |
+| tests | `docs/rules/TESTING.md` |
+| anything that seems unconfigured (keys, App IDs, products) | `docs/rules/PENDING_SETUP.md` |
+| why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
+| premium gates, prices, free limits | `docs/PREMIUM_RULES.md` |
+| adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
+
+And one per feature, loaded when the work is in that directory:
+`lib/features/<feature>/CLAUDE.md` — attacks, alerts, dashboard, health,
+history, home_widget, insights, medications, notifications, premium, settings,
+sync.
+
+## Always — these apply to every change
+
+- **`melos run analyze` must pass with zero findings** before considering any
+  task done. It is what CI runs (`--fatal-infos`).
+- **Never run the whole test suite to verify a change**, no exception. Scope to
+  what changed: `flutter test test/features/<x>/<y>_test.dart`.
+- **Never read `env/`** — not with Read, not with `cat`/`grep`/`sed`, not "just
+  one field". Live Firebase and RevenueCat keys; the harm is the copy, not the
+  size. `ios/Flutter/Generated.xcconfig` is the same secret under another name.
+  Full rule in `docs/rules/PRIVACY_AND_SECURITY.md`.
+- **Every user-facing string goes through `intl` ARB files**, `app_en.arb` and
+  `app_vi.arb`, both, every time. Access via `context.l10n`.
+- **Every action logs, with its data.** API calls, taps, submits — a line going
+  in and a line coming back. Errors carry the full error *and* the response.
+  Every `catch` logs before returning its substitute. Detail in
+  `docs/rules/CODE_STYLE.md`.
+- **Dark mode is the default theme.** Users are photophobic. No pure white
+  backgrounds anywhere; no flashing or strobing animations.
+- **Attack logging must work fully offline.** Weather is best-effort and
+  backfilled later; nothing in the log flow waits on the network.
+- Commit style: conventional commits (`feat:`, `fix:`, `chore:`). No parenthetical scope — write the scope inline after the colon, then a dash: `feat: medications - a screen per medication`, never `feat(medications): a screen per medication`. No `Co-Authored-By` trailer. **The scope is never `claude`** (e.g. never `chore: claude - listItemGap covers item spacing`) — the scope names the part of the app touched, not who or what made the change; a handful of earlier commits on this repo got this wrong and are grandfathered, not a pattern to continue.
+- **Commit freely; never push.** Every commit (app repo and the `system_design` submodule alike) stays local until the owner explicitly asks for a push — the owner reviews and pushes themselves. Don't run `git push` (or `git push --force*`) on your own initiative, even after a commit that would previously have been pushed as a matter of course.
+- **Any edit to this file gets its own commit, right away** — a CLAUDE.md change never rides along uncommitted or folded into an unrelated commit. Message: `docs: update docs - detail is <what changed>`.
+- **PR descriptions are short bullets, never prose.** A one-line summary, then bulleted groups — one line per bullet, about a screen in total. No explanatory paragraphs, no quoting source in the body. The *why* belongs in the commit message and the code comment, which reviewers reach from the diff; a PR body they have to read twice gets skimmed instead. **No mention of Claude anywhere in a PR description** — no attribution footer (e.g. "Generated with Claude Code"), no "Claude did X" phrasing, nothing naming the tool at all; the description reads like the person who owns the repo wrote it.
+- **Any edit to a `CLAUDE.md` or a `docs/rules/` file gets its own commit,
+  right away** — never folded into an unrelated change. Message:
+  `docs: update docs - detail is <what changed>`.
 
 ## Repo layout
 
@@ -97,584 +130,25 @@ features, import only another feature's `domain/` (or its `providers.dart`),
 never its `data/` or `presentation/`. Drift tables live with their feature;
 `core/db` only composes them.
 
-## `system_design` — the design system is a separate package
+## Tech stack
 
-String-free widgets and spacing primitives live in `packages/system_design`, a
-**separate git repo checked out here as a submodule**, wired in as a path
-dependency. There is exactly one import, and it is the index:
-
-```dart
-import 'package:system_design/index.dart';
-```
-
-Every widget is `Sd<Name>V2` in its own folder `v2/sd_<name>_v2/`. Adding one
-is a folder, a file and one `export` line in `v2/index.dart` — see
-`packages/system_design/WIDGET_RULES.md`, which is the authority on what may
-go in and how it must be written. Read it before adding to the package.
-
-`v2` is the widget generation, and everything with a look lives there. The
-package's `core/` holds only what belongs to no generation — today that is
-`SdSpacingConstant`, the screenutil dimensions, which is why it alone carries
-no `V2` suffix.
-
-**The palette is NOT in the package — this app owns it.** `AppColors`,
-`AppTextStyle`, `AppTheme` and `AppScrollBehavior` stay in `lib/core/theme/`.
-`AppTheme.dark` hands the design system its colours by registering an
-`SdThemeV2` on `ThemeData.extensions`; package widgets then read
-`context.colorScheme`, `context.textTheme` and `context.sdTheme` and never
-name a colour. **A widget test that pumps a bare `MaterialApp` will assert** —
-pass `theme: AppTheme.dark` (which `pumpApp` already does).
-
-**A widget may move into the package only if it takes every user-facing
-string as a parameter and imports nothing from this app** — no `context.l10n`,
-no provider, no repository, no router, no domain entity. That is the whole
-rule, and it is what keeps the package droppable into the next project.
-
-Which is why these stay in `lib/core/widgets/`: `AppTimePickerSheet`,
-`MedicationNameDialog`, `PermissionSettingsSheet` (localized copy),
-`PremiumGate` (watches a provider), `SeverityBreakdownChart` (owns the app's
-severity bands, then composes `SdDonutChartV2`), and `sections/` (settings
-rows bound to auth / alerts / health / premium).
-
-`context.l10n` stays in the app (`core/extensions/context_extensions.dart`);
-`context.theme` / `.colorScheme` / `.textTheme` / `.sdTheme` come from the
-package. A file needing both imports both — that is normal, not a smell.
-
-Run `flutter analyze` inside `packages/system_design` too: it must pass on
-its own, without the app.
-
-### Redesign mockups are reference, not authority — owner's rule
-
-`docs/UI_SPEC.md` briefs a redesign whose mockups come from an AI design tool
-(Stitch). **Those mockups are visual direction only.** Where a mockup and the
-rules in this file disagree, the rules win, silently and without asking —
-build what the rules say and tell the owner what was overridden. The reason is
-what the first two mockups did: asked for an exact 13-colour palette, the tool
-returned a Material 3 scheme with tonal ramps running to `#FFFFFF`, a
-near-white "inverted" button, two invented colour roles, and no severity scale
-at all. It then ignored a correction listing all five. A tool that answers a
-palette with its own palette cannot be the source of truth for one.
-
-Specifically, and never up for negotiation no matter how good the mockup looks:
-
-- **Every colour comes from `AppColors`.** No hex is read off a mockup. The
-  four `AppColors.intensity` bands are measured for colour-blind separation —
-  a mockup that shifts, harmonises or drops them is wrong, not a proposal.
-- **Every dimension goes through `SdSpacingConstant` and `SdContentPaddingV2`**,
-  snapped to the existing ladder. A mockup measuring 13 becomes 12.
-- **Every text style comes from `AppTextStyle`**; the app ships no UI font, so
-  mockups drawn in Inter render in SF Pro and come out slightly smaller. Never
-  approve a label that only fits at the mockup's metrics.
-- **Flat opaque surfaces stay flat**, Liquid Glass stays on chrome plus the
-  paywall, and `surfaceModal` stays darker than `surface` — Material trains
-  every one of these tools to raise a modal instead.
-- **The log flow does not grow a step**, whatever a mockup suggests (rule 5).
-
-What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a
-card is composed, what a chart should say. Take that; leave the tokens.
-
-## Commands
-
-**Melos is the task runner** (`melos.yaml`). Installed once per machine at the
-version `pubspec.yaml` pins — `dart pub global activate melos 6.3.3`. The
-global and local versions must match exactly or melos runs one version's code
-against the other's asset templates and bootstrap dies; that is why the
-dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
-`melos.yaml` explains the two costs of the workspace-based versions.
-
-- `melos run set-up` — **always wipes first** (`tool/_clean.sh`: `flutter
-  clean`, gradle, pods), then everything a clone needs, in order: submodules,
-  `pub get` for both packages, `gen-l10n`, `build_runner`, `env/*.json` from
-  the templates, `npm ci` in `functions/`, and `pod install` on macOS.
-  Idempotent — re-run it any time.
-  **The wipe is unconditional on purpose**: setup is the one answer to "it
-  built yesterday and not today". Don't reach for it when `melos run gen`
-  would do.
-  **It puts each submodule on the branch named in `.gitmodules` (`main`) and
-  fast-forwards it, rather than leaving it detached at the recorded gitlink.**
-  So the design system is always editable in place — and what you build is
-  whatever is on that branch, NOT what the parent commit pins. When the branch
-  moves ahead, `packages/system_design` shows as modified; commit that gitlink
-  deliberately, and never assume an old parent commit rebuilds byte-for-byte.
-- `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
-- `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
-  zero findings before considering any task done.
-- `melos run test` — the whole suite. **Never run the whole suite to verify a change, no exception** — not even one that touches shared code (theme, spacing, the design system) and not "just before a commit" either. Always scope to what changed: `flutter test test/features/<x>/<y>_test.dart`, narrowed with `--plain-name` when one case is failing. The full suite is minutes of wall clock through the harness to re-learn what one scoped file already tells you — that cost is why this is absolute, not a judgment call per change.
-- `melos run deep-set-up` — setup, plus **Xcode's DerivedData**. The only
-  difference, and the reason it is separate: clearing that cache costs a full
-  cold build every time. Reach for it when a build fails in a way the code
-  cannot explain — a precompiled module Xcode refuses to reuse ("has been
-  modified since the module file was built"), a header resolving to a version
-  you no longer depend on, a failure that comes and goes on one commit —
-  which is almost always right after a native dependency moved.
-  **DerivedData is matched on the workspace path each cache records, never on
-  the folder name**: every Flutter app builds a target called `Runner`, so
-  deleting `Runner-*` would take other projects' caches with it.
-- `melos run release-ios` / `release-ios-dev` — the IPA, per environment. **One `tool/release-ios.sh` takes the environment as its argument**, rather than a script each: the two differ only by which `env/*.json` is attached. **Both export `app-store`**, because both are meant for TestFlight and that is the only method App Store Connect accepts. Anything after the environment passes straight to `flutter build ipa`, which is how `--build-number` and a sideloading `--export-method` get in.
-  - **It wipes `build/ios/ipa` first.** Both environments write the same filename to the same folder, so a leftover IPA from the other one is indistinguishable from the build you just made — and the two carry different Firebase and RevenueCat keys. Clearing first means the folder holds exactly one file and it is the one just built.
-  - **Version and build number are edited in `pubspec.yaml`, never passed as a flag.** `--build-number` still passes through, but using it ships a build whose version exists nowhere in git — the repo then cannot say what went out. The script prints the version it is about to build so the number is confirmed before the upload, not after the rejection.
-  - **One bundle id (`app.dd.migraine.tracker`) serves both**, so a dev build and a prod build land in the SAME TestFlight app and the build number is the only thing telling them apart — App Store Connect refuses one it has already seen, across both. Separating them means a real flavour setup: a second bundle id, its own App Store Connect record, its own Firebase iOS app and its own RevenueCat app. Not done, and not worth doing while `env/dev.json` and `env/prod.json` still point at the same Firebase project.
-  - Why the script exists at all is in its header and in the RevenueCat section below: Xcode's Product > Archive cannot pass `--dart-define-from-file`, and the resulting crash names nothing to do with the missing flag.
-- **There are exactly two entry points, `set-up` and `deep-set-up`.** The wipe
-  itself is `tool/_clean.sh`, underscore-prefixed like `_common.sh` because it
-  is not a command — it is never run on its own, and `melos.yaml` does not
-  name it. Don't add a third clean-shaped command; the choice is only ever
-  "with DerivedData or without".
-- `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the committed key-only templates). Read config only through the `AppEnv` class (`lib/core/env/app_env.dart`) — it is the ONLY place `String.fromEnvironment` may appear; `firebase_options.dart` and everything else read `AppEnv.*`. VS Code launch configs already pass this flag (dev → `env/dev.json`, prod → `env/prod.json`).
-- `cd functions && npm run build && npm test` — after touching Cloud Functions
-- `melos run deploy-firebase` — the whole Firebase side: firestore rules and indexes, then the functions, after running the functions' own tests. **Rules and indexes always deploy together** (`--only firestore:rules,firestore:indexes`), because a missing composite index fails at runtime rather than at build, so shipping one without the other is a live breakage. Takes an optional target — `rules` or `functions` — to do half of it.
-  - **It prints `firebase use` and asks before deploying, on purpose.** `env/dev.json` and `env/prod.json` point at the SAME project, so there is no dev target to practise on and a rules deploy reaches real users immediately. The prompt reads from `/dev/tty` first because melos pipes the script's stdout.
-- **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run build`.**
-  The standalone Firebase CLI is a pkg snapshot bundling its *own* Node 20 and npm
-  8.19.4, whatever the machine has; that npm crashes inside `promiseSpawnUid` reading
-  `process.stdin`, which does not exist in a snapshot. The failure looks like a broken
-  build script — `tsc` even prints first — but the same command run by hand succeeds,
-  and the npm debug log is the only place the bundled versions show up. Don't "fix" it
-  by putting npm back.
-- `firebase emulators:start` — test functions locally; never test cron against production.
-  **Needs a JDK on PATH** (11+): the Firestore emulator is a Java program. macOS ships
-  `/usr/bin/java` as a stub whose only job is to tell you Java is missing, so the failure
-  looks like a broken PATH rather than a missing install — and it lands *after* the
-  TypeScript tests pass, which reads as the tests having broken something. `sdk install
-  java 21.0.12-tem` if you use SDKMAN. Deploying needs no JDK; only the emulator does.
-
-**Every script's body lives in `tool/<name>.sh`; `melos.yaml` only names it.**
-Melos echoes the whole `run:` block before AND after each run, with no flag to
-turn it off, so a multi-line body buries the output it introduces. A file is
-also the only version that can be linted and run directly. Adding a command is
-a `tool/*.sh` plus one line in `melos.yaml`.
-
-Those scripts are **POSIX sh, not bash**: melos runs them through `/bin/sh`,
-which is dash on Linux, where `set -o pipefail`, `[[ ]]` and `local` are
-syntax errors. macOS will not catch this — its `/bin/sh` is bash under
-another name — so check a change with `dash -n tool/<name>.sh`.
-
-`tool/_common.sh` is sourced by all of them and holds the two things they
-share: the SDK resolution (`fvm flutter` when `.fvmrc` and fvm are both
-present, plain `flutter` otherwise — a shell alias is invisible inside a
-script), and `step`/`warn`/`done_msg`, which colour their output only when
-stdout is a terminal so CI logs stay readable.
-
-## Hard rules
-
-1. **Local-first, account optional.** Every feature except sync/alerts must work without an account. For users who are not signed in, Firestore stores ONLY: geohash (5 chars, ~5km), FCM token, alert threshold, timezone, premium flag. Signing in adds account fields to the same `users/{uid}` doc — display name, email, photo URL, created/updated timestamps — and nothing else. Health data is uploaded ONLY for signed-in users, as encrypted payloads in the top-level `attacks`/`medications`/`medication_reminders` collections, each document tagged with its `userId`, and sync must be clearly disclosed in the sign-in UI. Any other path that uploads health data: stop and flag it. This includes analytics: `AppAnalytics` events carry usage only — never intensity, head location, medication names, attack timestamps or coordinates.
-2. **Location**: request While-Using + reduced accuracy only. Never request Always.
-3. **Dark mode is the default theme.** Users are photophobic. No pure white backgrounds anywhere; max brightness surface is `#1C1C1E`-family. No flashing animations.
-4. **Attack logging must work fully offline.** Weather snapshot is fetched best-effort and backfilled later if offline.
-5. **The 3-tap log flow is sacred**: intensity → head location → medication, then **one skippable exertion step**, then saved. The three taps are what must never grow — **any new REQUIRED field needs explicit approval**, and there is still only one optional step in the flow. Exertion earned its place because it is the only insight the app asks the user to supply by hand: behind "Add details" it was fourth in a sheet nobody opened, so `ExertionCorrelationEngine` counted almost nothing and its card sat at zero forever. It can never block, because **it arrives on its answer**: `ExertionLevel.none` is a real value, not the absence of one, and the medication step likewise arrives on "No medication" — so Next is armed on arrival at both, and location is the only step that waits for a pick. A null exertion column means "never asked", which only attacks logged before the step existed carry; the detail screen renders those as "None" rather than inventing a fourth state for the user to read. **Two more fields are recorded after the fact, and neither is a step**: `Attack.endedAt` (how long it lasted) and `Attack.medicationEffect` (whether the medication helped). Both are answered from the detail screen, because at the moment an attack is logged nobody knows how long it will run and the drug has not had time to work — the questions could only be answered wrong there. Each has its own repository method (`updateEndedAt`, `updateMedicationEffect`) for the same reason `updateExertion` does: the details sheet never shows them, so a save from there must not blank them. `endedAt` null means "still going, or never said", one state on purpose since nothing can tell them apart, and `medicationEffect` null means "never answered", which also covers every attack where nothing was taken. Everything else optional still goes behind "Add details", and **exertion is no longer among them** — `AttackDetailsSheet` does not show it, the attack detail screen edits it through `ExertionPickerSheet`, and `updateExertion` is a separate repository method **because folding it into `updateDetails` let a save from that sheet blank an answer the sheet never displayed**.
-   - `LogFlowState.medicationName` exists because the save moved to the end of the exertion step: the medication pick has to survive one step longer than the `draft` slot it used to be read from. `back()` from exertion re-arms Next unconditionally, since "No medication" is a valid confirmed pick whose draft is null.
-   - `LogStepBar` draws four nodes now. It overflowed by 7px at the old padding, and because the bar renders on every step that broke every log-flow widget test at once — if it ever grows a fifth node, check the label `maxWidth` against the 393pt design width before anything else.
-6. Every user-facing string goes through `intl` ARB files. Two locales ship in v1: `app_en.arb` (template, with `@` descriptions) and `app_vi.arb` — every new key must be added to BOTH. Access strings via the `context.l10n` extension (`core/extensions/context_extensions.dart`), never `AppLocalizations.of(context)` directly. The user's language choice lives in `localeControllerProvider` (persisted via shared_preferences; null = follow system).
-7. Pressure math: alerts trigger on **delta** (default ≥5 hPa drop within 24h forecast), not absolute values. Threshold is user-tunable and stored per-user.
-    - **The server never pushes to an anonymous session, and that is a chain, not a check.** Owner's rule. Premium requires an account (`PurchaseIdentity` binds a purchase only when `isSignedIn`, so an anonymous uid is never bound), pressure alerts require premium (the cron reads `users` where `premium == true`), so an anonymous user cannot reach the push path at all. Anything that pushes — the cron, `sendTestPush` — may assume an account, and anything that appears to serve an anonymous device with a notification is a bug.
-      - Registration still *writes* a token for a signed-out device (hard rule 1 permits exactly that), and this does not contradict it: storing a token and targeting one are different acts, and `premium == false` is what stops the second.
-8. GDPR: **two destructive actions, deliberately separate.** "Delete all data" (Settings) clears the records — device, account copy, past exports — and gives up the FCM token, geohash and threshold, but KEEPS the account: someone clearing their history usually wants to carry on, and losing the account would unbind their subscription with it. "Delete account" (Account screen) is the whole teardown, and App Store 5.1.1(v) requires it in-app now that accounts exist. Its server half is the `deleteAccount` callable, of necessity not convenience: `firestore.rules` denies a client deleting `users/{uid}` (its write rule reads `request.resource.data`, absent on a delete) and denies `sync_keys/{uid}` to everyone. The auth user is deleted LAST — delete it first and every remaining step is unauthorised, leaving records nobody can reach. The dialog says the subscription is not cancelled, because a user who assumes otherwise keeps being charged. `settings/` must always keep working "Export all data (JSON/CSV)" (local wipe + Firestore doc + synced attacks delete + FCM token revoke + Firebase Auth account deletion). In-app account deletion is an App Store requirement (5.1.1(v)) now that accounts exist. Export lives on its own screen and keeps a history: each export is written to the app's documents directory and recorded, so it can be re-shared or saved to the device later. That makes past exports full copies of the user's health data on disk — **the wipe MUST delete the export files and their rows too**, or "delete everything" leaves the data sitting in `Documents/exports/`. Anything new that persists a copy of health data inherits the same obligation.
-    - **The wipe shows its progress, spinner and percentage both.** It reaches the network, the OS scheduler and several tables, so it can run long enough that a row which only spins cannot tell slow from stuck — the same rule and the same widget as the sync row (`SettingsRowProgress`, `core/widgets/`, reading the shared `commonProgressPercent`). `SettingsController` is a `Notifier<WipeStatus>` for it, so the indicator survives a rebuild and the dev reset gets it free.
-      - **Progress counts `DataWipeService.steps`, never records** — the same reason sync counts steps: counting rows means discovering more work mid-wipe, and a bar that jumps backwards reads as a bug even when the wipe is fine. **A step added to `wipeAll` means moving that constant in the same change**; `data_wipe_service_test.dart` asserts the count is reported 0..steps with nothing skipped or repeated.
-      - The controller divides by `steps + 1`, because the Apple Health disconnect after the service returns is one more step — otherwise the bar sits at 100% while work is still going.
-9. **Force update fails open.** The launch check (`app_update`) reads the public, read-only `app_updates` collection and blocks ONLY on an explicit `enable_force_update` against a strictly newer `build_number`. Offline, a missing record, an unreadable field or a malformed link must let the user in — someone mid-attack has to reach the log button. Compare `build_name` first (via `VersionUtils`, segment by segment as numbers — never as strings, `"1.10.0" < "1.9.0"` is true for a string), then `build_number` as the tiebreaker for two builds of the same version.
-10. Cloud Functions: group users by geohash before calling weather APIs — one forecast call per cell, never per user. Dedupe alerts: max 1 push per user per 24h per pressure event.
-11. Medical disclaimer must appear in onboarding and App Store description. Never generate copy that promises diagnosis, treatment, or prevention.
-12. **Sync (signed-in users) never blocks UI — automatic, with one manual control in Settings.** Sync runs silently in the background: triggered on sign-in, on app launch/resume, and after logging a new attack, same best-effort/retry-on-next-launch shape as `WeatherAttachService` — no screen, especially the log flow, ever waits on it (hard rule 4). **Three kinds of record sync**, in this order and for this reason: medications, then their reminders (a reminder points at a medication, so the other order hits a foreign key that is not there yet), then attacks. Export records deliberately do NOT sync — `filePath` is local to one device, and uploading them would multiply the copies hard rule 8 has to chase.
-    - **Automatic sync has a floor between passes: `SyncController.automaticCooldown` (6h).** Launch and resume both fire it, so without one, ten app opens in ten minutes were ten whole passes — a `getSyncKey` callable plus a query and a push per collection each time, usually to find nothing had changed. **`SyncTrigger` decides who is held back**: only `automatic`. `manual` is the user asking in as many words with the screen open in front of them, and `record` exists so a just-logged attack reaches the server before the phone can be lost — holding either back defeats the point of having it.
-      - **The stamp is written only after a pass that worked**, so a failure is retried by the next open rather than parked for another six hours. It lives in `SyncCursorStore` (prefs, per uid) and not in memory, because the automatic triggers are launch and resume: a cooldown the app forgets on close would let ten cold starts run ten passes, which is the case it exists for. `clear()` drops it with the cursors, so signing into another account syncs at once.
-      - **A skipped pass changes no state at all** — not `lastSyncedAt`, not the phase. `SyncScreen` must not show it as a fresh sync, and must not show it as a failure.
-      - The cost is the owner's call and worth stating: a change made on another device can wait up to six hours to arrive, unless the user logs an attack or hits the manual button.
-    - **A pull decrypts the whole batch through `AttackCipher.decryptAll`, which moves the AES off the UI isolate above `AesGcmAttackCipher.isolateThreshold` (50 records).** It is the only part of a sync that holds the UI thread: SQLite is already on a background isolate (`drift_flutter` opens a `createBackgroundConnection`), Firestore and the callables are platform channels, and the push loop awaits a real network write per record so it interleaves on its own. Measured at ~0.27ms a record, so a hundred-record pull is a couple of dropped frames and a thousand is a visible stutter.
-      - **The threshold is not optional.** An ordinary pull carries a handful of records, and paying an isolate hop for each of four collections on every sync would cost more than the jank it removes.
-      - **`decryptAll` is index-for-index with its input and never throws for one bad row** — null at a position means that one could not be opened. That is what keeps hard rule 12's "counted and skipped, never retried forever" true across the hop; a batch that threw would wedge every record behind the bad one. The codec's own `decode` stays on the calling isolate, where its per-record `FormatException` is already handled.
-      - Both routes run the same `_decryptEach`, so the isolate and the inline path cannot answer differently.
-    - **Sync is a row in Settings' "Your data" that leads to `SyncScreen`** (`features/sync/presentation/screens/sync_screen/`), sitting with export and delete because it is one more thing that happens to the user's data. The row (`SyncSettingsTile`, `core/widgets/sections/sync_settings_tile.dart`) is a plain chevron row **except while a pass runs**: then its trailing slot carries a spinner and the percentage — spinner first, then the number — so the state is visible without opening anything. Both, never just the spinner: a row that only spins cannot tell a slow sync from a stuck one. The row is absent without an account, and the router turns `/sync` away while signed out.
-    - **`SyncScreen` is where sync is visible in full**: a determinate bar with the percentage while a pass runs, the last-synced time when it does not, and the one manual button. Determinate on purpose — an indeterminate bar next to "42%" says two things at once. **Nothing about sync appears on the Account screen**, and no other row anywhere shows an indicator.
-    - **Progress counts fixed steps, never records** — two per collection, plus the fraction of the step in flight. Counting records means discovering more work mid-pass, and a bar that jumps backwards reads as a bug even when the sync is fine. `SyncController` only pushes a new state when the whole percent changes, so a thousand-record account rebuilds the row a hundred times, not a thousand.
-    - The History list has ONE extra, scoped to the very first pull after signing in on a device: an empty list there says "getting your attacks" instead of "you have none", because it is empty only because the history has not arrived yet. No flow is ever gated on sync completing.
-    - **Built. Sync is encrypted but NOT end-to-end, and the copy must never imply otherwise.** The `getSyncKey` callable mints and holds a per-account AES-256 key in `sync_keys/{uid}`, which `firestore.rules` denies to every client — only the Admin SDK behind that function reaches it, and anonymous callers are refused (hard rule 1). Google infrastructure can therefore decrypt. `loginPrivacyNote` and `accountDataNote` say "encrypted" and deliberately never say "only you can read them"; keep any new copy to that bar.
-    - **Local change tracking is a `revision` counter, never a timestamp.** Drift stores dates as whole seconds, so an edit in the same second as the push before it looks unchanged and silently never syncs; a counter also survives the clock stepping backwards. `updatedAt` still exists on each synced table but only settles which device's version wins. Deleting really deletes the row and leaves a `SyncTombstones` entry holding the opaque id and its collection — no intensity, note or medication name may outlive a delete, and reads then need no filter that could be forgotten. **Deleting a medication tombstones its reminders too**: the FK cascade removes them on every device that pulls the deletion, but the server's copies belong to no cascade.
-    - **Mark synced only after the server confirms, and pull before pushing.** A kill mid-pass must cost a re-push, never a lost record. Pull goes first because the other order re-downloads everything it just uploaded (a device signing in has no cursor). A payload that will not decrypt is counted and skipped, never retried forever — one bad record must not wedge every later one behind it. Each collection keeps its own cursor, so a pull that failed on reminders cannot look finished because attacks got through.
-    - **Reminders sync as rows; their OS notifications do not.** A notification is registered with the device that made it, so a reminder pulled from another phone would sit in the list and never fire. A pull that brought reminders down calls `RemindersController.rescheduleAll()`, which reads its strings through `lookupAppLocalizations` — there is no `BuildContext` in a background sync.
-    - **A payload codec refuses only versions NEWER than it knows, never merely different**, and ignores fields it does not recognise. The first bump would otherwise orphan every record already uploaded, and adding an optional field would stop two builds in the wild reading each other.
-    - **`pumpApp` overrides `syncKeyRepositoryProvider` and `remoteSyncRepositoryProvider`** with the fakes in `test/helpers/sync_fakes.dart`, because the app root fires a sync on sign-in. Without them a widget test reaches for Firebase, the sync spinner renders, and every `pumpAndSettle` waits out its full 10-minute timeout — the suite goes from 30 seconds to 10 minutes.
-    - **Adding to `SyncCollection` means editing `firestore.rules` in the same change, and deploying it.** The root-level allowlist must name every value of the enum, and `firestore.indexes.json` must carry its composite index; a bare wildcard is deliberately not used, because at the root it would match `sync_keys` and `app_updates` too. `sync_collection_rules_test.dart` fails when the two drift. They drifted once: medications and reminders were added while the rules named only `attacks`, so every sync died on its first query with `permission-denied` — and so did the dev seed, which wipes the account copy before reseeding. **A change is only live once `firebase deploy --only firestore:rules` AND `--only firestore:indexes` both run**; the test proves the files are right, never that the project has them.
-    - **The GDPR wipe deletes the account's synced records BEFORE the device's**, and a failure there aborts the whole wipe. The other order leaves the cloud copy with nothing left to say it should go, and the next sync pulls every deleted record back down. What the wipe still misses is listed in `docs/REMAINING_WORK.md`.
-13. **Never read `env/`.** Not with Read, not with `cat`/`grep`/`sed`, not "just one field". `env/dev.json` and `env/prod.json` hold live Firebase and RevenueCat keys, and anything read there is copied into a transcript that outlives the session and was never meant to hold credentials. There is no read small enough to be safe, because the harm is the copy, not the size.
-    - **What to use instead**: `env/*.example.json` are committed, key-only templates — they answer "what keys exist" without any values. The Firebase project id is in `.firebaserc`, and `firebase use` prints it. For anything else, ask the owner rather than opening the file.
-    - Reading the *names* of files in `env/` is fine; it is the contents that never get read.
-    - **`ios/Flutter/Generated.xcconfig` is the same secret under another name, and is covered by this rule.** Flutter writes every `--dart-define-from-file` value into its `DART_DEFINES=` line as base64, so the live RevenueCat and Firebase keys sit in it in a form that looks like build config and reads back as plaintext. It was opened once, while wiring the widget extension's version numbers, and the keys landed in a transcript — which is what this rule exists to prevent. There is nothing worth reading there: the two settings a build needs (`FLUTTER_BUILD_NAME`, `FLUTTER_BUILD_NUMBER`) come from `pubspec.yaml`'s `version:`, and referencing the file from an xcconfig is fine as long as nothing opens it. The same goes for `ios/Flutter/{Debug,Release,Profile}.xcconfig`, which `#include` it.
-    - `.claude/settings.json` denies the obvious paths, but note what that does NOT cover: `Bash` is broadly allowed, so no pattern list can close every way a shell command could read the folder. **The rule is the guarantee; the deny list is only a guard rail.**
-    - Writing to `env/` is still allowed — `melos run set-up` creates the two files from the templates, and that is the one thing that should touch them.
-14. **Never put two kinds of record in one table or collection.** Each entity gets its own, on both sides: `Attacks`, `Medications`, `MedicationReminders` in Drift, and the top-level `attacks`, `medications`, `medication_reminders` in Firestore. No shared table with a `type` column standing in for three schemas.
-    - **Firestore is flat and relational-shaped, by the owner's call.** Documents live at `<collection>/{docId}` and carry a `userId` field; the id is the record's own UUID. This replaced `users/{uid}/<collection>/{docId}`, which was equally separate — a subcollection is an independent collection, not part of the parent document — but kept ownership in the path. The trade was made knowingly: the flat shape reads like SQL and browses in the console, and costs the three things below.
-    - **`userId` is now the entire boundary between one user's records and another's**, so two things must always hold. First, `firestore.rules` checks it: `ownsStored()` on the document already there, `ownsIncoming()` on the one being written — without the second a user can rewrite `userId` and plant a record in someone else's account. Second, **every query must filter on it**: rules cannot be evaluated over a whole collection, so an unfiltered query is refused outright. `OwnedCollection` (`features/sync/data/repositories/`) is the only thing that builds a reference to these collections, and it has no method that omits the filter — do not reach past it to `FirebaseFirestore.collection` for a synced collection.
-    - **`read` gets its own rule; never fold it into `allow read, write`.** A query has no single document, so Firestore proves it safe from the query's own filters — and that proof only works when the read condition is a plain constraint on a field. One combined rule needs a disjunction to cover creates (`resource == null || …`), which leaves a branch constraining nothing; the proof fails and **every query is denied while writes still succeed**. That exact mistake shipped here, and `permission-denied` on a pull looks identical to rules that were never deployed. `functions/test/firestoreRules.test.ts` runs the real rules against the emulator and catches it — verified by putting the combined rule back and watching the three query tests fail.
-    - **Rules tests need the emulator running separately**: `firebase emulators:start --only firestore`, then `cd functions && npx vitest run test/firestoreRules.test.ts`. Not `emulators:exec` — that runs the script through the CLI's own bundled Node, which cannot `require()` vitest's ESM (the same snapshot that broke the npm predeploy). The suite skips itself when no emulator answers, so plain `npm test` stays useful.
-    - **`payload`, `nonce` and `mac` are exempted from indexing** via `fieldOverrides`. Firestore indexes every field by default, ascending and descending, so a 572-byte ciphertext string costs roughly 1.4 KB of index that nothing ever queries — more index than document. Exempting the three opaque fields cuts most of the stored bytes and a little write latency. Only `userId` and `updatedAt` are ever queried; anything new that is queryable must stay indexed.
-    - **The pull query needs a composite index per collection** (`userId` + `updatedAt`), declared in `firestore.indexes.json`. Firestore will not serve an equality on one field with a range on another without one, and a missing index fails at runtime, not at build. **`firebase deploy --only firestore:indexes` is now a second deploy step alongside rules** — `sync_collection_rules_test.dart` checks the enum against BOTH files, but it can only prove the files are right, never that the project has them.
-    - **Firestore has no foreign keys, in this layout or the old one.** `userId` is a plain field with no referential integrity and no cascade. The only real FK in the project is Drift's (`medicationId references Medications onDelete: cascade`); anything cascade-shaped on the server is written by hand, which is why deleting a medication tombstones its reminders explicitly.
-    - **`SyncTombstones` is the one shared table, and it is deliberate.** It holds an id, a deletion time and which collection the id came from — no name, intensity or note, because the row itself is really gone by then. It is sync bookkeeping, not a user record, and three copies of the same two columns would be three chances to disagree.
-15. **Never edit a schema version in place once any database has run it — bump instead.** `AppNotifications.type` was called `kind` in a v8 that had only ever run on a dev device; renaming the column in place looked safe because v8 was unshipped, but that device stayed at v8 with the old column and no step would ever fix it. Every insert then died with `table app_notifications has no column named type`. **"Unshipped" means no database anywhere has run it, and your own simulator counts.** v9 exists purely to undo this, and it *recreates* the table rather than renaming a column, because nothing records what the intermediate v8 looked like and a drop works whatever it was.
-16. **The notification list syncs, and every device must show the same list.** Owner's call, and it is what shapes the whole feature. `AppNotifications` is a fourth `SyncCollection`, last in the order because a notification points at the reminder and medication it came from.
-    - **Read state is per notification, and only opening its detail reads it.** Opening the list reads nothing: looking at a list is not reading its items, so the dot on a row means what it says and the bell's count comes down one at a time. `markRead` is a no-op on a row already read, or re-entering a detail would bump its revision and push a row saying what the server already has.
-    - **The row's dot is `colorScheme.error` like the bell's badge** — the two mark the same thing and must not read as two different things.
-    - **A notification always makes a sound, and there is no switch for it.** Owner's call, after one was built and taken back out: the app schedules reminders that exist to be noticed, and the OS already owns this — Settings › Notifications › BaroEase, plus the ring switch and Focus. A second, app-level mute is one more place for the two answers to disagree, and the user who wants quiet reaches for the phone's control first anyway. So `NotificationScheduler.schedule` carries no `sound` flag and iOS gets `presentSound: true` unconditionally.
-      - **What actually silences a push is a missing setting, not a switch**: `setForegroundNotificationPresentationOptions` in `AppBootstrap`, without which iOS drops a push arriving while the app is open — no banner and no sound. A pressure alert's sound is the payload's own (`aps.sound` in `functions/src/index.ts`) and was never the client's to choose.
-    - **Two ways in, and they say the same thing.** The dashboard's bell is the fast one; `NotificationsSettingsTile` (`core/widgets/sections/`) is the one people find by looking. The Settings row's value is the same unread count the bell carries, and is **absent** rather than "0" when nothing is unread — a row stating zero is noise.
-    - **The bell's badge is `colorScheme.error`, not the accent.** A notification count is the one badge people already read as "unattended", and lavender is what every non-urgent highlight in the app wears — the two must not look alike. It is also the one place a count chip may be red; the tab counts stay accent-tinted, because they say how much is there, not that something is owed.
-    - **Count chips cap at `SdBadgeV2.maxCount`** — one number for how high a count chip counts anywhere in the system. `SdSegmentedTabsV2` honours it too: uncapped, a four-figure count pushed its own tab label out of the segment.
-    - **The tab track is Liquid Glass**, like the shell's nav pill and History's view toggle. That widens the chrome rule slightly (a control inside a screen, not at its edge) and is deliberate: the track sits directly under the frosted app bar, and an opaque pill there reads as a second, lower bar.
-    - **The list is two tabs — reminders and pressure — and the dashboard's bell carries a number, not a dot.** The bell's count is how many are unread, because that is what decides whether the user opens the list now or later. **The tab counts are how many of that type there ARE, not how many are unread** — the list is a history, and its tabs say how much of each kind it holds. They are **plain text, never a tinted chip** — a filled pill beside a label competes with the label for the same glance, and the number is the quieter half of the pair. A list row keeps a plain dot — per row there is only ever one of it. `SdBadgeV2` does all three: `count: null` draws the dot, a number draws the number, 0 draws nothing.
-    - **Two tabs and not one mixed list**, because a reminder arriving every day would bury the alerts entirely, and the two answer different questions. `SdSegmentedTabsV2` is the control — not Material's `TabBar`, which is an underline and a page-swipe and reads as Android on an iOS-first app.
-    - **Every row opens `NotificationDetailScreen`, whatever its type.** The type decides what the detail *offers* — a reminder gets a button through to its medication, an alert gets the reading and a way to `/pressure` — never whether the user gets a screen at all. One tap, one stop, so the list is uniform to use. A reminder whose medication has since been deleted keeps the button, disabled: one that vanished would read as a bug.
-    - **The type field is `NotificationType`/`type`, not `kind`** — in the enum, the Drift column, the payload and the push's `data`. `ExportRecords.kind` is a different feature and keeps its own name.
-    - **Ids are derived, never minted**: `rem:<reminderId>:<epochMinute>` and `pa:<eventId>` (`AppNotification.reminderOccurrenceId` / `.pressureAlertId`). Two devices computing the same reminder occurrence arrive at the same id without agreeing first, so **every writer is idempotent** — the materialiser, the foreground push, the background push and the launch reconcile can all write the same row and none of them can duplicate or fight. It is also what makes the reminder half of the list identical across devices almost for free: reminders already sync, so each device rebuilds the same occurrences itself.
-    - **Writes are insert-if-absent, never insert-or-replace** (`addMissing`). The materialiser re-derives the same occurrences on every run; replacing would wipe `readAt` each time and the unread badge would come back on every launch.
-    - **No title or body is stored.** The row carries the facts — which medication, how far pressure fell — and the strings render from ARB at display time, so changing language changes the list (hard rule 6). A stored string would freeze the locale that happened to be active, and the pressure alert's own text arrives from the server in English regardless.
-    - **`medicationId` and `reminderId` carry no foreign key**, unlike `MedicationReminders.medicationId`. Deleting a medication cascades its reminders away, and the history of having been reminded must survive that; the detail screen already handles a medication that is gone.
-    - **`MedicationReminders.createdAt` exists for this and syncs.** The list materialises past occurrences over a window, and without a lower bound it invents months of "you were reminded" for a reminder created yesterday. Every device has to agree where that history starts, so it travels in the payload. Rows predating v8 get null = "unknown", bounded by the window alone — the same call as `Medications.createdAt` in v3, and for the same reason: stamping the migration's clock would invent the very history the column exists to fence off.
-    - **A pull that brings reminders down already reschedules them** (`RemindersController.rescheduleAll`, hard rule 12) — that is what "a reminder that arrives by sync sets itself up" asks for, and it is not new work.
-    - **Deploy is part of shipping this**: `firebase deploy --only firestore:rules` AND `--only firestore:indexes`, **to prod**. `sync_collection_rules_test.dart` proves the files agree with the enum; it can never prove the project has them.
-    - **The 12h sync throttle the owner asked about is deliberately NOT built** (owner: skip it for now). It conflicted with hard rule 12's push-after-logging-an-attack, which exists so a freshly logged attack is not lost with the phone. If it comes back, throttle the full pull+push pass and leave that push path immediate.
-    - **The pressure-alert push carries `data` and `content-available: 1`**, added to `functions/src/index.ts`. The `notification` block stays for the banner, but its text is English whatever language the user picked — so only `eventId`, `dropHpa` and `at` travel, and the list renders its own strings from ARB. `PressureAlertMapper` is the pure half of that and is where the message's meaning is tested, without a device or a token. **This needs `firebase deploy --only functions` to take effect.**
-    - **`sendTestPush` is the only way to prove push works, and it can only ever push to the caller.** A dev-only Settings row calls it; the callable reads `request.auth.uid`'s own `fcmToken` and **takes no uid and no token as an argument** — so the worst anyone can do with it is notify themselves. That is its whole security model, and it has to be, because `env/dev.json` and `env/prod.json` share one Firebase project: there is no dev project to hide it in, and it ships wherever the functions ship.
-      - **Anonymous callers are refused**, like `getSyncKey` and `deleteAccount` — see the chain below. Testing push as an anonymous session would prove a path production does not have.
-      - Its payload mirrors a real alert — same `data` keys, same `content-available` — so a pass exercises the cron's path rather than a simpler one. `eventId` is stamped `test:` so the idempotent writers cannot mistake it for a real event.
-    - **An alert arriving while the app is shut is caught up by the launch reconcile, not by a background handler.** `FirebaseMessaging.onMessage` writes the row while the app is open; `NotificationsController.reconcileLastAlert` covers the rest, reading `lastAlertAt`/`lastAlertEventId`/`lastAlertDropHpa` off `users/{uid}` on launch and on resume. `PressureAlertMapper.fromRecord` builds the row and `fromData` funnels into it, so the push and the reconcile cannot derive different ids for one event.
-      - **`users/{uid}` holds only the LATEST alert, so this catches up one alert, not a backlog.** Enough while the cron sends at most one push per user per 24h; a user who skips several days keeps only the most recent. A background isolate handler (its own Drift connection, a `@pragma('vm:entry-point')` static — not a top-level function) is what would close that, and is still not built.
-      - **It never rethrows**, unlike every other controller method here: it runs unawaited at launch, where a throw would take app start with it, and a missed row is not worth that.
-      - **`lastAlertDropHpa` is written for the client, not for dedupe** — `recordAlert` takes the whole `DropForecast` for it. A reconciled row without the reading cannot say how far pressure fell. Records written before this exist without it, and `fromRecord` yields a row anyway.
-      - **`pumpApp` must override `lastAlertRepositoryProvider`** (`FakeLastAlertRepository`, `test/helpers/notification_fakes.dart`) — the reconcile is a Firestore read fired from the app root, same trap as the sync fakes.
-    - **Pressure alerts cannot fire on every device yet**: `users/{uid}` holds ONE `fcmToken`, so the last device to register is the only one that gets the push. The row syncs afterwards, so the *list* converges — only the banner is single-device. Fixing that means tokens as a collection plus fan-out in the cron, and is not in scope.
-17. **The privacy policy is TWO files saying one thing, and a change that moves data updates them in the same change.** `docs/PRIVACY_POLICY.md` is the readable source; `docs/privacy.json` is what the published site renders. Both carry an effective/last-updated date; move them together.
-    - **The JSON is one app object at the top level**, in the sample's field order: `name`, `tagline`, `icon`, `accent`, `platforms`, `effectiveDate`, `lastUpdated`, `contactEmail`, `url`, `storeLinks`, `overview`, `summary`, `collects`, `notCollected`, `permissions`, `thirdParties`, `sections`. `{{app}}`, `{{publisher}}` and `{{email}}` are filled in by the site. **The schema has changed four times already** — match the sample the owner last sent, not what is in the file.
-      - `url` (`https://damhongduc.github.io/apps_privacy_policy`) is the owner's own instruction and is the only field not in the sample; it carries over the `site.url` of an earlier shape. Keep it unless told otherwise.
-    - **The site still renders shared `defaults.sections` around this file** — who-we-are, how-we-use, retention, security, children, your-rights, changes, contact. So this file carries only what is specific to BaroEase, and must NOT restate GDPR boilerplate.
-    - **`sections` is how an app overrides that boilerplate: reuse a `defaults` id and it replaces that section for this app alone.** That is why `children` appears here — the shared default says under 13, and an EU-targeted health app needs 16. Any future clash with the shared text is fixed the same way, never by duplicating the section under a new id (both would then render).
-    - **`overview` is three short paragraphs (~100 words), like the sample — it is the intro, not the policy.** Everything longer goes in `sections`; the facts go in `collects`/`permissions`/`thirdParties`, which the site renders as tables. When a schema revision briefly removed `sections`, all of that got crammed into `overview` and it tripled — if that happens again, move it back out rather than letting the intro absorb it.
-    - **The site's shared boilerplate can no longer be overridden per app.** If it states a children's-privacy age (13 in an earlier draft), BaroEase's own under-16 line in `overview` sits beside it rather than replacing it — an EU-targeted health app must not ship both. Raise it with the owner instead of guessing.
-    - **A privacy policy is only worth having if it is accurate, so two claims must never soften.** First: **sync is encrypted but NOT end-to-end** — `getSyncKey` holds the key, so Google infrastructure can decrypt, and no wording may imply otherwise (the same bar `loginPrivacyNote` and `accountDataNote` are held to). Second: **the app DOES use Firebase Analytics and Crashlytics** — the policy said "no third-party analytics or tracking SDKs" for months after they shipped, which is the exact kind of drift this rule exists to stop.
-    - What must be listed, because each is a distinct flow a reader would not guess: the signed-out alert record (geohash, token, threshold, timezone, premium), the signed-in account fields, the four synced collections and their plaintext `userId`/`updatedAt`, the two separate HealthKit permissions that never leave the device, export files kept on disk, and the two destructive actions being different (hard rule 8).
-    - **Adding a data flow means editing both files before the feature is called done** — a new synced collection, a new analytics parameter, a new third-party SDK. Nothing enforces this, which is why it is written here rather than left to a test.
-    - The home screen widget's App Group is a data flow like any other and is listed: it holds this week's attack count and the latest pressure reading, on device, and the wipe clears it (hard rule 18).
-    - `[ADDRESS/COUNTRY]` in the markdown is the one placeholder left, and it is the owner's to fill. The app's own support address (`AppEnv.supportEmail`, default `support@baroease.app`) is a different thing from the privacy contact (`ducdam.dev@gmail.com`); don't collapse them.
-18. **The home screen widget shows three things and one of them never changes: the log button, this week's count, the latest pressure.** iOS only, free for everyone (owner's call — the widget is a habit surface, not an insight, and gating the log shortcut would take something away from every user).
-    - **The extension is a real Xcode target, hand-written and checked in**: `ios/BaroEaseWidget/` plus a `BaroEaseWidgetExtension` target in `Runner.xcodeproj`. It embeds into `Runner.app/PlugIns/`, and its `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` come from `Generated.xcconfig`'s `FLUTTER_BUILD_NAME`/`FLUTTER_BUILD_NUMBER` so the app and the extension can never upload with different version numbers — App Store Connect rejects that. **Do not open `Generated.xcconfig` to check them** (hard rule 13).
-    - **The app pushes finished strings, not data.** The extension cannot reach the ARB files, and a label hardcoded in Swift would ignore the language the user picked (hard rule 6). So `HomeWidgetContent` carries already-worded text and the SwiftUI side only lays it out — the exact opposite of the notification list (hard rule 16), for the same underlying reason: strings get rendered wherever the locale is known. Which is why a **locale change republishes**, alongside launch, resume and every move of the attack list.
-    - **The keys in `HomeWidgetContent.toData()` are a contract with `BaroEaseWidgetEntry.swift`.** Renaming one means renaming it in both, and there is no test that can catch the drift — the two sides are different languages in different binaries.
-    - **The pressure reading is `DailyPressure`, not a fetch.** The recorder already writes one row per local day on launch and resume, so the widget costs no network at all; `_recordPressureThenRedraw` runs the two in that order, because racing them redraws with yesterday's row.
-      - **It expires, and the extension does the expiring.** `HomeWidgetConstant.pressureMaxAge` (2 days from the reading's local midnight) is a Dart constant and stays one: the app computes the instant and ships it as `pressure_expires_at`, and the widget schedules a second timeline entry there that blanks the reading. Nothing republishes while the phone sits on a table, so without it a week-old number would sit on the home screen looking current — which on a barometric app is the one number that must not lie.
-    - **The whole widget is one link to `/log`, and it goes through `NavigationUtils.toLog`** — the same gate and the same flow reset as the dashboard button. A second entry point that skipped the free-plan check would be a wall a user could walk past.
-    - **The App Group is a copy of the user's data and the GDPR wipe clears it** (hard rule 8), last in `DataWipeService` so the redraw that follows cannot put the old numbers back. Turning the switch off empties it too, rather than freezing the last figures on the home screen.
-    - **`ios/BaroEaseWidget/BaroEaseWidgetPalette.swift` is the one sanctioned copy of `AppColors`.** A separate binary cannot read Dart, so the hexes are restated there and each one names the field it mirrors. Nowhere else in the repo may do this.
-    - **Off iOS the Settings row is absent and every call is a no-op** (`HomeWidgetRepository.isSupported`). `taps` returns an empty stream there rather than the plugin's `EventChannel`, so a widget test never opens a channel to a plugin that is not loaded.
-    - **The App Group id (`group.app.dd.migraine.tracker`) is written in three places and all three must agree**: `HomeWidgetConstant.appGroupId`, `ios/Runner/Runner.entitlements`, `ios/BaroEaseWidget/BaroEaseWidget.entitlements`. It also needs enabling on the App ID in the Apple Developer portal — see "Pending setup".
-
-## Code style
-
-- Small widgets, extract at ~80 lines. Prefer composition over config flags.
-- No business logic in widgets. View state and orchestration (state machines, save/export/delete flows, filtering) live in a `presentation/controllers/` Notifier or a `Ref`-backed controller; screens are `ConsumerWidget`s that watch state and call controller methods. Dialogs/snackbars stay in the widget.
-- **Controllers log their own failures: process first, print the error if one lands.** Every `presentation/controllers/` method that touches a repository, service or platform plugin wraps its work in `try` / `catch (error, stackTrace)`, calls `AppLogger.error('<what failed>', error: error, stackTrace: stackTrace)` (`core/logging/app_logger.dart`), then `rethrow`s — the log is an extra pair of eyes, never a replacement for the caller's error handling. Plain `try`/`catch` inline, always: no closure-taking wrapper (an `AppLogger.guard(action)`-style combinator hides the flow), and never `print(...)`. Cancellation is not a failure — `LoginController` stays silent on `AuthError.cancelled`. Controllers that only hold state (`HistoryController`, `MedicationFiltersController`) have nothing to catch and stay bare.
-- Snackbars: always `SdSnackBarUtilsV2.success/error/info` (`system_design`) — never raw `ScaffoldMessenger.showSnackBar`. It draws the app's own card (dark surface, accent icon + hairline edge, never a full-bleed colour fill) and shows one message at a time. Pass a finished localized string; the kind picks the icon and accent, and the icon always differs so colour is never the only signal. **It draws into the root `Overlay`, not a `ScaffoldMessenger`** — a messenger renders into the nearest registered `Scaffold`, so a route without one (the paywall sheet) sent its messages to the screen *underneath*, where the very sheet that raised them covered them up. Widget tests did not catch it: `find.text` matches a widget the user cannot see. Placement is a second prop — `SdSnackBarPlacementV2.bottom` is the default and what every screen wants, `top` is for a route that owns the bottom of the screen, which today is the paywall alone. Assert on `SdSnackBarCardV2`, the only public handle on what a static presenter drew.
-- Dialogs: always `showSdDialogV2` + `SdDialogV2`/`SdDialogOptionV2` (`system_design`) — never raw `showDialog`. Sheets: always `showSdBottomSheetV2` (`system_design`) — it uses the root navigator so sheets cover the bottom nav; raw `showModalBottomSheet` slides under it.
-- Animations must be calm (fade/scale/slide, ≤400ms, gentle curves). Hard rule 3: never flashing or strobing. Use `SdPressableScaleV2` (`system_design`) for tactile button feedback.
-- Responsive sizing via `flutter_screenutil` (design size 393×852, `minTextAdapt: true`), but NEVER as raw literals in widgets — every dimension goes through `SdSpacingConstant` (`system_design`): `w*` horizontal, `h*` vertical, `r*` square/radius, `sp*` font. Colors likewise only via `AppColors` (`system_design`).
-- **One modal colour, and bottom sheets and dialogs both wear it: `AppColors.surfaceModal` (`#161618`).** A dialog opening over a sheet must never be a second shade of dark, so they read the same `SdThemeV2.surfaceModal` slot — the sheet used to take `colorScheme.surface` and the dialog `surfaceElevated`, which is exactly the drift this closes. It sits a step *below* the card rather than above it: a modal already separates itself with the barrier scrim and its rounded corners, and going darker keeps a card placed on it reading as the nearer layer. `ThemeData.dialogTheme` carries the same colour so a raw `showDialog` cannot come out different.
-- **Every card is an `SdCardV2`** (`system_design`) — never a raw `Material` `Card` in feature or core code. It is the card colour and the card radius (`SdCardV2.radius`) and nothing else: **no padding and no margin**, because Material's `Card` carries an invisible `EdgeInsets.all(4)` that made a list whose separator said 8 come out 16, and sit 8 narrower than the list on the next tab. Spacing between cards belongs to whoever places them, the inset inside belongs to whatever they hold, and `onTap` on the card clips its own ink to the radius. `SdChartCardV2` and `SdBannerV2` compose it. `ThemeData.cardTheme` stays as a backstop for any `Card` Flutter builds internally, on the same colour and the same zero margin.
-- **One card colour: `AppColors.surface`.** Every card — dashboard, insights, `SdChartCardV2`, every `Card` via `cardTheme` — is `#1C1C1E`. Sheets are flat and opaque, never Liquid Glass, but they take the darker modal colour above, not this one. Anything that has to stay visible while sitting *on* a card, a sheet or a dialog is a step up in `AppColors.surfaceElevated` (snack bars, chart tooltips, the log flow's option tiles, filter chips) — a tile left on `surface` disappears the moment its sheet is that colour. Liquid Glass is for chrome — app bar, the shell's nav pill, the log flow's step bar, a sheet header's two `SdAppBarButtonV2`s — plus one deliberate surface: the **paywall** panel stays frosted glass, unlike every other sheet.
-- **The app ships no UI font — `AppTextStyle` sets no `fontFamily`, on purpose.** Flutter falls through to the platform's own: SF Pro on iOS, Roboto on Android. That is the right default for an iOS-first app (SF Pro has optical sizing, full Dynamic Type and correct Vietnamese diacritics), and Apple's licence forbids bundling SF Pro anyway. A missing `fontFamily` here is the decision, not an oversight. `assets/fonts/noto_sans/` is **not** a UI font: `ExportController` loads it through `rootBundle` for the PDF report, which needs a font it can embed — don't register it under `fonts:` and don't delete it as unused. Shipping one font for both platforms means Inter, not Roboto (Roboto reads as Android on an iPhone), and means re-checking the type scale: Inter's x-height is taller than SF Pro's, so the same `fontSize` renders larger.
-- Text: every style comes from `AppTextStyle` (`system_design`) — no inline `TextStyle(...)` and no `context.textTheme`/`Theme.of(context).textTheme` in widgets (the extension getter was removed on purpose). Font sizes go through `SdSpacingConstant.sp*` (screenutil); line heights are shared `_height*` ratio constants in `AppTextStyle`. Because of `.sp`, widget tests MUST pin the view to the 393×852 design size — `pumpApp` already does this; the default 800×600 test surface scales fonts ~2× and breaks layout. Use the `.secondary` / `.w600` helpers on `AppTextStyle` (the package's own are `.muted(context)` / `.semiBold`) for muted color and semi-bold; other tweaks via `copyWith`. `AppTheme` feeds `AppTextStyle` into `ThemeData.textTheme` so ambient defaults match.
-- **Icons: every icon is an `SdIconV2`** (`system_design`) — never a raw `Icon(...)` in feature or core code (the only raw `Icon` lives inside `SdIconV2`). `SdIconV2` always resolves to a concrete size: it defaults to `SdSpacingConstant.r24`, and any other size is passed explicitly via `size:` (never let an icon inherit an ambient size). `color` falls back to the ambient `IconTheme` when omitted.
-- Buttons: every labeled button is an `SdButtonV2` (`system_design`), and **the look is a prop, never a named constructor** — `SdButtonV2(variant: SdButtonVariantV2.primary, ...)`. Variants: `primary` (main CTA), `secondary` (tonal), `outlined`, `text` (low emphasis / dialog cancel), `destructive` (error-filled confirm), `positive` (teal additive). Never raw `FilledButton`/`OutlinedButton`/`TextButton` in feature code. **Icon-only actions in an app bar — leading back arrow and trailing actions alike — are `SdAppBarButtonV2`** (`system_design`), never a raw `IconButton`: `SdAppBarButtonV2.iconSize` (20) glyph inside an invisible `SdAppBarButtonV2.tapSize` (48) target, and a `SdPopScaleV2` swell on touch (it grows out from under the fingertip; a press-*in* would vanish under it). `SdAppBarV2` inserts one for any route that can pop, and wraps each `SdAppBarButtonV2` action in the glass circle — an action that is not one passes through undecorated. `IconButton` is still fine inside content (list rows, text-field suffixes). With an `icon`, `SdButtonV2` lays the content out itself — `SdButtonV2.iconSize` glyph, `SdButtonV2.iconGap`, then the label — and deliberately avoids Material's `.icon` constructors, whose per-variant padding is what made the filled Apple button and the outlined Google button sit differently. Placement is a second prop: `SdButtonIconPlacementV2.inline` (default) is a centred cluster that shrink-wraps, so a longer label pushes the glyph sideways; `aligned` is the same centred cluster with the label start-aligned in a slot of `SdButtonV2.alignedLabelWidth`, so **stacked buttons put their glyphs on the same x and start their labels on the same x whatever the label lengths** — that is what the login screen's Apple/Google pair uses. The slot is a minimum, not a cage: a label too long for it widens, then wraps, and never ellipses. The glyph is `SdButtonV2.defaultIconSize` unless a call site passes `iconSize` (an `SdSpacingConstant.r*`, never a raw number) to optically correct a brand mark — under `aligned` that resizes the glyph but not the slot it is centred in, so the pair stays lined up. **Padding is one fixed value for every variant, not a per-variant default**: `SdContentPaddingV2.button`, so a filled, outlined and text button never sit a different size next to each other. `size` (`SdButtonSizeV2.small` / `medium` / `large`, scale 0.75 / 1 / 1.25) multiplies that padding plus the icon and icon gap together, so a smaller button is a scaled-down version of the same shape, never a differently-proportioned one — `medium` is the default and unscaled. **A labeled `SdButtonV2` placed in an app bar's actions (`SdScaffoldV2.actions`) is always `size: SdButtonSizeV2.small`** — see `LogScreen`'s "Next" button. `compact` (chrome-sized app-bar buttons) forces this scale on its own regardless of what `size` a call site passes, so the two can never disagree; a plain `size: small` without `compact` still gets the scaled icon/padding but not `compact`'s own tighter fixed padding and `h34` minimum height.
-- **Analytics: every event goes through `AppAnalytics`** (`core/analytics/app_analytics.dart`) — a typed method per event, so the full inventory of what we send is one file. Never call `FirebaseAnalytics` directly and never type an event name at a call site. Events live next to the matching `AppLogger.action` in a `presentation/controllers/` Notifier, never in a widget's build. Health data never becomes a parameter (hard rule 1).
-- **`main.dart` holds `main()` and nothing else.** Startup work lives in `AppBootstrap` (`core/bootstrap/app_bootstrap.dart`), so the entry point stays a list of what happens rather than how. Anything new that must run before `runApp` goes there, not back into `main.dart`.
-- **`AppBootstrap.init` guards each step separately, never the whole function.** Its concerns are independent, and one `try` around all of them lets the first failure skip everything after it — including the crash reporting that would have named it. **Firebase goes first** so Crashlytics is up before anything else can fail; it used to run last, which left a timezone failure reported nowhere. Anything added here runs **before `runApp`**, where an unhandled throw does not show an error screen — it stops the app from starting at all — so it needs its own `try`/`catch` and a fallback that leaves the app usable.
-- **Crash reporting goes through `CrashReporter`** (`core/logging/crash_reporter.dart`): `recordError` for a caught failure worth seeing in production, alongside the `AppLogger.error` that serves the debug console. `domain/` stays pure Dart — report from the presentation/data layer that catches it.
-- Repositories: interface in `domain/`, impl in `data/`; return domain models, never Drift rows.
-- Correlation engine stays pure Dart with unit tests (this is the "insight" users pay for — test edge cases: <15 attacks, all-same-weather, timezone shifts).
-- **HealthKit is read-only, iOS-only, and nothing it returns is persisted.** `health` reads `SLEEP_IN_BED` and only that: this plugin version maps IN_BED / ASLEEP / AWAKE onto the same `HKCategoryType.sleepAnalysis` and drops the category value before Dart sees it, so asking for all three returns the same samples three times and none can be told apart — take one type and union the intervals (`SleepNightAggregator`). Sleep is queried on demand for the analysis window and never written to Drift: HealthKit is already on-device storage, and a copy here would be one more pile of health data the wipe has to chase (hard rule 8). iOS never reports a *read* denial (that would leak which conditions a user has), so `requestAuthorization` returning true proves only that the sheet was answered — treat an empty read as "no access or no data" and never as an error. **Sleep and steps connect separately, one switch and one sheet each** (`HealthDataKind`): someone happy to let the app read their nights may not want it counting their days, and a refused sheet must cost only the source it was asked about. `HealthConnections` holds the two flags, `HealthController` owns them, everything else reads `healthControllerProvider`. **The switches live on the detail screens they feed**, not in Settings — sleep on `/sleep`, steps on `/activity` — and those are the only places a prompt is raised. `HealthController.connectedKey` is the single flag both sources shared before the split: it is still read as a fallback, because a user who connected under it must not find themselves silently disconnected, and the GDPR wipe clears it too (`disconnectAll`) so it cannot reconnect them on the next launch.
-- Cloud Functions: idempotent, log with structured JSON, fail loud on weather API errors (retry with backoff), never silently skip a user cohort.
-- Commit style: conventional commits (`feat:`, `fix:`, `chore:`). No parenthetical scope — write the scope inline after the colon, then a dash: `feat: medications - a screen per medication`, never `feat(medications): a screen per medication`. No `Co-Authored-By` trailer. **The scope is never `claude`** (e.g. never `chore: claude - listItemGap covers item spacing`) — the scope names the part of the app touched, not who or what made the change; a handful of earlier commits on this repo got this wrong and are grandfathered, not a pattern to continue.
-- **Commit freely; never push.** Every commit (app repo and the `system_design` submodule alike) stays local until the owner explicitly asks for a push — the owner reviews and pushes themselves. Don't run `git push` (or `git push --force*`) on your own initiative, even after a commit that would previously have been pushed as a matter of course.
-- **Any edit to this file gets its own commit, right away** — a CLAUDE.md change never rides along uncommitted or folded into an unrelated commit. Message: `docs: update docs - detail is <what changed>`.
-- **PR descriptions are short bullets, never prose.** A one-line summary, then bulleted groups — one line per bullet, about a screen in total. No explanatory paragraphs, no quoting source in the body. The *why* belongs in the commit message and the code comment, which reviewers reach from the diff; a PR body they have to read twice gets skimmed instead. **No mention of Claude anywhere in a PR description** — no attribution footer (e.g. "Generated with Claude Code"), no "Claude did X" phrasing, nothing naming the tool at all; the description reads like the person who owns the repo wrote it.
-- **No standalone top-level functions.** Every function lives inside a class — a widget method, or a static/instance method on a utility class (`DateUtils`, `StringUtils`, `ValidatorUtils`). Never a floating `void doSomething() {}` at file scope. The one sanctioned exception is a widget's `.show()` extension (see "Bottom sheets" below); the shared `core/widgets` primitives `showSdDialogV2`/`showSdBottomSheetV2`/`showSdFilterSheetV2` stay as-is (they are the low-level presenters those extensions call).
-- **A sheet with actions wears `SdSheetHeaderV2`** (`system_design`): X on the left that leaves, title centred, commit on the right — both are `SdAppBarButtonV2`s wearing `SdAppBarButtonSurfaceV2.glassCircle` (the sheet is a flat opaque panel, so a frosted disc on it has real background to refract), the commit's glyph tinted `AppColors.secondary` so the action that writes something still reads differently from the one that abandons. Its glyph is a tick for `SdSheetActionV2.confirm` (answering something for the first time) or a pencil for `SdSheetActionV2.edit` (overwriting a value that already exists). It brings its own insets; nothing pads around it. `SdSheetContentV2` (`system_design`) is that header plus content that scrolls under a ceiling of 85% of the screen and an optional pinned footer — pass `isScrollControlled: true` when showing it or the route caps itself near half the screen and the ceiling never applies.
-- **Bottom sheets and dialogs: widget + `.show()` extension, never a top-level `showX()`.** A sheet/dialog is a widget class (`FooSheet extends StatelessWidget`, public so callers can construct it), and its opener is an extension on that widget exposing `Future<T?> show(BuildContext context) => showSdBottomSheetV2<T>(context, builder: (_) => this);` (sheets) or `showSdDialogV2<T>(...)` (dialogs). Name the extension `<Widget>Ext`. Call it as `FooSheet(...).show(context)` — never `showFooSheet(context, ...)`. This keeps presentation off file-scope functions (rule 1) while still routing through `showSdBottomSheetV2`/`showSdDialogV2` (root navigator, calm animation). A sheet/dialog opener with no dedicated widget (a thin wrapper over the generic `showSdFilterSheetV2`) is dead weight — inline the generic presenter at the call site instead.
-- **No `_buildX()` methods for UI.** Do not split `build()` into helper methods like `Widget _buildHeader()` / `Widget _buildList()` inside a `State`. Extract UI into a separate widget class (`StatelessWidget`/`StatefulWidget`) so Flutter can scope rebuilds (const, keys) instead of rebuilding the whole parent — a method split is a fake split.
-- **Split big presentation files with `part of`.** When a screen/page under `presentation/` accumulates many private child widgets, move them into sibling files joined via `part of` (not one giant file; `main.dart` is exempt). Name child files `<main_file>_<widget>.dart` — e.g. `home_page.dart` + `home_page_header.dart` with `part of 'home_page.dart';`.
-- **One folder per screen under `presentation/screens/`.** Each screen gets its own subfolder named after the screen file: `presentation/screens/<name>_screen/` holds `<name>_screen.dart` and all of its `part` files. Screens never sit loose directly in `screens/`.
-- **No `abstract final class` — plain `final class`.** Static-only holders (`AppLogger`, `AppColors`, `AppTextStyle`, `AppTheme`, `SdSpacingConstant`, `AppEnv`, `AppRoutes`, `SdSnackBarUtilsV2`, `NavigationUtils`, …) are declared `final class`. `abstract` is reserved for contracts that are actually implemented: every `domain/repositories/` and `domain/services/` interface stays `abstract interface class`.
-- **Constants live in their own class, never on a model, entity, controller or widget.** Owner's rule. A number a class does not itself use is not that class's business: `PremiumLimitConstant` (`core/constants/`) holds the free record limits, because the gate providers and the limit dialogs read them and three features have to agree. Reach for `core/constants/` for anything cross-cutting, a feature-local `*Constant` class otherwise — but never a `static const` bolted onto the entity or the widget that happens to be nearby.
-  - **The one exception already written down stays**: a widget's own intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`, `SdBadgeV2.maxCount`, `DashboardExploreSection.cellAspectRatio`) is what that widget is, not configuration about it. Spacing likewise stays on `SdContentPaddingV2`, which is itself the constants class for that job.
-  - `SignedNumberUtils` is the one place a reading gets an explicit `+`. Deliberately `toStringAsFixed` and not `NumberFormat`: every other number in the app is formatted that way, and a locale-grouped one prints a pressure value as "1,008 hPa", which nothing else does.
-  - **All date and time arithmetic goes in `DateTimeUtils`, never a second date-shaped utils class.** Owner's rule: clock formatting, month arithmetic and the time axis of a chart are one subject, and two classes is how the same call site ends up computing midnight two different ways. `ChartAxisUtils` keeps only the numeric half of an axis (bounds, gridline spacing).
-  - **The sweep is done for what the rule names.** `core/constants/` now holds `PremiumLimitConstant`, `PrefsKeyConstant` (every shared_preferences key, so a collision between two features is visible rather than silent), `SyncConstant`, `ExportConstant` and `LogFlowConstant`. No entity, controller or widget in `lib/` carries a configuration constant any more.
-  - **Two things were deliberately left.** A canonical empty instance (`SleepSummary.empty`, `StepSummary.empty`) is a value of the type, not configuration about it — the same shape as `Duration.zero`. And constants inside `domain/services/` and `data/` (`ReminderOccurrenceMaterialiser.defaultWindow`, `AesGcmAttackCipher.isolateThreshold`, the payload codecs' `schemaVersion`, `DevSeedService.seedCount`) stay where they are: those classes ARE the algorithm the number belongs to, and the rule names models, entities, controllers and widgets. Raise it with the owner before widening that.
-  - **`packages/system_design` is out of scope** — it is a separate repo with its own `WIDGET_RULES.md`, and its statics are widget-intrinsic (`SdBadgeV2.maxCount`, `SdBarChartV2.headroom`).
-- **Never use `var`.** Always declare explicit types (`final String name = ...`, `int count = 0`, `List<Item> items = []`). Prefer `final`/`const` with an explicit type. Explicit types keep reviews clear and prevent silent type-inference bugs.
-- **Specialised logic gets its own `*Utils` or helper class, on its FIRST use — not its second.** Owner's rule, and it sharpens the extraction rule below rather than repeating it: a widget's job is layout and a controller's is orchestration, so a calculation sitting inside either is in the wrong place whether or not anything else needs it yet. Date and duration math, string parsing and formatting, axis/grid arithmetic, filename building: all of it moves out. `core/utils/` when more than one feature could want it, the feature's own `domain/services/` when it is really domain logic. What legitimately stays in a widget is reading providers, wiring callbacks and choosing what to build; in a controller, the call sequence and its error handling.
-- **Anything shared gets extracted — a widget, or a `*Utils` class.** The second copy is the trigger, not a later cleanup: duplicated UI becomes a widget in `core/widgets/` (or the feature's `presentation/widgets/` if only that feature uses it), duplicated logic becomes a static method on a `*Utils` class (`NavigationUtils`, `SdSnackBarUtilsV2`). Same in `test/` — shared setup and navigation helpers live in `test/helpers/`, never re-declared per file.
-- **A widget used by more than one feature lives in `core/widgets/`, always — and that is the only `widgets/` folder in `core/`.** The moment a second feature needs it, it moves: `presentation/widgets/` is for widgets that feature alone builds. Otherwise the importer reaches into another feature's `presentation/` and breaks the dependency rule — that is how `PremiumGate` (insights + settings + premium) and `MedicationNameDialog` (attacks + medications) ended up cross-imported before they moved. A shared widget may import a feature's `domain/` or `providers.dart` (`premium_gate.dart` watches `hasPremiumProvider`; `charts/severity_breakdown_chart.dart` reads `chart_analytics.dart`) — core → feature is fine, feature → feature `presentation/` is not. Never open a `widgets/` folder elsewhere under `core/`: a sheet a subsystem shows (`permission_settings_sheet.dart`) goes in `core/widgets/` and imports back into its subsystem, not the reverse.
-- **Comments: short and plain.** One or two lines. Say *why*, not what the code already says — and say it in the fewest words that still land. No paragraphs, no essays, no restating the diff.
-- **Multi-point comments are bullet lists, one `//` line per point, each starting with `-`.** The moment a comment needs more than one point, it stops being a sentence with a conjunction and becomes a list — no run-on `// does X, and also Y, but watch out for Z`. Each bullet stays short and plain per the rule above; a single-point comment stays a single plain line, no dash.
-- **A comment is never more than 3 lines**, bulleted or not. If it needs a 4th, the comment is doing too much — cut to the one reason that matters, or split it: a "why" for the line it sits on stays here, a longer "how"/design rationale moves into the doc comment (`///`) of the function or class it belongs to.
-- **Declarations first, blank line, then logic.** Group all variable/constant declarations at the top of a method with no blank lines between them, then one blank line before the logic block (conditions, loops, calls, `return`). Don't interleave — never declare, run logic, then declare again lower down.
-- **Every list in the app puts the same gap between its items: `SdContentPaddingV2.listItemGap` (8).** One value, never a per-screen `SdSpacingConstant.h8` — the attack list, the calendar day's attacks and the medications list each spelled the same 8 out separately, and three copies of a number is three chances to disagree. Lists of `ListTile`s are a different mechanic and take no gap at all: those rows carry their own insets and sit flush (Settings, the export history). **This is the one gap for all item spacing, not a per-list convention** — any place that spaces one item from the next uses `listItemGap`, never a raw `SdSpacingConstant.h*` typed in again. **The gap from a filter row down to the list below it is the same `listItemGap`, not a screen's own spacing value** — a filter sits above its list like one more item above the first, so it takes the item gap, not a bespoke number.
-- **A different gap for stacking whole cards/sections on a screen: `SdContentPaddingV2.sectionGap` (20).** Dashboard's mixed cards (banner, week summary, severity, explore) and Insights' correlation/forecast/sleep cards both read this — one value, so the two screens' section rhythm cannot drift apart, same reasoning as `listItemGap` one level up. Not the same thing as `listItemGap`: a section is a distinct card, not one row of a repeated list, so it gets the roomier number. Never a raw `SdSpacingConstant.h*` at a call site for this.
-- **No widget or class holds spacing logic — `SdContentPaddingV2` does, and nothing else.** Not `SdScaffoldV2`, not `SdAppBarV2`, not a screen: any inset another widget pads by is a static on that one class. Widgets keep only their own intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
-- **One spacing rule for all content, and one class that computes it: `SdContentPaddingV2`** (`system_design`). Content sits **`topGap` (8) below the app bar**, **the bottom depends on what is below**: a tab screen clears the nav pill and then `bottomGap` (16), while every other screen takes `detailBottom` — the device's safe area floored at `minDetailBottom` (20), with no gap stacked on top, because a device reporting 34 already gives more room than the floor asks for, **`horizontal` (16) either side** — the two vertical gaps are separate fields, so the edge under the chrome and the edge above the thumb can move independently — `SdContentPaddingV2.screen(context)` is that, `fullBleed(context)` drops the gutter for rows that inset themselves (a `ListTile`), and `floatingNav: true` additionally clears the shell's nav pill on the five tab screens — `navBarOffset` + `floatingBarHeight` + `bottomGap`, so scrolling a tab screen to its end leaves exactly `bottomGap` of daylight between the last item and the pill. **`navBarOffset` is the pill's own rule and the one place it lives**: the device's own bottom inset, clamped between `minNavBarOffset` (16) and `maxNavBarOffset` (20). The floor covers a device asking for too little — no indicator at all (a Home-button phone, most Androids, the default test view) or a shallow one (an iPad, landscape). The ceiling keeps a deep inset from pushing the pill up the screen, and **costs system clearance on a portrait iPhone**: its indicator inset is 34, so the pill lands 14 short and its lower edge sits inside the strip iOS reserves for the indicator and the edge-swipe gesture. Deliberate — raise `maxNavBarOffset` to 34 to give that back. The log flow's step bar does NOT clamp: it rests on the full inset, so the two bars legitimately differ. The log flow's step bar does not follow it — that one always rests on the safe area (`bottomBar`). `floatingBarHeight` (and `floatingBarRadius`, half of it) is the ONE height for both floating bars: the nav pill and the log flow's step bar read it, neither types its own, because the day they disagreed the difference was eaten out of the gap above them. **Bottom insets come off the view, not the ambient `MediaQuery`, exactly like `appBarInset` at the top**: `Scaffold` subtracts `padding.bottom` from its body's `viewPadding.bottom` whenever there is a `bottomNavigationBar`, so an ambient read inside the shell loses the home indicator entirely and the last row lands *under* the pill — a bug that costs 0 pixels in a test whose view has no insets. Never read `MediaQuery.paddingOf(...)` for content spacing at a call site and never re-add an inset the class already applied.
-- **`SdScaffoldV2` adds no padding at all** — no SafeArea, no insets. Every screen pads its own scrollable via `SdContentPaddingV2`, applied **inside** the scrollable so content still scrolls *behind* the frosted bar. A scaffold-level SafeArea plus a body that also clears a floating bar is how insets used to get applied twice.
-- **Insets come off the window, not the ambient `MediaQuery`.** `Scaffold` strips its body's top padding when there is an app bar (and its bottom under `extendBody`), so the same read returns different numbers above vs inside the body. `SdContentPaddingV2` reads the view; feature code reads `SdContentPaddingV2`. The default test view has no notch, so a bug here costs 0 pixels in every widget test — see `test/core/constants/app_content_padding_test.dart`, which gives the view one.
-- **Every `Text` carries an explicit `style:`.** Never lean on the ambient `ThemeData.textTheme`, even where it would look identical — the default is invisible at the call site and silently drifts when a theme changes. Use the style the surface already implies: app-bar titles `AppTextStyle.titleLarge`, `ListTile.title` `bodyLarge`, `ListTile.subtitle` `bodyMedium.secondary`, `SnackBar.content` `bodyMedium`.
-- **A filter over a scrolling list: `SdCollapsingFilterScaffoldV2`** (`system_design`), used in place of `SdScaffoldV2` — never hand-rolled, and never a `Stack` + `SdPinnedFilterBarV2` assembled at the call site again. It gives the screen one behaviour: the filter row sits in a frosted strip under the app bar while reading, and as soon as the list scrolls on it **lifts into the app bar, whose `title` and `actions` step aside**; scroll back the other way (or reach the top) and everything returns. Pass the filter as a **bare row of chips** — both places supply the horizontal scrolling, so a scroll view of your own nests two. `filter: null` is "nothing to filter yet" (an empty export history): no strip, no hand-off. `collapsible: false` pins it all in place for a bar that something else owns (the medications tab while its search field is up). **The body pads its own top and that inset must not change with the collapse** — `SdContentPaddingV2.belowPinnedFilterBar` throughout, so the reserved strip height (only ever visible while expanded) can't make content jump mid-scroll. Used by `medications_screen` and `export_screen`; History's own pill lives IN its list and is a different mechanic.
-- **Screens with content plus a bottom action: `SdActionViewV2`** (`system_design`), passed straight as `SdScaffoldV2.body` — never hand-rolled. It is content on top, `actions` hugging the bottom edge, `spaceBetween` between them, and it owns the two things every such screen otherwise forgets: the vertical insets (straight from `SdContentPaddingV2`) and the minimum height that gives `spaceBetween` its free space. Nothing inside `content` adds a top gap of its own — the view already applied the screen's. `actions` is a stretched `Column`, so buttons come out full width and equal to each other. It scrolls itself — long locales and large accessibility text sizes overflow a fixed `Column`, and a bare `ListView` is wrong here because under short content the buttons drift up into the middle. Used by `login_screen`, `account_screen`, `premium_screen`.
-  - **`placement` decides what happens once the two outgrow one viewport.** `SdActionsPlacementV2.scrolling` (the default) scrolls content and actions together — right where the actions are the end of the content, which is what those three screens are. `pinned` scrolls only the content and holds the actions at the bottom edge: **that is for content that grows without bound**, where an action the user has to scroll to the end of a list to find is one they will not find. `medication_detail_screen` is the case that created it — its reminder list has no ceiling, and "Add reminder" was being pushed off the bottom.
-  - Under `pinned` the actions sit BELOW the scroll view, never over it, so content can never pass behind them — which is why the footer needs no surface and no blur. What separates the two is `SdContentPaddingV2.pinnedActionsGap`, its own field rather than `bottomGap`: that one is the air *below* the last item, and pinning created a second edge on the side the content arrives from. Equal to it on purpose, so a pinned footer sits with the same air above and below.
-- **The bottom action sits 16 above the safe area, never twice.** On a screen that is `SdContentPaddingV2`'s business, the class has already applied it — don't add the inset again, and don't leave the button flush against the home indicator. Sheet routes still take `MediaQuery.paddingOf(context).bottom + h16` themselves (they are not screens). Floating chrome is exempt and each one has its own line: the shell's nav pill sits `SdContentPaddingV2.navBarOffset` off the bottom edge, the log flow's step bar rests on the safe area.
-- **Shared navigation lives in `NavigationUtils`** (`core/router/navigation_utils.dart`). A plain "push this route" belongs at its call site; a move with a *rule* attached — an order of screens, or a condition deciding where the user lands — goes in `NavigationUtils` so the second caller cannot reimplement it without the rule.
-  - `NavigationUtils.toLog` is that rule for the log flow: the free-plan attack gate, then the flow reset, then the push. The dashboard button and the home screen widget both go through it.
-- **The feature list is one widget, `AppFeatureList` (`core/widgets/`), and its strings are `appFeature*`.** Two surfaces show it — the onboarding sheet and the About screen — so it moved out of `onboarding/` and the ARB keys lost their `onboarding` prefix along with it. Adding a feature is one `AppFeature` enum entry plus its two keys in both locales; a second hand-built list of the same rows is how one of them ends up a release behind.
-- **Two doors, and every gate uses one of them.** A premium-locked surface opens the paywall sheet via `NavigationUtils.toPaywall`, signed in or not; the paywall itself asks the account question ("Sign in to continue" → `NavigationUtils.toLogin`, then it comes back offering the purchase). The Settings sign-in row is the only other way in, also `toLogin`. Never `pushNamed(AppRoutes.paywall...)` at a call site, and never put a login screen in front of a paywall the user has not been shown yet — the pitch comes first.
-- **Cards in a set are all one size — same width and same height, whatever they hold.** Owner's rule, and it governs both of the dashboard's card groups. A group whose cards each shrink to their own content reads as ragged rather than as a set: the eye sees several different objects instead of several of the same thing, and the biggest one silently becomes the most important.
-  - **Quick access is three tiles across — History, Chart, Weather — and nothing scrolls.** `Expanded` gives them one third each, `IntrinsicHeight` + `CrossAxisAlignment.stretch` makes them as tall as the tallest. **Weather replaced an "Add medication" tile**, whose two-line label was the only thing forcing the row taller than one line of text; it pushes `/pressure`, ungated, because Insights' pressure card already lets a free user through to the same screen (it is the Settings row, not the screen, that a free user is kept out of). Nothing calls `medicationAddRequestProvider` any more — the Medications screen still honours it, so it is a live mechanism with no caller. It was a horizontally scrolling row of fixed-width chips whose third chip was cut by the screen edge to say "there is more that way" — but there never was more than these three, so the cut edge advertised a gesture that revealed nothing. **`_QuickAccessCard` therefore has no `width` any more**, which also retires it as the constants-rule exception it used to be cited as.
-  - **The glyph sits above the label there**, not beside it: a third of the screen is too narrow for both on one line, and **a label may wrap to two lines rather than be cut** — ellipsing a shortcut's name leaves the user unable to tell what they are about to tap.
-  - **Explore is a square grid, two to a row** — `GridView.count` at `DashboardExploreSection.cellAspectRatio` (1). Hand-laid rows equalised height *within* a row but never across them, so the cards carrying a reading and a button made their row half again as tall as the row above, and five cards read as three unrelated pairs.
-    - The cost is real and was the reason it was not a grid before: a square cannot grow for a long Vietnamese subtitle or a large accessibility text size. So **every cell clips inside its own box rather than overflowing the grid** — `DashboardExploreCard` puts the content in an `Expanded` and every string is capped with an ellipsis. Judge a copy change against the square, not against the text.
-    - **`padding: EdgeInsets.zero` is not optional on that grid.** A scroll view with a null padding helps itself to the ambient `MediaQuery` inset, so it arrived with the device's safe area stacked on the screen padding the dashboard had already applied — a notch's worth of blank space above the first row (the same trap `SdContentPaddingV2` exists to keep out of feature code).
-  - **`DashboardExploreCard` is the one cell for both kinds**, with a `content` slot rather than a pile of optional fields: a navigational card puts a sentence there (`DashboardExploreSubtitle`), a health card a reading and possibly a button (`DashboardExploreReading`).
-- **The dashboard's list carries the gutter, not each section.** `SdContentPaddingV2.screen(context, floatingNav: true)`, and there is no `_Gutter` wrapper any more — it existed only because the scrolling quick-access row had to reach the physical screen edge.
-- **Sleep and steps have a card each in the explore grid, and they say what state they are in.** Not connected shows a Connect button, and locked shows Unlock; the reading is **0** in both, never the user's own figure dressed down. Sleep is premium as a whole (like its Settings row — the insight behind it is premium, so connecting first would be a permission prompt for nothing) and steps is not, because what Apple Health counted is free wherever it appears. Both are absent off iOS.
-  - **The Connect button navigates, it never prompts.** The Apple Health sheet is raised only on the detail screen that owns the switch — that rule does not bend for a shortcut.
-- **The next-reminder banner is two lines: the medication name, then when.** It was one sentence with the name picked out in the accent colour, which left the name competing with the time beside it for the same glance. The name is what the user is looking for, so it gets the first line and the accent; `dashboardNextReminderWhen` is the second, muted.
-- **The log flow's option grids are two to a row.** `ExertionLevelPicker` and `MedicationGrid` both put two full-width-halves per row with `SdSpacingConstant.w8`/`h8` between them, so two adjacent steps read as one component; four exertion tiles across a single row left every label a cramped two-line scrap. `LocationGrid` stays three-up — five tiles, and its labels are one short word each.
-  - **Build them the way the existing two are built: `GridView.builder`/`GridView.count`, `shrinkWrap: true`, `NeverScrollableScrollPhysics`** — whatever holds the grid owns the scrolling. Uniform cells are also what keeps the *selected* tile, carrying 2px of border against everyone else's 1, exactly the size of the tile beside it; hand-rolling the grid as a `Row` of `Expanded` reintroduces that, and such a row must then take `crossAxisAlignment: stretch` or the selected tile comes out taller than its neighbour.
-  - Note one unexplained failure, in case it comes back: the exertion picker's first version used the bare `GridView(gridDelegate: …, children: [...])` constructor and **hung** `log_flow_test.dart` on a test it did not touch, rather than failing it. The same delegate through `GridView.builder` runs clean. The cause was never found, so treat the bare constructor as the thing to avoid here, not `GridView`.
-  - A grid that hangs the suite looks like a slow machine, because `flutter test … | tail` buffers everything until the process exits and prints nothing at all. Redirect to a file instead when a run seems to stall.
-- **Every separator line is an `SdDividerV2`** (`system_design`) — never a Material `Divider` in feature or core code. One thickness (`SdSpacingConstant.h1`) and one colour (`sdTheme.surfaceElevated`, the same step up from a card everything else sitting *on* a card takes), so two lists cannot come out with different greys. **It occupies exactly the line it draws**: Material's `Divider` reserves a whole `height` (16 by default) around a 0-thickness rule, so a "1px line" silently costs 16 of vertical space and two rows drift apart for reasons nothing at the call site explains. The gap around a divider belongs to whoever places it. It carries no props — an indent is a `Padding` at the call site, and if a second call site ever wants the same indent that is when it becomes a field on `SdContentPaddingV2`, never a number typed twice.
-  - **Between items only, never on a container's own edge.** The reminder list draws `if (index > 0) const SdDividerV2()` — a rule above the first row or below the last one lands on the card's edge and reads as a border it does not have.
-- **An edit-in-place field says so with a glyph, and says how it saves.** The medication name is read and edited in the same `SdTextFieldV2` — there is no "now you are reading, now you are editing" mode — so nothing announced that it could be changed at all. Its suffix now carries a pencil at rest (tap to focus) that becomes a tick while focused (tap to save), tinted `colorScheme.secondary` like every other commit glyph in the app. **The tick only unfocuses**: blur stays the single commit path, so tapping the tick and tapping away save through exactly the same line and there is no second way to write the row. Any other field that edits in place takes the same pair.
-- **Two medication reminders are free, across every medication — not two each.** `MedicationReminder.freeLimit` is that number and `canAddReminderProvider` is the only thing that reads it; the one past it, anywhere, opens the paywall. **Two and not one**, which is where this started: a preventive taken morning and evening — or one preventive plus a supplement — is the ordinary regimen, so a limit of 1 blocks the typical user on day one, before the app has done anything for them, and reads as broken rather than tiered. Reminders are also what brings someone back daily, which is what produces the 15 attacks `minAttacks` needs before the correlation card can say anything worth paying for — capping them hard taxes the behaviour that feeds the best pitch. At 2 the wall is still hit by anyone on a real multi-drug regimen, in week three rather than minute one. **Only the add path asks.** A free user who already holds more — from before the limit existed, or pulled down by a sync from a device that had premium — keeps every one of them, still firing: taking back a reminder someone relies on to take their medication is a regression, not a paywall. The gate sits BEFORE the notification permission prompt, so the OS is never asked on behalf of a reminder that will not be created, and the "Add reminder" button stays where it is with only its glyph changing to a lock — the label never becomes a pitch. **Every record limit is named before the paywall opens**: `NavigationUtils.toPaywallFromLimit` shows `RecordLimitDialog` (`core/widgets/`) and only goes on to the paywall if the user picks Unlock. The reason is the button — it says "Add reminder", "Add medication", or it is the log button, so a purchase screen appearing out of it reads as a bug rather than an offer. A gate whose surface already announces itself as premium (a locked card, a badged row) still goes straight through. **`docs/PREMIUM_RULES.md` is the authority on the numbers and on every gate's behaviour**; the free limits themselves live in `PremiumLimitConstant`, and there are now three of them — attacks and medications as well as reminders.
-- **Every chart is premium except the severity donut, which is free wherever it appears.** That donut is the dashboard's preview, so History's copy of it draws the real counts too — locking it there would take back something the user already has one tab away. The other four in History's deck are covered, and any chart added anywhere later is covered too unless the owner says otherwise. The cover is `PremiumChartLock` (`core/widgets/premium_gate.dart`), one per card: the chart blurred under a scrim with the unlock button centred on it, tapping through to `NavigationUtils.toPaywall` like every other gate. **What it blurs is `SampleChartData`, never the user's own attacks.** `_Charts` picks each card's source list before it builds anything — real for the donut, sample for the rest — so `PremiumGate`'s rule survives the arrival of a visual cover: a free user's tree still holds no real premium data, because a cover over real numbers leaves them one screenshot (or one accessibility dump) away. The sample runs through the SAME calculators as the real deck, so the locked preview cannot drift from what premium unlocks; the blurred sample is `ExcludeSemantics`'d so VoiceOver never reads the made-up figures, and the card carries `premiumLockedCharts` as its label instead.
-- **The sleep and step summary cards are the second chart exemption, by the owner's call.** `SleepSummaryCard` and `StepSummaryCard` (`insights/presentation/widgets/`) show what HealthKit actually handed over — last night / today, the 7-entry average, and a bar of the window — and they are free wherever they appear. Locking them would leave a user who just flipped the Apple Health switch looking at nothing, and the card *is* the answer to "did connecting work". They are absent entirely while that source is disconnected; the switch above already says so. The correlation card under each one stays premium.
-- **Buying premium unlocks it now — a data threshold grades the answer, it never withholds it.** Paying and then meeting a wait is the one thing a paywall must not do, so no premium surface may sit empty behind a sample-size minimum. **All four insight engines work this way** — pressure, exertion, sleep and steps: each analyses from the first data point it can and reports how far along the sample is, via two flags on the result rather than an early return. `isCountOnly` means the derived headline is not worth stating yet and the card shows what was actually measured instead: for a share (pressure, exertion) that is the counts ("2/3"), because a percentage off 1–4 attacks can only be 0/25/33/50/100 and every one of those reads as a claim; for a two-group comparison (sleep, steps) it is the two averages without the gap between them. `isPreliminary` means the figure still moves, and puts `InsightSettlingNote` under it — **one widget and one string for all four cards**, deliberately carrying no number, because sleep and steps can be unsettled from a thin *side* rather than a small total. The `NoVariation` verdict is only reached at a settled sample: "your weather is all the same" off three readings is not a finding. **`minAttacks` is 15 because the normal approximation behind any confidence claim wants ~5 attacks either side of the threshold, which lands at 15 when roughly a third of attacks fall during drops** — write the reason down wherever this number is copied, because before this it was stated in `PLAN.md` and cited from the code with no argument anywhere. Free users are unaffected on the premium cards: they keep the "keep logging" progress to 15, which is the road to the value moment. **The only state that still withholds a result is a genuinely empty one** — no attack with weather, no attack with an exertion answer, or one whole side of a two-group comparison empty, where there is no comparison rather than a thin one. **A preliminary figure never reaches the doctor report** — `DoctorReportBuilder` matches `isPreliminary: false`, because a PDF is read as settled.
-- **Everything pressure lives on one screen, `/pressure`** (`features/insights/presentation/screens/pressure_screen/`): the 48h forecast, the correlation, and the alert switch + threshold together. They were three places before — a card on Insights, another card beside it, and a Settings row two taps away — so the number and the alert it drives never appeared together. Insights now carries ONE `PressureCard` (forecast chart above the correlation body, the whole card tappable), and `AlertsSettingsTile` opens the same screen. **The screen lives under `insights/`, not `alerts/`**, because it draws insights' own widgets and a screen in `alerts/` reaching into `insights/presentation/` would break the feature dependency rule; `AlertsSection` sits in `core/widgets/sections/`, which is what lets both sides use it.
-  - **Bodies are cardless so two surfaces can draw them.** `CorrelationBody` and `PressureForecastBody` are the content; `CorrelationCard` / `PressureForecastCard` are the shells the detail screen uses, and `PressureCard` folds the two bodies onto one card. `InsightCard` takes an `onTap` and draws the chevron itself — never add one at a call site.
-  - **A free user must still see the forecast pitch.** They never build `PressureForecastBody` (so nothing is fetched for them) and get `premiumLockedForecast` in its place. Deleting that line silently removes the pitch for the one feature the paywall leads with — `premium_gating_test.dart` catches it.
-- **The other two insight detail screens: `/activity` and `/sleep`.** Exertion and steps share `/activity` and one `ActivityCard` on Insights, because they are the same question asked twice — how much did the user move. Sleep keeps its own card and its own screen: the night is a different question from the day, and merging it would put one switch over two unrelated readings. Both screens are reached from their Insights card and from their own Settings row.
-  - The activity row in Settings is NOT premium-gated, unlike the sleep one — the exertion half of that screen is free, and a locked row would hide something the user already has. Inside the card, the step half still shows `premiumLockedSteps` until premium, and is absent entirely off iOS (`healthAvailableProvider`), where there is no source and the prompt would point at a switch that isn't there.
-- **On every insight detail screen the controls come first and the cards last.** The switch or threshold is what the user opened the screen to change, so it sits under the thumb; the reading is what they scroll to. Applies to `/pressure`, `/activity` and `/sleep` alike.
-  - **The share now has a denominator, and it is the `DailyWeather` table.** It used to answer only "what share of MY attacks fell during drops", never "do drops make me more likely to attack", so a user in a stormy climate scored high for free. `DailyPressureRecorder` writes one reading per local day whether or not an attack happened, and `CorrelationEngine` compares the attack rate on drop days against calm days (`PressureBaseline`).
-    - **It must never sync** (hard rule 1): a per-day trail of the weather where the user was is a location history, and every device recomputes its own. It IS in the GDPR wipe for the same reason — it is derived from their location, so it is theirs.
-    - **Days, not attacks**: three attacks in one day is one day that ended in an attack, or a single bad day carries the whole comparison.
-    - **Both sides need `minDaysPerSide` (5) or there is no baseline at all** — below it one day's weather swings the rate 20 points and the card flips between "twice as likely" and "no difference". `timesMoreLikely` is null when no calm day had an attack, because the alternative is printing "infinitely more likely".
-    - **A null baseline is the normal state for an existing user**, whose history predates the daily readings. The share still renders; nothing is taken away.
-    - **Recorded at most once per local day**, best-effort and silent like `WeatherAttachService` — launch and resume both fire it, and a day the app was never opened is simply a gap in the sample.
-
-## Pending setup — the owner does this by hand, don't assume it exists
-
-Force update (`app_update`) is coded and tested, but nothing on the Firebase
-side is done yet. Until all three land, the launch check reads nothing and
-fails open — which is the safe state, and also a silent one, so don't read
-"no sheet appeared" as "it works".
-
-1. **`firestore.rules` is not deployed.** The `app_updates` block exists in
-   the repo only. Until `firebase deploy --only firestore:rules` runs, the
-   client read returns `permission-denied` and the check silently fails open.
-2. **The `app_updates` collection does not exist.** Records are published by
-   hand from the Firebase console — schema and field types are documented on
-   `AppUpdateMapper`. `create_date` MUST be a Firestore `timestamp`: Firestore
-   orders mixed types by type, so one record saved as a string sorts below
-   every timestamp and `orderBy(create_date, desc).limit(1)` will never see
-   it. Publish a NEW document per release; never edit the previous one.
-   Flip `enable_force_update` to true only once that build is live on both
-   stores.
-3. **No caching — deliberately.** Every entry into the app (cold start and
-   each resume) is one Firestore document read. That is what makes an
-   emergency un-block take effect on the next app open, unlike Remote
-   Config's 12h cache. If the read volume ever matters, cache the record in
-   memory and refetch after N minutes — decide the N against how fast an
-   un-block has to reach users, and never cache the "blocked" verdict longer
-   than the "not blocked" one.
-
-Also note `env/dev.json` and `env/prod.json` point at the SAME Firebase
-project, so a blocking record written while testing hits real users too.
-Fix that with a separate dev project, or wire the Firestore emulator behind
-`!AppEnv.isProd` before testing a blocking record post-launch.
-
-### HealthKit — code and Xcode project are done, the portal side is not
-
-`ios/Runner/Runner.entitlements` (checked in, wired into all three Runner
-build configs), the `com.apple.HealthKit` target capability and BOTH health
-usage strings all exist. What is NOT in the repo, because it cannot be:
-
-**Both strings are mandatory even though the app only reads.**
-`NSHealthUpdateUsageDescription` looks unnecessary — the plugin calls
-`requestAuthorization(toShare: nil, …)`, so nothing is ever written and iOS
-never shows that string. But App Store Connect's validator keys off the
-**entitlement**, not off actual API usage: with `com.apple.developer.healthkit`
-present it rejects the upload with `ITMS-90683 — Missing purpose string in
-Info.plist … should contain a NSHealthUpdateUsageDescription key`, and the
-build never reaches TestFlight. Do not "clean up" that string as dead config.
-
-1. **HealthKit on the App ID.** The App ID behind
-   `PRODUCT_BUNDLE_IDENTIFIER` needs the HealthKit capability enabled in the
-   Apple Developer portal (Xcode's
-   automatic signing will offer to do it on the first device build with the
-   enrolled team selected). Until it is, signing fails with "Provisioning
-   profile doesn't include the com.apple.developer.healthkit entitlement".
-2. **A real device.** HealthKit does not exist in the iOS Simulator: the
-   authorization sheet never appears and reads come back empty, which is
-   indistinguishable from a refusal. Never read "no sleep card" on the
-   Simulator as a bug.
-3. **App Store privacy.** HealthKit apps need a privacy policy URL and the
-   App Privacy label must declare Health & Fitness data as collected-but-
-   not-linked (it never leaves the device — sleep is read for the analysis
-   and nothing is stored or uploaded). App Review also rejects HealthKit
-   apps whose usage string doesn't say what is read and why; the shipped one
-   names sleep specifically.
-
-The entitlements file now declares `aps-environment` alongside HealthKit, and
-its value is **`development`, deliberately**: one file serves all three build
-configs, and the app-store export re-signs it to `production` from the
-distribution profile. Hardcoding `production` there would break push on every
-debug build instead. Push still cannot reach a device until the console side
-is done — an APNs auth key in Firebase, and Push Notifications enabled on the
-App ID — and `getToken()` returns null on the Simulator (no APNs), which
-`FirebaseAlertRegistrationRepository` maps to
-`AlertRegistrationError.pushUnavailable`. That refusal is expected on the
-Simulator; never read it as a bug.
-
-### WeatherKit — decided, nothing on the Apple side exists yet
-
-Weather moves to WeatherKit, called only from Cloud Functions (see the tech
-stack note). None of the credentials exist, so this is blocked on:
-
-1. **A key with WeatherKit enabled** — Certificates, Identifiers & Profiles →
-   **Keys** → tick WeatherKit. Gives the `.p8` and a **Key ID**. Downloadable
-   once, like the APNs key, and it is a different key from that one.
-2. **A Services ID** — Identifiers → **Services IDs**. This is the JWT's
-   subject; the app's Bundle ID is not it.
-3. **The `.p8` in Secret Manager**, never in the repo and never in `env/`
-   (hard rule 13 covers why a build-time define is not a secret store).
-
-Until all three land the backend has nothing to sign with, and every weather
-read fails — which the app already treats as "no weather", never as an error
-(hard rule 4).
-
-### Home screen widget — the target is checked in, the App ID is not
-
-`ios/BaroEaseWidget/`, the `BaroEaseWidgetExtension` target, both entitlements
-files and the whole Dart side are done, and the extension builds and embeds.
-What is NOT in the repo:
-
-1. **The App Group on the App ID.** `group.app.dd.migraine.tracker` must be
-   registered under Certificates, Identifiers & Profiles and enabled on the
-   App ID behind `PRODUCT_BUNDLE_IDENTIFIER`, and on
-   `…​.BaroEaseWidgetExtension` too — an app extension has its own App ID.
-   Xcode's automatic signing offers to create both on the first device build.
-   Until then a device build fails to sign the extension, and the shared
-   `UserDefaults` silently returns nothing. **The Simulator does not need any
-   of this** — App Groups work there unprovisioned, which is why "it works on
-   the Simulator" says nothing about the device.
-2. **A widget placed on a home screen.** Nothing draws until the user adds it,
-   and an empty gallery entry after a fresh install is normal, not a bug.
-
-### RevenueCat — code is wired, the dashboard and store are not
-
-`purchases_flutter` is in, `RevenueCatPremiumRepository` reads the
-entitlement, `RevenueCatPurchaseRepository` sells and restores, and the
-paywall renders whatever the offering returns. **There is no local premium
-repository any more** — the old `DebugPremiumRepository` (a prefs flag with a
-`setPremium`) is deleted, because a premium state the client can write is the
-one thing this project must not ship. Tests override
-`premiumRepositoryProvider` with a fake instead; nothing else may.
-
-Missing config used to fail loud via `assert(AppEnv.hasFirebaseConfig, …)` and
-`assert(AppEnv.hasPurchasesConfig, …)` in `main()`; both were removed (owner
-call: a TestFlight build crashing on launch was suspected to trace back to
-one of them; under investigation) and have now been **replaced with one
-assert** — `AppEnv.missingConfigKeys` walks every required Firebase field
-plus the platform's own RevenueCat key and returns the names still empty;
-`main()` asserts that list is empty, reporting every gap in one message
-instead of failing on the first field checked.
-
-**The assert was never capable of causing that TestFlight crash — that
-suspicion is closed.** Dart strips `assert()` from release builds, and
-TestFlight is release, so it cannot fire there. Note the shape of that trap:
-the one check meant to catch missing config is compiled out in precisely the
-build where the mistake happens.
-
-**The crash was RevenueCat, and it was a bad API key — `test_...` left in
-`REVENUECAT_IOS_KEY`.** RevenueCat's native SDK answers a key carrying
-another platform's prefix with `fatalError`, which kills the process.
-**No Dart `catch` can survive that**, so the guards around `ensureConfigured`
-never applied — they only ever caught Dart throws — and Swift keeps
-`fatalError` in release, so it lands on TestFlight and nowhere else.
-`RevenueCatClient.isUsableKey` now rejects such a key before it reaches
-`Purchases.configure`, turning an uncatchable crash back into the
-already-handled `StateError` path. An **empty** key is therefore safer than a
-placeholder: empty has always been handled, a plausible-looking placeholder
-is fatal. Keys with no prefix are let through — those are RevenueCat's legacy
-keys and it merely warns.
-
-**Separately, never archive from Xcode.** Product > Archive knows nothing
-about `--dart-define-from-file`, so the archive carries empty config;
-`Firebase.initializeApp` throws, `main()` swallows it, and the app dies on
-the first `FirebaseAuth.instance` with `[core/no-app] No Firebase App
-'[DEFAULT]' has been created`. **Always release with `melos run
-release-ios`** (prod) or `melos run release-ios-dev`.
-
-The paywall still surfaces `PurchaseError.notConfigured` when a purchase
-action runs without a key, because every RevenueCat call site catches the
-`RevenueCatClient.apiKey` `StateError` — that guard is unchanged. What the
-owner must do by hand:
-
-1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders
-   already added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and
-   optionally `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and
-   `REVENUECAT_OFFERING` (empty = whatever the dashboard marks current).
-2. **Products in App Store Connect** — monthly $4.99, yearly $29.99,
-   lifetime $44.99 — plus the Paid Apps Agreement, then the same three
-   attached to a RevenueCat offering. Until an offering exists the paywall
-   correctly shows "no plans available"; that is not a bug.
-3. **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the
-   store's own string, because the currency, its position and the decimal
-   separator belong to the customer's storefront.
-
-Only `PackageType.monthly` / `annual` / `lifetime` are rendered; anything else
-the dashboard adds is skipped rather than drawn blind. Purchases are bound to
-the Firebase UID via `PurchaseIdentity` so an entitlement follows the person,
-not the install.
-
-## Testing priorities
-
-1. `domain/correlation` — unit tests, high coverage
-2. Drift migrations — test every schema change with migration tests
-3. Pressure alert function — emulator tests: threshold edge cases, geohash grouping, dedupe window
-4. Paywall entitlement gating — widget tests that free users never see premium data paths
-
-### Tests are suspended for the UI redesign — owner's call, and it has an end
-
-While the redesign described in `docs/UI_SPEC.md` is in flight, a UI change
-ships without updating the widget tests it breaks, and `melos run test` is not
-a gate on any of that work. The reason is the churn: a redesign moves layout,
-sizes and widget identity across ~22 screens plus the design system, so most
-of those tests fail on the change rather than on a bug, and fixing them screen
-by screen would double the work and be redone at the next iteration anyway.
-
-What this does NOT suspend:
-
-- **`melos run analyze` still must pass with zero findings.** Analysis catches
-  real breakage, costs seconds, and is unaffected by how a screen looks.
-- **Non-UI tests stay honest.** Nothing in `domain/`, `data/`, the correlation
-  engines, migrations or the Cloud Functions is covered by this — a change
-  there is tested as usual.
-- **The four priorities above still stand as the target.** They are deferred,
-  not dropped.
-
-**The debt is real and must be paid before release**: the paywall gating tests
-(item 4) are the ones that matter most, because they are what proves a free
-user's tree holds no premium data. Do not let this section quietly become
-permanent — when the redesign settles, restore the suite and delete this
-subsection in the same change.
+- **Flutter** (stable channel), Dart 3, iOS first (keep Android compiling, don't polish it yet)
+- **State**: Riverpod (hooks_riverpod). No BLoC, no GetX.
+- **Local DB**: Drift (SQLite). Source of truth for health data is always on-device; cloud is a synced copy, never the only copy.
+- **Navigation**: go_router
+- **Backend**: Firebase — Firestore (region europe-west1), Cloud Functions (TypeScript, Node 20), Cloud Scheduler, FCM, Remote Config
+- **Auth**: anonymous by default (app fully usable without an account). Optional sign-in via Google (`google_sign_in`) and Apple (`sign_in_with_apple`) using `linkWithCredential` so the anonymous UID is upgraded, never replaced. Sign in with Apple is mandatory because Google login is offered (App Store 4.8).
+- **Payments**: RevenueCat (`purchases_flutter`) — never call StoreKit directly, never trust client-side premium flags; premium state comes from RevenueCat entitlements
+- **Sync crypto**: `cryptography` (AES-GCM, pure Dart) for record payloads, `cloud_functions` to fetch the account key from the `getSyncKey` callable. The key is server-held, so this is not end-to-end encryption — see hard rule 12.
+- **Weather is WeatherKit, called only from Cloud Functions.** Detail and the
+  quota rules: `docs/rules/TECH_STACK.md`.
+- **Charts**: fl_chart. **PDF**: `pdf` + `printing` packages. **Health**: `health` package (HealthKit sleep, read-only)
+- **Observability**: Firebase Crashlytics (crashes + non-fatals) and Firebase Analytics (usage). Both are initialized in `main` and stay no-ops until then, so tests and pure-Dart paths never touch the SDKs.
+- **Home screen widget**: `home_widget` for the App Group bridge; the WidgetKit extension itself is hand-written SwiftUI in `ios/BaroEaseWidget/` (hard rule 18)
+- **Files out**: `share_plus` for the share sheet, `flutter_file_dialog` for "save to device" (the platform's own save picker). `flutter_file_dialog` is below the usual ">1k likes" bar and is a deliberate exception: `file_picker` is the popular choice but every version from 8.3.3 up pins `win32 ^5.9.0`, which `share_plus` >=13.1.0 (`win32 ^6.0.1`) cannot resolve against, and there is no stable `file_picker` 12. Do not "fix" this with a `win32` dependency override — the app ships iOS first and a resolution hack to satisfy a preference is the clever-over-boring trade CLAUDE.md warns against. Revisit only when `file_picker` ships a stable release on `win32 ^6`.
+- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`.
+  Detail, and why the reverse was tried and reverted:
+  `docs/rules/TECH_STACK.md`.
 
 ## When unsure
 

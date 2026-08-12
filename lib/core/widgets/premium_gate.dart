@@ -34,46 +34,122 @@ class PremiumGate extends ConsumerWidget {
   }
 }
 
-class _LockedCard extends ConsumerWidget {
+/// The locked pitch WITHOUT a card around it: the glyph and the badge, what
+/// premium would show here, and the way to get it.
+///
+/// Cardless on purpose, so a body that is already inside someone else's card
+/// can lock itself without nesting one card in another — which is exactly
+/// what `PressureForecastBody` inside `InsightCard` did before this existed.
+/// [PremiumGate] wraps this in an `SdCardV2` for the standalone case.
+class PremiumLockedBody extends ConsumerWidget {
+  const PremiumLockedBody({
+    required this.message,
+    this.icon = Icons.lock_outline,
+    super.key,
+  });
+
+  /// Already localized: what premium would show in this slot.
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            SdIconV2(
+              icon: icon,
+              size: SdSpacingConstant.r20,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            const PremiumBadge(),
+          ],
+        ),
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(message, style: AppTextStyle.bodyMedium),
+        SizedBox(height: SdSpacingConstant.h12),
+        const Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: PremiumUnlockButton(),
+        ),
+      ],
+    );
+  }
+}
+
+/// The app's one Unlock button, and it takes no options.
+///
+/// Every locked surface draws exactly this — the prompts below, the locked
+/// card, the blurred chart cover — so the offer looks the same wherever it is
+/// met. It used to take a `variant` so the chart cover could be louder than
+/// the prompts, which is the drift this exists to prevent.
+///
+/// **Filled, small, compact, and no glyph.** Filled because it is the one
+/// action on a surface that is otherwise inert, and because it has to read
+/// against the chart cover's scrim. Small and compact because it sits inside
+/// a card beside content, not as a screen's primary action. No padlock: the
+/// word is unambiguous on its own, and the glyph was a fifth of the button's
+/// width buying nothing.
+class PremiumUnlockButton extends ConsumerWidget {
+  const PremiumUnlockButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SdButtonV2(
+      variant: SdButtonVariantV2.primary,
+      size: SdButtonSizeV2.small,
+      compact: true,
+      onPressed: () => NavigationUtils.toPaywall(context, ref),
+      label: context.l10n.premiumUnlock,
+    );
+  }
+}
+
+/// The smallest locked state there is: one line saying what premium would
+/// show here, and the button that gets it.
+///
+/// No badge and no blur. For a slot INSIDE a card that already carries its
+/// own `PremiumBadge` — repeating the badge per section, or covering each one
+/// with a blurred sample, made a single card look like three separate pitches
+/// stacked up.
+class PremiumUnlockPrompt extends ConsumerWidget {
+  const PremiumUnlockPrompt({required this.message, super.key});
+
+  /// Already localized: what premium would show in this slot.
+  final String message;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(message, style: AppTextStyle.bodyMedium.secondary),
+        SizedBox(height: SdSpacingConstant.h12),
+        const Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: PremiumUnlockButton(),
+        ),
+      ],
+    );
+  }
+}
+
+class _LockedCard extends StatelessWidget {
   const _LockedCard({required this.message, required this.icon});
 
   final String message;
   final IconData icon;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
+  Widget build(BuildContext context) {
     return SdCardV2(
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SdIconV2(
-                  icon: icon,
-                  size: SdSpacingConstant.r20,
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
-                SizedBox(width: SdSpacingConstant.w8),
-                const PremiumBadge(),
-              ],
-            ),
-            SizedBox(height: SdSpacingConstant.h12),
-            Text(message, style: AppTextStyle.bodyMedium),
-            SizedBox(height: SdSpacingConstant.h12),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: SdButtonV2(
-                variant: SdButtonVariantV2.secondary,
-                onPressed: () => NavigationUtils.toPaywall(context, ref),
-                label: l10n.premiumUnlock,
-              ),
-            ),
-          ],
-        ),
+        child: PremiumLockedBody(message: message, icon: icon),
       ),
     );
   }
@@ -124,15 +200,7 @@ class PremiumChartLock extends ConsumerWidget {
               color: context.colorScheme.surface.withValues(
                 alpha: scrimOpacity,
               ),
-              child: Center(
-                child: SdButtonV2(
-                  variant: SdButtonVariantV2.primary,
-                  size: SdButtonSizeV2.small,
-                  icon: Icons.lock_open_outlined,
-                  onPressed: () => NavigationUtils.toPaywall(context, ref),
-                  label: l10n.premiumUnlock,
-                ),
-              ),
+              child: const Center(child: PremiumUnlockButton()),
             ),
           ),
         ],

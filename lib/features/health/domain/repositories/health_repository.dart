@@ -1,5 +1,6 @@
 import '../entities/sleep_night.dart';
 import '../entities/step_day.dart';
+import '../entities/step_hour.dart';
 import '../enums/health_data_kind.dart';
 
 /// Read-only access to the platform health store (Apple HealthKit).
@@ -42,4 +43,14 @@ abstract interface class HealthRepository {
   /// Empty when access was refused, when the window holds no samples, or off
   /// iOS. Days with no samples are absent rather than zero.
   Future<List<StepDay>> stepDays({required DateTime from, required DateTime to});
+
+  /// Steps between [from] and [to] (local time), grouped into one entry per
+  /// hour, oldest first.
+  ///
+  /// For the step chart's Day range only — a day is one [stepDays] entry, and
+  /// one bar is not a chart. Same emptiness contract as the rest.
+  Future<List<StepHour>> stepHours({
+    required DateTime from,
+    required DateTime to,
+  });
 }

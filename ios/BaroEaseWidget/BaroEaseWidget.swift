@@ -38,6 +38,16 @@ struct BaroEaseWidget: Widget {
   /// when it asks WidgetKit to reload.
   static let kind = "BaroEaseWidget"
 
+  /// **The system's own content margins are left on, deliberately.**
+  /// `contentMarginsDisabled()` is iOS 17+, and there is no way to apply it
+  /// conditionally: it returns a different concrete type, `some
+  /// WidgetConfiguration` admits only one, and `@WidgetBundleBuilder` rejects
+  /// the `if #available` that would pick between two widgets. Turning it on
+  /// unconditionally means raising this extension's deployment target to 17
+  /// and dropping the widget for iOS 15/16 — a product call, not a layout one.
+  ///
+  /// So the margins are handled where availability *is* allowed: in the view,
+  /// see `widgetBackground`.
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: Self.kind, provider: BaroEaseProvider()) { entry in
       BaroEaseWidgetView(entry: entry)

@@ -11,6 +11,7 @@ import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
+import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/services/medication_effect_tally.dart';
 import '../../../../attacks/providers.dart';
@@ -142,6 +143,8 @@ class MedicationDetailScreen extends ConsumerWidget {
     final List<MedicationReminderView> reminders = ref.watch(
       remindersForMedicationProvider(medication.id),
     );
+    // Null while premium, so the footer is the button alone.
+    final int? used = ref.watch(medicationsUsedProvider);
 
     return SdScaffoldV2(
       title: Text(medication.name, style: AppTextStyle.titleLarge),
@@ -206,6 +209,16 @@ class MedicationDetailScreen extends ConsumerWidget {
           ],
         ),
         actions: <Widget>[
+          // Sits with the add button rather than up in the content, so it is
+          // read at the moment a record is about to be spent. It counts
+          // medications, from the same provider as the medications tab —
+          // one budget, never a second tally that could disagree.
+          if (used != null)
+            FreeLimitProgress(
+              used: used,
+              limit: PremiumLimitConstant.medications,
+              titleBuilder: (int left) => l10n.freeLimitMedications(left),
+            ),
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
             // The button stays — it opens the paywall instead. Only the

@@ -3,9 +3,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
+import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../attacks/domain/entities/attack.dart';
 import '../../../../attacks/providers.dart';

@@ -20,6 +20,16 @@ class AppPermission {
   Future<AppPermissionStatus> status(AppPermissionType type) =>
       _gateway.status(type);
 
+  /// Prompts, and says only whether it was granted.
+  ///
+  /// [ensure] is the one to reach for: it needs a `BuildContext` and offers a
+  /// way back from a permanent denial. This is for the caller that has no
+  /// context and nothing to recover — onboarding's closing notification ask,
+  /// where a refusal costs the user nothing and the features that need it
+  /// ask again where they live.
+  Future<bool> request(AppPermissionType type) async =>
+      await _gateway.request(type) == AppPermissionStatus.granted;
+
   /// Requests [type]. Returns true only when granted. On a permanent denial,
   /// shows the settings sheet (needs a live [context] to present it) and
   /// returns false. On a normal denial, returns false without a sheet — the

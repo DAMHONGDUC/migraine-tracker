@@ -1,0 +1,223 @@
+<!--
+  Keep this file and docs/privacy/privacy.json saying the same thing — the JSON is
+  what the published site renders, this is the readable source.
+  Two claims are load-bearing and must never soften:
+  - sync is encrypted but NOT end-to-end (we hold the key), and
+  - the app does use Firebase Analytics and Crashlytics.
+  [ADDRESS/COUNTRY] is the one placeholder left. Have a lawyer review before
+  App Store submission.
+-->
+
+# BaroEase — Privacy Policy
+
+**Effective date:** 7 August 2026
+**Last updated:** 10 August 2026
+**Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
+**Contact:** ducdam.dev@gmail.com
+
+BaroEase helps people who track migraine attacks and their possible link to
+barometric-pressure changes. We built it local-first: your health data lives
+on your device, and an account is optional. This policy explains what we
+collect, why, where it goes, and the controls you have.
+
+## 1. Our core principle: local-first
+
+- Your migraine attacks, symptoms, triggers, notes, medications, reminders
+  and notification history are stored **on your device**. They are never
+  uploaded unless you sign in (see §4).
+- The app is fully usable with **no account and no internet connection**.
+  Logging an attack works entirely offline.
+- Signing out or never signing in does not cost you any feature except
+  cross-device sync.
+
+## 2. What we collect and why
+
+### a. Data that stays on your device
+
+Attack logs (intensity, head location, time, physical exertion), symptoms,
+triggers, notes, medications and their reminders, the weather snapshot
+attached to each attack, and the in-app notification history. If you are not
+signed in, we never receive any of it. You can export or delete it at any
+time (§8).
+
+If you turn on the **home screen widget** (Settings → Home screen widget), the
+app also writes what the widget shows — the number of attacks you logged this
+week and the most recent barometric pressure reading — into a container shared
+between the app and the widget on your device. Nothing leaves the phone, and
+switching the widget off empties that container immediately. A "delete all
+data" clears it too.
+
+### b. Data sent to our backend — even without an account
+
+To deliver **pressure-drop alerts** (a premium feature you switch on), we
+store a minimal record in our database, associated with a random device
+identifier rather than your name:
+
+| Data | Purpose |
+|------|---------|
+| **Coarse location** — a ~5 km geohash (5 characters), never your precise coordinates | Group nearby users into one weather-forecast lookup and decide whether a pressure drop is coming |
+| **Push notification token** (FCM) | Deliver the alert to your device |
+| **Alert threshold** (a pressure value you set) | Decide when an alert is warranted |
+| **Time zone** | Time alerts sensibly |
+| **Premium flag** | Confirm the alert entitlement is active |
+
+We do **not** send attack or health data to the backend for this feature.
+
+### c. Location precision
+
+The app requests location **only While Using the app** and at **reduced
+(coarse) accuracy**. We never request "Always" access and never store precise
+coordinates. You can deny location; alerts simply won't be available.
+
+### d. Weather data
+
+To fetch forecasts we send a **coarse location** (city-scale) to a weather
+provider — currently Open-Meteo, with Apple WeatherKit planned. No identifier
+and no health data is sent with these requests.
+
+### e. Diagnostics and usage analytics
+
+BaroEase uses **Firebase Crashlytics** (crash reports and non-fatal errors)
+and **Firebase Analytics** (how the app is used). These are on by default.
+
+- Analytics records **actions, never content**: that an attack was logged,
+  that the paywall was opened, that an export was shared. It never carries
+  intensity, head location, medication names, attack times or coordinates.
+- Crashlytics records the crash, the device model and the OS version.
+- While you are signed in, both are tagged with your account identifier — an
+  opaque ID, not your name or email — so a crash can be traced to one
+  account. Signing out clears it.
+
+## 3. Accounts and sign-in (optional)
+
+You may sign in with **Google** or **Apple**. Sign-in is never required. When
+you sign in we receive a stable account identifier and the email, name and
+photo your provider releases (Apple lets you hide your email via Private
+Relay). We store these in your account record and use them only to
+authenticate you and to show you which account you are in.
+
+## 4. Sync (automatic once you sign in)
+
+Signing in turns on cross-device sync — there is no separate switch, and the
+sign-in screen says so before you sign in. From then on your attacks,
+medications, medication reminders and notification history are uploaded as
+**encrypted payloads** and pulled down on your other devices. Your on-device
+copy always remains the source of truth, and no screen ever waits on a sync.
+
+Two things travel with each record in readable form, because sync cannot work
+without them: **which account owns it**, and **when it was last changed**.
+Neither says anything about what is in the record.
+
+**Important — this is encryption, not end-to-end encryption.** The key for
+your account is generated and held by our backend so that a new device of
+yours can be given it after you sign in. That means Google's infrastructure,
+which hosts our backend, is technically able to decrypt these payloads. We do
+not read them, and nothing in the app is designed to. But we will not claim
+that only you can read them, because that would not be true.
+
+Exports (see §8) deliberately never sync — they stay on the device that made
+them.
+
+## 5. Health data (Apple Health) — optional, iOS only
+
+If you grant permission, BaroEase reads from Apple Health **read-only**:
+
+- **Sleep**, to look for a correlation with your attacks.
+- **Step count**, to look for a correlation with your attacks.
+
+These are **two separate permissions with two separate switches** — allowing
+one does not allow the other. The analysis runs **on your device**. We never
+write to Apple Health, never store what we read in our own database, and
+never upload it — not even under sync. You can revoke access at any time in
+the iOS Health settings.
+
+## 6. Notifications
+
+- **Medication reminders** are scheduled by your device and never leave it.
+- **Pressure alerts** are push notifications sent from our backend using the
+  token described in §2b.
+
+Both appear in the in-app notification list. For signed-in users that list
+syncs like any other record (§4), so every device shows the same history.
+
+## 7. Payments
+
+Subscriptions and the lifetime purchase are processed by **Apple** and
+managed through **RevenueCat**, our subscription infrastructure provider. We
+never see or store your card details. RevenueCat receives a purchase
+identifier and, once you are signed in, your account identifier — so your
+entitlement follows you rather than one installation.
+
+## 8. Your rights and controls (GDPR)
+
+- **Export everything:** Settings → Export data (JSON, CSV or a PDF doctor
+  report). Past exports are kept in the app so you can re-share them; they
+  are full copies of your data and are deleted along with everything else
+  below.
+- **Delete all data:** Settings → Delete all data. Wipes the local database,
+  past export files and the home screen widget's shared container, deletes
+  your synced records and your backend alert record, and gives up your push
+  token, geohash and threshold. **Your account stays**, so your subscription
+  binding survives.
+- **Delete your account:** Account screen → Delete account. The whole
+  teardown: synced records, your account record, your encryption key, then
+  the login itself. This does **not** cancel your subscription — that lives
+  in the App Store and only you can cancel it there.
+- You may also request access, correction, export, deletion, or object to or
+  restrict processing, by writing to ducdam.dev@gmail.com. We respond within
+  30 days.
+
+## 9. Where data is stored
+
+Backend data — the minimal alert record, your account record, the encrypted
+sync payloads and your account's encryption key — is hosted on **Google
+Firebase** in the **European Union** (region `europe-west1`). Google acts as
+our data processor. Crash and analytics data is processed by Google under the
+Firebase terms.
+
+## 10. Third parties
+
+| Provider | What it handles |
+|----------|-----------------|
+| **Google Firebase** (Auth, Firestore, Cloud Functions, Cloud Messaging) | Accounts, the alert record, encrypted sync payloads, push delivery |
+| **Firebase Crashlytics** | Crash and error reports |
+| **Firebase Analytics** | Usage events (§2e) |
+| **RevenueCat** | Subscription and entitlement state |
+| **Open-Meteo** (and Apple WeatherKit, planned) | Weather forecasts for a coarse location |
+| **Google Sign-In / Sign in with Apple** | Authentication, only if you use them |
+
+## 11. What we do NOT do
+
+- No advertising and no ad networks.
+- No selling or sharing of personal data for marketing, ever.
+- No advertising profiles, and no health data in any analytics event.
+
+## 12. Data retention
+
+On-device data persists until you delete it or remove the app. Backend alert
+records persist while the feature is enabled and are removed when you delete
+your data or disable alerts. Encrypted sync payloads and your account's
+encryption key are removed when you delete your data or your account. Crash
+and analytics data is retained under Google's own Firebase retention policy.
+
+## 13. Children
+
+BaroEase is not directed to children under 16 and we do not knowingly collect
+their data. If you believe a child has provided us with personal information,
+write to ducdam.dev@gmail.com and we will delete it.
+
+## 14. Changes
+
+We will post any changes here and update the date at the top. Material
+changes will be surfaced in-app before they take effect.
+
+## 15. Medical disclaimer
+
+BaroEase is a self-tracking tool. It is **not a substitute for professional
+medical advice, diagnosis, or treatment**. It does not diagnose, treat, cure,
+or prevent any condition. Always consult a qualified clinician about your
+health.
+
+---
+
+*Contact: ducdam.dev@gmail.com*

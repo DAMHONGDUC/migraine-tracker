@@ -12,7 +12,12 @@ import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
 import '../../../medications/domain/repositories/medication_reminder_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
+import '../../../notifications/domain/entities/app_notification.dart';
+import '../../../notifications/domain/enums/notification_type.dart';
+import '../../../notifications/domain/repositories/notification_repository.dart';
+import '../../../weather/domain/entities/daily_pressure.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
+import '../../../weather/domain/repositories/daily_pressure_repository.dart';
 import '../entities/export_record.dart';
 import '../enums/export_kind.dart';
 import '../repositories/export_record_repository.dart';
@@ -46,6 +51,8 @@ class DevSeedService {
     this._export,
     this._exportFiles,
     this._exportRecords,
+    this._notifications,
+    this._dailyPressure,
   );
 
   final DataWipeService _wipe;
@@ -55,6 +62,8 @@ class DevSeedService {
   final DataExportService _export;
   final ExportFileStore _exportFiles;
   final ExportRecordRepository _exportRecords;
+  final NotificationRepository _notifications;
+  final DailyPressureRepository _dailyPressure;
 
   /// How many rows of each kind a seed produces.
   static const int seedCount = 100;
@@ -66,6 +75,9 @@ class DevSeedService {
   /// hand, which is exactly why the detail screen has to be seeded with them
   /// — a list that only ever holds three never shows what scrolling costs.
   static const int crowdedReminders = 20;
+
+  /// How many seeded rows are deleted again, to leave tombstones behind.
+  static const int _tombstoneCount = 5;
 
   /// How far back rows are scattered, in hours — a little over three months,
   /// which is enough for the weekly charts and the 90-day filters to have
@@ -147,12 +159,154 @@ class DevSeedService {
       await _medications.upsert(medication);
     }
     // After the medications exist: a reminder is a foreign key onto one.
-    await _seedReminders(random, medications);
+    final List<MedicationReminder> reminders = await _seedReminders(
+      random,
+      medications,
+    );
+
     for (final Attack attack in attacks) {
       await _attacks.insert(attack);
     }
+
     await _seedExports(random, attacks, medications, now);
+    await _seedDailyPressure(random, attacks, now);
+    await _seedNotifications(random, reminders, now);
+    // Last: it deletes some of what the steps above wrote.
+    await _seedTombstones(random, attacks, medications);
   }
+
+  /// One reading per local day across the window, attacks or no attacks.
+  ///
+  /// This is the correlation's denominator (hard rule: `DailyPressure`), so
+  /// without it the pressure card can only ever say "what share of MY attacks
+  /// fell during drops" and never "am I more likely to attack when it drops".
+  /// Seeding it is what makes the seeded correlation reach a real verdict.
+  ///
+  /// Days that ended in an attack are biased to drop, so the two sides differ
+  /// and `PressureBaseline` has something to find.
+  Future<void> _seedDailyPressure(
+    Random random,
+    List<Attack> attacks,
+    DateTime now,
+  ) async {
+    final Set<DateTime> attackDays = <DateTime>{
+      for (final Attack attack in attacks) _dayOf(attack.startedAt.toLocal()),
+    };
+    final int days = (_windowHours / 24).ceil();
+
+    for (int back = 0; back < days; back++) {
+      final DateTime day = _dayOf(
+        now.toLocal().subtract(Duration(days: back)),
+      );
+      // A drop on ~65% of attack days against ~25% of the rest — a signal
+      // that is strong enough to read and weak enough to stay believable.
+      final bool drops = random.nextInt(100) <
+          (attackDays.contains(day) ? 65 : 25);
+      final double delta = drops
+          ? -5 - random.nextDouble() * 9
+          : -3 + random.nextDouble() * 7;
+
+      await _dailyPressure.upsert(
+        DailyPressure(
+          day: day,
+          pressureHpa: 1013 + random.nextDouble() * 16 - 8,
+          pressureDelta24hHpa: delta,
+        ),
+      );
+    }
+  }
+
+  /// Both kinds of notification, most read and some not, so the bell carries
+  /// a count and the two tabs each have rows.
+  ///
+  /// Ids come from the same derivers the real writers use
+  /// ([AppNotification.reminderOccurrenceId] / `.pressureAlertId`), never
+  /// from a UUID — a random id here would be a row no real writer could ever
+  /// match, which is exactly the idempotence the list depends on.
+  Future<void> _seedNotifications(
+    Random random,
+    List<MedicationReminder> reminders,
+    DateTime now,
+  ) async {
+    final List<AppNotification> rows = <AppNotification>[];
+
+    // Reminder occurrences: past firings of reminders that actually exist.
+    for (int i = 0; i < seedCount && reminders.isNotEmpty; i++) {
+      final MedicationReminder reminder =
+          reminders[random.nextInt(reminders.length)];
+      final DateTime at = now.subtract(
+        Duration(hours: random.nextInt(_windowHours)),
+      );
+
+      rows.add(
+        AppNotification(
+          id: AppNotification.reminderOccurrenceId(reminder.id, at),
+          type: NotificationType.medicationReminder,
+          occurredAt: at,
+          readAt: _maybeRead(random, at),
+          medicationId: reminder.medicationId,
+          reminderId: reminder.id,
+        ),
+      );
+    }
+
+    // Pressure alerts, rarer than reminders — the cron sends at most one a
+    // day per user, so a list with as many alerts as reminders would lie.
+    for (int i = 0; i < seedCount ~/ 5; i++) {
+      final DateTime at = now.subtract(
+        Duration(hours: random.nextInt(_windowHours)),
+      );
+
+      rows.add(
+        AppNotification(
+          id: AppNotification.pressureAlertId('seed-${_uuid.v4()}'),
+          type: NotificationType.pressureAlert,
+          occurredAt: at,
+          readAt: _maybeRead(random, at),
+          pressureDropHpa: 5 + random.nextDouble() * 10,
+        ),
+      );
+    }
+
+    await _notifications.addMissing(rows);
+  }
+
+  /// Read a little after it arrived, or not at all. Roughly a third stay
+  /// unread so the bell has a count and the rows have their dot.
+  DateTime? _maybeRead(Random random, DateTime occurredAt) =>
+      random.nextInt(3) == 0
+      ? null
+      : occurredAt.add(Duration(minutes: 1 + random.nextInt(600)));
+
+  /// Deletes a few of the rows just written, which is the ONLY way a
+  /// tombstone is made: the table is sync bookkeeping, written by the delete
+  /// path, so seeding it by hand would fabricate rows no delete produced.
+  ///
+  /// The ids were never uploaded, so a sync issues deletes the server has
+  /// nothing to match — the same no-op a real "created and deleted while
+  /// offline" record produces.
+  Future<void> _seedTombstones(
+    Random random,
+    List<Attack> attacks,
+    List<Medication> medications,
+  ) async {
+    final List<Attack> doomedAttacks = List<Attack>.of(attacks)
+      ..shuffle(random);
+    final List<Medication> doomedMedications = List<Medication>.of(medications)
+      ..shuffle(random);
+
+    for (final Attack attack in doomedAttacks.take(_tombstoneCount)) {
+      await _attacks.deleteById(attack.id);
+    }
+    // Cascades its reminders away too, which is the case the pull path has
+    // to handle and the one nothing else in the seed produces.
+    for (final Medication medication in doomedMedications.take(2)) {
+      await _medications.deleteById(medication.id);
+    }
+  }
+
+  DateTime _dayOf(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
 
   /// Reminder counts are lopsided on purpose. Most medications have none or
   /// a couple — that is what the reminder filter and the list's count line
@@ -162,12 +316,13 @@ class DevSeedService {
   /// Written straight to the repository, never through `RemindersController`:
   /// these are fixtures, and scheduling hundreds of real notifications on a
   /// dev device would be a genuinely unpleasant afternoon.
-  Future<void> _seedReminders(
+  Future<List<MedicationReminder>> _seedReminders(
     Random random,
     List<Medication> medications,
   ) async {
     final List<Medication> shuffled = List<Medication>.of(medications)
       ..shuffle(random);
+    final List<MedicationReminder> created = <MedicationReminder>[];
 
     for (int i = 0; i < shuffled.length; i++) {
       final int count = i < crowdedMedications
@@ -175,17 +330,20 @@ class DevSeedService {
           : _casualReminderCount(random);
 
       for (final int minuteOfDay in _distinctMinutes(random, count)) {
-        await _reminders.upsert(
-          MedicationReminder(
-            id: _uuid.v4(),
-            medicationId: shuffled[i].id,
-            minuteOfDay: minuteOfDay,
-            // One in five is off — exercises the disabled row style and the filter count.
-            enabled: random.nextInt(5) != 0,
-          ),
+        final MedicationReminder reminder = MedicationReminder(
+          id: _uuid.v4(),
+          medicationId: shuffled[i].id,
+          minuteOfDay: minuteOfDay,
+          // One in five is off — exercises the disabled row style and the filter count.
+          enabled: random.nextInt(5) != 0,
         );
+
+        await _reminders.upsert(reminder);
+        created.add(reminder);
       }
     }
+
+    return created;
   }
 
   /// 0–5, weighted low. The zeros matter as much as the rest — a medications
