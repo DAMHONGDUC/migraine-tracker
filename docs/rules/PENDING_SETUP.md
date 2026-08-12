@@ -145,8 +145,14 @@ missing entitlement, not the missing portal step.
    - `MATCH_GIT_URL` — the repo from step 2. Optional; `Matchfile` has a
      default.
    - `MATCH_GIT_BASIC_AUTHORIZATION` — base64 of
-     `<github-username>:<PAT with repo scope>`, so the runner can clone a
-     private certs repo.
+     `<github-username>:<PAT>`, so the runner can clone a private certs repo.
+     Use a **fine-grained** PAT scoped to that one repo with **Contents:
+     Read-only** — CI runs `match` in readonly mode and never needs to write,
+     so a leaked token then reaches nothing else.
+   - `FIREBASE_IOS_APP_ID` — the `1:…:ios:…` id, for the Crashlytics symbol
+     upload. Optional: unset simply skips that step with a warning. It is an
+     env var rather than `GoogleService-Info.plist` because that file is
+     gitignored and absent from a CI checkout.
 5. **Fastlane on the Mac**, for step 3 and for a local run: `brew install
    fastlane`, or rbenv plus `cd ios && bundle install`. The system Ruby is
    2.6 and deprecated — installing gems into it needs sudo and is not worth
