@@ -13,8 +13,11 @@ The rest sit at the top level:
 - `PREMIUM_RULES.md` — the authority on prices, free limits and what every
   gate does. `CLAUDE.md` and the feature rules point here rather than
   restating any of it.
-- `REMAINING_WORK.md` — a point-in-time survey of what is left, most of it
-  console work rather than code. Re-check an item before acting on it.
+- `DONE_WORK.md` and `REMAINING_WORK.md` — **a pair, read together.** The
+  first is what is built, the second a point-in-time survey of what is left,
+  most of it console work rather than code. Neither is a live tracker:
+  re-check an item before acting on it. When something closes it moves from
+  the second file to the first.
 - `RELEASE_PIPELINE.md` — the order of the release, as a diagram: what
   `melos run build-ipa-prod`, the fastlane lane and the CI workflow each do.
 - `NEW_PROJECT_BOOTSTRAP_PROMPT.md` — this repo's rules, generalised into a

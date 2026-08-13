@@ -1,7 +1,11 @@
 # Remaining work
 
-Snapshot of 10 Aug 2026, re-checked against the code on 12 Aug. Re-check
+Snapshot of 10 Aug 2026, re-checked against the code on 13 Aug. Re-check
 before acting on an item; this is a point-in-time survey, not a live tracker.
+
+**Read this beside `DONE_WORK.md`.** This file is short and that is
+misleading on its own — it is short because the code is finished, not because
+the project is small. `DONE_WORK.md` is what exists; this is what does not.
 
 > **WeatherKit is finished, credentials included** (12 Aug). The app and the
 > alert cron both read WeatherKit through the `getWeather` callable,
@@ -65,6 +69,31 @@ can never prove the project has them, which is what the deploy did.
 These two have no detail section below — the survey was taken with premium
 treated as finished. `CLAUDE.md`'s RevenueCat section is their authority, and
 it carries the full account of the TestFlight crash behind item 12.
+
+### CI → TestFlight (added 13 Aug)
+
+Newer than the rest of this survey: `.github/workflows/release-ios.yml`,
+`ios/fastlane/*` and `ios/Gemfile` are checked in, and **not one of the
+credentials they need exists**. The first Run workflow fails until all of
+these land. `docs/rules/PENDING_SETUP.md` is the authority and carries the
+exact secret names; this is the checklist.
+
+**Do items 6, 7 and 7b first** — they are done, which is what makes this
+section possible. A provisioning profile carries whatever capabilities the
+App ID had when it was created, so `match` can succeed and the build still
+fail to sign, naming the entitlement rather than the portal step.
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 28 | An App Store Connect API key, **App Manager** role | The upload has no way to authenticate. It replaces an Apple ID login, which is the point — 2FA has no answer a runner can give. Downloadable once, and a different key from the APNs and WeatherKit ones. |
+| 29 | A private git repo for `match` | It holds a real distribution certificate's private key. Private, and not this repo. |
+| 30 | `fastlane certificates`, once from the Mac | Mints the certificate and both App Store profiles — app and widget extension. CI is `readonly: true` and can only install what already exists, so it can never bootstrap itself. |
+| 31 | The repository secrets | `ENV_PROD_JSON`, `ENV_DEV_JSON`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_CONTENT` (base64), `MATCH_PASSWORD`, `MATCH_GIT_BASIC_AUTHORIZATION` (base64 of `user:PAT`, fine-grained, Contents read-only). `MATCH_GIT_URL` and `FIREBASE_IOS_APP_ID` are optional. |
+| 32 | Fastlane on the Mac | Needed for item 30 and for any local run. System Ruby is 2.6 and deprecated — use rbenv or `brew install fastlane`. |
+| 33 | **(repo)** Commit `ios/Gemfile.lock` | Deliberately absent: it can only be generated from a Ruby 3.x install. Commit it after the first local `bundle install`, then turn on `bundler-cache: true` to stop resolving gems on every release. |
+
+28 → 29 → 30 → 31 is one errand and has to run in that order; each step
+produces what the next one consumes.
 
 ### Outside every console
 
