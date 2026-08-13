@@ -1,7 +1,10 @@
 #!/bin/sh
 # Build an iOS release archive for one environment, with its config attached.
 #
-#   sh tool/release-ios.sh <dev|prod> [extra `flutter build ipa` args...]
+#   sh tool/build-ipa.sh <dev|prod> [extra `flutter build ipa` args...]
+#
+# It builds and nothing else. Uploading is the fastlane lane's job — hence the
+# name: `release-ios` claimed a release this script never performed.
 #
 # This exists because Xcode's own Product > Archive cannot work here: the
 # app's Firebase and RevenueCat values arrive through
@@ -29,12 +32,35 @@ case "$TARGET" in
     ENV_FILE="env/prod.json"
     ;;
   *)
-    warn "usage: release-ios.sh <dev|prod> [flutter build ipa args...]"
+    warn "usage: build-ipa.sh <dev|prod> [flutter build ipa args...]"
     exit 1
     ;;
 esac
 
 EXPORT_METHOD="app-store"
+
+# `--export-method` makes Flutter generate the ExportOptions.plist itself, and
+# that generator maps the MAIN bundle id only — its own source calls
+# multi-target apps a TODO. This app has two: Runner and
+# BaroEaseWidgetExtension. With automatic signing (a developer's Mac) that
+# never shows, because Xcode resolves the extension's profile on its own; with
+# manual signing (CI) the extension gets no profile and `exportArchive` fails
+# after the whole build has run.
+#
+# So a caller may pass its own `--export-options-plist` naming both. Flutter
+# refuses that flag together with `--export-method`, so drop ours when it does.
+EXPORT_PLIST_GIVEN=0
+for arg in "$@"; do
+  case "$arg" in
+    --export-options-plist | --export-options-plist=*) EXPORT_PLIST_GIVEN=1 ;;
+  esac
+done
+
+if [ "$EXPORT_PLIST_GIVEN" -eq 0 ]; then
+  set -- --export-method "$EXPORT_METHOD" "$@"
+else
+  EXPORT_METHOD="caller's --export-options-plist"
+fi
 
 # Existence only — never the contents (hard rule 13).
 if [ ! -f "$ENV_FILE" ]; then
@@ -57,7 +83,6 @@ step "ios release archive — $TARGET ($ENV_FILE), version $VERSION, export $EXP
 $FL build ipa \
   --release \
   --dart-define-from-file="$ENV_FILE" \
-  --export-method "$EXPORT_METHOD" \
   "$@"
 
 done_msg "Built $TARGET $VERSION from $ENV_FILE into $IPA_DIR."

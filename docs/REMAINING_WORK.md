@@ -1,18 +1,28 @@
 # Remaining work
 
-Snapshot of 10 Aug 2026, partially re-checked 12 Aug. Re-check before acting
-on an item; this is a point-in-time survey, not a live tracker.
+Snapshot of 10 Aug 2026, re-checked against the code on 13 Aug. Re-check
+before acting on an item; this is a point-in-time survey, not a live tracker.
 
-> **Known stale since the snapshot:** the WeatherKit migration is done —
-> the app and the alert cron both read WeatherKit through the `getWeather`
-> callable, and `functions/src/weather/openMeteo.ts` is deleted. Anything
-> below describing Open-Meteo as the current source is out of date; what
-> remains is the Apple-side credentials, in `docs/setup/WEATHERKIT_SETUP.md`.
+**Read this beside `DONE_WORK.md`.** This file is short and that is
+misleading on its own — it is short because the code is finished, not because
+the project is small. `DONE_WORK.md` is what exists; this is what does not.
 
-**Nothing on this list is code any more.** Every open item is a console, a
-portal or a piece of paper — the repo half of each one is built and tested.
-The numbered sections below are the detail and the reasoning; the checklist
-here is the whole of what is actually left to do.
+> **WeatherKit is finished, credentials included** (12 Aug). The app and the
+> alert cron both read WeatherKit through the `getWeather` callable,
+> `functions/src/weather/openMeteo.ts` is deleted, and the owner confirmed
+> live weather data in the app — which is the proof, since the callable
+> cannot sign its JWT without the key, the Services ID and the `.p8` all
+> being in place. Anything below describing Open-Meteo as the current source,
+> or the Apple credentials as outstanding, is out of date.
+
+**Every feature is built.** `PLAN.md`'s MVP scope is 19 of 19 checked, and
+`lib/` and `functions/src/` carry no TODO, FIXME or `UnimplementedError`.
+
+**Two open items still touch the repo**, and both are one-line edits blocked
+on a decision or an id rather than on any implementation — items 23 and 11.
+Everything else is a console, a portal or a piece of paper. The numbered
+sections below are the detail and the reasoning; the checklist here is the
+whole of what is actually left to do.
 
 ## Owner checklist
 
@@ -41,13 +51,13 @@ can never prove the project has them, which is what the deploy did.
 |---|---|---|
 | ~~6~~ | ~~Push Notifications on the App ID~~ | **Done 10 Aug.** |
 | ~~7~~ | ~~HealthKit on the App ID~~ | **Done 10 Aug.** |
-| 20 | Create a **Key with WeatherKit enabled** (Keys → ＋ → tick WeatherKit) | The backend has nothing to sign its JWT with, so every weather read fails. Downloadable once, and a **different** key from the APNs one. |
-| 21 | Register a **Services ID** (Identifiers → Services IDs) | It is the JWT's subject. The app's Bundle ID will not work in its place. |
+| ~~20~~ | ~~Key with WeatherKit enabled~~ | **Done 12 Aug.** |
+| ~~21~~ | ~~Services ID~~ | **Done 12 Aug.** Weather data reaching the app is what proves both — the callable cannot sign its JWT without them. |
 | ~~7b~~ | ~~App Group on both App IDs~~ | **Done 10 Aug**, on the app's App ID and on `…​.BaroEaseWidgetExtension`. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
 | 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
-| 11 | Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | The published policy links to nothing. |
+| 11 | **(repo)** Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | Still `id0000000000`, so the published policy links to nothing. Only fillable once the App Store record exists. |
 
 ### RevenueCat
 
@@ -60,19 +70,44 @@ These two have no detail section below — the survey was taken with premium
 treated as finished. `CLAUDE.md`'s RevenueCat section is their authority, and
 it carries the full account of the TestFlight crash behind item 12.
 
+### CI → TestFlight (added 13 Aug)
+
+Newer than the rest of this survey: `.github/workflows/release-ios.yml`,
+`ios/fastlane/*` and `ios/Gemfile` are checked in, and **not one of the
+credentials they need exists**. The first Run workflow fails until all of
+these land. `docs/rules/PENDING_SETUP.md` is the authority and carries the
+exact secret names; this is the checklist.
+
+**Do items 6, 7 and 7b first** — they are done, which is what makes this
+section possible. A provisioning profile carries whatever capabilities the
+App ID had when it was created, so `match` can succeed and the build still
+fail to sign, naming the entitlement rather than the portal step.
+
+| # | What | Why it matters if skipped |
+|---|---|---|
+| 28 | An App Store Connect API key, **App Manager** role | The upload has no way to authenticate. It replaces an Apple ID login, which is the point — 2FA has no answer a runner can give. Downloadable once, and a different key from the APNs and WeatherKit ones. |
+| 29 | A private git repo for `match` | It holds a real distribution certificate's private key. Private, and not this repo. |
+| 30 | `fastlane certificates`, once from the Mac | Mints the certificate and both App Store profiles — app and widget extension. CI is `readonly: true` and can only install what already exists, so it can never bootstrap itself. |
+| 31 | The repository secrets | `ENV_PROD_JSON`, `ENV_DEV_JSON`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_CONTENT` (base64), `MATCH_PASSWORD`, `MATCH_GIT_BASIC_AUTHORIZATION` (base64 of `user:PAT`, fine-grained, Contents read-only). `MATCH_GIT_URL` and `FIREBASE_IOS_APP_ID` are optional. |
+| 32 | Fastlane on the Mac | Needed for item 30 and for any local run. System Ruby is 2.6 and deprecated — use rbenv or `brew install fastlane`. |
+| 33 | **(repo)** Commit `ios/Gemfile.lock` | Deliberately absent: it can only be generated from a Ruby 3.x install. Commit it after the first local `bundle install`, then turn on `bundler-cache: true` to stop resolving gems on every release. |
+
+28 → 29 → 30 → 31 is one errand and has to run in that order; each step
+produces what the next one consumes.
+
 ### Outside every console
 
 | # | What | Why it matters if skipped |
 |---|---|---|
 | ~~14~~ | ~~Publish the policy~~ | **Done**, verified live 10 Aug at `…/apps_privacy_policy/baro-ease/privacy_policy/`, effective 7 Aug 2026. Note the path — the App Store field wants the app's own page, not the directory index. |
 | 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/release/APP_STORE_LISTING.md` carries the wording. |
-| 26 | Put Terms of Use and Privacy Policy links on the paywall itself | The same guideline (3.1.2) requires them **in the binary**, not only in metadata, and the paywall has neither today — only the Restore button. Not what was rejected, but the same rule, so it is the next one to be caught on. |
-| 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. |
+| ~~26~~ | ~~Terms and Privacy links on the paywall~~ | **Done.** `paywall_screen_legal_links.dart` draws both from `LegalUrlConstant`, under the actions. Guideline 3.1.2 wants them in the binary as well as in the metadata; do not "add" them again. |
+| 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. Metadata only — nothing in the app links to it. |
 | 15 | Fill `[ADDRESS/COUNTRY]` in `docs/privacy/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
 | 16 | Have a lawyer read the policy | Before submission. |
-| 23 | Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
+| 23 | **(repo)** Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `ios/Runner/Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
 | 24 | The French declaration to ANSSI | Apple's step 3 was answered **Yes** — the app is distributed in France — and France expects a declaration for the import and use of cryptography. Mass-market software on standard algorithms normally takes the simplified regime, but simplified is not none. Tied to availability: drop France and this goes away, along with the answer given. |
-| 22 | Put the WeatherKit `.p8` in Secret Manager | Never in the repo, never in `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
+| ~~22~~ | ~~WeatherKit `.p8` in Secret Manager~~ | **Done 12 Aug.** It stays there and never moves into the repo or `env/` — a `--dart-define` is a build-time value, not a secret store (hard rule 13). |
 | 17 | A real-device test pass | Neither HealthKit nor push exists in the Simulator: the health sheet never appears and `getToken()` returns null. Both look identical to a refusal, so the Simulator can never confirm either one works. |
 | 17b | Place the home screen widget and look at it | The extension builds, embeds and receives its data, but nothing has ever seen it drawn — the SwiftUI layout is the one unverified part. Check the log button lands on the log flow while you are there. |
 
@@ -80,7 +115,7 @@ it carries the full account of the TestFlight crash behind item 12.
 
 | # | What | Why it can wait |
 |---|---|---|
-| 18 | Move weather to WeatherKit | **Decided 10 Aug**: WeatherKit for everything, called only from Cloud Functions. No longer a swap of one provider — the app loses its own weather API entirely and reads through the backend, because the signing key cannot ship in a binary. Blocked on 20 and 21. |
+| ~~18~~ | ~~Move weather to WeatherKit~~ | **Done 12 Aug**, both halves: the app reads through the backend and the alert cron reads WeatherKit too, so the 3am alert and the breakfast forecast can no longer disagree. |
 | 19 | `FirebaseAlertRegistrationRepository` has no test | It takes concrete `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it means extracting three interfaces or adding a mocking package. Both are bigger than the gap. Item 17 is what proves it works. |
 
 ### Order
@@ -281,16 +316,20 @@ reporting every gap at once. Note this deliberately re-adds an `assert()` to
 is still under investigation (see `docs/rules/PENDING_SETUP.md`'s RevenueCat section) — if that
 crash resurfaces, this is the first thing to suspect and revert.
 
-## 7. WeatherKit — code done, Apple side outstanding
+## 7. WeatherKit — done, both halves
 
-Checklist item 18. **Done since this snapshot:** the app reads weather through
-the `getWeather` callable and has no weather API of its own; the alert cron
-reads WeatherKit too; `functions/src/weather/openMeteo.ts` is deleted.
+Checklist items 18, 20, 21 and 22, all closed on 12 Aug. The app reads weather
+through the `getWeather` callable and has no weather API of its own; the alert
+cron reads WeatherKit too; `functions/src/weather/openMeteo.ts` is deleted;
+and the key, the Services ID and the `.p8` are all in place — which live
+weather data in the app is the proof of, since the callable cannot sign its
+JWT without all three. `docs/setup/WEATHERKIT_SETUP.md` stays as the record of
+how it was set up.
 
-**Still outstanding, and it is all Apple-side:** the key with WeatherKit
-enabled, the Services ID, and the `.p8` in Secret Manager. Until those exist
-every weather read fails, which the app treats as "no weather" rather than as
-an error. Steps: `docs/setup/WEATHERKIT_SETUP.md`.
+Two things it is easy to consider this finished without, both in that guide:
+rate-limiting the callable the app can reach, and Apple's mandatory weather
+attribution — the latter is built (`WeatherAttribution`, bottom-right of the
+weather card, a real link because App Review checks for one).
 
 **The pressure-alert cron is in scope too.** An earlier version of this section
 said the backend would stay on Open-Meteo permanently and that this was

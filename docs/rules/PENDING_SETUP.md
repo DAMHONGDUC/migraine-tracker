@@ -109,6 +109,60 @@ What is NOT in the repo:
 2. **A widget placed on a home screen.** Nothing draws until the user adds it,
    and an empty gallery entry after a fresh install is normal, not a bug.
 
+### TestFlight from CI — the workflow is checked in, none of the credentials are
+
+`.github/workflows/release-ios.yml`, `ios/fastlane/*` and `ios/Gemfile` are in
+the repo. How the pieces fit is in `docs/rules/COMMANDS.md`; the first Run
+workflow fails until every item below exists.
+
+**Do the HealthKit and App Group items above first.** A provisioning profile
+carries whatever capabilities the App ID has at the moment it is created, so
+match can succeed and the build still fail to sign — the error names the
+missing entitlement, not the missing portal step.
+
+1. **An App Store Connect API key.** Users and Access → Integrations → App
+   Store Connect API → a key with the **App Manager** role. Gives
+   `AuthKey_XXXXXXXX.p8`, a Key ID and an Issuer ID. Downloadable once, like
+   the APNs and WeatherKit keys, and a different key from both. It replaces an
+   Apple ID login, which is the point: 2FA has no answer a runner can give.
+2. **A private git repo for `match`** — e.g. `DAMHONGDUC/certificates`. It
+   holds a real distribution certificate's private key, encrypted with the
+   match passphrase. Private, and not this repo.
+3. **`fastlane certificates`, run once from the Mac** (`cd ios && bundle exec
+   fastlane certificates`). It mints the distribution certificate and the two
+   App Store profiles — app and widget extension — and pushes them to that
+   repo. CI is `readonly: true` and can only install what already exists.
+4. **Repository secrets** (Settings → Secrets and variables → Actions):
+   - `ENV_PROD_JSON` / `ENV_DEV_JSON` — the entire contents of `env/prod.json`
+     and `env/dev.json`. The whole file, so adding a key later needs no
+     workflow change.
+   - `ASC_KEY_ID`, `ASC_ISSUER_ID` — from step 1.
+   - `ASC_KEY_CONTENT` — the `.p8`, base64:
+     `base64 -i AuthKey_XXXXXXXX.p8 | pbcopy`. Base64 because the file is
+     multi-line, and a secret that loses its newlines fails as an unreadable
+     key rather than as a missing one.
+   - `MATCH_PASSWORD` — the passphrase chosen during step 3.
+   - `MATCH_GIT_URL` — the repo from step 2. Optional; `Matchfile` has a
+     default.
+   - `MATCH_GIT_BASIC_AUTHORIZATION` — base64 of
+     `<github-username>:<PAT>`, so the runner can clone a private certs repo.
+     Use a **fine-grained** PAT scoped to that one repo with **Contents:
+     Read-only** — CI runs `match` in readonly mode and never needs to write,
+     so a leaked token then reaches nothing else.
+   - `FIREBASE_IOS_APP_ID` — the `1:…:ios:…` id, for the Crashlytics symbol
+     upload. Optional: unset simply skips that step with a warning. It is an
+     env var rather than `GoogleService-Info.plist` because that file is
+     gitignored and absent from a CI checkout.
+5. **Fastlane on the Mac**, for step 3 and for a local run: `brew install
+   fastlane`, or rbenv plus `cd ios && bundle install`. The system Ruby is
+   2.6 and deprecated — installing gems into it needs sudo and is not worth
+   the trouble.
+
+`ios/Gemfile.lock` is deliberately not committed yet: it can only be generated
+from a Ruby 3.x install. Commit it after the first local `bundle install`, then
+turn on `bundler-cache: true` in the workflow to stop resolving gems on every
+release.
+
 ### RevenueCat — code is wired, the dashboard and store are not
 
 `purchases_flutter` is in, `RevenueCatPremiumRepository` reads the
@@ -151,8 +205,9 @@ keys and it merely warns.
 about `--dart-define-from-file`, so the archive carries empty config;
 `Firebase.initializeApp` throws, `main()` swallows it, and the app dies on
 the first `FirebaseAuth.instance` with `[core/no-app] No Firebase App
-'[DEFAULT]' has been created`. **Always release with `melos run
-release-ios`** (prod) or `melos run release-ios-dev`.
+'[DEFAULT]' has been created`. **Always build with `melos run
+build-ipa-prod`** (or `build-ipa-dev`), or let the Release iOS workflow do
+it — the fastlane lane calls the same script for the same reason.
 
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase
 action runs without a key, because every RevenueCat call site catches the

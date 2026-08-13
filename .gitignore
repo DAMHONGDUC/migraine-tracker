@@ -47,6 +47,17 @@ android/app/google-services.json
 functions/.env
 !functions/.env.example
 
+# Fastlane. `report.xml`/`Preview.html` are per-run output, and the `.p8` and
+# any `.env` next to the Fastfile carry the App Store Connect key — a secret on
+# the same footing as env/, and the reason it is named here rather than trusted
+# to stay out by habit.
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots/
+ios/fastlane/test_output/
+ios/fastlane/.env*
+ios/fastlane/*.p8
+
 # Symbolication related
 app.*.symbols
 

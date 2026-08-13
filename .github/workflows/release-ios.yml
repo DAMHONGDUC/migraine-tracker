@@ -1,0 +1,154 @@
+name: Release iOS
+
+# Manual only, and deliberately so — a release is an act, not a side effect of
+# a push. "Use workflow from" picks the branch, and the run uses that branch's
+# code and its copy of this file. GitHub only lists a workflow_dispatch entry
+# once the file exists on the DEFAULT branch, so this has to reach main once
+# before any branch can be chosen.
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: Which env config to attach
+        type: choice
+        options: [prod, dev]
+        default: prod
+      bump:
+        description: Bump the build number in pubspec.yaml and commit it back
+        type: boolean
+        default: true
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    # The bump is written into pubspec.yaml and pushed to the branch after the
+    # upload, so the number that shipped is in git. Nothing else here writes.
+    permissions:
+      contents: write
+    # A cold iOS build with SPM resolution runs ~25-35 minutes. The cap is set
+    # against the BILL, not against the build: macOS minutes bill at 10x, so
+    # the free tier's 2000 minutes is 200 real ones. A job that hangs until a
+    # 90-minute cap would spend 900 of them — nearly half the month on one run
+    # that produced nothing. 60 leaves room for a cold SPM resolve and still
+    # costs under a third of the budget in the worst case.
+    timeout-minutes: 60
+    steps:
+      # The design system lives in packages/system_design as a submodule;
+      # without this the checkout is empty there and `pub get` fails.
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # The bump commit is authored by the Actions bot rather than by whoever
+      # pressed the button: it is a machine-written line, and attributing it to
+      # a person makes `git log` say they bumped a file they never opened.
+      - name: Git identity for the bump commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Verify the submodule checked out
+        run: |
+          if [ ! -f packages/system_design/pubspec.yaml ]; then
+            echo "::error::packages/system_design is empty. The gitlink this"
+            echo "::error::commit records is probably not pushed — push the"
+            echo "::error::submodule first, then the parent."
+            exit 1
+          fi
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.5
+          channel: stable
+          cache: true
+
+      # `dart pub global activate` drops the binary in ~/.pub-cache/bin, which
+      # is not on the runner's PATH.
+      - name: Install melos
+        run: |
+          dart pub global activate melos 6.3.3
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      # env/*.json is gitignored — live Firebase and RevenueCat keys. The whole
+      # file is one secret, so adding a key later needs no workflow change.
+      #
+      # Written with a `case`, not a `${{ x && y || z }}` expression: that
+      # ternary falls through to the second branch when the first secret is
+      # merely empty, which would silently build prod with dev config.
+      - name: Write env config
+        env:
+          ENV_PROD_JSON: ${{ secrets.ENV_PROD_JSON }}
+          ENV_DEV_JSON: ${{ secrets.ENV_DEV_JSON }}
+          FLAVOR: ${{ inputs.flavor }}
+        run: |
+          case "$FLAVOR" in
+            prod) CONTENT="$ENV_PROD_JSON" ;;
+            dev) CONTENT="$ENV_DEV_JSON" ;;
+            *) echo "::error::unknown flavor $FLAVOR"; exit 1 ;;
+          esac
+          if [ -z "$CONTENT" ]; then
+            echo "::error::The repository secret for $FLAVOR is empty. Set ENV_PROD_JSON / ENV_DEV_JSON."
+            exit 1
+          fi
+          mkdir -p env
+          printf '%s' "$CONTENT" > "env/$FLAVOR.json"
+
+      - name: Bootstrap
+        run: melos bootstrap
+
+      - name: Generate
+        run: melos run gen
+
+      # `health` pins an old device_info with no Swift Package, so iOS still
+      # needs CocoaPods for that one plugin. `precache` first: without
+      # Flutter.xcframework the Podfile's post-install hook fails.
+      #
+      # LANG is forced because Ruby without a UTF-8 locale reads the Podfile as
+      # ASCII-8BIT and dies inside its own error reporter.
+      - name: Pods
+        env:
+          LANG: en_US.UTF-8
+        run: |
+          flutter precache --ios
+          cd ios && pod install
+
+      # The runner image ships its own fastlane, at whatever version the image
+      # happens to carry. Pinning Ruby and installing from the Gemfile means a
+      # release is not silently re-tooled by an image update.
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          working-directory: ios
+
+      - name: Install fastlane
+        working-directory: ios
+        run: bundle install
+
+      - name: Build and upload to TestFlight
+        working-directory: ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          # Unset simply skips the Crashlytics symbol upload with a warning.
+          FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
+          # Fastlane's own output is long and its failures are near the end.
+          FASTLANE_SKIP_UPDATE_CHECK: 'true'
+        run: bundle exec fastlane beta flavor:${{ inputs.flavor }} bump:${{ inputs.bump }}
+
+      # Kept for the case the upload succeeded but TestFlight later rejects the
+      # binary: the exact IPA that went out is then still available.
+      - name: Keep the IPA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-${{ inputs.flavor }}
+          path: build/ios/ipa/*.ipa
+          retention-days: 14

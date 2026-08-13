@@ -73,7 +73,8 @@ running the app — setup says so loudly when it creates them.
 | `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
 | `melos run test` | The Flutter test suite. |
 | `melos run deep-set-up` | Setup, plus Xcode's DerivedData. Costs a cold build. |
-| `melos run release-ios` | The TestFlight/App Store archive, config flag attached. |
+| `melos run build-ipa-prod` | The TestFlight/App Store IPA, config flag attached. |
+| `melos run build-ipa-dev` | The same IPA with `env/dev.json` attached instead. |
 
 Run the app:
 
@@ -88,8 +89,12 @@ prod → `env/prod.json`).
 `--dart-define-from-file`, so the build ships with empty Firebase and
 RevenueCat config and crashes on launch — with `[core/no-app] No Firebase App
 '[DEFAULT]' has been created`, which names nothing to do with the missing
-flag. Use `melos run release-ios`, then upload the `.ipa` it leaves in
+flag. Use `melos run build-ipa-prod`, then upload the `.ipa` it leaves in
 `build/ios/ipa/`.
+
+Releasing to TestFlight is the manually-triggered **Release iOS** workflow in
+GitHub Actions, which builds with that same script and uploads through
+fastlane. See `docs/rules/COMMANDS.md`.
 
 ## Layout
 

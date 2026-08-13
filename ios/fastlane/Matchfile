@@ -1,0 +1,17 @@
+# Where the encrypted certificate and profiles live. A private repo, separate
+# from this one: match stores a real distribution certificate's private key in
+# it, encrypted with MATCH_PASSWORD.
+git_url(ENV.fetch("MATCH_GIT_URL", "https://github.com/DAMHONGDUC/certificates"))
+storage_mode("git")
+
+type("appstore")
+
+# BOTH targets, always. The widget extension is its own App ID with its own
+# profile, and an export that has a profile for the app but not the extension
+# fails at `exportArchive` — after the whole build has already run.
+app_identifier([
+  "app.dd.migraine.tracker",
+  "app.dd.migraine.tracker.BaroEaseWidgetExtension",
+])
+
+team_id("WNG5UWNJ6H")

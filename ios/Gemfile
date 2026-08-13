@@ -1,0 +1,5 @@
+# Fastlane only. It is not part of the app build — `tool/release-ios.sh` does
+# that — so it lives under ios/ with the Fastfile rather than at the repo root.
+source "https://rubygems.org"
+
+gem "fastlane"
