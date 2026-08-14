@@ -79,6 +79,7 @@ platform :ios do
         # CI may never create one: a runner that can mint distribution certs
         # burns through Apple's limit of three, one failed job at a time.
         readonly: true,
+        **git_authorization,
       )
 
       [["Runner", APP_ID], ["BaroEaseWidgetExtension", WIDGET_ID]].each do |target, bundle_id|
@@ -179,6 +180,28 @@ end
 # locale set.
 def read_pubspec(root)
   File.read("#{root}/pubspec.yaml", encoding: "UTF-8")
+end
+
+# How the runner authenticates to the private certificates repo.
+#
+# GitHub accepts either header form for a personal access token. Bearer takes
+# the token verbatim; Basic wants base64 of "user:token", which is one more
+# step to get wrong — and getting it wrong fails as `could not read Username
+# for 'https://github.com'`, a message about prompts that says nothing about
+# the credential being rejected.
+#
+# An env var that exists but is empty counts as absent. GitHub Actions sets
+# every `${{ secrets.X }}` it is given, empty string included, and an empty
+# string handed to match sends an empty header — which fails identically to a
+# wrong token, and would send you hunting the wrong secret.
+def git_authorization
+  bearer = ENV["MATCH_GIT_BEARER_AUTHORIZATION"].to_s
+  return { git_bearer_authorization: bearer } unless bearer.empty?
+
+  basic = ENV["MATCH_GIT_BASIC_AUTHORIZATION"].to_s
+  return { git_basic_authorization: basic } unless basic.empty?
+
+  UI.user_error!("Set MATCH_GIT_BEARER_AUTHORIZATION (the PAT as-is) or MATCH_GIT_BASIC_AUTHORIZATION (base64 of user:PAT).")
 end
 
 # Sends the archive's dSYMs to Crashlytics, or explains why it could not.
