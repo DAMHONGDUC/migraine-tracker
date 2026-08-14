@@ -144,8 +144,12 @@ missing entitlement, not the missing portal step.
    - `MATCH_PASSWORD` — the passphrase chosen during step 3.
    - `MATCH_GIT_URL` — the repo from step 2. Optional; `Matchfile` has a
      default.
-   - `MATCH_GIT_BASIC_AUTHORIZATION` — base64 of
-     `<github-username>:<PAT>`, so the runner can clone a private certs repo.
+   - **One of** `MATCH_GIT_BEARER_AUTHORIZATION` (the PAT verbatim) or
+     `MATCH_GIT_BASIC_AUTHORIZATION` (base64 of `<github-username>:<PAT>`), so
+     the runner can clone the private certs repo. Bearer is the one with fewer
+     ways to go wrong; Basic exists because it is what most match documentation
+     shows. Set one, not both — the lane prefers bearer and treats an empty
+     value as absent, because an empty header fails exactly like a wrong token.
      Use a **fine-grained** PAT scoped to that one repo with **Contents:
      Read-only** — CI runs `match` in readonly mode and never needs to write,
      so a leaked token then reaches nothing else.
