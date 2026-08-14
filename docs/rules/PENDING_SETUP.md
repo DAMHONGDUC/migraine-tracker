@@ -153,6 +153,14 @@ missing entitlement, not the missing portal step.
      Use a **fine-grained** PAT scoped to that one repo with **Contents:
      Read-only** — CI runs `match` in readonly mode and never needs to write,
      so a leaked token then reaches nothing else.
+     **Strip the newline when building the Basic value**: `base64` appends one,
+     `pbcopy` carries it into the secret, and a newline inside an HTTP header
+     value makes the request malformed. Build it with
+     `printf 'user:%s' "$PAT" | base64 | tr -d '\n' | pbcopy`.
+     The two failures look nothing alike and neither names a newline: a
+     *rejected* credential fails as `could not read Username for
+     'https://github.com'`, while a *malformed* one fails as `RPC failed; HTTP
+     400`. Read 400 as "the header is broken", not "the token is wrong".
    - `FIREBASE_IOS_APP_ID` — the `1:…:ios:…` id, for the Crashlytics symbol
      upload. Optional: unset simply skips that step with a warning. It is an
      env var rather than `GoogleService-Info.plist` because that file is
