@@ -1,6 +1,6 @@
 ---
 name: engineering-conventions
-description: A working rulebook for any codebase — module boundaries, one owner per value, logging on every action and every catch, comment and constant discipline, schema versioning, scoped tests, secret handling, commit and PR style, and how to keep CLAUDE.md an index over split rule files. Part 2 adds deep Flutter/Dart rules (feature-based layers, Riverpod + Drift, a design-system package of prefixed primitives, spacing and theme sources, widget style) and applies only when the repo is Flutter. Use when writing or reviewing code, adding a module, screen, controller, repository or database table, naming things, deciding where a constant or a shared helper lives, or setting up a repo's conventions.
+description: A working rulebook for any codebase - module boundaries, one owner per value, logging on every action and every catch, comment and constant discipline, schema versioning, scoped tests, secret handling, commit and PR style, and keeping CLAUDE.md an index over split rule files. Part 2 adds deep Flutter and Dart rules and applies only to Flutter repos. Use when writing or reviewing code, adding a module, screen, controller, repository or database table, naming things, deciding where a constant or a shared helper lives, or setting up a repo's conventions.
 ---
 
 # Engineering conventions
