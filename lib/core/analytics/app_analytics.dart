@@ -56,6 +56,7 @@ abstract final class AppAnalytics {
   static const String _dataWiped = 'data_wiped';
   static const String _accountDeleted = 'account_deleted';
   static const String _attacksSynced = 'attacks_synced';
+  static const String _reviewPromptRequested = 'review_prompt_requested';
 
   // --- Parameter keys. ---
   static const String _pStep = 'step';
@@ -69,6 +70,7 @@ abstract final class AppAnalytics {
   static const String _pPeriod = 'period';
   static const String _pPushed = 'pushed';
   static const String _pPulled = 'pulled';
+  static const String _pMoment = 'moment';
 
   // --- User properties (cohorts we slice every other metric by). ---
   static const String _upSignedIn = 'signed_in';
@@ -274,6 +276,12 @@ abstract final class AppAnalytics {
 
   static void logDoctorReportShared({required int attackCount}) =>
       _log(_doctorReportShared, <String, Object>{_pAttackCount: attackCount});
+
+  /// The store review dialog was **asked for** — never that it appeared, and
+  /// never that anyone rated anything. iOS tells us neither. [moment] is the
+  /// `ReviewMoment` name, which is what makes the two triggers comparable.
+  static void logReviewPromptRequested({required String moment}) =>
+      _log(_reviewPromptRequested, <String, Object>{_pMoment: moment});
 
   /// Re-sharing / saving / dropping something already in the export history.
   /// The format only — never the file's contents (hard rule 1).

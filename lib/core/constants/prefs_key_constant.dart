@@ -35,6 +35,11 @@ final class PrefsKeyConstant {
   /// user placed themselves and then found empty reads as broken.
   static const String homeWidgetEnabled = 'home_widget_enabled';
 
+  /// How many times the store review prompt has been asked for, and when the
+  /// last one was (ISO-8601, UTC). Absent = never asked.
+  static const String reviewPromptCount = 'review_prompt_count';
+  static const String reviewPromptLastAskedAt = 'review_prompt_last_asked_at';
+
   /// Prefixes, not keys: the uid and the collection are appended (see
   /// `PrefsSyncCursorStore`).
   static const String syncCursorPrefix = 'sync_last_pulled_at_';

@@ -39,6 +39,7 @@ import 'package:migraine_tracker/features/premium/domain/enums/premium_period.da
 import 'package:migraine_tracker/features/premium/domain/repositories/premium_repository.dart';
 import 'package:migraine_tracker/features/premium/domain/repositories/purchase_repository.dart';
 import 'package:migraine_tracker/features/premium/providers.dart';
+import 'package:migraine_tracker/features/review/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
@@ -53,6 +54,7 @@ import 'package:system_design/index.dart';
 import 'alert_fakes.dart';
 import 'export_fakes.dart';
 import 'notification_fakes.dart';
+import 'review_fakes.dart';
 import 'sync_fakes.dart';
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
@@ -706,6 +708,9 @@ Future<PumpedApp> pumpApp(
         lastAlertRepositoryProvider.overrideWithValue(
           FakeLastAlertRepository(),
         ),
+        // Every saved attack and every shared report reaches the review
+        // prompt, and the real one is a platform channel.
+        reviewPrompterProvider.overrideWithValue(RecordingReviewPrompter()),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),
         if (fileSaver != null) fileSaverProvider.overrideWithValue(fileSaver),

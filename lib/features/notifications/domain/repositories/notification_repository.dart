@@ -30,6 +30,12 @@ abstract interface class NotificationRepository {
   /// occurrence that just fired.
   Future<AppNotification?> latestForReminder(String reminderId);
 
+  /// The newest pressure alert on record, or null when none ever arrived.
+  ///
+  /// Read, not unread: what the caller asks is whether an alert *happened*,
+  /// and an alert the user never opened is still one the server sent.
+  Future<AppNotification?> latestPressureAlert();
+
   /// Marks one notification read at [at].
   ///
   /// Per row, not per screen: opening the list is not reading anything, so

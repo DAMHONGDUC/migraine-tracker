@@ -4,6 +4,7 @@ import '../../../../core/db/app_database.dart';
 import '../../../sync/data/repositories/drift_sync_local_store.dart';
 import '../../../sync/domain/entities/sync_collection.dart';
 import '../../domain/entities/app_notification.dart';
+import '../../domain/enums/notification_type.dart';
 import '../../domain/repositories/notification_repository.dart';
 
 class DriftNotificationRepository implements NotificationRepository {
@@ -62,6 +63,17 @@ class DriftNotificationRepository implements NotificationRepository {
   Future<AppNotification?> latestForReminder(String reminderId) async {
     final query = _db.select(_db.appNotifications)
       ..where((t) => t.reminderId.equals(reminderId))
+      ..orderBy([(t) => OrderingTerm.desc(t.occurredAt)])
+      ..limit(1);
+    final AppNotificationRow? row = await query.getSingleOrNull();
+
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
+  Future<AppNotification?> latestPressureAlert() async {
+    final query = _db.select(_db.appNotifications)
+      ..where((t) => t.type.equalsValue(NotificationType.pressureAlert))
       ..orderBy([(t) => OrderingTerm.desc(t.occurredAt)])
       ..limit(1);
     final AppNotificationRow? row = await query.getSingleOrNull();
