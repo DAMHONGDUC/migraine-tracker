@@ -53,8 +53,8 @@ Read the file whose trigger matches the work. Do not read them all.
 
 And one per feature, loaded when the work is in that directory:
 `lib/features/<feature>/CLAUDE.md` — attacks, alerts, dashboard, health,
-history, home_widget, insights, medications, notifications, premium, settings,
-sync.
+history, home_widget, insights, medications, notifications, premium, review,
+settings, sync.
 
 ## Always — these apply to every change
 
@@ -122,7 +122,8 @@ Features: `app_update` (force-update gate), `attacks` (Attack entity + 3-tap log
 (WeatherSnapshot + API clients), `history`, `insights` (correlation engine),
 `alerts`, `auth` (Google/Apple + linkWithCredential, account screen, `users/{uid}` profile doc), `sync`, `paywall`,
 `settings`, `health` (HealthKit sleep, read-only), `notifications` (the notification list — see hard rule 16),
-`home_widget` (the iOS home screen widget — see hard rule 18).
+`home_widget` (the iOS home screen widget — see hard rule 18),
+`review` (the store review prompt, asked for only after a value moment).
 Create a layer folder only when it gets its first file — no empty placeholder folders.
 
 Dependency rule: `presentation → domain ← data` inside a feature. Across
