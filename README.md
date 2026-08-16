@@ -109,6 +109,12 @@ tool/                     what the melos commands actually run
 `tool/`. Melos echoes a `run:` block twice per run, so anything longer than
 one line drowns its own output.
 
+**This app renders design system generation `v2`.** One generation belongs to
+one product, so nothing else imports `v2/` and a change there can only reach
+this app — but only if this line stays accurate, because the gitlink records
+the commit pinned, never the folder imported. Move it in the same change as any
+generation move.
+
 The design system is deliberately separate and deliberately ignorant of this
 app; see `packages/system_design/WIDGET_RULES.md` before adding to it..
 
