@@ -405,22 +405,25 @@ widget. A widget is never bumped alone; a new generation gets its own folder
 and both ship at once while apps migrate.
 
 - **One generation, one product. A new project never adopts an existing
-  generation — it takes `n+1`.** Latest is `v3`, so the next product starts
-  `v4`, copies forward whatever ideas it wants, and leaves every existing
-  folder untouched. This is what makes "a frozen generation stays frozen"
-  enforceable rather than aspirational: a generation with two consumers has no
-  frozen state, because the first edit made to suit product B lands in product
-  A's shipped UI and the only way to find out is to ship it. The cost —
-  two products both needing a button write it twice — is the same trade the
-  admission test makes: duplication is cheaper than coupling, and `core/`
-  already carries what genuinely is shared.
+  generation — it reads the highest one in the package and builds `n+1`.** If
+  the latest is `vN`, the joining product starts `vN+1`, copies forward
+  whatever ideas it wants, and leaves every existing folder untouched. A
+  project already on a generation stays there; this fires when a product
+  *joins*, never as a reason to migrate one that has shipped.
+  - This is what makes "a frozen generation stays frozen" enforceable rather
+    than aspirational. A generation with two consumers has no frozen state:
+    the first edit made to suit product B lands in product A's shipped UI, and
+    the only way to find out is to ship it.
+  - The cost is real and accepted — two products both needing a button write
+    it twice. Same trade the admission test makes: duplication is cheaper than
+    coupling, and `core/` already carries what genuinely is shared.
 - **Every project records the generation it renders in its own README**, one
   line near the top, moved in the same change as any generation move. The
   submodule gitlink records which *commit* an app pins, never which *folder* it
-  imports, so nothing on the package side can tell who a change to `v2` breaks
-  unless each app writes it down. Keep the matching generation → product table
-  in the package's own rules file, and add a row when a generation is created,
-  not when it is finished.
+  imports, so nothing on the package side can tell who a change to a generation
+  breaks unless each app writes it down. Keep the matching generation → product
+  table in the package's own rules file, and add a row when a generation is
+  created, not when it is finished.
 - **No file in one generation may import from another, either direction.**
   Generations rest on incompatible premises (dark-only with chrome the body
   scrolls behind, vs light-and-dark chrome taking real layout space); sharing
