@@ -1,6 +1,6 @@
 # Done work
 
-Snapshot of 13 Aug 2026. What is **built and in the repo** — the counterpart
+Snapshot of 16 Aug 2026. What is **built and in the repo** — the counterpart
 to `REMAINING_WORK.md`, which lists what is not.
 
 The split is deliberate and is the whole point of having two files: almost
@@ -8,15 +8,15 @@ everything left is a console, a portal or a piece of paper, and almost
 everything here is code. Reading one without the other gives the wrong
 impression of how far the project is.
 
-**Where the numbers come from:** the repo at commit `baf51ff`, branch
-`feature/ci-cd`. 785 commits since the first one on 8 Jul 2026 — five weeks.
+**Where the numbers come from:** the repo at commit `f43610a`, branch
+`feature/ci-cd`. 801 commits since the first one on 8 Jul 2026 — five weeks.
 Version `1.0.0+13`.
 
 | | |
 |---|---|
-| Dart files in `lib/` | 471 |
-| Test files in `test/` | 87 |
-| Features | 16 |
+| Dart files in `lib/` | 481 |
+| Test files in `test/` | 90 |
+| Features | 17 |
 | Screens | 22 |
 | Drift schema version | 12 |
 | ARB keys, each locale | 596 en / 596 vi, zero diff either direction |
@@ -53,6 +53,7 @@ a device pass where it cannot.
 | `onboarding` | Threshold setup, coarse location permission asked once where it is explained, privacy explainer | `test/features/onboarding/` |
 | `app_update` | Force-update gate, fails open, no caching so an un-block lands on the next app open | `test/features/app_update/` |
 | `home_widget` | The App Group bridge and the hand-written SwiftUI WidgetKit extension in `ios/BaroEaseWidget/`; builds and embeds | Builds — nothing has seen it drawn (item 17b) |
+| `review` | The store review prompt `PLAN.md` §7 asks for, after one of two value moments: a doctor report shared, or an attack logged within 24h of a pressure alert. Capped at three asks and 120 days apart | `test/features/review/` |
 
 ## Platform and backend
 
@@ -119,18 +120,25 @@ things.
 
 ## Testing
 
-87 test files mirroring `lib/features/`, plus `db_migration/` and a smoke
+90 test files mirroring `lib/features/`, plus `db_migration/` and a smoke
 test. The four priorities `CLAUDE.md` names — correlation engine, Drift
 migrations, pressure alert function, paywall entitlement gating — each have
 dedicated tests. Twelve Drift schema versions are checked in under
 `drift_schemas/`, so every migration is verified against a real prior schema
 rather than against the current one.
 
-One known gap, and it is a considered one:
-`FirebaseAlertRegistrationRepository` has no test, because it takes concrete
-`FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore` and covering it
-means extracting three interfaces or adding a mocking package — both bigger
-than the gap. The real-device pass is what proves it.
+**The one known gap is closed (16 Aug).**
+`FirebaseAlertRegistrationRepository` now has 17 cases against the shipping
+class. The gap had been read as a choice between extracting three interfaces
+and adding a mocking package, both bigger than the gap; the third way is that
+a class declaring `noSuchMethod` no longer has to implement the rest of its
+interface — which is what a mocking package generates anyway. The fakes are
+in `test/helpers/firebase_fakes.dart`, the production code did not change,
+and nothing was added to the dependency list. Anything the repository is not
+supposed to touch raises `NoSuchMethodError` naming the member.
+
+A real-device pass (item 17) is still what proves push actually reaches a
+phone — no fake can.
 
 ## What this file is not
 
