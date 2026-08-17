@@ -479,6 +479,8 @@
   "paywallWhySignIn": "Premium cần một tài khoản để gói đăng ký đi theo bạn.",
   "settingsSectionGeneral": "Chung",
   "settingsSectionTracking": "Theo dõi",
+  "settingsSectionHealth": "Apple Health",
+  "settingsHealthCaption": "BaroEase đọc giấc ngủ và số bước chân của bạn từ Apple Health để tìm mối liên hệ với các cơn đau. Chỉ đọc — dữ liệu ở lại trên máy này và không bao giờ được tải lên.",
   "settingsSectionData": "Dữ liệu của bạn",
   "settingsSectionAbout": "Thông tin ứng dụng",
   "settingsAppVersion": "Phiên bản ứng dụng",

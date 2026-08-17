@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../features/health/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
-import '../premium_gate.dart';
 import '../settings_tile.dart';
 
 /// Settings row for activity: opens the screen holding the exertion report,
@@ -27,8 +26,15 @@ class ActivitySettingsTile extends StatelessWidget {
 }
 
 /// Settings row for sleep: opens the screen holding the sleep insight and its
-/// connect switch. Premium as a whole — the insight it leads to is premium,
-/// so connecting first would be a permission prompt for nothing.
+/// connect switch.
+///
+/// **Not premium-gated any more, and this reversed the original.** It used to
+/// wrap itself in `PremiumTileGate` on the argument that connecting first
+/// would be a permission prompt for nothing — but the screen behind it also
+/// holds the Apple Health switch and `SleepSummaryCard`, both free, and the
+/// gate made the app's only HealthKit surfaces unreachable for a free user.
+/// Submission 1.0(11) was rejected under App Store 2.5.1 for exactly that.
+/// Only [SleepCorrelationCard] on the screen itself stays premium.
 class SleepSettingsTile extends ConsumerWidget {
   const SleepSettingsTile({super.key});
 
@@ -36,14 +42,10 @@ class SleepSettingsTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(healthAvailableProvider)) return const SizedBox.shrink();
 
-    return PremiumTileGate(
+    return SettingsTile(
       icon: Icons.bedtime_outlined,
       title: context.l10n.sleepScreenTitle,
-      child: SettingsTile(
-        icon: Icons.bedtime_outlined,
-        title: context.l10n.sleepScreenTitle,
-        onTap: () => context.pushNamed(AppRoutes.sleep.name),
-      ),
+      onTap: () => context.pushNamed(AppRoutes.sleep.name),
     );
   }
 }

@@ -2338,6 +2338,14 @@
   "@settingsSectionTracking": {
     "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf"
   },
+  "settingsSectionHealth": "Apple Health",
+  "@settingsSectionHealth": {
+    "description": "Settings section heading above the Apple Health sleep and step connect switches"
+  },
+  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only — it stays on this device and is never uploaded.",
+  "@settingsHealthCaption": {
+    "description": "Line under the Apple Health switches in Settings saying what is read and where it stays"
+  },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
     "description": "Settings section heading above export, the doctor report and the delete-everything row"

@@ -479,6 +479,8 @@
   "paywallWhySignIn": "サブスクリプションを引き継ぐため、プレミアムにはアカウントが必要です。",
   "settingsSectionGeneral": "一般",
   "settingsSectionTracking": "計測",
+  "settingsSectionHealth": "ヘルスケア",
+  "settingsHealthCaption": "BaroEase は発作との関連を調べるため、ヘルスケアから睡眠と歩数を読み取ります。読み取り専用で、データはこの端末に残り、アップロードされることはありません。",
   "settingsSectionData": "あなたのデータ",
   "settingsSectionAbout": "情報",
   "settingsAppVersion": "アプリのバージョン",

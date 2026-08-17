@@ -479,6 +479,8 @@
   "paywallWhySignIn": "Premium necesita una cuenta para que tu suscripción te acompañe.",
   "settingsSectionGeneral": "General",
   "settingsSectionTracking": "Seguimiento",
+  "settingsSectionHealth": "Apple Salud",
+  "settingsHealthCaption": "BaroEase lee tu sueño y tus pasos de Apple Salud para buscar patrones con tus ataques. Solo lectura: los datos se quedan en este dispositivo y nunca se suben.",
   "settingsSectionData": "Tus datos",
   "settingsSectionAbout": "Acerca de",
   "settingsAppVersion": "Versión de la app",

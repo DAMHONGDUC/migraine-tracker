@@ -12,6 +12,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
 import '../../../../../core/widgets/sections/alerts_settings_tile.dart';
+import '../../../../../core/widgets/sections/health_connection_tile.dart';
 import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';
@@ -24,6 +25,8 @@ import '../../../../alerts/providers.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
+import '../../../../health/domain/enums/health_data_kind.dart';
+import '../../../../health/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../weather/domain/enums/dev_location.dart';
 import '../../../../weather/providers.dart';
@@ -44,11 +47,14 @@ part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
+part 'settings_screen_health_section.dart';
 part 'settings_screen_tracking_section.dart';
 
-/// Three groups: "General" is the app itself, "Tracking" is what it watches
-/// on your behalf, "Your data" is what it holds. Deleting closes the last
-/// one — same subject as the exports, and the irreversible end of it.
+/// Five groups: "General" is the app itself, "Tracking" is what it watches on
+/// your behalf, "Apple Health" is what it reads from elsewhere, "Your data" is
+/// what it holds, "About" is the app's own details. Deleting closes "Your
+/// data" — same subject as the exports, and the irreversible end of it.
+/// Apple Health is iOS-only, so off iOS the count is back to four.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -83,6 +89,13 @@ class SettingsScreen extends ConsumerWidget {
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionTracking),
             const _TrackingSection(),
+            // Its own group, right under Tracking: the sources it reads feed
+            // two of the rows above, and naming Apple Health at the top level
+            // is what App Store 2.5.1 asks for (see [_HealthSection]).
+            if (ref.watch(healthAvailableProvider)) ...<Widget>[
+              SdSectionHeaderV2(l10n.settingsSectionHealth),
+              const _HealthSection(),
+            ],
             SdSectionHeaderV2(l10n.settingsSectionData),
             const _DataSection(),
             // Fixture tooling — only where FLAVOR is not prod.
