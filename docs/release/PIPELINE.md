@@ -53,7 +53,7 @@ is why a fresh clone alone can never produce a release.
 | Which certificate and profiles | `ios/fastlane/Matchfile` |
 | The build itself | `tool/build-ipa.sh` |
 
-## The two orderings that are not arbitrary
+## The orderings that are not arbitrary
 
 **The build number is settled before the build, and committed after the
 upload.** Before, because a number App Store Connect will refuse should cost
@@ -64,6 +64,12 @@ commit is the thing the rule exists to prevent.
 **Signing is switched to manual inside the runner's checkout only.** That
 checkout is thrown away, so the edit never reaches git and a developer's Mac
 keeps automatic signing.
+
+**Ruby is pinned before anything runs `pod`.** CocoaPods is a gem, and a gem
+binary only runs under the Ruby it was installed for. Pods installed with the
+image's Ruby and a job pinned to another one leave `pod` unable to load itself
+— which Flutter reports as a skipped step, not as a failure, and the archive
+then goes missing the `health` plugin's pods.
 
 ## What runs where
 
