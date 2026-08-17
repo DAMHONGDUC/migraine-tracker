@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/logging/app_logger.dart';
+import '../../../review/providers.dart';
 import '../../../sync/domain/enums/sync_trigger.dart';
 import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
@@ -152,6 +153,14 @@ class LogController extends Notifier<LogFlowState> {
         ref
             .read(syncControllerProvider.notifier)
             .sync(trigger: SyncTrigger.record),
+      );
+      // Only a moment when a pressure alert came first — the controller
+      // decides that. Unawaited for the same reason as everything above it:
+      // nothing in the log flow waits (hard rule 4).
+      unawaited(
+        ref
+            .read(reviewPromptControllerProvider)
+            .onAttackLogged(attack.startedAt),
       );
       state = LogFlowState(savedId: attack.id, step: LogStep.saved);
     } catch (error, stackTrace) {

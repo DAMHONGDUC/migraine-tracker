@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false
 
+### ios preflight
+
+```sh
+[bundle exec] fastlane ios preflight
+```
+
+Everything a release depends on except the build. Rehearse the runner with CI=true.
+
 ### ios certificates
 
 ```sh

@@ -3,15 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
+import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
+import 'package:migraine_tracker/features/insights/presentation/widgets/pressure_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
+
+/// The pressure card's single locked pitch. One offer covers the forecast,
+/// the correlation and the alert, so this is what a free user sees in place
+/// of all three.
+const String lockedPressurePitch =
+    'See the pressure forecast, how closely your attacks track it, and get '
+    'alerted before the next drop.';
 
 /// 15 attacks with weather — enough for the correlation engine to produce a
 /// real insight (9 during rapid drops → 60%).
@@ -56,7 +65,7 @@ void main() {
     // what the first assertion checks.
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await seedInsightData(tester, app);
-    await openInsights(tester);
+    await openPressureInsight(tester);
 
     // With no entitlement, the analysis is teased.
     expect(find.text('60%'), findsNothing);
@@ -66,6 +75,9 @@ void main() {
     await openSettings(tester);
     await tapVisible(tester, find.text('Premium (mock)'));
 
+    // `openInsights`, not `openPressureInsight`: the tab choice above is
+    // remembered, and tapping the segment again would be ambiguous once the
+    // card is built — its title is the word 'Pressure' too.
     await openInsights(tester);
     expect(find.text('60%'), findsOneWidget);
 
@@ -85,31 +97,32 @@ void main() {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       // The analysis output is absent from the tree entirely.
       expect(find.text('60%'), findsNothing);
       expect(find.textContaining('Based on'), findsNothing);
-      // The value moment is teased instead.
-      expect(
-        find.text('Unlock to see how much of your pain follows the weather.'),
-        findsOneWidget,
-      );
+      // The value moment is teased instead — ONE pitch for the whole card,
+      // covering the forecast, the correlation and the alert together.
+      expect(find.text(lockedPressurePitch), findsOneWidget);
       expect(find.text('Premium'), findsWidgets);
 
       await finishTest(tester);
     });
 
-    // Reversed by the owner: the forecast is free, and only the alert is
-    // sold. This asserts the chart IS drawn without premium, which is the
-    // opposite of what it used to check.
-    testWidgets('sees the forecast chart, which is free', (tester) async {
+    // Flipped twice by the owner and premium again: the free promise is the
+    // weather card, and the pressure chart is the paid reading. This asserts
+    // the chart is NOT drawn without premium.
+    testWidgets('never sees the forecast chart — pressure is the product', (
+      tester,
+    ) async {
       final app = await pumpApp(tester);
       app.weather.forecast = forecast();
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
-      expect(find.byType(LineChart), findsWidgets);
+      expect(find.byType(LineChart), findsNothing);
+      expect(find.text(lockedPressurePitch), findsOneWidget);
 
       await finishTest(tester);
     });
@@ -236,7 +249,7 @@ void main() {
     ) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       await tester.tap(find.text('Unlock').first);
       await tester.pump();
@@ -257,7 +270,7 @@ void main() {
     ) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       await tester.tap(find.text('Unlock').first);
       await tester.pump();
@@ -283,7 +296,7 @@ void main() {
     ) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       await tester.tap(find.text('Unlock').first);
       await tester.pump();
@@ -307,7 +320,7 @@ void main() {
       final app = await pumpApp(tester, premium: true, signedIn: false);
       await seedInsightData(tester, app);
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       expect(find.text('60%'), findsNothing);
       expect(find.text('Premium'), findsWidgets);
@@ -315,22 +328,20 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('below the data threshold it sees progress, not a paywall tease', (
+    testWidgets('below the data threshold it still sees the pitch, not progress', (
       tester,
     ) async {
       await pumpApp(tester); // no attacks
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
-      // - correlation card shows "keep logging" progress, not a paywall tease — the tease needs enough data first
-      // - the forecast card above is separately gated, so "Unlock" can still appear from there; this asserts the correlation branch only
+      // The gate comes before the data now: how far off the threshold a free
+      // user is is itself part of what premium shows, so the locked card says
+      // the same thing whether they have 0 attacks or 14.
+      expect(find.text(lockedPressurePitch), findsOneWidget);
       expect(
         find.text(
           'Log 15 more attacks with weather data to unlock this insight.',
         ),
-        findsOneWidget,
-      );
-      expect(
-        find.text('Unlock to see how much of your pain follows the weather.'),
         findsNothing,
       );
 
@@ -343,7 +354,7 @@ void main() {
       final app = await pumpApp(tester, premium: true);
       await seedInsightData(tester, app);
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       expect(find.text('60%'), findsOneWidget);
       expect(find.text('Unlock'), findsNothing);
@@ -355,7 +366,7 @@ void main() {
       final app = await pumpApp(tester, premium: true);
       app.weather.forecast = forecast();
 
-      await openInsights(tester);
+      await openPressureInsight(tester);
 
       expect(find.byType(LineChart), findsOneWidget);
 
@@ -397,15 +408,34 @@ void main() {
       await pumpApp(tester, premium: true);
       await openSettings(tester);
 
-      // The toggle lives on the alerts detail screen now, not on Settings —
-      // the row here only reports On/Off. Unlocked means the row opens it.
-      expect(find.byType(SwitchListTile), findsNothing);
-      await tapVisible(tester, find.text('Pressure-drop alerts'));
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(SwitchListTile), findsOneWidget);
+      // The Settings row only reports On/Off — the control itself lives on
+      // Insights' pressure card, so the row carries no switch of its own.
+      expect(
+        find.descendant(
+          of: find.byType(AlertsSettingsTile),
+          matching: find.byType(Switch),
+        ),
+        findsNothing,
+      );
 
-      await tester.pageBack();
-      await tester.pump(const Duration(milliseconds: 400));
+      // The row switches tabs rather than pushing a route (/pressure is gone),
+      // so there is nothing to page back from — Settings is reopened below.
+      await tapVisible(tester, find.text('Pressure-drop alerts'));
+      await pumpCountUp(tester);
+      // Past `_AlertControls.highlightHold`, so its timer is not left pending.
+      await tester.pump(const Duration(milliseconds: 600));
+
+      // Unlocked means the switch is built at all: a free user gets one pitch
+      // and no controls, which is what makes this the gating assertion.
+      expect(
+        find.descendant(
+          of: find.byType(PressureCard),
+          matching: find.byType(Switch),
+        ),
+        findsOneWidget,
+      );
+
+      await openSettings(tester);
 
       // No locked teaser left anywhere on the screen. (The Premium row is
       // titled 'Premium' now, so the badge is what marks a gate.)

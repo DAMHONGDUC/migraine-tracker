@@ -22,6 +22,18 @@ package's `core/` holds only what belongs to no generation — today that is
 `SdSpacingConstant`, the screenutil dimensions, which is why it alone carries
 no `V2` suffix.
 
+**This app renders `v2`, and `README.md` says so.** One generation belongs to
+one product: a project joining the design system takes the highest generation
+there and builds `n+1` — `v3` is Seller OS, so the next product starts `v4` and
+never adopts a folder that already ships somewhere. That is what keeps `v2`
+frozen in fact rather than in principle; a generation with a second consumer
+gets edited to suit it, and BaroEase finds out by shipping. The README line is
+the other half: the gitlink records which *commit* of the package this app
+pins, never which *folder* it imports, so nothing on the package side can tell
+who a change to `v2` breaks unless each app writes it down. Move that line in
+the same change as any generation move. Full rule:
+`packages/system_design/WIDGET_RULES.md`.
+
 **The palette is NOT in the package — this app owns it.** `AppColors`,
 `AppTextStyle`, `AppTheme` and `AppScrollBehavior` stay in `lib/core/theme/`.
 `AppTheme.dark` hands the design system its colours by registering an

@@ -1,7 +1,8 @@
 # Remaining work
 
-Snapshot of 10 Aug 2026, re-checked against the code on 13 Aug. Re-check
-before acting on an item; this is a point-in-time survey, not a live tracker.
+Snapshot of 10 Aug 2026, re-checked against the code on 13 and 16 Aug.
+Re-check before acting on an item; this is a point-in-time survey, not a live
+tracker.
 
 **Read this beside `DONE_WORK.md`.** This file is short and that is
 misleading on its own — it is short because the code is finished, not because
@@ -116,7 +117,7 @@ produces what the next one consumes.
 | # | What | Why it can wait |
 |---|---|---|
 | ~~18~~ | ~~Move weather to WeatherKit~~ | **Done 12 Aug**, both halves: the app reads through the backend and the alert cron reads WeatherKit too, so the 3am alert and the breakfast forecast can no longer disagree. |
-| 19 | `FirebaseAlertRegistrationRepository` has no test | It takes concrete `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it means extracting three interfaces or adding a mocking package. Both are bigger than the gap. Item 17 is what proves it works. |
+| ~~19~~ | ~~`FirebaseAlertRegistrationRepository` has no test~~ | **Done 16 Aug.** 17 cases in `test/features/alerts/alert_registration_repository_test.dart`, against the shipping class. The choice was never only "extract three interfaces or add mockito": a class that declares `noSuchMethod` need not implement the rest of its interface, so the fakes are hand-rolled in `test/helpers/firebase_fakes.dart` and no production code moved. Item 17 is still what proves push reaches a real phone. |
 
 ### Order
 
@@ -361,17 +362,18 @@ callable the app can reach, and Apple's mandatory weather attribution.
   leave prefs saying alerts are on), and
   `open_meteo_weather_repository_test.dart` covers the null-location branch
   both methods share — no position means no network call at all.
-  `FirebaseAlertRegistrationRepository` is still untested (checklist item 19)
-  and stays that way while there is no mocking package: it takes concrete
-  `FirebaseAuth`, `FirebaseMessaging` and `FirebaseFirestore`, so covering it
-  means either extracting interfaces for all three or adding
-  `mockito`/`fake_cloud_firestore` — both bigger than the item. The
-  real-device pass (item 17) is what proves it.
+  `FirebaseAlertRegistrationRepository` is **covered as of 16 Aug** (item 19)
+  — 17 cases, hand-rolled `noSuchMethod` fakes, no new dependency and no
+  change to the class. The real-device pass (item 17) still proves the part
+  no fake can: that the APNs key, the entitlement and the token line up on
+  real hardware.
 - The 4 testing priorities CLAUDE.md calls out explicitly — correlation
   engine, Drift migrations, pressure alert function, paywall entitlement
   gating — all already have dedicated tests. Nothing to do there.
-- `l10n/app_en.arb` and `app_vi.arb` are fully in sync (468/468 keys,
-  zero diff either direction).
+- The seven ARB files (`en`, `vi`, `ja`, `de`, `es`, `fr`, `zh`) are fully in
+  sync — 601/601 keys, zero diff in any direction, placeholders matched.
+  The five added on 17 Aug are machine-produced and have not had a native
+  review; that review is owed before the store listings go live.
 - `firestore.indexes.json` now carries a composite index per synced
   collection (`userId` + `updatedAt`). Deploying is a SECOND step beside
   rules — `firebase deploy --only firestore:indexes` — and a missing index

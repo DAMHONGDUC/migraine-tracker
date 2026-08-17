@@ -142,6 +142,53 @@ platform :ios do
     UI.success("Uploaded #{flavor} #{version}+#{build} to TestFlight.")
   end
 
+  desc "Everything a release depends on except the build. Rehearse the runner with CI=true."
+  lane :preflight do
+    # The release lane's first three minutes, without the twenty-five that
+    # follow. Every credential failure met so far — a rejected token, a
+    # newline inside the auth header, a second empty Authorization header —
+    # lands in here, and none of them needs an IPA to surface.
+    #
+    # Locally this skips match, because a developer's Mac signs automatically
+    # and has no reason to touch the shared certificate. `CI=true` turns that
+    # branch on and rehearses what the runner will do, in seconds:
+    #
+    #   cd ios && CI=true bundle exec fastlane preflight
+    #
+    # To reproduce the runner's environment exactly, set the same variables it
+    # sets — including the ones whose secrets do not exist, which is precisely
+    # how the duplicate-header failure happened:
+    #
+    #   CI=true MATCH_GIT_BEARER_AUTHORIZATION= bundle exec fastlane preflight
+    root = repo_root
+    key = asc_api_key
+
+    version, build = pubspec_version(root)
+    latest = latest_testflight_build_number(
+      api_key: key,
+      app_identifier: APP_ID,
+      version: version,
+      initial_build_number: 0,
+    )
+    UI.success("App Store Connect answered. pubspec is #{version}+#{build}, TestFlight is at #{latest}.")
+
+    unless is_ci
+      UI.important("Not CI, so match was skipped — that is the half most likely to break.")
+      UI.important("Rehearse it with: CI=true bundle exec fastlane preflight")
+      next
+    end
+
+    setup_ci
+    match(
+      type: "appstore",
+      app_identifier: [APP_ID, WIDGET_ID],
+      api_key: key,
+      readonly: true,
+      **git_authorization,
+    )
+    UI.success("Profiles installed: #{installed_profile_name(APP_ID)}, #{installed_profile_name(WIDGET_ID)}")
+  end
+
   desc "Create or renew the distribution certificate and both profiles. Local only."
   lane :certificates do
     # CI runs match readonly, so the certificate has to be minted from a real
@@ -190,16 +237,23 @@ end
 # for 'https://github.com'`, a message about prompts that says nothing about
 # the credential being rejected.
 #
-# An env var that exists but is empty counts as absent. GitHub Actions sets
-# every `${{ secrets.X }}` it is given, empty string included, and an empty
-# string handed to match sends an empty header — which fails identically to a
-# wrong token, and would send you hunting the wrong secret.
+# The empty ones are DELETED from the environment, not merely left unpassed.
+# match reads both env vars itself, whichever option this method returns, so
+# picking one here does not stop the other from being used. Actions sets every
+# `${{ secrets.X }}` it is handed — empty string included, for a secret that
+# does not exist — and an empty one becomes a SECOND `Authorization` header.
+# Git sends both, and GitHub answers `Duplicate header: "Authorization"` with a
+# 400 that names neither the empty variable nor the workflow that set it.
 def git_authorization
-  bearer = ENV["MATCH_GIT_BEARER_AUTHORIZATION"].to_s
-  return { git_bearer_authorization: bearer } unless bearer.empty?
+  %w[MATCH_GIT_BEARER_AUTHORIZATION MATCH_GIT_BASIC_AUTHORIZATION].each do |name|
+    ENV.delete(name) if ENV[name].to_s.empty?
+  end
 
-  basic = ENV["MATCH_GIT_BASIC_AUTHORIZATION"].to_s
-  return { git_basic_authorization: basic } unless basic.empty?
+  bearer = ENV["MATCH_GIT_BEARER_AUTHORIZATION"]
+  return { git_bearer_authorization: bearer } if bearer
+
+  basic = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+  return { git_basic_authorization: basic } if basic
 
   UI.user_error!("Set MATCH_GIT_BEARER_AUTHORIZATION (the PAT as-is) or MATCH_GIT_BASIC_AUTHORIZATION (base64 of user:PAT).")
 end
@@ -251,21 +305,49 @@ def set_pubspec_build_number(root, version_name, build)
   File.write("#{root}/pubspec.yaml", after, encoding: "UTF-8")
 end
 
-# Commits the bumped pubspec.yaml back to the branch the workflow ran on.
+# Commits the bumped pubspec.yaml, and the design system's gitlink, back to the
+# branch the workflow ran on.
 #
-# `git add pubspec.yaml` and nothing else: on CI the checkout is also carrying
-# a pbxproj switched to manual signing and an env/*.json written from a secret,
-# and neither may ever reach a commit. `[skip ci]` keeps the push from starting
-# the analyze-and-test workflow over a one-line version change.
+# Two paths and no others: on CI the checkout is also carrying a pbxproj
+# switched to manual signing and an env/*.json written from a secret, and
+# neither may ever reach a commit.
+#
+# The gitlink is in there because the workflow follows the design system's
+# branch rather than the commit the parent pins. Without recording where that
+# branch was, the IPA on TestFlight would contain a system_design commit this
+# repo never wrote down — and "what went out" would be unanswerable for half
+# the UI, which is the same failure the build-number rule exists to prevent.
+#
+# `[skip ci]` keeps the push from starting the analyze-and-test workflow over a
+# version bump that has already been built and shipped.
 def commit_build_number(root, version_name, build)
   branch = ENV["GITHUB_REF_NAME"]
   UI.user_error!("GITHUB_REF_NAME is unset — no branch to push the bump to.") if branch.nil? || branch.empty?
 
+  message = "chore: release - build #{version_name}+#{build} [skip ci]"
+
+  # The design system's commit is named in the message as well as staged in the
+  # tree. That is deliberate duplication, and the only kind this repo keeps: a
+  # gitlink shows up in neither `git log --oneline` nor a GitHub commit list,
+  # so the one place someone actually looks when asking "what shipped in 14?"
+  # is the one place the answer was missing. The tree remains the authority;
+  # the message is the copy that gets read.
+  design = design_system_commit(root)
+  message += "\n\nBuilt against system_design #{design}" if design
+
   Dir.chdir(root) do
-    sh("git", "add", "pubspec.yaml")
-    sh("git", "commit", "-m", "chore: release - build #{version_name}+#{build} [skip ci]")
+    sh("git", "add", "pubspec.yaml", "packages/system_design")
+    sh("git", "commit", "-m", message)
     sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
   end
+end
+
+# The design system's HEAD as `<short sha> <subject>`, or nil if the submodule
+# is not there to ask — a missing line in a commit message is not worth failing
+# a release that has already shipped.
+def design_system_commit(root)
+  out = `git -C "#{root}/packages/system_design" log -1 --format='%h %s' 2>/dev/null`.strip
+  out.empty? ? nil : out
 end
 
 # App Store Connect API key, from a file locally and from a secret in CI.

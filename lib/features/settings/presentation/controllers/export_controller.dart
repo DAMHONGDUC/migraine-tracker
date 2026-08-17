@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -14,6 +15,7 @@ import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../insights/providers.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
+import '../../../review/providers.dart';
 import '../../domain/entities/export_preview.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_kind.dart';
@@ -85,6 +87,15 @@ class ExportController {
       await _ref
           .read(exportSharerProvider)
           .shareFile(path: record.filePath, mimeType: record.kind.mimeType);
+
+      // The doctor report leaving the app is the value moment `PLAN.md` names
+      // — and the share sheet closing is the pause to ask in. Unawaited: a
+      // review prompt never holds up the flow that earned it.
+      if (record.kind == ExportKind.pdf) {
+        unawaited(
+          _ref.read(reviewPromptControllerProvider).onDoctorReportShared(),
+        );
+      }
     } catch (error, stackTrace) {
       AppLogger.error(
         'Share export failed',

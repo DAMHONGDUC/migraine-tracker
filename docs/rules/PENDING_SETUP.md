@@ -120,43 +120,29 @@ carries whatever capabilities the App ID has at the moment it is created, so
 match can succeed and the build still fail to sign — the error names the
 missing entitlement, not the missing portal step.
 
-1. **An App Store Connect API key.** Users and Access → Integrations → App
-   Store Connect API → a key with the **App Manager** role. Gives
-   `AuthKey_XXXXXXXX.p8`, a Key ID and an Issuer ID. Downloadable once, like
-   the APNs and WeatherKit keys, and a different key from both. It replaces an
-   Apple ID login, which is the point: 2FA has no answer a runner can give.
+**How each credential is created, where it lives, and every failure mode paid
+for so far is in `docs/release/CREDENTIALS.md`.** That file is the authority;
+this list is only the register of what is still outstanding.
+
+1. **An App Store Connect API key**, App Manager role. Downloadable once, like
+   the APNs and WeatherKit keys, and a different key from both.
 2. **A private git repo for `match`** — e.g. `DAMHONGDUC/certificates`. It
    holds a real distribution certificate's private key, encrypted with the
    match passphrase. Private, and not this repo.
-3. **`fastlane certificates`, run once from the Mac** (`cd ios && bundle exec
+3. **A fine-grained PAT** scoped to that repo alone, Contents: Read-only.
+4. **`fastlane certificates`, run once from the Mac** (`cd ios && bundle exec
    fastlane certificates`). It mints the distribution certificate and the two
    App Store profiles — app and widget extension — and pushes them to that
    repo. CI is `readonly: true` and can only install what already exists.
-4. **Repository secrets** (Settings → Secrets and variables → Actions):
-   - `ENV_PROD_JSON` / `ENV_DEV_JSON` — the entire contents of `env/prod.json`
-     and `env/dev.json`. The whole file, so adding a key later needs no
-     workflow change.
-   - `ASC_KEY_ID`, `ASC_ISSUER_ID` — from step 1.
-   - `ASC_KEY_CONTENT` — the `.p8`, base64:
-     `base64 -i AuthKey_XXXXXXXX.p8 | pbcopy`. Base64 because the file is
-     multi-line, and a secret that loses its newlines fails as an unreadable
-     key rather than as a missing one.
-   - `MATCH_PASSWORD` — the passphrase chosen during step 3.
-   - `MATCH_GIT_URL` — the repo from step 2. Optional; `Matchfile` has a
-     default.
-   - **One of** `MATCH_GIT_BEARER_AUTHORIZATION` (the PAT verbatim) or
-     `MATCH_GIT_BASIC_AUTHORIZATION` (base64 of `<github-username>:<PAT>`), so
-     the runner can clone the private certs repo. Bearer is the one with fewer
-     ways to go wrong; Basic exists because it is what most match documentation
-     shows. Set one, not both — the lane prefers bearer and treats an empty
-     value as absent, because an empty header fails exactly like a wrong token.
-     Use a **fine-grained** PAT scoped to that one repo with **Contents:
-     Read-only** — CI runs `match` in readonly mode and never needs to write,
-     so a leaked token then reaches nothing else.
-   - `FIREBASE_IOS_APP_ID` — the `1:…:ios:…` id, for the Crashlytics symbol
-     upload. Optional: unset simply skips that step with a warning. It is an
-     env var rather than `GoogleService-Info.plist` because that file is
-     gitignored and absent from a CI checkout.
+5. **`ios/fastlane/.env`** on the developer's Mac — six keys, gitignored.
+6. **Repository secrets** (Settings → Secrets and variables → Actions):
+   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
+   `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and **one of**
+   `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   `FIREBASE_IOS_APP_ID` is optional — unset simply skips the Crashlytics
+   symbol upload with a warning. It is an env var rather than
+   `GoogleService-Info.plist` because that file is gitignored and absent from a
+   CI checkout.
 5. **Fastlane on the Mac**, for step 3 and for a local run: `brew install
    fastlane`, or rbenv plus `cd ios && bundle install`. The system Ruby is
    2.6 and deprecated — installing gems into it needs sudo and is not worth
