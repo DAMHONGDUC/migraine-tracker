@@ -24,6 +24,14 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   whatever is on that branch, NOT what the parent commit pins. When the branch
   moves ahead, `packages/system_design` shows as modified; commit that gitlink
   deliberately, and never assume an old parent commit rebuilds byte-for-byte.
+  **CI follows the same branch** — `git submodule update --remote` runs after
+  checkout in both workflows, because a laptop and a runner quietly building
+  different design systems is the worse failure. The price is that no build is
+  reproducible from its commit alone, and a broken push to the design system's
+  `main` breaks this repo's CI with nothing here having changed. Note that
+  `branch = main` in `.gitmodules` does *not* do this on its own: plain
+  `actions/checkout` still takes the pinned gitlink, and only `--remote` reads
+  that line.
 - `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.
@@ -45,7 +53,7 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   - Why the script exists at all is in its header and in the RevenueCat section below: Xcode's Product > Archive cannot pass `--dart-define-from-file`, and the resulting crash names nothing to do with the missing flag.
 - `cd ios && bundle exec fastlane beta flavor:prod` — the same build, plus signing, export and the TestFlight upload. **Fastlane never archives**: it shells out to `tool/build-ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an archive made without it is the `[core/no-app]` crash above. Do not "simplify" the lane into `build_app`.
   - **The release is a manually triggered workflow** (`release-ios.yml`, `workflow_dispatch`), runnable from any branch — but GitHub lists a `workflow_dispatch` entry only once its file is on the **default** branch. The bump commit goes back to the branch chosen, so a protected `main` rejects it and the job fails with the build already up.
-  - **CI bumps the build number by rewriting `pubspec.yaml`, never with `--build-number`**, and pushes that commit only **after** the upload succeeds. The rule protects that the number exists in git, not that a human typed it; a bump with no build is a gap in the numbering, a build with no commit is what the rule exists to prevent. It takes `max(pubspec, TestFlight) + 1`, because App Store Connect refuses a number it has seen from any branch. The `bump` input off means the file is used as-is.
+  - **CI bumps the build number by rewriting `pubspec.yaml`, never with `--build-number`**, and pushes that commit only **after** the upload succeeds. The rule protects that the number exists in git, not that a human typed it; a bump with no build is a gap in the numbering, a build with no commit is what the rule exists to prevent. It takes `max(pubspec, TestFlight) + 1`, because App Store Connect refuses a number it has seen from any branch. The `bump` input off means the file is used as-is — **and then nothing records the design system either**, since that commit is also what writes the submodule gitlink the release was built from.
   - **Manual signing is applied on CI only**, in the throwaway checkout — a runner has no Apple ID logged into Xcode, while a developer's Mac keeps automatic signing and never sees the pbxproj edit. `match` runs `readonly: true` there; the certificate is minted once from a real Mac by `fastlane certificates`, because a runner allowed to create them burns Apple's limit of three one failed job at a time.
   - **The lane writes `ExportOptions.plist`, not Flutter.** `--export-method` makes Flutter generate one mapping the **main bundle id only** — multi-target is a TODO in its own source — so the widget extension gets no profile and `exportArchive` fails after the whole build. `build-ipa.sh` drops its own `--export-method` when a caller passes a plist; Flutter refuses both together.
   - **dSYMs go to Crashlytics best effort**, after the upload. Bitcode is gone so nothing else sends them, but by then the build has shipped: every failure path warns rather than raises. Two fastlane defaults do not hold here — the `Pods/` binary path (Firebase is SPM) and `gsp_path` (`GoogleService-Info.plist` is gitignored).
