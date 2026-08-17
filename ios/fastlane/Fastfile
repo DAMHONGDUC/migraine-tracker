@@ -305,18 +305,27 @@ def set_pubspec_build_number(root, version_name, build)
   File.write("#{root}/pubspec.yaml", after, encoding: "UTF-8")
 end
 
-# Commits the bumped pubspec.yaml back to the branch the workflow ran on.
+# Commits the bumped pubspec.yaml, and the design system's gitlink, back to the
+# branch the workflow ran on.
 #
-# `git add pubspec.yaml` and nothing else: on CI the checkout is also carrying
-# a pbxproj switched to manual signing and an env/*.json written from a secret,
-# and neither may ever reach a commit. `[skip ci]` keeps the push from starting
-# the analyze-and-test workflow over a one-line version change.
+# Two paths and no others: on CI the checkout is also carrying a pbxproj
+# switched to manual signing and an env/*.json written from a secret, and
+# neither may ever reach a commit.
+#
+# The gitlink is in there because the workflow follows the design system's
+# branch rather than the commit the parent pins. Without recording where that
+# branch was, the IPA on TestFlight would contain a system_design commit this
+# repo never wrote down — and "what went out" would be unanswerable for half
+# the UI, which is the same failure the build-number rule exists to prevent.
+#
+# `[skip ci]` keeps the push from starting the analyze-and-test workflow over a
+# version bump that has already been built and shipped.
 def commit_build_number(root, version_name, build)
   branch = ENV["GITHUB_REF_NAME"]
   UI.user_error!("GITHUB_REF_NAME is unset — no branch to push the bump to.") if branch.nil? || branch.empty?
 
   Dir.chdir(root) do
-    sh("git", "add", "pubspec.yaml")
+    sh("git", "add", "pubspec.yaml", "packages/system_design")
     sh("git", "commit", "-m", "chore: release - build #{version_name}+#{build} [skip ci]")
     sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
   end

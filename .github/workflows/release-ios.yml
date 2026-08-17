@@ -39,6 +39,16 @@ jobs:
         with:
           submodules: recursive
 
+      # Same as ci.yml: take the tip of the branch `.gitmodules` names rather
+      # than the commit the gitlink pins, so CI builds the design system a
+      # developer's Mac has after `melos run set-up`.
+      #
+      # For a RELEASE that would otherwise put a system_design commit into a
+      # shipped IPA that this repo never records. The bump commit therefore
+      # carries the new gitlink alongside the build number — see the Fastfile.
+      - name: Follow the design system's branch
+        run: git submodule update --remote --recursive
+
       # The bump commit is authored by the Actions bot rather than by whoever
       # pressed the button: it is a machine-written line, and attributing it to
       # a person makes `git log` say they bumped a file they never opened.

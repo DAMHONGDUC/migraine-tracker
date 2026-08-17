@@ -26,6 +26,18 @@ jobs:
           channel: stable
           cache: true
 
+      # actions/checkout leaves each submodule at the commit the parent's
+      # gitlink records. This moves them onto the branch `.gitmodules` names
+      # (`main`) and takes its tip, which is what `melos run set-up` does on a
+      # developer's Mac — so CI and a laptop build the same design system
+      # instead of diverging silently until someone notices.
+      #
+      # The cost is real: a build is no longer reproducible from its commit,
+      # and a broken push to the design system's `main` breaks this workflow
+      # with nothing in this repo having changed.
+      - name: Follow the design system's branch
+        run: git submodule update --remote --recursive
+
       # Catches a checkout that succeeded but left the submodule empty. It
       # does NOT catch a gitlink whose commit was never pushed — that fails
       # the step above with "not our ref" and nothing here runs. There is no
