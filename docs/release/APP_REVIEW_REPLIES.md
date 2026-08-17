@@ -37,6 +37,11 @@ Send only after the App Privacy answers are corrected in App Store Connect.
 > Because the app performs no tracking, it does not present the App Tracking
 > Transparency permission request — asking permission to track when we do not
 > track would itself be misleading to the user.
+>
+> We have also renamed the Settings section previously headed "Tracking" to
+> "Monitoring", so that nothing in the interface can be read as referring to
+> cross-app tracking. That section covers only the barometric pressure,
+> activity and sleep readings the app watches on the user's own behalf.
 
 ## 2.3.8 — App icon and launch screen
 
@@ -85,7 +90,7 @@ Send only after a sandbox purchase has succeeded on a real device.
 >
 > To reach it: **Settings → the premium banner at the top of the screen**, or
 > any premium feature — for example the "Analysis" section of Settings →
-> Tracking → Sleep.
+> Monitoring → Sleep.
 
 ## 2.5.1 — HealthKit disclosure
 
