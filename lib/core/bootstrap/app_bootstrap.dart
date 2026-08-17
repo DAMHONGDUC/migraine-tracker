@@ -3,13 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:system_design/common.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../core/constants/log_tag_constant.dart';
 import '../../firebase_options.dart';
 import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
-import '../logging/app_logger.dart';
 import '../logging/crash_reporter.dart';
 
 /// One-time app initialization run before `runApp`: Firebase with crash
@@ -51,6 +52,11 @@ final class AppBootstrap {
       );
 
       await CrashReporter.init();
+      // After init, so the first report SdLogger forwards has somewhere to go.
+      // Before this line every `SdLogger.error` in the app printed and
+      // reported to the package's no-op; after it, the same calls reach
+      // Crashlytics without any of them naming Crashlytics.
+      SdCrashReporter.attach(const FirebaseCrashReporter());
       CrashReporter.setCustomKey('flavor', AppEnv.flavor);
       await AppAnalytics.init();
 
@@ -66,7 +72,8 @@ final class AppBootstrap {
           );
       await _ensureAnonymousSession();
     } catch (err, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.bootstrap,
         'Firebase init failed',
         error: err,
         stackTrace: stackTrace,
@@ -116,17 +123,13 @@ final class AppBootstrap {
           (await FlutterTimezone.getLocalTimezone()).identifier;
 
       tz.setLocalLocation(tz.getLocation(localTz));
-      AppLogger.info('App started', {'tz': localTz});
+      SdLogger.info(LogTagConstant.bootstrap, 'App started', {'tz': localTz});
     } catch (err, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.bootstrap,
         'Timezone init failed, reminders fall back to UTC',
         error: err,
         stackTrace: stackTrace,
-      );
-      CrashReporter.recordError(
-        err,
-        stackTrace,
-        reason: 'Timezone init failed, reminders fall back to UTC',
       );
     }
   }
@@ -139,7 +142,8 @@ final class AppBootstrap {
 
     FlutterError.onError = (FlutterErrorDetails details) {
       previousOnError?.call(details);
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.bootstrap,
         'Flutter framework error',
         error: details.exception,
         stackTrace: details.stack,

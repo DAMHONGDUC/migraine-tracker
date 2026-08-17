@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/geo_point.dart';
 
 /// Abstracts geolocator so repositories are testable without the plugin.
@@ -38,10 +39,14 @@ class FakeLocationSource implements LocationSource {
   Future<GeoPoint?> currentPosition() async {
     // Loud on purpose: every weather number downstream is from somewhere the
     // device is not, and that must be obvious in the log rather than deduced.
-    AppLogger.warning('Faked position', <String, Object?>{
-      'latitude': point.latitude,
-      'longitude': point.longitude,
-    });
+    SdLogger.warning(
+      LogTagConstant.location,
+      'Faked position',
+      <String, Object?>{
+        'latitude': point.latitude,
+        'longitude': point.longitude,
+      },
+    );
 
     return point;
   }
@@ -58,7 +63,10 @@ class GeolocatorLocationSource implements LocationSource {
   Future<GeoPoint?> currentPosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
-        AppLogger.warning('No position: location services are off');
+        SdLogger.warning(
+          LogTagConstant.location,
+          'No position: location services are off',
+        );
 
         return null;
       }
@@ -70,7 +78,11 @@ class GeolocatorLocationSource implements LocationSource {
       if (!_granted(permission)) {
         // Every weather read starts here, so the reason there is no weather
         // is usually this line rather than anything the backend did.
-        AppLogger.warning('No position: permission', permission.name);
+        SdLogger.warning(
+          LogTagConstant.location,
+          'No position: permission',
+          permission.name,
+        );
 
         return null;
       }
@@ -87,7 +99,8 @@ class GeolocatorLocationSource implements LocationSource {
         longitude: position.longitude,
       );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.location,
         'Reading position failed',
         error: error,
         stackTrace: stackTrace,
@@ -108,11 +121,16 @@ class GeolocatorLocationSource implements LocationSource {
         permission = await Geolocator.requestPermission();
       }
 
-      AppLogger.info('Location permission', permission.name);
+      SdLogger.info(
+        LogTagConstant.location,
+        'Location permission',
+        permission.name,
+      );
 
       return _granted(permission);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.location,
         'Requesting location permission failed',
         error: error,
         stackTrace: stackTrace,

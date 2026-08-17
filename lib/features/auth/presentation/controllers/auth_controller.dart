@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/logging/crash_reporter.dart';
 import '../../../settings/providers.dart';
 import '../../domain/entities/auth_user.dart';
@@ -39,12 +40,12 @@ class LoginController extends Notifier<LoginState> {
     }
 
     state = LoginState(pending: provider);
-    AppLogger.action('Sign in', provider.name);
+    SdLogger.action(LogTagConstant.signIn, 'Sign in', provider.name);
 
     try {
       await ref.read(authRepositoryProvider).signIn(provider);
       state = const LoginState();
-      AppLogger.info('Signed in', provider.name);
+      SdLogger.info(LogTagConstant.signIn, 'Signed in', provider.name);
       AppAnalytics.logLogin(provider.name);
       return true;
     } on AuthException catch (e, stackTrace) {
@@ -53,7 +54,8 @@ class LoginController extends Notifier<LoginState> {
       );
       // Backing out is not a failure — only real ones get logged.
       if (e.error != AuthError.cancelled) {
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.signIn,
           'Sign in failed (${e.error.name})',
           error: e,
           stackTrace: stackTrace,
@@ -66,7 +68,12 @@ class LoginController extends Notifier<LoginState> {
       return false;
     } catch (error, stackTrace) {
       // Anything not mapped to an AuthException has no UI state, but must not vanish from the console.
-      AppLogger.error('Sign in crashed', error: error, stackTrace: stackTrace);
+      SdLogger.error(
+        LogTagConstant.signIn,
+        'Sign in crashed',
+        error: error,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -81,7 +88,7 @@ class AccountController {
   final Ref _ref;
 
   Future<void> signOut() async {
-    AppLogger.action('Sign out');
+    SdLogger.action(LogTagConstant.account, 'Sign out');
     AppAnalytics.logSignOut();
     await _ref.read(authRepositoryProvider).signOut();
   }
@@ -96,7 +103,7 @@ class AccountController {
   /// Rethrows — unlike the background flows, someone is watching this one and
   /// the account still exists to retry with.
   Future<void> deleteAccount() async {
-    AppLogger.action('Delete account');
+    SdLogger.action(LogTagConstant.account, 'Delete account');
     try {
       // Apple first, and before the wipe. It re-opens the Apple sheet to get a
       // fresh authorization code, so it is the one step here the user can still
@@ -107,12 +114,12 @@ class AccountController {
       await _ref.read(authRepositoryProvider).deleteAccount();
       AppAnalytics.logAccountDeleted();
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.account,
         'Delete account failed',
         error: error,
         stackTrace: stackTrace,
       );
-      CrashReporter.recordError(error, stackTrace, reason: 'Account deletion');
       rethrow;
     }
   }
@@ -127,9 +134,9 @@ class AccountController {
 
     try {
       await _ref.read(userProfileRepositoryProvider).upsertFromAccount(user);
-      AppLogger.info('Profile synced', user.uid);
+      SdLogger.info(LogTagConstant.profile, 'Profile synced', user.uid);
     } catch (error, stackTrace) {
-      AppLogger.warning('Profile sync failed', error);
+      SdLogger.warning(LogTagConstant.profile, 'Profile sync failed', error);
       CrashReporter.recordError(
         error,
         stackTrace,
@@ -146,7 +153,7 @@ class AccountController {
     final String trimmed = displayName.trim();
 
     if (user == null || !user.isSignedIn || trimmed.isEmpty) return;
-    AppLogger.action('Update display name');
+    SdLogger.action(LogTagConstant.profile, 'Update display name');
     AppAnalytics.logProfileNameUpdated();
     await _ref
         .read(userProfileRepositoryProvider)

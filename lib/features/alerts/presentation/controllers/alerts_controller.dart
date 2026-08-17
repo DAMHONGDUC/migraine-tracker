@@ -1,10 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
-import '../../../../core/logging/crash_reporter.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
@@ -12,7 +12,6 @@ import '../../providers.dart';
 /// for the UI; the Firestore registration is a side effect of the actions
 /// so the whole screen keeps working offline (errors just surface).
 class AlertsController extends AsyncNotifier<AlertsSettings> {
-
   @override
   AlertsSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
@@ -25,7 +24,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
   Future<void> setEnabled(bool enabled) async {
     final current = state.requireValue;
 
-    AppLogger.action('Toggle pressure alerts', enabled);
+    SdLogger.action(LogTagConstant.alerts, 'Toggle pressure alerts', enabled);
     AppAnalytics.logAlertsToggled(enabled: enabled);
     state = await AsyncValue.guard(() async {
       final repo = ref.read(alertRegistrationRepositoryProvider);
@@ -35,19 +34,17 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
       } else {
         await repo.unregister();
       }
-      await ref.read(sharedPreferencesProvider).setBool(PrefsKeyConstant.alertsEnabled, enabled);
+      await ref
+          .read(sharedPreferencesProvider)
+          .setBool(PrefsKeyConstant.alertsEnabled, enabled);
       return current.copyWith(enabled: enabled);
     });
     if (state case AsyncError(:final error, :final stackTrace)) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.alerts,
         'Alerts registration failed',
         error: error,
         stackTrace: stackTrace,
-      );
-      CrashReporter.recordError(
-        error,
-        stackTrace,
-        reason: 'Alert registration failed',
       );
     }
   }
@@ -55,7 +52,11 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
   Future<void> setThreshold(double thresholdHpa) async {
     final current = state.requireValue;
 
-    AppLogger.action('Set alert threshold (hPa)', thresholdHpa);
+    SdLogger.action(
+      LogTagConstant.alerts,
+      'Set alert threshold (hPa)',
+      thresholdHpa,
+    );
     AppAnalytics.logAlertThresholdSet(thresholdHpa);
     try {
       await ref
@@ -68,7 +69,8 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
       }
       state = AsyncData(current.copyWith(thresholdHpa: thresholdHpa));
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.alerts,
         'Set alert threshold failed',
         error: error,
         stackTrace: stackTrace,

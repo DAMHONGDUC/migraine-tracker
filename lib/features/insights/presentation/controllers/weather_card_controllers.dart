@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/weather_metric.dart';
 
 /// Which reading the weather card's hourly row is showing.
@@ -13,7 +14,7 @@ class WeatherMetricController extends Notifier<WeatherMetric> {
   WeatherMetric build() => WeatherMetric.conditions;
 
   void set(WeatherMetric metric) {
-    AppLogger.action('Weather metric', metric.name);
+    SdLogger.action(LogTagConstant.weatherCard, 'Weather metric', metric.name);
     state = metric;
   }
 }
@@ -28,7 +29,7 @@ class WeatherDayController extends Notifier<int> {
   int build() => 0;
 
   void set(int index) {
-    AppLogger.action('Weather day', index);
+    SdLogger.action(LogTagConstant.weatherCard, 'Weather day', index);
     state = index;
   }
 }

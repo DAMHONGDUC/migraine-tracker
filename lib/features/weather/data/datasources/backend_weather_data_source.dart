@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_report.dart';
 import '../../domain/entities/weather_snapshot.dart';
@@ -51,7 +52,7 @@ class BackendWeatherDataSource {
       'full': full,
     };
 
-    AppLogger.action('Call getWeather', request);
+    SdLogger.action(LogTagConstant.weather, 'Call getWeather', request);
     try {
       final HttpsCallableResult<dynamic> result = await _functions
           .httpsCallable('getWeather')
@@ -64,7 +65,7 @@ class BackendWeatherDataSource {
           });
       final Map<Object?, Object?>? data = result.data as Map<Object?, Object?>?;
 
-      AppLogger.info('getWeather ok', <String, Object?>{
+      SdLogger.info(LogTagConstant.weather, 'getWeather ok', <String, Object?>{
         ...request,
         'hours': (data?['hours'] as List<Object?>?)?.length ?? 0,
         'days': (data?['days'] as List<Object?>?)?.length ?? 0,
@@ -79,7 +80,8 @@ class BackendWeatherDataSource {
       // a missing WeatherKit credential, a refused call, being offline —
       // arrives at the UI as "no weather" and nowhere else. `failed-
       // precondition` here is the backend saying its credentials are unset.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.weather,
         'getWeather failed',
         error: error,
         stackTrace: stackTrace,
@@ -93,7 +95,8 @@ class BackendWeatherDataSource {
 
       return null;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.weather,
         'getWeather failed',
         error: error,
         stackTrace: stackTrace,

@@ -7,8 +7,9 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
@@ -49,7 +50,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<AuthUser> signIn(AuthProviderKind provider) async {
-    AppLogger.action('Sign in', <String, Object?>{'provider': provider.name});
+    SdLogger.action(LogTagConstant.signIn, 'Sign in', <String, Object?>{
+      'provider': provider.name,
+    });
     try {
       final AuthCredential credential = switch (provider) {
         AuthProviderKind.google => await _googleCredential(),
@@ -57,14 +60,15 @@ class FirebaseAuthRepository implements AuthRepository {
       };
       final AuthUser user = await _link(credential);
 
-      AppLogger.info('Sign in ok', <String, Object?>{
+      SdLogger.info(LogTagConstant.signIn, 'Sign in ok', <String, Object?>{
         'provider': provider.name,
         'uid': user.uid,
       });
 
       return user;
     } on FirebaseAuthException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.signIn,
         'Sign in failed',
         error: error,
         stackTrace: stackTrace,
@@ -78,7 +82,8 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (error, stackTrace) {
       // Cancellation lands here too and is not a failure, but it is worth a
       // line: a sign-in that "did nothing" otherwise looks like a dead button.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.signIn,
         'Sign in failed',
         error: error,
         stackTrace: stackTrace,
@@ -92,9 +97,11 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<void> deleteAccount() async {
     final String? uid = _auth.currentUser?.uid;
 
-    AppLogger.action('Call $deleteAccountCallable', <String, Object?>{
-      'uid': uid,
-    });
+    SdLogger.action(
+      LogTagConstant.account,
+      'Call $deleteAccountCallable',
+      <String, Object?>{'uid': uid},
+    );
     try {
       // The function deletes the auth user too, so by the time it returns
       // there is nothing left to sign out of — but the local session still
@@ -103,13 +110,15 @@ class FirebaseAuthRepository implements AuthRepository {
           .httpsCallable(deleteAccountCallable)
           .call<dynamic>();
 
-      AppLogger.info('$deleteAccountCallable ok', <String, Object?>{
-        'uid': uid,
-        'response': result.data,
-      });
+      SdLogger.info(
+        LogTagConstant.account,
+        '$deleteAccountCallable ok',
+        <String, Object?>{'uid': uid, 'response': result.data},
+      );
       await signOut();
     } on FirebaseFunctionsException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.account,
         '$deleteAccountCallable failed',
         error: error,
         stackTrace: stackTrace,
@@ -137,20 +146,29 @@ class FirebaseAuthRepository implements AuthRepository {
     // implemented on iOS and macOS only, and an Apple-linked account reached
     // from Android would throw rather than skip.
     if (!linked || (!Platform.isIOS && !Platform.isMacOS)) {
-      AppLogger.info('Revoke Apple token skipped', <String, Object?>{
-        'uid': user?.uid,
-        'linked': linked,
-        'platform': Platform.operatingSystem,
-      });
+      SdLogger.info(
+        LogTagConstant.account,
+        'Revoke Apple token skipped',
+        <String, Object?>{
+          'uid': user?.uid,
+          'linked': linked,
+          'platform': Platform.operatingSystem,
+        },
+      );
 
       return;
     }
 
-    AppLogger.action('Revoke Apple token', <String, Object?>{'uid': user!.uid});
+    SdLogger.action(
+      LogTagConstant.account,
+      'Revoke Apple token',
+      <String, Object?>{'uid': user!.uid},
+    );
     // Outside the try: a cancelled sheet must reach the caller so the deletion
     // stops before anything is wiped, rather than being swallowed as a failed
     // revoke and letting the wipe run.
     final AuthorizationCredentialAppleID credential = await _appleAuthorization(
+      LogTagConstant.account,
       _sha256(_nonce()),
     );
 
@@ -158,15 +176,18 @@ class FirebaseAuthRepository implements AuthRepository {
       await _auth.revokeTokenWithAuthorizationCode(
         credential.authorizationCode,
       );
-      AppLogger.info('Revoke Apple token ok', <String, Object?>{
-        'uid': user.uid,
-      });
+      SdLogger.info(
+        LogTagConstant.account,
+        'Revoke Apple token ok',
+        <String, Object?>{'uid': user.uid},
+      );
     } on FirebaseAuthException catch (error, stackTrace) {
       // Swallowed on purpose. The user asked to delete their account, and a
       // failed revoke must not become the reason they cannot — that would
       // break App Store 5.1.1(v) to satisfy Apple's other rule. It is logged
       // loudly instead, and the deletion carries on.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.account,
         'Revoke Apple token failed, deleting anyway',
         error: error,
         stackTrace: stackTrace,
@@ -181,7 +202,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    AppLogger.action('Sign out', <String, Object?>{
+    SdLogger.action(LogTagConstant.account, 'Sign out', <String, Object?>{
       'uid': _auth.currentUser?.uid,
     });
     // Without this, the next sign-in skips the picker and silently lands back in the account just left.
@@ -198,24 +219,31 @@ class FirebaseAuthRepository implements AuthRepository {
     final User? user = _auth.currentUser;
 
     if (user == null || user.isAnonymous) {
-      AppLogger.warning('Display name skipped: no account');
+      SdLogger.warning(
+        LogTagConstant.profile,
+        'Display name skipped: no account',
+      );
 
       return;
     }
 
-    AppLogger.action('Update display name', <String, Object?>{
-      'uid': user.uid,
-      'length': displayName.length,
-    });
+    SdLogger.action(
+      LogTagConstant.profile,
+      'Update display name',
+      <String, Object?>{'uid': user.uid, 'length': displayName.length},
+    );
     try {
       await user.updateDisplayName(displayName);
       // userChanges() does not fire for a profile write on its own.
       await user.reload();
-      AppLogger.info('Display name updated', <String, Object?>{
-        'uid': user.uid,
-      });
+      SdLogger.info(
+        LogTagConstant.profile,
+        'Display name updated',
+        <String, Object?>{'uid': user.uid},
+      );
     } on FirebaseAuthException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.profile,
         'Update display name failed',
         error: error,
         stackTrace: stackTrace,
@@ -226,13 +254,14 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   Future<AuthCredential> _googleCredential() async {
-    AppLogger.action('Google sheet');
+    SdLogger.action(LogTagConstant.signIn, 'Google sheet');
     try {
       _googleInit ??= _google.initialize();
       await _googleInit;
 
       if (!_google.supportsAuthenticate()) {
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.signIn,
           'Google sheet unsupported',
           data: <String, Object?>{'platform': Platform.operatingSystem},
         );
@@ -243,18 +272,23 @@ class FirebaseAuthRepository implements AuthRepository {
       final String? idToken = account.authentication.idToken;
 
       if (idToken == null) {
-        AppLogger.error('Google sheet gave no id token');
+        SdLogger.error(LogTagConstant.signIn, 'Google sheet gave no id token');
         throw const AuthException(AuthError.unknown);
       }
 
-      AppLogger.info('Google sheet ok', _tokenClaims(idToken));
+      SdLogger.info(
+        LogTagConstant.signIn,
+        'Google sheet ok',
+        _tokenClaims(idToken),
+      );
 
       return GoogleAuthProvider.credential(idToken: idToken);
     } on GoogleSignInException catch (error, stackTrace) {
       // Logged before the mapping, not after: the AuthError below keeps the
       // category and throws away the code and description, which are the parts
       // that say what to fix.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.signIn,
         'Google sheet failed',
         error: error,
         stackTrace: stackTrace,
@@ -281,12 +315,16 @@ class FirebaseAuthRepository implements AuthRepository {
     // Apple signs the nonce into the token; without it the token could be replayed.
     final String rawNonce = _nonce();
     final AuthorizationCredentialAppleID credential = await _appleAuthorization(
+      LogTagConstant.signIn,
       _sha256(rawNonce),
     );
     final String? identityToken = credential.identityToken;
 
     if (identityToken == null) {
-      AppLogger.error('Apple sheet gave no identity token');
+      SdLogger.error(
+        LogTagConstant.signIn,
+        'Apple sheet gave no identity token',
+      );
       throw const AuthException(AuthError.unknown);
     }
 
@@ -295,7 +333,11 @@ class FirebaseAuthRepository implements AuthRepository {
     // id, so Firebase only accepts it when that same bundle id is registered
     // as an iOS app on the project. Printing it turns "Firebase said no" into
     // "Firebase was handed X and expected Y".
-    AppLogger.info('Apple identity token', _tokenClaims(identityToken));
+    SdLogger.info(
+      LogTagConstant.signIn,
+      'Apple identity token',
+      _tokenClaims(identityToken),
+    );
 
     return OAuthProvider(
       appleProviderId,
@@ -306,10 +348,16 @@ class FirebaseAuthRepository implements AuthRepository {
   ///
   /// Shared by signing in and by revoking: revocation needs a fresh
   /// authorization code, and the only way to get one is to ask Apple again.
+  ///
+  /// [tag] is the caller's flow, not this method's. The same sheet belongs to
+  /// signing in one time and to deleting an account the next, and a console
+  /// filtered on `Account - ` must show the sheet the deletion opened rather
+  /// than lose it under `Sign In`.
   Future<AuthorizationCredentialAppleID> _appleAuthorization(
+    String tag,
     String hashedNonce,
   ) async {
-    AppLogger.action('Apple sheet');
+    SdLogger.action(tag, 'Apple sheet');
     try {
       final AuthorizationCredentialAppleID credential =
           await SignInWithApple.getAppleIDCredential(
@@ -325,16 +373,18 @@ class FirebaseAuthRepository implements AuthRepository {
       // fields raise — a null token is why sign-in fails, and a null name is
       // why the account has none, Apple sending those only on the very first
       // authorization and never again.
-      AppLogger.info('Apple sheet ok', <String, Object?>{
+      SdLogger.info(tag, 'Apple sheet ok', <String, Object?>{
         'hasIdentityToken': credential.identityToken != null,
         'hasAuthorizationCode': credential.authorizationCode.isNotEmpty,
         'hasEmail': credential.email != null,
-        'hasName': credential.givenName != null || credential.familyName != null,
+        'hasName':
+            credential.givenName != null || credential.familyName != null,
       });
 
       return credential;
     } on SignInWithAppleNotSupportedException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        tag,
         'Apple sheet unsupported',
         error: error,
         stackTrace: stackTrace,
@@ -345,7 +395,8 @@ class FirebaseAuthRepository implements AuthRepository {
       // `unknown` covers half of `AuthorizationErrorCode` — the code and
       // Apple's own message are the only things that separate them, and the
       // mapping on the next line is where both stop existing.
-      AppLogger.error(
+      SdLogger.error(
+        tag,
         'Apple sheet failed',
         error: error,
         stackTrace: stackTrace,
@@ -361,7 +412,8 @@ class FirebaseAuthRepository implements AuthRepository {
         _ => AuthError.unknown,
       });
     } on SignInWithAppleException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        tag,
         'Apple sheet failed',
         error: error,
         stackTrace: stackTrace,
@@ -379,7 +431,7 @@ class FirebaseAuthRepository implements AuthRepository {
     // Which of the two calls ran decides which Firebase codes are even
     // possible below — `credential-already-in-use` only ever comes from the
     // link, `invalid-credential` from either.
-    AppLogger.action('Link credential', <String, Object?>{
+    SdLogger.action(LogTagConstant.signIn, 'Link credential', <String, Object?>{
       'provider': credential.providerId,
       'upgrading': upgrading,
       'uid': anonymous?.uid,
@@ -389,13 +441,17 @@ class FirebaseAuthRepository implements AuthRepository {
           ? await anonymous.linkWithCredential(credential)
           : await _auth.signInWithCredential(credential);
 
-      AppLogger.info('Link credential ok', <String, Object?>{
-        'uid': result.user?.uid,
-        'isNewUser': result.additionalUserInfo?.isNewUser,
-        'providers': result.user?.providerData
-            .map((UserInfo info) => info.providerId)
-            .toList(),
-      });
+      SdLogger.info(
+        LogTagConstant.signIn,
+        'Link credential ok',
+        <String, Object?>{
+          'uid': result.user?.uid,
+          'isNewUser': result.additionalUserInfo?.isNewUser,
+          'providers': result.user?.providerData
+              .map((UserInfo info) => info.providerId)
+              .toList(),
+        },
+      );
 
       return _toDomain(result.user)!;
     } on FirebaseAuthException catch (e) {
@@ -412,11 +468,15 @@ class FirebaseAuthRepository implements AuthRepository {
     // AuthException rather than a FirebaseAuthException — so without this line
     // the only thing that ever reached the log was "unknown", and the code
     // naming the actual cause was thrown away at the one point that knew it.
-    AppLogger.warning('Link failed, recovering', <String, Object?>{
-      'code': e.code,
-      'message': e.message,
-      'provider': credential.providerId,
-    });
+    SdLogger.warning(
+      LogTagConstant.signIn,
+      'Link failed, recovering',
+      <String, Object?>{
+        'code': e.code,
+        'message': e.message,
+        'provider': credential.providerId,
+      },
+    );
 
     switch (e.code) {
       // - the account already exists, so the anonymous UID can't absorb it — sign into it instead
@@ -449,7 +509,8 @@ class FirebaseAuthRepository implements AuthRepository {
         // Three codes collapse to one AuthError, so the console would show the
         // same word for three different console mistakes. This line keeps them
         // apart by naming what each one means.
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.signIn,
           'Provider not configured',
           error: e,
           data: <String, Object?>{
@@ -530,7 +591,8 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (error, stackTrace) {
       // The caller is building a log line and must not fail because of one:
       // a token this could not read is still a token Firebase may accept.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.signIn,
         'Token claims unreadable',
         error: error,
         stackTrace: stackTrace,

@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../weather/data/datasources/location_source.dart';
 import '../../domain/enums/alert_registration_error.dart';
 import '../../domain/repositories/alert_registration_repository.dart';
@@ -92,13 +93,16 @@ class FirebaseAlertRegistrationRepository
         'alertThreshold': thresholdHpa,
         'tz': DateTime.now().timeZoneName,
       }, SetOptions(merge: true));
-      AppLogger.info('Alerts registered', {'thresholdHpa': thresholdHpa});
+      SdLogger.info(LogTagConstant.alerts, 'Alerts registered', {
+        'thresholdHpa': thresholdHpa,
+      });
     } on AlertRegistrationException {
       rethrow;
     } catch (error, stackTrace) {
       // The mapping to `unknown` is what the UI needs and what the console
       // must not be left with — the real exception is only ever seen here.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.alerts,
         'Alerts registration failed',
         error: error,
         stackTrace: stackTrace,
@@ -134,10 +138,10 @@ class FirebaseAlertRegistrationRepository
     await _firestore.collection('users').doc(uid).set(<String, Object?>{
       'fcmToken': token,
     }, SetOptions(merge: true));
-    AppLogger.info('Push token registered', {'uid': uid});
+    SdLogger.info(LogTagConstant.alerts, 'Push token registered', {'uid': uid});
 
     await _functions.httpsCallable(testPushCallable).call<dynamic>();
-    AppLogger.info('Test push requested');
+    SdLogger.info(LogTagConstant.alerts, 'Test push requested');
   }
 
   /// An update, never a delete: the document also carries `premium`, which
@@ -157,7 +161,8 @@ class FirebaseAlertRegistrationRepository
       // Doc never created — nothing to forget.
       if (error.code == 'not-found') return;
 
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.alerts,
         'Clearing alert registration failed',
         error: error,
         stackTrace: stackTrace,

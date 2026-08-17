@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:system_design/common.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../review/providers.dart';
 import '../../../sync/domain/enums/sync_trigger.dart';
 import '../../../sync/providers.dart';
@@ -136,7 +137,7 @@ class LogController extends Notifier<LogFlowState> {
 
     try {
       await ref.read(attackRepositoryProvider).insert(attack);
-      AppLogger.action('Attack logged', {
+      SdLogger.action(LogTagConstant.attackLog, 'Attack logged', {
         'intensity': attack.intensity,
         'location': attack.location.name,
         'medication': medicationName,
@@ -164,7 +165,8 @@ class LogController extends Notifier<LogFlowState> {
       );
       state = LogFlowState(savedId: attack.id, step: LogStep.saved);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackLog,
         'Attack log failed',
         error: error,
         stackTrace: stackTrace,

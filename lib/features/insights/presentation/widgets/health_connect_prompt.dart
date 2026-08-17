@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../health/domain/enums/health_data_kind.dart';
 import '../../../health/providers.dart';
@@ -45,7 +45,8 @@ class HealthConnectPrompt extends ConsumerWidget {
     } catch (error, stackTrace) {
       // The controller already logged and rethrew; this turns it into
       // something the user can read.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.health,
         'Health connect prompt failed',
         error: error,
         stackTrace: stackTrace,

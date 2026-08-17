@@ -1,4 +1,6 @@
-import '../../../../core/logging/app_logger.dart';
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../weather/domain/repositories/weather_repository.dart';
 import '../entities/attack.dart';
 import '../repositories/attack_repository.dart';
@@ -18,16 +20,32 @@ class WeatherAttachService {
     try {
       final snapshot = await _weather.snapshotAt(attack.startedAt);
       if (snapshot == null) {
-        AppLogger.info('No weather snapshot yet; will backfill', attack.id);
+        SdLogger.info(
+          LogTagConstant.weatherAttach,
+          'No weather snapshot yet; will backfill',
+          attack.id,
+        );
         return;
       }
       await _attacks.attachWeather(attack.id, snapshot);
-      AppLogger.info('Weather attached to attack', attack.id);
+      SdLogger.info(
+        LogTagConstant.weatherAttach,
+        'Weather attached to attack',
+        attack.id,
+      );
       await backfillMissing();
     } on Exception catch (error, stackTrace) {
       // Swallow: the attack is already saved; weather comes later.
-      AppLogger.warning('Weather attach failed (will retry later)', error);
-      AppLogger.debug('Weather attach stack', stackTrace);
+      SdLogger.warning(
+        LogTagConstant.weatherAttach,
+        'Weather attach failed (will retry later)',
+        error,
+      );
+      SdLogger.debug(
+        LogTagConstant.weatherAttach,
+        'Weather attach stack',
+        stackTrace,
+      );
     }
   }
 

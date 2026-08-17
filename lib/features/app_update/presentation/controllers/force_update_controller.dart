@@ -1,8 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/logging/crash_reporter.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/entities/installed_app_version.dart';
@@ -53,14 +54,18 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
           );
 
       if (blocking == null) return;
-      AppLogger.warning('Force update required', {
+      SdLogger.warning(LogTagConstant.appUpdate, 'Force update required', {
         'installed': '${installed.buildName}+${installed.buildNumber}',
         'published': '${blocking.buildName}+${blocking.buildNumber}',
       });
       state = ForceUpdateState(blockingUpdate: blocking);
     } catch (error, stackTrace) {
       // Swallowed on purpose: see the fail-open note above.
-      AppLogger.warning('Force update check skipped', error);
+      SdLogger.warning(
+        LogTagConstant.appUpdate,
+        'Force update check skipped',
+        error,
+      );
       CrashReporter.recordError(
         error,
         stackTrace,
@@ -75,7 +80,7 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
     final PlatformUpdateConfig? blocking = state.blockingUpdate;
 
     if (blocking == null) return false;
-    AppLogger.action('Force update: open store');
+    SdLogger.action(LogTagConstant.appUpdate, 'Force update: open store');
     AppAnalytics.logForceUpdateCtaTapped();
     return ref.read(storeLauncherProvider).open(blocking.storeLink);
   }

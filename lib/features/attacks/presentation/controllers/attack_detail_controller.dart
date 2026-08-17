@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_location.dart';
 import '../../domain/enums/medication_effect.dart';
@@ -21,7 +22,7 @@ class AttackDetailController {
     required HeadLocation location,
     required String? medicationName,
   }) async {
-    AppLogger.action('Edit attack', id);
+    SdLogger.action(LogTagConstant.attackDetail, 'Edit attack', id);
     AppAnalytics.logAttackEdited();
     try {
       await _ref
@@ -33,7 +34,8 @@ class AttackDetailController {
             medicationName: medicationName,
           );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackDetail,
         'Update attack failed',
         error: error,
         stackTrace: stackTrace,
@@ -44,12 +46,15 @@ class AttackDetailController {
 
   /// Corrects the exertion answer, which the log flow's fourth step set.
   Future<void> updateExertion(String id, ExertionLevel? exertionLevel) async {
-    AppLogger.action('Edit attack exertion', id);
+    SdLogger.action(LogTagConstant.attackDetail, 'Edit attack exertion', id);
     AppAnalytics.logAttackEdited();
     try {
-      await _ref.read(attackRepositoryProvider).updateExertion(id, exertionLevel);
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateExertion(id, exertionLevel);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackDetail,
         'Update attack exertion failed',
         error: error,
         stackTrace: stackTrace,
@@ -60,12 +65,13 @@ class AttackDetailController {
 
   /// Records (or takes back) when the attack stopped.
   Future<void> updateEndedAt(String id, DateTime? endedAt) async {
-    AppLogger.action('Edit attack end', id);
+    SdLogger.action(LogTagConstant.attackDetail, 'Edit attack end', id);
     AppAnalytics.logAttackEdited();
     try {
       await _ref.read(attackRepositoryProvider).updateEndedAt(id, endedAt);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackDetail,
         'Update attack end failed',
         error: error,
         stackTrace: stackTrace,
@@ -79,14 +85,19 @@ class AttackDetailController {
     String id,
     MedicationEffect? effect,
   ) async {
-    AppLogger.action('Edit attack medication effect', id);
+    SdLogger.action(
+      LogTagConstant.attackDetail,
+      'Edit attack medication effect',
+      id,
+    );
     AppAnalytics.logAttackEdited();
     try {
       await _ref
           .read(attackRepositoryProvider)
           .updateMedicationEffect(id, effect);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackDetail,
         'Update attack medication effect failed',
         error: error,
         stackTrace: stackTrace,
@@ -96,12 +107,13 @@ class AttackDetailController {
   }
 
   Future<void> delete(String id) async {
-    AppLogger.action('Delete attack', id);
+    SdLogger.action(LogTagConstant.attackDetail, 'Delete attack', id);
     AppAnalytics.logAttackDeleted();
     try {
       await _ref.read(attackRepositoryProvider).deleteById(id);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackDetail,
         'Delete attack failed',
         error: error,
         stackTrace: stackTrace,

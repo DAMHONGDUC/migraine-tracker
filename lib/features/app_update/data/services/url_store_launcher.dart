@@ -1,6 +1,7 @@
+import 'package:system_design/common.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/services/store_launcher.dart';
 
 class UrlStoreLauncher implements StoreLauncher {
@@ -13,7 +14,11 @@ class UrlStoreLauncher implements StoreLauncher {
     final Uri? uri = Uri.tryParse(url);
 
     if (uri == null) {
-      AppLogger.warning('Store link not opened, unparseable url', url);
+      SdLogger.warning(
+        LogTagConstant.appUpdate,
+        'Store link not opened, unparseable url',
+        url,
+      );
 
       return false;
     }
@@ -22,7 +27,8 @@ class UrlStoreLauncher implements StoreLauncher {
     } catch (error, stackTrace) {
       // The force-update screen's only button — a silent false leaves the
       // user stuck on it with nothing said anywhere.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.appUpdate,
         'Store launch failed: $url',
         error: error,
         stackTrace: stackTrace,

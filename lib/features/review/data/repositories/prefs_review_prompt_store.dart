@@ -1,7 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/review_prompt_state.dart';
 import '../../domain/repositories/review_prompt_store.dart';
 
@@ -35,7 +36,7 @@ class PrefsReviewPromptStore implements ReviewPromptStore {
       PrefsKeyConstant.reviewPromptLastAskedAt,
       at.toUtc().toIso8601String(),
     );
-    AppLogger.info('Review prompt recorded', {
+    SdLogger.info(LogTagConstant.review, 'Review prompt recorded', {
       'askCount': next,
       'askedAt': at.toUtc().toIso8601String(),
     });

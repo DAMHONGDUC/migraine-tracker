@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/services/attack_cipher.dart';
 
@@ -108,7 +109,8 @@ class AesGcmAttackCipher implements AttackCipher {
         // Counted by the caller, never rethrown: the ciphertext will not
         // change, so retrying it forever would wedge the pull. Logged
         // because a wrong key looks exactly like an empty sync otherwise.
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.syncCrypto,
           'Decrypting a synced record failed',
           error: error,
           stackTrace: stackTrace,

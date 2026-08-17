@@ -1,5 +1,7 @@
 # BaroEase
 
+BaroEase: Migraine Tracker
+
 Migraine tracker with barometric pressure alerts. Flutter, iOS first.
 
 See `CLAUDE.md` for architecture and `PLAN.md` for the product spec.

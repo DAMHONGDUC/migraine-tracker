@@ -1,8 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
 
 /// The seed behind the dev-only fake HealthKit, or null when it is off.
 ///
@@ -11,14 +12,15 @@ import '../../../../core/logging/app_logger.dart';
 /// restart reproduces the same.
 class DevHealthSeedController extends Notifier<int?> {
   @override
-  int? build() =>
-      ref.watch(sharedPreferencesProvider).getInt(PrefsKeyConstant.devHealthSeed);
+  int? build() => ref
+      .watch(sharedPreferencesProvider)
+      .getInt(PrefsKeyConstant.devHealthSeed);
 
   Future<void> set(int seed) async {
     await ref
         .read(sharedPreferencesProvider)
         .setInt(PrefsKeyConstant.devHealthSeed, seed);
-    AppLogger.action('Dev health seed set', seed);
+    SdLogger.action(LogTagConstant.devHealthSeed, 'Dev health seed set', seed);
     state = seed;
   }
 
@@ -26,7 +28,7 @@ class DevHealthSeedController extends Notifier<int?> {
     await ref
         .read(sharedPreferencesProvider)
         .remove(PrefsKeyConstant.devHealthSeed);
-    AppLogger.action('Dev health seed cleared');
+    SdLogger.action(LogTagConstant.devHealthSeed, 'Dev health seed cleared');
     state = null;
   }
 }

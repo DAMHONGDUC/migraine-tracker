@@ -1,8 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/env/app_env.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/premium_offer.dart';
 import '../../domain/enums/premium_period.dart';
 import '../../domain/enums/purchase_error.dart';
@@ -122,7 +123,8 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
       // - Mapping drops the SDK's own code, which is the readable half.
       // - Cancelling is the user's choice, not a failure.
       if (mapped != PurchaseError.cancelled) {
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.purchase,
           'RevenueCat call failed',
           error: error,
           stackTrace: stackTrace,
@@ -132,7 +134,8 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
       throw PurchaseException(mapped, error.message);
     } on StateError catch (error, stackTrace) {
       // The missing-key throw from RevenueCatClient.apiKey.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.purchase,
         'RevenueCat is not configured',
         error: error,
         stackTrace: stackTrace,

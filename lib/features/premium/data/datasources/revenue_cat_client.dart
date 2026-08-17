@@ -1,9 +1,10 @@
 import 'dart:io';
 
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/env/app_env.dart';
-import '../../../../core/logging/app_logger.dart';
 
 /// Owns the one-time `Purchases.configure` and the entitlement name.
 ///
@@ -77,14 +78,15 @@ class RevenueCatClient {
       'entitlement': entitlementId,
     };
 
-    AppLogger.action('Configure RevenueCat', what);
+    SdLogger.action(LogTagConstant.revenueCat, 'Configure RevenueCat', what);
     try {
       await Purchases.configure(PurchasesConfiguration(apiKey));
-      AppLogger.info('RevenueCat configured', what);
+      SdLogger.info(LogTagConstant.revenueCat, 'RevenueCat configured', what);
     } catch (error, stackTrace) {
       // A StateError from `apiKey` lands here, which is the handled
       // "no key in this build" path the paywall reports as notConfigured.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.revenueCat,
         'Configure RevenueCat failed',
         error: error,
         stackTrace: stackTrace,

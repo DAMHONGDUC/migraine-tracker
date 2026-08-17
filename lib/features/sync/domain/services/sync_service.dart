@@ -1,4 +1,6 @@
-import '../../../../core/logging/app_logger.dart';
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../entities/encrypted_payload.dart';
 import '../entities/encrypted_record.dart';
 import '../entities/sync_collection.dart';
@@ -246,7 +248,8 @@ class SyncService {
     try {
       return binding.codec.decode(plaintext, id: change.id);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Decoding a synced ${binding.collection.name} record failed',
         error: error,
         stackTrace: stackTrace,

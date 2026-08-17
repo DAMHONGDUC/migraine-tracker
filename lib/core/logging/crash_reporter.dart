@@ -2,14 +2,18 @@ import 'dart:async';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:system_design/common.dart';
 
-import 'app_logger.dart';
+import '../constants/log_tag_constant.dart';
 
 /// Crash + non-fatal error reporting (Firebase Crashlytics).
 ///
-/// [AppLogger] is the *developer* console and is silent in release; this is
-/// the production eye. Both are called at the same places: log for the
-/// person running the app, report for the crashes nobody is watching.
+/// **The two are no longer called side by side.** `SdLogger.error` now hands
+/// every failure it prints to `SdCrashReporter.instance`, which
+/// [FirebaseCrashReporter] points here — so one call both prints for the
+/// developer and reports for the crashes nobody is watching. What is left on
+/// this class is the part that is Crashlytics' alone and has no logging
+/// equivalent: the global handlers, the cohort keys, the collection switch.
 ///
 /// PRIVACY: a report carries the stack trace, the custom keys set here and
 /// the (opaque) Firebase Auth UID — never attack data. Keep [reason] strings
@@ -44,7 +48,15 @@ abstract final class CrashReporter {
     // - Anything that escapes the framework: a failed async gap, a platform channel error.
     // - Returning true marks it handled, so the app survives.
     PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      AppLogger.error('Uncaught async error', error: error, stackTrace: stack);
+      // `recordError` below, not the one SdLogger would reach: this one is
+      // fatal, and the log line is only here so a debug console shows what
+      // the app just swallowed.
+      SdLogger.error(
+        LogTagConstant.bootstrap,
+        'Uncaught async error',
+        error: error,
+        stackTrace: stack,
+      );
       unawaited(crashlytics.recordError(error, stack, fatal: true));
       return true;
     };
@@ -75,4 +87,32 @@ abstract final class CrashReporter {
 
   static void setCollectionEnabled(bool enabled) =>
       unawaited(_crashlytics?.setCrashlyticsCollectionEnabled(enabled));
+}
+
+/// Points `SdLogger.error` at [CrashReporter].
+///
+/// The design system holds the `SdCrashReporter` contract and a no-op, and
+/// deliberately no vendor — `firebase_crashlytics` is this app's dependency,
+/// not the package's. This adapter is where the two meet, and it is the only
+/// file that would change if the app ever reported somewhere else.
+///
+/// Attached once, from `AppBootstrap`, after [CrashReporter.init]. Until then
+/// `SdLogger.error` reports to the no-op, which is what lets it be called from
+/// a `domain/` service or a unit test without starting Firebase.
+class FirebaseCrashReporter implements SdCrashReporter {
+  const FirebaseCrashReporter();
+
+  /// [reason] arrives already composed by `SdLogger` as `«tag» - «message» —
+  /// «data»`, which is what makes a report findable in the dashboard by the
+  /// flow it belongs to.
+  @override
+  void recordError(String reason, {Object? error, StackTrace? stackTrace}) {
+    // A log line without a thrown object still deserves a report, and
+    // Crashlytics needs *something* to title the issue — the composed reason
+    // is the best available stand-in.
+    CrashReporter.recordError(error ?? reason, stackTrace, reason: reason);
+  }
+
+  @override
+  void setUserId(String? uid) => CrashReporter.setUserId(uid);
 }

@@ -1,6 +1,7 @@
+import 'package:system_design/common.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/services/mail_launcher.dart';
 
 class UrlMailLauncher implements MailLauncher {
@@ -22,7 +23,8 @@ class UrlMailLauncher implements MailLauncher {
       return await launchUrl(uri);
     } catch (error, stackTrace) {
       // No mail client is the usual cause, and a bare false never says so.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.contact,
         'Mail launch failed',
         error: error,
         stackTrace: stackTrace,

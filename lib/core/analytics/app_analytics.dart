@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
+import 'package:system_design/common.dart';
 
-import '../logging/app_logger.dart';
+import '../../core/constants/log_tag_constant.dart';
 
 /// The single place the app talks to Firebase Analytics.
 ///
@@ -325,9 +326,13 @@ abstract final class AppAnalytics {
 
     try {
       await send();
-      AppLogger.debug('📊 $description');
+      SdLogger.debug(LogTagConstant.analytics, '📊 $description');
     } catch (error) {
-      AppLogger.warning('Analytics failed', '$description — $error');
+      SdLogger.warning(
+        LogTagConstant.analytics,
+        'Analytics failed',
+        '$description — $error',
+      );
     }
   }
 }

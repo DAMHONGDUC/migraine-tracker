@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/enums/history_period.dart';
 import '../../domain/enums/history_view_mode.dart';
@@ -14,7 +15,7 @@ class HistoryController extends Notifier<HistoryPeriod> {
   HistoryPeriod build() => HistoryPeriod.all;
 
   void select(HistoryPeriod period) {
-    AppLogger.action('History period', period.name);
+    SdLogger.action(LogTagConstant.history, 'History period', period.name);
     state = period;
   }
 
@@ -29,7 +30,7 @@ class HistoryViewModeController extends Notifier<HistoryViewMode> {
   HistoryViewMode build() => HistoryViewMode.list;
 
   void select(HistoryViewMode mode) {
-    AppLogger.action('History view', mode.name);
+    SdLogger.action(LogTagConstant.history, 'History view', mode.name);
     state = mode;
   }
 }

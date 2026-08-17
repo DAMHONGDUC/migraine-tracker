@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/env/app_env.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../providers.dart';
 
 /// Opens the mail app addressed to support. The contact screen only calls
@@ -12,13 +13,14 @@ class ContactController {
   final Ref _ref;
 
   Future<bool> emailSupport({required String subject, String? body}) async {
-    AppLogger.action('Contact support: email');
+    SdLogger.action(LogTagConstant.contact, 'Contact support: email');
     try {
       return await _ref
           .read(mailLauncherProvider)
           .open(to: AppEnv.supportEmail, subject: subject, body: body);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.contact,
         'Contact support email failed',
         error: error,
         stackTrace: stackTrace,

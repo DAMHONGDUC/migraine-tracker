@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/log_tag_constant.dart';
 import '../../../../../core/env/app_env.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/l10n/locale_provider.dart';
-import '../../../../../core/logging/app_logger.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/encrypted_record.dart';
 import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/remote_sync_repository.dart';
@@ -44,9 +45,10 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
         uid,
         collection,
       ).write(record.id, EncryptedRecordMapper.toDocument(record, uid));
-      AppLogger.debug('Sync push ok', what);
+      SdLogger.debug(LogTagConstant.sync, 'Sync push ok', what);
     } on FirebaseException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Sync push failed',
         error: error,
         stackTrace: stackTrace,
@@ -85,7 +87,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
           .nonNulls
           .toList();
 
-      AppLogger.info('Sync pull ok', <String, Object?>{
+      SdLogger.info(LogTagConstant.sync, 'Sync pull ok', <String, Object?>{
         'collection': collection.name,
         'since': since?.toIso8601String(),
         'documents': snapshot.docs.length,
@@ -96,7 +98,8 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
 
       return records;
     } on FirebaseException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Sync pull failed',
         error: error,
         stackTrace: stackTrace,

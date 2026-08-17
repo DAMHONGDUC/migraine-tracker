@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/repositories/sync_key_repository.dart';
 
 /// Fetches the account's key from the `getSyncKey` callable.
@@ -23,14 +24,18 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
     final String? cached = _cachedKey;
 
     if (cached != null && _cachedUid == uid) {
-      AppLogger.debug('$callable served from memory', <String, Object?>{
-        'uid': uid,
-      });
+      SdLogger.debug(
+        LogTagConstant.syncKey,
+        '$callable served from memory',
+        <String, Object?>{'uid': uid},
+      );
 
       return cached;
     }
 
-    AppLogger.action('Call $callable', <String, Object?>{'uid': uid});
+    SdLogger.action(LogTagConstant.syncKey, 'Call $callable', <String, Object?>{
+      'uid': uid,
+    });
     try {
       final HttpsCallableResult<dynamic> result = await _functions
           .httpsCallable(callable)
@@ -40,14 +45,15 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
       if (key is! String || key.isEmpty) {
         // The key itself is never logged — it decrypts the user's records.
         // Its absence and its length are what a reader needs.
-        AppLogger.error(
+        SdLogger.error(
+          LogTagConstant.syncKey,
           '$callable returned no key',
           data: <String, Object?>{'uid': uid, 'keys': _shape(result.data)},
         );
         throw StateError('getSyncKey returned no key');
       }
 
-      AppLogger.info('$callable ok', <String, Object?>{
+      SdLogger.info(LogTagConstant.syncKey, '$callable ok', <String, Object?>{
         'uid': uid,
         'keyLength': key.length,
       });
@@ -57,7 +63,8 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
       return key;
     } on FirebaseFunctionsException catch (error, stackTrace) {
       // code/details carry what a plain toString() drops.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.syncKey,
         '$callable failed',
         error: error,
         stackTrace: stackTrace,
@@ -70,7 +77,8 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
       );
       rethrow;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.syncKey,
         '$callable failed',
         error: error,
         stackTrace: stackTrace,

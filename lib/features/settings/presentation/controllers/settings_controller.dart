@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../health/domain/enums/health_data_kind.dart';
 import '../../../health/providers.dart';
 import '../../../onboarding/providers.dart';
@@ -28,22 +29,24 @@ class SettingsController extends Notifier<WipeStatus> {
   Future<void> deleteAll() async {
     int shownPercent = -1;
 
-    AppLogger.action('Delete all data (GDPR wipe)');
+    SdLogger.action(LogTagConstant.settings, 'Delete all data (GDPR wipe)');
     AppAnalytics.logDataWiped();
     state = const WipeStatus(isRunning: true);
     try {
-      await ref.read(dataWipeServiceProvider).wipeAll(
-        // Only when the whole percent moves: ten steps would otherwise
-        // rebuild the row for changes it cannot show.
-        onProgress: (int done, int steps) {
-          final double progress = done / (steps + 1);
-          final int percent = (progress * 100).round();
+      await ref
+          .read(dataWipeServiceProvider)
+          .wipeAll(
+            // Only when the whole percent moves: ten steps would otherwise
+            // rebuild the row for changes it cannot show.
+            onProgress: (int done, int steps) {
+              final double progress = done / (steps + 1);
+              final int percent = (progress * 100).round();
 
-          if (percent == shownPercent) return;
-          shownPercent = percent;
-          state = WipeStatus(isRunning: true, progress: progress);
-        },
-      );
+              if (percent == shownPercent) return;
+              shownPercent = percent;
+              state = WipeStatus(isRunning: true, progress: progress);
+            },
+          );
       // - nothing from Apple Health is stored, so there is nothing to delete
       // - but leaving it connected keeps the app reading sleep after the wipe
       await ref.read(healthControllerProvider.notifier).disconnectAll();
@@ -53,7 +56,8 @@ class SettingsController extends Notifier<WipeStatus> {
       await ref.read(devHealthSeedProvider.notifier).clear();
       state = const WipeStatus(isRunning: true, progress: 1);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Delete all data failed',
         error: error,
         stackTrace: stackTrace,
@@ -72,12 +76,13 @@ class SettingsController extends Notifier<WipeStatus> {
   /// that left old attacks behind would not be the first-install state it
   /// claims to be.
   Future<void> resetToOnboarding() async {
-    AppLogger.action('Reset to onboarding (dev)');
+    SdLogger.action(LogTagConstant.settings, 'Reset to onboarding (dev)');
     try {
       await deleteAll();
       await ref.read(onboardingControllerProvider).reset();
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Reset to onboarding failed',
         error: error,
         stackTrace: stackTrace,
@@ -94,13 +99,18 @@ class SettingsController extends Notifier<WipeStatus> {
   /// (hard rule), so "seeding" it means switching the dev fake on and
   /// connecting both sources — the reads then generate from the seed.
   Future<void> seedDevData() async {
-    AppLogger.action('Seed dev data');
+    SdLogger.action(LogTagConstant.settings, 'Seed dev data');
     try {
       await ref.read(devSeedServiceProvider).seed();
       await _seedHealth();
-      AppLogger.info('Seed dev data done', DevSeedService.seedCount);
+      SdLogger.info(
+        LogTagConstant.settings,
+        'Seed dev data done',
+        DevSeedService.seedCount,
+      );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Seed dev data failed',
         error: error,
         stackTrace: stackTrace,
@@ -122,5 +132,4 @@ class SettingsController extends Notifier<WipeStatus> {
       await ref.read(healthControllerProvider.notifier).connect(kind);
     }
   }
-
 }

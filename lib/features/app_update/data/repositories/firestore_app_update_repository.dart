@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/repositories/app_update_repository.dart';
 import 'app_update_mapper.dart';
@@ -21,7 +22,7 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
   /// by adding a record, so history stays in the collection.
   @override
   Future<AppUpdateConfig?> latest() async {
-    AppLogger.action('Read $collectionPath');
+    SdLogger.action(LogTagConstant.appUpdate, 'Read $collectionPath');
     try {
       final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
           .collection(collectionPath)
@@ -32,20 +33,21 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
       if (snapshot.docs.isEmpty) {
         // Not an error: hard rule 9 fails open, and "no record published"
         // is the normal state before the first release is announced.
-        AppLogger.info('$collectionPath is empty');
+        SdLogger.info(LogTagConstant.appUpdate, '$collectionPath is empty');
 
         return null;
       }
 
       final Map<String, dynamic> raw = snapshot.docs.first.data();
 
-      AppLogger.info('$collectionPath read', raw);
+      SdLogger.info(LogTagConstant.appUpdate, '$collectionPath read', raw);
 
       return AppUpdateMapper.fromMap(raw);
     } catch (error, stackTrace) {
       // The launch check swallows this and lets the user in (hard rule 9),
       // so this line is the only place the reason is ever stated.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.appUpdate,
         'Read $collectionPath failed',
         error: error,
         stackTrace: stackTrace,

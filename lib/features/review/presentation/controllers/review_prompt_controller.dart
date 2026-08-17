@@ -1,7 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../notifications/domain/entities/app_notification.dart';
 import '../../../notifications/providers.dart';
 import '../../domain/entities/review_prompt_state.dart';
@@ -43,7 +44,7 @@ class ReviewPromptController {
         attackAt: attackAt,
       );
 
-      AppLogger.info('Alert hit checked', {
+      SdLogger.info(LogTagConstant.review, 'Alert hit checked', {
         'alertAt': alert.occurredAt.toUtc().toIso8601String(),
         'hit': hit,
       });
@@ -51,7 +52,8 @@ class ReviewPromptController {
 
       await _consider(ReviewMoment.correctAlert);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.review,
         'Alert hit check failed',
         error: error,
         stackTrace: stackTrace,
@@ -62,7 +64,7 @@ class ReviewPromptController {
   /// Asks the platform when [ReviewPromptPolicy] allows it, and records the
   /// ask either way it lands.
   Future<void> _consider(ReviewMoment moment) async {
-    AppLogger.action('Review moment', moment.name);
+    SdLogger.action(LogTagConstant.review, 'Review moment', moment.name);
     try {
       final DateTime now = DateTime.now().toUtc();
       final ReviewPromptState state = await _ref
@@ -70,7 +72,7 @@ class ReviewPromptController {
           .read();
       final bool allowed = _policy.shouldAsk(state, now: now);
 
-      AppLogger.info('Review prompt considered', {
+      SdLogger.info(LogTagConstant.review, 'Review prompt considered', {
         'moment': moment.name,
         'askCount': state.askCount,
         'lastAskedAt': state.lastAskedAt?.toIso8601String(),
@@ -88,7 +90,8 @@ class ReviewPromptController {
       await _ref.read(reviewPromptStoreProvider).recordAsked(now);
       AppAnalytics.logReviewPromptRequested(moment: moment.name);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.review,
         'Review prompt failed',
         error: error,
         stackTrace: stackTrace,
