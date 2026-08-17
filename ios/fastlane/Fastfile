@@ -324,11 +324,30 @@ def commit_build_number(root, version_name, build)
   branch = ENV["GITHUB_REF_NAME"]
   UI.user_error!("GITHUB_REF_NAME is unset — no branch to push the bump to.") if branch.nil? || branch.empty?
 
+  message = "chore: release - build #{version_name}+#{build} [skip ci]"
+
+  # The design system's commit is named in the message as well as staged in the
+  # tree. That is deliberate duplication, and the only kind this repo keeps: a
+  # gitlink shows up in neither `git log --oneline` nor a GitHub commit list,
+  # so the one place someone actually looks when asking "what shipped in 14?"
+  # is the one place the answer was missing. The tree remains the authority;
+  # the message is the copy that gets read.
+  design = design_system_commit(root)
+  message += "\n\nBuilt against system_design #{design}" if design
+
   Dir.chdir(root) do
     sh("git", "add", "pubspec.yaml", "packages/system_design")
-    sh("git", "commit", "-m", "chore: release - build #{version_name}+#{build} [skip ci]")
+    sh("git", "commit", "-m", message)
     sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
   end
+end
+
+# The design system's HEAD as `<short sha> <subject>`, or nil if the submodule
+# is not there to ask — a missing line in a commit message is not worth failing
+# a release that has already shipped.
+def design_system_commit(root)
+  out = `git -C "#{root}/packages/system_design" log -1 --format='%h %s' 2>/dev/null`.strip
+  out.empty? ? nil : out
 end
 
 # App Store Connect API key, from a file locally and from a secret in CI.
