@@ -67,6 +67,10 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.15.0
   drift_dev: ^2.34.0
+  # Generates every launcher icon size from one source PNG. Build-time only —
+  # it writes files into ios/ and android/ and ships nothing into the app.
+  # Config is the `flutter_launcher_icons:` block at the bottom of this file.
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
@@ -83,3 +87,45 @@ flutter:
     - assets/fonts/noto_sans/
     - assets/icons/
     - assets/images/
+
+# Launcher icons. Regenerate with:
+#   dart run flutter_launcher_icons
+# after replacing image_path. Submission 1.0(11) was rejected under App Store
+# 2.3.8 for still shipping the default Flutter logo, so the generated files ARE
+# committed — a build made from a fresh clone without running this must not
+# quietly go out with placeholders again.
+#
+# CHECK `git diff ios/Runner.xcodeproj/project.pbxproj` AFTER EVERY RUN AND
+# REVERT IT. v0.14.4 writes the value `AppIcon` into
+# ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS, which is a
+# BOOLEAN setting — the right value in the wrong key, and in only two of the
+# three build configurations. The key it meant is
+# ASSETCATALOG_COMPILER_APPICON_NAME, which this project already sets to
+# AppIcon in all three. Nothing here needs the tool to touch the pbxproj at
+# all, so the whole diff is discardable: `git checkout -- ios/Runner.xcodeproj`.
+#
+# Contents.json and the icon PNGs are generated — the tool owns them. It
+# minifies Contents.json onto one line and adds the legacy iOS 6/7 sizes (50,
+# 57, 72). Both are ugly and both are harmless; do not hand-tidy them, because
+# the next run puts them straight back.
+flutter_launcher_icons:
+  image_path: "assets/images/app_icon.png"
+
+  ios: true
+  # MANDATORY, not a preference. App Store Connect rejects the 1024 marketing
+  # icon if it carries an alpha channel — `ITMS-90717 Invalid App Store Icon …
+  # can't be transparent nor contain an alpha channel` — and the upload fails
+  # after the whole build. The source PNG has alpha, so this flattens it onto
+  # background_color_ios first.
+  remove_alpha_ios: true
+  # The app's own background (AppColors.background), so flattening cannot show
+  # a seam against the artwork. Never white: the theme is dark by default and
+  # the users are photophobic.
+  background_color_ios: "#0C0C0E"
+
+  # Legacy mipmaps only, deliberately. Adaptive icons reserve the outer 18 of
+  # 108dp for the launcher's own mask, so a full-bleed design like this one
+  # loses its edges — here that is the teal scale down the left side. Doing it
+  # properly needs a separately padded foreground asset, which is Android
+  # polish, and this repo ships iOS first.
+  android: "ic_launcher"
