@@ -78,8 +78,10 @@ settings, sync.
   both directions.
 - **Every action logs, with its data.** API calls, taps, submits — a line going
   in and a line coming back. Errors carry the full error *and* the response.
-  Every `catch` logs before returning its substitute. Detail in
-  `docs/rules/CODE_STYLE.md`.
+  **Every `catch` logs, before it returns a substitute, maps to another error
+  type, or rethrows** — a `catch` that maps is the last frame that still holds
+  what actually went wrong, so a line it does not write is one nothing above it
+  can write either. Detail in `docs/rules/CODE_STYLE.md`.
 - **Dark mode is the default theme.** Users are photophobic. No pure white
   backgrounds anywhere; no flashing or strobing animations.
 - **Attack logging must work fully offline.** Weather is best-effort and
