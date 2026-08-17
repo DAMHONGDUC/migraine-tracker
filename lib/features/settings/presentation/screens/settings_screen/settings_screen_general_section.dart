@@ -3,7 +3,7 @@ part of 'settings_screen.dart';
 /// Account, notifications, language — the app itself.
 ///
 /// Anything about what the app *holds* goes in [_DataSection], and anything
-/// about what it *watches* in [_TrackingSection]; pressure, activity, sleep
+/// about what it *watches* in [_MonitoringSection]; pressure, activity, sleep
 /// and the widget all moved out to the latter.
 class _GeneralSection extends ConsumerWidget {
   const _GeneralSection();

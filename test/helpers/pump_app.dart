@@ -586,9 +586,9 @@ Future<PumpedApp> pumpApp(
   /// so a signed-out premium test would silently test the locked branch.
   bool? signedIn,
 
-  /// Off, as shipped: the Apple button shows but its flow is not wired up.
-  /// True covers the real path, which must work before submission.
-  bool appleSignIn = false,
+  /// On, as shipped: the Apple button runs the real flow (App Store 4.8).
+  /// False covers the kill-switch state, where tapping it says so instead.
+  bool appleSignIn = true,
 
   /// What `SdGlassV2.isSupported` reports. Defaults to true (the shipped iOS
   /// path); pass false to cover the Android/Skia fallback chrome.

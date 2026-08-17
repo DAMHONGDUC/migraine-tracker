@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Sign in with Apple. Mandatory because the app offers Google sign-in
+	     (App Store 4.8) — a build without this entitlement gets rejected.
+	     "Default" is the plain sign-in scope; the other value ("Existing")
+	     is only for apps migrating an existing account system.
+	     The App ID behind PRODUCT_BUNDLE_IDENTIFIER must carry the
+	     capability, or signing fails with "Provisioning profile doesn't
+	     include the com.apple.developer.applesignin entitlement". -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 	<key>com.apple.developer.healthkit</key>
 	<true/>
 	<!-- Empty on purpose: the "access" array is only for clinical health

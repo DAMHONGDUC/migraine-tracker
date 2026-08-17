@@ -55,10 +55,12 @@ void main() {
       await finishTest(tester);
     });
 
+    // The kill-switch state, not the shipped one: `appleSignIn: false` is
+    // what the Firebase/portal side breaking would look like.
     testWidgets('tapping Apple says it is not wired up, and does not try', (
       tester,
     ) async {
-      final app = await pumpApp(tester);
+      final app = await pumpApp(tester, appleSignIn: false);
       await openLogin(tester);
 
       await tapVisible(tester, find.text('Sign in with Apple'));
@@ -126,8 +128,8 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('the Apple path works once it is wired up', (tester) async {
-      final app = await pumpApp(tester, appleSignIn: true);
+    testWidgets('the Apple path runs, as shipped', (tester) async {
+      final app = await pumpApp(tester);
       await openLogin(tester);
 
       await tapVisible(tester, find.text('Sign in with Apple'));

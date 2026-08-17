@@ -12,6 +12,7 @@ still missing.
 | Fine-grained PAT | Clone the private certificates repo | base64 in `ios/fastlane/.env` | `MATCH_GIT_BASIC_AUTHORIZATION` |
 | match passphrase | Decrypt the certificate | `ios/fastlane/.env` | `MATCH_PASSWORD` |
 | `env/*.json` | Firebase and RevenueCat config | `env/dev.json`, `env/prod.json` | `ENV_DEV_JSON`, `ENV_PROD_JSON` |
+| `GoogleService-Info.plist` | Firebase's own iOS config, a build input | `ios/Runner/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST` (base64) |
 
 ## The App Store Connect API key
 
@@ -104,6 +105,30 @@ cut -d= -f1 ios/fastlane/.env
 Six names, each on its own line, is correct. A name that is missing, or one
 that appears glued to the end of another value, is the failure this check
 exists to catch.
+
+## `GoogleService-Info.plist`
+
+Firebase console → the iOS app → download. It belongs at
+`ios/Runner/GoogleService-Info.plist` and is gitignored, so a CI checkout does
+not have it — and unlike `env/*.json` it is a **build input** of the Runner
+target, listed in the pbxproj's Resources. Missing, it does not degrade
+anything at runtime; the archive itself fails, after the full compile:
+
+```
+Build input file cannot be found: '.../ios/Runner/GoogleService-Info.plist'
+```
+
+The workflow writes it from `GOOGLE_SERVICE_INFO_PLIST`, base64 for the same
+reason as the API key — multi-line XML whose newlines must survive the round
+trip:
+
+```sh
+base64 -i ios/Runner/GoogleService-Info.plist | pbcopy
+```
+
+One secret covers both flavors because `env/dev.json` and `env/prod.json`
+point at the same Firebase project. A second project means a second secret and
+a `case` in the workflow, like the env step already has.
 
 ## Rotating
 

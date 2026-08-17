@@ -115,6 +115,34 @@ jobs:
           mkdir -p env
           printf '%s' "$CONTENT" > "env/$FLAVOR.json"
 
+      # ios/Runner/GoogleService-Info.plist is gitignored too, and unlike
+      # env/*.json it is a BUILD INPUT of the Runner target — the pbxproj lists
+      # it in Resources. Without this step the archive dies with "Build input
+      # file cannot be found", 300 seconds in, on a message that names a path
+      # and no reason.
+      #
+      # One secret, not one per flavor: both env files point at the same
+      # Firebase project today (docs/rules/PENDING_SETUP.md). Split them the
+      # way the env step splits its two the day that stops being true.
+      #
+      # Base64, because the file is multi-line XML and a secret that loses its
+      # newlines fails as an unreadable plist rather than as a missing one —
+      # same reasoning as ASC_KEY_CONTENT. `-D` is macOS's decode flag; this
+      # job only ever runs on macos-*.
+      - name: Write GoogleService-Info.plist
+        env:
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "::error::GOOGLE_SERVICE_INFO_PLIST is empty. Set it to the base64 of ios/Runner/GoogleService-Info.plist."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" | base64 -D > ios/Runner/GoogleService-Info.plist
+          # Checks the shape, never the contents: a truncated or wrongly
+          # encoded paste is otherwise indistinguishable from a good one until
+          # Firebase.initializeApp throws on a device.
+          plutil -lint ios/Runner/GoogleService-Info.plist
+
       - name: Bootstrap
         run: melos bootstrap
 

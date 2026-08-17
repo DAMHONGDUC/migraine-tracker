@@ -74,6 +74,77 @@ App ID — and `getToken()` returns null on the Simulator (no APNs), which
 `AlertRegistrationError.pushUnavailable`. That refusal is expected on the
 Simulator; never read it as a bug.
 
+### Sign in with Apple — the app ships it, the portal and Firebase do not have it
+
+`appleSignInImplementedProvider` is `true`, the entitlement is in
+`ios/Runner/Runner.entitlements`, and the whole Dart path (nonce,
+`linkWithCredential`, the repository) is done and tested. Submission 1.0(11)
+was rejected under **App Store 4.8** for the state before that: offering
+Google obliges us to offer Apple, and a button answering "coming soon" does
+not count as offering it. The console side does not exist yet, and **the
+order below matters** — an entitlement the App ID does not carry breaks
+device signing with "Provisioning profile doesn't include the
+com.apple.developer.applesignin entitlement", which names the entitlement,
+not the missing portal step.
+
+1. **The capability on the App ID.** Apple Developer portal → Identifiers →
+   the App ID behind `PRODUCT_BUNDLE_IDENTIFIER` → enable **Sign in with
+   Apple**. Then a **Services ID**, a **Key ID** and its `.p8` — downloadable
+   once, like the APNs and WeatherKit keys, and a different key from all of
+   them.
+2. **The Apple provider in Firebase.** Console → Authentication → Sign-in
+   method → **Apple**, filled with the Services ID, Team ID, Key ID and `.p8`.
+   Until this exists the flow reaches Firebase and comes back
+   `AuthError.notConfigured`, which looks like a bug in the app.
+3. **Re-run `fastlane certificates`** from the Mac, so the profiles are
+   re-created carrying the new capability. Existing profiles do not gain it.
+
+If any of it slips, flip `appleSignInImplementedProvider` back to `false`
+rather than shipping the failure — but that build cannot be submitted, which
+is the whole point of the switch.
+
+### App icon and launch screen — DONE, nothing outstanding
+
+Submission 1.0(11) was rejected under **App Store 2.3.8** for shipping the
+default Flutter logo at every size. Closed: the owner supplied the artwork at
+`assets/images/app_icon.png`, and `flutter_launcher_icons` generates the whole
+set from it — configured in the `flutter_launcher_icons:` block at the bottom
+of `pubspec.yaml`, which is also where the two traps are written down (the
+alpha channel, and the tool corrupting the pbxproj on every run). Regenerate
+with `dart run flutter_launcher_icons`.
+
+The white launch screen went with it, on both platforms — see the
+`fix: branding - the launch screen stops flashing white` commit. It was never
+a *launch image*: iOS ships 1×1 transparent placeholders, so the storyboard's
+own `backgroundColor` was the only thing ever on screen.
+
+**What is still worth a decision, though nothing blocks submission:** the icon
+is an AI-generated raster. Its strokes carry visible mottled texture and soft
+edges at 1024, and App Store product pages show that size large. Rebuilding
+the same design as vector would give flat exact brand colours and crisp edges
+from one source. Owner's call, and cosmetic either way.
+
+**Android is on legacy mipmaps, not adaptive icons.** Adaptive reserves the
+outer 18 of 108dp for the launcher's mask, which on this full-bleed design
+crops the teal scale off the left edge. Doing it properly needs a separately
+padded foreground asset — Android polish, not a blocker while the app ships
+iOS first.
+
+### App Privacy labels — they claim tracking the app does not do
+
+Submission 1.0(11) was rejected under **5.1.2(i)** for having no App Tracking
+Transparency prompt while the privacy labels declare Crash Data, Health and
+Fitness as *Used to Track You*. **The labels are wrong, not the app** —
+`pubspec.yaml` carries `firebase_analytics`, `firebase_crashlytics` and
+`firebase_messaging` and nothing else; there is no ad network, no attribution
+SDK, no IDFA read and no `AppTrackingTransparency` usage anywhere in the
+repo. Nothing is shared with a data broker or joined to third-party data.
+
+Owner, in App Store Connect (needs Account Holder or Admin): App Privacy →
+untick **Used to Track You** on those three, leaving them **collected**. Do
+not add ATT to satisfy the label — a prompt asking permission to do something
+the app does not do is its own rejection.
+
 ### WeatherKit — decided, nothing on the Apple side exists yet
 
 Weather moves to WeatherKit, called only from Cloud Functions (see the tech
@@ -115,7 +186,7 @@ What is NOT in the repo:
 the repo. How the pieces fit is in `docs/rules/COMMANDS.md`; the first Run
 workflow fails until every item below exists.
 
-**Do the HealthKit and App Group items above first.** A provisioning profile
+**Do the HealthKit, App Group and Sign in with Apple items above first.** A provisioning profile
 carries whatever capabilities the App ID has at the moment it is created, so
 match can succeed and the build still fail to sign — the error names the
 missing entitlement, not the missing portal step.
@@ -136,9 +207,12 @@ this list is only the register of what is still outstanding.
    repo. CI is `readonly: true` and can only install what already exists.
 5. **`ios/fastlane/.env`** on the developer's Mac — six keys, gitignored.
 6. **Repository secrets** (Settings → Secrets and variables → Actions):
-   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
-   `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and **one of**
-   `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST`, `ASC_KEY_ID`,
+   `ASC_ISSUER_ID`, `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and
+   **one of** `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   `GOOGLE_SERVICE_INFO_PLIST` is base64 of `ios/Runner/GoogleService-Info.plist`
+   — gitignored, and a build input of the Runner target, so without it the
+   archive fails rather than the app misbehaving.
    `FIREBASE_IOS_APP_ID` is optional — unset simply skips the Crashlytics
    symbol upload with a warning. It is an env var rather than
    `GoogleService-Info.plist` because that file is gitignored and absent from a
@@ -212,6 +286,15 @@ owner must do by hand:
    lifetime $44.99 — plus the Paid Apps Agreement, then the same three
    attached to a RevenueCat offering. Until an offering exists the paywall
    correctly shows "no plans available"; that is not a bug.
+   **Submission 1.0(11) was rejected under App Store 2.1(b) for exactly that
+   screen**, so the full checklist, in order: the Paid Apps Agreement signed
+   and *active*; all three IAPs in **Ready to Submit** and attached to the
+   build at submission; in RevenueCat, the three products in **one offering
+   marked Current**, under entitlement id `premium`; `REVENUECAT_IOS_KEY` a
+   real `appl_...` key (a `test_...` one is the fatal crash above, not an
+   empty paywall); and the whole thing bought once in **sandbox on a real
+   device** before resubmitting. A reviewer sees "no plans available" as a
+   non-functional app, and no amount of correct client code answers it.
 3. **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the
    store's own string, because the currency, its position and the decimal
    separator belong to the customer's storefront.

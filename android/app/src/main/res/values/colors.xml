@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppColors.background (lib/core/theme/app_colors.dart), repeated here
+         because the launch window is drawn by Android before any Dart runs, so
+         the app's own theme cannot reach it. Keep the two in step by hand.
+
+         It is a fixed dark value rather than ?android:colorBackground on
+         purpose: that attribute follows the OS light/dark setting, so a user
+         with the system in light mode got a pure white flash before a
+         dark app. CLAUDE.md forbids pure white anywhere — the users are
+         photophobic, and the splash is the one screen they cannot look away
+         from. -->
+    <color name="launch_background">#0C0C0E</color>
+</resources>

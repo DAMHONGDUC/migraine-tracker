@@ -68,6 +68,17 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
+# Gitignored, and a build input of the Runner target rather than a runtime
+# lookup — so its absence is not a Firebase error at launch, it is a failed
+# archive. Xcode does report it, but only after the full compile: five minutes
+# on a Mac and seven on a runner, to say a file is missing. Say it here.
+GSP="ios/Runner/GoogleService-Info.plist"
+if [ ! -f "$GSP" ]; then
+  warn "$GSP is missing — download it from the Firebase console (iOS app)."
+  warn "On CI it is written from the GOOGLE_SERVICE_INFO_PLIST secret."
+  exit 1
+fi
+
 # Both environments write to the same folder under the same filename, so a
 # stale IPA from the other one is indistinguishable from this build's. Clear
 # it first and there is exactly one file, and it is the one just built.

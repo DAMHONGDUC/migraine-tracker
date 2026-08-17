@@ -61,13 +61,17 @@ final isSignedInProvider = Provider<bool>((ref) {
   return user?.isSignedIn ?? false;
 });
 
-/// Whether Sign in with Apple is wired up end to end. False while its Apple
-/// Developer setup is outstanding — the button still shows, but tapping it
-/// says so instead of running a flow that can only fail.
+/// Whether Sign in with Apple is wired up end to end.
 ///
-/// MUST be true before submission: a "coming soon" button does not count as
-/// offering Apple, which Google obliges us to (App Store 4.8).
-final appleSignInImplementedProvider = Provider<bool>((ref) => false);
+/// True as shipped: offering Google obliges us to offer Apple (App Store
+/// 4.8), and submission 1.0(11) was rejected on exactly that — the button
+/// was on screen answering "coming soon", which does not count as offering
+/// it. It depends on console state this repo cannot hold (the capability on
+/// the App ID, the Apple provider in Firebase — `docs/setup/AUTH_SETUP.md`),
+/// so it stays a switch rather than being deleted: if that side ever breaks,
+/// flipping this back turns a provider error into a sentence the user can
+/// read. Never ship it false.
+final appleSignInImplementedProvider = Provider<bool>((ref) => true);
 
 /// Can the *device* serve Apple sign-in (false on Android, iOS < 13).
 /// [appleSignInImplementedProvider] is the separate question of whether *we*
