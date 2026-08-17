@@ -137,7 +137,7 @@ class _SignOutButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SdButtonV2(
-      variant: SdButtonVariantV2.outlined,
+      variant: SdButtonVariantV2.primary,
       onPressed: () => _signOut(context, ref),
       label: context.l10n.settingsSignOut,
       icon: Icons.logout,

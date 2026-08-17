@@ -68,8 +68,12 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
+    // Outlined rather than filled: this offers the deletion, the dialog behind
+    // it confirms it. Sign out above takes the filled `primary`, so the eye
+    // lands on the reversible action first — but the error tint keeps this one
+    // legible as the dangerous one, which a plain `outlined` did not.
     return SdButtonV2(
-      variant: SdButtonVariantV2.destructive,
+      variant: SdButtonVariantV2.outlinedDestructive,
       onPressed: _deleting ? null : _delete,
       label: _deleting ? l10n.commonDeleting : l10n.accountDelete,
       icon: Icons.delete_forever_outlined,
