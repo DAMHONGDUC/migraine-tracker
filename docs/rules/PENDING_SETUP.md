@@ -96,8 +96,25 @@ not the missing portal step.
    method → **Apple**, filled with the Services ID, Team ID, Key ID and `.p8`.
    Until this exists the flow reaches Firebase and comes back
    `AuthError.notConfigured`, which looks like a bug in the app.
-3. **Re-run `fastlane certificates`** from the Mac, so the profiles are
-   re-created carrying the new capability. Existing profiles do not gain it.
+3. **Re-run `fastlane certificates force:true`** from the Mac, so the profiles
+   are re-created carrying the new capability:
+
+   ```sh
+   cd ios && bundle exec fastlane certificates force:true
+   ```
+
+   **`force:true` is the whole step.** Existing profiles do not gain a
+   capability, and match without it finds a profile in the certificates repo
+   and installs that one unchanged — so step 1 appears to have done nothing.
+   CI's match is `readonly: true` and can only ever install what this command
+   pushed. `force` regenerates the profiles only; the distribution certificate
+   is untouched, so Apple's limit of three is not in play.
+
+   The release lane checks this before it builds: every key in
+   `Runner.entitlements` and `BaroEaseWidget.entitlements` must appear in the
+   matching installed profile, or the lane stops with the missing key named.
+   Rehearse it without a build: `cd ios && CI=true bundle exec fastlane
+   preflight`.
 
 If any of it slips, flip `appleSignInImplementedProvider` back to `false`
 rather than shipping the failure — but that build cannot be submitted, which
