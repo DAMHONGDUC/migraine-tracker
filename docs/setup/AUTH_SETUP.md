@@ -4,16 +4,19 @@ The app code is complete; these are the console/Xcode steps it depends on.
 Until they are done, tapping a sign-in button surfaces "Sign-in isn't set up
 yet" (`AuthError.notConfigured`) instead of signing in.
 
-> **Current state: Google works, Apple is on screen but not wired up.**
-> Both buttons show, so the login screen is laid out in its final shape;
-> tapping Apple answers "coming soon" instead of starting a flow that can
-> only fail. The switch is `appleSignInImplementedProvider`
-> (`lib/features/auth/providers.dart`), and the real Apple path stays
-> covered by tests via `pumpApp(appleSignIn: true)`.
+> **Current state: both providers run the real flow.**
+> `appleSignInImplementedProvider` (`lib/features/auth/providers.dart`) is
+> `true` and `ios/Runner/Runner.entitlements` carries
+> `com.apple.developer.applesignin`. What is left is console work only —
+> step 4, which is now required rather than deferred.
 >
-> **This cannot ship as-is.** Offering Google sign-in makes Sign in with
-> Apple mandatory (App Store 4.8), and a button that answers "coming soon"
-> does not count as offering it. Do step 4, flip that provider to `true`.
+> It used to be `false`: Apple's button showed and answered "coming soon".
+> **Submission 1.0(11) was rejected under App Store 4.8 for that** — offering
+> Google obliges us to offer Apple, and a "coming soon" button does not count
+> as offering it. The provider stays as a kill switch (tests cover the state
+> via `pumpApp(appleSignIn: false)`), so a broken console side becomes a
+> sentence the user can read instead of a provider error. **Never ship it
+> false** — such a build cannot be submitted.
 
 ## 1. Firebase console — enable the providers
 
@@ -22,9 +25,10 @@ Firebase console → Authentication → Sign-in method:
 - **Google** — enable. This is what mints the `CLIENT_ID` /
   `REVERSED_CLIENT_ID` keys that `ios/Runner/GoogleService-Info.plist`
   currently does **not** have.
-- **Apple** — deferred (see the note at the top). When you come back to it:
-  needs the Services ID, Team ID, Key ID and the `.p8` private key from the
-  Apple Developer portal.
+- **Apple** — enable. Needs the Services ID, Team ID, Key ID and the `.p8`
+  private key from the Apple Developer portal, so do step 4 first. Until this
+  provider exists the flow reaches Firebase and comes back
+  `AuthError.notConfigured`, which reads as a bug in the app.
 - **Anonymous** — must stay enabled: it is the default session (hard rule 1)
   and what `linkWithCredential` upgrades.
 
@@ -60,27 +64,38 @@ Not added yet because the value does not exist until step 2. Add to
 
 …where the string is the `REVERSED_CLIENT_ID` value verbatim.
 
-## 4. Apple Developer portal — Sign in with Apple capability (deferred)
+## 4. Apple Developer portal — Sign in with Apple capability (required)
 
-Not needed until Apple sign-in is switched back on.
+`ios/Runner/Runner.entitlements` now declares
+`com.apple.developer.applesignin = ["Default"]`, alongside the HealthKit and
+push keys it already held, and it is wired into all three Runner build
+configs. **The entitlement being in the repo is what makes the portal step
+urgent, not optional**: an entitlement the App ID does not carry makes the
+provisioning profile mismatch, and a device build fails with "Provisioning
+profile doesn't include the com.apple.developer.applesignin entitlement" —
+an error that names the entitlement rather than the missing portal step.
+That is why it was left out until the flow was ready to ship.
 
-The entitlements file and its `CODE_SIGN_ENTITLEMENTS` build settings were
-deliberately **removed** again: an entitlement the App ID does not carry
-makes the provisioning profile mismatch, and device builds then fail with
-"Provisioning profile doesn't include the com.apple.developer.applesignin
-entitlement". Declaring it early costs a broken build for no benefit.
+Order matters:
 
-To restore, let Xcode do both halves at once: Runner target → Signing &
-Capabilities → + Capability → Sign in with Apple. That re-creates
-`ios/Runner/Runner.entitlements`, wires `CODE_SIGN_ENTITLEMENTS`, and
-enables the capability on the App ID (`flyd.migraine.tracker`). Then flip
-`appleSignInImplementedProvider` to `true`.
+1. **Enable the capability on the App ID.** Either the portal (Identifiers →
+   the App ID behind `PRODUCT_BUNDLE_IDENTIFIER` → Sign in with Apple), or
+   let Xcode do it: Runner target → Signing & Capabilities → + Capability →
+   Sign in with Apple, which reconciles the checked-in entitlements file
+   rather than replacing it.
+2. **Create the Services ID, the Key ID and the `.p8`** — Certificates,
+   Identifiers & Profiles → Keys, ticking Sign in with Apple. Downloadable
+   once, like the APNs and WeatherKit keys, and a different key from both.
+3. **Fill Firebase's Apple provider** with them (step 1 above).
+4. **Re-run `fastlane certificates`** so the App Store profiles are minted
+   carrying the new capability — existing profiles do not gain it. See the
+   TestFlight section of `docs/rules/PENDING_SETUP.md`.
 
 ## Notes / known gaps
 
-- **Simulator**: Google sign-in needs step 3 done. Sign in with Apple, once
-  switched back on, works on the simulator only when the simulator is signed
-  into an Apple ID.
+- **Simulator**: Google sign-in needs step 3 done. Sign in with Apple works
+  on the simulator only when the simulator is signed into an Apple ID —
+  a refusal there says nothing about the device.
 - **Google button branding**: the button is label-only. Google's branding
   guidelines want the "G" mark; add it as an asset before submission.
 - **Apple button styling**: rendered with the project's `AppButton` (filled,
