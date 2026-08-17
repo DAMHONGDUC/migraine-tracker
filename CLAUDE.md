@@ -76,8 +76,14 @@ settings, sync.
   (`features/settings/domain/enums/`) is the picker's list and must hold
   exactly the languages the ARB files do — `app_language_test.dart` asserts
   both directions.
-- **Every action logs, with its data.** API calls, taps, submits — a line going
-  in and a line coming back. Errors carry the full error *and* the response.
+- **Every action logs, with its data — through `SdLogger`, tagged with its
+  flow.** `SdLogger` (`package:system_design/common.dart`) is the app's only
+  logger, and its first argument is a `LogTagConstant` naming the flow, so a
+  console filters back down to one story. API calls, taps, submits — a line
+  going in and a line coming back. Errors carry the full error *and* the
+  response, and `SdLogger.error` is also what files the Crashlytics non-fatal:
+  a separate `CrashReporter.recordError` beside it reports the same failure
+  twice.
   **Every `catch` logs, before it returns a substitute, maps to another error
   type, or rethrows** — a `catch` that maps is the last frame that still holds
   what actually went wrong, so a line it does not write is one nothing above it
