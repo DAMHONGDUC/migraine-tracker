@@ -32,6 +32,14 @@ jobs:
     # that produced nothing. 60 leaves room for a cold SPM resolve and still
     # costs under a third of the budget in the worst case.
     timeout-minutes: 60
+    # Set for the whole job, not for the pods step alone: `flutter build ipa`
+    # runs `pod install` a second time, and a runner is exactly the stripped
+    # environment with no locale. Ruby without a UTF-8 one reads the Podfile as
+    # ASCII-8BIT and dies inside its own error reporter, on a stack trace that
+    # names the encoding and never the missing LANG. Same guard as
+    # `tool/set-up.sh`.
+    env:
+      LANG: en_US.UTF-8
     steps:
       # The design system lives in packages/system_design as a submodule;
       # without this the checkout is empty there and `pub get` fails.
@@ -113,30 +121,34 @@ jobs:
       - name: Generate
         run: melos run gen
 
-      # `health` pins an old device_info with no Swift Package, so iOS still
-      # needs CocoaPods for that one plugin. `precache` first: without
-      # Flutter.xcframework the Podfile's post-install hook fails.
+      # The runner image ships its own fastlane and its own CocoaPods, at
+      # whatever versions the image happens to carry. Pinning Ruby and
+      # installing from the Gemfile means a release is not silently re-tooled
+      # by an image update.
       #
-      # LANG is forced because Ruby without a UTF-8 locale reads the Podfile as
-      # ASCII-8BIT and dies inside its own error reporter.
-      - name: Pods
-        env:
-          LANG: en_US.UTF-8
-        run: |
-          flutter precache --ios
-          cd ios && pod install
-
-      # The runner image ships its own fastlane, at whatever version the image
-      # happens to carry. Pinning Ruby and installing from the Gemfile means a
-      # release is not silently re-tooled by an image update.
+      # This comes BEFORE the pods step, and that order is the whole point: a
+      # gem binary only runs under the Ruby it was installed for. With the
+      # image's CocoaPods and this pinned Ruby, `pod` finds none of its gems —
+      # and Flutter does not fail on that, it prints "CocoaPods is installed
+      # but broken. Skipping pod install." and archives an app missing the
+      # `health` plugin's pods.
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
           working-directory: ios
 
-      - name: Install fastlane
+      - name: Install fastlane and CocoaPods
         working-directory: ios
         run: bundle install
+
+      # `health` pins an old device_info with no Swift Package, so iOS still
+      # needs CocoaPods for that one plugin. `precache` first: without
+      # Flutter.xcframework the Podfile's post-install hook fails.
+      - name: Pods
+        working-directory: ios
+        run: |
+          flutter precache --ios
+          bundle exec pod install
 
       - name: Build and upload to TestFlight
         working-directory: ios
