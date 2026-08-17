@@ -48,12 +48,12 @@ part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
 part 'settings_screen_health_section.dart';
-part 'settings_screen_tracking_section.dart';
+part 'settings_screen_monitoring_section.dart';
 
-/// Five groups: "General" is the app itself, "Tracking" is what it watches on
-/// your behalf, "Apple Health" is what it reads from elsewhere, "Your data" is
-/// what it holds, "About" is the app's own details. Deleting closes "Your
-/// data" — same subject as the exports, and the irreversible end of it.
+/// Five groups: "General" is the app itself, "Monitoring" is what it watches
+/// on your behalf, "Apple Health" is what it reads from elsewhere, "Your
+/// data" is what it holds, "About" is the app's own details. Deleting closes
+/// "Your data" — same subject as the exports, and the irreversible end of it.
 /// Apple Health is iOS-only, so off iOS the count is back to four.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -87,9 +87,9 @@ class SettingsScreen extends ConsumerWidget {
             // the header needs the separator gap it otherwise drops.
             SdSectionHeaderV2(l10n.settingsSectionGeneral, first: !showPromo),
             const _GeneralSection(),
-            SdSectionHeaderV2(l10n.settingsSectionTracking),
-            const _TrackingSection(),
-            // Its own group, right under Tracking: the sources it reads feed
+            SdSectionHeaderV2(l10n.settingsSectionMonitoring),
+            const _MonitoringSection(),
+            // Its own group, right under Monitoring: the sources it reads feed
             // two of the rows above, and naming Apple Health at the top level
             // is what App Store 2.5.1 asks for (see [_HealthSection]).
             if (ref.watch(healthAvailableProvider)) ...<Widget>[
