@@ -15,7 +15,7 @@ here; if it belongs to one feature it goes in that feature's own `CLAUDE.md`.
 `CLAUDE.md`, `PLAN.md`, everything under `docs/` and every `README.md`,
 including the sample-data ones — no mixed-language paragraphs and no
 untranslated quotes. The app's user-facing strings are the exception and the
-opposite: those live in ARB files and ship in both locales.
+opposite: those live in ARB files and ship in every locale.
 
 **Explaining a change means showing before and after.** Not prose about what
 changed — the old code and the new one, side by side, then what the
@@ -66,8 +66,15 @@ settings, sync.
   one field". Live Firebase and RevenueCat keys; the harm is the copy, not the
   size. `ios/Flutter/Generated.xcconfig` is the same secret under another name.
   Full rule in `docs/rules/PRIVACY_AND_SECURITY.md`.
-- **Every user-facing string goes through `intl` ARB files**, `app_en.arb` and
-  `app_vi.arb`, both, every time. Access via `context.l10n`.
+- **Every user-facing string goes through `intl` ARB files**, and a new key
+  lands in **all seven** the same turn: `app_en.arb` (the template, the only
+  one carrying `@` descriptions), `app_vi.arb`, `app_ja.arb`, `app_de.arb`,
+  `app_es.arb`, `app_fr.arb`, `app_zh.arb`. Access via `context.l10n`. A key
+  missing from one locale is a silent fall-through to English for those users,
+  which reads as a half-translated app rather than as a bug. `AppLanguage`
+  (`features/settings/domain/enums/`) is the picker's list and must hold
+  exactly the languages the ARB files do — `app_language_test.dart` asserts
+  both directions.
 - **Every action logs, with its data.** API calls, taps, submits — a line going
   in and a line coming back. Errors carry the full error *and* the response.
   Every `catch` logs before returning its substitute. Detail in

@@ -370,8 +370,10 @@ callable the app can reach, and Apple's mandatory weather attribution.
 - The 4 testing priorities CLAUDE.md calls out explicitly — correlation
   engine, Drift migrations, pressure alert function, paywall entitlement
   gating — all already have dedicated tests. Nothing to do there.
-- `l10n/app_en.arb` and `app_vi.arb` are fully in sync (468/468 keys,
-  zero diff either direction).
+- The seven ARB files (`en`, `vi`, `ja`, `de`, `es`, `fr`, `zh`) are fully in
+  sync — 601/601 keys, zero diff in any direction, placeholders matched.
+  The five added on 17 Aug are machine-produced and have not had a native
+  review; that review is owed before the store listings go live.
 - `firestore.indexes.json` now carries a composite index per synced
   collection (`userId` + `updatedAt`). Deploying is a SECOND step beside
   rules — `firebase deploy --only firestore:indexes` — and a missing index
