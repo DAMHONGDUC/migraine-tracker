@@ -3,3 +3,17 @@
 source "https://rubygems.org"
 
 gem "fastlane"
+
+# CocoaPods is in here because the release job pins Ruby, and a gem binary only
+# runs under the Ruby it was installed for. The macOS image ships its own
+# CocoaPods for the image's Ruby; `ruby/setup-ruby` then puts a different Ruby
+# first on PATH, `pod` loads under that one and finds none of its gems. Flutter
+# does not fail on that — it prints "CocoaPods is installed but broken.
+# Skipping pod install." and builds on, so the archive is missing the `health`
+# plugin's pods and the failure surfaces minutes later as a compile error
+# naming a header, not a Ruby.
+#
+# Pinned to the version in Podfile.lock: a newer CocoaPods rewrites the
+# `COCOAPODS:` line there, and the release checkout is exactly where an
+# unexplained lockfile change must not appear.
+gem "cocoapods", "1.17.0"
