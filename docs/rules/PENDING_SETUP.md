@@ -207,9 +207,12 @@ this list is only the register of what is still outstanding.
    repo. CI is `readonly: true` and can only install what already exists.
 5. **`ios/fastlane/.env`** on the developer's Mac — six keys, gitignored.
 6. **Repository secrets** (Settings → Secrets and variables → Actions):
-   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
-   `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and **one of**
-   `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST`, `ASC_KEY_ID`,
+   `ASC_ISSUER_ID`, `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and
+   **one of** `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   `GOOGLE_SERVICE_INFO_PLIST` is base64 of `ios/Runner/GoogleService-Info.plist`
+   — gitignored, and a build input of the Runner target, so without it the
+   archive fails rather than the app misbehaving.
    `FIREBASE_IOS_APP_ID` is optional — unset simply skips the Crashlytics
    symbol upload with a warning. It is an env var rather than
    `GoogleService-Info.plist` because that file is gitignored and absent from a
