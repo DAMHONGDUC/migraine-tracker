@@ -11,6 +11,7 @@ import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/entities/auth_user.dart';
 import '../../../domain/entities/user_profile.dart';
+import '../../../domain/enums/auth_error.dart';
 import '../../../providers.dart';
 import '../../widgets/display_name_dialog.dart';
 

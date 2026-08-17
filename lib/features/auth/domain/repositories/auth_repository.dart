@@ -34,4 +34,21 @@ abstract interface class AuthRepository {
   ///
   /// App Store 5.1.1(v) requires this to exist in-app once accounts do.
   Future<void> deleteAccount();
+
+  /// Tells Apple to forget the app, ahead of [deleteAccount]. No-op unless
+  /// Apple is one of the account's linked providers.
+  ///
+  /// Apple requires an app offering Sign in with Apple to revoke its token
+  /// when the account is deleted; without it the user is still listed under
+  /// Settings → Apple ID → Sign in with Apple, and "deleted" is not what
+  /// happened. Revoking needs a **fresh** authorization code, and the one
+  /// from signing in was single-use and is long gone — so this re-runs the
+  /// Apple sheet, which doubles as the re-authentication a destructive
+  /// action deserves.
+  ///
+  /// **Call it before wiping anything**, never after. Cancelling the Apple
+  /// sheet throws [AuthError.cancelled], and a cancel that arrives after the
+  /// device has been wiped costs the user their records while leaving the
+  /// account standing.
+  Future<void> revokeAppleTokenIfLinked();
 }

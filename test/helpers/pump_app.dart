@@ -246,10 +246,26 @@ class FakeAuthRepository implements AuthRepository {
   /// Records that the account was torn down, without pretending to do it.
   int deleteAccountCalls = 0;
 
+  /// Records the Apple revoke, so a test can assert it ran BEFORE the wipe —
+  /// the ordering the real deletion depends on.
+  int revokeAppleTokenCalls = 0;
+
+  /// Set to make [revokeAppleTokenIfLinked] throw, standing in for the user
+  /// backing out of the Apple sheet that deletion re-opens.
+  AuthError? revokeFailsWith;
+
   @override
   Future<void> deleteAccount() async {
     deleteAccountCalls++;
     await signOut();
+  }
+
+  @override
+  Future<void> revokeAppleTokenIfLinked() async {
+    revokeAppleTokenCalls++;
+    final AuthError? error = revokeFailsWith;
+
+    if (error != null) throw AuthException(error);
   }
 
   @override

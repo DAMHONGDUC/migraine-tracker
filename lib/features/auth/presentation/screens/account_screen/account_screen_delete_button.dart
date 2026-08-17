@@ -55,6 +55,14 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
         context.pop();
         SdSnackBarUtilsV2.success(context, l10n.accountDeleteDone);
       }
+    } on AuthException catch (e) {
+      // Backing out of the Apple re-authorisation sheet is a change of mind,
+      // not a failure. Nothing has been wiped by that point — the revoke runs
+      // first for exactly this reason — so there is nothing to report and an
+      // error snackbar would claim a problem the user created on purpose.
+      if (e.error != AuthError.cancelled && mounted) {
+        SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
+      }
     } catch (_) {
       // The account survives a failure, so retrying is the right advice.
       if (mounted) SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
