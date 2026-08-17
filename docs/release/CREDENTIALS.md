@@ -1,11 +1,10 @@
 # Release credentials — how to make them, where they live
 
-Four credentials stand between a clone and a TestFlight build. None of them is
-in this repo, and none can be. This file is the authority on all four: how each
-one is created, where it lives on a developer's Mac, and where it lives on CI.
-
-`docs/rules/PENDING_SETUP.md` tracks what is still missing. `docs/rules/COMMANDS.md`
-says why the pipeline is shaped the way it is. This file is the how.
+Four credentials stand between a clone and a TestFlight build. None is in this
+repo and none can be. This file is the how: making each one, where it lives,
+and how it fails. `PIPELINE.md` is the order of the release,
+`docs/rules/COMMANDS.md` the reasoning, `docs/rules/PENDING_SETUP.md` what is
+still missing.
 
 | Credential | Purpose | On the Mac | On CI |
 |---|---|---|---|
@@ -108,20 +107,20 @@ exists to catch.
 
 ## Rotating
 
-Every one of these is replaceable, and that is the property to remember when
-one leaks.
+All three are replaceable. That is the property to remember when one leaks —
+the question is only how much work, never whether.
 
-- **PAT** — revoke on the token page, generate another, update
-  `ios/fastlane/.env` and the GitHub secret. Nothing else is affected.
+- **PAT** — revoke, generate another, update `ios/fastlane/.env` and the GitHub
+  secret. Nothing else is affected.
 - **App Store Connect API key** — revoke under Integrations, create another,
   update three values. Builds already on TestFlight are untouched.
-- **match passphrase / certificate** — `fastlane match nuke distribution`, then
-  `fastlane certificates` to mint again with a new passphrase. **Apps already
-  on the App Store keep working**: Apple re-signs them for distribution, so
-  revoking a distribution certificate breaks only ad-hoc builds signed with it.
+- **match passphrase or certificate** — `fastlane match nuke distribution`, then
+  `fastlane certificates` again with a new passphrase. **Apps already on the App
+  Store keep working**: Apple re-signs them for distribution, so revoking a
+  distribution certificate breaks only ad-hoc builds signed with it.
 
-The one credential that is *not* replaceable this cheaply is the WeatherKit
-`.p8` — see `docs/rules/PENDING_SETUP.md`.
+The WeatherKit `.p8` is the one that is *not* cheap to replace — see
+`docs/rules/PENDING_SETUP.md`.
 
 ## Traps, each one paid for
 

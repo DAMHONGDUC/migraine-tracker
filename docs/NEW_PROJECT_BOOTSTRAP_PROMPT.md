@@ -856,7 +856,7 @@ One widget per job, and feature code never reaches past it to the raw framework 
 - **Upload debug symbols after the store upload, best effort** — every failure there
   is a warning, not a raise: the build is already up, and missing symbols are
   something to fix rather than a reason to re-cut a release.
-- **Keep a pipeline diagram** (`docs/RELEASE_PIPELINE.md`) and keep every credential
+- **Keep a pipeline diagram** (`docs/release/PIPELINE.md`) and keep every credential
   out of the repo, listed in `docs/rules/PENDING_SETUP.md`.
 
 ---

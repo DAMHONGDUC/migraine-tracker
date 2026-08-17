@@ -100,7 +100,7 @@ The newest work, and the reason this branch exists.
   Capped at 60 minutes.
 - **`ios/fastlane/`** — the `beta` lane, the `certificates` lane and the
   `Matchfile`. Fastlane never archives anything itself; it wraps the script.
-- **`docs/RELEASE_PIPELINE.md`** is the map of all of it, as a diagram.
+- **`docs/release/PIPELINE.md`** is the map of all of it, as a diagram.
 
 Every credential this needs is still outstanding — see `REMAINING_WORK.md`.
 The workflow being checked in and the workflow being runnable are different

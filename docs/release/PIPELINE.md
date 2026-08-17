@@ -4,12 +4,12 @@ What happens between pressing "Run workflow" and a build appearing in
 TestFlight. This file is the map; it deliberately holds no rules.
 
 - **Why a step is the way it is** — `docs/rules/COMMANDS.md`.
-- **Credentials that must exist before any of this runs** —
-  `docs/rules/PENDING_SETUP.md`.
+- **How each credential is made and how it fails** — `CREDENTIALS.md`, alongside.
+- **What is still missing** — `docs/rules/PENDING_SETUP.md`.
 
-Nothing here is duplicated from those two on purpose: a diagram that also
-carries the reasoning goes stale in a different direction from the rules it
-copies, and then they disagree.
+Nothing here is duplicated from those on purpose: a diagram that also carries
+the reasoning goes stale in a different direction from the rules it copies, and
+then they disagree.
 
 ## The flow
 

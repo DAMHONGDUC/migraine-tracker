@@ -121,7 +121,7 @@ match can succeed and the build still fail to sign — the error names the
 missing entitlement, not the missing portal step.
 
 **How each credential is created, where it lives, and every failure mode paid
-for so far is in `docs/RELEASE_CREDENTIALS.md`.** That file is the authority;
+for so far is in `docs/release/CREDENTIALS.md`.** That file is the authority;
 this list is only the register of what is still outstanding.
 
 1. **An App Store Connect API key**, App Manager role. Downloadable once, like
