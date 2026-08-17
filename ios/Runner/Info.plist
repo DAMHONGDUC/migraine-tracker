@@ -28,6 +28,21 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!-- The languages the App Store lists for this app, and the set iOS
+	     resolves the device locale against. A Flutter app ships its
+	     translations in ARB files rather than .lproj folders, so without this
+	     key the store advertises English alone. Keep it in step with the
+	     app_*.arb files. -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>vi</string>
+		<string>ja</string>
+		<string>de</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>zh-Hans</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>migraine_tracker</string>
 	<key>CFBundlePackageType</key>

@@ -61,5 +61,10 @@ extension _AppLanguageX on AppLanguage {
     AppLanguage.system => context.l10n.settingsLanguageSystem,
     AppLanguage.english => context.l10n.settingsLanguageEnglish,
     AppLanguage.vietnamese => context.l10n.settingsLanguageVietnamese,
+    AppLanguage.japanese => context.l10n.settingsLanguageJapanese,
+    AppLanguage.german => context.l10n.settingsLanguageGerman,
+    AppLanguage.spanish => context.l10n.settingsLanguageSpanish,
+    AppLanguage.french => context.l10n.settingsLanguageFrench,
+    AppLanguage.chinese => context.l10n.settingsLanguageChinese,
   };
 }

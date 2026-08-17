@@ -1382,6 +1382,26 @@
   "@settingsLanguageVietnamese": {
     "description": "Language option: Vietnamese (shown in its own language)"
   },
+  "settingsLanguageGerman": "Deutsch",
+  "@settingsLanguageGerman": {
+    "description": "Language option: German (shown in its own language, so it carries the same value in every ARB)"
+  },
+  "settingsLanguageSpanish": "Español",
+  "@settingsLanguageSpanish": {
+    "description": "Language option: Spanish (shown in its own language, so it carries the same value in every ARB)"
+  },
+  "settingsLanguageFrench": "Français",
+  "@settingsLanguageFrench": {
+    "description": "Language option: French (shown in its own language, so it carries the same value in every ARB)"
+  },
+  "settingsLanguageJapanese": "日本語",
+  "@settingsLanguageJapanese": {
+    "description": "Language option: Japanese (shown in its own language, so it carries the same value in every ARB)"
+  },
+  "settingsLanguageChinese": "简体中文",
+  "@settingsLanguageChinese": {
+    "description": "Language option: Simplified Chinese (shown in its own language, so it carries the same value in every ARB)"
+  },
   "alertsToggleTitle": "Pressure-drop alerts",
   "@alertsToggleTitle": {
     "description": "Settings switch that registers this device for pressure push alerts"
@@ -2574,7 +2594,7 @@
   "@appFeatureCalmTitle": {
     "description": "Feature row title: the dark, calm design"
   },
-  "appFeatureCalmBody": "Dark by default, no white glare, nothing that flashes. English and Vietnamese.",
+  "appFeatureCalmBody": "Dark by default, no white glare, nothing that flashes. In seven languages.",
   "@appFeatureCalmBody": {
     "description": "Feature row body: the dark, calm design"
   },

@@ -9,4 +9,11 @@ final class ExportConstant {
 
   /// Folder inside the app's documents directory that holds past exports.
   static const String folderName = 'exports';
+
+  /// Locales whose script the report's bundled fonts cannot draw.
+  ///
+  /// The PDF renders with Noto Sans regular/bold, which carry Latin only, so a
+  /// CJK locale would print a page of blank boxes. Those locales get the
+  /// English report instead; a bundled CJK face costs ~16 MB of app size.
+  static const Set<String> reportFontlessLocales = <String>{'ja', 'zh'};
 }

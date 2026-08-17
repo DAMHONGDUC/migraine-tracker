@@ -3,10 +3,18 @@
 /// by identity as the choice sheet needs.
 ///
 /// Pure Dart: the mapping to `Locale` belongs to presentation.
+/// Order is the order of the picker: [system] first, then the languages by
+/// how many of the app's users read them, not alphabetically — a list sorted
+/// by a name the reader cannot read yet sorts by nothing.
 enum AppLanguage {
   system(null),
   english('en'),
-  vietnamese('vi');
+  vietnamese('vi'),
+  japanese('ja'),
+  german('de'),
+  spanish('es'),
+  french('fr'),
+  chinese('zh');
 
   const AppLanguage(this.languageCode);
 
