@@ -103,19 +103,32 @@ If any of it slips, flip `appleSignInImplementedProvider` back to `false`
 rather than shipping the failure — but that build cannot be submitted, which
 is the whole point of the switch.
 
-### App icon and launch image — still Flutter's placeholder
+### App icon and launch screen — DONE, nothing outstanding
 
-Submission 1.0(11) was rejected under **App Store 2.3.8**:
-`ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png` is
-the default Flutter logo, and so are `LaunchImage.imageset/*` and
-`android/app/src/main/res/mipmap-*/ic_launcher.png`.
+Submission 1.0(11) was rejected under **App Store 2.3.8** for shipping the
+default Flutter logo at every size. Closed: the owner supplied the artwork at
+`assets/images/app_icon.png`, and `flutter_launcher_icons` generates the whole
+set from it — configured in the `flutter_launcher_icons:` block at the bottom
+of `pubspec.yaml`, which is also where the two traps are written down (the
+alpha channel, and the tool corrupting the pbxproj on every run). Regenerate
+with `dart run flutter_launcher_icons`.
 
-Blocked on **one 1024×1024 PNG from the owner — no alpha channel, no rounded
-corners** (App Store Connect rejects both, and iOS applies the mask itself).
-Once it lands: regenerate all 19 entries of the appiconset (`Contents.json`
-already lists the iphone / ipad / ios-marketing idioms), the Android mipmaps,
-and a **dark** launch image — a white one contradicts the app's own default
-theme and its photophobic users.
+The white launch screen went with it, on both platforms — see the
+`fix: branding - the launch screen stops flashing white` commit. It was never
+a *launch image*: iOS ships 1×1 transparent placeholders, so the storyboard's
+own `backgroundColor` was the only thing ever on screen.
+
+**What is still worth a decision, though nothing blocks submission:** the icon
+is an AI-generated raster. Its strokes carry visible mottled texture and soft
+edges at 1024, and App Store product pages show that size large. Rebuilding
+the same design as vector would give flat exact brand colours and crisp edges
+from one source. Owner's call, and cosmetic either way.
+
+**Android is on legacy mipmaps, not adaptive icons.** Adaptive reserves the
+outer 18 of 108dp for the launcher's mask, which on this full-bleed design
+crops the teal scale off the left edge. Doing it properly needs a separately
+padded foreground asset — Android polish, not a blocker while the app ships
+iOS first.
 
 ### App Privacy labels — they claim tracking the app does not do
 
