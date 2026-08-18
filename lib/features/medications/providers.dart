@@ -222,6 +222,22 @@ final canAddReminderProvider = Provider<bool>((ref) {
   return all.length < PremiumLimitConstant.reminders;
 });
 
+/// How many of the free plan's reminders are spent, for [FreeLimitProgress].
+/// Null while premium — there is no limit to draw.
+///
+/// Counted across every medication, exactly like [canAddReminderProvider]
+/// gates it: the limit is not per medication, so a detail screen must not
+/// draw it as though it were. **The used figure can exceed the limit** — a
+/// free user who kept reminders from before the limit existed keeps them, and
+/// `FreeLimitProgress` clamps rather than pretending otherwise.
+final remindersUsedProvider = Provider<int?>((ref) {
+  if (ref.watch(hasPremiumProvider)) return null;
+
+  return (ref.watch(medicationRemindersStreamProvider).value ??
+          const <MedicationReminderView>[])
+      .length;
+});
+
 /// The flutter_local_notifications plugin, initialized once (timezone setup
 /// happens in main()). Override in tests with a fake NotificationScheduler.
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {

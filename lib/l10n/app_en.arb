@@ -2673,6 +2673,15 @@
     }
   },
   "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
+  "freeLimitReminders": "{count, plural, =0{No free reminders left} =1{1 free reminder left} other{{count} free reminders left}}",
+  "@freeLimitReminders": {
+    "description": "How many of the free plan's medication reminders are still available, above the reminder list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@freeLimitMedications": {
     "description": "Headline of the free-plan medication usage indicator",
     "placeholders": {
@@ -2686,6 +2695,10 @@
     "description": "Title of the weather and pressure alert card on Insights"
   },
   "weatherUnavailable": "Weather is unavailable right now.",
+  "weatherA11yDetail": "Weather details",
+  "@weatherA11yDetail": {
+    "description": "Tooltip and VoiceOver label of the weather card's button that opens the full readings in a sheet."
+  },
   "@weatherUnavailable": {
     "description": "Shown when the weather report could not be fetched"
   },

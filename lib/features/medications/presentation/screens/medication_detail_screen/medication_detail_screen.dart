@@ -143,8 +143,8 @@ class MedicationDetailScreen extends ConsumerWidget {
     final List<MedicationReminderView> reminders = ref.watch(
       remindersForMedicationProvider(medication.id),
     );
-    // Null while premium, so the footer is the button alone.
-    final int? used = ref.watch(medicationsUsedProvider);
+    // Null while premium — there is no limit to draw.
+    final int? remindersUsed = ref.watch(remindersUsedProvider);
 
     return SdScaffoldV2(
       title: Text(medication.name, style: AppTextStyle.titleLarge),
@@ -177,6 +177,27 @@ class MedicationDetailScreen extends ConsumerWidget {
             _Effectiveness(medicationName: medication.name),
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders),
+            // The REMINDER budget, at the top of the section it limits
+            // (owner's call). The medication budget used to sit in the footer
+            // here, which said nothing this screen can act on — a medication
+            // detail screen cannot create a medication. What it creates is
+            // reminders, and that is the number the free user needs.
+            //
+            // Counted across every medication, like the gate itself: the
+            // limit is not per medication (see `canAddReminderProvider`).
+            if (remindersUsed != null) ...<Widget>[
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SdContentPaddingV2.horizontal,
+                ),
+                child: FreeLimitProgress(
+                  used: remindersUsed,
+                  limit: PremiumLimitConstant.reminders,
+                  titleBuilder: (int left) => l10n.freeLimitReminders(left),
+                ),
+              ),
+              SizedBox(height: SdContentPaddingV2.listItemGap),
+            ],
             if (reminders.isEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -209,16 +230,6 @@ class MedicationDetailScreen extends ConsumerWidget {
           ],
         ),
         actions: <Widget>[
-          // Sits with the add button rather than up in the content, so it is
-          // read at the moment a record is about to be spent. It counts
-          // medications, from the same provider as the medications tab —
-          // one budget, never a second tally that could disagree.
-          if (used != null)
-            FreeLimitProgress(
-              used: used,
-              limit: PremiumLimitConstant.medications,
-              titleBuilder: (int left) => l10n.freeLimitMedications(left),
-            ),
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
             // The button stays — it opens the paywall instead. Only the
