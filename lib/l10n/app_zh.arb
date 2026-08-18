@@ -444,8 +444,6 @@
   "dashboardRemainingH": "{hours} 小时后",
   "dashboardRemainingM": "{minutes} 分后",
   "dashboardRemainingSoon": "即将",
-  "dashboardSaleTitle": "高级版五折",
-  "dashboardSaleEndsIn": "{time} 后结束",
   "loginTitle": "登录",
   "loginHeadline": "登录以解锁高级版",
   "loginBody": "账号会保留你的订阅，并备份你的发作历史。其他功能没有账号也能用。",

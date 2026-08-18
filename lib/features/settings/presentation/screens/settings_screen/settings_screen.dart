@@ -35,7 +35,6 @@ import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../domain/services/dev_seed_service.dart';
 import '../../../providers.dart';
-import '../../widgets/premium_countdown_banner.dart';
 
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
@@ -61,7 +60,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final bool showPromo = !ref.watch(hasPremiumProvider);
 
     return SdScaffoldV2(
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
@@ -73,19 +71,7 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
-            // First on the screen, above every group (owner's call). The list
-            // is full-bleed for its ListTiles, so the one non-row here has to
-            // put the gutter back itself.
-            if (showPromo)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SdContentPaddingV2.horizontal,
-                ),
-                child: const PremiumCountdownBanner(),
-              ),
-            // `first` only while nothing precedes it — with the promo above,
-            // the header needs the separator gap it otherwise drops.
-            SdSectionHeaderV2(l10n.settingsSectionGeneral, first: !showPromo),
+            SdSectionHeaderV2(l10n.settingsSectionGeneral, first: true),
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),
             const _MonitoringSection(),

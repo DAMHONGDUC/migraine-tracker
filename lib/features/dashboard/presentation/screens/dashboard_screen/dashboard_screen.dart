@@ -23,8 +23,8 @@ import '../../widgets/quick_access_section.dart';
 
 /// The app's home tab (replaces the old Log tab). A calm, scrollable overview,
 /// top to bottom: the log call-to-action, quick-access shortcuts, the weather
-/// right now, today's other readings, the next medication reminder (when one
-/// is scheduled), this-week stats, and the feature banners. Logging itself opens as a pushed route from [DashboardLogButton] —
+/// right now, the next medication reminder (when one is scheduled), today's
+/// other readings, this-week stats, and the feature banners. Logging itself opens as a pushed route from [DashboardLogButton] —
 /// the 3-tap flow is unchanged.
 ///
 /// The premium promo used to sit here and now leads Settings instead (owner's
@@ -54,10 +54,13 @@ class DashboardScreen extends ConsumerWidget {
       // below it — the card draws its own loading and its own unavailable
       // line, so it never leaves this list's gap behind.
       const CurrentWeatherCard(),
+      // Directly under the weather (owner's call): both answer "what is
+      // happening now", so the next dose belongs beside the sky rather than
+      // below a block of readings the user may not have scrolled to.
+      if (nextReminder != null) const NextReminderBanner(),
       // Asked here rather than left to the widget: a section that hid itself
       // would leave the gap the list inserts before it (see the loop below).
       if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
-      if (nextReminder != null) const NextReminderBanner(),
       // Unconditional, owner's call: hidden until the first attack it left a
       // new install with a log button and a grid of links and nothing in
       // between. Both cards inside carry their own empty state, so what shows

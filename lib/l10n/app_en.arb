@@ -2178,19 +2178,6 @@
   "@dashboardRemainingSoon": {
     "description": "Shown when the next reminder is less than a minute away"
   },
-  "dashboardSaleTitle": "50% off Premium",
-  "@dashboardSaleTitle": {
-    "description": "Title of the limited-time premium discount banner on the dashboard"
-  },
-  "dashboardSaleEndsIn": "Ends in {time}",
-  "@dashboardSaleEndsIn": {
-    "description": "Countdown line on the premium sale banner; time is HH:MM:SS",
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "loginTitle": "Sign in",
   "@loginTitle": {
     "description": "Title of the optional sign-in screen"

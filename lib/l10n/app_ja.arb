@@ -444,8 +444,6 @@
   "dashboardRemainingH": "{hours}時間後",
   "dashboardRemainingM": "{minutes}分後",
   "dashboardRemainingSoon": "まもなく",
-  "dashboardSaleTitle": "プレミアムが50%オフ",
-  "dashboardSaleEndsIn": "残り{time}",
   "loginTitle": "サインイン",
   "loginHeadline": "サインインしてプレミアムを解除",
   "loginBody": "アカウントがあると、サブスクリプションが引き継がれ、発作の履歴がバックアップされます。それ以外の機能はアカウントなしでも使えます。",

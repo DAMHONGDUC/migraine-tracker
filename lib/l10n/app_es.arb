@@ -444,8 +444,6 @@
   "dashboardRemainingH": "en {hours} h",
   "dashboardRemainingM": "en {minutes} min",
   "dashboardRemainingSoon": "pronto",
-  "dashboardSaleTitle": "Premium al 50 %",
-  "dashboardSaleEndsIn": "Termina en {time}",
   "loginTitle": "Iniciar sesión",
   "loginHeadline": "Inicia sesión para desbloquear Premium",
   "loginBody": "Una cuenta conserva tu suscripción y guarda tu historial de crisis. Todo lo demás funciona sin ella.",

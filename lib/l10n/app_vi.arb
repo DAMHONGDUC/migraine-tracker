@@ -444,8 +444,6 @@
   "dashboardRemainingH": "sau {hours} giờ",
   "dashboardRemainingM": "sau {minutes} phút",
   "dashboardRemainingSoon": "sắp tới",
-  "dashboardSaleTitle": "Giảm 50% Premium",
-  "dashboardSaleEndsIn": "Kết thúc sau {time}",
   "loginTitle": "Đăng nhập",
   "loginHeadline": "Đăng nhập để mở khoá Premium",
   "loginBody": "Tài khoản giữ gói đăng ký và sao lưu lịch sử cơn đau của bạn. Mọi tính năng khác vẫn chạy bình thường khi không đăng nhập.",

@@ -444,8 +444,6 @@
   "dashboardRemainingH": "in {hours} Std.",
   "dashboardRemainingM": "in {minutes} Min.",
   "dashboardRemainingSoon": "gleich",
-  "dashboardSaleTitle": "50 % auf Premium",
-  "dashboardSaleEndsIn": "Endet in {time}",
   "loginTitle": "Anmelden",
   "loginHeadline": "Melde dich an, um Premium freizuschalten",
   "loginBody": "Ein Konto sichert dein Abo und deinen Attackenverlauf. Alles andere funktioniert auch ohne.",
