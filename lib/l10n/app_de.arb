@@ -390,7 +390,6 @@
   "settingsDevSeedFailed": "Beispieldaten anlegen fehlgeschlagen.",
   "settingsDevReset": "App zurücksetzen",
   "settingsDevPremium": "Premium (Mock)",
-  "settingsDevMockOffers": "Paywall-Pläne (Mock)",
   "settingsDevResetConfirmTitle": "App zurücksetzen?",
   "settingsDevResetConfirmBody": "Alles auf diesem Gerät verschwindet und du landest wieder im Onboarding, als wäre die App neu installiert. Das lässt sich nicht rückgängig machen.",
   "settingsDevResetConfirmAction": "Zurücksetzen",

@@ -390,7 +390,6 @@
   "settingsDevSeedFailed": "生成示例数据失败。",
   "settingsDevReset": "重置应用",
   "settingsDevPremium": "高级版（模拟）",
-  "settingsDevMockOffers": "付费墙方案（模拟）",
   "settingsDevResetConfirmTitle": "重置应用？",
   "settingsDevResetConfirmBody": "这台设备上的一切都会消失，你会像全新安装那样回到引导页。此操作无法撤销。",
   "settingsDevResetConfirmAction": "重置",

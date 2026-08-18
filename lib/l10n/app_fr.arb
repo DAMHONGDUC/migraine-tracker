@@ -390,7 +390,6 @@
   "settingsDevSeedFailed": "La création des données d'exemple a échoué.",
   "settingsDevReset": "Réinitialiser l'app",
   "settingsDevPremium": "Premium (simulé)",
-  "settingsDevMockOffers": "Formules du paywall (simulées)",
   "settingsDevResetConfirmTitle": "Réinitialiser l'app ?",
   "settingsDevResetConfirmBody": "Tout ce qui est sur cet appareil disparaît et vous revenez à l'accueil initial, comme après une nouvelle installation. Cette action est irréversible.",
   "settingsDevResetConfirmAction": "Réinitialiser",

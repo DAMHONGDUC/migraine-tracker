@@ -390,7 +390,6 @@
   "settingsDevSeedFailed": "サンプルデータの作成に失敗しました。",
   "settingsDevReset": "アプリをリセット",
   "settingsDevPremium": "プレミアム（モック）",
-  "settingsDevMockOffers": "ペイウォールのプラン（モック）",
   "settingsDevResetConfirmTitle": "アプリをリセットしますか？",
   "settingsDevResetConfirmBody": "この端末のデータはすべて消え、新規インストール直後と同じくオンボーディングから始まります。元に戻せません。",
   "settingsDevResetConfirmAction": "リセット",

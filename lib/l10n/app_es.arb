@@ -390,7 +390,6 @@
   "settingsDevSeedFailed": "Falló la creación de datos de ejemplo.",
   "settingsDevReset": "Reiniciar la app",
   "settingsDevPremium": "Premium (simulado)",
-  "settingsDevMockOffers": "Planes del paywall (simulados)",
   "settingsDevResetConfirmTitle": "¿Reiniciar la app?",
   "settingsDevResetConfirmBody": "Todo lo que hay en este dispositivo se va y vuelves al onboarding como en una instalación nueva. No se puede deshacer.",
   "settingsDevResetConfirmAction": "Reiniciar",

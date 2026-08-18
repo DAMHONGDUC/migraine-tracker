@@ -40,7 +40,6 @@ part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
 part 'settings_screen_delete_all_tile.dart';
 part 'settings_screen_dev_location_tile.dart';
-part 'settings_screen_dev_offers_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
 part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
@@ -96,7 +95,6 @@ class SettingsScreen extends ConsumerWidget {
               // outright (hard rule 7).
               if (ref.watch(isSignedInProvider)) ...<Widget>[
                 const _DevPremiumTile(),
-                const _DevOffersTile(),
                 const _DevPushTile(),
               ],
               // First in the group: it is the one that decides whether the
