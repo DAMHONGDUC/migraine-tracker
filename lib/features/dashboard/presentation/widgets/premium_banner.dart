@@ -28,6 +28,9 @@ class PremiumBanner extends ConsumerWidget {
     return SdBannerV2(
       icon: Icons.workspace_premium_outlined,
       color: AppColors.primary,
+      // The one outlined card in the app (owner's call): the dashboard is a
+      // stack of same-coloured panels and the offer has to be seen first.
+      borderColor: AppColors.primary,
       title: context.l10n.dashboardPremiumBannerTitle,
       subtitle: context.l10n.dashboardPremiumBannerBody,
       onTap: () => NavigationUtils.toPaywall(context, ref),
