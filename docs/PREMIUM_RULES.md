@@ -122,7 +122,11 @@ Free forever, up to the limits above:
 
 Premium:
 
-- **Everything pressure.** The 48h forecast chart (`PressureForecastBody`,
+- **Everything pressure, EXCEPT the plain reading in the weather detail
+  sheet.** The owner asked for pressure and its 24-hour change in that sheet,
+  and they are not gated there — a free user tapping the dashboard's weather
+  card sees both. What stays premium is everything that interprets them: the
+  48h forecast chart (`PressureForecastBody`,
   which gates itself so a free user issues no WeatherKit call for it), the
   correlation, and the drop alert — the switch and the threshold both, on
   `/pressure` and on the bottom of `WeatherCard`. **A free user is shown
