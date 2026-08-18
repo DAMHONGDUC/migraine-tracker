@@ -66,6 +66,7 @@ class WeatherCard extends StatelessWidget {
     required this.title,
     required this.data,
     required this.emptyLabel,
+    this.place,
     this.isLoading = false,
     super.key,
   });
@@ -83,6 +84,11 @@ class WeatherCard extends StatelessWidget {
   /// — "not fetched" against "never attached" — and one shared string would
   /// be wrong on one of them.
   final String emptyLabel;
+
+  /// Where the reading is from — a ward, a district or a city, whichever the
+  /// platform could name. Null on the attack card, whose stored snapshot has
+  /// no coordinates to geocode, and null while the name is still being read.
+  final String? place;
 
   /// Only the live caller can be loading; a stored snapshot is already here
   /// or is not. A spinner rather than [emptyLabel] while the first fetch is
@@ -120,7 +126,11 @@ class WeatherCard extends StatelessWidget {
   Future<void> _openDetail(BuildContext context, WeatherCardData weather) {
     SdLogger.action(LogTagConstant.weatherCard, 'Weather detail', title);
 
-    return WeatherDetailSheet(title: title, data: weather).show(context);
+    return WeatherDetailSheet(
+      title: title,
+      data: weather,
+      place: place,
+    ).show(context);
   }
 
   @override
@@ -146,6 +156,14 @@ class WeatherCard extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  // - the place arrives after the reading, so the card grows
+                  //   by a line once rather than reserving one it may not fill
+                  // - no skeleton for it either: a placeholder that resolves
+                  //   to nothing is worse than a line that simply appears
+                  if (place case final String name) ...<Widget>[
+                    _PlaceLine(name: name),
+                    SizedBox(height: SdSpacingConstant.h4),
+                  ],
                   _Headline(
                     data: weather,
                     // Semantics carries what the glyph cannot say; the tap

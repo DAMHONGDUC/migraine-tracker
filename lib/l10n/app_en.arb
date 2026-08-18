@@ -2682,6 +2682,7 @@
     "description": "Title of the weather and pressure alert card on Insights"
   },
   "weatherUnavailable": "Weather is unavailable right now.",
+  "weatherA11yPlace": "Location: {place}",
   "weatherA11yDetail": "Weather details",
   "weatherWeekTitle": "This week",
   "@weatherWeekTitle": {
@@ -2699,6 +2700,14 @@
         "type": "String"
       },
       "high": {
+        "type": "String"
+      }
+    }
+  },
+  "@weatherA11yPlace": {
+    "description": "VoiceOver label of the place name line above the weather reading. {place} is the ward, district or city name the OS geocoder returned.",
+    "placeholders": {
+      "place": {
         "type": "String"
       }
     }

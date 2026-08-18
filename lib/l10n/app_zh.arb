@@ -554,6 +554,7 @@
   "freeLimitReminders": "{count, plural, other{还剩 {count} 个免费提醒}}",
   "weatherCardTitle": "天气",
   "weatherUnavailable": "暂时无法获取天气。",
+  "weatherA11yPlace": "位置：{place}",
   "weatherA11yDetail": "天气详情",
   "weatherWeekTitle": "本周",
   "weatherToday": "今天",

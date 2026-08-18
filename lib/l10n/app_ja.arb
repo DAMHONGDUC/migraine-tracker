@@ -554,6 +554,7 @@
   "freeLimitReminders": "{count, plural, other{無料のリマインダーは残り{count}件}}",
   "weatherCardTitle": "天気",
   "weatherUnavailable": "現在、天気を取得できません。",
+  "weatherA11yPlace": "場所: {place}",
   "weatherA11yDetail": "天気の詳細",
   "weatherWeekTitle": "今週",
   "weatherToday": "今日",

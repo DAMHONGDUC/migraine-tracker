@@ -554,6 +554,7 @@
   "freeLimitReminders": "{count, plural, =0{Plus de rappels gratuits} =1{1 rappel gratuit restant} other{{count} rappels gratuits restants}}",
   "weatherCardTitle": "Météo",
   "weatherUnavailable": "La météo est indisponible pour le moment.",
+  "weatherA11yPlace": "Lieu : {place}",
   "weatherA11yDetail": "Détails météo",
   "weatherWeekTitle": "Cette semaine",
   "weatherToday": "Aujourd'hui",

@@ -554,6 +554,7 @@
   "freeLimitReminders": "{count, plural, other{Còn {count} lời nhắc miễn phí}}",
   "weatherCardTitle": "Thời tiết",
   "weatherUnavailable": "Hiện chưa lấy được dữ liệu thời tiết.",
+  "weatherA11yPlace": "Vị trí: {place}",
   "weatherA11yDetail": "Chi tiết thời tiết",
   "weatherWeekTitle": "Tuần này",
   "weatherToday": "Hôm nay",

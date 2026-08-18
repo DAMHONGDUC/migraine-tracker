@@ -155,3 +155,47 @@ class _ConditionTile extends StatelessWidget {
   }
 }
 
+/// Where the reading is from, in one line above it.
+///
+/// **The name the OS gives, and nothing built around it** (owner's call) —
+/// a ward where the platform knows one, a district or a city where it does
+/// not. The app asks for reduced accuracy (hard rule 2), so how precise this
+/// gets is not something the card can promise.
+///
+/// **Drawn on the live card only.** An attack's stored snapshot has no
+/// coordinates, and labelling last week's weather with where the phone is
+/// standing now would be a place the reading never came from.
+class _PlaceLine extends StatelessWidget {
+  const _PlaceLine({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      // The glyph is a pin and says nothing out loud; the label is what
+      // carries "this is a place" to a screen reader.
+      label: context.l10n.weatherA11yPlace(name),
+      child: ExcludeSemantics(
+        child: Row(
+          children: <Widget>[
+            SdIconV2(
+              icon: Icons.location_on_outlined,
+              size: SdSpacingConstant.r16,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            SizedBox(width: SdSpacingConstant.w4),
+            Flexible(
+              child: Text(
+                name,
+                style: AppTextStyle.bodySmall.secondary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

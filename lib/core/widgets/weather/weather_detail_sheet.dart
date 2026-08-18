@@ -30,11 +30,16 @@ class WeatherDetailSheet extends StatefulWidget {
   const WeatherDetailSheet({
     required this.title,
     required this.data,
+    this.place,
     super.key,
   });
 
   final String title;
   final WeatherCardData data;
+
+  /// The card's own place name, passed through rather than read again — the
+  /// sheet is the card opened up, and two reads could answer differently.
+  final String? place;
 
   @override
   State<WeatherDetailSheet> createState() => _WeatherDetailSheetState();
@@ -66,6 +71,10 @@ class _WeatherDetailSheetState extends State<WeatherDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          if (widget.place case final String name) ...<Widget>[
+            _PlaceLine(name: name),
+            SizedBox(height: SdSpacingConstant.h8),
+          ],
           _Headline(data: day),
           SizedBox(height: SdSpacingConstant.h16),
           _MetricGrid(metrics: _metrics(l10n, day)),

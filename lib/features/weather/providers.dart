@@ -9,13 +9,16 @@ import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
 import 'data/datasources/backend_weather_data_source.dart';
 import 'data/datasources/location_source.dart';
+import 'data/datasources/place_name_source.dart';
 import 'data/repositories/backend_weather_repository.dart';
 import 'data/repositories/drift_daily_pressure_repository.dart';
+import 'data/repositories/geocoded_place_repository.dart';
 import 'domain/entities/daily_pressure.dart';
 import 'domain/entities/geo_point.dart';
 import 'domain/entities/weather_report.dart';
 import 'domain/enums/dev_location.dart';
 import 'domain/repositories/daily_pressure_repository.dart';
+import 'domain/repositories/place_repository.dart';
 import 'domain/repositories/weather_repository.dart';
 import 'domain/services/daily_pressure_recorder.dart';
 import 'presentation/controllers/dev_location_controller.dart';
@@ -104,6 +107,55 @@ final weatherReportProvider = FutureProvider.autoDispose((ref) async {
     expiry = Timer(weatherReportTtl, link.close);
 
     return report;
+  } catch (_) {
+    link.close();
+    rethrow;
+  }
+});
+
+/// The name of the place the device is in — the same position the weather is
+/// read for, put through the platform's geocoder rather than the backend.
+final placeRepositoryProvider = Provider<PlaceRepository>(
+  (ref) => GeocodedPlaceRepository(
+    ref.watch(locationSourceProvider),
+    const GeocodingPlaceNameSource(),
+  ),
+);
+
+/// What the weather card writes above the temperature. Null = no position, no
+/// permission, or a coordinate the OS has no name for — the card then draws
+/// the reading with no place line, never an "unknown" one.
+///
+/// **Keyed by the app's language**, so switching it refetches the name in the
+/// new one rather than leaving a Vietnamese card labelled in English.
+///
+/// **A success is kept for [weatherReportTtl]**, the same hour the reading it
+/// labels is, and for the same reason: the dashboard rebuilds this on every
+/// visit, and re-geocoding an unchanged position is a platform round trip the
+/// user paid nothing for. A failure is not kept — the next visit retries.
+final placeNameProvider = FutureProvider.autoDispose.family<String?, String>((
+  ref,
+  String localeIdentifier,
+) async {
+  final KeepAliveLink link = ref.keepAlive();
+  Timer? expiry;
+
+  ref.onDispose(() => expiry?.cancel());
+
+  try {
+    final String? name = await ref
+        .watch(placeRepositoryProvider)
+        .currentPlaceName(localeIdentifier: localeIdentifier);
+
+    if (name == null) {
+      link.close();
+
+      return null;
+    }
+
+    expiry = Timer(weatherReportTtl, link.close);
+
+    return name;
   } catch (_) {
     link.close();
     rethrow;

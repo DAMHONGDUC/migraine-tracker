@@ -19,6 +19,12 @@ import 'weather_card.dart';
 /// A card that vanished would leave a user who denied location permission
 /// with no sign the feature exists at all.
 ///
+/// **It labels the reading with where it came from.** The name is a second,
+/// slower read than the weather — the OS geocoder answers after the callable
+/// does — so it is watched separately and simply appears when it lands; a
+/// card that waited for both would show nothing for the length of the slower
+/// one.
+///
 /// **It draws no pressure**, the same rule it carried on Insights — that
 /// reading is the product and the dashboard's Today section already shows it
 /// to the users who have paid. See [WeatherCardData.of].
@@ -34,10 +40,16 @@ class CurrentWeatherCard extends ConsumerWidget {
     // the week from it, and the headline falls back to today's high and low
     // where Apple sent a forecast but no reading for right now.
     final WeatherReport? report = async.value;
+    // The app's language, not the device's — the name has to be written in
+    // the language the rest of the card is.
+    final String language = Localizations.localeOf(context).languageCode;
 
     return WeatherCard(
       title: context.l10n.weatherCardTitle,
       data: report == null ? null : WeatherCardData.of(report),
+      // Null until it resolves, and null forever where the OS has no name for
+      // the position — the card is complete without it either way.
+      place: ref.watch(placeNameProvider(language)).value,
       // One state for offline, no permission and a backend with no WeatherKit
       // credentials — hard rule 4 makes them the same answer, so they must
       // not look like three different bugs.
