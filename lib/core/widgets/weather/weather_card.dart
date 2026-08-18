@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
@@ -9,6 +10,7 @@ import '../../../features/weather/domain/entities/weather_snapshot.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../constants/log_tag_constant.dart';
 import '../../extensions/context_extensions.dart';
+import '../../router/app_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_style.dart';
 import '../../utils/date_time_utils.dart';
@@ -19,8 +21,8 @@ part 'weather_card_condition.dart';
 part 'weather_card_data.dart';
 part 'weather_card_headline.dart';
 part 'weather_card_metrics.dart';
-part 'weather_card_week.dart';
-part 'weather_detail_sheet.dart';
+part 'weather_card_rainfall.dart';
+part 'weather_detail_screen.dart';
 
 /// One weather card, drawn the same way wherever weather appears.
 ///
@@ -37,7 +39,7 @@ part 'weather_detail_sheet.dart';
 /// already says, costing a line on a readout the user passes on the way
 /// somewhere. [title] survives for the sheet, which does need naming.
 ///
-/// **The whole card opens [WeatherDetailSheet], where every reading is named
+/// **The whole card opens [WeatherDetailScreen], where every reading is named
 /// in full** (owner's call). The chevron is a mark rather than a button: a
 /// card-sized target is what a readout with nothing else to tap should have,
 /// an icon button inside it would be a second and smaller way to do the same
@@ -54,7 +56,7 @@ part 'weather_detail_sheet.dart';
 /// readout in a stack of identical panels. See [gradient] for what keeps it
 /// inside hard rule 3.
 ///
-/// **The Apple mark lives in the sheet, not on the card** (owner's call). It
+/// **The Apple mark lives on the detail screen, not on the card** (owner's call). It
 /// is a required credit and it cost the card a whole line to say something no
 /// user came for; the card is one tap from it, so the mark stays reachable
 /// from every surface that draws Apple's data rather than being dropped. This
@@ -126,11 +128,12 @@ class WeatherCard extends StatelessWidget {
   Future<void> _openDetail(BuildContext context, WeatherCardData weather) {
     SdLogger.action(LogTagConstant.weatherCard, 'Weather detail', title);
 
-    return WeatherDetailSheet(
-      title: title,
-      data: weather,
-      place: place,
-    ).show(context);
+    // By route name with the reading as `extra`: the screen lives in this
+    // library but nothing outside the router should have to import it.
+    return context.pushNamed<void>(
+      AppRoutes.weather.name,
+      extra: WeatherDetailArgs(title: title, data: weather, place: place),
+    );
   }
 
   @override

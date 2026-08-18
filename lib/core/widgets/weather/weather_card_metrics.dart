@@ -44,12 +44,6 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
-    if (data.humidityPercent case final double value)
-      _Metric(
-        icon: Icons.water_drop_outlined,
-        label: l10n.weatherDetailHumidity,
-        value: l10n.weatherPercent(value.round()),
-      ),
     // - fifth, so the card keeps the four readings above and this one does not
     //   take a quarter of it
     // - still directly under the chance in the sheet, whose grid is two
@@ -62,6 +56,13 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
         value: l10n.weatherMillimetreValue(value.toStringAsFixed(1)),
       ),
+    if (data.humidityPercent case final double value)
+      _Metric(
+        icon: Icons.water_drop_outlined,
+        label: l10n.weatherDetailHumidity,
+        value: l10n.weatherPercent(value.round()),
+      ),
+
     if (data.windSpeedKph case final double value)
       _Metric(
         icon: Icons.air,
@@ -256,6 +257,12 @@ class _MetricGrid extends StatelessWidget {
 
 /// One named cell: the glyph and the name on top, the reading under them.
 ///
+/// **Two lines, kept tight** (owner's call). Side by side on one line was the
+/// other try and it read as a settings row, not as a reading; the height came
+/// back out of the padding and the type instead — h8 rather than h12 around
+/// it, and the number at `bodyMedium.w600` rather than `titleSmall`, which is
+/// a third off the cell for nothing a reader would miss.
+///
 /// The name is capped at one line rather than wrapped, so the two cells of a
 /// row are the same height whatever locale they are read in.
 class _MetricCell extends StatelessWidget {
@@ -267,8 +274,8 @@ class _MetricCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w12,
-        vertical: SdSpacingConstant.h12,
+        horizontal: SdSpacingConstant.w8,
+        vertical: SdSpacingConstant.h8,
       ),
       decoration: BoxDecoration(
         // A step up from the sheet, like everything else that sits on one.
@@ -297,10 +304,9 @@ class _MetricCell extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: SdSpacingConstant.h4),
           Text(
             metric.value,
-            style: AppTextStyle.titleSmall,
+            style: AppTextStyle.bodyMedium.w600,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

@@ -26,12 +26,17 @@ class WeatherReport {
   /// Whether there is anything at all worth drawing.
   bool get isEmpty => current == null && hours.isEmpty && days.isEmpty;
 
-  /// How many days the card offers. A week: far enough to plan around, near
-  /// enough that every day still has hours behind it.
-  static const int weekLength = 7;
+  /// How many days the forecast offers, today counted as the first.
+  ///
+  /// **Ten, which is also Apple's ceiling** (owner's call). `forecastDaily`
+  /// runs ten days out and `forecastHourly` 240 hours, so this is the whole
+  /// of what WeatherKit knows rather than a number picked to look round —
+  /// asking for an eleventh would return nothing to draw.
+  static const int forecastDayCount = 10;
 
-  /// The days the day-strip offers, today first.
-  List<WeatherDaily> get week => days.take(weekLength).toList();
+  /// The days the sheet's rainfall forecast lists, today first.
+  List<WeatherDaily> get forecastDays =>
+      days.take(forecastDayCount).toList();
 
   /// The hours falling on [day], by local calendar date.
   ///

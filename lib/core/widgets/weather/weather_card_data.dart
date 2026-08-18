@@ -39,7 +39,7 @@ class WeatherCardData {
   /// at four readings.
   factory WeatherCardData.of(WeatherReport report) {
     final WeatherConditions? now = report.current;
-    final List<WeatherDaily> week = report.week;
+    final List<WeatherDaily> upcoming = report.forecastDays;
 
     return WeatherCardData(
       condition: now?.condition,
@@ -54,18 +54,18 @@ class WeatherCardData {
       // The coming 24 hours, which is the window the drop alert itself runs
       // on — the app's one definition of "a 24h change" in the future.
       pressureDelta24hHpa: _pressureChange(report.hours.take(_dayHours + 1)),
-      // The three the current block never carries: a chance of rain, a
-      // sunrise and a sunset are facts about a day, not about an instant.
-      precipitationChancePercent: week.isEmpty
+      // What the current block never carries: how likely rain is, how much
+      // falls, and the sun's hours are facts about a day, not an instant.
+      precipitationChancePercent: upcoming.isEmpty
           ? null
-          : week.first.precipitationChancePercent,
-      precipitationAmountMm: week.isEmpty
+          : upcoming.first.precipitationChancePercent,
+      precipitationAmountMm: upcoming.isEmpty
           ? null
-          : week.first.precipitationAmountMm,
-      sunrise: week.isEmpty ? null : week.first.sunrise,
-      sunset: week.isEmpty ? null : week.first.sunset,
-      forecast: week.isEmpty ? null : week.first,
-      days: week,
+          : upcoming.first.precipitationAmountMm,
+      sunrise: upcoming.isEmpty ? null : upcoming.first.sunrise,
+      sunset: upcoming.isEmpty ? null : upcoming.first.sunset,
+      forecast: upcoming.isEmpty ? null : upcoming.first,
+      days: upcoming,
       hours: report.hours,
     );
   }
@@ -115,8 +115,8 @@ class WeatherCardData {
   final DateTime? sunrise;
   final DateTime? sunset;
 
-  /// The week ahead, today first — `WeatherReport.week`, so at most
-  /// `WeatherReport.weekLength` (7) of them.
+  /// The days ahead, today first — `WeatherReport.forecastDays`, so at most
+  /// `WeatherReport.forecastDayCount` (10) of them.
   ///
   /// **Drawn only by the sheet.** The card is two lines and a forecast is not
   /// one of them; the whole point of the sheet is to have room for this.

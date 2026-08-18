@@ -29,6 +29,7 @@ import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/prefs_key_constant.dart';
 import '../l10n/locale_provider.dart';
+import '../widgets/weather/weather_card.dart';
 import 'app_shell.dart';
 
 /// One route's identity: go_router [name] and URL [path] defined together so
@@ -81,6 +82,12 @@ final class AppRoutes {
     path: '/medication/:id',
   );
   static const medicationIdParam = 'id';
+
+  /// Every weather reading named, and the ten-day rainfall forecast. Pushed
+  /// from the weather card on the dashboard and from an attack's own copy of
+  /// it, which is why it takes its data as `extra` rather than fetching:
+  /// the two callers mean different readings by it.
+  static const weather = AppRoute(name: 'weatherDetail', path: '/weather');
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
 
@@ -176,6 +183,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => AttackDetailScreen(
           attackId: state.pathParameters[AppRoutes.attackIdParam]!,
         ),
+      ),
+      GoRoute(
+        name: AppRoutes.weather.name,
+        path: AppRoutes.weather.path,
+        builder: (context, state) =>
+            WeatherDetailScreen(args: state.extra! as WeatherDetailArgs),
       ),
       GoRoute(
         name: AppRoutes.medication.name,

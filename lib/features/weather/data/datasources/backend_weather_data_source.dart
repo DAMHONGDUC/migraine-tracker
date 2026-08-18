@@ -30,9 +30,10 @@ class BackendWeatherDataSource {
 
   /// How far the weather card looks ahead.
   ///
-  /// A week of hours, because the card's day strip offers a week and every
-  /// day on it needs hours behind it — `WeatherReport.weekLength` days at 24.
-  static const int _reportHoursForward = WeatherReport.weekLength * 24;
+  /// Every day the sheet lists needs hours behind it, because the readings a
+  /// picked day shows are averaged from them — `WeatherReport.forecastDayCount`
+  /// days at 24, which is 240 and exactly the callable's own ceiling.
+  static const int _reportHoursForward = WeatherReport.forecastDayCount * 24;
 
   Future<Map<Object?, Object?>?> _call({
     required double latitude,

@@ -1272,9 +1272,9 @@
   "@paywallRestore": {
     "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
   },
-  "weatherAttribution": " Weather",
+  "weatherAttribution": "Weather",
   "@weatherAttribution": {
-    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it; the glyph is Apple's logo character and both locales carry the same value"
+    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it. The logo beside it is drawn as an icon, because the U+F8FF glyph this string used to carry only renders in Apple's own fonts"
   },
   "paywallTermsOfUse": "Terms of Use",
   "@paywallTermsOfUse": {
@@ -2675,9 +2675,14 @@
   "weatherUnavailable": "Weather is unavailable right now.",
   "weatherA11yPlace": "Location: {place}",
   "weatherA11yDetail": "Weather details",
-  "weatherWeekTitle": "This week",
-  "@weatherWeekTitle": {
-    "description": "Heading of the seven-day forecast list in the weather detail sheet."
+  "weatherRainfallTitle": "Rainfall, next {count} days",
+  "@weatherRainfallTitle": {
+    "description": "Heading of the rainfall forecast list in the weather detail sheet. {count} is WeatherReport.forecastDayCount, never a number typed here.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "weatherToday": "Today",
   "@weatherToday": {
