@@ -1036,6 +1036,36 @@ Future<void> openPressureInsight(WidgetTester tester) async {
   await pumpCountUp(tester);
 }
 
+/// Insights, standing on its Sleep tab.
+///
+/// **The tab has to be tapped**: Insights opens on Pressure, so a test that
+/// only calls [openInsights] looks for the sleep card on a tab that does not
+/// draw it. Scoped to the segment strip because the dashboard branch stays
+/// mounted behind Insights and its Today section has a "Sleep" row too.
+Future<void> openSleepInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSegmentedTabsV2),
+      matching: find.text('Sleep'),
+    ),
+  );
+  await pumpCountUp(tester);
+}
+
+/// Insights, standing on its Activity tab — same reason as
+/// [openSleepInsight].
+Future<void> openActivityInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSegmentedTabsV2),
+      matching: find.text('Activity'),
+    ),
+  );
+  await pumpCountUp(tester);
+}
+
 /// Opens the log flow from the dashboard's hero button (the flow is a pushed
 /// route now, not a tab). Leaves the tester on the intensity step.
 Future<void> openLog(WidgetTester tester) async {
