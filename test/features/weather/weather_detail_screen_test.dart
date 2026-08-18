@@ -5,7 +5,6 @@ import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:migraine_tracker/core/widgets/weather/weather_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
-import 'package:system_design/index.dart';
 
 /// The detail is a screen, and the owner's rule for it is that the page never
 /// moves: the readings stay put and only the ten days scroll. None of that is
