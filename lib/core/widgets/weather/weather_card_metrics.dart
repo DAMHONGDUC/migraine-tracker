@@ -19,6 +19,28 @@ part of 'weather_card.dart';
 /// of them and the order decides nothing.
 List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
   return <_Metric>[
+    if (data.pressureHpa case final double value)
+      _Metric(
+        icon: Icons.compress,
+        label: l10n.weatherDetailPressure,
+        // One decimal, unlike every other reading here: a migraine-relevant
+        // move is a few hPa, so rounding to whole units hides half of it.
+        value: l10n.weatherPressureValue(value.toStringAsFixed(1)),
+      ),
+    if (data.pressureDelta24hHpa case final double value)
+      _Metric(
+        icon: Icons.timeline,
+        label: l10n.weatherDetailPressureDelta,
+        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
+        // is neither of them.
+        value: l10n.weatherPressureValue(SignedNumberUtils.format(value)),
+      ),
+    if (data.precipitationChancePercent case final double value)
+      _Metric(
+        icon: Icons.umbrella_outlined,
+        label: l10n.weatherDetailPrecipitation,
+        value: l10n.weatherPercent(value.round()),
+      ),
     if (data.humidityPercent case final double value)
       _Metric(
         icon: Icons.water_drop_outlined,
@@ -45,28 +67,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailVisibility,
         value: l10n.weatherVisibilityValue(value.round()),
       ),
-    if (data.pressureHpa case final double value)
-      _Metric(
-        icon: Icons.compress,
-        label: l10n.weatherDetailPressure,
-        // One decimal, unlike every other reading here: a migraine-relevant
-        // move is a few hPa, so rounding to whole units hides half of it.
-        value: l10n.weatherPressureValue(value.toStringAsFixed(1)),
-      ),
-    if (data.pressureDelta24hHpa case final double value)
-      _Metric(
-        icon: Icons.timeline,
-        label: l10n.weatherDetailPressureDelta,
-        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
-        // is neither of them.
-        value: l10n.weatherPressureValue(SignedNumberUtils.format(value)),
-      ),
-    if (data.precipitationChancePercent case final double value)
-      _Metric(
-        icon: Icons.umbrella_outlined,
-        label: l10n.weatherDetailPrecipitation,
-        value: l10n.weatherPercent(value.round()),
-      ),
+
     if (data.sunrise case final DateTime value)
       _Metric(
         icon: Icons.wb_twilight,

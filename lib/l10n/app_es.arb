@@ -386,7 +386,7 @@
   "settingsDevLocationLondon": "Londres",
   "settingsDevLocationSanFrancisco": "San Francisco",
   "settingsDevSeed": "Reiniciar con datos de ejemplo",
-  "settingsDevSeedDone": "Creadas {count} crisis, medicamentos y exportaciones.",
+  "settingsDevSeedDone": "Datos de muestra creados.",
   "settingsDevSeedFailed": "Falló la creación de datos de ejemplo.",
   "settingsDevReset": "Reiniciar la app",
   "settingsDevPremium": "Premium (simulado)",

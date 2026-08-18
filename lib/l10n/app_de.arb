@@ -386,7 +386,7 @@
   "settingsDevLocationLondon": "London",
   "settingsDevLocationSanFrancisco": "San Francisco",
   "settingsDevSeed": "Mit Beispieldaten zurücksetzen",
-  "settingsDevSeedDone": "{count} Attacken, Medikamente und Exporte angelegt.",
+  "settingsDevSeedDone": "Beispieldaten angelegt.",
   "settingsDevSeedFailed": "Beispieldaten anlegen fehlgeschlagen.",
   "settingsDevReset": "App zurücksetzen",
   "settingsDevPremium": "Premium (Mock)",

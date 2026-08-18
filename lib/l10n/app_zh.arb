@@ -386,7 +386,7 @@
   "settingsDevLocationLondon": "伦敦",
   "settingsDevLocationSanFrancisco": "旧金山",
   "settingsDevSeed": "用示例数据重置",
-  "settingsDevSeedDone": "已生成 {count} 条发作、药物和导出。",
+  "settingsDevSeedDone": "已生成示例数据。",
   "settingsDevSeedFailed": "生成示例数据失败。",
   "settingsDevReset": "重置应用",
   "settingsDevPremium": "高级版（模拟）",

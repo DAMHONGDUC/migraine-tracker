@@ -386,7 +386,7 @@
   "settingsDevLocationLondon": "Luân Đôn",
   "settingsDevLocationSanFrancisco": "San Francisco",
   "settingsDevSeed": "Tạo lại dữ liệu mẫu",
-  "settingsDevSeedDone": "Đã tạo {count} cơn đau, thuốc và bản xuất.",
+  "settingsDevSeedDone": "Đã tạo dữ liệu mẫu.",
   "settingsDevSeedFailed": "Tạo dữ liệu mẫu thất bại.",
   "settingsDevReset": "Đặt lại ứng dụng",
   "settingsDevPremium": "Premium (giả lập)",

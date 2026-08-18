@@ -386,7 +386,7 @@
   "settingsDevLocationLondon": "ロンドン",
   "settingsDevLocationSanFrancisco": "サンフランシスコ",
   "settingsDevSeed": "サンプルデータで初期化",
-  "settingsDevSeedDone": "発作・薬・書き出しを{count}件作成しました。",
+  "settingsDevSeedDone": "サンプルデータを作成しました。",
   "settingsDevSeedFailed": "サンプルデータの作成に失敗しました。",
   "settingsDevReset": "アプリをリセット",
   "settingsDevPremium": "プレミアム（モック）",

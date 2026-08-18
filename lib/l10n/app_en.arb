@@ -1845,14 +1845,9 @@
   "@settingsDevSeed": {
     "description": "Dev-only settings tile that wipes the device and seeds fixtures"
   },
-  "settingsDevSeedDone": "Seeded {count} attacks, medications and exports.",
+  "settingsDevSeedDone": "Sample data is in.",
   "@settingsDevSeedDone": {
-    "description": "Snackbar shown after the dev-only seed finishes",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Snackbar shown after the dev-only seed finishes"
   },
   "settingsDevSeedFailed": "Seeding sample data failed.",
   "@settingsDevSeedFailed": {

@@ -101,7 +101,12 @@ class SettingsController extends Notifier<WipeStatus> {
       SdLogger.info(
         LogTagConstant.settings,
         'Seed dev data done',
-        DevSeedService.seedCount,
+        <String, Object?>{
+          'attacks': DevSeedService.attackCount,
+          'medications': DevSeedService.medicationCount,
+          'reminders': DevSeedService.reminderCount,
+          'exports': DevSeedService.exportCount,
+        },
       );
     } catch (error, stackTrace) {
       SdLogger.error(

@@ -33,7 +33,6 @@ import '../../../../weather/providers.dart';
 import '../../../domain/entities/wipe_status.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/app_version_label.dart';
-import '../../../domain/services/dev_seed_service.dart';
 import '../../../providers.dart';
 
 part 'settings_screen_about_section.dart';
