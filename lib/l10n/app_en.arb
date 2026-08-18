@@ -2774,8 +2774,21 @@
   },
   "weatherDetailHumidity": "Humidity",
   "weatherDetailPrecipitation": "Chance of rain",
+  "weatherDetailPrecipitationAmount": "Rainfall",
+  "weatherMillimetreValue": "{value} mm",
   "@weatherDetailPrecipitation": {
     "description": "Label of the weather sheet's chance-of-rain cell."
+  },
+  "@weatherDetailPrecipitationAmount": {
+    "description": "Label of the weather sheet's rainfall cell — how much rain the day is expected to bring, beside the chance of any."
+  },
+  "@weatherMillimetreValue": {
+    "description": "A depth of rainfall in millimetres, e.g. 12.5 mm",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
   "weatherDetailPressure": "Pressure",
   "@weatherDetailPressure": {

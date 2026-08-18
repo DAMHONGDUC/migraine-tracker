@@ -41,6 +41,14 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
+    // One decimal, like pressure and unlike the rest: a day of drizzle is
+    // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
+    if (data.precipitationAmountMm case final double value)
+      _Metric(
+        icon: Icons.water_outlined,
+        label: l10n.weatherDetailPrecipitationAmount,
+        value: l10n.weatherMillimetreValue(value.toStringAsFixed(1)),
+      ),
     if (data.humidityPercent case final double value)
       _Metric(
         icon: Icons.water_drop_outlined,

@@ -567,6 +567,8 @@
   "weatherPressureValue": "{value} hPa",
   "weatherDetailHumidity": "湿度",
   "weatherDetailPrecipitation": "降水確率",
+  "weatherDetailPrecipitationAmount": "降水量",
+  "weatherMillimetreValue": "{value} mm",
   "weatherDetailPressure": "気圧",
   "weatherDetailPressureDelta": "24時間の変化",
   "weatherDetailUv": "UV指数",

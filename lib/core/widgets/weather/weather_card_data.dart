@@ -22,6 +22,7 @@ class WeatherCardData {
     this.uvIndex,
     this.visibilityKm,
     this.precipitationChancePercent,
+    this.precipitationAmountMm,
     this.sunrise,
     this.sunset,
     this.forecast,
@@ -58,6 +59,9 @@ class WeatherCardData {
       precipitationChancePercent: week.isEmpty
           ? null
           : week.first.precipitationChancePercent,
+      precipitationAmountMm: week.isEmpty
+          ? null
+          : week.first.precipitationAmountMm,
       sunrise: week.isEmpty ? null : week.first.sunrise,
       sunset: week.isEmpty ? null : week.first.sunset,
       forecast: week.isEmpty ? null : week.first,
@@ -98,6 +102,14 @@ class WeatherCardData {
   final double? uvIndex;
   final double? visibilityKm;
   final double? precipitationChancePercent;
+
+  /// How much rain the day is expected to bring, in millimetres.
+  ///
+  /// **A day's total, never an hour's** — the same window the chance beside it
+  /// covers, so the two readings answer the same question. It reaches the
+  /// sheet alone, behind the chance: a chance is what a user checks before
+  /// leaving the house, an amount is what tells them whether it matters.
+  final double? precipitationAmountMm;
 
   /// Today's, in UTC like everything else off the wire.
   final DateTime? sunrise;
@@ -170,6 +182,7 @@ class WeatherCardData {
       // First hour to last, which for a whole day IS the 24-hour change.
       pressureDelta24hHpa: _pressureChange(onDay),
       precipitationChancePercent: day.precipitationChancePercent,
+      precipitationAmountMm: day.precipitationAmountMm,
       sunrise: day.sunrise,
       sunset: day.sunset,
       forecast: day,
@@ -223,6 +236,7 @@ class WeatherCardData {
       uvIndex == null &&
       visibilityKm == null &&
       precipitationChancePercent == null &&
+      precipitationAmountMm == null &&
       sunrise == null &&
       sunset == null &&
       days.isEmpty;

@@ -88,6 +88,7 @@ class WeatherHourly {
     this.uvIndex,
     this.condition,
     this.precipitationChancePercent,
+    this.precipitationAmountMm,
     this.windSpeedKph,
     this.cloudCoverPercent,
     this.visibilityKm,
@@ -106,6 +107,12 @@ class WeatherHourly {
   final double? uvIndex;
   final WeatherCondition? condition;
   final double? precipitationChancePercent;
+
+  /// Millimetres in the hour — rain and melted snow together, as Apple sends
+  /// it. Separate from the chance: a 90% chance of 0.2mm and a 30% chance of
+  /// 20mm are different days, and only one of them changes plans.
+  final double? precipitationAmountMm;
+
   final double? windSpeedKph;
   final double? cloudCoverPercent;
   final double? visibilityKm;
@@ -120,6 +127,7 @@ class WeatherDaily {
     this.temperatureMaxCelsius,
     this.temperatureMinCelsius,
     this.precipitationChancePercent,
+    this.precipitationAmountMm,
     this.uvIndexMax,
     this.sunrise,
     this.sunset,
@@ -131,6 +139,10 @@ class WeatherDaily {
   final double? temperatureMaxCelsius;
   final double? temperatureMinCelsius;
   final double? precipitationChancePercent;
+
+  /// Millimetres over the whole day.
+  final double? precipitationAmountMm;
+
   final double? uvIndexMax;
   final DateTime? sunrise;
   final DateTime? sunset;

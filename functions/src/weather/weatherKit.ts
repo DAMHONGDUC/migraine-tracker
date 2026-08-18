@@ -195,6 +195,8 @@ export interface WeatherHour {
   /** Apple's own vocabulary ("Clear", "Rain"); the app maps it to a glyph. */
   conditionCode?: string;
   precipitationChancePercent?: number;
+  /** Millimetres, as Apple sends it — rain and melted snow together. */
+  precipitationAmountMm?: number;
   windSpeedKph?: number;
   cloudCoverPercent?: number;
   visibilityKm?: number;
@@ -226,6 +228,8 @@ export interface WeatherDay {
   temperatureMaxCelsius?: number;
   temperatureMinCelsius?: number;
   precipitationChancePercent?: number;
+  /** Millimetres over the whole day. */
+  precipitationAmountMm?: number;
   uvIndexMax?: number;
   /** ISO-8601, UTC. */
   sunrise?: string;
@@ -356,6 +360,7 @@ interface ForecastHour {
   uvIndex?: number | null;
   conditionCode?: string | null;
   precipitationChance?: number | null;
+  precipitationAmount?: number | null;
   windSpeed?: number | null;
   cloudCover?: number | null;
   visibility?: number | null;
@@ -413,6 +418,7 @@ function parseHours(body: unknown): WeatherHour[] {
       uvIndex: asNumber(hour.uvIndex),
       conditionCode: asText(hour.conditionCode),
       precipitationChancePercent: asPercent(hour.precipitationChance),
+      precipitationAmountMm: asNumber(hour.precipitationAmount),
       windSpeedKph: asNumber(hour.windSpeed),
       cloudCoverPercent: asPercent(hour.cloudCover),
       visibilityKm: asKm(hour.visibility),
@@ -472,6 +478,7 @@ interface ForecastDay {
   temperatureMax?: number | null;
   temperatureMin?: number | null;
   precipitationChance?: number | null;
+  precipitationAmount?: number | null;
   maxUvIndex?: number | null;
   sunrise?: string | null;
   sunset?: string | null;
@@ -495,6 +502,7 @@ function parseDays(body: unknown): WeatherDay[] {
       temperatureMaxCelsius: asNumber(day.temperatureMax),
       temperatureMinCelsius: asNumber(day.temperatureMin),
       precipitationChancePercent: asPercent(day.precipitationChance),
+      precipitationAmountMm: asNumber(day.precipitationAmount),
       uvIndexMax: asNumber(day.maxUvIndex),
       sunrise: day.sunrise ? new Date(day.sunrise).toISOString() : undefined,
       sunset: day.sunset ? new Date(day.sunset).toISOString() : undefined,

@@ -567,6 +567,8 @@
   "weatherPressureValue": "{value} hPa",
   "weatherDetailHumidity": "Luftfeuchtigkeit",
   "weatherDetailPrecipitation": "Regenwahrscheinlichkeit",
+  "weatherDetailPrecipitationAmount": "Niederschlag",
+  "weatherMillimetreValue": "{value} mm",
   "weatherDetailPressure": "Druck",
   "weatherDetailPressureDelta": "Änderung in 24 h",
   "weatherDetailUv": "UV-Index",
