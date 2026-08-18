@@ -1036,6 +1036,19 @@ Future<void> openPressureInsight(WidgetTester tester) async {
   await pumpCountUp(tester);
 }
 
+/// Drags [target] into view with bounded pumps, and never `pumpAndSettle`.
+///
+/// **Insights never settles.** Its cards keep frames coming, so
+/// `pumpAndSettle` — which `dragUntilVisible` and `scrollUntilVisible` both
+/// use — waits out its own ten-minute timeout instead of scrolling. Two tests
+/// spent that timeout each and read as a hung suite rather than a bad helper.
+Future<void> dragInsightsTo(WidgetTester tester, Finder target) async {
+  for (int i = 0; i < 12 && target.evaluate().isEmpty; i++) {
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -260));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
 /// Insights, standing on its Sleep tab.
 ///
 /// **The tab has to be tapped**: Insights opens on Pressure, so a test that
