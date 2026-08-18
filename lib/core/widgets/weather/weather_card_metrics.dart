@@ -9,11 +9,14 @@ part of 'weather_card.dart';
 ///
 /// **The order is the gate between the two surfaces.** The card draws the
 /// first `_MetricStrip.maxOnCard` (4) and the sheet draws them all, so what
-/// leads this list is what a glance gets: the four free readings of the sky.
-/// Pressure, the chance of rain and the sun's hours come after, and reach the
-/// sheet alone — pressure because the dashboard's Today section already
-/// prints it a card away, and the other three because they are worth knowing
-/// and not worth a quarter of the card.
+/// leads this list is what a glance gets: pressure, its 24-hour change, the
+/// chance of rain and the humidity (owner's call). Everything after — how
+/// much rain, wind, UV, visibility, the sun's hours — is worth knowing and
+/// not worth a quarter of the card, so it reaches the sheet alone.
+///
+/// **The sheet's grid is two columns, and that is load-bearing here.** How
+/// much rain sits fifth so the card keeps its four, which puts it in the
+/// left column directly under the chance it belongs to.
 ///
 /// A stored snapshot has only three readings in total, so its card shows all
 /// of them and the order decides nothing.
@@ -41,19 +44,23 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
-    // One decimal, like pressure and unlike the rest: a day of drizzle is
-    // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
-    if (data.precipitationAmountMm case final double value)
-      _Metric(
-        icon: Icons.water_outlined,
-        label: l10n.weatherDetailPrecipitationAmount,
-        value: l10n.weatherMillimetreValue(value.toStringAsFixed(1)),
-      ),
     if (data.humidityPercent case final double value)
       _Metric(
         icon: Icons.water_drop_outlined,
         label: l10n.weatherDetailHumidity,
         value: l10n.weatherPercent(value.round()),
+      ),
+    // - fifth, so the card keeps the four readings above and this one does not
+    //   take a quarter of it
+    // - still directly under the chance in the sheet, whose grid is two
+    //   columns wide: fifth lands in the left column, third's own column
+    if (data.precipitationAmountMm case final double value)
+      _Metric(
+        icon: Icons.water_outlined,
+        label: l10n.weatherDetailPrecipitationAmount,
+        // One decimal, like pressure and unlike the rest: a day of drizzle is
+        // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
+        value: l10n.weatherMillimetreValue(value.toStringAsFixed(1)),
       ),
     if (data.windSpeedKph case final double value)
       _Metric(
