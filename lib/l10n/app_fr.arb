@@ -220,7 +220,6 @@
   "attackLimitBannerTitle": "{count, plural, =1{1 saisie restante avec la formule gratuite} other{{count} saisies restantes avec la formule gratuite}}",
   "attackLimitBannerBody": "Débloquez Premium pour enregistrer sans limite.",
   "dashboardPremiumBannerTitle": "Débloquez Premium",
-  "dashboardPremiumBannerBody": "Alertes, prévisions et toutes les analyses.",
   "medicationLimitTitle": "{count, plural, other{{count} médicaments avec la formule gratuite}}",
   "medicationLimitBody": "{count, plural, other{La formule gratuite comprend {count} médicaments.}} Débloquez Premium pour en ajouter autant que nécessaire.",
   "reminderLimitTitle": "{count, plural, =1{Un rappel avec la formule gratuite} other{{count} rappels avec la formule gratuite}}",

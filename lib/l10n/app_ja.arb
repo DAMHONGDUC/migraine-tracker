@@ -220,7 +220,6 @@
   "attackLimitBannerTitle": "{count, plural, other{無料プランの残り{count}件}}",
   "attackLimitBannerBody": "プレミアムを解除すると、上限なく記録できます。",
   "dashboardPremiumBannerTitle": "プレミアムを解除",
-  "dashboardPremiumBannerBody": "アラート、予報、すべての分析。",
   "medicationLimitTitle": "{count, plural, other{無料プランは薬{count}件まで}}",
   "medicationLimitBody": "{count, plural, other{無料プランには薬が{count}件含まれます。}}必要なだけ追加するにはプレミアムを解除してください。",
   "reminderLimitTitle": "{count, plural, other{無料プランはリマインダー{count}件まで}}",

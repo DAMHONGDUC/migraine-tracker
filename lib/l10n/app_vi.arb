@@ -220,7 +220,6 @@
   "attackLimitBannerTitle": "{count, plural, other{Còn {count} lượt ghi ở gói miễn phí}}",
   "attackLimitBannerBody": "Mở Premium để ghi không giới hạn.",
   "dashboardPremiumBannerTitle": "Mở khoá Premium",
-  "dashboardPremiumBannerBody": "Cảnh báo, dự báo và toàn bộ phân tích.",
   "medicationLimitTitle": "{count, plural, other{{count} loại thuốc ở gói miễn phí}}",
   "medicationLimitBody": "{count, plural, other{Gói miễn phí cho phép {count} loại thuốc.}} Mở Premium để thêm bao nhiêu tuỳ ý.",
   "reminderLimitTitle": "{count, plural, other{Gói miễn phí có {count} lời nhắc}}",

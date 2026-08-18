@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -188,6 +189,19 @@ void main() {
     expect(
       tester.getRect(find.byType(PremiumBanner)).top,
       lessThan(tester.getRect(find.byType(DashboardLogButton)).top),
+    );
+    // One line and one line only: the supporting sentence was dropped to keep
+    // the offer from being the tallest thing above the fold.
+    expect(
+      find.descendant(
+        of: find.byType(PremiumBanner),
+        matching: find.byType(Text),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      tester.getSize(find.byType(PremiumBanner)).height,
+      lessThan(tester.getSize(find.byType(DashboardLogButton)).height),
     );
 
     await finishTest(tester);
