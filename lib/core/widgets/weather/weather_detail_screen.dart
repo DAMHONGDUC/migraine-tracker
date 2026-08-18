@@ -4,10 +4,14 @@ part of 'weather_card.dart';
 ///
 /// **A screen, not a sheet** (owner's call). It was an `SdSheetContentV2`
 /// under a ceiling of 85% of the display, and the content outgrew it: ten
-/// named readings are five rows of grid, ten days are ten rows, and something
-/// always had to be scrolled inside something else. A screen has no ceiling
-/// to divide, so the readings are drawn whole, the days follow them, and the
-/// page scrolls the way every other pushed screen does.
+/// named readings are five rows of grid, and ten days are ten rows.
+///
+/// **The page itself never scrolls** (owner's call). Everything above the
+/// forecast — where the reading is from, the temperature, every named
+/// reading — is on screen at once and stays there; only the ten days move,
+/// inside their own box. A page that scrolled as one meant reaching the last
+/// day put the temperature off the top, and the reading the user came for
+/// was the first thing to leave.
 ///
 /// **It is more than the card showed, not the same thing larger.** The card's
 /// four glyphs become every reading, named; how much rain, wind, UV and the
@@ -82,7 +86,7 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
 
     return SdScaffoldV2(
       title: Text(args.title, style: AppTextStyle.titleLarge),
-      body: SingleChildScrollView(
+      body: Padding(
         // `SdScaffoldV2` deliberately pads nothing — the body flows behind the
         // glass bar, so the screen owes its own top inset or the first line
         // sits under the title.
@@ -105,13 +109,17 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
             _Headline(data: day),
             SizedBox(height: SdSpacingConstant.h16),
             _MetricGrid(metrics: _metrics(l10n, day)),
-            // Absent for an attack's snapshot, which never stored a forecast.
+            // - absent for an attack's snapshot, which stored no forecast
+            // - Expanded: it takes whatever the readings above left, and the
+            //   days that do not fit scroll inside it rather than moving them
             if (args.data.days.isNotEmpty) ...<Widget>[
               SizedBox(height: SdSpacingConstant.h20),
-              _RainfallForecast(
-                days: args.data.days,
-                selected: _selected,
-                onSelected: _select,
+              Expanded(
+                child: _RainfallForecast(
+                  days: args.data.days,
+                  selected: _selected,
+                  onSelected: _select,
+                ),
               ),
             ],
           ],

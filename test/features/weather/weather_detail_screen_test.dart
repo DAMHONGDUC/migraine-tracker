@@ -7,10 +7,10 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_report
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 import 'package:system_design/index.dart';
 
-/// The detail is a screen now, not a sheet — so what matters is that the page
-/// scrolls as ONE thing (a list inside a scroll view was the sheet's problem,
-/// and it must not come back), that every reading is drawn, and that picking
-/// a day re-reads the grid above it.
+/// The detail is a screen, and the owner's rule for it is that the page never
+/// moves: the readings stay put and only the ten days scroll. None of that is
+/// visible to a `find.text` assertion, so it is asserted on the scrollables
+/// themselves — there must be exactly one, and it must be the day list.
 void main() {
   WeatherReport report({int days = WeatherReport.forecastDayCount}) {
     final DateTime start = DateTime.utc(2026, 8, 18);
@@ -92,13 +92,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('the page is one scroll view, never a list inside one', (
-    tester,
-  ) async {
+  testWidgets('only the day list scrolls, never the page', (tester) async {
     await pumpScreen(tester, report());
 
+    // One scrollable on the screen, and it is the list: anything else means
+    // the readings can be scrolled away from under the user.
     expect(find.byType(Scrollable), findsOneWidget);
-    expect(find.byType(ListView), findsNothing);
+    expect(find.byType(ListView), findsOneWidget);
+    expect(
+      tester.state<ScrollableState>(find.byType(Scrollable)).position
+          .maxScrollExtent,
+      greaterThan(0),
+      reason: 'ten days in the window means there is something to scroll',
+    );
   });
 
   testWidgets('every reading is named, and the ten days are all listed', (
@@ -108,14 +114,19 @@ void main() {
 
     // The last cell of the grid: if it is built, every reading above it is.
     expect(find.text('Sunset'), findsOneWidget);
-    // Nine rules between ten rows.
-    expect(
-      find.descendant(
-        of: find.byType(WeatherDetailScreen),
-        matching: find.byType(SdDividerV2),
-      ),
-      findsNWidgets(WeatherReport.forecastDayCount - 1),
+
+    // Scrolling the days to the end moves them and nothing else: the grid's
+    // last cell is still on screen, and the tenth day has been built.
+    final ScrollableState list = tester.state<ScrollableState>(
+      find.byType(Scrollable),
     );
+
+    list.position.jumpTo(list.position.maxScrollExtent);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sunset'), findsOneWidget, reason: 'the readings moved');
+    // 18 Aug 2026 is a Tuesday, so the tenth day is the Thursday after next.
+    expect(find.text('Thursday'), findsWidgets);
   });
 
   testWidgets('picking a day re-reads the grid against it', (tester) async {

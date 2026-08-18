@@ -14,10 +14,11 @@ part of 'weather_card.dart';
 /// **Ten because that is Apple's ceiling**, not because it is a round number:
 /// see `WeatherReport.forecastDayCount`.
 ///
-/// **A `Column`, not a `ListView`.** Ten rows is a fixed, small number and
-/// the screen it sits on already scrolls; a scroll view inside a scroll view
-/// would need `shrinkWrap` and give the page two places to put a scrollbar.
-/// It had one briefly, back when this was a sheet with a ceiling to divide.
+/// **The only thing on the screen that scrolls** (owner's call). It takes
+/// the height left under the readings and moves inside it; the readings
+/// themselves never move. Nothing here decides how many rows are in view — a
+/// count fixed in this file would be right on one phone and wrong on the
+/// next, so the parent's `Expanded` decides and the list fills it.
 class _RainfallForecast extends StatelessWidget {
   const _RainfallForecast({
     required this.days,
@@ -44,17 +45,21 @@ class _RainfallForecast extends StatelessWidget {
           style: AppTextStyle.titleSmall,
         ),
         SizedBox(height: SdSpacingConstant.h8),
-        for (final (int index, WeatherDaily day) in days.indexed) ...<Widget>[
-          // Between rows only — a rule above the first would sit on the gap
-          // that separates this block from the heading above it.
-          if (index > 0) const SdDividerV2(),
-          _DayRow(
-            day: day,
-            isToday: index == 0,
-            isSelected: index == selected,
-            onTap: () => onSelected(index),
+        Expanded(
+          child: ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: days.length,
+            // Between rows only, which is what `separated` means — a rule
+            // above the first would sit on the gap under the heading.
+            separatorBuilder: (_, _) => const SdDividerV2(),
+            itemBuilder: (BuildContext context, int index) => _DayRow(
+              day: days[index],
+              isToday: index == 0,
+              isSelected: index == selected,
+              onTap: () => onSelected(index),
+            ),
           ),
-        ],
+        ),
       ],
     );
   }
