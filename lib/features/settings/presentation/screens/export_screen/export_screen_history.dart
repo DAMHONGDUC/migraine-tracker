@@ -46,7 +46,9 @@ class _History extends ConsumerWidget {
         ],
       ),
       AsyncError() => const _EmptyState(),
-      _ => const Center(child: CircularProgressIndicator()),
+      // Rows rather than a spinner: this sits under a heading in a column, so
+      // the block below it should not jump when the records arrive.
+      _ => const SdListSkeletonV2(rows: 3),
     };
   }
 }

@@ -60,10 +60,9 @@ class PressureForecastBody extends ConsumerWidget {
           const WeatherAttribution(),
         ],
       ),
-      AsyncLoading() => SizedBox(
-        height: SdSpacingConstant.h160,
-        child: const Center(child: CircularProgressIndicator()),
-      ),
+      // No attribution on this one: the mark is owed by the state that
+      // actually drew Apple's data, and a placeholder drew none.
+      AsyncLoading() => const SdChartSkeletonV2(),
       _ => SizedBox(
         height: SdSpacingConstant.h64,
         child: Center(

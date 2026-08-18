@@ -40,12 +40,10 @@ class SleepSummaryCard extends ConsumerWidget {
       // A read that failed and a read that returned nothing are the same
       // thing to the user — iOS never says which (see HealthRepository).
       AsyncError<SleepSummary>() => _Empty(message: l10n.sleepSummaryEmpty),
-      _ => SdCardV2(
-        child: SizedBox(
-          height: SdChartStyleV2.plotHeight,
-          child: const Center(child: CircularProgressIndicator()),
-        ),
-      ),
+      // The card's own shape rather than a spinner in a box: this sits in a
+      // scrolling column, so a placeholder of the wrong height moves
+      // everything below it when the read returns.
+      _ => const SdChartCardSkeletonV2(),
     };
   }
 }

@@ -48,6 +48,11 @@ part 'weather_detail_sheet.dart';
 /// the reading is live or hours old — see [CurrentWeatherCard] for the live
 /// one.
 ///
+/// **It is the one card in the app wearing a gradient** (owner's call), so
+/// the weather reads as the screen's own subject rather than as one more
+/// readout in a stack of identical panels. See [gradient] for what keeps it
+/// inside hard rule 3.
+///
 /// **The Apple mark lives in the sheet, not on the card** (owner's call). It
 /// is a required credit and it cost the card a whole line to say something no
 /// user came for; the card is one tap from it, so the mark stays reachable
@@ -84,6 +89,33 @@ class WeatherCard extends StatelessWidget {
   /// every user the feature was broken.
   final bool isLoading;
 
+  /// A tint of the accent across the card, top-left to bottom-right.
+  ///
+  /// **Quiet, and it has to stay quiet.** The app's users are photophobic
+  /// (hard rule 3), so this is one hue at low alpha over the card colour —
+  /// never two saturated colours meeting, never a bright fill. The stops go
+  /// 0.18 → 0.04 rather than to zero, so the far corner still reads as part
+  /// of the same surface instead of fading into an edge.
+  ///
+  /// It does not change with the weather. A card that turned orange in the
+  /// sun and grey in the rain would be a second, louder way of saying what
+  /// the glyph already says, and it would be at its brightest exactly when
+  /// the user's day is.
+  static LinearGradient gradient(BuildContext context) => LinearGradient(
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
+    colors: <Color>[
+      Color.alphaBlend(
+        AppColors.primary.withValues(alpha: 0.18),
+        context.colorScheme.surface,
+      ),
+      Color.alphaBlend(
+        AppColors.primary.withValues(alpha: 0.04),
+        context.colorScheme.surface,
+      ),
+    ],
+  );
+
   Future<void> _openDetail(BuildContext context, WeatherCardData weather) {
     SdLogger.action(LogTagConstant.weatherCard, 'Weather detail', title);
 
@@ -96,6 +128,7 @@ class WeatherCard extends StatelessWidget {
     final WeatherCardData? weather = data?.isEmpty ?? true ? null : data;
 
     return SdCardV2(
+      gradient: gradient(context),
       // **The tap and the chevron drop together where there is no reading.**
       // A mark that promises a screen must never sit above a tap that opens
       // an empty one.
@@ -136,8 +169,14 @@ class WeatherCard extends StatelessWidget {
 
 /// What fills the card before there is a reading, or instead of one.
 ///
-/// It holds the headline's own height either way, so the card does not jump
-/// a line's worth of height when the first fetch lands.
+/// **Loading is a skeleton in the card's own shape, not a spinner.** The card
+/// is a fixed two lines, so the placeholder can be exactly the size of what
+/// is coming — which means the dashboard does not reflow under the user's
+/// thumb when the fetch lands. A spinner would have said only "waiting", in a
+/// box of some other height.
+///
+/// The unavailable state is still a sentence: that one is an answer, not a
+/// wait, and a skeleton that never resolves is the worst of both.
 class _Placeholder extends StatelessWidget {
   const _Placeholder({required this.label, required this.isLoading});
 
@@ -146,15 +185,47 @@ class _Placeholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: SdSpacingConstant.h40,
-      width: double.infinity,
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(label, style: AppTextStyle.bodyMedium.secondary),
+    if (!isLoading) {
+      return SizedBox(
+        height: SdSpacingConstant.h40,
+        width: double.infinity,
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(label, style: AppTextStyle.bodyMedium.secondary),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        // The headline: the glyph's square, then the temperature beside it.
+        Row(
+          children: <Widget>[
+            SdSkeletonV2(
+              height: SdSpacingConstant.r36,
+              width: SdSpacingConstant.w40,
             ),
+            SizedBox(width: SdSpacingConstant.w12),
+            Expanded(child: SdSkeletonV2.line(fraction: 0.6)),
+          ],
+        ),
+        SizedBox(height: SdSpacingConstant.h12),
+        // The four readings, at the width their numbers take.
+        Row(
+          children: <Widget>[
+            for (int i = 0; i < _MetricStrip.maxOnCard; i++)
+              Expanded(
+                child: Center(
+                  child: SdSkeletonV2(
+                    height: SdSpacingConstant.h32,
+                    width: SdSpacingConstant.w28,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
