@@ -53,6 +53,21 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailVisibility,
         value: l10n.weatherVisibilityValue(value.round()),
       ),
+    // Last on purpose, so they fall past `_MetricStrip.maxOnCard` and appear
+    // in the sheet alone: the hour the sun comes up is worth knowing and is
+    // not worth a quarter of the card.
+    if (data.sunrise case final DateTime value)
+      _Metric(
+        icon: Icons.wb_twilight,
+        label: l10n.weatherDetailSunrise,
+        value: DateFormat.jm(l10n.localeName).format(value.toLocal()),
+      ),
+    if (data.sunset case final DateTime value)
+      _Metric(
+        icon: Icons.nightlight_outlined,
+        label: l10n.weatherDetailSunset,
+        value: DateFormat.jm(l10n.localeName).format(value.toLocal()),
+      ),
   ];
 }
 

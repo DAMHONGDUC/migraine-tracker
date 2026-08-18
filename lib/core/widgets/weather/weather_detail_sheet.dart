@@ -4,8 +4,14 @@ part of 'weather_card.dart';
 ///
 /// **The card's arrow opens this, and it is read-only** — no commit button
 /// (`SdSheetContentV2` hides the slot when `onConfirm` is null), because there
-/// is nothing here to answer. It is the same data the card drew, at the size
-/// that lets it carry labels.
+/// is nothing here to answer.
+///
+/// **It is more than the card showed, not the same thing larger.** The card's
+/// four glyphs become every reading, named; sunrise and sunset appear, having
+/// fallen past what the card has room for; and the week ahead is drawn under
+/// them. That last one is why the sheet exists at all — a seven-day forecast
+/// was the half of the retired Insights weather card worth keeping, and it
+/// never fitted on a dashboard card.
 ///
 /// **It takes the card's own [title]**, not a string of its own: the sheet is
 /// the card opened up, so "Weather" and "Weather at the time" have to reach
@@ -38,6 +44,11 @@ class WeatherDetailSheet extends StatelessWidget {
           _Headline(data: data),
           SizedBox(height: SdSpacingConstant.h16),
           _MetricGrid(metrics: _metrics(l10n, data)),
+          // Absent for an attack's snapshot, which never stored a forecast.
+          if (data.days.isNotEmpty) ...<Widget>[
+            SizedBox(height: SdSpacingConstant.h20),
+            _WeekForecast(days: data.days),
+          ],
           SizedBox(height: SdSpacingConstant.h12),
           // Its own copy: the sheet covers the card that drew the other one,
           // and WeatherKit's mark has to be on the surface being looked at.

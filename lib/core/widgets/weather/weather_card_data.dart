@@ -21,6 +21,9 @@ class WeatherCardData {
     this.windSpeedKph,
     this.uvIndex,
     this.visibilityKm,
+    this.sunrise,
+    this.sunset,
+    this.days = const <WeatherDaily>[],
   });
 
   /// The conditions the user is standing in.
@@ -32,16 +35,26 @@ class WeatherCardData {
   /// who have paid, so a cell here would print the same number twice on one
   /// screen. The rule came with the card from Insights; do not add it back
   /// without the owner saying so.
-  factory WeatherCardData.of(WeatherConditions conditions) => WeatherCardData(
-    condition: conditions.condition,
-    daylight: conditions.daylight,
-    temperatureCelsius: conditions.temperatureCelsius,
-    apparentTemperatureCelsius: conditions.apparentTemperatureCelsius,
-    humidityPercent: conditions.humidityPercent,
-    windSpeedKph: conditions.windSpeedKph,
-    uvIndex: conditions.uvIndex,
-    visibilityKm: conditions.visibilityKm,
-  );
+  factory WeatherCardData.of(WeatherReport report) {
+    final WeatherConditions? now = report.current;
+    final List<WeatherDaily> week = report.week;
+
+    return WeatherCardData(
+      condition: now?.condition,
+      daylight: now?.daylight,
+      temperatureCelsius: now?.temperatureCelsius,
+      apparentTemperatureCelsius: now?.apparentTemperatureCelsius,
+      humidityPercent: now?.humidityPercent,
+      windSpeedKph: now?.windSpeedKph,
+      uvIndex: now?.uvIndex,
+      visibilityKm: now?.visibilityKm,
+      // Today's, not the week's: a sunrise is a fact about one day, and the
+      // one the user is standing in is the only one worth a cell.
+      sunrise: week.isEmpty ? null : week.first.sunrise,
+      sunset: week.isEmpty ? null : week.first.sunset,
+      days: week,
+    );
+  }
 
   /// The conditions an attack was logged in.
   ///
@@ -75,6 +88,24 @@ class WeatherCardData {
   final double? uvIndex;
   final double? visibilityKm;
 
+  /// Today's, in UTC like everything else off the wire.
+  final DateTime? sunrise;
+  final DateTime? sunset;
+
+  /// The week ahead, today first — `WeatherReport.week`, so at most
+  /// `WeatherReport.weekLength` (7) of them.
+  ///
+  /// **Drawn only by the sheet.** The card is two lines and a forecast is not
+  /// one of them; the whole point of the sheet is to have room for this.
+  /// Empty for an attack's snapshot, which never stored a forecast — the week
+  /// a migraine happened in is not something the app can reconstruct after
+  /// the fact.
+  final List<WeatherDaily> days;
+
+  /// Today, when the report carried it. What the headline falls back to when
+  /// Apple sent a forecast but no current conditions.
+  WeatherDaily? get today => days.isEmpty ? null : days.first;
+
   /// Whether there is anything at all worth drawing.
   ///
   /// A report can come back with a `current` block whose every field is null;
@@ -88,5 +119,8 @@ class WeatherCardData {
       humidityPercent == null &&
       windSpeedKph == null &&
       uvIndex == null &&
-      visibilityKm == null;
+      visibilityKm == null &&
+      sunrise == null &&
+      sunset == null &&
+      days.isEmpty;
 }

@@ -2683,6 +2683,26 @@
   },
   "weatherUnavailable": "Weather is unavailable right now.",
   "weatherA11yDetail": "Weather details",
+  "weatherWeekTitle": "This week",
+  "@weatherWeekTitle": {
+    "description": "Heading of the seven-day forecast list in the weather detail sheet."
+  },
+  "weatherToday": "Today",
+  "@weatherToday": {
+    "description": "Names today's row in the seven-day forecast list."
+  },
+  "weatherRange": "{low} / {high}",
+  "@weatherRange": {
+    "description": "A day's low and high temperature, both already formatted.",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
   "@weatherA11yDetail": {
     "description": "Tooltip and VoiceOver label of the weather card's button that opens the full readings in a sheet."
   },
@@ -2773,6 +2793,14 @@
     "description": "Weather detail label"
   },
   "weatherDetailVisibility": "Visibility",
+  "weatherDetailSunrise": "Sunrise",
+  "@weatherDetailSunrise": {
+    "description": "Label of the weather sheet's sunrise cell."
+  },
+  "weatherDetailSunset": "Sunset",
+  "@weatherDetailSunset": {
+    "description": "Label of the weather sheet's sunset cell."
+  },
   "@weatherDetailVisibility": {
     "description": "Weather detail label"
   },

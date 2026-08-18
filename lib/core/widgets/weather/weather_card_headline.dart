@@ -25,10 +25,12 @@ class _Headline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
-    final String? temperature = WeatherConditionUtils.temperature(
-      l10n,
-      data.temperatureCelsius,
-    );
+    // The live reading, or today's high and low where Apple sent a forecast
+    // but nothing for right now — a card with a week behind it must not come
+    // up blank at the top.
+    final String? temperature =
+        WeatherConditionUtils.temperature(l10n, data.temperatureCelsius) ??
+        _range(l10n);
     final String? caption = _caption(l10n);
 
     return Row(
@@ -76,9 +78,29 @@ class _Headline extends StatelessWidget {
     );
   }
 
+  /// Today's low and high, or null unless the report carried both ends of a
+  /// day. Half a range is a number the reader cannot place.
+  String? _range(AppLocalizations l10n) {
+    final String? low = WeatherConditionUtils.temperature(
+      l10n,
+      data.today?.temperatureMinCelsius,
+    );
+    final String? high = WeatherConditionUtils.temperature(
+      l10n,
+      data.today?.temperatureMaxCelsius,
+    );
+
+    if (low == null || high == null) return null;
+
+    return l10n.weatherRange(low, high);
+  }
+
   /// The condition word, and what it feels like when Apple said so.
   String? _caption(AppLocalizations l10n) {
-    final String? label = WeatherConditionUtils.label(l10n, data.condition);
+    final String? label = WeatherConditionUtils.label(
+      l10n,
+      data.condition ?? data.today?.condition,
+    );
     final String? apparent = WeatherConditionUtils.temperature(
       l10n,
       data.apparentTemperatureCelsius,

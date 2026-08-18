@@ -30,11 +30,14 @@ class CurrentWeatherCard extends ConsumerWidget {
     final AsyncValue<WeatherReport?> async = ref.watch(weatherReportProvider);
     // Survives a refresh: AsyncValue keeps the last value while refetching,
     // so a reload redraws the reading it already had rather than blanking.
-    final WeatherConditions? now = async.value?.current;
+    // The whole report, not just its current block: the detail sheet draws
+    // the week from it, and the headline falls back to today's high and low
+    // where Apple sent a forecast but no reading for right now.
+    final WeatherReport? report = async.value;
 
     return WeatherCard(
       title: context.l10n.weatherCardTitle,
-      data: now == null ? null : WeatherCardData.of(now),
+      data: report == null ? null : WeatherCardData.of(report),
       // One state for offline, no permission and a backend with no WeatherKit
       // credentials — hard rule 4 makes them the same answer, so they must
       // not look like three different bugs.
