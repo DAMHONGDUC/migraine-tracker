@@ -7,26 +7,18 @@ part of 'weather_card.dart';
 /// a dash — so it is four readings on one surface and three on another, and
 /// neither reads as broken.
 ///
-/// Pressure leads where it is present: it is the reading this app exists for,
-/// and the 24-hour change beside it is what an attack is read against.
+/// **The order is the gate between the two surfaces.** The card draws the
+/// first `_MetricStrip.maxOnCard` (4) and the sheet draws them all, so what
+/// leads this list is what a glance gets: the four free readings of the sky.
+/// Pressure, the chance of rain and the sun's hours come after, and reach the
+/// sheet alone — pressure because the dashboard's Today section already
+/// prints it a card away, and the other three because they are worth knowing
+/// and not worth a quarter of the card.
+///
+/// A stored snapshot has only three readings in total, so its card shows all
+/// of them and the order decides nothing.
 List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
   return <_Metric>[
-    if (data.pressureHpa case final double value)
-      _Metric(
-        icon: Icons.compress,
-        label: l10n.weatherDetailPressure,
-        // One decimal, unlike every other reading here: a migraine-relevant
-        // move is a few hPa, so rounding to whole units hides half of it.
-        value: l10n.weatherPressureValue(value.toStringAsFixed(1)),
-      ),
-    if (data.pressureDelta24hHpa case final double value)
-      _Metric(
-        icon: Icons.timeline,
-        label: l10n.weatherDetailPressureDelta,
-        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
-        // is neither of them.
-        value: l10n.weatherPressureValue(SignedNumberUtils.format(value)),
-      ),
     if (data.humidityPercent case final double value)
       _Metric(
         icon: Icons.water_drop_outlined,
@@ -53,9 +45,28 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailVisibility,
         value: l10n.weatherVisibilityValue(value.round()),
       ),
-    // Last on purpose, so they fall past `_MetricStrip.maxOnCard` and appear
-    // in the sheet alone: the hour the sun comes up is worth knowing and is
-    // not worth a quarter of the card.
+    if (data.pressureHpa case final double value)
+      _Metric(
+        icon: Icons.compress,
+        label: l10n.weatherDetailPressure,
+        // One decimal, unlike every other reading here: a migraine-relevant
+        // move is a few hPa, so rounding to whole units hides half of it.
+        value: l10n.weatherPressureValue(value.toStringAsFixed(1)),
+      ),
+    if (data.pressureDelta24hHpa case final double value)
+      _Metric(
+        icon: Icons.timeline,
+        label: l10n.weatherDetailPressureDelta,
+        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
+        // is neither of them.
+        value: l10n.weatherPressureValue(SignedNumberUtils.format(value)),
+      ),
+    if (data.precipitationChancePercent case final double value)
+      _Metric(
+        icon: Icons.umbrella_outlined,
+        label: l10n.weatherDetailPrecipitation,
+        value: l10n.weatherPercent(value.round()),
+      ),
     if (data.sunrise case final DateTime value)
       _Metric(
         icon: Icons.wb_twilight,
@@ -81,11 +92,18 @@ class _Metric {
   final String value;
 }
 
-/// The card's compact readings: glyph over number, sharing one row.
+/// The card's compact readings: glyph over number, sharing one tray.
 ///
 /// **No labels, and that is what the arrow is for.** A named grid on the card
 /// is what made it the tallest thing on the dashboard; here the glyph stands
 /// for the reading and [WeatherDetailSheet] spells every one of them out.
+///
+/// **One tray, not four chips.** They were bare on the gradient first, which
+/// left four small marks floating with nothing holding them together; a chip
+/// each was the other try, and its padding ate the width — at a quarter of
+/// the card "12 km/h" does not fit inside a chip's own inset. A single
+/// rounded surface gives the row an edge, keeps every reading the same
+/// quarter wide, and costs the numbers no room at all.
 ///
 /// **At most [maxOnCard] of them.** Four is what fits the design width with
 /// a number under each still legible; a fifth would squeeze all five, and the
@@ -97,15 +115,37 @@ class _MetricStrip extends StatelessWidget {
 
   static const int maxOnCard = 4;
 
+  /// Read by the loading skeleton too, so the placeholder reserves the tray's
+  /// height rather than a guess at it.
+  static double get height =>
+      SdSpacingConstant.h8 * 2 +
+      SdSpacingConstant.r18 +
+      SdSpacingConstant.h4 +
+      SdSpacingConstant.h16;
+
   @override
   Widget build(BuildContext context) {
     if (metrics.isEmpty) return const SizedBox.shrink();
 
-    return Row(
-      children: <Widget>[
-        for (final _Metric metric in metrics.take(maxOnCard))
-          Expanded(child: _MetricGlance(metric: metric)),
-      ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        // A step up from the card, like everything else that sits on one —
+        // and opaque, so it reads the same at both ends of the gradient.
+        color: context.sdTheme.surfaceElevated,
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: SdSpacingConstant.w12,
+          vertical: SdSpacingConstant.h8,
+        ),
+        child: Row(
+          children: <Widget>[
+            for (final _Metric metric in metrics.take(maxOnCard))
+              Expanded(child: _MetricGlance(metric: metric)),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -132,11 +172,12 @@ class _MetricGlance extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
           SizedBox(height: SdSpacingConstant.h4),
-          Text(
+          // Fitted rather than ellipsed: a quarter of the card is tight for
+          // "12 km/h" at some text sizes, and a reading cut to "12 k…" is
+          // worse than the same reading a point smaller.
+          SdFittedTextV2(
             metric.value,
-            style: AppTextStyle.bodySmall,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.bodySmall.w600,
             textAlign: TextAlign.center,
           ),
         ],

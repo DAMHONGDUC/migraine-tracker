@@ -21,20 +21,21 @@ class WeatherCardData {
     this.windSpeedKph,
     this.uvIndex,
     this.visibilityKm,
+    this.precipitationChancePercent,
     this.sunrise,
     this.sunset,
+    this.forecast,
     this.days = const <WeatherDaily>[],
+    this.hours = const <WeatherHourly>[],
   });
 
   /// The conditions the user is standing in.
   ///
-  /// **No pressure, deliberately, and the reading is there to take.** It
-  /// belongs to the pressure card, which is where it is sold
-  /// (`docs/PREMIUM_RULES.md`: weather is free, pressure is the product) —
-  /// and on the dashboard the Today section already carries it for the users
-  /// who have paid, so a cell here would print the same number twice on one
-  /// screen. The rule came with the card from Insights; do not add it back
-  /// without the owner saying so.
+  /// **Pressure is carried, but it never reaches the card** (owner's call).
+  /// It is last in `_metrics`, past `_MetricStrip.maxOnCard`, so only the
+  /// detail sheet draws it — which keeps the dashboard card from printing the
+  /// same number the Today section under it already shows, and keeps the card
+  /// at four readings.
   factory WeatherCardData.of(WeatherReport report) {
     final WeatherConditions? now = report.current;
     final List<WeatherDaily> week = report.week;
@@ -48,11 +49,20 @@ class WeatherCardData {
       windSpeedKph: now?.windSpeedKph,
       uvIndex: now?.uvIndex,
       visibilityKm: now?.visibilityKm,
-      // Today's, not the week's: a sunrise is a fact about one day, and the
-      // one the user is standing in is the only one worth a cell.
+      pressureHpa: now?.pressureHpa,
+      // The coming 24 hours, which is the window the drop alert itself runs
+      // on — the app's one definition of "a 24h change" in the future.
+      pressureDelta24hHpa: _pressureChange(report.hours.take(_dayHours + 1)),
+      // The three the current block never carries: a chance of rain, a
+      // sunrise and a sunset are facts about a day, not about an instant.
+      precipitationChancePercent: week.isEmpty
+          ? null
+          : week.first.precipitationChancePercent,
       sunrise: week.isEmpty ? null : week.first.sunrise,
       sunset: week.isEmpty ? null : week.first.sunset,
+      forecast: week.isEmpty ? null : week.first,
       days: week,
+      hours: report.hours,
     );
   }
 
@@ -87,6 +97,7 @@ class WeatherCardData {
   final double? windSpeedKph;
   final double? uvIndex;
   final double? visibilityKm;
+  final double? precipitationChancePercent;
 
   /// Today's, in UTC like everything else off the wire.
   final DateTime? sunrise;
@@ -102,9 +113,100 @@ class WeatherCardData {
   /// the fact.
   final List<WeatherDaily> days;
 
-  /// Today, when the report carried it. What the headline falls back to when
-  /// Apple sent a forecast but no current conditions.
-  WeatherDaily? get today => days.isEmpty ? null : days.first;
+  /// The day this data describes — today for a live report, or whichever day
+  /// [dayAt] was asked for.
+  ///
+  /// Separate from [days], which is always the whole week: the sheet draws
+  /// the week from one and the headline from the other, and folding them into
+  /// one field made "the day I am about" and "the days I can offer" the same
+  /// list.
+  final WeatherDaily? forecast;
+
+  /// Every hour the report carried, across the whole week. [dayAt] slices it;
+  /// nothing draws it directly.
+  final List<WeatherHourly> hours;
+
+  /// The same readings, for another day of [days].
+  ///
+  /// **Index 0 is returned untouched**, because today already has something
+  /// better than a forecast: the live reading. Every other day is assembled
+  /// from what a forecast actually carries — the day's own condition, its UV
+  /// peak, its chance of rain, its sunrise and sunset — plus the three that
+  /// only exist hour by hour.
+  ///
+  /// **Those three are the day's mean, and that is a summary, not a
+  /// measurement.** WeatherKit reports humidity, wind and visibility per
+  /// hour and never per day; a day has no single value for them, so one has
+  /// to be chosen. The mean is the honest choice — a maximum would answer
+  /// "how windy could it get", which is a different question and a scarier
+  /// one — and it is only ever shown against a future day, where every number
+  /// on the sheet is already a forecast.
+  ///
+  /// There is no temperature and no feels-like: a day that has not happened
+  /// has no "now", so the headline falls back to its high and low.
+  WeatherCardData dayAt(int index) {
+    if (index <= 0 || index >= days.length) return this;
+
+    final WeatherDaily day = days[index];
+    final List<WeatherHourly> onDay = hours
+        .where((WeatherHourly hour) => DateTimeUtils.isSameDay(hour.time, day.date))
+        .toList();
+
+    return WeatherCardData(
+      condition: day.condition,
+      humidityPercent: _mean(
+        onDay.map((WeatherHourly hour) => hour.humidityPercent),
+      ),
+      windSpeedKph: _mean(
+        onDay.map((WeatherHourly hour) => hour.windSpeedKph),
+      ),
+      uvIndex: day.uvIndexMax,
+      visibilityKm: _mean(
+        onDay.map((WeatherHourly hour) => hour.visibilityKm),
+      ),
+      pressureHpa: _mean(
+        onDay.map((WeatherHourly hour) => hour.pressureHpa),
+      ),
+      // First hour to last, which for a whole day IS the 24-hour change.
+      pressureDelta24hHpa: _pressureChange(onDay),
+      precipitationChancePercent: day.precipitationChancePercent,
+      sunrise: day.sunrise,
+      sunset: day.sunset,
+      forecast: day,
+      days: days,
+      hours: hours,
+    );
+  }
+
+  /// A day's worth of hourly readings.
+  static const int _dayHours = 24;
+
+  /// How far the pressure moves across [hours], first reading to last.
+  ///
+  /// **Forward-looking, unlike the snapshot's**, and deliberately the same
+  /// label: an attack's stored delta is the 24 hours before it was logged,
+  /// this is the 24 hours ahead. Both answer "how far is the pressure
+  /// moving", which is the question this app is about, and a user reading a
+  /// forecast is already reading the future.
+  ///
+  /// Null under two readings, because one hour describes no change at all.
+  static double? _pressureChange(Iterable<WeatherHourly> hours) {
+    final List<WeatherHourly> ordered = hours.toList();
+
+    if (ordered.length < 2) return null;
+
+    return ordered.last.pressureHpa - ordered.first.pressureHpa;
+  }
+
+  /// The mean of the values that exist, or null when none do — an hour Apple
+  /// had no reading for must not be counted as a zero.
+  static double? _mean(Iterable<double?> values) {
+    final List<double> present = values.nonNulls.toList();
+
+    if (present.isEmpty) return null;
+
+    return present.reduce((double a, double b) => a + b) / present.length;
+  }
 
   /// Whether there is anything at all worth drawing.
   ///
@@ -120,6 +222,7 @@ class WeatherCardData {
       windSpeedKph == null &&
       uvIndex == null &&
       visibilityKm == null &&
+      precipitationChancePercent == null &&
       sunrise == null &&
       sunset == null &&
       days.isEmpty;

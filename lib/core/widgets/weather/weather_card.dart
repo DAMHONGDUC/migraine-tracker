@@ -11,6 +11,7 @@ import '../../constants/log_tag_constant.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_style.dart';
+import '../../utils/date_time_utils.dart';
 import '../../utils/signed_number_utils.dart';
 import 'weather_attribution.dart';
 
@@ -196,35 +197,38 @@ class _Placeholder extends StatelessWidget {
       );
     }
 
+    // Every measurement is read from the real thing rather than guessed, so
+    // the two cannot drift: the tile that holds the sky, and the tray that
+    // holds the readings.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // The headline: the glyph's square, then the temperature beside it.
         Row(
           children: <Widget>[
             SdSkeletonV2(
-              height: SdSpacingConstant.r36,
-              width: SdSpacingConstant.w40,
+              height: _ConditionTile.size,
+              width: _ConditionTile.size,
             ),
             SizedBox(width: SdSpacingConstant.w12),
-            Expanded(child: SdSkeletonV2.line(fraction: 0.6)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  // The temperature, then the shorter caption under it.
+                  SdSkeletonV2.line(
+                    fraction: 0.3,
+                    height: SdSpacingConstant.h20,
+                  ),
+                  SizedBox(height: SdSkeletonV2.lineGap),
+                  SdSkeletonV2.line(fraction: 0.65),
+                ],
+              ),
+            ),
           ],
         ),
         SizedBox(height: SdSpacingConstant.h12),
-        // The four readings, at the width their numbers take.
-        Row(
-          children: <Widget>[
-            for (int i = 0; i < _MetricStrip.maxOnCard; i++)
-              Expanded(
-                child: Center(
-                  child: SdSkeletonV2(
-                    height: SdSpacingConstant.h32,
-                    width: SdSpacingConstant.w28,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        SdSkeletonV2(height: _MetricStrip.height),
       ],
     );
   }

@@ -566,6 +566,7 @@
   "weatherUvValue": "{value}",
   "weatherPressureValue": "{value} hPa",
   "weatherDetailHumidity": "Độ ẩm",
+  "weatherDetailPrecipitation": "Khả năng mưa",
   "weatherDetailPressure": "Áp suất",
   "weatherDetailPressureDelta": "Thay đổi 24h",
   "weatherDetailUv": "Chỉ số UV",

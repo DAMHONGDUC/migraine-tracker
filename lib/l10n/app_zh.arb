@@ -566,6 +566,7 @@
   "weatherUvValue": "{value}",
   "weatherPressureValue": "{value} hPa",
   "weatherDetailHumidity": "湿度",
+  "weatherDetailPrecipitation": "降雨概率",
   "weatherDetailPressure": "气压",
   "weatherDetailPressureDelta": "24 小时变化",
   "weatherDetailUv": "紫外线指数",

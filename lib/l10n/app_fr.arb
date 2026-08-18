@@ -566,6 +566,7 @@
   "weatherUvValue": "{value}",
   "weatherPressureValue": "{value} hPa",
   "weatherDetailHumidity": "Humidité",
+  "weatherDetailPrecipitation": "Risque de pluie",
   "weatherDetailPressure": "Pression",
   "weatherDetailPressureDelta": "Variation sur 24 h",
   "weatherDetailUv": "Indice UV",

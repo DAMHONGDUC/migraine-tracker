@@ -5,12 +5,17 @@ part of 'weather_card.dart';
 /// Shared by the card and the sheet, so the number a user glances at and the
 /// one they open are the same line of type rather than two that drifted.
 ///
-/// **One row, not a stack.** The temperature used to sit above its caption,
-/// which cost the card a line for text the glyph beside it already implies;
-/// side by side, the row is only as tall as the glyph and the caption takes
-/// the width that is left.
+/// **The sky sits in a tile, and the temperature is the hero.** The glyph was
+/// a bare icon beside body-sized type, which made the card read as a settings
+/// row that happened to mention the weather. A tinted square gives the
+/// condition an object to be, and the temperature at `headlineMedium` is the
+/// one number the card exists to show — the caption underneath is what the
+/// row used to spend its width on.
 ///
-/// **The glyph is drawn only where there is a condition to draw.** A stored
+/// The tile is what sets the row's height, so stacking the temperature over
+/// its caption costs nothing: the two together come out the same 44.
+///
+/// **The tile is drawn only where there is a condition to draw.** A stored
 /// snapshot carries no condition code, and the "unknown" glyph beside a real
 /// temperature reads as a failed load rather than as a reading Apple never
 /// recorded.
@@ -36,39 +41,35 @@ class _Headline extends StatelessWidget {
     return Row(
       children: <Widget>[
         if (data.condition != null) ...<Widget>[
-          SdIconV2(
-            icon: WeatherConditionUtils.icon(
-              data.condition,
-              daylight: data.daylight,
-            ),
-            size: SdSpacingConstant.r36,
-            color: AppColors.primary,
-          ),
+          _ConditionTile(condition: data.condition, daylight: data.daylight),
           SizedBox(width: SdSpacingConstant.w12),
         ],
-        if (temperature != null) ...<Widget>[
-          Text(
-            temperature,
-            style: AppTextStyle.headlineSmall,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(width: SdSpacingConstant.w8),
-        ],
-        // Two lines rather than an ellipsis: the condition and what it feels
-        // like are both the point, and a Vietnamese pair of them does not fit
-        // one line beside the temperature. `Expanded` either way, so the
-        // trailing chevron sits on the card's edge whether or not Apple sent
-        // a condition to caption it with.
+        // `Expanded` either way, so the trailing chevron sits on the card's
+        // edge whether or not Apple sent a condition to draw a tile from.
         Expanded(
-          child: caption == null
-              ? const SizedBox.shrink()
-              : Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (temperature != null)
+                Text(
+                  temperature,
+                  style: AppTextStyle.headlineMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              // Two lines rather than an ellipsis: the condition and what it
+              // feels like are both the point, and a Vietnamese pair of them
+              // does not fit one line.
+              if (caption != null)
+                Text(
                   caption,
                   style: AppTextStyle.bodySmall.secondary,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+            ],
+          ),
         ),
         if (trailing case final Widget widget) ...<Widget>[
           SizedBox(width: SdSpacingConstant.w8),
@@ -83,11 +84,11 @@ class _Headline extends StatelessWidget {
   String? _range(AppLocalizations l10n) {
     final String? low = WeatherConditionUtils.temperature(
       l10n,
-      data.today?.temperatureMinCelsius,
+      data.forecast?.temperatureMinCelsius,
     );
     final String? high = WeatherConditionUtils.temperature(
       l10n,
-      data.today?.temperatureMaxCelsius,
+      data.forecast?.temperatureMaxCelsius,
     );
 
     if (low == null || high == null) return null;
@@ -99,7 +100,7 @@ class _Headline extends StatelessWidget {
   String? _caption(AppLocalizations l10n) {
     final String? label = WeatherConditionUtils.label(
       l10n,
-      data.condition ?? data.today?.condition,
+      data.condition ?? data.forecast?.condition,
     );
     final String? apparent = WeatherConditionUtils.temperature(
       l10n,
@@ -113,3 +114,44 @@ class _Headline extends StatelessWidget {
     return label == null ? feels : '$label · $feels';
   }
 }
+
+/// The sky, in a tinted square.
+///
+/// **A tile rather than a bare glyph**, because the card wears a gradient and
+/// a loose icon on a gradient reads as a smudge rather than as a thing. The
+/// fill is the accent at [tint] — low enough that hard rule 3 holds, high
+/// enough to separate the square from the card under it at either end of the
+/// gradient.
+class _ConditionTile extends StatelessWidget {
+  const _ConditionTile({required this.condition, required this.daylight});
+
+  final WeatherCondition? condition;
+  final bool? daylight;
+
+  /// The tile is square, and this is both of its sides. Read by the loading
+  /// skeleton too, so the placeholder is the size of what replaces it.
+  static double get size => SdSpacingConstant.w44;
+
+  static const double tint = 0.14;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: tint),
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
+      ),
+      child: SizedBox.square(
+        dimension: size,
+        child: Center(
+          child: SdIconV2(
+            icon: WeatherConditionUtils.icon(condition, daylight: daylight),
+            size: SdSpacingConstant.r24,
+            color: AppColors.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+

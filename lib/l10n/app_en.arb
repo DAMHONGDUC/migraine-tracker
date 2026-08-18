@@ -2773,6 +2773,10 @@
     }
   },
   "weatherDetailHumidity": "Humidity",
+  "weatherDetailPrecipitation": "Chance of rain",
+  "@weatherDetailPrecipitation": {
+    "description": "Label of the weather sheet's chance-of-rain cell."
+  },
   "weatherDetailPressure": "Pressure",
   "@weatherDetailPressure": {
     "description": "Label of the weather card's barometric pressure cell."

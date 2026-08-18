@@ -11,9 +11,18 @@ part of 'weather_card.dart';
 /// a weekday, a glyph and one temperature, so the low was dropped and the
 /// chance of rain never appeared at all.
 class _WeekForecast extends StatelessWidget {
-  const _WeekForecast({required this.days});
+  const _WeekForecast({
+    required this.days,
+    required this.selected,
+    required this.onSelected,
+  });
 
   final List<WeatherDaily> days;
+
+  /// Index into [days] of the day the readings above are describing.
+  final int selected;
+
+  final ValueChanged<int> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +35,12 @@ class _WeekForecast extends StatelessWidget {
           // Between rows only — a rule above the first would sit on the gap
           // that separates this block from the grid above it.
           if (index > 0) const SdDividerV2(),
-          _DayRow(day: day, isToday: index == 0),
+          _DayRow(
+            day: day,
+            isToday: index == 0,
+            isSelected: index == selected,
+            onTap: () => onSelected(index),
+          ),
         ],
       ],
     );
@@ -35,8 +49,21 @@ class _WeekForecast extends StatelessWidget {
 
 /// One day: what it is called, what the sky does, how likely rain is, and the
 /// two temperatures it runs between.
+///
+/// **Tappable, and that is what makes the sheet worth scrolling** (owner's
+/// call): picking a day re-reads the grid above it — wind, UV, the sun's
+/// hours, the pressure — against that day rather than against right now.
+///
+/// The selected row is marked by a tinted fill, not by a colour on its text:
+/// the row already spends colour on the condition glyph, and a second accent
+/// inside it would leave nothing saying which of the two means "picked".
 class _DayRow extends StatelessWidget {
-  const _DayRow({required this.day, required this.isToday});
+  const _DayRow({
+    required this.day,
+    required this.isToday,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   final WeatherDaily day;
 
@@ -45,6 +72,13 @@ class _DayRow extends StatelessWidget {
   /// marked it with an accent instead.
   final bool isToday;
 
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  /// How far the selected row's fill is tinted. Low, per hard rule 3 — the
+  /// mark has to be findable without being a highlight.
+  static const double selectedTint = 0.14;
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
@@ -52,9 +86,21 @@ class _DayRow extends StatelessWidget {
         ? null
         : l10n.weatherPercent(day.precipitationChancePercent!.round());
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h8),
-      child: Row(
+    return SdPressableScaleV2(
+      pressedScale: 0.99,
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: selectedTint)
+              : null,
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: SdSpacingConstant.w8,
+          vertical: SdSpacingConstant.h8,
+        ),
+        child: Row(
         children: <Widget>[
           Expanded(
             flex: 4,
@@ -97,8 +143,9 @@ class _DayRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
