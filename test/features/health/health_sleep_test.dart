@@ -109,7 +109,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(app.prefs.getBool(PrefsKeyConstant.healthSleep), isNot(isTrue));
-      expect(find.text("Couldn't connect to Apple Health."), findsOneWidget);
+      // The ARB's own words — `healthConnectFailed`. The copy grew a second
+      // sentence and this assertion kept the old one.
+      expect(
+        find.text(
+          "Couldn't connect Apple Health. Try again from the Health app if "
+          'it keeps failing.',
+        ),
+        findsOneWidget,
+      );
 
       await finishTest(tester);
     });
