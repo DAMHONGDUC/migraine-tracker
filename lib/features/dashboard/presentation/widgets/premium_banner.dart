@@ -39,16 +39,20 @@ class PremiumBanner extends ConsumerWidget {
   /// card clears the 44 touch minimum without a banner's 16.
   static double get _verticalPadding => SdSpacingConstant.h8;
 
-  /// How visible the outline is. A hairline of the accent at a third
-  /// strength: enough to lift the card out of a stack of identical greys,
-  /// quiet enough not to read as a frame drawn around it (owner's call — a
-  /// solid 2 was tried and was too loud).
-  static const double _borderAlpha = 0.3;
+  /// The tint and the outline, at the strengths `PremiumCountdownBanner`
+  /// wore before it was removed (owner's call: highlight it the way that one
+  /// did). The fill is what does the work — a card in the accent at a tenth
+  /// strength lifts out of a stack of identical greys on its own — and the
+  /// hairline only draws its edge. A solid accent outline with no fill was
+  /// tried first and was too loud.
+  static const double _fillAlpha = 0.12;
+  static const double _borderAlpha = 0.35;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SdCardV2(
       onTap: () => NavigationUtils.toPaywall(context, ref),
+      fillColor: AppColors.primary.withValues(alpha: _fillAlpha),
       borderColor: AppColors.primary.withValues(alpha: _borderAlpha),
       child: Padding(
         padding: EdgeInsets.symmetric(
