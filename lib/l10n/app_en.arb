@@ -604,22 +604,6 @@
   "@attackDetailNoWeather": {
     "description": "Shown when the attack was logged offline and not backfilled"
   },
-  "attackDetailPressure": "Pressure",
-  "@attackDetailPressure": {
-    "description": "Weather field label: absolute pressure"
-  },
-  "attackDetailPressureDelta": "24h change",
-  "@attackDetailPressureDelta": {
-    "description": "Weather field label: 24h pressure delta"
-  },
-  "attackDetailHumidity": "Humidity",
-  "@attackDetailHumidity": {
-    "description": "Weather field label: relative humidity"
-  },
-  "attackDetailTemperature": "Temperature",
-  "@attackDetailTemperature": {
-    "description": "Weather field label: temperature"
-  },
   "attackDetailDetailsTitle": "Details",
   "@attackDetailDetailsTitle": {
     "description": "Section header for symptoms/triggers/notes"
@@ -639,33 +623,6 @@
   "attackDetailDeleteBody": "This permanently removes this attack and its weather data. This cannot be undone.",
   "@attackDetailDeleteBody": {
     "description": "Body of the single-attack delete confirmation"
-  },
-  "attackDetailHumidityValue": "{value}%",
-  "@attackDetailHumidityValue": {
-    "description": "Humidity readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "attackDetailTemperatureValue": "{value}°C",
-  "@attackDetailTemperatureValue": {
-    "description": "Temperature readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "attackDetailPressureValue": "{value} hPa",
-  "@attackDetailPressureValue": {
-    "description": "Pressure readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
   },
   "historyEmpty": "No attacks logged yet.",
   "@historyEmpty": {
@@ -2147,10 +2104,6 @@
   "@dashboardCalendarShortcut": {
     "description": "Dashboard quick-access card opening History in calendar view"
   },
-  "dashboardChartShortcut": "Chart",
-  "@dashboardChartShortcut": {
-    "description": "Dashboard quick-access card opening History in chart view"
-  },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
     "description": "Section header above the dashboard feature banners"
@@ -2736,10 +2689,6 @@
   "@weatherUnavailable": {
     "description": "Shown when the weather report could not be fetched"
   },
-  "weatherNow": "Now",
-  "@weatherNow": {
-    "description": "Label for the current hour in the hourly strip"
-  },
   "weatherFeelsLike": "Feels like {value}",
   "@weatherFeelsLike": {
     "description": "Apparent temperature under the current reading",
@@ -2786,6 +2735,15 @@
     }
   },
   "weatherUvValue": "{value}",
+  "weatherPressureValue": "{value} hPa",
+  "@weatherPressureValue": {
+    "description": "A barometric pressure reading in hectopascals.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "@weatherUvValue": {
     "description": "UV index, an unit-less number",
     "placeholders": {
@@ -2795,6 +2753,14 @@
     }
   },
   "weatherDetailHumidity": "Humidity",
+  "weatherDetailPressure": "Pressure",
+  "@weatherDetailPressure": {
+    "description": "Label of the weather card's barometric pressure cell."
+  },
+  "weatherDetailPressureDelta": "24h change",
+  "@weatherDetailPressureDelta": {
+    "description": "Label of the weather card's 24-hour pressure change cell, shown on a logged attack."
+  },
   "@weatherDetailHumidity": {
     "description": "Weather detail label"
   },
@@ -2808,10 +2774,6 @@
   },
   "weatherDetailVisibility": "Visibility",
   "@weatherDetailVisibility": {
-    "description": "Weather detail label"
-  },
-  "weatherDetailPrecipitation": "Chance of rain",
-  "@weatherDetailPrecipitation": {
     "description": "Weather detail label"
   },
   "weatherConditionClear": "Clear",
@@ -2898,26 +2860,6 @@
   "insightsAnalysisTitle": "Analysis",
   "@insightsAnalysisTitle": {
     "description": "Heading of the premium half of an insight card"
-  },
-  "weatherMetricConditions": "Conditions",
-  "@weatherMetricConditions": {
-    "description": "Weather card dropdown option: the hourly weather itself"
-  },
-  "weatherMetricSheetTitle": "Show",
-  "@weatherMetricSheetTitle": {
-    "description": "Title of the sheet that picks which hourly reading to show"
-  },
-  "weatherRange": "{low} / {high}",
-  "@weatherRange": {
-    "description": "A day's low and high temperature",
-    "placeholders": {
-      "low": {
-        "type": "String"
-      },
-      "high": {
-        "type": "String"
-      }
-    }
   },
   "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
   "@premiumLockedPressure": {

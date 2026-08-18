@@ -6,10 +6,12 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../../../weather/providers.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_limit_banner.dart';
 import '../../widgets/dashboard_explore_section.dart';
@@ -20,9 +22,9 @@ import '../../widgets/next_reminder_banner.dart';
 import '../../widgets/quick_access_section.dart';
 
 /// The app's home tab (replaces the old Log tab). A calm, scrollable overview,
-/// top to bottom: the log call-to-action, the next medication reminder (when
-/// one is scheduled), this-week stats, quick-access shortcuts, and the feature
-/// banners. Logging itself opens as a pushed route from [DashboardLogButton] —
+/// top to bottom: the log call-to-action, quick-access shortcuts, the weather
+/// right now, today's other readings, the next medication reminder (when one
+/// is scheduled), this-week stats, and the feature banners. Logging itself opens as a pushed route from [DashboardLogButton] —
 /// the 3-tap flow is unchanged.
 ///
 /// The premium promo used to sit here and now leads Settings instead (owner's
@@ -45,6 +47,13 @@ class DashboardScreen extends ConsumerWidget {
       // logs — the wall itself lands mid-attack, so it must not be news.
       if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
+      // Under the shortcuts, owner's call: the top of the screen is the call
+      // to action and the way out of it, and the readings start here. It
+      // moved here from an Insights weather tab, which cost a screen and a
+      // tap for what is a glance. Placed unconditionally, unlike the section
+      // below it — the card draws its own loading and its own unavailable
+      // line, so it never leaves this list's gap behind.
+      const CurrentWeatherCard(),
       // Asked here rather than left to the widget: a section that hid itself
       // would leave the gap the list inserts before it (see the loop below).
       if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
@@ -83,6 +92,9 @@ class DashboardScreen extends ConsumerWidget {
           ref
             ..invalidate(attacksStreamProvider)
             ..invalidate(medicationRemindersStreamProvider)
+            // The weather card is on this screen now, so the screen's own
+            // pull-to-refresh has to refetch what it draws.
+            ..invalidate(weatherReportProvider)
             ..invalidate(isPremiumProvider);
         }),
         child: ListView(

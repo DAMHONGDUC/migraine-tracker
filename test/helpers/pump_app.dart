@@ -1020,21 +1020,19 @@ Future<void> pumpCountUp(WidgetTester tester) async {
   }
 }
 
-/// Insights, then its Pressure tab — which is where the correlation lives.
+/// Insights, standing on its Pressure tab — which is where the correlation
+/// lives.
 ///
-/// Insights opens on Weather now (`InsightsTabController.build`), so a test
-/// that wants the correlation has to say so. A test asserting the tab switch
-/// ITSELF should still tap the segment inline; this is for the ones that only
-/// need to be standing on that card.
+/// **No tap any more: Insights opens on Pressure** (`InsightsTabController`),
+/// now that the weather it used to open on lives on the dashboard. Tapping
+/// the segment here would also be ambiguous — "Pressure" is on screen twice,
+/// as the segment and as the card's own title.
 ///
-/// **The count-up is pumped AFTER the switch, and that is the whole point of
-/// this helper.** The tabs build lazily, so the correlation card does not
-/// exist until the segment is tapped — frames spent inside `openInsights` are
-/// spent on the weather card, and the hero number is still counting when the
-/// assertion runs.
+/// The extra count-up still earns its place: the tabs build lazily, so the
+/// first frames go on mounting the card and the hero number is still counting
+/// when the frames inside `openInsights` run out.
 Future<void> openPressureInsight(WidgetTester tester) async {
   await openInsights(tester);
-  await tapVisible(tester, find.text('Pressure'));
   await pumpCountUp(tester);
 }
 

@@ -21,9 +21,13 @@ import '../../../weather/providers.dart';
 /// explains them.
 ///
 /// **Each row follows the gating of the reading it shows**, not the section's
-/// — weather, steps and sleep are free readings (hard rule 1 and
+/// — steps and sleep are free readings (hard rule 1 and
 /// `docs/PREMIUM_RULES.md`), so a free user sees them here; only pressure is
 /// premium and only that row is withheld.
+///
+/// **There is no weather row any more.** `CurrentWeatherCard` sits on this
+/// same screen and says the temperature in full, so the row was the same
+/// reading twice — and the Insights tab it opened is gone.
 ///
 /// **And only what actually has a value.** A row with nothing behind it is
 /// left out rather than printed as a dash, so the section is absent entirely
@@ -61,7 +65,7 @@ class DashboardTodaySection extends ConsumerWidget {
     );
   }
 
-  /// The four, in the order Insights lists them, skipping any with no value.
+  /// The three, in the order Insights lists them, skipping any with no value.
   List<_Reading> _readings(AppLocalizations l10n, WidgetRef ref) {
     final WeatherReport? weather = ref.watch(weatherReportProvider).value;
     final StepSummary? steps = ref.watch(stepSummaryProvider).value;
@@ -70,13 +74,6 @@ class DashboardTodaySection extends ConsumerWidget {
     final bool hasPremium = ref.watch(hasPremiumProvider);
 
     return <_Reading>[
-      if (now?.temperatureCelsius case final double value)
-        _Reading(
-          icon: Icons.wb_sunny_outlined,
-          label: l10n.weatherCardTitle,
-          value: l10n.weatherTemperature(value.round()),
-          tab: InsightsTab.weather,
-        ),
       // The one premium row: the pressure reading is what is sold, and a
       // free user tapping through would land on a card of pitches.
       if (now?.pressureHpa case final double value when hasPremium)

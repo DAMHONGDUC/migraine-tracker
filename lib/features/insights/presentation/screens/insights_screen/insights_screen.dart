@@ -15,18 +15,17 @@ import '../../../providers.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_card.dart';
-import '../../widgets/weather_card.dart';
 
 part 'insights_screen_body.dart';
 
 /// One card at a time, behind a segmented switch under the app bar.
 ///
-/// The four used to stack in one scroll view, which made the screen a long
+/// They used to stack in one scroll view, which made the screen a long
 /// column of unrelated subjects and left the card a user came for several
 /// screens down. A tab per card is the same content with a way to aim at it.
 ///
 /// **The strip is built from the tabs that exist, not from the enum.** Sleep
-/// is absent off iOS, so it is four segments there and three elsewhere, and
+/// is absent off iOS, so it is three segments there and two elsewhere, and
 /// nothing offers a tab that could only say "unavailable".
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -35,7 +34,6 @@ class InsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
     final List<InsightsTab> tabs = <InsightsTab>[
-      InsightsTab.weather,
       InsightsTab.pressure,
       InsightsTab.activity,
       // iOS only: off HealthKit there is no sleep source at all.
@@ -77,7 +75,6 @@ class InsightsScreen extends ConsumerWidget {
   /// A tab's name is its card's name — one string for both, so the segment
   /// and the heading under it can never come to disagree.
   String _label(AppLocalizations l10n, InsightsTab tab) => switch (tab) {
-    InsightsTab.weather => l10n.weatherCardTitle,
     InsightsTab.pressure => l10n.insightsPressureTitle,
     InsightsTab.activity => l10n.activityCardTitle,
     InsightsTab.sleep => l10n.sleepCardTitle,

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../constants/legal_url_constant.dart';
-import '../extensions/context_extensions.dart';
-import '../services/link_launcher_provider.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_style.dart';
+import '../../constants/legal_url_constant.dart';
+import '../../extensions/context_extensions.dart';
+import '../../services/link_launcher_provider.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_style.dart';
 
 /// The " Weather" mark, linking to Apple's attribution page.
 ///

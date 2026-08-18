@@ -52,19 +52,6 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('Chart shortcut opens History in chart view', (tester) async {
-    final app = await pumpApp(tester);
-    await _seedOneAttack(app);
-    await _settle(tester);
-
-    await tester.tap(find.text('Chart'));
-    await _settle(tester);
-
-    expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
-
-    await finishTest(tester);
-  });
-
   testWidgets('severity card shows with data and opens the chart view', (
     tester,
   ) async {

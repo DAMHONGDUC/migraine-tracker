@@ -12,7 +12,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/chart_axis_utils.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/premium_gate.dart';
-import '../../../../core/widgets/weather_attribution.dart';
+import '../../../../core/widgets/weather/weather_attribution.dart';
 import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/pressure_forecast.dart';
 import '../../../weather/providers.dart';

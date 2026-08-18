@@ -12,19 +12,22 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/providers.dart';
 
-/// Six shortcuts, three across and two rows down: History, the History chart,
-/// Insights, Premium, pressure-drop alerts and Medications.
+/// Three shortcuts on one row: History, Medications, pressure-drop alerts.
 ///
-/// **Three per row and nothing scrolls.** Owner's rule from when there were
-/// three of them, and it survives the extra row: a third of the screen is the
-/// narrowest a tile can be and still show its name, and a horizontally
-/// scrolling row advertises a gesture with a cut edge.
+/// **Three per row and nothing scrolls.** Owner's original rule, and it is
+/// back to one row: a third of the screen is the narrowest a tile can be and
+/// still show its name, and a horizontally scrolling row advertises a gesture
+/// with a cut edge.
 ///
-/// **Every cell is one fixed height, so all six match across both rows.**
-/// An `IntrinsicHeight` per row would equalise within a row and let the two
-/// rows differ, which reads as two unrelated groups rather than one set —
-/// and a `childAspectRatio` would tie height to whatever width is left over,
-/// which is how the weather card's details grid came to overflow.
+/// **It was six, over two rows** — the History chart, Insights and Premium
+/// have gone (owner's call). Each of the three that left is a place the app
+/// already puts in front of the user: Insights and History have their own nav
+/// bar tabs, and Premium leads Settings. What is left is the three that have
+/// nowhere else to be reached from in one tap.
+///
+/// **Every cell is one fixed height.** A `childAspectRatio` would tie height
+/// to whatever width is left over, which is how the old weather card's
+/// details grid came to overflow; the extent is stated instead.
 class QuickAccessSection extends ConsumerWidget {
   const QuickAccessSection({super.key});
 
@@ -35,8 +38,8 @@ class QuickAccessSection extends ConsumerWidget {
   ///
   /// One line since the alert tile stopped spelling out "Pressure-drop
   /// alerts" — that label was the only thing that needed two, and every cell
-  /// is sized for the longest. "Medications" is now the widest and fits a
-  /// third of the design width on its own line.
+  /// is sized for the longest. "Medications" is the widest of the three left
+  /// and fits a third of the design width on its own line.
   static double get cellHeight =>
       SdSpacingConstant.h12 * 2 +
       SdSpacingConstant.r20 +
@@ -47,8 +50,11 @@ class QuickAccessSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    void openHistory(HistoryViewMode mode) {
-      ref.read(historyViewModeProvider.notifier).select(mode);
+    // The list, always: the chart tile beside this one is gone, so there is
+    // no mode to choose between any more — and History remembers the last
+    // mode, which would otherwise land a shortcut named "History" on a chart.
+    void openHistory() {
+      ref.read(historyViewModeProvider.notifier).select(HistoryViewMode.list);
       context.goNamed(AppRoutes.history.name);
     }
 
@@ -56,23 +62,12 @@ class QuickAccessSection extends ConsumerWidget {
       _Shortcut(
         icon: Icons.history,
         label: l10n.navHistory,
-        onTap: () => openHistory(HistoryViewMode.list),
+        onTap: openHistory,
       ),
       _Shortcut(
-        icon: Icons.bar_chart,
-        label: l10n.dashboardChartShortcut,
-        onTap: () => openHistory(HistoryViewMode.chart),
-      ),
-      _Shortcut(
-        // The nav bar's own Insights glyph — one icon, one destination.
-        icon: Icons.insights_outlined,
-        label: l10n.navInsights,
-        onTap: () => context.goNamed(AppRoutes.insights.name),
-      ),
-      _Shortcut(
-        icon: Icons.workspace_premium_outlined,
-        label: l10n.settingsPremium,
-        onTap: () => context.pushNamed(AppRoutes.premium.name),
+        icon: Icons.medication_outlined,
+        label: l10n.navMedications,
+        onTap: () => context.goNamed(AppRoutes.medications.name),
       ),
       _Shortcut(
         icon: Icons.notifications_active_outlined,
@@ -82,11 +77,6 @@ class QuickAccessSection extends ConsumerWidget {
         // plus a branch switch and neither caller should half-remember it.
         onTap: () =>
             NavigationUtils.toPressure(context, ref, highlightAlert: true),
-      ),
-      _Shortcut(
-        icon: Icons.medication_outlined,
-        label: l10n.navMedications,
-        onTap: () => context.goNamed(AppRoutes.medications.name),
       ),
     ];
 
