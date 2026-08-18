@@ -219,6 +219,8 @@
   "attackLimitBody": "{count, plural, other{免费版可存 {count} 条发作记录，你的记录都还在。}}解锁高级版即可继续记录。",
   "attackLimitBannerTitle": "{count, plural, other{免费版还剩 {count} 条记录}}",
   "attackLimitBannerBody": "解锁高级版，记录不再受限。",
+  "dashboardPremiumBannerTitle": "解锁高级版",
+  "dashboardPremiumBannerBody": "预警、预报和全部分析。",
   "medicationLimitTitle": "{count, plural, other{免费版可添加 {count} 种药物}}",
   "medicationLimitBody": "{count, plural, other{免费版包含 {count} 种药物。}}解锁高级版即可按需添加。",
   "reminderLimitTitle": "{count, plural, other{免费版可设 {count} 个提醒}}",

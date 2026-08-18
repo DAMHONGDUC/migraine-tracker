@@ -19,6 +19,7 @@ import '../../widgets/dashboard_log_button.dart';
 import '../../widgets/dashboard_summary_group.dart';
 import '../../widgets/dashboard_today_section.dart';
 import '../../widgets/next_reminder_banner.dart';
+import '../../widgets/premium_banner.dart';
 import '../../widgets/quick_access_section.dart';
 
 /// The app's home tab (replaces the old Log tab). A calm, scrollable overview,
@@ -27,9 +28,11 @@ import '../../widgets/quick_access_section.dart';
 /// other readings, this-week stats, and the feature banners. Logging itself opens as a pushed route from [DashboardLogButton] —
 /// the 3-tap flow is unchanged.
 ///
-/// The premium promo used to sit here and now leads Settings instead (owner's
-/// call). [AttackLimitBanner] stays: the log wall lands mid-attack, so it has
-/// to be announced somewhere calm first.
+/// [PremiumBanner] sits above all of it (owner's call). The promo that left
+/// this screen for Settings was the countdown panel — a ticking discount with
+/// its own button, which competed with the log button under it; one banner
+/// line does not. [AttackLimitBanner] stays too: the log wall lands
+/// mid-attack, so it has to be announced somewhere calm first.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -42,6 +45,11 @@ class DashboardScreen extends ConsumerWidget {
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
+      // Top of the screen, owner's call. Free users only, and never beside
+      // AttackLimitBanner: that is this same pitch with a reason attached,
+      // and two premium banners stacked is how both stop being read.
+      if (!ref.watch(hasPremiumProvider) && logsLeft == null)
+        const PremiumBanner(),
       const DashboardLogButton(),
       // Directly under the button it warns about, and only in the last few
       // logs — the wall itself lands mid-attack, so it must not be news.

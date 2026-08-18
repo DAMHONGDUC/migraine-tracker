@@ -2,13 +2,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/next_reminder_banner.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/premium_banner.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
+import 'package:migraine_tracker/features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
 import 'package:migraine_tracker/features/settings/presentation/screens/export_screen/export_screen.dart';
 
 import '../../helpers/pump_app.dart';
@@ -169,6 +172,46 @@ void main() {
     // - both surfaces carry that title, so match the screen itself, not the text
     expect(find.byType(ExportScreen), findsOneWidget);
     expect(find.text('No exports yet'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the premium banner leads the dashboard for a free user', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await _settle(tester);
+
+    expect(find.byType(PremiumBanner), findsOneWidget);
+    // Above the log button, which is what "top" means here — the order of the
+    // sections list is the whole feature.
+    expect(
+      tester.getRect(find.byType(PremiumBanner)).top,
+      lessThan(tester.getRect(find.byType(DashboardLogButton)).top),
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the premium banner opens the paywall', (tester) async {
+    await pumpApp(tester);
+    await _settle(tester);
+
+    await tapVisible(tester, find.byType(PremiumBanner));
+    await _settle(tester);
+
+    expect(find.byType(PaywallScreen), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a subscriber is not sold what they already bought', (
+    tester,
+  ) async {
+    await pumpApp(tester, premium: true);
+    await _settle(tester);
+
+    expect(find.byType(PremiumBanner), findsNothing);
 
     await finishTest(tester);
   });

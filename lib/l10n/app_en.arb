@@ -1076,6 +1076,14 @@
   "@attackLimitBannerBody": {
     "description": "Supporting line under the free-log countdown banner"
   },
+  "dashboardPremiumBannerTitle": "Unlock Premium",
+  "@dashboardPremiumBannerTitle": {
+    "description": "Title of the short premium banner at the top of the dashboard"
+  },
+  "dashboardPremiumBannerBody": "Alerts, forecast and full insights.",
+  "@dashboardPremiumBannerBody": {
+    "description": "Supporting line under the dashboard premium banner"
+  },
   "medicationLimitTitle": "{count, plural, other{{count} medications on the free plan}}",
   "@medicationLimitTitle": {
     "description": "Dialog title when a free user tries to add one medication past the limit",

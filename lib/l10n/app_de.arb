@@ -219,6 +219,8 @@
   "attackLimitBody": "{count, plural, other{Der kostenlose Plan fasst {count} erfasste Attacken, und deine sind alle noch da.}} Schalte Premium frei, um weiter zu erfassen.",
   "attackLimitBannerTitle": "{count, plural, =1{Noch 1 Eintrag im kostenlosen Plan} other{Noch {count} Einträge im kostenlosen Plan}}",
   "attackLimitBannerBody": "Schalte Premium frei und erfasse ohne Limit weiter.",
+  "dashboardPremiumBannerTitle": "Premium freischalten",
+  "dashboardPremiumBannerBody": "Warnungen, Vorhersage und alle Analysen.",
   "medicationLimitTitle": "{count, plural, other{{count} Medikamente im kostenlosen Plan}}",
   "medicationLimitBody": "{count, plural, other{Der kostenlose Plan enthält {count} Medikamente.}} Schalte Premium frei, um so viele hinzuzufügen, wie du brauchst.",
   "reminderLimitTitle": "{count, plural, =1{Eine Erinnerung im kostenlosen Plan} other{{count} Erinnerungen im kostenlosen Plan}}",

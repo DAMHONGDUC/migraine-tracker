@@ -219,6 +219,8 @@
   "attackLimitBody": "{count, plural, other{El plan gratuito guarda {count} crisis registradas, y las tuyas siguen todas ahí.}} Desbloquea Premium para seguir registrando.",
   "attackLimitBannerTitle": "{count, plural, =1{Queda 1 registro del plan gratuito} other{Quedan {count} registros del plan gratuito}}",
   "attackLimitBannerBody": "Desbloquea Premium para registrar sin límite.",
+  "dashboardPremiumBannerTitle": "Desbloquea Premium",
+  "dashboardPremiumBannerBody": "Alertas, pronóstico y todos los análisis.",
   "medicationLimitTitle": "{count, plural, other{{count} medicamentos en el plan gratuito}}",
   "medicationLimitBody": "{count, plural, other{El plan gratuito incluye {count} medicamentos.}} Desbloquea Premium para añadir los que necesites.",
   "reminderLimitTitle": "{count, plural, =1{Un recordatorio en el plan gratuito} other{{count} recordatorios en el plan gratuito}}",
