@@ -52,6 +52,11 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await openSettings(tester);
 
+    // Scrolled to first: the row sits below the built range now that the dev
+    // group leads the screen, and an unbuilt row fails a finder that the
+    // screen itself would satisfy.
+    await scrollIntoView(tester, find.text('Delete all data'));
+
     // There is an account copy to delete now, so the promise widens with it.
     expect(find.text('Delete all data'), findsOneWidget);
     expect(find.text('Delete all local data'), findsNothing);

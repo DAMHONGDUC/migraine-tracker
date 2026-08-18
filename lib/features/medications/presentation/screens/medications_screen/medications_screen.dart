@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
@@ -149,20 +147,6 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     await ref.read(medicationsControllerProvider).add(name);
   }
 
-  /// Debug-only: fires a test notification ~10s out and confirms via snackbar.
-  Future<void> _sendTestNotification() async {
-    final l10n = context.l10n;
-    final granted = await ref
-        .read(appPermissionProvider)
-        .ensure(context, AppPermissionType.notification);
-    if (!granted || !mounted) return;
-    await ref
-        .read(remindersControllerProvider)
-        .sendTest(title: l10n.remindersTestTitle, body: l10n.remindersTestBody);
-    if (!mounted) return;
-    SdSnackBarUtilsV2.info(context, l10n.remindersTestScheduled);
-  }
-
   @override
   Widget build(BuildContext context) {
     // Handle requests that arrive while this tab is already alive.
@@ -212,17 +196,6 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               SizedBox(width: SdSpacingConstant.w12),
             ]
           : [
-              // Debug-only smoke test; kDebugMode strips it from release builds.
-              if (kDebugMode) ...[
-                SdAppBarButtonV2(
-                  icon: Icons.notification_add_outlined,
-                  color: AppColors.secondary,
-                  tooltip: l10n.remindersTestTooltip,
-                  onPressed: _sendTestNotification,
-                ),
-                SdHorizontalSpacingV2(),
-              ],
-
               SdAppBarButtonV2(
                 icon: Icons.search,
                 color: AppColors.secondary,

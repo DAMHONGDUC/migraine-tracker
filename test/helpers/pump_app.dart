@@ -778,6 +778,37 @@ Finder findLabelledField(String label) => find.descendant(
   matching: find.byType(TextField),
 );
 
+/// Scrolls until [finder] has been built, and does nothing when it already
+/// has been.
+///
+/// A long list builds lazily, so a row far enough down does not exist yet and
+/// anything measuring it throws on an empty finder — as `Bad state: No
+/// element`, which reads as a broken helper rather than as "scroll further".
+/// Two rows added to Settings is all it took the first time, and the dev
+/// group moving to the top of that screen is what took it a second time.
+///
+/// **An `expect(find.text(...), findsOneWidget)` on a settings row needs this
+/// first.** A finder is not a camera: a row below the built range is absent
+/// from the tree, not merely off-screen, and the assertion fails on a screen
+/// that is perfectly correct.
+///
+/// `find.byType(Scrollable).first` is the visible tab's own list — the shell's
+/// other branches are offstage in its `IndexedStack`, and finders skip those.
+Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+
+  final Finder scrollable = find.byType(Scrollable);
+
+  if (scrollable.evaluate().isEmpty) return;
+
+  await tester.dragUntilVisible(
+    finder,
+    scrollable.first,
+    const Offset(0, -200),
+  );
+  await tester.pump();
+}
+
 /// Taps a target below the fold. A plain `tap()` on an off-screen widget
 /// only warns and taps nothing, failing some later assertion instead.
 ///
@@ -790,22 +821,7 @@ Finder findLabelledField(String label) => find.descendant(
 /// So: scroll only when the target really is off-screen, then make sure
 /// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  // A long list builds lazily, so a row far enough down does not exist yet
-  // and every measurement below throws on an empty finder — as `Bad state:
-  // No element` from `_appBarBottom`, which reads as a broken helper rather
-  // than as "scroll further". Two rows added to Settings is all it took.
-  if (finder.evaluate().isEmpty) {
-    final Finder scrollable = find.byType(Scrollable);
-
-    if (scrollable.evaluate().isNotEmpty) {
-      await tester.dragUntilVisible(
-        finder,
-        scrollable.first,
-        const Offset(0, -200),
-      );
-      await tester.pump();
-    }
-  }
+  await scrollIntoView(tester, finder);
 
   final double chromeBottom = _appBarBottom(tester, finder);
   final double screenBottom =

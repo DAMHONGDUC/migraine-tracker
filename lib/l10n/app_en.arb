@@ -1433,10 +1433,6 @@
       }
     }
   },
-  "remindersTestTooltip": "Test notification (debug)",
-  "@remindersTestTooltip": {
-    "description": "Tooltip on the debug-only button that fires a test notification"
-  },
   "remindersTestScheduled": "Test notification in 10s — leave or background the app to see it",
   "@remindersTestScheduled": {
     "description": "Snackbar shown after triggering the debug test notification"
@@ -2619,6 +2615,10 @@
   "settingsDevPush": "Send a test push",
   "@settingsDevPush": {
     "description": "Dev-only Settings row showing whether this device registered for push"
+  },
+  "settingsDevLocalNotification": "Send a test notification",
+  "@settingsDevLocalNotification": {
+    "description": "Dev-only Settings row that schedules a local notification ~10s out"
   },
   "settingsDevPushSent": "Test push sent. It should arrive in a moment.",
   "@settingsDevPushSent": {
