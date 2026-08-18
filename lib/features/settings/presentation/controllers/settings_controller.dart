@@ -3,7 +3,6 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
-import '../../../health/domain/enums/health_data_kind.dart';
 import '../../../health/providers.dart';
 import '../../../onboarding/providers.dart';
 import '../../domain/entities/wipe_status.dart';
@@ -50,10 +49,6 @@ class SettingsController extends Notifier<WipeStatus> {
       // - nothing from Apple Health is stored, so there is nothing to delete
       // - but leaving it connected keeps the app reading sleep after the wipe
       await ref.read(healthControllerProvider.notifier).disconnectAll();
-      // Dev-only, and nothing real is lost — but "delete everything" that
-      // leaves invented health data still generating is a lie about what it
-      // did. No extra step: this rides the disconnect above.
-      await ref.read(devHealthSeedProvider.notifier).clear();
       state = const WipeStatus(isRunning: true, progress: 1);
     } catch (error, stackTrace) {
       SdLogger.error(
@@ -94,15 +89,15 @@ class SettingsController extends Notifier<WipeStatus> {
   /// Dev-only: wipes the device and refills it with sample data. No analytics
   /// event — this never runs in a build real users have.
   ///
-  /// Health is seeded here rather than inside `DevSeedService`, because it is
-  /// not a table: HealthKit is read-only and nothing it returns is persisted
-  /// (hard rule), so "seeding" it means switching the dev fake on and
-  /// connecting both sources — the reads then generate from the seed.
+  /// **Health is not part of it** (owner's call). HealthKit is read-only and
+  /// nothing it returns is persisted (hard rule), so there is no table to
+  /// fill — and the fake repository that used to stand in for it is gone: a
+  /// dev build showing invented nights is harder to trust than one showing an
+  /// honest empty card. Sleep and steps are checked on a device.
   Future<void> seedDevData() async {
     SdLogger.action(LogTagConstant.settings, 'Seed dev data');
     try {
       await ref.read(devSeedServiceProvider).seed();
-      await _seedHealth();
       SdLogger.info(
         LogTagConstant.settings,
         'Seed dev data done',
@@ -119,17 +114,4 @@ class SettingsController extends Notifier<WipeStatus> {
     }
   }
 
-  /// Points the health repository at the dev fake and marks both sources
-  /// connected, so the sleep and activity cards have something to draw on a
-  /// Simulator — where real HealthKit reads always come back empty.
-  Future<void> _seedHealth() async {
-    await ref
-        .read(devHealthSeedProvider.notifier)
-        .set(DateTime.now().millisecondsSinceEpoch);
-
-    // After the seed, so `connect` asks the fake rather than the plugin.
-    for (final HealthDataKind kind in HealthDataKind.values) {
-      await ref.read(healthControllerProvider.notifier).connect(kind);
-    }
-  }
 }

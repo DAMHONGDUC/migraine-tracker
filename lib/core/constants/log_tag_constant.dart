@@ -56,7 +56,8 @@ final class LogTagConstant {
   static const String homeWidget = 'Home Widget';
   static const String insights = 'Insights';
 
-  /// The weather card's own day/metric selection, not a weather fetch.
+  /// The weather card's own interaction — opening its detail sheet — not a
+  /// weather fetch.
   static const String weatherCard = 'Weather Card';
 
   static const String medications = 'Medications';
@@ -101,5 +102,4 @@ final class LogTagConstant {
   /// keeps them out of a filter on the real flow they stand in for.
   static const String devPush = 'Dev Push';
   static const String devLocation = 'Dev Location';
-  static const String devHealthSeed = 'Dev Health Seed';
 }
