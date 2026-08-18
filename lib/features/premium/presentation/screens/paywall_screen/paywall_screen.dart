@@ -21,6 +21,7 @@ import '../../../domain/enums/premium_period.dart';
 import '../../../domain/enums/purchase_error.dart';
 import '../../../providers.dart';
 
+part 'paywall_screen_benefits.dart';
 part 'paywall_screen_legal_links.dart';
 part 'paywall_screen_plans.dart';
 
@@ -206,48 +207,26 @@ class PaywallScreen extends HookConsumerWidget {
               children: [
                 // - only the pitch scrolls; the plans and CTA stay pinned so what the user buys is never under the fold
                 // - benefit titles only — five two-line rows pushed the prices off the sheet; full descriptions live on PremiumScreen
+                // - a sliver that fills what is left, so the pitch sits centred in the free space and still scrolls once a long locale outgrows it
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        SdIconV2(
-                          icon: Icons.storm_outlined,
-                          size: SdSpacingConstant.r64,
-                          color: context.colorScheme.primary,
+                  child: CustomScrollView(
+                    slivers: <Widget>[
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              l10n.paywallHeadline,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyle.titleLarge.w600,
+                            ),
+                            SizedBox(height: SdSpacingConstant.h20),
+                            const _Benefits(),
+                          ],
                         ),
-                        SizedBox(height: SdSpacingConstant.h16),
-                        Text(
-                          l10n.paywallHeadline,
-                          textAlign: TextAlign.center,
-                          style: AppTextStyle.titleLarge.w600,
-                        ),
-                        SizedBox(height: SdSpacingConstant.h20),
-                        SdBenefitRowV2(
-                          icon: Icons.all_inclusive,
-                          title: l10n.paywallBenefitUnlimited,
-                        ),
-                        SdBenefitRowV2(
-                          icon: Icons.notifications_active_outlined,
-                          title: l10n.paywallBenefitAlerts,
-                        ),
-                        SdBenefitRowV2(
-                          icon: Icons.show_chart,
-                          title: l10n.paywallBenefitForecast,
-                        ),
-                        SdBenefitRowV2(
-                          icon: Icons.insights_outlined,
-                          title: l10n.paywallBenefitInsights,
-                        ),
-                        SdBenefitRowV2(
-                          icon: Icons.picture_as_pdf_outlined,
-                          title: l10n.paywallBenefitReport,
-                        ),
-                        SdBenefitRowV2(
-                          icon: Icons.bedtime_outlined,
-                          title: l10n.paywallBenefitSleep,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 Column(
