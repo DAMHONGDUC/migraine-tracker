@@ -110,10 +110,11 @@ Free forever, up to the limits above:
   `ActivityCard`, including the D / W / M / 6M range selector over each. They
   are the answer to "did connecting Apple Health work", so locking them would
   leave a user who just flipped the switch looking at nothing
-- **The weather, in full, minus pressure**: `WeatherCard` gives every user a
-  week of days and, for the day they pick, the hours — conditions, UV, wind,
-  chance of rain, humidity and visibility. `/pressure` still opens for
-  everyone, but what it shows there is the pitch
+- **The weather, in full, minus pressure**: the dashboard's
+  `CurrentWeatherCard` gives every user the conditions they are standing in —
+  the sky, the temperature and what it feels like, then humidity, wind, UV and
+  visibility. It draws no pressure at all, so there is nothing on it to gate.
+  `/pressure` still opens for everyone, but what it shows there is the pitch
 - Physical exertion self-report (the answer is still asked for and stored;
   only the correlation drawn from it is premium — see below)
 - Export to JSON/CSV, the export history, preview, and the GDPR wipe
@@ -134,8 +135,7 @@ Premium:
 - **The analysis half of `ActivityCard` and `SleepCard`** — the exertion
   correlation, the step correlation and the sleep correlation, together under
   one "Analysis" heading per card
-- Every chart except the severity donut, the weather card, and the sleep and
-  step readings — and any chart added later is covered unless the owner says
+- Every chart except the severity donut and the sleep and step readings — and any chart added later is covered unless the owner says
   otherwise
 - The PDF doctor report
 - Unlimited attacks, medications and reminders
