@@ -4,7 +4,7 @@ The authority on what Premium costs, what it unlocks, and what the free plan
 holds. `CLAUDE.md` points here rather than restating any of it, so there is
 one place to change when the offer changes.
 
-Last updated: 2026-08-12.
+Last updated: 2026-08-19.
 
 ## Prices
 
@@ -117,7 +117,8 @@ Free forever, up to the limits above:
   `/pressure` still opens for everyone, but what it shows there is the pitch
 - Physical exertion self-report (the answer is still asked for and stored;
   only the correlation drawn from it is premium — see below)
-- Export to JSON/CSV, the export history, preview, and the GDPR wipe
+- The GDPR wipe. It is the one half of hard rule 8 that can never be sold:
+  deleting your own records is a right, not a feature
 - The notification list, and medication reminders up to the limit
 
 Premium:
@@ -141,7 +142,20 @@ Premium:
   one "Analysis" heading per card
 - Every chart except the severity donut and the sleep and step readings — and any chart added later is covered unless the owner says
   otherwise
-- The PDF doctor report
+- **The whole export screen** — JSON, CSV, the PDF doctor report, the export
+  history and its preview alike (owner's call, 2026-08-19). It was free
+  forever on data-portability grounds and it is not any more; what replaces
+  that promise is the support route in the privacy policy, which answers an
+  export request by email at no cost. Both doors — the dashboard's explore
+  card and the Settings row — wear a `PremiumBadge` and go through
+  `NavigationUtils.toExport`, which is the one gate: **a surface that
+  announces itself goes straight to the paywall**, so there is no
+  `RecordLimitDialog` in front of it.
+  - **The cost, stated rather than discovered**: a subscriber who exports and
+    then lapses cannot reach their own past export files from the app any
+    more, because the entrance is gated rather than the create button. The
+    files stay on disk and the free wipe still deletes them. Revisit here
+    first if that lands as a support ticket.
 - Unlimited attacks, medications and reminders
 
 ### The exertion correlation moved to premium

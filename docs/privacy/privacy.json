@@ -7,7 +7,7 @@
     "iOS"
   ],
   "effectiveDate": "2026-08-07",
-  "lastUpdated": "2026-08-10",
+  "lastUpdated": "2026-08-19",
   "contactEmail": "ducdam.dev@gmail.com",
   "url": "https://damhongduc.github.io/apps_privacy_policy",
   "storeLinks": {
@@ -198,7 +198,7 @@
         "{{app}} gives you two destructive actions, deliberately kept separate."
       ],
       "list": [
-        "Export everything — Settings → Export data, as JSON, CSV or a PDF doctor report. Past exports are kept in the app so you can re-share them, and are full copies of your data.",
+        "Export everything — Settings → Export data, as JSON, CSV or a PDF doctor report. The in-app export is a Premium feature; without Premium, write to us and we will send you your data free of charge. Past exports are kept in the app so you can re-share them, and are full copies of your data.",
         "Delete all data — Settings → Delete all data. Wipes the local database, those export files and the home screen widget's shared container, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold. Your account stays, so your subscription binding survives.",
         "Delete your account — Account screen → Delete account. The whole teardown: synced records, account record, encryption key, then the login itself.",
         "Neither action cancels your subscription. That lives in the App Store and only you can cancel it there."

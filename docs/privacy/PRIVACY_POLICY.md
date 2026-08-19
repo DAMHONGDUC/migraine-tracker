@@ -11,7 +11,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 10 August 2026
+**Last updated:** 19 August 2026
 **Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
 **Contact:** ducdam.dev@gmail.com
 
@@ -151,9 +151,11 @@ entitlement follows you rather than one installation.
 ## 8. Your rights and controls (GDPR)
 
 - **Export everything:** Settings → Export data (JSON, CSV or a PDF doctor
-  report). Past exports are kept in the app so you can re-share them; they
-  are full copies of your data and are deleted along with everything else
-  below.
+  report). The in-app export is a **Premium** feature; if you do not have
+  Premium, write to ducdam.dev@gmail.com and we will send you your data free
+  of charge, as below. Past exports are kept in the app so you can re-share
+  them; they are full copies of your data and are deleted along with
+  everything else below.
 - **Delete all data:** Settings → Delete all data. Wipes the local database,
   past export files and the home screen widget's shared container, deletes
   your synced records and your backend alert record, and gives up your push
