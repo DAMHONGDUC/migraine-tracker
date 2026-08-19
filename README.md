@@ -94,9 +94,53 @@ RevenueCat config and crashes on launch — with `[core/no-app] No Firebase App
 flag. Use `melos run build-ipa-prod`, then upload the `.ipa` it leaves in
 `build/ios/ipa/`.
 
-Releasing to TestFlight is the manually-triggered **Release iOS** workflow in
-GitHub Actions, which builds with that same script and uploads through
-fastlane. See `docs/rules/COMMANDS.md`.
+Releasing to TestFlight is normally the manually-triggered **Release iOS**
+workflow in GitHub Actions, which builds with that same script and uploads
+through fastlane. To run that same lane from your own Mac, see below.
+
+## Fastlane, locally
+
+One-time, per machine:
+
+```bash
+cd ios
+bundle config set --local path vendor/bundle
+bundle install
+```
+
+The local path is not optional on a Homebrew Ruby: its gem files are
+read-only, so a plain `bundle install` dies on `Permission denied @ rb_sysopen
+… rdoc_plugin.rb`. `ios/.bundle/` and `ios/vendor/` are gitignored — CI pins
+its own Ruby through `ruby/setup-ruby` and resolves gems its own way.
+
+Credentials live in `ios/fastlane/.env` (gitignored, six keys). Check its
+shape without printing any values: `cut -d= -f1 ios/fastlane/.env`. How each
+one is made: `docs/release/CREDENTIALS.md`.
+
+| Command | What it does |
+| --- | --- |
+| `cd ios && CI=true bundle exec fastlane preflight` | Rehearse the release without building — API key, build number, `match`. Three minutes, not twenty-eight. |
+| `cd ios && bundle exec fastlane beta flavor:prod` | Build with `env/prod.json`, sign, export, upload to TestFlight. |
+| `cd ios && bundle exec fastlane beta flavor:dev` | The same, with `env/dev.json` attached instead. |
+| `cd ios && bundle exec fastlane beta flavor:prod bump:false` | Ship the build number already in `pubspec.yaml`, unchanged. |
+| `cd ios && bundle exec fastlane certificates` | Create or renew the distribution certificate and both profiles. Mac only. |
+| `cd ios && bundle exec fastlane certificates force:true` | Regenerate the profiles — the only way a newly-enabled capability reaches CI. |
+
+Three things that differ from the CI run:
+
+- **`CI=true` on `preflight` is the point.** Without it the lane skips
+  `match`, which is the half most likely to break.
+- **`match` and manual signing are skipped locally** — your Mac signs
+  automatically, and the shared certificate is never touched.
+- **`bump:true` (the default) rewrites `pubspec.yaml` but does not commit it.**
+  Only CI commits the number back. Commit it yourself after the upload, or a
+  build sits on TestFlight whose version is in no commit — the one thing the
+  build-number rule exists to prevent.
+
+Both flavors go to the **same** TestFlight app: one bundle id serves both, so
+the build number is the only thing telling a dev build from a prod one. Full
+detail in `docs/rules/COMMANDS.md`; the pipeline as a diagram is
+`docs/release/PIPELINE.md`.
 
 ## Layout
 
