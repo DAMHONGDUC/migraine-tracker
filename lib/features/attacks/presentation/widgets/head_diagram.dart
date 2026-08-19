@@ -1,26 +1,40 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/enums/head_location.dart';
 
-/// Top half of the location step: a calm, hand-drawn front-facing head.
-/// Whichever [selected] region the user picked from the list below (see
-/// [LocationStep]) fills in as a bounded, shaded area on the head's own
-/// silhouette. Picking [HeadLocation.back] turns the head around and tints
-/// it whole, since the back can't be shown on a front-facing face.
+/// Top half of the location step: a calm, hand-drawn head, now two SVG
+/// assets rather than a hand-painted face. Whichever [selected] region the
+/// user picked from the list below (see [LocationStep]) fills in as a
+/// bounded, shaded area on the head's own silhouette. Picking
+/// [HeadLocation.back] turns the head around — the turn swaps
+/// `head_front.svg` for `head_back.svg` halfway through — and tints it
+/// whole, since the back can't be shown on a front-facing face.
+///
+/// Deliberately a raw [SvgPicture] rather than an `SdIconV2`, which the
+/// design system otherwise requires: that widget forces a square box and
+/// paints the whole asset in one `srcIn` colour, which would flatten a
+/// multi-tone 100×122 illustration into a silhouette. Ask before copying
+/// this exemption anywhere else — an icon is still an `SdIconV2`.
 class HeadDiagram extends StatelessWidget {
   const HeadDiagram({required this.selected, super.key});
 
   final HeadLocation? selected;
 
-  /// Natural head proportions — a little taller than wide.
-  static const _aspectRatio = 0.82;
+  /// Natural head proportions — a little taller than wide. Matches the
+  /// 100×122 viewBox both SVGs are drawn on.
+  static const double _aspectRatio = 0.82;
+
+  static const String _frontAsset = 'assets/images/head_front.svg';
+  static const String _backAsset = 'assets/images/head_back.svg';
 
   @override
   Widget build(BuildContext context) {
-    final targetAngle = selected == HeadLocation.back ? math.pi : 0.0;
+    final double targetAngle = selected == HeadLocation.back ? math.pi : 0.0;
+
     return AspectRatio(
       aspectRatio: _aspectRatio,
       // No key on the angle tween: animates from the *current* angle instead
@@ -29,36 +43,63 @@ class HeadDiagram extends StatelessWidget {
         tween: Tween<double>(end: targetAngle),
         duration: const Duration(milliseconds: 420),
         curve: Curves.easeInOut,
-        builder: (context, angle, child) => Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..rotateY(angle),
-          // Ripple pulse restarts per selection (keyed): fresh pick re-animates.
-          child: TweenAnimationBuilder<double>(
-            key: ValueKey(selected),
-            tween: Tween(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            builder: (context, pulse, _) => CustomPaint(
-              painter: _HeadPainter(
-                selected: selected,
-                pulse: pulse,
-                angle: angle,
+        builder: (BuildContext context, double angle, Widget? _) {
+          final bool facingFront = math.cos(angle) >= 0;
+
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(angle),
+            child: Transform(
+              alignment: Alignment.center,
+              // Past a quarter turn the outer rotation mirrors everything it
+              // carries. Undo that for the far side so the back artwork —
+              // and any highlight on it — is not drawn inside out.
+              transform: facingFront
+                  ? Matrix4.identity()
+                  : (Matrix4.identity()..rotateY(math.pi)),
+              // Ripple pulse restarts per selection (keyed): fresh pick
+              // re-animates.
+              child: TweenAnimationBuilder<double>(
+                key: ValueKey<HeadLocation?>(selected),
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                builder: (BuildContext context, double pulse, Widget? child) {
+                  return CustomPaint(
+                    foregroundPainter: _RegionPainter(
+                      selected: selected,
+                      pulse: pulse,
+                      angle: angle,
+                    ),
+                    child: child,
+                  );
+                },
+                // BoxFit.fill, not contain: the painter above stretches its
+                // outline to the full box, so the artwork has to as well or
+                // the highlight drifts off the silhouette wherever something
+                // overrides the [AspectRatio] (a tight ListView child does).
+                child: SvgPicture.asset(
+                  facingFront ? _frontAsset : _backAsset,
+                  fit: BoxFit.fill,
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 }
 
-/// Draws the head silhouette, an abstract face, its 2.5D shading, and the
-/// selected region's highlight. [angle] is the current Y-rotation (0 = face
-/// on, π = back); [pulse] is the per-selection ripple driver.
-class _HeadPainter extends CustomPainter {
-  const _HeadPainter({
+/// Paints only the selected region's highlight, over the SVG head. The
+/// silhouette it clips to is the same curve both assets are drawn from, in
+/// the same 100×122 proportions — edit one and you must edit the others.
+/// [angle] is the current Y-rotation (0 = face on, π = back); [pulse] is the
+/// per-selection ripple driver.
+class _RegionPainter extends CustomPainter {
+  const _RegionPainter({
     required this.selected,
     required this.pulse,
     required this.angle,
@@ -69,11 +110,12 @@ class _HeadPainter extends CustomPainter {
   final double angle;
 
   /// The forehead band, as a fraction of head height from the top.
-  static const _frontBandHeight = 0.42;
+  static const double _frontBandHeight = 0.42;
 
   static Path _outline(Size s) {
-    final w = s.width;
-    final h = s.height;
+    final double w = s.width;
+    final double h = s.height;
+
     return Path()
       ..moveTo(w * 0.5, 0)
       ..cubicTo(w * 0.83, h * 0.02, w * 0.98, h * 0.3, w * 0.94, h * 0.46)
@@ -114,173 +156,26 @@ class _HeadPainter extends CustomPainter {
     }
   }
 
-  void _paintFace(Canvas canvas, Size s) {
-    final w = s.width;
-    final h = s.height;
-
-    // Ears — a touch larger than before.
-    final earFill = Paint()
-      ..style = PaintingStyle.fill
-      ..color = AppColors.primary.withValues(alpha: 0.1);
-    final earStroke = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = AppColors.primary.withValues(alpha: 0.5);
-    for (final dx in [0.05, 0.95]) {
-      final ear = Rect.fromCenter(
-        center: Offset(w * dx, h * 0.5),
-        width: w * 0.08,
-        height: h * 0.11,
-      );
-      canvas
-        ..drawOval(ear, earFill)
-        ..drawOval(ear, earStroke);
-    }
-
-    // Eyes — bigger, set a little wider.
-    final eyePaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = AppColors.textSecondary.withValues(alpha: 0.62);
-    final eyeSize = Size(w * 0.085, h * 0.042);
-    for (final dx in [-0.21, 0.21]) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(w * (0.5 + dx), h * 0.42),
-          width: eyeSize.width,
-          height: eyeSize.height,
-        ),
-        eyePaint,
-      );
-    }
-
-    // Nose — larger curved stroke.
-    final nose = Path()
-      ..moveTo(w * 0.5, h * 0.45)
-      ..quadraticBezierTo(w * 0.6, h * 0.57, w * 0.5, h * 0.63);
-    canvas.drawPath(
-      nose,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.4
-        ..strokeCap = StrokeCap.round
-        ..color = AppColors.textSecondary.withValues(alpha: 0.5),
-    );
-
-    // Mouth — calm, neutral, a bit wider.
-    canvas.drawLine(
-      Offset(w * 0.38, h * 0.72),
-      Offset(w * 0.62, h * 0.72),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..strokeCap = StrokeCap.round
-        ..color = AppColors.textSecondary.withValues(alpha: 0.45),
-    );
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
-    final s = size;
-    final rect = Offset.zero & s;
-    final outline = _outline(s);
-    // 1 facing us, 0 edge-on, and back-side clamps to 0.
-    final facingFront = math.cos(angle).clamp(0.0, 1.0);
-    final isBack = selected == HeadLocation.back;
-
-    _paintVolume(canvas, s, rect, outline);
-
-    // Face only shows while we face front — fades out through the turn.
-    final faceAlpha = (facingFront * 255).round().clamp(0, 255);
-    if (faceAlpha > 0) {
-      canvas.saveLayer(
-        rect,
-        Paint()..color = Color.fromARGB(faceAlpha, 255, 255, 255),
-      );
-      _paintFace(canvas, s);
-      canvas.restore();
-    }
+    // 1 facing us, 0 edge-on, and the back side clamps to 0.
+    final double facingFront = math.cos(angle).clamp(0.0, 1.0);
+    final bool isBack = selected == HeadLocation.back;
 
     // Front regions reveal as we face front; "back" reveals as we turn away.
-    final reveal = isBack ? (1 - facingFront) : pulse * facingFront;
-    _paintRegion(canvas, s, rect, outline, reveal);
-
-    canvas.drawPath(
-      outline,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..color = AppColors.primary.withValues(alpha: 0.55),
-    );
-  }
-
-  /// 2.5D shading: a radial base gradient (light from the upper-left), a
-  /// soft blurred rim read as inner shadow, and a faint forehead specular.
-  void _paintVolume(Canvas canvas, Size s, Rect rect, Path outline) {
-    final w = s.width;
-    final h = s.height;
-
-    canvas.drawPath(
-      outline,
-      Paint()
-        ..style = PaintingStyle.fill
-        ..shader = RadialGradient(
-          center: const Alignment(-0.25, -0.45),
-          radius: 1.1,
-          colors: [
-            AppColors.primary.withValues(alpha: 0.2),
-            AppColors.primary.withValues(alpha: 0.05),
-          ],
-        ).createShader(rect),
-    );
-
-    canvas.save();
-    canvas.clipPath(outline);
-
-    // Inner shadow.
-    canvas.drawPath(
-      outline,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = w * 0.07
-        ..color = AppColors.background.withValues(alpha: 0.55)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, w * 0.035),
-    );
-
-    // Specular sheen.
-    final specCenter = Offset(w * 0.37, h * 0.19);
-    final specRect = Rect.fromCircle(center: specCenter, radius: w * 0.3);
-    canvas.drawRect(
-      specRect,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            AppColors.textPrimary.withValues(alpha: 0.12),
-            AppColors.textPrimary.withValues(alpha: 0),
-          ],
-        ).createShader(specRect),
-    );
-
-    canvas.restore();
-  }
-
-  /// Fills the selected region with a curve-following radial gradient,
-  /// rippling out from its centre as [reveal] runs 0→1.
-  void _paintRegion(
-    Canvas canvas,
-    Size s,
-    Rect rect,
-    Path outline,
-    double reveal,
-  ) {
+    final double reveal = isBack ? (1 - facingFront) : pulse * facingFront;
     if (reveal <= 0) return;
-    final region = _region(selected, s, outline);
+
+    final Path outline = _outline(size);
+    final Path? region = _region(selected, size, outline);
     if (region == null) return;
 
-    final bounds = region.getBounds();
-    final center = bounds.center;
-    final shader =
+    final Rect rect = Offset.zero & size;
+    final Rect bounds = region.getBounds();
+    final Offset center = bounds.center;
+    final Shader shader =
         RadialGradient(
-          colors: [
+          colors: <Color>[
             AppColors.primary.withValues(alpha: 0.6),
             AppColors.primary.withValues(alpha: 0.2),
           ],
@@ -308,7 +203,7 @@ class _HeadPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _HeadPainter oldDelegate) =>
+  bool shouldRepaint(covariant _RegionPainter oldDelegate) =>
       oldDelegate.selected != selected ||
       oldDelegate.pulse != pulse ||
       oldDelegate.angle != angle;
