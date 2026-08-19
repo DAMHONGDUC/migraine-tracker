@@ -162,11 +162,16 @@ one appears, but an existing one has to be cleared by hand:
 
 ```bash
 security list-keychains -d user -s ~/Library/Keychains/login.keychain-db
+security default-keychain -s ~/Library/Keychains/login.keychain-db
 security delete-keychain ~/Library/Keychains/fastlane_tmp_keychain-db
 ```
 
 The first line rewrites the whole user search list, so `login.keychain-db` has
-to be named in it or nothing signs afterwards.
+to be named in it or nothing signs afterwards — **and it clears the default
+keychain, which is what the second line puts back.** Without it, `security
+default-keychain` answers *"A default keychain could not be found"* and Xcode
+logs `DVTDeveloperAccountManager: Failed to load credentials … Code=-25307`,
+so automatic signing can no longer refresh a profile.
 
 Both flavors go to the **same** TestFlight app: one bundle id serves both, so
 the build number is the only thing telling a dev build from a prod one. Full
