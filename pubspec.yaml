@@ -114,7 +114,7 @@ flutter:
 # 57, 72). Both are ugly and both are harmless; do not hand-tidy them, because
 # the next run puts them straight back.
 flutter_launcher_icons:
-  image_path: "assets/images/app_icon.png"
+  image_path: "assets/images/final_app_icon.png"
 
   ios: true
   # MANDATORY, not a preference. App Store Connect rejects the 1024 marketing

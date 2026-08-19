@@ -222,3 +222,9 @@ that bar.
 
 Nothing syncs until `firestore.rules` and `functions/` are deployed. Until
 then the app behaves exactly as it did before sync existed.
+
+## rm icon marker
+
+dart run tool/strip_icon_marker.dart assets/images/app_icon_v3.png assets/images/final_app_icon.png
+
+dart run flutter_launcher_icons
