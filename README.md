@@ -153,10 +153,20 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
 
 It is your Mac's login password, typed into your own terminal — nothing in
 this repo stores it, and CI never runs this (its keychain is the throwaway one
-`setup_ci` makes). Expect the prompt to come back after every `fastlane
-certificates` run: each import lands another copy of the certificate with a
-fresh ACL, which is also why `security find-identity -v -p codesigning` shows
-the same "Apple Distribution" several times.
+`setup_ci` makes).
+
+If `security find-identity -v -p codesigning` shows the same "Apple
+Distribution" several times, that is a keychain an older `CI=true preflight`
+left in the search list — `setup_ci` is gated on a real runner now, so no new
+one appears, but an existing one has to be cleared by hand:
+
+```bash
+security list-keychains -d user -s ~/Library/Keychains/login.keychain-db
+security delete-keychain ~/Library/Keychains/fastlane_tmp_keychain-db
+```
+
+The first line rewrites the whole user search list, so `login.keychain-db` has
+to be named in it or nothing signs afterwards.
 
 Both flavors go to the **same** TestFlight app: one bundle id serves both, so
 the build number is the only thing telling a dev build from a prod one. Full
