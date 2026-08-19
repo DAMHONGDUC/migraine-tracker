@@ -555,6 +555,8 @@
   "freeLimitReminders": "{count, plural, =0{No quedan recordatorios gratuitos} =1{Queda 1 recordatorio gratuito} other{Quedan {count} recordatorios gratuitos}}",
   "weatherCardTitle": "Tiempo",
   "weatherUnavailable": "El tiempo no está disponible ahora mismo.",
+  "weatherLocationOffBody": "Activa la ubicación para ver el tiempo y la presión donde estás.",
+  "weatherLocationOffAction": "Activar ubicación",
   "weatherA11yPlace": "Ubicación: {place}",
   "weatherA11yDetail": "Detalles del tiempo",
   "weatherRainfallTitle": "Precipitación, próximos {count} días",

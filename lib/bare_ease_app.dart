@@ -119,6 +119,9 @@ class BaroEaseApp extends HookConsumerWidget {
           );
           // Covers the app left open across midnight.
           unawaited(_recordPressureThenRedraw(ref));
+          // A location permission granted in the Settings app is answered
+          // while the app is not running, so only a re-read finds out.
+          ref.invalidate(locationPermissionProvider);
         },
       );
       return listener.dispose;

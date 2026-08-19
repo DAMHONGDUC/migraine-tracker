@@ -555,6 +555,8 @@
   "freeLimitReminders": "{count, plural, other{無料のリマインダーは残り{count}件}}",
   "weatherCardTitle": "天気",
   "weatherUnavailable": "現在、天気を取得できません。",
+  "weatherLocationOffBody": "位置情報をオンにすると、今いる場所の天気と気圧を表示します。",
+  "weatherLocationOffAction": "位置情報を許可",
   "weatherA11yPlace": "場所: {place}",
   "weatherA11yDetail": "天気の詳細",
   "weatherRainfallTitle": "今後{count}日間の降水量",

@@ -610,6 +610,12 @@ Future<PumpedApp> pumpApp(
   /// path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
 
+  /// What every OS permission answers from the first frame. Granted by
+  /// default; set before the pump because the weather card reads location's
+  /// status while it builds, and flipping `permissions.statusFor` afterwards
+  /// is a frame too late.
+  AppPermissionStatus permissionStatus = AppPermissionStatus.granted,
+
   /// The account document the account tab reads. Null = not written yet,
   /// which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
@@ -657,7 +663,7 @@ Future<PumpedApp> pumpApp(
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
   addTearDown(scheduler.dispose);
-  final permissions = FakeAppPermissionGateway();
+  final permissions = FakeAppPermissionGateway()..statusFor = permissionStatus;
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
   addTearDown(auth.dispose);

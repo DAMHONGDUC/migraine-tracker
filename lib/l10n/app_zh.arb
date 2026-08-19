@@ -555,6 +555,8 @@
   "freeLimitReminders": "{count, plural, other{还剩 {count} 个免费提醒}}",
   "weatherCardTitle": "天气",
   "weatherUnavailable": "暂时无法获取天气。",
+  "weatherLocationOffBody": "开启定位，即可查看你所在位置的天气和气压。",
+  "weatherLocationOffAction": "开启位置",
   "weatherA11yPlace": "位置：{place}",
   "weatherA11yDetail": "天气详情",
   "weatherRainfallTitle": "未来 {count} 天降雨量",

@@ -17,11 +17,13 @@ class OnboardingController {
 
   /// Raises the While-Using prompt (reduced accuracy).
   ///
-  /// **This is the only place the app asks for location.** It used to ask by
-  /// requesting a position, which meant every weather read could prompt —
-  /// launch, resume, logging an attack. Here the ask sits next to the screen
-  /// explaining why it is wanted, which is the only place it can be answered
-  /// well. Best-effort: denial is fine, weather is simply skipped.
+  /// **This is where the ask is EXPLAINED, and it is one of two places that
+  /// raise it.** It used to ask by requesting a position, which meant every
+  /// weather read could prompt — launch, resume, logging an attack. Here the
+  /// ask sits next to the screen saying why it is wanted. Best-effort: denial
+  /// is fine, weather is simply skipped, and the dashboard's weather card
+  /// offers the ask again on the surface it feeds (`_LocationPrompt`) — a
+  /// "Not now" here used to be final.
   Future<void> requestLocation() async {
     try {
       await _ref.read(locationSourceProvider).requestPermission();

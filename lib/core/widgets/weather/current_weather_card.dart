@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
 import '../../../features/weather/domain/entities/weather_report.dart';
 import '../../../features/weather/providers.dart';
+import '../../constants/log_tag_constant.dart';
 import '../../extensions/context_extensions.dart';
+import '../../permissions/app_permission.dart';
+import '../../theme/app_text_style.dart';
 import 'weather_card.dart';
+
+part 'current_weather_card_location.dart';
 
 /// The weather the user is standing in, at the position the device reports.
 ///
@@ -28,11 +34,30 @@ import 'weather_card.dart';
 /// **It draws no pressure**, the same rule it carried on Insights — that
 /// reading is the product and the dashboard's Today section already shows it
 /// to the users who have paid. See [WeatherCardData.of].
+///
+/// **Without location permission it asks for it instead of failing.** The
+/// unavailable line is the answer for offline and for a backend with no
+/// credentials — states the user can do nothing about — and it was also what
+/// someone who never granted location saw, which is a card saying the feature
+/// is broken when it is one tap from working. See [_LocationPrompt].
 class CurrentWeatherCard extends ConsumerWidget {
   const CurrentWeatherCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Null while the status is still being read: the reading is what the card
+    // is for, so it draws its own wait rather than flashing an ask that a
+    // granted permission is about to replace.
+    final AppPermissionStatus? permission = ref
+        .watch(locationPermissionProvider)
+        .value;
+
+    // Asked BEFORE the report is watched, so a device with no position never
+    // spends a callable round trip on a fetch that can only come back empty.
+    if (permission != null && permission != AppPermissionStatus.granted) {
+      return const _LocationPrompt();
+    }
+
     final AsyncValue<WeatherReport?> async = ref.watch(weatherReportProvider);
     // Survives a refresh: AsyncValue keeps the last value while refetching,
     // so a reload redraws the reading it already had rather than blanking.

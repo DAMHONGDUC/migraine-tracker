@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/misc.dart' show KeepAliveLink;
 
 import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
+import '../../core/permissions/app_permission.dart';
 import 'data/datasources/backend_weather_data_source.dart';
 import 'data/datasources/location_source.dart';
 import 'data/datasources/place_name_source.dart';
@@ -39,6 +40,29 @@ final locationSourceProvider = Provider<LocationSource>((ref) {
   return faked == null
       ? const GeolocatorLocationSource()
       : FakeLocationSource(faked);
+});
+
+/// Whether the OS will hand over a position, read WITHOUT prompting.
+///
+/// The weather card watches this to choose between the reading and the ask,
+/// so it must never raise the dialog by itself — the same rule
+/// [LocationSource] splits its two methods over. The prompt is raised by the
+/// button on that card and by onboarding, and nowhere else.
+///
+/// **A dev-pinned city answers granted**: there is no OS permission behind a
+/// faked point, and a Simulator that reports denied would put an ask on a
+/// card that is already working.
+///
+/// Invalidated by the card after it asks, and on resume — a permission
+/// granted in the Settings app is answered while the app is not running.
+final locationPermissionProvider = FutureProvider<AppPermissionStatus>((
+  ref,
+) async {
+  if (ref.watch(devLocationProvider).point != null) {
+    return AppPermissionStatus.granted;
+  }
+
+  return ref.watch(appPermissionProvider).status(AppPermissionType.location);
 });
 
 /// The app's only weather source, and it is the backend — there is no HTTP

@@ -555,6 +555,8 @@
   "freeLimitReminders": "{count, plural, =0{Keine kostenlosen Erinnerungen übrig} =1{1 kostenlose Erinnerung übrig} other{{count} kostenlose Erinnerungen übrig}}",
   "weatherCardTitle": "Wetter",
   "weatherUnavailable": "Das Wetter ist gerade nicht verfügbar.",
+  "weatherLocationOffBody": "Aktiviere den Standort, um Wetter und Luftdruck an deinem Ort zu sehen.",
+  "weatherLocationOffAction": "Standort aktivieren",
   "weatherA11yPlace": "Standort: {place}",
   "weatherA11yDetail": "Wetterdetails",
   "weatherRainfallTitle": "Niederschlag, nächste {count} Tage",

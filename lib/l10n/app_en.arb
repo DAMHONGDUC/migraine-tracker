@@ -2681,6 +2681,14 @@
     "description": "Title of the weather and pressure alert card on Insights"
   },
   "weatherUnavailable": "Weather is unavailable right now.",
+  "weatherLocationOffBody": "Turn on location to see the weather and pressure where you are.",
+  "@weatherLocationOffBody": {
+    "description": "Weather card copy shown when location permission has not been granted"
+  },
+  "weatherLocationOffAction": "Enable location",
+  "@weatherLocationOffAction": {
+    "description": "Button on the weather card that raises the location permission prompt"
+  },
   "weatherA11yPlace": "Location: {place}",
   "weatherA11yDetail": "Weather details",
   "weatherRainfallTitle": "Rainfall, next {count} days",
