@@ -47,6 +47,24 @@ final class NavigationUtils {
     if (context.mounted) await context.pushNamed<void>(AppRoutes.log.name);
   }
 
+  /// The export screen, which is premium in full — the data exports and the
+  /// doctor report alike.
+  ///
+  /// The rule is why this lives here: two doors lead to it, the dashboard's
+  /// explore card and the Settings row, and a second one that forgot the gate
+  /// would hand a free user everything the paywall sells. Straight to the
+  /// paywall with no [RecordLimitDialog] — both doors already wear the badge,
+  /// so a dialog would repeat what the surface just said.
+  static Future<void> toExport(BuildContext context, WidgetRef ref) async {
+    if (!ref.read(hasPremiumProvider)) {
+      await toPaywall(context, ref);
+
+      return;
+    }
+
+    await context.pushNamed<void>(AppRoutes.export.name);
+  }
+
   /// Insights, showing [tab].
   ///
   /// The tab is a branch selection plus a provider write, so every shortcut

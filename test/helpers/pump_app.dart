@@ -889,6 +889,10 @@ Future<void> openSettings(WidgetTester tester) async {
 
 /// Settings → Export data. The export screen is pushed over the tab shell,
 /// so it covers the bottom nav.
+///
+/// **Needs `pumpApp(premium: true)`**: export is premium in full, so the row
+/// opens the paywall for a free user and every assertion after this lands on
+/// the wrong screen.
 Future<void> openExportScreen(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Export data'));

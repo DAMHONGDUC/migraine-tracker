@@ -5,7 +5,10 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/premium_gate.dart';
+import '../../../premium/providers.dart';
 import 'dashboard_explore_card.dart';
 
 /// Feature banners that surface capabilities living on other tabs —
@@ -37,15 +40,15 @@ class DashboardExploreSection extends ConsumerWidget {
   ///
   /// A ratio ties height to whatever width is left over, which is how the
   /// weather card's details grid came to overflow. This is summed from what
-  /// is actually in a cell: the padding, the glyph, the gaps, one line of
-  /// title and two of subtitle.
+  /// is actually in a cell: the padding, the header row, the gaps, one line
+  /// of title and two of subtitle.
   ///
   /// Much shorter than it was, because the health cards set the old floor —
   /// their figure plus a 48pt button could not go below ~156pt. Nothing left
   /// in the grid carries a button.
   static double get cellHeight =>
       SdSpacingConstant.h12 * 2 +
-      SdSpacingConstant.r20 +
+      DashboardExploreCard.headerHeight +
       SdSpacingConstant.h8 +
       SdSpacingConstant.h24 +
       SdSpacingConstant.h4 +
@@ -100,9 +103,15 @@ class DashboardExploreSection extends ConsumerWidget {
               icon: Icons.ios_share_outlined,
               title: l10n.dashboardExportTitle,
               content: DashboardExploreSubtitle(l10n.dashboardExportBody),
+              // Export is premium in full, so the cell says so before it is
+              // tapped — a paywall out of a card that looked free reads as a
+              // bug rather than as an offer.
+              trailing: ref.watch(hasPremiumProvider)
+                  ? null
+                  : const PremiumBadge(),
               // Straight to Export — landing on Settings and hunting isn't
               // what the card promised.
-              onTap: () => context.pushNamed(AppRoutes.export.name),
+              onTap: () => NavigationUtils.toExport(context, ref),
             ),
             DashboardExploreCard(
               icon: Icons.info_outline,

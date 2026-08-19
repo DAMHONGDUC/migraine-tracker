@@ -105,11 +105,19 @@
   },
   "appFeatureExportTitle": "Export your data",
   "@appFeatureExportTitle": {
-    "description": "Free feature: data export"
+    "description": "Premium feature: data export"
   },
-  "appFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
+  "appFeatureExportBody": "Take everything with you as JSON or CSV, whenever you want.",
   "@appFeatureExportBody": {
-    "description": "Free feature: data export, detail"
+    "description": "Premium feature: data export, detail"
+  },
+  "appFeatureWipeTitle": "Delete everything",
+  "@appFeatureWipeTitle": {
+    "description": "Free feature: the GDPR wipe"
+  },
+  "appFeatureWipeBody": "Erase every record from this phone and from the cloud in one tap.",
+  "@appFeatureWipeBody": {
+    "description": "Free feature: the GDPR wipe, detail"
   },
   "appFeatureAlertsTitle": "Pressure-drop alerts",
   "@appFeatureAlertsTitle": {
@@ -1028,10 +1036,6 @@
   "premiumLockedForecast": "See the pressure forecast 48 hours ahead, so you can plan around it.",
   "@premiumLockedForecast": {
     "description": "Locked-state copy on the forecast card"
-  },
-  "premiumLockedReport": "Export a PDF summary of your attacks for your doctor.",
-  "@premiumLockedReport": {
-    "description": "Locked-state copy on the doctor report setting"
   },
   "premiumLockedCorrelation": "Unlock to see how much of your pain follows the weather.",
   "@premiumLockedCorrelation": {

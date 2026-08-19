@@ -18,8 +18,4 @@ enum ExportKind {
     ExportKind.csv => 'text/csv',
     ExportKind.pdf => 'application/pdf',
   };
-
-  /// The doctor report is the premium flavour; the GDPR data exports are
-  /// free forever (hard rule 8).
-  bool get isPremium => this == ExportKind.pdf;
 }

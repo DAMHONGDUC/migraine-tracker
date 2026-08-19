@@ -65,7 +65,7 @@ void main() {
   });
 
   testWidgets('the export screen starts empty', (tester) async {
-    await pumpApp(tester);
+    await pumpApp(tester, premium: true);
 
     await openExportScreen(tester);
 
@@ -77,7 +77,7 @@ void main() {
   testWidgets('JSON export writes the file and records it in the history', (
     tester,
   ) async {
-    final app = await pumpApp(tester);
+    final app = await pumpApp(tester, premium: true);
 
     await logAttack(tester, intensity: '8', location: 'Left side');
     await openExportScreen(tester);
@@ -97,7 +97,7 @@ void main() {
   });
 
   testWidgets('CSV export writes a csv file', (tester) async {
-    final app = await pumpApp(tester);
+    final app = await pumpApp(tester, premium: true);
 
     await logAttack(tester);
     await openExportScreen(tester);
@@ -115,7 +115,7 @@ void main() {
     tester,
   ) async {
     final sharer = RecordingExportSharer();
-    final app = await pumpApp(tester, exportSharer: sharer);
+    final app = await pumpApp(tester, premium: true, exportSharer: sharer);
 
     await logAttack(tester);
     await openExportScreen(tester);
@@ -139,7 +139,7 @@ void main() {
     tester,
   ) async {
     final saver = RecordingFileSaver();
-    final app = await pumpApp(tester, fileSaver: saver);
+    final app = await pumpApp(tester, premium: true, fileSaver: saver);
 
     await logAttack(tester);
     await openExportScreen(tester);
@@ -161,7 +161,7 @@ void main() {
 
   testWidgets('dismissing the save picker says nothing', (tester) async {
     final saver = RecordingFileSaver(result: false);
-    await pumpApp(tester, fileSaver: saver);
+    await pumpApp(tester, premium: true, fileSaver: saver);
 
     await logAttack(tester);
     await openExportScreen(tester);
@@ -182,7 +182,7 @@ void main() {
   testWidgets('deleting an export removes the row and its file', (
     tester,
   ) async {
-    final app = await pumpApp(tester);
+    final app = await pumpApp(tester, premium: true);
 
     await logAttack(tester);
     await openExportScreen(tester);
@@ -205,17 +205,19 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a free user gets the paywall pitch instead of the PDF report', (
+  testWidgets('a free user gets the paywall instead of the export screen', (
     tester,
   ) async {
     await pumpApp(tester);
 
-    await openExportScreen(tester);
-    await tapVisible(tester, find.text('Export'));
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Export data'));
+    await tester.pump(const Duration(milliseconds: 400));
 
-    // The row is there, but locked — never a path that produces a report.
-    expect(find.text('Doctor report (PDF)'), findsOneWidget);
-    expect(find.text('Premium'), findsOneWidget);
+    // Export is premium in full now — the badged row opens the pitch, never
+    // the screen that produces a file.
+    expect(find.text('No exports yet'), findsNothing);
+    expect(find.text('BaroEase Premium'), findsOneWidget);
 
     await finishTest(tester);
   });

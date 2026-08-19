@@ -165,7 +165,8 @@ void main() {
   });
 
   testWidgets('export card opens the Export screen itself', (tester) async {
-    await pumpApp(tester);
+    // Premium: export is gated in full, and the free branch is the case below.
+    await pumpApp(tester, premium: true);
 
     await _tapExploreCard(tester, 'Export');
 
@@ -173,6 +174,20 @@ void main() {
     // - both surfaces carry that title, so match the screen itself, not the text
     expect(find.byType(ExportScreen), findsOneWidget);
     expect(find.text('No exports yet'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the export card is badged and pitches to a free user', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await _tapExploreCard(tester, 'Export');
+
+    // The paywall, not the screen — and the cell said so before the tap.
+    expect(find.byType(ExportScreen), findsNothing);
+    expect(find.text('BaroEase Premium'), findsOneWidget);
 
     await finishTest(tester);
   });

@@ -28,7 +28,7 @@ Future<void> openPreview(WidgetTester tester) async {
 
 void main() {
   testWidgets('a CSV export is not offered a preview at all', (tester) async {
-    final PumpedApp app = await pumpApp(tester);
+    final PumpedApp app = await pumpApp(tester, premium: true);
     await DriftAttackRepository(app.db).insert(
       Attack(
         id: 'a1',
@@ -54,7 +54,7 @@ void main() {
   });
 
   testWidgets('a JSON export still previews its own text', (tester) async {
-    final PumpedApp app = await pumpApp(tester);
+    final PumpedApp app = await pumpApp(tester, premium: true);
     await DriftAttackRepository(app.db).insert(
       Attack(
         id: 'a1',

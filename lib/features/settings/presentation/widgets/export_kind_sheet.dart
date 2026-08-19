@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/export_kind_label.dart';
-import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/premium_gate.dart';
-import '../../../premium/providers.dart';
 import '../../domain/enums/export_kind.dart';
 
 /// Picks what to export. Pops the choice, or null.
@@ -47,40 +43,18 @@ class ExportKindSheet extends StatelessWidget {
   }
 }
 
-/// One export option. The doctor report is premium: a free user gets the
-/// pitch and the paywall instead of a row that would produce nothing.
-class _KindTile extends ConsumerWidget {
+/// One export option. No gate here: the export screen is premium in full
+/// (`NavigationUtils.toExport`), so nothing free ever reaches this sheet.
+class _KindTile extends StatelessWidget {
   const _KindTile({required this.kind});
 
   final ExportKind kind;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-
-    if (kind.isPremium && !ref.watch(hasPremiumProvider)) {
-      return ListTile(
-        leading: SdIconV2(
-          icon: kind.icon,
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-        title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
-        subtitle: Text(
-          l10n.premiumLockedReport,
-          style: AppTextStyle.bodyMedium.secondary,
-        ),
-        trailing: const PremiumBadge(),
-        onTap: () {
-          // Close the picker first — two stacked sheets loses the user's place.
-          Navigator.of(context).pop();
-          NavigationUtils.toPaywall(context, ref);
-        },
-      );
-    }
-
+  Widget build(BuildContext context) {
     return ListTile(
       leading: SdIconV2(icon: kind.icon, color: context.colorScheme.primary),
-      title: Text(kind.label(l10n), style: AppTextStyle.bodyLarge),
+      title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );
   }
