@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -15,7 +15,7 @@ void main() {
     id: 'a1',
     startedAt: DateTime.utc(2026, 7, 1, 8, 30),
     intensity: 7,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     medicationName: 'Sumatriptan',
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
@@ -33,7 +33,7 @@ void main() {
     id: 'a2',
     startedAt: DateTime.utc(2026, 7, 2),
     intensity: 3,
-    location: HeadLocation.front,
+    regions: const <HeadRegion>[HeadRegion.foreheadL],
   );
 
   group('toJson', () {

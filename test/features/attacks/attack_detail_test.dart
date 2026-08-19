@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -15,7 +15,7 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
   id: 'a1',
   startedAt: DateTime.now().subtract(const Duration(hours: 2)),
   intensity: 7,
-  location: HeadLocation.right,
+  regions: const <HeadRegion>[HeadRegion.templeR],
   medicationName: 'Sumatriptan',
   symptoms: const ['aura'],
   notes: 'bad one',
@@ -110,7 +110,7 @@ void main() {
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      HeadLocation.right,
+      const <HeadRegion>[HeadRegion.templeR],
     );
 
     await finishTest(tester);
@@ -174,7 +174,7 @@ void main() {
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      HeadLocation.whole,
+      const <HeadRegion>[HeadRegion.crown],
     );
 
     await finishTest(tester);
@@ -193,7 +193,7 @@ void main() {
     await confirmSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
-    expect(rows.single.location, HeadLocation.whole);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.crown]);
     expect(find.text('Whole head'), findsOneWidget);
 
     await finishTest(tester);
@@ -212,7 +212,7 @@ void main() {
     await closeSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
-    expect(rows.single.location, HeadLocation.right);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(find.text('Right side'), findsOneWidget);
 
     await finishTest(tester);

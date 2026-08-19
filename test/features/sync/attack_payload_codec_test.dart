@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/sync/domain/services/attack_payload_codec.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -13,7 +13,7 @@ void main() {
     id: 'a1',
     startedAt: DateTime.utc(2026, 7, 1, 8, 30),
     intensity: 7,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     medicationName: 'Sumatriptan',
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
@@ -39,7 +39,7 @@ void main() {
     expect(decoded.id, 'a1');
     expect(decoded.startedAt, DateTime.utc(2026, 7, 1, 8, 30));
     expect(decoded.intensity, 7);
-    expect(decoded.location, HeadLocation.right);
+    expect(decoded.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(decoded.medicationName, 'Sumatriptan');
     expect(decoded.symptoms, ['aura', 'nausea']);
     expect(decoded.triggers, ['stress']);
@@ -55,7 +55,7 @@ void main() {
       id: 'a2',
       startedAt: DateTime.utc(2026, 7, 2),
       intensity: 4,
-      location: HeadLocation.front,
+      regions: const <HeadRegion>[HeadRegion.foreheadL],
     );
 
     final Attack decoded = const AttackPayloadCodec().decode(
@@ -85,7 +85,7 @@ void main() {
       id: 'a3',
       startedAt: DateTime(2026, 7, 3, 14),
       intensity: 5,
-      location: HeadLocation.back,
+      regions: const <HeadRegion>[HeadRegion.occipitalL],
     );
 
     final Attack decoded = const AttackPayloadCodec().decode(
@@ -220,7 +220,7 @@ void main() {
         id: 'a2',
         startedAt: DateTime.utc(2026, 7, 1, 8),
         intensity: 4,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       );
       final Attack decoded = const AttackPayloadCodec().decode(
         const AttackPayloadCodec().encode(open),
@@ -238,7 +238,7 @@ void main() {
             id: 'a3',
             startedAt: DateTime.utc(2026, 7, 1, 8),
             intensity: 4,
-            location: HeadLocation.left,
+            regions: const <HeadRegion>[HeadRegion.templeL],
             endedAt: DateTime(2026, 7, 1, 20),
           ),
         ),

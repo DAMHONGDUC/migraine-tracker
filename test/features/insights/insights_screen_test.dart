@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -14,7 +14,7 @@ Attack seededAttack(int i, {double? pressureDelta}) {
     id: 'seed-$i',
     startedAt: startedAt,
     intensity: 5,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
     weather: pressureDelta == null
         ? null
         : WeatherSnapshot(

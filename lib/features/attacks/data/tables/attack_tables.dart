@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/db/converters.dart';
 import '../../domain/enums/exertion_level.dart';
-import '../../domain/enums/head_location.dart';
 import '../../domain/enums/medication_effect.dart';
 
 @DataClassName('AttackRow')
@@ -13,7 +12,14 @@ class Attacks extends Table {
   DateTimeColumn get startedAt => dateTime()();
 
   IntColumn get intensity => integer()();
-  TextColumn get location => textEnum<HeadLocation>()();
+  /// Every head area the user tapped, JSON-encoded. Never empty — the
+  /// location step is the one step of the log flow that waits for a pick.
+  /// The default exists only so the v13 migration can add the column to
+  /// rows that still hold the old single `location`, which it then backfills
+  /// in the same step.
+  TextColumn get regions => text()
+      .map(const HeadRegionListConverter())
+      .withDefault(const Constant('[]'))();
   TextColumn get medicationName => text().nullable()();
   TextColumn get symptoms => text()
       .map(const StringListConverter())

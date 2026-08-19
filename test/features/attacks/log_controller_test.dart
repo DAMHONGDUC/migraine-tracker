@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
@@ -63,26 +63,26 @@ void main() {
 
   test('picking a location arms the draft without advancing', () {
     controller().selectIntensity(7);
-    controller().updateDraft(HeadLocation.right);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeR]);
     expect(state().step, LogStep.location);
     expect(state().hasDraft, isTrue);
-    expect(state().location, isNull);
+    expect(state().regions, isNull);
   });
 
   test('confirmStep commits the location draft and advances', () async {
     controller().selectIntensity(7);
 
-    controller().updateDraft(HeadLocation.right);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeR]);
     await controller().confirmStep();
     expect(state().step, LogStep.medication);
-    expect(state().location, HeadLocation.right);
+    expect(state().regions, const <HeadRegion>[HeadRegion.templeR]);
     // Armed on arrival now: the medication step defaults to "No medication".
     expect(state().hasDraft, isTrue);
   });
 
   test('confirmStep on the exertion step persists the attack', () async {
     controller().selectIntensity(8);
-    controller().updateDraft(HeadLocation.left);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeL]);
     await controller().confirmStep();
     controller().updateDraft('Sumatriptan');
     await controller().confirmStep();
@@ -96,14 +96,14 @@ void main() {
     final rows = await db.select(db.attacks).get();
     expect(rows, hasLength(1));
     expect(rows.single.intensity, 8);
-    expect(rows.single.location, HeadLocation.left);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeL]);
     expect(rows.single.medicationName, 'Sumatriptan');
     expect(rows.single.exertionLevel, ExertionLevel.severe);
   });
 
   test('medication and exertion arrive on their defaults, Next armed', () async {
     controller().selectIntensity(4);
-    controller().updateDraft(HeadLocation.front);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.foreheadL]);
     await controller().confirmStep();
 
     // "No medication" is the default: armed before the user picks anything.
@@ -128,7 +128,7 @@ void main() {
 
   test('confirming "No medication" is a valid pick (null draft)', () async {
     controller().selectIntensity(3);
-    controller().updateDraft(HeadLocation.whole);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
     await controller().confirmStep();
     controller().updateDraft(null);
     expect(state().hasDraft, isTrue, reason: 'null is a valid medication pick');
@@ -142,7 +142,7 @@ void main() {
 
   test('back from exertion re-arms the confirmed medication pick', () async {
     controller().selectIntensity(5);
-    controller().updateDraft(HeadLocation.left);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeL]);
     await controller().confirmStep();
     controller().updateDraft('Ibuprofen');
     await controller().confirmStep();
@@ -155,7 +155,7 @@ void main() {
 
   test('back steps to the previous screen, keeping its value pre-filled', () {
     controller().selectIntensity(5);
-    controller().updateDraft(HeadLocation.whole);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
     controller().back();
 
     expect(state().step, LogStep.intensity);
@@ -164,19 +164,19 @@ void main() {
 
   test('back from medication pre-fills the location draft', () async {
     controller().selectIntensity(5);
-    controller().updateDraft(HeadLocation.left);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeL]);
     await controller().confirmStep();
     controller().back();
 
     expect(state().step, LogStep.location);
-    expect(state().location, HeadLocation.left, reason: 'kept on record');
+    expect(state().regions, const <HeadRegion>[HeadRegion.templeL], reason: 'kept on record');
     expect(state().hasDraft, isTrue);
-    expect(state().draft, HeadLocation.left);
+    expect(state().draft, const <HeadRegion>[HeadRegion.templeL]);
   });
 
   test('reset clears everything back to the start', () async {
     controller().selectIntensity(6);
-    controller().updateDraft(HeadLocation.whole);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
     await controller().confirmStep();
     controller().updateDraft(null);
     await controller().confirmStep();
@@ -185,7 +185,7 @@ void main() {
 
     expect(state().step, LogStep.intensity);
     expect(state().intensity, isNull);
-    expect(state().location, isNull);
+    expect(state().regions, isNull);
     expect(state().savedId, isNull);
     expect(state().hasDraft, isFalse);
   });

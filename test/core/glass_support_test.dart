@@ -4,7 +4,7 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:system_design/index.dart';
 
 import '../helpers/pump_app.dart';
@@ -58,7 +58,7 @@ void main() {
         id: 'a1',
         startedAt: DateTime.now().toUtc(),
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
     );
 

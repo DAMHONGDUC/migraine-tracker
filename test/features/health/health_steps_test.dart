@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 
@@ -26,7 +26,7 @@ Attack attackOnDay(int daysAgo) {
     id: 'attack-$daysAgo',
     startedAt: DateTime(date.year, date.month, date.day, 10),
     intensity: 6,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
   );
 }
 

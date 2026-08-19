@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/domain/services/chart_analytics.dart';
 
 Attack _attack({
   required DateTime startedAt,
   int intensity = 5,
-  HeadLocation location = HeadLocation.left,
+  List<HeadRegion> regions = const <HeadRegion>[HeadRegion.templeL],
 }) => Attack(
   id: startedAt.toIso8601String(),
   startedAt: startedAt,
   intensity: intensity,
-  location: location,
+  regions: regions,
 );
 
 void main() {
@@ -75,18 +75,45 @@ void main() {
   });
 
   group('LocationBreakdownCalculator', () {
-    test('drops empty locations and sorts most-frequent first', () {
+    test('drops empty areas and sorts most-frequent first', () {
       final counts = const LocationBreakdownCalculator().compute([
-        _attack(startedAt: DateTime(2026, 1, 1), location: HeadLocation.left),
-        _attack(startedAt: DateTime(2026, 1, 2), location: HeadLocation.left),
-        _attack(startedAt: DateTime(2026, 1, 3), location: HeadLocation.whole),
+        _attack(
+          startedAt: DateTime(2026, 1, 1),
+          regions: const <HeadRegion>[HeadRegion.templeL],
+        ),
+        _attack(
+          startedAt: DateTime(2026, 1, 2),
+          regions: const <HeadRegion>[HeadRegion.templeL],
+        ),
+        _attack(
+          startedAt: DateTime(2026, 1, 3),
+          regions: const <HeadRegion>[HeadRegion.crown],
+        ),
       ]);
 
       expect(counts, hasLength(2));
-      expect(counts.first.location, HeadLocation.left);
+      expect(counts.first.region, HeadRegion.templeL);
       expect(counts.first.count, 2);
-      expect(counts.last.location, HeadLocation.whole);
-      expect(counts.any((c) => c.location == HeadLocation.right), isFalse);
+      expect(counts.last.region, HeadRegion.crown);
+      expect(counts.any((c) => c.region == HeadRegion.templeR), isFalse);
+    });
+
+    test('counts one attack once in every area it names', () {
+      final counts = const LocationBreakdownCalculator().compute([
+        _attack(
+          startedAt: DateTime(2026, 1, 1),
+          regions: const <HeadRegion>[
+            HeadRegion.templeL,
+            HeadRegion.eyeL,
+            HeadRegion.nape,
+          ],
+        ),
+      ]);
+
+      // Three bars from one attack: the chart answers "how often does this
+      // area hurt", so the column total deliberately exceeds the attack count.
+      expect(counts, hasLength(3));
+      expect(counts.every((c) => c.count == 1), isTrue);
     });
   });
 

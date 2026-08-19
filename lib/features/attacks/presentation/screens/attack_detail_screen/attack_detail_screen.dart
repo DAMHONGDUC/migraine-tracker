@@ -7,14 +7,14 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/duration_label.dart';
 import '../../../../../core/extensions/exertion_level_label.dart';
-import '../../../../../core/extensions/head_location_label.dart';
+import '../../../../../core/extensions/head_region_label.dart';
 import '../../../../../core/extensions/medication_effect_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/weather_card.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/exertion_level.dart';
-import '../../../domain/enums/head_location.dart';
+import '../../../domain/enums/head_region.dart';
 import '../../../domain/enums/medication_effect.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
@@ -57,7 +57,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: picked,
-          location: attack.location,
+          regions: attack.regions,
           medicationName: attack.medicationName,
         );
   }
@@ -67,8 +67,8 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final HeadLocation? picked = await LocationPickerSheet(
-      selected: attack.location,
+    final List<HeadRegion>? picked = await LocationPickerSheet(
+      selected: attack.regions,
     ).show(context);
 
     if (picked == null) return;
@@ -77,7 +77,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: attack.intensity,
-          location: picked,
+          regions: picked,
           medicationName: attack.medicationName,
         );
   }
@@ -98,7 +98,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: attack.intensity,
-          location: attack.location,
+          regions: attack.regions,
           medicationName: picked.name,
         );
   }
@@ -206,7 +206,7 @@ class AttackDetailScreen extends ConsumerWidget {
           children: [
             _Header(attack: a),
             SizedBox(height: SdSpacingConstant.h16),
-            _LocationDiagram(location: a.location),
+            _LocationDiagram(regions: a.regions),
             SizedBox(height: SdSpacingConstant.h16),
             _Section(
               children: [
@@ -218,7 +218,7 @@ class AttackDetailScreen extends ConsumerWidget {
                 ),
                 _EditableRow(
                   label: l10n.attackDetailLocation,
-                  value: a.location.label(l10n),
+                  value: a.regions.label(l10n),
                   onTap: () => _editLocation(context, ref, a),
                 ),
                 _EditableRow(

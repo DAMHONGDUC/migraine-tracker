@@ -85,8 +85,7 @@ class AttackDurationSheet extends StatelessWidget {
           if (endedAt != null)
             SdButtonV2(
               variant: SdButtonVariantV2.text,
-              onPressed: () =>
-                  Navigator.of(context).pop((endedAt: null)),
+              onPressed: () => Navigator.of(context).pop((endedAt: null)),
               label: l10n.attackDurationNotRecorded,
             ),
         ],
@@ -150,10 +149,7 @@ class _DurationTile extends StatelessWidget {
               ),
               if (detail != null) ...<Widget>[
                 SizedBox(width: SdSpacingConstant.w8),
-                Text(
-                  detail!,
-                  style: AppTextStyle.bodyMedium.secondary,
-                ),
+                Text(detail!, style: AppTextStyle.bodyMedium.secondary),
               ],
             ],
           ),

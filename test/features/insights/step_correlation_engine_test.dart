@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/step_correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/step_correlation_engine.dart';
@@ -11,7 +11,7 @@ Attack attackOn(DateTime localStart) => Attack(
   id: 'attack-${localStart.toIso8601String()}',
   startedAt: localStart,
   intensity: 6,
-  location: HeadLocation.left,
+  regions: const <HeadRegion>[HeadRegion.templeL],
 );
 
 StepDay day(DateTime date, {required int steps}) =>

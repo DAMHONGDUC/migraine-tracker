@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
-import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
@@ -464,7 +464,7 @@ class DevSeedService {
       id: _uuid.v4(),
       startedAt: startedAt,
       intensity: intensity,
-      location: HeadLocation.values[random.nextInt(HeadLocation.values.length)],
+      regions: _pickRegions(random),
       medicationName: untreated
           ? null
           : medications[random.nextInt(medications.length)].name,
@@ -579,6 +579,20 @@ class DevSeedService {
     final String second = date.second.toString().padLeft(2, '0');
 
     return '${date.year}-$month-${day}_$hour$minute$second';
+  }
+
+  /// One to three areas, in enum order — the shape a real pick has. Never
+  /// empty: an attack with no area cannot be saved, so seeding one would
+  /// build a database the app itself refuses to write.
+  List<HeadRegion> _pickRegions(Random random) {
+    final List<HeadRegion> shuffled = List<HeadRegion>.of(HeadRegion.values)
+      ..shuffle(random);
+    final Set<HeadRegion> picked = shuffled.take(1 + random.nextInt(3)).toSet();
+
+    return <HeadRegion>[
+      for (final HeadRegion region in HeadRegion.values)
+        if (picked.contains(region)) region,
+    ];
   }
 
   List<String> _pick(List<String> source, Random random) {

@@ -53,8 +53,12 @@ class MedicationGrid extends ConsumerWidget {
       await NavigationUtils.toPaywallFromLimit(
         context,
         ref,
-        title: context.l10n.medicationLimitTitle(PremiumLimitConstant.medications),
-        body: context.l10n.medicationLimitBody(PremiumLimitConstant.medications),
+        title: context.l10n.medicationLimitTitle(
+          PremiumLimitConstant.medications,
+        ),
+        body: context.l10n.medicationLimitBody(
+          PremiumLimitConstant.medications,
+        ),
       );
       return;
     }

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/exertion_correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/exertion_correlation_engine.dart';
 
@@ -10,7 +10,7 @@ Attack attack({required int index, ExertionLevel? exertionLevel}) {
     id: 'attack-$index',
     startedAt: DateTime.utc(2026, 1, 1).add(Duration(days: index)),
     intensity: 5,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
     exertionLevel: exertionLevel,
   );
 }

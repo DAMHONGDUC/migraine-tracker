@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/home_widget/domain/entities/home_widget_snapshot.dart';
 import 'package:migraine_tracker/features/home_widget/domain/enums/pressure_trend.dart';
 import 'package:migraine_tracker/features/home_widget/domain/services/home_widget_snapshot_builder.dart';
@@ -10,7 +10,7 @@ Attack _attack(DateTime startedAt) => Attack(
   id: startedAt.toIso8601String(),
   startedAt: startedAt,
   intensity: 5,
-  location: HeadLocation.left,
+  regions: const <HeadRegion>[HeadRegion.templeL],
 );
 
 DailyPressure _reading(DateTime day, {double hpa = 1010, double delta = 0}) =>

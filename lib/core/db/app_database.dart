@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../../features/attacks/data/tables/attack_tables.dart';
 import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
@@ -44,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -156,6 +157,33 @@ class AppDatabase extends _$AppDatabase {
       //   no attack, and Open-Meteo's past window is days, not months.
       if (from < 12) {
         await m.createTable(dailyWeather);
+      }
+      // - v13: the location step records a SET of head areas, not one coarse
+      //   side, so `location` becomes `regions`.
+      // - Every old row is backfilled, and deliberately not sharpened: "left
+      //   side" becomes every region on the left, because that is exactly how
+      //   precise the user actually was. Guessing which of them hurt would
+      //   put a claim in the doctor report nobody made.
+      // - `location` is dropped only after the backfill has read it. The
+      //   column is already gone from the table definition, so the UPDATE
+      //   below has to be raw SQL — there is no generated field left to name.
+      if (from < 13) {
+        await m.addColumn(attacks, attacks.regions);
+        for (final HeadLocation location in HeadLocation.values) {
+          await customUpdate(
+            'UPDATE attacks SET regions = ? WHERE location = ?',
+            variables: <Variable<Object>>[
+              Variable<String>(
+                const HeadRegionListConverter().toSql(location.regions),
+              ),
+              Variable<String>(location.name),
+            ],
+            updates: <TableInfo<Table, Object?>>{attacks},
+          );
+        }
+        // Recreates the table from today's definition, which no longer has
+        // `location` — drift's way of dropping a column SQLite cannot drop.
+        await m.alterTable(TableMigration(attacks));
       }
     },
     beforeOpen: (details) async {

@@ -430,25 +430,77 @@
   "@commonDone": {
     "description": "Tooltip on the tick in a picker sheet's header, which applies the pick and closes the sheet"
   },
-  "locationLeft": "Left side",
-  "@locationLeft": {
-    "description": "Head location option: left side"
+  "regionCrown": "Crown",
+  "@regionCrown": {
+    "description": "Head area: top of the skull, shown on both the front and back view"
   },
-  "locationRight": "Right side",
-  "@locationRight": {
-    "description": "Head location option: right side"
+  "regionForeheadL": "Left forehead",
+  "@regionForeheadL": {
+    "description": "Head area: left half of the forehead"
   },
-  "locationFront": "Front",
-  "@locationFront": {
-    "description": "Head location option: front / forehead"
+  "regionForeheadR": "Right forehead",
+  "@regionForeheadR": {
+    "description": "Head area: right half of the forehead"
   },
-  "locationBack": "Back of head",
-  "@locationBack": {
-    "description": "Head location option: back of head"
+  "regionTempleL": "Left temple",
+  "@regionTempleL": {
+    "description": "Head area: left temple"
   },
-  "locationWhole": "Whole head",
-  "@locationWhole": {
-    "description": "Head location option: whole head"
+  "regionTempleR": "Right temple",
+  "@regionTempleR": {
+    "description": "Head area: right temple"
+  },
+  "regionEyeL": "Left eye",
+  "@regionEyeL": {
+    "description": "Head area: around and behind the left eye"
+  },
+  "regionEyeR": "Right eye",
+  "@regionEyeR": {
+    "description": "Head area: around and behind the right eye"
+  },
+  "regionNose": "Nose",
+  "@regionNose": {
+    "description": "Head area: the nose and the bridge of it, between the eyes; has no left or right because it sits on the midline"
+  },
+  "regionCheekL": "Left cheek",
+  "@regionCheekL": {
+    "description": "Head area: left cheek, beside the sinus rather than including it"
+  },
+  "regionCheekR": "Right cheek",
+  "@regionCheekR": {
+    "description": "Head area: right cheek, beside the sinus rather than including it"
+  },
+  "regionJawL": "Left jaw",
+  "@regionJawL": {
+    "description": "Head area: left jaw"
+  },
+  "regionJawR": "Right jaw",
+  "@regionJawR": {
+    "description": "Head area: right jaw"
+  },
+  "regionOccipitalL": "Back left",
+  "@regionOccipitalL": {
+    "description": "Head area: back of the head, left side"
+  },
+  "regionOccipitalR": "Back right",
+  "@regionOccipitalR": {
+    "description": "Head area: back of the head, right side"
+  },
+  "regionNape": "Nape",
+  "@regionNape": {
+    "description": "Head area: nape of the neck"
+  },
+  "logLocationViewFront": "Front",
+  "@logLocationViewFront": {
+    "description": "Tab that turns the head diagram to face the user; the number in brackets counts the areas picked on that side"
+  },
+  "logLocationViewBack": "Back",
+  "@logLocationViewBack": {
+    "description": "Tab that turns the head diagram around; the number in brackets counts the areas picked on that side"
+  },
+  "logLocationNone": "No area picked yet",
+  "@logLocationNone": {
+    "description": "Shown in place of the area list when nothing has been picked yet"
   },
   "historyTitle": "History",
   "@historyTitle": {

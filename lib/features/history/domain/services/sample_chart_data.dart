@@ -1,6 +1,6 @@
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
-import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 
 /// Fabricated attacks that draw the shape of the History chart deck for a
 /// free user, behind the unlock cover.
@@ -56,7 +56,9 @@ final class SampleChartData {
               Duration(days: day, hours: _hours[index % _hours.length]),
             ),
             intensity: _intensities[index % _intensities.length],
-            location: HeadLocation.values[index % HeadLocation.values.length],
+            regions: <HeadRegion>[
+              HeadRegion.values[index % HeadRegion.values.length],
+            ],
             exertionLevel: _exertions[index % _exertions.length],
           ),
         );

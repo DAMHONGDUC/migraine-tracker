@@ -50,8 +50,7 @@ class MedicationEffectSheet extends StatelessWidget {
               return _EffectTile(
                 effect: effect,
                 selected: selected == effect,
-                onTap: () =>
-                    Navigator.of(context).pop((effect: effect)),
+                onTap: () => Navigator.of(context).pop((effect: effect)),
               );
             },
           ),
@@ -61,8 +60,7 @@ class MedicationEffectSheet extends StatelessWidget {
           if (selected != null)
             SdButtonV2(
               variant: SdButtonVariantV2.text,
-              onPressed: () =>
-                  Navigator.of(context).pop((effect: null)),
+              onPressed: () => Navigator.of(context).pop((effect: null)),
               label: l10n.medicationEffectNotRecorded,
             ),
         ],

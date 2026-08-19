@@ -2,11 +2,11 @@ import 'package:meta/meta.dart';
 
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../enums/exertion_level.dart';
-import '../enums/head_location.dart';
+import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
 /// A single migraine attack. The three required fields ([intensity],
-/// [location], [medicationName]) mirror the 3-tap log flow; everything else
+/// [regions], [medicationName]) mirror the 3-tap log flow; everything else
 /// is optional detail. [weather] is null while offline and backfilled later.
 @immutable
 class Attack {
@@ -14,7 +14,7 @@ class Attack {
     required this.id,
     required DateTime startedAt,
     required this.intensity,
-    required this.location,
+    required this.regions,
     this.medicationName,
     this.symptoms = const [],
     this.triggers = const [],
@@ -30,6 +30,11 @@ class Attack {
          'intensity must be within 1..10',
        ),
        assert(
+         regions.isNotEmpty,
+         'an attack must name at least one region — the location step is the '
+         'one step of the flow that waits for a pick',
+       ),
+       assert(
          endedAt == null || !endedAt.toUtc().isBefore(startedAt.toUtc()),
          'an attack cannot end before it started',
        );
@@ -42,7 +47,11 @@ class Attack {
   /// Pain intensity, 1–10.
   final int intensity;
 
-  final HeadLocation location;
+  /// Every area the user tapped, never empty. A set in meaning but a list in
+  /// storage, kept in [HeadRegion] order so two attacks naming the same areas
+  /// serialize identically and the sync codec's comparison stays honest.
+  final List<HeadRegion> regions;
+
   final String? medicationName;
   final List<String> symptoms;
   final List<String> triggers;
@@ -78,7 +87,7 @@ class Attack {
     id: id,
     startedAt: startedAt,
     intensity: intensity,
-    location: location,
+    regions: regions,
     medicationName: medicationName,
     symptoms: symptoms,
     triggers: triggers,

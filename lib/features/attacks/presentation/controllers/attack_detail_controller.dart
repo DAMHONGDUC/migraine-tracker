@@ -4,7 +4,7 @@ import 'package:system_design/common.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/exertion_level.dart';
-import '../../domain/enums/head_location.dart';
+import '../../domain/enums/head_region.dart';
 import '../../domain/enums/medication_effect.dart';
 import '../../providers.dart';
 
@@ -19,7 +19,7 @@ class AttackDetailController {
   Future<void> updateCore(
     String id, {
     required int intensity,
-    required HeadLocation location,
+    required List<HeadRegion> regions,
     required String? medicationName,
   }) async {
     SdLogger.action(LogTagConstant.attackDetail, 'Edit attack', id);
@@ -30,7 +30,7 @@ class AttackDetailController {
           .updateCore(
             id,
             intensity: intensity,
-            location: location,
+            regions: regions,
             medicationName: medicationName,
           );
     } catch (error, stackTrace) {

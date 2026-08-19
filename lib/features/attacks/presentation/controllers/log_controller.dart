@@ -12,7 +12,7 @@ import '../../../sync/domain/enums/sync_trigger.dart';
 import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
-import '../../domain/enums/head_location.dart';
+import '../../domain/enums/head_region.dart';
 import '../../providers.dart';
 
 /// Steps of the sacred flow: pick a value, then confirm with Next/Done.
@@ -27,7 +27,7 @@ class LogFlowState {
   const LogFlowState({
     this.step = LogStep.intensity,
     this.intensity,
-    this.location,
+    this.regions,
     this.medicationName,
     this.savedId,
     this.hasDraft = false,
@@ -36,7 +36,11 @@ class LogFlowState {
 
   final LogStep step;
   final int? intensity;
-  final HeadLocation? location;
+  /// Every area confirmed on the location step. Null until it is confirmed,
+  /// which is a different thing from the empty list the step starts on: null
+  /// means "not answered yet", empty means "answered nothing", and the step
+  /// refuses to advance on the second.
+  final List<HeadRegion>? regions;
 
   /// Committed on the medication step, held until the save at the end of the
   /// exertion step. Null is a real answer here ("No medication").
@@ -50,7 +54,7 @@ class LogFlowState {
   final bool hasDraft;
 
   /// The active step's picked-but-not-yet-confirmed value: an `int`
-  /// (intensity), a [HeadLocation], a `String?` (medication name) or an
+  /// (intensity), a `List<HeadRegion>`, a `String?` (medication name) or an
   /// [ExertionLevel].
   final Object? draft;
 }
@@ -77,7 +81,7 @@ class LogController extends Notifier<LogFlowState> {
     state = LogFlowState(
       step: state.step,
       intensity: state.intensity,
-      location: state.location,
+      regions: state.regions,
       medicationName: state.medicationName,
       savedId: state.savedId,
       hasDraft: true,
@@ -93,7 +97,7 @@ class LogController extends Notifier<LogFlowState> {
         state = LogFlowState(
           step: LogStep.medication,
           intensity: state.intensity,
-          location: state.draft! as HeadLocation,
+          regions: state.draft! as List<HeadRegion>,
           // Defaults to "No medication": the common answer costs no tap, and
           // Next is armed on arrival rather than after a pick.
           hasDraft: true,
@@ -103,7 +107,7 @@ class LogController extends Notifier<LogFlowState> {
         state = LogFlowState(
           step: LogStep.exertion,
           intensity: state.intensity,
-          location: state.location,
+          regions: state.regions,
           medicationName: state.draft as String?,
           // Same idea: "None" is the common answer and the step's default.
           hasDraft: true,
@@ -130,7 +134,7 @@ class LogController extends Notifier<LogFlowState> {
       id: _uuid.v4(),
       startedAt: DateTime.now().toUtc(),
       intensity: state.intensity!,
-      location: state.location!,
+      regions: state.regions!,
       medicationName: medicationName,
       exertionLevel: exertionLevel,
     );
@@ -139,7 +143,7 @@ class LogController extends Notifier<LogFlowState> {
       await ref.read(attackRepositoryProvider).insert(attack);
       SdLogger.action(LogTagConstant.attackLog, 'Attack logged', {
         'intensity': attack.intensity,
-        'location': attack.location.name,
+        'regions': attack.regions.length,
         'medication': medicationName,
         'exertion': exertionLevel?.name,
       });
@@ -189,16 +193,16 @@ class LogController extends Notifier<LogFlowState> {
       LogStep.medication => LogFlowState(
         step: LogStep.location,
         intensity: state.intensity,
-        location: state.location,
-        draft: state.location,
-        hasDraft: state.location != null,
+        regions: state.regions,
+        draft: state.regions,
+        hasDraft: state.regions != null,
       ),
       // Medication was confirmed to get here, and "No medication" is a valid
       // confirmed pick — so Next is armed even though the draft is null.
       LogStep.exertion => LogFlowState(
         step: LogStep.medication,
         intensity: state.intensity,
-        location: state.location,
+        regions: state.regions,
         medicationName: state.medicationName,
         draft: state.medicationName,
         hasDraft: true,

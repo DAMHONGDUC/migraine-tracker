@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -44,7 +44,7 @@ void main() {
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows, hasLength(1));
     expect(rows.single.intensity, 7);
-    expect(rows.single.location, HeadLocation.right);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(rows.single.medicationName, isNull);
     expect(rows.single.exertionLevel, ExertionLevel.none);
 

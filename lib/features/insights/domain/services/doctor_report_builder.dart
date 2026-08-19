@@ -6,7 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
-import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
 import '../../../attacks/domain/services/medication_effect_tally.dart';
 import '../entities/correlation_result.dart';
@@ -60,7 +60,7 @@ class DoctorReportStrings {
   final String colMedication;
   final String colPressureDelta;
   final String disclaimer;
-  final Map<HeadLocation, String> locationLabels;
+  final Map<HeadRegion, String> locationLabels;
 }
 
 /// Builds the shareable doctor report: 90-day summary stats + attack table.
@@ -218,16 +218,34 @@ class DoctorReportBuilder {
     return '${minutes}m';
   }
 
+  /// The single area named by most attacks. Counted per area, not per
+  /// attack, so an attack naming three of them votes for all three — the same
+  /// reading the history chart gives, and the one a doctor asked "where is it
+  /// usually" actually wants.
   String _modalLocation(List<Attack> attacks, DoctorReportStrings strings) {
-    final counts = <HeadLocation, int>{};
-    for (final a in attacks) {
-      counts[a.location] = (counts[a.location] ?? 0) + 1;
+    final Map<HeadRegion, int> counts = <HeadRegion, int>{};
+
+    for (final Attack a in attacks) {
+      for (final HeadRegion region in a.regions) {
+        counts[region] = (counts[region] ?? 0) + 1;
+      }
     }
-    final modal = counts.entries
-        .reduce((a, b) => a.value >= b.value ? a : b)
+    if (counts.isEmpty) return '-';
+    final HeadRegion modal = counts.entries
+        .reduce((MapEntry<HeadRegion, int> a, MapEntry<HeadRegion, int> b) =>
+            a.value >= b.value ? a : b)
         .key;
+
     return strings.locationLabels[modal] ?? modal.name;
   }
+
+  /// Every area of one attack, in one cell. Joined here rather than by the
+  /// l10n extension the app uses, because this service stays free of Flutter
+  /// imports and takes its copy as data.
+  String _regionsLabel(List<HeadRegion> regions, DoctorReportStrings strings) =>
+      regions
+          .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)
+          .join(', ');
 
   pw.Widget _attackTable(List<Attack> attacks, DoctorReportStrings strings) {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
@@ -250,7 +268,7 @@ class DoctorReportBuilder {
             dateFormat.format(a.startedAt.toLocal()),
             '${a.intensity}',
             a.duration == null ? '-' : _durationLabel(a.duration!),
-            strings.locationLabels[a.location] ?? a.location.name,
+            _regionsLabel(a.regions, strings),
             a.medicationName ?? '-',
             a.medicationEffect == null
                 ? '-'

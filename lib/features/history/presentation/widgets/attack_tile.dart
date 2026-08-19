@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/extensions/head_location_label.dart';
+import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -55,8 +55,12 @@ class AttackTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          attack.location.label(context.l10n),
+          attack.regions.label(context.l10n),
           style: AppTextStyle.bodyLarge,
+          maxLines: 1,
+          // An attack can name every area of the head, and the row is one
+          // line: the tile is a way in, the detail screen is the reading.
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
           attack.medicationName == null

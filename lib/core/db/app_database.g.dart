@@ -40,14 +40,15 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<HeadLocation, String> location =
-      GeneratedColumn<String>(
-        'location',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<HeadLocation>($AttacksTable.$converterlocation);
+  late final GeneratedColumnWithTypeConverter<List<HeadRegion>, String>
+  regions = GeneratedColumn<String>(
+    'regions',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<HeadRegion>>($AttacksTable.$converterregions);
   static const VerificationMeta _medicationNameMeta = const VerificationMeta(
     'medicationName',
   );
@@ -156,7 +157,7 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     id,
     startedAt,
     intensity,
-    location,
+    regions,
     medicationName,
     symptoms,
     triggers,
@@ -264,10 +265,10 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
         DriftSqlType.int,
         data['${effectivePrefix}intensity'],
       )!,
-      location: $AttacksTable.$converterlocation.fromSql(
+      regions: $AttacksTable.$converterregions.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
-          data['${effectivePrefix}location'],
+          data['${effectivePrefix}regions'],
         )!,
       ),
       medicationName: attachedDatabase.typeMapping.read(
@@ -326,8 +327,8 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     return $AttacksTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<HeadLocation, String, String> $converterlocation =
-      const EnumNameConverter<HeadLocation>(HeadLocation.values);
+  static TypeConverter<List<HeadRegion>, String> $converterregions =
+      const HeadRegionListConverter();
   static TypeConverter<List<String>, String> $convertersymptoms =
       const StringListConverter();
   static TypeConverter<List<String>, String> $convertertriggers =
@@ -356,7 +357,13 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   /// Stored as UTC unix timestamp.
   final DateTime startedAt;
   final int intensity;
-  final HeadLocation location;
+
+  /// Every head area the user tapped, JSON-encoded. Never empty — the
+  /// location step is the one step of the log flow that waits for a pick.
+  /// The default exists only so the v13 migration can add the column to
+  /// rows that still hold the old single `location`, which it then backfills
+  /// in the same step.
+  final List<HeadRegion> regions;
   final String? medicationName;
   final List<String> symptoms;
   final List<String> triggers;
@@ -388,7 +395,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     required this.id,
     required this.startedAt,
     required this.intensity,
-    required this.location,
+    required this.regions,
     this.medicationName,
     required this.symptoms,
     required this.triggers,
@@ -407,8 +414,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     map['started_at'] = Variable<DateTime>(startedAt);
     map['intensity'] = Variable<int>(intensity);
     {
-      map['location'] = Variable<String>(
-        $AttacksTable.$converterlocation.toSql(location),
+      map['regions'] = Variable<String>(
+        $AttacksTable.$converterregions.toSql(regions),
       );
     }
     if (!nullToAbsent || medicationName != null) {
@@ -455,7 +462,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       id: Value(id),
       startedAt: Value(startedAt),
       intensity: Value(intensity),
-      location: Value(location),
+      regions: Value(regions),
       medicationName: medicationName == null && nullToAbsent
           ? const Value.absent()
           : Value(medicationName),
@@ -492,9 +499,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       id: serializer.fromJson<String>(json['id']),
       startedAt: serializer.fromJson<DateTime>(json['startedAt']),
       intensity: serializer.fromJson<int>(json['intensity']),
-      location: $AttacksTable.$converterlocation.fromJson(
-        serializer.fromJson<String>(json['location']),
-      ),
+      regions: serializer.fromJson<List<HeadRegion>>(json['regions']),
       medicationName: serializer.fromJson<String?>(json['medicationName']),
       symptoms: serializer.fromJson<List<String>>(json['symptoms']),
       triggers: serializer.fromJson<List<String>>(json['triggers']),
@@ -518,9 +523,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       'id': serializer.toJson<String>(id),
       'startedAt': serializer.toJson<DateTime>(startedAt),
       'intensity': serializer.toJson<int>(intensity),
-      'location': serializer.toJson<String>(
-        $AttacksTable.$converterlocation.toJson(location),
-      ),
+      'regions': serializer.toJson<List<HeadRegion>>(regions),
       'medicationName': serializer.toJson<String?>(medicationName),
       'symptoms': serializer.toJson<List<String>>(symptoms),
       'triggers': serializer.toJson<List<String>>(triggers),
@@ -542,7 +545,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     String? id,
     DateTime? startedAt,
     int? intensity,
-    HeadLocation? location,
+    List<HeadRegion>? regions,
     Value<String?> medicationName = const Value.absent(),
     List<String>? symptoms,
     List<String>? triggers,
@@ -557,7 +560,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     id: id ?? this.id,
     startedAt: startedAt ?? this.startedAt,
     intensity: intensity ?? this.intensity,
-    location: location ?? this.location,
+    regions: regions ?? this.regions,
     medicationName: medicationName.present
         ? medicationName.value
         : this.medicationName,
@@ -582,7 +585,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
       id: data.id.present ? data.id.value : this.id,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
       intensity: data.intensity.present ? data.intensity.value : this.intensity,
-      location: data.location.present ? data.location.value : this.location,
+      regions: data.regions.present ? data.regions.value : this.regions,
       medicationName: data.medicationName.present
           ? data.medicationName.value
           : this.medicationName,
@@ -610,7 +613,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('id: $id, ')
           ..write('startedAt: $startedAt, ')
           ..write('intensity: $intensity, ')
-          ..write('location: $location, ')
+          ..write('regions: $regions, ')
           ..write('medicationName: $medicationName, ')
           ..write('symptoms: $symptoms, ')
           ..write('triggers: $triggers, ')
@@ -630,7 +633,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     id,
     startedAt,
     intensity,
-    location,
+    regions,
     medicationName,
     symptoms,
     triggers,
@@ -649,7 +652,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.id == this.id &&
           other.startedAt == this.startedAt &&
           other.intensity == this.intensity &&
-          other.location == this.location &&
+          other.regions == this.regions &&
           other.medicationName == this.medicationName &&
           other.symptoms == this.symptoms &&
           other.triggers == this.triggers &&
@@ -666,7 +669,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<String> id;
   final Value<DateTime> startedAt;
   final Value<int> intensity;
-  final Value<HeadLocation> location;
+  final Value<List<HeadRegion>> regions;
   final Value<String?> medicationName;
   final Value<List<String>> symptoms;
   final Value<List<String>> triggers;
@@ -682,7 +685,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.id = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.intensity = const Value.absent(),
-    this.location = const Value.absent(),
+    this.regions = const Value.absent(),
     this.medicationName = const Value.absent(),
     this.symptoms = const Value.absent(),
     this.triggers = const Value.absent(),
@@ -699,7 +702,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     required String id,
     required DateTime startedAt,
     required int intensity,
-    required HeadLocation location,
+    this.regions = const Value.absent(),
     this.medicationName = const Value.absent(),
     this.symptoms = const Value.absent(),
     this.triggers = const Value.absent(),
@@ -713,13 +716,12 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        startedAt = Value(startedAt),
-       intensity = Value(intensity),
-       location = Value(location);
+       intensity = Value(intensity);
   static Insertable<AttackRow> custom({
     Expression<String>? id,
     Expression<DateTime>? startedAt,
     Expression<int>? intensity,
-    Expression<String>? location,
+    Expression<String>? regions,
     Expression<String>? medicationName,
     Expression<String>? symptoms,
     Expression<String>? triggers,
@@ -736,7 +738,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (id != null) 'id': id,
       if (startedAt != null) 'started_at': startedAt,
       if (intensity != null) 'intensity': intensity,
-      if (location != null) 'location': location,
+      if (regions != null) 'regions': regions,
       if (medicationName != null) 'medication_name': medicationName,
       if (symptoms != null) 'symptoms': symptoms,
       if (triggers != null) 'triggers': triggers,
@@ -755,7 +757,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<String>? id,
     Value<DateTime>? startedAt,
     Value<int>? intensity,
-    Value<HeadLocation>? location,
+    Value<List<HeadRegion>>? regions,
     Value<String?>? medicationName,
     Value<List<String>>? symptoms,
     Value<List<String>>? triggers,
@@ -772,7 +774,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       id: id ?? this.id,
       startedAt: startedAt ?? this.startedAt,
       intensity: intensity ?? this.intensity,
-      location: location ?? this.location,
+      regions: regions ?? this.regions,
       medicationName: medicationName ?? this.medicationName,
       symptoms: symptoms ?? this.symptoms,
       triggers: triggers ?? this.triggers,
@@ -799,9 +801,9 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     if (intensity.present) {
       map['intensity'] = Variable<int>(intensity.value);
     }
-    if (location.present) {
-      map['location'] = Variable<String>(
-        $AttacksTable.$converterlocation.toSql(location.value),
+    if (regions.present) {
+      map['regions'] = Variable<String>(
+        $AttacksTable.$converterregions.toSql(regions.value),
       );
     }
     if (medicationName.present) {
@@ -854,7 +856,7 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('id: $id, ')
           ..write('startedAt: $startedAt, ')
           ..write('intensity: $intensity, ')
-          ..write('location: $location, ')
+          ..write('regions: $regions, ')
           ..write('medicationName: $medicationName, ')
           ..write('symptoms: $symptoms, ')
           ..write('triggers: $triggers, ')
@@ -4042,7 +4044,7 @@ typedef $$AttacksTableCreateCompanionBuilder =
       required String id,
       required DateTime startedAt,
       required int intensity,
-      required HeadLocation location,
+      Value<List<HeadRegion>> regions,
       Value<String?> medicationName,
       Value<List<String>> symptoms,
       Value<List<String>> triggers,
@@ -4060,7 +4062,7 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<String> id,
       Value<DateTime> startedAt,
       Value<int> intensity,
-      Value<HeadLocation> location,
+      Value<List<HeadRegion>> regions,
       Value<String?> medicationName,
       Value<List<String>> symptoms,
       Value<List<String>> triggers,
@@ -4123,9 +4125,9 @@ class $$AttacksTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<HeadLocation, HeadLocation, String>
-  get location => $composableBuilder(
-    column: $table.location,
+  ColumnWithTypeConverterFilters<List<HeadRegion>, List<HeadRegion>, String>
+  get regions => $composableBuilder(
+    column: $table.regions,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -4233,8 +4235,8 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get location => $composableBuilder(
-    column: $table.location,
+  ColumnOrderings<String> get regions => $composableBuilder(
+    column: $table.regions,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4307,8 +4309,8 @@ class $$AttacksTableAnnotationComposer
   GeneratedColumn<int> get intensity =>
       $composableBuilder(column: $table.intensity, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<HeadLocation, String> get location =>
-      $composableBuilder(column: $table.location, builder: (column) => column);
+  GeneratedColumnWithTypeConverter<List<HeadRegion>, String> get regions =>
+      $composableBuilder(column: $table.regions, builder: (column) => column);
 
   GeneratedColumn<String> get medicationName => $composableBuilder(
     column: $table.medicationName,
@@ -4407,7 +4409,7 @@ class $$AttacksTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<DateTime> startedAt = const Value.absent(),
                 Value<int> intensity = const Value.absent(),
-                Value<HeadLocation> location = const Value.absent(),
+                Value<List<HeadRegion>> regions = const Value.absent(),
                 Value<String?> medicationName = const Value.absent(),
                 Value<List<String>> symptoms = const Value.absent(),
                 Value<List<String>> triggers = const Value.absent(),
@@ -4424,7 +4426,7 @@ class $$AttacksTableTableManager
                 id: id,
                 startedAt: startedAt,
                 intensity: intensity,
-                location: location,
+                regions: regions,
                 medicationName: medicationName,
                 symptoms: symptoms,
                 triggers: triggers,
@@ -4442,7 +4444,7 @@ class $$AttacksTableTableManager
                 required String id,
                 required DateTime startedAt,
                 required int intensity,
-                required HeadLocation location,
+                Value<List<HeadRegion>> regions = const Value.absent(),
                 Value<String?> medicationName = const Value.absent(),
                 Value<List<String>> symptoms = const Value.absent(),
                 Value<List<String>> triggers = const Value.absent(),
@@ -4459,7 +4461,7 @@ class $$AttacksTableTableManager
                 id: id,
                 startedAt: startedAt,
                 intensity: intensity,
-                location: location,
+                regions: regions,
                 medicationName: medicationName,
                 symptoms: symptoms,
                 triggers: triggers,

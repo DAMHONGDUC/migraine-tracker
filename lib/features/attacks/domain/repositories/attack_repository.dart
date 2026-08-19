@@ -1,7 +1,7 @@
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/attack.dart';
 import '../enums/exertion_level.dart';
-import '../enums/head_location.dart';
+import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
@@ -59,7 +59,7 @@ abstract interface class AttackRepository {
   Future<void> updateCore(
     String id, {
     required int intensity,
-    required HeadLocation location,
+    required List<HeadRegion> regions,
     String? medicationName,
   });
 

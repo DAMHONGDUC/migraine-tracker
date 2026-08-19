@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../../attacks/domain/entities/attack.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 import '../../../medications/domain/entities/medication.dart';
 
 /// Serializes the user's data for GDPR export. Pure Dart — file writing and
@@ -8,7 +9,10 @@ import '../../../medications/domain/entities/medication.dart';
 class DataExportService {
   const DataExportService();
 
-  static const int formatVersion = 1;
+  /// Bumped to 2 when the single `location` became a list of `regions`. The
+  /// export is a file the user keeps, so a reader has to be able to tell the
+  /// two shapes apart without guessing from the keys.
+  static const int formatVersion = 2;
 
   String toJson(
     List<Attack> attacks,
@@ -25,7 +29,7 @@ class DataExportService {
             'id': a.id,
             'startedAtUtc': a.startedAt.toIso8601String(),
             'intensity': a.intensity,
-            'location': a.location.name,
+            'regions': <String>[for (final HeadRegion r in a.regions) r.name],
             'medication': a.medicationName,
             'symptoms': a.symptoms,
             'triggers': a.triggers,
@@ -55,7 +59,7 @@ class DataExportService {
 
   String toCsv(List<Attack> attacks) {
     const header =
-        'id,started_at_utc,intensity,location,medication,symptoms,triggers,'
+        'id,started_at_utc,intensity,regions,medication,symptoms,triggers,'
         'notes,exertion_level,pressure_hpa,pressure_delta_24h_hpa,humidity_percent,'
         'temperature_c,weather_captured_at_utc';
     final rows = [
@@ -65,7 +69,7 @@ class DataExportService {
           a.id,
           a.startedAt.toIso8601String(),
           '${a.intensity}',
-          a.location.name,
+          a.regions.map((HeadRegion r) => r.name).join('|'),
           a.medicationName ?? '',
           a.symptoms.join('|'),
           a.triggers.join('|'),

@@ -13,7 +13,6 @@ import '../../../../core/theme/app_text_style.dart';
 class IntensityDisc extends StatelessWidget {
   const IntensityDisc({required this.value, required this.size, super.key});
 
-
   final int value;
 
   /// Diameter — an `SdSpacingConstant.r*`, never a raw number.
@@ -30,7 +29,10 @@ class IntensityDisc extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color.withValues(alpha: LogFlowConstant.intensityDiscFillAlpha),
-        border: Border.all(color: color, width: LogFlowConstant.intensityDiscBorderWidth),
+        border: Border.all(
+          color: color,
+          width: LogFlowConstant.intensityDiscBorderWidth,
+        ),
       ),
       child: FittedBox(
         child: Text(

@@ -5,7 +5,7 @@ import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 import 'package:system_design/index.dart';
@@ -38,7 +38,7 @@ Attack attackOnMorning(int daysAgo) {
     id: 'attack-$daysAgo',
     startedAt: DateTime(date.year, date.month, date.day, 10),
     intensity: 6,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
   );
 }
 

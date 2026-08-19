@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/next_reminder_banner.dart';
@@ -23,7 +23,7 @@ Future<void> _seedOneAttack(PumpedApp app) async {
       id: 'seed',
       startedAt: DateTime.now().toUtc(),
       intensity: 5,
-      location: HeadLocation.left,
+      regions: const <HeadRegion>[HeadRegion.templeL],
     ),
   );
 }

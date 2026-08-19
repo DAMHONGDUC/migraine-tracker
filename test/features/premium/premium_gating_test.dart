@@ -6,7 +6,7 @@ import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/insights/presentation/widgets/pressure_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
@@ -33,7 +33,7 @@ Future<void> seedInsightData(WidgetTester tester, PumpedApp app) async {
         id: 'seed-$i',
         startedAt: startedAt,
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
         weather: WeatherSnapshot(
           capturedAt: startedAt,
           pressureHpa: 1010,

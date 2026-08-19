@@ -5,7 +5,7 @@ import 'package:migraine_tracker/core/utils/date_time_utils.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 
 void main() {
   late AppDatabase db;
@@ -15,7 +15,7 @@ void main() {
     id: 'a1',
     startedAt: DateTime.utc(2026, 7, 1, 8),
     intensity: 7,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     exertionLevel: ExertionLevel.moderate,
     endedAt: endedAt,
   );
@@ -104,7 +104,7 @@ void main() {
       await repository.updateCore(
         'a1',
         intensity: 3,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       );
 
       expect(
