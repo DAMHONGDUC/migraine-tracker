@@ -137,6 +137,27 @@ Three things that differ from the CI run:
   build sits on TestFlight whose version is in no commit — the one thing the
   build-number rule exists to prevent.
 
+**If codesign asks for keychain permission, the export has already failed.**
+The prompt reads *"codesign wants to access key \"Apple Distribution: …\" in
+your keychain"*, and it appears at `exportArchive` — after the archive is
+built, so a lane that dies there has spent its whole four minutes. `Always
+Allow` clears it for one key; the permanent fix is to hand codesign the whole
+login keychain once:
+
+```bash
+security unlock-keychain ~/Library/Keychains/login.keychain-db
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
+  -k "$(read -rs -p 'login password: ' p; echo "$p")" \
+  ~/Library/Keychains/login.keychain-db
+```
+
+It is your Mac's login password, typed into your own terminal — nothing in
+this repo stores it, and CI never runs this (its keychain is the throwaway one
+`setup_ci` makes). Expect the prompt to come back after every `fastlane
+certificates` run: each import lands another copy of the certificate with a
+fresh ACL, which is also why `security find-identity -v -p codesigning` shows
+the same "Apple Distribution" several times.
+
 Both flavors go to the **same** TestFlight app: one bundle id serves both, so
 the build number is the only thing telling a dev build from a prod one. Full
 detail in `docs/rules/COMMANDS.md`; the pipeline as a diagram is
