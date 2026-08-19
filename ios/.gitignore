@@ -32,3 +32,12 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Bundler installs fastlane's gems here, never into the system Ruby.
+# Homebrew's Ruby keeps its gem files read-only, so a plain `bundle install`
+# dies on `Permission denied ... rdoc_plugin.rb`; `bundle config set --local
+# path vendor/bundle` is the fix, and it writes .bundle/config. Both stay out
+# of git: CI pins its own Ruby through ruby/setup-ruby and must keep resolving
+# gems its own way.
+.bundle/
+vendor/
