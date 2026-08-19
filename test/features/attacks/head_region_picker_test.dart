@@ -156,7 +156,7 @@ void main() {
     expect(head.width, lessThanOrEqualTo(393));
   });
 
-  testWidgets('the head is sized from its width, 40 either side', (
+  testWidgets('the head is sized from its width, 30 either side', (
     tester,
   ) async {
     await pumpPicker(tester, height: 820);
@@ -164,14 +164,14 @@ void main() {
     final Rect head = tester.getRect(find.byType(HeadDiagram));
     final Rect grid = tester.getRect(find.byType(HeadRegionGrid));
 
-    // Owner's rule: 40 in from each edge, and the height follows from that
+    // Owner's rule: 30 in from each edge, and the height follows from that
     // width — never the other way round, which is what left the head adrift
     // in a field of nothing on a tall phone.
-    expect(head.left, 40);
-    expect(head.width, 393 - 80);
+    expect(head.left, 30);
+    expect(head.width, 393 - 60);
     expect(head.height, closeTo(head.width / (200 / 248), 0.5));
-    // And 40 under it before the tiles start.
-    expect(grid.top - head.bottom, closeTo(40, 0.5));
+    // And 30 under it before the tiles start.
+    expect(grid.top - head.bottom, closeTo(30, 0.5));
     expect(grid.height, greaterThan(HeadRegionGrid.reservedHeight));
   });
 

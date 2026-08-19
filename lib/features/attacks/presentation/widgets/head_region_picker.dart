@@ -61,9 +61,11 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
   /// either side, the tabs above, the tiles below. Owner's number, and the
   /// same on both axes on purpose: the head is a round thing in a column of
   /// rectangles, and an even ring of air is what stops it reading as wedged
-  /// between them. Wider than the step's own 16pt gutter, which the tabs and
-  /// the tiles keep, because those two want the width and the head does not.
-  static double get _headInset => SdSpacingConstant.w40;
+  /// between them. Still wider than the step's own 16pt gutter, which the
+  /// tabs and the tiles keep, because those two want the width and the head
+  /// does not — but only just: this number is also what caps the head's
+  /// size, since the head is sized from the width inside it.
+  static double get _headInset => SdSpacingConstant.w30;
 
   /// Toggles one area, keeping the result in [HeadRegion] order so two
   /// attacks naming the same areas are the same list — the sync codec
