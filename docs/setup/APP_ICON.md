@@ -39,6 +39,23 @@ result.
 without running the tool must not be able to ship placeholders again — which is
 exactly what 2.3.8 was.
 
+### Trap 0 — Gemini's watermark
+
+Gemini stamps two four-point sparkles into the bottom-right corner of every
+image it generates. They are not artwork, and at 1024 — the size App Store
+Connect shows the marketing icon at — they are plainly a watermark. Strip them
+before running the generator:
+
+```sh
+dart run tool/strip_icon_marker.dart <raw.png> assets/images/app_icon.png
+```
+
+It clone-stamps a clean patch of background over the corner, cross-faded so no
+seam shows. A flat `#0C0C0E` rectangle would not do: the background is a
+gradient with faint diagonal streaks, and a solid block reads as a patch. The
+defaults are tuned to the shipped artwork; `--rect`, `--from` and `--feather`
+retarget it for any other image. Check the corner at full size afterwards.
+
 ### Trap 1 — the tool corrupts the Xcode project, every run
 
 `flutter_launcher_icons` 0.14.4 writes the value `AppIcon` into
@@ -54,6 +71,11 @@ diff after every run:
 git diff ios/Runner.xcodeproj/project.pbxproj   # expect the bogus setting
 git checkout -- ios/Runner.xcodeproj            # throw it away
 ```
+
+`git checkout` is only right when the file was clean before the run. Opening
+the project in Xcode reorders it, and that reordering is a real change worth
+keeping — so when the file is already dirty, snapshot it first and put the
+snapshot back instead of reverting to HEAD.
 
 ### Trap 2 — the alpha channel
 
