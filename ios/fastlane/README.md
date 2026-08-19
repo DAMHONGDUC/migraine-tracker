@@ -37,7 +37,7 @@ Everything a release depends on except the build. Rehearse the runner with CI=tr
 [bundle exec] fastlane ios certificates
 ```
 
-Create or renew the distribution certificate and both profiles. Local only.
+Create or renew the distribution certificate and both profiles. Local only. force:true regenerates them.
 
 ----
 
