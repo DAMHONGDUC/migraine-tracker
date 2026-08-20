@@ -1,7 +1,7 @@
 {
   "permissions": {
     "deny": [
-      "Read(./env/**)",
+      "Read(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env/**)",
       "Bash(cat ./env/*)",
       "Bash(head ./env/*)",
       "Bash(tail ./env/*)",

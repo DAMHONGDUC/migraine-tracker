@@ -1,3 +1,5 @@
+import '../env/app_env.dart';
+
 /// The external legal links the app is required to show, each by a different
 /// rule and none of them optional.
 ///
@@ -17,8 +19,13 @@ final class LegalUrlConstant {
 
   /// The app's own page, not the directory index that lists every app — the
   /// index is not this app's policy and reads as the wrong link.
-  static const String privacyPolicy =
-      'https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/';
+  ///
+  /// Build-time value, unlike the other two: those are Apple's own pages and
+  /// never move, this one is ours and can — a policy re-hosted under a new
+  /// domain would otherwise need a code change and a release to follow it.
+  /// `AppEnv` holds the `String.fromEnvironment`; the default there is this
+  /// same URL, so a build with no `PRIVACY_POLICY_URL` set is unchanged.
+  static const String privacyPolicy = AppEnv.privacyPolicyUrl;
 
   /// Apple's weather attribution page.
   ///
