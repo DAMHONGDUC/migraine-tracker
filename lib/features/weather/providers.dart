@@ -89,6 +89,20 @@ final pressureForecastProvider = FutureProvider.autoDispose(
 /// numbers the server has already replaced.
 const Duration weatherReportTtl = Duration(minutes: 60);
 
+/// How long a FAILED read waits before it tries again on its own.
+///
+/// A miss is usually a moment, not a state: the position has not been fixed
+/// yet, the anonymous session is still coming up, the callable is cold. Until
+/// this existed the card simply kept the miss — a null is a completed value,
+/// so nothing recomputed it while the dashboard stayed on screen, and the
+/// user watched "weather unavailable" sit there with no way to ask again.
+///
+/// Long enough not to hammer a genuinely offline device, short enough that a
+/// user still looking at the card sees it heal. It only ticks while something
+/// is watching — the provider is `autoDispose` and the timer dies with it, so
+/// a backgrounded app retries nothing.
+const Duration weatherRetryDelay = Duration(seconds: 30);
+
 /// Everything the weather card draws. Null = offline, no permission, or a
 /// backend with no WeatherKit credentials — the card shows one unavailable
 /// state for all of them (hard rule 4).
@@ -121,9 +135,13 @@ final weatherReportProvider = FutureProvider.autoDispose((ref) async {
         .report();
 
     // Null is the best-effort failure (hard rule 4), not an empty forecast —
-    // so it is not worth an hour of memory either.
+    // so it is not worth an hour of memory either, and it must not be worth
+    // keeping at all: schedule a retry so a miss the user is looking at heals
+    // itself. The timer dies with the provider, so a card nobody is watching
+    // asks for nothing.
     if (report == null) {
       link.close();
+      expiry = Timer(weatherRetryDelay, ref.invalidateSelf);
 
       return null;
     }
@@ -133,6 +151,9 @@ final weatherReportProvider = FutureProvider.autoDispose((ref) async {
     return report;
   } catch (_) {
     link.close();
+    // Same reason as a null report: a thrown read is a moment, and the card
+    // has no other way to ask again.
+    expiry = Timer(weatherRetryDelay, ref.invalidateSelf);
     rethrow;
   }
 });

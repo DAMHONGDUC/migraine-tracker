@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_types.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -22,20 +23,34 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('granting it puts the reading back', (tester) async {
+  testWidgets('granting it fetches the reading there and then', (tester) async {
     final PumpedApp app = await pumpApp(
       tester,
       permissionStatus: AppPermissionStatus.denied,
     );
 
+    // What the reading will be once somebody asks for it again.
+    app.weather.weatherReport = WeatherReport(
+      current: WeatherConditions(
+        time: DateTime.now().toUtc(),
+        temperatureCelsius: 21,
+      ),
+      hours: const <WeatherHourly>[],
+      days: const <WeatherDaily>[],
+    );
+    final int before = app.weather.reportCalls;
+
     app.permissions.statusFor = AppPermissionStatus.granted;
     await tapVisible(tester, find.text('Enable location'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // The ask is gone, and the card is back to drawing the weather — which
-    // the fake repository answers with nothing, so it is the empty line here.
+    // The grant has to invalidate the report, not just the permission. Left
+    // alone the provider keeps whatever null it completed with before the
+    // permission existed, and the card swaps the ask for "unavailable".
+    expect(app.weather.reportCalls, greaterThan(before));
     expect(find.text(prompt), findsNothing);
-    expect(find.text('Weather is unavailable right now.'), findsOneWidget);
+    expect(find.text('Weather is unavailable right now.'), findsNothing);
+    expect(find.text('21°'), findsWidgets);
 
     await finishTest(tester);
   });

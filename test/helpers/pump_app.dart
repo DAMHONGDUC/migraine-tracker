@@ -74,10 +74,19 @@ class FakeWeatherRepository implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
 
-  // The weather card's payload. No widget test draws it, and no non-UI
-  // test needs it, so every fake answers "no weather".
+  /// The weather card's payload. Null by default — no weather — because most
+  /// tests care about some other card. Set it to make the card draw, and
+  /// count [reportCalls] to prove something asked again.
+  WeatherReport? weatherReport;
+
+  int reportCalls = 0;
+
   @override
-  Future<WeatherReport?> report() async => null;
+  Future<WeatherReport?> report() async {
+    reportCalls++;
+
+    return weatherReport;
+  }
 }
 
 /// No-op scheduler so widget tests never touch the notifications plugin.

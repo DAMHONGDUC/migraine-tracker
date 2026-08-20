@@ -34,6 +34,16 @@ class _LocationPrompt extends ConsumerWidget {
       // Whichever way it went: a denial that has become permanent changes
       // what the next tap does, and only re-reading the status can tell.
       ref.invalidate(locationPermissionProvider);
+
+      // And the reading itself, or the grant buys nothing until the card is
+      // rebuilt from scratch. Both providers may already hold a null from
+      // before the permission existed — a completed value, which nothing
+      // recomputes just because a new watcher arrives — so the card would
+      // swap the ask for "weather unavailable" and sit there.
+      if (granted) {
+        ref.invalidate(weatherReportProvider);
+        ref.invalidate(placeNameProvider);
+      }
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.location,

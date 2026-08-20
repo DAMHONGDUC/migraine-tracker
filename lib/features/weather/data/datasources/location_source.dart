@@ -99,9 +99,48 @@ class GeolocatorLocationSource implements LocationSource {
         longitude: position.longitude,
       );
     } catch (error, stackTrace) {
+      // Not fatal, and usually not even a fault: a fresh fix indoors or just
+      // after launch can take longer than the time limit, and the throw that
+      // follows used to be the whole reason the weather card said
+      // "unavailable" at random moments of a session.
+      SdLogger.warning(
+        LogTagConstant.location,
+        'No fresh fix; falling back to the last known position',
+        error,
+      );
+      SdLogger.debug(LogTagConstant.location, 'Position stack', stackTrace);
+
+      return _lastKnown();
+    }
+  }
+
+  /// The position the OS still has from whoever asked last.
+  ///
+  /// Good enough on purpose: everything here is rounded to ~11km before it
+  /// leaves the app (hard rule 2), and weather over that area does not change
+  /// between one fix and the next. An hour-old position is a better answer
+  /// than no weather at all.
+  ///
+  /// Null on a device that has never had a fix — nothing to fall back to,
+  /// which is the one case that still has to read as unavailable.
+  Future<GeoPoint?> _lastKnown() async {
+    try {
+      final Position? position = await Geolocator.getLastKnownPosition();
+
+      if (position == null) {
+        SdLogger.warning(LogTagConstant.location, 'No last known position');
+
+        return null;
+      }
+
+      return GeoPoint(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.location,
-        'Reading position failed',
+        'Reading the last known position failed',
         error: error,
         stackTrace: stackTrace,
       );
