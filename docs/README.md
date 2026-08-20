@@ -3,7 +3,7 @@
 | Folder | What is in it |
 |---|---|
 | `rules/` | How this repo is worked in. `CLAUDE.md` routes to these — read the one whose trigger matches the task, not all of them. |
-| `setup/` | Console and portal steps the owner does by hand: Google/Apple sign-in, WeatherKit credentials, the app icon. |
+| `setup/` | Console and portal steps the owner does by hand: Google/Apple sign-in, WeatherKit credentials, the app icon, and standing up a second Firebase project. |
 | `release/` | Shipping. `PIPELINE.md` and `CREDENTIALS.md` get a build out; the rest is what App Store submission needs — the listing copy, the encryption declaration and its PDF. |
 | `privacy/` | The privacy policy and the JSON the published site renders. **Two files saying one thing** — a change that moves data updates both (hard rule 17). |
 | `archive/` | Point-in-time documents kept for their reasoning, not as descriptions of the app. Each says so at the top. |
