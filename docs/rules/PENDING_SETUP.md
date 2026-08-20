@@ -26,9 +26,9 @@ silent one, so don't read "no sheet appeared" as "it works".
    longer than the "not blocked" one.
 
 `env/dev.json` and `env/prod.json` point at the SAME Firebase project, so a
-blocking record written while testing hits real users. Fix it with a separate dev
-project, or wire the emulator behind `!AppEnv.isProd` before testing one
-post-launch.
+blocking record written while testing hits real users. Fix it by standing up a
+second project (`docs/setup/FIREBASE_PROJECT.md`), or wire the emulator behind
+`!AppEnv.isProd` before testing one post-launch.
 
 ## HealthKit — code and Xcode project done, portal side not
 

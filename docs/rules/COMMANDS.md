@@ -253,7 +253,8 @@ after running the functions' own tests. Takes an optional target, `rules` or
 - **It prints `firebase use` and asks before deploying.** `env/dev.json` and
   `env/prod.json` point at the SAME project, so there is no dev target to
   practise on and a rules deploy reaches real users immediately. The prompt reads
-  from `/dev/tty` because melos pipes the script's stdout.
+  from `/dev/tty` because melos pipes the script's stdout. Splitting the two is
+  `docs/setup/FIREBASE_PROJECT.md`.
 - **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run
   build`.** The standalone Firebase CLI is a pkg snapshot bundling its own Node
   and npm 8.19.4; that npm crashes inside `promiseSpawnUid` reading
