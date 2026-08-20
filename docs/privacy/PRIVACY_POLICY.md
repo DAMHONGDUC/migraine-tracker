@@ -126,10 +126,17 @@ If you grant permission, BaroEase reads from Apple Health **read-only**:
 - **Step count**, to look for a correlation with your attacks.
 
 These are **two separate permissions with two separate switches** — allowing
-one does not allow the other. The analysis runs **on your device**. We never
-write to Apple Health, never store what we read in our own database, and
-never upload it — not even under sync. You can revoke access at any time in
-the iOS Health settings.
+one does not allow the other. The analysis runs **on your device** and we
+never write to Apple Health.
+
+**Sleep never leaves your device.** Your **step count** does, in one narrow
+way: when you log an attack, BaroEase records how many steps you had taken
+that day up to that moment and saves the number with the attack, because how
+active you were before an attack is part of the record a doctor reads. It
+travels with that attack — into your export, your doctor report, and your
+encrypted sync if you are signed in (§4). Nothing else from Apple Health is
+stored or uploaded, and you can revoke access at any time in the iOS Health
+settings.
 
 ## 5b. What our App Store privacy labels say
 
@@ -157,11 +164,12 @@ there is nothing to ask permission for.
 | Purchase history | App Functionality | Yes | **No** | Which subscription you hold, via RevenueCat |
 | Product interaction | Analytics | Yes | **No** | Which screens and features get used |
 | Crash data | App Functionality | Yes | **No** | Crashes and non-fatal errors |
-| Fitness | *not declared* | — | — | Step data is read on-device and never uploaded |
+| Fitness | App Functionality | Yes | **No** | The step count saved with an attack |
 
-Your step count is not declared at all, because it never leaves your device
-(§5). Your attack log **is** declared as health data, because it syncs to our
-backend once you sign in (§4).
+Your sleep is not declared at all, because it never leaves your device (§5).
+Fitness **is** declared, because the step count for the day of an attack is
+saved with that attack. Health **is** declared, because your attack log syncs
+to our backend once you sign in (§4).
 
 ## 6. Notifications
 

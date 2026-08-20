@@ -21,7 +21,7 @@
   "summary": [
     "Your attacks, medications and notes are stored on your device. Without an account, we never receive them.",
     "Signing in is optional and turns on encrypted cross-device sync. The key is held by our backend, so this is not end-to-end encryption.",
-    "Apple Health sleep and step data is read on-device only and is never uploaded.",
+    "Apple Health sleep is read on-device only and is never uploaded. Your step count is read the same way, but the figure for the day of an attack is saved with that attack, and syncs with it if you are signed in.",
     "Location is only requested While Using the app and at reduced accuracy, stored as a ~5 km area, never as coordinates.",
     "We do not track you. No ad network, no attribution SDK, no advertising identifier, nothing shared with a data broker."
   ],
@@ -43,6 +43,7 @@
       "category": "Health data (synced, signed-in users only)",
       "items": [
         "Encrypted attack, medication, reminder and notification payloads",
+        "The step count for the day of each attack, inside that attack's encrypted payload",
         "Account identifier and last-changed timestamp, stored unencrypted alongside each payload"
       ],
       "purpose": "Sync your history across your devices. Signing in turns this on; there is no separate switch. Payloads are encrypted, but the key is held by our backend, so this is not end-to-end encryption.",
@@ -100,7 +101,7 @@
   ],
   "notCollected": [
     "Precise location or GPS coordinates",
-    "Apple Health data — sleep and step data is read on-device and never uploaded or stored by us",
+    "Apple Health sleep — read on-device and never uploaded or stored by us",
     "Contacts",
     "Photos or media from your device",
     "Payment card details",
@@ -189,7 +190,7 @@
       "title": "Apple Health",
       "body": [
         "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only, to look for a correlation with your attacks. These are two separate permissions with two separate switches — allowing one does not allow the other.",
-        "The analysis runs on your device. We never write to Apple Health, never store what we read in our own database, and never upload it — not even when you are signed in and sync is running. You can revoke access at any time in the iOS Health settings."
+        "The analysis runs on your device and we never write to Apple Health. **Sleep never leaves your device.** Your **step count** does, in one narrow way: when you log an attack, {{app}} records how many steps you had taken that day up to that moment and saves the number with the attack, because how active you were before an attack is part of the record a doctor reads. It travels with that attack — into your export, your doctor report, and your encrypted sync if you are signed in. Nothing else from Apple Health is stored or uploaded, and you can revoke access at any time in the iOS Health settings."
       ]
     },
     {
@@ -198,7 +199,7 @@
       "body": [
         "Apple asks every developer to declare, on the App Store product page, what an app collects, whether it is linked to your identity, and whether it is used to track you. Below is exactly what {{app}} declares, so you can hold the labels and this policy against each other and see that they agree.",
         "“Tracking” has a specific meaning in Apple's rules: linking data from this app with third-party data for advertising or advertising measurement, or sharing it with a data broker. {{app}} does none of that — there is no ad network, no attribution SDK, no advertising identifier is read, and nothing is sold or handed to a data broker. **Every item below is declared as not used for tracking**, and the app contains no App Tracking Transparency prompt because there is nothing to ask permission for.",
-        "Your step count is not declared at all, because it never leaves your device. Your attack log is declared as health data, because it syncs to our backend once you sign in."
+        "Your sleep is not declared at all, because it never leaves your device. Fitness is declared, because the step count for the day of an attack is saved with that attack. Health is declared, because your attack log syncs to our backend once you sign in."
       ],
       "list": [
         "Name — App Functionality, linked to you. From the account you sign in with.",
@@ -210,7 +211,7 @@
         "Purchase history — App Functionality, linked to you. Which subscription you hold, via RevenueCat.",
         "Product interaction — Analytics, linked to you. Which screens and features get used.",
         "Crash data — App Functionality, linked to you. Crashes and non-fatal errors.",
-        "Fitness — not declared. Step data is read on-device and never uploaded."
+        "Fitness — App Functionality, linked to you. The step count saved with an attack."
       ]
     },
     {
