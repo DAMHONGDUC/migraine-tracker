@@ -34,15 +34,21 @@ fi
 # IFS splits it; no path here has a space.
 #
 # Both env/*.json go every time: one destination each, so there is nothing to
-# choose. The target picks only the two native files, and their destinations
+# choose. The target picks only the three native files, and their destinations
 # carry no dev-/prod- prefix on purpose — those exact paths are what the
-# google-services gradle plugin and the Runner target's Resources phase read.
-# A prefixed copy beside them is a file nothing opens.
+# google-services gradle plugin and the Runner target read. A prefixed copy
+# beside them is a file nothing opens.
+#
+# Info.plist is in that list because it carries the Google sign-in URL scheme,
+# which is the reversed client id of whichever Firebase project this checkout
+# is pointed at — a dev GoogleService-Info.plist beside a prod URL scheme
+# builds fine and drops the sign-in callback on the floor at runtime.
 PAIRS="
 dev.json|env/dev.json
 prod.json|env/prod.json
 $TARGET-google-services.json|android/app/google-services.json
 $TARGET-GoogleService-Info.plist|ios/Runner/GoogleService-Info.plist
+$TARGET-Info.plist|ios/Runner/Info.plist
 "
 
 # All checked before anything is written: a run that copies two files and dies
