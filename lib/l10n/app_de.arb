@@ -483,7 +483,7 @@
   "settingsSectionGeneral": "Allgemein",
   "settingsSectionMonitoring": "Überwachung",
   "settingsSectionHealth": "Apple Health",
-  "settingsHealthCaption": "BaroEase liest deinen Schlaf und deine Schritte aus Apple Health, um Zusammenhänge mit deinen Attacken zu finden. Nur lesend – die Daten bleiben auf diesem Gerät und werden nie hochgeladen.",
+  "settingsHealthCaption": "BaroEase liest deinen Schlaf und deine Schritte aus Apple Health, um Zusammenhänge mit deinen Attacken zu finden. Nur lesend. Dein Schlaf verlässt dieses Gerät nie. Die Schritte vom Tag einer Attacke werden mit dieser Attacke gespeichert und wandern mit ihr in deinen Export und, wenn du dich anmeldest, in deine verschlüsselte Synchronisierung.",
   "settingsSectionData": "Deine Daten",
   "settingsSectionAbout": "Über",
   "settingsAppVersion": "App-Version",

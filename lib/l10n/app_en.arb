@@ -2329,9 +2329,9 @@
   "@settingsSectionHealth": {
     "description": "Settings section heading above the Apple Health sleep and step connect switches"
   },
-  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only — it stays on this device and is never uploaded.",
+  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only. Your sleep never leaves this device. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
   "@settingsHealthCaption": {
-    "description": "Line under the Apple Health switches in Settings saying what is read and where it stays"
+    "description": "Line under the Apple Health switches in Settings: what is read, that sleep stays put and that an attack's step count travels with it"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {

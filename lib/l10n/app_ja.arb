@@ -483,7 +483,7 @@
   "settingsSectionGeneral": "一般",
   "settingsSectionMonitoring": "モニタリング",
   "settingsSectionHealth": "ヘルスケア",
-  "settingsHealthCaption": "BaroEase は発作との関連を調べるため、ヘルスケアから睡眠と歩数を読み取ります。読み取り専用で、データはこの端末に残り、アップロードされることはありません。",
+  "settingsHealthCaption": "BaroEase は発作との関連を調べるため、ヘルスケアから睡眠と歩数を読み取ります。読み取り専用です。睡眠のデータがこの端末から出ることはありません。発作を記録した日の歩数はその記録と一緒に保存され、書き出したデータや、サインインしている場合は暗号化された同期にも一緒に含まれます。",
   "settingsSectionData": "あなたのデータ",
   "settingsSectionAbout": "情報",
   "settingsAppVersion": "アプリのバージョン",

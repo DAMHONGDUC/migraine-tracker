@@ -483,7 +483,7 @@
   "settingsSectionGeneral": "Général",
   "settingsSectionMonitoring": "Surveillance",
   "settingsSectionHealth": "Apple Santé",
-  "settingsHealthCaption": "BaroEase lit votre sommeil et vos pas dans Apple Santé pour chercher des liens avec vos crises. En lecture seule — les données restent sur cet appareil et ne sont jamais envoyées.",
+  "settingsHealthCaption": "BaroEase lit votre sommeil et vos pas dans Apple Santé pour chercher des liens avec vos crises. En lecture seule. Votre sommeil ne quitte jamais cet appareil. Les pas du jour d'une crise sont enregistrés avec cette crise et la suivent dans votre export et, si vous vous connectez, dans votre synchronisation chiffrée.",
   "settingsSectionData": "Vos données",
   "settingsSectionAbout": "À propos",
   "settingsAppVersion": "Version de l'app",

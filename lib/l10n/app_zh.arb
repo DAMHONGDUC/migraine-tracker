@@ -483,7 +483,7 @@
   "settingsSectionGeneral": "通用",
   "settingsSectionMonitoring": "监测",
   "settingsSectionHealth": "Apple 健康",
-  "settingsHealthCaption": "BaroEase 从 Apple 健康读取你的睡眠和步数，用于寻找与发作的关联。仅读取——数据留在本机，绝不会上传。",
+  "settingsHealthCaption": "BaroEase 从 Apple 健康读取你的睡眠和步数，用于寻找与发作的关联。仅读取。睡眠数据绝不会离开本机。发作当天的步数会与那次发作一起保存，因此会随它进入导出文件，若你已登录，也会进入加密同步。",
   "settingsSectionData": "你的数据",
   "settingsSectionAbout": "关于",
   "settingsAppVersion": "应用版本",
