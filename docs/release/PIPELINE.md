@@ -17,6 +17,7 @@ then they disagree.
 flowchart TD
     trigger["You press Run workflow<br/><small>branch and flavor</small>"]
     prep["Runner builds the environment<br/><small>Flutter, melos, pods</small>"]
+    check["Check the config matches the flavor<br/><small>project id, bundle id, sign-in scheme</small>"]
     num["Settle the build number<br/><small>max of pubspec and TestFlight, plus 1</small>"]
     certs["Install the signing identity<br/><small>match decrypts, then installs</small>"]
     sign["Switch to manual signing<br/><small>Runner and widget extension</small>"]
@@ -26,14 +27,16 @@ flowchart TD
     commit["Commit the build number<br/><small>only after the upload succeeded</small>"]
 
     envjson(["GitHub Secret<br/><small>env/prod.json</small>"])
+    firebaserc([".firebaserc<br/><small>which project the flavor means</small>"])
     asc1(["App Store Connect<br/><small>latest build number</small>"])
     matchrepo(["Repo certificates<br/><small>and MATCH_PASSWORD</small>"])
     asc2(["App Store Connect API key<br/><small>the .p8, from a Secret</small>"])
     token(["GITHUB_TOKEN<br/><small>contents: write</small>"])
 
-    trigger --> prep --> num --> certs --> sign --> build --> upload --> dsym --> commit
+    trigger --> prep --> check --> num --> certs --> sign --> build --> upload --> dsym --> commit
 
     envjson -.-> prep
+    firebaserc -.-> check
     asc1 -.-> num
     matchrepo -.-> certs
     asc2 -.-> upload

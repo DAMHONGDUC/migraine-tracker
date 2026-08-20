@@ -25,10 +25,11 @@ silent one, so don't read "no sheet appeared" as "it works".
    fast an un-block must reach users, and never cache the "blocked" verdict
    longer than the "not blocked" one.
 
-`env/dev.json` and `env/prod.json` point at the SAME Firebase project, so a
-blocking record written while testing hits real users. Fix it by standing up a
-second project (`docs/setup/FIREBASE_PROJECT.md`), or wire the emulator behind
-`!AppEnv.isProd` before testing one post-launch.
+`env/dev.json` and `env/prod.json` point at two projects now
+(`migraine-tracker-9f7b2` and `migraine-tracker-prd`, per `.firebaserc`), so a
+blocking record written while testing stays off real users — as long as the
+checkout really is the dev one. `fastlane beta` verifies that before it builds;
+`melos run prepare-env-dev` is what puts it right.
 
 ## HealthKit — code and Xcode project done, portal side not
 
@@ -201,15 +202,18 @@ match can succeed and the build still fail to sign.
    is `readonly: true` and can only install what already exists.
 5. **`ios/fastlane/.env`** on the developer's Mac — six keys, gitignored.
 6. **Repository secrets** (Settings → Secrets and variables → Actions):
-   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST`, `ASC_KEY_ID`,
-   `ASC_ISSUER_ID`, `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and
-   **one of** `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
-   `GOOGLE_SERVICE_INFO_PLIST` is base64 of `ios/Runner/GoogleService-Info.plist`
-   — gitignored, and a build input of the Runner target, so without it the
-   archive fails rather than the app misbehaving. `FIREBASE_IOS_APP_ID` is
-   optional (unset skips the Crashlytics symbol upload with a warning); it is an
-   env var rather than a plist read because that file is absent from a CI
-   checkout.
+   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST_PROD`,
+   `GOOGLE_SERVICE_INFO_PLIST_DEV`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
+   `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and **one of**
+   `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   The two plist secrets are base64 of each project's
+   `ios/Runner/GoogleService-Info.plist` — gitignored, and a build input of the
+   Runner target, so without one the archive fails rather than the app
+   misbehaving. One per flavor because dev and prod are two Firebase projects,
+   and the lane refuses a build whose plist is not the flavor's own.
+   `FIREBASE_IOS_APP_ID` is optional (unset skips the Crashlytics symbol upload
+   with a warning) but is checked against the plist when set; it is an env var
+   rather than a plist read because that file is absent from a CI checkout.
 7. **Fastlane on the Mac**, for step 4 and for a local run: `brew install
    fastlane`, or rbenv plus `cd ios && bundle install`. The system Ruby is 2.6
    and deprecated — gems there need sudo and are not worth the trouble.

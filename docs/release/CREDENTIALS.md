@@ -12,14 +12,21 @@ still missing.
 | Fine-grained PAT | Clone the private certificates repo | base64 in `ios/fastlane/.env` | `MATCH_GIT_BASIC_AUTHORIZATION` |
 | match passphrase | Decrypt the certificate | `ios/fastlane/.env` | `MATCH_PASSWORD` |
 | `env/*.json` | Firebase and RevenueCat config | `env/dev.json`, `env/prod.json` | `ENV_DEV_JSON`, `ENV_PROD_JSON` |
-| `GoogleService-Info.plist` | Firebase's own iOS config, a build input | `ios/Runner/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST` (base64) |
+| `GoogleService-Info.plist` | Firebase's own iOS config, a build input | `ios/Runner/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST_DEV`, `GOOGLE_SERVICE_INFO_PLIST_PROD` (base64) |
 
 On the Mac the last two rows are laid down together — with
 `android/app/google-services.json` and `ios/Runner/Info.plist`, whose Google
 sign-in URL scheme has to match the project — by `melos run
 prepare-env-dev|prod`, from a gitignored `env_assets/` folder holding your own
-copies. CI writes them from the secrets instead, except `Info.plist`, which is
-tracked and builds from whatever is committed.
+copies. CI writes them from the secrets instead; `Info.plist` is tracked, so
+the workflow rewrites its URL scheme from the plist it just wrote rather than
+trusting whatever was committed.
+
+**And the lane checks the result before it builds.** `fastlane beta` reads the
+project id out of `ios/Runner/GoogleService-Info.plist` and refuses to go on
+unless it is the one `.firebaserc` gives for the flavor — the guard against
+`prepare-env-dev` followed by `beta flavor:prod`, which uploads a working app
+pointed at the wrong Firestore. Same check on `fastlane preflight flavor:dev`.
 
 ## The App Store Connect API key
 
@@ -125,17 +132,19 @@ anything at runtime; the archive itself fails, after the full compile:
 Build input file cannot be found: '.../ios/Runner/GoogleService-Info.plist'
 ```
 
-The workflow writes it from `GOOGLE_SERVICE_INFO_PLIST`, base64 for the same
-reason as the API key — multi-line XML whose newlines must survive the round
-trip:
+The workflow writes it from `GOOGLE_SERVICE_INFO_PLIST_DEV` or
+`GOOGLE_SERVICE_INFO_PLIST_PROD`, base64 for the same reason as the API key —
+multi-line XML whose newlines must survive the round trip. Run this once per
+project, with that project's file in place:
 
 ```sh
 base64 -i ios/Runner/GoogleService-Info.plist | pbcopy
 ```
 
-One secret covers both flavors because `env/dev.json` and `env/prod.json`
-point at the same Firebase project. A second project means a second secret and
-a `case` in the workflow, like the env step already has.
+One secret per flavor, because dev and prod are two Firebase projects
+(`.firebaserc`). The older single `GOOGLE_SERVICE_INFO_PLIST` is still read as
+a fallback, and it is only ever right for one of the two — the lane's project
+check fails the other before the build starts.
 
 ## Rotating
 

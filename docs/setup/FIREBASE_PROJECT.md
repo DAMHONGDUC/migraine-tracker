@@ -177,9 +177,12 @@ trap). It does not travel between projects.
 
 ### 12. CI
 
-Repository secrets → Settings → Secrets and variables → Actions. `ENV_PROD_JSON`
-and `GOOGLE_SERVICE_INFO_PLIST` become the prod values; `ENV_DEV_JSON` keeps
-pointing at the old project. `FIREBASE_IOS_APP_ID` is the new iOS app id, or the
+Repository secrets → Settings → Secrets and variables → Actions.
+`ENV_PROD_JSON` and `GOOGLE_SERVICE_INFO_PLIST_PROD` become the prod values;
+`ENV_DEV_JSON` and `GOOGLE_SERVICE_INFO_PLIST_DEV` keep pointing at the old
+project. Both plist secrets are needed from here on: the release lane compares
+the plist's `PROJECT_ID` against the flavor's alias in `.firebaserc` and stops
+if they disagree. `FIREBASE_IOS_APP_ID` is the new iOS app id, or the
 Crashlytics symbol upload is skipped with a warning
 (`docs/release/CREDENTIALS.md`).
 
