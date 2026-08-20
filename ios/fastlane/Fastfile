@@ -10,6 +10,8 @@
 # `tool/build-ipa.sh` exists at all. Do not replace the `sh` call below with
 # `build_app`.
 
+require "English"
+require "json"
 require "tmpdir"
 require "shellwords"
 
@@ -22,8 +24,7 @@ TEAM_ID = "WNG5UWNJ6H".freeze
 platform :ios do
   desc "Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false, notes: a line for What to Test"
   lane :beta do |options|
-    flavor = (options[:flavor] || "prod").to_s
-    UI.user_error!("flavor must be dev or prod, got #{flavor.inspect}") unless %w[dev prod].include?(flavor)
+    flavor = validate_flavor!((options[:flavor] || "prod").to_s)
 
     bump = options[:bump].to_s != "false"
     # `notes:` locally, RELEASE_NOTES from the workflow — free text with
@@ -31,6 +32,16 @@ platform :ios do
     notes = (options[:notes] || ENV["RELEASE_NOTES"]).to_s.strip
 
     root = repo_root
+
+    # First, before the network and long before the build. `flavor` picks
+    # env/<flavor>.json and nothing else; the Firebase project the app really
+    # talks to comes from the native files `melos run prepare-env-<flavor>`
+    # copied into the tree, and nothing ties the two together. So
+    # `prepare-env-dev` followed by `beta flavor:prod` uploads an app that
+    # writes into the wrong Firestore — and it RUNS, so nothing downstream
+    # ever says a word. This is the last place that can.
+    verify_flavor_config(root, flavor)
+
     key = asc_api_key
 
     # Resolved BEFORE the build, either way — an iOS build is the expensive
@@ -164,8 +175,8 @@ platform :ios do
     UI.success("Uploaded #{flavor} #{version}+#{build} to TestFlight.")
   end
 
-  desc "Everything a release depends on except the build. Rehearse the runner with CI=true."
-  lane :preflight do
+  desc "Everything a release depends on except the build. flavor:dev|prod also checks the config in the tree. Rehearse the runner with CI=true."
+  lane :preflight do |options|
     # The release lane's first three minutes, without the twenty-five that
     # follow. Every credential failure met so far — a rejected token, a
     # newline inside the auth header, a second empty Authorization header —
@@ -185,6 +196,17 @@ platform :ios do
     #
     #   CI=true MATCH_GIT_BEARER_AUTHORIZATION= bundle exec fastlane preflight
     root = repo_root
+
+    # Optional, and skipped rather than defaulted when absent: defaulting to
+    # prod would fail a rehearsal on a machine set up for dev, over the one
+    # question the rehearsal was not asked.
+    flavor = options[:flavor].to_s
+    if flavor.empty?
+      UI.important("No flavor: given, so the config in the tree was not checked. Pass flavor:dev or flavor:prod for that.")
+    else
+      verify_flavor_config(root, validate_flavor!(flavor))
+    end
+
     key = asc_api_key
 
     version, build = pubspec_version(root)
@@ -453,6 +475,105 @@ def installed_profile_name(bundle_id)
   name
 end
 
+# dev or prod, or the lane stops here. Both lanes ask it, and the answer
+# indexes .firebaserc, env/ and env_assets/ alike.
+def validate_flavor!(flavor)
+  UI.user_error!("flavor must be dev or prod, got #{flavor.inspect}") unless %w[dev prod].include?(flavor)
+  flavor
+end
+
+# Fails the lane unless the config sitting in the tree belongs to the flavor
+# being uploaded.
+#
+# Everything it reads is either committed or already shipping inside the IPA —
+# never env/ (hard rule 13). `.firebaserc` is the authority on which project a
+# flavor means because it is the same file `firebase deploy` reads: one place
+# to change when a project id does, and no second list to forget.
+def verify_flavor_config(root, flavor)
+  expected = firebaserc_project(root, flavor)
+
+  gsp = "#{root}/ios/Runner/GoogleService-Info.plist"
+  unless File.exist?(gsp)
+    UI.user_error!("#{gsp} is missing. Run `melos run prepare-env-#{flavor}`, or download it from the Firebase console.")
+  end
+
+  project = plist_value(gsp, "PROJECT_ID")
+  if project != expected
+    UI.user_error!(
+      "GoogleService-Info.plist is #{project.inspect}, but flavor #{flavor} means #{expected.inspect} " \
+      "(.firebaserc). The tree is set up for the other environment — run " \
+      "`melos run prepare-env-#{flavor}` and start again.",
+    )
+  end
+
+  bundle_id = plist_value(gsp, "BUNDLE_ID")
+  if bundle_id != APP_ID
+    UI.user_error!("GoogleService-Info.plist is registered to #{bundle_id.inspect}, not #{APP_ID} — that is another app's file.")
+  end
+
+  verify_sign_in_url_scheme(root, gsp, flavor)
+  verify_crashlytics_app_id(gsp)
+
+  UI.success("Config check: #{flavor} is #{expected}, and the tree matches it.")
+end
+
+# The project id a flavor stands for, from the file the Firebase CLI already
+# uses for the same mapping.
+def firebaserc_project(root, flavor)
+  path = "#{root}/.firebaserc"
+  UI.user_error!("No .firebaserc at #{path} — nothing to check the flavor against.") unless File.exist?(path)
+
+  projects = JSON.parse(File.read(path, encoding: "UTF-8"))["projects"] || {}
+  id = projects[flavor].to_s
+  UI.user_error!(".firebaserc has no `#{flavor}` alias. It has: #{projects.keys.join(', ')}.") if id.empty?
+  id
+end
+
+# The Google sign-in callback returns on a URL scheme that is the reversed
+# client id of ONE Firebase project, and it lives in Info.plist — a second
+# copy of something GoogleService-Info.plist already says. `prepare-env.sh`
+# writes both, so they part company only when one of them is stale, and then
+# the app builds, installs, opens the Google sheet and never gets the callback
+# back. Nothing about that failure names a plist.
+#
+# Searched as text, not through PlistBuddy: CFBundleURLTypes is an array of
+# dicts with no key addressing the right one, and a reversed client id is
+# unique enough that its presence anywhere in the file is the whole question.
+def verify_sign_in_url_scheme(root, gsp, flavor)
+  reversed = plist_value(gsp, "REVERSED_CLIENT_ID").to_s
+  if reversed.empty?
+    UI.important("GoogleService-Info.plist carries no REVERSED_CLIENT_ID — skipping the sign-in URL scheme check.")
+    return
+  end
+
+  info_plist = "#{root}/ios/Runner/Info.plist"
+  return if File.read(info_plist, encoding: "UTF-8").include?(reversed)
+
+  UI.user_error!(
+    "ios/Runner/Info.plist does not carry #{reversed}, the sign-in URL scheme of the " \
+    "#{flavor} Firebase project. Google sign-in would build fine and never receive its " \
+    "callback. Run `melos run prepare-env-#{flavor}`.",
+  )
+end
+
+# dSYMs go wherever FIREBASE_IOS_APP_ID points, and that one is a CI secret
+# rather than something read from the build — so it is the only value here
+# that can name the other project while everything in the tree is right. The
+# upload then succeeds and puts the symbols where no crash will look for them.
+# Unset is fine and stays fine: `upload_dsyms` skips with a warning.
+def verify_crashlytics_app_id(gsp)
+  configured = ENV["FIREBASE_IOS_APP_ID"].to_s
+  return if configured.empty?
+
+  expected = plist_value(gsp, "GOOGLE_APP_ID").to_s
+  return if expected.empty? || configured == expected
+
+  UI.user_error!(
+    "FIREBASE_IOS_APP_ID is not this project's iOS app id — GoogleService-Info.plist says " \
+    "#{expected}. Crashlytics symbols would go to the wrong Firebase app.",
+  )
+end
+
 # Fails the lane if a target claims an entitlement its installed profile does
 # not carry — the check Xcode performs at signing, run before the compile
 # instead of after it.
@@ -518,6 +639,18 @@ def plist_keys(path, scope = nil)
     name = line.strip.split(" = ", 2).first
     name unless name.nil? || name.empty? || name == "}"
   end.compact
+end
+
+# One value out of a plist, or nil when the key is not there. Same PlistBuddy
+# reasoning as `plist_keys`: no gem to add for it.
+#
+# Backticks rather than `sh`, because the config check reads four keys before
+# every build and each `sh` prints its own step banner whether or not it is
+# asked to log — a dozen lines of noise in front of a lane whose real failures
+# come at the end.
+def plist_value(path, key)
+  out = `/usr/libexec/PlistBuddy -c #{"Print :#{key}".shellescape} #{path.shellescape} 2>/dev/null`
+  $CHILD_STATUS.success? ? out.strip : nil
 end
 
 # One ExportOptions.plist covering every target. `provisioningProfiles` takes
