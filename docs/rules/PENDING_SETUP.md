@@ -109,8 +109,9 @@ point of the switch.
 ## App icon and launch screen — DONE
 
 Submission 1.0(11) was rejected under **App Store 2.3.8** for shipping the
-default Flutter logo. Closed: the owner supplied `assets/images/app_icon.png` and
-`flutter_launcher_icons` generates the set from it, configured in the
+default Flutter logo. Closed: the owner supplied the artwork and
+`flutter_launcher_icons` generates the set from
+`assets/images/final_app_icon.png`, configured in the
 `flutter_launcher_icons:` block at the bottom of `pubspec.yaml` — which is also
 where the two traps are written down (the alpha channel, and the tool corrupting
 the pbxproj on every run). Regenerate with `dart run flutter_launcher_icons`.
