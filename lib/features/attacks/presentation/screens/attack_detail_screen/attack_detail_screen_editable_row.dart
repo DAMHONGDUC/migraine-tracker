@@ -43,17 +43,28 @@ class _EditableRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: SdSpacingConstant.w8),
-          if (swatch != null) ...<Widget>[
-            SdColorDotV2(color: swatch!),
-            SizedBox(width: SdSpacingConstant.w8),
-          ],
+          // The dot travels WITH the value, inside the same half. Left as a
+          // sibling of the two Expandeds it was pinned to the seam between
+          // them — a green dot marooned mid-row, a whole column away from the
+          // number it belongs to.
           Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.bodyLarge,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                if (swatch != null) ...<Widget>[
+                  SdColorDotV2(color: swatch!),
+                  SizedBox(width: SdSpacingConstant.w8),
+                ],
+                Flexible(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.end,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyle.bodyLarge,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
