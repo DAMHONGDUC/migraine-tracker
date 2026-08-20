@@ -233,3 +233,5 @@ dart run flutter_launcher_icons
 ## build app to tesflight (local)
 
 cd ios && bundle exec fastlane beta flavor:dev
+
+cd ios && bundle exec fastlane beta flavor:prod
