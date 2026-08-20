@@ -133,6 +133,14 @@ export and upload. **Fastlane never archives**: it shells out to
 archive without it is the crash above. Do not "simplify" the lane into
 `build_app`.
 
+- **Every build carries a "What to Test" note naming its flavour**, because one
+  bundle id serves both and TestFlight would otherwise list a dev build and a
+  prod build with only the number between them. The lane writes it: flavour and
+  version on the first line, then this repo's HEAD and the design system's, so a
+  tester's report three builds later still names code. `notes:` (the workflow's
+  optional *One line for testers*) goes above them. A changelog makes pilot wait
+  for the build to appear in App Store Connect — a couple of minutes, not the
+  full processing — before it bails.
 - **The release is a manually triggered workflow** (`release-ios.yml`,
   `workflow_dispatch`), runnable from any branch — but GitHub lists a
   `workflow_dispatch` entry only once its file is on the **default** branch. The
