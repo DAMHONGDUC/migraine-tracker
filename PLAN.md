@@ -16,14 +16,14 @@ Positioning: *"Know your storm before it hits."*
 
 - Primary: US, UK, Canada, Australia, Northern EU (weather volatility + high subscription willingness).
 - User: adults with recurring migraines who suspect weather triggers (~75% of weather-sensitive sufferers cite barometric pressure).
-- Language: English and Vietnamese ship in v1 (Flutter `intl`, both ARB files kept in sync); add DE/FR later.
+- Language: seven locales ship (Flutter `intl`, one ARB file each, all kept in sync): English, Vietnamese, Japanese, German, Spanish, French, Chinese.
 
 ## 3. Monetization
 
 | Tier | Price | Contents |
 |------|-------|----------|
-| Free | $0 | 40 logged attacks, 5 medications, 2 reminders across all medications; severity donut, weather snapshot attached to each log, physical exertion self-report + correlation, sleep/step summary cards, export + wipe |
-| Premium monthly | $4.99/mo | Unlimited attacks/medications/reminders, pressure-drop push alerts, 48h pressure forecast chart, trigger correlation analysis, the other four history charts, PDF doctor report, HealthKit sleep + step-count correlation |
+| Free | $0 | 40 logged attacks, 5 medications, 2 reminders across all medications; severity donut, weather snapshot attached to each log, the weather card minus pressure, the exertion question itself, sleep/step readings, the GDPR wipe |
+| Premium monthly | $4.99/mo | Unlimited attacks/medications/reminders, pressure-drop push alerts, 48h pressure forecast chart, every correlation (trigger, exertion, step, sleep), the other four history charts, the whole export screen including the PDF doctor report |
 | Premium yearly | $29.99/yr | Same as monthly (50% discount framing) |
 | Lifetime | $44.99 | Same, one-time (chronic illness communities love lifetime) |
 
@@ -37,7 +37,7 @@ Positioning: *"Know your storm before it hits."*
 
 A checked box means the code is written and tested. The App Store Connect,
 Apple Developer portal and Firebase console work that several of these still
-need is tracked separately — `CLAUDE.md`'s "Pending setup" and
+need is tracked separately — `docs/rules/PENDING_SETUP.md` and
 `docs/REMAINING_WORK.md`.
 
 - [x] 3-tap attack log: intensity (1–10), pain location (head map), medication taken — plus one skippable exertion step
@@ -57,13 +57,13 @@ need is tracked separately — `CLAUDE.md`'s "Pending setup" and
 - [x] In-app account deletion (App Store 5.1.1(v))
 - [x] Force-update gate, fails open (`app_update`)
 - [x] Paywall + RevenueCat integration
-- [x] Settings: data export (JSON/CSV), delete all data (GDPR)
-- [x] Two locales: English and Vietnamese
+- [x] Settings: data export (JSON/CSV, premium), delete all data (GDPR, free)
+- [x] Seven locales: English, Vietnamese, Japanese, German, Spanish, French, Chinese
 
 ### Out of scope (v1.x+)
 - Android release (build with Flutter anyway; ship iOS first)
 - AI attack prediction, community/forum, coaching plans
-- Apple Watch app, widgets (v1.1 — widgets are strong retention)
+- Apple Watch app (the iOS home screen widget shipped — `lib/features/home_widget/`)
 - Additional weather triggers (pollen, humidity heatmaps)
 
 ## 5. Architecture
