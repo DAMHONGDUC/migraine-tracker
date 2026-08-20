@@ -6,15 +6,14 @@
   - the app does use Firebase Analytics and Crashlytics, with no in-app opt-out,
   - the step count for the day of an attack DOES leave the device, and
   - weather is Apple WeatherKit, called by our backend, never by the app.
-  [ADDRESS/COUNTRY] is the one placeholder left. Have a lawyer review before
-  App Store submission.
+  No placeholders left. Have a lawyer review before App Store submission.
 -->
 
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
 **Last updated:** 20 August 2026
-**Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
+**Developer / data controller:** Dam Hong Duc, Ho Chi Minh City, Viet Nam
 **Contact:** ducdam.dev@gmail.com
 
 BaroEase helps people who track migraine attacks and their possible link to

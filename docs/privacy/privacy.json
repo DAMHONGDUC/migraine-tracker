@@ -9,11 +9,13 @@
   "effectiveDate": "2026-08-07",
   "lastUpdated": "2026-08-20",
   "contactEmail": "ducdam.dev@gmail.com",
+  "controller": "Dam Hong Duc, Ho Chi Minh City, Viet Nam",
   "url": "https://damhongduc.github.io/apps_privacy_policy",
   "storeLinks": {},
   "overview": [
     "This Privacy Policy describes how {{app}} handles information when you use the app. It applies to every version of {{app}} distributed by {{publisher}} on the app stores listed above.",
     "{{app}} is a migraine tracker for people whose attacks may be linked to barometric-pressure changes. It is built local-first: your health data is stored on your device, an account is optional, and logging an attack works with no network at all. The sections below set out exactly what is handled, why it is needed, and how you can have it removed.",
+    "The data controller for {{app}} is Dam Hong Duc, Ho Chi Minh City, Viet Nam, reachable at {{email}}.",
     "If anything here is unclear, email {{email}} before you continue using the app."
   ],
   "summary": [

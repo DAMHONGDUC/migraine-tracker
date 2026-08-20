@@ -105,7 +105,7 @@ produces what the next one consumes.
 | 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/release/APP_STORE_LISTING.md` carries the wording. |
 | ~~26~~ | ~~Terms and Privacy links on the paywall~~ | **Done.** `paywall_screen_legal_links.dart` draws both from `LegalUrlConstant`, under the actions. Guideline 3.1.2 wants them in the binary as well as in the metadata; do not "add" them again. |
 | 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. Metadata only — nothing in the app links to it. |
-| 15 | Fill `[ADDRESS/COUNTRY]` in `docs/privacy/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
+| ~~15~~ | ~~Fill the data controller's address~~ | **Done 20 Aug.** Ho Chi Minh City, Viet Nam, in the markdown header and in `privacy.json`'s overview so it reaches the published page. |
 | 16 | Have a lawyer read the policy | Before submission. |
 | 23 | **(repo)** Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `ios/Runner/Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
 | 24 | The French declaration to ANSSI | Apple's step 3 was answered **Yes** — the app is distributed in France — and France expects a declaration for the import and use of cryptography. Mass-market software on standard algorithms normally takes the simplified regime, but simplified is not none. Tied to availability: drop France and this goes away, along with the answer given. |
@@ -297,8 +297,9 @@ Checklist items 10, 11, 14, 15 and 16. `docs/privacy/PRIVACY_POLICY.md` and
   published there yet. `storeLinks` is now empty: the placeholder id would
   have published as a dead App Store link, so the real one has to be put back
   once the record exists (item 11).
-- **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
-  address is the owner's to supply and is a GDPR requirement.
+- ~~Fill the data controller's address.~~ **Done** — Ho Chi Minh City, Viet
+  Nam. It is in `privacy.json`'s overview as well as the markdown header,
+  because only the JSON reaches the published page.
 - The shared `defaults.sections` on the site supply retention, your rights,
   security and the rest; `privacy.json` carries only BaroEase's own sections
   and overrides `children` to read 16 rather than the shared 13.
