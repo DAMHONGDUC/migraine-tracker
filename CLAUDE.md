@@ -88,6 +88,14 @@ settings, sync.
   type, or rethrows** — a `catch` that maps is the last frame that still holds
   what actually went wrong, so a line it does not write is one nothing above it
   can write either. Detail in `docs/rules/CODE_STYLE.md`.
+- **A tap on nothing puts the keyboard away.** `DismissKeyboardOnTap`
+  (`core/widgets/`) wraps the whole app inside `MaterialApp.builder`, which is
+  inside the Navigator, so it covers dialogs and bottom sheets too — where a
+  stuck keyboard hides the very sheet being typed into. It is
+  `HitTestBehavior.translucent` on purpose: a child that recognises the tap
+  wins the gesture arena, so only the misses reach it. **Never re-implement
+  this per screen** — a rule that has to be remembered at every new field is
+  already broken somewhere.
 - **Dark mode is the default theme.** Users are photophobic. No pure white
   backgrounds anywhere; no flashing or strobing animations.
 - **Attack logging must work fully offline.** Weather is best-effort and
