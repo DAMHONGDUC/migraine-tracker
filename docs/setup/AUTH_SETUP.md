@@ -60,6 +60,13 @@ added yet because the value does not exist until step 2. In
 
 …where the string is the `REVERSED_CLIENT_ID` value verbatim.
 
+**Edit `env_assets/<env>-Info.plist`, not the file in the tree.** Each Firebase
+project mints its own reversed client id, so `melos run prepare-env-dev|prod`
+installs `ios/Runner/Info.plist` alongside `GoogleService-Info.plist` and
+overwrites whatever was there — a scheme typed straight into the tree survives
+until the next environment switch and then vanishes, with the sign-in callback
+going quiet and nothing pointing at this file.
+
 ## 4. Apple Developer portal — Sign in with Apple (required)
 
 `Runner.entitlements` declares `com.apple.developer.applesignin = ["Default"]`

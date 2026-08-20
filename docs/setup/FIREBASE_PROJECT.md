@@ -66,8 +66,10 @@ Project settings → Your apps.
 - **Android**: package `app.dd.migraine.tracker`. Download `google-services.json`.
 
 Put both in `env_assets/` under the `prod-` names `melos run prepare-env-prod`
-expects: `prod-GoogleService-Info.plist`, `prod-google-services.json`
-(`docs/rules/COMMANDS.md`).
+expects: `prod-GoogleService-Info.plist`, `prod-google-services.json`. A third
+name goes beside them, `prod-Info.plist` — the Runner `Info.plist` carrying this
+project's Google sign-in URL scheme, which has to switch with the plist rather
+than after it (`docs/rules/COMMANDS.md`).
 
 ### 4. Authentication
 
@@ -79,7 +81,9 @@ optional**: it is the default session every install runs on, and without it
 - **Anonymous**
 - **Google** — this is what mints the `CLIENT_ID` / `REVERSED_CLIENT_ID` in the
   new `GoogleService-Info.plist`, so download that file again after enabling it,
-  and re-check `ios/Runner/Info.plist`'s URL scheme (`docs/setup/AUTH_SETUP.md`).
+  and put the matching URL scheme in `env_assets/prod-Info.plist` — not in
+  `ios/Runner/Info.plist`, which the next `prepare-env` run overwrites
+  (`docs/setup/AUTH_SETUP.md`).
 - **Apple** — same Services ID, Team ID, Key ID and `.p8` as the dev project.
 
 ### 5. Billing

@@ -37,15 +37,23 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
 
 ### `melos run prepare-env-dev` / `prepare-env-prod`
 
-Copy the real config from `env_assets/` into the four paths the build reads:
-`env/dev.json`, `env/prod.json`, `android/app/google-services.json` and
-`ios/Runner/GoogleService-Info.plist`. `env_assets/` holds the same live keys
-`env/` does, so it is gitignored and a clone never has it.
+Copy the real config from `env_assets/` into the five paths the build reads:
+`env/dev.json`, `env/prod.json`, `android/app/google-services.json`,
+`ios/Runner/GoogleService-Info.plist` and `ios/Runner/Info.plist`.
+`env_assets/` holds the same live keys `env/` does, so it is gitignored and a
+clone never has it.
 
 - **Both `env/*.json` are written whatever the target is** — one destination
-  each, nothing to choose. The target picks only the two native files, which also
-  have one destination each: one bundle id and one Firebase project serve both
-  environments, so there is no second path a `prod-` file could go to.
+  each, nothing to choose. The target picks only the three native files, which
+  also have one destination each: one bundle id serves both environments, so
+  there is no second path a `prod-` file could go to.
+- **`Info.plist` is in the list because of the Google sign-in URL scheme.** It
+  is the reversed client id of the Firebase project this checkout points at, so
+  it has to change with `GoogleService-Info.plist` or the two disagree — which
+  builds cleanly and then drops the sign-in callback at runtime. Unlike the
+  other four destinations `ios/Runner/Info.plist` is **tracked**, so a
+  `prepare-env` run shows up in `git status`; that is expected, and the copy you
+  commit is the one CI builds with (CI has no `env_assets/`).
 - **The destinations carry no `dev-`/`prod-` prefix.** Those are the paths the
   google-services gradle plugin and the Runner target's Resources phase read; a
   prefixed copy beside them is a file nothing opens, and the build fails later
