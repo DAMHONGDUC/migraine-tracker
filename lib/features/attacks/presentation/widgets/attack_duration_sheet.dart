@@ -50,11 +50,18 @@ class AttackDurationSheet extends StatelessWidget {
           // The common case for an attack still running: the user is looking
           // at the app because it has just stopped.
           if (!sinceStart.isNegative)
-            _DurationTile(
-              label: l10n.attackDurationEndedNow,
-              detail: sinceStart.label(l10n),
-              selected: false,
-              onTap: () => _pick(context, sinceStart),
+            SizedBox(
+              // The same box the grid gives every other option. Left to size
+              // itself this one shrank to its line of text and sat above the
+              // grid as a thin pill among ten chunky tiles - it is the same
+              // kind of answer, so it is the same kind of target.
+              height: _DurationTile.height,
+              child: _DurationTile(
+                label: l10n.attackDurationEndedNow,
+                detail: sinceStart.label(l10n),
+                selected: false,
+                onTap: () => _pick(context, sinceStart),
+              ),
             ),
           SizedBox(height: SdSpacingConstant.h8),
           GridView.builder(
@@ -66,7 +73,7 @@ class AttackDurationSheet extends StatelessWidget {
               crossAxisCount: LogFlowConstant.optionsPerRow,
               mainAxisSpacing: SdSpacingConstant.h8,
               crossAxisSpacing: SdSpacingConstant.w8,
-              mainAxisExtent: SdSpacingConstant.h64,
+              mainAxisExtent: _DurationTile.height,
             ),
             itemCount: AttackDurationConstant.options.length,
             itemBuilder: (BuildContext context, int index) {
@@ -101,6 +108,11 @@ class _DurationTile extends StatelessWidget {
     required this.onTap,
     this.detail,
   });
+
+  /// One owner for how tall an option is, used by the grid's
+  /// `mainAxisExtent` and by the full-width tile above it — the two used to
+  /// carry the number separately and only one of them had it.
+  static double get height => SdSpacingConstant.h64;
 
   final String label;
   final String? detail;
