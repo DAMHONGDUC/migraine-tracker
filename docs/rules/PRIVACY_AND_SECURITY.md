@@ -14,7 +14,7 @@ Every feature except sync and alerts must work without an account.
   cron reads `users` where `premium == true`. The snapshot attached to a logged
   attack stays free and unconditional (hard rule 4 depends on it).
   - **So the weather card carries no pressure at all.** The same reading given
-    away free on one card and sold on `/pressure` is what makes a paywall look
+    away free on one card and sold on the pressure card is what makes a paywall look
     arbitrary. `WeatherMetric` is iOS Weather's list minus pressure, and that
     omission is the rule.
   - **A free user issues no WeatherKit call for the forecast.**

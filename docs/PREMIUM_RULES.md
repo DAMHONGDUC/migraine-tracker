@@ -109,7 +109,8 @@ behaviour that feeds the best pitch.
 - **The weather in full, minus pressure**: `CurrentWeatherCard` gives every user
   the sky, the temperature and what it feels like, then humidity, wind, UV and
   visibility. It draws no pressure at all, so there is nothing on it to gate.
-  `/pressure` still opens for everyone, but what it shows there is the pitch.
+  Insights' pressure tab still opens for everyone, but what it shows there is
+  the pitch.
 - Physical exertion self-report — the answer is still asked for and stored; only
   the correlation drawn from it is premium.
 - The GDPR wipe. The one half of hard rule 8 that can never be sold: deleting
@@ -123,7 +124,7 @@ behaviour that feeds the best pitch.
   not gated there. What stays premium is everything that interprets them: the 48h
   forecast chart (`PressureForecastBody`, which gates itself so a free user
   issues no WeatherKit call for it), the correlation, and the drop alert — the
-  switch and the threshold both, on `/pressure` and at the bottom of
+  switch and the threshold both, on the pressure card and at the bottom of
   `WeatherCard`. **A free user is shown neither control**, only a badge, one line
   on what the alert does, and Unlock: they were shown inert first, and a switch
   that will not switch reads as broken rather than as an offer.
