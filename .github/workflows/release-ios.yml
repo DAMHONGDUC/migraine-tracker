@@ -18,9 +18,9 @@ on:
         type: boolean
         default: true
       notes:
-        # Goes into the build's "What to Test" in TestFlight, above the
-        # flavor and commit lines the lane writes there anyway. Optional —
-        # this is for "look at the new paywall", not for the release notes.
+        # A second line under the `dev - 1.0.0 (2)` the lane writes into the
+        # build's "What to Test". Optional, and for "look at the new paywall"
+        # — not for release notes, which belong on the App Store listing.
         description: One line for testers (optional)
         type: string
         default: ''

@@ -144,7 +144,7 @@ platform :ios do
       api_key: key,
       ipa: ipa,
       app_identifier: APP_ID,
-      changelog: testflight_changelog(root, flavor, version, build, notes),
+      changelog: testflight_changelog(flavor, version, build, notes),
       skip_waiting_for_build_processing: true,
     )
 
@@ -407,36 +407,18 @@ def commit_build_number(root, version_name, build)
   end
 end
 
-# The build's "What to Test" note in TestFlight.
+# The build's "What to Test" note in TestFlight: `dev - 1.0.0 (2)`.
 #
 # One bundle id serves both flavors (see Appfile), so a dev build and a prod
 # build sit in the same TestFlight list with only the number between them —
 # and a tester who installs the wrong one reports bugs against the wrong
-# Firebase project. This note is what tells them apart, so the flavor is the
-# first word of the first line and everything else is below it.
-#
-# The commits are in here for the report that arrives three builds later:
-# feedback names a build number, and this is what turns that number back into
-# code without going to the repo for it. `notes` is whoever triggered the run
-# saying what they wanted looked at, and is empty most of the time.
-def testflight_changelog(root, flavor, version, build, notes)
-  lines = ["#{flavor.upcase} — #{version}+#{build}"]
-  lines << ""
-  lines << notes unless notes.empty?
-
-  app = head_commit(root)
-  lines << "app #{app}" if app
-
-  design = design_system_commit(root)
-  lines << "system_design #{design}" if design
-
-  lines.join("\n")
-end
-
-# This repo's HEAD as `<short sha> <subject>`, or nil if git will not answer.
-def head_commit(root)
-  out = `git -C "#{root}" log -1 --format='%h %s' 2>/dev/null`.strip
-  out.empty? ? nil : out
+# Firebase project. That is the whole job of this line, so it says the flavor
+# and the version and nothing else. `notes` is whoever triggered the run
+# asking for something specific to be looked at; it is empty most of the time
+# and adds a second line when it is not.
+def testflight_changelog(flavor, version, build, notes)
+  line = "#{flavor} - #{version} (#{build})"
+  notes.empty? ? line : "#{line}\n\n#{notes}"
 end
 
 # The design system's HEAD as `<short sha> <subject>`, or nil if the submodule
