@@ -66,11 +66,21 @@ hold Firebase and RevenueCat keys and are gitignored, so a fresh clone gets
 key-only templates copied from `env/*.example.json`. Fill them in before
 running the app — setup says so loudly when it creates them.
 
+Already keep the real files? Put them in a gitignored `env_assets/` folder
+(`dev.json`, `prod.json`, `dev-`/`prod-google-services.json`,
+`dev-`/`prod-GoogleService-Info.plist`) and `melos run prepare-env-dev` copies
+them where the build looks: both `env/*.json`, plus that environment's
+`android/app/google-services.json` and `ios/Runner/GoogleService-Info.plist`.
+`prepare-env-prod` installs the prod pair instead. It overwrites — that is how
+you switch a checkout between the two.
+
 ## Commands
 
 | Command | What it does |
 | --- | --- |
 | `melos run set-up` | Wipe build artefacts, then everything a clone needs. Idempotent. |
+| `melos run prepare-env-dev` | Copy `env_assets/` into place for dev — env + native Firebase files. |
+| `melos run prepare-env-prod` | The same, with prod's native Firebase files. |
 | `melos run gen` | Regenerate localizations + `build_runner` output. |
 | `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
 | `melos run test` | The Flutter test suite. |
