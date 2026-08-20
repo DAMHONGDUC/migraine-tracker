@@ -82,7 +82,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>BaroEase reads your sleep and step count from Apple Health to show whether short nights or low activity line up with your migraine attacks. It reads this data only, it stays on this device, and it is never uploaded or shared.</string>
+	<string>BaroEase reads your sleep and step count from Apple Health to show whether short nights or low activity line up with your migraine attacks. It only reads. Your sleep stays on this device. When you log an attack, the steps you had taken that day are saved with it, so they travel with that attack into your export and, if you sign in, your encrypted sync.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>BaroEase never writes anything to Apple Health. It only reads your sleep and steps, to show whether short nights or low activity line up with your migraine attacks.</string>
 	<key>NSLocationDefaultAccuracyReduced</key>

@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -184,6 +184,16 @@ class AppDatabase extends _$AppDatabase {
         // Recreates the table from today's definition, which no longer has
         // `location` — drift's way of dropping a column SQLite cannot drop.
         await m.alterTable(TableMigration(attacks));
+      }
+      // - v14: an attack carries the day's step count, read from Apple
+      //   Health at the moment it was logged.
+      // - Added and left null on every existing row. There is nothing to
+      //   backfill: the number is "steps before this attack", and HealthKit
+      //   can still answer that for a past day but not for the moment the
+      //   attack was logged, so a backfill would invent a different figure
+      //   and file it as the same one.
+      if (from < 14) {
+        await m.addColumn(attacks, attacks.steps);
       }
     },
     beforeOpen: (details) async {

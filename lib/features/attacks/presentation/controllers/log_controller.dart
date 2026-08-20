@@ -150,6 +150,10 @@ class LogController extends Notifier<LogFlowState> {
       AppAnalytics.logAttackLogged();
       AppAnalytics.logLogFlowStep(LogStep.saved.name);
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
+      // Local read, but still unawaited: HealthKit is another process, and
+      // nothing in the log flow waits (hard rule 4). It bumps the attack's
+      // revision, so the sync below - or the next one - carries the number up.
+      unawaited(ref.read(stepAttachServiceProvider).onAttackLogged(attack));
       // Same best-effort shape: the attack is already saved, so a failure
       // here just leaves it pending for the next sync (hard rule 4).
       // Exempt from the sync cooldown: this one exists so a just-logged

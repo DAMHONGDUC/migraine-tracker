@@ -23,6 +23,7 @@ class Attack {
     this.medicationEffect,
     DateTime? endedAt,
     this.weather,
+    this.steps,
   }) : startedAt = startedAt.toUtc(),
        endedAt = endedAt?.toUtc(),
        assert(
@@ -76,6 +77,20 @@ class Attack {
 
   final WeatherSnapshot? weather;
 
+  /// Steps taken that day up to the moment the attack was logged, or null
+  /// when Apple Health had nothing to give — access refused, no samples, or
+  /// not iOS.
+  ///
+  /// **The day so far, not the whole day**, which is the same shape as
+  /// [weather]: a reading taken at the time, not a figure the day settles on
+  /// later. What a doctor wants beside an attack is how much the person had
+  /// moved *before* it, and a total that keeps climbing after the attack
+  /// answers a different question.
+  ///
+  /// Null and zero are different answers and both are real: zero is a day
+  /// spent still, null is a day Health would not talk about.
+  final int? steps;
+
   /// How long the attack lasted, or null while [endedAt] is unset.
   ///
   /// The 4–72h band is what separates a migraine from a tension headache, so
@@ -83,7 +98,7 @@ class Attack {
   /// answer before.
   Duration? get duration => endedAt?.difference(startedAt);
 
-  Attack copyWith({WeatherSnapshot? weather}) => Attack(
+  Attack copyWith({WeatherSnapshot? weather, int? steps}) => Attack(
     id: id,
     startedAt: startedAt,
     intensity: intensity,
@@ -96,5 +111,6 @@ class Attack {
     medicationEffect: medicationEffect,
     endedAt: endedAt,
     weather: weather ?? this.weather,
+    steps: steps ?? this.steps,
   );
 }

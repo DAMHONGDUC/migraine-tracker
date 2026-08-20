@@ -21,6 +21,7 @@ void main() {
     exertionLevel: ExertionLevel.moderate,
     endedAt: DateTime.utc(2026, 7, 1, 14, 30),
     medicationEffect: MedicationEffect.partly,
+    steps: 4210,
     weather: WeatherSnapshot(
       capturedAt: DateTime.utc(2026, 7, 1, 8),
       pressureHpa: 1008.2,
@@ -162,15 +163,31 @@ void main() {
   });
 
   group('refuses what it cannot faithfully rebuild', () {
-    test('an unknown head location', () {
+    test('a regions list holding no area this build knows', () {
       final Map<String, dynamic> json =
           jsonDecode(const AttackPayloadCodec().encode(full()))
               as Map<String, dynamic>;
-      json['location'] = 'sideways';
+      json['regions'] = <String>['sideways'];
 
+      // An attack with no location cannot be rebuilt faithfully and the
+      // entity forbids it. The legacy `location` field is not checked at all
+      // any more — it is written for older builds to read, never read here.
       expect(
         () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
+      );
+    });
+
+    test('but one unknown area among known ones is only dropped', () {
+      final Map<String, dynamic> json =
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
+      json['regions'] = <String>['templeR', 'sideways'];
+
+      // A newer build's record: losing one area beats losing the record.
+      expect(
+        const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').regions,
+        const <HeadRegion>[HeadRegion.templeR],
       );
     });
 
@@ -248,5 +265,21 @@ void main() {
       expect(decoded.endedAt!.isUtc, isTrue);
       expect(decoded.endedAt, DateTime(2026, 7, 1, 20).toUtc());
     });
+  });
+
+  test('the step count survives the round trip, and its absence too', () {
+    const AttackPayloadCodec codec = AttackPayloadCodec();
+
+    expect(codec.decode(codec.encode(full()), id: 'a1').steps, 4210);
+
+    // Null and zero are different answers: an attack Health never answered
+    // for must not come back as a day spent still.
+    final Attack none = Attack(
+      id: 'a2',
+      startedAt: DateTime.utc(2026, 7, 2),
+      intensity: 3,
+      regions: const <HeadRegion>[HeadRegion.crown],
+    );
+    expect(codec.decode(codec.encode(none), id: 'a2').steps, isNull);
   });
 }

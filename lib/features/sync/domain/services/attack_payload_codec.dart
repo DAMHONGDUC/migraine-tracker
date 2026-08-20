@@ -42,6 +42,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       // that failure would be the user's whole history, not one record.
       'location': HeadLocation.coarsest(attack.regions).name,
       'medicationName': attack.medicationName,
+      'steps': attack.steps,
       'symptoms': attack.symptoms,
       'triggers': attack.triggers,
       'notes': attack.notes,
@@ -104,6 +105,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       // Optional and additive, so schemaVersion stays 1: a build that
       // predates this reads the payload and simply drops the field.
       endedAt: _dateOrNull(decoded['endedAt']),
+      steps: _intOrNull(decoded['steps']),
       medicationEffect: decoded['medicationEffect'] == null
           ? null
           : _enum(
@@ -145,6 +147,8 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
 
   static DateTime? _dateOrNull(Object? value) =>
       value is String ? DateTime.tryParse(value)?.toUtc() : null;
+
+  static int? _intOrNull(Object? value) => value is int ? value : null;
 
   static double? _doubleOrNull(Object? value) =>
       value is num ? value.toDouble() : null;

@@ -21,6 +21,7 @@ final class AttackMapper {
     exertionLevel: row.exertionLevel,
     medicationEffect: row.medicationEffect,
     endedAt: row.endedAt,
+    steps: row.steps,
     weather: weather == null ? null : toWeatherDomain(weather),
   );
 
@@ -52,6 +53,7 @@ final class AttackMapper {
     exertionLevel: Value(attack.exertionLevel),
     medicationEffect: Value(attack.medicationEffect),
     endedAt: Value(attack.endedAt),
+    steps: Value(attack.steps),
     updatedAt: Value(updatedAt),
     revision: Value(revision),
     syncedRevision: Value(syncedRevision),

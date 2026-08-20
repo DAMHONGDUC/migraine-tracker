@@ -39,6 +39,10 @@ class Attacks extends Table {
   /// one state on purpose, since nothing here can tell those apart.
   DateTimeColumn get endedAt => dateTime().nullable()();
 
+  /// Steps that day up to the log, from Apple Health. Nullable because the
+  /// source is optional in every sense: not iOS, not granted, or no samples.
+  IntColumn get steps => integer().nullable()();
+
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall
   /// back to [startedAt] — the best "last modified" we actually have.

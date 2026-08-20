@@ -29,6 +29,13 @@ abstract interface class AttackRepository {
   /// Backfills the weather snapshot for an attack logged offline.
   Future<void> attachWeather(String attackId, WeatherSnapshot weather);
 
+  /// Records the day's step count on an already-saved attack.
+  ///
+  /// Its own method for the same reason `updateExertion` is: the details
+  /// sheet never shows steps, so a save from there must not blank a number
+  /// the user was never offered.
+  Future<void> attachSteps(String attackId, int steps);
+
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
   Future<List<Attack>> attacksMissingWeather();
 

@@ -101,6 +101,15 @@ class DriftAttackRepository implements AttackRepository {
     });
   }
 
+  @override
+  Future<void> attachSteps(String attackId, int steps) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(attackId)))
+          .write(AttacksCompanion(steps: Value(steps)));
+      await _touch(attackId);
+    });
+  }
+
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
   @override
   Future<List<Attack>> attacksMissingWeather() async {

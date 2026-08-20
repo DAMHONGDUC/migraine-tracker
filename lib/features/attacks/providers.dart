@@ -2,12 +2,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
+import '../health/providers.dart';
 import '../premium/providers.dart';
 import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
 import 'domain/services/medication_effect_tally.dart';
+import 'domain/services/step_attach_service.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
 import 'presentation/controllers/log_controller.dart';
@@ -44,6 +46,14 @@ final weatherAttachServiceProvider = Provider<WeatherAttachService>(
   (ref) => WeatherAttachService(
     ref.watch(attackRepositoryProvider),
     ref.watch(weatherRepositoryProvider),
+  ),
+);
+
+/// Reads Apple Health the moment an attack is saved (see [StepAttachService]).
+final stepAttachServiceProvider = Provider<StepAttachService>(
+  (ref) => StepAttachService(
+    ref.watch(attackRepositoryProvider),
+    ref.watch(healthRepositoryProvider),
   ),
 );
 
