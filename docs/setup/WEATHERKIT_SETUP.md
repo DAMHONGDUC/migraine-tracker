@@ -143,7 +143,7 @@ home screen widget.
 ## Step 10 — Deploy and verify
 
 ```bash
-melos run deploy-firebase functions
+melos run deploy-firebase-dev functions
 ```
 
 Verify against the cron's own path rather than a simpler one:

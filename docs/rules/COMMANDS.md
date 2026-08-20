@@ -242,19 +242,32 @@ The pipeline as a diagram is `docs/release/PIPELINE.md`; every credential is
 
 ## Firebase
 
-`melos run deploy-firebase` — firestore rules and indexes, then the functions,
-after running the functions' own tests. Takes an optional target, `rules` or
-`functions`, to do half of it.
+`melos run deploy-firebase-dev` / `deploy-firebase-prod` — firestore rules and
+indexes, then the functions, after running the functions' own tests. Takes an
+optional target, `rules` or `functions`, to do half of it:
+`melos run deploy-firebase-dev rules`.
 
+- **The environment is a `.firebaserc` alias, not an `env/*.json` file.** The
+  alias resolves to a project id, and the project id is what picks the
+  functions' config (`functions/.env.<project-id>`) and their secrets — so
+  naming the environment is the whole of the switch. A missing alias fails with
+  `firebase use --add` rather than with a CLI error naming neither.
+- **One command per environment, never one command with a flag.** A prod deploy
+  has to be *typed*, so it can never be inherited from whatever `firebase use`
+  was last left pointing at. For the same reason the script passes `--project`
+  on every deploy instead of running `firebase use` itself: switching the active
+  project would silently redirect the next bare `firebase deploy` by hand.
 - **Rules and indexes always deploy together** (`--only
   firestore:rules,firestore:indexes`): a missing composite index fails at
   runtime rather than at build, so shipping one without the other is a live
   breakage.
-- **It prints `firebase use` and asks before deploying.** `env/dev.json` and
-  `env/prod.json` point at the SAME project, so there is no dev target to
-  practise on and a rules deploy reaches real users immediately. The prompt reads
-  from `/dev/tty` because melos pipes the script's stdout. Splitting the two is
-  `docs/setup/FIREBASE_PROJECT.md`.
+- **It prints the resolved project id and asks before deploying.** `dev` and
+  `prod` are still the SAME project, so `deploy-firebase-dev` is a production
+  deploy under another name — the script says so in the prompt, because the
+  alias alone would hide it. Splitting the two projects is
+  `docs/setup/FIREBASE_PROJECT.md`; the warning disappears on its own once the
+  aliases differ. The prompt reads from `/dev/tty` because melos pipes the
+  script's stdout.
 - **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run
   build`.** The standalone Firebase CLI is a pkg snapshot bundling its own Node
   and npm 8.19.4; that npm crashes inside `promiseSpawnUid` reading

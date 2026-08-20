@@ -41,7 +41,8 @@ skipped, since several of these fail **silently**.
 | ~~4~~ | ~~APNs auth key~~ | **Done 10 Aug.** A `.p8` key uploaded to `migraine-tracker-9f7b2`. One key serves the whole Apple team and both APNs environments, so there is nothing per-app or per-environment left to configure. |
 | 5 | Create the first `app_updates` record by hand | Force-update can never fire. It fails open until then — safe, but silent, so "no sheet appeared" is not evidence it works. `create_date` **must** be a Firestore `timestamp`; a string sorts below every timestamp and the query never sees it. |
 
-`melos run deploy-firebase` is the one command for 1-3: it sends rules and
+`melos run deploy-firebase-dev` (`deploy-firebase-prod` for the other alias) is
+the one command for 1-3: it sends rules and
 indexes together, and the functions after their own tests pass.
 `sync_collection_rules_test.dart` proves the two files agree with the enum; it
 can never prove the project has them, which is what the deploy did.

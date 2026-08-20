@@ -91,13 +91,15 @@ quota rather than a plan.
 
 ```bash
 firebase use --add          # pick the new project, alias it `prod`
-melos run deploy-firebase rules
+melos run deploy-firebase-prod rules
 ```
 
-`firebase use --add` writes the alias into `.firebaserc`; do the same for the
-existing project under `dev`, so `firebase use` prints a word rather than an id
-that has to be recognised. **Rules and indexes always deploy together** — a
-missing composite index fails at runtime, not at build.
+`firebase use --add` rewrites the `prod` alias in `.firebaserc`, which today
+still points at the dev project — that alias is the only thing the deploy
+commands switch on, so pointing it at the new project is what makes
+`deploy-firebase-prod` mean it. Leave `dev` where it is. **Rules and indexes
+always deploy together** — a missing composite index fails at runtime, not at
+build.
 
 What lands: the four synced collections (`attacks`, `medications`,
 `medication_reminders`, `notifications`) with their `userId` + `updatedAt`
@@ -122,7 +124,7 @@ firebase functions:secrets:set REVENUECAT_WEBHOOK_AUTH  # invent a long random s
 Then:
 
 ```bash
-melos run deploy-firebase functions
+melos run deploy-firebase-prod functions
 ```
 
 Six functions land, all in **europe-west1** (`FirebaseConstants.functionsRegion`
@@ -194,9 +196,9 @@ Crashlytics symbol upload is skipped with a warning
 
 ## Afterwards
 
-Three things in the repo become out of date the day this lands, and each says so
-where it is written: the "same project" warning in `tool/deploy-firebase.sh`,
-the same note in `docs/rules/COMMANDS.md`, and the force-update caveat in
-`docs/rules/PENDING_SETUP.md`. Update all three in the same change, and add the
-dev-vs-prod distinction to `melos run deploy-firebase`'s prompt while the reason
-for it is fresh.
+Two things in the repo become out of date the day this lands, and each says so
+where it is written: the "same project" note in `docs/rules/COMMANDS.md` and the
+force-update caveat in `docs/rules/PENDING_SETUP.md`. Update both in the same
+change. The deploy script needs nothing: its "dev and prod are the SAME project"
+warning compares the two aliases at run time and stops printing the moment they
+differ.
