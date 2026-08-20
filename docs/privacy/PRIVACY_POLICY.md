@@ -11,7 +11,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 19 August 2026
+**Last updated:** 20 August 2026
 **Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
 **Contact:** ducdam.dev@gmail.com
 
@@ -130,6 +130,38 @@ one does not allow the other. The analysis runs **on your device**. We never
 write to Apple Health, never store what we read in our own database, and
 never upload it — not even under sync. You can revoke access at any time in
 the iOS Health settings.
+
+## 5b. What our App Store privacy labels say
+
+Apple asks every developer to declare, on the App Store product page, what an
+app collects, whether it is linked to your identity, and whether it is used to
+track you. This is exactly what BaroEase declares, so you can hold the labels
+and this policy against each other and see that they agree.
+
+**"Tracking" has a specific meaning in Apple's rules**: linking data from this
+app with third-party data for advertising or advertising measurement, or
+sharing it with a data broker. BaroEase does none of that — no ad network, no
+attribution SDK, no advertising identifier is read, and nothing is sold or
+handed to a data broker. **Every item below is declared as not used for
+tracking**, and the app contains no App Tracking Transparency prompt because
+there is nothing to ask permission for.
+
+| Data type | Purpose | Linked to you | Tracking | What it is |
+|---|---|---|---|---|
+| Name | App Functionality | Yes | **No** | From the account you sign in with |
+| Email address | App Functionality | Yes | **No** | From the account you sign in with |
+| Health | App Functionality | Yes | **No** | Your synced attack log, medications and reminders |
+| Coarse location | App Functionality | Yes | **No** | A ~5 km area, never coordinates |
+| User ID | App Functionality | Yes | **No** | The opaque account identifier |
+| Device ID | App Functionality | Yes | **No** | The push token that delivers pressure alerts |
+| Purchase history | App Functionality | Yes | **No** | Which subscription you hold, via RevenueCat |
+| Product interaction | Analytics | Yes | **No** | Which screens and features get used |
+| Crash data | App Functionality | Yes | **No** | Crashes and non-fatal errors |
+| Fitness | *not declared* | — | — | Step data is read on-device and never uploaded |
+
+Your step count is not declared at all, because it never leaves your device
+(§5). Your attack log **is** declared as health data, because it syncs to our
+backend once you sign in (§4).
 
 ## 6. Notifications
 
