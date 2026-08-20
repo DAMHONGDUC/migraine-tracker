@@ -2,6 +2,6 @@
   "projects": {
     "default": "migraine-tracker-9f7b2",
     "dev": "migraine-tracker-9f7b2",
-    "prod": "migraine-tracker-9f7b2"
+    "prod": "migraine-tracker-prd"
   }
 }
