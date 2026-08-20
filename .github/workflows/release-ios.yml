@@ -17,6 +17,13 @@ on:
         description: Bump the build number in pubspec.yaml and commit it back
         type: boolean
         default: true
+      notes:
+        # Goes into the build's "What to Test" in TestFlight, above the
+        # flavor and commit lines the lane writes there anyway. Optional —
+        # this is for "look at the new paywall", not for the release notes.
+        description: One line for testers (optional)
+        type: string
+        default: ''
 
 jobs:
   testflight:
@@ -194,6 +201,10 @@ jobs:
           FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           # Fastlane's own output is long and its failures are near the end.
           FASTLANE_SKIP_UPDATE_CHECK: 'true'
+          # The tester note travels as an env var, never as a lane argument:
+          # free text on the command line would split on its spaces into
+          # extra fastlane arguments, and a backtick in it would run.
+          RELEASE_NOTES: ${{ inputs.notes }}
         run: bundle exec fastlane beta flavor:${{ inputs.flavor }} bump:${{ inputs.bump }}
 
       # Kept for the case the upload succeeded but TestFlight later rejects the

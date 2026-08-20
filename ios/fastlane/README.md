@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios beta
 ```
 
-Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false
+Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false, notes: a line for What to Test
 
 ### ios preflight
 

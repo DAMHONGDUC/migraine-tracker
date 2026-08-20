@@ -20,12 +20,15 @@ WIDGET_ID = "app.dd.migraine.tracker.BaroEaseWidgetExtension".freeze
 TEAM_ID = "WNG5UWNJ6H".freeze
 
 platform :ios do
-  desc "Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false"
+  desc "Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false, notes: a line for What to Test"
   lane :beta do |options|
     flavor = (options[:flavor] || "prod").to_s
     UI.user_error!("flavor must be dev or prod, got #{flavor.inspect}") unless %w[dev prod].include?(flavor)
 
     bump = options[:bump].to_s != "false"
+    # `notes:` locally, RELEASE_NOTES from the workflow — free text with
+    # spaces in it cannot survive a lane argument on a shell command line.
+    notes = (options[:notes] || ENV["RELEASE_NOTES"]).to_s.strip
 
     root = repo_root
     key = asc_api_key
@@ -131,10 +134,17 @@ platform :ios do
     # Not waiting for processing: App Store Connect takes 10–20 minutes to
     # finish, a macOS runner bills at ten times a Linux one, and nothing in
     # this lane reads the result. TestFlight emails when the build is ready.
+    #
+    # A `changelog` softens that flag rather than cancelling it: pilot then
+    # waits for the build to APPEAR in App Store Connect — a couple of
+    # minutes, not the full processing — writes the note, and skips the rest.
+    # Worth those minutes because the note is the only thing on the build
+    # that says dev or prod; see `testflight_changelog`.
     upload_to_testflight(
       api_key: key,
       ipa: ipa,
       app_identifier: APP_ID,
+      changelog: testflight_changelog(root, flavor, version, build, notes),
       skip_waiting_for_build_processing: true,
     )
 
@@ -395,6 +405,38 @@ def commit_build_number(root, version_name, build)
     sh("git", "commit", "-m", message)
     sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
   end
+end
+
+# The build's "What to Test" note in TestFlight.
+#
+# One bundle id serves both flavors (see Appfile), so a dev build and a prod
+# build sit in the same TestFlight list with only the number between them —
+# and a tester who installs the wrong one reports bugs against the wrong
+# Firebase project. This note is what tells them apart, so the flavor is the
+# first word of the first line and everything else is below it.
+#
+# The commits are in here for the report that arrives three builds later:
+# feedback names a build number, and this is what turns that number back into
+# code without going to the repo for it. `notes` is whoever triggered the run
+# saying what they wanted looked at, and is empty most of the time.
+def testflight_changelog(root, flavor, version, build, notes)
+  lines = ["#{flavor.upcase} — #{version}+#{build}"]
+  lines << ""
+  lines << notes unless notes.empty?
+
+  app = head_commit(root)
+  lines << "app #{app}" if app
+
+  design = design_system_commit(root)
+  lines << "system_design #{design}" if design
+
+  lines.join("\n")
+end
+
+# This repo's HEAD as `<short sha> <subject>`, or nil if git will not answer.
+def head_commit(root)
+  out = `git -C "#{root}" log -1 --format='%h %s' 2>/dev/null`.strip
+  out.empty? ? nil : out
 end
 
 # The design system's HEAD as `<short sha> <subject>`, or nil if the submodule
