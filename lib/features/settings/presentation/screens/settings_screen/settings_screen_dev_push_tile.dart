@@ -1,6 +1,10 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: asks the backend to push a notification to this device.
+/// Dev-only: asks the Firebase backend to push a notification to this device
+/// — FCM to APNs to here, the whole path a real alert takes.
+///
+/// The pair to [_DevLocalNotificationTile]; its title and its snackbars say
+/// "Firebase" so the arriving notification identifies its own sender.
 ///
 /// The only way to prove the APNs key, the entitlement and the token line up,
 /// because none of that exists on a Simulator and no test can stand in for

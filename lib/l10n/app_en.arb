@@ -1489,17 +1489,17 @@
       }
     }
   },
-  "remindersTestScheduled": "Test notification in 10s — leave or background the app to see it",
+  "remindersTestScheduled": "Local test notification in 10s — leave or background the app to see it",
   "@remindersTestScheduled": {
-    "description": "Snackbar shown after triggering the debug test notification"
+    "description": "Snackbar after the dev-only row scheduled a local test notification"
   },
-  "remindersTestTitle": "Test notification",
+  "remindersTestTitle": "Local test notification",
   "@remindersTestTitle": {
-    "description": "Title of the debug test notification"
+    "description": "Title of the local test notification the dev-only row schedules"
   },
-  "remindersTestBody": "If you can see this, reminders are working.",
+  "remindersTestBody": "Sent by this device, not the server — local notifications work.",
   "@remindersTestBody": {
-    "description": "Body of the debug test notification"
+    "description": "Body of the local test notification, naming the device as the sender"
   },
   "permissionOpenSettings": "Open Settings",
   "@permissionOpenSettings": {
@@ -2668,21 +2668,30 @@
   "@dashboardHealthConnect": {
     "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
   },
-  "settingsDevPush": "Send a test push",
+  "settingsDevPush": "Test push notification (Firebase)",
   "@settingsDevPush": {
-    "description": "Dev-only Settings row showing whether this device registered for push"
+    "description": "Dev-only Settings row that asks the Firebase backend to push to this device"
   },
-  "settingsDevLocalNotification": "Send a test notification",
+  "settingsDevLocalNotification": "Test local notification (device)",
   "@settingsDevLocalNotification": {
-    "description": "Dev-only Settings row that schedules a local notification ~10s out"
+    "description": "Dev-only Settings row that schedules a local notification ~10s out on the device"
   },
-  "settingsDevPushSent": "Test push sent. It should arrive in a moment.",
+  "settingsDevPushSent": "Firebase push sent. It should arrive in a moment.",
   "@settingsDevPushSent": {
-    "description": "Snackbar after the backend accepted the test push request"
+    "description": "Snackbar after the backend accepted the Firebase test push request"
   },
-  "settingsDevPushFailed": "Test push failed: {reason}",
+  "settingsDevPushFailed": "Firebase push failed: {reason}",
   "@settingsDevPushFailed": {
-    "description": "Snackbar when the test push callable refused or failed",
+    "description": "Snackbar when the Firebase test push callable refused or failed",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDevLocalNotificationFailed": "Local notification failed: {reason}",
+  "@settingsDevLocalNotificationFailed": {
+    "description": "Snackbar when scheduling the local test notification failed",
     "placeholders": {
       "reason": {
         "type": "String"

@@ -1,9 +1,14 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: schedules a local notification ~10s out, so a developer can
-/// confirm delivery without waiting for a real reminder.
+/// Dev-only: schedules a local notification ~10s out **from the device
+/// itself**, so a developer can confirm delivery without waiting for a real
+/// reminder — and without the backend being involved at all.
 ///
-/// The pair to [_DevPushTile], and deliberately not gated on an account:
+/// The pair to [_DevPushTile], which is the same test through Firebase. The
+/// two rows and every string they show name their sender, because "test
+/// notification" and "test push" read as the same row and a developer holding
+/// a phone cannot tell which one just arrived. Deliberately not gated on an
+/// account:
 /// nothing about a local notification needs one — the OS schedules it on the
 /// device. That is also the difference the two rows exist to tell apart. When
 /// the reminder never arrives, this one says whether the fault is on the
@@ -56,7 +61,10 @@ class _DevLocalNotificationTileState
       );
 
       if (mounted) {
-        SdSnackBarUtilsV2.error(context, l10n.settingsDevPushFailed('$error'));
+        SdSnackBarUtilsV2.error(
+          context,
+          l10n.settingsDevLocalNotificationFailed('$error'),
+        );
       }
     } finally {
       if (mounted) setState(() => _sending = false);
