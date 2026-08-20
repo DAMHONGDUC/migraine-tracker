@@ -229,3 +229,7 @@ the app behaves exactly as it did before sync existed.
 dart run tool/strip_icon_marker.dart assets/images/app_icon_v3.png assets/images/final_app_icon.png
 
 dart run flutter_launcher_icons
+
+## build app to tesflight (local)
+
+cd ios && bundle exec fastlane beta flavor:dev
