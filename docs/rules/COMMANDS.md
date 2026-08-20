@@ -32,30 +32,27 @@ dependency is pinned, not caret-ranged. **Melos 6, not 7/8, on purpose** —
   `branch = main` in `.gitmodules` does *not* do this on its own: plain
   `actions/checkout` still takes the pinned gitlink, and only `--remote` reads
   that line.
-- `melos run prepare-env-dev` / `prepare-env-prod` — copy the real config out
-  of `env_assets/` and into the four paths the build reads: `env/dev.json`,
+- `melos run prepare-env-dev` / `prepare-env-prod` — copy the real config from
+  `env_assets/` into the four paths the build reads: `env/dev.json`,
   `env/prod.json`, `android/app/google-services.json` and
-  `ios/Runner/GoogleService-Info.plist`. **`env_assets/` is gitignored and
-  holds the same live keys `env/` does** — it is a folder you keep on your own
-  machine, and a clone never has it, so the command fails with a list of what
-  is missing rather than a half-installed tree.
-  - **Both `env/*.json` are written whatever the target is**, because they have
-    one destination each and there is nothing to choose. The target picks only
-    the two native files, which have exactly one destination each on the other
-    side — one bundle id and one Firebase project serve both environments, so
-    there is no second path to copy a `prod-` file to.
-  - **The destination filenames carry no `dev-`/`prod-` prefix, on purpose.**
-    `android/app/google-services.json` is where the google-services gradle
-    plugin looks, and `ios/Runner/GoogleService-Info.plist` is the file
-    reference in the Runner target's Resources build phase. A prefixed copy
-    beside it is a file nothing ever opens, and the build fails later with a
-    Firebase error naming none of this.
-  - **It never reads what it copies** (hard rule 13) — no printing, no
-    grepping, no diffing a config file, here or in anything added to it.
-  - **It overwrites**, which is the point: it is how you switch a checkout from
-    one environment to the other. `melos run set-up` is the opposite and stays
-    that way — it copies `env/*.example.json` in only when the real file is
-    absent, so setting up after preparing cannot undo it.
+  `ios/Runner/GoogleService-Info.plist`. `env_assets/` holds the same live keys
+  `env/` does, so it is gitignored and a clone never has it.
+  - **Both `env/*.json` are written whatever the target is** — one destination
+    each, nothing to choose. The target picks only the two native files, which
+    also have one destination each: one bundle id and one Firebase project
+    serve both environments, so there is no second path a `prod-` file could go
+    to.
+  - **The destinations carry no `dev-`/`prod-` prefix.** Those are the paths the
+    google-services gradle plugin and the Runner target's Resources phase read;
+    a prefixed copy beside them is a file nothing opens, and the build fails
+    later naming none of it.
+  - **Every source is checked before anything is copied.** Dying halfway leaves
+    a tree half one environment and half the other, with nothing on disk saying
+    so — so a missing file names all of them and copies none.
+  - **It never reads what it copies** (hard rule 13), and **it overwrites** —
+    that is how a checkout switches environment. `melos run set-up` still fills
+    in `env/*.example.json` only when the real file is absent, so setting up
+    afterwards cannot undo it.
 - `melos run gen` — after editing Drift tables, Riverpod codegen, or ARB files
 - `melos run analyze` — `--fatal-infos`, exactly what CI runs. Must pass with
   zero findings before considering any task done.
