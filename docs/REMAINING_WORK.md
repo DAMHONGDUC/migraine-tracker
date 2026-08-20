@@ -58,7 +58,7 @@ can never prove the project has them, which is what the deploy did.
 | ~~7b~~ | ~~App Group on both App IDs~~ | **Done 10 Aug**, on the app's App ID and on `…​.BaroEaseWidgetExtension`. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
-| 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
+| 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. **Fitness is linked too** — the step count for the day of an attack travels with that attack into sync. Apple Health *sleep* is the only reading declared at all that never leaves the device, and it is not declared, because we do not collect it. |
 | 11 | **(repo)** Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | Still `id0000000000`, so the published policy links to nothing. Only fillable once the App Store record exists. |
 
 ### RevenueCat
@@ -282,19 +282,21 @@ setup"; re-verified against the current repo state:
   widget extension's own. What each of them still owes is a real-device pass
   (item 17): the Simulator has no APNs and no HealthKit, and App Groups work
   there unprovisioned, so it cannot confirm any of the three.
-- The App Privacy label (Health & Fitness, collected-but-not-linked) is
+- The App Privacy label (Health and Fitness, both linked to identity) is
   separate and still open — see item 10.
 
 ## 5. The privacy policy is written but not published
 
 Checklist items 10, 11, 14, 15 and 16. `docs/privacy/PRIVACY_POLICY.md` and
-`docs/privacy/privacy.json` are current as of 7 Aug 2026 and agree with each other
+`docs/privacy/privacy.json` are current as of 20 Aug 2026 and agree with each other
 (hard rule 17). What is left is all outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
   submission. `privacy.json` now points at
   `https://damhongduc.github.io/apps_privacy_policy`, but nothing is
-  published there yet, and `storeLinks.appStore` is still a placeholder id.
+  published there yet. `storeLinks` is now empty: the placeholder id would
+  have published as a dead App Store link, so the real one has to be put back
+  once the record exists (item 11).
 - **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
   address is the owner's to supply and is a GDPR requirement.
 - The shared `defaults.sections` on the site supply retention, your rights,
