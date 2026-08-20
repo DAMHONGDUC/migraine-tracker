@@ -12,6 +12,7 @@ import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/dismiss_keyboard_on_tap.dart';
 import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
@@ -187,11 +188,17 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
+        // - Outermost so it covers routes, dialogs and sheets alike: a tap on
+        //   nothing puts the keyboard away (see DismissKeyboardOnTap).
         // - Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
         // - And catches notification taps wherever the user is, including nowhere yet (see NotificationTapListener).
-        builder: (context, child) => NotificationTapListener(
-          child: HomeWidgetTapListener(
-            child: ForceUpdateWrapper(child: child ?? const SizedBox.shrink()),
+        builder: (context, child) => DismissKeyboardOnTap(
+          child: NotificationTapListener(
+            child: HomeWidgetTapListener(
+              child: ForceUpdateWrapper(
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
           ),
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
