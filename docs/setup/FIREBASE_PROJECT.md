@@ -38,8 +38,17 @@ Firebase console → Add project. Name it so the two are unmistakable at a glanc
 in the console's project picker — the deploy prompt prints the id, and that is
 the last thing standing between a rules push and real users.
 
-Enable Google Analytics only if you want a second Analytics property; the app
-works either way.
+**Enable Google Analytics.** The app ships `firebase_analytics` and 36 typed
+events through `AppAnalytics`, and the privacy policy declares Analytics — a
+project without it collects none of them, silently. Attach the new project to
+the **existing Analytics account** in the dropdown rather than creating a second
+one: one account, two properties, one set of permissions to manage.
+
+**"Analytics location" is the account's country, not where the data lives.** GA4
+does not let you choose a storage region at all, so this field only picks the
+jurisdiction and terms the Analytics account sits under — set it to the country
+of whoever owns the account. It is not the permanent data-residency choice; the
+Firestore location in the next step is.
 
 ### 2. Firestore, in the same location as today's
 
