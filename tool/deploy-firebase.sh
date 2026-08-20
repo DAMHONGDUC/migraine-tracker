@@ -1,13 +1,26 @@
 #!/bin/sh
-# Deploy the Firebase side: firestore rules, indexes, and functions.
+# Deploy one environment's Firebase side: firestore rules, indexes, functions.
 #
-# Optional target argument: `rules` (rules + indexes) or `functions`.
-# No argument deploys both.
+#   sh tool/deploy-firebase.sh <dev|prod> [rules|functions]
+#
+# The environment is a `.firebaserc` alias, not an `env/*.json` file. The alias
+# is what the CLI resolves to a project id, and the project id is what picks
+# the functions' own config (`functions/.env.<project-id>`) and its secrets —
+# so naming the environment here is the whole of the switch. No target after
+# it deploys both halves.
 set -eu
 . "$(dirname "$0")/_common.sh"
 
-TARGET="${1:-all}"
+ENV_NAME="${1:-}"
+case "$ENV_NAME" in
+  dev | prod) ;;
+  *)
+    warn "usage: deploy-firebase.sh <dev|prod> [rules|functions]"
+    exit 1
+    ;;
+esac
 
+TARGET="${2:-all}"
 case "$TARGET" in
   all | rules | functions) ;;
   *)
@@ -21,12 +34,34 @@ if ! command -v firebase >/dev/null 2>&1; then
   exit 1
 fi
 
-# env/dev.json and env/prod.json point at the SAME project, so there is no
-# dev target to practise on: a rules deploy reaches real users immediately.
-step "target"
-firebase use
+# `.firebaserc` is read here rather than left to the CLI so the prompt can name
+# the project *before* anything is sent, and so a missing alias fails with the
+# command that creates it instead of a CLI error naming neither.
+project_id() {
+  sed -n 's/.*"'"$1"'"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' .firebaserc
+}
 
-printf 'Deploy %s to that project? [y/N] ' "$TARGET"
+ENV_ID=$(project_id "$ENV_NAME")
+if [ -z "$ENV_ID" ]; then
+  warn "no '$ENV_NAME' alias in .firebaserc."
+  warn "Create it with: firebase use --add   (docs/setup/FIREBASE_PROJECT.md)"
+  exit 1
+fi
+
+step "target"
+printf '    %s -> %s\n' "$ENV_NAME" "$ENV_ID"
+
+# Until prod is its own project both aliases resolve to the same id, and then
+# `deploy-firebase-dev` is a production deploy wearing another name — the one
+# thing the alias in the prompt would otherwise hide.
+# `docs/setup/FIREBASE_PROJECT.md` is the work that ends this.
+DEV_ID=$(project_id dev)
+PROD_ID=$(project_id prod)
+if [ -n "$DEV_ID" ] && [ "$DEV_ID" = "$PROD_ID" ]; then
+  warn "dev and prod are the SAME project — this reaches real users."
+fi
+
+printf 'Deploy %s to %s (%s)? [y/N] ' "$TARGET" "$ENV_NAME" "$ENV_ID"
 # Melos hands the script a piped stdout but leaves stdin alone; /dev/tty is
 # the one that survives a `sh tool/... < something`, so try it and fall back.
 REPLY=''
@@ -41,11 +76,16 @@ case "$REPLY" in
     ;;
 esac
 
+# Every deploy passes `--project` rather than running `firebase use` first:
+# `firebase use` would leave the developer's shell pointed at whatever this
+# script deployed last, so the next bare `firebase deploy` by hand would go
+# there silently.
+#
 # Rules and indexes are separate deploy targets. A missing composite index
 # fails at runtime, not at build, so they always go together.
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "rules" ]; then
-  step "firestore rules and indexes"
-  firebase deploy --only firestore:rules,firestore:indexes
+  step "firestore rules and indexes — $ENV_NAME"
+  firebase deploy --project "$ENV_NAME" --only firestore:rules,firestore:indexes
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "functions" ]; then
@@ -53,8 +93,8 @@ if [ "$TARGET" = "all" ] || [ "$TARGET" = "functions" ]; then
   step "functions tests"
   (cd functions && npm run build && npm test)
 
-  step "functions"
-  firebase deploy --only functions
+  step "functions — $ENV_NAME"
+  firebase deploy --project "$ENV_NAME" --only functions
 fi
 
-done_msg "Deployed."
+done_msg "Deployed $TARGET to $ENV_NAME ($ENV_ID)."
