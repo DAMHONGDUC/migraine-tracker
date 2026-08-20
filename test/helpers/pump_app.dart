@@ -1124,7 +1124,7 @@ Future<void> openLog(WidgetTester tester) async {
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
-  String location = 'Right side',
+  String location = 'Right temple',
   String medication = 'No medication',
   String? exertion,
   bool finish = true,

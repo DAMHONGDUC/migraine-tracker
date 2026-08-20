@@ -154,7 +154,7 @@ void main() {
       await tester.tap(find.text('7'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.tap(find.text('Right side'));
+      await tester.tap(find.text('Right temple'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Next'));

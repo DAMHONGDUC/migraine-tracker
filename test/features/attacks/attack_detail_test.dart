@@ -25,7 +25,7 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
 /// History (list mode) → tap the attack tile → detail screen.
 Future<void> openDetail(WidgetTester tester) async {
   await openHistory(tester);
-  await tester.tap(find.text('Right side'));
+  await tester.tap(find.text('Right temple'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -213,7 +213,7 @@ void main() {
 
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeR]);
-    expect(find.text('Right side'), findsOneWidget);
+    expect(find.text('Right temple'), findsOneWidget);
 
     await finishTest(tester);
   });
