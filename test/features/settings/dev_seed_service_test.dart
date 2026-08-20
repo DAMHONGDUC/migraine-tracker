@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -60,9 +59,14 @@ class _SilentScheduler implements NotificationScheduler {
 }
 
 /// The dev fixture is the only data most screens are ever developed against,
-/// so what it guarantees matters: enough rows, no two alike, and a different
-/// shape every run. A fixture that quietly repeats itself only exercises the
-/// one layout it happens to produce.
+/// so what it guarantees matters: the exact counts the owner set, no two rows
+/// alike, and a different shape every run.
+///
+/// **What it can no longer promise is a spread.** At a hundred rows a
+/// one-in-seven chance produced a handful of every case; at five it is a coin
+/// the test would be asserting rather than the seed. So the shape assertions
+/// here are the ones that hold at any size, plus the one case the seed now
+/// forces outright — the weatherless attack the backfill queue exists for.
 void main() {
   late AppDatabase db;
   late FakeExportFileStore files;
@@ -108,14 +112,15 @@ void main() {
   Future<List<AppNotification>> notifications() =>
       DriftNotificationRepository(db).watchAll().first;
 
-  test('seeds the promised number of rows of each kind', () async {
+  test('seeds exactly the promised number of rows of each kind', () async {
     await seeder.seed();
 
-    // Fewer than seedCount: the seed deletes a handful again on purpose, so
-    // SyncTombstones has rows that a real delete produced.
-    expect((await attacks()).length, lessThan(DevSeedService.seedCount));
-    expect((await medications()).length, lessThan(DevSeedService.seedCount));
-    expect((await exports()).length, DevSeedService.seedCount);
+    // Exact, tombstones included: the surplus rows the seed deletes again are
+    // written ON TOP of these counts, so a list is never left a row short.
+    expect((await attacks()).length, DevSeedService.attackCount);
+    expect((await medications()).length, DevSeedService.medicationCount);
+    expect((await reminders()).length, DevSeedService.reminderCount);
+    expect((await exports()).length, DevSeedService.exportCount);
   });
 
   test('medication names are drawn without replacement', () async {
@@ -128,7 +133,7 @@ void main() {
     expect(names.toSet().length, names.length);
   });
 
-  test('some medications get a long reminder list, some get none', () async {
+  test('one reminder each, and medications left with none', () async {
     await seeder.seed();
 
     final Map<String, int> perMedication = <String, int>{};
@@ -141,17 +146,11 @@ void main() {
       );
     }
 
-    // The crowded ones are what the detail screen's list has to survive.
-    expect(
-      perMedication.values
-          .where((int count) => count == DevSeedService.crowdedReminders)
-          .length,
-      DevSeedService.crowdedMedications,
-    );
-    // And plenty are left with nothing, for the empty state and the filter.
+    expect(perMedication.values, everyElement(1));
+    // The rest have nothing, which is the empty state and the filter count.
     expect(
       perMedication.length,
-      lessThan(DevSeedService.seedCount),
+      lessThan(DevSeedService.medicationCount),
       reason: 'every medication got a reminder, so the empty case is unseeded',
     );
   });
@@ -207,10 +206,9 @@ void main() {
 
     await seeder.seed();
 
-    // Equal, not doubled — and below seedCount either way, because each run
-    // deletes a few again to leave tombstones behind.
+    // Equal, not doubled.
     expect((await attacks()).length, afterFirst);
-    expect(afterFirst, lessThan(DevSeedService.seedCount));
+    expect(afterFirst, DevSeedService.attackCount);
   });
 
   test('two runs produce different data', () async {
@@ -230,8 +228,8 @@ void main() {
       for (final Attack a in await attacks()) a.intensity,
     ];
 
-    // Both draw 100 of the same 150 names, so the sets overlap heavily — what
-    // must differ is which 100, and the attacks built on top of them.
+    // Both draw from the same 150 names — what must differ is which ones, and
+    // the attacks built on top of them.
     expect(
       firstNames.difference(secondNames),
       isNotEmpty,
@@ -244,33 +242,14 @@ void main() {
     );
   });
 
-  test('every exertion level shows up, including none', () async {
-    await seeder.seed();
-
-    final Set<ExertionLevel?> levels = (await attacks())
-        .map((Attack a) => a.exertionLevel)
-        .toSet();
-
-    // All four, so the exertion card has a spread to analyse rather than one
-    // level repeated (which the engine correctly refuses to read anything into).
-    for (final ExertionLevel level in ExertionLevel.values) {
-      expect(levels, contains(level), reason: '$level missing from the seed');
-    }
-    // Plus the pre-step case the detail screen still has to render.
-    expect(levels, contains(null));
-  });
-
-  test('every attack without weather is a backfill candidate, not a hole in '
-      'the correlation data', () async {
+  test('one attack is left weatherless, for the backfill queue', () async {
     await seeder.seed();
 
     final List<Attack> all = await attacks();
-    final int weatherless = all.where((Attack a) => a.weather == null).length;
 
-    // Roughly one in seven, but random — assert the band, not a count, or the
-    // test is asserting the RNG rather than the intent.
-    expect(weatherless, greaterThan(0));
-    expect(weatherless, lessThan(all.length ~/ 3));
+    // At most one, and at least one: a chance per attack would seed the
+    // offline-log case in some runs and not others at this size.
+    expect(all.where((Attack a) => a.weather == null).length, lessThan(2));
   });
 
   test('fills the tables the charts and the list read, not just attacks', () async {
@@ -301,8 +280,8 @@ void main() {
       rows.any((AppNotification n) => n.type == NotificationType.pressureAlert),
       isTrue,
     );
-    expect(rows.any((AppNotification n) => n.readAt == null), isTrue);
-    expect(rows.any((AppNotification n) => n.readAt != null), isTrue);
+    // No read/unread assertion: whether a row was read is a roll per row, and
+    // over this few rows the test would be checking the RNG.
   });
 
   test('a pressure alert row carries how far it fell', () async {

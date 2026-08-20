@@ -14,7 +14,6 @@ import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
 import 'domain/enums/health_range.dart';
 import 'domain/enums/insights_tab.dart';
-import 'domain/enums/weather_metric.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
@@ -22,7 +21,6 @@ import 'domain/services/step_correlation_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
 import 'presentation/controllers/insights_tab_controller.dart';
 import 'presentation/controllers/pressure_alert_highlight_controller.dart';
-import 'presentation/controllers/weather_card_controllers.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold
 /// becomes user-tunable in the alerts phase.
@@ -116,17 +114,6 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
 
   return engine.analyze(attacks: attacks, days: days);
 });
-
-/// Which reading the weather card's hourly row shows, and which day of its
-/// week is selected. See [WeatherMetricController] / [WeatherDayController].
-final weatherMetricProvider =
-    NotifierProvider<WeatherMetricController, WeatherMetric>(
-      WeatherMetricController.new,
-    );
-
-final weatherDayProvider = NotifierProvider<WeatherDayController, int>(
-  WeatherDayController.new,
-);
 
 /// The range each health chart is showing. Two controllers, not one: someone
 /// looking at six months of steps has not asked to leave last night's sleep.

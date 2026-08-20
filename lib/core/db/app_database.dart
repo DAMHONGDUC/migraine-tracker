@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../../features/attacks/data/tables/attack_tables.dart';
 import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
@@ -44,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -90,10 +91,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(medications, medications.updatedAt);
         await m.addColumn(medications, medications.revision);
         await m.addColumn(medications, medications.syncedRevision);
-        // Only when the reminders table predates this. `createTable` builds
-        // from today's definition, so a database old enough to have run the
-        // v2 step got these three columns with the table itself — adding them
-        // again is a duplicate-column error.
+        // Only when the reminders table predates this: `createTable` builds
+        // from today's definition, so a database that ran the v2 step already
+        // has these three and adding them again is a duplicate-column error.
         if (from >= 2) {
           await m.addColumn(medicationReminders, medicationReminders.updatedAt);
           await m.addColumn(medicationReminders, medicationReminders.revision);
@@ -112,9 +112,8 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('DROP TABLE IF EXISTS attack_tombstones');
       }
       // - v8: the notification list, and the bound its reminder half needs.
-      // - Existing reminders get a null createdAt — stamping them with this
-      //   migration's clock would invent the very history the column exists
-      //   to fence off (same call as `Medications.createdAt` in v3).
+      // - Existing reminders get a null createdAt: this migration's clock
+      //   would invent the history the column exists to fence off (as in v3).
       if (from < 8) {
         await m.createTable(appNotifications);
         // Same guard as v7's: `createTable` builds from today's definition,
@@ -124,38 +123,58 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(medicationReminders, medicationReminders.createdAt);
         }
       }
-      // - v9: the notifications table's type column was called `kind` in a
-      //   v8 that only ever existed on dev devices; it was renamed in
-      //   place before shipping, which leaves those databases at v8 with
-      //   the old column and no step that would fix it.
-      // - Recreated rather than renamed, because there is no record of
-      //   what that intermediate v8 looked like — a drop works whatever
-      //   it was. Nothing durable is lost: reminder rows re-materialise on
-      //   the next launch, and pressure alerts come back from sync.
+      // - v9: `type` was `kind` in a dev-only v8, renamed in place — those
+      //   databases sit at v8 with the old column and no step that fixes it.
+      // - Recreated, not renamed: nothing records what that v8 held.
       if (from < 9) {
         await customStatement('DROP TABLE IF EXISTS app_notifications');
         await m.createTable(appNotifications);
       }
       // - v10: how long an attack lasted, recorded after the fact.
-      // - Existing rows get null, which reads as "never said" — the same
-      //   state as an attack still running. Inventing an end would put a
-      //   duration in the doctor report the user never gave.
+      // - Existing rows get null = "never said", the same state as an attack
+      //   still running. An invented end is a duration nobody gave.
       if (from < 10) {
         await m.addColumn(attacks, attacks.endedAt);
       }
       // - v11: whether the medication taken for an attack helped.
-      // - Existing rows get null, which reads as "never answered" — the same
-      //   state as an attack where nothing was taken. Backfilling "helped"
-      //   would invent the very evidence a prescription gets changed on.
+      // - Existing rows get null = "never answered", the same state as one
+      //   where nothing was taken. "Helped" is evidence nobody gave.
       if (from < 11) {
         await m.addColumn(attacks, attacks.medicationEffect);
       }
-      // - v12: a pressure reading per day, so the correlation finally has a
+      // - v12: a pressure reading per day, so the correlation has a
       //   denominator — the days without an attack.
-      // - Nothing to backfill: no weather was ever stored for a day that had
-      //   no attack, and Open-Meteo's past window is days, not months.
+      // - Nothing to backfill: no weather was ever stored for an attackless day.
       if (from < 12) {
         await m.createTable(dailyWeather);
+      }
+      // - v13: the location step records a SET of head areas, so `location`
+      //   becomes `regions`. Backfilled but never sharpened: "left side" is
+      //   every region on the left, which is how precise the user was.
+      if (from < 13) {
+        await m.addColumn(attacks, attacks.regions);
+        for (final HeadLocation location in HeadLocation.values) {
+          await customUpdate(
+            'UPDATE attacks SET regions = ? WHERE location = ?',
+            variables: <Variable<Object>>[
+              Variable<String>(
+                const HeadRegionListConverter().toSql(location.regions),
+              ),
+              Variable<String>(location.name),
+            ],
+            updates: <TableInfo<Table, Object?>>{attacks},
+          );
+        }
+        // Recreates the table from today's definition, which no longer has
+        // `location` — drift's way of dropping a column SQLite cannot drop.
+        // The UPDATE above is raw SQL for the same reason: no field to name.
+        await m.alterTable(TableMigration(attacks));
+      }
+      // - v14: an attack carries the day's step count, read as it was logged.
+      // - Null on every existing row: HealthKit can answer a past day but not
+      //   a past moment, so a backfill files another figure as the same one.
+      if (from < 14) {
+        await m.addColumn(attacks, attacks.steps);
       }
     },
     beforeOpen: (details) async {

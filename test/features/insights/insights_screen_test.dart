@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
@@ -14,7 +14,7 @@ Attack seededAttack(int i, {double? pressureDelta}) {
     id: 'seed-$i',
     startedAt: startedAt,
     intensity: 5,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
     weather: pressureDelta == null
         ? null
         : WeatherSnapshot(
@@ -149,14 +149,12 @@ void main() {
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
     await openInsights(tester);
-
-    // Insights opens on Weather, and the tabs build lazily — so only the
-    // segment naming this card is on screen, none of the card itself.
-    expect(find.text('Pressure'), findsOneWidget);
-    expect(find.text('Pressure-drop alerts'), findsNothing);
-
-    await tapVisible(tester, find.text('Pressure'));
     await pumpCountUp(tester);
+
+    // Insights opens on Pressure now that weather has left for the dashboard,
+    // so the card is up without a tab switch: the segment and the card's own
+    // title are both on screen, which is why nothing here taps "Pressure".
+    expect(find.text('Pressure'), findsWidgets);
 
     // ONE card, not a forecast card beside a correlation card: the bodies are
     // cardless and folded in, so the standalone `Pressure correlation` title

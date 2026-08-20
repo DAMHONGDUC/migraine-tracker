@@ -1,8 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/medication.dart';
 import '../../providers.dart';
 
@@ -17,7 +18,7 @@ class MedicationsController {
 
   /// Adds a brand-new medication, stamping `createdAt` now.
   Future<void> add(String name) async {
-    AppLogger.action('Add medication', name);
+    SdLogger.action(LogTagConstant.medications, 'Add medication', name);
     // No medication name: what someone takes is health data.
     AppAnalytics.logMedicationAdded();
     try {
@@ -31,7 +32,8 @@ class MedicationsController {
             ),
           );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.medications,
         'Add medication failed',
         error: error,
         stackTrace: stackTrace,
@@ -44,7 +46,11 @@ class MedicationsController {
   /// already holds the existing entity, so its creation date just passes
   /// through untouched.
   Future<void> rename(Medication medication, String newName) async {
-    AppLogger.action('Rename medication', '${medication.name} → $newName');
+    SdLogger.action(
+      LogTagConstant.medications,
+      'Rename medication',
+      '${medication.name} → $newName',
+    );
     AppAnalytics.logMedicationRenamed();
     try {
       await _ref
@@ -57,7 +63,8 @@ class MedicationsController {
             ),
           );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.medications,
         'Rename medication failed',
         error: error,
         stackTrace: stackTrace,
@@ -77,7 +84,11 @@ class MedicationsController {
           .getAllEnabled();
       final scheduler = _ref.read(notificationSchedulerProvider);
 
-      AppLogger.action('Delete medication', medicationId);
+      SdLogger.action(
+        LogTagConstant.medications,
+        'Delete medication',
+        medicationId,
+      );
       AppAnalytics.logMedicationDeleted();
       for (final reminder in enabledReminders) {
         if (reminder.medicationId == medicationId) {
@@ -86,7 +97,8 @@ class MedicationsController {
       }
       await _ref.read(medicationRepositoryProvider).deleteById(medicationId);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.medications,
         'Delete medication failed',
         error: error,
         stackTrace: stackTrace,

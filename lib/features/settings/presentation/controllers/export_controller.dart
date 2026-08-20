@@ -5,10 +5,11 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:system_design/common.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
@@ -41,7 +42,7 @@ class ExportController {
     ExportKind kind, {
     DoctorReportStrings? reportStrings,
   }) async {
-    AppLogger.action('Create export', kind.name);
+    SdLogger.action(LogTagConstant.export, 'Create export', kind.name);
     try {
       final DateTime now = DateTime.now();
       final List<Attack> attacks = await _ref
@@ -70,7 +71,8 @@ class ExportController {
 
       return record;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Create export failed',
         error: error,
         stackTrace: stackTrace,
@@ -81,7 +83,7 @@ class ExportController {
 
   /// Hands an existing export to the system share sheet.
   Future<void> share(ExportRecord record) async {
-    AppLogger.action('Share export', record.kind.name);
+    SdLogger.action(LogTagConstant.export, 'Share export', record.kind.name);
     AppAnalytics.logExportShared(format: record.kind.name);
     try {
       await _ref
@@ -97,7 +99,8 @@ class ExportController {
         );
       }
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Share export failed',
         error: error,
         stackTrace: stackTrace,
@@ -109,7 +112,11 @@ class ExportController {
   /// Copies an existing export wherever the user picks. False means they
   /// dismissed the picker — the caller shows nothing.
   Future<bool> saveToDevice(ExportRecord record) async {
-    AppLogger.action('Save export to device', record.kind.name);
+    SdLogger.action(
+      LogTagConstant.export,
+      'Save export to device',
+      record.kind.name,
+    );
     try {
       final bool saved = await _ref
           .read(fileSaverProvider)
@@ -119,7 +126,8 @@ class ExportController {
 
       return saved;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Save export to device failed',
         error: error,
         stackTrace: stackTrace,
@@ -130,13 +138,14 @@ class ExportController {
 
   /// Removes the row and the file behind it.
   Future<void> delete(ExportRecord record) async {
-    AppLogger.action('Delete export', record.kind.name);
+    SdLogger.action(LogTagConstant.export, 'Delete export', record.kind.name);
     AppAnalytics.logExportDeleted();
     try {
       await _ref.read(exportFileStoreProvider).delete(record.filePath);
       await _ref.read(exportRecordRepositoryProvider).deleteById(record.id);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Delete export failed',
         error: error,
         stackTrace: stackTrace,
@@ -160,7 +169,8 @@ class ExportController {
 
       return ExportPreview.fromBytes(bytes);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Preview export failed',
         error: error,
         stackTrace: stackTrace,
@@ -175,7 +185,8 @@ class ExportController {
     try {
       return await _ref.read(exportFileStoreProvider).read(record.filePath);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.export,
         'Preview export failed',
         error: error,
         stackTrace: stackTrace,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -28,13 +28,13 @@ Future<void> openPreview(WidgetTester tester) async {
 
 void main() {
   testWidgets('a CSV export is not offered a preview at all', (tester) async {
-    final PumpedApp app = await pumpApp(tester);
+    final PumpedApp app = await pumpApp(tester, premium: true);
     await DriftAttackRepository(app.db).insert(
       Attack(
         id: 'a1',
         startedAt: DateTime.utc(2026, 8, 1, 9),
         intensity: 7,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
         medicationName: 'Sumatriptan',
       ),
     );
@@ -54,13 +54,13 @@ void main() {
   });
 
   testWidgets('a JSON export still previews its own text', (tester) async {
-    final PumpedApp app = await pumpApp(tester);
+    final PumpedApp app = await pumpApp(tester, premium: true);
     await DriftAttackRepository(app.db).insert(
       Attack(
         id: 'a1',
         startedAt: DateTime.utc(2026, 8, 1, 9),
         intensity: 7,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
     );
     await tester.pump();

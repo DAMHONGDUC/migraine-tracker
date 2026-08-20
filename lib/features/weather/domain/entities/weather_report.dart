@@ -26,12 +26,17 @@ class WeatherReport {
   /// Whether there is anything at all worth drawing.
   bool get isEmpty => current == null && hours.isEmpty && days.isEmpty;
 
-  /// How many days the card offers. A week: far enough to plan around, near
-  /// enough that every day still has hours behind it.
-  static const int weekLength = 7;
+  /// How many days the forecast offers, today counted as the first.
+  ///
+  /// **Ten, which is also Apple's ceiling** (owner's call). `forecastDaily`
+  /// runs ten days out and `forecastHourly` 240 hours, so this is the whole
+  /// of what WeatherKit knows rather than a number picked to look round —
+  /// asking for an eleventh would return nothing to draw.
+  static const int forecastDayCount = 10;
 
-  /// The days the day-strip offers, today first.
-  List<WeatherDaily> get week => days.take(weekLength).toList();
+  /// The days the sheet's rainfall forecast lists, today first.
+  List<WeatherDaily> get forecastDays =>
+      days.take(forecastDayCount).toList();
 
   /// The hours falling on [day], by local calendar date.
   ///
@@ -88,6 +93,7 @@ class WeatherHourly {
     this.uvIndex,
     this.condition,
     this.precipitationChancePercent,
+    this.precipitationAmountMm,
     this.windSpeedKph,
     this.cloudCoverPercent,
     this.visibilityKm,
@@ -106,6 +112,12 @@ class WeatherHourly {
   final double? uvIndex;
   final WeatherCondition? condition;
   final double? precipitationChancePercent;
+
+  /// Millimetres in the hour — rain and melted snow together, as Apple sends
+  /// it. Separate from the chance: a 90% chance of 0.2mm and a 30% chance of
+  /// 20mm are different days, and only one of them changes plans.
+  final double? precipitationAmountMm;
+
   final double? windSpeedKph;
   final double? cloudCoverPercent;
   final double? visibilityKm;
@@ -120,6 +132,7 @@ class WeatherDaily {
     this.temperatureMaxCelsius,
     this.temperatureMinCelsius,
     this.precipitationChancePercent,
+    this.precipitationAmountMm,
     this.uvIndexMax,
     this.sunrise,
     this.sunset,
@@ -131,6 +144,10 @@ class WeatherDaily {
   final double? temperatureMaxCelsius;
   final double? temperatureMinCelsius;
   final double? precipitationChancePercent;
+
+  /// Millimetres over the whole day.
+  final double? precipitationAmountMm;
+
   final double? uvIndexMax;
   final DateTime? sunrise;
   final DateTime? sunset;

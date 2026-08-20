@@ -10,9 +10,9 @@ part of 'insights_screen.dart';
 /// which is why the reload looked like one but never refetched.
 ///
 /// **Lazily, though: a tab is built the first time it is selected, not
-/// before.** Mounting all four up front would fire a weather fetch, a
-/// forecast fetch and two HealthKit reads on a screen showing one card — the
-/// eager cost the tabbed layout exists to avoid.
+/// before.** Mounting them all up front would fire a forecast fetch and two
+/// HealthKit reads on a screen showing one card — the eager cost the tabbed
+/// layout exists to avoid.
 class _TabBody extends ConsumerStatefulWidget {
   const _TabBody({required this.tabs, required this.selected});
 
@@ -63,8 +63,8 @@ class _TabBodyState extends ConsumerState<_TabBody> {
 /// One tab's card, scrollable and refreshable.
 ///
 /// **Each tab waits only on what it draws.** The screen used to hold every
-/// card behind one `switch` on both correlation providers, so the weather —
-/// which needs neither — was blank until the engines had run.
+/// card behind one `switch` on both correlation providers, so a card needing
+/// neither was blank until the engines had run.
 class _TabCard extends ConsumerWidget {
   const _TabCard({required this.tab});
 
@@ -76,7 +76,6 @@ class _TabCard extends ConsumerWidget {
     ref
       ..invalidate(attacksStreamProvider)
       ..invalidate(pressureForecastProvider)
-      ..invalidate(weatherReportProvider)
       ..invalidate(sleepCorrelationProvider)
       ..invalidate(rangedStepDaysProvider)
       ..invalidate(rangedSleepNightsProvider)
@@ -107,7 +106,6 @@ class _TabCard extends ConsumerWidget {
   }
 
   Widget _card(WidgetRef ref) => switch (tab) {
-    InsightsTab.weather => const WeatherCard(),
     InsightsTab.pressure => switch (ref.watch(correlationResultProvider)) {
       AsyncData<CorrelationResult>(value: final CorrelationResult value) =>
         PressureCard(result: value),

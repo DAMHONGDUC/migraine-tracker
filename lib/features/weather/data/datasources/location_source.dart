@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/geo_point.dart';
 
 /// Abstracts geolocator so repositories are testable without the plugin.
@@ -38,10 +39,14 @@ class FakeLocationSource implements LocationSource {
   Future<GeoPoint?> currentPosition() async {
     // Loud on purpose: every weather number downstream is from somewhere the
     // device is not, and that must be obvious in the log rather than deduced.
-    AppLogger.warning('Faked position', <String, Object?>{
-      'latitude': point.latitude,
-      'longitude': point.longitude,
-    });
+    SdLogger.warning(
+      LogTagConstant.location,
+      'Faked position',
+      <String, Object?>{
+        'latitude': point.latitude,
+        'longitude': point.longitude,
+      },
+    );
 
     return point;
   }
@@ -58,7 +63,10 @@ class GeolocatorLocationSource implements LocationSource {
   Future<GeoPoint?> currentPosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
-        AppLogger.warning('No position: location services are off');
+        SdLogger.warning(
+          LogTagConstant.location,
+          'No position: location services are off',
+        );
 
         return null;
       }
@@ -70,7 +78,11 @@ class GeolocatorLocationSource implements LocationSource {
       if (!_granted(permission)) {
         // Every weather read starts here, so the reason there is no weather
         // is usually this line rather than anything the backend did.
-        AppLogger.warning('No position: permission', permission.name);
+        SdLogger.warning(
+          LogTagConstant.location,
+          'No position: permission',
+          permission.name,
+        );
 
         return null;
       }
@@ -87,8 +99,47 @@ class GeolocatorLocationSource implements LocationSource {
         longitude: position.longitude,
       );
     } catch (error, stackTrace) {
-      AppLogger.error(
-        'Reading position failed',
+      // Not fatal, and usually not even a fault: a fresh fix indoors or just
+      // after launch outruns the time limit, and the throw that follows was
+      // the whole reason the card said "unavailable" at random.
+      SdLogger.warning(
+        LogTagConstant.location,
+        'No fresh fix; falling back to the last known position',
+        error,
+      );
+      SdLogger.debug(LogTagConstant.location, 'Position stack', stackTrace);
+
+      return _lastKnown();
+    }
+  }
+
+  /// The position the OS still has from whoever asked last.
+  ///
+  /// Good enough on purpose: everything here is rounded to ~11km before it
+  /// leaves the app (hard rule 2), and weather over that area does not change
+  /// between one fix and the next. An hour-old position is a better answer
+  /// than no weather at all.
+  ///
+  /// Null on a device that has never had a fix — nothing to fall back to,
+  /// which is the one case that still has to read as unavailable.
+  Future<GeoPoint?> _lastKnown() async {
+    try {
+      final Position? position = await Geolocator.getLastKnownPosition();
+
+      if (position == null) {
+        SdLogger.warning(LogTagConstant.location, 'No last known position');
+
+        return null;
+      }
+
+      return GeoPoint(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.location,
+        'Reading the last known position failed',
         error: error,
         stackTrace: stackTrace,
       );
@@ -108,11 +159,16 @@ class GeolocatorLocationSource implements LocationSource {
         permission = await Geolocator.requestPermission();
       }
 
-      AppLogger.info('Location permission', permission.name);
+      SdLogger.info(
+        LogTagConstant.location,
+        'Location permission',
+        permission.name,
+      );
 
       return _granted(permission);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.location,
         'Requesting location permission failed',
         error: error,
         stackTrace: stackTrace,

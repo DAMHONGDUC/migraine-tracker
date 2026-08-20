@@ -1,10 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../domain/entities/health_connections.dart';
 import '../../domain/enums/health_data_kind.dart';
 import '../../providers.dart';
@@ -20,7 +21,6 @@ class HealthController extends Notifier<HealthConnections> {
   /// The single flag both sources shared before they could be connected
   /// separately. Read once, to carry an existing user across.
 
-
   static String keyOf(HealthDataKind kind) => switch (kind) {
     HealthDataKind.sleep => PrefsKeyConstant.healthSleep,
     HealthDataKind.steps => PrefsKeyConstant.healthSteps,
@@ -31,7 +31,8 @@ class HealthController extends Notifier<HealthConnections> {
     final SharedPreferences prefs = ref.watch(sharedPreferencesProvider);
     // Someone who connected under the old single switch had both; splitting
     // the flag must not read as the app quietly disconnecting on them.
-    final bool legacy = prefs.getBool(PrefsKeyConstant.healthConnected) ?? false;
+    final bool legacy =
+        prefs.getBool(PrefsKeyConstant.healthConnected) ?? false;
 
     return HealthConnections(
       sleep: prefs.getBool(PrefsKeyConstant.healthSleep) ?? legacy,
@@ -43,7 +44,11 @@ class HealthController extends Notifier<HealthConnections> {
   /// device, or the sheet failed) — the caller surfaces that. A granted-
   /// looking true still guarantees nothing about what was ticked.
   Future<bool> connect(HealthDataKind kind) async {
-    AppLogger.action('Connect Apple Health ${kind.name}', true);
+    SdLogger.action(
+      LogTagConstant.health,
+      'Connect Apple Health ${kind.name}',
+      true,
+    );
     try {
       final bool answered = await ref
           .read(healthRepositoryProvider)
@@ -57,7 +62,8 @@ class HealthController extends Notifier<HealthConnections> {
 
       return true;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.health,
         'Connect Apple Health ${kind.name} failed',
         error: error,
         stackTrace: stackTrace,
@@ -70,13 +76,18 @@ class HealthController extends Notifier<HealthConnections> {
   /// Settings → Privacy & Security → Health can — so this is the app's own
   /// switch, and the UI says so rather than implying a revoke.
   Future<void> disconnect(HealthDataKind kind) async {
-    AppLogger.action('Connect Apple Health ${kind.name}', false);
+    SdLogger.action(
+      LogTagConstant.health,
+      'Connect Apple Health ${kind.name}',
+      false,
+    );
     try {
       await ref.read(sharedPreferencesProvider).setBool(keyOf(kind), false);
       AppAnalytics.logHealthConnectionToggled(enabled: false);
       state = state.withKind(kind, false);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.health,
         'Disconnect Apple Health ${kind.name} failed',
         error: error,
         stackTrace: stackTrace,

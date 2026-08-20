@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/domain/services/weekly_buckets.dart';
 
 Attack attackAt(DateTime startedAt, [int i = 0]) => Attack(
   id: 'a-${startedAt.toIso8601String()}-$i',
   startedAt: startedAt,
   intensity: 5,
-  location: HeadLocation.left,
+  regions: const <HeadRegion>[HeadRegion.templeL],
 );
 
 void main() {

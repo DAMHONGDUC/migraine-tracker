@@ -13,20 +13,34 @@ import '../../../../core/theme/app_text_style.dart';
 ///
 /// [content] is a slot rather than a pile of optional fields — today every
 /// card puts a sentence there ([DashboardExploreSubtitle]), but the slot is
-/// what let the health cards carry a reading before they moved out.
+/// what let the health cards carry a reading before they moved out. [trailing]
+/// is the same idea on the header row, and today it carries one thing: the
+/// `PremiumBadge` on the export card.
 class DashboardExploreCard extends StatelessWidget {
   const DashboardExploreCard({
     required this.icon,
     required this.title,
     required this.content,
     required this.onTap,
+    this.trailing,
     super.key,
   });
+
+  /// The header row's height, reserved for every cell whether or not it has a
+  /// [trailing]. Taller than the glyph on purpose: a `PremiumBadge` is a
+  /// line of `labelSmall` plus its own padding, and the grid's fixed cell
+  /// cannot grow for it — see [DashboardExploreSection.cellHeight], which
+  /// reads this rather than the glyph size.
+  static double get headerHeight => SdSpacingConstant.r24;
 
   final IconData icon;
   final String title;
   final Widget content;
   final VoidCallback onTap;
+
+  /// Sits at the end of the header row, opposite the glyph. Null on the cards
+  /// that have nothing to say there.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +54,18 @@ class DashboardExploreCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // A bare glyph, not a tinted badge: at two cards a row the badge's
-            // disc was most of the card's top edge.
-            // r20 like the quick-access tiles above, not r24: at half a
-            // screen wide the glyph is a marker, not the subject.
-            SdIconV2(
-              icon: icon,
-              size: SdSpacingConstant.r20,
-              color: AppColors.primary,
+            // - a bare glyph, not a tinted badge: at two cards a row the disc was most of the card's top edge
+            // - r20 like the quick-access tiles above: at half a screen wide the glyph is a marker, not the subject
+            Row(
+              children: <Widget>[
+                SdIconV2(
+                  icon: icon,
+                  size: SdSpacingConstant.r20,
+                  color: AppColors.primary,
+                ),
+                const Spacer(),
+                if (trailing case final Widget badge) badge,
+              ],
             ),
             SizedBox(height: SdSpacingConstant.h8),
             Text(

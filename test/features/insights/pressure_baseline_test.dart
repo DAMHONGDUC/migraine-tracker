@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/correlation_engine.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
@@ -19,7 +19,7 @@ void main() {
     id: 'a$dayOffset',
     startedAt: start.add(Duration(days: dayOffset, hours: 9)),
     intensity: 6,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     weather: WeatherSnapshot(
       capturedAt: start.add(Duration(days: dayOffset, hours: 9)),
       pressureHpa: 1005,
@@ -173,7 +173,7 @@ void main() {
           id: 'x$index',
           startedAt: start.add(Duration(hours: hour)),
           intensity: 5,
-          location: HeadLocation.left,
+          regions: const <HeadRegion>[HeadRegion.templeL],
           weather: WeatherSnapshot(
             capturedAt: start.add(Duration(hours: hour)),
             pressureHpa: 1005,

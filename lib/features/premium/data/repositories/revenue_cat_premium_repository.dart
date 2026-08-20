@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/repositories/premium_repository.dart';
 import '../datasources/revenue_cat_client.dart';
 
@@ -42,7 +43,8 @@ class RevenueCatPremiumRepository implements PremiumRepository {
       await _client.ensureConfigured();
       _onCustomerInfo(await Purchases.getCustomerInfo());
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.premium,
         'RevenueCat entitlement read failed',
         error: error,
         stackTrace: stackTrace,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import 'sync_payload_codec.dart';
@@ -35,8 +36,13 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       _versionKey: schemaVersion,
       'startedAt': attack.startedAt.toUtc().toIso8601String(),
       'intensity': attack.intensity,
-      'location': attack.location.name,
+      'regions': <String>[for (final HeadRegion r in attack.regions) r.name],
+      // Written for readers, never read back here: a device still on the
+      // build that predates `regions` throws on a payload without this, and
+      // that failure would be the user's whole history, not one record.
+      'location': HeadLocation.coarsest(attack.regions).name,
       'medicationName': attack.medicationName,
+      'steps': attack.steps,
       'symptoms': attack.symptoms,
       'triggers': attack.triggers,
       'notes': attack.notes,
@@ -79,7 +85,12 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       id: id,
       startedAt: _date(decoded['startedAt'], 'startedAt'),
       intensity: _int(decoded['intensity'], 'intensity'),
-      location: _enum(decoded['location'], HeadLocation.values, 'location'),
+      // `regions` when the writer had it; otherwise the coarse `location`
+      // an older build wrote, widened rather than guessed (see
+      // [HeadLocationRegions.regions]).
+      regions: decoded['regions'] == null
+          ? _enum(decoded['location'], HeadLocation.values, 'location').regions
+          : _regions(decoded['regions']),
       medicationName: _stringOrNull(decoded['medicationName']),
       symptoms: _strings(decoded['symptoms']),
       triggers: _strings(decoded['triggers']),
@@ -94,6 +105,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       // Optional and additive, so schemaVersion stays 1: a build that
       // predates this reads the payload and simply drops the field.
       endedAt: _dateOrNull(decoded['endedAt']),
+      steps: _intOrNull(decoded['steps']),
       medicationEffect: decoded['medicationEffect'] == null
           ? null
           : _enum(
@@ -136,6 +148,8 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
   static DateTime? _dateOrNull(Object? value) =>
       value is String ? DateTime.tryParse(value)?.toUtc() : null;
 
+  static int? _intOrNull(Object? value) => value is int ? value : null;
+
   static double? _doubleOrNull(Object? value) =>
       value is num ? value.toDouble() : null;
 
@@ -143,6 +157,27 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
 
   static List<String> _strings(Object? value) =>
       value is List ? value.whereType<String>().toList() : const <String>[];
+
+  /// Throws when the list holds no region the app knows: an attack with no
+  /// location cannot be rebuilt faithfully, and the entity forbids it.
+  /// A single unknown name is dropped instead — that is a newer build's
+  /// record, and losing one area beats losing the record.
+  static List<HeadRegion> _regions(Object? value) {
+    if (value is! List) {
+      throw FormatException('regions is not a list: $value');
+    }
+    final List<HeadRegion> regions = <HeadRegion>[
+      for (final Object? name in value)
+        if (HeadRegion.values.asNameMap()[name] case final HeadRegion region)
+          region,
+    ];
+
+    if (regions.isEmpty) {
+      throw FormatException('regions holds no known region: $value');
+    }
+
+    return regions;
+  }
 
   static T _enum<T extends Enum>(Object? value, List<T> values, String field) {
     for (final T candidate in values) {

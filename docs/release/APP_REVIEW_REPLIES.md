@@ -102,9 +102,10 @@ Simulator, so record it on a physical device.
 > Settings has a dedicated **"Apple Health"** section, listing the two data
 > types we read — **Sleep** and **Steps** — each with its own switch, above a
 > line stating that the app reads them to look for patterns with the user's
-> migraine attacks, that access is read-only, and that the data stays on the
-> device and is never uploaded. The same switches also appear on the Sleep
-> and Activity screens, next to the readings they produce.
+> migraine attacks, that access is read-only, that sleep never leaves the
+> device, and that the step count for the day of an attack is saved with that
+> attack. The same switches also appear on the Sleep and Activity screens,
+> next to the readings they produce.
 >
 > In build 11 these switches existed but were reachable only through rows
 > labelled "Sleep" and "Activity", which did not name Apple Health, and the
@@ -114,9 +115,22 @@ Simulator, so record it on a physical device.
 > viewing your own sleep and step data are free features and require no
 > subscription.
 >
-> BaroEase reads sleep and step data only. It does not write to HealthKit, it
-> does not use the data for advertising or marketing, and it never transmits
-> it off the device or shares it with third parties.
+> BaroEase reads sleep and step data only. It does not write to HealthKit and
+> it never uses the data for advertising or marketing, nor shares it with any
+> third party.
+>
+> One transmission exists and we want to be explicit about it. When the user
+> logs a migraine attack, the app records the number of steps they had taken
+> that day and stores it as a field of that attack, because how active
+> someone was before an attack is part of the record their doctor reads. If —
+> and only if — the user has signed in and turned on our cross-device sync,
+> that attack, step count included, is uploaded to our own Firebase backend as
+> an encrypted payload, to be restored on their other devices. It goes nowhere
+> else. Sleep data is never transmitted anywhere under any circumstances, and
+> a user who never signs in transmits nothing at all: the app is fully usable
+> without an account. This is stated in the Apple Health line in Settings, in
+> the `NSHealthShareUsageDescription` permission string, and in §5 of our
+> privacy policy.
 >
 > A screen recording from a physical device showing the path from launch to
 > the Apple Health section, and the permission sheet, is attached.
@@ -134,5 +148,8 @@ Simulator, so record it on a physical device.
       offering marked Current under entitlement `premium`; a sandbox purchase
       completed on a device
 - [ ] Screen recording of the Apple Health path, from a physical device
+- [ ] App Privacy: **Fitness** declared as collected and linked — the step
+      count leaves the device with a synced attack, so declaring it
+      collected-but-not-linked would contradict the 2.5.1 reply
 - [ ] A demo account is not needed — the app is fully usable signed out —
       but say so in the review notes rather than leaving the field empty

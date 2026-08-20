@@ -4,7 +4,7 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 void main() {
@@ -32,7 +32,7 @@ void main() {
     id: 'a1',
     startedAt: DateTime.utc(2026, 7, 1, 8, 30),
     intensity: 7,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     medicationName: 'Sumatriptan',
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
@@ -51,7 +51,7 @@ void main() {
     expect(a.startedAt, DateTime.utc(2026, 7, 1, 8, 30));
     expect(a.startedAt.isUtc, isTrue);
     expect(a.intensity, 7);
-    expect(a.location, HeadLocation.right);
+    expect(a.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(a.medicationName, 'Sumatriptan');
     expect(a.symptoms, ['aura', 'nausea']);
     expect(a.triggers, ['stress']);
@@ -67,7 +67,7 @@ void main() {
         id: 'a2',
         startedAt: DateTime.utc(2026, 7, 2),
         intensity: 4,
-        location: HeadLocation.front,
+        regions: const <HeadRegion>[HeadRegion.foreheadL],
       );
       await repository.insert(offline);
 
@@ -89,7 +89,7 @@ void main() {
           id: 'a$i',
           startedAt: DateTime.utc(2026, 7, day),
           intensity: 5,
-          location: HeadLocation.whole,
+          regions: const <HeadRegion>[HeadRegion.crown],
         ),
       );
     }
@@ -113,7 +113,7 @@ void main() {
         id: 'a3',
         startedAt: DateTime.utc(2026, 7, 3),
         intensity: 6,
-        location: HeadLocation.back,
+        regions: const <HeadRegion>[HeadRegion.occipitalL],
       );
       await repository.insert(bare);
 
@@ -186,13 +186,13 @@ void main() {
         await repository.updateCore(
           'a1',
           intensity: 3,
-          location: HeadLocation.back,
+          regions: const <HeadRegion>[HeadRegion.occipitalL],
           medicationName: null,
         );
 
         final a = (await repository.watchAll().first).single;
         expect(a.intensity, 3);
-        expect(a.location, HeadLocation.back);
+        expect(a.regions, const <HeadRegion>[HeadRegion.occipitalL]);
         expect(a.medicationName, isNull);
         // Untouched:
         expect(a.symptoms, ['aura', 'nausea']);
@@ -209,7 +209,7 @@ void main() {
           id: 'a2',
           startedAt: DateTime.utc(2026, 7, 4),
           intensity: 2,
-          location: HeadLocation.front,
+          regions: const <HeadRegion>[HeadRegion.foreheadL],
         ),
       );
 

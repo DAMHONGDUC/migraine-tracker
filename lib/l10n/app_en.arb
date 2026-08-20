@@ -105,11 +105,19 @@
   },
   "appFeatureExportTitle": "Export your data",
   "@appFeatureExportTitle": {
-    "description": "Free feature: data export"
+    "description": "Premium feature: data export"
   },
-  "appFeatureExportBody": "Take everything with you as JSON or CSV whenever you want, and delete it all in one tap.",
+  "appFeatureExportBody": "Take everything with you as JSON or CSV, whenever you want.",
   "@appFeatureExportBody": {
-    "description": "Free feature: data export, detail"
+    "description": "Premium feature: data export, detail"
+  },
+  "appFeatureWipeTitle": "Delete everything",
+  "@appFeatureWipeTitle": {
+    "description": "Free feature: the GDPR wipe"
+  },
+  "appFeatureWipeBody": "Erase every record from this phone and from the cloud in one tap.",
+  "@appFeatureWipeBody": {
+    "description": "Free feature: the GDPR wipe, detail"
   },
   "appFeatureAlertsTitle": "Pressure-drop alerts",
   "@appFeatureAlertsTitle": {
@@ -422,25 +430,77 @@
   "@commonDone": {
     "description": "Tooltip on the tick in a picker sheet's header, which applies the pick and closes the sheet"
   },
-  "locationLeft": "Left side",
-  "@locationLeft": {
-    "description": "Head location option: left side"
+  "regionCrown": "Crown",
+  "@regionCrown": {
+    "description": "Head area: top of the skull, shown on both the front and back view"
   },
-  "locationRight": "Right side",
-  "@locationRight": {
-    "description": "Head location option: right side"
+  "regionForeheadL": "Left forehead",
+  "@regionForeheadL": {
+    "description": "Head area: left half of the forehead"
   },
-  "locationFront": "Front",
-  "@locationFront": {
-    "description": "Head location option: front / forehead"
+  "regionForeheadR": "Right forehead",
+  "@regionForeheadR": {
+    "description": "Head area: right half of the forehead"
   },
-  "locationBack": "Back of head",
-  "@locationBack": {
-    "description": "Head location option: back of head"
+  "regionTempleL": "Left temple",
+  "@regionTempleL": {
+    "description": "Head area: left temple"
   },
-  "locationWhole": "Whole head",
-  "@locationWhole": {
-    "description": "Head location option: whole head"
+  "regionTempleR": "Right temple",
+  "@regionTempleR": {
+    "description": "Head area: right temple"
+  },
+  "regionEyeL": "Left eye",
+  "@regionEyeL": {
+    "description": "Head area: around and behind the left eye"
+  },
+  "regionEyeR": "Right eye",
+  "@regionEyeR": {
+    "description": "Head area: around and behind the right eye"
+  },
+  "regionNose": "Nose",
+  "@regionNose": {
+    "description": "Head area: the nose and the bridge of it, between the eyes; has no left or right because it sits on the midline"
+  },
+  "regionCheekL": "Left cheek",
+  "@regionCheekL": {
+    "description": "Head area: left cheek, beside the sinus rather than including it"
+  },
+  "regionCheekR": "Right cheek",
+  "@regionCheekR": {
+    "description": "Head area: right cheek, beside the sinus rather than including it"
+  },
+  "regionJawL": "Left jaw",
+  "@regionJawL": {
+    "description": "Head area: left jaw"
+  },
+  "regionJawR": "Right jaw",
+  "@regionJawR": {
+    "description": "Head area: right jaw"
+  },
+  "regionOccipitalL": "Back left",
+  "@regionOccipitalL": {
+    "description": "Head area: back of the head, left side"
+  },
+  "regionOccipitalR": "Back right",
+  "@regionOccipitalR": {
+    "description": "Head area: back of the head, right side"
+  },
+  "regionNape": "Nape",
+  "@regionNape": {
+    "description": "Head area: nape of the neck"
+  },
+  "logLocationViewFront": "Front",
+  "@logLocationViewFront": {
+    "description": "Tab that turns the head diagram to face the user; the number in brackets counts the areas picked on that side"
+  },
+  "logLocationViewBack": "Back",
+  "@logLocationViewBack": {
+    "description": "Tab that turns the head diagram around; the number in brackets counts the areas picked on that side"
+  },
+  "logLocationNone": "No area picked yet",
+  "@logLocationNone": {
+    "description": "Shown in place of the area list when nothing has been picked yet"
   },
   "historyTitle": "History",
   "@historyTitle": {
@@ -604,22 +664,6 @@
   "@attackDetailNoWeather": {
     "description": "Shown when the attack was logged offline and not backfilled"
   },
-  "attackDetailPressure": "Pressure",
-  "@attackDetailPressure": {
-    "description": "Weather field label: absolute pressure"
-  },
-  "attackDetailPressureDelta": "24h change",
-  "@attackDetailPressureDelta": {
-    "description": "Weather field label: 24h pressure delta"
-  },
-  "attackDetailHumidity": "Humidity",
-  "@attackDetailHumidity": {
-    "description": "Weather field label: relative humidity"
-  },
-  "attackDetailTemperature": "Temperature",
-  "@attackDetailTemperature": {
-    "description": "Weather field label: temperature"
-  },
   "attackDetailDetailsTitle": "Details",
   "@attackDetailDetailsTitle": {
     "description": "Section header for symptoms/triggers/notes"
@@ -639,33 +683,6 @@
   "attackDetailDeleteBody": "This permanently removes this attack and its weather data. This cannot be undone.",
   "@attackDetailDeleteBody": {
     "description": "Body of the single-attack delete confirmation"
-  },
-  "attackDetailHumidityValue": "{value}%",
-  "@attackDetailHumidityValue": {
-    "description": "Humidity readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "attackDetailTemperatureValue": "{value}°C",
-  "@attackDetailTemperatureValue": {
-    "description": "Temperature readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "attackDetailPressureValue": "{value} hPa",
-  "@attackDetailPressureValue": {
-    "description": "Pressure readout",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
   },
   "historyEmpty": "No attacks logged yet.",
   "@historyEmpty": {
@@ -1072,10 +1089,6 @@
   "@premiumLockedForecast": {
     "description": "Locked-state copy on the forecast card"
   },
-  "premiumLockedReport": "Export a PDF summary of your attacks for your doctor.",
-  "@premiumLockedReport": {
-    "description": "Locked-state copy on the doctor report setting"
-  },
   "premiumLockedCorrelation": "Unlock to see how much of your pain follows the weather.",
   "@premiumLockedCorrelation": {
     "description": "Teaser copy over the blurred correlation percentage"
@@ -1118,6 +1131,10 @@
   "attackLimitBannerBody": "Unlock Premium to keep logging without a limit.",
   "@attackLimitBannerBody": {
     "description": "Supporting line under the free-log countdown banner"
+  },
+  "dashboardPremiumBannerTitle": "Unlock Premium",
+  "@dashboardPremiumBannerTitle": {
+    "description": "Title of the short premium banner at the top of the dashboard"
   },
   "medicationLimitTitle": "{count, plural, other{{count} medications on the free plan}}",
   "@medicationLimitTitle": {
@@ -1315,9 +1332,9 @@
   "@paywallRestore": {
     "description": "Low-emphasis action that re-applies a purchase made on another device or before a reinstall"
   },
-  "weatherAttribution": " Weather",
+  "weatherAttribution": "Weather",
   "@weatherAttribution": {
-    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it; the glyph is Apple's logo character and both locales carry the same value"
+    "description": "Apple's weather trademark, shown wherever WeatherKit data is drawn. A condition of using WeatherKit — do not translate it. The logo beside it is drawn as an icon, because the U+F8FF glyph this string used to carry only renders in Apple's own fonts"
   },
   "paywallTermsOfUse": "Terms of Use",
   "@paywallTermsOfUse": {
@@ -1472,21 +1489,17 @@
       }
     }
   },
-  "remindersTestTooltip": "Test notification (debug)",
-  "@remindersTestTooltip": {
-    "description": "Tooltip on the debug-only button that fires a test notification"
-  },
-  "remindersTestScheduled": "Test notification in 10s — leave or background the app to see it",
+  "remindersTestScheduled": "Local test notification in 10s — leave or background the app to see it",
   "@remindersTestScheduled": {
-    "description": "Snackbar shown after triggering the debug test notification"
+    "description": "Snackbar after the dev-only row scheduled a local test notification"
   },
-  "remindersTestTitle": "Test notification",
+  "remindersTestTitle": "Local test notification",
   "@remindersTestTitle": {
-    "description": "Title of the debug test notification"
+    "description": "Title of the local test notification the dev-only row schedules"
   },
-  "remindersTestBody": "If you can see this, reminders are working.",
+  "remindersTestBody": "Sent by this device, not the server — local notifications work.",
   "@remindersTestBody": {
-    "description": "Body of the debug test notification"
+    "description": "Body of the local test notification, naming the device as the sender"
   },
   "permissionOpenSettings": "Open Settings",
   "@permissionOpenSettings": {
@@ -1888,14 +1901,9 @@
   "@settingsDevSeed": {
     "description": "Dev-only settings tile that wipes the device and seeds fixtures"
   },
-  "settingsDevSeedDone": "Seeded {count} attacks, medications and exports.",
+  "settingsDevSeedDone": "Sample data is in.",
   "@settingsDevSeedDone": {
-    "description": "Snackbar shown after the dev-only seed finishes",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "Snackbar shown after the dev-only seed finishes"
   },
   "settingsDevSeedFailed": "Seeding sample data failed.",
   "@settingsDevSeedFailed": {
@@ -1908,10 +1916,6 @@
   "settingsDevPremium": "Premium (mock)",
   "@settingsDevPremium": {
     "description": "Dev-only tile: force the premium state on or off"
-  },
-  "settingsDevMockOffers": "Paywall plans (mock)",
-  "@settingsDevMockOffers": {
-    "description": "Dev-only tile: show three fake plans on the paywall so it can be screenshotted before the store products exist"
   },
   "settingsDevResetConfirmTitle": "Reset the app?",
   "@settingsDevResetConfirmTitle": {
@@ -2147,10 +2151,6 @@
   "@dashboardCalendarShortcut": {
     "description": "Dashboard quick-access card opening History in calendar view"
   },
-  "dashboardChartShortcut": "Chart",
-  "@dashboardChartShortcut": {
-    "description": "Dashboard quick-access card opening History in chart view"
-  },
   "dashboardExplore": "Explore",
   "@dashboardExplore": {
     "description": "Section header above the dashboard feature banners"
@@ -2224,19 +2224,6 @@
   "dashboardRemainingSoon": "soon",
   "@dashboardRemainingSoon": {
     "description": "Shown when the next reminder is less than a minute away"
-  },
-  "dashboardSaleTitle": "50% off Premium",
-  "@dashboardSaleTitle": {
-    "description": "Title of the limited-time premium discount banner on the dashboard"
-  },
-  "dashboardSaleEndsIn": "Ends in {time}",
-  "@dashboardSaleEndsIn": {
-    "description": "Countdown line on the premium sale banner; time is HH:MM:SS",
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
   },
   "loginTitle": "Sign in",
   "@loginTitle": {
@@ -2342,9 +2329,9 @@
   "@settingsSectionHealth": {
     "description": "Settings section heading above the Apple Health sleep and step connect switches"
   },
-  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only — it stays on this device and is never uploaded.",
+  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only. Your sleep never leaves this device. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
   "@settingsHealthCaption": {
-    "description": "Line under the Apple Health switches in Settings saying what is read and where it stays"
+    "description": "Line under the Apple Health switches in Settings: what is read, that sleep stays put and that an attack's step count travels with it"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
@@ -2681,17 +2668,30 @@
   "@dashboardHealthConnect": {
     "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
   },
-  "settingsDevPush": "Send a test push",
+  "settingsDevPush": "Test push notification (Firebase)",
   "@settingsDevPush": {
-    "description": "Dev-only Settings row showing whether this device registered for push"
+    "description": "Dev-only Settings row that asks the Firebase backend to push to this device"
   },
-  "settingsDevPushSent": "Test push sent. It should arrive in a moment.",
+  "settingsDevLocalNotification": "Test local notification (device)",
+  "@settingsDevLocalNotification": {
+    "description": "Dev-only Settings row that schedules a local notification ~10s out on the device"
+  },
+  "settingsDevPushSent": "Firebase push sent. It should arrive in a moment.",
   "@settingsDevPushSent": {
-    "description": "Snackbar after the backend accepted the test push request"
+    "description": "Snackbar after the backend accepted the Firebase test push request"
   },
-  "settingsDevPushFailed": "Test push failed: {reason}",
+  "settingsDevPushFailed": "Firebase push failed: {reason}",
   "@settingsDevPushFailed": {
-    "description": "Snackbar when the test push callable refused or failed",
+    "description": "Snackbar when the Firebase test push callable refused or failed",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDevLocalNotificationFailed": "Local notification failed: {reason}",
+  "@settingsDevLocalNotificationFailed": {
+    "description": "Snackbar when scheduling the local test notification failed",
     "placeholders": {
       "reason": {
         "type": "String"
@@ -2720,6 +2720,15 @@
     }
   },
   "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
+  "freeLimitReminders": "{count, plural, =0{No free reminders left} =1{1 free reminder left} other{{count} free reminders left}}",
+  "@freeLimitReminders": {
+    "description": "How many of the free plan's medication reminders are still available, above the reminder list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@freeLimitMedications": {
     "description": "Headline of the free-plan medication usage indicator",
     "placeholders": {
@@ -2733,12 +2742,54 @@
     "description": "Title of the weather and pressure alert card on Insights"
   },
   "weatherUnavailable": "Weather is unavailable right now.",
+  "weatherLocationOffBody": "Turn on location to see the weather and pressure where you are.",
+  "@weatherLocationOffBody": {
+    "description": "Weather card copy shown when location permission has not been granted"
+  },
+  "weatherLocationOffAction": "Enable location",
+  "@weatherLocationOffAction": {
+    "description": "Button on the weather card that raises the location permission prompt"
+  },
+  "weatherA11yPlace": "Location: {place}",
+  "weatherA11yDetail": "Weather details",
+  "weatherRainfallTitle": "Rainfall, next {count} days",
+  "@weatherRainfallTitle": {
+    "description": "Heading of the rainfall forecast list in the weather detail sheet. {count} is WeatherReport.forecastDayCount, never a number typed here.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherToday": "Today",
+  "@weatherToday": {
+    "description": "Names today's row in the seven-day forecast list."
+  },
+  "weatherRange": "{low} / {high}",
+  "@weatherRange": {
+    "description": "A day's low and high temperature, both already formatted.",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "@weatherA11yPlace": {
+    "description": "VoiceOver label of the place name line above the weather reading. {place} is the ward, district or city name the OS geocoder returned.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "@weatherA11yDetail": {
+    "description": "Tooltip and VoiceOver label of the weather card's button that opens the full readings in a sheet."
+  },
   "@weatherUnavailable": {
     "description": "Shown when the weather report could not be fetched"
-  },
-  "weatherNow": "Now",
-  "@weatherNow": {
-    "description": "Label for the current hour in the hourly strip"
   },
   "weatherFeelsLike": "Feels like {value}",
   "@weatherFeelsLike": {
@@ -2786,6 +2837,15 @@
     }
   },
   "weatherUvValue": "{value}",
+  "weatherPressureValue": "{value} hPa",
+  "@weatherPressureValue": {
+    "description": "A barometric pressure reading in hectopascals.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "@weatherUvValue": {
     "description": "UV index, an unit-less number",
     "placeholders": {
@@ -2795,6 +2855,31 @@
     }
   },
   "weatherDetailHumidity": "Humidity",
+  "weatherDetailPrecipitation": "Chance of rain",
+  "weatherDetailPrecipitationAmount": "Rainfall",
+  "weatherMillimetreValue": "{value} mm",
+  "@weatherDetailPrecipitation": {
+    "description": "Label of the weather sheet's chance-of-rain cell."
+  },
+  "@weatherDetailPrecipitationAmount": {
+    "description": "Label of the weather sheet's rainfall cell — how much rain the day is expected to bring, beside the chance of any."
+  },
+  "@weatherMillimetreValue": {
+    "description": "A depth of rainfall in millimetres, e.g. 12.5 mm",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherDetailPressure": "Pressure",
+  "@weatherDetailPressure": {
+    "description": "Label of the weather card's barometric pressure cell."
+  },
+  "weatherDetailPressureDelta": "24h change",
+  "@weatherDetailPressureDelta": {
+    "description": "Label of the weather card's 24-hour pressure change cell, shown on a logged attack."
+  },
   "@weatherDetailHumidity": {
     "description": "Weather detail label"
   },
@@ -2807,11 +2892,15 @@
     "description": "Weather detail label"
   },
   "weatherDetailVisibility": "Visibility",
-  "@weatherDetailVisibility": {
-    "description": "Weather detail label"
+  "weatherDetailSunrise": "Sunrise",
+  "@weatherDetailSunrise": {
+    "description": "Label of the weather sheet's sunrise cell."
   },
-  "weatherDetailPrecipitation": "Chance of rain",
-  "@weatherDetailPrecipitation": {
+  "weatherDetailSunset": "Sunset",
+  "@weatherDetailSunset": {
+    "description": "Label of the weather sheet's sunset cell."
+  },
+  "@weatherDetailVisibility": {
     "description": "Weather detail label"
   },
   "weatherConditionClear": "Clear",
@@ -2898,26 +2987,6 @@
   "insightsAnalysisTitle": "Analysis",
   "@insightsAnalysisTitle": {
     "description": "Heading of the premium half of an insight card"
-  },
-  "weatherMetricConditions": "Conditions",
-  "@weatherMetricConditions": {
-    "description": "Weather card dropdown option: the hourly weather itself"
-  },
-  "weatherMetricSheetTitle": "Show",
-  "@weatherMetricSheetTitle": {
-    "description": "Title of the sheet that picks which hourly reading to show"
-  },
-  "weatherRange": "{low} / {high}",
-  "@weatherRange": {
-    "description": "A day's low and high temperature",
-    "placeholders": {
-      "low": {
-        "type": "String"
-      },
-      "high": {
-        "type": "String"
-      }
-    }
   },
   "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
   "@premiumLockedPressure": {

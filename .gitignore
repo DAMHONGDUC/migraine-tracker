@@ -41,6 +41,11 @@ env/*.json
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
 
+# The unpacked originals of all of the above, per environment, that
+# `melos run prepare-env-dev|prod` copies into place. Same live keys as
+# env/, so it stays out of git for the same reason.
+env_assets/
+
 # The Cloud Functions dotenv the Firebase CLI reads at deploy. Its contents are
 # identifiers rather than secrets — the WeatherKit `.p8` is in Secret Manager —
 # but it is per-developer, so only the template is tracked.

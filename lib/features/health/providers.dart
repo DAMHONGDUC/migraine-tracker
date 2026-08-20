@@ -1,9 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../core/env/app_env.dart';
 import 'data/datasources/sleep_sample_source.dart';
 import 'data/datasources/step_sample_source.dart';
-import 'data/repositories/dev_seeded_health_repository.dart';
 import 'data/repositories/health_kit_repository.dart';
 import 'domain/entities/health_connections.dart';
 import 'domain/entities/sleep_night.dart';
@@ -15,7 +13,6 @@ import 'domain/services/health_summariser.dart';
 import 'domain/services/sleep_night_aggregator.dart';
 import 'domain/services/step_day_aggregator.dart';
 import 'domain/services/step_hour_aggregator.dart';
-import 'presentation/controllers/dev_health_seed_controller.dart';
 import 'presentation/controllers/health_controller.dart';
 
 final sleepSampleSourceProvider = Provider<SleepSampleSource>(
@@ -26,22 +23,15 @@ final stepSampleSourceProvider = Provider<StepSampleSource>(
   (ref) => HealthKitStepSampleSource(),
 );
 
-/// The seed behind the dev-only fake HealthKit (see [DevHealthSeedController]).
-final devHealthSeedProvider = NotifierProvider<DevHealthSeedController, int?>(
-  DevHealthSeedController.new,
-);
-
-/// HealthKit, or the dev fake when the dev seed has run.
+/// HealthKit, and nothing else.
 ///
-/// The fake is gated on `!AppEnv.isProd` as well as the seed, so a stray
-/// preference could never put invented health data in front of a real user.
+/// **There is no dev fake behind this any more** (owner's call). A
+/// `DevSeededHealthRepository` used to stand in on the Simulator, where real
+/// reads come back empty — but it meant the sleep and activity cards could be
+/// showing invented nights on a dev build, which is a worse thing to read
+/// than an honest empty card. Health is the one source the app does not own,
+/// so it is the one the seed does not invent: check it on a device.
 final healthRepositoryProvider = Provider<HealthRepository>((ref) {
-  final int? devSeed = ref.watch(devHealthSeedProvider);
-
-  if (!AppEnv.isProd && devSeed != null) {
-    return DevSeededHealthRepository(devSeed);
-  }
-
   return HealthKitRepository(
     ref.watch(sleepSampleSourceProvider),
     const SleepNightAggregator(),

@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_report.dart';
 import '../../domain/entities/weather_snapshot.dart';
@@ -29,9 +30,10 @@ class BackendWeatherDataSource {
 
   /// How far the weather card looks ahead.
   ///
-  /// A week of hours, because the card's day strip offers a week and every
-  /// day on it needs hours behind it — `WeatherReport.weekLength` days at 24.
-  static const int _reportHoursForward = WeatherReport.weekLength * 24;
+  /// Every day the sheet lists needs hours behind it, because the readings a
+  /// picked day shows are averaged from them — `WeatherReport.forecastDayCount`
+  /// days at 24, which is 240 and exactly the callable's own ceiling.
+  static const int _reportHoursForward = WeatherReport.forecastDayCount * 24;
 
   Future<Map<Object?, Object?>?> _call({
     required double latitude,
@@ -51,7 +53,7 @@ class BackendWeatherDataSource {
       'full': full,
     };
 
-    AppLogger.action('Call getWeather', request);
+    SdLogger.action(LogTagConstant.weather, 'Call getWeather', request);
     try {
       final HttpsCallableResult<dynamic> result = await _functions
           .httpsCallable('getWeather')
@@ -64,7 +66,7 @@ class BackendWeatherDataSource {
           });
       final Map<Object?, Object?>? data = result.data as Map<Object?, Object?>?;
 
-      AppLogger.info('getWeather ok', <String, Object?>{
+      SdLogger.info(LogTagConstant.weather, 'getWeather ok', <String, Object?>{
         ...request,
         'hours': (data?['hours'] as List<Object?>?)?.length ?? 0,
         'days': (data?['days'] as List<Object?>?)?.length ?? 0,
@@ -75,11 +77,11 @@ class BackendWeatherDataSource {
 
       return data;
     } on FirebaseFunctionsException catch (error, stackTrace) {
-      // Best-effort by rule, silent by accident: every weather failure —
-      // a missing WeatherKit credential, a refused call, being offline —
-      // arrives at the UI as "no weather" and nowhere else. `failed-
-      // precondition` here is the backend saying its credentials are unset.
-      AppLogger.error(
+      // Best-effort by rule, silent by accident: every weather failure reaches
+      // the UI as "no weather" and nowhere else. `failed-precondition` is the
+      // backend saying its own credentials are unset.
+      SdLogger.error(
+        LogTagConstant.weather,
         'getWeather failed',
         error: error,
         stackTrace: stackTrace,
@@ -93,7 +95,8 @@ class BackendWeatherDataSource {
 
       return null;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.weather,
         'getWeather failed',
         error: error,
         stackTrace: stackTrace,
@@ -202,6 +205,7 @@ class BackendWeatherDataSource {
       uvIndex: _double(raw['uvIndex']),
       condition: WeatherCondition.fromCode(raw['conditionCode'] as String?),
       precipitationChancePercent: _double(raw['precipitationChancePercent']),
+      precipitationAmountMm: _double(raw['precipitationAmountMm']),
       windSpeedKph: _double(raw['windSpeedKph']),
       cloudCoverPercent: _double(raw['cloudCoverPercent']),
       visibilityKm: _double(raw['visibilityKm']),
@@ -219,6 +223,7 @@ class BackendWeatherDataSource {
       temperatureMaxCelsius: _double(raw['temperatureMaxCelsius']),
       temperatureMinCelsius: _double(raw['temperatureMinCelsius']),
       precipitationChancePercent: _double(raw['precipitationChancePercent']),
+      precipitationAmountMm: _double(raw['precipitationAmountMm']),
       uvIndexMax: _double(raw['uvIndexMax']),
       sunrise: DateTime.tryParse('${raw['sunrise']}')?.toUtc(),
       sunset: DateTime.tryParse('${raw['sunset']}')?.toUtc(),

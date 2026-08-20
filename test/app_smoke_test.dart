@@ -11,12 +11,14 @@ void main() {
 
     // The dashboard's hero log button is front and centre.
     expect(find.text('Log an attack'), findsOneWidget);
-    // Icon-only bottom nav: Home is selected (filled), the rest are outlined.
+    // Icon-only bottom nav: Home is selected (filled), the rest outlined.
+    // `findsWidgets` for the four, not `findsOneWidget` — the quick-access
+    // tiles draw some of the same glyphs, so an exact count fails on a good one.
     expect(find.byIcon(Icons.home), findsOneWidget);
-    expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.medication_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.insights_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.calendar_month_outlined), findsWidgets);
+    expect(find.byIcon(Icons.medication_outlined), findsWidgets);
+    expect(find.byIcon(Icons.insights_outlined), findsWidgets);
+    expect(find.byIcon(Icons.settings_outlined), findsWidgets);
 
     await finishTest(tester);
   });

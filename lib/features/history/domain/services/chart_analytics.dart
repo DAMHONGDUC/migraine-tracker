@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../attacks/domain/entities/attack.dart';
-import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 
 /// Pure-Dart aggregations behind the History → Chart view's richer charts.
 /// Each calculator is const and side-effect free (unit-tested independently);
@@ -118,28 +118,39 @@ class SeverityBreakdownCalculator {
 
 @immutable
 class LocationCount {
-  const LocationCount({required this.location, required this.count});
+  const LocationCount({required this.region, required this.count});
 
-  final HeadLocation location;
+  final HeadRegion region;
   final int count;
 }
 
-/// Counts attacks per head location, dropping locations that never occur and
-/// sorting most-frequent first (ties keep enum order for a stable layout).
+/// Counts attacks per head area, dropping areas that never occur and sorting
+/// most-frequent first (ties keep enum order for a stable layout).
+///
+/// **An attack counts once in every area it names**, so the column totals add
+/// up to more than the number of attacks. That is the honest reading: the
+/// chart answers "how often does my left temple hurt", not "how do my attacks
+/// divide up", and picking one area per attack to make the sum tidy would
+/// throw away the very thing the multi-area picker exists to record.
 class LocationBreakdownCalculator {
   const LocationBreakdownCalculator();
 
   List<LocationCount> compute(List<Attack> attacks) {
-    final counts = {for (final location in HeadLocation.values) location: 0};
-    for (final attack in attacks) {
-      counts[attack.location] = counts[attack.location]! + 1;
+    final Map<HeadRegion, int> counts = <HeadRegion, int>{
+      for (final HeadRegion region in HeadRegion.values) region: 0,
+    };
+
+    for (final Attack attack in attacks) {
+      for (final HeadRegion region in attack.regions) {
+        counts[region] = counts[region]! + 1;
+      }
     }
-    final result = [
-      for (final location in HeadLocation.values)
-        if (counts[location]! > 0)
-          LocationCount(location: location, count: counts[location]!),
-    ]..sort((a, b) => b.count.compareTo(a.count));
-    return result;
+
+    return <LocationCount>[
+      for (final HeadRegion region in HeadRegion.values)
+        if (counts[region]! > 0)
+          LocationCount(region: region, count: counts[region]!),
+    ]..sort((LocationCount a, LocationCount b) => b.count.compareTo(a.count));
   }
 }
 

@@ -2,11 +2,11 @@ import 'package:meta/meta.dart';
 
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../enums/exertion_level.dart';
-import '../enums/head_location.dart';
+import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
 /// A single migraine attack. The three required fields ([intensity],
-/// [location], [medicationName]) mirror the 3-tap log flow; everything else
+/// [regions], [medicationName]) mirror the 3-tap log flow; everything else
 /// is optional detail. [weather] is null while offline and backfilled later.
 @immutable
 class Attack {
@@ -14,7 +14,7 @@ class Attack {
     required this.id,
     required DateTime startedAt,
     required this.intensity,
-    required this.location,
+    required this.regions,
     this.medicationName,
     this.symptoms = const [],
     this.triggers = const [],
@@ -23,11 +23,17 @@ class Attack {
     this.medicationEffect,
     DateTime? endedAt,
     this.weather,
+    this.steps,
   }) : startedAt = startedAt.toUtc(),
        endedAt = endedAt?.toUtc(),
        assert(
          intensity >= 1 && intensity <= 10,
          'intensity must be within 1..10',
+       ),
+       assert(
+         regions.isNotEmpty,
+         'an attack must name at least one region — the location step is the '
+         'one step of the flow that waits for a pick',
        ),
        assert(
          endedAt == null || !endedAt.toUtc().isBefore(startedAt.toUtc()),
@@ -42,7 +48,11 @@ class Attack {
   /// Pain intensity, 1–10.
   final int intensity;
 
-  final HeadLocation location;
+  /// Every area the user tapped, never empty. A set in meaning but a list in
+  /// storage, kept in [HeadRegion] order so two attacks naming the same areas
+  /// serialize identically and the sync codec's comparison stays honest.
+  final List<HeadRegion> regions;
+
   final String? medicationName;
   final List<String> symptoms;
   final List<String> triggers;
@@ -67,6 +77,20 @@ class Attack {
 
   final WeatherSnapshot? weather;
 
+  /// Steps taken that day up to the moment the attack was logged, or null
+  /// when Apple Health had nothing to give — access refused, no samples, or
+  /// not iOS.
+  ///
+  /// **The day so far, not the whole day**, which is the same shape as
+  /// [weather]: a reading taken at the time, not a figure the day settles on
+  /// later. What a doctor wants beside an attack is how much the person had
+  /// moved *before* it, and a total that keeps climbing after the attack
+  /// answers a different question.
+  ///
+  /// Null and zero are different answers and both are real: zero is a day
+  /// spent still, null is a day Health would not talk about.
+  final int? steps;
+
   /// How long the attack lasted, or null while [endedAt] is unset.
   ///
   /// The 4–72h band is what separates a migraine from a tension headache, so
@@ -74,11 +98,11 @@ class Attack {
   /// answer before.
   Duration? get duration => endedAt?.difference(startedAt);
 
-  Attack copyWith({WeatherSnapshot? weather}) => Attack(
+  Attack copyWith({WeatherSnapshot? weather, int? steps}) => Attack(
     id: id,
     startedAt: startedAt,
     intensity: intensity,
-    location: location,
+    regions: regions,
     medicationName: medicationName,
     symptoms: symptoms,
     triggers: triggers,
@@ -87,5 +111,6 @@ class Attack {
     medicationEffect: medicationEffect,
     endedAt: endedAt,
     weather: weather ?? this.weather,
+    steps: steps ?? this.steps,
   );
 }

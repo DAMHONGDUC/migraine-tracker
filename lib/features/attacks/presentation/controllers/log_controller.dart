@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
+import 'package:system_design/common.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../review/providers.dart';
 import '../../../sync/domain/enums/sync_trigger.dart';
 import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
-import '../../domain/enums/head_location.dart';
+import '../../domain/enums/head_region.dart';
 import '../../providers.dart';
 
 /// Steps of the sacred flow: pick a value, then confirm with Next/Done.
@@ -26,7 +27,7 @@ class LogFlowState {
   const LogFlowState({
     this.step = LogStep.intensity,
     this.intensity,
-    this.location,
+    this.regions,
     this.medicationName,
     this.savedId,
     this.hasDraft = false,
@@ -35,7 +36,11 @@ class LogFlowState {
 
   final LogStep step;
   final int? intensity;
-  final HeadLocation? location;
+  /// Every area confirmed on the location step. Null until it is confirmed,
+  /// which is a different thing from the empty list the step starts on: null
+  /// means "not answered yet", empty means "answered nothing", and the step
+  /// refuses to advance on the second.
+  final List<HeadRegion>? regions;
 
   /// Committed on the medication step, held until the save at the end of the
   /// exertion step. Null is a real answer here ("No medication").
@@ -49,7 +54,7 @@ class LogFlowState {
   final bool hasDraft;
 
   /// The active step's picked-but-not-yet-confirmed value: an `int`
-  /// (intensity), a [HeadLocation], a `String?` (medication name) or an
+  /// (intensity), a `List<HeadRegion>`, a `String?` (medication name) or an
   /// [ExertionLevel].
   final Object? draft;
 }
@@ -76,7 +81,7 @@ class LogController extends Notifier<LogFlowState> {
     state = LogFlowState(
       step: state.step,
       intensity: state.intensity,
-      location: state.location,
+      regions: state.regions,
       medicationName: state.medicationName,
       savedId: state.savedId,
       hasDraft: true,
@@ -92,7 +97,7 @@ class LogController extends Notifier<LogFlowState> {
         state = LogFlowState(
           step: LogStep.medication,
           intensity: state.intensity,
-          location: state.draft! as HeadLocation,
+          regions: state.draft! as List<HeadRegion>,
           // Defaults to "No medication": the common answer costs no tap, and
           // Next is armed on arrival rather than after a pick.
           hasDraft: true,
@@ -102,7 +107,7 @@ class LogController extends Notifier<LogFlowState> {
         state = LogFlowState(
           step: LogStep.exertion,
           intensity: state.intensity,
-          location: state.location,
+          regions: state.regions,
           medicationName: state.draft as String?,
           // Same idea: "None" is the common answer and the step's default.
           hasDraft: true,
@@ -129,26 +134,29 @@ class LogController extends Notifier<LogFlowState> {
       id: _uuid.v4(),
       startedAt: DateTime.now().toUtc(),
       intensity: state.intensity!,
-      location: state.location!,
+      regions: state.regions!,
       medicationName: medicationName,
       exertionLevel: exertionLevel,
     );
 
     try {
       await ref.read(attackRepositoryProvider).insert(attack);
-      AppLogger.action('Attack logged', {
+      SdLogger.action(LogTagConstant.attackLog, 'Attack logged', {
         'intensity': attack.intensity,
-        'location': attack.location.name,
+        'regions': attack.regions.length,
         'medication': medicationName,
         'exertion': exertionLevel?.name,
       });
       AppAnalytics.logAttackLogged();
       AppAnalytics.logLogFlowStep(LogStep.saved.name);
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
-      // Same best-effort shape: the attack is already saved, so a failure
-      // here just leaves it pending for the next sync (hard rule 4).
-      // Exempt from the sync cooldown: this one exists so a just-logged
-      // attack reaches the server before the phone can be lost.
+      // Local read, but still unawaited: HealthKit is another process, and
+      // nothing in the log flow waits (hard rule 4). It bumps the attack's
+      // revision, so the sync below - or the next one - carries the number up.
+      unawaited(ref.read(stepAttachServiceProvider).onAttackLogged(attack));
+      // Same best-effort shape: the attack is already saved, so a failure here
+      // leaves it pending for the next sync (hard rule 4). Exempt from the
+      // cooldown — a just-logged attack must reach the server.
       unawaited(
         ref
             .read(syncControllerProvider.notifier)
@@ -164,7 +172,8 @@ class LogController extends Notifier<LogFlowState> {
       );
       state = LogFlowState(savedId: attack.id, step: LogStep.saved);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.attackLog,
         'Attack log failed',
         error: error,
         stackTrace: stackTrace,
@@ -187,16 +196,16 @@ class LogController extends Notifier<LogFlowState> {
       LogStep.medication => LogFlowState(
         step: LogStep.location,
         intensity: state.intensity,
-        location: state.location,
-        draft: state.location,
-        hasDraft: state.location != null,
+        regions: state.regions,
+        draft: state.regions,
+        hasDraft: state.regions != null,
       ),
       // Medication was confirmed to get here, and "No medication" is a valid
       // confirmed pick — so Next is armed even though the draft is null.
       LogStep.exertion => LogFlowState(
         step: LogStep.medication,
         intensity: state.intensity,
-        location: state.location,
+        regions: state.regions,
         medicationName: state.medicationName,
         draft: state.medicationName,
         hasDraft: true,

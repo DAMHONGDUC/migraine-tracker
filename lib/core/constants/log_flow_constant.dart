@@ -4,9 +4,17 @@ final class LogFlowConstant {
   ///
   /// Two, so the two adjacent steps read as one component — four exertion
   /// tiles across a single row left every label a cramped two-line scrap.
-  /// `LocationGrid` stays three-up: five tiles, each labelled with one short
-  /// word.
   static const int optionsPerRow = 2;
+
+  /// Tiles per row in `HeadRegionGrid`.
+  ///
+  /// Four, against two everywhere else in the flow, because here the tiles
+  /// are competing with the head above them for the same screen: eleven
+  /// front areas is six rows at two-up and four at three-up, and every row
+  /// is 48pt the diagram does not get. Four-up is three rows, and the labels
+  /// are two short words ("Left temple") that a quarter of the width still
+  /// fits on two lines.
+  static const int locationOptionsPerRow = 4;
 
   /// Fill opacity of the intensity disc's tinted body.
   static const double intensityDiscFillAlpha = 0.45;

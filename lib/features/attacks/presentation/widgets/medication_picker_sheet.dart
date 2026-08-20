@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../medications/providers.dart';
 import 'medication_grid.dart';
 import 'medication_search_field.dart';
 
@@ -12,23 +14,30 @@ import 'medication_search_field.dart';
 /// attack as it was. Adding a medication also highlights it, so the new name
 /// is the pick waiting to be confirmed.
 ///
-/// The name search floats at the bottom, over the grid rather than above it:
-/// the tiles scroll behind it, and it sits in the slot the thumb is already
-/// resting on — the shell's nav pill slot — rising above the keyboard when one
-/// is up.
+/// **The search is the first thing in the list, not a bar floating over it**
+/// (owner's rule) — the same order as `MedicationStep`, which this sheet is
+/// otherwise a copy of. It used to sit pinned at the bottom in the shell's
+/// nav-pill slot with the tiles scrolling behind it, which put it over the
+/// answers it was meant to narrow and left the grid padding a hole for it.
+/// `SdSheetContentV2` scrolls its child under a pinned header, so being first
+/// in that child is all it takes.
+///
+/// Only worth a search box once there is something to search, so it appears
+/// with the first saved medication — again as in the step.
 ///
 /// Pops the pick wrapped in a record, because the pick itself can be null:
 /// `(name: null)` is "no medication", a null result is a dismissal.
-class MedicationPickerSheet extends StatefulWidget {
+class MedicationPickerSheet extends ConsumerStatefulWidget {
   const MedicationPickerSheet({required this.selectedName, super.key});
 
   final String? selectedName;
 
   @override
-  State<MedicationPickerSheet> createState() => _MedicationPickerSheetState();
+  ConsumerState<MedicationPickerSheet> createState() =>
+      _MedicationPickerSheetState();
 }
 
-class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
+class _MedicationPickerSheetState extends ConsumerState<MedicationPickerSheet> {
   final TextEditingController _searchController = TextEditingController();
   late String? _selectedName = widget.selectedName;
   String _query = '';
@@ -46,48 +55,38 @@ class _MedicationPickerSheetState extends State<MedicationPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // - Grid clears the bar plus the gap above it, so its last row scrolls free.
-    // - Rest (keyboard, home indicator) already in SdSheetContentV2's padding.
-    final double barClearance =
-        SdContentPaddingV2.floatingBarHeight + SdContentPaddingV2.bottomGap;
-    // Sheet is a route, not a screen — it clears keyboard/home indicator itself.
-    final double barBottom =
-        MediaQuery.viewInsetsOf(context).bottom +
-        MediaQuery.paddingOf(context).bottom +
-        SdContentPaddingV2.bottomGap;
+    final bool hasMedications = ref
+        .watch(medicationsByRecentUseProvider)
+        .isNotEmpty;
 
-    return Stack(
-      children: <Widget>[
-        SdSheetContentV2(
-          title: context.l10n.logMedicationTitle,
-          closeTooltip: context.l10n.commonClose,
-          confirmTooltip: context.l10n.commonDone,
-          action: SdSheetActionV2.edit,
-          onConfirm: () => Navigator.of(context).pop((name: _selectedName)),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: barClearance),
-            child: MedicationGrid(
-              // Editing an attack: there's always a pick already made.
-              hasSelection: true,
-              selectedName: _selectedName,
-              onSelected: (String? name) =>
-                  setState(() => _selectedName = name),
-              query: _query,
+    return SdSheetContentV2(
+      title: context.l10n.logMedicationTitle,
+      closeTooltip: context.l10n.commonClose,
+      confirmTooltip: context.l10n.commonDone,
+      action: SdSheetActionV2.edit,
+      onConfirm: () => Navigator.of(context).pop((name: _selectedName)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (hasMedications) ...<Widget>[
+            MedicationSearchField(
+              controller: _searchController,
+              hasText: _query.trim().isNotEmpty,
+              onChanged: (String value) => setState(() => _query = value),
+              onClear: _clearQuery,
             ),
+            SdVerticalSpacingV2(height: SdSpacingConstant.h12),
+          ],
+          MedicationGrid(
+            // Editing an attack: there's always a pick already made.
+            hasSelection: true,
+            selectedName: _selectedName,
+            onSelected: (String? name) => setState(() => _selectedName = name),
+            query: _query,
           ),
-        ),
-        Positioned(
-          left: SdContentPaddingV2.horizontal,
-          right: SdContentPaddingV2.horizontal,
-          bottom: barBottom,
-          child: MedicationSearchField(
-            controller: _searchController,
-            hasText: _query.trim().isNotEmpty,
-            onChanged: (String value) => setState(() => _query = value),
-            onClear: _clearQuery,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

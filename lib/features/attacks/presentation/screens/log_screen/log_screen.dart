@@ -6,7 +6,7 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../domain/enums/exertion_level.dart';
-import '../../../domain/enums/head_location.dart';
+import '../../../domain/enums/head_region.dart';
 import '../../../providers.dart';
 import '../../controllers/log_controller.dart' show LogStep;
 import '../../widgets/exertion_step.dart';
@@ -68,7 +68,14 @@ class LogScreen extends ConsumerWidget {
     final isMedication = state.step == LogStep.medication;
 
     return SdScaffoldV2(
-      title: Text(l10n.logTitle, style: AppTextStyle.titleLarge),
+      // The question IS the title: a headline in the body under a bar saying
+      // "Log" spent the top of every step twice. SdFittedTextV2 shrinks rather
+      // than wraps, because the bar has back on one side and Next on the other.
+      title: SdFittedTextV2(
+        question ?? l10n.logTitle,
+        style: AppTextStyle.titleLarge,
+        maxLines: 1,
+      ),
       // - First step: leading button cancels the whole flow (pops route).
       // - Later steps: leading button steps back via LogController.
       // - Saved: no leading — only "Done" leaves.
@@ -106,21 +113,6 @@ class LogScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // The question: big and readable mid-attack, always one line.
-            if (question != null)
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  SdContentPaddingV2.horizontal,
-                  SdSpacingConstant.h16,
-                  SdContentPaddingV2.horizontal,
-                  SdSpacingConstant.h8,
-                ),
-                child: SdFittedTextV2(
-                  question,
-                  style: AppTextStyle.headlineMedium.w600,
-                  maxLines: 1,
-                ),
-              ),
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
@@ -143,8 +135,10 @@ class LogScreen extends ConsumerWidget {
                       onSelected: controller.selectIntensity,
                     ),
                     LogStep.location => LocationStep(
-                      selected: state.draft as HeadLocation?,
-                      onSelected: controller.updateDraft,
+                      selected:
+                          (state.draft as List<HeadRegion>?) ??
+                          const <HeadRegion>[],
+                      onChanged: controller.updateDraft,
                     ),
                     LogStep.medication => MedicationStep(
                       hasSelection: state.hasDraft,

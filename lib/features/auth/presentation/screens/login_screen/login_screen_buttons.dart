@@ -7,6 +7,13 @@ part of 'login_screen.dart';
 ///
 /// Both go inert while a sheet is open: two would race for the same
 /// anonymous UID.
+///
+/// **Glyph and label are centred as one cluster** — owner's rule: content
+/// inside an app button is horizontally centred, full stop. These two used to
+/// pass `SdButtonIconPlacementV2.aligned`, which start-aligns the label in a
+/// fixed-width slot so both buttons put their glyphs on the same x and read as
+/// a pair. It bought that pairing by leaving each button's visible ink sitting
+/// left of its own centre, which is the thing the rule exists to prevent.
 class _ProviderButtons extends ConsumerWidget {
   const _ProviderButtons({required this.state, required this.onSignIn});
 
@@ -29,7 +36,6 @@ class _ProviderButtons extends ConsumerWidget {
                 ? null
                 : () => onSignIn(AuthProviderKind.apple),
             icon: SimpleIcons.apple,
-            iconPlacement: SdButtonIconPlacementV2.aligned,
             label: l10n.loginApple,
           ),
           SizedBox(height: SdSpacingConstant.h12),
@@ -41,7 +47,6 @@ class _ProviderButtons extends ConsumerWidget {
               : () => onSignIn(AuthProviderKind.google),
           icon: SimpleIcons.google,
           iconSize: SdSpacingConstant.r18,
-          iconPlacement: SdButtonIconPlacementV2.aligned,
           label: l10n.loginGoogle,
         ),
         // A calm bar under the buttons, not a spinner in the label.

@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../providers.dart';
 
 /// Keeps the store's idea of who is buying in step with the account.
@@ -39,7 +40,8 @@ class PurchaseIdentity {
       }
       _boundUid = uid;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.purchase,
         'Binding purchases to the account failed',
         error: error,
         stackTrace: stackTrace,

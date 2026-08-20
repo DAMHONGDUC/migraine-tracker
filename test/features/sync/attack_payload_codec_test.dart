@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/sync/domain/services/attack_payload_codec.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -13,7 +13,7 @@ void main() {
     id: 'a1',
     startedAt: DateTime.utc(2026, 7, 1, 8, 30),
     intensity: 7,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     medicationName: 'Sumatriptan',
     symptoms: const ['aura', 'nausea'],
     triggers: const ['stress'],
@@ -21,6 +21,7 @@ void main() {
     exertionLevel: ExertionLevel.moderate,
     endedAt: DateTime.utc(2026, 7, 1, 14, 30),
     medicationEffect: MedicationEffect.partly,
+    steps: 4210,
     weather: WeatherSnapshot(
       capturedAt: DateTime.utc(2026, 7, 1, 8),
       pressureHpa: 1008.2,
@@ -39,7 +40,7 @@ void main() {
     expect(decoded.id, 'a1');
     expect(decoded.startedAt, DateTime.utc(2026, 7, 1, 8, 30));
     expect(decoded.intensity, 7);
-    expect(decoded.location, HeadLocation.right);
+    expect(decoded.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(decoded.medicationName, 'Sumatriptan');
     expect(decoded.symptoms, ['aura', 'nausea']);
     expect(decoded.triggers, ['stress']);
@@ -55,7 +56,7 @@ void main() {
       id: 'a2',
       startedAt: DateTime.utc(2026, 7, 2),
       intensity: 4,
-      location: HeadLocation.front,
+      regions: const <HeadRegion>[HeadRegion.foreheadL],
     );
 
     final Attack decoded = const AttackPayloadCodec().decode(
@@ -85,7 +86,7 @@ void main() {
       id: 'a3',
       startedAt: DateTime(2026, 7, 3, 14),
       intensity: 5,
-      location: HeadLocation.back,
+      regions: const <HeadRegion>[HeadRegion.occipitalL],
     );
 
     final Attack decoded = const AttackPayloadCodec().decode(
@@ -162,15 +163,31 @@ void main() {
   });
 
   group('refuses what it cannot faithfully rebuild', () {
-    test('an unknown head location', () {
+    test('a regions list holding no area this build knows', () {
       final Map<String, dynamic> json =
           jsonDecode(const AttackPayloadCodec().encode(full()))
               as Map<String, dynamic>;
-      json['location'] = 'sideways';
+      json['regions'] = <String>['sideways'];
 
+      // An attack with no location cannot be rebuilt faithfully and the
+      // entity forbids it. The legacy `location` field is not checked at all
+      // any more — it is written for older builds to read, never read here.
       expect(
         () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
+      );
+    });
+
+    test('but one unknown area among known ones is only dropped', () {
+      final Map<String, dynamic> json =
+          jsonDecode(const AttackPayloadCodec().encode(full()))
+              as Map<String, dynamic>;
+      json['regions'] = <String>['templeR', 'sideways'];
+
+      // A newer build's record: losing one area beats losing the record.
+      expect(
+        const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').regions,
+        const <HeadRegion>[HeadRegion.templeR],
       );
     });
 
@@ -220,7 +237,7 @@ void main() {
         id: 'a2',
         startedAt: DateTime.utc(2026, 7, 1, 8),
         intensity: 4,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       );
       final Attack decoded = const AttackPayloadCodec().decode(
         const AttackPayloadCodec().encode(open),
@@ -238,7 +255,7 @@ void main() {
             id: 'a3',
             startedAt: DateTime.utc(2026, 7, 1, 8),
             intensity: 4,
-            location: HeadLocation.left,
+            regions: const <HeadRegion>[HeadRegion.templeL],
             endedAt: DateTime(2026, 7, 1, 20),
           ),
         ),
@@ -248,5 +265,21 @@ void main() {
       expect(decoded.endedAt!.isUtc, isTrue);
       expect(decoded.endedAt, DateTime(2026, 7, 1, 20).toUtc());
     });
+  });
+
+  test('the step count survives the round trip, and its absence too', () {
+    const AttackPayloadCodec codec = AttackPayloadCodec();
+
+    expect(codec.decode(codec.encode(full()), id: 'a1').steps, 4210);
+
+    // Null and zero are different answers: an attack Health never answered
+    // for must not come back as a day spent still.
+    final Attack none = Attack(
+      id: 'a2',
+      startedAt: DateTime.utc(2026, 7, 2),
+      intensity: 3,
+      regions: const <HeadRegion>[HeadRegion.crown],
+    );
+    expect(codec.decode(codec.encode(none), id: 'a2').steps, isNull);
   });
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/correlation_engine.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -14,7 +14,7 @@ Attack attack({
     id: 'attack-$index',
     startedAt: startedAt ?? DateTime.utc(2026, 1, 1).add(Duration(days: index)),
     intensity: 5,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
     weather: pressureDelta == null
         ? null
         : WeatherSnapshot(
@@ -226,7 +226,7 @@ void main() {
           id: 'bad',
           startedAt: DateTime.utc(2026),
           intensity: 11,
-          location: HeadLocation.front,
+          regions: const <HeadRegion>[HeadRegion.foreheadL],
         ),
         throwsA(isA<AssertionError>()),
       );
@@ -235,7 +235,7 @@ void main() {
           id: 'bad',
           startedAt: DateTime.utc(2026),
           intensity: 0,
-          location: HeadLocation.front,
+          regions: const <HeadRegion>[HeadRegion.foreheadL],
         ),
         throwsA(isA<AssertionError>()),
       );

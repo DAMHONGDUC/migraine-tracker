@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,14 +9,14 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/duration_label.dart';
 import '../../../../../core/extensions/exertion_level_label.dart';
-import '../../../../../core/extensions/head_location_label.dart';
+import '../../../../../core/extensions/head_region_label.dart';
 import '../../../../../core/extensions/medication_effect_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
-import '../../../../../core/utils/signed_number_utils.dart';
+import '../../../../../core/widgets/weather/weather_card.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/exertion_level.dart';
-import '../../../domain/enums/head_location.dart';
+import '../../../domain/enums/head_region.dart';
 import '../../../domain/enums/medication_effect.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
@@ -37,7 +39,7 @@ part 'attack_detail_screen_weather_section.dart';
 
 /// View and correct a logged attack. Reachable from History; the 3-tap log
 /// flow itself stays untouched.
-class AttackDetailScreen extends ConsumerWidget {
+class AttackDetailScreen extends HookConsumerWidget {
   const AttackDetailScreen({required this.attackId, super.key});
 
   final String attackId;
@@ -57,7 +59,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: picked,
-          location: attack.location,
+          regions: attack.regions,
           medicationName: attack.medicationName,
         );
   }
@@ -67,8 +69,8 @@ class AttackDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    final HeadLocation? picked = await LocationPickerSheet(
-      selected: attack.location,
+    final List<HeadRegion>? picked = await LocationPickerSheet(
+      selected: attack.regions,
     ).show(context);
 
     if (picked == null) return;
@@ -77,7 +79,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: attack.intensity,
-          location: picked,
+          regions: picked,
           medicationName: attack.medicationName,
         );
   }
@@ -98,7 +100,7 @@ class AttackDetailScreen extends ConsumerWidget {
         .updateCore(
           attack.id,
           intensity: attack.intensity,
-          location: attack.location,
+          regions: attack.regions,
           medicationName: picked.name,
         );
   }
@@ -186,8 +188,27 @@ class AttackDetailScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final attack = ref.watch(attackByIdProvider(attackId));
 
+    // The header's two facts move into the bar once the header itself has
+    // scrolled out from under it, so what the screen is about never leaves
+    // the screen (owner's rule).
+    final ScrollController controller = useScrollController();
+    final ValueNotifier<bool> collapsed = useState(false);
+
+    useEffect(() {
+      void onScroll() =>
+          collapsed.value = controller.offset > _Header.height;
+
+      controller.addListener(onScroll);
+
+      return () => controller.removeListener(onScroll);
+    }, <Object?>[controller]);
+
     return SdScaffoldV2(
-      title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
+      title: _ScrollAwareTitle(
+        collapsed: collapsed,
+        attack: attack.value,
+        title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
+      ),
       actions: [
         SdAppBarButtonV2(
           icon: Icons.delete_outline,
@@ -202,11 +223,12 @@ class AttackDetailScreen extends ConsumerWidget {
           child: Text(l10n.attackDetailDeleted, style: AppTextStyle.bodyLarge),
         ),
         AsyncData(value: final a?) => ListView(
+          controller: controller,
           padding: SdContentPaddingV2.screen(context),
           children: [
             _Header(attack: a),
             SizedBox(height: SdSpacingConstant.h16),
-            _LocationDiagram(location: a.location),
+            _LocationDiagram(regions: a.regions),
             SizedBox(height: SdSpacingConstant.h16),
             _Section(
               children: [
@@ -218,7 +240,7 @@ class AttackDetailScreen extends ConsumerWidget {
                 ),
                 _EditableRow(
                   label: l10n.attackDetailLocation,
-                  value: a.location.label(l10n),
+                  value: a.regions.label(l10n),
                   onTap: () => _editLocation(context, ref, a),
                 ),
                 _EditableRow(

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -58,7 +58,7 @@ void main() {
         id: id,
         startedAt: DateTime.utc(2026, 7, 1, 8, 30),
         intensity: intensity,
-        location: HeadLocation.right,
+        regions: const <HeadRegion>[HeadRegion.templeR],
         weather: weather,
       );
 
@@ -79,7 +79,7 @@ void main() {
           id: 'a1',
           startedAt: DateTime.utc(2026, 7, 1),
           intensity: 9,
-          location: HeadLocation.left,
+          regions: const <HeadRegion>[HeadRegion.templeL],
           medicationName: 'Sumatriptan',
           notes: 'woke up with it',
         ),

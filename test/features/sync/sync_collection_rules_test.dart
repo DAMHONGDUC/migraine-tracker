@@ -64,10 +64,9 @@ void main() {
 
   for (final SyncCollection collection in SyncCollection.values) {
     test('${collection.name} does not index its ciphertext', () {
-      // Firestore indexes every field by default, ascending AND descending.
-      // On payload that is roughly 1.4 KB of index for a 572-byte string
-      // nothing ever queries — more index than document. Exempting the three
-      // opaque fields cuts most of the stored bytes and speeds up each write.
+      // Firestore indexes every field by default, ascending AND descending:
+      // on payload that is ~1.4 KB of index for a 572-byte string nothing
+      // queries. Exempting the three opaque fields cuts most of the bytes.
       final Set<String?> exempt = (indexes['fieldOverrides'] as List<dynamic>)
           .cast<Map<String, dynamic>>()
           .where(
@@ -95,12 +94,9 @@ void main() {
   });
 
   test('read is its own rule, never folded in with write', () {
-    // Folding them means a disjunction covering creates, which leaves a
-    // branch constraining nothing — Firestore then cannot prove a query safe
-    // and denies EVERY query while the file still looks right. Proved by
-    // functions/test/firestoreRules.test.ts against the emulator.
-    // Asserted as four separate verbs rather than "no read, write anywhere":
-    // sync_keys uses `allow read, write: if false` quite correctly.
+    // Folding them means a disjunction covering creates, leaving a branch that
+    // constrains nothing: Firestore then denies EVERY query while the file
+    // looks right. Four verbs, because sync_keys uses `if false` correctly.
     for (final String verb in <String>['read', 'create', 'update', 'delete']) {
       expect(
         rules,

@@ -13,7 +13,7 @@ final class AttackMapper {
     id: row.id,
     startedAt: row.startedAt,
     intensity: row.intensity,
-    location: row.location,
+    regions: row.regions,
     medicationName: row.medicationName,
     symptoms: row.symptoms,
     triggers: row.triggers,
@@ -21,6 +21,7 @@ final class AttackMapper {
     exertionLevel: row.exertionLevel,
     medicationEffect: row.medicationEffect,
     endedAt: row.endedAt,
+    steps: row.steps,
     weather: weather == null ? null : toWeatherDomain(weather),
   );
 
@@ -44,7 +45,7 @@ final class AttackMapper {
     id: attack.id,
     startedAt: attack.startedAt,
     intensity: attack.intensity,
-    location: attack.location,
+    regions: Value(attack.regions),
     medicationName: Value(attack.medicationName),
     symptoms: Value(attack.symptoms),
     triggers: Value(attack.triggers),
@@ -52,6 +53,7 @@ final class AttackMapper {
     exertionLevel: Value(attack.exertionLevel),
     medicationEffect: Value(attack.medicationEffect),
     endedAt: Value(attack.endedAt),
+    steps: Value(attack.steps),
     updatedAt: Value(updatedAt),
     revision: Value(revision),
     syncedRevision: Value(syncedRevision),

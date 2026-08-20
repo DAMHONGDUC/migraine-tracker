@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_design/common.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../../../core/utils/locale_utils.dart';
 import '../../../../core/utils/signed_number_utils.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -52,7 +53,8 @@ class HomeWidgetController extends Notifier<bool> {
         await widget.clear();
       }
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.homeWidget,
         'Home widget toggle failed',
         error: error,
         stackTrace: stackTrace,
@@ -85,7 +87,8 @@ class HomeWidgetController extends Notifier<bool> {
 
       await widget.publish(_word(snapshot));
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.homeWidget,
         'Home widget refresh failed',
         error: error,
         stackTrace: stackTrace,

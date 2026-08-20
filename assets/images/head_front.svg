@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 248" width="200" height="248">
+  <!-- Line art only, for the log flow's location step. Every FILLED area and
+       every divider between areas is drawn by HeadRegionGeometry instead, so
+       the head carries no fill here and the region highlights painted
+       underneath show through.
+       The silhouette and the two neck curves below are the same curves
+       HeadRegionGeometry._headPath and ._neckPath trace, on the same 200x248
+       box - edit one and you must edit the other and head_back.svg. The
+       pickable areas follow this drawing exactly (owner's rule), so moving a
+       feature here without moving the cut beside it is a bug, not a tweak.
+       The box is only as tall as the drawing needs: the widget sizes the head
+       from its width, and every empty row here is height the head does not
+       get.
+       ONE thin hand across the whole face: nothing above 1.4, taken from the
+       hairlines left inside the nose after it lost its outline to the
+       painter. The silhouette at 2.0 is the only heavy line, which is what
+       makes it the silhouette.
+       Palette baked in: the app ships dark mode only (AppColors.textPrimary
+       #E4E2E8). No filters, no <use>, no masks: flutter_svg's parser does not
+       render them. -->
+  <g fill="none" stroke="#E4E2E8" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke-opacity="0.9" stroke-width="2">
+      <path d="M100 8 C148 8 181 42 183 98 C184 120 180 142 173 162 C164 186 148 208 130 221 C120 228 110 231 100 231 C90 231 80 228 70 221 C52 208 36 186 27 162 C20 142 16 120 17 98 C19 42 52 8 100 8 Z"/>
+      <path d="M54 206 C63 222 59 236 45 248"/>
+      <path d="M146 206 C137 222 141 236 155 248"/>
+    </g>
+
+    <!-- Ears sit outside every band on purpose: nothing here is tappable,
+         so a tap that lands on one falls through to no region at all. -->
+      <path d="M23 100 C4 97 -1 119 3 137 C8 156 15 165 27 159" stroke-opacity="0.68" stroke-width="1.4"/>
+      <path d="M22 111 C11 117 9 139 16 152" stroke-opacity="0.68" stroke-width="1.1"/>
+      <path d="M177 100 C196 97 201 119 197 137 C192 156 185 165 173 159" stroke-opacity="0.68" stroke-width="1.4"/>
+      <path d="M178 111 C189 117 191 139 184 152" stroke-opacity="0.68" stroke-width="1.1"/>
+
+    <!-- Eyes closed and the mouth level: the drawing must never look like it
+         is in pain itself, or every logged attack reads as a 10.
+         Each feature is placed against the cut it belongs to - brows on the
+         brow cut, eyes inside the eye band, the mouth on the mouth cut - so
+         the areas read as the parts of a face they are named for. -->
+      <path d="M33 112 C43 99 62 93 78 96 C83 97 86 100 88 104" stroke-opacity="0.62" stroke-width="1.4"/>
+      <path d="M167 112 C157 99 138 93 122 96 C117 97 114 100 112 104" stroke-opacity="0.62" stroke-width="1.4"/>
+      <path d="M36 118 C50 110 72 111 86 120" stroke-opacity="0.62" stroke-width="1.4"/>
+      <path d="M164 118 C150 110 128 111 114 120" stroke-opacity="0.62" stroke-width="1.4"/>
+      <path d="M38 122 C51 137 73 136 86 120" stroke-opacity="0.62" stroke-width="1.2"/>
+      <path d="M162 122 C149 137 127 136 114 120" stroke-opacity="0.62" stroke-width="1.2"/>
+      <path d="M89 158 C91 166 96 169 100 167" stroke-opacity="0.62" stroke-width="1.3"/>
+      <path d="M111 158 C109 166 104 169 100 167" stroke-opacity="0.62" stroke-width="1.3"/>
+      <path d="M94 168 C96 170 104 170 106 168" stroke-opacity="0.62" stroke-width="1.2"/>
+      <path d="M73 189 C83 178 92 182 97 187 C98 188 102 188 103 187 C108 182 117 178 127 189" stroke-opacity="0.62" stroke-width="1.4"/>
+      <path d="M79 189 C89 192 111 192 121 189" stroke-opacity="0.62" stroke-width="1.1"/>
+      <path d="M73 189 C86 206 114 206 127 189" stroke-opacity="0.62" stroke-width="1.4"/>
+  </g>
+</svg>

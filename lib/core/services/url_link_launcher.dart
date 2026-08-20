@@ -1,6 +1,7 @@
+import 'package:system_design/common.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../logging/app_logger.dart';
+import '../../core/constants/log_tag_constant.dart';
 import 'link_launcher.dart';
 
 class UrlLinkLauncher implements LinkLauncher {
@@ -14,7 +15,11 @@ class UrlLinkLauncher implements LinkLauncher {
     final Uri? uri = Uri.tryParse(url);
 
     if (uri == null) {
-      AppLogger.warning('Link not opened, unparseable url', url);
+      SdLogger.warning(
+        LogTagConstant.link,
+        'Link not opened, unparseable url',
+        url,
+      );
 
       return false;
     }
@@ -22,7 +27,8 @@ class UrlLinkLauncher implements LinkLauncher {
       return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (error, stackTrace) {
       // A false reaches the caller and says nothing about which link died.
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.link,
         'Link launch failed: $url',
         error: error,
         stackTrace: stackTrace,

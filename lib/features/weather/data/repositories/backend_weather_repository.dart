@@ -1,4 +1,6 @@
-import '../../../../core/logging/app_logger.dart';
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/geo_point.dart';
 import '../../domain/entities/pressure_forecast.dart';
 import '../../domain/entities/weather_report.dart';
@@ -23,7 +25,10 @@ class BackendWeatherRepository implements WeatherRepository {
     final GeoPoint? point = await _location.currentPosition();
 
     if (point == null) {
-      AppLogger.info('Weather snapshot skipped: no location/permission');
+      SdLogger.info(
+        LogTagConstant.weather,
+        'Weather snapshot skipped: no location/permission',
+      );
 
       return null;
     }
@@ -34,7 +39,11 @@ class BackendWeatherRepository implements WeatherRepository {
       instant: instant,
     );
 
-    AppLogger.debug('Weather snapshot fetched', snapshot?.pressureHpa);
+    SdLogger.debug(
+      LogTagConstant.weather,
+      'Weather snapshot fetched',
+      snapshot?.pressureHpa,
+    );
 
     return snapshot;
   }
@@ -44,7 +53,10 @@ class BackendWeatherRepository implements WeatherRepository {
     final GeoPoint? point = await _location.currentPosition();
 
     if (point == null) {
-      AppLogger.info('Pressure forecast skipped: no location/permission');
+      SdLogger.info(
+        LogTagConstant.weather,
+        'Pressure forecast skipped: no location/permission',
+      );
 
       return null;
     }
@@ -66,7 +78,10 @@ class BackendWeatherRepository implements WeatherRepository {
     final GeoPoint? point = await _location.currentPosition();
 
     if (point == null) {
-      AppLogger.info('Weather report skipped: no location/permission');
+      SdLogger.info(
+        LogTagConstant.weather,
+        'Weather report skipped: no location/permission',
+      );
 
       return null;
     }
@@ -79,13 +94,20 @@ class BackendWeatherRepository implements WeatherRepository {
     // Not `report?.hours.length`: that logs "— null" for a failed fetch,
     // which reads the same as a fetch that returned nothing.
     if (report == null) {
-      AppLogger.warning('Weather report unavailable — see the getWeather line');
+      SdLogger.warning(
+        LogTagConstant.weather,
+        'Weather report unavailable — see the getWeather line',
+      );
     } else {
-      AppLogger.info('Weather report fetched', <String, Object?>{
-        'hours': report.hours.length,
-        'days': report.days.length,
-        'current': report.current != null,
-      });
+      SdLogger.info(
+        LogTagConstant.weather,
+        'Weather report fetched',
+        <String, Object?>{
+          'hours': report.hours.length,
+          'days': report.days.length,
+          'current': report.current != null,
+        },
+      );
     }
 
     return report;

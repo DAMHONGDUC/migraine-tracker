@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
-
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
@@ -62,12 +62,13 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
       'fields': write.keys.toList(),
     };
 
-    AppLogger.action('Write profile', what);
+    SdLogger.action(LogTagConstant.profile, 'Write profile', what);
     try {
       await _doc(user.uid).set(write, SetOptions(merge: true));
-      AppLogger.info('Profile written', what);
+      SdLogger.info(LogTagConstant.profile, 'Profile written', what);
     } on FirebaseException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.profile,
         'Write profile failed',
         error: error,
         stackTrace: stackTrace,
@@ -82,18 +83,24 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
     required String uid,
     required String displayName,
   }) async {
-    AppLogger.action('Write profile name', <String, Object?>{
-      'uid': uid,
-      'length': displayName.length,
-    });
+    SdLogger.action(
+      LogTagConstant.profile,
+      'Write profile name',
+      <String, Object?>{'uid': uid, 'length': displayName.length},
+    );
     try {
       await _doc(uid).set(<String, Object?>{
         UserProfileMapper.displayNameField: displayName,
         UserProfileMapper.updatedAtField: FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      AppLogger.info('Profile name written', <String, Object?>{'uid': uid});
+      SdLogger.info(
+        LogTagConstant.profile,
+        'Profile name written',
+        <String, Object?>{'uid': uid},
+      );
     } on FirebaseException catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.profile,
         'Write profile name failed',
         error: error,
         stackTrace: stackTrace,

@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../domain/services/home_widget_link.dart';
@@ -60,7 +61,8 @@ class HomeWidgetTapListener extends HookConsumerWidget {
             // failed deep link on, and the user is already where they landed.
             // Logged, so "the widget did nothing" is answerable.
             .catchError((Object error, StackTrace stackTrace) {
-              AppLogger.error(
+              SdLogger.error(
+                LogTagConstant.homeWidget,
                 'Home widget launch tap failed',
                 error: error,
                 stackTrace: stackTrace,

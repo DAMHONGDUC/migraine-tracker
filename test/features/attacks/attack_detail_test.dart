@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -15,7 +15,7 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
   id: 'a1',
   startedAt: DateTime.now().subtract(const Duration(hours: 2)),
   intensity: 7,
-  location: HeadLocation.right,
+  regions: const <HeadRegion>[HeadRegion.templeR],
   medicationName: 'Sumatriptan',
   symptoms: const ['aura'],
   notes: 'bad one',
@@ -25,7 +25,7 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
 /// History (list mode) → tap the attack tile → detail screen.
 Future<void> openDetail(WidgetTester tester) async {
   await openHistory(tester);
-  await tester.tap(find.text('Right side'));
+  await tester.tap(find.text('Right temple'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -110,7 +110,7 @@ void main() {
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      HeadLocation.right,
+      const <HeadRegion>[HeadRegion.templeR],
     );
 
     await finishTest(tester);
@@ -124,10 +124,11 @@ void main() {
 
     await openDetail(tester);
 
-    // A ListView hands children a TIGHT width, overriding HeadDiagram's AspectRatio
-    // unless something loosens it — the head used to come out stretched across the row.
+    // A ListView hands children a TIGHT width, overriding HeadDiagram's
+    // AspectRatio unless something loosens it — the head used to come out
+    // stretched across the row. The ratio is the design box's own, 200x248.
     final Size size = tester.getSize(find.byType(HeadDiagram));
-    expect(size.width / size.height, closeTo(0.82, 0.01));
+    expect(size.width / size.height, closeTo(200 / 248, 0.01));
 
     await finishTest(tester);
   });
@@ -168,13 +169,15 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await confirmSheet(tester);
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      HeadLocation.whole,
+      // Added to what the attack already had — the tiles toggle, they do not
+      // replace.
+      const <HeadRegion>[HeadRegion.crown, HeadRegion.templeR],
     );
 
     await finishTest(tester);
@@ -188,13 +191,16 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await confirmSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
-    expect(rows.single.location, HeadLocation.whole);
-    expect(find.text('Whole head'), findsOneWidget);
+    expect(rows.single.regions, const <HeadRegion>[
+      HeadRegion.crown,
+      HeadRegion.templeR,
+    ]);
+    expect(find.text('Crown, Right temple'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -207,13 +213,13 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await closeSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
-    expect(rows.single.location, HeadLocation.right);
-    expect(find.text('Right side'), findsOneWidget);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeR]);
+    expect(find.text('Right temple'), findsOneWidget);
 
     await finishTest(tester);
   });

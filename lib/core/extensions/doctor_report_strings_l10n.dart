@@ -1,12 +1,12 @@
 import 'package:intl/intl.dart';
 
-import '../../features/attacks/domain/enums/head_location.dart';
+import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/insights/domain/services/doctor_report_builder.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../l10n/gen/app_localizations_en.dart';
 import '../constants/export_constant.dart';
-import 'head_location_label.dart';
+import 'head_region_label.dart';
 import 'medication_effect_label.dart';
 
 /// Collects the doctor report's localized strings in one place. The builder
@@ -46,9 +46,9 @@ extension DoctorReportStringsL10n on AppLocalizations {
     colMedication: reportColMedication,
     colPressureDelta: reportColPressureDelta,
     disclaimer: onboardingDisclaimer,
-    locationLabels: <HeadLocation, String>{
-      for (final HeadLocation location in HeadLocation.values)
-        location: location.label(this),
+    locationLabels: <HeadRegion, String>{
+      for (final HeadRegion region in HeadRegion.values)
+        region: region.label(this),
     },
   );
 }

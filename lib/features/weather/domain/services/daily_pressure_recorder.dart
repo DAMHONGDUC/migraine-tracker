@@ -1,4 +1,6 @@
-import '../../../../core/logging/app_logger.dart';
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../entities/daily_pressure.dart';
 import '../entities/weather_snapshot.dart';
 import '../repositories/daily_pressure_repository.dart';
@@ -28,7 +30,10 @@ class DailyPressureRecorder {
       final WeatherSnapshot? snapshot = await _weather.snapshotAt(today);
 
       if (snapshot == null) {
-        AppLogger.info('No daily pressure reading yet (offline or no location)');
+        SdLogger.info(
+          LogTagConstant.pressureRecord,
+          'No daily pressure reading yet (offline or no location)',
+        );
         return;
       }
       await _readings.upsert(
@@ -38,12 +43,24 @@ class DailyPressureRecorder {
           pressureDelta24hHpa: snapshot.pressureDelta24hHpa,
         ),
       );
-      AppLogger.debug('Daily pressure recorded', snapshot.pressureHpa);
+      SdLogger.debug(
+        LogTagConstant.pressureRecord,
+        'Daily pressure recorded',
+        snapshot.pressureHpa,
+      );
     } on Exception catch (error, stackTrace) {
       // Swallow: a missing day costs a little precision in the baseline and
       // nothing else. It runs unawaited at launch, where a throw is worse.
-      AppLogger.warning('Daily pressure recording failed', error);
-      AppLogger.debug('Daily pressure stack', stackTrace);
+      SdLogger.warning(
+        LogTagConstant.pressureRecord,
+        'Daily pressure recording failed',
+        error,
+      );
+      SdLogger.debug(
+        LogTagConstant.pressureRecord,
+        'Daily pressure stack',
+        stackTrace,
+      );
     }
   }
 }

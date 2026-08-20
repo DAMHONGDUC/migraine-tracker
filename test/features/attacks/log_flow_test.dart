@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -18,7 +18,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Where does it hurt?'), findsOneWidget);
 
-    await tester.tap(find.text('Right side'));
+    await tester.tap(find.text('Right temple'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('Next'));
@@ -44,7 +44,7 @@ void main() {
     final rows = await app.db.select(app.db.attacks).get();
     expect(rows, hasLength(1));
     expect(rows.single.intensity, 7);
-    expect(rows.single.location, HeadLocation.right);
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeR]);
     expect(rows.single.medicationName, isNull);
     expect(rows.single.exertionLevel, ExertionLevel.none);
 
@@ -74,7 +74,7 @@ void main() {
     await tester.tap(find.text('7'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Right side'));
+    await tester.tap(find.text('Right temple'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('Next'));
@@ -159,13 +159,13 @@ void main() {
   testWidgets('logged attack appears in history', (tester) async {
     await pumpApp(tester);
 
-    await logAttack(tester, intensity: '4', location: 'Whole head');
+    await logAttack(tester, intensity: '4', location: 'Crown');
 
     await tester.tap(find.byIcon(Icons.calendar_month_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Whole head'), findsOneWidget);
+    expect(find.text('Crown'), findsOneWidget);
     expect(find.text('4'), findsWidgets);
 
     await finishTest(tester);
@@ -200,7 +200,7 @@ void main() {
     final app = await pumpApp(tester);
 
     // Stay on the saved step so "Add details" is reachable.
-    await logAttack(tester, intensity: '6', location: 'Front', finish: false);
+    await logAttack(tester, intensity: '6', location: 'Left forehead', finish: false);
 
     await tester.tap(find.text('Add details'));
     await tester.pump();

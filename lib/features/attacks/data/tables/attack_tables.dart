@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/db/converters.dart';
 import '../../domain/enums/exertion_level.dart';
-import '../../domain/enums/head_location.dart';
 import '../../domain/enums/medication_effect.dart';
 
 @DataClassName('AttackRow')
@@ -13,7 +12,14 @@ class Attacks extends Table {
   DateTimeColumn get startedAt => dateTime()();
 
   IntColumn get intensity => integer()();
-  TextColumn get location => textEnum<HeadLocation>()();
+  /// Every head area the user tapped, JSON-encoded. Never empty — the
+  /// location step is the one step of the log flow that waits for a pick.
+  /// The default exists only so the v13 migration can add the column to
+  /// rows that still hold the old single `location`, which it then backfills
+  /// in the same step.
+  TextColumn get regions => text()
+      .map(const HeadRegionListConverter())
+      .withDefault(const Constant('[]'))();
   TextColumn get medicationName => text().nullable()();
   TextColumn get symptoms => text()
       .map(const StringListConverter())
@@ -32,6 +38,10 @@ class Attacks extends Table {
   /// When the attack stopped, UTC. Null is "still going, or never said" —
   /// one state on purpose, since nothing here can tell those apart.
   DateTimeColumn get endedAt => dateTime().nullable()();
+
+  /// Steps that day up to the log, from Apple Health. Nullable because the
+  /// source is optional in every sense: not iOS, not granted, or no samples.
+  IntColumn get steps => integer().nullable()();
 
   /// Wall clock of the last local mutation, used only to settle which of two
   /// devices' versions wins. Null on rows that predate sync, which then fall

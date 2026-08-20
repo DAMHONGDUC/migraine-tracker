@@ -1,4 +1,6 @@
-import '../../../../core/logging/app_logger.dart';
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../entities/encrypted_payload.dart';
 import '../entities/encrypted_record.dart';
 import '../entities/sync_collection.dart';
@@ -223,10 +225,9 @@ class SyncService {
       done++;
       report(done / changes.length);
     }
-    // - Saved only once the batch is through: anything that threw above leaves
-    //   the cursor put, and the next pass redoes the batch harmlessly.
-    // - Always saved, even when nothing came back, or an account with no
-    //   records yet would count as never-pulled on every single launch.
+    // - Saved only once the batch is through, so anything that threw leaves
+    //   the cursor put and the next pass redoes the batch harmlessly.
+    // - Saved even when nothing came back, or an empty account never pulls.
     await _cursor.save(uid, collection, newest ?? since ?? _beginning);
 
     return SyncOutcome(pulled: pulled, unreadable: unreadable);
@@ -246,7 +247,8 @@ class SyncService {
     try {
       return binding.codec.decode(plaintext, id: change.id);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Decoding a synced ${binding.collection.name} record failed',
         error: error,
         stackTrace: stackTrace,

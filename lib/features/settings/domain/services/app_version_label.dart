@@ -8,5 +8,5 @@ final class AppVersionLabel {
 
   static String build(InstalledAppVersion? version) => version == null
       ? AppEnv.flavor
-      : '${AppEnv.flavor} - ${version.buildName} - ${version.buildNumber}';
+      : '${AppEnv.flavor} - ${version.buildName} (${version.buildNumber})';
 }

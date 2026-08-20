@@ -222,6 +222,7 @@ const bundleBody = {
         uvIndex: 7,
         conditionCode: "PartlyCloudy",
         precipitationChance: 0.2,
+        precipitationAmount: 1.4,
         windSpeed: 12.5,
         cloudCover: 0.4,
         visibility: 16000,
@@ -236,6 +237,7 @@ const bundleBody = {
         temperatureMax: 31,
         temperatureMin: 24,
         precipitationChance: 0.8,
+        precipitationAmount: 12.5,
         maxUvIndex: 9,
         sunrise: "2026-07-08T22:15:00Z",
         sunset: "2026-07-09T11:30:00Z",
@@ -287,6 +289,9 @@ describe("fetchWeatherBundle", () => {
     });
     expect(bundle.hours[0]).toMatchObject({
       precipitationChancePercent: 20,
+      // Millimetres straight through: the one precipitation field Apple
+      // already sends in the unit the app shows.
+      precipitationAmountMm: 1.4,
       apparentTemperatureCelsius: 31.2,
       conditionCode: "PartlyCloudy",
       // Hourly visibility too, not just current: the weather card offers it
@@ -297,6 +302,7 @@ describe("fetchWeatherBundle", () => {
       temperatureMaxCelsius: 31,
       temperatureMinCelsius: 24,
       precipitationChancePercent: 80,
+      precipitationAmountMm: 12.5,
       uvIndexMax: 9,
     });
   });

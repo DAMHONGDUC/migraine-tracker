@@ -24,9 +24,7 @@ class ExertionStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: SdContentPaddingV2.horizontal,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/doctor_report_builder.dart';
@@ -28,7 +28,7 @@ DoctorReportStrings strings() => DoctorReportStrings(
   colMedication: 'Medication',
   colPressureDelta: 'D24h (hPa)',
   disclaimer: 'Not a substitute for professional medical advice.',
-  locationLabels: {for (final l in HeadLocation.values) l: l.name},
+  locationLabels: {for (final r in HeadRegion.values) r: r.name},
 );
 
 void main() {
@@ -38,7 +38,7 @@ void main() {
     id: 'a$daysAgo',
     startedAt: now.subtract(Duration(days: daysAgo)),
     intensity: 6,
-    location: HeadLocation.right,
+    regions: const <HeadRegion>[HeadRegion.templeR],
     medicationName: 'Sumatriptan',
     weather: delta == null
         ? null

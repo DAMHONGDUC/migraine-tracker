@@ -1,9 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/sync_constant.dart';
-import '../../../../core/logging/app_logger.dart';
-import '../../../../core/logging/crash_reporter.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/providers.dart';
 import '../../domain/entities/sync_outcome.dart';
@@ -58,7 +58,8 @@ class SyncController extends Notifier<SyncStatus> {
     try {
       await ref.read(syncServiceProvider).onSignedOut();
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Clearing sync state failed',
         error: error,
         stackTrace: stackTrace,
@@ -88,7 +89,7 @@ class SyncController extends Notifier<SyncStatus> {
             },
           );
 
-      AppLogger.info('Attacks synced', {
+      SdLogger.info(LogTagConstant.sync, 'Attacks synced', {
         'pushed': outcome.pushed,
         'pulled': outcome.pulled,
       });
@@ -99,24 +100,22 @@ class SyncController extends Notifier<SyncStatus> {
       // Data is up there that this build cannot read: never expected, and
       // invisible to the user, so it has to reach us some other way.
       if (outcome.unreadable > 0) {
-        CrashReporter.recordError(
-          StateError('${outcome.unreadable} attack payloads unreadable'),
-          StackTrace.current,
-          reason: 'Undecryptable synced attacks skipped',
+        SdLogger.error(
+          LogTagConstant.sync,
+          'Undecryptable synced attacks skipped',
+          error: StateError('${outcome.unreadable} attack payloads unreadable'),
+          stackTrace: StackTrace.current,
+          data: {'unreadable': outcome.unreadable},
         );
       }
       await _stampSyncedAt(uid);
       state = SyncStatus(lastSyncedAt: DateTime.now());
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Attack sync failed',
         error: error,
         stackTrace: stackTrace,
-      );
-      CrashReporter.recordError(
-        error,
-        stackTrace,
-        reason: 'Attack sync failed',
       );
       // Deliberately not rethrown: the next launch, resume or logged attack
       // retries, and nothing on screen was waiting on this.
@@ -135,9 +134,11 @@ class SyncController extends Notifier<SyncStatus> {
           .lastSyncedAt(uid);
 
       if (last == null) return false;
-      return DateTime.now().toUtc().difference(last) < SyncConstant.automaticCooldown;
+      return DateTime.now().toUtc().difference(last) <
+          SyncConstant.automaticCooldown;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Reading the sync cooldown failed',
         error: error,
         stackTrace: stackTrace,
@@ -154,7 +155,8 @@ class SyncController extends Notifier<SyncStatus> {
           .read(syncCursorStoreProvider)
           .saveSyncedAt(uid, DateTime.now().toUtc());
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Recording the sync time failed',
         error: error,
         stackTrace: stackTrace,
@@ -168,7 +170,8 @@ class SyncController extends Notifier<SyncStatus> {
     try {
       return ref.read(authRepositoryProvider).currentUser;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Reading the signed-in user failed',
         error: error,
         stackTrace: stackTrace,
@@ -181,7 +184,8 @@ class SyncController extends Notifier<SyncStatus> {
     try {
       return await ref.read(syncServiceProvider).isFirstPull(uid);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.sync,
         'Reading the sync cursor failed',
         error: error,
         stackTrace: stackTrace,

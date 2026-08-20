@@ -1,18 +1,19 @@
 <!--
   Keep this file and docs/privacy/privacy.json saying the same thing — the JSON is
   what the published site renders, this is the readable source.
-  Two claims are load-bearing and must never soften:
-  - sync is encrypted but NOT end-to-end (we hold the key), and
-  - the app does use Firebase Analytics and Crashlytics.
-  [ADDRESS/COUNTRY] is the one placeholder left. Have a lawyer review before
-  App Store submission.
+  Four claims are load-bearing and must never soften:
+  - sync is encrypted but NOT end-to-end (we hold the key),
+  - the app does use Firebase Analytics and Crashlytics, with no in-app opt-out,
+  - the step count for the day of an attack DOES leave the device, and
+  - weather is Apple WeatherKit, called by our backend, never by the app.
+  No placeholders left. Have a lawyer review before App Store submission.
 -->
 
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 10 August 2026
-**Developer / data controller:** Dam Hong Duc, [ADDRESS/COUNTRY]
+**Last updated:** 20 August 2026
+**Developer / data controller:** Dam Hong Duc, Ho Chi Minh City, Viet Nam
 **Contact:** ducdam.dev@gmail.com
 
 BaroEase helps people who track migraine attacks and their possible link to
@@ -50,8 +51,9 @@ data" clears it too.
 ### b. Data sent to our backend — even without an account
 
 To deliver **pressure-drop alerts** (a premium feature you switch on), we
-store a minimal record in our database, associated with a random device
-identifier rather than your name:
+store a minimal record in our database, associated with the anonymous
+account identifier your installation is given at first launch, not with your
+name:
 
 | Data | Purpose |
 |------|---------|
@@ -71,14 +73,28 @@ coordinates. You can deny location; alerts simply won't be available.
 
 ### d. Weather data
 
-To fetch forecasts we send a **coarse location** (city-scale) to a weather
-provider — currently Open-Meteo, with Apple WeatherKit planned. No identifier
-and no health data is sent with these requests.
+Weather comes from **Apple WeatherKit**, and the app never calls it directly:
+it asks our backend, and our backend asks Apple.
+
+- The app sends its **reduced-accuracy** position to our weather function.
+  That position is **rounded to a ~11 km cell** before anything else happens,
+  so what reaches Apple is the centre of that cell, never where you are.
+- The rounded cell is also what the forecast is cached against, for an hour,
+  shared by everyone in it. That cache holds weather, not people: it carries
+  no account identifier, no device identifier and no health data.
+- Nothing about you travels with a weather request — no identifier, no attack,
+  no symptom.
+
+The place name shown on the weather card is resolved by **your device's own
+geocoder** (Apple on iOS), from the same reduced-accuracy position. That
+lookup goes from your phone to the platform, never through us.
 
 ### e. Diagnostics and usage analytics
 
 BaroEase uses **Firebase Crashlytics** (crash reports and non-fatal errors)
-and **Firebase Analytics** (how the app is used). These are on by default.
+and **Firebase Analytics** (how the app is used). Both are always on and the
+app does not yet offer a switch to turn them off; if you want yours stopped or
+erased, write to ducdam.dev@gmail.com and we will do it.
 
 - Analytics records **actions, never content**: that an attack was logged,
   that the paywall was opened, that an export was shared. It never carries
@@ -126,10 +142,50 @@ If you grant permission, BaroEase reads from Apple Health **read-only**:
 - **Step count**, to look for a correlation with your attacks.
 
 These are **two separate permissions with two separate switches** — allowing
-one does not allow the other. The analysis runs **on your device**. We never
-write to Apple Health, never store what we read in our own database, and
-never upload it — not even under sync. You can revoke access at any time in
-the iOS Health settings.
+one does not allow the other. The analysis runs **on your device** and we
+never write to Apple Health.
+
+**Sleep never leaves your device.** Your **step count** does, in one narrow
+way: when you log an attack, BaroEase records how many steps you had taken
+that day up to that moment and saves the number with the attack, because how
+active you were before an attack is part of the record a doctor reads. It
+travels with that attack — into your export, your doctor report, and your
+encrypted sync if you are signed in (§4). Nothing else from Apple Health is
+stored or uploaded, and you can revoke access at any time in the iOS Health
+settings.
+
+## 5b. What our App Store privacy labels say
+
+Apple asks every developer to declare, on the App Store product page, what an
+app collects, whether it is linked to your identity, and whether it is used to
+track you. This is exactly what BaroEase declares, so you can hold the labels
+and this policy against each other and see that they agree.
+
+**"Tracking" has a specific meaning in Apple's rules**: linking data from this
+app with third-party data for advertising or advertising measurement, or
+sharing it with a data broker. BaroEase does none of that — no ad network, no
+attribution SDK, no advertising identifier is read, and nothing is sold or
+handed to a data broker. **Every item below is declared as not used for
+tracking**, and the app contains no App Tracking Transparency prompt because
+there is nothing to ask permission for.
+
+| Data type | Purpose | Linked to you | Tracking | What it is |
+|---|---|---|---|---|
+| Name | App Functionality | Yes | **No** | From the account you sign in with |
+| Email address | App Functionality | Yes | **No** | From the account you sign in with |
+| Health | App Functionality | Yes | **No** | Your synced attack log, medications and reminders |
+| Coarse location | App Functionality | Yes | **No** | A ~5 km area, never coordinates |
+| User ID | App Functionality | Yes | **No** | The opaque account identifier |
+| Device ID | App Functionality | Yes | **No** | The push token that delivers pressure alerts |
+| Purchase history | App Functionality | Yes | **No** | Which subscription you hold, via RevenueCat |
+| Product interaction | Analytics | Yes | **No** | Which screens and features get used |
+| Crash data | App Functionality | Yes | **No** | Crashes and non-fatal errors |
+| Fitness | App Functionality | Yes | **No** | The step count saved with an attack |
+
+Your sleep is not declared at all, because it never leaves your device (§5).
+Fitness **is** declared, because the step count for the day of an attack is
+saved with that attack. Health **is** declared, because your attack log syncs
+to our backend once you sign in (§4).
 
 ## 6. Notifications
 
@@ -151,9 +207,11 @@ entitlement follows you rather than one installation.
 ## 8. Your rights and controls (GDPR)
 
 - **Export everything:** Settings → Export data (JSON, CSV or a PDF doctor
-  report). Past exports are kept in the app so you can re-share them; they
-  are full copies of your data and are deleted along with everything else
-  below.
+  report). The in-app export is a **Premium** feature; if you do not have
+  Premium, write to ducdam.dev@gmail.com and we will send you your data free
+  of charge, as below. Past exports are kept in the app so you can re-share
+  them; they are full copies of your data and are deleted along with
+  everything else below.
 - **Delete all data:** Settings → Delete all data. Wipes the local database,
   past export files and the home screen widget's shared container, deletes
   your synced records and your backend alert record, and gives up your push
@@ -183,7 +241,7 @@ Firebase terms.
 | **Firebase Crashlytics** | Crash and error reports |
 | **Firebase Analytics** | Usage events (§2e) |
 | **RevenueCat** | Subscription and entitlement state |
-| **Open-Meteo** (and Apple WeatherKit, planned) | Weather forecasts for a coarse location |
+| **Apple WeatherKit** | Weather forecasts, requested by our backend for a ~11 km cell |
 | **Google Sign-In / Sign in with Apple** | Authentication, only if you use them |
 
 ## 11. What we do NOT do

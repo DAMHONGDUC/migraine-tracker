@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 
@@ -24,7 +24,7 @@ Future<void> seedAttacks(PumpedApp app, int count) async {
         id: 'a$i',
         startedAt: DateTime.now().toUtc().subtract(Duration(hours: i + 1)),
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
     );
   }
@@ -154,7 +154,7 @@ void main() {
       await tester.tap(find.text('7'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.tap(find.text('Right side'));
+      await tester.tap(find.text('Right temple'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Next'));

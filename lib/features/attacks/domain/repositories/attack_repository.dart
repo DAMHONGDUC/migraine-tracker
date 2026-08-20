@@ -1,7 +1,7 @@
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/attack.dart';
 import '../enums/exertion_level.dart';
-import '../enums/head_location.dart';
+import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
 /// Contract for attack storage. Features depend on this, never on the Drift
@@ -28,6 +28,13 @@ abstract interface class AttackRepository {
 
   /// Backfills the weather snapshot for an attack logged offline.
   Future<void> attachWeather(String attackId, WeatherSnapshot weather);
+
+  /// Records the day's step count on an already-saved attack.
+  ///
+  /// Its own method for the same reason `updateExertion` is: the details
+  /// sheet never shows steps, so a save from there must not blank a number
+  /// the user was never offered.
+  Future<void> attachSteps(String attackId, int steps);
 
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
   Future<List<Attack>> attacksMissingWeather();
@@ -59,7 +66,7 @@ abstract interface class AttackRepository {
   Future<void> updateCore(
     String id, {
     required int intensity,
-    required HeadLocation location,
+    required List<HeadRegion> regions,
     String? medicationName,
   });
 

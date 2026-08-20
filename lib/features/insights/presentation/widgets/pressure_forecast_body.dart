@@ -12,7 +12,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/chart_axis_utils.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/premium_gate.dart';
-import '../../../../core/widgets/weather_attribution.dart';
+import '../../../../core/widgets/weather/weather_attribution.dart';
 import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/pressure_forecast.dart';
 import '../../../weather/providers.dart';
@@ -60,10 +60,9 @@ class PressureForecastBody extends ConsumerWidget {
           const WeatherAttribution(),
         ],
       ),
-      AsyncLoading() => SizedBox(
-        height: SdSpacingConstant.h160,
-        child: const Center(child: CircularProgressIndicator()),
-      ),
+      // No attribution on this one: the mark is owed by the state that
+      // actually drew Apple's data, and a placeholder drew none.
+      AsyncLoading() => const SdChartSkeletonV2(),
       _ => SizedBox(
         height: SdSpacingConstant.h64,
         child: Center(

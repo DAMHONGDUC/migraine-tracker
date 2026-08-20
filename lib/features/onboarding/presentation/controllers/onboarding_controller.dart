@@ -1,9 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../../../core/permissions/app_permission.dart';
 import '../../../weather/providers.dart';
 
@@ -14,19 +15,21 @@ class OnboardingController {
 
   final Ref _ref;
 
-
   /// Raises the While-Using prompt (reduced accuracy).
   ///
-  /// **This is the only place the app asks for location.** It used to ask by
-  /// requesting a position, which meant every weather read could prompt —
-  /// launch, resume, logging an attack. Here the ask sits next to the screen
-  /// explaining why it is wanted, which is the only place it can be answered
-  /// well. Best-effort: denial is fine, weather is simply skipped.
+  /// **This is where the ask is EXPLAINED, and it is one of two places that
+  /// raise it.** It used to ask by requesting a position, which meant every
+  /// weather read could prompt — launch, resume, logging an attack. Here the
+  /// ask sits next to the screen saying why it is wanted. Best-effort: denial
+  /// is fine, weather is simply skipped, and the dashboard's weather card
+  /// offers the ask again on the surface it feeds (`_LocationPrompt`) — a
+  /// "Not now" here used to be final.
   Future<void> requestLocation() async {
     try {
       await _ref.read(locationSourceProvider).requestPermission();
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.onboarding,
         'Location permission request failed',
         error: error,
         stackTrace: stackTrace,
@@ -49,7 +52,8 @@ class OnboardingController {
       await prefs.remove(PrefsKeyConstant.onboardingCompleted);
       await prefs.remove(PrefsKeyConstant.alertThreshold);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.onboarding,
         'Reset onboarding failed',
         error: error,
         stackTrace: stackTrace,
@@ -74,7 +78,8 @@ class OnboardingController {
           .read(appPermissionProvider)
           .request(AppPermissionType.notification);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.onboarding,
         'Notification permission request failed',
         error: error,
         stackTrace: stackTrace,
@@ -93,7 +98,8 @@ class OnboardingController {
       await prefs.setBool(PrefsKeyConstant.onboardingCompleted, true);
       AppAnalytics.logOnboardingCompleted(thresholdHpa: thresholdHpa);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.onboarding,
         'Complete onboarding failed',
         error: error,
         stackTrace: stackTrace,

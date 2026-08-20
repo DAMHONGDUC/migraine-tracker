@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/medication_filters.dart';
 
 /// The medications tab's three filter axes (date added, reminder, usage).
@@ -10,17 +11,29 @@ class MedicationFiltersController extends Notifier<MedicationFilters> {
   MedicationFilters build() => const MedicationFilters();
 
   void setDate(MedicationDateFilter value) {
-    AppLogger.action('Medication date filter', value.name);
+    SdLogger.action(
+      LogTagConstant.medicationFilters,
+      'Medication date filter',
+      value.name,
+    );
     state = state.copyWith(date: value);
   }
 
   void setReminder(MedicationReminderFilter value) {
-    AppLogger.action('Medication reminder filter', value.name);
+    SdLogger.action(
+      LogTagConstant.medicationFilters,
+      'Medication reminder filter',
+      value.name,
+    );
     state = state.copyWith(reminder: value);
   }
 
   void setUsage(MedicationUsageFilter value) {
-    AppLogger.action('Medication usage filter', value.name);
+    SdLogger.action(
+      LogTagConstant.medicationFilters,
+      'Medication usage filter',
+      value.name,
+    );
     state = state.copyWith(usage: value);
   }
 }

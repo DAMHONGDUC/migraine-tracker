@@ -43,6 +43,19 @@ scripts:
       explain. Costs a full cold build afterwards.
     run: sh tool/deep-set-up.sh
 
+  prepare-env-dev:
+    description: >
+      Copy env_assets/ into place for dev: both env/*.json, plus dev's
+      google-services.json, GoogleService-Info.plist and Info.plist.
+      Overwrites.
+    run: sh tool/prepare-env.sh dev
+
+  prepare-env-prod:
+    description: >
+      Same, with prod's native files instead. Both env/*.json are written
+      either way — only the native trio differs.
+    run: sh tool/prepare-env.sh prod
+
   gen:
     description: Regenerate localizations and build_runner output.
     run: sh tool/gen.sh
@@ -59,11 +72,19 @@ scripts:
       lands in the same TestFlight app — bump the build number.
     run: sh tool/build-ipa.sh dev
 
-  deploy-firebase:
+  deploy-firebase-dev:
     description: >
-      Deploy firestore rules, indexes and functions. Confirms the project
-      first — dev and prod share one, so this reaches real users.
-    run: sh tool/deploy-firebase.sh
+      Deploy firestore rules, indexes and functions to the `dev` project.
+      Optional target: `rules` or `functions`. Names the project and confirms
+      first — dev and prod are still one project, so this reaches real users.
+    run: sh tool/deploy-firebase.sh dev
+
+  deploy-firebase-prod:
+    description: >
+      The same, against the `prod` alias. Separate command so a prod deploy is
+      typed on purpose rather than inherited from whatever `firebase use` was
+      left pointing at.
+    run: sh tool/deploy-firebase.sh prod
 
   analyze:
     description: Analyze every package. Must pass with zero findings.

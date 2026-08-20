@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
 
@@ -26,7 +26,7 @@ Attack attackOnDay(int daysAgo) {
     id: 'attack-$daysAgo',
     startedAt: DateTime(date.year, date.month, date.day, 10),
     intensity: 6,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
   );
 }
 
@@ -34,11 +34,11 @@ void main() {
   group('Insights card', () {
     testWidgets('is absent where HealthKit is not available', (tester) async {
       await pumpApp(tester, premium: true);
-      await openInsights(tester);
+      await openActivityInsight(tester);
 
       // The activity card still stands — its exertion half is free and needs
       // no HealthKit — but the step half is gone with the source.
-      expect(find.text('Activity'), findsOneWidget);
+      expect(find.text('Activity'), findsWidgets);
       expect(
         find.textContaining('Connect Apple Health steps'),
         findsNothing,
@@ -57,15 +57,20 @@ void main() {
           PrefsKeyConstant.healthConnected: true,
         },
       );
-      // The dashboard's step card is free and reads for everyone, so the
-      // count is already non-zero — what is gated is the correlation.
-      final int readsOnDashboard = app.health.stepReads;
+      await openActivityInsight(tester);
 
-      await openInsights(tester);
-
-      // The gate shows its pitch; nothing behind it was built or fetched.
-      expect(find.text('Steps & attacks'), findsNothing);
-      expect(app.health.stepReads, readsOnDashboard);
+      // The analysis half is what premium buys: a free user gets the pitch,
+      // and nothing behind it reads HealthKit again.
+      expect(
+        find.text(
+          'Unlock to see whether your attacks follow your least active days.',
+        ),
+        findsOneWidget,
+      );
+      // No read-count assertion: the reading is free on both surfaces and the
+      // range selector reads for itself, so a count says nothing about whether
+      // the gated half ran. The pitch above is what does.
+      expect(app.health.stepReads, greaterThan(0));
 
       await finishTest(tester);
     });
@@ -74,17 +79,12 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, premium: true, healthAvailable: true);
-      await openInsights(tester);
-      await tester.dragUntilVisible(
-        find.textContaining('Connect Apple Health steps'),
-        find.byType(Scrollable).first,
-        const Offset(0, -300),
-      );
+      await openActivityInsight(tester);
 
-      expect(
-        find.textContaining('Connect Apple Health steps'),
-        findsOneWidget,
-      );
+      // Said twice, and that is the card: the steps half says it and the
+      // analysis half says it. `dragUntilVisible` used to stand in for the
+      // tab tap, which on the Pressure tab scrolled until the test timed out.
+      expect(find.textContaining('Connect Apple Health steps'), findsWidgets);
 
       await finishTest(tester);
     });
@@ -135,14 +135,12 @@ void main() {
         await repository.insert(attackOnDay(i));
       }
 
-      await openInsights(tester);
-      await tester.dragUntilVisible(
-        find.text('6000 steps'),
-        find.byType(Scrollable).first,
-        const Offset(0, -300),
-      );
+      await openActivityInsight(tester);
+      await dragInsightsTo(tester, find.text('6000 steps'));
 
-      expect(find.text('6000 steps'), findsOneWidget);
+      // Twice: the steps half prints the day's own figure and the analysis
+      // prints the same number as one of its two averages.
+      expect(find.text('6000 steps'), findsWidgets);
       expect(
         find.text('fewer steps on the days your attacks started.'),
         findsOneWidget,

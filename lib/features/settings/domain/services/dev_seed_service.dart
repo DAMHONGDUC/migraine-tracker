@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
-import '../../../attacks/domain/enums/head_location.dart';
+import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
@@ -26,9 +26,20 @@ import 'data_wipe_service.dart';
 import 'export_file_store.dart';
 
 /// Dev-only fixture generator: wipes whatever is on the device, then refills
-/// it with [seedCount] medications (most carrying a reminder or three),
-/// [seedCount] attacks and [seedCount] past exports so charts, filters, the
-/// export history and the correlation engine all have something to chew on.
+/// it with a handful of rows — [medicationCount] medications, [attackCount]
+/// attacks, [reminderCount] reminders and [exportCount] past exports.
+///
+/// **A handful, not a pile** (owner's call). It used to write a hundred of
+/// each, which answered "what does this look like full" and never "what does
+/// a real user's first month look like" — and a hundred rows is a screenshot
+/// nobody can read. The daily pressure series is the one thing still seeded
+/// across the whole window: it is the correlation's denominator rather than
+/// a list the user scrolls.
+///
+/// **Sleep and steps are never seeded** (owner's call, and the same one
+/// `healthRepositoryProvider` records). HealthKit is the one source the app
+/// does not own, so an invented night is a number the user could go and
+/// check — an honest empty card is better than a lie.
 ///
 /// **Every run produces a different data set.** Nothing is derived from the
 /// row index — not the medication a row gets, not whether an attack has
@@ -65,19 +76,31 @@ class DevSeedService {
   final NotificationRepository _notifications;
   final DailyPressureRepository _dailyPressure;
 
-  /// How many rows of each kind a seed produces.
-  static const int seedCount = 100;
+  /// How many rows each list is left holding. Owner's numbers.
+  static const int attackCount = 5;
+  static const int medicationCount = 5;
 
-  /// How many medications get [crowdedReminders] instead of a handful.
-  static const int crowdedMedications = 3;
+  /// Reminders in total, one per medication — not per medication, and no
+  /// crowded row any more: the counts above are the whole data set now.
+  static const int reminderCount = 2;
 
-  /// The pile a crowded medication gets. Nobody types twenty reminders by
-  /// hand, which is exactly why the detail screen has to be seeded with them
-  /// — a list that only ever holds three never shows what scrolling costs.
-  static const int crowdedReminders = 20;
+  static const int exportCount = 5;
 
-  /// How many seeded rows are deleted again, to leave tombstones behind.
-  static const int _tombstoneCount = 5;
+  /// Notifications of each kind. Alerts stay rarer than reminder firings,
+  /// because the cron sends at most one a day per user.
+  static const int notificationCount = 5;
+  static const int pressureAlertCount = 1;
+
+  /// Seeded ON TOP of the counts above and deleted again at the end, so the
+  /// tombstone table has rows to carry without a list coming up a row short
+  /// of what those counts promise.
+  static const int _tombstoneAttacks = 1;
+  static const int _tombstoneMedications = 1;
+
+  /// What is actually written, surplus included — the lists keep the counts
+  /// above once [_seedTombstones] has taken the rest.
+  static const int _attacksToWrite = attackCount + _tombstoneAttacks;
+  static const int _medicationsToWrite = medicationCount + _tombstoneMedications;
 
   /// How far back rows are scattered, in hours — a little over three months,
   /// which is enough for the weekly charts and the 90-day filters to have
@@ -119,7 +142,7 @@ class DevSeedService {
     'Atogepant',
   ];
 
-  /// Suffixes that turn the 30 names above into [seedCount] distinct rows.
+  /// Suffixes, so the pool is 30 names crossed with 5 doses rather than 30.
   static const List<String> _doses = <String>[
     '',
     ' 50mg',
@@ -172,7 +195,7 @@ class DevSeedService {
     await _seedDailyPressure(random, attacks, now);
     await _seedNotifications(random, reminders, now);
     // Last: it deletes some of what the steps above wrote.
-    await _seedTombstones(random, attacks, medications);
+    await _seedTombstones(attacks, medications);
   }
 
   /// One reading per local day across the window, attacks or no attacks.
@@ -231,7 +254,7 @@ class DevSeedService {
     final List<AppNotification> rows = <AppNotification>[];
 
     // Reminder occurrences: past firings of reminders that actually exist.
-    for (int i = 0; i < seedCount && reminders.isNotEmpty; i++) {
+    for (int i = 0; i < notificationCount && reminders.isNotEmpty; i++) {
       final MedicationReminder reminder =
           reminders[random.nextInt(reminders.length)];
       final DateTime at = now.subtract(
@@ -252,7 +275,7 @@ class DevSeedService {
 
     // Pressure alerts, rarer than reminders — the cron sends at most one a
     // day per user, so a list with as many alerts as reminders would lie.
-    for (int i = 0; i < seedCount ~/ 5; i++) {
+    for (int i = 0; i < pressureAlertCount; i++) {
       final DateTime at = now.subtract(
         Duration(hours: random.nextInt(_windowHours)),
       );
@@ -278,29 +301,28 @@ class DevSeedService {
       ? null
       : occurredAt.add(Duration(minutes: 1 + random.nextInt(600)));
 
-  /// Deletes a few of the rows just written, which is the ONLY way a
+  /// Deletes the extra rows written for exactly this, which is the ONLY way a
   /// tombstone is made: the table is sync bookkeeping, written by the delete
   /// path, so seeding it by hand would fabricate rows no delete produced.
+  ///
+  /// **The tail of each list, never a random row.** The counts above are what
+  /// the lists must be left holding, so what dies has to be the surplus — a
+  /// shuffle here would take a row the owner asked to see.
   ///
   /// The ids were never uploaded, so a sync issues deletes the server has
   /// nothing to match — the same no-op a real "created and deleted while
   /// offline" record produces.
   Future<void> _seedTombstones(
-    Random random,
     List<Attack> attacks,
     List<Medication> medications,
   ) async {
-    final List<Attack> doomedAttacks = List<Attack>.of(attacks)
-      ..shuffle(random);
-    final List<Medication> doomedMedications = List<Medication>.of(medications)
-      ..shuffle(random);
-
-    for (final Attack attack in doomedAttacks.take(_tombstoneCount)) {
+    for (final Attack attack in attacks.reversed.take(_tombstoneAttacks)) {
       await _attacks.deleteById(attack.id);
     }
-    // Cascades its reminders away too, which is the case the pull path has
+    // Cascades its one reminder away too, which is the case the pull path has
     // to handle and the one nothing else in the seed produces.
-    for (final Medication medication in doomedMedications.take(2)) {
+    for (final Medication medication
+        in medications.reversed.take(_tombstoneMedications)) {
       await _medications.deleteById(medication.id);
     }
   }
@@ -308,52 +330,47 @@ class DevSeedService {
   DateTime _dayOf(DateTime value) =>
       DateTime(value.year, value.month, value.day);
 
-  /// Reminder counts are lopsided on purpose. Most medications have none or
-  /// a couple — that is what the reminder filter and the list's count line
-  /// are for — and [crowdedMedications] of them get [crowdedReminders], so
-  /// the detail screen is always seeded with one list long enough to scroll.
+  /// One reminder on each of the first [reminderCount] medications, and one
+  /// more on each doomed one.
+  ///
+  /// **The first medications, not random ones**: the doomed rows are the tail
+  /// of the list (see [_seedTombstones]), so taking from the head is what
+  /// keeps the [reminderCount] the owner asked for alive to the end of the
+  /// run. The extra on a doomed medication is deleted with its host, which is
+  /// the cascade the sync pull path has to handle and the only place the seed
+  /// produces one — so it is not returned, and no notification points at it.
   ///
   /// Written straight to the repository, never through `RemindersController`:
-  /// these are fixtures, and scheduling hundreds of real notifications on a
-  /// dev device would be a genuinely unpleasant afternoon.
+  /// these are fixtures, and scheduling real notifications for them on a dev
+  /// device would be a genuinely unpleasant afternoon.
   Future<List<MedicationReminder>> _seedReminders(
     Random random,
     List<Medication> medications,
   ) async {
-    final List<Medication> shuffled = List<Medication>.of(medications)
-      ..shuffle(random);
+    final List<int> minutes = _distinctMinutes(
+      random,
+      reminderCount + _tombstoneMedications,
+    ).toList();
+    final List<Medication> hosts = <Medication>[
+      ...medications.take(reminderCount),
+      ...medications.reversed.take(_tombstoneMedications),
+    ];
     final List<MedicationReminder> created = <MedicationReminder>[];
 
-    for (int i = 0; i < shuffled.length; i++) {
-      final int count = i < crowdedMedications
-          ? crowdedReminders
-          : _casualReminderCount(random);
+    for (int i = 0; i < hosts.length; i++) {
+      final MedicationReminder reminder = MedicationReminder(
+        id: _uuid.v4(),
+        medicationId: hosts[i].id,
+        minuteOfDay: minutes[i],
+        // One in five is off — exercises the disabled row style and the filter count.
+        enabled: random.nextInt(5) != 0,
+      );
 
-      for (final int minuteOfDay in _distinctMinutes(random, count)) {
-        final MedicationReminder reminder = MedicationReminder(
-          id: _uuid.v4(),
-          medicationId: shuffled[i].id,
-          minuteOfDay: minuteOfDay,
-          // One in five is off — exercises the disabled row style and the filter count.
-          enabled: random.nextInt(5) != 0,
-        );
-
-        await _reminders.upsert(reminder);
-        created.add(reminder);
-      }
+      await _reminders.upsert(reminder);
+      if (i < reminderCount) created.add(reminder);
     }
 
     return created;
-  }
-
-  /// 0–5, weighted low. The zeros matter as much as the rest — a medications
-  /// list where every row has reminders never shows the empty case.
-  int _casualReminderCount(Random random) {
-    final int roll = random.nextInt(10);
-
-    if (roll < 4) return 0;
-    if (roll < 8) return 1 + random.nextInt(2);
-    return 3 + random.nextInt(3);
   }
 
   /// [count] distinct times of day. Distinct because two reminders at the
@@ -370,23 +387,23 @@ class DevSeedService {
   }
 
   /// Names are drawn without replacement: the 30 names crossed with the 5
-  /// doses give 150 combinations, shuffled, of which [seedCount] are kept.
-  /// Duplicates would be indistinguishable rows in the medications list.
+  /// doses give 150 combinations, shuffled, of which as many as the seed
+  /// needs are kept. Duplicates would be indistinguishable rows in the list.
   List<Medication> _buildMedications(Random random, DateTime now) {
     final List<String> names = <String>[
       for (final String dose in _doses)
         for (final String name in _medicationNames) '$name$dose',
     ]..shuffle(random);
 
-    // Without this, raising seedCount past the pool silently under-seeds.
+    // Without this, raising the count past the pool silently under-seeds.
     assert(
-      names.length >= seedCount,
-      'seedCount ($seedCount) exceeds the ${names.length} name/dose '
+      names.length >= _medicationsToWrite,
+      '$_medicationsToWrite medications exceed the ${names.length} name/dose '
       'combinations available — add names or doses.',
     );
 
     return <Medication>[
-      for (final String name in names.take(seedCount))
+      for (final String name in names.take(_medicationsToWrite))
         Medication(
           id: _uuid.v4(),
           name: name,
@@ -397,26 +414,36 @@ class DevSeedService {
     ];
   }
 
+  /// **Exactly one of them has no weather, and which one is random.** It used
+  /// to be a one-in-seven roll per attack, which over a hundred rows always
+  /// produced a handful; over five it produces none most runs, and the
+  /// offline-log case is the one the backfill queue exists for.
   List<Attack> _buildAttacks(
     Random random,
     DateTime now,
     List<Medication> medications,
-  ) => <Attack>[
-    for (final int hoursAgo in _scatteredHours(random))
-      _buildAttack(
-        random,
-        now.subtract(Duration(hours: hoursAgo)),
-        medications,
-      ),
-  ];
+  ) {
+    final List<int> hours = _scatteredHours(random, _attacksToWrite);
+    final int weatherless = random.nextInt(hours.length);
 
-  /// [seedCount] distinct hour offsets inside the window. Distinct so no two
+    return <Attack>[
+      for (int i = 0; i < hours.length; i++)
+        _buildAttack(
+          random,
+          now.subtract(Duration(hours: hours[i])),
+          medications,
+          offline: i == weatherless,
+        ),
+    ];
+  }
+
+  /// [count] distinct hour offsets inside the window. Distinct so no two
   /// attacks land in the same hour — the history list groups by day and the
   /// charts bucket by hour, and a pile-up hides both.
-  List<int> _scatteredHours(Random random) {
+  List<int> _scatteredHours(Random random, int count) {
     final Set<int> hours = <int>{};
 
-    while (hours.length < seedCount) {
+    while (hours.length < count) {
       hours.add(random.nextInt(_windowHours));
     }
 
@@ -426,12 +453,10 @@ class DevSeedService {
   Attack _buildAttack(
     Random random,
     DateTime startedAt,
-    List<Medication> medications,
-  ) {
+    List<Medication> medications, {
+    required bool offline,
+  }) {
     final int intensity = 1 + random.nextInt(10);
-    // - roughly one in seven stays weatherless, the offline-log case the backfill queue handles
-    // - a chance, not exact, so the gaps land differently each run
-    final bool offline = random.nextInt(7) == 0;
     final bool untreated = random.nextInt(5) == 0;
     final bool annotated = random.nextInt(4) == 0;
 
@@ -439,7 +464,7 @@ class DevSeedService {
       id: _uuid.v4(),
       startedAt: startedAt,
       intensity: intensity,
-      location: HeadLocation.values[random.nextInt(HeadLocation.values.length)],
+      regions: _pickRegions(random),
       medicationName: untreated
           ? null
           : medications[random.nextInt(medications.length)].name,
@@ -520,7 +545,7 @@ class DevSeedService {
     final Uint8List csvBytes = utf8.encode(_export.toCsv(attacks));
 
     // Distinct hours again: same-second exports of the same kind would collide on the filename.
-    for (final int hoursAgo in _scatteredHours(random)) {
+    for (final int hoursAgo in _scatteredHours(random, exportCount)) {
       final ExportKind kind = random.nextBool()
           ? ExportKind.json
           : ExportKind.csv;
@@ -554,6 +579,20 @@ class DevSeedService {
     final String second = date.second.toString().padLeft(2, '0');
 
     return '${date.year}-$month-${day}_$hour$minute$second';
+  }
+
+  /// One to three areas, in enum order — the shape a real pick has. Never
+  /// empty: an attack with no area cannot be saved, so seeding one would
+  /// build a database the app itself refuses to write.
+  List<HeadRegion> _pickRegions(Random random) {
+    final List<HeadRegion> shuffled = List<HeadRegion>.of(HeadRegion.values)
+      ..shuffle(random);
+    final Set<HeadRegion> picked = shuffled.take(1 + random.nextInt(3)).toSet();
+
+    return <HeadRegion>[
+      for (final HeadRegion region in HeadRegion.values)
+        if (picked.contains(region)) region,
+    ];
   }
 
   List<String> _pick(List<String> source, Random random) {

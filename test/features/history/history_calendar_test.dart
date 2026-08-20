@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -12,7 +12,7 @@ Attack at(String id, DateTime local, {int intensity = 5}) => Attack(
   id: id,
   startedAt: local.toUtc(),
   intensity: intensity,
-  location: HeadLocation.left,
+  regions: const <HeadRegion>[HeadRegion.templeL],
 );
 
 Future<void> switchToCalendar(WidgetTester tester) async {
@@ -57,7 +57,7 @@ void main() {
 
     // The tile for today's attack (selection defaults to today). Scope the
     // intensity to the tile — a bare "8" would also match day 8 in the grid.
-    expect(find.text('Left side'), findsOneWidget);
+    expect(find.text('Left temple'), findsOneWidget);
     expect(
       find.descendant(of: find.byType(AttackTile), matching: find.text('8')),
       findsOneWidget,

@@ -41,7 +41,8 @@ skipped, since several of these fail **silently**.
 | ~~4~~ | ~~APNs auth key~~ | **Done 10 Aug.** A `.p8` key uploaded to `migraine-tracker-9f7b2`. One key serves the whole Apple team and both APNs environments, so there is nothing per-app or per-environment left to configure. |
 | 5 | Create the first `app_updates` record by hand | Force-update can never fire. It fails open until then — safe, but silent, so "no sheet appeared" is not evidence it works. `create_date` **must** be a Firestore `timestamp`; a string sorts below every timestamp and the query never sees it. |
 
-`melos run deploy-firebase` is the one command for 1-3: it sends rules and
+`melos run deploy-firebase-dev` (`deploy-firebase-prod` for the other alias) is
+the one command for 1-3: it sends rules and
 indexes together, and the functions after their own tests pass.
 `sync_collection_rules_test.dart` proves the two files agree with the enum; it
 can never prove the project has them, which is what the deploy did.
@@ -57,7 +58,7 @@ can never prove the project has them, which is what the deploy did.
 | ~~7b~~ | ~~App Group on both App IDs~~ | **Done 10 Aug**, on the app's App ID and on `…​.BaroEaseWidgetExtension`. |
 | 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
-| 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. Only Apple Health sleep/steps are collected-but-not-linked, because they never leave the device. |
+| 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. **Fitness is linked too** — the step count for the day of an attack travels with that attack into sync. Apple Health *sleep* is the only reading declared at all that never leaves the device, and it is not declared, because we do not collect it. |
 | 11 | **(repo)** Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | Still `id0000000000`, so the published policy links to nothing. Only fillable once the App Store record exists. |
 
 ### RevenueCat
@@ -104,7 +105,7 @@ produces what the next one consumes.
 | 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/release/APP_STORE_LISTING.md` carries the wording. |
 | ~~26~~ | ~~Terms and Privacy links on the paywall~~ | **Done.** `paywall_screen_legal_links.dart` draws both from `LegalUrlConstant`, under the actions. Guideline 3.1.2 wants them in the binary as well as in the metadata; do not "add" them again. |
 | 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. Metadata only — nothing in the app links to it. |
-| 15 | Fill `[ADDRESS/COUNTRY]` in `docs/privacy/PRIVACY_POLICY.md` | The data controller's address is a GDPR requirement and is the owner's to supply. |
+| ~~15~~ | ~~Fill the data controller's address~~ | **Done 20 Aug.** Ho Chi Minh City, Viet Nam, in the markdown header and in `privacy.json`'s overview so it reaches the published page. |
 | 16 | Have a lawyer read the policy | Before submission. |
 | 23 | **(repo)** Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `ios/Runner/Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
 | 24 | The French declaration to ANSSI | Apple's step 3 was answered **Yes** — the app is distributed in France — and France expects a declaration for the import and use of cryptography. Mass-market software on standard algorithms normally takes the simplified regime, but simplified is not none. Tied to availability: drop France and this goes away, along with the answer given. |
@@ -281,21 +282,24 @@ setup"; re-verified against the current repo state:
   widget extension's own. What each of them still owes is a real-device pass
   (item 17): the Simulator has no APNs and no HealthKit, and App Groups work
   there unprovisioned, so it cannot confirm any of the three.
-- The App Privacy label (Health & Fitness, collected-but-not-linked) is
+- The App Privacy label (Health and Fitness, both linked to identity) is
   separate and still open — see item 10.
 
 ## 5. The privacy policy is written but not published
 
 Checklist items 10, 11, 14, 15 and 16. `docs/privacy/PRIVACY_POLICY.md` and
-`docs/privacy/privacy.json` are current as of 7 Aug 2026 and agree with each other
+`docs/privacy/privacy.json` are current as of 20 Aug 2026 and agree with each other
 (hard rule 17). What is left is all outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
   submission. `privacy.json` now points at
   `https://damhongduc.github.io/apps_privacy_policy`, but nothing is
-  published there yet, and `storeLinks.appStore` is still a placeholder id.
-- **Fill `[ADDRESS/COUNTRY]`** in the markdown — the data controller's
-  address is the owner's to supply and is a GDPR requirement.
+  published there yet. `storeLinks` is now empty: the placeholder id would
+  have published as a dead App Store link, so the real one has to be put back
+  once the record exists (item 11).
+- ~~Fill the data controller's address.~~ **Done** — Ho Chi Minh City, Viet
+  Nam. It is in `privacy.json`'s overview as well as the markdown header,
+  because only the JSON reaches the published page.
 - The shared `defaults.sections` on the site supply retention, your rights,
   security and the rest; `privacy.json` carries only BaroEase's own sections
   and overrides `children` to read 16 rather than the shared 13.

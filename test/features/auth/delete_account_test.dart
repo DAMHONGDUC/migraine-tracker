@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -31,7 +31,7 @@ void main() {
         id: 'a1',
         startedAt: DateTime.now().toUtc(),
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
     );
     await openAccount(tester);
@@ -63,7 +63,7 @@ void main() {
         id: 'a1',
         startedAt: DateTime.now().toUtc(),
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
     );
     await openAccount(tester);

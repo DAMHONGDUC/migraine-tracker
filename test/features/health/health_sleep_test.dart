@@ -5,9 +5,10 @@ import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -37,7 +38,7 @@ Attack attackOnMorning(int daysAgo) {
     id: 'attack-$daysAgo',
     startedAt: DateTime(date.year, date.month, date.day, 10),
     intensity: 6,
-    location: HeadLocation.left,
+    regions: const <HeadRegion>[HeadRegion.templeL],
   );
 }
 
@@ -109,7 +110,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(app.prefs.getBool(PrefsKeyConstant.healthSleep), isNot(isTrue));
-      expect(find.text("Couldn't connect to Apple Health."), findsOneWidget);
+      // The ARB's own words — `healthConnectFailed`. The copy grew a second
+      // sentence and this assertion kept the old one.
+      expect(
+        find.text(
+          "Couldn't connect Apple Health. Try again from the Health app if "
+          'it keeps failing.',
+        ),
+        findsOneWidget,
+      );
 
       await finishTest(tester);
     });
@@ -141,12 +150,22 @@ void main() {
       await pumpApp(tester, premium: true);
       await openInsights(tester);
 
-      expect(find.text('Sleep & attacks'), findsNothing);
+      // Off HealthKit there is no sleep source, so Insights does not offer
+      // the tab — see InsightsScreen's own list.
+      expect(
+        find.descendant(
+          of: find.byType(SdSegmentedTabsV2),
+          matching: find.text('Sleep'),
+        ),
+        findsNothing,
+      );
 
       await finishTest(tester);
     });
 
-    testWidgets('a free user never reaches a HealthKit read', (tester) async {
+    testWidgets('a free user gets the reading but not the correlation', (
+      tester,
+    ) async {
       final PumpedApp app = await pumpApp(
         tester,
         healthAvailable: true,
@@ -154,11 +173,21 @@ void main() {
           PrefsKeyConstant.healthConnected: true,
         },
       );
-      await openInsights(tester);
+      await openSleepInsight(tester);
 
-      // The gate shows its pitch; nothing behind it was built or fetched.
-      expect(find.text('Sleep & attacks'), findsNothing);
-      expect(app.health.sleepReads, 0);
+      // The analysis half is what premium buys, so a free user gets the
+      // pitch and nothing is computed behind it.
+      expect(
+        find.text(
+          'Unlock to see whether your attacks follow the nights you sleep '
+          'least.',
+        ),
+        findsOneWidget,
+      );
+      // The reading itself is free (`docs/PREMIUM_RULES.md`): it answers
+      // "did connecting Apple Health work". This used to assert no read at
+      // all, from back when the whole card sat behind the gate.
+      expect(app.health.sleepReads, greaterThan(0));
 
       await finishTest(tester);
     });
@@ -167,13 +196,15 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, premium: true, healthAvailable: true);
-      await openInsights(tester);
+      await openSleepInsight(tester);
 
-      expect(find.text('Sleep & attacks'), findsOneWidget);
-      expect(
-        find.textContaining('Connect Apple Health sleep in Settings'),
-        findsOneWidget,
-      );
+      // The card carries no heading of its own any more — the tab above it
+      // is the heading, so what marks the section is the analysis title.
+      expect(find.text('Analysis'), findsOneWidget);
+      // Twice over, and that is the card: the nights half says it and the
+      // analysis half says it, because either one alone would leave a user
+      // wondering which of the two the switch feeds.
+      expect(find.textContaining('Connect Apple Health sleep'), findsWidgets);
 
       await finishTest(tester);
     });
@@ -200,7 +231,7 @@ void main() {
         await repository.insert(attackOnMorning(i));
       }
 
-      await openInsights(tester);
+      await openSleepInsight(tester);
 
       // A whole number of hours drops the minutes: DurationLabel renders
       // "3h", not "3h 0m".

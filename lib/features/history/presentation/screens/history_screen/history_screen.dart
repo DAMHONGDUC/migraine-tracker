@@ -148,7 +148,18 @@ class HistoryScreen extends HookConsumerWidget {
               message: l10n.historyEmpty,
             ),
           ),
-          _ => const Center(child: CircularProgressIndicator()),
+          // The list's own shape. It clears the app bar and takes the screen
+          // gutter itself, because the real list's insets come from the view
+          // below it and that view does not exist yet.
+          _ => Padding(
+            padding: EdgeInsets.fromLTRB(
+              SdContentPaddingV2.horizontal,
+              SdContentPaddingV2.top(context),
+              SdContentPaddingV2.horizontal,
+              0,
+            ),
+            child: const SdListSkeletonV2(),
+          ),
         },
       ),
     );

@@ -6,7 +6,7 @@ import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
-import 'package:migraine_tracker/features/attacks/domain/enums/head_location.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/insights/presentation/widgets/pressure_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
@@ -33,7 +33,7 @@ Future<void> seedInsightData(WidgetTester tester, PumpedApp app) async {
         id: 'seed-$i',
         startedAt: startedAt,
         intensity: 5,
-        location: HeadLocation.left,
+        regions: const <HeadRegion>[HeadRegion.templeL],
         weather: WeatherSnapshot(
           capturedAt: startedAt,
           pressureHpa: 1010,
@@ -59,10 +59,9 @@ void main() {
   testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
     tester,
   ) async {
-    // Signed in, because the dev row now sits behind an account: premium
-    // binds to one, so forcing it without one simulates a state production
-    // cannot reach. Signed in and unentitled is still not premium, which is
-    // what the first assertion checks.
+    // Signed in, because the dev row sits behind an account: premium binds to
+    // one, so forcing it without one simulates a state production cannot
+    // reach. Signed in and unentitled is still not premium.
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await seedInsightData(tester, app);
     await openPressureInsight(tester);
@@ -209,26 +208,24 @@ void main() {
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
-      // The PDF report now lives behind the export screen's picker, still
-      // locked: the row is a pitch, never a path that produces a report.
+      // Export is premium in full now — the data exports as well as the PDF
+      // — so the row is a badge and a paywall, never a path to a file.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
-      await tapVisible(tester, find.text('Export'));
-      expect(
-        find.text('Export a PDF summary of your attacks for your doctor.'),
-        findsOneWidget,
-      );
+      expect(find.text('BaroEase Premium'), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('still gets logging, history and the export (free forever)', (
-      tester,
-    ) async {
+    testWidgets('still gets logging, history and medications', (tester) async {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
+      // The export row stays, wearing the badge rather than vanishing — one
+      // that disappeared would read as a feature the app lost. Scrolled to
+      // first: it sits below the built range now the dev group leads.
       await openSettings(tester);
+      await scrollIntoView(tester, find.text('Export data'));
       expect(find.text('Export data'), findsOneWidget);
 
       await openMedications(tester);
@@ -441,8 +438,8 @@ void main() {
       // titled 'Premium' now, so the badge is what marks a gate.)
       expect(find.byType(PremiumBadge), findsNothing);
 
-      // The report is offered for real in the export picker — no badge, no
-      // pitch, just the row that produces it.
+      // The whole export screen is reachable, and the report is offered for
+      // real in its picker — no badge, no pitch, just the row that makes it.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
       await tapVisible(tester, find.text('Export'));

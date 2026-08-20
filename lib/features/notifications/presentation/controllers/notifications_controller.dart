@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
-import '../../../../core/logging/app_logger.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
 import '../../../medications/providers.dart';
 import '../../domain/entities/app_notification.dart';
@@ -39,7 +40,8 @@ class NotificationsController {
 
       await _ref.read(notificationRepositoryProvider).addMissing(occurrences);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.notifications,
         'Materialising reminder notifications failed',
         error: error,
         stackTrace: stackTrace,
@@ -63,7 +65,8 @@ class NotificationsController {
         <AppNotification>[alert],
       );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.notifications,
         'Recording a pushed alert failed',
         error: error,
         stackTrace: stackTrace,
@@ -94,7 +97,8 @@ class NotificationsController {
         <AppNotification>[alert],
       );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.notifications,
         'Reconciling the last pressure alert failed',
         error: error,
         stackTrace: stackTrace,
@@ -109,7 +113,11 @@ class NotificationsController {
   /// recorded as they fire, so the one the user just tapped may not exist
   /// until this runs.
   Future<String?> reminderTapTarget(String reminderId) async {
-    AppLogger.action('Open tapped reminder', reminderId);
+    SdLogger.action(
+      LogTagConstant.notifications,
+      'Open tapped reminder',
+      reminderId,
+    );
     try {
       await materialise();
 
@@ -119,7 +127,8 @@ class NotificationsController {
 
       return latest?.id;
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.notifications,
         'Opening a tapped reminder failed',
         error: error,
         stackTrace: stackTrace,
@@ -137,7 +146,11 @@ class NotificationsController {
     final AppNotification? alert = PressureAlertMapper.fromData(data);
 
     if (alert == null) return null;
-    AppLogger.action('Open tapped alert', alert.id);
+    SdLogger.action(
+      LogTagConstant.notifications,
+      'Open tapped alert',
+      alert.id,
+    );
     await recordPush(data);
 
     return alert.id;
@@ -146,13 +159,14 @@ class NotificationsController {
   /// Called when one notification's detail screen opens — the only thing
   /// that counts as reading it.
   Future<void> markRead(String id) async {
-    AppLogger.action('Mark notification read', id);
+    SdLogger.action(LogTagConstant.notifications, 'Mark notification read', id);
     try {
       await _ref
           .read(notificationRepositoryProvider)
           .markRead(id, DateTime.now().toUtc());
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.notifications,
         'Marking a notification read failed',
         error: error,
         stackTrace: stackTrace,

@@ -31,9 +31,8 @@ void main() {
   });
 
   // The Swift side builds the URL and no Dart code can catch it getting this
-  // wrong — which is exactly how it shipped broken once: without the marker
-  // the plugin drops the URL, the app opens on the dashboard, and nothing
-  // anywhere reports a failure.
+  // wrong — which is how it shipped broken once: without the marker the plugin
+  // drops the URL, the app opens on the dashboard, and nothing reports it.
   test('the widget builds a URL the plugin will actually forward', () {
     final File view = File('ios/BaroEaseWidget/BaroEaseWidgetView.swift');
     final RegExp url = RegExp(r'URL\(string:\s*"([^"]+)"\)');

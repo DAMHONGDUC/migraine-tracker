@@ -14,6 +14,13 @@ still missing.
 | `env/*.json` | Firebase and RevenueCat config | `env/dev.json`, `env/prod.json` | `ENV_DEV_JSON`, `ENV_PROD_JSON` |
 | `GoogleService-Info.plist` | Firebase's own iOS config, a build input | `ios/Runner/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST` (base64) |
 
+On the Mac the last two rows are laid down together — with
+`android/app/google-services.json` and `ios/Runner/Info.plist`, whose Google
+sign-in URL scheme has to match the project — by `melos run
+prepare-env-dev|prod`, from a gitignored `env_assets/` folder holding your own
+copies. CI writes them from the secrets instead, except `Info.plist`, which is
+tracked and builds from whatever is committed.
+
 ## The App Store Connect API key
 
 App Store Connect → Users and Access → Integrations → App Store Connect API →

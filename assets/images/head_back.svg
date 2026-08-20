@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 248" width="200" height="248">
+  <!-- The same head from behind. Identical silhouette, ears and neck to
+       head_front.svg - only the face is gone, which is the whole cue for
+       which way it faces, so the two must stay drawn from the same numbers.
+       Same constraints as the front file: line art only, no fill, dark-mode
+       palette baked in, no filters or masks.
+       The neck is filled on this view and not on the front, because the nape
+       is the one area drawn over it - see HeadRegionGeometry.outline. -->
+  <g fill="none" stroke="#E4E2E8" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke-opacity="0.9" stroke-width="2">
+      <path d="M100 8 C148 8 181 42 183 98 C184 120 180 142 173 162 C164 186 148 208 130 221 C120 228 110 231 100 231 C90 231 80 228 70 221 C52 208 36 186 27 162 C20 142 16 120 17 98 C19 42 52 8 100 8 Z"/>
+      <path d="M54 206 C63 222 59 236 45 248"/>
+      <path d="M146 206 C137 222 141 236 155 248"/>
+    </g>
+
+    <!-- Ears sit outside every band on purpose: nothing here is tappable,
+         so a tap that lands on one falls through to no region at all. -->
+      <path d="M23 100 C4 97 -1 119 3 137 C8 156 15 165 27 159" stroke-opacity="0.68" stroke-width="1.4"/>
+      <path d="M22 111 C11 117 9 139 16 152" stroke-opacity="0.68" stroke-width="1.1"/>
+      <path d="M177 100 C196 97 201 119 197 137 C192 156 185 165 173 159" stroke-opacity="0.68" stroke-width="1.4"/>
+      <path d="M178 111 C189 117 191 139 184 152" stroke-opacity="0.68" stroke-width="1.1"/>
+  </g>
+</svg>

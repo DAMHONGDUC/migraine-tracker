@@ -22,10 +22,7 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
     try {
       await ref.read(settingsControllerProvider.notifier).seedDevData();
       if (mounted) {
-        SdSnackBarUtilsV2.success(
-          context,
-          l10n.settingsDevSeedDone(DevSeedService.seedCount),
-        );
+        SdSnackBarUtilsV2.success(context, l10n.settingsDevSeedDone);
       }
     } catch (_) {
       if (mounted) {

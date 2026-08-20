@@ -52,8 +52,11 @@ enum AppFeature {
   widget(Icons.widgets_outlined),
   notifications(Icons.inbox_outlined),
   sync(Icons.cloud_done_outlined),
-  export(Icons.ios_share_outlined),
+  // Free because hard rule 8 makes it a promise: export moved behind the
+  // paywall, the wipe never can.
+  wipe(Icons.delete_outline),
   calm(Icons.dark_mode_outlined),
+  export(Icons.ios_share_outlined, premium: true),
   alerts(Icons.notifications_none, premium: true),
   forecast(Icons.show_chart, premium: true),
   correlation(Icons.analytics_outlined, premium: true),
@@ -105,11 +108,12 @@ enum AppFeature {
       l10n.appFeatureNotificationsBody,
     ),
     AppFeature.sync => (l10n.appFeatureSyncTitle, l10n.appFeatureSyncBody),
+    AppFeature.wipe => (l10n.appFeatureWipeTitle, l10n.appFeatureWipeBody),
+    AppFeature.calm => (l10n.appFeatureCalmTitle, l10n.appFeatureCalmBody),
     AppFeature.export => (
       l10n.appFeatureExportTitle,
       l10n.appFeatureExportBody,
     ),
-    AppFeature.calm => (l10n.appFeatureCalmTitle, l10n.appFeatureCalmBody),
     AppFeature.alerts => (
       l10n.appFeatureAlertsTitle,
       l10n.appFeatureAlertsBody,

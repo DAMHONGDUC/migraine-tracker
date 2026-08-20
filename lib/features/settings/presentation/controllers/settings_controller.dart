@@ -1,8 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
-import '../../../../core/logging/app_logger.dart';
-import '../../../health/domain/enums/health_data_kind.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../health/providers.dart';
 import '../../../onboarding/providers.dart';
 import '../../domain/entities/wipe_status.dart';
@@ -28,32 +28,31 @@ class SettingsController extends Notifier<WipeStatus> {
   Future<void> deleteAll() async {
     int shownPercent = -1;
 
-    AppLogger.action('Delete all data (GDPR wipe)');
+    SdLogger.action(LogTagConstant.settings, 'Delete all data (GDPR wipe)');
     AppAnalytics.logDataWiped();
     state = const WipeStatus(isRunning: true);
     try {
-      await ref.read(dataWipeServiceProvider).wipeAll(
-        // Only when the whole percent moves: ten steps would otherwise
-        // rebuild the row for changes it cannot show.
-        onProgress: (int done, int steps) {
-          final double progress = done / (steps + 1);
-          final int percent = (progress * 100).round();
+      await ref
+          .read(dataWipeServiceProvider)
+          .wipeAll(
+            // Only when the whole percent moves: ten steps would otherwise
+            // rebuild the row for changes it cannot show.
+            onProgress: (int done, int steps) {
+              final double progress = done / (steps + 1);
+              final int percent = (progress * 100).round();
 
-          if (percent == shownPercent) return;
-          shownPercent = percent;
-          state = WipeStatus(isRunning: true, progress: progress);
-        },
-      );
+              if (percent == shownPercent) return;
+              shownPercent = percent;
+              state = WipeStatus(isRunning: true, progress: progress);
+            },
+          );
       // - nothing from Apple Health is stored, so there is nothing to delete
       // - but leaving it connected keeps the app reading sleep after the wipe
       await ref.read(healthControllerProvider.notifier).disconnectAll();
-      // Dev-only, and nothing real is lost — but "delete everything" that
-      // leaves invented health data still generating is a lie about what it
-      // did. No extra step: this rides the disconnect above.
-      await ref.read(devHealthSeedProvider.notifier).clear();
       state = const WipeStatus(isRunning: true, progress: 1);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Delete all data failed',
         error: error,
         stackTrace: stackTrace,
@@ -72,12 +71,13 @@ class SettingsController extends Notifier<WipeStatus> {
   /// that left old attacks behind would not be the first-install state it
   /// claims to be.
   Future<void> resetToOnboarding() async {
-    AppLogger.action('Reset to onboarding (dev)');
+    SdLogger.action(LogTagConstant.settings, 'Reset to onboarding (dev)');
     try {
       await deleteAll();
       await ref.read(onboardingControllerProvider).reset();
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Reset to onboarding failed',
         error: error,
         stackTrace: stackTrace,
@@ -89,37 +89,33 @@ class SettingsController extends Notifier<WipeStatus> {
   /// Dev-only: wipes the device and refills it with sample data. No analytics
   /// event — this never runs in a build real users have.
   ///
-  /// Health is seeded here rather than inside `DevSeedService`, because it is
-  /// not a table: HealthKit is read-only and nothing it returns is persisted
-  /// (hard rule), so "seeding" it means switching the dev fake on and
-  /// connecting both sources — the reads then generate from the seed.
+  /// **Health is not part of it** (owner's call). HealthKit is read-only and
+  /// nothing it returns is persisted (hard rule), so there is no table to
+  /// fill — and the fake repository that used to stand in for it is gone: a
+  /// dev build showing invented nights is harder to trust than one showing an
+  /// honest empty card. Sleep and steps are checked on a device.
   Future<void> seedDevData() async {
-    AppLogger.action('Seed dev data');
+    SdLogger.action(LogTagConstant.settings, 'Seed dev data');
     try {
       await ref.read(devSeedServiceProvider).seed();
-      await _seedHealth();
-      AppLogger.info('Seed dev data done', DevSeedService.seedCount);
+      SdLogger.info(
+        LogTagConstant.settings,
+        'Seed dev data done',
+        <String, Object?>{
+          'attacks': DevSeedService.attackCount,
+          'medications': DevSeedService.medicationCount,
+          'reminders': DevSeedService.reminderCount,
+          'exports': DevSeedService.exportCount,
+        },
+      );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.settings,
         'Seed dev data failed',
         error: error,
         stackTrace: stackTrace,
       );
       rethrow;
-    }
-  }
-
-  /// Points the health repository at the dev fake and marks both sources
-  /// connected, so the sleep and activity cards have something to draw on a
-  /// Simulator — where real HealthKit reads always come back empty.
-  Future<void> _seedHealth() async {
-    await ref
-        .read(devHealthSeedProvider.notifier)
-        .set(DateTime.now().millisecondsSinceEpoch);
-
-    // After the seed, so `connect` asks the fake rather than the plugin.
-    for (final HealthDataKind kind in HealthDataKind.values) {
-      await ref.read(healthControllerProvider.notifier).connect(kind);
     }
   }
 

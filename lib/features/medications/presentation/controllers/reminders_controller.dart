@@ -1,11 +1,12 @@
 import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/logging/app_logger.dart';
 import '../../../../core/utils/locale_utils.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/medication.dart';
@@ -39,7 +40,7 @@ class RemindersController {
         minuteOfDay: minuteOfDay,
       );
 
-      AppLogger.action('Add reminder', {
+      SdLogger.action(LogTagConstant.reminders, 'Add reminder', {
         'medication': medicationName,
         'minuteOfDay': minuteOfDay,
       });
@@ -54,7 +55,8 @@ class RemindersController {
             bodyTemplate: notificationBody,
           );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Add reminder failed',
         error: error,
         stackTrace: stackTrace,
@@ -77,7 +79,7 @@ class RemindersController {
     try {
       final updated = reminder.copyWith(minuteOfDay: minuteOfDay);
 
-      AppLogger.action('Edit reminder time', {
+      SdLogger.action(LogTagConstant.reminders, 'Edit reminder time', {
         'id': reminder.id,
         'minuteOfDay': minuteOfDay,
       });
@@ -92,7 +94,8 @@ class RemindersController {
             bodyTemplate: notificationBody,
           );
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Edit reminder time failed',
         error: error,
         stackTrace: stackTrace,
@@ -112,7 +115,7 @@ class RemindersController {
       final updated = reminder.copyWith(enabled: enabled);
       final scheduler = _ref.read(notificationSchedulerProvider);
 
-      AppLogger.action('Toggle reminder', {
+      SdLogger.action(LogTagConstant.reminders, 'Toggle reminder', {
         'id': reminder.id,
         'enabled': enabled,
       });
@@ -129,7 +132,8 @@ class RemindersController {
         await scheduler.cancel(reminder.id);
       }
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Toggle reminder failed',
         error: error,
         stackTrace: stackTrace,
@@ -171,7 +175,11 @@ class RemindersController {
         notificationSchedulerProvider,
       );
 
-      AppLogger.info('Rescheduling reminders', reminders.length);
+      SdLogger.info(
+        LogTagConstant.reminders,
+        'Rescheduling reminders',
+        reminders.length,
+      );
       for (final MedicationReminder reminder in reminders) {
         final String? medicationName = names[reminder.medicationId];
 
@@ -186,7 +194,8 @@ class RemindersController {
         );
       }
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Rescheduling reminders failed',
         error: error,
         stackTrace: stackTrace,
@@ -202,19 +211,16 @@ class RemindersController {
     required String body,
     Duration delay = const Duration(seconds: 10),
   }) async {
-    AppLogger.action('Send test notification', {
+    SdLogger.action(LogTagConstant.reminders, 'Send test notification', {
       'delaySeconds': delay.inSeconds,
     });
     try {
       await _ref
           .read(notificationSchedulerProvider)
-          .scheduleTest(
-            title: title,
-            body: body,
-            delay: delay,
-          );
+          .scheduleTest(title: title, body: body, delay: delay);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Send test notification failed',
         error: error,
         stackTrace: stackTrace,
@@ -224,7 +230,7 @@ class RemindersController {
   }
 
   Future<void> delete(String reminderId) async {
-    AppLogger.action('Delete reminder', reminderId);
+    SdLogger.action(LogTagConstant.reminders, 'Delete reminder', reminderId);
     AppAnalytics.logReminderDeleted();
     try {
       await _ref
@@ -232,7 +238,8 @@ class RemindersController {
           .deleteById(reminderId);
       await _ref.read(notificationSchedulerProvider).cancel(reminderId);
     } catch (error, stackTrace) {
-      AppLogger.error(
+      SdLogger.error(
+        LogTagConstant.reminders,
         'Delete reminder failed',
         error: error,
         stackTrace: stackTrace,

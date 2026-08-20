@@ -1,114 +1,364 @@
 # The design system, and how the app uses it
 
-`packages/system_design` is a separate repo checked out as a submodule.
-`WIDGET_RULES.md` inside it is the authority on what may go in; this is how
-the app consumes it, plus every UI primitive rule.
+`packages/system_design` is a separate git repo checked out here as a submodule
+and wired in as a path dependency. Its own `WIDGET_RULES.md` is the authority on
+what may go in; this file is how the app consumes it, plus every UI primitive
+rule.
 
-String-free widgets and spacing primitives live in `packages/system_design`, a
-**separate git repo checked out here as a submodule**, wired in as a path
-dependency. There is exactly one import, and it is the index:
+## The package
+
+There is exactly one import, and it is the index:
 
 ```dart
 import 'package:system_design/index.dart';
 ```
 
-Every widget is `Sd<Name>V2` in its own folder `v2/sd_<name>_v2/`. Adding one
-is a folder, a file and one `export` line in `v2/index.dart` — see
-`packages/system_design/WIDGET_RULES.md`, which is the authority on what may
-go in and how it must be written. Read it before adding to the package.
+- Every widget is `Sd<Name>V2` in its own folder `v2/sd_<name>_v2/`. Adding one
+  is a folder, a file and one `export` line in `v2/index.dart` — read
+  `WIDGET_RULES.md` first.
+- `v2` is the widget generation and everything with a look lives there. The
+  package's `core/` holds only what belongs to no generation: today
+  `SdSpacingConstant`, which is why it alone carries no `V2` suffix.
+- **This app renders `v2`, and the package's `README.md` says so.** One
+  generation belongs to one product: a project joining the design system takes
+  the highest generation there and builds `n+1` (`v3` is Seller OS, so the next
+  product starts `v4`). That is what keeps `v2` frozen in fact rather than in
+  principle — a generation with a second consumer gets edited to suit it, and
+  BaroEase finds out by shipping. The gitlink records which *commit* this app
+  pins, never which *folder* it imports, so nothing on the package side can tell
+  who a change to `v2` breaks unless each app writes it down. Move that README
+  line in the same change as any generation move.
+- **The palette is NOT in the package — this app owns it.** `AppColors`,
+  `AppTextStyle`, `AppTheme` and `AppScrollBehavior` stay in `lib/core/theme/`.
+  `AppTheme.dark` hands the design system its colours by registering an
+  `SdThemeV2` on `ThemeData.extensions`; package widgets read
+  `context.colorScheme`, `context.textTheme` and `context.sdTheme` and never name
+  a colour. **A widget test that pumps a bare `MaterialApp` will assert** — pass
+  `theme: AppTheme.dark`, which `pumpApp` already does.
+- **A widget may move into the package only if it takes every user-facing string
+  as a parameter and imports nothing from this app** — no `context.l10n`, no
+  provider, repository, router or domain entity. That is what keeps the package
+  droppable into the next project.
+  - Which is why these stay in `lib/core/widgets/`: `AppTimePickerSheet`,
+    `MedicationNameDialog`, `PermissionSettingsSheet` (localized copy),
+    `PremiumGate` (watches a provider), `SeverityBreakdownChart` (owns the app's
+    severity bands, then composes `SdDonutChartV2`) and `sections/` (settings
+    rows bound to auth / alerts / health / premium).
+- `context.l10n` stays in the app (`core/extensions/context_extensions.dart`);
+  `context.theme` / `.colorScheme` / `.textTheme` / `.sdTheme` come from the
+  package. A file needing both imports both — normal, not a smell.
+- Run `flutter analyze` inside `packages/system_design` too: it must pass on its
+  own, without the app.
 
-`v2` is the widget generation, and everything with a look lives there. The
-package's `core/` holds only what belongs to no generation — today that is
-`SdSpacingConstant`, the screenutil dimensions, which is why it alone carries
-no `V2` suffix.
+## Redesign mockups are reference, not authority — owner's rule
 
-**This app renders `v2`, and `README.md` says so.** One generation belongs to
-one product: a project joining the design system takes the highest generation
-there and builds `n+1` — `v3` is Seller OS, so the next product starts `v4` and
-never adopts a folder that already ships somewhere. That is what keeps `v2`
-frozen in fact rather than in principle; a generation with a second consumer
-gets edited to suit it, and BaroEase finds out by shipping. The README line is
-the other half: the gitlink records which *commit* of the package this app
-pins, never which *folder* it imports, so nothing on the package side can tell
-who a change to `v2` breaks unless each app writes it down. Move that line in
-the same change as any generation move. Full rule:
-`packages/system_design/WIDGET_RULES.md`.
+`docs/archive/UI_SPEC.md` briefs a redesign whose mockups come from an AI design
+tool (Stitch). **They are visual direction only.** Where a mockup and these rules
+disagree, the rules win silently — build what the rules say and tell the owner
+what was overridden.
 
-**The palette is NOT in the package — this app owns it.** `AppColors`,
-`AppTextStyle`, `AppTheme` and `AppScrollBehavior` stay in `lib/core/theme/`.
-`AppTheme.dark` hands the design system its colours by registering an
-`SdThemeV2` on `ThemeData.extensions`; package widgets then read
-`context.colorScheme`, `context.textTheme` and `context.sdTheme` and never
-name a colour. **A widget test that pumps a bare `MaterialApp` will assert** —
-pass `theme: AppTheme.dark` (which `pumpApp` already does).
+The reason is what the first two mockups did: asked for an exact 13-colour
+palette, the tool returned a Material 3 scheme with tonal ramps running to
+`#FFFFFF`, a near-white "inverted" button, two invented colour roles and no
+severity scale at all — then ignored a correction listing all five. A tool that
+answers a palette with its own palette cannot be the source of truth for one.
 
-**A widget may move into the package only if it takes every user-facing
-string as a parameter and imports nothing from this app** — no `context.l10n`,
-no provider, no repository, no router, no domain entity. That is the whole
-rule, and it is what keeps the package droppable into the next project.
+Never up for negotiation, however good the mockup looks:
 
-Which is why these stay in `lib/core/widgets/`: `AppTimePickerSheet`,
-`MedicationNameDialog`, `PermissionSettingsSheet` (localized copy),
-`PremiumGate` (watches a provider), `SeverityBreakdownChart` (owns the app's
-severity bands, then composes `SdDonutChartV2`), and `sections/` (settings
-rows bound to auth / alerts / health / premium).
-
-`context.l10n` stays in the app (`core/extensions/context_extensions.dart`);
-`context.theme` / `.colorScheme` / `.textTheme` / `.sdTheme` come from the
-package. A file needing both imports both — that is normal, not a smell.
-
-Run `flutter analyze` inside `packages/system_design` too: it must pass on
-its own, without the app.
-
-### Redesign mockups are reference, not authority — owner's rule
-
-`docs/archive/UI_SPEC.md` briefs a redesign whose mockups come from an AI design tool
-(Stitch). **Those mockups are visual direction only.** Where a mockup and the
-rules in this file disagree, the rules win, silently and without asking —
-build what the rules say and tell the owner what was overridden. The reason is
-what the first two mockups did: asked for an exact 13-colour palette, the tool
-returned a Material 3 scheme with tonal ramps running to `#FFFFFF`, a
-near-white "inverted" button, two invented colour roles, and no severity scale
-at all. It then ignored a correction listing all five. A tool that answers a
-palette with its own palette cannot be the source of truth for one.
-
-Specifically, and never up for negotiation no matter how good the mockup looks:
-
-- **Every colour comes from `AppColors`.** No hex is read off a mockup. The
-  four `AppColors.intensity` bands are measured for colour-blind separation —
-  a mockup that shifts, harmonises or drops them is wrong, not a proposal.
+- **Every colour comes from `AppColors`.** No hex is read off a mockup. The four
+  `AppColors.intensity` bands are measured for colour-blind separation; a mockup
+  that shifts, harmonises or drops them is wrong, not a proposal.
 - **Every dimension goes through `SdSpacingConstant` and `SdContentPaddingV2`**,
   snapped to the existing ladder. A mockup measuring 13 becomes 12.
-- **Every text style comes from `AppTextStyle`**; the app ships no UI font, so
-  mockups drawn in Inter render in SF Pro and come out slightly smaller. Never
+- **Every text style comes from `AppTextStyle`.** The app ships no UI font, so
+  mockups drawn in Inter render in SF Pro and come out slightly smaller — never
   approve a label that only fits at the mockup's metrics.
 - **Flat opaque surfaces stay flat**, Liquid Glass stays on chrome plus the
-  paywall, and `surfaceModal` stays darker than `surface` — Material trains
-  every one of these tools to raise a modal instead.
-- **The log flow does not grow a step**, whatever a mockup suggests (rule 5).
+  paywall, and `surfaceModal` stays darker than `surface`. Material trains every
+  one of these tools to raise a modal instead.
+- **The log flow does not grow a step** (rule 5).
 
-What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a
-card is composed, what a chart should say. Take that; leave the tokens.
-- **One modal colour, and bottom sheets and dialogs both wear it: `AppColors.surfaceModal` (`#161618`).** A dialog opening over a sheet must never be a second shade of dark, so they read the same `SdThemeV2.surfaceModal` slot — the sheet used to take `colorScheme.surface` and the dialog `surfaceElevated`, which is exactly the drift this closes. It sits a step *below* the card rather than above it: a modal already separates itself with the barrier scrim and its rounded corners, and going darker keeps a card placed on it reading as the nearer layer. `ThemeData.dialogTheme` carries the same colour so a raw `showDialog` cannot come out different.
-- **Every card is an `SdCardV2`** (`system_design`) — never a raw `Material` `Card` in feature or core code. It is the card colour and the card radius (`SdCardV2.radius`) and nothing else: **no padding and no margin**, because Material's `Card` carries an invisible `EdgeInsets.all(4)` that made a list whose separator said 8 come out 16, and sit 8 narrower than the list on the next tab. Spacing between cards belongs to whoever places them, the inset inside belongs to whatever they hold, and `onTap` on the card clips its own ink to the radius. `SdChartCardV2` and `SdBannerV2` compose it. `ThemeData.cardTheme` stays as a backstop for any `Card` Flutter builds internally, on the same colour and the same zero margin.
-- **One card colour: `AppColors.surface`.** Every card — dashboard, insights, `SdChartCardV2`, every `Card` via `cardTheme` — is `#1C1C1E`. Sheets are flat and opaque, never Liquid Glass, but they take the darker modal colour above, not this one. Anything that has to stay visible while sitting *on* a card, a sheet or a dialog is a step up in `AppColors.surfaceElevated` (snack bars, chart tooltips, the log flow's option tiles, filter chips) — a tile left on `surface` disappears the moment its sheet is that colour. Liquid Glass is for chrome — app bar, the shell's nav pill, the log flow's step bar, a sheet header's two `SdAppBarButtonV2`s — plus one deliberate surface: the **paywall** panel stays frosted glass, unlike every other sheet.
-- **The app ships no UI font — `AppTextStyle` sets no `fontFamily`, on purpose.** Flutter falls through to the platform's own: SF Pro on iOS, Roboto on Android. That is the right default for an iOS-first app (SF Pro has optical sizing, full Dynamic Type and correct Vietnamese diacritics), and Apple's licence forbids bundling SF Pro anyway. A missing `fontFamily` here is the decision, not an oversight. `assets/fonts/noto_sans/` is **not** a UI font: `ExportController` loads it through `rootBundle` for the PDF report, which needs a font it can embed — don't register it under `fonts:` and don't delete it as unused. Shipping one font for both platforms means Inter, not Roboto (Roboto reads as Android on an iPhone), and means re-checking the type scale: Inter's x-height is taller than SF Pro's, so the same `fontSize` renders larger.
-- Text: every style comes from `AppTextStyle` (`system_design`) — no inline `TextStyle(...)` and no `context.textTheme`/`Theme.of(context).textTheme` in widgets (the extension getter was removed on purpose). Font sizes go through `SdSpacingConstant.sp*` (screenutil); line heights are shared `_height*` ratio constants in `AppTextStyle`. Because of `.sp`, widget tests MUST pin the view to the 393×852 design size — `pumpApp` already does this; the default 800×600 test surface scales fonts ~2× and breaks layout. Use the `.secondary` / `.w600` helpers on `AppTextStyle` (the package's own are `.muted(context)` / `.semiBold`) for muted color and semi-bold; other tweaks via `copyWith`. `AppTheme` feeds `AppTextStyle` into `ThemeData.textTheme` so ambient defaults match.
-- **Icons: every icon is an `SdIconV2`** (`system_design`) — never a raw `Icon(...)` in feature or core code (the only raw `Icon` lives inside `SdIconV2`). `SdIconV2` always resolves to a concrete size: it defaults to `SdSpacingConstant.r24`, and any other size is passed explicitly via `size:` (never let an icon inherit an ambient size). `color` falls back to the ambient `IconTheme` when omitted.
-- Buttons: every labeled button is an `SdButtonV2` (`system_design`), and **the look is a prop, never a named constructor** — `SdButtonV2(variant: SdButtonVariantV2.primary, ...)`. Variants: `primary` (main CTA), `secondary` (tonal), `outlined`, `text` (low emphasis / dialog cancel), `destructive` (error-filled confirm), `positive` (teal additive). Never raw `FilledButton`/`OutlinedButton`/`TextButton` in feature code. **Icon-only actions in an app bar — leading back arrow and trailing actions alike — are `SdAppBarButtonV2`** (`system_design`), never a raw `IconButton`: `SdAppBarButtonV2.iconSize` (20) glyph inside an invisible `SdAppBarButtonV2.tapSize` (48) target, and a `SdPopScaleV2` swell on touch (it grows out from under the fingertip; a press-*in* would vanish under it). `SdAppBarV2` inserts one for any route that can pop, and wraps each `SdAppBarButtonV2` action in the glass circle — an action that is not one passes through undecorated. `IconButton` is still fine inside content (list rows, text-field suffixes). With an `icon`, `SdButtonV2` lays the content out itself — `SdButtonV2.iconSize` glyph, `SdButtonV2.iconGap`, then the label — and deliberately avoids Material's `.icon` constructors, whose per-variant padding is what made the filled Apple button and the outlined Google button sit differently. Placement is a second prop: `SdButtonIconPlacementV2.inline` (default) is a centred cluster that shrink-wraps, so a longer label pushes the glyph sideways; `aligned` is the same centred cluster with the label start-aligned in a slot of `SdButtonV2.alignedLabelWidth`, so **stacked buttons put their glyphs on the same x and start their labels on the same x whatever the label lengths** — that is what the login screen's Apple/Google pair uses. The slot is a minimum, not a cage: a label too long for it widens, then wraps, and never ellipses. The glyph is `SdButtonV2.defaultIconSize` unless a call site passes `iconSize` (an `SdSpacingConstant.r*`, never a raw number) to optically correct a brand mark — under `aligned` that resizes the glyph but not the slot it is centred in, so the pair stays lined up. **Padding is one fixed value for every variant, not a per-variant default**: `SdContentPaddingV2.button`, so a filled, outlined and text button never sit a different size next to each other. `size` (`SdButtonSizeV2.small` / `medium` / `large`, scale 0.75 / 1 / 1.25) multiplies that padding plus the icon and icon gap together, so a smaller button is a scaled-down version of the same shape, never a differently-proportioned one — `medium` is the default and unscaled. **A labeled `SdButtonV2` placed in an app bar's actions (`SdScaffoldV2.actions`) is always `size: SdButtonSizeV2.small`** — see `LogScreen`'s "Next" button. `compact` (chrome-sized app-bar buttons) forces this scale on its own regardless of what `size` a call site passes, so the two can never disagree; a plain `size: small` without `compact` still gets the scaled icon/padding but not `compact`'s own tighter fixed padding and `h34` minimum height.
-- **A sheet with actions wears `SdSheetHeaderV2`** (`system_design`): X on the left that leaves, title centred, commit on the right — both are `SdAppBarButtonV2`s wearing `SdAppBarButtonSurfaceV2.glassCircle` (the sheet is a flat opaque panel, so a frosted disc on it has real background to refract), the commit's glyph tinted `AppColors.secondary` so the action that writes something still reads differently from the one that abandons. Its glyph is a tick for `SdSheetActionV2.confirm` (answering something for the first time) or a pencil for `SdSheetActionV2.edit` (overwriting a value that already exists). It brings its own insets; nothing pads around it. `SdSheetContentV2` (`system_design`) is that header plus content that scrolls under a ceiling of 85% of the screen and an optional pinned footer — pass `isScrollControlled: true` when showing it or the route caps itself near half the screen and the ceiling never applies.
-- **Bottom sheets and dialogs: widget + `.show()` extension, never a top-level `showX()`.** A sheet/dialog is a widget class (`FooSheet extends StatelessWidget`, public so callers can construct it), and its opener is an extension on that widget exposing `Future<T?> show(BuildContext context) => showSdBottomSheetV2<T>(context, builder: (_) => this);` (sheets) or `showSdDialogV2<T>(...)` (dialogs). Name the extension `<Widget>Ext`. Call it as `FooSheet(...).show(context)` — never `showFooSheet(context, ...)`. This keeps presentation off file-scope functions (rule 1) while still routing through `showSdBottomSheetV2`/`showSdDialogV2` (root navigator, calm animation). A sheet/dialog opener with no dedicated widget (a thin wrapper over the generic `showSdFilterSheetV2`) is dead weight — inline the generic presenter at the call site instead.
-- **Every list in the app puts the same gap between its items: `SdContentPaddingV2.listItemGap` (8).** One value, never a per-screen `SdSpacingConstant.h8` — the attack list, the calendar day's attacks and the medications list each spelled the same 8 out separately, and three copies of a number is three chances to disagree. Lists of `ListTile`s are a different mechanic and take no gap at all: those rows carry their own insets and sit flush (Settings, the export history). **This is the one gap for all item spacing, not a per-list convention** — any place that spaces one item from the next uses `listItemGap`, never a raw `SdSpacingConstant.h*` typed in again. **The gap from a filter row down to the list below it is the same `listItemGap`, not a screen's own spacing value** — a filter sits above its list like one more item above the first, so it takes the item gap, not a bespoke number.
-- **A different gap for stacking whole cards/sections on a screen: `SdContentPaddingV2.sectionGap` (20).** Dashboard's mixed cards (banner, week summary, severity, explore) and Insights' correlation/forecast/sleep cards both read this — one value, so the two screens' section rhythm cannot drift apart, same reasoning as `listItemGap` one level up. Not the same thing as `listItemGap`: a section is a distinct card, not one row of a repeated list, so it gets the roomier number. Never a raw `SdSpacingConstant.h*` at a call site for this.
-- **No widget or class holds spacing logic — `SdContentPaddingV2` does, and nothing else.** Not `SdScaffoldV2`, not `SdAppBarV2`, not a screen: any inset another widget pads by is a static on that one class. Widgets keep only their own intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
-- **One spacing rule for all content, and one class that computes it: `SdContentPaddingV2`** (`system_design`). Content sits **`topGap` (8) below the app bar**, **the bottom depends on what is below**: a tab screen clears the nav pill and then `bottomGap` (16), while every other screen takes `detailBottom` — the device's safe area floored at `minDetailBottom` (20), with no gap stacked on top, because a device reporting 34 already gives more room than the floor asks for, **`horizontal` (16) either side** — the two vertical gaps are separate fields, so the edge under the chrome and the edge above the thumb can move independently — `SdContentPaddingV2.screen(context)` is that, `fullBleed(context)` drops the gutter for rows that inset themselves (a `ListTile`), and `floatingNav: true` additionally clears the shell's nav pill on the five tab screens — `navBarOffset` + `floatingBarHeight` + `bottomGap`, so scrolling a tab screen to its end leaves exactly `bottomGap` of daylight between the last item and the pill. **`navBarOffset` is the pill's own rule and the one place it lives**: the device's own bottom inset, clamped between `minNavBarOffset` (16) and `maxNavBarOffset` (20). The floor covers a device asking for too little — no indicator at all (a Home-button phone, most Androids, the default test view) or a shallow one (an iPad, landscape). The ceiling keeps a deep inset from pushing the pill up the screen, and **costs system clearance on a portrait iPhone**: its indicator inset is 34, so the pill lands 14 short and its lower edge sits inside the strip iOS reserves for the indicator and the edge-swipe gesture. Deliberate — raise `maxNavBarOffset` to 34 to give that back. The log flow's step bar does NOT clamp: it rests on the full inset, so the two bars legitimately differ. The log flow's step bar does not follow it — that one always rests on the safe area (`bottomBar`). `floatingBarHeight` (and `floatingBarRadius`, half of it) is the ONE height for both floating bars: the nav pill and the log flow's step bar read it, neither types its own, because the day they disagreed the difference was eaten out of the gap above them. **Bottom insets come off the view, not the ambient `MediaQuery`, exactly like `appBarInset` at the top**: `Scaffold` subtracts `padding.bottom` from its body's `viewPadding.bottom` whenever there is a `bottomNavigationBar`, so an ambient read inside the shell loses the home indicator entirely and the last row lands *under* the pill — a bug that costs 0 pixels in a test whose view has no insets. Never read `MediaQuery.paddingOf(...)` for content spacing at a call site and never re-add an inset the class already applied.
-- **`SdScaffoldV2` adds no padding at all** — no SafeArea, no insets. Every screen pads its own scrollable via `SdContentPaddingV2`, applied **inside** the scrollable so content still scrolls *behind* the frosted bar. A scaffold-level SafeArea plus a body that also clears a floating bar is how insets used to get applied twice.
-- **Insets come off the window, not the ambient `MediaQuery`.** `Scaffold` strips its body's top padding when there is an app bar (and its bottom under `extendBody`), so the same read returns different numbers above vs inside the body. `SdContentPaddingV2` reads the view; feature code reads `SdContentPaddingV2`. The default test view has no notch, so a bug here costs 0 pixels in every widget test — see `test/core/constants/app_content_padding_test.dart`, which gives the view one.
-- **Every `Text` carries an explicit `style:`.** Never lean on the ambient `ThemeData.textTheme`, even where it would look identical — the default is invisible at the call site and silently drifts when a theme changes. Use the style the surface already implies: app-bar titles `AppTextStyle.titleLarge`, `ListTile.title` `bodyLarge`, `ListTile.subtitle` `bodyMedium.secondary`, `SnackBar.content` `bodyMedium`.
-- **A filter over a scrolling list: `SdCollapsingFilterScaffoldV2`** (`system_design`), used in place of `SdScaffoldV2` — never hand-rolled, and never a `Stack` + `SdPinnedFilterBarV2` assembled at the call site again. It gives the screen one behaviour: the filter row sits in a frosted strip under the app bar while reading, and as soon as the list scrolls on it **lifts into the app bar, whose `title` and `actions` step aside**; scroll back the other way (or reach the top) and everything returns. Pass the filter as a **bare row of chips** — both places supply the horizontal scrolling, so a scroll view of your own nests two. `filter: null` is "nothing to filter yet" (an empty export history): no strip, no hand-off. `collapsible: false` pins it all in place for a bar that something else owns (the medications tab while its search field is up). **The body pads its own top and that inset must not change with the collapse** — `SdContentPaddingV2.belowPinnedFilterBar` throughout, so the reserved strip height (only ever visible while expanded) can't make content jump mid-scroll. Used by `medications_screen` and `export_screen`; History's own pill lives IN its list and is a different mechanic.
-- **Screens with content plus a bottom action: `SdActionViewV2`** (`system_design`), passed straight as `SdScaffoldV2.body` — never hand-rolled. It is content on top, `actions` hugging the bottom edge, `spaceBetween` between them, and it owns the two things every such screen otherwise forgets: the vertical insets (straight from `SdContentPaddingV2`) and the minimum height that gives `spaceBetween` its free space. Nothing inside `content` adds a top gap of its own — the view already applied the screen's. `actions` is a stretched `Column`, so buttons come out full width and equal to each other. It scrolls itself — long locales and large accessibility text sizes overflow a fixed `Column`, and a bare `ListView` is wrong here because under short content the buttons drift up into the middle. Used by `login_screen`, `account_screen`, `premium_screen`.
-  - **`placement` decides what happens once the two outgrow one viewport.** `SdActionsPlacementV2.scrolling` (the default) scrolls content and actions together — right where the actions are the end of the content, which is what those three screens are. `pinned` scrolls only the content and holds the actions at the bottom edge: **that is for content that grows without bound**, where an action the user has to scroll to the end of a list to find is one they will not find. `medication_detail_screen` is the case that created it — its reminder list has no ceiling, and "Add reminder" was being pushed off the bottom.
-  - Under `pinned` the actions sit BELOW the scroll view, never over it, so content can never pass behind them — which is why the footer needs no surface and no blur. What separates the two is `SdContentPaddingV2.pinnedActionsGap`, its own field rather than `bottomGap`: that one is the air *below* the last item, and pinning created a second edge on the side the content arrives from. Equal to it on purpose, so a pinned footer sits with the same air above and below.
-- **The bottom action sits 16 above the safe area, never twice.** On a screen that is `SdContentPaddingV2`'s business, the class has already applied it — don't add the inset again, and don't leave the button flush against the home indicator. Sheet routes still take `MediaQuery.paddingOf(context).bottom + h16` themselves (they are not screens). Floating chrome is exempt and each one has its own line: the shell's nav pill sits `SdContentPaddingV2.navBarOffset` off the bottom edge, the log flow's step bar rests on the safe area.
-- **Every separator line is an `SdDividerV2`** (`system_design`) — never a Material `Divider` in feature or core code. One thickness (`SdSpacingConstant.h1`) and one colour (`sdTheme.surfaceElevated`, the same step up from a card everything else sitting *on* a card takes), so two lists cannot come out with different greys. **It occupies exactly the line it draws**: Material's `Divider` reserves a whole `height` (16 by default) around a 0-thickness rule, so a "1px line" silently costs 16 of vertical space and two rows drift apart for reasons nothing at the call site explains. The gap around a divider belongs to whoever places it. It carries no props — an indent is a `Padding` at the call site, and if a second call site ever wants the same indent that is when it becomes a field on `SdContentPaddingV2`, never a number typed twice.
-  - **Between items only, never on a container's own edge.** The reminder list draws `if (index > 0) const SdDividerV2()` — a rule above the first row or below the last one lands on the card's edge and reads as a border it does not have.
+What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a card
+is composed, what a chart should say. Take that; leave the tokens.
+
+## Surfaces and colour
+
+- **One card colour: `AppColors.surface` (`#1C1C1E`)** — dashboard, insights,
+  `SdChartCardV2`, every `Card` via `cardTheme`.
+- **One modal colour, worn by bottom sheets and dialogs alike:
+  `AppColors.surfaceModal` (`#161618`).** A dialog opening over a sheet must
+  never be a second shade of dark, so both read the same `SdThemeV2.surfaceModal`
+  slot — the sheet used to take `colorScheme.surface` and the dialog
+  `surfaceElevated`, which is the drift this closes. It sits a step *below* the
+  card, not above: a modal already separates itself with the barrier scrim and
+  its corners, and going darker keeps a card on it reading as the nearer layer.
+  `ThemeData.dialogTheme` carries the same colour so a raw `showDialog` cannot
+  come out different.
+- **Anything that must stay visible while sitting *on* a card, sheet or dialog
+  goes up to `AppColors.surfaceElevated`** — snack bars, chart tooltips, the log
+  flow's option tiles, filter chips. A tile left on `surface` disappears the
+  moment its sheet is that colour.
+- **Liquid Glass is for chrome** — app bar, the shell's nav pill, the log flow's
+  step bar, a sheet header's two `SdAppBarButtonV2`s — plus one deliberate
+  surface: the **paywall** panel. Every other sheet is flat and opaque.
+- **Every card is an `SdCardV2`**, never a raw Material `Card`. It is the card
+  colour and `SdCardV2.radius` and nothing else: **no padding and no margin**,
+  because Material's `Card` carries an invisible `EdgeInsets.all(4)` that made a
+  list whose separator said 8 come out 16 and sit 8 narrower than the next tab's.
+  Spacing between cards belongs to whoever places them, the inset inside to
+  whatever they hold, and `onTap` clips its own ink to the radius.
+  `SdChartCardV2` and `SdBannerV2` compose it; `ThemeData.cardTheme` is a
+  backstop for any `Card` Flutter builds internally, same colour, zero margin.
+
+## Type
+
+- **The app ships no UI font — `AppTextStyle` sets no `fontFamily`, on purpose.**
+  Flutter falls through to the platform's own: SF Pro on iOS, Roboto on Android.
+  That is right for an iOS-first app (optical sizing, full Dynamic Type, correct
+  Vietnamese diacritics), and Apple's licence forbids bundling SF Pro anyway. A
+  missing `fontFamily` here is the decision, not an oversight. Shipping one font
+  for both platforms would mean Inter, not Roboto (Roboto reads as Android on an
+  iPhone), and would mean re-checking the type scale: Inter's x-height is taller,
+  so the same `fontSize` renders larger.
+- `assets/fonts/noto_sans/` is **not** a UI font: `ExportController` loads it
+  through `rootBundle` for the PDF report, which needs a font it can embed. Don't
+  register it under `fonts:`, don't delete it as unused.
+- **Every style comes from `AppTextStyle`** — no inline `TextStyle(...)`, no
+  `context.textTheme` / `Theme.of(context).textTheme` in widgets (the extension
+  getter was removed on purpose). Sizes go through `SdSpacingConstant.sp*`; line
+  heights are the shared `_height*` ratios in `AppTextStyle`. Use `.secondary` /
+  `.w600` for muted and semi-bold (the package's own are `.muted(context)` /
+  `.semiBold`), anything else via `copyWith`. `AppTheme` feeds `AppTextStyle`
+  into `ThemeData.textTheme` so ambient defaults match.
+  - Because of `.sp`, **widget tests must pin the view to the 393×852 design
+    size** — `pumpApp` does; the default 800×600 surface scales fonts ~2× and
+    breaks layout.
+- **Every `Text` carries an explicit `style:`**, even where the ambient theme
+  would look identical: the default is invisible at the call site and drifts
+  silently when a theme changes. Use what the surface implies — app-bar titles
+  `AppTextStyle.titleLarge`, `ListTile.title` `bodyLarge`, `ListTile.subtitle`
+  `bodyMedium.secondary`, `SnackBar.content` `bodyMedium`.
+
+## Icons and buttons
+
+- **Every icon is an `SdIconV2`** — never a raw `Icon(...)` in feature or core
+  code (the only raw one lives inside `SdIconV2`). It always resolves to a
+  concrete size: `SdSpacingConstant.r24` by default, anything else passed
+  explicitly via `size:`, never inherited from an ambient theme. `color` falls
+  back to the ambient `IconTheme` when omitted.
+- **Every labeled button is an `SdButtonV2`, and the look is a prop, never a
+  named constructor**: `SdButtonV2(variant: SdButtonVariantV2.primary, …)`.
+  Variants: `primary` (main CTA), `secondary` (tonal), `outlined`, `text` (low
+  emphasis, dialog cancel), `destructive` (error-filled confirm), `positive`
+  (teal additive). Never raw `FilledButton`/`OutlinedButton`/`TextButton` in
+  feature code.
+  - **Padding is one fixed value for every variant** — `SdContentPaddingV2.button`
+    — so filled, outlined and text buttons never sit a different size next to
+    each other. `size` (`SdButtonSizeV2.small`/`medium`/`large`, scale
+    0.75/1/1.25) multiplies that padding plus the icon and icon gap together, so
+    a smaller button is a scaled-down version of the same shape. `medium` is the
+    default and unscaled.
+  - **With an `icon` the button lays the content out itself** —
+    `SdButtonV2.iconSize` glyph, `SdButtonV2.iconGap`, then the label —
+    deliberately avoiding Material's `.icon` constructors, whose per-variant
+    padding made the filled Apple button and the outlined Google button sit
+    differently.
+  - Placement is a second prop. `SdButtonIconPlacementV2.inline` (default) is a
+    centred cluster that shrink-wraps, so a longer label pushes the glyph
+    sideways. `aligned` start-aligns the label in a slot of
+    `SdButtonV2.alignedLabelWidth`, so **stacked buttons put their glyphs on the
+    same x and start their labels on the same x whatever the label lengths** —
+    what the login screen's Apple/Google pair uses. The slot is a minimum, not a
+    cage: a longer label widens, then wraps, and never ellipses.
+  - The glyph is `SdButtonV2.defaultIconSize` unless a call site passes
+    `iconSize` (an `SdSpacingConstant.r*`, never a raw number) to optically
+    correct a brand mark. Under `aligned` that resizes the glyph but not the slot
+    it is centred in, so the pair stays lined up.
+  - **A labeled button in `SdScaffoldV2.actions` is always
+    `size: SdButtonSizeV2.small`** — see `LogScreen`'s "Next". `compact` forces
+    that scale regardless of what a call site passes, so the two can never
+    disagree; a plain `size: small` without `compact` still gets the scaled icon
+    and padding but not `compact`'s tighter fixed padding and `h34` minimum
+    height.
+- **Icon-only app-bar actions — leading back arrow and trailing alike — are
+  `SdAppBarButtonV2`**, never a raw `IconButton`: an
+  `SdAppBarButtonV2.iconSize` (20) glyph inside an invisible
+  `SdAppBarButtonV2.tapSize` (48) target, with an `SdPopScaleV2` swell on touch
+  (it grows out from under the fingertip; a press-*in* would vanish under it).
+  `SdAppBarV2` inserts one for any route that can pop and wraps each action in
+  the glass circle — an action that is not one passes through undecorated.
+  `IconButton` is still fine inside content: list rows, text-field suffixes.
+
+## Sheets and dialogs
+
+- **A sheet with actions wears `SdSheetHeaderV2`**: X on the left that leaves,
+  title centred, commit on the right. Both are `SdAppBarButtonV2`s wearing
+  `SdAppBarButtonSurfaceV2.glassCircle` — the sheet is a flat opaque panel, so a
+  frosted disc on it has real background to refract — and the commit's glyph is
+  tinted `AppColors.secondary` so the action that writes something reads
+  differently from the one that abandons. Its glyph is a tick for
+  `SdSheetActionV2.confirm` (answering for the first time) or a pencil for
+  `SdSheetActionV2.edit` (overwriting an existing value). It brings its own
+  insets; nothing pads around it.
+- **`SdSheetContentV2`** is that header plus content scrolling under a ceiling of
+  85% of the screen, with an optional pinned footer. Pass
+  `isScrollControlled: true` when showing it, or the route caps itself near half
+  the screen and the ceiling never applies.
+- **Bottom sheets and dialogs: widget + `.show()` extension, never a top-level
+  `showX()`.** The sheet or dialog is a public widget class, and its opener is an
+  extension named `<Widget>Ext` exposing
+  `Future<T?> show(BuildContext context) => showSdBottomSheetV2<T>(context, builder: (_) => this);`
+  (or `showSdDialogV2<T>` for dialogs). Call it as `FooSheet(...).show(context)`.
+  This keeps presentation off file-scope functions while still routing through
+  the shared presenters (root navigator, calm animation). An opener with no
+  dedicated widget — a thin wrapper over the generic `showSdFilterSheetV2` — is
+  dead weight; inline the generic presenter at the call site.
+
+## Spacing
+
+**No widget or class holds spacing logic — `SdContentPaddingV2` does, and nothing
+else.** Not `SdScaffoldV2`, not `SdAppBarV2`, not a screen: any inset another
+widget pads by is a static on that one class. Widgets keep only their own
+intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
+
+- **One gap between list items: `SdContentPaddingV2.listItemGap` (8)** — never a
+  per-screen `SdSpacingConstant.h8`. The attack list, a calendar day's attacks
+  and the medications list each spelled the same 8 out separately, and three
+  copies of a number is three chances to disagree. **Any place that spaces one
+  item from the next uses it**, the gap from a filter row down to its list
+  included — a filter sits above its list like one more item above the first.
+  Lists of `ListTile`s take no gap at all: those rows carry their own insets and
+  sit flush (Settings, the export history).
+- **One gap for stacking whole cards or sections: `SdContentPaddingV2.sectionGap`
+  (20).** Dashboard's mixed cards and Insights' correlation/forecast/sleep cards
+  both read it, so the two screens' rhythm cannot drift apart. A section is a
+  distinct card, not one row of a repeated list, so it gets the roomier number —
+  and never a raw `SdSpacingConstant.h*` at a call site either.
+- **`SdContentPaddingV2.screen(context)` is the one screen inset.** Content sits
+  `topGap` (8) below the app bar and `horizontal` (16) either side; the two
+  vertical gaps are separate fields, so the edge under the chrome and the edge
+  above the thumb move independently.
+  - **The bottom depends on what is below.** A tab screen clears the nav pill and
+    then `bottomGap` (16); every other screen takes `detailBottom` — the device's
+    safe area floored at `minDetailBottom` (20), with nothing stacked on top,
+    because a device reporting 34 already gives more room than the floor asks
+    for.
+  - `fullBleed(context)` drops the gutter for rows that inset themselves (a
+    `ListTile`). `floatingNav: true` additionally clears the shell's nav pill on
+    the five tab screens — `navBarOffset` + `floatingBarHeight` + `bottomGap` —
+    so scrolling to the end leaves exactly `bottomGap` between the last item and
+    the pill.
+  - **`navBarOffset` is the pill's own rule and the one place it lives**: the
+    device's bottom inset clamped between `minNavBarOffset` (16) and
+    `maxNavBarOffset` (20). The floor covers a device asking for too little — no
+    indicator at all (a Home-button phone, most Androids, the default test view)
+    or a shallow one (iPad, landscape). The ceiling keeps a deep inset from
+    pushing the pill up the screen, and **costs system clearance on a portrait
+    iPhone**: its indicator inset is 34, so the pill lands 14 short and its lower
+    edge sits inside the strip iOS reserves for the indicator and the edge-swipe.
+    Deliberate — raise `maxNavBarOffset` to 34 to give that back.
+  - **The log flow's step bar does not clamp**: it rests on the full safe area
+    (`bottomBar`), so the two bars legitimately differ.
+  - **`floatingBarHeight` (and `floatingBarRadius`, half of it) is the ONE height
+    for both floating bars.** The nav pill and the step bar read it and neither
+    types its own — the day they disagreed, the difference was eaten out of the
+    gap above them.
+- **Insets come off the view, not the ambient `MediaQuery`.** `Scaffold` strips
+  its body's top padding when there is an app bar, and subtracts `padding.bottom`
+  from `viewPadding.bottom` whenever there is a `bottomNavigationBar` — so an
+  ambient read inside the shell loses the home indicator entirely and the last
+  row lands *under* the pill. `SdContentPaddingV2` reads the view; feature code
+  reads `SdContentPaddingV2`. **Never read `MediaQuery.paddingOf(...)` for
+  content spacing at a call site, and never re-add an inset the class already
+  applied.** The default test view has no notch, so a bug here costs 0 pixels in
+  every widget test — see `test/core/constants/app_content_padding_test.dart`,
+  which gives the view one.
+- **`SdScaffoldV2` adds no padding at all** — no SafeArea, no insets. Every
+  screen pads its own scrollable via `SdContentPaddingV2`, applied **inside** the
+  scrollable so content still scrolls behind the frosted bar. A scaffold-level
+  SafeArea plus a body that also clears a floating bar is how insets used to get
+  applied twice.
+- **The bottom action sits 16 above the safe area, never twice.** On a screen
+  that is `SdContentPaddingV2`'s business the class has already applied it — do
+  not add it again, and do not leave the button flush against the home indicator.
+  Sheet routes still take `MediaQuery.paddingOf(context).bottom + h16` themselves
+  (they are not screens). Floating chrome is exempt and each has its own line
+  above.
+
+## Layout scaffolds
+
+- **A filter over a scrolling list: `SdCollapsingFilterScaffoldV2`**, in place of
+  `SdScaffoldV2` — never hand-rolled, and never a `Stack` +
+  `SdPinnedFilterBarV2` assembled at the call site again. The filter row sits in
+  a frosted strip under the app bar while reading; as soon as the list scrolls on
+  it, it **lifts into the app bar, whose `title` and `actions` step aside**, and
+  scrolling back (or reaching the top) returns everything.
+  - Pass the filter as a **bare row of chips** — both places supply the
+    horizontal scrolling, so a scroll view of your own nests two.
+  - `filter: null` is "nothing to filter yet" (an empty export history): no
+    strip, no hand-off. `collapsible: false` pins it all in place for a bar
+    something else owns (the medications tab while its search field is up).
+  - **The body pads its own top and that inset must not change with the
+    collapse**: `SdContentPaddingV2.belowPinnedFilterBar` throughout, so the
+    reserved strip height cannot make content jump mid-scroll.
+  - Used by `medications_screen` and `export_screen`. History's own pill lives
+    IN its list and is a different mechanic.
+- **Content plus a bottom action: `SdActionViewV2`**, passed straight as
+  `SdScaffoldV2.body` — never hand-rolled. Content on top, `actions` hugging the
+  bottom edge, `spaceBetween` between them, and it owns the two things such a
+  screen otherwise forgets: the vertical insets (from `SdContentPaddingV2`) and
+  the minimum height that gives `spaceBetween` its free space. Nothing inside
+  `content` adds a top gap of its own. `actions` is a stretched `Column`, so
+  buttons come out full width and equal. It scrolls itself — long locales and
+  large text sizes overflow a fixed `Column`, and a bare `ListView` is wrong
+  because under short content the buttons drift into the middle. Used by
+  `login_screen`, `account_screen`, `premium_screen`.
+  - **`placement` decides what happens once the two outgrow one viewport.**
+    `SdActionsPlacementV2.scrolling` (default) scrolls content and actions
+    together — right where the actions are the end of the content. `pinned`
+    scrolls only the content and holds the actions at the bottom edge, **for
+    content that grows without bound**, where an action at the end of a list is
+    one the user will not find. `medication_detail_screen` created it: its
+    reminder list has no ceiling, and "Add reminder" was being pushed off.
+  - Under `pinned` the actions sit BELOW the scroll view, never over it, so
+    content can never pass behind them — which is why the footer needs no surface
+    and no blur. What separates the two is `SdContentPaddingV2.pinnedActionsGap`,
+    its own field rather than `bottomGap`: that one is the air *below* the last
+    item, and pinning created a second edge on the side the content arrives from.
+    Equal to it on purpose, so a pinned footer has the same air above and below.
+
+## Loading and separators
+
+- **A wait whose shape is known is an `SdSkeletonV2`, not a spinner.**
+  `SdChartSkeletonV2` / `SdChartCardSkeletonV2` for a plot, `SdListSkeletonV2`
+  for rows, the primitive for anything else — all reserve the space the real
+  content will take, so a screen does not reflow under the user's thumb. **The
+  spinner is still right for a wait with no shape**: an action the user just
+  started (a delete, a seed, an export) and a viewer that draws its own
+  placeholder. Picking by "is there a spinner already" rather than by "do I know
+  the shape" is what gives one app two answers to the same wait.
+  - **It does not animate, and that is a rule rather than an omission.** No
+    shimmer, and no slow breathing fade either: hard rule 3 covers a placeholder
+    looping for as long as the network takes, which is a moving light source in a
+    photophobic user's periphery. Long version in `WIDGET_RULES.md` § 6.
+  - **Every skeleton is a rectangle at `SdSkeletonV2.radius` (8)** — owner's
+    rule, no prop to override it. One shape means a screen's placeholders read as
+    one loading state, and it deliberately does not copy what is underneath: a
+    pill for a line and a card radius for a card had each placeholder
+    impersonating a different component. No circles.
+  - Inside, it is `SdSkeletonV2.lineGap` and `SdContentPaddingV2.listItemGap`,
+    never numbers typed at a call site — a placeholder list at a different pitch
+    from the real one shuffles everything the moment data arrives.
+- **Every separator line is an `SdDividerV2`**, never a Material `Divider`. One
+  thickness (`SdSpacingConstant.h1`) and one colour (`sdTheme.surfaceElevated`,
+  the same step up everything sitting on a card takes), so two lists cannot come
+  out different greys. **It occupies exactly the line it draws**: Material's
+  `Divider` reserves a whole `height` (16 by default) around a 0-thickness rule,
+  so a "1px line" silently costs 16 of vertical space and two rows drift apart
+  for reasons nothing at the call site explains. The gap around it belongs to
+  whoever places it. It carries no props — an indent is a `Padding` at the call
+  site, and a second call site wanting the same indent is when it becomes a field
+  on `SdContentPaddingV2`, never a number typed twice.
+  - **Between items only, never on a container's own edge.** The reminder list
+    draws `if (index > 0) const SdDividerV2()` — a rule above the first row lands
+    on the card's edge and reads as a border it does not have.

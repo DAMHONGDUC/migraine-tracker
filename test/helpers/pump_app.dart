@@ -74,10 +74,19 @@ class FakeWeatherRepository implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
 
-  // The weather card's payload. No widget test draws it, and no non-UI
-  // test needs it, so every fake answers "no weather".
+  /// The weather card's payload. Null by default — no weather — because most
+  /// tests care about some other card. Set it to make the card draw, and
+  /// count [reportCalls] to prove something asked again.
+  WeatherReport? weatherReport;
+
+  int reportCalls = 0;
+
   @override
-  Future<WeatherReport?> report() async => null;
+  Future<WeatherReport?> report() async {
+    reportCalls++;
+
+    return weatherReport;
+  }
 }
 
 /// No-op scheduler so widget tests never touch the notifications plugin.
@@ -246,10 +255,26 @@ class FakeAuthRepository implements AuthRepository {
   /// Records that the account was torn down, without pretending to do it.
   int deleteAccountCalls = 0;
 
+  /// Records the Apple revoke, so a test can assert it ran BEFORE the wipe —
+  /// the ordering the real deletion depends on.
+  int revokeAppleTokenCalls = 0;
+
+  /// Set to make [revokeAppleTokenIfLinked] throw, standing in for the user
+  /// backing out of the Apple sheet that deletion re-opens.
+  AuthError? revokeFailsWith;
+
   @override
   Future<void> deleteAccount() async {
     deleteAccountCalls++;
     await signOut();
+  }
+
+  @override
+  Future<void> revokeAppleTokenIfLinked() async {
+    revokeAppleTokenCalls++;
+    final AuthError? error = revokeFailsWith;
+
+    if (error != null) throw AuthException(error);
   }
 
   @override
@@ -594,6 +619,12 @@ Future<PumpedApp> pumpApp(
   /// path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
 
+  /// What every OS permission answers from the first frame. Granted by
+  /// default; set before the pump because the weather card reads location's
+  /// status while it builds, and flipping `permissions.statusFor` afterwards
+  /// is a frame too late.
+  AppPermissionStatus permissionStatus = AppPermissionStatus.granted,
+
   /// The account document the account tab reads. Null = not written yet,
   /// which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
@@ -641,7 +672,7 @@ Future<PumpedApp> pumpApp(
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
   addTearDown(scheduler.dispose);
-  final permissions = FakeAppPermissionGateway();
+  final permissions = FakeAppPermissionGateway()..statusFor = permissionStatus;
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
   addTearDown(auth.dispose);
@@ -762,6 +793,37 @@ Finder findLabelledField(String label) => find.descendant(
   matching: find.byType(TextField),
 );
 
+/// Scrolls until [finder] has been built, and does nothing when it already
+/// has been.
+///
+/// A long list builds lazily, so a row far enough down does not exist yet and
+/// anything measuring it throws on an empty finder — as `Bad state: No
+/// element`, which reads as a broken helper rather than as "scroll further".
+/// Two rows added to Settings is all it took the first time, and the dev
+/// group moving to the top of that screen is what took it a second time.
+///
+/// **An `expect(find.text(...), findsOneWidget)` on a settings row needs this
+/// first.** A finder is not a camera: a row below the built range is absent
+/// from the tree, not merely off-screen, and the assertion fails on a screen
+/// that is perfectly correct.
+///
+/// `find.byType(Scrollable).first` is the visible tab's own list — the shell's
+/// other branches are offstage in its `IndexedStack`, and finders skip those.
+Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+
+  final Finder scrollable = find.byType(Scrollable);
+
+  if (scrollable.evaluate().isEmpty) return;
+
+  await tester.dragUntilVisible(
+    finder,
+    scrollable.first,
+    const Offset(0, -200),
+  );
+  await tester.pump();
+}
+
 /// Taps a target below the fold. A plain `tap()` on an off-screen widget
 /// only warns and taps nothing, failing some later assertion instead.
 ///
@@ -774,22 +836,7 @@ Finder findLabelledField(String label) => find.descendant(
 /// So: scroll only when the target really is off-screen, then make sure
 /// whatever the scroll left behind is clear of the chrome.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  // A long list builds lazily, so a row far enough down does not exist yet
-  // and every measurement below throws on an empty finder — as `Bad state:
-  // No element` from `_appBarBottom`, which reads as a broken helper rather
-  // than as "scroll further". Two rows added to Settings is all it took.
-  if (finder.evaluate().isEmpty) {
-    final Finder scrollable = find.byType(Scrollable);
-
-    if (scrollable.evaluate().isNotEmpty) {
-      await tester.dragUntilVisible(
-        finder,
-        scrollable.first,
-        const Offset(0, -200),
-      );
-      await tester.pump();
-    }
-  }
+  await scrollIntoView(tester, finder);
 
   final double chromeBottom = _appBarBottom(tester, finder);
   final double screenBottom =
@@ -818,10 +865,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // - the same problem at the other end: a tab screen's floating nav pill
-  //   covers its last rows, and tap() only warns when it hits the pill
-  // - asks whether the row can be hit rather than measuring the chrome, so it
-  //   costs nothing on a screen that has none
+  // - the same at the other end: a tab screen's nav pill covers its last
+  //   rows, and tap() only warns when it hits the pill
+  // - asks whether the row can be hit rather than measuring the chrome
   for (int i = 0; i < 5; i++) {
     if (finder.hitTestable().evaluate().isNotEmpty) break;
     if (scrollable.evaluate().isEmpty) break;
@@ -857,6 +903,10 @@ Future<void> openSettings(WidgetTester tester) async {
 
 /// Settings → Export data. The export screen is pushed over the tab shell,
 /// so it covers the bottom nav.
+///
+/// **Needs `pumpApp(premium: true)`**: export is premium in full, so the row
+/// opens the paywall for a free user and every assertion after this lands on
+/// the wrong screen.
 Future<void> openExportScreen(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Export data'));
@@ -1004,21 +1054,62 @@ Future<void> pumpCountUp(WidgetTester tester) async {
   }
 }
 
-/// Insights, then its Pressure tab — which is where the correlation lives.
+/// Insights, standing on its Pressure tab — which is where the correlation
+/// lives.
 ///
-/// Insights opens on Weather now (`InsightsTabController.build`), so a test
-/// that wants the correlation has to say so. A test asserting the tab switch
-/// ITSELF should still tap the segment inline; this is for the ones that only
-/// need to be standing on that card.
+/// **No tap any more: Insights opens on Pressure** (`InsightsTabController`),
+/// now that the weather it used to open on lives on the dashboard. Tapping
+/// the segment here would also be ambiguous — "Pressure" is on screen twice,
+/// as the segment and as the card's own title.
 ///
-/// **The count-up is pumped AFTER the switch, and that is the whole point of
-/// this helper.** The tabs build lazily, so the correlation card does not
-/// exist until the segment is tapped — frames spent inside `openInsights` are
-/// spent on the weather card, and the hero number is still counting when the
-/// assertion runs.
+/// The extra count-up still earns its place: the tabs build lazily, so the
+/// first frames go on mounting the card and the hero number is still counting
+/// when the frames inside `openInsights` run out.
 Future<void> openPressureInsight(WidgetTester tester) async {
   await openInsights(tester);
-  await tapVisible(tester, find.text('Pressure'));
+  await pumpCountUp(tester);
+}
+
+/// Drags [target] into view with bounded pumps, and never `pumpAndSettle`.
+///
+/// **Insights never settles.** Its cards keep frames coming, so
+/// `pumpAndSettle` — which `dragUntilVisible` and `scrollUntilVisible` both
+/// use — waits out its own ten-minute timeout instead of scrolling. Two tests
+/// spent that timeout each and read as a hung suite rather than a bad helper.
+Future<void> dragInsightsTo(WidgetTester tester, Finder target) async {
+  for (int i = 0; i < 12 && target.evaluate().isEmpty; i++) {
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -260));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+/// Insights, standing on its Sleep tab.
+///
+/// **The tab has to be tapped**: Insights opens on Pressure, so a test that
+/// only calls [openInsights] looks for the sleep card on a tab that does not
+/// draw it. Scoped to the segment strip because the dashboard branch stays
+/// mounted behind Insights and its Today section has a "Sleep" row too.
+Future<void> openSleepInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSegmentedTabsV2),
+      matching: find.text('Sleep'),
+    ),
+  );
+  await pumpCountUp(tester);
+}
+
+/// Insights, standing on its Activity tab — same reason as
+/// [openSleepInsight].
+Future<void> openActivityInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSegmentedTabsV2),
+      matching: find.text('Activity'),
+    ),
+  );
   await pumpCountUp(tester);
 }
 
@@ -1041,7 +1132,7 @@ Future<void> openLog(WidgetTester tester) async {
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
-  String location = 'Right side',
+  String location = 'Right temple',
   String medication = 'No medication',
   String? exertion,
   bool finish = true,

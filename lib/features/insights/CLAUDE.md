@@ -1,60 +1,227 @@
 # Insights
 
-The four cards, their tabs, and the detail screens behind them.
+The three cards, their tabs, and the detail screens behind them.
 
-- **Everything pressure lives on one screen, `/pressure`** (`features/insights/presentation/screens/pressure_screen/`): the 48h forecast, the correlation, and the alert switch + threshold together. They were three places before — a card on Insights, another card beside it, and a Settings row two taps away — so the number and the alert it drives never appeared together. Insights now carries ONE `PressureCard` (forecast chart above the correlation body, the whole card tappable), and `AlertsSettingsTile` opens the same screen. **The screen lives under `insights/`, not `alerts/`**, because it draws insights' own widgets and a screen in `alerts/` reaching into `insights/presentation/` would break the feature dependency rule; `AlertsSection` sits in `core/widgets/sections/`, which is what lets both sides use it.
-  - **The doors that mean *alerts* ask the row to reveal itself: `NavigationUtils.toPressure(highlightAlert: true)`.** The switch is the last thing on a tall card and usually below the fold, so landing on the card without pointing at it leaves the user hunting — the row scrolls itself to centre and holds a tint for `_AlertControls.highlightHold`, fading in and out (hard rule 3: calm, never a flash).
-    - **Only with premium, and that check lives in `NavigationUtils`.** Without it the card renders one pitch and no controls, so there would be no row to scroll to and the request would sit unconsumed until it fired on some unrelated later visit.
-    - **It is a flag the row consumes, not an event it listens for.** The card is built *after* the move, so a listener would be subscribing to something that already fired; the row `watch`es it, reveals itself after the frame, then calls `consume()`.
-  - **The Apple Weather mark sits at the bottom-right of `WeatherCard`, and it is the `WeatherAttribution` widget, never a plain `Text`.** WeatherKit requires the mark to LINK to Apple's attribution page and App Review checks for it — a credit that only reads right is not compliance.
-  - **Bodies are cardless so two surfaces can draw them.** `CorrelationBody` and `PressureForecastBody` are the content; `CorrelationCard` / `PressureForecastCard` are the shells the detail screen uses, and `PressureCard` folds the two bodies onto one card. `InsightCard` takes an `onTap` and draws the chevron itself — never add one at a call site.
-  - **The forecast is premium again, and this has now flipped twice — do not flip it a third time without the owner saying so.** It shipped premium, was reversed to free ("seeing the pressure you live in is the app's own promise"), and is premium once more now that `WeatherCard` carries the free weather. The promise is kept by that card; the pressure chart is the paid reading. `premiumLockedForecast` is its pitch, and `PressureCard`'s `PremiumBadge` now marks the whole card rather than just the alert.
-  - **The two alert controls are one `_AlertRow` each: glyph and name left, the control right.** A `SwitchListTile` beside a `ListTile` put their titles at different insets and their controls at different heights, which is what made the pair look unfinished. **Both rows are one fixed height (`_AlertRow.height`), and the switch is `MaterialTapTargetSize.shrinkWrap`** — otherwise the switch brings Material's 48pt tap target with it, its row comes out taller than the threshold row, and the divider between them sits closer to one than the other. The threshold row carries a **chevron after its value** — without it the row reads as a readout and nothing says a sheet is one tap away. Only that row takes an `onTap`: tapping a switch row's label would be a second, invisible way to toggle it.
-    - The section heading is gone with them — it said "Pressure-drop alerts" directly above a row whose title said the same thing. The sentence explaining what the alert does moved below the pair.
-  - **Every Unlock button in the app is `PremiumUnlockButton`, and it takes no options** — filled, small, compact, no glyph. It used to take a `variant` so the blurred chart cover could be louder than the prompts, which is exactly the drift one widget exists to prevent. Filled because it is the one live action on a surface that is otherwise inert, and because it has to read against that cover's scrim; no padlock because the word is unambiguous and the glyph was a fifth of the button's width.
-  - **Without premium, neither alert control is built — not the switch, not the threshold.** Owner's call, and it reversed the first version, which showed both inert with a lock glyph on the theory that a locked control still says what it would do. It does not: a switch that will not switch and a threshold row that will not open read as a broken screen rather than as an offer. Both surfaces that carry the pair follow this — `AlertsSection` on `/pressure` returns `PremiumTileGate`'s locked row, and the weather card returns its `_AlertPitch` (the badge, one line on what the alert does, one Unlock button).
-    - **The check comes before the settings are read**, so the locked branch never touches `alertsControllerProvider` — the same shape as `PremiumGate`, where the gate is the data and not the styling.
-    - This is why `/pressure` staying open to everyone is safe: the forecast is the free half, and the alert half is simply absent rather than half-operable.
-    - `AlertsSettingsTile` already worked this way (it wraps itself in `PremiumTileGate`), so all three surfaces now give one answer.
-- **The other two insight detail screens: `/activity` and `/sleep`.** Exertion and steps share `/activity` and one `ActivityCard` on Insights, because they are the same question asked twice — how much did the user move. Sleep keeps its own card and its own screen: the night is a different question from the day, and merging it would put one switch over two unrelated readings. Both screens are reached from their own Settings row — **no longer from their Insights card**, see the next rule.
-- **Insights shows ONE card at a time, behind a segmented switch under the app bar.** Owner's call. `SdSegmentedTabsV2` in the `Column` above the body, one tab per card — Weather, Pressure, Activity, Sleep — with the selection in `insightsTabProvider`. They used to stack in one scroll view, which made the screen a long column of unrelated subjects and left the card a user came for several screens down.
-  - **The strip is built from the tabs that exist, not from `InsightsTab.values`.** Sleep is absent off iOS, so it is four segments there and three elsewhere. The stored tab is checked against that list before it is used — a tab can leave it, and indexing a shorter strip would throw.
-  - **A tab's label is its card's name, from the same ARB key** (`weatherCardTitle`, `insightsPressureTitle`, `activityCardTitle`, `sleepCardTitle`), so the segment and the card can never come to disagree.
-  - **Which is why three of the cards carry no heading of their own.** `WeatherCard`, `ActivityCard` and `SleepCard` open straight onto their content: the tab immediately above already says the word, and printing it twice reads as a mistake. `PressureCard` keeps its `InsightCard` title, because that row is also its badge and its chevron through to `/pressure`.
-  - **Each tab waits only on what it draws.** The screen used to hold every card behind one `switch` on both correlation providers, so the weather — which needs neither — stayed blank until the engines had run.
-  - **Tabs are kept alive in an `IndexedStack` once opened, and built lazily until then.** A `switch` that built only the selected card unmounted the others, so returning rebuilt from nothing: the scroll offset was gone and every chart replayed its entry animation, which reads as reloading. None of these providers is `autoDispose`, so the data was never refetched — what was lost was widget state, and that is what the stack keeps. Lazily, because mounting all four up front would fire a weather fetch, a forecast fetch and two HealthKit reads on a screen showing one card.
-  - **Pull-to-refresh invalidates everything, not just the visible tab**, because the gesture belongs to the screen rather than to the card in front of it.
-- **`ActivityCard` and `SleepCard` are each a free reading over a premium analysis.** Owner's spec: the top half is what was measured and is free, a divider, then an "Analysis" heading with the correlation drawn from it, which is premium. `docs/PREMIUM_RULES.md` is the authority on which half is which. **`WeatherCard` is free all the way down** — its analysis half was the pressure correlation, and that left with the pressure (see the top of this file), so there is no divider and no Analysis heading on it any more.
-  - **`WeatherCard` is iOS Weather's shape: pick a day, pick a reading, see it hour by hour.** A horizontal strip of `WeatherReport.weekLength` (7) days on top, the metric picker under it, then the picked day's hours. No daily list and no details grid — both were tried and replaced by this, because a day strip plus a metric dropdown says everything they said with one control each.
-    - **The hourly row IS a chart, and this reverses an earlier "no chart" rule — owner's call, do not reverse it back without them saying so.** A chart was tried, removed as redundant beside the numbers, and is now back in a different shape: not a second block below the row, but the row's own x axis. `_MetricChart` draws under the cells inside **one** `SingleChildScrollView`, so hour 14 sits at the same x in both at any scroll offset — two scroll views would need their offsets kept in sync every frame.
-      - **`_MetricCell.width` is fixed and that is what makes it line up.** The scroll child states its width as `width * hours.length`, and the chart's x range runs `-0.5` to `hours.length - 0.5`, which lands x = i on the centre of cell i. Intrinsic widths plus a separator put columns where no chart can compute them. **No axis may reserve space** for the same reason: a `reservedSize` shrinks the plot area and every mark drifts off its cell.
-      - **No axes, no grid, no tooltip.** Every number is already printed in the cell right above its mark — an axis would restate them and a tooltip would restate them on tap. The chart is there for the one thing the row cannot say, the shape of the day. `ExcludeSemantics` for the same reason: the cells are what VoiceOver reads.
-      - **Bars for an amount counted from zero, a curve for a level** (`WeatherMetricUtils.isBars`): rain and UV are quantities an hour either has or does not, and a line sloping between two of them draws readings Apple never sent. `BarChartAlignment.spaceAround` puts group i at the same centre the line chart's x = i lands on.
-      - **A bounded reading is pinned to its own scale, never auto-scaled** (`WeatherMetricUtils.range`): percentages 0–100, UV 0–`uvScaleTop` (11, the WHO "extreme" band). Auto-scaling turns a three-point wiggle into a mountain, and users make decisions off the shape. Temperature and visibility are levels around a baseline and keep `ChartAxisUtils`' headroom; wind starts at 0 because calm IS zero.
-      - **A gap is a break in the line, never a straight run across it** (`WeatherMetricUtils.segments`): `fl_chart` takes no nulls, so each run of consecutive hours is its own `LineChartBarData`. A run of one shows its dot, or a lone reading between two gaps would render as nothing. The cell above a missing hour prints an em dash — a blank under a glyph reads as a render bug.
-    - **The metric picker is icon-only when closed**: the current reading's glyph and a chevron, nothing else. It shares a row with the day summary, and a spelled-out label ("Chance of rain", "Điều kiện") took enough of that row to squeeze the summary — the sheet it opens names every option in full, so the closed state does not have to. The chevron is what makes it read as a control rather than a status, and `Semantics(label:)` carries the metric name, which the glyph alone does not say.
-    - **It inlines `showSdFilterSheetV2` rather than using `SdFilterChipV2`.** That chip is the app's dropdown everywhere else and stays so, but it always draws `Icons.filter_list` plus a text label; a widget that only forwards to the generic presenter is dead weight (§ Bottom sheets), so the picker opens the sheet itself. Never a Material `DropdownButton`, which reads as Android.
-    - **The day strip is a `Row` of `Expanded`, not a horizontal `ListView`** (owner's call). A week is a small fixed number and it fits, so a scroll gesture would hide days behind an edge for nothing — and `Expanded` is what makes all seven the same width whatever their labels. **Today is named by its weekday like every other cell**: "Today" and "Hôm nay" are both too wide for a seventh of the card, so what marks it is the accent on its label, which costs no width.
-    - **The day summary and the metric dropdown share one row.** The summary is `Expanded` and the pill sizes to its own label, so the pill can never be squeezed into an overflow — `SdFilterPillV2`'s label has no ellipsis, so constraining it would be an overflow rather than a truncation. The summary's caption takes two lines instead: the condition and what it feels like are both the point, and a Vietnamese pair of them does not fit one line beside the pill.
-    - **The report fetches a week of hours** (`_reportHoursForward` = `weekLength * 24`), because every cell of the day strip needs hours behind it. It is still ONE call to Apple — the window is a parameter, not a second request.
-    - **Only today shows a live "now"**; every other day's summary is the forecast's own high and low, because there is no current reading for a day that has not happened.
-    - **The day index is clamped against the week that actually arrived.** The strip slides forward at midnight and a short report must not index off the end of it.
-    - **A horizontally scrolling child gets no height from its parent, so state it** — `_MetricCell.height` is written out and summed from its contents. Same lesson as the details grid that overflowed: never let a cell's size be implied. The day strip is the other half of the same lesson: `IntrinsicHeight` is what gives `CrossAxisAlignment.stretch` something finite to match, and without it a `Column` in a `ListView` asserts an infinite height every frame.
-  - **None of the three takes a card-level `onTap`, and so none wears a chevron.** Each owns an interactive control — a segmented view switcher, a range selector, an alert switch — and a tap on the card would fight the control inside it. That is why the detail screens are reached from Settings now: a card cannot be both a control surface and a door.
-  - **The free half must never be gated, even when the analysis under it is.** It is the answer to "did connecting Apple Health work" and "what is the pressure doing" — locking it leaves a user who just flipped a switch looking at nothing. So `SleepCard` carries no `PremiumGate` around it any more, and `WeatherCard` fetches for everyone.
-  - **What a locked analysis blurs is a sample, never the user's own data.** `PremiumChartLock` draws `sampleExertionCorrelationProvider` / `sampleSleepCorrelationProvider`, both of which run `SampleChartData` through the SAME engines as the real cards — so the preview cannot drift from what premium unlocks, and a free user's tree still holds no real premium data. `SleepCorrelationBody` takes an optional `result` for exactly this, and passing it means the provider is never watched, so no HealthKit read is issued for a free user.
-- **The step and sleep charts share one range selector: D / W / M / 6M** (`HealthRangeSelector`, `HealthRange`), like Apple Health's own. One widget and one enum for both, so a range cannot mean different things on the two cards.
-  - **Single letters, not words.** Four segments share a card's width, and "6 months" spelled out does not fit one at the 393pt design width in either locale.
-  - **Only half a year groups into weeks** (`HealthRange.isWeekly`). 182 bars on a card ~350pt wide is under 2pt each — a texture, not a chart. `HealthRangeBuckets` does the grouping, and **steps SUM while sleep AVERAGES**: "56 hours" for a week says nothing a reader can compare against a night, and every other sleep figure in the app is per-night.
-  - **A bucket with no data is absent, never a zero bar** — the same rule the aggregators already follow, because "no record" is not "no steps" and not "no sleep".
-  - **The Day range for steps is hourly** (`StepHour`, `StepHourAggregator`, `HealthRepository.stepHours`): a day is one `StepDay`, and one bar is not a chart. A sample is credited to the hour it *starts* in, because splitting it would need a distribution HealthKit does not report.
-  - **The Day range for sleep is the one night, not its stages.** This `health` version collapses IN_BED / ASLEEP / AWAKE onto a single HealthKit type and drops the category value before Dart sees it, so a hypnogram would be invented. Don't add one without first checking that the plugin can actually tell the stages apart.
-  - **Labels are dropped above `HealthRangeChart._maxLabelledBars` (14)** rather than overlapped: 30 day-of-month numbers do not fit, and a smear of digits under the axis is worse than none.
-  - **Neither the activity nor the sleep row in Settings is premium-gated**, and the sleep one used to be. The rule for both is the same as the free-half rule above: the screen behind the row holds the Apple Health switch and a free summary card, so a locked row hides something the user already has. Submission 1.0(11) was rejected under App Store 2.5.1 partly because of that gate — with the paywall returning no offerings, the sleep row could not be unlocked, and it led to the app's only screen naming Apple Health. Only `SleepCorrelationCard` on the screen itself is premium. Inside the activity card, the step half still shows `premiumLockedSteps` until premium, and is absent entirely off iOS (`healthAvailableProvider`), where there is no source and the prompt would point at a switch that isn't there.
-- **On every insight detail screen the controls come first and the cards last.** The switch or threshold is what the user opened the screen to change, so it sits under the thumb; the reading is what they scroll to. Applies to `/pressure`, `/activity` and `/sleep` alike.
-  - **The share now has a denominator, and it is the `DailyWeather` table.** It used to answer only "what share of MY attacks fell during drops", never "do drops make me more likely to attack", so a user in a stormy climate scored high for free. `DailyPressureRecorder` writes one reading per local day whether or not an attack happened, and `CorrelationEngine` compares the attack rate on drop days against calm days (`PressureBaseline`).
-    - **It must never sync** (hard rule 1): a per-day trail of the weather where the user was is a location history, and every device recomputes its own. It IS in the GDPR wipe for the same reason — it is derived from their location, so it is theirs.
-    - **Days, not attacks**: three attacks in one day is one day that ended in an attack, or a single bad day carries the whole comparison.
-    - **Both sides need `minDaysPerSide` (5) or there is no baseline at all** — below it one day's weather swings the rate 20 points and the card flips between "twice as likely" and "no difference". `timesMoreLikely` is null when no calm day had an attack, because the alternative is printing "infinitely more likely".
-    - **A null baseline is the normal state for an existing user**, whose history predates the daily readings. The share still renders; nothing is taken away.
-    - **Recorded at most once per local day**, best-effort and silent like `WeatherAttachService` — launch and resume both fire it, and a day the app was never opened is simply a gap in the sample.
+**Weather is not here any more.** The live conditions moved to the dashboard as
+`CurrentWeatherCard` (owner's call) — see `lib/features/dashboard/CLAUDE.md`.
+The whole day-strip / metric-picker / hourly-chart card went with it: what
+survived is the current reading, because that is what a glance is for and it did
+not deserve a tab. `InsightsTab` has no `weather` member, the screen opens on
+`pressure`, and `WeatherMetric`, `weatherMetricProvider` and `weatherDayProvider`
+are gone entirely.
+
+## One card for everything pressure
+
+`PressureCard` on the Insights pressure tab holds the 48h forecast, the
+correlation and the alert switch + threshold together (`pressure_card_alert.dart`
+is its part file). They were three places before — a card on Insights, another
+beside it, and a Settings row two taps away — so the number and the alert it
+drives never appeared together.
+
+**There is no detail screen behind it.** `/pressure` existed to hold the alert
+controls; they are on the card now, so the card is the destination rather than a
+preview of one — which is why it takes no `onTap` and draws no chevron. Every
+door that means "pressure" — the Settings row (`AlertsSettingsTile`), the
+dashboard tile, the alert notification — selects this tab through
+`NavigationUtils.toPressure`.
+
+**The widgets live under `insights/`, not `alerts/`**, because they are insights'
+own and anything in `alerts/` reaching into `insights/presentation/` would break
+the feature dependency rule.
+
+- **The doors that mean *alerts* ask the row to reveal itself:
+  `NavigationUtils.toPressure(highlightAlert: true)`.** The switch is the last
+  thing on a tall card and usually below the fold, so landing on the tab without
+  pointing at it leaves the user hunting. The row scrolls itself to centre and holds a tint
+  for `_AlertControls.highlightHold`, fading in and out (hard rule 3: calm, never
+  a flash).
+  - **Only with premium, and that check lives in `NavigationUtils`.** Without it
+    the card renders one pitch and no controls, so there would be no row to
+    scroll to and the request would sit unconsumed until it fired on some
+    unrelated later visit.
+  - **It is a flag the row consumes, not an event it listens for.** The card is
+    built *after* the move, so a listener would subscribe to something that
+    already fired; the row `watch`es it, reveals itself after the frame, then
+    calls `consume()`.
+- **The Apple Weather mark sits bottom-right of `PressureForecastBody`, and it is
+  the `WeatherAttribution` widget, never a plain `Text`.** WeatherKit requires the
+  mark to LINK to Apple's attribution page and App Review checks for it — a credit
+  that only reads right is not compliance. It lives in `core/widgets/weather/`
+  beside the shared weather card, whose own copy is drawn on the detail screen
+  rather than on the card.
+- **Bodies are cardless so two surfaces can draw them.** `CorrelationBody` and
+  `PressureForecastBody` are the content; `CorrelationCard` /
+  `PressureForecastCard` are the shells the detail screen uses, and `PressureCard`
+  folds the two bodies onto one card. `InsightCard` takes an `onTap` and draws the
+  chevron itself — never add one at a call site.
+- **The forecast is premium again, and this has flipped twice — do not flip it a
+  third time without the owner saying so.** It shipped premium, was reversed to
+  free ("seeing the pressure you live in is the app's own promise"), and is
+  premium once more now that `CurrentWeatherCard` carries the free weather. The
+  promise is kept by that card; the pressure chart is the paid reading.
+  `premiumLockedForecast` is its pitch, and `PressureCard`'s `PremiumBadge` marks
+  the whole card rather than just the alert.
+- **The two alert controls are one `_AlertRow` each: glyph and name left, the
+  control right.** A `SwitchListTile` beside a `ListTile` put their titles at
+  different insets and their controls at different heights, which is what made the
+  pair look unfinished.
+  - **Both rows are one fixed height (`_AlertRow.height`), and the switch is
+    `MaterialTapTargetSize.shrinkWrap`** — otherwise the switch brings Material's
+    48pt tap target with it, its row comes out taller, and the divider sits closer
+    to one than the other.
+  - The threshold row carries a **chevron after its value**: without it the row
+    reads as a readout and nothing says a sheet is one tap away. **Only that row
+    takes an `onTap`** — tapping a switch row's label would be a second, invisible
+    way to toggle it.
+  - The section heading is gone: it said "Pressure-drop alerts" directly above a
+    row whose title said the same thing. The sentence explaining what the alert
+    does moved below the pair.
+- **Without premium, neither alert control is built — not the switch, not the
+  threshold.** Owner's call, reversing the first version, which showed both inert
+  with a lock glyph on the theory that a locked control still says what it would
+  do. It does not: a switch that will not switch and a threshold row that will not
+  open read as a broken screen rather than as an offer. Both surfaces follow this
+  — the card returns its `_AlertPitch` (the badge, one line on what the alert
+  does, one Unlock button), and `AlertsSettingsTile` returns `PremiumTileGate`'s
+  locked row.
+  - **The check comes before the settings are read**, so the locked branch never
+    touches `alertsControllerProvider` — the same shape as `PremiumGate`, where
+    the gate is the data and not the styling.
+  - This is why the tab staying open to everyone is safe: the forecast is the
+    free half, and the alert half is absent rather than half-operable.
+- **Every Unlock button in the app is `PremiumUnlockButton`, and it takes no
+  options** — filled, small, compact, no glyph. It used to take a `variant` so the
+  blurred chart cover could be louder than the prompts, which is exactly the drift
+  one widget exists to prevent. Filled because it is the one live action on a
+  surface that is otherwise inert, and because it has to read against that cover's
+  scrim; no padlock because the word is unambiguous and the glyph was a fifth of
+  the button's width.
+
+## The tabbed screen
+
+**Insights shows ONE card at a time, behind a segmented switch under the app
+bar** (owner's call). `SdSegmentedTabsV2` in the `Column` above the body, one tab
+per card — Pressure, Activity, Sleep — with the selection in
+`insightsTabProvider`. They used to stack in one scroll view, which made the
+screen a long column of unrelated subjects and left the card a user came for
+several screens down.
+
+- **The strip is built from the tabs that exist, not from `InsightsTab.values`.**
+  Sleep is absent off iOS, so it is three segments there and two elsewhere. The
+  stored tab is checked against that list before use — a tab can leave it, and
+  indexing a shorter strip would throw.
+- **A tab's label is its card's name, from the same ARB key**
+  (`insightsPressureTitle`, `activityCardTitle`, `sleepCardTitle`), so the segment
+  and the card cannot come to disagree.
+  - **Which is why two cards carry no heading of their own.** `ActivityCard` and
+    `SleepCard` open straight onto their content: the tab above already says the
+    word. `PressureCard` keeps its `InsightCard` title, because that row is also
+    where its `PremiumBadge` sits.
+- **Each tab waits only on what it draws.** The screen used to hold every card
+  behind one `switch` on both correlation providers, so a card needing neither
+  stayed blank until the engines had run.
+- **Tabs are kept alive in an `IndexedStack` once opened, and built lazily until
+  then.** A `switch` that built only the selected card unmounted the others, so
+  returning rebuilt from nothing: the scroll offset was gone and every chart
+  replayed its entry animation, which reads as reloading. None of these providers
+  is `autoDispose`, so the data was never refetched — what was lost was widget
+  state. Lazily, because mounting them all up front would fire a forecast fetch
+  and two HealthKit reads on a screen showing one card.
+- **Pull-to-refresh invalidates everything, not just the visible tab**: the
+  gesture belongs to the screen rather than to the card in front of it.
+
+## `/activity` and `/sleep`
+
+Exertion and steps share `/activity` and one `ActivityCard`, because they are the
+same question asked twice — how much did the user move. Sleep keeps its own card
+and screen: the night is a different question from the day, and merging them would
+put one switch over two unrelated readings. Both screens are reached from their
+own Settings row, **not from their Insights card**.
+
+- **Each card is a free reading over a premium analysis.** Owner's spec: the top
+  half is what was measured and is free, a divider, then an "Analysis" heading
+  with the correlation drawn from it, which is premium. `docs/PREMIUM_RULES.md` is
+  the authority on which half is which.
+- **Neither takes a card-level `onTap`, and so neither wears a chevron.** Each
+  owns an interactive control — a view switcher, a range selector, an alert switch
+  — and a tap on the card would fight the control inside it. That is why the
+  detail screens are reached from Settings: a card cannot be both a control
+  surface and a door.
+- **The free half must never be gated, even when the analysis under it is.** It
+  is the answer to "did connecting Apple Health work" and "what is the pressure
+  doing"; locking it leaves a user who just flipped a switch looking at nothing.
+  So `SleepCard` carries no `PremiumGate` around it any more.
+- **What a locked analysis blurs is a sample, never the user's own data.**
+  `PremiumChartLock` draws `sampleExertionCorrelationProvider` /
+  `sampleSleepCorrelationProvider`, both running `SampleChartData` through the
+  SAME engines as the real cards — so the preview cannot drift from what premium
+  unlocks, and a free user's tree still holds no real premium data.
+  `SleepCorrelationBody` takes an optional `result` for exactly this, and passing
+  it means the provider is never watched, so no HealthKit read is issued for a
+  free user.
+- **Neither Settings row is premium-gated**, and the sleep one used to be. Same
+  rule as the free half above: the screen behind the row holds the Apple Health
+  switch and a free summary card, so a locked row hides something the user already
+  has. Submission 1.0(11) was rejected under App Store 2.5.1 partly because of
+  that gate — with the paywall returning no offerings, the sleep row could not be
+  unlocked, and it led to the app's only screen naming Apple Health. Only
+  `SleepCorrelationCard` on the screen itself is premium. Inside the activity
+  card, the step half shows `premiumLockedSteps` until premium, and is absent
+  entirely off iOS (`healthAvailableProvider`), where the prompt would point at a
+  switch that isn't there.
+- **On both insight detail screens the controls come first and the cards last.**
+  The switch is what the user opened the screen to change, so it sits under the
+  thumb; the reading is what they scroll to. `/activity` and `/sleep` alike — the
+  pressure card is not a screen and puts its alert row at the bottom, which is why
+  the doors above ask it to reveal itself.
+
+## The health range selector
+
+**The step and sleep charts share one selector: D / W / M / 6M**
+(`HealthRangeSelector`, `HealthRange`), like Apple Health's own. One widget and
+one enum for both, so a range cannot mean different things on the two cards.
+
+- **Single letters, not words.** Four segments share a card's width, and "6
+  months" spelled out does not fit at the 393pt design width in either locale.
+- **Only half a year groups into weeks** (`HealthRange.isWeekly`). 182 bars on a
+  card ~350pt wide is under 2pt each — a texture, not a chart. `HealthRangeBuckets`
+  does the grouping, and **steps SUM while sleep AVERAGES**: "56 hours" for a week
+  says nothing a reader can compare against a night, and every other sleep figure
+  in the app is per-night.
+- **A bucket with no data is absent, never a zero bar** — the rule the aggregators
+  already follow, because "no record" is not "no steps" and not "no sleep".
+- **The Day range for steps is hourly** (`StepHour`, `StepHourAggregator`,
+  `HealthRepository.stepHours`): a day is one `StepDay`, and one bar is not a
+  chart. A sample is credited to the hour it *starts* in, because splitting it
+  would need a distribution HealthKit does not report.
+- **The Day range for sleep is the one night, not its stages.** This `health`
+  version collapses IN_BED / ASLEEP / AWAKE onto a single HealthKit type and drops
+  the category value before Dart sees it, so a hypnogram would be invented. Don't
+  add one without first checking the plugin can tell the stages apart.
+- **Labels are dropped above `HealthRangeChart._maxLabelledBars` (14)** rather
+  than overlapped: 30 day-of-month numbers do not fit, and a smear of digits under
+  the axis is worse than none.
+
+## The pressure correlation's denominator
+
+**The share has a denominator, and it is the `DailyWeather` table.** It used to
+answer only "what share of MY attacks fell during drops", never "do drops make me
+more likely to attack", so a user in a stormy climate scored high for free.
+`DailyPressureRecorder` writes one reading per local day whether or not an attack
+happened, and `CorrelationEngine` compares the attack rate on drop days against
+calm days (`PressureBaseline`).
+
+- **It must never sync** (hard rule 1): a per-day trail of the weather where the
+  user was is a location history, and every device recomputes its own. It IS in
+  the GDPR wipe for the same reason — derived from their location, so it is theirs.
+- **Days, not attacks**: three attacks in one day is one day that ended in an
+  attack, or a single bad day carries the whole comparison.
+- **Both sides need `minDaysPerSide` (5) or there is no baseline at all** — below
+  it one day's weather swings the rate 20 points and the card flips between "twice
+  as likely" and "no difference". `timesMoreLikely` is null when no calm day had an
+  attack, because the alternative is printing "infinitely more likely".
+- **A null baseline is the normal state for an existing user**, whose history
+  predates the daily readings. The share still renders; nothing is taken away.
+- **Recorded at most once per local day**, best-effort and silent like
+  `WeatherAttachService` — launch and resume both fire it, and a day the app was
+  never opened is simply a gap in the sample.
