@@ -1,9 +1,11 @@
 <!--
   Keep this file and docs/privacy/privacy.json saying the same thing — the JSON is
   what the published site renders, this is the readable source.
-  Two claims are load-bearing and must never soften:
-  - sync is encrypted but NOT end-to-end (we hold the key), and
-  - the app does use Firebase Analytics and Crashlytics.
+  Four claims are load-bearing and must never soften:
+  - sync is encrypted but NOT end-to-end (we hold the key),
+  - the app does use Firebase Analytics and Crashlytics, with no in-app opt-out,
+  - the step count for the day of an attack DOES leave the device, and
+  - weather is Apple WeatherKit, called by our backend, never by the app.
   [ADDRESS/COUNTRY] is the one placeholder left. Have a lawyer review before
   App Store submission.
 -->
@@ -50,8 +52,9 @@ data" clears it too.
 ### b. Data sent to our backend — even without an account
 
 To deliver **pressure-drop alerts** (a premium feature you switch on), we
-store a minimal record in our database, associated with a random device
-identifier rather than your name:
+store a minimal record in our database, associated with the anonymous
+account identifier your installation is given at first launch, not with your
+name:
 
 | Data | Purpose |
 |------|---------|
@@ -71,14 +74,28 @@ coordinates. You can deny location; alerts simply won't be available.
 
 ### d. Weather data
 
-To fetch forecasts we send a **coarse location** (city-scale) to a weather
-provider — currently Open-Meteo, with Apple WeatherKit planned. No identifier
-and no health data is sent with these requests.
+Weather comes from **Apple WeatherKit**, and the app never calls it directly:
+it asks our backend, and our backend asks Apple.
+
+- The app sends its **reduced-accuracy** position to our weather function.
+  That position is **rounded to a ~11 km cell** before anything else happens,
+  so what reaches Apple is the centre of that cell, never where you are.
+- The rounded cell is also what the forecast is cached against, for an hour,
+  shared by everyone in it. That cache holds weather, not people: it carries
+  no account identifier, no device identifier and no health data.
+- Nothing about you travels with a weather request — no identifier, no attack,
+  no symptom.
+
+The place name shown on the weather card is resolved by **your device's own
+geocoder** (Apple on iOS), from the same reduced-accuracy position. That
+lookup goes from your phone to the platform, never through us.
 
 ### e. Diagnostics and usage analytics
 
 BaroEase uses **Firebase Crashlytics** (crash reports and non-fatal errors)
-and **Firebase Analytics** (how the app is used). These are on by default.
+and **Firebase Analytics** (how the app is used). Both are always on and the
+app does not yet offer a switch to turn them off; if you want yours stopped or
+erased, write to ducdam.dev@gmail.com and we will do it.
 
 - Analytics records **actions, never content**: that an attack was logged,
   that the paywall was opened, that an export was shared. It never carries
@@ -225,7 +242,7 @@ Firebase terms.
 | **Firebase Crashlytics** | Crash and error reports |
 | **Firebase Analytics** | Usage events (§2e) |
 | **RevenueCat** | Subscription and entitlement state |
-| **Open-Meteo** (and Apple WeatherKit, planned) | Weather forecasts for a coarse location |
+| **Apple WeatherKit** | Weather forecasts, requested by our backend for a ~11 km cell |
 | **Google Sign-In / Sign in with Apple** | Authentication, only if you use them |
 
 ## 11. What we do NOT do

@@ -10,9 +10,7 @@
   "lastUpdated": "2026-08-20",
   "contactEmail": "ducdam.dev@gmail.com",
   "url": "https://damhongduc.github.io/apps_privacy_policy",
-  "storeLinks": {
-    "appStore": "https://apps.apple.com/app/id0000000000"
-  },
+  "storeLinks": {},
   "overview": [
     "This Privacy Policy describes how {{app}} handles information when you use the app. It applies to every version of {{app}} distributed by {{publisher}} on the app stores listed above.",
     "{{app}} is a migraine tracker for people whose attacks may be linked to barometric-pressure changes. It is built local-first: your health data is stored on your device, an account is optional, and logging an attack works with no network at all. The sections below set out exactly what is handled, why it is needed, and how you can have it removed.",
@@ -52,9 +50,10 @@
     {
       "category": "Coarse location",
       "items": [
-        "A 5-character geohash — an area of roughly 5 km"
+        "A 5-character geohash — an area of roughly 5 km — stored for pressure alerts",
+        "A position rounded to a ~11 km cell, used for a weather lookup and never stored against you"
       ],
-      "purpose": "Group nearby users into a single weather-forecast lookup and decide whether a pressure drop is coming. Precise coordinates are never requested or stored.",
+      "purpose": "Group nearby users into a single weather-forecast lookup and decide whether a pressure drop is coming. The app asks for reduced accuracy only, and the position is rounded before it is stored or passed to Apple — precise coordinates are never requested, stored or sent.",
       "linked": false
     },
     {
@@ -87,7 +86,7 @@
         "Device model",
         "OS version"
       ],
-      "purpose": "Identify and fix crashes and performance problems. Tagged with your opaque account identifier while you are signed in.",
+      "purpose": "Identify and fix crashes and performance problems. Tagged with your opaque account identifier while you are signed in. Always on — there is no in-app switch yet; write to us and we will stop and erase yours.",
       "linked": true
     },
     {
@@ -95,7 +94,7 @@
       "items": [
         "Actions taken in the app — for example that an attack was logged, that the paywall was opened, that an export was shared"
       ],
-      "purpose": "Understand which features are used so the app can be improved. Records that something happened, never its content: no intensity, head location, medication name, attack time or location ever becomes an analytics parameter.",
+      "purpose": "Understand which features are used so the app can be improved. Records that something happened, never its content: no intensity, head location, medication name, attack time or location ever becomes an analytics parameter. Always on — there is no in-app switch yet; write to us and we will stop and erase yours.",
       "linked": true
     }
   ],
@@ -151,13 +150,8 @@
       "url": "https://www.revenuecat.com/privacy"
     },
     {
-      "name": "Open-Meteo",
-      "purpose": "Weather forecasts for a coarse location. No identifier or health data is sent.",
-      "url": "https://open-meteo.com/en/terms"
-    },
-    {
       "name": "Apple (Sign in with Apple, App Store, WeatherKit)",
-      "purpose": "Optional sign-in, purchase processing, and weather forecasts.",
+      "purpose": "Optional sign-in, purchase processing, and the weather itself. WeatherKit is called by our backend, never by the app, and receives only the centre of a ~11 km cell — no identifier and no health data.",
       "url": "https://www.apple.com/legal/privacy/"
     },
     {
@@ -191,6 +185,15 @@
       "body": [
         "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only, to look for a correlation with your attacks. These are two separate permissions with two separate switches — allowing one does not allow the other.",
         "The analysis runs on your device and we never write to Apple Health. **Sleep never leaves your device.** Your **step count** does, in one narrow way: when you log an attack, {{app}} records how many steps you had taken that day up to that moment and saves the number with the attack, because how active you were before an attack is part of the record a doctor reads. It travels with that attack — into your export, your doctor report, and your encrypted sync if you are signed in. Nothing else from Apple Health is stored or uploaded, and you can revoke access at any time in the iOS Health settings."
+      ]
+    },
+    {
+      "id": "weather",
+      "title": "How weather reaches you",
+      "body": [
+        "Weather comes from **Apple WeatherKit**, and {{app}} never calls it directly: the app asks our backend, and our backend asks Apple.",
+        "The app sends its reduced-accuracy position to our weather function, which **rounds it to a ~11 km cell** before anything else happens. What reaches Apple is the centre of that cell, never where you are, and the forecast is cached against that cell for an hour so everyone in it shares one lookup. That cache holds weather, not people — no account identifier, no device identifier, no health data.",
+        "The place name on the weather card is resolved by your device's own geocoder (Apple on iOS) from the same reduced-accuracy position. That lookup goes from your phone to the platform and never through us."
       ]
     },
     {
