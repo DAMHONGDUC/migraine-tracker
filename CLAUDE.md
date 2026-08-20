@@ -24,6 +24,9 @@ it; the diff is the reader checking.
 
 **An explanation goes straight to the point — no rambling.** Owner's rule.
 Answer the question that was asked, then stop. Length is not thoroughness.
+**The same holds for anything written down** — docs, `CLAUDE.md`, code
+comments: keep the *why*, cut the words around it. Complete, never padded. A
+comment nobody finishes reading records nothing.
 
 ## What this project is
 
