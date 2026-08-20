@@ -51,6 +51,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
 | WeatherKit, iOS build/SPM/CocoaPods | `docs/rules/TECH_STACK.md` |
 | the app icon, the launch screen, regenerating either | `docs/setup/APP_ICON.md` |
+| a second Firebase project, or standing prod up on its own | `docs/setup/FIREBASE_PROJECT.md` |
 | tests | `docs/rules/TESTING.md` |
 | anything that seems unconfigured (keys, App IDs, products) | `docs/rules/PENDING_SETUP.md` |
 | why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
