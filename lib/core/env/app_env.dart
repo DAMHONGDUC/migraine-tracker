@@ -106,13 +106,26 @@ final class AppEnv {
     defaultValue: 'support@baroease.app',
   );
 
+  // --- Legal ---
+
+  /// Privacy Policy the paywall links to — App Store 3.1.2 wants it in the
+  /// binary, not just the listing. From env because this page is ours and can
+  /// move; the two Apple URLs beside it in `LegalUrlConstant` never do, so
+  /// only this one would otherwise need a code change and a release to follow
+  /// a re-host. Defaulted to the live page, so an unset build is unchanged.
+  static const String privacyPolicyUrl = String.fromEnvironment(
+    'PRIVACY_POLICY_URL',
+    defaultValue: '',
+  );
+
   // --- Boot-time validation ---
 
   /// Every config value the app cannot run without, keyed by its dart-define
   /// name. Only the platform's own RevenueCat key is required — the other
   /// platform's is allowed to stay empty (Android isn't polished yet).
-  /// `revenueCatOffering` and `supportEmail` are deliberately excluded: both
-  /// are meant to be empty/defaulted, not missing config.
+  /// `revenueCatOffering`, `supportEmail` and `privacyPolicyUrl` are
+  /// deliberately excluded: all are meant to be empty/defaulted, not missing
+  /// config.
   static Map<String, String> get _requiredConfig => {
     'FIREBASE_ANDROID_API_KEY': firebaseAndroidApiKey,
     'FIREBASE_ANDROID_APP_ID': firebaseAndroidAppId,
