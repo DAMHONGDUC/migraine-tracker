@@ -182,10 +182,9 @@ class FirebaseAuthRepository implements AuthRepository {
         <String, Object?>{'uid': user.uid},
       );
     } on FirebaseAuthException catch (error, stackTrace) {
-      // Swallowed on purpose. The user asked to delete their account, and a
-      // failed revoke must not become the reason they cannot — that would
-      // break App Store 5.1.1(v) to satisfy Apple's other rule. It is logged
-      // loudly instead, and the deletion carries on.
+      // Swallowed on purpose: a failed revoke must not become the reason a
+      // user cannot delete their account — that breaks App Store 5.1.1(v) to
+      // satisfy Apple's other rule. Logged loudly, and the deletion carries on.
       SdLogger.error(
         LogTagConstant.account,
         'Revoke Apple token failed, deleting anyway',
@@ -328,11 +327,9 @@ class FirebaseAuthRepository implements AuthRepository {
       throw const AuthException(AuthError.unknown);
     }
 
-    // The `aud` in this line is the whole diagnosis when Firebase answers
-    // `invalid-credential`: a native sheet signs the token to the app's bundle
-    // id, so Firebase only accepts it when that same bundle id is registered
-    // as an iOS app on the project. Printing it turns "Firebase said no" into
-    // "Firebase was handed X and expected Y".
+    // The `aud` here is the whole diagnosis of `invalid-credential`: a native
+    // sheet signs the token to the app's bundle id, which Firebase accepts
+    // only if that id is registered as an iOS app on the project.
     SdLogger.info(
       LogTagConstant.signIn,
       'Apple identity token',
@@ -368,11 +365,9 @@ class FirebaseAuthRepository implements AuthRepository {
             nonce: hashedNonce,
           );
 
-      // Presence, never the values: this line is read in a console and an
-      // Apple id is the account itself. It answers the two questions the
-      // fields raise — a null token is why sign-in fails, and a null name is
-      // why the account has none, Apple sending those only on the very first
-      // authorization and never again.
+      // Presence, never the values: an Apple id is the account itself. A null
+      // token is why sign-in fails; a null name is why the account has none,
+      // Apple sending it only on the first authorization.
       SdLogger.info(tag, 'Apple sheet ok', <String, Object?>{
         'hasIdentityToken': credential.identityToken != null,
         'hasAuthorizationCode': credential.authorizationCode.isNotEmpty,
@@ -463,11 +458,9 @@ class FirebaseAuthRepository implements AuthRepository {
     FirebaseAuthException e,
     AuthCredential credential,
   ) async {
-    // Logged here, before anything is mapped. Every branch below replaces
-    // Firebase's code with an AuthError, and `signIn` then catches an
-    // AuthException rather than a FirebaseAuthException — so without this line
-    // the only thing that ever reached the log was "unknown", and the code
-    // naming the actual cause was thrown away at the one point that knew it.
+    // Logged before anything is mapped: every branch below replaces
+    // Firebase's code with an AuthError, so without this line the only thing
+    // that ever reached the log was "unknown".
     SdLogger.warning(
       LogTagConstant.signIn,
       'Link failed, recovering',
@@ -497,12 +490,9 @@ class FirebaseAuthRepository implements AuthRepository {
         throw const AuthException(AuthError.accountConflict);
       case 'network-request-failed':
         throw const AuthException(AuthError.network);
-      // All three mean the console side is not finished, and all three are
-      // what an unconfigured Apple provider actually returns — the provider
-      // switched off gives `operation-not-allowed`, but a provider switched on
-      // with no Services ID, Key ID or `.p8` behind it rejects the token
-      // instead. Reporting those as "unknown" sent the reader looking in the
-      // app for a fault that is entirely in the Firebase console.
+      // All three mean the console side is unfinished: switched off it is
+      // `operation-not-allowed`, switched on with no Services ID, Key ID or
+      // `.p8` it rejects the token. "unknown" sent readers into the app.
       case 'operation-not-allowed':
       case 'invalid-credential':
       case 'internal-error':

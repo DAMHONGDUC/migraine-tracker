@@ -865,10 +865,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // - the same problem at the other end: a tab screen's floating nav pill
-  //   covers its last rows, and tap() only warns when it hits the pill
-  // - asks whether the row can be hit rather than measuring the chrome, so it
-  //   costs nothing on a screen that has none
+  // - the same at the other end: a tab screen's nav pill covers its last
+  //   rows, and tap() only warns when it hits the pill
+  // - asks whether the row can be hit rather than measuring the chrome
   for (int i = 0; i < 5; i++) {
     if (finder.hitTestable().evaluate().isNotEmpty) break;
     if (scrollable.evaluate().isEmpty) break;

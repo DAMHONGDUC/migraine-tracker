@@ -79,12 +79,9 @@ class HeadRegionGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double spacing = SdSpacingConstant.h6;
-        // Whatever height it is handed goes into the tiles, never into a gap
-        // under them: the head is sized from its width now, so what it does
-        // not use is worth more as a tap target than as air. Bounded both
-        // ways — [_tileHeight] is two lines of label and what
-        // [reservedHeight] promised the head, [_tileHeightMax] is where a
-        // tile stops being a button and starts being a slab.
+        // Whatever height it is handed goes into the tiles, never a gap under
+        // them. Bounded both ways: [_tileHeight] is two lines of label,
+        // [_tileHeightMax] is where a tile stops being a button.
         final double byHeight =
             (constraints.maxHeight - (_rows - 1) * spacing) / _rows;
 
@@ -96,11 +93,9 @@ class HeadRegionGrid extends StatelessWidget {
             crossAxisCount: LogFlowConstant.locationOptionsPerRow,
             mainAxisSpacing: spacing,
             crossAxisSpacing: SdSpacingConstant.w8,
-            // A row height, not an aspect ratio: the tile is one label, so
-            // how tall it is has nothing to do with how wide the screen made
-            // it. Every cell is the same box, which is what keeps a selected
-            // tile — 2px of border against everyone else's 1 — the size of
-            // its neighbour.
+            // A row height, not an aspect ratio: the tile is one label, so its
+            // height has nothing to do with the screen's width. Same box every
+            // cell, which keeps a selected tile the size of its neighbour.
             mainAxisExtent: byHeight.clamp(_tileHeight, _tileHeightMax),
           ),
           itemCount: regions.length,

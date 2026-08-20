@@ -105,10 +105,9 @@ class AccountController {
   Future<void> deleteAccount() async {
     SdLogger.action(LogTagConstant.account, 'Delete account');
     try {
-      // Apple first, and before the wipe. It re-opens the Apple sheet to get a
-      // fresh authorization code, so it is the one step here the user can still
-      // back out of — backing out after `wipeAll()` would cost them their
-      // records and leave the account standing.
+      // Apple first, and before the wipe: it re-opens the Apple sheet, so it
+      // is the one step the user can still back out of. Backing out after
+      // `wipeAll()` costs the records and leaves the account standing.
       await _ref.read(authRepositoryProvider).revokeAppleTokenIfLinked();
       await _ref.read(dataWipeServiceProvider).wipeAll();
       await _ref.read(authRepositoryProvider).deleteAccount();

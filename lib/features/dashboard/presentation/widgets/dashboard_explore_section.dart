@@ -75,9 +75,8 @@ class DashboardExploreSection extends ConsumerWidget {
           mainAxisSpacing: SdContentPaddingV2.listItemGap,
           crossAxisSpacing: SdContentPaddingV2.listItemGap,
           // A scroll view with a null padding helps itself to the ambient
-          // MediaQuery inset, so this one arrived with the device's safe area
-          // on top of the screen padding the dashboard had already applied —
-          // the notch's worth of blank space above the first row.
+          // MediaQuery inset, so this one arrived with the safe area stacked on
+          // the padding the dashboard had applied — a notch above the first row.
           padding: EdgeInsets.zero,
           // The dashboard's own list owns the scrolling.
           shrinkWrap: true,

@@ -44,11 +44,9 @@ class ExertionLevelPicker extends StatelessWidget {
         crossAxisCount: LogFlowConstant.optionsPerRow,
         mainAxisSpacing: SdSpacingConstant.h8,
         crossAxisSpacing: SdSpacingConstant.w8,
-        // A fixed row height, not an aspect ratio: the tile is one line of
-        // text beside an icon, so how tall it is has nothing to do with how
-        // wide the screen made it. Every cell is the same box, which is also
-        // what keeps the selected tile — 2px of border against everyone
-        // else's 1 — the same size as the one beside it.
+        // A fixed row height, not an aspect ratio: the tile is one line beside
+        // an icon, so its height has nothing to do with the screen's width.
+        // Same box every cell, so a selected tile matches the one beside it.
         mainAxisExtent: SdSpacingConstant.h64,
       ),
       itemCount: levels.length,

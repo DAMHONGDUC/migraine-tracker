@@ -56,11 +56,8 @@ class DashboardScreen extends ConsumerWidget {
       if (logsLeft != null) const AttackLimitBanner(),
       const QuickAccessSection(),
       // Under the shortcuts, owner's call: the top of the screen is the call
-      // to action and the way out of it, and the readings start here. It
-      // moved here from an Insights weather tab, which cost a screen and a
-      // tap for what is a glance. Placed unconditionally, unlike the section
-      // below it — the card draws its own loading and its own unavailable
-      // line, so it never leaves this list's gap behind.
+      // to action, and the readings start here. Placed unconditionally — the
+      // card draws its own loading and unavailable line, so it leaves no gap.
       const CurrentWeatherCard(),
       // Directly under the weather (owner's call): both answer "what is
       // happening now", so the next dose belongs beside the sky rather than
@@ -69,10 +66,9 @@ class DashboardScreen extends ConsumerWidget {
       // Asked here rather than left to the widget: a section that hid itself
       // would leave the gap the list inserts before it (see the loop below).
       if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
-      // Unconditional, owner's call: hidden until the first attack it left a
-      // new install with a log button and a grid of links and nothing in
-      // between. Both cards inside carry their own empty state, so what shows
-      // on day one is the shape of what is coming, not a pile of zeroes.
+      // Unconditional, owner's call: hidden until the first attack, it left a
+      // new install with a log button, a grid of links and nothing between.
+      // Both cards carry their own empty state, so day one shows the shape.
       const DashboardSummaryGroup(),
       const DashboardExploreSection(),
     ];

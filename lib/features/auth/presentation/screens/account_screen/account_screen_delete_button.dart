@@ -57,9 +57,8 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
       }
     } on AuthException catch (e) {
       // Backing out of the Apple re-authorisation sheet is a change of mind,
-      // not a failure. Nothing has been wiped by that point — the revoke runs
-      // first for exactly this reason — so there is nothing to report and an
-      // error snackbar would claim a problem the user created on purpose.
+      // not a failure. Nothing is wiped by then — the revoke runs first for
+      // exactly this reason — so there is nothing to report.
       if (e.error != AuthError.cancelled && mounted) {
         SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
       }
@@ -76,10 +75,9 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    // Outlined rather than filled: this offers the deletion, the dialog behind
-    // it confirms it. Sign out above takes the filled `primary`, so the eye
-    // lands on the reversible action first — but the error tint keeps this one
-    // legible as the dangerous one, which a plain `outlined` did not.
+    // Outlined, not filled: this offers the deletion, the dialog confirms it.
+    // Sign out above is filled, so the eye lands on the reversible action —
+    // and the error tint still reads as the dangerous one, which plain did not.
     return SdButtonV2(
       variant: SdButtonVariantV2.outlinedDestructive,
       onPressed: _deleting ? null : _delete,

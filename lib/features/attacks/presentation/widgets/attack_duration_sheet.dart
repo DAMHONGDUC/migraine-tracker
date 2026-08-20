@@ -51,10 +51,9 @@ class AttackDurationSheet extends StatelessWidget {
           // at the app because it has just stopped.
           if (!sinceStart.isNegative)
             SizedBox(
-              // The same box the grid gives every other option. Left to size
-              // itself this one shrank to its line of text and sat above the
-              // grid as a thin pill among ten chunky tiles - it is the same
-              // kind of answer, so it is the same kind of target.
+              // The same box the grid gives every other option: left to size
+              // itself it shrank to its line of text, a thin pill above ten
+              // chunky tiles. Same kind of answer, same kind of target.
               height: _DurationTile.height,
               child: _DurationTile(
                 label: l10n.attackDurationEndedNow,

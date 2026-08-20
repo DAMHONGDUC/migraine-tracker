@@ -35,11 +35,9 @@ class _LocationPrompt extends ConsumerWidget {
       // what the next tap does, and only re-reading the status can tell.
       ref.invalidate(locationPermissionProvider);
 
-      // And the reading itself, or the grant buys nothing until the card is
-      // rebuilt from scratch. Both providers may already hold a null from
-      // before the permission existed — a completed value, which nothing
-      // recomputes just because a new watcher arrives — so the card would
-      // swap the ask for "weather unavailable" and sit there.
+      // And the reading itself, or the grant buys nothing: both providers may
+      // hold a null from before the permission existed, and a completed value
+      // is not recomputed just because a new watcher arrived.
       if (granted) {
         ref.invalidate(weatherReportProvider);
         ref.invalidate(placeNameProvider);

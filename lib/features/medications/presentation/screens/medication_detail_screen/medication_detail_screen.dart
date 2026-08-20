@@ -178,13 +178,8 @@ class MedicationDetailScreen extends ConsumerWidget {
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders),
             // The REMINDER budget, at the top of the section it limits
-            // (owner's call). The medication budget used to sit in the footer
-            // here, which said nothing this screen can act on — a medication
-            // detail screen cannot create a medication. What it creates is
-            // reminders, and that is the number the free user needs.
-            //
-            // Counted across every medication, like the gate itself: the
-            // limit is not per medication (see `canAddReminderProvider`).
+            // (owner's call); the medication budget used to sit in the footer,
+            // saying nothing this screen can act on. Counted across all of them.
             if (remindersUsed != null) ...<Widget>[
               Padding(
                 padding: EdgeInsets.symmetric(

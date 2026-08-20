@@ -120,16 +120,9 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
           ),
         ),
         SdVerticalSpacingV2(height: _headInset),
-        // **The head is sized from its width, not from what is left over**
-        // (owner's rule): [_headInset] either side of the screen, and the
-        // height follows from the drawing's ratio. Height only wins where it
-        // has to — a short column would otherwise overflow — and the `min`
-        // below is that guard, not a second opinion on how big the head
-        // should be.
-        //
-        // Whatever the head does not use goes to the grid's tiles up to
-        // [HeadRegionGrid.maxHeight], and what is still left is split above
-        // and below by the centred column, as margin rather than as a hole.
+        // The head is sized from its WIDTH, not from what is left over
+        // (owner's rule); the `min` below only guards a short column. What it
+        // does not use goes to the tiles, and the rest is margin either side.
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {

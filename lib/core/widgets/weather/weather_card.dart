@@ -159,10 +159,9 @@ class WeatherCard extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // - the place arrives after the reading, so the card grows
-                  //   by a line once rather than reserving one it may not fill
-                  // - no skeleton for it either: a placeholder that resolves
-                  //   to nothing is worse than a line that simply appears
+                  // - the place arrives after the reading, so the card grows a
+                  //   line once rather than reserving one it may not fill
+                  // - no skeleton either: one resolving to nothing is worse
                   if (place case final String name) ...<Widget>[
                     _PlaceLine(name: name),
                     SizedBox(height: SdSpacingConstant.h4),

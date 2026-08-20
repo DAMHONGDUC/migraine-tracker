@@ -67,10 +67,9 @@ void main() {
         ),
         findsOneWidget,
       );
-      // No read-count assertion any more: the reading is free on both the
-      // dashboard and the Activity tab (`docs/PREMIUM_RULES.md`), and the
-      // tab's own range selector reads for itself, so the count says nothing
-      // about whether the gated half ran. The pitch above is what does.
+      // No read-count assertion: the reading is free on both surfaces and the
+      // range selector reads for itself, so a count says nothing about whether
+      // the gated half ran. The pitch above is what does.
       expect(app.health.stepReads, greaterThan(0));
 
       await finishTest(tester);

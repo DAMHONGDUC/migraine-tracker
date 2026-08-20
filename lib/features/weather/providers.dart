@@ -134,11 +134,9 @@ final weatherReportProvider = FutureProvider.autoDispose((ref) async {
         .watch(weatherRepositoryProvider)
         .report();
 
-    // Null is the best-effort failure (hard rule 4), not an empty forecast —
-    // so it is not worth an hour of memory either, and it must not be worth
-    // keeping at all: schedule a retry so a miss the user is looking at heals
-    // itself. The timer dies with the provider, so a card nobody is watching
-    // asks for nothing.
+    // Null is the best-effort failure (hard rule 4), not an empty forecast,
+    // so a retry is scheduled and a miss the user is looking at heals itself.
+    // The timer dies with the provider: a card nobody watches asks nothing.
     if (report == null) {
       link.close();
       expiry = Timer(weatherRetryDelay, ref.invalidateSelf);

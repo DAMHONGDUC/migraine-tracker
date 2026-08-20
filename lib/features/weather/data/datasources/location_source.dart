@@ -100,9 +100,8 @@ class GeolocatorLocationSource implements LocationSource {
       );
     } catch (error, stackTrace) {
       // Not fatal, and usually not even a fault: a fresh fix indoors or just
-      // after launch can take longer than the time limit, and the throw that
-      // follows used to be the whole reason the weather card said
-      // "unavailable" at random moments of a session.
+      // after launch outruns the time limit, and the throw that follows was
+      // the whole reason the card said "unavailable" at random.
       SdLogger.warning(
         LogTagConstant.location,
         'No fresh fix; falling back to the last known position',

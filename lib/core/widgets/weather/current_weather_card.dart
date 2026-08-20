@@ -59,11 +59,9 @@ class CurrentWeatherCard extends ConsumerWidget {
     }
 
     final AsyncValue<WeatherReport?> async = ref.watch(weatherReportProvider);
-    // Survives a refresh: AsyncValue keeps the last value while refetching,
-    // so a reload redraws the reading it already had rather than blanking.
-    // The whole report, not just its current block: the detail sheet draws
-    // the week from it, and the headline falls back to today's high and low
-    // where Apple sent a forecast but no reading for right now.
+    // Survives a refresh: AsyncValue keeps the last value while refetching.
+    // The whole report, not just `current` — the detail screen draws the week
+    // from it, and the headline falls back to today's high and low.
     final WeatherReport? report = async.value;
     // The app's language, not the device's — the name has to be written in
     // the language the rest of the card is.

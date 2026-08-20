@@ -44,10 +44,9 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
-    // - fifth, so the card keeps the four readings above and this one does not
-    //   take a quarter of it
-    // - still directly under the chance in the sheet, whose grid is two
-    //   columns wide: fifth lands in the left column, third's own column
+    // - fifth, so the card keeps the four readings above this one
+    // - still under the chance in the sheet's two-column grid: fifth lands in
+    //   the left column, third's own column
     if (data.precipitationAmountMm case final double value)
       _Metric(
         icon: Icons.water_outlined,
@@ -230,11 +229,9 @@ class _MetricGrid extends StatelessWidget {
       children: <Widget>[
         for (int i = 0; i < metrics.length; i += 2) ...<Widget>[
           if (i > 0) SizedBox(height: gap),
-          // IntrinsicHeight, and it is not optional: `stretch` tells a Row its
-          // children must fill the cross axis, and inside a Column in a
-          // scroll view that axis is unbounded — which asserts "BoxConstraints
-          // forces an infinite height" on every frame. This bounds the height
-          // to the taller cell first, so both come out that height.
+          // IntrinsicHeight is not optional: `stretch` makes a Row fill the
+          // cross axis, unbounded inside a Column in a scroll view — an
+          // infinite-height assert every frame. This bounds it to the taller.
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,

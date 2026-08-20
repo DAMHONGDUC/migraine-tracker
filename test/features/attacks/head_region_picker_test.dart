@@ -126,13 +126,9 @@ void main() {
   testWidgets('the drawing fills the box it was given', (tester) async {
     await pumpPicker(tester);
 
-    // The bug this exists for: AnimatedSwitcher lays its children out in a
-    // Stack, which hands them loose constraints, so the SVG drew itself at
-    // the asset's own 200x248 and sat marooned in the middle of a box twice
-    // that size. Every attempt to make the head bigger changed the box and
-    // nothing the user could see — and worse, taps were mapped against the
-    // box while the head was drawn to the asset, so they landed in the wrong
-    // area entirely.
+    // The bug this exists for: AnimatedSwitcher stacks its children under
+    // loose constraints, so the SVG drew at the asset's own 200x248 inside a
+    // box twice that size — and taps, mapped against the box, landed wrong.
     expect(
       tester.getRect(
         find.descendant(

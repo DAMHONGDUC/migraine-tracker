@@ -72,11 +72,9 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
-    // - Reminder notifications are derived rather than recorded as they
-    //   fire, so this catches up the ones that came round while the app
-    //   was closed (hard rule 16).
-    // - Needs no account: reminders are on-device, so the list works
-    //   signed out too.
+    // - Reminder notifications are derived, not recorded as they fire, so
+    //   this catches up the ones that came round while the app was closed.
+    // - Needs no account: reminders are on-device, so it works signed out.
     useEffect(() {
       unawaited(ref.read(notificationsControllerProvider).materialise());
       return null;
@@ -90,10 +88,9 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
-    // A pressure alert arriving while the app is open: record it now, so
-    // the list has it before the user goes looking. One arriving while the
-    // app is shut is picked up by the sync from whichever device did see
-    // it (hard rule 16).
+    // A pressure alert arriving while the app is open: record it now, so the
+    // list has it before the user looks. One arriving while the app is shut
+    // comes from whichever device did see it (hard rule 16).
     useEffect(() {
       final StreamSubscription<RemoteMessage> messages = FirebaseMessaging
           .onMessage
@@ -128,10 +125,9 @@ class BaroEaseApp extends HookConsumerWidget {
       return listener.dispose;
     }, const []);
 
-    // - The widget's week count comes from the attack list, so it is redrawn
+    // - The widget's week count comes from the attack list, so it redraws
     //   whenever that list moves — a fresh log, an edit, a sync pull.
-    // - The language too: the widget is native and cannot reach the ARB
-    //   files, so its strings are only ever as current as the last publish.
+    // - The language too: it is native and cannot reach the ARB files.
     ref.listen<AsyncValue<List<Attack>>>(
       attacksStreamProvider,
       (previous, next) => unawaited(_redrawHomeWidget(ref)),
@@ -188,10 +184,9 @@ class BaroEaseApp extends HookConsumerWidget {
         themeMode: ThemeMode.dark,
         locale: locale,
         routerConfig: router,
-        // - Outermost so it covers routes, dialogs and sheets alike: a tap on
-        //   nothing puts the keyboard away (see DismissKeyboardOnTap).
-        // - Wraps every route: checks on each entry whether this build is still allowed to run (see ForceUpdateWrapper).
-        // - And catches notification taps wherever the user is, including nowhere yet (see NotificationTapListener).
+        // - Outermost, so a tap on nothing puts the keyboard away everywhere.
+        // - Then: is this build still allowed to run (ForceUpdateWrapper), and
+        //   a notification tap wherever the user is (NotificationTapListener).
         builder: (context, child) => DismissKeyboardOnTap(
           child: NotificationTapListener(
             child: HomeWidgetTapListener(

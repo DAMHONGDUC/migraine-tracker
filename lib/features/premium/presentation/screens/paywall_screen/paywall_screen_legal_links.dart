@@ -18,9 +18,8 @@ class _LegalLinks extends ConsumerWidget {
     final AppLocalizations l10n = context.l10n;
 
     // Wrap, not Row: side by side these overflowed the sheet by 23px in
-    // English, and Vietnamese ("Điều khoản sử dụng", "Chính sách bảo mật") is
-    // longer again. A link that cannot be read is a link a reviewer cannot
-    // follow, so they stack rather than clip.
+    // English and Vietnamese is longer again. A link a reviewer cannot read is
+    // one they cannot follow, so they stack rather than clip.
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: SdSpacingConstant.w16,

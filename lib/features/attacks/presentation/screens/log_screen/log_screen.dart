@@ -68,11 +68,9 @@ class LogScreen extends ConsumerWidget {
     final isMedication = state.step == LogStep.medication;
 
     return SdScaffoldV2(
-      // The question IS the title. It used to be a headline inside the body
-      // as well as a bar saying "Log", which spent the top of every step
-      // twice: once on a word the user already knew and once on the only
-      // sentence that changes. SdFittedTextV2 shrinks it rather than wrapping,
-      // because the bar has a back button on one side and Next on the other.
+      // The question IS the title: a headline in the body under a bar saying
+      // "Log" spent the top of every step twice. SdFittedTextV2 shrinks rather
+      // than wraps, because the bar has back on one side and Next on the other.
       title: SdFittedTextV2(
         question ?? l10n.logTitle,
         style: AppTextStyle.titleLarge,

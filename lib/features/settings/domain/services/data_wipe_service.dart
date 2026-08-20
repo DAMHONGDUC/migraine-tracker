@@ -70,10 +70,9 @@ class DataWipeService {
     void step() => onProgress?.call(++done, steps);
 
     onProgress?.call(0, steps);
-    // The server copy goes FIRST, and a failure here aborts the whole wipe.
-    // Wiping the device first would leave the cloud history intact with
-    // nothing left to say it should go — and the next sync would pull every
-    // deleted attack straight back down.
+    // The server copy goes FIRST, and a failure here aborts the whole wipe:
+    // wiping the device first leaves the cloud history with nothing left to
+    // say it should go, and the next sync pulls it all back down.
     await _wipeRemote();
     step();
 

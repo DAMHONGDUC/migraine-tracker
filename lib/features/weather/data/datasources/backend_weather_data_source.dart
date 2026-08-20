@@ -77,10 +77,9 @@ class BackendWeatherDataSource {
 
       return data;
     } on FirebaseFunctionsException catch (error, stackTrace) {
-      // Best-effort by rule, silent by accident: every weather failure —
-      // a missing WeatherKit credential, a refused call, being offline —
-      // arrives at the UI as "no weather" and nowhere else. `failed-
-      // precondition` here is the backend saying its credentials are unset.
+      // Best-effort by rule, silent by accident: every weather failure reaches
+      // the UI as "no weather" and nowhere else. `failed-precondition` is the
+      // backend saying its own credentials are unset.
       SdLogger.error(
         LogTagConstant.weather,
         'getWeather failed',

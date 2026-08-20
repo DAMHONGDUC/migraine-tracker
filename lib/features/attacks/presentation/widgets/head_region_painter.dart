@@ -56,9 +56,8 @@ class HeadRegionPainter extends CustomPainter {
     canvas
       ..save()
       // Minus the nose: the centre line and the under-eye cut are drawn
-      // straight through it and this is what erases the stretches that would
-      // otherwise cross a single area. It also keeps the geometry's divider
-      // list free of any special case for the nose.
+      // straight through it, and this erases the stretches that would cross a
+      // single area — keeping the nose out of the geometry's divider list.
       ..clipPath(
         nose == null
             ? outline

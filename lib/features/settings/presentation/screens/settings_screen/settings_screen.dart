@@ -74,28 +74,21 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
-            // Fixture tooling — only where FLAVOR is not prod, and always at
-            // the top of the screen (owner's rule). It is the group a
-            // developer opens Settings for, and it used to sit below every
-            // real section, which meant scrolling past the whole app to reach
-            // the tools that build the state being tested.
+            // Fixture tooling — only off prod, and always at the top of the
+            // screen (owner's rule): it is the group a developer opens
+            // Settings for, and below the real sections it meant scrolling.
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
-              // Both of these need a real account, so neither is shown
-              // without one — each would otherwise fail in a way that reads
-              // as a broken tool rather than a missing precondition.
-              // Premium binds to an account (`PurchaseIdentity`), so forcing
-              // it on an anonymous session simulates a state production
-              // cannot reach; and `sendTestPush` refuses anonymous callers
-              // outright (hard rule 7).
+              // Both need a real account: premium binds to one
+              // (`PurchaseIdentity`), so an anonymous session would simulate a
+              // state production cannot reach, and sendTestPush refuses one.
               if (ref.watch(isSignedInProvider)) ...<Widget>[
                 const _DevPremiumTile(),
                 const _DevPushTile(),
               ],
-              // Beside the push row, and outside the account gate on purpose:
-              // a local notification needs no account, and having the two next
-              // to each other is what says which half of the delivery path
-              // failed when a reminder never arrives.
+              // Beside the push row but outside the account gate: a local
+              // notification needs no account, and the pair is what says which
+              // half of the delivery path failed when a reminder never lands.
               const _DevLocalNotificationTile(),
               // First of the fixtures: it is the one that decides whether the
               // weather card has anything to draw on a Simulator, so it is

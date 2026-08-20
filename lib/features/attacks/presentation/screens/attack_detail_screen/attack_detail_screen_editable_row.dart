@@ -43,10 +43,9 @@ class _EditableRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: SdSpacingConstant.w8),
-          // The dot travels WITH the value, inside the same half. Left as a
-          // sibling of the two Expandeds it was pinned to the seam between
-          // them — a green dot marooned mid-row, a whole column away from the
-          // number it belongs to.
+          // The dot travels WITH the value, inside the same half. As a sibling
+          // of the two Expandeds it pinned to the seam between them — marooned
+          // mid-row, a column away from the number it belongs to.
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,

@@ -31,13 +31,9 @@ final class AppBootstrap {
     await _initFirebase();
     await _initTimezone();
 
-    // One assert walking every required AppEnv value, replacing the old
-    // per-field asserts — a missing --dart-define-from-file flag reports
-    // every gap at once instead of failing on the first field checked.
-    //
-    // Debug only: Dart strips asserts from release, which is the build where
-    // the flag actually goes missing. `melos run release-ios` is the guard
-    // that matters there.
+    // One assert walking every required AppEnv value, so a missing
+    // --dart-define-from-file reports every gap at once. Debug only: Dart
+    // strips asserts from release, the build where the flag goes missing.
     assert(
       AppEnv.missingConfigKeys.isEmpty,
       'Missing required config: ${AppEnv.missingConfigKeys.join(', ')}. '
@@ -53,17 +49,15 @@ final class AppBootstrap {
 
       await CrashReporter.init();
       // After init, so the first report SdLogger forwards has somewhere to go.
-      // Before this line every `SdLogger.error` in the app printed and
-      // reported to the package's no-op; after it, the same calls reach
-      // Crashlytics without any of them naming Crashlytics.
+      // Before this line every `SdLogger.error` reported to the package's
+      // no-op; after it the same calls reach Crashlytics, unnamed.
       SdCrashReporter.attach(const FirebaseCrashReporter());
       CrashReporter.setCustomKey('flavor', AppEnv.flavor);
       await AppAnalytics.init();
 
-      // iOS shows nothing at all for a push that lands while the app is
-      // open unless it is told to — no banner and, the part people notice,
-      // no sound. Local reminders ask for the same thing per notification
-      // (`presentSound`); a push has no such field, so it is set once here.
+      // iOS shows nothing for a push landing while the app is open unless it
+      // is told to — no banner, and no sound. Local reminders ask per
+      // notification (`presentSound`); a push cannot, so it is set once here.
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
             alert: true,

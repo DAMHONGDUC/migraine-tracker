@@ -11,13 +11,9 @@ void main() {
 
     // The dashboard's hero log button is front and centre.
     expect(find.text('Log an attack'), findsOneWidget);
-    // Icon-only bottom nav: Home is selected (filled), the rest are outlined.
-    //
-    // `findsWidgets` for the outlined four, not `findsOneWidget`: the
-    // dashboard's quick-access tiles draw some of the same glyphs, so an
-    // exact count here fails on a screen that is perfectly correct. The
-    // filled home icon is the bar's alone, and the tab-switch test below is
-    // what proves the bar is wired rather than merely drawn.
+    // Icon-only bottom nav: Home is selected (filled), the rest outlined.
+    // `findsWidgets` for the four, not `findsOneWidget` — the quick-access
+    // tiles draw some of the same glyphs, so an exact count fails on a good one.
     expect(find.byIcon(Icons.home), findsOneWidget);
     expect(find.byIcon(Icons.calendar_month_outlined), findsWidgets);
     expect(find.byIcon(Icons.medication_outlined), findsWidgets);

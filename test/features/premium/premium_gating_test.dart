@@ -59,10 +59,9 @@ void main() {
   testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
     tester,
   ) async {
-    // Signed in, because the dev row now sits behind an account: premium
-    // binds to one, so forcing it without one simulates a state production
-    // cannot reach. Signed in and unentitled is still not premium, which is
-    // what the first assertion checks.
+    // Signed in, because the dev row sits behind an account: premium binds to
+    // one, so forcing it without one simulates a state production cannot
+    // reach. Signed in and unentitled is still not premium.
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await seedInsightData(tester, app);
     await openPressureInsight(tester);
@@ -222,10 +221,9 @@ void main() {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
-      // The export row stays on the screen, wearing the badge rather than
-      // vanishing — a row that disappeared would read as a feature the app
-      // lost. Scrolled to first: it sits below the built range now that the
-      // dev group leads the screen.
+      // The export row stays, wearing the badge rather than vanishing — one
+      // that disappeared would read as a feature the app lost. Scrolled to
+      // first: it sits below the built range now the dev group leads.
       await openSettings(tester);
       await scrollIntoView(tester, find.text('Export data'));
       expect(find.text('Export data'), findsOneWidget);

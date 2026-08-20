@@ -25,11 +25,8 @@ class LocationStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Vertical only. The horizontal gutters belong to the pieces inside,
-    // because they do not share one: the tabs and the tiles take the step's
-    // usual 16, the head takes 40 (see HeadRegionPicker). It went through a
-    // spell with no padding at all, when the head was fighting for every
-    // point of height; sizing the head from its width gave that fight up and
-    // the room back.
+    // because they do not share one: the tabs and tiles take the step's usual
+    // 16, the head takes its own (see HeadRegionPicker).
     return Padding(
       padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h12),
       child: HeadRegionPicker(selected: selected, onChanged: onChanged),

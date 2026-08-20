@@ -61,28 +61,19 @@ class HeadDiagram extends StatelessWidget {
                   },
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 260),
-              // SizedBox.expand is load bearing, not tidiness.
-              // AnimatedSwitcher lays its children out in a Stack, which
-              // hands them LOOSE constraints — and under loose constraints a
-              // CustomPaint takes its child's size and an SvgPicture takes
-              // the asset's own 200x248. So the drawing came out at 200x248
-              // no matter how big the box around it was, marooned in the
-              // middle of it, and every attempt to grow the head by giving
-              // it a bigger box changed nothing at all.
+              // SizedBox.expand is load bearing: AnimatedSwitcher stacks its
+              // children under LOOSE constraints, where SvgPicture takes the
+              // asset's own 200x248 and ignores any bigger box.
               child: SizedBox.expand(
                 key: ValueKey<HeadView>(view),
                 child: CustomPaint(
-                  // The key is on the SizedBox above, not here: it is the
-                  // switcher's direct child that has to change identity for
-                  // the cross-fade. Keyed on the view alone — turning the
-                  // head cross-fades, but filling an area must not, since an
-                  // instant fill is the feedback that the tap landed.
+                  // The key is on the SizedBox above: the switcher's direct
+                  // child is what has to change identity to cross-fade. Keyed
+                  // on the view alone, so a fill lands instantly.
                   painter: HeadRegionPainter(view: view, selected: selected),
                   // BoxFit.fill, not contain: the painter stretches the same
-                  // design box to the full widget, so the artwork has to too
-                  // or the fills drift off the silhouette wherever something
-                  // overrides the [AspectRatio] — a tight ListView child
-                  // does.
+                  // design box to the full widget, so the artwork must too or
+                  // the fills drift off wherever [AspectRatio] is overridden.
                   child: SvgPicture.asset(_assets[view]!, fit: BoxFit.fill),
                 ),
               ),
