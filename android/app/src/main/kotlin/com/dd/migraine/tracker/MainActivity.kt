@@ -1,4 +1,4 @@
-package com.flyd.migraine_tracker
+package com.dd.migraine.tracker
 
 import io.flutter.embedding.android.FlutterActivity
 

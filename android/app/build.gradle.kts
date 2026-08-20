@@ -8,7 +8,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val appId = "com.flyd.migraine_tracker"
+val appId = "com.dd.migraine.tracker"
 
 android {
     namespace = appId
