@@ -79,14 +79,14 @@ void main() {
   ) async {
     final app = await pumpApp(tester, premium: true);
 
-    await logAttack(tester, intensity: '8', location: 'Left side');
+    await logAttack(tester, intensity: '8', location: 'Left temple');
     await openExportScreen(tester);
     await tapVisible(tester, find.text('Export'));
     await tester.tap(find.text('JSON'));
     await settleExport(tester);
 
     expect(app.exportFiles.singleContent, contains('"intensity": 8'));
-    expect(app.exportFiles.singleContent, contains('"location": "left"'));
+    expect(app.exportFiles.singleContent, contains('"templeL"'));
     expect(app.exportFiles.files.keys.single, contains('baroease_export_'));
 
     // The history row replaced the empty state.

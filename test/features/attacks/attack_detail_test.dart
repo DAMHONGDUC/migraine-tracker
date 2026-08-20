@@ -124,10 +124,11 @@ void main() {
 
     await openDetail(tester);
 
-    // A ListView hands children a TIGHT width, overriding HeadDiagram's AspectRatio
-    // unless something loosens it — the head used to come out stretched across the row.
+    // A ListView hands children a TIGHT width, overriding HeadDiagram's
+    // AspectRatio unless something loosens it — the head used to come out
+    // stretched across the row. The ratio is the design box's own, 200x248.
     final Size size = tester.getSize(find.byType(HeadDiagram));
-    expect(size.width / size.height, closeTo(0.82, 0.01));
+    expect(size.width / size.height, closeTo(200 / 248, 0.01));
 
     await finishTest(tester);
   });
@@ -168,13 +169,15 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await confirmSheet(tester);
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      const <HeadRegion>[HeadRegion.crown],
+      // Added to what the attack already had — the tiles toggle, they do not
+      // replace.
+      const <HeadRegion>[HeadRegion.crown, HeadRegion.templeR],
     );
 
     await finishTest(tester);
@@ -188,13 +191,16 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await confirmSheet(tester);
 
     final rows = await app.db.select(app.db.attacks).get();
-    expect(rows.single.regions, const <HeadRegion>[HeadRegion.crown]);
-    expect(find.text('Whole head'), findsOneWidget);
+    expect(rows.single.regions, const <HeadRegion>[
+      HeadRegion.crown,
+      HeadRegion.templeR,
+    ]);
+    expect(find.text('Crown, Right temple'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -207,7 +213,7 @@ void main() {
 
     await openDetail(tester);
     await openEditSheet(tester, 'Location');
-    await tester.tap(find.text('Whole head').last);
+    await tester.tap(find.text('Crown').last);
     await tester.pump();
     await closeSheet(tester);
 

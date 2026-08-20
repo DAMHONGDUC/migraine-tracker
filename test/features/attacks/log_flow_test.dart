@@ -159,13 +159,13 @@ void main() {
   testWidgets('logged attack appears in history', (tester) async {
     await pumpApp(tester);
 
-    await logAttack(tester, intensity: '4', location: 'Whole head');
+    await logAttack(tester, intensity: '4', location: 'Crown');
 
     await tester.tap(find.byIcon(Icons.calendar_month_outlined));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Whole head'), findsOneWidget);
+    expect(find.text('Crown'), findsOneWidget);
     expect(find.text('4'), findsWidgets);
 
     await finishTest(tester);
@@ -200,7 +200,7 @@ void main() {
     final app = await pumpApp(tester);
 
     // Stay on the saved step so "Add details" is reachable.
-    await logAttack(tester, intensity: '6', location: 'Front', finish: false);
+    await logAttack(tester, intensity: '6', location: 'Left forehead', finish: false);
 
     await tester.tap(find.text('Add details'));
     await tester.pump();
