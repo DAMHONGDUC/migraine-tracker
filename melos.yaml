@@ -43,6 +43,18 @@ scripts:
       explain. Costs a full cold build afterwards.
     run: sh tool/deep-set-up.sh
 
+  prepare-env-dev:
+    description: >
+      Copy env_assets/ into place for dev: both env/*.json, plus dev's
+      google-services.json and GoogleService-Info.plist. Overwrites.
+    run: sh tool/prepare-env.sh dev
+
+  prepare-env-prod:
+    description: >
+      Same, with prod's native Firebase files instead. Both env/*.json are
+      written either way — only the native pair differs.
+    run: sh tool/prepare-env.sh prod
+
   gen:
     description: Regenerate localizations and build_runner output.
     run: sh tool/gen.sh
