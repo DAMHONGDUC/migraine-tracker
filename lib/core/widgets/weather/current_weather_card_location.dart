@@ -8,11 +8,15 @@ part of 'current_weather_card.dart';
 /// only what fills it does.
 ///
 /// **This is the second place the app asks for location, and the first
-/// outside onboarding** (owner's call). The onboarding step is still where
-/// the ask is explained, but a "Not now" there used to be final: nothing in
-/// the app asked again, and the card the permission feeds said only that the
-/// weather was unavailable. Asking here is asking on the surface the answer
-/// changes.
+/// outside onboarding** (owner's call). The onboarding step is where the ask
+/// is explained; a denial in the OS dialog there used to be final, because
+/// nothing in the app asked again and the card the permission feeds said only
+/// that the weather was unavailable. Asking here is asking on the surface the
+/// answer changes.
+///
+/// **The button is worded neutrally, never "Enable location"** — App Store
+/// 5.1.1(iv) reads a custom message whose button names the grant as steering
+/// the answer, and submission 1.0(20) was rejected for exactly that.
 ///
 /// **The prompt is [AppPermission.ensure], not the geolocator's own
 /// request.** Once iOS has been told no it will not show its dialog again, so

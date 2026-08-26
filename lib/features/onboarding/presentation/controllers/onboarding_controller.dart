@@ -20,10 +20,13 @@ class OnboardingController {
   /// **This is where the ask is EXPLAINED, and it is one of two places that
   /// raise it.** It used to ask by requesting a position, which meant every
   /// weather read could prompt — launch, resume, logging an attack. Here the
-  /// ask sits next to the screen saying why it is wanted. Best-effort: denial
-  /// is fine, weather is simply skipped, and the dashboard's weather card
-  /// offers the ask again on the surface it feeds (`_LocationPrompt`) — a
-  /// "Not now" here used to be final.
+  /// ask sits next to the screen saying why it is wanted.
+  ///
+  /// **The page's only button calls this, so the OS dialog always follows the
+  /// explainer** (App Store 5.1.1(iv) — see `OnboardingScreen`). Best-effort:
+  /// a denial in that dialog is fine, weather is simply skipped, and the
+  /// dashboard's weather card offers the ask again on the surface it feeds
+  /// (`_LocationPrompt`).
   Future<void> requestLocation() async {
     try {
       await _ref.read(locationSourceProvider).requestPermission();

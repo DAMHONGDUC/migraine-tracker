@@ -40,7 +40,7 @@ void main() {
         initialPrefs: <String, Object>{'onboarding_completed': false},
       );
       await nextPage(tester);
-      await tapButton(tester, 'Not now');
+      await nextPage(tester);
 
       // The list is behind a button on the last step, not a page of its own.
       expect(find.text('Three-tap attack log'), findsNothing);
@@ -57,7 +57,7 @@ void main() {
       // Export moved over here whole: the file is premium, the wipe is not.
       expect(find.text('Export your data'), findsOneWidget);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
-      expect(find.text('48-hour pressure forecast'), findsOneWidget);
+      expect(find.text('7-day pressure forecast'), findsOneWidget);
       expect(find.text('Weather correlation'), findsOneWidget);
       expect(find.text('Exertion and steps'), findsOneWidget);
       expect(find.text('Sleep correlation'), findsOneWidget);
@@ -71,7 +71,7 @@ void main() {
   testWidgets('every page is reachable in order, ending on the threshold', (
     tester,
   ) async {
-    await pumpApp(
+    final PumpedApp app = await pumpApp(
       tester,
       initialPrefs: <String, Object>{'onboarding_completed': false},
     );
@@ -79,8 +79,16 @@ void main() {
     await nextPage(tester);
     expect(find.text('Why location?'), findsOneWidget);
 
-    // Declining the permission still moves on — the app works without it.
-    await tapButton(tester, 'Not now');
+    // One button, reading "Continue", and it always raises the OS prompt.
+    // App Store 5.1.1(iv) forbids both halves of what used to be here: an
+    // explainer whose button names the grant ("Enable location"), and a
+    // second button that moves on without asking ("Not now").
+    expect(find.text('Not now'), findsNothing);
+    expect(find.text('Enable location'), findsNothing);
+    expect(app.location.requestCalls, 0);
+
+    await nextPage(tester);
+    expect(app.location.requestCalls, 1);
     expect(find.text('When should we warn you?'), findsOneWidget);
     expect(find.text('Start tracking'), findsOneWidget);
 

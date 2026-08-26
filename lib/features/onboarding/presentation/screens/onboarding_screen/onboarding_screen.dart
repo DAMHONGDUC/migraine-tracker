@@ -87,20 +87,27 @@ class OnboardingScreen extends HookConsumerWidget {
                       label: l10n.onboardingContinue,
                     ),
                   ],
+                  // One button, reading "Continue", and the OS prompt always
+                  // follows it. App Store 5.1.1(iv), which submission 1.0(20)
+                  // was rejected under: an explainer in front of a permission
+                  // may not word its button as the grant itself ("Enable
+                  // location"), and may not offer a second button that skips
+                  // the prompt — the "Not now" that used to sit here. Saying
+                  // no stays the user's choice, made in iOS's own dialog.
                   1 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: () async {
-                        await controller.requestLocation();
+                        try {
+                          await controller.requestLocation();
+                        } catch (_) {
+                          // Logged by the controller. Swallowed here because
+                          // this is now the page's only button: a throw that
+                          // skipped `next()` would strand the user on it.
+                        }
                         await next();
                       },
-                      label: l10n.onboardingLocationAllow,
-                    ),
-                    SizedBox(height: SdSpacingConstant.h8),
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.outlined,
-                      onPressed: next,
-                      label: l10n.onboardingNotNow,
+                      label: l10n.onboardingContinue,
                     ),
                   ],
                   _ => [

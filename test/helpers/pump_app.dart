@@ -43,6 +43,8 @@ import 'package:migraine_tracker/features/review/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
+import 'package:migraine_tracker/features/weather/data/datasources/location_source.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/geo_point.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -56,6 +58,34 @@ import 'export_fakes.dart';
 import 'notification_fakes.dart';
 import 'review_fakes.dart';
 import 'sync_fakes.dart';
+
+/// Stands in for geolocator, which a widget test has no platform channel
+/// for — the real source's `requestPermission` never completes there, so a
+/// screen awaiting it would hang forever.
+///
+/// It records the ask, which is what onboarding asserts on: App Store
+/// 5.1.1(iv) makes "the explainer is always followed by the OS prompt" a
+/// rule, and only a recorded call proves it.
+class RecordingLocationSource implements LocationSource {
+  RecordingLocationSource({this.granted = true});
+
+  /// What the OS answers. False covers a denial, which changes nothing about
+  /// onboarding moving on.
+  final bool granted;
+
+  int requestCalls = 0;
+
+  @override
+  Future<GeoPoint?> currentPosition() async =>
+      granted ? const GeoPoint(latitude: 48.85, longitude: 2.35) : null;
+
+  @override
+  Future<bool> requestPermission() async {
+    requestCalls++;
+
+    return granted;
+  }
+}
 
 /// Offline-behaving weather stub: widget tests never touch geolocator or
 /// the network.
@@ -557,6 +587,7 @@ class PumpedApp {
     required this.weather,
     required this.scheduler,
     required this.permissions,
+    required this.location,
     required this.auth,
     required this.appUpdate,
     required this.storeLauncher,
@@ -573,6 +604,10 @@ class PumpedApp {
   final FakeWeatherRepository weather;
   final FakeNotificationScheduler scheduler;
   final FakeAppPermissionGateway permissions;
+
+  /// The location plugin's stand-in. `requestCalls` is how a test proves
+  /// the OS prompt was actually raised.
+  final RecordingLocationSource location;
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
@@ -673,6 +708,7 @@ Future<PumpedApp> pumpApp(
   final scheduler = FakeNotificationScheduler();
   addTearDown(scheduler.dispose);
   final permissions = FakeAppPermissionGateway()..statusFor = permissionStatus;
+  final RecordingLocationSource location = RecordingLocationSource();
   final exportFiles = FakeExportFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
   addTearDown(auth.dispose);
@@ -705,6 +741,7 @@ Future<PumpedApp> pumpApp(
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
+        locationSourceProvider.overrideWithValue(location),
         authRepositoryProvider.overrideWithValue(auth),
         healthRepositoryProvider.overrideWithValue(health),
         premiumRepositoryProvider.overrideWithValue(premiumRepository),
@@ -758,6 +795,7 @@ Future<PumpedApp> pumpApp(
     weather: weather,
     scheduler: scheduler,
     permissions: permissions,
+    location: location,
     auth: auth,
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
