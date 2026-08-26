@@ -38,6 +38,39 @@ class _LegalLinks extends ConsumerWidget {
   }
 }
 
+/// Restore, and the optional sign-in — tappable text under the CTA rather
+/// than buttons (owner's call).
+///
+/// **Same reasoning as [_LegalLink] below, one step up in emphasis.** Three
+/// stacked buttons made the sheet read as three offers of equal weight, when
+/// only one of them is the purchase. These carry the body colour rather than
+/// the footnote's grey, and keep a full-width `h12` inset so the tap target
+/// stays finger-sized once the button's own padding is gone — a restore path
+/// a reviewer cannot hit is App Store 3.1.1 unmet.
+class _TextAction extends StatelessWidget {
+  const _TextAction({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SdPressableScaleV2(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h12),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: AppTextStyle.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// One link. Deliberately not an [SdButtonV2]: a pair of filled or outlined
 /// buttons under the CTA would compete with it, and these are a footnote the
 /// reviewer must be able to tap, not a second call to action.
