@@ -13,6 +13,7 @@ import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/medication_effectiveness_result.dart';
 import 'domain/entities/medication_overuse_result.dart';
 import 'domain/entities/migraine_days_summary.dart';
+import 'domain/entities/pressure_timeline.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
 import 'domain/entities/trigger_verdict.dart';
@@ -23,6 +24,7 @@ import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/medication_effectiveness_engine.dart';
 import 'domain/services/medication_overuse_engine.dart';
 import 'domain/services/migraine_days_engine.dart';
+import 'domain/services/pressure_timeline_builder.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
 import 'domain/services/trigger_verdict_engine.dart';
@@ -121,6 +123,29 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
       .stepDays(from: from, to: now);
 
   return engine.analyze(attacks: attacks, days: days);
+});
+
+final pressureTimelineBuilderProvider = Provider<PressureTimelineBuilder>(
+  (ref) => const PressureTimelineBuilder(),
+);
+
+/// The month's pressure line with this user's attacks marked on it.
+///
+/// Readings are best-effort like everywhere else they are used: while they
+/// are loading, or if the read failed, the chart shows its empty line rather
+/// than blocking the card behind it.
+final pressureTimelineProvider = Provider<PressureTimeline>((ref) {
+  final PressureTimelineBuilder builder = ref.watch(
+    pressureTimelineBuilderProvider,
+  );
+
+  return builder.build(
+    attacks: ref.watch(attacksStreamProvider).value ?? const <Attack>[],
+    readings:
+        ref.watch(dailyPressureHistoryProvider).value ??
+        const <DailyPressure>[],
+    now: DateTime.now(),
+  );
 });
 
 final triggerVerdictEngineProvider = Provider<TriggerVerdictEngine>(

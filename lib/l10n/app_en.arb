@@ -789,6 +789,35 @@
   "@insightsPressureTitle": {
     "description": "Title of the combined pressure card on Insights, which opens the pressure detail screen"
   },
+  "insightsPressureHistoryTitle": "Your attacks on the pressure line",
+  "@insightsPressureHistoryTitle": {
+    "description": "Heading of the chart that draws the last 30 days of pressure with the user’s attacks marked on it"
+  },
+  "insightsPressureHistoryEmpty": "No pressure readings yet. Open the app on a few more days and the line fills in.",
+  "@insightsPressureHistoryEmpty": {
+    "description": "Shown when no daily pressure readings have been recorded yet"
+  },
+  "insightsPressureHistoryStranded": "{count, plural, =1{1 attack is not marked — no pressure reading that day} other{{count} attacks are not marked — no pressure reading on those days}}",
+  "@insightsPressureHistoryStranded": {
+    "description": "Footnote: attacks inside the window that fall on days with no pressure reading, so they could not be plotted",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "a11yPressureHistoryChart": "Pressure over the last {days} days, with {attacks} attacks marked on it.",
+  "@a11yPressureHistoryChart": {
+    "description": "VoiceOver description of the pressure history chart — chart pixels mean nothing to a screen reader",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "attacks": {
+        "type": "int"
+      }
+    }
+  },
   "insightsVerdictPending": "Not enough logged yet to say whether weather is your trigger — {analyzed} of {required} attacks.",
   "@insightsVerdictPending": {
     "description": "The trigger verdict while no factor has settled. Deliberately not a verdict of \"no\"",

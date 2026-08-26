@@ -18,6 +18,7 @@ import '../../providers.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 import 'pressure_forecast_body.dart';
+import 'pressure_history_body.dart';
 import 'trigger_verdict_body.dart';
 
 part 'pressure_card_alert.dart';
@@ -58,6 +59,10 @@ class PressureCard extends ConsumerWidget {
                 const PressureForecastBody(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 CorrelationBody(result: result),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                // Directly under the sentence it draws: the share and the
+                // picture of the same month belong to one another.
+                const PressureHistoryBody(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 const SdDividerV2(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
