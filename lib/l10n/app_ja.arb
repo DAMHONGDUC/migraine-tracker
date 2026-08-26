@@ -186,6 +186,7 @@
   "insightsPressureHistoryTitle": "気圧の推移と発作",
   "insightsPressureHistoryEmpty": "まだ気圧の記録がありません。数日アプリを開くと線が描かれます。",
   "insightsPressureHistoryStranded": "{count, plural, other{{count} 件の発作は表示されていません（その日の気圧記録がありません）}}",
+  "insightsPressureHistoryYoung": "毎日の気圧記録は最近始まったばかりなので、それ以前の発作はまだ表示されません。",
   "a11yPressureHistoryChart": "過去 {days} 日間の気圧と、記録された {attacks} 件の発作。",
   "insightsVerdictPending": "天気があなたの誘因かどうかを判断するにはまだ記録が足りません（{analyzed}/{required} 件）。",
   "insightsVerdictWeatherYes": "天気はあなたの誘因のようです。",

@@ -186,6 +186,7 @@
   "insightsPressureHistoryTitle": "你的发作与气压曲线",
   "insightsPressureHistoryEmpty": "还没有气压记录。再打开几天应用，曲线就会出现。",
   "insightsPressureHistoryStranded": "{count, plural, other{有 {count} 次发作未标出——那些天没有气压记录}}",
+  "insightsPressureHistoryYoung": "每日气压记录才刚开始，所以更早的发作还没有标出。",
   "a11yPressureHistoryChart": "过去 {days} 天的气压，其中标出了 {attacks} 次发作。",
   "insightsVerdictPending": "记录还不够，无法判断天气是不是你的诱因——{analyzed}/{required} 次发作。",
   "insightsVerdictWeatherYes": "天气确实像是你的一个诱因。",

@@ -854,6 +854,10 @@
       }
     }
   },
+  "insightsPressureHistoryYoung": "Daily pressure readings started recently, so earlier attacks are not marked yet.",
+  "@insightsPressureHistoryYoung": {
+    "description": "Replaces the stranded-attack count when more attacks are missing from the chart than are on it — the normal state for a user whose history predates the daily pressure readings"
+  },
   "a11yPressureHistoryChart": "Pressure over the last {days} days, with {attacks} attacks marked on it.",
   "@a11yPressureHistoryChart": {
     "description": "VoiceOver description of the pressure history chart — chart pixels mean nothing to a screen reader",

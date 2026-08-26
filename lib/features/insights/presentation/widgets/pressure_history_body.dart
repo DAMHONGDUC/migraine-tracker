@@ -49,9 +49,14 @@ class PressureHistoryBody extends ConsumerWidget {
           if (timeline.attacksWithoutReading > 0) ...<Widget>[
             SizedBox(height: SdSpacingConstant.h8),
             Text(
-              l10n.insightsPressureHistoryStranded(
-                timeline.attacksWithoutReading,
-              ),
+              // Once more attacks are missing than are shown, the count
+              // stops informing and starts looking like a fault. Say why
+              // instead: the readings are young, the chart is not broken.
+              timeline.strandedOutweighsPlotted
+                  ? l10n.insightsPressureHistoryYoung
+                  : l10n.insightsPressureHistoryStranded(
+                      timeline.attacksWithoutReading,
+                    ),
               style: AppTextStyle.labelSmall.secondary,
             ),
           ],

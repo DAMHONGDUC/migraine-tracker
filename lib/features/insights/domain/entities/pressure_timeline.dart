@@ -65,6 +65,14 @@ class PressureTimeline {
   int get attacksPlotted =>
       days.fold(0, (sum, PressureTimelineDay day) => sum + day.attacks);
 
+  /// More attacks are missing from the line than are on it.
+  ///
+  /// The normal state for anyone whose history predates the daily readings.
+  /// The plain count then reads "23 attacks are not marked" under a chart
+  /// with four dots, which looks like a broken chart rather than a young one,
+  /// so the surface swaps the sentence for the reason at that point.
+  bool get strandedOutweighsPlotted => attacksWithoutReading > attacksPlotted;
+
   /// Lowest reading in the window, or null when there are none.
   double? get minPressureHpa => days.isEmpty
       ? null

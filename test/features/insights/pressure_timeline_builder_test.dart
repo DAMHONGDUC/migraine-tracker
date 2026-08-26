@@ -180,4 +180,56 @@ void main() {
     expect(timeline.days.first.attacks, 1);
     expect(timeline.days.last.attacks, 0);
   });
+
+  group('the stranded count', () {
+    // The normal state for a user whose history predates the daily readings:
+    // the chart is young, not broken, and the surface says so instead of
+    // printing a number that looks like a fault.
+    test('outweighs the plotted attacks when the readings are young', () {
+      final PressureTimeline timeline = builder.build(
+        attacks: <Attack>[
+          attackAt(DateTime(2026, 8, 12, 9)),
+          attackAt(DateTime(2026, 8, 13, 9)),
+          attackAt(DateTime(2026, 8, 14, 9)),
+          attackAt(DateTime(2026, 8, 25, 9)),
+        ],
+        readings: <DailyPressure>[reading(DateTime(2026, 8, 25))],
+        now: now,
+      );
+
+      expect(timeline.attacksPlotted, 1);
+      expect(timeline.attacksWithoutReading, 3);
+      expect(timeline.strandedOutweighsPlotted, isTrue);
+    });
+
+    test('does not outweigh them once the readings have caught up', () {
+      final PressureTimeline timeline = builder.build(
+        attacks: <Attack>[
+          attackAt(DateTime(2026, 8, 20, 9)),
+          attackAt(DateTime(2026, 8, 21, 9)),
+          attackAt(DateTime(2026, 8, 25, 9)),
+        ],
+        readings: <DailyPressure>[
+          reading(DateTime(2026, 8, 20)),
+          reading(DateTime(2026, 8, 21)),
+        ],
+        now: now,
+      );
+
+      expect(timeline.attacksPlotted, 2);
+      expect(timeline.attacksWithoutReading, 1);
+      expect(timeline.strandedOutweighsPlotted, isFalse);
+    });
+
+    test('nothing stranded is never an outweighing', () {
+      final PressureTimeline timeline = builder.build(
+        attacks: <Attack>[attackAt(DateTime(2026, 8, 20, 9))],
+        readings: <DailyPressure>[reading(DateTime(2026, 8, 20))],
+        now: now,
+      );
+
+      expect(timeline.strandedOutweighsPlotted, isFalse);
+    });
+  });
 }
+
