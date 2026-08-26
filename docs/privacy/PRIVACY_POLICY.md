@@ -218,9 +218,10 @@ partner, a family member, or anyone else you choose.
   share sheet and goes to the app you pick. It is never uploaded to us, we
   never see it, and it never reaches our backend.
 - **The file:** written to the app's temporary storage so the share sheet can
-  read it, and left for iOS to reclaim. It is not part of the "Delete all
-  data" wipe below, which clears the database, past exports and the widget's
-  container.
+  read it. **"Delete all data" clears it** along with the database, your past
+  exports, the daily pressure readings and the widget's container — iOS would
+  reclaim that storage eventually, but "eventually" is not a deletion you
+  asked for.
 
 ## 8. Your rights and controls (GDPR)
 
@@ -231,7 +232,8 @@ partner, a family member, or anyone else you choose.
   them; they are full copies of your data and are deleted along with
   everything else below.
 - **Delete all data:** Settings → Delete all data. Wipes the local database,
-  past export files and the home screen widget's shared container, deletes
+  past export files, any shared attack image and the home screen widget's
+  shared container, deletes
   your synced records and your backend alert record, and gives up your push
   token, geohash and threshold. **Your account stays**, so your subscription
   binding survives.
