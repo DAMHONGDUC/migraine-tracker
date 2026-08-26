@@ -16,6 +16,7 @@ DoctorReportStrings strings() => DoctorReportStrings(
   avgIntensity: 'Average intensity',
   commonLocation: 'Most frequent location',
   typicalDuration: 'Typical duration',
+  monthlyDays: 'Migraine days per month',
   attacksDuringDrops: 'During rapid pressure drops',
   baseline: 'Attack rate, drop days vs other days',
   tableTitle: 'Attack log',

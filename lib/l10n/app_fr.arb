@@ -134,6 +134,7 @@
   "attackDurationM": "{minutes} min",
   "reportColDuration": "Durée",
   "reportTypicalDuration": "Durée typique",
+  "reportMonthlyDays": "Jours de migraine par mois",
   "attackDetailMedicationEffect": "Est-ce que ça a aidé ?",
   "medicationEffectHelped": "Ça a aidé",
   "medicationEffectPartly": "Ça a un peu aidé",

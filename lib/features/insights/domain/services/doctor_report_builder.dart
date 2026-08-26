@@ -10,7 +10,9 @@ import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
 import '../entities/correlation_result.dart';
 import '../entities/medication_effectiveness_result.dart';
+import '../entities/migraine_days_summary.dart';
 import 'medication_effectiveness_engine.dart';
+import 'migraine_days_engine.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
 /// Flutter/l10n imports. The PDF renders with the bundled Noto Sans faces
@@ -26,6 +28,7 @@ class DoctorReportStrings {
     required this.avgIntensity,
     required this.commonLocation,
     required this.typicalDuration,
+    required this.monthlyDays,
     required this.attacksDuringDrops,
     required this.baseline,
     required this.tableTitle,
@@ -49,6 +52,10 @@ class DoctorReportStrings {
   final String avgIntensity;
   final String commonLocation;
   final String typicalDuration;
+
+  /// Label for the migraine-days-per-month row — the figure a headache
+  /// clinic opens with and every preventive is judged on.
+  final String monthlyDays;
   final String attacksDuringDrops;
   final String baseline;
   final String tableTitle;
@@ -70,6 +77,9 @@ class DoctorReportBuilder {
   const DoctorReportBuilder();
 
   static const _periodDays = 90;
+
+  /// The same window stated in months, for the per-month row.
+  static const _periodMonths = 3;
 
   /// [regularFont] and [boldFont] are the bundled Noto Sans faces, passed in
   /// by the caller (the loader lives in the presentation layer so this stays
@@ -115,7 +125,7 @@ class DoctorReportBuilder {
             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 8),
-          _summaryTable(recent, correlation, strings),
+          _summaryTable(recent, correlation, strings, now),
           pw.SizedBox(height: 16),
           pw.Text(
             strings.tableTitle,
@@ -133,6 +143,7 @@ class DoctorReportBuilder {
     List<Attack> attacks,
     CorrelationResult correlation,
     DoctorReportStrings strings,
+    DateTime now,
   ) {
     final rows = <List<String>>[
       [strings.totalAttacks, '${attacks.length}'],
@@ -153,6 +164,18 @@ class DoctorReportBuilder {
           ])
           case final Duration typical)
         [strings.typicalDuration, _durationLabel(typical)],
+      // Days, not attacks: three attacks in one day is one day lost, and a
+      // drug that halves the attacks without touching the days has not
+      // worked. This is the row a preventive is judged on.
+      if (attacks.isNotEmpty)
+        [
+          strings.monthlyDays,
+          _monthlyDaysLabel(
+            const MigraineDaysEngine(
+              months: _periodMonths,
+            ).analyze(attacks, now: now),
+          ),
+        ],
       // One row per medication that has outcomes. This is the part a doctor
       // acts on: a drug that only ever partly works is a drug being changed.
       // Rows with nothing answered are dropped — "0/0" is the prompt to start
@@ -215,6 +238,17 @@ class DoctorReportBuilder {
 
   /// Locale-free on purpose: `DoctorReportStrings` carries no plural forms,
   /// and "6h 30m" reads the same in both locales the app ships.
+  /// "2026-06: 5 · 2026-07: 8 · 2026-08: 3". Numeric months, not names:
+  /// this builder takes its copy as data and has no locale of its own, and
+  /// the attack table already dates rows the same way.
+  String _monthlyDaysLabel(MigraineDaysSummary summary) => summary.months
+      .map(
+        (MonthlyMigraineDays m) =>
+            '${m.month.year}-${m.month.month.toString().padLeft(2, '0')}: '
+            '${m.days}',
+      )
+      .join(' | ');
+
   String _durationLabel(Duration duration) {
     final (int hours, int minutes) = DateTimeUtils.splitHm(duration);
 

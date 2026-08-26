@@ -134,6 +134,7 @@
   "attackDurationM": "{minutes} phút",
   "reportColDuration": "Thời lượng",
   "reportTypicalDuration": "Thời lượng điển hình",
+  "reportMonthlyDays": "Số ngày migraine mỗi tháng",
   "attackDetailMedicationEffect": "Thuốc có đỡ không?",
   "medicationEffectHelped": "Có đỡ",
   "medicationEffectPartly": "Đỡ một chút",

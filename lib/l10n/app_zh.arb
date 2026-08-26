@@ -134,6 +134,7 @@
   "attackDurationM": "{minutes} 分",
   "reportColDuration": "Duration",
   "reportTypicalDuration": "Typical duration",
+  "reportMonthlyDays": "每月偏头痛天数",
   "attackDetailMedicationEffect": "有用吗？",
   "medicationEffectHelped": "有用",
   "medicationEffectPartly": "有一点用",

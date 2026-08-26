@@ -134,6 +134,7 @@
   "attackDurationM": "{minutes}分",
   "reportColDuration": "Duration",
   "reportTypicalDuration": "Typical duration",
+  "reportMonthlyDays": "月あたりの片頭痛日数",
   "attackDetailMedicationEffect": "効きましたか？",
   "medicationEffectHelped": "効いた",
   "medicationEffectPartly": "少し効いた",

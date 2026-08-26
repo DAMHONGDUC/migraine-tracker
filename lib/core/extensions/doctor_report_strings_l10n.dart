@@ -31,6 +31,7 @@ extension DoctorReportStringsL10n on AppLocalizations {
     avgIntensity: reportAvgIntensity,
     commonLocation: reportCommonLocation,
     typicalDuration: reportTypicalDuration,
+    monthlyDays: reportMonthlyDays,
     attacksDuringDrops: reportAttacksDuringDrops,
     baseline: reportBaseline,
     tableTitle: reportTableTitle,

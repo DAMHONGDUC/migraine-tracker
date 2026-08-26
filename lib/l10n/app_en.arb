@@ -580,6 +580,10 @@
   "@reportTypicalDuration": {
     "description": "Doctor report summary row: the median attack duration"
   },
+  "reportMonthlyDays": "Migraine days per month",
+  "@reportMonthlyDays": {
+    "description": "Doctor report summary row: distinct days with at least one attack, per month"
+  },
   "attackDetailMedicationEffect": "Did it help?",
   "@attackDetailMedicationEffect": {
     "description": "Field label: whether the medication taken helped"
