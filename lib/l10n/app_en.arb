@@ -624,6 +624,35 @@
   "@medicationEffectNoAnswers": {
     "description": "Shown on a medication screen when no attack has an outcome for it"
   },
+  "medicationEffectReliefShare": "Relief {percent}% of the time",
+  "@medicationEffectReliefShare": {
+    "description": "How often a medication gave any relief, full or partial",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationEffectTypicalIntensity": "Usually taken at {intensity}/10",
+  "@medicationEffectTypicalIntensity": {
+    "description": "Median intensity of the attacks a medication was taken for, so two medications are not compared across different severities",
+    "placeholders": {
+      "intensity": {
+        "type": "String",
+        "example": "6"
+      }
+    }
+  },
+  "medicationEffectTypicalDuration": "Those attacks usually lasted {duration}",
+  "@medicationEffectTypicalDuration": {
+    "description": "Median length of the attacks a medication was taken for",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "4h 20m"
+      }
+    }
+  },
   "reportColMedicationEffect": "Helped",
   "@reportColMedicationEffect": {
     "description": "Doctor report table column: whether the medication helped"

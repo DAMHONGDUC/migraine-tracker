@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -13,6 +14,8 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
+import '../../../../insights/providers.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../providers.dart';

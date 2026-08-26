@@ -20,6 +20,12 @@ class _MedicationCard extends ConsumerWidget {
         : l10n.medicationsAddedOn(
             DateFormat.yMMMd(l10n.localeName).format(createdAt.toLocal()),
           );
+    // The one figure that ranks this list against itself. Absent until the
+    // medication has an answer, because "no outcomes yet" belongs on the
+    // screen that can do something about it, not on every row of a list.
+    final MedicationEffectiveness? effectiveness = ref.watch(
+      medicationEffectivenessRowProvider(medication.name),
+    );
 
     return SdCardV2(
       child: ListTile(
@@ -31,9 +37,23 @@ class _MedicationCard extends ConsumerWidget {
         ),
         leading: const SdIconV2(icon: Icons.medication_outlined),
         title: Text(medication.name, style: AppTextStyle.titleMedium),
-        subtitle: Text(
-          '$addedLabel · ${l10n.medicationsReminderCount(reminderCount)}',
-          style: AppTextStyle.bodySmall.secondary,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              '$addedLabel · ${l10n.medicationsReminderCount(reminderCount)}',
+              style: AppTextStyle.bodySmall.secondary,
+            ),
+            if (effectiveness case final MedicationEffectiveness row
+                when row.answeredCount > 0)
+              Text(
+                row.reliefLabel(l10n),
+                style: AppTextStyle.bodySmall.copyWith(
+                  color: context.colorScheme.secondary,
+                ),
+              ),
+          ],
         ),
         trailing: SdIconV2(
           icon: Icons.chevron_right,

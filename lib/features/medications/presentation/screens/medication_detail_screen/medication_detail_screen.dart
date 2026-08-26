@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/permissions/app_permission.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_text_style.dart';

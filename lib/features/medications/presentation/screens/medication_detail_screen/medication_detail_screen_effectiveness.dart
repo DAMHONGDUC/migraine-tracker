@@ -39,10 +39,7 @@ class _Effectiveness extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                l10n.medicationEffectTally(row.helpedCount, row.answeredCount),
-                style: AppTextStyle.titleMedium,
-              ),
+              Text(row.reliefLabel(l10n), style: AppTextStyle.titleMedium),
               SizedBox(height: SdSpacingConstant.h8),
               // The breakdown, because "helped 8 of 10" hides whether the
               // other two did nothing or took the edge off — which is the
@@ -55,6 +52,13 @@ class _Effectiveness extends ConsumerWidget {
                 ].join(' · '),
                 style: AppTextStyle.bodyMedium.secondary,
               ),
+              // What the attacks it was taken for actually looked like. Two
+              // drugs cannot be read against each other without it: the one
+              // kept for the worst attacks would otherwise just look weaker.
+              if (row.typicalLabel(l10n) case final String typical) ...<Widget>[
+                SizedBox(height: SdSpacingConstant.h8),
+                Text(typical, style: AppTextStyle.bodySmall.secondary),
+              ],
             ],
           ),
         ),
