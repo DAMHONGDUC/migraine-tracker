@@ -11,6 +11,7 @@ import '../weather/providers.dart';
 import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/medication_effectiveness_result.dart';
+import 'domain/entities/medication_overuse_result.dart';
 import 'domain/entities/migraine_days_summary.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
@@ -19,6 +20,7 @@ import 'domain/enums/insights_tab.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/medication_effectiveness_engine.dart';
+import 'domain/services/medication_overuse_engine.dart';
 import 'domain/services/migraine_days_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
@@ -130,6 +132,22 @@ final migraineDaysEngineProvider = Provider<MigraineDaysEngine>(
 /// a loading state.
 final migraineDaysProvider = Provider<MigraineDaysSummary>((ref) {
   final MigraineDaysEngine engine = ref.watch(migraineDaysEngineProvider);
+  final List<Attack> attacks =
+      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+
+  return engine.analyze(attacks, now: DateTime.now());
+});
+
+final medicationOveruseEngineProvider = Provider<MedicationOveruseEngine>(
+  (ref) => const MedicationOveruseEngine(),
+);
+
+/// Whether acute medication is being taken often enough to start causing
+/// attacks. Free, and never gated: a safety count is not a feature to sell.
+final medicationOveruseProvider = Provider<MedicationOveruseResult>((ref) {
+  final MedicationOveruseEngine engine = ref.watch(
+    medicationOveruseEngineProvider,
+  );
   final List<Attack> attacks =
       ref.watch(attacksStreamProvider).value ?? const <Attack>[];
 

@@ -15,11 +15,13 @@ import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
+import '../../../../insights/domain/entities/medication_overuse_result.dart';
 import '../../../../insights/providers.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../providers.dart';
 import '../../controllers/medication_filters_controller.dart';
+import '../../widgets/medication_overuse_banner.dart';
 
 part 'medications_screen_medication_card.dart';
 
@@ -167,7 +169,14 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     // Null while premium. When shown it takes the filter strip's gap, so
     // whatever follows starts flush against it instead of clearing the bar twice.
     final int? used = ref.watch(medicationsUsedProvider);
-    final double contentTop = used == null ? filterBarHeight : 0;
+    // A safety count outranks a plan meter, so it takes the top slot — and
+    // with it the inset under the pinned filter bar, which only whichever
+    // sliver comes first may carry.
+    final bool overusing =
+        ref.watch(medicationOveruseProvider).risk !=
+        MedicationOveruseRisk.none;
+    final double limitTop = overusing ? 0 : filterBarHeight;
+    final double contentTop = overusing || used != null ? 0 : filterBarHeight;
 
     return SdCollapsingFilterScaffoldV2(
       // - While searching: title slot is the search field, close button leads.
@@ -230,13 +239,25 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            if (overusing)
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  SdContentPaddingV2.horizontal,
+                  filterBarHeight,
+                  SdContentPaddingV2.horizontal,
+                  SdContentPaddingV2.listItemGap,
+                ),
+                sliver: const SliverToBoxAdapter(
+                  child: MedicationOveruseBanner(),
+                ),
+              ),
             // Ahead of the first card, and ahead of the empty state too — how
             // many the free plan holds is worth saying before any exist.
             if (used != null)
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
                   SdContentPaddingV2.horizontal,
-                  filterBarHeight,
+                  limitTop,
                   SdContentPaddingV2.horizontal,
                   SdContentPaddingV2.listItemGap,
                 ),

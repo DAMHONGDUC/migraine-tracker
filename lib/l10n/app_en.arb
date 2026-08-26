@@ -628,6 +628,42 @@
   "@medicationEffectNoAnswers": {
     "description": "Shown on a medication screen when no attack has an outcome for it"
   },
+  "medicationOveruseTitle": "{days, plural, =1{1 day with medication this month} other{{days} days with medication this month}}",
+  "@medicationOveruseTitle": {
+    "description": "Headline of the medication-overuse warning: distinct days this month on which any acute medication was recorded",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseApproaching": "At {threshold} days a month, acute medication can start causing the headaches it treats.",
+  "@medicationOveruseApproaching": {
+    "description": "Medication-overuse warning while the month is still steerable, below the ICHD-3 threshold",
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseAtRisk": "That is at or over {threshold} days a month. Taken this often, acute medication can start causing the headaches it treats.",
+  "@medicationOveruseAtRisk": {
+    "description": "Medication-overuse warning at or over the ICHD-3 threshold. Never phrased as a diagnosis",
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseSustained": "{months, plural, other{{months} months running. Worth showing your doctor.}}",
+  "@medicationOveruseSustained": {
+    "description": "Added when the threshold has been passed several months running, which is the pattern ICHD-3 describes",
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
   "medicationEffectReliefShare": "Relief {percent}% of the time",
   "@medicationEffectReliefShare": {
     "description": "How often a medication gave any relief, full or partial",
