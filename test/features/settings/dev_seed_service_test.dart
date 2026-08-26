@@ -21,6 +21,7 @@ import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_
 import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
 
 import '../../helpers/alert_fakes.dart';
+import '../../helpers/attack_fakes.dart';
 import '../../helpers/export_fakes.dart';
 import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
@@ -87,7 +88,8 @@ void main() {
         syncServiceOver(db),
         RecordingAlertRegistration(),
         DriftDailyPressureRepository(db),
-        RecordingHomeWidgetRepository(),
+        RecordingShareFileStore(),
+      RecordingHomeWidgetRepository(),
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),

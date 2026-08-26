@@ -6,8 +6,10 @@ import '../health/providers.dart';
 import '../premium/providers.dart';
 import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
+import 'data/temporary_share_file_store.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
+import 'domain/services/attack_share_file_store.dart';
 import 'domain/services/step_attach_service.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
@@ -26,6 +28,12 @@ final attacksStreamProvider = StreamProvider<List<Attack>>(
 /// show its gone-state instead of stale data.
 final attackByIdProvider = StreamProvider.autoDispose.family<Attack?, String>(
   (ref, id) => ref.watch(attackRepositoryProvider).watchById(id),
+);
+
+/// Where a rendered share card is written before the share sheet reads it.
+/// The GDPR wipe clears the same folder.
+final attackShareFileStoreProvider = Provider<AttackShareFileStore>(
+  (ref) => const TemporaryShareFileStore(),
 );
 
 /// Renders an attack's share card and hands it to the OS share sheet.

@@ -19,6 +19,7 @@ import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
 import '../../helpers/alert_fakes.dart';
+import '../../helpers/attack_fakes.dart';
 import '../../helpers/export_fakes.dart';
 import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
@@ -71,6 +72,7 @@ void main() {
     final exportRecords = DriftExportRecordRepository(db);
     final exportFiles = FakeExportFileStore();
     final homeWidget = RecordingHomeWidgetRepository();
+    final shareFiles = RecordingShareFileStore();
 
     await attacks.insert(
       Attack(
@@ -102,10 +104,14 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      shareFiles,
       homeWidget,
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
+    // A shared attack is a fourth copy of health data on disk, sitting in
+    // temporary storage. "Delete all data" has to reach it too.
+    expect(shareFiles.cleared, isTrue);
     expect(await attacks.getAll(), isEmpty);
     expect(await medications.getAll(), isEmpty);
     // The list is derived from reminders but stored, so a wipe that
@@ -149,6 +155,7 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     ).wipeAll();
 
@@ -172,6 +179,7 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     ).wipeAll(onProgress: (done, steps) {
       expect(steps, DataWipeService.steps);
@@ -207,6 +215,7 @@ void main() {
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     );
 
@@ -265,7 +274,8 @@ void main() {
         syncServiceOver(db),
         alerts,
         DriftDailyPressureRepository(db),
-        RecordingHomeWidgetRepository(),
+        RecordingShareFileStore(),
+      RecordingHomeWidgetRepository(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after

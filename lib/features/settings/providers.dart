@@ -137,6 +137,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
     ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(attackShareFileStoreProvider),
     ref.watch(homeWidgetRepositoryProvider),
   ),
 );

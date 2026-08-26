@@ -1,15 +1,14 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/utils/widget_capture_utils.dart';
 import '../../../settings/providers.dart';
+import '../../providers.dart';
 
 /// Renders the previewed card and hands it to the system share sheet.
 ///
@@ -27,10 +26,9 @@ class AttackShareController {
 
   /// True once the share sheet has been handed the file.
   ///
-  /// The file goes to the **cache** directory, not documents: it is a copy of
-  /// something the app already stores, so it is the OS's to reclaim, and an
-  /// export the user can find later is a different feature with its own
-  /// history screen.
+  /// The file goes to temporary storage, not documents (see
+  /// [AttackShareFileStore]) — and the GDPR wipe clears that folder, because
+  /// the picture is a fourth copy of health data on the device.
   Future<bool> share({
     required GlobalKey boundaryKey,
     required String attackId,
@@ -46,13 +44,13 @@ class AttackShareController {
     if (bytes == null) return false;
 
     try {
-      final Directory directory = await getTemporaryDirectory();
-      final File file = File('${directory.path}/attack-$attackId.png');
+      final String path = await _ref
+          .read(attackShareFileStoreProvider)
+          .write(attackId: attackId, bytes: bytes);
 
-      await file.writeAsBytes(bytes);
       await _ref
           .read(exportSharerProvider)
-          .shareFile(path: file.path, mimeType: _mimeType);
+          .shareFile(path: path, mimeType: _mimeType);
       AppAnalytics.logAttackShared();
       SdLogger.info(LogTagConstant.attackShare, 'Shared attack card', <String,
           Object?>{'attackId': attackId, 'bytes': bytes.length});
