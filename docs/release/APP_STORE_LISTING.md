@@ -75,7 +75,7 @@ cancel your subscription in your Apple Account settings after purchase. Premium
 Lifetime ($44.99) is a one-time purchase and does not renew.
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
-Privacy Policy: https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/
+Privacy Policy: https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/
 
 —
 
@@ -89,12 +89,14 @@ treat, cure, or prevent any condition. Always consult a qualified clinician.
 > widget, and a PDF doctor report. Fully usable offline, dark by default.
 
 ## URLs
-- Support URL: [https://baroease.app/support]  *(still a placeholder — a
-  non-functional Support URL is its own rejection)*
+- Support URL (owner's call, 26 Aug):
+  `https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/#contact`
+  — the policy's contact section, verified live. It carries the address and
+  the response time, which is what the field is for.
 - Marketing URL: [https://baroease.app]  *(optional field; leave blank rather
   than point at nothing)*
 - Privacy Policy URL:
-  `https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/`
+  `https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/`
   — **published and verified live**, effective 7 Aug 2026. This is the same
   link the App Description must carry alongside the EULA for the
   auto-renewable subscriptions (guideline 3.1.2).

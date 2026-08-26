@@ -101,10 +101,10 @@ produces what the next one consumes.
 
 | # | What | Why it matters if skipped |
 |---|---|---|
-| ~~14~~ | ~~Publish the policy~~ | **Done**, verified live 10 Aug at `…/apps_privacy_policy/baro-ease/privacy_policy/`, effective 7 Aug 2026. Note the path — the App Store field wants the app's own page, not the directory index. |
+| ~~14~~ | ~~Publish the policy~~ | **Done**, live at `…/personal_work_space/apps/baro-ease/privacy_policy/`, effective 7 Aug 2026. **The site MOVED**: it was verified on 10 Aug under `…/apps_privacy_policy/…`, which now returns 404, and every copy of the old path in this repo was stale until 26 Aug. A privacy-policy link is in the binary as well as the metadata (`PRIVACY_POLICY_URL` in `env/`), so a move has to be chased in both. Note the path — the App Store field wants the app's own page, not the directory index. |
 | 25 | Add the Terms of Use (EULA) link to the App Description | **This is what the 10 Aug rejection was.** Auto-renewable subscriptions need a functional EULA link in the metadata; BaroEase uses Apple's standard EULA, so the link goes in the description rather than into the custom-licence field. `docs/release/APP_STORE_LISTING.md` carries the wording. |
 | ~~26~~ | ~~Terms and Privacy links on the paywall~~ | **Done.** `paywall_screen_legal_links.dart` draws both from `LegalUrlConstant`, under the actions. Guideline 3.1.2 wants them in the binary as well as in the metadata; do not "add" them again. |
-| 27 | A working Support URL | Still the `baroease.app/support` placeholder, which resolves to nothing. A dead Support URL is its own rejection. Metadata only — nothing in the app links to it. |
+| ~~27~~ | ~~A working Support URL~~ | **Done 26 Aug**, owner's call: `…/personal_work_space/apps/baro-ease/privacy_policy/#contact`, verified live. The policy's contact section carries the address and the response time. Metadata only — nothing in the app links to it. |
 | ~~15~~ | ~~Fill the data controller's address~~ | **Done 20 Aug.** Ho Chi Minh City, Viet Nam, in the markdown header and in `privacy.json`'s overview so it reaches the published page. |
 | 16 | Have a lawyer read the policy | Before submission. |
 | 23 | **(repo)** Decide the export-compliance classification, then set `ITSAppUsesNonExemptEncryption` to match | `ios/Runner/Info.plist` still says `false`, which was accurate only before the encrypted sync shipped — its own comment says to revisit when that happened, and it has. `docs/release/APP_ENCRYPTION.md` has the facts. Answering `true` without the self-classification report in hand can block an upload, so decide and file before flipping it. |
@@ -292,9 +292,9 @@ Checklist items 10, 11, 14, 15 and 16. `docs/privacy/PRIVACY_POLICY.md` and
 (hard rule 17). What is left is all outside the repo:
 
 - **Host it.** A HealthKit app needs a reachable privacy policy URL before
-  submission. `privacy.json` now points at
-  `https://damhongduc.github.io/apps_privacy_policy`, but nothing is
-  published there yet. `storeLinks` is now empty: the placeholder id would
+  submission. `privacy.json` points at
+  `https://damhongduc.github.io/personal_work_space`, and the app's own page
+  is live at `/apps/baro-ease/privacy_policy/` (verified 26 Aug). `storeLinks` is now empty: the placeholder id would
   have published as a dead App Store link, so the real one has to be put back
   once the record exists (item 11).
 - ~~Fill the data controller's address.~~ **Done** — Ho Chi Minh City, Viet

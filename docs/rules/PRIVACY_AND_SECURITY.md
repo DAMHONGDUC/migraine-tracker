@@ -165,7 +165,7 @@ the same change, effective/last-updated dates included.
   `collects`, `notCollected`, `permissions`, `thirdParties`, `sections`.
   `{{app}}`, `{{publisher}}` and `{{email}}` are filled in by the site. **The
   schema has changed four times** — match the sample the owner last sent, not
-  the file. `url` (`https://damhongduc.github.io/apps_privacy_policy`) is the
+  the file. `url` (`https://damhongduc.github.io/personal_work_space`) is the
   owner's instruction and the only field not in the sample; keep it.
 - **The site renders shared `defaults.sections` around this file** —
   who-we-are, how-we-use, retention, security, children, your-rights, changes,

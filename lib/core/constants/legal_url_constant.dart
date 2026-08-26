@@ -23,8 +23,11 @@ final class LegalUrlConstant {
   /// Build-time value, unlike the other two: those are Apple's own pages and
   /// never move, this one is ours and can — a policy re-hosted under a new
   /// domain would otherwise need a code change and a release to follow it.
-  /// `AppEnv` holds the `String.fromEnvironment`; the default there is this
-  /// same URL, so a build with no `PRIVACY_POLICY_URL` set is unchanged.
+  /// `AppEnv` holds the `String.fromEnvironment`, and its default is the
+  /// EMPTY STRING — a build with no `PRIVACY_POLICY_URL` set ships no policy
+  /// link at all, which App Review treats as a missing one. The value lives
+  /// in `env/`, so a move of the site has to be chased there and not here:
+  /// the page moved once already, in August 2026, and the old path 404s.
   static const String privacyPolicy = AppEnv.privacyPolicyUrl;
 
   /// Apple's weather attribution page.
