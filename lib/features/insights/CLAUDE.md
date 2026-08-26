@@ -225,3 +225,37 @@ calm days (`PressureBaseline`).
 - **Recorded at most once per local day**, best-effort and silent like
   `WeatherAttachService` — launch and resume both fire it, and a day the app was
   never opened is simply a gap in the sample.
+
+## The three analyses that are not correlations
+
+`MedicationEffectivenessEngine`, `MigraineDaysEngine` and
+`MedicationOveruseEngine` sit beside the four correlation engines and are
+shaped differently on purpose.
+
+- **They return plain summaries, not sealed results.** A correlation states a
+  *relationship*, which a thin sample can make a false claim about, so those
+  grade themselves and carry an insufficient-data variant. These three are
+  counts. One month of logging gives a true count of one month, so there is
+  nothing to withhold and no minimum to grade against.
+  `MedicationEffectivenessResult` is the exception that proves it: it *is*
+  sealed, because a relief *rate* is a claim, and under
+  `minAnswersForShare` (5) a row states "2 of 3" instead.
+- **`MedicationEffectivenessEngine` replaced `MedicationEffectTally`**, which
+  lived in `attacks/domain/services/` and counted helped/partly/didNotHelp for
+  one drug at a time. Nothing put two medications side by side, which is the
+  question a prescription changes on. Ranking is by **doses taken, never by
+  relief rate** — a rate puts the drug taken twice above the one taken forty
+  times. `medianIntensity` rides along as the confound guard: the drug kept
+  for the 9/10 attacks would otherwise read as the weaker one.
+- **Every day count in all three is a LOCAL day.** `Attack.startedAt` is
+  stored in UTC, so a 23:30 attack is the next UTC day and lands in the wrong
+  month at the end of one. Same rule the sleep engine already followed.
+- **A month with no attacks stays in the window as a zero.** It is not missing
+  data — it is the best month the user had, and dropping it would hide exactly
+  the result a preventive is meant to produce. This is the opposite of the
+  health-range rule above, where an empty bucket is absent, and deliberately:
+  "no steps recorded" is ignorance, "no attacks" is knowledge.
+- **`MedicationOveruseEngine` needed no schema change**, and that is the whole
+  reason it exists at this cost: ICHD-3 counts *days of intake*, which a
+  medication name plus a start time already gives. Its numbers, the warning
+  copy and why it is free are in `lib/features/medications/CLAUDE.md`.
