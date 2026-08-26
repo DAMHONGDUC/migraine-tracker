@@ -25,6 +25,14 @@ dashboard and marketing copy — the app never reads them.
 **Entitlement state comes from RevenueCat and nothing else.** No local premium
 repository, no client-writable premium flag.
 
+**And no account.** Buying, restoring and every unlocked surface work signed
+out; `hasPremiumProvider` reads the entitlement alone. It used to also require
+a signed-in user and submission 1.0(20) was rejected for it (App Store
+5.1.1(v)): premium here unlocks the app's own features, which is not
+account-based content, so registration cannot be its price. Signing in is
+offered on the paywall for what it actually buys — the same subscription on a
+second device — and nothing is withheld from whoever declines.
+
 ## Free record limits
 
 `lib/core/constants/premium_limit_constant.dart` is what the code reads.

@@ -38,12 +38,17 @@ the medications tab the medication budget, each from that record's one
 ## The paywall
 
 - **Two doors, and every gate uses one of them.** A locked surface opens the
-  paywall sheet via `NavigationUtils.toPaywall`, signed in or not; the paywall
-  itself asks the account question ("Sign in to continue" →
-  `NavigationUtils.toLogin`, then back offering the purchase). The Settings
-  sign-in row is the only other way in. Never `pushNamed(AppRoutes.paywall…)` at
+  paywall sheet via `NavigationUtils.toPaywall`, signed in or not; the Settings
+  premium row is the only other way in. Never `pushNamed(AppRoutes.paywall…)` at
   a call site, and **never put a login screen in front of a paywall the user has
   not been shown** — the pitch comes first.
+- **Nothing on it waits on an account.** The plans, the CTA and Restore are the
+  same signed out as signed in, because premium unlocks the app's own features
+  rather than account-based content — App Store 5.1.1(v), and submission
+  1.0(20) was rejected for gating it. Under the CTA, and only signed out, one
+  text link offers sign-in for what it is actually worth ("use Premium on your
+  other devices"); it is an extra, never a step. The purchase lives on
+  RevenueCat's anonymous id until then, and `logIn` carries it onto the account.
 - **The pitch is one framed card, centred in the space above the plans**
   (owner's call). The six benefits sit in an `SdCardV2` on
   `SdCardSurfaceV2.elevated` — a step up from the panel's glass, so what is being
