@@ -266,3 +266,53 @@ never a record.
   privacy-label fact, not just a feature: `docs/privacy/` declares Fitness as
   collected and `NSHealthShareUsageDescription` says so too. Sleep still never
   leaves. Change this and all three change together.
+
+## Aura, and the three states it needs
+
+`Attack.aura` is `List<AuraType>?`, and **null and empty mean different
+things**: null is "never asked", an empty list is the user answering "no
+aura". Every other after-the-fact field on this entity collapses its two
+absences into one — `endedAt` null is "still going, or never said" — and this
+one deliberately does not.
+
+- **Because they are different diagnoses.** Migraine with aura and migraine
+  without aura are separate ICHD-3 entries, and the field reaches the doctor
+  report. A recorded "no" is evidence; a question nobody put is not, and
+  backfilling either would answer on the user's behalf.
+- **Four kinds, not ICHD's six.** Visual, sensory, speech, motor. Retinal and
+  brainstem aura both need a clinician to distinguish from the two above
+  them, and offering them invites a self-diagnosis the app cannot support.
+- **Not a step in the log flow** (hard rule 5), and it never can be: aura runs
+  *before* the pain, so by the time an attack is logged it is already over.
+  `updateAura` is its own repository method for the same reason
+  `updateExertion` is — the details sheet never shows aura, so a save from
+  there must not blank it.
+- **The row sits above duration on the detail screen**, because the rows read
+  in the order the attack happened.
+- **`AuraPickerSheet`'s primary button says "No aura" while nothing is
+  picked.** Saving an empty selection IS the "no aura" answer, so the button
+  has to say which of the three states it is about to write; "Not recorded"
+  is a separate text button and only appears once there is something to take
+  back.
+- **The sheet leads with one line explaining what an aura is.** The word means
+  nothing to a good half of the people who get one.
+
+## Sharing an attack as a picture
+
+`AttackShareSheet` previews `AttackShareCard`, then captures **that very
+boundary** and hands the PNG to the share sheet.
+
+- **The preview is the mechanism, not a courtesy.** Capturing what is already
+  on screen makes the preview and the file the same pixels by construction,
+  so a card cannot carry anything the user was not shown.
+- **The card never draws `notes`.** That is where the most private thing in
+  the app gets written, and somebody who shared one six months ago will not
+  remember that they did. The sheet says so under the preview.
+- **Free, owner's call** — the acute use ("I'm down, text don't call") lands
+  mid-attack, and that is the worst place in the app for a paywall.
+- It reuses `ExportSharer` from `settings/` rather than a second `share_plus`
+  call site, and writes to the **cache** directory: the PNG is a copy of
+  something the app already stores, so it is the OS's to reclaim.
+- `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
+  `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.
+

@@ -259,3 +259,56 @@ shaped differently on purpose.
   reason it exists at this cost: ICHD-3 counts *days of intake*, which a
   medication name plus a start time already gives. Its numbers, the warning
   copy and why it is free are in `lib/features/medications/CLAUDE.md`.
+
+## The verdict, and the chart under it
+
+`PressureCard` now opens with `TriggerVerdictBody` and closes the correlation
+section with `PressureHistoryBody`: the answer first, then the working.
+
+- **`TriggerVerdictEngine` is allowed to say no**, and that is the whole
+  reason it exists. Only a subset of sufferers are weather-sensitive and the
+  published evidence on barometric pressure is suggestive rather than
+  consistent, so an app that only ever confirms the reason it was installed
+  is a horoscope.
+- **Saying no is not the same as not knowing.** `weatherRuledOut` fires only
+  when the pressure correlation is settled AND its baseline is reliable;
+  every other state is `TriggerVerdictPending`, which says so. Getting this
+  backwards would tell a user with four logs that weather is not their
+  trigger.
+- **Pressure needs the baseline, never the share alone.** "60% of your
+  attacks fell during drops" is high for anyone in a stormy climate, so a
+  verdict built on it would confirm the weather for half the people who ask.
+- **`effect` is the gap as a share of the larger group** — a rough common
+  footing so a rate, a duration and a step count can be ordered against each
+  other. It is not a statistic and must never be printed as one.
+- **Exertion is not ranked.** A self-report with no rest-day baseline has no
+  second group to be measured against.
+- **The verdict watches both health providers**, so opening the pressure tab
+  can fire the HealthKit reads the tabbed screen otherwise defers. Both gate
+  themselves on the Apple Health switch, so a user who never connected it
+  issues no read at all — but this is a real departure from "each tab waits
+  only on what it draws" above, and it was made knowingly.
+- **`PressureHistoryBody` leaves a gap where a day has no reading** — never an
+  interpolation, never a zero. A drawn point is a claim that a measurement
+  happened. Attacks stranded on those days are counted and stated under the
+  chart, because a user tallying dots against their own memory deserves to
+  know why the two disagree.
+- **Dots only on attack days**, coloured by that day's worst intensity. A dot
+  on every point is a dotted line.
+
+## The forecast reaches a week
+
+`PressureForecast.forecastDays` is 7 and `contextHours` is 12; the data source
+reads both rather than the bare `48` and `12` it used to carry.
+
+- **It costs nothing.** WeatherKit returns the hourly series in ONE request
+  whatever window is asked for, and `getWeather` already clamped
+  `hoursForward` at 240 and already passed `hourlyStart`/`hourlyEnd`. There
+  was no backend change and nothing to deploy.
+- **The axis moved from clock times to weekdays.** Across a week the axis fits
+  about six labels, and "14:00" six times says nothing about which day the
+  drop lands on. The tooltip still names the hour, which is where a clock
+  time earns its place.
+- Every string that said "48h" says a week now, in all seven ARB files —
+  including the paywall's, which was selling the old number.
+
