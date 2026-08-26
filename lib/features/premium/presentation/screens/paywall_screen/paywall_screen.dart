@@ -258,7 +258,7 @@ class PaywallScreen extends HookConsumerWidget {
                       label: l10n.premiumUnlock,
                     ),
                     // App Store 3.1.1 requires a restore path — a reinstall or a second device.
-                    _TextAction(
+                    SdTextActionV2(
                       label: l10n.paywallRestore,
                       onTap: () => unawaited(_restore(context, ref)),
                     ),
@@ -266,7 +266,7 @@ class PaywallScreen extends HookConsumerWidget {
                     // time, saying what registering is worth, under a purchase
                     // that never waited on it.
                     if (!signedIn)
-                      _TextAction(
+                      SdTextActionV2(
                         label: l10n.paywallWhySignIn,
                         onTap: () =>
                             unawaited(NavigationUtils.toLogin(context)),
