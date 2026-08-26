@@ -7,7 +7,7 @@
     "iOS"
   ],
   "effectiveDate": "2026-08-07",
-  "lastUpdated": "2026-08-20",
+  "lastUpdated": "2026-08-26",
   "contactEmail": "ducdam.dev@gmail.com",
   "controller": "Dam Hong Duc, Ho Chi Minh City, Viet Nam",
   "url": "https://damhongduc.github.io/apps_privacy_policy",
@@ -217,6 +217,15 @@
         "Product interaction — Analytics, linked to you. Which screens and features get used.",
         "Crash data — App Functionality, linked to you. Crashes and non-fatal errors.",
         "Fitness — App Functionality, linked to you. The step count saved with an attack."
+      ]
+    },
+    {
+      "id": "sharing-an-attack",
+      "title": "Sharing an attack",
+      "body": [
+        "From an attack's detail screen you can share it as an image — to a partner, a family member, or anyone else you choose. It carries when the attack started, how intense it was, how long it lasted, and where on your head it hurt.",
+        "It never carries your notes, your symptoms, your triggers, the medication you took, or your location. You see the exact image before you send it, because what gets shared is the preview you are looking at.",
+        "The image goes only where you send it: it is handed to the iOS share sheet and reaches the app you pick. It is never uploaded to us, we never see it, and it never reaches our backend. The file is written to the app's temporary storage so the share sheet can read it, and left for iOS to reclaim."
       ]
     },
     {

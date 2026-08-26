@@ -12,7 +12,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 20 August 2026
+**Last updated:** 26 August 2026
 **Developer / data controller:** Dam Hong Duc, Ho Chi Minh City, Viet Nam
 **Contact:** ducdam.dev@gmail.com
 
@@ -203,6 +203,24 @@ managed through **RevenueCat**, our subscription infrastructure provider. We
 never see or store your card details. RevenueCat receives a purchase
 identifier and, once you are signed in, your account identifier — so your
 entitlement follows you rather than one installation.
+
+## 7b. Sharing an attack
+
+From an attack's detail screen you can share it as an **image** — to a
+partner, a family member, or anyone else you choose.
+
+- **What the image carries:** when the attack started, how intense it was,
+  how long it lasted, and where on your head it hurt.
+- **What it never carries:** your notes, your symptoms, your triggers, the
+  medication you took, or your location. You see the exact image before you
+  send it, because what gets shared is the preview you are looking at.
+- **Where it goes:** only where you send it. The image is handed to the iOS
+  share sheet and goes to the app you pick. It is never uploaded to us, we
+  never see it, and it never reaches our backend.
+- **The file:** written to the app's temporary storage so the share sheet can
+  read it, and left for iOS to reclaim. It is not part of the "Delete all
+  data" wipe below, which clears the database, past exports and the widget's
+  container.
 
 ## 8. Your rights and controls (GDPR)
 
