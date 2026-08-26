@@ -2159,6 +2159,45 @@
   "@dashboardWeekEmpty": {
     "description": "Stands in for the trend line on the dashboard week card when neither this week nor last week has an attack, so there is no trend to state"
   },
+  "dashboardThisMonth": "This month",
+  "@dashboardThisMonth": {
+    "description": "Caption on the dashboard card counting this month’s migraine days"
+  },
+  "dashboardMigraineDaysLabel": "{count, plural, =1{migraine day} other{migraine days}}",
+  "@dashboardMigraineDaysLabel": {
+    "description": "Unit beside the migraine-day count on the dashboard",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendUp": "{count, plural, =1{1 more than last month} other{{count} more than last month}}",
+  "@dashboardMonthTrendUp": {
+    "description": "Month-on-month trend: more migraine days than last month",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendDown": "{count, plural, =1{1 fewer than last month} other{{count} fewer than last month}}",
+  "@dashboardMonthTrendDown": {
+    "description": "Month-on-month trend: fewer migraine days than last month",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendSame": "Same as last month",
+  "@dashboardMonthTrendSame": {
+    "description": "Month-on-month trend: the same number of migraine days"
+  },
+  "dashboardMonthPartial": "This month is still running",
+  "@dashboardMonthPartial": {
+    "description": "Caveat beside the month-on-month trend: the current month is not over, so it compares a partial month against a whole one"
+  },
   "dashboardSeverityEmpty": "The split appears after your first log.",
   "@dashboardSeverityEmpty": {
     "description": "Sits under the band names on the dashboard severity card before any attack exists, where the ring shows the scale rather than a reading"
