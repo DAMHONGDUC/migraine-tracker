@@ -35,6 +35,15 @@ class Attacks extends Table {
   TextColumn get medicationEffect =>
       textEnum<MedicationEffect>().nullable()();
 
+  /// Aura kinds reported for this attack, JSON-encoded.
+  ///
+  /// NULL is "never asked"; an empty list is the user saying "no aura". The
+  /// two are kept apart because migraine with aura and without it are
+  /// different diagnoses, and a doctor reading the report has to be able to
+  /// tell a recorded "no" from a question nobody put.
+  TextColumn get aura =>
+      text().map(const AuraTypeListConverter()).nullable()();
+
   /// When the attack stopped, UTC. Null is "still going, or never said" —
   /// one state on purpose, since nothing here can tell those apart.
   DateTimeColumn get endedAt => dateTime().nullable()();

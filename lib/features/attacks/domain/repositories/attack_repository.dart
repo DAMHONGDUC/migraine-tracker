@@ -1,5 +1,6 @@
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/attack.dart';
+import '../enums/aura_type.dart';
 import '../enums/exertion_level.dart';
 import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
@@ -60,6 +61,14 @@ abstract interface class AttackRepository {
   /// Whether the medication helped, or null to take the answer back. Its own
   /// method for the same reason [updateExertion] is.
   Future<void> updateMedicationEffect(String id, MedicationEffect? effect);
+
+  /// Records the aura kinds for an attack, after the fact.
+  ///
+  /// Null takes the answer back; an empty list is a recorded "no aura".
+  ///
+  /// Its own method for the same reason [updateExertion] is: the details
+  /// sheet never shows aura, so a save from there must not blank it.
+  Future<void> updateAura(String id, List<AuraType>? aura);
 
   /// Corrects the core fields of an already-logged attack (detail screen).
   /// The weather snapshot is untouched — it belongs to [startedAt].

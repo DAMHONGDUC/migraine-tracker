@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../weather/domain/entities/weather_snapshot.dart';
+import '../enums/aura_type.dart';
 import '../enums/exertion_level.dart';
 import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
@@ -16,6 +17,7 @@ class Attack {
     required this.intensity,
     required this.regions,
     this.medicationName,
+    this.aura,
     this.symptoms = const [],
     this.triggers = const [],
     this.notes,
@@ -47,6 +49,13 @@ class Attack {
 
   /// Pain intensity, 1–10.
   final int intensity;
+
+  /// Aura kinds reported for this attack.
+  ///
+  /// Null is "never asked"; an EMPTY list is the user answering "no aura".
+  /// The two are different facts — migraine with aura and without it are
+  /// different diagnoses — so unlike [endedAt] they are not collapsed.
+  final List<AuraType>? aura;
 
   /// Every area the user tapped, never empty. A set in meaning but a list in
   /// storage, kept in [HeadRegion] order so two attacks naming the same areas
@@ -103,6 +112,7 @@ class Attack {
     startedAt: startedAt,
     intensity: intensity,
     regions: regions,
+    aura: aura,
     medicationName: medicationName,
     symptoms: symptoms,
     triggers: triggers,

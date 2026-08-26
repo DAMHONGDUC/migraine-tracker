@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../features/attacks/data/tables/attack_tables.dart';
+import '../../features/attacks/domain/enums/aura_type.dart';
 import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
@@ -45,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -168,13 +169,40 @@ class AppDatabase extends _$AppDatabase {
         // Recreates the table from today's definition, which no longer has
         // `location` — drift's way of dropping a column SQLite cannot drop.
         // The UPDATE above is raw SQL for the same reason: no field to name.
-        await m.alterTable(TableMigration(attacks));
+        //
+        // `newColumns` names every column added AFTER v13, and this list has
+        // to grow with each one. "Today's definition" is today's, not v13's,
+        // so drift would otherwise copy a column out of an old table that
+        // does not have it yet and the whole migration dies on
+        // `no such column`. v14's `steps` and v15's `aura` are here for that
+        // reason and nothing else.
+        await m.alterTable(
+          TableMigration(
+            attacks,
+            newColumns: <GeneratedColumn<Object>>[
+              attacks.steps,
+              attacks.aura,
+            ],
+          ),
+        );
       }
       // - v14: an attack carries the day's step count, read as it was logged.
       // - Null on every existing row: HealthKit can answer a past day but not
       //   a past moment, so a backfill files another figure as the same one.
-      if (from < 14) {
+      // - `from >= 13` because v13 rebuilt the table from TODAY's definition,
+      //   which already has this column: a database coming from v12 or below
+      //   arrives here with `steps` present, and ADD COLUMN would die on a
+      //   duplicate. Every column added from now on needs the same guard —
+      //   see the v13 step.
+      if (from >= 13 && from < 14) {
         await m.addColumn(attacks, attacks.steps);
+      }
+      // - v15: the aura kinds reported for an attack, recorded after the fact.
+      // - Existing rows get the empty list, which is both "no aura" and
+      //   "never asked" — nothing here can tell those apart, and inventing
+      //   "no aura" would answer a question nobody was put.
+      if (from >= 13 && from < 15) {
+        await m.addColumn(attacks, attacks.aura);
       }
     },
     beforeOpen: (details) async {

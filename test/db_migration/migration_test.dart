@@ -13,10 +13,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 12', () {
+  test('database is at schema version 15', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 12);
+    expect(db.schemaVersion, 15);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is
@@ -390,5 +390,37 @@ void main() {
     // Empty, and nothing to backfill: no weather was ever stored for a day
     // that had no attack.
     expect(await db.select(db.dailyWeather).get(), isEmpty);
+  });
+
+  test('migrates from v12 to v15 (adds attacks.aura)', () async {
+    final connection = await verifier.startAt(12);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // NULL, not an empty list: an empty list is the user answering "no aura",
+  // which is a different fact from a question nobody put — and the two are
+  // different diagnoses. Backfilling either would answer on their behalf, in
+  // a field that reaches the doctor report.
+  test('v12 attacks survive v15 with no aura recorded', () async {
+    final schema = await verifier.schemaAt(12);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location, '
+      "medication_name) VALUES ('a1', 1750000000, 7, 'front', 'Sumatriptan')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final AttackRow stored = (await db.select(db.attacks).get()).single;
+
+    expect(stored.medicationName, 'Sumatriptan');
+    expect(stored.aura, isNull);
+    // v13 widened the coarse `location` into a set of regions; the aura step
+    // must not have disturbed that backfill on the way past.
+    expect(stored.regions, isNotEmpty);
   });
 }

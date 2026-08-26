@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/aura_type.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
@@ -58,6 +59,9 @@ class _Attacks implements AttackRepository {
     String id,
     MedicationEffect? effect,
   ) async {}
+
+  @override
+  Future<void> updateAura(String id, List<AuraType>? aura) async {}
 
   @override
   Future<void> updateCore(

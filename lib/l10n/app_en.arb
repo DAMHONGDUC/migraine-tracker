@@ -530,6 +530,42 @@
   "@attackDetailDuration": {
     "description": "Field label: how long the attack lasted"
   },
+  "attackDetailAura": "Aura",
+  "@attackDetailAura": {
+    "description": "Field label on the attack detail screen: the aura kinds reported"
+  },
+  "auraSheetTitle": "Did you have an aura?",
+  "@auraSheetTitle": {
+    "description": "Title of the sheet recording which auras an attack came with"
+  },
+  "auraSheetHint": "An aura usually starts before the pain and fades within an hour.",
+  "@auraSheetHint": {
+    "description": "One line explaining what an aura is, for users who do not know the word"
+  },
+  "auraNotRecorded": "Not recorded",
+  "@auraNotRecorded": {
+    "description": "Value and clear action when the aura question was never answered — distinct from a recorded \"no aura\""
+  },
+  "auraNone": "No aura",
+  "@auraNone": {
+    "description": "The user answering that this attack came with no aura at all"
+  },
+  "auraVisual": "Visual",
+  "@auraVisual": {
+    "description": "Aura kind: zigzags, blind spots, flashing lights"
+  },
+  "auraSensory": "Numbness or tingling",
+  "@auraSensory": {
+    "description": "Aura kind: pins and needles or numbness, usually spreading up one side"
+  },
+  "auraSpeech": "Trouble speaking",
+  "@auraSpeech": {
+    "description": "Aura kind: trouble finding or forming words"
+  },
+  "auraMotor": "Weakness on one side",
+  "@auraMotor": {
+    "description": "Aura kind: weakness down one side"
+  },
   "attackDurationNotRecorded": "Not recorded",
   "@attackDurationNotRecorded": {
     "description": "Value shown when no end time was ever given for an attack"

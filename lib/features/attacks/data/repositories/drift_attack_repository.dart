@@ -5,6 +5,7 @@ import '../../../sync/data/repositories/drift_sync_local_store.dart';
 import '../../../sync/domain/entities/sync_collection.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/enums/aura_type.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_region.dart';
 import '../../domain/enums/medication_effect.dart';
@@ -178,6 +179,19 @@ class DriftAttackRepository implements AttackRepository {
       await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
         AttacksCompanion(
           medicationEffect: Value(effect),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
+  Future<void> updateAura(String id, List<AuraType>? aura) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          aura: Value(aura),
           updatedAt: Value(DateTime.now().toUtc()),
           revision: Value(await _nextRevision(id)),
         ),

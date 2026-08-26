@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../../attacks/domain/entities/attack.dart';
+import '../../../attacks/domain/enums/aura_type.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_location.dart';
 import '../../../attacks/domain/enums/head_region.dart';
@@ -41,6 +42,9 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       // build that predates `regions` throws on a payload without this, and
       // that failure would be the user's whole history, not one record.
       'location': HeadLocation.coarsest(attack.regions).name,
+      'aura': attack.aura == null
+          ? null
+          : <String>[for (final AuraType a in attack.aura!) a.name],
       'medicationName': attack.medicationName,
       'steps': attack.steps,
       'symptoms': attack.symptoms,
@@ -91,6 +95,10 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       regions: decoded['regions'] == null
           ? _enum(decoded['location'], HeadLocation.values, 'location').regions
           : _regions(decoded['regions']),
+      // Optional and additive, so schemaVersion stays 1. An unknown kind
+      // is dropped rather than throwing: a payload from a build that
+      // learned a fifth aura must still decode here.
+      aura: _aura(decoded['aura']),
       medicationName: _stringOrNull(decoded['medicationName']),
       symptoms: _strings(decoded['symptoms']),
       triggers: _strings(decoded['triggers']),
@@ -162,6 +170,19 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
   /// location cannot be rebuilt faithfully, and the entity forbids it.
   /// A single unknown name is dropped instead — that is a newer build's
   /// record, and losing one area beats losing the record.
+  /// Absent or null is "never asked", which is what every payload written
+  /// before aura existed carries. An unknown kind inside a real list is
+  /// dropped rather than throwing, so a payload from a build that learned a
+  /// fifth kind still decodes here.
+  static List<AuraType>? _aura(Object? value) {
+    if (value is! List) return null;
+
+    return <AuraType>[
+      for (final Object? name in value)
+        if (AuraType.values.asNameMap()[name] case final AuraType aura) aura,
+    ];
+  }
+
   static List<HeadRegion> _regions(Object? value) {
     if (value is! List) {
       throw FormatException('regions is not a list: $value');
