@@ -4,7 +4,7 @@ The authority on what Premium costs, what it unlocks and what the free plan
 holds. `CLAUDE.md` points here rather than restating any of it, so there is one
 place to change when the offer changes.
 
-Last updated: 2026-08-19.
+Last updated: 2026-08-26.
 
 ## Prices
 
@@ -113,6 +113,23 @@ behaviour that feeds the best pitch.
   the pitch.
 - Physical exertion self-report — the answer is still asked for and stored; only
   the correlation drawn from it is premium.
+- **The medication-overuse warning** (`MedicationOveruseBanner`). Owner's call,
+  2026-08-26. The second thing in this app that can never be sold, and for the
+  same shape of reason as the wipe below it: every other analysis is something
+  the user *gains* by paying, and this one is a harm they avoid by being told.
+  Selling it would mean a paying user is warned that their acute medication is
+  starting to cause attacks and a free user is not. Rules and numbers:
+  `lib/features/medications/CLAUDE.md`.
+- **Migraine days this month** — `MonthDaysCard` on the dashboard, its
+  month-on-month change included. Owner's call, 2026-08-26. It is a count of
+  the user's own logs at the same altitude as the week count and the severity
+  donut beside it, and those are free. The *report* it feeds is not: the PDF
+  row stays behind the export screen with everything else there.
+- **How well each medication works** — the relief figure on the medications
+  list and the fuller reading on a medication's own screen. Owner's call,
+  2026-08-26. It is not a chart, so the blanket chart rule below does not
+  reach it, and the question "is this drug working" is the one a free user
+  most needs answered before they trust the app with the rest.
 - The GDPR wipe. The one half of hard rule 8 that can never be sold: deleting
   your own records is a right, not a feature.
 - The notification list, and medication reminders up to the limit.
