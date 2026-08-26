@@ -29,6 +29,7 @@ abstract final class AppAnalytics {
   static const String _attackLogged = 'attack_logged';
   static const String _attackEdited = 'attack_edited';
   static const String _attackDeleted = 'attack_deleted';
+  static const String _attackShared = 'attack_shared';
   static const String _medicationAdded = 'medication_added';
   static const String _medicationRenamed = 'medication_renamed';
   static const String _medicationDeleted = 'medication_deleted';
@@ -161,6 +162,10 @@ abstract final class AppAnalytics {
   static void logAttackEdited() => _log(_attackEdited);
 
   static void logAttackDeleted() => _log(_attackDeleted);
+
+  /// The card only; hard rule 1 still holds, so no intensity, no location
+  /// and no time ever becomes a parameter.
+  static void logAttackShared() => _log(_attackShared);
 
   // --- Sync -------------------------------------------------------------
 

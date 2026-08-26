@@ -753,6 +753,30 @@
   "@attackDetailDeleteBody": {
     "description": "Body of the single-attack delete confirmation"
   },
+  "attackShareTitle": "Share this attack",
+  "@attackShareTitle": {
+    "description": "Title of the sheet that previews the shareable attack card"
+  },
+  "attackShareAction": "Share",
+  "@attackShareAction": {
+    "description": "Button that hands the rendered card to the system share sheet"
+  },
+  "attackShareHeadline": "Migraine attack",
+  "@attackShareHeadline": {
+    "description": "Headline printed on the shareable card image"
+  },
+  "attackShareStarted": "Started",
+  "@attackShareStarted": {
+    "description": "Label on the shareable card for when the attack began"
+  },
+  "attackSharePrivacy": "Only what you see here is shared — no notes, no location.",
+  "@attackSharePrivacy": {
+    "description": "Reassurance under the preview: the card carries only the fields shown, never notes or location"
+  },
+  "attackShareFailed": "Could not create the image.",
+  "@attackShareFailed": {
+    "description": "Error shown when the card could not be rendered to an image"
+  },
   "historyEmpty": "No attacks logged yet.",
   "@historyEmpty": {
     "description": "Empty state on the history screen"

@@ -38,6 +38,9 @@ final class LogTagConstant {
   /// Viewing and editing an attack that already exists.
   static const String attackDetail = 'Attack Detail';
 
+  /// Rendering an attack to an image and handing it to the share sheet.
+  static const String attackShare = 'Attack Share';
+
   /// The best-effort weather backfill onto a logged attack. Its own flow
   /// because it runs long after the log finished and fails on its own.
   static const String weatherAttach = 'Weather Attach';

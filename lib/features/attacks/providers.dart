@@ -11,6 +11,7 @@ import 'domain/repositories/attack_repository.dart';
 import 'domain/services/step_attach_service.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
+import 'presentation/controllers/attack_share_controller.dart';
 import 'presentation/controllers/log_controller.dart';
 
 final attackRepositoryProvider = Provider<AttackRepository>(
@@ -25,6 +26,11 @@ final attacksStreamProvider = StreamProvider<List<Attack>>(
 /// show its gone-state instead of stale data.
 final attackByIdProvider = StreamProvider.autoDispose.family<Attack?, String>(
   (ref, id) => ref.watch(attackRepositoryProvider).watchById(id),
+);
+
+/// Renders an attack's share card and hands it to the OS share sheet.
+final attackShareControllerProvider = Provider<AttackShareController>(
+  AttackShareController.new,
 );
 
 final weatherAttachServiceProvider = Provider<WeatherAttachService>(

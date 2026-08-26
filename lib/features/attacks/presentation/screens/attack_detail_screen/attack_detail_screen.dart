@@ -21,6 +21,7 @@ import '../../../domain/enums/medication_effect.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
 import '../../widgets/attack_duration_sheet.dart';
+import '../../widgets/attack_share_sheet.dart';
 import '../../widgets/exertion_picker_sheet.dart';
 import '../../widgets/head_diagram.dart';
 import '../../widgets/intensity_disc.dart';
@@ -210,6 +211,15 @@ class AttackDetailScreen extends HookConsumerWidget {
         title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
       ),
       actions: [
+        // Only once the attack has actually loaded — a share button over a
+        // deleted or still-loading record has nothing to render.
+        if (attack.value case final Attack loaded)
+          SdAppBarButtonV2(
+            icon: Icons.ios_share,
+            color: AppColors.secondary,
+            tooltip: l10n.attackShareTitle,
+            onPressed: () => AttackShareSheet.show(context, loaded),
+          ),
         SdAppBarButtonV2(
           icon: Icons.delete_outline,
           color: context.colorScheme.error,
