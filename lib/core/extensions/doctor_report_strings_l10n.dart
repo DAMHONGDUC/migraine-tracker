@@ -1,11 +1,13 @@
 import 'package:intl/intl.dart';
 
+import '../../features/attacks/domain/enums/aura_type.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/insights/domain/services/doctor_report_builder.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../l10n/gen/app_localizations_en.dart';
 import '../constants/export_constant.dart';
+import 'aura_label.dart';
 import 'head_region_label.dart';
 import 'medication_effect_label.dart';
 
@@ -32,6 +34,12 @@ extension DoctorReportStringsL10n on AppLocalizations {
     commonLocation: reportCommonLocation,
     typicalDuration: reportTypicalDuration,
     monthlyDays: reportMonthlyDays,
+    aura: reportAura,
+    auraLabels: <AuraType, String>{
+      for (final AuraType type in AuraType.values) type: type.label(this),
+    },
+    medicationDays: reportMedicationDays,
+    medicationOveruse: reportMedicationOveruse,
     attacksDuringDrops: reportAttacksDuringDrops,
     baseline: reportBaseline,
     tableTitle: reportTableTitle,

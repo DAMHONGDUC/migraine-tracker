@@ -6,12 +6,15 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
+import '../../../attacks/domain/enums/aura_type.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
 import '../entities/correlation_result.dart';
 import '../entities/medication_effectiveness_result.dart';
+import '../entities/medication_overuse_result.dart';
 import '../entities/migraine_days_summary.dart';
 import 'medication_effectiveness_engine.dart';
+import 'medication_overuse_engine.dart';
 import 'migraine_days_engine.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
@@ -29,6 +32,10 @@ class DoctorReportStrings {
     required this.commonLocation,
     required this.typicalDuration,
     required this.monthlyDays,
+    required this.aura,
+    required this.auraLabels,
+    required this.medicationDays,
+    required this.medicationOveruse,
     required this.attacksDuringDrops,
     required this.baseline,
     required this.tableTitle,
@@ -56,6 +63,21 @@ class DoctorReportStrings {
   /// Label for the migraine-days-per-month row — the figure a headache
   /// clinic opens with and every preventive is judged on.
   final String monthlyDays;
+
+  /// Label for the aura row. Migraine with aura and without it are separate
+  /// ICHD-3 entries, so the split is the first thing a headache clinic wants
+  /// after the day count.
+  final String aura;
+
+  final Map<AuraType, String> auraLabels;
+
+  /// Label for the acute-medication-days row — the denominator behind
+  /// medication-overuse headache.
+  final String medicationDays;
+
+  /// Label for the overuse row, which appears only when a month is at or
+  /// over the threshold. Absent is the good news and needs no line.
+  final String medicationOveruse;
   final String attacksDuringDrops;
   final String baseline;
   final String tableTitle;
@@ -189,6 +211,31 @@ class DoctorReportBuilder {
               '${row.helpedCount}/${row.answeredCount} '
                   '(${strings.colMedicationEffect.toLowerCase()})',
             ],
+      // With aura or without is a diagnostic split, not a detail, so it
+      // rides in the summary rather than as an eighth column on a table that
+      // already fills the width.
+      if (_auraLabel(attacks, strings) case final String label)
+        [strings.aura, label],
+      // The denominator behind medication-overuse headache. Days of intake,
+      // which is what ICHD-3 counts — never doses.
+      if (attacks.isNotEmpty)
+        [
+          strings.medicationDays,
+          _monthlyIntakeLabel(
+            const MedicationOveruseEngine(
+              months: _periodMonths,
+            ).analyze(attacks, now: now),
+          ),
+        ],
+      // Only when a month is actually at or over it: absent is the good news
+      // and does not need a line in a document a doctor skims.
+      if (_overuseLabel(
+        const MedicationOveruseEngine(
+          months: _periodMonths,
+        ).analyze(attacks, now: now),
+      )
+          case final String label)
+        [strings.medicationOveruse, label],
       // Mature figures only: a share still settling has no business in a
       // document a doctor reads as settled.
       if (correlation case CorrelationInsight(
@@ -248,6 +295,67 @@ class DoctorReportBuilder {
             '${m.days}',
       )
       .join(' | ');
+
+  /// "12/34 (Visual 10, Sensory 3)" — attacks that came with an aura out of
+  /// those where the question was answered, then the kinds.
+  ///
+  /// Null when nobody answered it, because "0/0" is a prompt to start
+  /// recording rather than a finding about the patient.
+  String? _auraLabel(List<Attack> attacks, DoctorReportStrings strings) {
+    final Map<AuraType, int> counts = <AuraType, int>{};
+    int answered = 0;
+    int withAura = 0;
+
+    for (final Attack attack in attacks) {
+      final List<AuraType>? aura = attack.aura;
+
+      if (aura == null) continue;
+
+      answered++;
+      if (aura.isNotEmpty) withAura++;
+      for (final AuraType type in aura) {
+        counts[type] = (counts[type] ?? 0) + 1;
+      }
+    }
+
+    if (answered == 0) return null;
+
+    final String kinds = <String>[
+      for (final AuraType type in AuraType.values)
+        if (counts[type] case final int count)
+          '${strings.auraLabels[type] ?? type.name} $count',
+    ].join(', ');
+
+    return kinds.isEmpty
+        ? '$withAura/$answered'
+        : '$withAura/$answered ($kinds)';
+  }
+
+  /// "2026-06: 11 | 2026-07: 12 | 2026-08: 8", the same numeric-month shape
+  /// the migraine-days row uses.
+  String _monthlyIntakeLabel(MedicationOveruseResult result) => result.months
+      .map(
+        (MonthlyIntakeDays m) =>
+            '${m.month.year}-${m.month.month.toString().padLeft(2, '0')}: '
+            '${m.days}',
+      )
+      .join(' | ');
+
+  /// "2/3 months >= 10 days", or null while no month reaches the threshold.
+  ///
+  /// Stated as a count of months rather than as a verdict: ICHD-3 needs the
+  /// pattern held for more than three months plus a clinician, and this
+  /// document is read by one.
+  String? _overuseLabel(MedicationOveruseResult result) {
+    final int over = result.months
+        .where((MonthlyIntakeDays m) => m.days >= result.thresholdDays)
+        .length;
+
+    if (over == 0) return null;
+
+    return '$over/${result.months.length} months '
+        '>= ${result.thresholdDays} days';
+  }
 
   String _durationLabel(Duration duration) {
     final (int hours, int minutes) = DateTimeUtils.splitHm(duration);

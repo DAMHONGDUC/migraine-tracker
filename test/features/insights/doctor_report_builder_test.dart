@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/aura_type.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
@@ -17,6 +18,15 @@ DoctorReportStrings strings() => DoctorReportStrings(
   commonLocation: 'Most frequent location',
   typicalDuration: 'Typical duration',
   monthlyDays: 'Migraine days per month',
+  aura: 'Attacks with aura',
+  auraLabels: <AuraType, String>{
+    AuraType.visual: 'Visual',
+    AuraType.sensory: 'Sensory',
+    AuraType.speech: 'Speech',
+    AuraType.motor: 'Motor',
+  },
+  medicationDays: 'Acute medication days per month',
+  medicationOveruse: 'Medication overuse (ICHD-3)',
   attacksDuringDrops: 'During rapid pressure drops',
   baseline: 'Attack rate, drop days vs other days',
   tableTitle: 'Attack log',
@@ -92,4 +102,68 @@ void main() {
     );
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });
+
+  // The three clinical rows added after the first version. They are smoke
+  // tests on purpose: the output is a PDF, so what can be asserted here is
+  // that a shape which used to have no row now builds without throwing.
+  group('the clinical rows', () {
+    Attack medicated(int daysAgo, {List<AuraType>? aura}) => Attack(
+      id: 'm$daysAgo',
+      startedAt: now.subtract(Duration(days: daysAgo)),
+      intensity: 7,
+      regions: const <HeadRegion>[HeadRegion.templeL],
+      medicationName: 'Sumatriptan',
+      medicationEffect: MedicationEffect.partly,
+      aura: aura,
+    );
+
+    Future<int> report(List<Attack> attacks) async {
+      final bytes = await const DoctorReportBuilder().build(
+        attacks: attacks,
+        correlation: const CorrelationInsufficientData(
+          attacksAnalyzed: 0,
+          requiredAttacks: 15,
+        ),
+        strings: strings(),
+        now: now,
+        regularFont: pw.Font.helvetica(),
+        boldFont: pw.Font.helveticaBold(),
+      );
+
+      return bytes.length;
+    }
+
+    test('an aura answered on some attacks builds', () async {
+      expect(
+        await report(<Attack>[
+          medicated(1, aura: <AuraType>[AuraType.visual, AuraType.motor]),
+          medicated(3, aura: const <AuraType>[]),
+          medicated(5),
+        ]),
+        greaterThan(1000),
+      );
+    });
+
+    // Nobody answered it, so the row is absent rather than "0/0".
+    test('an aura nobody answered still builds', () async {
+      expect(
+        await report(<Attack>[medicated(1), medicated(3)]),
+        greaterThan(1000),
+      );
+    });
+
+    test('a month over the intake threshold builds', () async {
+      expect(
+        await report(<Attack>[
+          for (int day = 1; day <= 14; day++) medicated(day),
+        ]),
+        greaterThan(1000),
+      );
+    });
+
+    test('an empty history builds without any of the three rows', () async {
+      expect(await report(<Attack>[]), greaterThan(1000));
+    });
+  });
 }
+

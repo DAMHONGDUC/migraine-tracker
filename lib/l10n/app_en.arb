@@ -620,6 +620,18 @@
   "@reportMonthlyDays": {
     "description": "Doctor report summary row: distinct days with at least one attack, per month"
   },
+  "reportAura": "Attacks with aura",
+  "@reportAura": {
+    "description": "Doctor report summary row: how many answered attacks came with an aura, and which kinds"
+  },
+  "reportMedicationDays": "Acute medication days per month",
+  "@reportMedicationDays": {
+    "description": "Doctor report summary row: distinct days per month on which acute medication was taken — the denominator behind medication-overuse headache"
+  },
+  "reportMedicationOveruse": "Medication overuse (ICHD-3)",
+  "@reportMedicationOveruse": {
+    "description": "Doctor report summary row, shown only when a month reaches the ICHD-3 intake threshold"
+  },
   "attackDetailMedicationEffect": "Did it help?",
   "@attackDetailMedicationEffect": {
     "description": "Field label: whether the medication taken helped"
