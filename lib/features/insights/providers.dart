@@ -15,6 +15,7 @@ import 'domain/entities/medication_overuse_result.dart';
 import 'domain/entities/migraine_days_summary.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
+import 'domain/entities/trigger_verdict.dart';
 import 'domain/enums/health_range.dart';
 import 'domain/enums/insights_tab.dart';
 import 'domain/services/correlation_engine.dart';
@@ -24,6 +25,7 @@ import 'domain/services/medication_overuse_engine.dart';
 import 'domain/services/migraine_days_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
+import 'domain/services/trigger_verdict_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
 import 'presentation/controllers/insights_tab_controller.dart';
 import 'presentation/controllers/pressure_alert_highlight_controller.dart';
@@ -119,6 +121,35 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
       .stepDays(from: from, to: now);
 
   return engine.analyze(attacks: attacks, days: days);
+});
+
+final triggerVerdictEngineProvider = Provider<TriggerVerdictEngine>(
+  (ref) => const TriggerVerdictEngine(),
+);
+
+/// Is weather actually this user's trigger, and what is if it is not.
+///
+/// It runs over the results the four engines already produced rather than the
+/// attacks again, so one place decides what "settled" means per factor — the
+/// engine that owns that factor.
+///
+/// Watching the two health providers here means opening the pressure tab can
+/// fire the HealthKit reads the tabbed screen otherwise defers. They are
+/// local, and both gate themselves on the Apple Health switch, so a user who
+/// never connected it issues no read at all.
+final triggerVerdictProvider = Provider<TriggerVerdict>((ref) {
+  final TriggerVerdictEngine engine = ref.watch(triggerVerdictEngineProvider);
+
+  return engine.analyze(
+    pressure:
+        ref.watch(correlationResultProvider).value ??
+        const CorrelationInsufficientData(
+          attacksAnalyzed: 0,
+          requiredAttacks: CorrelationEngine.defaultMinAttacks,
+        ),
+    sleep: ref.watch(sleepCorrelationProvider).value ?? const SleepNotConnected(),
+    steps: ref.watch(stepCorrelationProvider).value ?? const StepNotConnected(),
+  );
 });
 
 final migraineDaysEngineProvider = Provider<MigraineDaysEngine>(

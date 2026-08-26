@@ -18,6 +18,7 @@ import '../../providers.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 import 'pressure_forecast_body.dart';
+import 'trigger_verdict_body.dart';
 
 part 'pressure_card_alert.dart';
 
@@ -50,6 +51,10 @@ class PressureCard extends ConsumerWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // The conclusion first, then the working: everything below
+                // this line is the evidence it was drawn from.
+                const TriggerVerdictBody(),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
                 const PressureForecastBody(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 CorrelationBody(result: result),

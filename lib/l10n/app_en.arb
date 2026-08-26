@@ -765,6 +765,40 @@
   "@insightsPressureTitle": {
     "description": "Title of the combined pressure card on Insights, which opens the pressure detail screen"
   },
+  "insightsVerdictPending": "Not enough logged yet to say whether weather is your trigger — {analyzed} of {required} attacks.",
+  "@insightsVerdictPending": {
+    "description": "The trigger verdict while no factor has settled. Deliberately not a verdict of \"no\"",
+    "placeholders": {
+      "analyzed": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsVerdictWeatherYes": "Weather does look like a trigger for you.",
+  "@insightsVerdictWeatherYes": {
+    "description": "Trigger verdict: pressure drops really do raise this user’s attack rate"
+  },
+  "insightsVerdictWeatherNo": "Pressure drops do not look like your trigger.",
+  "@insightsVerdictWeatherNo": {
+    "description": "Trigger verdict: pressure has settled and does not raise this user’s attack rate. The app is allowed to say no"
+  },
+  "insightsVerdictAlternative": "{factor} shows the strongest pattern in your logs.",
+  "@insightsVerdictAlternative": {
+    "description": "Names the factor with the widest gap between attack days and quiet days",
+    "placeholders": {
+      "factor": {
+        "type": "String",
+        "example": "Sleep"
+      }
+    }
+  },
+  "insightsVerdictNoPattern": "Nothing in your logs stands out as a clear trigger yet.",
+  "@insightsVerdictNoPattern": {
+    "description": "Shown when factors have settled but none of them shows a meaningful gap"
+  },
   "pressureScreenTitle": "Pressure",
   "@pressureScreenTitle": {
     "description": "Title of the pressure detail screen: forecast, correlation and alert controls"
