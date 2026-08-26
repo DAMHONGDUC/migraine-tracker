@@ -10,12 +10,14 @@ import '../weather/domain/entities/daily_pressure.dart';
 import '../weather/providers.dart';
 import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
+import 'domain/entities/medication_effectiveness_result.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
 import 'domain/enums/health_range.dart';
 import 'domain/enums/insights_tab.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
+import 'domain/services/medication_effectiveness_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
@@ -114,6 +116,52 @@ final stepCorrelationProvider = FutureProvider<StepCorrelationResult>((
 
   return engine.analyze(attacks: attacks, days: days);
 });
+
+final medicationEffectivenessEngineProvider =
+    Provider<MedicationEffectivenessEngine>(
+      (ref) => const MedicationEffectivenessEngine(),
+    );
+
+/// Which of the user's medications actually work.
+///
+/// Synchronous, unlike the correlation providers: the medication screen and
+/// the doctor report both want a figure or nothing, and an empty history is
+/// already a result here rather than a loading state.
+final medicationEffectivenessProvider = Provider<MedicationEffectivenessResult>(
+  (ref) {
+    final MedicationEffectivenessEngine engine = ref.watch(
+      medicationEffectivenessEngineProvider,
+    );
+    final List<Attack> attacks =
+        ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+
+    return engine.analyze(attacks);
+  },
+);
+
+/// One medication's row, or null while nothing has been taken for it.
+///
+/// Matched on the name exactly as the attack recorded it — the attack stores
+/// the name, not an id, so a renamed medication legitimately starts a fresh
+/// row rather than inheriting one it may not have earned.
+final medicationEffectivenessRowProvider =
+    Provider.family<MedicationEffectiveness?, String>((ref, medicationName) {
+      final MedicationEffectivenessResult result = ref.watch(
+        medicationEffectivenessProvider,
+      );
+
+      if (result is! MedicationEffectivenessInsight) {
+        return null;
+      }
+
+      final String name = medicationName.trim();
+
+      for (final MedicationEffectiveness row in result.medications) {
+        if (row.name == name) return row;
+      }
+
+      return null;
+    });
 
 /// The range each health chart is showing. Two controllers, not one: someone
 /// looking at six months of steps has not asked to leave last night's sleep.

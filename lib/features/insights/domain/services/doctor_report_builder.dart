@@ -8,8 +8,9 @@ import '../../../../core/utils/date_time_utils.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
-import '../../../attacks/domain/services/medication_effect_tally.dart';
 import '../entities/correlation_result.dart';
+import '../entities/medication_effectiveness_result.dart';
+import 'medication_effectiveness_engine.dart';
 
 /// Labels injected by the presentation layer so this service stays free of
 /// Flutter/l10n imports. The PDF renders with the bundled Noto Sans faces
@@ -154,13 +155,17 @@ class DoctorReportBuilder {
         [strings.typicalDuration, _durationLabel(typical)],
       // One row per medication that has outcomes. This is the part a doctor
       // acts on: a drug that only ever partly works is a drug being changed.
-      for (final MapEntry<String, MedicationEffectCount> entry
-          in const MedicationEffectTally().byMedication(attacks).entries)
-        [
-          entry.key,
-          '${entry.value.helped}/${entry.value.answered} '
-              '(${strings.colMedicationEffect.toLowerCase()})',
-        ],
+      // Rows with nothing answered are dropped — "0/0" is the prompt to start
+      // answering, not a finding.
+      if (const MedicationEffectivenessEngine().analyze(attacks)
+          case MedicationEffectivenessInsight(:final medications))
+        for (final MedicationEffectiveness row in medications)
+          if (row.answeredCount > 0)
+            [
+              row.name,
+              '${row.helpedCount}/${row.answeredCount} '
+                  '(${strings.colMedicationEffect.toLowerCase()})',
+            ],
       // Mature figures only: a share still settling has no business in a
       // document a doctor reads as settled.
       if (correlation case CorrelationInsight(

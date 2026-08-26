@@ -15,11 +15,11 @@ class _Effectiveness extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final MedicationEffectCount count = ref.watch(
-      medicationEffectCountProvider(medicationName),
+    final MedicationEffectiveness? row = ref.watch(
+      medicationEffectivenessRowProvider(medicationName),
     );
 
-    if (count.isEmpty) {
+    if (row == null || row.answeredCount == 0) {
       return Padding(
         padding: EdgeInsets.symmetric(
           horizontal: SdContentPaddingV2.horizontal,
@@ -40,7 +40,7 @@ class _Effectiveness extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                l10n.medicationEffectTally(count.helped, count.answered),
+                l10n.medicationEffectTally(row.helpedCount, row.answeredCount),
                 style: AppTextStyle.titleMedium,
               ),
               SizedBox(height: SdSpacingConstant.h8),
@@ -49,9 +49,9 @@ class _Effectiveness extends ConsumerWidget {
               // difference between changing the drug and changing the dose.
               Text(
                 <String>[
-                  '${l10n.medicationEffectHelped}: ${count.helped}',
-                  '${l10n.medicationEffectPartly}: ${count.partly}',
-                  '${l10n.medicationEffectDidNotHelp}: ${count.didNotHelp}',
+                  '${l10n.medicationEffectHelped}: ${row.helpedCount}',
+                  '${l10n.medicationEffectPartly}: ${row.partlyCount}',
+                  '${l10n.medicationEffectDidNotHelp}: ${row.didNotHelpCount}',
                 ].join(' · '),
                 style: AppTextStyle.bodyMedium.secondary,
               ),
