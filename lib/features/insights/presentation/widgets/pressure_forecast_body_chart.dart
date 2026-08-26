@@ -12,6 +12,10 @@ class _Chart extends StatelessWidget {
       fontSize: SdSpacingConstant.sp10,
     );
     final timeFormat = DateFormat.Hm(context.l10n.localeName);
+    // A weekday, not a clock time: over a week of hours the axis has room
+    // for about six labels, and "14:00" six times says nothing about which
+    // day the drop lands on.
+    final dayFormat = DateFormat.E(context.l10n.localeName);
 
     final past = <FlSpot>[];
     final future = <FlSpot>[];
@@ -70,14 +74,14 @@ class _Chart extends StatelessWidget {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 12,
+                    interval: 24,
                     reservedSize: SdSpacingConstant.h24,
                     getTitlesWidget: (value, meta) => Padding(
                       padding: EdgeInsets.only(top: SdSpacingConstant.h6),
                       child: Text(
                         value == 0
                             ? context.l10n.insightsForecastNow
-                            : timeFormat.format(timeAt(value).toLocal()),
+                            : dayFormat.format(timeAt(value).toLocal()),
                         style: labelStyle,
                       ),
                     ),
@@ -101,6 +105,7 @@ class _Chart extends StatelessWidget {
                     for (final spot in spots)
                       LineTooltipItem(
                         '${context.l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
+                        '${dayFormat.format(timeAt(spot.x).toLocal())} '
                         '${timeFormat.format(timeAt(spot.x).toLocal())}',
                         AppTextStyle.bodySmall.copyWith(
                           color: AppColors.textPrimary,

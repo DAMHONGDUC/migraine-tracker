@@ -232,7 +232,11 @@ class BackendWeatherDataSource {
 
   double? _double(Object? value) => (value as num?)?.toDouble();
 
-  /// Hourly pressure for the forecast chart: 12h behind, 48h ahead.
+  /// Hourly pressure for the forecast chart: [PressureForecast.contextHours]
+  /// behind, [PressureForecast.forecastDays] days ahead.
+  ///
+  /// The window is one request to Apple whatever its width, so the week
+  /// costs exactly what the two days cost.
   Future<List<PressurePoint>?> pressureSeries({
     required double latitude,
     required double longitude,
@@ -241,8 +245,8 @@ class BackendWeatherDataSource {
     final List<_Hour>? hours = await _hours(
       latitude: latitude,
       longitude: longitude,
-      hoursBack: 12,
-      hoursForward: 48,
+      hoursBack: PressureForecast.contextHours,
+      hoursForward: PressureForecast.forecastDays * 24,
     );
 
     if (hours == null) return null;

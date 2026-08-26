@@ -127,7 +127,7 @@
   "@appFeatureAlertsBody": {
     "description": "Premium feature: pressure alerts, detail"
   },
-  "appFeatureForecastTitle": "48-hour pressure forecast",
+  "appFeatureForecastTitle": "7-day pressure forecast",
   "@appFeatureForecastTitle": {
     "description": "Premium feature: pressure forecast"
   },
@@ -953,7 +953,7 @@
       }
     }
   },
-  "insightsForecastTitle": "48h pressure forecast",
+  "insightsForecastTitle": "7-day pressure forecast",
   "@insightsForecastTitle": {
     "description": "Title of the pressure forecast line chart card"
   },
@@ -1241,7 +1241,7 @@
   "@premiumUnlock": {
     "description": "CTA on a locked premium surface, opens the paywall"
   },
-  "premiumLockedForecast": "See the pressure forecast 48 hours ahead, so you can plan around it.",
+  "premiumLockedForecast": "See the pressure a week ahead, so you can plan around it.",
   "@premiumLockedForecast": {
     "description": "Locked-state copy on the forecast card"
   },
@@ -1423,7 +1423,7 @@
   "@paywallBenefitAlertsBody": {
     "description": "Paywall benefit detail: push alerts"
   },
-  "paywallBenefitForecast": "48h pressure forecast",
+  "paywallBenefitForecast": "7-day pressure forecast",
   "@paywallBenefitForecast": {
     "description": "Paywall benefit: forecast chart"
   },
@@ -2141,7 +2141,7 @@
       }
     }
   },
-  "a11yForecastChart": "Pressure chart, past 12 hours and next 48 hours. Now {now} hPa, lowest ahead {min} hPa.",
+  "a11yForecastChart": "Pressure chart, past 12 hours and the next 7 days. Now {now} hPa, lowest ahead {min} hPa.",
   "@a11yForecastChart": {
     "description": "VoiceOver summary of the pressure forecast line chart",
     "placeholders": {
@@ -2338,7 +2338,7 @@
   "@dashboardPremiumTitle": {
     "description": "Title of the premium promo card on the dashboard"
   },
-  "dashboardPremiumBody": "Pressure alerts, the 48h forecast chart, and your trigger analysis.",
+  "dashboardPremiumBody": "Pressure alerts, the 7-day forecast chart, and your trigger analysis.",
   "@dashboardPremiumBody": {
     "description": "Body of the premium promo card on the dashboard"
   },
