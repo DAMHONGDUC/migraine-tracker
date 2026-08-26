@@ -37,8 +37,12 @@ part 'paywall_screen_plans.dart';
 /// This one keeps its frosted Liquid Glass surface — the app's sheets are
 /// flat opaque panels, the paywall deliberately is not.
 ///
-/// Gates route through [NavigationUtils.unlockPremium], which signs the
-/// user in first. Deep links skip that, so the CTA checks for itself.
+/// **Buying needs no account** (App Store 5.1.1(v), which submission 1.0(20)
+/// was rejected under): the plans, the CTA and Restore are all here signed
+/// out, because a subscription to the app's own features is not account-based
+/// content. Signing in is offered under the CTA as what it actually buys —
+/// the same subscription on the user's other devices — never as the price of
+/// buying at all.
 class PaywallScreen extends HookConsumerWidget {
   const PaywallScreen({super.key});
 
@@ -232,43 +236,42 @@ class PaywallScreen extends HookConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Plans only with an account: prices behind a sign-in wall invite a tap that can't complete.
-                    if (signedIn) ...<Widget>[
-                      SizedBox(height: SdSpacingConstant.h8),
-                      _Plans(
-                        offers: offers,
-                        selectedId: active?.id,
-                        onSelected: (PremiumOffer offer) =>
-                            selectedId.value = offer.id,
-                      ),
-                    ],
+                    SizedBox(height: SdSpacingConstant.h8),
+                    _Plans(
+                      offers: offers,
+                      selectedId: active?.id,
+                      onSelected: (PremiumOffer offer) =>
+                          selectedId.value = offer.id,
+                    ),
                     SizedBox(height: SdSpacingConstant.h12),
-                    // Signed out there is no account to subscribe to, so the CTA signs in first.
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       // Null while offerings load or when the store has nothing to sell — never a CTA that can only fail.
-                      onPressed: !signedIn || active != null
+                      onPressed: active != null
                           ? () {
                               AppAnalytics.logPaywallCtaTapped(
                                 signedIn: signedIn,
                               );
-                              if (!signedIn) {
-                                NavigationUtils.toLogin(context);
-                                return;
-                              }
-                              unawaited(_buy(context, ref, active!));
+                              unawaited(_buy(context, ref, active));
                             }
                           : null,
-                      label: signedIn
-                          ? l10n.premiumUnlock
-                          : l10n.paywallSignInFirst,
+                      label: l10n.premiumUnlock,
                     ),
                     // App Store 3.1.1 requires a restore path — a reinstall or a second device.
-                    if (signedIn)
+                    SdButtonV2(
+                      variant: SdButtonVariantV2.text,
+                      onPressed: () => unawaited(_restore(context, ref)),
+                      label: l10n.paywallRestore,
+                    ),
+                    // The optional half of 5.1.1(v): a way to register at any
+                    // time, saying what registering is worth, under a purchase
+                    // that never waited on it.
+                    if (!signedIn)
                       SdButtonV2(
                         variant: SdButtonVariantV2.text,
-                        onPressed: () => unawaited(_restore(context, ref)),
-                        label: l10n.paywallRestore,
+                        onPressed: () =>
+                            unawaited(NavigationUtils.toLogin(context)),
+                        label: l10n.paywallWhySignIn,
                       ),
                     SizedBox(height: SdSpacingConstant.h12),
                     // App Store 3.1.2 requires these in the binary too, not

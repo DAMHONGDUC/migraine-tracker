@@ -11,6 +11,11 @@ import '../../providers.dart';
 /// would not exist on the next — so it is bound to the Firebase UID the
 /// moment there is one, and released on sign-out so the next account on a
 /// shared device does not inherit it.
+///
+/// **An anonymous purchase is a first-class one** (App Store 5.1.1(v): buying
+/// cannot require registration). It lives under RevenueCat's own anonymous id
+/// until the user signs in, and `logIn` then carries it onto the account —
+/// which is exactly what the paywall's sign-in link offers to do.
 class PurchaseIdentity {
   PurchaseIdentity(this._ref);
 

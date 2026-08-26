@@ -35,8 +35,10 @@ class _GeneralSection extends ConsumerWidget {
     return Column(
       children: [
         const AccountSection(),
-        // Only with an account: a subscription needs one to belong to.
-        if (ref.watch(isSignedInProvider)) const PremiumSettingsTile(),
+        // Always, account or not: premium is not account-based content
+        // (App Store 5.1.1(v)), so the row that reports and sells it cannot
+        // sit behind a sign-in either.
+        const PremiumSettingsTile(),
         const NotificationsSettingsTile(),
         SettingsTile(
           icon: Icons.language,

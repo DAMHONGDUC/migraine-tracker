@@ -158,7 +158,7 @@ class BaroEaseApp extends HookConsumerWidget {
         unawaited(ref.read(syncControllerProvider.notifier).onSignedOut());
       }
       // - Bind purchases to the account so an entitlement follows the person, not the install — survives a reinstall or a second device.
-      // - Anonymous sessions stay unbound: nothing durable to attach a purchase to yet.
+      // - Anonymous sessions stay unbound, and buy under RevenueCat's own anonymous id — signing in later carries the purchase over.
       unawaited(
         ref
             .read(purchaseIdentityProvider)

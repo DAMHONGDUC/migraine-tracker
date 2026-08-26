@@ -117,14 +117,6 @@ final class NavigationUtils {
     },
   );
 
-  /// Every locked surface goes here, signed in or not — one door, so the
-  /// paywall is what a gate opens and nothing else.
-  ///
-  /// The account question is the paywall's, not this method's: signed out
-  /// it offers "Sign in to continue" (which comes back here through
-  /// [toLogin]) and signed in it offers the purchase. That way the pitch is
-  /// always what the user sees first, and a login screen never appears in
-  /// front of a paywall they haven't been shown yet.
   /// A record limit was reached: name it, and open the paywall only if the
   /// user asks for it.
   ///
@@ -147,6 +139,14 @@ final class NavigationUtils {
     await toPaywall(context, ref);
   }
 
+  /// Every locked surface goes here, signed in or not — one door, so the
+  /// paywall is what a gate opens and nothing else.
+  ///
+  /// **The account never comes into it.** Buying needs no registration (App
+  /// Store 5.1.1(v)), so there is no sign-in step to put anywhere, and a
+  /// login screen must never appear in front of a paywall the user has not
+  /// been shown yet. The paywall offers signing in as an extra, under the
+  /// CTA, for the devices it carries the subscription to.
   static Future<void> toPaywall(BuildContext context, WidgetRef ref) async {
     // Demand signal: how often a locked surface is tapped, and whether the user already had an account.
     AppAnalytics.logPremiumGateTapped(signedIn: ref.read(isSignedInProvider));

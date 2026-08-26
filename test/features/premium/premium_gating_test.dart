@@ -61,10 +61,10 @@ void main() {
   testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
     tester,
   ) async {
-    // Signed in, because the dev row sits behind an account: premium binds to
-    // one, so forcing it without one simulates a state production cannot
-    // reach. Signed in and unentitled is still not premium.
-    final PumpedApp app = await pumpApp(tester, signedIn: true);
+    // Signed out on purpose: the dev row no longer sits behind an account,
+    // because neither does premium (App Store 5.1.1(v)). Unentitled is still
+    // not premium.
+    final PumpedApp app = await pumpApp(tester);
     await seedInsightData(tester, app);
     await openPressureInsight(tester);
 
@@ -291,13 +291,13 @@ void main() {
       // a paywall the user has not been shown yet.
       expect(find.text('BaroEase Premium'), findsOneWidget);
       expect(find.text('Sign in to unlock Premium'), findsNothing);
-      // …and the CTA is the account, since there is none yet.
-      expect(find.text('Sign in to continue'), findsOneWidget);
+      // …and it sells straight away, signed out (App Store 5.1.1(v)).
+      expect(find.text(r'$29.99'), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    testWidgets('the paywall CTA leads to login, and comes back unlockable', (
+    testWidgets('the paywall offers login as an extra, not as the way in', (
       tester,
     ) async {
       final app = await pumpApp(tester);
@@ -308,17 +308,24 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      await tapVisible(tester, find.text('Sign in to continue'));
+      await tapVisible(
+        tester,
+        find.text('Sign in to use Premium on your other devices'),
+      );
       expect(find.text('Sign in to unlock Premium'), findsOneWidget);
 
       await tester.tap(find.text('Continue with Google'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      // Back on the paywall it was opened from, now offering the purchase.
+      // Back on the paywall it was opened from, still selling — the link is
+      // gone because there is an account now.
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
       expect(find.text('BaroEase Premium'), findsOneWidget);
-      expect(find.text('Sign in to continue'), findsNothing);
+      expect(
+        find.text('Sign in to use Premium on your other devices'),
+        findsNothing,
+      );
 
       await finishTest(tester);
     });
@@ -334,28 +341,34 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      await tapVisible(tester, find.text('Sign in to continue'));
+      await tapVisible(
+        tester,
+        find.text('Sign in to use Premium on your other devices'),
+      );
       await tapVisible(tester, find.text('Not now'));
 
       expect(app.auth.signInCalls, isEmpty);
       expect(find.text('BaroEase Premium'), findsOneWidget);
-      expect(find.text('Sign in to continue'), findsOneWidget);
+      expect(
+        find.text('Sign in to use Premium on your other devices'),
+        findsOneWidget,
+      );
 
       await finishTest(tester);
     });
 
-    testWidgets('an entitlement without an account unlocks nothing', (
+    testWidgets('an entitlement without an account unlocks everything', (
       tester,
     ) async {
-      // The combination RevenueCat can produce on a fresh install: a
-      // restored entitlement with nobody signed in.
+      // The combination RevenueCat produces after a purchase nobody signed
+      // in for. It used to unlock nothing; App Store 5.1.1(v) says the
+      // entitlement is the whole answer.
       final app = await pumpApp(tester, premium: true, signedIn: false);
       await seedInsightData(tester, app);
 
       await openPressureInsight(tester);
 
-      expect(find.text('60%'), findsNothing);
-      expect(find.text('Premium'), findsWidgets);
+      expect(find.text('60%'), findsOneWidget);
 
       await finishTest(tester);
     });

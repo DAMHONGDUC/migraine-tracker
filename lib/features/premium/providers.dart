@@ -1,7 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/env/app_env.dart';
-import '../auth/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
 import 'data/repositories/revenue_cat_purchase_repository.dart';
@@ -41,12 +40,6 @@ final isPremiumProvider = StreamProvider<bool>(
   (ref) => ref.watch(premiumRepositoryProvider).watchIsPremium(),
 );
 
-/// What every gate reads. Falls back to the repository while loading, so a
-/// premium gate never flashes locked on the first frame.
-///
-/// An entitlement without an account unlocks nothing — a subscription needs
-/// something that survives a reinstall. Both conditions live here so no
-/// gate can forget one.
 /// Dev-only forced premium state. Null means "follow RevenueCat", which is
 /// what it is until a developer flips the Settings toggle.
 ///
@@ -68,6 +61,16 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
   DevPremiumOverride.new,
 );
 
+/// What every gate reads. Falls back to the repository while loading, so a
+/// premium gate never flashes locked on the first frame.
+///
+/// **The entitlement is the whole answer — an account is never part of it.**
+/// It used to also require a signed-in user, on the reasoning that a
+/// subscription needs something that survives a reinstall. App Store 5.1.1(v)
+/// says otherwise, and submission 1.0(20) was rejected for it: premium here is
+/// not account-based content, so registration cannot be its price. A reinstall
+/// is what "Restore purchases" is for, and signing in is offered on the
+/// paywall as what carries the subscription to a second device.
 final hasPremiumProvider = Provider<bool>((ref) {
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {
@@ -75,8 +78,6 @@ final hasPremiumProvider = Provider<bool>((ref) {
 
     if (forced != null) return forced;
   }
-
-  if (!ref.watch(isSignedInProvider)) return false;
 
   return switch (ref.watch(isPremiumProvider)) {
     AsyncData(value: final bool value) => value,

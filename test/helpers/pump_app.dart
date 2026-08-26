@@ -642,9 +642,9 @@ Future<PumpedApp> pumpApp(
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 
-  /// Follows [premium]: an entitlement without an account unlocks nothing,
-  /// so a signed-out premium test would silently test the locked branch.
-  bool? signedIn,
+  /// Default signed out, and independent of [premium]: buying needs no
+  /// account (App Store 5.1.1(v)), so the two are unrelated states.
+  bool signedIn = false,
 
   /// On, as shipped: the Apple button runs the real flow (App Store 4.8).
   /// False covers the kill-switch state, where tapping it says so instead.
@@ -710,7 +710,7 @@ Future<PumpedApp> pumpApp(
   final permissions = FakeAppPermissionGateway()..statusFor = permissionStatus;
   final RecordingLocationSource location = RecordingLocationSource();
   final exportFiles = FakeExportFileStore();
-  final auth = FakeAuthRepository(signedIn: signedIn ?? premium);
+  final auth = FakeAuthRepository(signedIn: signedIn);
   addTearDown(auth.dispose);
   final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
     config: appUpdate,

@@ -3,13 +3,12 @@ import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dar
 
 import '../../helpers/pump_app.dart';
 
-/// The Premium row is the signed-in user's view of their subscription. The
-/// screen behind it reports status; buying still happens on the paywall.
+/// The Premium row is the user's view of their subscription — everyone's,
+/// account or not. The screen behind it reports status; buying still happens
+/// on the paywall.
 void main() {
-  testWidgets('signed in and free: the row opens the premium screen', (
-    tester,
-  ) async {
-    await pumpApp(tester, signedIn: true);
+  testWidgets('free: the row opens the premium screen', (tester) async {
+    await pumpApp(tester);
     await openSettings(tester);
 
     expect(find.byType(PremiumSettingsTile), findsOneWidget);
@@ -39,11 +38,14 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('signed out: Settings has no premium row', (tester) async {
+  testWidgets('signed out: Settings still has the premium row', (tester) async {
+    // It used to be hidden without an account. App Store 5.1.1(v): premium
+    // is not account-based content, so neither the purchase nor the row
+    // reporting it may wait on registration.
     await pumpApp(tester);
     await openSettings(tester);
 
-    expect(find.byType(PremiumSettingsTile), findsNothing);
+    expect(find.byType(PremiumSettingsTile), findsOneWidget);
     await finishTest(tester);
   });
 }

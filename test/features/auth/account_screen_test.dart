@@ -21,9 +21,10 @@ void main() {
     await openSettings(tester);
 
     expect(find.text('Sign in'), findsOneWidget);
-    // The premium row needs an account; 'Premium' the word still appears on
-    // the locked gates, so this asks for the row itself.
-    expect(find.byType(PremiumSettingsTile), findsNothing);
+    // The premium row needs no account (App Store 5.1.1(v)) and sits next to
+    // the sign-in one. 'Premium' the word also appears on the locked gates,
+    // so this asks for the row itself.
+    expect(find.byType(PremiumSettingsTile), findsOneWidget);
     await finishTest(tester);
   });
 

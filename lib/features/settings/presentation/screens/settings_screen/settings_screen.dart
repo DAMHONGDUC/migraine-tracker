@@ -79,13 +79,12 @@ class SettingsScreen extends ConsumerWidget {
             // Settings for, and below the real sections it meant scrolling.
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
-              // Both need a real account: premium binds to one
-              // (`PurchaseIdentity`), so an anonymous session would simulate a
-              // state production cannot reach, and sendTestPush refuses one.
-              if (ref.watch(isSignedInProvider)) ...<Widget>[
-                const _DevPremiumTile(),
-                const _DevPushTile(),
-              ],
+              // Forced premium needs no account, exactly like the real thing
+              // (App Store 5.1.1(v) — see `hasPremiumProvider`).
+              const _DevPremiumTile(),
+              // The push fixture still does: sendTestPush refuses an
+              // anonymous session, so the row would only ever fail.
+              if (ref.watch(isSignedInProvider)) const _DevPushTile(),
               // Beside the push row but outside the account gate: a local
               // notification needs no account, and the pair is what says which
               // half of the delivery path failed when a reminder never lands.

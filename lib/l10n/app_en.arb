@@ -2548,13 +2548,9 @@
   "@settingsSignOutConfirmBody": {
     "description": "Body of the sign-out confirmation dialog"
   },
-  "paywallSignInFirst": "Sign in to continue",
-  "@paywallSignInFirst": {
-    "description": "Paywall CTA shown to a signed-out user, opens the login screen"
-  },
-  "paywallWhySignIn": "Premium needs an account so your subscription can follow you.",
+  "paywallWhySignIn": "Sign in to use Premium on your other devices",
   "@paywallWhySignIn": {
-    "description": "Line under the paywall CTA explaining why signing in comes first"
+    "description": "Optional sign-in link under the paywall CTA: an account carries the subscription to the user's other devices"
   },
   "settingsSectionGeneral": "General",
   "@settingsSectionGeneral": {

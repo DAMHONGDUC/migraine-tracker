@@ -74,17 +74,41 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a signed-out paywall sells before it asks for an account', (
+  testWidgets('a signed-out paywall sells without asking for an account', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester);
     await openPaywall(tester, app);
 
-    // No prices behind a sign-in wall: tapping one could not complete.
-    expect(find.text('Sign in to continue'), findsOneWidget);
-    expect(find.text(r'$29.99'), findsNothing);
-    expect(find.text('Restore purchases'), findsNothing);
-    expect(app.purchases.purchased, isEmpty);
+    // App Store 5.1.1(v): premium is not account-based content, so nothing
+    // here may wait on registration — the prices, the CTA and Restore are
+    // the same ones a signed-in user sees.
+    expect(find.text(r'$29.99'), findsOneWidget);
+    expect(paywallCta(), findsOneWidget);
+    expect(find.text('Restore purchases'), findsOneWidget);
+    // Registering stays on offer, as what it is actually worth.
+    expect(
+      find.text('Sign in to use Premium on your other devices'),
+      findsOneWidget,
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('buying without an account unlocks premium there and then', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await openPaywall(tester, app);
+
+    await tapVisible(tester, paywallCta());
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The entitlement is the whole answer — nothing was bound to a UID, and
+    // nothing had to be.
+    expect(app.purchases.purchased, <String>[r'$rc_annual']);
+    expect(app.premiumRepository.isPremium, isTrue);
+    expect(app.purchases.identified, isEmpty);
 
     await finishTest(tester);
   });

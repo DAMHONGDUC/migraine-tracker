@@ -10,8 +10,8 @@ import '../../router/app_router.dart';
 import '../settings_tile.dart';
 
 /// Settings row for the subscription: says where it stands and opens
-/// `PremiumScreen` for the rest. Shown only to signed-in users — the
-/// Settings section decides that, so this stays a plain row.
+/// `PremiumScreen` for the rest. Shown to everyone — buying premium needs no
+/// account (App Store 5.1.1(v)), so neither does the row reporting it.
 class PremiumSettingsTile extends ConsumerWidget {
   const PremiumSettingsTile({super.key});
 
