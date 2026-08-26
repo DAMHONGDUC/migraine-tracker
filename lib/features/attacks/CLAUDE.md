@@ -311,8 +311,20 @@ boundary** and hands the PNG to the share sheet.
 - **Free, owner's call** — the acute use ("I'm down, text don't call") lands
   mid-attack, and that is the worst place in the app for a paywall.
 - It reuses `ExportSharer` from `settings/` rather than a second `share_plus`
-  call site, and writes to the **cache** directory: the PNG is a copy of
-  something the app already stores, so it is the OS's to reclaim.
+  call site, and writes through `AttackShareFileStore` into its own
+  `attack_shares/` folder in temporary storage — never documents, which is
+  where exports go because the export screen lists them again later.
+- **The GDPR wipe clears that folder** (`DataWipeService`, step 11 of 11).
+  The picture is a fourth copy of health data on the device; iOS reclaims
+  temporary storage eventually, but eventually is not a deletion the user
+  asked for. The folder is its own for exactly this: the wipe deletes the
+  whole directory, and pointing that at the temp root would take plugin
+  caches with it.
+  - **Adding a step means moving `DataWipeService.steps` with it** — its own
+    comment says so, and the progress bar counts against that number.
+  - The privacy policy names this file in two places (§7b and the
+    "Delete all data" bullet), in `PRIVACY_POLICY.md` *and* `privacy.json`.
+    Change what the wipe reaches and all four move together.
 - `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
   `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.
 
