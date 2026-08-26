@@ -9,6 +9,8 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.dart';
 import 'package:migraine_tracker/features/insights/presentation/widgets/pressure_card.dart';
+import 'package:migraine_tracker/features/insights/presentation/widgets/pressure_history_body.dart';
+import 'package:migraine_tracker/features/insights/presentation/widgets/trigger_verdict_body.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/pressure_forecast.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:system_design/index.dart';
@@ -87,6 +89,39 @@ void main() {
     expect(find.text('60%'), findsNothing);
 
     await finishTest(tester);
+  });
+
+  // Both bodies were added to PressureCard after the gating tests were
+  // written, and TESTING.md item 4 is explicit that proving a free user's
+  // tree holds no premium data is debt that must be paid before release.
+  group('the two bodies added to the pressure card', () {
+    testWidgets('a free user gets neither the verdict nor the chart', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await seedInsightData(tester, app);
+
+      await openPressureInsight(tester);
+
+      // Absent from the tree entirely, not merely covered: a scrim over a
+      // real figure is one screenshot away from leaking it.
+      expect(find.byType(TriggerVerdictBody), findsNothing);
+      expect(find.byType(PressureHistoryBody), findsNothing);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('a premium user gets both', (tester) async {
+      final app = await pumpApp(tester, premium: true);
+      await seedInsightData(tester, app);
+
+      await openPressureInsight(tester);
+
+      expect(find.byType(TriggerVerdictBody), findsOneWidget);
+      expect(find.byType(PressureHistoryBody), findsOneWidget);
+
+      await finishTest(tester);
+    });
   });
 
   group('free user', () {
