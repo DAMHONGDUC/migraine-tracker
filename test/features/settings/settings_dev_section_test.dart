@@ -31,12 +31,12 @@ void main() {
 
     // It moved here from the medications tab's app bar, where a developer
     // tool sat in the chrome of a screen users see.
-    await tapVisible(tester, find.text('Send a test notification'));
+    await tapVisible(tester, find.text('Test local notification (device)'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(app.scheduler.testScheduled, isTrue);
-    expect(find.textContaining('Test notification in 10s'), findsOneWidget);
+    expect(find.textContaining('Local test notification in 10s'), findsOneWidget);
 
     await finishTest(tester);
   });

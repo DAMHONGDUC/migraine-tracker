@@ -16,7 +16,10 @@ void main() {
     await pumpApp(tester, permissionStatus: AppPermissionStatus.denied);
 
     expect(find.text(prompt), findsOneWidget);
-    expect(find.text('Enable location'), findsOneWidget);
+    // "Continue", never "Enable location": App Store 5.1.1(iv) reads a
+    // button that names the grant as steering the answer.
+    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Enable location'), findsNothing);
     // The failure line belongs to states the user cannot fix; this one they can.
     expect(find.text('Weather is unavailable right now.'), findsNothing);
 
@@ -41,7 +44,7 @@ void main() {
     final int before = app.weather.reportCalls;
 
     app.permissions.statusFor = AppPermissionStatus.granted;
-    await tapVisible(tester, find.text('Enable location'));
+    await tapVisible(tester, find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 400));
 
     // The grant has to invalidate the report, not just the permission. Left
@@ -63,7 +66,7 @@ void main() {
       permissionStatus: AppPermissionStatus.permanentlyDenied,
     );
 
-    await tapVisible(tester, find.text('Enable location'));
+    await tapVisible(tester, find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 400));
 
     // iOS will not show its dialog again, so the button has to lead somewhere:

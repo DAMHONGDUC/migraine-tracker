@@ -171,10 +171,14 @@ void main() {
       // Four of the five: the severity donut is the dashboard's, free here too.
       expect(find.byType(PremiumChartLock), findsNWidgets(4));
       expect(find.text('Moderate · 15'), findsOneWidget);
-      // The locked four draw the sample, which spans all five head locations
-      // — the seeded attacks are all `left`, so a single row would mean the
-      // user's own data is sitting under the blur.
-      expect(find.byType(SdProgressRowV2), findsNWidgets(5));
+      // The locked four draw the sample, which spans every head region — the
+      // seeded attacks name one apiece, so a handful of rows would mean the
+      // user's own data is sitting under the blur. Counted off the enum: the
+      // head map has grown before and the number is not the point.
+      expect(
+        find.byType(SdProgressRowV2),
+        findsNWidgets(HeadRegion.values.length),
+      );
 
       await finishTest(tester);
     });

@@ -19,7 +19,7 @@ void main() {
     // The version row is gone: the About row carries the same diagnostic
     // string as its value, so a bug report still names its build.
     expect(find.text('About BaroEase'), findsOneWidget);
-    expect(find.text('dev - 99.0.0 - 9999'), findsOneWidget);
+    expect(find.text('dev - 99.0.0 (9999)'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -41,7 +41,7 @@ void main() {
 
     expect(app.mailLauncher.to, 'support@baroease.app');
     expect(app.mailLauncher.subject, 'BaroEase support');
-    expect(app.mailLauncher.body, contains('dev - 99.0.0 - 9999'));
+    expect(app.mailLauncher.body, contains('dev - 99.0.0 (9999)'));
 
     await finishTest(tester);
   });

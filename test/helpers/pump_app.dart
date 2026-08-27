@@ -17,6 +17,7 @@ import 'package:migraine_tracker/features/app_update/domain/entities/installed_a
 import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
 import 'package:migraine_tracker/features/app_update/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_update/providers.dart';
+import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
 import 'package:migraine_tracker/features/auth/domain/enums/auth_error.dart';
@@ -54,6 +55,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/index.dart';
 
 import 'alert_fakes.dart';
+import 'attack_fakes.dart';
 import 'export_fakes.dart';
 import 'notification_fakes.dart';
 import 'review_fakes.dart';
@@ -594,6 +596,7 @@ class PumpedApp {
     required this.mailLauncher,
     required this.profiles,
     required this.exportFiles,
+    required this.shareFiles,
     required this.health,
     required this.premiumRepository,
     required this.purchases,
@@ -626,6 +629,9 @@ class PumpedApp {
   /// Where exports landed. Read `singleContent` to assert on what was
   /// written without touching a real filesystem.
   final FakeExportFileStore exportFiles;
+
+  /// The share images the GDPR wipe has to reach. `cleared` says it did.
+  final RecordingShareFileStore shareFiles;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed
@@ -710,6 +716,7 @@ Future<PumpedApp> pumpApp(
   final permissions = FakeAppPermissionGateway()..statusFor = permissionStatus;
   final RecordingLocationSource location = RecordingLocationSource();
   final exportFiles = FakeExportFileStore();
+  final RecordingShareFileStore shareFiles = RecordingShareFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn);
   addTearDown(auth.dispose);
   final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
@@ -760,6 +767,10 @@ Future<PumpedApp> pumpApp(
         // Always overridden: the real store needs path_provider, which a
         // widget test does not have.
         exportFileStoreProvider.overrideWithValue(exportFiles),
+        // Same reason, and the wipe awaits it: `TemporaryShareFileStore`
+        // asks path_provider for the temp folder, which never answers in a
+        // test — so "Delete all data" would sit unfinished forever.
+        attackShareFileStoreProvider.overrideWithValue(shareFiles),
         // Always overridden too: the app root fires a sync on sign-in, and
         // the real repositories reach for Firebase, which no widget test has.
         syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
@@ -802,6 +813,7 @@ Future<PumpedApp> pumpApp(
     mailLauncher: mailLauncher,
     profiles: profiles,
     exportFiles: exportFiles,
+    shareFiles: shareFiles,
     health: health,
     premiumRepository: premiumRepository,
     purchases: purchases,
