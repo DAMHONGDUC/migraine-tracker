@@ -47,13 +47,13 @@ class ActivityScreen extends ConsumerWidget {
             ),
             child: Column(
               children: <Widget>[
-                // What was counted comes before what is drawn from it — and
-                // only while steps are connected, since there is nothing to
-                // show otherwise.
-                if (ref.watch(healthControllerProvider).steps) ...<Widget>[
-                  const StepSummaryCard(),
+                // What was counted comes before what is drawn from it. Always
+                // mounted — the card hides itself while steps are
+                // disconnected, and mounting it on the flag instead cost a
+                // mid-build provider flush (see [SleepSummaryCard]).
+                const StepSummaryCard(),
+                if (ref.watch(healthControllerProvider).steps)
                   SizedBox(height: SdContentPaddingV2.sectionGap),
-                ],
                 switch (result) {
                   AsyncData(value: final value) => ExertionCorrelationCard(
                     result: value,

@@ -21,14 +21,21 @@ part 'step_summary_card_chart.dart';
 /// Free, unlike the correlation card under it — same reason as
 /// [SleepSummaryCard]: it is the answer to "did connecting work".
 ///
-/// Absent entirely while steps are disconnected.
+/// Absent entirely while steps are disconnected, and it decides that itself
+/// rather than being mounted conditionally — see [SleepSummaryCard] for the
+/// mid-build flush that costs.
 class StepSummaryCard extends ConsumerWidget {
   const StepSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
+    // Watched before the connection flag — see [SleepSummaryCard].
     final AsyncValue<StepSummary> summary = ref.watch(stepSummaryProvider);
+
+    if (!ref.watch(healthControllerProvider).steps) {
+      return const SizedBox.shrink();
+    }
 
     return switch (summary) {
       AsyncData<StepSummary>(value: final StepSummary value) =>

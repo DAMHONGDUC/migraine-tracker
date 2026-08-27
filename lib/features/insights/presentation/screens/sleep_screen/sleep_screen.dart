@@ -42,13 +42,13 @@ class SleepScreen extends ConsumerWidget {
             ),
             child: Column(
               children: <Widget>[
-                // What was read comes before what is drawn from it — and
-                // only while sleep is connected, since there is nothing to
-                // show otherwise.
-                if (ref.watch(healthControllerProvider).sleep) ...<Widget>[
-                  const SleepSummaryCard(),
+                // What was read comes before what is drawn from it. Always
+                // mounted — the card hides itself while sleep is
+                // disconnected, and mounting it on the flag instead cost a
+                // mid-build provider flush (see [SleepSummaryCard]).
+                const SleepSummaryCard(),
+                if (ref.watch(healthControllerProvider).sleep)
                   SizedBox(height: SdContentPaddingV2.sectionGap),
-                ],
                 PremiumGate(
                   lockedIcon: Icons.bedtime_outlined,
                   lockedMessage: context.l10n.premiumLockedSleep,

@@ -24,13 +24,29 @@ part 'sleep_summary_card_chart.dart';
 ///
 /// Absent entirely while sleep is disconnected: the switch above already
 /// says so, and a card explaining itself twice is noise.
+///
+/// **It decides that itself rather than being mounted conditionally**, and
+/// the order of the two watches below is the reason. The screen used to gate
+/// on `healthControllerProvider.sleep`, so the card mounted in the very frame
+/// the switch flipped — and its first `watch` of [sleepSummaryProvider]
+/// flushed a provider that was already stale, mid-build. The flush notified
+/// `hasTodayReadingsProvider` on the dashboard, which invalidated itself and
+/// asked the ProviderScope to rebuild during a build: a hard assert. Watching
+/// from a card that is always mounted means the flush happens between frames,
+/// where it belongs.
 class SleepSummaryCard extends ConsumerWidget {
   const SleepSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
+    // Watched before the connection flag, never after: this listener is what
+    // keeps the provider flushed between frames.
     final AsyncValue<SleepSummary> summary = ref.watch(sleepSummaryProvider);
+
+    if (!ref.watch(healthControllerProvider).sleep) {
+      return const SizedBox.shrink();
+    }
 
     return switch (summary) {
       AsyncData<SleepSummary>(value: final SleepSummary value) =>
