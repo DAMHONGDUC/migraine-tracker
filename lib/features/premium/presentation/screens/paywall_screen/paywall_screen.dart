@@ -257,6 +257,7 @@ class PaywallScreen extends HookConsumerWidget {
                           : null,
                       label: l10n.premiumUnlock,
                     ),
+                    SizedBox(height: SdSpacingConstant.h8),
                     // App Store 3.1.1 requires a restore path — a reinstall or a second device.
                     SdTextActionV2(
                       label: l10n.paywallRestore,
