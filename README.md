@@ -4,6 +4,22 @@ Migraine tracker with barometric pressure alerts. Flutter, iOS first.
 
 See `CLAUDE.md` for architecture and `PLAN.md` for the product spec.
 
+## App ids
+
+| Platform | Id |
+| --- | --- |
+| iOS (Runner) | `app.dd.migraine.tracker` |
+| iOS widget extension | `app.dd.migraine.tracker.BaroEaseWidgetExtension` |
+| iOS App Group | `group.app.dd.migraine.tracker` |
+| Android | `com.dd.migraine.tracker` |
+
+**The two platforms deliberately do not share one string** — iOS is `app.dd.…`,
+Android is `com.dd.…`. The iOS App ID was registered that way in the portal and
+is baked into the provisioning profiles, the App Group and the widget
+extension's own App ID; renaming it now would invalidate all of them. Read the
+id from `ios/Runner.xcodeproj/project.pbxproj` (`PRODUCT_BUNDLE_IDENTIFIER`) and
+`android/app/build.gradle.kts` (`appId`) before assuming either.
+
 ## Getting started
 
 Clone with submodules — the design system lives in one:
