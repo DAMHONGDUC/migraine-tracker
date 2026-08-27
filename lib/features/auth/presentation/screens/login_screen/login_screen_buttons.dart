@@ -49,8 +49,6 @@ class _ProviderButtons extends ConsumerWidget {
           iconSize: SdSpacingConstant.r18,
           label: l10n.loginGoogle,
         ),
-        // A calm bar under the buttons, not a spinner in the label.
-        SizedBox(height: SdSpacingConstant.h8),
         SizedBox(
           height: SdSpacingConstant.h4,
           child: state.isBusy

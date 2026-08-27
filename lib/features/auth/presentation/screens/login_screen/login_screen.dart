@@ -72,10 +72,11 @@ class LoginScreen extends ConsumerWidget {
             onSignIn: (AuthProviderKind provider) =>
                 _signIn(context, ref, provider),
           ),
-          SdButtonV2(
-            variant: SdButtonVariantV2.text,
-            onPressed: state.isBusy ? null : () => context.pop(false),
+          // Text, not a button: the two provider buttons above are the offer,
+          // and a third button under them reads as a third way in.
+          SdTextActionV2(
             label: l10n.loginNotNow,
+            onTap: state.isBusy ? null : () => context.pop(false),
           ),
         ],
       ),
