@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/analytics/app_analytics.dart';
@@ -36,8 +35,11 @@ part 'paywall_screen_plans.dart';
 /// and an X to dismiss. The area above the sheet stays see-through so the
 /// barrier shows the screen underneath.
 ///
-/// This one keeps its frosted Liquid Glass surface — the app's sheets are
-/// flat opaque panels, the paywall deliberately is not.
+/// Its surface is the same flat opaque panel every other sheet in the app
+/// wears (owner's call). It used to be the one exception, a frosted Liquid
+/// Glass layer: the pitch, the plans and the CTA are all reading matter, and
+/// the moving screen behind them competed with the one screen that has to be
+/// read.
 ///
 /// **Buying needs no account** (App Store 5.1.1(v), which submission 1.0(20)
 /// was rejected under): the plans, the CTA and Restore are all here signed
@@ -190,7 +192,7 @@ class PaywallScreen extends HookConsumerWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: SdAppBarButtonV2(
                   icon: AppIconConstant.close,
-                  // Already on the sheet's glass: a circle here would nest glass inside glass.
+                  // Bare on the panel: the sheet chrome carries no surface of its own.
                   surface: SdAppBarButtonSurfaceV2.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: () => context.pop(),
@@ -287,24 +289,14 @@ class PaywallScreen extends HookConsumerWidget {
       ],
     );
 
-    final surface = SdGlassV2.isSupported
-        ? LiquidGlass.withOwnLayer(
-            settings: kChromeGlass,
-            shape: LiquidRoundedSuperellipse(
-              borderRadius: SdSpacingConstant.r22,
-            ),
-            clipBehavior: Clip.antiAlias,
-            // Transparent Material: Text needs a Material ancestor, but this one must not paint over the glass.
-            child: Material(type: MaterialType.transparency, child: sheet),
-          )
-        : Material(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(SdSpacingConstant.r22),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: sheet,
-          );
+    final Widget surface = Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(SdSpacingConstant.r22),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: sheet,
+    );
 
     // ~94% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
     return Align(

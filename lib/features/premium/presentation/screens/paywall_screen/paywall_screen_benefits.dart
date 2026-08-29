@@ -5,7 +5,7 @@ part of 'paywall_screen.dart';
 /// A card rather than six loose rows on the panel: the pitch is the one thing
 /// on this sheet that has to be read before the prices, and a surface of its
 /// own is what separates it from the chrome above and the plans below.
-/// [SdCardSurfaceV2.elevated] because it sits *on* the paywall's glass — the
+/// [SdCardSurfaceV2.elevated] because it sits *on* the paywall's panel — the
 /// same step up anything on a card or a sheet takes, and still dark enough
 /// for hard rule 3.
 class _Benefits extends StatelessWidget {
