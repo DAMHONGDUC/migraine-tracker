@@ -45,15 +45,16 @@ scripts:
 
   prepare-env-dev:
     description: >
-      Copy env_assets/ into place for dev: both env/*.json and fastlane.env,
-      plus dev's google-services.json, GoogleService-Info.plist, Info.plist
-      and function.env (to functions/.env). Overwrites.
+      Copy env_assets/ into place for dev: env/dev.json, fastlane.env, and
+      dev's google-services.json, GoogleService-Info.plist, Info.plist and
+      function.env (to functions/.env). Overwrites; env/prod.json is left
+      alone.
     run: sh tool/prepare-env.sh dev
 
   prepare-env-prod:
     description: >
-      Same, with prod's files instead. Both env/*.json and fastlane.env are
-      written either way — only the flavor-picked four differ.
+      Same, with prod's files instead. Only fastlane.env is written either
+      way — everything else belongs to the flavor named.
     run: sh tool/prepare-env.sh prod
 
   gen:

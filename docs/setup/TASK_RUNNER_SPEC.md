@@ -19,7 +19,7 @@ body is a file in `tool/`.
 |---|---|---|
 | `set-up` | `set-up.sh` | Wipe, then everything a fresh clone needs. Idempotent. |
 | `deep-set-up` | `deep-set-up.sh` | `set-up` plus the IDE's native module cache. Costs a cold build. |
-| `prepare-env-dev` | `prepare-env.sh dev` | Install dev's config — env files, native files, `functions/.env`, `ios/fastlane/.env`. |
+| `prepare-env-dev` | `prepare-env.sh dev` | Install dev's config — `env/dev.json`, native files, `functions/.env`, `ios/fastlane/.env`. |
 | `prepare-env-prod` | `prepare-env.sh prod` | The same, prod's files. |
 | `gen` | `gen.sh` | Localizations + codegen, nothing else. |
 | `analyze` | `analyze.sh` | Zero findings, or fail. What CI runs. |

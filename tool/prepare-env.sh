@@ -22,8 +22,7 @@ fi
 
 # `<source under env_assets>|<destination>`, newline separated so the default IFS splits it; no path here has a space.
 PAIRS="
-dev.json|env/dev.json
-prod.json|env/prod.json
+$TARGET.json|env/$TARGET.json
 fastlane.env|ios/fastlane/.env
 $TARGET-google-services.json|android/app/google-services.json
 $TARGET-GoogleService-Info.plist|ios/Runner/GoogleService-Info.plist
