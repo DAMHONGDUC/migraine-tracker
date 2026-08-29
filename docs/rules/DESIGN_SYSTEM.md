@@ -146,6 +146,49 @@ is composed, what a chart should say. Take that; leave the tokens.
   concrete size: `SdSpacingConstant.r24` by default, anything else passed
   explicitly via `size:`, never inherited from an ambient theme. `color` falls
   back to the ambient `IconTheme` when omitted.
+
+### Which glyph: `AppIconConstant`, always
+
+- **Every icon in the app comes from `AppIconConstant` (`core/theme/`), and no
+  call site writes a glyph name.** Owner's rule. `medication` was spelled out
+  at nine call sites and `pressure` at five, so changing either meant finding
+  them all; and `Icons.compress` names the picture rather than the reading, so
+  the same idea kept arriving as a different drawing on a different screen.
+- **It is named for what it MEANS in this product**, not for the glyph:
+  `pressure`, not `compress`; `attackLog`, not `addCircle`. Where the meaning
+  genuinely is the picture — a chevron, a close cross — the name stays literal.
+- **Material Symbols Rounded, one family at one optical weight.** The app used
+  to mix Material's filled and outlined sets, so a filled `medication` in the
+  tab bar sat beside an outlined one on the card it opened, and a screen of
+  glyphs at two stroke weights reads as two apps. `SimpleIcons` is the one
+  exception, for the Apple and Google marks: a brand glyph is the brand's.
+  - **The design system draws the same family**, so `material_symbols_icons` is
+    a dependency of the package too. A sheet whose close cross came from
+    Material Icons while everything under it came from Symbols was the same
+    defect one layer down.
+- **A filled variant is a `fill:` on `SdIconV2`, never a second constant.**
+  Symbols is a variable font, so selected/unselected is one glyph at two fill
+  values — which is what the nav bar's selected tab uses, alongside its colour,
+  so colour is never the only signal (hard rule 3).
+
+### What size: `AppIconSize`, never a raw `r*`
+
+- **Every icon size is a role from `AppIconSize` (`core/theme/`)** — `inline`,
+  `affordance`, `row`, `tile`, `hero`, `display`. Never an
+  `SdSpacingConstant.r*` at an icon call site. Pick the role, never the number.
+- **The rule it encodes: a glyph that identifies is always a step above a glyph
+  that only decorates.** The app had no ladder — identifying glyphs at r16, r18,
+  r20 and r24 depending on which screen wrote them, chevrons at r20 in some rows
+  and at `SdIconV2`'s implicit r24 in others, and three sibling picker sheets in
+  one feature drawing the same shape at two sizes. On a settings row the arrow
+  saying "tappable" carried exactly as much weight as the glyph saying what the
+  row was about.
+- **`row` (24) is the default** — reach for it unless another role fits. `tile`
+  (28) is for a glyph carrying an identity alone: a dashboard shortcut, an
+  icon-only segment. `affordance` (20) is the chevron and nothing else.
+- **`AppIconSize` and the palette live in the app, not the package**, for the
+  same reason the type scale does: it is this product's look, and the package
+  must stay droppable into the next one.
 - **Every labeled button is an `SdButtonV2`, and the look is a prop, never a
   named constructor**: `SdButtonV2(variant: SdButtonVariantV2.primary, …)`.
   Variants: `primary` (main CTA), `secondary` (tonal), `outlined`, `text` (low
