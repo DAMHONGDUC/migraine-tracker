@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -9,13 +11,11 @@ import 'package:system_design/index.dart';
 
 import '../helpers/pump_app.dart';
 
-/// The chrome follows what the engine can actually render (`SdGlassV2`), with
-/// the bottom nav as the one deliberate exception.
+/// The chrome follows what the engine can actually render (`SdGlassV2`), with the bottom nav as the one deliberate exception.
 void main() {
-  /// Icons.home is the nav's selected dashboard icon and appears nowhere
-  /// else, so this pins the floating pill specifically.
+  /// AppIconConstant.home is the nav's selected dashboard icon and appears nowhere else, so this pins the floating pill specifically.
   final Finder navGlass = find.ancestor(
-    of: find.byIcon(Icons.home),
+    of: find.byIcon(AppIconConstant.home),
     matching: find.byType(LiquidGlass),
   );
 
@@ -63,7 +63,7 @@ void main() {
     );
 
     await openHistory(tester);
-    await tester.tap(find.byIcon(Icons.filter_list));
+    await tester.tap(find.byIcon(Symbols.filter_list_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -73,8 +73,7 @@ void main() {
       find.descendant(of: sheet, matching: find.byType(LiquidGlass)),
       findsNothing,
     );
-    // - the modal colour, shared by dialogs — must not be a second shade of dark
-    // - darker than the card on purpose, so a card placed on it still reads as the nearer layer
+    // - the modal colour, shared by dialogs.
     final Material surface = tester.widget<Material>(
       find.descendant(of: sheet, matching: find.byType(Material)).first,
     );

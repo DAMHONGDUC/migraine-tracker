@@ -17,8 +17,7 @@ final homeWidgetSnapshotBuilderProvider = Provider<HomeWidgetSnapshotBuilder>(
 final homeWidgetControllerProvider =
     NotifierProvider<HomeWidgetController, bool>(HomeWidgetController.new);
 
-/// Whether this platform ships a widget extension at all. The Settings row is
-/// absent when it does not — a switch over nothing is worse than no switch.
+/// Whether this platform ships a widget extension at all. The Settings row is absent when it does not — a switch over nothing is worse than no switch.
 final homeWidgetSupportedProvider = Provider<bool>(
   (ref) => ref.watch(homeWidgetRepositoryProvider).isSupported,
 );

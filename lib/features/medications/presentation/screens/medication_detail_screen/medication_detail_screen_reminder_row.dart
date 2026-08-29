@@ -6,8 +6,7 @@ class _ReminderRow extends ConsumerWidget {
 
   final MedicationReminderView view;
 
-  /// Opens the wheel picker pre-filled with this reminder's time; on confirm,
-  /// updates the time and reschedules the notification.
+  /// Opens the wheel picker pre-filled with this reminder's time; on confirm, updates the time and reschedules the notification.
   Future<void> _editTime(BuildContext context, WidgetRef ref) async {
     // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref
@@ -52,7 +51,7 @@ class _ReminderRow extends ConsumerWidget {
     return ListTile(
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
-      leading: const SdIconV2(icon: Icons.alarm),
+      leading: SdIconV2(icon: AppIconConstant.reminder, size: AppIconSize.medium),
       title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -71,7 +70,7 @@ class _ReminderRow extends ConsumerWidget {
                 ),
           ),
           SdIconButtonV2(
-            icon: const SdIconV2(icon: Icons.delete_outline),
+            icon: SdIconV2(icon: AppIconConstant.delete, size: AppIconSize.medium),
             onPressed: () =>
                 ref.read(remindersControllerProvider).delete(reminder.id),
           ),

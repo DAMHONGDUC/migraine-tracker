@@ -14,22 +14,12 @@ import 'date_range_calendar.dart';
 enum _Bound { from, to }
 
 /// Picks the date window the export history is filtered to.
-///
-/// Two tiles say what the window is; tapping one aims the calendar at that end.
-/// Picking a "from" date hands the calendar straight to the "to" tile, so the
-/// common case is two taps and the tick. The footer clears the filter, and the
-/// X leaves whatever was already applied alone.
-///
-/// Pops the picked window (an inactive one means "cleared"), or null when
-/// dismissed. Show it with `ExportDateFilterSheet(initial: ...).show(context)`.
 class ExportDateFilterSheet extends StatefulWidget {
   const ExportDateFilterSheet({required this.initial, super.key});
 
-  /// Oldest day the calendar will go back to. Nothing older can exist — an
-  /// export is created on the device, and the app is younger than this.
+  /// Oldest day the calendar will go back to. Nothing older can exist — an export is created on the device, and the app is younger than this.
 
-  /// The window currently applied, so re-opening the sheet starts where the
-  /// user left off.
+  /// The window currently applied, so re-opening the sheet starts where the user left off.
   final ExportDateFilter initial;
 
   @override
@@ -122,9 +112,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
   }
 }
 
-/// One end of the window: its name, the day picked for it, and whether the
-/// calendar is currently aimed at it. Wears the option-tile language of the
-/// log flow's grids — one step above the sheet, primary-tinted when active.
+/// One end of the window: its name, the day picked for it, and whether the calendar is currently aimed at it.
 class _BoundTile extends StatelessWidget {
   const _BoundTile({
     required this.label,
@@ -181,8 +169,7 @@ class _BoundTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportDateFilterSheetExt on ExportDateFilterSheet {
   Future<ExportDateFilter?> show(BuildContext context) =>
       showSdBottomSheetV2<ExportDateFilter>(

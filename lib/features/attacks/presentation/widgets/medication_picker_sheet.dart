@@ -7,26 +7,7 @@ import '../../../medications/providers.dart';
 import 'medication_grid.dart';
 import 'medication_search_field.dart';
 
-/// Corrects a logged attack's medication, with the same tile grid the log
-/// flow's third tap uses — including "No medication" and "Add a medication".
-///
-/// A tap only moves the highlight; the tick applies it and the X leaves the
-/// attack as it was. Adding a medication also highlights it, so the new name
-/// is the pick waiting to be confirmed.
-///
-/// **The search is the first thing in the list, not a bar floating over it**
-/// (owner's rule) — the same order as `MedicationStep`, which this sheet is
-/// otherwise a copy of. It used to sit pinned at the bottom in the shell's
-/// nav-pill slot with the tiles scrolling behind it, which put it over the
-/// answers it was meant to narrow and left the grid padding a hole for it.
-/// `SdSheetContentV2` scrolls its child under a pinned header, so being first
-/// in that child is all it takes.
-///
-/// Only worth a search box once there is something to search, so it appears
-/// with the first saved medication — again as in the step.
-///
-/// Pops the pick wrapped in a record, because the pick itself can be null:
-/// `(name: null)` is "no medication", a null result is a dismissal.
+/// Corrects a logged attack's medication, with the same tile grid the log flow's third tap uses — including "No medication" and "Add a medication".
 class MedicationPickerSheet extends ConsumerStatefulWidget {
   const MedicationPickerSheet({required this.selectedName, super.key});
 
@@ -91,8 +72,7 @@ class _MedicationPickerSheetState extends ConsumerState<MedicationPickerSheet> {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension MedicationPickerSheetExt on MedicationPickerSheet {
   Future<({String? name})?> show(BuildContext context) =>
       showSdBottomSheetV2<({String? name})>(

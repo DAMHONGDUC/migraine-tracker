@@ -32,10 +32,7 @@ import '../l10n/locale_provider.dart';
 import '../widgets/weather/weather_card.dart';
 import 'app_shell.dart';
 
-/// One route's identity: go_router [name] and URL [path] defined together so
-/// they can never drift apart. Navigate by name (`context.pushNamed(
-/// AppRoutes.x.name, ...)`) — the URL shape stays an implementation detail
-/// of this file.
+/// One route's identity: go_router [name] and URL [path] defined together so they can never drift apart.
 class AppRoute {
   const AppRoute({required this.name, required this.path});
 
@@ -61,72 +58,57 @@ final class AppRoutes {
     path: '/notifications',
   );
 
-  /// One notification in full, pushed from the list.
-  /// Path parameter: [notificationIdParam].
+  /// One notification in full, pushed from the list. Path parameter: [notificationIdParam].
   static const notification = AppRoute(
     name: 'notificationDetail',
     path: '/notification/:id',
   );
   static const notificationIdParam = 'id';
 
-  /// Detail of one logged attack, pushed from History.
-  /// Path parameter: [attackIdParam].
+  /// Detail of one logged attack, pushed from History. Path parameter: [attackIdParam].
   static const attack = AppRoute(name: 'attackDetail', path: '/attack/:id');
   static const attackIdParam = 'id';
 
-  /// One medication and its reminders, pushed from the medications list and
-  /// from the dashboard's next-reminder banner.
-  /// Path parameter: [medicationIdParam].
+  /// One medication and its reminders, pushed from the medications list and from the dashboard's next-reminder banner. Path parameter: [medicationIdParam].
   static const medication = AppRoute(
     name: 'medicationDetail',
     path: '/medication/:id',
   );
   static const medicationIdParam = 'id';
 
-  /// Every weather reading named, and the ten-day rainfall forecast. Pushed
-  /// from the weather card on the dashboard and from an attack's own copy of
-  /// it, which is why it takes its data as `extra` rather than fetching:
-  /// the two callers mean different readings by it.
+  /// Every weather reading named, and the ten-day rainfall forecast.
   static const weather = AppRoute(name: 'weatherDetail', path: '/weather');
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
 
-  /// Optional sign-in, pushed from Settings and from any premium gate.
-  /// Pops `true` once an account exists (see [LoginScreen]).
+  /// Optional sign-in, pushed from Settings and from any premium gate. Pops `true` once an account exists (see [LoginScreen]).
   static const login = AppRoute(name: 'login', path: '/login');
 
-  /// The signed-in user's own record, pushed from Settings. Guarded by the
-  /// redirect below — there is no account to look at while signed out.
+  /// The signed-in user's own record, pushed from Settings. Guarded by the redirect below — there is no account to look at while signed out.
   static const account = AppRoute(name: 'account', path: '/account');
 
-  /// Subscription detail, pushed from Settings. [paywall] is the purchase
-  /// sheet; this is the status page that leads to it.
+  /// Subscription detail, pushed from Settings. [paywall] is the purchase sheet; this is the status page that leads to it.
   static const premium = AppRoute(name: 'premium', path: '/premium');
 
-  /// Sync status and the manual run, pushed from Settings. Guarded by the
-  /// redirect below, like [account]: there is nowhere to sync to without one.
+  /// Sync status and the manual run, pushed from Settings. Guarded by the redirect below, like [account]: there is nowhere to sync to without one.
   static const sync = AppRoute(name: 'sync', path: '/sync');
 
   /// Export data and the history of past exports, pushed from Settings.
   static const export = AppRoute(name: 'export', path: '/export');
 
-  /// What is inside one past export, pushed from the history's actions sheet.
-  /// Path parameter: [exportIdParam].
+  /// What is inside one past export, pushed from the history's actions sheet. Path parameter: [exportIdParam].
   static const exportPreview = AppRoute(
     name: 'exportPreview',
     path: '/export/:id',
   );
   static const exportIdParam = 'id';
 
-  /// Forecast, correlation and the alert controls together. Pushed from
-  /// Insights' pressure card and from the Settings row.
+  /// Forecast, correlation and the alert controls together. Pushed from Insights' pressure card and from the Settings row.
 
-  /// Exertion, steps and the step connect switch. Pushed from Insights'
-  /// activity card and from the Settings row.
+  /// Exertion, steps and the step connect switch. Pushed from Insights' activity card and from the Settings row.
   static const activity = AppRoute(name: 'activity', path: '/activity');
 
-  /// The sleep insight and its connect switch. Pushed from Insights' sleep
-  /// card and from the Settings row.
+  /// The sleep insight and its connect switch. Pushed from Insights' sleep card and from the Settings row.
   static const sleep = AppRoute(name: 'sleep', path: '/sleep');
 
   /// Support email, pushed from Settings' About section.
@@ -136,11 +118,7 @@ final class AppRoutes {
   static const about = AppRoute(name: 'about', path: '/about');
 }
 
-/// The router's own navigator. Anything that has to present over the whole
-/// app from OUTSIDE the router — `ForceUpdateWrapper`, which lives in
-/// `MaterialApp.builder` and so sits above this navigator — pushes onto
-/// this key's context. Provider-scoped, not a global: two app instances in
-/// the same test process would otherwise share (and duplicate) one key.
+/// The router's own navigator.
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
   (ref) => GlobalKey<NavigatorState>(debugLabel: 'root'),
 );
@@ -149,8 +127,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: ref.watch(rootNavigatorKeyProvider),
     initialLocation: AppRoutes.dashboard.path,
-    // - `screen_view` for pushed routes (log, login, paywall, attack detail).
-    // - Empty outside a Firebase build — tabs are logged by hand in AppShell instead.
+    // - `screen_view` for pushed routes (log, login, paywall, attack detail). - Empty outside a Firebase build — tabs are logged by hand in AppShell instead.
     observers: AppAnalytics.navigatorObservers,
     // First launch lands on onboarding until completed; afterwards /onboarding is never reachable again.
     redirect: (context, state) {
@@ -198,7 +175,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
-      // - Popping it (Cancel / Done) returns to wherever it was launched from.
       GoRoute(
         name: AppRoutes.log.name,
         path: AppRoutes.log.path,
@@ -269,8 +245,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.about.path,
         builder: (context, state) => const AboutScreen(),
       ),
-      // - Presents as a modal bottom sheet: transparent route, dim barrier, content covers ~80% (see PaywallScreen).
-      // - Tap above the sheet dismisses.
+      // - Presents as a modal bottom sheet: transparent route, dim barrier, content covers ~80% (see PaywallScreen). - Tap above the sheet dismisses.
       GoRoute(
         name: AppRoutes.paywall.name,
         path: AppRoutes.paywall.path,

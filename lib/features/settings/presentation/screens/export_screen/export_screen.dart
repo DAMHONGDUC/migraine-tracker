@@ -9,6 +9,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_date_filter.dart';
@@ -27,15 +29,7 @@ part 'export_screen_history.dart';
 part 'export_screen_no_match_state.dart';
 part 'export_screen_record_tile.dart';
 
-/// Export data, and everything already exported. Reached from Settings.
-///
-/// Exports are written to disk and recorded, so a row can be re-shared or
-/// saved to the device later without rebuilding the file.
-///
-/// The history can be narrowed to a date window. The pill that does it rides in
-/// a [SdCollapsingFilterScaffoldV2], so it sits under the app bar while reading and
-/// lifts into it once the list scrolls — the same behaviour as the medications
-/// tab.
+/// Export data, and everything already exported.
 class ExportScreen extends ConsumerWidget {
   const ExportScreen({super.key});
 
@@ -143,14 +137,13 @@ class ExportScreen extends ConsumerWidget {
         SdButtonV2(
           variant: SdButtonVariantV2.primary,
           label: l10n.exportNewAction,
-          icon: Icons.ios_share,
+          icon: AppIconConstant.share,
           onPressed: () => _create(context, ref),
         ),
         SizedBox(width: SdSpacingConstant.w4),
       ],
       filter: hasAny ? const _DateFilterPill() : null,
-      // - pads itself to scroll behind the frosted bar and strip; no gutter — a ListTile brings one
-      // - top inset stays put whether the strip is showing or not (see SdCollapsingFilterScaffoldV2)
+      // - pads itself to scroll behind the frosted bar and strip.
       body: ListView(
         padding: EdgeInsets.only(
           top: hasAny

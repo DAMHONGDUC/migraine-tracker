@@ -7,11 +7,12 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
-/// One attack row, shared by the list and calendar views. Taps through to
-/// the attack detail screen.
+/// One attack row, shared by the list and calendar views. Taps through to the attack detail screen.
 class AttackTile extends StatelessWidget {
   const AttackTile({required this.attack, super.key});
 
@@ -58,8 +59,7 @@ class AttackTile extends StatelessWidget {
           attack.regions.label(context.l10n),
           style: AppTextStyle.bodyLarge,
           maxLines: 1,
-          // An attack can name every area of the head, and the row is one
-          // line: the tile is a way in, the detail screen is the reading.
+          // An attack can name every area of the head, and the row is one line: the tile is a way in, the detail screen is the reading.
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
@@ -69,8 +69,8 @@ class AttackTile extends StatelessWidget {
           style: AppTextStyle.bodyMedium.secondary,
         ),
         trailing: SdIconV2(
-          icon: Icons.chevron_right,
-          size: SdSpacingConstant.r20,
+          icon: AppIconConstant.disclosure,
+          size: AppIconSize.small,
           color: context.colorScheme.onSurfaceVariant,
         ),
         onTap: () => context.pushNamed(

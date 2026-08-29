@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:system_design/index.dart';
 
-/// The one app-bar button: a small glyph inside a touch target big enough to
-/// hit while a migraine builds, and feedback that swells out from under the
-/// fingertip instead of hiding beneath it.
+/// Verifies the app-bar glyph remains easy to hit during a migraine.
 void main() {
   Future<void> pumpButton(
     WidgetTester tester, {
@@ -23,7 +22,7 @@ void main() {
           home: Scaffold(
             body: Center(
               child: SdAppBarButtonV2(
-                icon: Icons.delete_outline,
+                icon: AppIconConstant.delete,
                 tooltip: 'Delete',
                 surface: surface,
                 onPressed: onPressed,
@@ -35,8 +34,7 @@ void main() {
     );
   }
 
-  /// The pop is a paint-time transform, so the icon's *layout* size never
-  /// changes — the animation value is the only honest reading of it.
+  /// The pop is a paint-time transform, so the icon's *layout* size never changes — the animation value is the only honest reading of it.
   double scaleOf(WidgetTester tester) => tester
       .widget<ScaleTransition>(
         find.descendant(
@@ -51,7 +49,7 @@ void main() {
     await pumpButton(tester, onPressed: () {});
 
     expect(
-      tester.getSize(find.byIcon(Icons.delete_outline)).width,
+      tester.getSize(find.byIcon(AppIconConstant.delete)).width,
       SdAppBarButtonV2.iconSize,
     );
     expect(
@@ -82,13 +80,11 @@ void main() {
 
     expect(scaleOf(tester), 1);
 
-    // Hold the finger down: the swell runs on the pointer-down, so it does
-    // not wait to learn whether this is a tap or a long press.
+    // Hold the finger down: the swell runs on the pointer-down, so it does not wait to learn whether this is a tap or a long press.
     final TestGesture gesture = await tester.startGesture(
       tester.getCenter(find.byType(SdPopScaleV2)),
     );
-    // One empty pump first: the ticker starts on the frame after the touch,
-    // so a single timed pump would still read the resting value.
+    // One empty pump first: the ticker starts on the frame after the touch, so a single timed pump would still read the resting value.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 140));
 
@@ -102,8 +98,7 @@ void main() {
     await tester.pump();
   });
 
-  // - the whole button swells, surface included
-  // - get this backwards (circle wrapped around the pop, not inside it) and the glyph grows inside a static circle
+  // - the whole button swells, surface included - get this backwards (circle wrapped around the pop, not inside it) and the glyph grows inside a static circle
   testWidgets('the swell wraps the surface, not the other way round', (
     tester,
   ) async {

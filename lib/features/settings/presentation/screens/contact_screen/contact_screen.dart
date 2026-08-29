@@ -4,6 +4,8 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/env/app_env.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
@@ -11,8 +13,7 @@ import '../../../../app_update/providers.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../providers.dart';
 
-/// Where a user reaches a human: the support inbox, shown, and a one-tap
-/// way to open it. Pushed from Settings' About section.
+/// Where a user reaches a human: the support inbox, shown, and a one-tap way to open it. Pushed from Settings' About section.
 class ContactScreen extends ConsumerWidget {
   const ContactScreen({super.key});
 
@@ -60,7 +61,8 @@ class ContactScreen extends ConsumerWidget {
                 padding: EdgeInsets.all(SdSpacingConstant.w16),
                 child: Row(
                   children: <Widget>[
-                    const SdIconV2(icon: Icons.email_outlined),
+                    SdIconV2(icon: AppIconConstant.email,
+              size: AppIconSize.medium),
                     SizedBox(width: SdSpacingConstant.w12),
                     Expanded(
                       child: Text(
@@ -77,7 +79,7 @@ class ContactScreen extends ConsumerWidget {
         actions: <Widget>[
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
-            icon: Icons.email_outlined,
+            icon: AppIconConstant.email,
             label: l10n.contactSupportEmailButton,
             onPressed: () => _emailSupport(context, ref),
           ),

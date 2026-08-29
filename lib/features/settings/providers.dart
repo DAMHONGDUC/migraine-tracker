@@ -59,15 +59,13 @@ final exportHistoryProvider = StreamProvider<List<ExportRecord>>(
   (ref) => ref.watch(exportRecordRepositoryProvider).watchAll(),
 );
 
-/// The date window the export screen is filtered to (see
-/// [ExportFilterController]).
+/// The date window the export screen is filtered to (see [ExportFilterController]).
 final exportFilterControllerProvider =
     NotifierProvider<ExportFilterController, ExportDateFilter>(
       ExportFilterController.new,
     );
 
-/// [exportHistoryProvider] narrowed to that window — what the export screen
-/// actually lists.
+/// [exportHistoryProvider] narrowed to that window — what the export screen actually lists.
 final filteredExportHistoryProvider = Provider<AsyncValue<List<ExportRecord>>>((
   ref,
 ) {
@@ -81,8 +79,7 @@ final filteredExportHistoryProvider = Provider<AsyncValue<List<ExportRecord>>>((
       );
 });
 
-/// One export by id, for the preview screen. Null once it is deleted — the
-/// screen says so rather than reading a file that is no longer anybody's.
+/// One export by id, for the preview screen. Null once it is deleted — the screen says so rather than reading a file that is no longer anybody's.
 final exportRecordByIdProvider = Provider.family<ExportRecord?, String>((
   ref,
   id,
@@ -137,12 +134,12 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
     ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(attackShareFileStoreProvider),
     ref.watch(homeWidgetRepositoryProvider),
   ),
 );
 
-/// Dev-only fixture generator (see [DevSeedService]). Its settings row is
-/// hidden in prod, so nothing reads this provider there.
+/// Dev-only fixture generator (see [DevSeedService]). Its settings row is hidden in prod, so nothing reads this provider there.
 final devSeedServiceProvider = Provider<DevSeedService>(
   (ref) => DevSeedService(
     ref.watch(dataWipeServiceProvider),
@@ -157,9 +154,7 @@ final devSeedServiceProvider = Provider<DevSeedService>(
   ),
 );
 
-/// Orchestrates what is left of the settings actions — the GDPR wipe (see
-/// [SettingsController]). Everything export-shaped moved to
-/// [ExportController].
+/// Orchestrates what is left of the settings actions — the GDPR wipe (see [SettingsController]). Everything export-shaped moved to [ExportController].
 final settingsControllerProvider =
     NotifierProvider<SettingsController, WipeStatus>(SettingsController.new);
 

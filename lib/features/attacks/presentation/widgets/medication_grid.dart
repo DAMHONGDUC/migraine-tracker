@@ -7,23 +7,14 @@ import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/medication_name_dialog.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/providers.dart';
 
-/// The medication picker's two-column grid, shared by the log flow's third
-/// tap ([MedicationStep]) and the attack detail's edit sheet.
-///
-/// The first row is fixed and holds the two answers that aren't a saved
-/// medication — "No medication", then "Add a medication" — so both stay
-/// where muscle memory left them however the list changes. The medications
-/// follow, most recently taken first.
-///
-/// Shrink-wraps and never scrolls itself: whatever holds it owns the
-/// scrolling (the log step's viewport, the sheet's scroll view). Adding a
-/// medication lives here too, so both callers get the same "adding it also
-/// picks it" behaviour.
+/// The medication picker's two-column grid, shared by the log flow's third tap ([MedicationStep]) and the attack detail's edit sheet.
 class MedicationGrid extends ConsumerWidget {
   const MedicationGrid({
     required this.hasSelection,
@@ -33,22 +24,18 @@ class MedicationGrid extends ConsumerWidget {
     super.key,
   });
 
-  /// Whether *any* pick has been made yet — distinguishes "nothing picked"
-  /// from [selectedName] being null because "No medication" was picked.
+  /// Whether *any* pick has been made yet — distinguishes "nothing picked" from [selectedName] being null because "No medication" was picked.
   final bool hasSelection;
   final String? selectedName;
 
   /// Called with the medication name, or null for "no medication".
   final ValueChanged<String?> onSelected;
 
-  /// Name filter from the caller's search field. Only the medications are
-  /// filtered; the fixed first row always stays put.
+  /// Name filter from the caller's search field. Only the medications are filtered; the fixed first row always stays put.
   final String query;
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
-    // The one gate inside the sacred flow, by the owner's call. It names the
-    // limit first and never blocks the log itself: "No medication" and every
-    // medication already on file are still there, so the three taps complete.
+    // The one gate inside the sacred flow, by the owner's call.
     if (!ref.read(canAddMedicationProvider)) {
       await NavigationUtils.toPaywallFromLimit(
         context,
@@ -107,7 +94,7 @@ class MedicationGrid extends ConsumerWidget {
         if (i == 0) {
           return _Tile(
             kind: _TileKind.option,
-            icon: Icons.block,
+            icon: AppIconConstant.noMedication,
             label: l10n.logNoMedication,
             selected: hasSelection && selectedName == null,
             onTap: () => onSelected(null),
@@ -116,7 +103,7 @@ class MedicationGrid extends ConsumerWidget {
         if (i == 1) {
           return _Tile(
             kind: _TileKind.add,
-            icon: Icons.add,
+            icon: AppIconConstant.add,
             label: l10n.logAddMedication,
             onTap: () => _add(context, ref),
           );
@@ -125,7 +112,7 @@ class MedicationGrid extends ConsumerWidget {
 
         return _Tile(
           kind: _TileKind.option,
-          icon: Icons.medication_outlined,
+          icon: AppIconConstant.medication,
           label: med.name,
           selected: hasSelection && selectedName == med.name,
           onTap: () => onSelected(med.name),
@@ -136,16 +123,9 @@ class MedicationGrid extends ConsumerWidget {
 }
 
 /// What a [_Tile] means — the look is a prop, like [SdButtonVariantV2].
-///
-/// - [option] — a pickable answer (a medication, or "No medication"). Shares
-///   the location step's tile language so the two steps read as one flow.
-/// - [add] — the action that opens the add-medication dialog. Never
-///   selectable, and teal-tinted like [SdButtonVariantV2.positive] so it
-///   reads as additive rather than as one more thing to choose between.
 enum _TileKind { option, add }
 
-/// One grid cell. Two semantics, one geometry so the "Add" cell lines up
-/// with the medications it trails.
+/// One grid cell. Two semantics, one geometry so the "Add" cell lines up with the medications it trails.
 class _Tile extends StatelessWidget {
   const _Tile({
     required this.kind,
@@ -206,7 +186,7 @@ class _Tile extends StatelessWidget {
               SdIconV2(
                 icon: icon,
                 color: foreground,
-                size: SdSpacingConstant.r24,
+                size: AppIconSize.medium,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

@@ -1,10 +1,7 @@
 import 'package:migraine_tracker/features/alerts/domain/enums/alert_registration_error.dart';
 import 'package:migraine_tracker/features/alerts/domain/repositories/alert_registration_repository.dart';
 
-/// Records what was asked of the alert registration: the wipe tests prove the
-/// push token was given up — the one thing that could still reach a user after
-/// they deleted everything — and the controller tests prove the toggle and the
-/// threshold reach the server with the right value.
+/// Records what was asked of the alert registration.
 class RecordingAlertRegistration implements AlertRegistrationRepository {
   RecordingAlertRegistration({this.failWith});
 

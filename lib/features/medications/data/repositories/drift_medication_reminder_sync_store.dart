@@ -7,9 +7,6 @@ import '../../../sync/domain/entities/sync_record.dart';
 import '../../domain/entities/medication_reminder.dart';
 
 /// The reminders side of sync.
-///
-/// Only the row travels. The scheduled OS notification is local to each
-/// device and is re-scheduled after a pull — see `ReminderRescheduler`.
 class DriftMedicationReminderSyncStore
     extends DriftSyncLocalStore<MedicationReminder> {
   const DriftMedicationReminderSyncStore(super.db);
@@ -62,9 +59,7 @@ class DriftMedicationReminderSyncStore
     DateTime updatedAt,
     int revision,
   ) async {
-    // A reminder points at a medication. If that one has not arrived — or was
-    // deleted on the other device — inserting would break the foreign key, so
-    // skip it: the next pull picks it up once its medication is here.
+    // A reminder points at a medication.
     final bool hasMedication =
         await (db.select(
           db.medications,
@@ -105,8 +100,7 @@ class DriftMedicationReminderSyncStore
     db.medicationReminders,
   )..where((r) => r.id.equals(id))).getSingleOrNull();
 
-  /// Rows saved before v7 have no `updatedAt` and nothing else to date them
-  /// by, so any remote copy wins.
+  /// Rows saved before v7 have no `updatedAt` and nothing else to date them by, so any remote copy wins.
   static final DateTime _beginning = DateTime.fromMillisecondsSinceEpoch(
     0,
     isUtc: true,

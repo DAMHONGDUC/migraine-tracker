@@ -15,34 +15,28 @@ import 'insight_value_row.dart';
 
 part 'sleep_summary_card_chart.dart';
 
-/// What Apple Health actually handed over: last night, the week's average,
-/// and the nights behind them.
-///
-/// Free, unlike the correlation card under it. This is the answer to "did
-/// connecting work" — locking it would leave a user who just flipped the
-/// switch looking at nothing.
-///
-/// Absent entirely while sleep is disconnected: the switch above already
-/// says so, and a card explaining itself twice is noise.
+/// What Apple Health actually handed over: last night, the week's average, and the nights behind them.
 class SleepSummaryCard extends ConsumerWidget {
   const SleepSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
+    // Watched before the connection flag, never after: this listener is what keeps the provider flushed between frames.
     final AsyncValue<SleepSummary> summary = ref.watch(sleepSummaryProvider);
+
+    if (!ref.watch(healthControllerProvider).sleep) {
+      return const SizedBox.shrink();
+    }
 
     return switch (summary) {
       AsyncData<SleepSummary>(value: final SleepSummary value) =>
         value.isEmpty
             ? _Empty(message: l10n.sleepSummaryEmpty)
             : _Loaded(summary: value),
-      // A read that failed and a read that returned nothing are the same
-      // thing to the user — iOS never says which (see HealthRepository).
+      // A read that failed and a read that returned nothing are the same thing to the user — iOS never says which (see HealthRepository).
       AsyncError<SleepSummary>() => _Empty(message: l10n.sleepSummaryEmpty),
-      // The card's own shape rather than a spinner in a box: this sits in a
-      // scrolling column, so a placeholder of the wrong height moves
-      // everything below it when the read returns.
+      // The card's own shape rather than a spinner in a box.
       _ => const SdChartCardSkeletonV2(),
     };
   }
@@ -86,8 +80,7 @@ class _Loaded extends StatelessWidget {
   }
 }
 
-/// Connected, but nothing came back — no samples on this device, or the read
-/// was refused and iOS will not say which.
+/// Connected, but nothing came back — no samples on this device, or the read was refused and iOS will not say which.
 class _Empty extends StatelessWidget {
   const _Empty({required this.message});
 

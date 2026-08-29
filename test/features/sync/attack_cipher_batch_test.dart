@@ -34,8 +34,7 @@ void main() {
         await sealed('three'),
       ];
 
-      // Alignment is the contract: the caller reads plaintexts[i] for
-      // changes[i], so a hole must stay a hole rather than shift the rest.
+      // Alignment is the contract: the caller reads plaintexts[i] for changes[i], so a hole must stay a hole rather than shift the rest.
       expect(
         await cipher.decryptAll(payloads: payloads, base64Key: key),
         <String?>['one', null, 'three'],
@@ -62,8 +61,7 @@ void main() {
       base64Key: key,
     );
 
-    // Hard rule 12: one bad record is counted and skipped, never allowed to
-    // wedge every later one behind it.
+    // Hard rule 12: one bad record is counted and skipped, never allowed to wedge every later one behind it.
     expect(result, <String?>['readable', null, null, 'readable']);
   });
 
@@ -78,8 +76,7 @@ void main() {
   });
 
   test('the isolate path answers exactly as the inline one does', () async {
-    // Above the threshold, so this batch takes the compute() route while the
-    // small ones above did not.
+    // Above the threshold, so this batch takes the compute() route while the small ones above did not.
     final int count = AesGcmAttackCipher.isolateThreshold + 5;
     final List<EncryptedPayload?> payloads = <EncryptedPayload?>[
       for (int i = 0; i < count; i++) i == 3 ? null : await sealed('record $i'),

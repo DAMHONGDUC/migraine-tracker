@@ -7,9 +7,7 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/medication.dart';
 import '../../providers.dart';
 
-/// Orchestrates the medications tab's CRUD actions. Adding/picking a
-/// medication mid-attack (the log flow) stays in `MedicationStep` — this is
-/// for the management tab.
+/// Orchestrates the medications tab's CRUD actions.
 class MedicationsController {
   const MedicationsController(this._ref);
 
@@ -42,9 +40,7 @@ class MedicationsController {
     }
   }
 
-  /// Renames [medication] without disturbing its `createdAt` — the caller
-  /// already holds the existing entity, so its creation date just passes
-  /// through untouched.
+  /// Renames [medication] without disturbing its `createdAt`.
   Future<void> rename(Medication medication, String newName) async {
     SdLogger.action(
       LogTagConstant.medications,
@@ -73,10 +69,7 @@ class MedicationsController {
     }
   }
 
-  /// Deletes the medication. Its reminders cascade at the DB level, but that
-  /// cascade doesn't reach the OS — every enabled reminder's scheduled
-  /// notification is cancelled first, or it would keep firing for a
-  /// medication that no longer exists.
+  /// Deletes the medication.
   Future<void> delete(String medicationId) async {
     try {
       final enabledReminders = await _ref

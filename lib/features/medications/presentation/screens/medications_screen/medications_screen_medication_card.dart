@@ -1,8 +1,6 @@
 part of 'medications_screen.dart';
 
-/// One medication in the list: name, when it was added, and how many
-/// reminders it has. The reminders themselves are a tap away — the whole card
-/// opens [MedicationDetailScreen].
+/// One medication in the list: name, when it was added, and how many reminders it has.
 class _MedicationCard extends ConsumerWidget {
   const _MedicationCard({required this.medication, super.key});
 
@@ -20,6 +18,10 @@ class _MedicationCard extends ConsumerWidget {
         : l10n.medicationsAddedOn(
             DateFormat.yMMMd(l10n.localeName).format(createdAt.toLocal()),
           );
+    // The one figure that ranks this list against itself.
+    final MedicationEffectiveness? effectiveness = ref.watch(
+      medicationEffectivenessRowProvider(medication.name),
+    );
 
     return SdCardV2(
       child: ListTile(
@@ -29,15 +31,30 @@ class _MedicationCard extends ConsumerWidget {
             AppRoutes.medicationIdParam: medication.id,
           },
         ),
-        leading: const SdIconV2(icon: Icons.medication_outlined),
+        leading: SdIconV2(icon: AppIconConstant.medication,
+          size: AppIconSize.medium),
         title: Text(medication.name, style: AppTextStyle.titleMedium),
-        subtitle: Text(
-          '$addedLabel · ${l10n.medicationsReminderCount(reminderCount)}',
-          style: AppTextStyle.bodySmall.secondary,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              '$addedLabel · ${l10n.medicationsReminderCount(reminderCount)}',
+              style: AppTextStyle.bodySmall.secondary,
+            ),
+            if (effectiveness case final MedicationEffectiveness row
+                when row.answeredCount > 0)
+              Text(
+                row.reliefLabel(l10n),
+                style: AppTextStyle.bodySmall.copyWith(
+                  color: context.colorScheme.secondary,
+                ),
+              ),
+          ],
         ),
         trailing: SdIconV2(
-          icon: Icons.chevron_right,
-          size: SdSpacingConstant.r20,
+          icon: AppIconConstant.disclosure,
+          size: AppIconSize.small,
           color: context.colorScheme.onSurfaceVariant,
         ),
       ),

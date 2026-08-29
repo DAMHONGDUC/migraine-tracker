@@ -3,22 +3,9 @@ import 'package:system_design/index.dart';
 
 import 'app_colors.dart';
 
-/// Single home for every text style in the app — no inline `TextStyle(...)`
-/// and no `context.textTheme.*` in widgets. Metrics follow the Material 3
-/// type scale so swapping in was visually lossless; font sizes go through
-/// [SdSpacingConstant] `sp*` (screenutil), colors through [AppColors].
-///
-/// Getters (not consts) because screenutil resolves at runtime, after
-/// ScreenUtilInit — widget tests pin the view to the 393×852 design size so
-/// `.sp` scales at ~1 there. [AppTheme] feeds these into
-/// `ThemeData.textTheme`, so ambient defaults (ListTile, buttons, AppBar)
-/// stay consistent too.
-///
-/// Default color is [AppColors.textPrimary]; for the muted variant use
-/// `.secondary` (below) instead of a manual copyWith.
+/// Single home for every text style in the app — no inline `TextStyle(...)` and no `context.textTheme.*` in widgets.
 final class AppTextStyle {
-  // - Line heights as M3 total-height / font-size ratios, defined once and reused.
-  // - Ratios are unitless, so they hold under `.sp`.
+  // - Line heights as M3 total-height / font-size ratios, defined once and reused. - Ratios are unitless, so they hold under `.sp`.
   static const double _height36 = 44 / 36;
   static const double _height28 = 36 / 28;
   static const double _height24 = 32 / 24;

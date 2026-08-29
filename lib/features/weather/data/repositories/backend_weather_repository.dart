@@ -10,10 +10,6 @@ import '../datasources/backend_weather_data_source.dart';
 import '../datasources/location_source.dart';
 
 /// Weather for the user's current location, read through the backend.
-///
-/// The location still comes from the device — the backend is asked about a
-/// place, it is never told where the user is by any other route, and it
-/// rounds what it receives to ~11km before storing anything.
 class BackendWeatherRepository implements WeatherRepository {
   const BackendWeatherRepository(this._location, this._dataSource);
 
@@ -91,8 +87,7 @@ class BackendWeatherRepository implements WeatherRepository {
       longitude: point.longitude,
     );
 
-    // Not `report?.hours.length`: that logs "— null" for a failed fetch,
-    // which reads the same as a fetch that returned nothing.
+    // Not `report?.hours.length`: that logs "— null" for a failed fetch, which reads the same as a fetch that returned nothing.
     if (report == null) {
       SdLogger.warning(
         LogTagConstant.weather,

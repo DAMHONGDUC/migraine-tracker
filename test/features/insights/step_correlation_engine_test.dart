@@ -5,8 +5,7 @@ import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/step_correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/step_correlation_engine.dart';
 
-/// Local wall-clock on purpose: `Attack` stores UTC, and the engine converts
-/// back before taking a date.
+/// Local wall-clock on purpose: `Attack` stores UTC, and the engine converts back before taking a date.
 Attack attackOn(DateTime localStart) => Attack(
   id: 'attack-${localStart.toIso8601String()}',
   startedAt: localStart,
@@ -17,9 +16,7 @@ Attack attackOn(DateTime localStart) => Attack(
 StepDay day(DateTime date, {required int steps}) =>
     StepDay(date: date, count: steps);
 
-/// [attackDaySteps]/[restDaySteps] one entry per day, starting at
-/// 2026-01-02 and running forward. A day in [attackDaySteps] gets an attack
-/// that same day — the same-day join, unlike sleep's "night before".
+/// [attackDaySteps]/[restDaySteps] one entry per day, starting at 2026-01-02 and running forward.
 ({List<StepDay> days, List<Attack> attacks}) history({
   required List<int> attackDaySteps,
   required List<int> restDaySteps,
@@ -189,8 +186,7 @@ void main() {
 
   group('day-to-attack join', () {
     test('a day with an attack the day before is a rest day', () {
-      // Steps on the 2nd, attack on the 3rd → same-day join means the 2nd is
-      // a rest day (unlike sleep, which would count the night of the 2nd).
+      // Steps on the 2nd, attack on the 3rd → same-day join means the 2nd is a rest day (unlike sleep, which would count the night of the 2nd).
       final List<StepDay> days = <StepDay>[
         for (int i = 0; i < 20; i++)
           day(DateTime(2026, 1, 2 + i), steps: 7000 + (i % 2) * 1000),

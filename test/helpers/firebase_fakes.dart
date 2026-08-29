@@ -1,20 +1,4 @@
-/// Hand-rolled stand-ins for the four Firebase SDK types
-/// `FirebaseAlertRegistrationRepository` takes.
-///
-/// **Why these exist rather than a mocking package.** Those types are
-/// concrete and enormous, and `docs/REMAINING_WORK.md` item 19 read that as a
-/// choice between extracting three interfaces and adding `mockito`. There is
-/// a third way: a class that declares `noSuchMethod` no longer has to
-/// implement the rest of its interface — which is what mockito generates
-/// anyway. So each fake below overrides the two or three members the
-/// repository actually calls, and `super.noSuchMethod` turns anything else
-/// into a `NoSuchMethodError` naming the member. **That failure is the point**:
-/// a test that reaches past what the repository is supposed to touch fails
-/// loudly instead of quietly passing.
-///
-/// The cost is that a Firebase SDK upgrade can change a signature under
-/// these. That is a compile error in a test file, which is the cheap end of
-/// the ways an SDK upgrade can break a repo.
+/// Hand-rolled stand-ins for the four Firebase SDK types `FirebaseAlertRegistrationRepository` takes.
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,8 +25,7 @@ class FakeUser implements User {
   @override
   final String uid;
 
-  /// An anonymous session is refused exactly like a signed-out one: alerts
-  /// need premium and premium needs an account (hard rule 7).
+  /// An anonymous session is refused exactly like a signed-out one: alerts need premium and premium needs an account (hard rule 7).
   @override
   final bool isAnonymous;
 
@@ -103,8 +86,7 @@ class FakeFirebaseMessaging implements FirebaseMessaging {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-/// One document, whatever path is asked for. The repository only ever writes
-/// `users/{uid}`, and the test asserts the path it was given.
+/// One document, whatever path is asked for. The repository only ever writes `users/{uid}`, and the test asserts the path it was given.
 class FakeFirebaseFirestore implements FirebaseFirestore {
   FakeFirebaseFirestore({FakeDocumentReference? document})
     : document = document ?? FakeDocumentReference();

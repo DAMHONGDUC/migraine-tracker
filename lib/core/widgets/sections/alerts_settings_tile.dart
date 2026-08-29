@@ -5,13 +5,11 @@ import '../../../features/alerts/domain/entities/alerts_settings.dart';
 import '../../../features/alerts/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/navigation_utils.dart';
+import '../../theme/app_icon_constant.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
 
-/// Settings row for everything pressure: says whether alerts are On/Off and
-/// opens Insights' pressure card, where the forecast, the correlation and the
-/// switch + threshold all live. Premium-gated as a whole — a free user gets
-/// the locked tile, never the state or the way in.
+/// Settings row for everything pressure.
 class AlertsSettingsTile extends ConsumerWidget {
   const AlertsSettingsTile({super.key});
 
@@ -26,10 +24,10 @@ class AlertsSettingsTile extends ConsumerWidget {
     };
 
     return PremiumTileGate(
-      icon: Icons.notifications_active_outlined,
+      icon: AppIconConstant.reminderActive,
       title: context.l10n.alertsToggleTitle,
       child: SettingsTile(
-        icon: Icons.notifications_active_outlined,
+        icon: AppIconConstant.reminderActive,
         title: context.l10n.alertsToggleTitle,
         value: (settings?.enabled ?? false)
             ? context.l10n.alertsStatusOn

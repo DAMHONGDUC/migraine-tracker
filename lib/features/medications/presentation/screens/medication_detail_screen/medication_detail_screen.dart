@@ -6,15 +6,18 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/permissions/app_permission.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
-import '../../../../attacks/domain/services/medication_effect_tally.dart';
-import '../../../../attacks/providers.dart';
+import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
+import '../../../../insights/providers.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/entities/medication_reminder.dart';
 import '../../../domain/repositories/medication_reminder_repository.dart';
@@ -25,12 +28,7 @@ part 'medication_detail_screen_reminder_row.dart';
 part 'medication_detail_screen_effectiveness.dart';
 part 'medication_detail_screen_reminder_snack.dart';
 
-/// One medication: when it was added, and every reminder set for it. Reached
-/// by tapping its row in the medications tab, or the dashboard's
-/// next-reminder banner.
-///
-/// Reminders live here rather than on the list row — the list says how many
-/// there are, this screen is where they are read and changed.
+/// One medication: when it was added, and every reminder set for it.
 class MedicationDetailScreen extends ConsumerWidget {
   const MedicationDetailScreen({required this.medicationId, super.key});
 
@@ -79,8 +77,7 @@ class MedicationDetailScreen extends ConsumerWidget {
   ) async {
     final AppLocalizations l10n = context.l10n;
 
-    // - the limit is named before the pitch: this button says "Add reminder", so a paywall out of nowhere reads as a bug
-    // - and both come before the OS prompt, which must never be raised for a reminder that will not be created
+    // - the limit is named before the pitch.
     if (!ref.read(canAddReminderProvider)) {
       await NavigationUtils.toPaywallFromLimit(
         context,
@@ -134,7 +131,7 @@ class MedicationDetailScreen extends ConsumerWidget {
       return SdScaffoldV2(
         title: Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
         body: SdEmptyStateV2(
-          icon: Icons.medication_outlined,
+          icon: AppIconConstant.medication,
           message: l10n.medicationDetailMissing,
         ),
       );
@@ -150,7 +147,7 @@ class MedicationDetailScreen extends ConsumerWidget {
       title: Text(medication.name, style: AppTextStyle.titleLarge),
       actions: <Widget>[
         SdAppBarButtonV2(
-          icon: Icons.delete_outline,
+          icon: AppIconConstant.delete,
           color: context.colorScheme.error,
           tooltip: l10n.settingsDeleteConfirmAction,
           onPressed: () => _delete(context, ref, medication),
@@ -158,12 +155,9 @@ class MedicationDetailScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w12),
       ],
       body: SdActionViewV2(
-        // The reminder list grows without bound, and a user with a dozen of
-        // them would have to scroll to the end to reach "Add reminder".
+        // The reminder list grows without bound, and a user with a dozen of them would have to scroll to the end to reach "Add reminder".
         placement: SdActionsPlacementV2.pinned,
         // - Full-bleed: header/"no reminders" text and `SdSectionHeaderV2` pad themselves.
-        // - Reminders card takes the gutter as margin instead.
-        // - Default `contentPadding` would stack a second one on top (see `account_screen.dart`).
         contentPadding: EdgeInsets.zero,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -177,9 +171,7 @@ class MedicationDetailScreen extends ConsumerWidget {
             _Effectiveness(medicationName: medication.name),
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders),
-            // The REMINDER budget, at the top of the section it limits
-            // (owner's call); the medication budget used to sit in the footer,
-            // saying nothing this screen can act on. Counted across all of them.
+            // The REMINDER budget, at the top of the section it limits (owner's call).
             if (remindersUsed != null) ...<Widget>[
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -211,8 +203,7 @@ class MedicationDetailScreen extends ConsumerWidget {
                 child: SdCardV2(
                   child: Column(
                     children: <Widget>[
-                      // Between rows only — a rule above the first or below
-                      // the last would draw a line on the card's own edge.
+                      // Between rows only — a rule above the first or below the last would draw a line on the card's own edge.
                       for (final (int index, MedicationReminderView view)
                           in reminders.indexed) ...<Widget>[
                         if (index > 0) const SdDividerV2(),
@@ -227,11 +218,10 @@ class MedicationDetailScreen extends ConsumerWidget {
         actions: <Widget>[
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
-            // The button stays — it opens the paywall instead. Only the
-            // glyph says the budget is spent, so the label never changes.
+            // The button stays — it opens the paywall instead. Only the glyph says the budget is spent, so the label never changes.
             icon: ref.watch(canAddReminderProvider)
-                ? Icons.alarm_add
-                : Icons.lock_outline,
+                ? AppIconConstant.reminderAdd
+                : AppIconConstant.locked,
             onPressed: () => _addReminder(context, ref, medication),
             label: l10n.remindersAdd,
           ),

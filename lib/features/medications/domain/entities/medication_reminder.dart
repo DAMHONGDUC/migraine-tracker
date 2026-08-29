@@ -18,10 +18,7 @@ class MedicationReminder {
   final int minuteOfDay;
   final bool enabled;
 
-  /// When this reminder was created (UTC), or null for one saved before the
-  /// column existed. It bounds how far back the notification list may
-  /// materialise past occurrences, so it has to mean the same thing on every
-  /// device — which is why it travels in the sync payload.
+  /// When this reminder was created (UTC), or null for one saved before the column existed.
   final DateTime? createdAt;
 
   int get hour => minuteOfDay ~/ 60;

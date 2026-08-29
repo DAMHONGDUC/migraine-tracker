@@ -5,17 +5,14 @@ import '../../../sync/data/repositories/drift_sync_local_store.dart';
 import '../../../sync/domain/entities/sync_collection.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/enums/aura_type.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_region.dart';
 import '../../domain/enums/medication_effect.dart';
 import '../../domain/repositories/attack_repository.dart';
 import 'attack_mapper.dart';
 
-/// Drift-backed [AttackRepository]. Returns domain models, never Drift rows.
-///
-/// Every mutation stamps `updatedAt`, which is what later marks the row as
-/// owed to the server. Nothing here talks to the network — sync reads this
-/// state separately, so logging an attack never waits on it (hard rule 4).
+/// Drift-backed [AttackRepository].
 class DriftAttackRepository implements AttackRepository {
   const DriftAttackRepository(this._db);
 
@@ -63,8 +60,7 @@ class DriftAttackRepository implements AttackRepository {
     );
   }
 
-  /// Inserts the attack and, if already available, its weather snapshot.
-  /// Works fully offline: [Attack.weather] may simply be null.
+  /// Inserts the attack and, if already available, its weather snapshot. Works fully offline: [Attack.weather] may simply be null.
   @override
   Future<void> insert(Attack attack) {
     return _db.transaction(() async {
@@ -88,9 +84,7 @@ class DriftAttackRepository implements AttackRepository {
     });
   }
 
-  /// Backfills the weather snapshot for an attack logged offline. Stamps the
-  /// attack too — the snapshot travels inside its payload, so without this a
-  /// backfill would never reach the server.
+  /// Backfills the weather snapshot for an attack logged offline.
   @override
   Future<void> attachWeather(String attackId, WeatherSnapshot weather) {
     return _db.transaction(() async {
@@ -186,6 +180,19 @@ class DriftAttackRepository implements AttackRepository {
   }
 
   @override
+  Future<void> updateAura(String id, List<AuraType>? aura) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          aura: Value(aura),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
   Future<void> updateCore(
     String id, {
     required int intensity,
@@ -205,10 +212,7 @@ class DriftAttackRepository implements AttackRepository {
     });
   }
 
-  /// Deletes the attack outright — no soft-delete, so nothing about it
-  /// outlives the tap — and leaves a tombstone holding only its id, so the
-  /// deletion still reaches the user's other devices. Weather goes with it
-  /// via the FK cascade.
+  /// Deletes the attack outright — no soft-delete, so nothing about it outlives the tap — and leaves a tombstone holding only its id, so the deletion.
   @override
   Future<void> deleteById(String id) {
     return _db.transaction(() async {
@@ -217,9 +221,7 @@ class DriftAttackRepository implements AttackRepository {
     });
   }
 
-  /// GDPR wipe. Weather snapshots go with their attacks via cascade, and the
-  /// tombstones go too: the remote copy is being deleted wholesale in the
-  /// same pass, so there is nothing left to tell the server about.
+  /// GDPR wipe.
   @override
   Future<void> deleteAll() {
     return _db.transaction(() async {

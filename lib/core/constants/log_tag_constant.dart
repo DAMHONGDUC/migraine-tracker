@@ -1,21 +1,4 @@
 /// Every flow name `SdLogger` prints, in one place.
-///
-/// `SdLogger` takes the flow as its first argument and prints it ahead of the
-/// message, so a console reads `Sign In - sheet ok — {aud: …}`. Filtering on
-/// `Sign In - ` then shows that one flow out of everything the app is doing at
-/// once — which only works while every call in the flow spells it the same
-/// way. `'Sign In'` and `'Sign-in'` are one flow to a reader and two to a text
-/// filter, so the string is never typed at a call site.
-///
-/// One class rather than a tag per feature, for the reason
-/// `PrefsKeyConstant` is one class: listed together, two features reaching for
-/// the same word is visible.
-///
-/// **A tag names a flow, not a file.** Several files share `signIn` because
-/// the sheet, the credential link and the controller are one story to whoever
-/// is reading; `firebase_auth_repository.dart` spans three tags for the same
-/// reason, its sign-in, account and profile calls having nothing to do with
-/// each other.
 final class LogTagConstant {
   /// App-wide wiring: the root widget's listeners, not a user flow.
   static const String app = 'App';
@@ -38,8 +21,10 @@ final class LogTagConstant {
   /// Viewing and editing an attack that already exists.
   static const String attackDetail = 'Attack Detail';
 
-  /// The best-effort weather backfill onto a logged attack. Its own flow
-  /// because it runs long after the log finished and fails on its own.
+  /// Rendering an attack to an image and handing it to the share sheet.
+  static const String attackShare = 'Attack Share';
+
+  /// The best-effort weather backfill onto a logged attack. Its own flow because it runs long after the log finished and fails on its own.
   static const String weatherAttach = 'Weather Attach';
 
   /// The provider sheet through to the linked credential.
@@ -56,8 +41,7 @@ final class LogTagConstant {
   static const String homeWidget = 'Home Widget';
   static const String insights = 'Insights';
 
-  /// The weather card's own interaction — opening its detail sheet — not a
-  /// weather fetch.
+  /// The weather card's own interaction — opening its detail sheet — not a weather fetch.
   static const String weatherCard = 'Weather Card';
 
   static const String medications = 'Medications';
@@ -88,8 +72,7 @@ final class LogTagConstant {
   /// Fetching the account key from the `getSyncKey` callable.
   static const String syncKey = 'Sync Key';
 
-  /// The AES-GCM cipher itself. Separate so a decrypt failure is never read
-  /// as a network problem.
+  /// The AES-GCM cipher itself. Separate so a decrypt failure is never read as a network problem.
   static const String syncCrypto = 'Sync Crypto';
 
   static const String weather = 'Weather';
@@ -98,8 +81,7 @@ final class LogTagConstant {
   /// The daily pressure sample written for the correlation engine.
   static const String pressureRecord = 'Pressure Record';
 
-  /// Dev-only flows. They exist in dev builds alone, and a tag of their own
-  /// keeps them out of a filter on the real flow they stand in for.
+  /// Dev-only flows. They exist in dev builds alone, and a tag of their own keeps them out of a filter on the real flow they stand in for.
   static const String devPush = 'Dev Push';
   static const String devLocation = 'Dev Location';
 }

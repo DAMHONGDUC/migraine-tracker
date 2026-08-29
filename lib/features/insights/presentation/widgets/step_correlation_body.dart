@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/step_count_label.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/step_correlation_result.dart';
@@ -16,15 +17,6 @@ part 'step_correlation_body_not_connected.dart';
 part 'step_correlation_body_no_variation.dart';
 
 /// What the step analysis found: did attacks follow the low-activity days?
-///
-/// Cardless, because two places draw it — `ActivityCard` folds it in with the
-/// exertion self-report, and the activity detail screen shows it on its own
-/// card. Premium either way: a free user never builds it, so no HealthKit
-/// read is issued for them at all.
-///
-/// While the read is in flight it renders nothing rather than a spinner: a
-/// card that pops in half a second later is calmer than one that flickers a
-/// placeholder first.
 class StepCorrelationBody extends ConsumerWidget {
   const StepCorrelationBody({super.key});
 
@@ -38,7 +30,7 @@ class StepCorrelationBody extends ConsumerWidget {
       AsyncData(value: final StepCorrelationResult value) => switch (value) {
         StepNotConnected() => const _StepNotConnected(),
         final StepInsufficientData r => InsightProgressBody(
-          icon: Icons.directions_walk,
+          icon: AppIconConstant.steps,
           message: context.l10n.insightsStepsInsufficientData(
             r.requiredDays,
             r.requiredPerGroup,

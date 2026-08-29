@@ -1,15 +1,6 @@
 part of 'history_screen.dart';
 
-/// The stacked chart deck shown once the filtered period has attacks: weekly
-/// frequency, average-intensity trend, severity mix, pain-by-location and
-/// time-of-day — each in its own [SdChartCardV2]. All read the same filtered
-/// [attacks] and are computed once here (pure calculators).
-///
-/// Premium-only, except the severity donut: that one is the dashboard's own
-/// preview, so it draws the real counts here too. The other four are drawn
-/// from [SampleChartData] and blurred under [PremiumChartLock]. The branch is
-/// on the source list, not on the widget, so a free tree never holds the
-/// user's own numbers behind a cover.
+/// The stacked chart deck shown once the filtered period has attacks.
 class _Charts extends ConsumerWidget {
   const _Charts({required this.attacks});
 
@@ -36,8 +27,7 @@ class _Charts extends ConsumerWidget {
             ),
             locked: !hasPremium,
           ),
-          // Free at every tier: the same donut the dashboard shows, so
-          // locking it here would take back what the user already has.
+          // Free at every tier: the same donut the dashboard shows, so locking it here would take back what the user already has.
           (
             chart: SeverityBreakdownChart(
               counts: const SeverityBreakdownCalculator().compute(attacks),

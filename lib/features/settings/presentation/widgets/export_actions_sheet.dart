@@ -3,15 +3,14 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_action.dart';
 import '../../domain/enums/export_kind.dart';
 
-/// What to do with one export from the history. Pops the chosen action, or
-/// null when dismissed.
-///
-/// Show it with `ExportActionsSheet(record: r).show(context)`.
+/// What to do with one export from the history. Pops the chosen action, or null when dismissed. Show it with `ExportActionsSheet(record: r).show(context)`.
 class ExportActionsSheet extends StatelessWidget {
   const ExportActionsSheet({required this.record, super.key});
 
@@ -35,27 +34,25 @@ class ExportActionsSheet extends StatelessWidget {
             ),
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
-          // No preview for CSV: 14 columns of comma-separated text tell a
-          // reader nothing a phone screen can show usefully. Share or save it
-          // and open it in something that reads spreadsheets.
+          // No preview for CSV: 14 columns of comma-separated text tell a reader nothing a phone screen can show usefully.
           if (record.kind != ExportKind.csv)
             _ActionTile(
-              icon: Icons.visibility_outlined,
+              icon: AppIconConstant.visibility,
               label: l10n.exportPreviewAction,
               action: ExportAction.preview,
             ),
           _ActionTile(
-            icon: Icons.ios_share,
+            icon: AppIconConstant.share,
             label: l10n.exportShareAction,
             action: ExportAction.share,
           ),
           _ActionTile(
-            icon: Icons.download_outlined,
+            icon: AppIconConstant.download,
             label: l10n.exportSaveAction,
             action: ExportAction.saveToDevice,
           ),
           _ActionTile(
-            icon: Icons.delete_outline,
+            icon: AppIconConstant.delete,
             label: l10n.exportDeleteAction,
             action: ExportAction.delete,
             isDestructive: true,
@@ -87,7 +84,7 @@ class _ActionTile extends StatelessWidget {
         : AppColors.primary;
 
     return ListTile(
-      leading: SdIconV2(icon: icon, color: color),
+      leading: SdIconV2(icon: icon, size: AppIconSize.medium, color: color),
       title: Text(
         label,
         style: isDestructive
@@ -99,8 +96,7 @@ class _ActionTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportActionsSheetExt on ExportActionsSheet {
   Future<ExportAction?> show(BuildContext context) =>
       showSdBottomSheetV2<ExportAction>(context, builder: (_) => this);

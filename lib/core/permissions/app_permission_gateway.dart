@@ -2,24 +2,18 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 
 import 'app_permission_types.dart';
 
-/// The platform side of [AppPermission] — behind an interface so the
-/// orchestration (and its settings-redirect UX) is testable with a fake
-/// instead of the real OS.
+/// The platform side of [AppPermission].
 abstract interface class AppPermissionGateway {
   Future<AppPermissionStatus> status(AppPermissionType type);
 
-  /// Requests [type], prompting the OS dialog when it still can. Returns the
-  /// resulting status ([AppPermissionStatus.permanentlyDenied] when the dialog
-  /// can no longer be shown).
+  /// Requests [type], prompting the OS dialog when it still can.
   Future<AppPermissionStatus> request(AppPermissionType type);
 
-  /// Opens the OS app-settings page — the only way back from a permanent
-  /// denial.
+  /// Opens the OS app-settings page — the only way back from a permanent denial.
   Future<void> openAppSettings();
 }
 
-/// Real gateway, backed by the `permission_handler` package so every
-/// permission goes through one uniform API (rather than each plugin's own).
+/// Real gateway, backed by the `permission_handler` package so every permission goes through one uniform API (rather than each plugin's own).
 class PlatformPermissionGateway implements AppPermissionGateway {
   const PlatformPermissionGateway();
 

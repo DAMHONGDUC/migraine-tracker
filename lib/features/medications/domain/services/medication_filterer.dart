@@ -1,21 +1,11 @@
 import '../entities/medication.dart';
 import '../enums/medication_filters.dart';
 
-/// Filters and sorts the medications tab's list. Pure Dart — no Flutter,
-/// no repository access; the provider layer resolves [reminderMedicationIds]
-/// and [everUsedNames] and hands them in.
-///
-/// Entirely separate from `medicationsByRecentUseProvider` (the log flow's
-/// own ordering): that grid must stay predictable mid-attack regardless of
-/// whatever the user last filtered this tab to, so the two never share
-/// state. See `MedicationStep`'s doc comment.
+/// Filters and sorts the medications tab's list.
 class MedicationFilterer {
   const MedicationFilterer();
 
-  /// Inclusive lower bound (local time) of [filter] relative to [now], or
-  /// null for [MedicationDateFilter.all]. Mirrors
-  /// `AttackPeriodFilterer.periodStart` — same calendar-window math, kept
-  /// separate per the enum doc.
+  /// Inclusive lower bound (local time) of [filter] relative to [now], or null for [MedicationDateFilter.all].
   DateTime? _dateFilterStart(MedicationDateFilter filter, DateTime now) {
     final local = now.toLocal();
     final midnight = DateTime(local.year, local.month, local.day);
@@ -31,10 +21,7 @@ class MedicationFilterer {
     };
   }
 
-  /// Applies [filters] (AND across axes) and sorts most-recently-added
-  /// first. Medications with no recorded creation date (pre-v3 rows) sort
-  /// last — not "oldest", just unrecorded — and never match a specific date
-  /// window, only [MedicationDateFilter.all].
+  /// Applies [filters] (AND across axes) and sorts most-recently-added first.
   List<Medication> apply(
     List<Medication> medications,
     MedicationFilters filters, {

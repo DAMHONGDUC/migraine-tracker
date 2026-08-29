@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -38,17 +40,15 @@ Future<void> openEditSheet(WidgetTester tester, String row) async {
 }
 
 /// The commit button in the sheet header — a pick is only applied by this.
-/// These sheets overwrite a value the attack already has, so the glyph is
-/// the pencil (`SdSheetActionV2.edit`), not the tick.
 Future<void> confirmSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.edit));
+  await tester.tap(find.byIcon(Symbols.edit_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
 /// The X in the sheet header — leaves without applying the pick.
 Future<void> closeSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.close));
+  await tester.tap(find.byIcon(Symbols.close_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -124,9 +124,7 @@ void main() {
 
     await openDetail(tester);
 
-    // A ListView hands children a TIGHT width, overriding HeadDiagram's
-    // AspectRatio unless something loosens it — the head used to come out
-    // stretched across the row. The ratio is the design box's own, 200x248.
+    // A ListView hands children a TIGHT width, overriding HeadDiagram's AspectRatio unless something loosens it.
     final Size size = tester.getSize(find.byType(HeadDiagram));
     expect(size.width / size.height, closeTo(200 / 248, 0.01));
 
@@ -175,8 +173,7 @@ void main() {
 
     expect(
       tester.widget<HeadDiagram>(find.byType(HeadDiagram)).selected,
-      // Added to what the attack already had — the tiles toggle, they do not
-      // replace.
+      // Added to what the attack already had — the tiles toggle, they do not replace.
       const <HeadRegion>[HeadRegion.crown, HeadRegion.templeR],
     );
 
@@ -205,8 +202,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // The point of the tick: a tap inside the sheet is a highlight, not a
-  // decision, so leaving by the X must change nothing.
+  // The point of the tick: a tap inside the sheet is a highlight, not a decision, so leaving by the X must change nothing.
   testWidgets('a pick abandoned by the X changes nothing', (tester) async {
     final app = await pumpApp(tester);
     await DriftAttackRepository(app.db).insert(attack());
@@ -224,8 +220,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // All three edits open a sheet now, not a dialog: the same grids the log
-  // flow uses need the room, and a sheet is where this app puts a picker.
+  // All three edits open a sheet now, not a dialog: the same grids the log flow uses need the room, and a sheet is where this app puts a picker.
   testWidgets('each edit row opens a sheet', (tester) async {
     final app = await pumpApp(tester);
     await DriftAttackRepository(app.db).insert(attack());
@@ -240,10 +235,9 @@ void main() {
         findsOneWidget,
         reason: '$row should open a sheet',
       );
-      // Every one of them offers both answers in its header. The commit is
-      // the pencil, not the tick: these overwrite a value the attack has.
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
+      // Every one of them offers both answers in its header. The commit is the pencil, not the tick: these overwrite a value the attack has.
+      expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
+      expect(find.byIcon(Symbols.edit_rounded), findsOneWidget);
 
       await closeSheet(tester);
     }
@@ -301,7 +295,7 @@ void main() {
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.tap(find.byIcon(AppIconConstant.delete));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 

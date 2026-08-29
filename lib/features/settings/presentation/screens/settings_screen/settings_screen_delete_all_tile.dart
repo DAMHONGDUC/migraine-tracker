@@ -1,15 +1,6 @@
 part of 'settings_screen.dart';
 
-/// The GDPR wipe (hard rule 8). Sits with the export rows, but its error
-/// tint and confirm dialog keep it from being mistaken for one.
-///
-/// Says "local" without an account, because on device is all there is —
-/// nothing was ever synced, so promising more than that overstates it.
-///
-/// While it runs the row's end carries a spinner and how far it has got, the
-/// same pair the sync row shows: a wipe reaches the network, the OS scheduler
-/// and several tables, so it can take long enough that a row which only spins
-/// cannot tell slow from stuck.
+/// The GDPR wipe (hard rule 8).
 class _DeleteAllTile extends ConsumerWidget {
   const _DeleteAllTile();
 
@@ -56,8 +47,7 @@ class _DeleteAllTile extends ConsumerWidget {
         SdSnackBarUtilsV2.success(context, l10n.settingsDeleteDone);
       }
     } catch (_) {
-      // The wipe aborts at the first failure rather than half-running, so
-      // there is something to say beyond "it broke": nothing went.
+      // The wipe aborts at the first failure rather than half-running, so there is something to say beyond "it broke": nothing went.
       if (context.mounted) {
         SdSnackBarUtilsV2.error(context, l10n.settingsDeleteFailed);
       }
@@ -71,7 +61,7 @@ class _DeleteAllTile extends ConsumerWidget {
     final WipeStatus status = ref.watch(settingsControllerProvider);
 
     return SettingsTile(
-      icon: Icons.delete_forever_outlined,
+      icon: AppIconConstant.deleteForever,
       titleColor: context.colorScheme.error,
       title: signedIn ? l10n.settingsDelete : l10n.settingsDeleteLocal,
       trailing: status.isRunning

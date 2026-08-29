@@ -28,8 +28,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.text('Sign in to unlock Premium'), findsOneWidget);
-      // Hard rule 1: the sign-in UI states what happens to health data — and
-      // now that sync ships, that it leaves the device at all.
+      // Hard rule 1: the sign-in UI states what happens to health data — and now that sync ships, that it leaves the device at all.
       expect(
         find.text(
           'Signing in backs up your attacks to your account, encrypted. They '
@@ -47,16 +46,14 @@ void main() {
       await pumpApp(tester);
       await openLogin(tester);
 
-      // App Store 4.8: offering Google obliges us to offer Apple too. The
-      // button is on screen from the start, even before its flow is wired.
+      // App Store 4.8: offering Google obliges us to offer Apple too. The button is on screen from the start, even before its flow is wired.
       expect(find.text('Sign in with Apple'), findsOneWidget);
       expect(find.text('Continue with Google'), findsOneWidget);
 
       await finishTest(tester);
     });
 
-    // The kill-switch state, not the shipped one: `appleSignIn: false` is
-    // what the Firebase/portal side breaking would look like.
+    // The kill-switch state, not the shipped one: `appleSignIn: false` is what the Firebase/portal side breaking would look like.
     testWidgets('tapping Apple says it is not wired up, and does not try', (
       tester,
     ) async {
@@ -84,8 +81,7 @@ void main() {
       final app = await pumpApp(tester);
       await openLogin(tester);
 
-      // Well short of what the pitch plus buttons need. A fixed Column here
-      // would throw a RenderFlex overflow, which this test would fail on.
+      // Well short of what the pitch plus buttons need. A fixed Column here would throw a RenderFlex overflow, which this test would fail on.
       tester.view.physicalSize = const Size(393 * 3, 480 * 3);
       await tester.pump();
 
@@ -120,8 +116,7 @@ void main() {
       await tapVisible(tester, find.text('Continue with Google'));
 
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
-      // Settings shows the account row (which opens the account screen),
-      // never the email itself.
+      // Settings shows the account row (which opens the account screen), never the email itself.
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('tester@example.com'), findsNothing);
 
@@ -179,8 +174,7 @@ void main() {
       await pumpApp(tester, signedIn: true);
       await openSettings(tester);
 
-      // The row says 'Account' and opens the account screen; Settings
-      // never puts the email on screen.
+      // The row says 'Account' and opens the account screen; Settings never puts the email on screen.
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('tester@example.com'), findsNothing);
       expect(find.text('Sign in'), findsNothing);

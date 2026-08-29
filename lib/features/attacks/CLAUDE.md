@@ -156,7 +156,13 @@ the same curve its neighbour continues on.
   cheek scored a different area. Never let this widget's child take loose
   constraints; `head_region_picker_test.dart` compares the `SvgPicture`'s rect to
   the diagram's.
-- **One thin hand across the whole face: nothing above 1.4** (owner's rule). The
+- **One thin hand across the whole face: nothing above 0.9, every feature under
+  0.4 opacity** (owner's rule, 2026-08-29, down from 1.4 at 0.62). The face is a
+  hint, not a portrait: at the old weights the brows, eyes and mouth were nearly
+  as heavy as the silhouette, and what the user is actually reading is the
+  region fill painted underneath. The ears came down with them (1.1/0.85 at
+  0.42–0.5) so they do not outweigh the features they frame — on both views,
+  since the two files must stay drawn from the same numbers. The
   features are traced from the reference — arched brows tucked down at the outer
   end, a closed lid meeting its lash at a point in both corners, one continuous
   stroke down the bridge and round the nose with the wings set *inside* that curve
@@ -165,7 +171,8 @@ the same curve its neighbour continues on.
   inside the nose. This replaced a graded pass (2.5 brows down to 1.3 nostrils)
   that stopped working the moment the nose lost its outline to the painter: a 2.5
   brow beside a 1.3 nostril read as a different drawing pasted on. The silhouette
-  at 2.0 is the only heavy line left, which is what makes it the silhouette.
+  at 2.0 is the only heavy line left, which is what makes it the silhouette —
+  and the gap between it and the face is now the whole point, not a side effect.
 - **The head is sized from its WIDTH, and sits 30pt in from everything around it**
   (owner's rule, after 40 and 24): the screen edge either side, the tabs above, the
   tiles below. The height falls out of the drawing's ratio; height only overrides
@@ -266,3 +273,65 @@ never a record.
   privacy-label fact, not just a feature: `docs/privacy/` declares Fitness as
   collected and `NSHealthShareUsageDescription` says so too. Sleep still never
   leaves. Change this and all three change together.
+
+## Aura, and the three states it needs
+
+`Attack.aura` is `List<AuraType>?`, and **null and empty mean different
+things**: null is "never asked", an empty list is the user answering "no
+aura". Every other after-the-fact field on this entity collapses its two
+absences into one — `endedAt` null is "still going, or never said" — and this
+one deliberately does not.
+
+- **Because they are different diagnoses.** Migraine with aura and migraine
+  without aura are separate ICHD-3 entries, and the field reaches the doctor
+  report. A recorded "no" is evidence; a question nobody put is not, and
+  backfilling either would answer on the user's behalf.
+- **Four kinds, not ICHD's six.** Visual, sensory, speech, motor. Retinal and
+  brainstem aura both need a clinician to distinguish from the two above
+  them, and offering them invites a self-diagnosis the app cannot support.
+- **Not a step in the log flow** (hard rule 5), and it never can be: aura runs
+  *before* the pain, so by the time an attack is logged it is already over.
+  `updateAura` is its own repository method for the same reason
+  `updateExertion` is — the details sheet never shows aura, so a save from
+  there must not blank it.
+- **The row sits above duration on the detail screen**, because the rows read
+  in the order the attack happened.
+- **`AuraPickerSheet`'s primary button says "No aura" while nothing is
+  picked.** Saving an empty selection IS the "no aura" answer, so the button
+  has to say which of the three states it is about to write; "Not recorded"
+  is a separate text button and only appears once there is something to take
+  back.
+- **The sheet leads with one line explaining what an aura is.** The word means
+  nothing to a good half of the people who get one.
+
+## Sharing an attack as a picture
+
+`AttackShareSheet` previews `AttackShareCard`, then captures **that very
+boundary** and hands the PNG to the share sheet.
+
+- **The preview is the mechanism, not a courtesy.** Capturing what is already
+  on screen makes the preview and the file the same pixels by construction,
+  so a card cannot carry anything the user was not shown.
+- **The card never draws `notes`.** That is where the most private thing in
+  the app gets written, and somebody who shared one six months ago will not
+  remember that they did. The sheet says so under the preview.
+- **Free, owner's call** — the acute use ("I'm down, text don't call") lands
+  mid-attack, and that is the worst place in the app for a paywall.
+- It reuses `ExportSharer` from `settings/` rather than a second `share_plus`
+  call site, and writes through `AttackShareFileStore` into its own
+  `attack_shares/` folder in temporary storage — never documents, which is
+  where exports go because the export screen lists them again later.
+- **The GDPR wipe clears that folder** (`DataWipeService`, step 11 of 11).
+  The picture is a fourth copy of health data on the device; iOS reclaims
+  temporary storage eventually, but eventually is not a deletion the user
+  asked for. The folder is its own for exactly this: the wipe deletes the
+  whole directory, and pointing that at the temp root would take plugin
+  caches with it.
+  - **Adding a step means moving `DataWipeService.steps` with it** — its own
+    comment says so, and the progress bar counts against that number.
+  - The privacy policy names this file in two places (§7b and the
+    "Delete all data" bullet), in `PRIVACY_POLICY.md` *and* `privacy.json`.
+    Change what the wipe reaches and all four move together.
+- `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
+  `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.
+

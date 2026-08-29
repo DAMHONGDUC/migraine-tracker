@@ -6,6 +6,8 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../premium/providers.dart';
@@ -20,14 +22,7 @@ part 'account_screen_header.dart';
 part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
 
-/// The signed-in user's own record: who they are, what the subscription is,
-/// and the way out. Pushed from the Settings account row; the router's
-/// redirect turns it away while signed out, so it can assume an account.
-///
-/// Health data is deliberately absent: attacks live on the device and as
-/// encrypted payloads in their own top-level collection, never in the account
-/// document (hard rule 1). [_DataNote] says so on the screen, not just in a
-/// comment.
+/// The signed-in user's own record: who they are, what the subscription is, and the way out.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -65,8 +60,7 @@ class AccountScreen extends ConsumerWidget {
   }
 }
 
-/// What the account document holds, in the user's words. Sign-in already
-/// discloses the sync; this is the same promise where they can re-read it.
+/// What the account document holds, in the user's words. Sign-in already discloses the sync; this is the same promise where they can re-read it.
 class _DataNote extends StatelessWidget {
   const _DataNote();
 
@@ -83,8 +77,8 @@ class _DataNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SdIconV2(
-            icon: Icons.lock_outline,
-            size: SdSpacingConstant.r16,
+            icon: AppIconConstant.locked,
+            size: AppIconSize.xSmall,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(width: SdSpacingConstant.w8),
@@ -141,7 +135,7 @@ class _SignOutButton extends ConsumerWidget {
       variant: SdButtonVariantV2.primary,
       onPressed: () => _signOut(context, ref),
       label: context.l10n.settingsSignOut,
-      icon: Icons.logout,
+      icon: AppIconConstant.signOut,
     );
   }
 }

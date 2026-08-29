@@ -1,15 +1,5 @@
 #!/bin/sh
-# Install one environment's Firebase and RevenueCat config where the build
-# reads it.
-#
-#   sh tool/prepare-env.sh <dev|prod>
-#
-# Sources live in `env_assets/` — the same live keys `env/` holds, so it is
-# gitignored and yours alone. This script is the only record of which file
-# goes where; by hand it is four `cp`s from memory, and the forgotten one
-# fails a build with a Firebase error naming none of this.
-#
-# It copies bytes and never reads them (hard rule 13).
+# Install one environment's Firebase, RevenueCat and Cloud Functions config where each is read, plus the unflavored files both share.
 set -eu
 . "$(dirname "$0")/_common.sh"
 
@@ -30,30 +20,17 @@ if [ ! -d "$SRC" ]; then
   exit 1
 fi
 
-# `<source under env_assets>|<destination>`, newline separated so the default
-# IFS splits it; no path here has a space.
-#
-# Both env/*.json go every time: one destination each, so there is nothing to
-# choose. The target picks only the three native files, and their destinations
-# carry no dev-/prod- prefix on purpose — those exact paths are what the
-# google-services gradle plugin and the Runner target read. A prefixed copy
-# beside them is a file nothing opens.
-#
-# Info.plist is in that list because it carries the Google sign-in URL scheme,
-# which is the reversed client id of whichever Firebase project this checkout
-# is pointed at — a dev GoogleService-Info.plist beside a prod URL scheme
-# builds fine and drops the sign-in callback on the floor at runtime.
+# `<source under env_assets>|<destination>`, newline separated so the default IFS splits it; no path here has a space.
 PAIRS="
-dev.json|env/dev.json
-prod.json|env/prod.json
+$TARGET.json|env/$TARGET.json
+fastlane.env|ios/fastlane/.env
 $TARGET-google-services.json|android/app/google-services.json
 $TARGET-GoogleService-Info.plist|ios/Runner/GoogleService-Info.plist
 $TARGET-Info.plist|ios/Runner/Info.plist
+$TARGET-function.env|functions/.env
 "
 
-# All checked before anything is written: a run that copies two files and dies
-# on the third leaves a tree half this environment and half the last one, and
-# nothing on disk says so.
+# All checked before anything is written.
 MISSING=""
 for pair in $PAIRS; do
   SRC_FILE="$SRC/${pair%%|*}"
@@ -75,3 +52,5 @@ for pair in $PAIRS; do
 done
 
 done_msg "Installed $TARGET config. Run with --dart-define-from-file=env/$TARGET.json."
+# functions/.env is read by the Firebase CLI at deploy time, not by the app.
+warn "functions/.env reaches the backend only on the next deploy-firebase-$TARGET."

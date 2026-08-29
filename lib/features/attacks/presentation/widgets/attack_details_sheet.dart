@@ -8,11 +8,6 @@ import '../../../../core/utils/comma_list_utils.dart';
 import '../../providers.dart';
 
 /// Optional detail fields, deliberately kept out of the 3-tap flow.
-/// Opened empty right after logging, or prefilled when editing from the
-/// attack detail screen.
-///
-/// Exertion is NOT here: it is a step of the log flow now, and the attack
-/// detail screen edits it through its own picker sheet.
 class AttackDetailsSheet extends HookConsumerWidget {
   const AttackDetailsSheet({
     required this.attackId,
@@ -85,8 +80,7 @@ class AttackDetailsSheet extends HookConsumerWidget {
   }
 }
 
-/// Presents the details form as a scroll-controlled bottom sheet (see
-/// CLAUDE.md § Code style, "Bottom sheets and dialogs").
+/// Presents the details form as a scroll-controlled bottom sheet (see CLAUDE.md § Code style, "Bottom sheets and dialogs").
 extension AttackDetailsSheetExt on AttackDetailsSheet {
   Future<void> show(BuildContext context) => showSdBottomSheetV2<void>(
     context,

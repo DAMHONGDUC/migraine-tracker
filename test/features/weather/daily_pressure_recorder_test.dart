@@ -14,8 +14,7 @@ class SocketExceptionStub implements Exception {
   const SocketExceptionStub();
 }
 
-/// Counts fetches, because "at most one per day" is the whole contract: this
-/// runs on every launch and every resume.
+/// Counts fetches, because "at most one per day" is the whole contract: this runs on every launch and every resume.
 class _CountingWeather implements WeatherRepository {
   _CountingWeather({this.snapshot, this.throws = false});
 
@@ -26,8 +25,7 @@ class _CountingWeather implements WeatherRepository {
   @override
   Future<WeatherSnapshot?> snapshotAt(DateTime instant) async {
     calls++;
-    // An Exception, not an Error: the real failures here are the network and
-    // the platform channel, which is what `on Exception` is scoped to.
+    // An Exception, not an Error: the real failures here are the network and the platform channel, which is what `on Exception` is scoped to.
     if (throws) throw const SocketExceptionStub();
     return snapshot;
   }
@@ -35,8 +33,7 @@ class _CountingWeather implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => null;
 
-  // The weather card's payload. No widget test draws it, and no non-UI
-  // test needs it, so every fake answers "no weather".
+  // The weather card's payload. No widget test draws it, and no non-UI test needs it, so every fake answers "no weather".
   @override
   Future<WeatherReport?> report() async => null;
 }
@@ -75,8 +72,7 @@ void main() {
     expect(stored.isDrop(5), isTrue);
   });
 
-  // It runs on launch AND resume, so without the guard a day spent opening
-  // the app is a day of network calls to overwrite nearly the same number.
+  // It runs on launch AND resume, so without the guard a day spent opening the app is a day of network calls to overwrite nearly the same number.
   test('fetches at most once a day', () async {
     final _CountingWeather weather = _CountingWeather(snapshot: snapshot());
     final DailyPressureRecorder recorder = DailyPressureRecorder(
@@ -154,8 +150,7 @@ void main() {
       );
     });
 
-    // Derived from the user's location, so it is theirs and goes with the
-    // rest (hard rule 8).
+    // Derived from the user's location, so it is theirs and goes with the rest (hard rule 8).
     test('the wipe clears it', () async {
       await readings.upsert(
         DailyPressure(

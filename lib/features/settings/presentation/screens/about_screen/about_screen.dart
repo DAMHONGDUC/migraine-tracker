@@ -12,12 +12,7 @@ import '../../../domain/services/app_version_label.dart';
 
 part 'about_screen_header.dart';
 
-/// What the app is and everything it does, in one screen. Pushed from
-/// Settings' About section.
-///
-/// The feature rows are [AppFeatureList], the same list the onboarding sheet
-/// shows — a user who skipped that sheet on day one can still find it, and
-/// the two can never fall out of step.
+/// What the app is and everything it does, in one screen.
 class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
@@ -34,8 +29,7 @@ class AboutScreen extends ConsumerWidget {
           SizedBox(height: SdContentPaddingV2.sectionGap),
           const AppFeatureList(),
           SizedBox(height: SdSpacingConstant.h8),
-          // Hard rule 11: the app never promises diagnosis or treatment, and
-          // the screen that lists what it does is where that has to be said.
+          // Hard rule 11: the app never promises diagnosis or treatment, and the screen that lists what it does is where that has to be said.
           Text(
             l10n.onboardingDisclaimer,
             style: AppTextStyle.bodySmall.secondary,

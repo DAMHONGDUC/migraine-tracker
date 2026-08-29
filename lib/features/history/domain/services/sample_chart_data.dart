@@ -2,18 +2,11 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 
-/// Fabricated attacks that draw the shape of the History chart deck for a
-/// free user, behind the unlock cover.
-///
-/// It exists so a locked chart can be blurred without the user's own numbers
-/// ever entering the widget tree — a cover over real data still leaves it
-/// there, one screenshot away. Fed through the SAME calculators as the real
-/// deck, so the locked preview cannot drift from what premium unlocks.
+/// Fabricated attacks that draw the shape of the History chart deck for a free user, behind the unlock cover.
 final class SampleChartData {
   const SampleChartData._();
 
-  /// Attacks per week, oldest first — uneven on purpose, so the frequency
-  /// bars and the intensity line both have something to show.
+  /// Attacks per week, oldest first — uneven on purpose, so the frequency bars and the intensity line both have something to show.
   static const List<int> _weeklyCounts = <int>[3, 5, 2, 6, 4, 7, 3, 5];
 
   /// Cycled per attack, spread across all four severity bands.
@@ -22,9 +15,7 @@ final class SampleChartData {
   /// Cycled per attack, spread across all four quarters of the day.
   static const List<int> _hours = <int>[3, 9, 14, 20, 11, 16, 22, 7];
 
-  /// Cycled per attack. Weighted toward the harder end so the locked exertion
-  /// preview shows a lean rather than a flat split — a blurred chart saying
-  /// "no pattern" sells nothing.
+  /// Cycled per attack.
   static const List<ExertionLevel> _exertions = <ExertionLevel>[
     ExertionLevel.severe,
     ExertionLevel.moderate,

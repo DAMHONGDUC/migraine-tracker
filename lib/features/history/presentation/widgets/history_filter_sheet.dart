@@ -4,10 +4,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/history_period.dart';
 
-/// The period filter pill (icon + current value + expand chevron); tapping
-/// opens the bottom sheet. Rendered at the top of the list/chart content,
-/// below the app bar. A thin [SdFilterChipV2] wrapper — see that class for
-/// the shared visuals/behavior now also used by the medications tab.
+/// The period filter pill (icon + current value + expand chevron); tapping opens the bottom sheet.
 class HistoryFilterChip extends StatelessWidget {
   const HistoryFilterChip({
     required this.selected,
@@ -22,8 +19,7 @@ class HistoryFilterChip extends StatelessWidget {
   /// How many attacks the selected period matches — shown as "All (10)".
   final int? count;
 
-  /// Localized label for a period (used for both the current value and each
-  /// option in the filter sheet).
+  /// Localized label for a period (used for both the current value and each option in the filter sheet).
   static String _label(BuildContext context, HistoryPeriod period) =>
       switch (period) {
         HistoryPeriod.today => context.l10n.historyFilterToday,

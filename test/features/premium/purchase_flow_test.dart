@@ -8,16 +8,13 @@ import 'package:system_design/index.dart';
 import '../../helpers/pump_app.dart';
 import 'premium_gating_test.dart' show seedInsightData;
 
-/// The paywall's own CTA. Its label ("Unlock") is the same one the Insights
-/// gate card behind it carries, and that card stays mounted under the pushed
-/// route — so the finder has to be scoped to the paywall.
+/// The paywall's own CTA.
 Finder paywallCta() => find.descendant(
   of: find.byType(PaywallScreen),
   matching: find.text('Unlock'),
 );
 
-/// Opens the paywall from the Insights gate — the door every premium
-/// surface uses (CLAUDE.md: "the pitch comes first").
+/// Opens the paywall from the Insights gate — the door every premium surface uses (CLAUDE.md: "the pitch comes first").
 Future<void> openPaywall(WidgetTester tester, PumpedApp app) async {
   await seedInsightData(tester, app);
   await openInsights(tester);
@@ -41,14 +38,13 @@ void main() {
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await openPaywall(tester, app);
 
-    // - the pitch scrolls, the thing being sold does not — that's what holds on a small phone or large text size
-    // - asserting only "on screen" would pass whenever the pitch happens to be short — how this regressed unnoticed before
+    // - the pitch scrolls, the thing being sold does not.
     final Finder scroller = find.descendant(
       of: find.byType(PaywallScreen),
       matching: find.byType(SingleChildScrollView),
     );
 
-    for (final String label in <String>['Monthly', 'Yearly', 'Lifetime']) {
+    for (final String label in <String>['Monthly', 'Yearly']) {
       expect(
         find.descendant(of: scroller, matching: find.text(label)),
         findsNothing,
@@ -74,17 +70,38 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('a signed-out paywall sells before it asks for an account', (
+  testWidgets('a signed-out paywall sells without asking for an account', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester);
     await openPaywall(tester, app);
 
-    // No prices behind a sign-in wall: tapping one could not complete.
-    expect(find.text('Sign in to continue'), findsOneWidget);
-    expect(find.text(r'$29.99'), findsNothing);
-    expect(find.text('Restore purchases'), findsNothing);
-    expect(app.purchases.purchased, isEmpty);
+    // App Store 5.1.1(v): premium is not account-based content, so nothing here may wait on registration — the prices, the CTA and Restore are the same.
+    expect(find.text(r'$29.99'), findsOneWidget);
+    expect(paywallCta(), findsOneWidget);
+    expect(find.text('Restore purchases'), findsOneWidget);
+    // Registering stays on offer, as what it is actually worth.
+    expect(
+      find.text('Sign in to use Premium on your other devices'),
+      findsOneWidget,
+    );
+
+    await finishTest(tester);
+  });
+
+  testWidgets('buying without an account unlocks premium there and then', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    await openPaywall(tester, app);
+
+    await tapVisible(tester, paywallCta());
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The entitlement is the whole answer — nothing was bound to a UID, and nothing had to be.
+    expect(app.purchases.purchased, <String>[r'$rc_annual']);
+    expect(app.premiumRepository.isPremium, isTrue);
+    expect(app.purchases.identified, isEmpty);
 
     await finishTest(tester);
   });
@@ -97,10 +114,8 @@ void main() {
 
     expect(find.text('Monthly'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
-    expect(find.text('Lifetime'), findsOneWidget);
     expect(find.text(r'$4.99'), findsOneWidget);
     expect(find.text(r'$29.99'), findsOneWidget);
-    expect(find.text(r'$44.99'), findsOneWidget);
     // The trial belongs to the package, not to copy in the app.
     expect(find.text('7-day free trial'), findsOneWidget);
 
@@ -125,11 +140,11 @@ void main() {
     final PumpedApp app = await pumpApp(tester, signedIn: true);
     await openPaywall(tester, app);
 
-    await tapVisible(tester, find.text('Lifetime'));
+    await tapVisible(tester, find.text('Monthly'));
     await tapVisible(tester, paywallCta());
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(app.purchases.purchased, <String>[r'$rc_lifetime']);
+    expect(app.purchases.purchased, <String>[r'$rc_monthly']);
 
     await finishTest(tester);
   });
@@ -180,15 +195,13 @@ void main() {
     final Finder card = find.byType(SdSnackBarCardV2);
 
     expect(card, findsOneWidget);
-    // - in the root overlay, not the route: a ScaffoldMessenger drew into the Scaffold underneath, so the sheet covered it
-    // - text a test can find is not text a user can see
+    // - in the root overlay, not the route.
     expect(
       find.descendant(of: find.byType(PaywallScreen), matching: card),
       findsNothing,
       reason: 'the message is inside the paywall route — it can be covered',
     );
-    // - anchored to the top edge, above where the sheet begins
-    // - may still overlap the sheet lower down (drawn over it, being in the overlay), but must not start at the bottom, on the plans
+    // - anchored to the top edge, above.
     expect(
       tester.getRect(card).top,
       lessThan(

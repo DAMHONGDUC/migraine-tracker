@@ -51,11 +51,21 @@ Never request Always.
   dashboard weather card (`_LocationPrompt`, owner's call). Reading a position
   never prompts — `LocationSource` splits `currentPosition` from
   `requestPermission` for that reason, and `locationPermissionProvider` reads
-  the status without asking. The card asks because a "Not now" in onboarding
-  used to be final: nothing asked again, and the card said only that weather
-  was unavailable, which reads as broken rather than declined. It goes through
+  the status without asking. The card asks because a denial in onboarding used
+  to be final: nothing asked again, and the card said only that weather was
+  unavailable, which reads as broken rather than declined. It goes through
   `AppPermission.ensure`, so a denial iOS will no longer prompt for falls
   through to `PermissionSettingsSheet` instead of a dead button.
+- **An explainer in front of the prompt may not steer the answer** (App Store
+  5.1.1(iv), which submission 1.0(20) was rejected under). Two rules, both
+  learned the hard way:
+  - **Its button is worded neutrally — "Continue", never "Enable location".**
+    A button that names the grant makes the custom screen read as the consent,
+    which is the OS dialog's job.
+  - **It offers no way past the prompt.** Onboarding's location page used to
+    carry a "Not now" beside the ask; it is one button now, and the OS dialog
+    always follows it. Declining stays entirely possible — in iOS's own dialog,
+    which is where the decision belongs.
 - **The place name is the OS geocoder and must stay that way.**
   `GeocodingPlaceNameSource` hands the coarse position to `CLGeocoder` via the
   `geocoding` package: no API key, no service of ours, and the coordinate never
@@ -155,7 +165,7 @@ the same change, effective/last-updated dates included.
   `collects`, `notCollected`, `permissions`, `thirdParties`, `sections`.
   `{{app}}`, `{{publisher}}` and `{{email}}` are filled in by the site. **The
   schema has changed four times** — match the sample the owner last sent, not
-  the file. `url` (`https://damhongduc.github.io/apps_privacy_policy`) is the
+  the file. `url` (`https://damhongduc.github.io/personal_work_space`) is the
   owner's instruction and the only field not in the sample; keep it.
 - **The site renders shared `defaults.sections` around this file** —
   who-we-are, how-we-use, retention, security, children, your-rights, changes,

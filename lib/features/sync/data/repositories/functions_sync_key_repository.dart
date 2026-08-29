@@ -5,10 +5,6 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/repositories/sync_key_repository.dart';
 
 /// Fetches the account's key from the `getSyncKey` callable.
-///
-/// Held in memory for the session and never written to disk: sync needs the
-/// network anyway, so one call per launch is cheap and leaves no second
-/// secret at rest on the device.
 class FunctionsSyncKeyRepository implements SyncKeyRepository {
   FunctionsSyncKeyRepository(this._functions);
 
@@ -43,8 +39,7 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
       final Object? key = (result.data as Map<Object?, Object?>?)?['key'];
 
       if (key is! String || key.isEmpty) {
-        // The key itself is never logged — it decrypts the user's records.
-        // Its absence and its length are what a reader needs.
+        // The key itself is never logged — it decrypts the user's records. Its absence and its length are what a reader needs.
         SdLogger.error(
           LogTagConstant.syncKey,
           '$callable returned no key',
@@ -88,8 +83,7 @@ class FunctionsSyncKeyRepository implements SyncKeyRepository {
     }
   }
 
-  /// The response's field names, never its values — enough to see what came
-  /// back without putting an account key in a log.
+  /// The response's field names, never its values — enough to see what came back without putting an account key in a log.
   List<Object?> _shape(Object? data) =>
       data is Map<Object?, Object?> ? data.keys.toList() : const <Object?>[];
 

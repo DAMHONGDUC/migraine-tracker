@@ -17,6 +17,7 @@ then they disagree.
 flowchart TD
     trigger["You press Run workflow<br/><small>branch and flavor</small>"]
     prep["Runner builds the environment<br/><small>Flutter, melos, pods</small>"]
+    check["Check the config matches the flavor<br/><small>project id, bundle id, sign-in scheme</small>"]
     num["Settle the build number<br/><small>max of pubspec and TestFlight, plus 1</small>"]
     certs["Install the signing identity<br/><small>match decrypts, then installs</small>"]
     sign["Switch to manual signing<br/><small>Runner and widget extension</small>"]
@@ -26,14 +27,16 @@ flowchart TD
     commit["Commit the build number<br/><small>only after the upload succeeded</small>"]
 
     envjson(["GitHub Secret<br/><small>env/prod.json</small>"])
+    firebaserc([".firebaserc<br/><small>which project the flavor means</small>"])
     asc1(["App Store Connect<br/><small>latest build number</small>"])
     matchrepo(["Repo certificates<br/><small>and MATCH_PASSWORD</small>"])
     asc2(["App Store Connect API key<br/><small>the .p8, from a Secret</small>"])
     token(["GITHUB_TOKEN<br/><small>contents: write</small>"])
 
-    trigger --> prep --> num --> certs --> sign --> build --> upload --> dsym --> commit
+    trigger --> prep --> check --> num --> certs --> sign --> build --> upload --> dsym --> commit
 
     envjson -.-> prep
+    firebaserc -.-> check
     asc1 -.-> num
     matchrepo -.-> certs
     asc2 -.-> upload
@@ -70,6 +73,19 @@ binary only runs under the Ruby it was installed for. Pods installed with the
 image's Ruby and a job pinned to another one leave `pod` unable to load itself
 — which Flutter reports as a skipped step, not as a failure, and the archive
 then goes missing the `health` plugin's pods.
+
+**The "What to Test" note is passed twice, as `changelog` AND as
+`localized_build_info`.** `skip_waiting_for_build_processing: true` keeps the
+lane off a 10–20 minute macOS bill, and pilot reads `changelog` — that key
+specifically — to decide whether to wait for the build to appear at all. But
+`changelog` alone then lands in a code path that writes the note into the beta
+localizations the build ALREADY has, and a build fetched the instant it
+appears has none: App Store Connect creates them during processing. The loop
+runs zero times, raises nothing, and pilot still logs "Successfully set the
+changelog for build" — so every build shipped with an empty note and a green
+lane. `localized_build_info` names the locale outright, which is what makes
+pilot create the localization instead of needing one to exist. Neither key
+alone works; drop either and the note silently disappears again.
 
 ## What runs where
 

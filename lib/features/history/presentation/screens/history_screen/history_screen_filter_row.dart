@@ -1,16 +1,12 @@
 part of 'history_screen.dart';
 
-/// The period filter pill row, first thing in each scrollable — below the
-/// app bar (not in it), leading-aligned, and it stays visible when the
-/// filter matches nothing so the user can always switch back. Once it
-/// scrolls away, [HistoryScreen] shows the same pill in the app bar.
+/// The period filter pill row, first thing in each scrollable.
 class _FilterRow extends ConsumerWidget {
   const _FilterRow({required this.count});
 
   final int count;
 
-  /// Scroll offset past which the pill row is gone behind the app bar — the
-  /// pill's own height plus its bottom padding.
+  /// Scroll offset past which the pill row is gone behind the app bar — the pill's own height plus its bottom padding.
   static double get scrolledPastExtent =>
       SdFilterPillV2.pillHeight + SdContentPaddingV2.listItemGap;
 

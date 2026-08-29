@@ -8,9 +8,7 @@ import '../../../../core/l10n/locale_provider.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
-/// Owns the alerts toggle + threshold. Local prefs are the source of truth
-/// for the UI; the Firestore registration is a side effect of the actions
-/// so the whole screen keeps working offline (errors just surface).
+/// Owns the alerts toggle + threshold.
 class AlertsController extends AsyncNotifier<AlertsSettings> {
   @override
   AlertsSettings build() {

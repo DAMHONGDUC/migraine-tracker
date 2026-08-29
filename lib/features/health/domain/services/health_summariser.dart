@@ -3,17 +3,11 @@ import '../entities/sleep_summary.dart';
 import '../entities/step_day.dart';
 import '../entities/step_summary.dart';
 
-/// Turns what HealthKit handed over into the short summary the sleep and
-/// activity screens show back — the latest reading, the average, and the
-/// window behind them.
-///
-/// One class for both sources because it is the same arithmetic twice, and
-/// the window has to be the same number on both screens.
+/// Turns what HealthKit handed over into the short summary the sleep and activity screens show back.
 class HealthSummariser {
   const HealthSummariser();
 
-  /// How many recent entries a card shows. A week: long enough to see a
-  /// pattern, short enough that every bar keeps a readable label.
+  /// How many recent entries a card shows. A week: long enough to see a pattern, short enough that every bar keeps a readable label.
   static const int windowDays = 7;
 
   SleepSummary sleep(List<SleepNight> nights) {

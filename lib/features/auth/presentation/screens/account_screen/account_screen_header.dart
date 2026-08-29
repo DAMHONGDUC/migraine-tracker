@@ -41,8 +41,7 @@ class _AccountHeader extends StatelessWidget {
   }
 }
 
-/// The provider's picture when there is one, the first letter otherwise —
-/// never a broken image box: a failed load falls back to the same initial.
+/// The provider's picture when there is one, the first letter otherwise — never a broken image box: a failed load falls back to the same initial.
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.photoUrl, required this.name});
 

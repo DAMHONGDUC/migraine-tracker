@@ -6,8 +6,7 @@ import '../../../../core/constants/prefs_key_constant.dart';
 import '../../domain/entities/review_prompt_state.dart';
 import '../../domain/repositories/review_prompt_store.dart';
 
-/// Prefs, not the database: losing this costs at most one extra prompt, so it
-/// has no business in a table the sync engine has to carry.
+/// Prefs, not the database: losing this costs at most one extra prompt, so it has no business in a table the sync engine has to carry.
 class PrefsReviewPromptStore implements ReviewPromptStore {
   const PrefsReviewPromptStore(this._prefs);
 

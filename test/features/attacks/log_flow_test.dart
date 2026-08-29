@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
@@ -34,8 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Were you exerting yourself?'), findsOneWidget);
 
-    // Nothing touched: the step arrives on "None", so Next is already armed
-    // and this step can never stand between the user and a saved attack.
+    // Nothing touched: the step arrives on "None", so Next is already armed and this step can never stand between the user and a saved attack.
     await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
@@ -104,8 +105,7 @@ void main() {
     expect(rects[2].top, rects[3].top);
     expect(rects[2].top, greaterThan(rects[0].top));
 
-    // Half the width each: the four tiles are one width, the two columns
-    // line up across both rows, and the pair spans the step edge to edge.
+    // Half the width each: the four tiles are one width, the two columns line up across both rows, and the pair spans the step edge to edge.
     final double width = rects.first.width;
     for (final Rect rect in rects) {
       expect(rect.width, moreOrLessEquals(width, epsilon: 0.01));
@@ -161,7 +161,8 @@ void main() {
 
     await logAttack(tester, intensity: '4', location: 'Crown');
 
-    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    // `.last` is the nav bar: the dashboard's quick-access tile draws the same glyph, since the tile and the tab share one constant.
+    await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -178,9 +179,7 @@ void main() {
     await tester.tap(find.text('9'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    // Scoped to the app bar: the dashboard sits under the pushed log
-    // route, so both its own bar button and a row chevron drawn with the
-    // same glyph are still in the tree.
+    // Scoped to the app bar: the dashboard sits under the pushed log route, so both its own bar button and a row chevron drawn with the same glyph are.
     await tester.tap(
       find.descendant(
         of: find.byType(SdAppBarV2),
@@ -209,9 +208,8 @@ void main() {
     await tester.enterText(findLabelledField('Symptoms'), 'aura, nausea');
     await tester.enterText(findLabelledField('Triggers'), 'stress');
     await tester.enterText(findLabelledField('Notes'), 'bad one');
-    // The details sheet commits from its header — a pencil, since it
-    // overwrites details the attack may already carry.
-    await tester.tap(find.byIcon(Icons.edit));
+    // The details sheet commits from its header — a pencil, since it overwrites details the attack may already carry.
+    await tester.tap(find.byIcon(Symbols.edit_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

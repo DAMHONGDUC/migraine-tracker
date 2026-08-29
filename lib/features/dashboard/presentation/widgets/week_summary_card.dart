@@ -8,17 +8,14 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
 import 'dashboard_chevron.dart';
 
-/// "This week" glance card: attack count, trend vs last week, and average
-/// intensity. Tapping it jumps to the History tab for the full picture.
-///
-/// The count is the card, so it is set at [AppTextStyle.displaySmall] with its
-/// unit demoted to muted body text beside it — the two used to share one
-/// string and one size, which left the number reading as a sentence.
+/// "This week" glance card: attack count, trend vs last week, and average intensity.
 class WeekSummaryCard extends ConsumerWidget {
   const WeekSummaryCard({super.key});
 
@@ -43,8 +40,7 @@ class WeekSummaryCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                // Demoted to a caption so the count below it is unmistakably
-                // the thing being read.
+                // Demoted to a caption so the count below it is unmistakably the thing being read.
                 Expanded(
                   child: Text(
                     l10n.dashboardThisWeek,
@@ -57,8 +53,7 @@ class WeekSummaryCard extends ConsumerWidget {
             SizedBox(height: SdSpacingConstant.h8),
             _CountRow(count: summary.thisWeekCount),
             SizedBox(height: SdSpacingConstant.h8),
-            // Two weeks with nothing in them have no trend to state, and a
-            // bare "0" on its own reads as a card that failed to load.
+            // Two weeks with nothing in them have no trend to state, and a bare "0" on its own reads as a card that failed to load.
             if (hasData)
               _TrendRow(summary: summary)
             else
@@ -77,8 +72,7 @@ class WeekSummaryCard extends ConsumerWidget {
   }
 }
 
-/// The number at display size with its unit beside it, sitting on a shared
-/// baseline so the two read as one phrase rather than two stacked lines.
+/// The number at display size with its unit beside it, sitting on a shared baseline so the two read as one phrase rather than two stacked lines.
 class _CountRow extends StatelessWidget {
   const _CountRow({required this.count});
 
@@ -92,8 +86,7 @@ class _CountRow extends StatelessWidget {
       children: [
         Text('$count', style: AppTextStyle.displaySmall.w600),
         SizedBox(width: SdSpacingConstant.w8),
-        // Flexible, not Expanded: Vietnamese runs longer and must be free to
-        // wrap without the number losing its baseline.
+        // Flexible, not Expanded: Vietnamese runs longer and must be free to wrap without the number losing its baseline.
         Flexible(
           child: Text(
             context.l10n.dashboardAttacksLabel(count),
@@ -105,8 +98,7 @@ class _CountRow extends StatelessWidget {
   }
 }
 
-/// The week-over-week trend, with an arrow so the direction never rests on
-/// colour alone.
+/// The week-over-week trend, with an arrow so the direction never rests on colour alone.
 class _TrendRow extends StatelessWidget {
   const _TrendRow({required this.summary});
 
@@ -117,15 +109,13 @@ class _TrendRow extends StatelessWidget {
     final l10n = context.l10n;
     final int trend = summary.trend;
     // - Teal marks the good direction; up and flat stay muted.
-    // - Deliberately not the error red: telling someone in the middle of a bad
-    //   week that they are in the red is an alarm, not information.
     final Color color = trend < 0
         ? AppColors.secondary
         : AppColors.textSecondary;
     final IconData icon = switch (trend) {
-      < 0 => Icons.trending_down,
-      > 0 => Icons.trending_up,
-      _ => Icons.trending_flat,
+      < 0 => AppIconConstant.trendDown,
+      > 0 => AppIconConstant.trendUp,
+      _ => AppIconConstant.trendFlat,
     };
     final String label = switch (trend) {
       < 0 => l10n.dashboardTrendDown(-trend),
@@ -135,7 +125,7 @@ class _TrendRow extends StatelessWidget {
 
     return Row(
       children: [
-        SdIconV2(icon: icon, size: SdSpacingConstant.r16, color: color),
+        SdIconV2(icon: icon, size: AppIconSize.xSmall, color: color),
         SizedBox(width: SdSpacingConstant.w6),
         Flexible(
           child: Text(

@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/health_connection_tile.dart';
@@ -11,12 +12,7 @@ import '../../../../health/providers.dart';
 import '../../widgets/sleep_correlation_card.dart';
 import '../../widgets/sleep_summary_card.dart';
 
-/// The sleep insight and the switch that lets the app read it. Its own screen,
-/// not folded in with activity: the night is a different question from the day.
-///
-/// Controls first, cards last: the switch is what the user came to change.
-/// Full-bleed list because it is a `ListTile`, which insets itself; the card
-/// takes the gutter on its own.
+/// The sleep insight and the switch that lets the app read it.
 class SleepScreen extends ConsumerWidget {
   const SleepScreen({super.key});
 
@@ -32,7 +28,7 @@ class SleepScreen extends ConsumerWidget {
         children: <Widget>[
           HealthConnectionTile(
             kind: HealthDataKind.sleep,
-            icon: Icons.bedtime_outlined,
+            icon: AppIconConstant.sleep,
             title: context.l10n.healthSleepTitle,
           ),
           SizedBox(height: SdContentPaddingV2.sectionGap),
@@ -42,15 +38,12 @@ class SleepScreen extends ConsumerWidget {
             ),
             child: Column(
               children: <Widget>[
-                // What was read comes before what is drawn from it — and
-                // only while sleep is connected, since there is nothing to
-                // show otherwise.
-                if (ref.watch(healthControllerProvider).sleep) ...<Widget>[
-                  const SleepSummaryCard(),
+                // What was read comes before what is drawn from it.
+                const SleepSummaryCard(),
+                if (ref.watch(healthControllerProvider).sleep)
                   SizedBox(height: SdContentPaddingV2.sectionGap),
-                ],
                 PremiumGate(
-                  lockedIcon: Icons.bedtime_outlined,
+                  lockedIcon: AppIconConstant.sleep,
                   lockedMessage: context.l10n.premiumLockedSleep,
                   child: const SleepCorrelationCard(),
                 ),

@@ -65,7 +65,7 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
   /// tabs and the tiles keep, because those two want the width and the head
   /// does not — but only just: this number is also what caps the head's
   /// size, since the head is sized from the width inside it.
-  static double get _headInset => SdSpacingConstant.w30;
+  static double get _headInset => SdSpacingConstant.w24;
 
   /// Toggles one area, keeping the result in [HeadRegion] order so two
   /// attacks naming the same areas are the same list — the sync codec

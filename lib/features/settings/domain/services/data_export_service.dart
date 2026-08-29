@@ -4,14 +4,11 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 import '../../../medications/domain/entities/medication.dart';
 
-/// Serializes the user's data for GDPR export. Pure Dart — file writing and
-/// the share sheet live in the data layer.
+/// Serializes the user's data for GDPR export. Pure Dart — file writing and the share sheet live in the data layer.
 class DataExportService {
   const DataExportService();
 
-  /// Bumped to 2 when the single `location` became a list of `regions`. The
-  /// export is a file the user keeps, so a reader has to be able to tell the
-  /// two shapes apart without guessing from the keys.
+  /// Bumped to 2 when the single `location` became a list of `regions`.
   static const int formatVersion = 2;
 
   String toJson(

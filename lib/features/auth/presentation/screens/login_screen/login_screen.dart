@@ -6,6 +6,8 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/enums/auth_error.dart';
@@ -17,9 +19,7 @@ part 'login_screen_buttons.dart';
 part 'login_screen_disclosure.dart';
 part 'login_screen_pitch.dart';
 
-/// The optional account (hard rule 1) — it exists so a subscription has
-/// something durable to hang off. Pops `true` once an account exists, so
-/// whatever sent the user here can continue.
+/// The optional account (hard rule 1) — it exists so a subscription has something durable to hang off.
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
@@ -72,10 +72,10 @@ class LoginScreen extends ConsumerWidget {
             onSignIn: (AuthProviderKind provider) =>
                 _signIn(context, ref, provider),
           ),
-          SdButtonV2(
-            variant: SdButtonVariantV2.text,
-            onPressed: state.isBusy ? null : () => context.pop(false),
+          // Text, not a button: the two provider buttons above are the offer, and a third button under them reads as a third way in.
+          SdTextActionV2(
             label: l10n.loginNotNow,
+            onTap: state.isBusy ? null : () => context.pop(false),
           ),
         ],
       ),

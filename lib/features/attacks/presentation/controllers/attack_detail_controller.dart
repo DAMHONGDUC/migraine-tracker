@@ -3,13 +3,13 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../domain/enums/aura_type.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_region.dart';
 import '../../domain/enums/medication_effect.dart';
 import '../../providers.dart';
 
-/// Edits/deletes an already-logged attack from the detail screen. The
-/// widget only renders the streamed attack and calls these.
+/// Edits/deletes an already-logged attack from the detail screen. The widget only renders the streamed attack and calls these.
 class AttackDetailController {
   const AttackDetailController(this._ref);
 
@@ -58,6 +58,24 @@ class AttackDetailController {
         'Update attack exertion failed',
         error: error,
         stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Records (or takes back) which auras the attack came with.
+  Future<void> updateAura(String id, List<AuraType>? aura) async {
+    SdLogger.action(LogTagConstant.attackDetail, 'Update aura', <String,
+        Object?>{'id': id, 'aura': aura?.map((AuraType a) => a.name).toList()});
+    try {
+      await _ref.read(attackRepositoryProvider).updateAura(id, aura);
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.attackDetail,
+        'Failed to update aura',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'id': id},
       );
       rethrow;
     }

@@ -31,21 +31,12 @@ class BaroEaseApp extends HookConsumerWidget {
   const BaroEaseApp({super.key});
 
   /// Today's pressure reading, then the home-screen widget that shows it.
-  ///
-  /// In that order, not side by side: the widget reads the row the recorder
-  /// writes, so racing the two leaves it drawing yesterday's number until the
-  /// next launch.
   Future<void> _recordPressureThenRedraw(WidgetRef ref) async {
     await ref.read(dailyPressureRecorderProvider).recordToday();
     await _redrawHomeWidget(ref);
   }
 
   /// The home-screen widget, best-effort.
-  ///
-  /// Swallowed rather than rethrown, unlike the controller it calls: every
-  /// caller here runs unawaited from the app root, where a throw has no
-  /// screen to land on and would take app start with it. The controller has
-  /// already logged whatever went wrong.
   Future<void> _redrawHomeWidget(WidgetRef ref) async {
     try {
       await ref.read(homeWidgetControllerProvider.notifier).refresh();
@@ -65,32 +56,25 @@ class BaroEaseApp extends HookConsumerWidget {
       return null;
     }, const []);
 
-    // One pressure reading per day, attack or not — the denominator the
-    // correlation compares against. Fetches at most once per local day.
+    // One pressure reading per day, attack or not — the denominator the correlation compares against. Fetches at most once per local day.
     useEffect(() {
       unawaited(_recordPressureThenRedraw(ref));
       return null;
     }, const []);
 
-    // - Reminder notifications are derived, not recorded as they fire, so
-    //   this catches up the ones that came round while the app was closed.
-    // - Needs no account: reminders are on-device, so it works signed out.
+    // - Reminder notifications are derived, not recorded as they fire, so this catches up the ones that came round while the app was closed.
     useEffect(() {
       unawaited(ref.read(notificationsControllerProvider).materialise());
       return null;
     }, const []);
 
-    // The alert half of the same catch-up: the push handler below only runs
-    // with the app open, so an alert the user never tapped would otherwise
-    // never reach this device's list.
+    // The alert half of the same catch-up.
     useEffect(() {
       unawaited(ref.read(notificationsControllerProvider).reconcileLastAlert());
       return null;
     }, const []);
 
-    // A pressure alert arriving while the app is open: record it now, so the
-    // list has it before the user looks. One arriving while the app is shut
-    // comes from whichever device did see it (hard rule 16).
+    // A pressure alert arriving while the app is open: record it now, so the list has it before the user looks.
     useEffect(() {
       final StreamSubscription<RemoteMessage> messages = FirebaseMessaging
           .onMessage
@@ -104,9 +88,7 @@ class BaroEaseApp extends HookConsumerWidget {
       return messages.cancel;
     }, const []);
 
-    // Coming back from the background counts as entering the app: another
-    // device may have logged something while this one was away, and
-    // reminders will have come round while it slept.
+    // Coming back from the background counts as entering the app.
     useEffect(() {
       final AppLifecycleListener listener = AppLifecycleListener(
         onResume: () {
@@ -117,17 +99,14 @@ class BaroEaseApp extends HookConsumerWidget {
           );
           // Covers the app left open across midnight.
           unawaited(_recordPressureThenRedraw(ref));
-          // A location permission granted in the Settings app is answered
-          // while the app is not running, so only a re-read finds out.
+          // A location permission granted in the Settings app is answered while the app is not running, so only a re-read finds out.
           ref.invalidate(locationPermissionProvider);
         },
       );
       return listener.dispose;
     }, const []);
 
-    // - The widget's week count comes from the attack list, so it redraws
-    //   whenever that list moves — a fresh log, an edit, a sync pull.
-    // - The language too: it is native and cannot reach the ARB files.
+    // - The widget's week count comes from the attack list, so it redraws whenever that list moves — a fresh log, an edit, a sync pull.
     ref.listen<AsyncValue<List<Attack>>>(
       attacksStreamProvider,
       (previous, next) => unawaited(_redrawHomeWidget(ref)),
@@ -151,14 +130,12 @@ class BaroEaseApp extends HookConsumerWidget {
         unawaited(ref.read(accountControllerProvider).syncProfile(user));
       }
       // - Same moments for attack sync: sign-in, and each launch of a signed-in session.
-      // - Unawaited and best-effort, exactly like the profile write above — nothing on screen waits on it.
       if (user?.isSignedIn == true) {
         unawaited(ref.read(syncControllerProvider.notifier).sync());
       } else {
         unawaited(ref.read(syncControllerProvider.notifier).onSignedOut());
       }
       // - Bind purchases to the account so an entitlement follows the person, not the install — survives a reinstall or a second device.
-      // - Anonymous sessions stay unbound: nothing durable to attach a purchase to yet.
       unawaited(
         ref
             .read(purchaseIdentityProvider)
@@ -185,8 +162,6 @@ class BaroEaseApp extends HookConsumerWidget {
         locale: locale,
         routerConfig: router,
         // - Outermost, so a tap on nothing puts the keyboard away everywhere.
-        // - Then: is this build still allowed to run (ForceUpdateWrapper), and
-        //   a notification tap wherever the user is (NotificationTapListener).
         builder: (context, child) => DismissKeyboardOnTap(
           child: NotificationTapListener(
             child: HomeWidgetTapListener(

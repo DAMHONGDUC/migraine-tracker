@@ -8,8 +8,7 @@ class _StepsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    // The sheet is raised right here now (owner's call) — the user is
-    // looking at the empty reading, so the fix belongs where they look.
+    // The sheet is raised right here now (owner's call) — the user is looking at the empty reading, so the fix belongs where they look.
     if (!ref.watch(healthControllerProvider).steps) {
       return HealthConnectPrompt(
         kind: HealthDataKind.steps,
@@ -27,8 +26,7 @@ class _StepsSection extends ConsumerWidget {
           onSelected: ref.read(stepRangeProvider.notifier).set,
         ),
         SizedBox(height: SdSpacingConstant.h16),
-        // Today by hour, everything wider by day — a single daily total is
-        // one bar, which is not a chart.
+        // Today by hour, everything wider by day — a single daily total is one bar, which is not a chart.
         if (range == HealthRange.day)
           const _StepHourChart()
         else
@@ -79,8 +77,7 @@ class _StepDayChart extends ConsumerWidget {
     final List<HealthBucket> buckets = HealthRangeBuckets.steps(days, range);
 
     return _StepTotal(
-      // The window's own average, not the fixed 7-day one above it: the
-      // figure has to describe the range the user picked.
+      // The window's own average, not the fixed 7-day one above it: the figure has to describe the range the user picked.
       total: days.isEmpty
           ? 0
           : days.fold<int>(0, (int sum, StepDay d) => sum + d.count) ~/

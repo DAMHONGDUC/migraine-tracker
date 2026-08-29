@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_preview.dart';
@@ -17,11 +18,6 @@ part 'export_preview_screen_pdf.dart';
 part 'export_preview_screen_text.dart';
 
 /// What is actually inside one past export, before sharing it with anyone.
-///
-/// A doctor report is a document, so it renders as pages; JSON is read as the
-/// text it is. CSV has no preview — see [ExportActionsSheet]. Either way the
-/// file on disk is what is shown, so the preview cannot disagree with what
-/// gets shared.
 class ExportPreviewScreen extends ConsumerWidget {
   const ExportPreviewScreen({required this.exportId, super.key});
 
@@ -37,7 +33,7 @@ class ExportPreviewScreen extends ConsumerWidget {
       return SdScaffoldV2(
         title: Text(l10n.exportPreviewTitle, style: AppTextStyle.titleLarge),
         body: SdEmptyStateV2(
-          icon: Icons.description_outlined,
+          icon: AppIconConstant.document,
           message: l10n.exportFileMissing,
         ),
       );

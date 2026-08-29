@@ -5,8 +5,7 @@ import 'package:system_design/index.dart';
 import 'app_colors.dart';
 import 'app_text_style.dart';
 
-/// Dark-first theme. Users are photophobic: dark is the default and only
-/// theme in v1, and no flashing/emphasis animations are added here.
+/// Dark-first theme. Users are photophobic: dark is the default and only theme in v1, and no flashing/emphasis animations are added here.
 final class AppTheme {
   static ThemeData get dark {
     final scheme =
@@ -29,7 +28,6 @@ final class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       // - Fills the slots ColorScheme has no name for.
-      // - Without it, widgets fall back to neutral defaults — the app owns the palette, the package owns the shape.
       extensions: <ThemeExtension<dynamic>>[
         SdThemeV2(
           background: AppColors.background,
@@ -85,8 +83,6 @@ final class AppTheme {
         ),
       ),
       // - Backstop only: every card in the app is an SdCardV2, which reads colorScheme.surface itself.
-      // - Keeps Flutter's internal Material Card on the same colour.
-      // - Avoids the invisible EdgeInsets.all(4) margin that made card lists lie about their gaps.
       cardTheme: const CardThemeData(
         color: AppColors.surface,
         elevation: 0,
@@ -95,8 +91,7 @@ final class AppTheme {
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceModal,
       ),
-      // - Backstop only — the app's look lives in SdSnackBarUtilsV2.
-      // - Without it, M3's default inverse surface is a bright bar on a dark screen.
+      // - Backstop only — the app's look lives in SdSnackBarUtilsV2. - Without it, M3's default inverse surface is a bright bar on a dark screen.
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,
         contentTextStyle: AppTextStyle.bodyMedium,

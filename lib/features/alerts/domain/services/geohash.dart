@@ -1,9 +1,6 @@
 const _base32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 
-/// Encodes lat/lon positions to geohashes. The app always uses [precision] 5
-/// (~±2.4 km) — coarse on purpose (hard rule 1): the backend only needs a
-/// weather cell, never a precise location. Mirrors the decoder in
-/// `functions/src/core/geohash.ts`.
+/// Encodes lat/lon positions to geohashes.
 class Geohash {
   const Geohash._();
 

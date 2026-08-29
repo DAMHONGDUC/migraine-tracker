@@ -12,8 +12,7 @@ final reviewPromptStoreProvider = Provider<ReviewPromptStore>(
   (ref) => PrefsReviewPromptStore(ref.watch(sharedPreferencesProvider)),
 );
 
-/// Overridden with a fake in `pumpApp`: the log flow reaches this on every
-/// saved attack, and the real one calls a platform channel no widget test has.
+/// Overridden with a fake in `pumpApp`: the log flow reaches this on every saved attack, and the real one calls a platform channel no widget test has.
 final reviewPrompterProvider = Provider<ReviewPrompter>(
   (ref) => InAppReviewPrompter(InAppReview.instance),
 );

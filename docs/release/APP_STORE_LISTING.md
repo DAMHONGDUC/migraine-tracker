@@ -58,8 +58,8 @@ uploaded unless you choose to sign in and sync. No ads. No tracking. Coarse
 • Apple Health sleep correlation
 
 The free plan covers 40 logged attacks, 5 medications and 2 reminders.
-Premium lifts those limits and is available monthly ($4.99), yearly ($29.99,
-with a 7-day free trial), or as a one-time lifetime purchase ($44.99). Prices may vary by region.
+Premium lifts those limits and is available monthly ($4.99) or yearly ($29.99,
+with a 7-day free trial). Prices may vary by region.
 
 **Full control**
 Export everything as JSON or CSV, or delete all your data — including your
@@ -71,11 +71,10 @@ are auto-renewable subscriptions. Payment is charged to your Apple Account at
 confirmation of purchase. A subscription renews automatically unless it is
 cancelled at least 24 hours before the end of the current period; your account
 is charged for renewal within 24 hours of the end of that period. Manage or
-cancel your subscription in your Apple Account settings after purchase. Premium
-Lifetime ($44.99) is a one-time purchase and does not renew.
+cancel your subscription in your Apple Account settings after purchase.
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
-Privacy Policy: https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/
+Privacy Policy: https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/
 
 —
 
@@ -89,12 +88,14 @@ treat, cure, or prevent any condition. Always consult a qualified clinician.
 > widget, and a PDF doctor report. Fully usable offline, dark by default.
 
 ## URLs
-- Support URL: [https://baroease.app/support]  *(still a placeholder — a
-  non-functional Support URL is its own rejection)*
+- Support URL (owner's call, 26 Aug):
+  `https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/#contact`
+  — the policy's contact section, verified live. It carries the address and
+  the response time, which is what the field is for.
 - Marketing URL: [https://baroease.app]  *(optional field; leave blank rather
   than point at nothing)*
 - Privacy Policy URL:
-  `https://damhongduc.github.io/apps_privacy_policy/baro-ease/privacy_policy/`
+  `https://damhongduc.github.io/personal_work_space/apps/baro-ease/privacy_policy/`
   — **published and verified live**, effective 7 Aug 2026. This is the same
   link the App Description must carry alongside the EULA for the
   auto-renewable subscriptions (guideline 3.1.2).
@@ -115,7 +116,6 @@ auto-renewable subscriptions with no Terms of Use link.
 |---------|------|-------|
 | Premium Monthly | Auto-renewable subscription | $4.99/mo |
 | Premium Yearly | Auto-renewable subscription (7-day free trial) | $29.99/yr |
-| Premium Lifetime | Non-consumable | $44.99 |
 
 ## App Privacy nutrition label (answers to draft in App Store Connect)
 

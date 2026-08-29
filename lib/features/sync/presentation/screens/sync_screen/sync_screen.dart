@@ -4,17 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/sync_status.dart';
 import '../../../domain/enums/sync_trigger.dart';
 import '../../../providers.dart';
 
-/// Where sync is visible in full: how far the pass in flight has got, when
-/// the last one finished, and the one manual control (hard rule 12).
-///
-/// Pushed from the Settings row, which shows only the short version. The
-/// router turns it away while signed out — there is nowhere to sync to.
+/// Where sync is visible in full: how far the pass in flight has got, when the last one finished, and the one manual control (hard rule 12).
 class SyncScreen extends ConsumerWidget {
   const SyncScreen({super.key});
 
@@ -97,8 +94,7 @@ class _SyncState extends StatelessWidget {
               ],
             ),
             SizedBox(height: SdContentPaddingV2.listItemGap),
-            // Determinate, because the number above is: an indeterminate bar
-            // next to "42%" would be saying two different things at once.
+            // Determinate, because the number above is: an indeterminate bar next to "42%" would be saying two different things at once.
             ClipRRect(
               borderRadius: BorderRadius.circular(SdSpacingConstant.r4),
               child: LinearProgressIndicator(value: status.progress),
@@ -116,14 +112,12 @@ class _SyncNowButton extends ConsumerWidget {
   Future<void> _syncNow(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l10n = context.l10n;
 
-    // Never held back by the cooldown: the user is watching this screen
-    // for the answer.
+    // Never held back by the cooldown: the user is watching this screen for the answer.
     await ref
         .read(syncControllerProvider.notifier)
         .sync(trigger: SyncTrigger.manual);
 
-    // The controller swallows failures by design — every other trigger is
-    // unawaited. A deliberate tap still deserves an answer.
+    // The controller swallows failures by design — every other trigger is unawaited. A deliberate tap still deserves an answer.
     if (!context.mounted) return;
     if (ref.read(syncControllerProvider).phase == SyncPhase.failed) {
       SdSnackBarUtilsV2.error(context, l10n.settingsSyncFailed);
@@ -138,7 +132,7 @@ class _SyncNowButton extends ConsumerWidget {
       variant: SdButtonVariantV2.primary,
       onPressed: isSyncing ? null : () => _syncNow(context, ref),
       label: context.l10n.settingsSync,
-      icon: Icons.sync,
+      icon: AppIconConstant.sync,
     );
   }
 }

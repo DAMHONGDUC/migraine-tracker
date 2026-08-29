@@ -7,16 +7,9 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../providers.dart';
-import '../controllers/force_update_controller.dart';
 import 'force_update_sheet.dart';
 
-/// Wraps the whole app (see `BaroEaseApp`): asks Firestore on every entry —
-/// cold start and every resume — whether this build is still allowed, and
-/// puts the blocking sheet over everything when it isn't.
-///
-/// [child] is rendered untouched; the block is a modal sheet, so nothing
-/// about the app's own tree changes. All the deciding lives in
-/// [ForceUpdateController], which fails open on any error.
+/// Wraps the whole app (see `BaroEaseApp`).
 class ForceUpdateWrapper extends ConsumerStatefulWidget {
   const ForceUpdateWrapper({required this.child, super.key});
 
@@ -28,8 +21,7 @@ class ForceUpdateWrapper extends ConsumerStatefulWidget {
 
 class _ForceUpdateWrapperState extends ConsumerState<ForceUpdateWrapper>
     with WidgetsBindingObserver {
-  /// The sheet is a route, so it survives rebuilds — this stops a second
-  /// copy being pushed on top of the first.
+  /// The sheet is a route, so it survives rebuilds — this stops a second copy being pushed on top of the first.
   bool _sheetShown = false;
 
   @override
@@ -45,8 +37,7 @@ class _ForceUpdateWrapperState extends ConsumerState<ForceUpdateWrapper>
     super.dispose();
   }
 
-  /// "Every time you enter the app" includes coming back from the store or
-  /// from the background, not just a cold start.
+  /// "Every time you enter the app" includes coming back from the store or from the background, not just a cold start.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) _check();
@@ -55,9 +46,7 @@ class _ForceUpdateWrapperState extends ConsumerState<ForceUpdateWrapper>
   void _check() =>
       unawaited(ref.read(forceUpdateControllerProvider.notifier).check());
 
-  /// The sheet needs a Navigator, and this wrapper sits ABOVE the router's
-  /// one (it comes from `MaterialApp.builder`), so it is presented on the
-  /// root navigator's own context.
+  /// The sheet needs a Navigator, and this wrapper sits ABOVE the router's one (it comes from `MaterialApp.builder`), so it is presented on the root.
   void _showSheet(PlatformUpdateConfig config) {
     final BuildContext? navigatorContext = ref
         .read(rootNavigatorKeyProvider)

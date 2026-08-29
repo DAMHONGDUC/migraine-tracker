@@ -6,8 +6,7 @@ import 'package:migraine_tracker/core/utils/comma_list_utils.dart';
 import 'package:migraine_tracker/core/utils/date_time_utils.dart';
 import 'package:migraine_tracker/core/utils/locale_utils.dart';
 
-/// The logic that used to live inside widgets and controllers. Testable now,
-/// which is most of the point of moving it.
+/// The logic that used to live inside widgets and controllers. Testable now, which is most of the point of moving it.
 void main() {
   group('DateTimeUtils — clock', () {
     test('pads both halves of a clock time', () {

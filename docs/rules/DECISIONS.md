@@ -20,6 +20,35 @@ promise is now kept by the weather card; the pressure chart is the paid reading.
 **Do not flip it a fourth time without the owner saying so.**
 `docs/PREMIUM_RULES.md` is the authority.
 
+## A lifetime purchase alongside the two subscriptions
+
+`PLAN.md` §3 sold a $44.99 non-consumable, on the reasoning that chronic-illness
+communities prefer one-time purchases. Dropped 2026-08-29 (owner's call): the
+app's own cost recurs forever — a WeatherKit call per alert, the pressure cron,
+Firestore — so the heaviest users, the ones the lifetime tier attracts, are the
+ones it earns least from, and a non-consumable can never be re-priced. The row
+is gone from `PremiumPeriod` and `_periodOf` skips `PackageType.lifetime`, so an
+offering still carrying the product renders two plans rather than three. Anyone
+who bought one keeps the entitlement: nothing reads the period to decide access.
+
+## Premium gated on an account as well as an entitlement
+
+`hasPremiumProvider` required a signed-in user, and the paywall showed a "Sign
+in to continue" CTA with the prices hidden behind it — the reasoning being that
+a subscription needs something that survives a reinstall. App Store review
+rejected it under 5.1.1(v) (submission 1.0(20)): the content is not
+account-based, so registration cannot be required to buy it. A reinstall is what
+Restore is for. `docs/PREMIUM_RULES.md` is the rule.
+
+## A "Not now" beside the location explainer
+
+Onboarding's location page offered "Enable location" and "Not now", so a user
+could walk past the OS prompt entirely and the weather card had to ask again
+later. App Store review rejected both halves under 5.1.1(iv) (submission
+1.0(20)): the button may not be worded as the grant, and the explainer may not
+offer a way to skip the prompt. One "Continue" now, and iOS's dialog always
+follows. `docs/rules/PRIVACY_AND_SECURITY.md` §2 is the rule.
+
 ## Alert controls shown inert to free users
 
 Built that way on the theory that a locked control still says what it would do.

@@ -5,10 +5,8 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
-import 'package:migraine_tracker/features/attacks/domain/services/medication_effect_tally.dart';
 
 void main() {
-  const MedicationEffectTally tally = MedicationEffectTally();
   int nextId = 0;
 
   Attack attack({String? medication, MedicationEffect? effect}) => Attack(
@@ -21,96 +19,6 @@ void main() {
   );
 
   setUp(() => nextId = 0);
-
-  group('the tally', () {
-    test('counts each outcome for the named medication', () {
-      final List<Attack> attacks = <Attack>[
-        attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),
-        attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),
-        attack(medication: 'Sumatriptan', effect: MedicationEffect.partly),
-        attack(medication: 'Sumatriptan', effect: MedicationEffect.didNotHelp),
-      ];
-
-      final MedicationEffectCount count = tally.forMedication(
-        attacks,
-        'Sumatriptan',
-      );
-
-      expect(count.helped, 2);
-      expect(count.partly, 1);
-      expect(count.didNotHelp, 1);
-      expect(count.answered, 4);
-    });
-
-    // The whole point of the denominator: an attack nobody answered is not a
-    // failure, and counting it as one makes every drug look worse the less
-    // diligent the user is.
-    test('an unanswered attack is not counted as a failure', () {
-      final List<Attack> attacks = <Attack>[
-        attack(medication: 'Ibuprofen', effect: MedicationEffect.helped),
-        attack(medication: 'Ibuprofen'),
-        attack(medication: 'Ibuprofen'),
-      ];
-
-      final MedicationEffectCount count = tally.forMedication(
-        attacks,
-        'Ibuprofen',
-      );
-
-      expect(count.answered, 1);
-      expect(count.helped, 1);
-      expect(count.didNotHelp, 0);
-    });
-
-    test('another medication\'s outcomes never leak in', () {
-      final List<Attack> attacks = <Attack>[
-        attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),
-        attack(medication: 'Ibuprofen', effect: MedicationEffect.didNotHelp),
-      ];
-
-      expect(tally.forMedication(attacks, 'Sumatriptan').didNotHelp, 0);
-      expect(tally.forMedication(attacks, 'Ibuprofen').helped, 0);
-    });
-
-    test('attacks with no medication are ignored entirely', () {
-      expect(
-        tally.forMedication(<Attack>[attack()], 'Sumatriptan').isEmpty,
-        isTrue,
-      );
-    });
-
-    test('a medication nobody has answered for is empty, not zero-helped', () {
-      final MedicationEffectCount count = tally.forMedication(
-        <Attack>[attack(medication: 'Naproxen')],
-        'Naproxen',
-      );
-
-      expect(count.isEmpty, isTrue);
-      expect(count.answered, 0);
-    });
-
-    group('byMedication', () {
-      test('lists only the medications with at least one answer', () {
-        final Map<String, MedicationEffectCount> byName = tally.byMedication(
-          <Attack>[
-            attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),
-            attack(medication: 'Naproxen'),
-            attack(),
-          ],
-        );
-
-        expect(byName.keys, <String>['Sumatriptan']);
-        expect(byName['Sumatriptan']!.helped, 1);
-      });
-
-      test('is empty when nothing has been answered', () {
-        expect(
-          tally.byMedication(<Attack>[attack(medication: 'Naproxen')]),
-          isEmpty,
-        );
-      });
-    });
-  });
 
   group('the repository', () {
     late AppDatabase db;
@@ -144,8 +52,7 @@ void main() {
       expect((await repository.getAll()).single.medicationEffect, isNull);
     });
 
-    // Its own method for the same reason updateExertion is: the details
-    // sheet never shows it, so a save from there must not blank it.
+    // Its own method for the same reason updateExertion is: the details sheet never shows it, so a save from there must not blank it.
     test('editing details leaves the outcome alone', () async {
       await repository.insert(
         attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),

@@ -62,8 +62,7 @@ void main() {
         weather: weather,
       );
 
-  /// Puts a record on the server as another device would have, without
-  /// counting as a write this device made.
+  /// Puts a record on the server as another device would have, without counting as a write this device made.
   Future<void> seedRemote(
     SyncCollection collection,
     EncryptedRecord record,
@@ -168,8 +167,7 @@ void main() {
       await medications.deleteById('m1');
       await service.sync(uid);
 
-      // The FK cascade removes the reminder on every device that pulls the
-      // medication's deletion, but the server's copy belongs to no cascade.
+      // The FK cascade removes the reminder on every device that pulls the medication's deletion, but the server's copy belongs to no cascade.
       expect(remote.of(SyncCollection.medications)['m1']!.isDeleted, isTrue);
       expect(
         remote.of(SyncCollection.medicationReminders)['r1']!.isDeleted,
@@ -211,8 +209,7 @@ void main() {
 
       await service.sync(uid);
 
-      // Medications sync first for exactly this reason: the other order hits
-      // a foreign key that is not there yet.
+      // Medications sync first for exactly this reason: the other order hits a foreign key that is not there yet.
       final views = await reminders.watchAll().first;
       expect(views.single.medicationName, 'Ibuprofen');
       expect(views.single.reminder.minuteOfDay, 480);
@@ -223,8 +220,7 @@ void main() {
 
       await service.sync(uid);
 
-      // The row travels; the OS notification does not. Without this the
-      // reminder would sit in the list and never fire.
+      // The row travels; the OS notification does not. Without this the reminder would sit in the list and never fire.
       expect(rescheduleCalls, 1);
     });
 
@@ -356,8 +352,7 @@ void main() {
 
       expect(seen.first, 0);
       expect(seen.last, 1);
-      // A bar that jumps backwards reads as a bug even when the sync is fine,
-      // which is why progress counts fixed steps and not records discovered.
+      // A bar that jumps backwards reads as a bug even when the sync is fine, which is why progress counts fixed steps and not records discovered.
       for (int i = 1; i < seen.length; i++) {
         expect(seen[i], greaterThanOrEqualTo(seen[i - 1]), reason: 'step $i');
       }

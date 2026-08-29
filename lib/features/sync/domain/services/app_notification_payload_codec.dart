@@ -5,19 +5,10 @@ import '../../../notifications/domain/enums/notification_type.dart';
 import 'sync_payload_codec.dart';
 
 /// Notification ↔ the JSON that gets encrypted.
-///
-/// Everything but the id goes in the ciphertext, `medicationId` included: it
-/// says which drug the user is reminded to take, which is a medication
-/// schedule in all but name (hard rule 1).
-///
-/// The id itself never travels in the payload because it is derived from the
-/// same facts on both sides — the document id IS the record's identity, and a
-/// second copy inside could only disagree with it.
 class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
   const AppNotificationPayloadCodec();
 
-  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when
-  /// it deliberately is not.
+  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when it deliberately is not.
   static const int schemaVersion = 1;
 
   static const String _versionKey = 'v';
@@ -52,9 +43,7 @@ class AppNotificationPayloadCodec implements SyncPayloadCodec<AppNotification> {
         ? DateTime.tryParse(occurredAt)
         : null;
 
-    // A type this build has never heard of is refused, not guessed at: the
-    // sync counts it unreadable and moves on, which shows one row fewer
-    // rather than a row labelled as the wrong thing.
+    // A type this build has never heard of is refused, not guessed at.
     final NotificationType? parsed = _typeByName(type);
     if (parsed == null) {
       throw FormatException('unknown notification type $type');

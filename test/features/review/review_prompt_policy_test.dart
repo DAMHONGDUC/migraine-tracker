@@ -42,9 +42,7 @@ void main() {
       expect(policy.shouldAsk(state, now: now), isTrue);
     });
 
-    /// A stored timestamp read back as local time must not shift the gap by
-    /// the device's offset — prefs hold ISO strings, and parsing is where a
-    /// zone gets lost.
+    /// A stored timestamp read back as local time must not shift the gap by the device's offset.
     test('compares in UTC whatever zone the stamp arrives in', () {
       final ReviewPromptState state = ReviewPromptState(
         askCount: 1,

@@ -12,7 +12,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 20 August 2026
+**Last updated:** 26 August 2026
 **Developer / data controller:** Dam Hong Duc, Ho Chi Minh City, Viet Nam
 **Contact:** ducdam.dev@gmail.com
 
@@ -198,11 +198,30 @@ syncs like any other record (§4), so every device shows the same history.
 
 ## 7. Payments
 
-Subscriptions and the lifetime purchase are processed by **Apple** and
+Subscriptions are processed by **Apple** and
 managed through **RevenueCat**, our subscription infrastructure provider. We
 never see or store your card details. RevenueCat receives a purchase
 identifier and, once you are signed in, your account identifier — so your
 entitlement follows you rather than one installation.
+
+## 7b. Sharing an attack
+
+From an attack's detail screen you can share it as an **image** — to a
+partner, a family member, or anyone else you choose.
+
+- **What the image carries:** when the attack started, how intense it was,
+  how long it lasted, and where on your head it hurt.
+- **What it never carries:** your notes, your symptoms, your triggers, the
+  medication you took, or your location. You see the exact image before you
+  send it, because what gets shared is the preview you are looking at.
+- **Where it goes:** only where you send it. The image is handed to the iOS
+  share sheet and goes to the app you pick. It is never uploaded to us, we
+  never see it, and it never reaches our backend.
+- **The file:** written to the app's temporary storage so the share sheet can
+  read it. **"Delete all data" clears it** along with the database, your past
+  exports, the daily pressure readings and the widget's container — iOS would
+  reclaim that storage eventually, but "eventually" is not a deletion you
+  asked for.
 
 ## 8. Your rights and controls (GDPR)
 
@@ -213,7 +232,8 @@ entitlement follows you rather than one installation.
   them; they are full copies of your data and are deleted along with
   everything else below.
 - **Delete all data:** Settings → Delete all data. Wipes the local database,
-  past export files and the home screen widget's shared container, deletes
+  past export files, any shared attack image and the home screen widget's
+  shared container, deletes
   your synced records and your backend alert record, and gives up your push
   token, geohash and threshold. **Your account stays**, so your subscription
   binding survives.

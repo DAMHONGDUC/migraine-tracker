@@ -19,29 +19,13 @@ import '../../../weather/providers.dart';
 
 part 'pressure_forecast_body_chart.dart';
 
-/// Single-series line chart: pressure over now−12h … now+48h. The dimmed
-/// segment is the past, the solid one the forecast; a vertical marker
-/// splits them at "now". No legend — the card's title names the one series.
-///
-/// Cardless, because two places draw it: `PressureForecastCard` on the
-/// detail screen, and `PressureCard` folded in with the correlation.
-///
-/// **Premium, and the gate is here rather than at either call site** — so
-/// both get one answer, and so a free user never watches
-/// [pressureForecastProvider] at all. That second part is the point: the
-/// locked branch issues no WeatherKit call, which keeps a free user off the
-/// 500k monthly quota entirely.
-///
-/// The free weather is `WeatherCard`, which draws conditions, UV, wind, rain,
-/// humidity and visibility and deliberately carries no pressure — this is the
-/// one pressure reading, and it is the one that is sold.
+/// Single-series line chart: pressure over now−12h … now+48h.
 class PressureForecastBody extends ConsumerWidget {
   const PressureForecastBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Cardless: this body is always drawn inside someone else's card, so a
-    // `PremiumGate` here would put a card inside a card.
+    // Cardless: this body is always drawn inside someone else's card, so a `PremiumGate` here would put a card inside a card.
     if (!ref.watch(hasPremiumProvider)) {
       return PremiumUnlockPrompt(message: context.l10n.premiumLockedForecast);
     }
@@ -49,9 +33,7 @@ class PressureForecastBody extends ConsumerWidget {
     final forecast = ref.watch(pressureForecastProvider);
 
     return switch (forecast) {
-      // The attribution rides with the chart, not with the screen: it is
-      // required wherever weather is drawn, and only the state that actually
-      // drew some owes it.
+          // Show attribution only with weather data.
       AsyncData(value: final value) when value != null => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -60,8 +42,7 @@ class PressureForecastBody extends ConsumerWidget {
           const WeatherAttribution(),
         ],
       ),
-      // No attribution on this one: the mark is owed by the state that
-      // actually drew Apple's data, and a placeholder drew none.
+      // No attribution on this one: the mark is owed by the state that actually drew Apple's data, and a placeholder drew none.
       AsyncLoading() => const SdChartSkeletonV2(),
       _ => SizedBox(
         height: SdSpacingConstant.h64,

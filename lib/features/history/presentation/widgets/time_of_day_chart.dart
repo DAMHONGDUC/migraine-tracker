@@ -7,8 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/services/chart_analytics.dart';
 
-/// Bar chart of attacks by quarter of the day (night / morning / afternoon /
-/// evening). Teal series to set it apart from the lavender frequency bars.
+/// Bar chart of attacks by quarter of the day (night / morning / afternoon / evening). Teal series to set it apart from the lavender frequency bars.
 class TimeOfDayChart extends StatelessWidget {
   const TimeOfDayChart({required this.counts, super.key});
 

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -16,7 +17,7 @@ Attack at(String id, DateTime local) => Attack(
 
 /// Opens the filter bottom sheet from the app bar and picks [period].
 Future<void> selectPeriod(WidgetTester tester, String period) async {
-  await tester.tap(find.byIcon(Icons.filter_list));
+  await tester.tap(find.byIcon(Symbols.filter_list_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.tap(find.text(period));
@@ -76,12 +77,12 @@ void main() {
     await openHistory(tester);
     expect(find.byType(AttackTile), findsOneWidget); // list mode default
 
-    await tester.tap(find.byIcon(Icons.bar_chart));
+    await tester.tap(find.byIcon(AppIconConstant.barChart));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Attacks per week'), findsOneWidget); // chart mode
 
-    await tester.tap(find.byIcon(Icons.list_alt));
+    await tester.tap(find.byIcon(AppIconConstant.listView));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(AttackTile), findsOneWidget);

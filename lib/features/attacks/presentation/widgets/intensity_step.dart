@@ -5,10 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import 'intensity_disc.dart';
 
-/// First tap: pain intensity 1–10. Buttons are large enough to hit with a
-/// shaking hand and tinted by severity so the scale reads at a glance.
-/// Selecting advances the flow immediately — no confirm step, this is the
-/// fastest way into the flow, mid-attack.
+/// First tap: pain intensity 1–10.
 class IntensityStep extends StatelessWidget {
   const IntensityStep({required this.onSelected, super.key});
 
@@ -77,8 +74,7 @@ class _IntensityCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    // - Circle shows a number only; severity is colour-only.
-    // - Give VoiceOver the full meaning, hide the bare "$value" text.
+    // - Circle shows a number only; severity is colour-only. - Give VoiceOver the full meaning, hide the bare "$value" text.
     return Semantics(
       button: true,
       label: l10n.a11yIntensityButton(value, value.severityLabel(l10n)),

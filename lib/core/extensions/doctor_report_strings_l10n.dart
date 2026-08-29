@@ -1,21 +1,17 @@
 import 'package:intl/intl.dart';
 
+import '../../features/attacks/domain/enums/aura_type.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/insights/domain/services/doctor_report_builder.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../l10n/gen/app_localizations_en.dart';
 import '../constants/export_constant.dart';
+import 'aura_label.dart';
 import 'head_region_label.dart';
 import 'medication_effect_label.dart';
 
-/// Collects the doctor report's localized strings in one place. The builder
-/// is pure Dart and takes its copy as data; this is the only translation of
-/// l10n into that shape, so the export screen doesn't carry 30 lines of it.
-///
-/// A locale the report's fonts cannot draw falls back to English here rather
-/// than at the call site, so every caller gets a readable PDF by default —
-/// see [ExportConstant.reportFontlessLocales].
+/// Collects the doctor report's localized strings in one place.
 extension DoctorReportStringsL10n on AppLocalizations {
   DoctorReportStrings doctorReportStrings(DateTime now) =>
       ExportConstant.reportFontlessLocales.contains(localeName)
@@ -31,6 +27,13 @@ extension DoctorReportStringsL10n on AppLocalizations {
     avgIntensity: reportAvgIntensity,
     commonLocation: reportCommonLocation,
     typicalDuration: reportTypicalDuration,
+    monthlyDays: reportMonthlyDays,
+    aura: reportAura,
+    auraLabels: <AuraType, String>{
+      for (final AuraType type in AuraType.values) type: type.label(this),
+    },
+    medicationDays: reportMedicationDays,
+    medicationOveruse: reportMedicationOveruse,
     attacksDuringDrops: reportAttacksDuringDrops,
     baseline: reportBaseline,
     tableTitle: reportTableTitle,

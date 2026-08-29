@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
-/// The shell every insight on the Insights screen wears: a card with its
-/// title, then the body that says what the analysis found. [trailing] is for
-/// a marker beside the title (the premium badge on a locked card); [onTap]
-/// makes the whole card the way into a detail screen, and draws the chevron
-/// that says so.
+/// The shell every insight on the Insights screen wears: a card with its title, then the body that says what the analysis found.
 class InsightCard extends StatelessWidget {
   const InsightCard({
     required this.title,
@@ -37,8 +35,8 @@ class InsightCard extends StatelessWidget {
                 ?trailing,
                 if (onTap != null)
                   SdIconV2(
-                    icon: Icons.chevron_right,
-                    size: SdSpacingConstant.r20,
+                    icon: AppIconConstant.disclosure,
+                    size: AppIconSize.small,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
               ],

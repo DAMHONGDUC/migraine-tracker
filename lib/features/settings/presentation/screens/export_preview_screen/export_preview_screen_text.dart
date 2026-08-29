@@ -1,10 +1,6 @@
 part of 'export_preview_screen.dart';
 
 /// A JSON export, read as its own text.
-///
-/// It does not wrap: indented JSON carries its meaning in the line breaks the
-/// file already has, so the card scrolls sideways instead of reflowing them
-/// away.
 class _TextBody extends ConsumerWidget {
   const _TextBody({required this.exportId, required this.filename});
 
@@ -27,8 +23,7 @@ class _TextBody extends ConsumerWidget {
           SdCardV2(
             child: Padding(
               padding: EdgeInsets.all(SdSpacingConstant.w16),
-              // Its own horizontal scroll, so long lines run off the card
-              // rather than off the page.
+              // Its own horizontal scroll, so long lines run off the card rather than off the page.
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SelectableText(
@@ -47,10 +42,9 @@ class _TextBody extends ConsumerWidget {
           ],
         ],
       ),
-      // The row is still here but its file is not — the same thing the
-      // actions sheet says when share or save is picked.
+      // The row is still here but its file is not — the same thing the actions sheet says when share or save is picked.
       AsyncError<ExportPreview>() => SdEmptyStateV2(
-        icon: Icons.description_outlined,
+        icon: AppIconConstant.document,
         message: l10n.exportFileMissing,
       ),
       _ => const Center(child: CircularProgressIndicator()),

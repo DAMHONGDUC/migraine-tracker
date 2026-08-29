@@ -4,9 +4,7 @@ import 'package:migraine_tracker/core/constants/log_tag_constant.dart';
 import 'package:migraine_tracker/core/logging/crash_reporter.dart';
 import 'package:system_design/common.dart';
 
-/// Both helpers must be inert until `main` initializes them: widget tests
-/// boot the app without Firebase, so any call that reached the SDK here
-/// would crash every screen that logs an event.
+/// Both helpers must be inert until `main` initializes them.
 void main() {
   test('analytics is a no-op before init', () {
     expect(AppAnalytics.isReady, isFalse);
@@ -35,11 +33,7 @@ void main() {
     }, returnsNormally);
   });
 
-  /// `SdLogger.error` reports through whatever `SdCrashReporter.instance`
-  /// happens to be, and the adapter that points it here is attached in
-  /// `AppBootstrap`. Nothing attaches it in a test, so the whole logging
-  /// surface must stay inert — a single reachable Crashlytics call would
-  /// crash every screen that logs a caught failure.
+  /// `SdLogger.error` reports through whatever `SdCrashReporter.instance` happens to be, and the adapter that points it here is attached in `AppBootstrap`.
   test('SdLogger reports to the no-op before bootstrap attaches one', () {
     expect(
       () => SdLogger.error(

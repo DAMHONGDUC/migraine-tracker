@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
 /// The signed-in user's account record, as stored in `users/{uid}`.
-///
-/// Account data only — name, email, avatar, when the account started.
-/// NEVER health data: attacks live on-device and, for signed-in users, as
-/// encrypted payloads in the top-level `attacks` collection (hard rule 1).
 @immutable
 class UserProfile {
   const UserProfile({
@@ -18,8 +14,7 @@ class UserProfile {
 
   final String uid;
 
-  /// What the account screen shows and lets the user edit. Null until the
-  /// provider gave us one (Apple often doesn't) or the user typed one.
+  /// What the account screen shows and lets the user edit. Null until the provider gave us one (Apple often doesn't) or the user typed one.
   final String? displayName;
 
   final String? email;

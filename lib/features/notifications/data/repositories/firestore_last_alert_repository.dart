@@ -5,12 +5,7 @@ import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/last_alert_repository.dart';
 import '../../domain/services/pressure_alert_mapper.dart';
 
-/// Reads the `lastAlert*` fields the cron writes on `users/{uid}` after every
-/// push, so a missed alert can be rebuilt as a list row.
-///
-/// Works for an anonymous account too: alerts register under whatever uid the
-/// device has, signed in or not (hard rule 1), so the reconcile must not wait
-/// for a sign-in that may never come.
+/// Reads the `lastAlert*` fields the cron writes on `users/{uid}` after every push, so a missed alert can be rebuilt as a list row.
 class FirestoreLastAlertRepository implements LastAlertRepository {
   const FirestoreLastAlertRepository(this._auth, this._firestore);
 
@@ -22,9 +17,7 @@ class FirestoreLastAlertRepository implements LastAlertRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
-  /// The doc holds only the LATEST alert, so this catches up one alert, not a
-  /// backlog. That is enough in practice: the cron sends at most one push per
-  /// user per 24h, so a user who opens the app daily misses nothing.
+  /// The doc holds only the LATEST alert, so this catches up one alert, not a backlog.
   @override
   Future<AppNotification?> latest() async {
     final User? user = _auth.currentUser;

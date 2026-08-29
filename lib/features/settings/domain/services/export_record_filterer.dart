@@ -1,14 +1,11 @@
 import '../entities/export_date_filter.dart';
 import '../entities/export_record.dart';
 
-/// Narrows the export history to a date window. Pure Dart: the repository
-/// streams every record and this decides what the screen lists, the same
-/// division `MedicationFilterer` uses for the medications tab.
+/// Narrows the export history to a date window.
 class ExportRecordFilterer {
   const ExportRecordFilterer();
 
-  /// Records whose local calendar day falls inside [filter], both ends
-  /// inclusive. An inactive filter hands [records] straight back.
+  /// Records whose local calendar day falls inside [filter], both ends inclusive. An inactive filter hands [records] straight back.
   List<ExportRecord> apply(
     List<ExportRecord> records,
     ExportDateFilter filter,
@@ -28,9 +25,7 @@ class ExportRecordFilterer {
     }).toList();
   }
 
-  /// The day a moment belongs to, with the time stripped — an export made at
-  /// 23:59 has to count as that day, and comparing instants would drop it from
-  /// a window ending on its own date.
+  /// The day a moment belongs to, with the time stripped.
   DateTime _dayOf(DateTime value) =>
       DateTime(value.year, value.month, value.day);
 }

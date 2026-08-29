@@ -6,8 +6,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/attack_du
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 import 'package:system_design/index.dart';
 
-/// The sheet's options are all the same kind of answer, so they are all the
-/// same kind of target.
+/// The sheet's options are all the same kind of answer, so they are all the same kind of target.
 void main() {
   Future<void> pumpSheet(WidgetTester tester) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
@@ -43,9 +42,7 @@ void main() {
   ) async {
     await pumpSheet(tester);
 
-    // It sits above the grid rather than in it, so it does not get the
-    // grid's mainAxisExtent for free. Left to size itself it shrank to its
-    // line of text — a thin pill above ten chunky tiles.
+    // It sits above the grid rather than in it, so it does not get the grid's mainAxisExtent for free.
     final Size justEnded = tester.getSize(
       find.ancestor(
         of: find.text('It just ended'),

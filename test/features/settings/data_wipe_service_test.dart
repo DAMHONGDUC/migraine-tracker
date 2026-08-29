@@ -19,6 +19,7 @@ import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
 import '../../helpers/alert_fakes.dart';
+import '../../helpers/attack_fakes.dart';
 import '../../helpers/export_fakes.dart';
 import '../../helpers/home_widget_fakes.dart';
 import '../../helpers/pump_app.dart';
@@ -71,6 +72,7 @@ void main() {
     final exportRecords = DriftExportRecordRepository(db);
     final exportFiles = FakeExportFileStore();
     final homeWidget = RecordingHomeWidgetRepository();
+    final shareFiles = RecordingShareFileStore();
 
     await attacks.insert(
       Attack(
@@ -102,17 +104,18 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      shareFiles,
       homeWidget,
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
+    // A shared attack is a fourth copy of health data on disk, sitting in temporary storage. "Delete all data" has to reach it too.
+    expect(shareFiles.cleared, isTrue);
     expect(await attacks.getAll(), isEmpty);
     expect(await medications.getAll(), isEmpty);
-    // The list is derived from reminders but stored, so a wipe that
-    // skipped it would keep naming medications the user just deleted.
+    // The list is derived from reminders but stored, so a wipe that skipped it would keep naming medications the user just deleted.
     expect(await db.select(db.appNotifications).get(), isEmpty);
-    // The App Group is off the database entirely, so nothing else here
-    // would notice the week count still sitting on the home screen.
+    // The App Group is off the database entirely, so nothing else here would notice the week count still sitting on the home screen.
     expect(homeWidget.clears, 1);
   });
 
@@ -149,6 +152,7 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     ).wipeAll();
 
@@ -172,15 +176,14 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     ).wipeAll(onProgress: (done, steps) {
       expect(steps, DataWipeService.steps);
       reported.add(done);
     });
 
-    // Starts at 0 so the row can show a bar before the first step lands, then
-    // climbs one at a time and stops on the last — a count that skipped or
-    // repeated would show a bar that jumps or stalls.
+    // Starts at 0 so the row can show a bar before the first step lands, then climbs one at a time and stops on the last.
     expect(reported, <int>[for (int i = 0; i <= DataWipeService.steps; i++) i]);
   });
 
@@ -207,6 +210,7 @@ void main() {
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
     );
 
@@ -244,8 +248,7 @@ void main() {
         throwsA(isA<Exception>()),
       );
 
-      // Wiping the device first would leave the cloud copy with nothing left
-      // to say it should go, and the next sync would pull it all back down.
+      // Wiping the device first would leave the cloud copy with nothing left to say it should go, and the next sync would pull it all back down.
       expect(await attacks.getAll(), hasLength(1));
     });
 
@@ -265,12 +268,11 @@ void main() {
         syncServiceOver(db),
         alerts,
         DriftDailyPressureRepository(db),
-        RecordingHomeWidgetRepository(),
+        RecordingShareFileStore(),
+      RecordingHomeWidgetRepository(),
       ).wipeAll();
 
-      // The FCM token is the one thing that can still reach someone after
-      // they deleted everything: the cron would go on pushing pressure
-      // alerts to a device with nothing left in it.
+      // The FCM token is the one thing that can still reach someone after they deleted everything.
       expect(alerts.forgetCalls, 1);
     });
 

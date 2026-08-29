@@ -8,24 +8,14 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/services/attack_cipher.dart';
 
-/// AES-256-GCM, chosen for being authenticated: a payload altered on the
-/// server fails to decrypt instead of quietly decoding to something else.
+/// AES-256-GCM, chosen for being authenticated: a payload altered on the server fails to decrypt instead of quietly decoding to something else.
 class AesGcmAttackCipher implements AttackCipher {
   const AesGcmAttackCipher();
 
   /// 96 bits, the nonce size AES-GCM is defined against.
   static const int nonceBytes = 12;
 
-  /// How many records a pull has to carry before [decryptAll] pays for an
-  /// isolate instead of doing the work where it stands.
-  ///
-  /// Below this the whole batch is roughly one frame's worth (~0.27ms a
-  /// record on the machine this was measured on), and the hop would cost
-  /// more than it saves — an ordinary pull carries a handful of records,
-  /// and paying an isolate for each of four collections every sync would
-  /// be slower than the jank it set out to remove. **A guess pending a
-  /// measurement on a real device**, where the hop is the part that
-  /// differs most from a desktop host.
+  /// How many records a pull has to carry before [decryptAll] pays for an isolate instead of doing the work where it stands.
   static const int isolateThreshold = 50;
 
   static final AesGcm _algorithm = AesGcm.with256bits();
@@ -74,14 +64,11 @@ class AesGcmAttackCipher implements AttackCipher {
     if (openable < isolateThreshold) {
       return _decryptEach(payloads, base64Key);
     }
-    // Records and plain objects both travel the port; nothing here holds a
-    // closure or a native handle.
+    // Records and plain objects both travel the port; nothing here holds a closure or a native handle.
     return compute(_decryptBatch, (payloads, base64Key));
   }
 
-  /// The isolate's entry point. A static rather than a top-level function:
-  /// `compute` needs one of the two, and this project does not have
-  /// top-level functions.
+  /// The isolate's entry point. A static rather than a top-level function: `compute` needs one of the two, and this project does not have top-level functions.
   static Future<List<String?>> _decryptBatch(
     (List<EncryptedPayload?>, String) job,
   ) {
@@ -90,8 +77,7 @@ class AesGcmAttackCipher implements AttackCipher {
     return const AesGcmAttackCipher()._decryptEach(payloads, key);
   }
 
-  /// Shared by both paths, so the isolate and the inline route cannot
-  /// answer differently.
+  /// Shared by both paths, so the isolate and the inline route cannot answer differently.
   Future<List<String?>> _decryptEach(
     List<EncryptedPayload?> payloads,
     String base64Key,
@@ -106,9 +92,7 @@ class AesGcmAttackCipher implements AttackCipher {
       try {
         results.add(await decrypt(payload: payload, base64Key: base64Key));
       } catch (error, stackTrace) {
-        // Counted by the caller, never rethrown: the ciphertext will not
-        // change, so retrying it forever would wedge the pull. Logged
-        // because a wrong key looks exactly like an empty sync otherwise.
+        // Counted by the caller, never rethrown: the ciphertext will not change, so retrying it forever would wedge the pull.
         SdLogger.error(
           LogTagConstant.syncCrypto,
           'Decrypting a synced record failed',

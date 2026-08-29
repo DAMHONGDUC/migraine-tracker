@@ -8,18 +8,16 @@ import '../../core/theme/app_text_style.dart';
 import '../../features/premium/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
+import '../theme/app_icon_constant.dart';
+import '../theme/app_icon_size.dart';
 import 'settings_tile.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
-///
-/// The locked branch never builds [child], so a free user's widget tree
-/// simply has no premium data in it — nothing to leak through a blur or an
-/// Opacity(0). Gate at the data boundary, not with a visual cover.
 class PremiumGate extends ConsumerWidget {
   const PremiumGate({
     required this.lockedMessage,
     required this.child,
-    this.lockedIcon = Icons.lock_outline,
+    this.lockedIcon = AppIconConstant.locked,
     super.key,
   });
 
@@ -34,17 +32,11 @@ class PremiumGate extends ConsumerWidget {
   }
 }
 
-/// The locked pitch WITHOUT a card around it: the glyph and the badge, what
-/// premium would show here, and the way to get it.
-///
-/// Cardless on purpose, so a body that is already inside someone else's card
-/// can lock itself without nesting one card in another — which is exactly
-/// what `PressureForecastBody` inside `InsightCard` did before this existed.
-/// [PremiumGate] wraps this in an `SdCardV2` for the standalone case.
+/// The locked pitch WITHOUT a card around it: the glyph and the badge, what premium would show here, and the way to get it.
 class PremiumLockedBody extends ConsumerWidget {
   const PremiumLockedBody({
     required this.message,
-    this.icon = Icons.lock_outline,
+    this.icon = AppIconConstant.locked,
     super.key,
   });
 
@@ -62,7 +54,7 @@ class PremiumLockedBody extends ConsumerWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.medium,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w8),
@@ -82,18 +74,6 @@ class PremiumLockedBody extends ConsumerWidget {
 }
 
 /// The app's one Unlock button, and it takes no options.
-///
-/// Every locked surface draws exactly this — the prompts below, the locked
-/// card, the blurred chart cover — so the offer looks the same wherever it is
-/// met. It used to take a `variant` so the chart cover could be louder than
-/// the prompts, which is the drift this exists to prevent.
-///
-/// **Filled, small, compact, and no glyph.** Filled because it is the one
-/// action on a surface that is otherwise inert, and because it has to read
-/// against the chart cover's scrim. Small and compact because it sits inside
-/// a card beside content, not as a screen's primary action. No padlock: the
-/// word is unambiguous on its own, and the glyph was a fifth of the button's
-/// width buying nothing.
 class PremiumUnlockButton extends ConsumerWidget {
   const PremiumUnlockButton({super.key});
 
@@ -109,13 +89,7 @@ class PremiumUnlockButton extends ConsumerWidget {
   }
 }
 
-/// The smallest locked state there is: one line saying what premium would
-/// show here, and the button that gets it.
-///
-/// No badge and no blur. For a slot INSIDE a card that already carries its
-/// own `PremiumBadge` — repeating the badge per section, or covering each one
-/// with a blurred sample, made a single card look like three separate pitches
-/// stacked up.
+/// The smallest locked state there is: one line saying what premium would show here, and the button that gets it.
 class PremiumUnlockPrompt extends ConsumerWidget {
   const PremiumUnlockPrompt({required this.message, super.key});
 
@@ -155,14 +129,7 @@ class _LockedCard extends StatelessWidget {
   }
 }
 
-/// A locked chart: [sample] drawn blurred under a scrim, with the unlock
-/// button centred on it.
-///
-/// [sample] is fabricated data, never the user's own — this is a cover, and
-/// a cover over real numbers still leaves them in the tree, one screenshot
-/// or one accessibility dump away. The caller picks which data it draws, so
-/// [PremiumGate]'s rule still holds: the boundary is the data, and this
-/// widget only supplies the look.
+/// A locked chart: [sample] drawn blurred under a scrim, with the unlock button centred on it.
 class PremiumChartLock extends ConsumerWidget {
   const PremiumChartLock({required this.sample, super.key});
 
@@ -180,12 +147,10 @@ class PremiumChartLock extends ConsumerWidget {
       // The sample is excluded below, so nothing says what this card is otherwise.
       label: l10n.premiumLockedCharts,
       child: Stack(
-        // Passthrough, not loose: the sample must keep the full-width
-        // constraint the chart card gives it, or the chart shrink-wraps.
+        // Passthrough, not loose: the sample must keep the full-width constraint the chart card gives it, or the chart shrink-wraps.
         fit: StackFit.passthrough,
         children: [
-          // - ClipRect: a blur bleeds past its bounds and would fog the card's padding
-          // - ExcludeSemantics: VoiceOver must never read the made-up numbers out
+          // - ClipRect: a blur bleeds past its bounds and would fog the card's padding - ExcludeSemantics: VoiceOver must never read the made-up numbers out
           ClipRect(
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(
@@ -209,8 +174,7 @@ class PremiumChartLock extends ConsumerWidget {
   }
 }
 
-/// List-tile flavour of [PremiumGate], for Settings rows. Same rule: the
-/// locked branch never builds [child], so the action can't be reached.
+/// List-tile flavour of [PremiumGate], for Settings rows. Same rule: the locked branch never builds [child], so the action can't be reached.
 class PremiumTileGate extends ConsumerWidget {
   const PremiumTileGate({
     required this.icon,

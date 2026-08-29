@@ -14,8 +14,7 @@ import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/user_profile_repository.dart';
 import 'presentation/controllers/auth_controller.dart';
 
-/// Widget tests MUST override this: [authUserProvider] is watched at build
-/// time, so a real repository drags Firebase into the test tree.
+/// Widget tests MUST override this: [authUserProvider] is watched at build time, so a real repository drags Firebase into the test tree.
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => FirebaseAuthRepository(
     FirebaseAuth.instance,
@@ -27,8 +26,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
   ),
 );
 
-/// Null while Firebase restores it, and after sign-out until something
-/// signs in anonymously again.
+/// Null while Firebase restores it, and after sign-out until something signs in anonymously again.
 final authUserProvider = StreamProvider<AuthUser?>(
   (ref) => ref.watch(authRepositoryProvider).watchUser(),
 );
@@ -38,8 +36,7 @@ final userProfileRepositoryProvider = Provider<UserProfileRepository>(
   (ref) => FirestoreUserProfileRepository(FirebaseFirestore.instance),
 );
 
-/// The signed-in user's account document. Null when signed out (nothing to
-/// read) or before the first write lands.
+/// The signed-in user's account document. Null when signed out (nothing to read) or before the first write lands.
 final userProfileProvider = StreamProvider<UserProfile?>((ref) {
   final AuthUser? user = switch (ref.watch(authUserProvider)) {
     AsyncData(value: final AuthUser? value) => value,
@@ -50,8 +47,7 @@ final userProfileProvider = StreamProvider<UserProfile?>((ref) {
   return ref.watch(userProfileRepositoryProvider).watch(user.uid);
 });
 
-/// Every "needs an account" decision reads this. Falls back to the
-/// repository while loading, so Settings never flashes "Sign in".
+/// Every "needs an account" decision reads this. Falls back to the repository while loading, so Settings never flashes "Sign in".
 final isSignedInProvider = Provider<bool>((ref) {
   final AuthUser? user = switch (ref.watch(authUserProvider)) {
     AsyncData(value: final AuthUser? value) => value,
@@ -62,20 +58,9 @@ final isSignedInProvider = Provider<bool>((ref) {
 });
 
 /// Whether Sign in with Apple is wired up end to end.
-///
-/// True as shipped: offering Google obliges us to offer Apple (App Store
-/// 4.8), and submission 1.0(11) was rejected on exactly that — the button
-/// was on screen answering "coming soon", which does not count as offering
-/// it. It depends on console state this repo cannot hold (the capability on
-/// the App ID, the Apple provider in Firebase — `docs/setup/AUTH_SETUP.md`),
-/// so it stays a switch rather than being deleted: if that side ever breaks,
-/// flipping this back turns a provider error into a sentence the user can
-/// read. Never ship it false.
 final appleSignInImplementedProvider = Provider<bool>((ref) => true);
 
 /// Can the *device* serve Apple sign-in (false on Android, iOS < 13).
-/// [appleSignInImplementedProvider] is the separate question of whether *we*
-/// have wired it up.
 final isAppleSignInAvailableProvider = FutureProvider<bool>(
   (ref) => ref.watch(authRepositoryProvider).isAppleAvailable(),
 );

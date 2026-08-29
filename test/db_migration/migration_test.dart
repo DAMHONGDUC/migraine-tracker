@@ -13,14 +13,13 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 12', () {
+  test('database is at schema version 15', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 12);
+    expect(db.schemaVersion, 15);
   });
 
-  // Always migrates to AppDatabase.schemaVersion, so every starting point is
-  // validated against the current head, not the head at write time.
+  // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
   test('migrates from v1 all the way to current', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
@@ -65,8 +64,7 @@ void main() {
 
     final med = (await db.select(db.medications).get()).single;
     expect(med.name, 'Sumatriptan');
-    // Their real creation date was never recorded — null says so instead of
-    // inventing the migration's timestamp and poisoning the date filter.
+    // Their real creation date was never recorded — null says so instead of inventing the migration's timestamp and poisoning the date filter.
     expect(med.createdAt, isNull);
   });
 
@@ -77,8 +75,7 @@ void main() {
 
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
-    // The new table is usable, and starts empty — exports made before v4
-    // were never recorded, so there is nothing to backfill.
+    // The new table is usable, and starts empty — exports made before v4 were never recorded, so there is nothing to backfill.
     expect(await db.select(db.exportRecords).get(), isEmpty);
   });
 
@@ -135,8 +132,7 @@ void main() {
 
     final attack = (await db.select(db.attacks).get()).single;
     expect(attack.id, 'a1');
-    // Nobody reported exertion before this shipped — null says so instead of
-    // inventing an answer.
+    // Nobody reported exertion before this shipped — null says so instead of inventing an answer.
     expect(attack.exertionLevel, isNull);
   });
 
@@ -164,8 +160,7 @@ void main() {
 
     final attack = (await db.select(db.attacks).get()).single;
     expect(attack.id, 'a1');
-    // - Nothing confirmed yet is what makes the first sync push these rows.
-    // - Null updatedAt says "never modified since logged", which is true.
+    // - Nothing confirmed yet is what makes the first sync push these rows. - Null updatedAt says "never modified since logged", which is true.
     expect(attack.updatedAt, isNull);
     expect(attack.revision, 0);
     expect(attack.syncedRevision, isNull);
@@ -187,8 +182,7 @@ void main() {
     addTearDown(db.close);
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
-    // Three addColumns rebuild the attacks table — that is where a foreign key
-    // gets silently dropped.
+    // Three addColumns rebuild the attacks table — that is where a foreign key gets silently dropped.
     await (db.delete(db.attacks)..where((a) => a.id.equals('a1'))).go();
     expect(await db.select(db.weatherSnapshots).get(), isEmpty);
   });
@@ -258,8 +252,7 @@ void main() {
     addTearDown(db.close);
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
-    // Null, not the migration's own clock: a stamped date would hand the
-    // notification window months of reminders that never fired.
+    // Null, not the migration's own clock: a stamped date would hand the notification window months of reminders that never fired.
     final reminder = (await db.select(db.medicationReminders).get()).single;
     expect(reminder.id, 'r1');
     expect(reminder.createdAt, isNull);
@@ -277,9 +270,7 @@ void main() {
     'v9 recreates the notifications table whatever v8 left behind',
     () async {
       final schema = await verifier.schemaAt(8);
-      // The shape the intermediate v8 actually had on a dev device: the
-      // type column under its old name. No generated class describes it,
-      // which is exactly why v9 drops rather than renames.
+      // The shape the intermediate v8 actually had on a dev device: the type column under its old name.
       schema.rawDatabase
         ..execute('DROP TABLE IF EXISTS app_notifications')
         ..execute(
@@ -291,8 +282,7 @@ void main() {
       addTearDown(db.close);
       await verifier.migrateAndValidate(db, db.schemaVersion);
 
-      // Writable under today's definition — the failure this fixes was an
-      // insert against a table that had no `type` column.
+      // Writable under today's definition — the failure this fixes was an insert against a table that had no `type` column.
       await db
           .into(db.appNotifications)
           .insert(
@@ -319,8 +309,7 @@ void main() {
     addTearDown(db.close);
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
-    // Six addColumns rebuild both tables — that is where a foreign key gets
-    // silently dropped.
+    // Six addColumns rebuild both tables — that is where a foreign key gets silently dropped.
     await (db.delete(db.medications)..where((m) => m.id.equals('m1'))).go();
     expect(await db.select(db.medicationReminders).get(), isEmpty);
   });
@@ -333,9 +322,7 @@ void main() {
     await verifier.migrateAndValidate(db, db.schemaVersion);
   });
 
-  // Null is "never said", which is also what a still-running attack looks
-  // like. Stamping v9 rows with anything would invent a duration the user
-  // never gave — and it would land in the doctor report.
+  // Null is "never said", which is also what a still-running attack looks like.
   test('v9 attacks survive v10 with an unknown end', () async {
     final schema = await verifier.schemaAt(9);
     schema.rawDatabase.execute(
@@ -361,8 +348,7 @@ void main() {
     await verifier.migrateAndValidate(db, db.schemaVersion);
   });
 
-  // Backfilling "helped" would invent the very evidence a prescription gets
-  // changed on. Null means the question was never answered.
+  // Backfilling "helped" would invent the very evidence a prescription gets changed on. Null means the question was never answered.
   test('v10 attacks survive v11 with no outcome recorded', () async {
     final schema = await verifier.schemaAt(10);
     schema.rawDatabase.execute(
@@ -387,8 +373,35 @@ void main() {
 
     await verifier.migrateAndValidate(db, db.schemaVersion);
 
-    // Empty, and nothing to backfill: no weather was ever stored for a day
-    // that had no attack.
+    // Empty, and nothing to backfill: no weather was ever stored for a day that had no attack.
     expect(await db.select(db.dailyWeather).get(), isEmpty);
+  });
+
+  test('migrates from v12 to v15 (adds attacks.aura)', () async {
+    final connection = await verifier.startAt(12);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // NULL, not an empty list: an empty list is the user answering "no aura", which is a different fact from a question nobody put — and the two are.
+  test('v12 attacks survive v15 with no aura recorded', () async {
+    final schema = await verifier.schemaAt(12);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location, '
+      "medication_name) VALUES ('a1', 1750000000, 7, 'front', 'Sumatriptan')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final AttackRow stored = (await db.select(db.attacks).get()).single;
+
+    expect(stored.medicationName, 'Sumatriptan');
+    expect(stored.aura, isNull);
+    // v13 widened the coarse `location` into a set of regions; the aura step must not have disturbed that backfill on the way past.
+    expect(stored.regions, isNotEmpty);
   });
 }

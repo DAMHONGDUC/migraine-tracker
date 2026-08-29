@@ -25,34 +25,7 @@ import 'data_export_service.dart';
 import 'data_wipe_service.dart';
 import 'export_file_store.dart';
 
-/// Dev-only fixture generator: wipes whatever is on the device, then refills
-/// it with a handful of rows — [medicationCount] medications, [attackCount]
-/// attacks, [reminderCount] reminders and [exportCount] past exports.
-///
-/// **A handful, not a pile** (owner's call). It used to write a hundred of
-/// each, which answered "what does this look like full" and never "what does
-/// a real user's first month look like" — and a hundred rows is a screenshot
-/// nobody can read. The daily pressure series is the one thing still seeded
-/// across the whole window: it is the correlation's denominator rather than
-/// a list the user scrolls.
-///
-/// **Sleep and steps are never seeded** (owner's call, and the same one
-/// `healthRepositoryProvider` records). HealthKit is the one source the app
-/// does not own, so an invented night is a number the user could go and
-/// check — an honest empty card is better than a lie.
-///
-/// **Every run produces a different data set.** Nothing is derived from the
-/// row index — not the medication a row gets, not whether an attack has
-/// weather, not which kind an export is — because a fixture that always looks
-/// the same only ever exercises one shape of screen, and the layout bugs live
-/// in the shapes you did not seed.
-///
-/// Two things stay deliberate rather than random: medication names are drawn
-/// without replacement so no two rows collide, and pressure still sags as
-/// intensity climbs so the correlation engine has a signal to find.
-///
-/// Never reachable in a prod flavour — the settings row that calls it is
-/// hidden behind `!AppEnv.isProd`.
+/// Dev-only fixture generator: wipes whatever is on the device, then refills it with a handful of rows — [medicationCount] medications, [attackCount].
 class DevSeedService {
   const DevSeedService(
     this._wipe,
@@ -80,31 +53,24 @@ class DevSeedService {
   static const int attackCount = 5;
   static const int medicationCount = 5;
 
-  /// Reminders in total, one per medication — not per medication, and no
-  /// crowded row any more: the counts above are the whole data set now.
+  /// Reminders in total, one per medication — not per medication, and no crowded row any more: the counts above are the whole data set now.
   static const int reminderCount = 2;
 
   static const int exportCount = 5;
 
-  /// Notifications of each kind. Alerts stay rarer than reminder firings,
-  /// because the cron sends at most one a day per user.
+  /// Notifications of each kind. Alerts stay rarer than reminder firings, because the cron sends at most one a day per user.
   static const int notificationCount = 5;
   static const int pressureAlertCount = 1;
 
-  /// Seeded ON TOP of the counts above and deleted again at the end, so the
-  /// tombstone table has rows to carry without a list coming up a row short
-  /// of what those counts promise.
+  /// Adds then deletes fixtures so tombstones exist without reducing visible counts.
   static const int _tombstoneAttacks = 1;
   static const int _tombstoneMedications = 1;
 
-  /// What is actually written, surplus included — the lists keep the counts
-  /// above once [_seedTombstones] has taken the rest.
+  /// What is actually written, surplus included — the lists keep the counts above once [_seedTombstones] has taken the rest.
   static const int _attacksToWrite = attackCount + _tombstoneAttacks;
   static const int _medicationsToWrite = medicationCount + _tombstoneMedications;
 
-  /// How far back rows are scattered, in hours — a little over three months,
-  /// which is enough for the weekly charts and the 90-day filters to have
-  /// something in every bucket.
+  /// How far back rows are scattered, in hours.
   static const int _windowHours = 2200;
 
   static const Uuid _uuid = Uuid();
@@ -169,8 +135,7 @@ class DevSeedService {
     'dehydration',
   ];
 
-  /// Clears the database, then writes a fresh data set into it. Unseeded
-  /// [Random] on purpose — see the class doc.
+  /// Clears the database, then writes a fresh data set into it. Unseeded [Random] on purpose — see the class doc.
   Future<void> seed() async {
     final Random random = Random();
     final DateTime now = DateTime.now().toUtc();
@@ -199,14 +164,6 @@ class DevSeedService {
   }
 
   /// One reading per local day across the window, attacks or no attacks.
-  ///
-  /// This is the correlation's denominator (hard rule: `DailyPressure`), so
-  /// without it the pressure card can only ever say "what share of MY attacks
-  /// fell during drops" and never "am I more likely to attack when it drops".
-  /// Seeding it is what makes the seeded correlation reach a real verdict.
-  ///
-  /// Days that ended in an attack are biased to drop, so the two sides differ
-  /// and `PressureBaseline` has something to find.
   Future<void> _seedDailyPressure(
     Random random,
     List<Attack> attacks,
@@ -221,8 +178,7 @@ class DevSeedService {
       final DateTime day = _dayOf(
         now.toLocal().subtract(Duration(days: back)),
       );
-      // A drop on ~65% of attack days against ~25% of the rest — a signal
-      // that is strong enough to read and weak enough to stay believable.
+      // A drop on ~65% of attack days against ~25% of the rest — a signal that is strong enough to read and weak enough to stay believable.
       final bool drops = random.nextInt(100) <
           (attackDays.contains(day) ? 65 : 25);
       final double delta = drops
@@ -239,13 +195,7 @@ class DevSeedService {
     }
   }
 
-  /// Both kinds of notification, most read and some not, so the bell carries
-  /// a count and the two tabs each have rows.
-  ///
-  /// Ids come from the same derivers the real writers use
-  /// ([AppNotification.reminderOccurrenceId] / `.pressureAlertId`), never
-  /// from a UUID — a random id here would be a row no real writer could ever
-  /// match, which is exactly the idempotence the list depends on.
+  /// Both kinds of notification, most read and some not, so the bell carries a count and the two tabs each have rows.
   Future<void> _seedNotifications(
     Random random,
     List<MedicationReminder> reminders,
@@ -273,8 +223,7 @@ class DevSeedService {
       );
     }
 
-    // Pressure alerts, rarer than reminders — the cron sends at most one a
-    // day per user, so a list with as many alerts as reminders would lie.
+    // Pressure alerts, rarer than reminders — the cron sends at most one a day per user, so a list with as many alerts as reminders would lie.
     for (int i = 0; i < pressureAlertCount; i++) {
       final DateTime at = now.subtract(
         Duration(hours: random.nextInt(_windowHours)),
@@ -294,24 +243,13 @@ class DevSeedService {
     await _notifications.addMissing(rows);
   }
 
-  /// Read a little after it arrived, or not at all. Roughly a third stay
-  /// unread so the bell has a count and the rows have their dot.
+  /// Read a little after it arrived, or not at all. Roughly a third stay unread so the bell has a count and the rows have their dot.
   DateTime? _maybeRead(Random random, DateTime occurredAt) =>
       random.nextInt(3) == 0
       ? null
       : occurredAt.add(Duration(minutes: 1 + random.nextInt(600)));
 
-  /// Deletes the extra rows written for exactly this, which is the ONLY way a
-  /// tombstone is made: the table is sync bookkeeping, written by the delete
-  /// path, so seeding it by hand would fabricate rows no delete produced.
-  ///
-  /// **The tail of each list, never a random row.** The counts above are what
-  /// the lists must be left holding, so what dies has to be the surplus — a
-  /// shuffle here would take a row the owner asked to see.
-  ///
-  /// The ids were never uploaded, so a sync issues deletes the server has
-  /// nothing to match — the same no-op a real "created and deleted while
-  /// offline" record produces.
+  /// Deletes the extra rows written for exactly this,.
   Future<void> _seedTombstones(
     List<Attack> attacks,
     List<Medication> medications,
@@ -319,8 +257,7 @@ class DevSeedService {
     for (final Attack attack in attacks.reversed.take(_tombstoneAttacks)) {
       await _attacks.deleteById(attack.id);
     }
-    // Cascades its one reminder away too, which is the case the pull path has
-    // to handle and the one nothing else in the seed produces.
+    // Cascades its one reminder away too, which is the case the pull path has to handle and the one nothing else in the seed produces.
     for (final Medication medication
         in medications.reversed.take(_tombstoneMedications)) {
       await _medications.deleteById(medication.id);
@@ -330,19 +267,7 @@ class DevSeedService {
   DateTime _dayOf(DateTime value) =>
       DateTime(value.year, value.month, value.day);
 
-  /// One reminder on each of the first [reminderCount] medications, and one
-  /// more on each doomed one.
-  ///
-  /// **The first medications, not random ones**: the doomed rows are the tail
-  /// of the list (see [_seedTombstones]), so taking from the head is what
-  /// keeps the [reminderCount] the owner asked for alive to the end of the
-  /// run. The extra on a doomed medication is deleted with its host, which is
-  /// the cascade the sync pull path has to handle and the only place the seed
-  /// produces one — so it is not returned, and no notification points at it.
-  ///
-  /// Written straight to the repository, never through `RemindersController`:
-  /// these are fixtures, and scheduling real notifications for them on a dev
-  /// device would be a genuinely unpleasant afternoon.
+  /// One reminder on each of the first [reminderCount] medications, and one more on each doomed one.
   Future<List<MedicationReminder>> _seedReminders(
     Random random,
     List<Medication> medications,
@@ -373,9 +298,7 @@ class DevSeedService {
     return created;
   }
 
-  /// [count] distinct times of day. Distinct because two reminders at the
-  /// same minute are indistinguishable rows, and the user could not have
-  /// created them either.
+  /// [count] distinct times of day.
   Set<int> _distinctMinutes(Random random, int count) {
     final Set<int> minutes = <int>{};
 
@@ -386,9 +309,7 @@ class DevSeedService {
     return minutes;
   }
 
-  /// Names are drawn without replacement: the 30 names crossed with the 5
-  /// doses give 150 combinations, shuffled, of which as many as the seed
-  /// needs are kept. Duplicates would be indistinguishable rows in the list.
+  /// Names are drawn without replacement: the 30 names crossed with the 5 doses give 150 combinations, shuffled, of which as many as the seed needs are kept.
   List<Medication> _buildMedications(Random random, DateTime now) {
     final List<String> names = <String>[
       for (final String dose in _doses)
@@ -414,10 +335,7 @@ class DevSeedService {
     ];
   }
 
-  /// **Exactly one of them has no weather, and which one is random.** It used
-  /// to be a one-in-seven roll per attack, which over a hundred rows always
-  /// produced a handful; over five it produces none most runs, and the
-  /// offline-log case is the one the backfill queue exists for.
+  /// Exactly one of them has no weather, and which one is random.
   List<Attack> _buildAttacks(
     Random random,
     DateTime now,
@@ -437,9 +355,7 @@ class DevSeedService {
     ];
   }
 
-  /// [count] distinct hour offsets inside the window. Distinct so no two
-  /// attacks land in the same hour — the history list groups by day and the
-  /// charts bucket by hour, and a pile-up hides both.
+  /// [count] distinct hour offsets inside the window.
   List<int> _scatteredHours(Random random, int count) {
     final Set<int> hours = <int>{};
 
@@ -476,12 +392,7 @@ class DevSeedService {
     );
   }
 
-  /// Exertion tracks intensity the way the seeded weather does, so the
-  /// exertion engine sees a signal rather than noise — and every level shows
-  /// up, including [ExertionLevel.none].
-  ///
-  /// A few stay null on purpose: attacks logged before the step existed, a
-  /// case the detail screen and the engine both still have to handle.
+  /// Exertion tracks intensity the way the seeded weather does, so the exertion engine sees a signal rather than noise.
   ExertionLevel? _buildExertion(Random random, int intensity) {
     if (random.nextInt(8) == 0) return null;
 
@@ -494,9 +405,7 @@ class DevSeedService {
     return ExertionLevel.none;
   }
 
-  /// Notes vary in length as well as content: a one-word note and a rambling
-  /// one lay out differently everywhere they appear, and only seeding both
-  /// shows it.
+  /// Notes vary in length as well as content: a one-word note and a rambling one lay out differently everywhere they appear, and only seeding both shows it.
   String _buildNote(Random random) {
     final List<String> sentences = <String>[
       'Came on suddenly.',
@@ -511,8 +420,7 @@ class DevSeedService {
     return sentences.take(1 + random.nextInt(3)).join(' ');
   }
 
-  /// Pressure sags as intensity climbs, so the correlation engine sees a
-  /// real (if invented) signal instead of noise.
+  /// Pressure sags as intensity climbs, so the correlation engine sees a real (if invented) signal instead of noise.
   WeatherSnapshot _buildWeather(
     DateTime capturedAt,
     int intensity,
@@ -529,10 +437,7 @@ class DevSeedService {
     );
   }
 
-  /// Real files with real content, exactly like [ExportKind.json] and
-  /// [ExportKind.csv] exports produced by hand — the history screen can
-  /// share and save these. No PDF row: a fake one would point at a file no
-  /// viewer could open.
+  /// Real files with real content, exactly like [ExportKind.json] and [ExportKind.csv] exports produced by hand.
   Future<void> _seedExports(
     Random random,
     List<Attack> attacks,
@@ -581,9 +486,7 @@ class DevSeedService {
     return '${date.year}-$month-${day}_$hour$minute$second';
   }
 
-  /// One to three areas, in enum order — the shape a real pick has. Never
-  /// empty: an attack with no area cannot be saved, so seeding one would
-  /// build a database the app itself refuses to write.
+  /// One to three areas, in enum order — the shape a real pick has.
   List<HeadRegion> _pickRegions(Random random) {
     final List<HeadRegion> shuffled = List<HeadRegion>.of(HeadRegion.values)
       ..shuffle(random);

@@ -6,11 +6,6 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/health_range.dart';
 
 /// The D / W / M / 6M selector over a health chart.
-///
-/// One widget for both cards, so steps and sleep cannot end up offering
-/// different windows. Single letters like Apple Health's own: four segments
-/// share the card's width, and "6 months" spelled out does not fit one at the
-/// design width in either locale.
 class HealthRangeSelector extends StatelessWidget {
   const HealthRangeSelector({
     required this.selected,

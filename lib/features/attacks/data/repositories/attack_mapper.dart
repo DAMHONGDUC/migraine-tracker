@@ -4,8 +4,7 @@ import '../../../../core/db/app_database.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../../domain/entities/attack.dart';
 
-/// Row ↔ domain translation for attacks, shared by the plain repository and
-/// the sync one so the two can never disagree about a field.
+/// Row ↔ domain translation for attacks, shared by the plain repository and the sync one so the two can never disagree about a field.
 final class AttackMapper {
   const AttackMapper._();
 
@@ -14,6 +13,7 @@ final class AttackMapper {
     startedAt: row.startedAt,
     intensity: row.intensity,
     regions: row.regions,
+    aura: row.aura,
     medicationName: row.medicationName,
     symptoms: row.symptoms,
     triggers: row.triggers,
@@ -34,8 +34,7 @@ final class AttackMapper {
         temperatureCelsius: row.temperatureCelsius,
       );
 
-  /// [syncedRevision] is set only for a row arriving from the server, which is
-  /// in step by definition; a locally logged attack starts dirty.
+  /// [syncedRevision] is set only for a row arriving from the server, which is in step by definition; a locally logged attack starts dirty.
   static AttacksCompanion toRow(
     Attack attack, {
     required DateTime updatedAt,
@@ -46,6 +45,7 @@ final class AttackMapper {
     startedAt: attack.startedAt,
     intensity: attack.intensity,
     regions: Value(attack.regions),
+    aura: Value(attack.aura),
     medicationName: Value(attack.medicationName),
     symptoms: Value(attack.symptoms),
     triggers: Value(attack.triggers),

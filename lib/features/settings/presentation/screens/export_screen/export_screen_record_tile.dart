@@ -1,7 +1,6 @@
 part of 'export_screen.dart';
 
-/// One past export: what it is, when it was made, how big it is. Tapping it
-/// opens the actions sheet — share, save to device, delete.
+/// One past export: what it is, when it was made, how big it is. Tapping it opens the actions sheet — share, save to device, delete.
 class _RecordTile extends StatelessWidget {
   const _RecordTile({required this.record, required this.onTap});
 
@@ -21,13 +20,14 @@ class _RecordTile extends StatelessWidget {
     return ListTile(
       leading: SdIconV2(
         icon: record.kind.icon,
+        size: AppIconSize.medium,
         color: context.colorScheme.primary,
       ),
       title: Text(record.kind.label(l10n), style: AppTextStyle.bodyLarge),
       subtitle: Text(subtitle, style: AppTextStyle.bodyMedium.secondary),
       trailing: SdIconV2(
-        icon: Icons.more_horiz,
-        size: SdSpacingConstant.r20,
+        icon: AppIconConstant.more,
+        size: AppIconSize.small,
         color: context.colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,

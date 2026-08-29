@@ -24,9 +24,7 @@ import '../../domain/services/export_file_store.dart';
 import '../../domain/services/export_filename_utils.dart';
 import '../../providers.dart';
 
-/// Owns the export screen's actions: producing an export, and acting on one
-/// that already exists. Every export is written to disk and recorded, so the
-/// history can re-share or save it later without rebuilding the file.
+/// Owns the export screen's actions: producing an export, and acting on one that already exists.
 class ExportController {
   const ExportController(this._ref);
 
@@ -35,9 +33,6 @@ class ExportController {
   static const Uuid _uuid = Uuid();
 
   /// Builds [kind], stores it, and records it in the history.
-  ///
-  /// [reportStrings] is required for [ExportKind.pdf] — the doctor report is
-  /// localized, and l10n lives in the widget layer.
   Future<ExportRecord> create(
     ExportKind kind, {
     DoctorReportStrings? reportStrings,
@@ -90,9 +85,7 @@ class ExportController {
           .read(exportSharerProvider)
           .shareFile(path: record.filePath, mimeType: record.kind.mimeType);
 
-      // The doctor report leaving the app is the value moment `PLAN.md` names
-      // — and the share sheet closing is the pause to ask in. Unawaited: a
-      // review prompt never holds up the flow that earned it.
+      // The doctor report leaving the app is the value moment `PLAN.md` names — and the share sheet closing is the pause to ask in.
       if (record.kind == ExportKind.pdf) {
         unawaited(
           _ref.read(reviewPromptControllerProvider).onDoctorReportShared(),
@@ -109,8 +102,7 @@ class ExportController {
     }
   }
 
-  /// Copies an existing export wherever the user picks. False means they
-  /// dismissed the picker — the caller shows nothing.
+  /// Copies an existing export wherever the user picks. False means they dismissed the picker — the caller shows nothing.
   Future<bool> saveToDevice(ExportRecord record) async {
     SdLogger.action(
       LogTagConstant.export,
@@ -154,13 +146,11 @@ class ExportController {
     }
   }
 
-  /// Whether the file a row points at is still there. A restore or a manual
-  /// clean-up can take it out from under us.
+  /// Whether the file a row points at is still there. A restore or a manual clean-up can take it out from under us.
   Future<bool> fileExists(ExportRecord record) =>
       _ref.read(exportFileStoreProvider).exists(record.filePath);
 
-  /// A JSON or CSV export as text for the preview screen, cut to
-  /// [ExportPreview.maxCharacters].
+  /// A JSON or CSV export as text for the preview screen, cut to [ExportPreview.maxCharacters].
   Future<ExportPreview> preview(ExportRecord record) async {
     try {
       final Uint8List bytes = await _ref
@@ -179,8 +169,7 @@ class ExportController {
     }
   }
 
-  /// A PDF export's own bytes — the preview screen renders them as pages
-  /// rather than showing them as text.
+  /// A PDF export's own bytes — the preview screen renders them as pages rather than showing them as text.
   Future<Uint8List> previewBytes(ExportRecord record) async {
     try {
       return await _ref.read(exportFileStoreProvider).read(record.filePath);
@@ -240,9 +229,7 @@ class ExportController {
     AppAnalytics.logDataExported(format: kind.name, attackCount: attackCount);
   }
 
-  /// The bundled Noto Sans faces the PDF renders with, cached for the process
-  /// lifetime — the report is built rarely, but re-reading 1MB of TTF each
-  /// time is wasteful.
+  /// The bundled Noto Sans faces the PDF renders with, cached for the process lifetime.
   static pw.Font? _regularFont;
   static pw.Font? _boldFont;
 

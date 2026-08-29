@@ -29,13 +29,7 @@ class FirebaseAlertRegistrationRepository
   final LocationSource _location;
   final FirebaseFunctions _functions;
 
-  /// The signed-in account's uid. Throws when there is not one.
-  ///
-  /// **No anonymous fallback.** Alerts need premium and premium needs an
-  /// account (hard rule 7), so a session without one can never reach the push
-  /// path — registering it would write a `users/{uid}` doc the cron will never
-  /// read, and quietly create an account the user never asked for. This used
-  /// to call `signInAnonymously`, which is exactly that.
+  /// The signed-in account's uid.
   Future<String> _uid() async {
     final User? user = _auth.currentUser;
 
@@ -49,9 +43,6 @@ class FirebaseAlertRegistrationRepository
   }
 
   /// This device's FCM token, after the permission prompt.
-  ///
-  /// Shared by [register] and [sendTestPush]: the two write different fields,
-  /// but both need the same prompt and the same token.
   Future<String> _pushToken() async {
     final NotificationSettings permission = await _messaging
         .requestPermission();
@@ -99,8 +90,7 @@ class FirebaseAlertRegistrationRepository
     } on AlertRegistrationException {
       rethrow;
     } catch (error, stackTrace) {
-      // The mapping to `unknown` is what the UI needs and what the console
-      // must not be left with — the real exception is only ever seen here.
+      // The mapping to `unknown` is what the UI needs and what the console must not be left with — the real exception is only ever seen here.
       SdLogger.error(
         LogTagConstant.alerts,
         'Alerts registration failed',
@@ -133,8 +123,7 @@ class FirebaseAlertRegistrationRepository
     final String uid = await _uid();
     final String token = await _pushToken();
 
-    // The callable pushes to whatever token the backend holds, so registering
-    // is part of the test rather than a precondition of it.
+    // The callable pushes to whatever token the backend holds, so registering is part of the test rather than a precondition of it.
     await _firestore.collection('users').doc(uid).set(<String, Object?>{
       'fcmToken': token,
     }, SetOptions(merge: true));
@@ -144,10 +133,7 @@ class FirebaseAlertRegistrationRepository
     SdLogger.info(LogTagConstant.alerts, 'Test push requested');
   }
 
-  /// An update, never a delete: the document also carries `premium`, which
-  /// only the RevenueCat webhook may write and which the rules refuse to let
-  /// a client touch — a delete would take it with it, and a paying
-  /// subscriber would silently stop receiving alerts.
+  /// Updates alert fields without deleting the webhook-owned Premium state.
   Future<void> _clear(List<String> fields) async {
     final user = _auth.currentUser;
     if (user == null) return;

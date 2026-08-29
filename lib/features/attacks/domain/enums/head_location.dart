@@ -1,21 +1,6 @@
 import 'head_region.dart';
 
-/// The coarse head location the log flow used before [HeadRegion] replaced
-/// it. **Legacy — nothing new should reach for this.** Two callers keep it
-/// alive, and both are reading data written by an older build:
-///  - the v12 → v13 database migration, and
-///  - `AttackPayloadCodec`, decoding a sync payload another device pushed
-///    before it updated.
-///
-/// A third caller *writes* it: `AttackPayloadCodec` still puts a coarse
-/// `location` beside the new `regions` in every payload, so a second device
-/// running the older build keeps reading this user's history instead of
-/// throwing on every record. [coarsest] is what it writes.
-///
-/// [regions] is the mapping both readers use. It deliberately does **not**
-/// invent precision: "left side" becomes every region on the left, not a guess at
-/// which one of them hurt, so a migrated attack stays exactly as coarse as
-/// the user actually said it was.
+/// The coarse head location the log flow used before [HeadRegion] replaced it.
 enum HeadLocation {
   left,
   right,
@@ -23,12 +8,7 @@ enum HeadLocation {
   back,
   whole;
 
-  /// The nearest old value for a set of regions, for the legacy field the
-  /// sync payload still carries. Lossy on purpose and in one direction only:
-  /// anything that does not fall cleanly on one side, on the forehead, or on
-  /// the back of the head reports as [whole], because an older build showing
-  /// "whole head" is honest about not knowing where, while showing "left"
-  /// for a right-sided attack would not be.
+  /// The nearest old value for a set of regions, for the legacy field the sync payload still carries.
   static HeadLocation coarsest(List<HeadRegion> regions) {
     if (regions.isEmpty) return whole;
 

@@ -5,17 +5,14 @@ import '../../../weather/domain/repositories/weather_repository.dart';
 import '../entities/attack.dart';
 import '../repositories/attack_repository.dart';
 
-/// Best-effort weather attachment (hard rule 4: logging never waits for the
-/// network). Every method swallows failures — a missing snapshot is always
-/// recoverable via [backfillMissing] on a later launch.
+/// Best-effort weather attachment (hard rule 4: logging never waits for the network).
 class WeatherAttachService {
   const WeatherAttachService(this._attacks, this._weather);
 
   final AttackRepository _attacks;
   final WeatherRepository _weather;
 
-  /// Called right after an attack is saved. On success also retries any
-  /// older attacks still missing weather, since we clearly have network.
+  /// Called right after an attack is saved. On success also retries any older attacks still missing weather, since we clearly have network.
   Future<void> onAttackLogged(Attack attack) async {
     try {
       final snapshot = await _weather.snapshotAt(attack.startedAt);
@@ -49,8 +46,7 @@ class WeatherAttachService {
     }
   }
 
-  /// Fetches the weather each offline-logged attack was missing — at the
-  /// attack's own start time, never today's weather.
+  /// Fetches the weather each offline-logged attack was missing — at the attack's own start time, never today's weather.
   Future<void> backfillMissing() async {
     final List<Attack> missing;
     try {

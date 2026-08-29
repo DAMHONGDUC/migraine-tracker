@@ -9,15 +9,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/services/chart_analytics.dart';
 
-/// Line chart of average pain intensity per week (0–10). Weeks with no
-/// attacks leave a gap rather than dropping the line to zero — only weeks that
-/// actually had attacks become points. Same calm styling as the frequency
-/// chart: recessive grid, muted labels, touch tooltip, no legend.
+/// Line chart of average pain intensity per week (0–10).
 class IntensityTrendChart extends StatelessWidget {
   const IntensityTrendChart({required this.points, super.key});
 
-  /// The 0–10 pain scale is fixed, so the axis is too — a trend that rescales
-  /// itself week to week would read as movement that isn't there.
+  /// The 0–10 pain scale is fixed, so the axis is too — a trend that rescales itself week to week would read as movement that isn't there.
 
   final List<IntensityTrendPoint> points;
 

@@ -3,8 +3,7 @@ import 'package:migraine_tracker/features/app_update/domain/entities/app_update_
 
 import '../../helpers/pump_app.dart';
 
-/// The wrapper runs on every app entry, so these also guard the case that
-/// matters most: it must NOT block anyone when the record says nothing.
+/// The wrapper runs on every app entry, so these also guard the case that matters most: it must NOT block anyone when the record says nothing.
 void main() {
   AppUpdateConfig record({bool enabled = true, int buildNumber = 50}) =>
       AppUpdateConfig(

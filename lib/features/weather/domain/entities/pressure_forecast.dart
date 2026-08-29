@@ -9,15 +9,20 @@ class PressurePoint {
   final double pressureHpa;
 }
 
-/// Hourly pressure around now: ~12h of context behind, 48h of forecast
-/// ahead — what the premium forecast chart renders.
+/// Hourly pressure around now: ~12h of context behind, a week of forecast ahead — what the premium forecast chart renders.
 @immutable
 class PressureForecast {
   const PressureForecast({required this.generatedAt, required this.points});
 
+  /// How far ahead the chart reaches.
+  static const int forecastDays = 7;
+
+  /// Hours of already-happened pressure drawn behind the now marker, so a rise or fall in progress has a shape rather than a single point.
+  static const int contextHours = 12;
+
   /// UTC instant the forecast was fetched (the chart's "now" marker).
   final DateTime generatedAt;
 
-  /// Ascending by time, spanning [generatedAt]−12h … +48h.
+  /// Ascending by time, spanning [generatedAt]−[contextHours] … +[forecastDays] days.
   final List<PressurePoint> points;
 }

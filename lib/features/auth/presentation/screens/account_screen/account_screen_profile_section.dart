@@ -1,7 +1,6 @@
 part of 'account_screen.dart';
 
-/// The editable name plus the read-only facts. Email and "member since"
-/// come from the provider and the account document — nothing to edit there.
+/// The editable name plus the read-only facts. Email and "member since" come from the provider and the account document — nothing to edit there.
 class _ProfileSection extends ConsumerWidget {
   const _ProfileSection({required this.user, required this.profile});
 
@@ -31,17 +30,17 @@ class _ProfileSection extends ConsumerWidget {
     return Column(
       children: <Widget>[
         ListTile(
-          leading: const SdIconV2(icon: Icons.badge_outlined),
+          leading: SdIconV2(icon: AppIconConstant.profileName, size: AppIconSize.medium),
           title: Text(l10n.accountName, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             name ?? l10n.accountNoName,
             style: AppTextStyle.bodyMedium.secondary,
           ),
-          trailing: const SdIconV2(icon: Icons.edit_outlined),
+          trailing: SdIconV2(icon: AppIconConstant.edit, size: AppIconSize.medium),
           onTap: () => _editName(context, ref),
         ),
         ListTile(
-          leading: const SdIconV2(icon: Icons.alternate_email),
+          leading: SdIconV2(icon: AppIconConstant.profileEmail, size: AppIconSize.medium),
           title: Text(l10n.accountEmail, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             // Apple only sends the email on the very first sign-in, so it can genuinely be missing.
@@ -51,7 +50,7 @@ class _ProfileSection extends ConsumerWidget {
         ),
         if (createdAt != null)
           ListTile(
-            leading: const SdIconV2(icon: Icons.event_outlined),
+            leading: SdIconV2(icon: AppIconConstant.profileCreated, size: AppIconSize.medium),
             title: Text(l10n.accountMemberSince, style: AppTextStyle.bodyLarge),
             subtitle: Text(
               DateFormat.yMMMMd(l10n.localeName).format(createdAt.toLocal()),

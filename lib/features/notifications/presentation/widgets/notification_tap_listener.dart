@@ -11,29 +11,13 @@ import '../../../medications/providers.dart';
 import '../../providers.dart';
 import '../controllers/notifications_controller.dart';
 
-/// Turns a tapped OS notification into the detail screen for the row behind
-/// it — whatever the app was doing at the time.
-///
-/// Four ways in, because a tap arrives differently depending on what the app
-/// was doing: a reminder tapped while it runs, a reminder that launched it, a
-/// pressure alert tapped from the background, and one that launched it. All
-/// four resolve to the same thing — one [AppNotification] id — so the user
-/// lands in the same place every time.
-///
-/// It wraps the app rather than living on a screen: a tap has to be caught
-/// wherever the user is, including nowhere at all yet.
+/// Turns a tapped OS notification into the detail screen for the row behind it — whatever the app was doing at the time.
 class NotificationTapListener extends HookConsumerWidget {
   const NotificationTapListener({required this.child, super.key});
 
   final Widget child;
 
   /// Resolves one tap and opens what it points at.
-  ///
-  /// Failures are swallowed on purpose: the controller has already logged
-  /// them, and there is no screen of ours to report on — a tap that leads
-  /// nowhere leaves the user where they landed, which beats an error over a
-  /// screen they did not ask for. It is also the path a widget test takes,
-  /// where [FirebaseMessaging.instance] has no app to talk to.
   Future<void> _open(WidgetRef ref, Future<String?> Function() resolve) async {
     try {
       final String? notificationId = await resolve();
@@ -73,9 +57,7 @@ class NotificationTapListener extends HookConsumerWidget {
                 unawaited(_open(ref, () => controller.pushTapTarget(message.data))),
           );
 
-      // The other half: whichever notification started the app, if any. Both
-      // are taken once — a second read would reopen the same screen on the
-      // next resume.
+      // The other half: whichever notification started the app, if any. Both are taken once — a second read would reopen the same screen on the next resume.
       unawaited(
         _open(ref, () async {
           final String? reminderId = await ref

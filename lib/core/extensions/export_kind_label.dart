@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../features/settings/domain/enums/export_kind.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../theme/app_icon_constant.dart';
 
-/// User-facing label and glyph for [ExportKind], shared by the export
-/// picker and the history rows so the two can never disagree.
+/// User-facing label and glyph for [ExportKind], shared by the export picker and the history rows so the two can never disagree.
 extension ExportKindLabel on ExportKind {
   String label(AppLocalizations l10n) => switch (this) {
     ExportKind.json => l10n.settingsExportJson,
@@ -13,8 +13,8 @@ extension ExportKindLabel on ExportKind {
   };
 
   IconData get icon => switch (this) {
-    ExportKind.json => Icons.data_object,
-    ExportKind.csv => Icons.table_chart_outlined,
-    ExportKind.pdf => Icons.picture_as_pdf_outlined,
+    ExportKind.json => AppIconConstant.exportJson,
+    ExportKind.csv => AppIconConstant.exportCsv,
+    ExportKind.pdf => AppIconConstant.exportPdf,
   };
 }

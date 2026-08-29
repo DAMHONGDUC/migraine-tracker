@@ -29,7 +29,7 @@ Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump
 [bundle exec] fastlane ios preflight
 ```
 
-Everything a release depends on except the build. Rehearse the runner with CI=true.
+Everything a release depends on except the build. flavor:dev|prod also checks the config in the tree. Rehearse the runner with CI=true.
 
 ### ios certificates
 

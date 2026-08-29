@@ -5,12 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/enums/head_region.dart';
 import 'head_region_geometry.dart';
 
-/// Everything filled on the head diagram: the unselected body, the areas the
-/// user tapped, and the lines between them. The line art on top of it is
-/// `head_front.svg` / `head_back.svg`, which carry no fill of their own.
-///
-/// Draws in [HeadRegionGeometry.designSize] units and scales the canvas once,
-/// so every number here reads against the SVGs and the geometry unchanged.
+/// Everything filled on the head diagram: the unselected body, the areas the user tapped, and the lines between them.
 class HeadRegionPainter extends CustomPainter {
   const HeadRegionPainter({required this.view, required this.selected});
 
@@ -28,9 +23,7 @@ class HeadRegionPainter extends CustomPainter {
       ..save()
       ..scale(size.width / design.width, size.height / design.height);
 
-    // The body of the head, so an untouched area still reads as a surface
-    // rather than as a hole cut in the screen. It follows the view because the
-    // neck is only part of the shape on the back, where the nape covers it.
+    // The body of the head, so an untouched area still reads as a surface rather than as a hole cut in the screen.
     canvas.drawPath(
       outline,
       Paint()..color = AppColors.surfaceElevated.withValues(alpha: 0.6),
@@ -45,8 +38,7 @@ class HeadRegionPainter extends CustomPainter {
       );
     }
 
-    // Dividers last and clipped, so they read as creases in the head rather
-    // than as lines lying across it.
+    // Dividers last and clipped, so they read as creases in the head rather than as lines lying across it.
     final Path? nose = HeadRegionGeometry.regionPath(HeadRegion.nose, view);
     final Paint stroke = Paint()
       ..style = PaintingStyle.stroke
@@ -55,9 +47,7 @@ class HeadRegionPainter extends CustomPainter {
 
     canvas
       ..save()
-      // Minus the nose: the centre line and the under-eye cut are drawn
-      // straight through it, and this erases the stretches that would cross a
-      // single area — keeping the nose out of the geometry's divider list.
+      // Minus the nose: the centre line and the under-eye cut are drawn straight through it, and this erases the stretches that would cross a single area.
       ..clipPath(
         nose == null
             ? outline
@@ -66,9 +56,7 @@ class HeadRegionPainter extends CustomPainter {
       ..drawPath(HeadRegionGeometry.dividers(view), stroke)
       ..restore();
 
-    // The nose's own outline, in the divider's colour rather than the line
-    // art's white (owner's rule): it is a boundary between areas, so it has
-    // to read as one. The SVG keeps only the thin strokes inside it.
+    // The nose's own outline, in the divider's colour rather than the line art's white (owner's rule).
     if (nose != null) {
       canvas
         ..save()

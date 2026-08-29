@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -16,7 +17,7 @@ Attack at(String id, DateTime local, {int intensity = 5}) => Attack(
 );
 
 Future<void> switchToCalendar(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.calendar_view_month));
+  await tester.tap(find.byIcon(AppIconConstant.calendarView));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -32,13 +33,13 @@ void main() {
 
     await openHistory(tester);
     // List mode: the filter chip is up top.
-    expect(find.byIcon(Icons.filter_list), findsOneWidget);
+    expect(find.byIcon(Symbols.filter_list_rounded), findsOneWidget);
 
     await switchToCalendar(tester);
 
     expect(find.byType(TableCalendar<Attack>), findsOneWidget);
     // Calendar navigates by month itself — no period filter.
-    expect(find.byIcon(Icons.filter_list), findsNothing);
+    expect(find.byIcon(Symbols.filter_list_rounded), findsNothing);
 
     await finishTest(tester);
   });
@@ -55,8 +56,7 @@ void main() {
     await openHistory(tester);
     await switchToCalendar(tester);
 
-    // The tile for today's attack (selection defaults to today). Scope the
-    // intensity to the tile — a bare "8" would also match day 8 in the grid.
+    // The tile for today's attack (selection defaults to today). Scope the intensity to the tile — a bare "8" would also match day 8 in the grid.
     expect(find.text('Left temple'), findsOneWidget);
     expect(
       find.descendant(of: find.byType(AttackTile), matching: find.text('8')),
@@ -93,12 +93,12 @@ void main() {
     expect(find.byType(AttackTile), findsOneWidget);
 
     await switchToCalendar(tester);
-    await tester.tap(find.byIcon(Icons.list_alt));
+    await tester.tap(find.byIcon(AppIconConstant.listView));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(AttackTile), findsOneWidget);
-    expect(find.byIcon(Icons.filter_list), findsOneWidget);
+    expect(find.byIcon(Symbols.filter_list_rounded), findsOneWidget);
 
     await finishTest(tester);
   });

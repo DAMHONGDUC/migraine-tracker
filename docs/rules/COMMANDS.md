@@ -37,23 +37,35 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
 
 ### `melos run prepare-env-dev` / `prepare-env-prod`
 
-Copy the real config from `env_assets/` into the five paths the build reads:
-`env/dev.json`, `env/prod.json`, `android/app/google-services.json`,
-`ios/Runner/GoogleService-Info.plist` and `ios/Runner/Info.plist`.
-`env_assets/` holds the same live keys `env/` does, so it is gitignored and a
-clone never has it.
+Copy the real config from `env_assets/` into the six paths the build, the
+backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
+`android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist`,
+`ios/Runner/Info.plist` and `functions/.env`. `env_assets/` holds the same live
+keys `env/` does, so it is gitignored and a clone never has it.
 
-- **Both `env/*.json` are written whatever the target is** — one destination
-  each, nothing to choose. The target picks only the three native files, which
-  also have one destination each: one bundle id serves both environments, so
-  there is no second path a `prod-` file could go to.
+- **Only the flavor named is installed.** Owner's rule: `prepare-env-dev`
+  writes `env/dev.json` and leaves `env/prod.json` alone, so a checkout carries
+  the keys of the environment it builds rather than both. Each flavored file has
+  one destination — one bundle id serves both environments, so there is no
+  second path a `prod-` file could go to.
+- **`ios/fastlane/.env` is the exception, written every run.** Its six
+  credentials — the match repo, its passphrase, the App Store Connect key —
+  belong to the one bundle id both environments ship under, so a `dev-`/`prod-`
+  pair would be two copies of the same secret.
+- **`<flavor>-function.env` → `functions/.env` is the backend's half**, and the
+  only destination nothing in the app reads: the Firebase CLI reads it at deploy
+  time for the `defineString` params (`WEATHERKIT_*`, `PREMIUM_EMAIL`). Copying
+  it switches nothing until `melos run deploy-firebase-<flavor>`, so the script
+  says so on the way out.
 - **`Info.plist` is in the list because of the Google sign-in URL scheme.** It
   is the reversed client id of the Firebase project this checkout points at, so
   it has to change with `GoogleService-Info.plist` or the two disagree — which
   builds cleanly and then drops the sign-in callback at runtime. Unlike the
-  other four destinations `ios/Runner/Info.plist` is **tracked**, so a
-  `prepare-env` run shows up in `git status`; that is expected, and the copy you
-  commit is the one CI builds with (CI has no `env_assets/`).
+  other five destinations `ios/Runner/Info.plist` is **tracked**, so a
+  `prepare-env` run shows up in `git status`; that is expected. CI has no
+  `env_assets/`, so it rewrites that one scheme from the
+  `GoogleService-Info.plist` it wrote from a secret rather than trusting what
+  was committed — the branch can only ever be right for one flavor.
 - **The destinations carry no `dev-`/`prod-` prefix.** Those are the paths the
   google-services gradle plugin and the Runner target's Resources phase read; a
   prefixed copy beside them is a file nothing opens, and the build fails later
@@ -160,6 +172,18 @@ archive without it is the crash above. Do not "simplify" the lane into
   certificate is minted once from a real Mac by `fastlane certificates`, because
   a runner allowed to create them burns Apple's limit of three one failed job at
   a time.
+- **The flavor is checked against the config in the tree before anything else**
+  (`verify_flavor_config`). `flavor:` selects `env/<flavor>.json` and nothing
+  more; which Firebase project the app talks to comes from the native files
+  `prepare-env` copied in, and nothing links the two — so `prepare-env-dev`
+  followed by `beta flavor:prod` uploads an app that runs perfectly and writes
+  into the wrong Firestore. The lane compares `GoogleService-Info.plist`'s
+  `PROJECT_ID` against the flavor's alias in `.firebaserc` (the same file
+  `firebase deploy` reads, so there is no second list), its `BUNDLE_ID` against
+  the app's, its `REVERSED_CLIENT_ID` against the scheme in `Info.plist`, and
+  `FIREBASE_APP_ID_IOS` against `GOOGLE_APP_ID` when it is set. Nothing here
+  opens `env/` (hard rule 13). Run it alone with `fastlane preflight
+  flavor:dev|prod`.
 - **Entitlements are checked against the installed profiles before the build**
   (`verify_profile_entitlements`). Xcode enforces the same rule but only once the
   target has compiled, so a profile minted before a capability existed costs
@@ -188,6 +212,9 @@ archive without it is the crash above. Do not "simplify" the lane into
 
 `cd ios && CI=true bundle exec fastlane preflight` — the release lane's first
 three minutes and none of the twenty-five after: API key, build number, `match`.
+Add `flavor:dev` or `flavor:prod` to check the env config in the tree as well;
+without one it is skipped rather than defaulted, so a rehearsal on a dev
+machine does not fail over a question nobody asked.
 Every credential failure this pipeline has hit surfaces here in seconds.
 
 **`CI=true` is the point** — without it the lane skips `match`, the half most

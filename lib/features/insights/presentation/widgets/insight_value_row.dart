@@ -3,8 +3,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/theme/app_text_style.dart';
 
-/// Label left, figure right. The label takes the slack so a long translation
-/// wraps instead of pushing the number off the card.
+/// Label left, figure right. The label takes the slack so a long translation wraps instead of pushing the number off the card.
 class InsightValueRow extends StatelessWidget {
   const InsightValueRow({required this.label, required this.value, super.key});
 

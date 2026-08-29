@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
+import '../theme/app_icon_constant.dart';
 import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -33,8 +34,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     _logTabView();
   }
 
-  /// Tabs are branches of an IndexedStack, so no route is pushed and the
-  /// navigator observer sees nothing — the screen view is logged here.
+  /// Tabs are branches of an IndexedStack, so no route is pushed and the navigator observer sees nothing — the screen view is logged here.
   @override
   void didUpdateWidget(AppShell oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -55,10 +55,8 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     return Scaffold(
       // - Lets branch content flow behind the floating glass bar so it refracts (hard rule 3: calm and dark).
-      // - Unconditional: the nav is always the floating pill, so the body always reaches under it.
       extendBody: true,
-      // Tells anything drawn over the app — a snackbar goes into the root
-      // overlay, above the shell — that the pill is down there to clear.
+      // Tells anything drawn over the app — a snackbar goes into the root overlay, above the shell — that the pill is down there to clear.
       body: SdFloatingBarScopeV2(child: navigationShell),
       // The log flow is a pushed route now, not a tab, so the bar always shows the tab nav (no step-progress morph mid-log).
       bottomNavigationBar: _FloatingBar(
@@ -70,28 +68,23 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
           items: [
             _NavItem(
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home,
+              icon: AppIconConstant.home,
               label: l10n.navDashboard,
             ),
             _NavItem(
-              icon: Icons.calendar_month_outlined,
-              selectedIcon: Icons.calendar_month,
+              icon: AppIconConstant.history,
               label: l10n.navHistory,
             ),
             _NavItem(
-              icon: Icons.medication_outlined,
-              selectedIcon: Icons.medication,
+              icon: AppIconConstant.medication,
               label: l10n.navMedications,
             ),
             _NavItem(
-              icon: Icons.insights_outlined,
-              selectedIcon: Icons.insights,
+              icon: AppIconConstant.insights,
               label: l10n.navInsights,
             ),
             _NavItem(
-              icon: Icons.settings_outlined,
-              selectedIcon: Icons.settings,
+              icon: AppIconConstant.settings,
               label: l10n.navSettings,
             ),
           ],
@@ -101,9 +94,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 }
 
-/// A tab bar whose highlight *slides* under the selected destination (same
-/// mechanic as the History view toggle) instead of Material's fade-in
-/// indicator. Calm 250ms ease — no flash (hard rule 3).
+/// A tab bar whose highlight *slides* under the selected destination (same mechanic as the History view toggle) instead of Material's fade-in indicator.
 class _SlidingNavBar extends StatelessWidget {
   const _SlidingNavBar({
     required this.selectedIndex,
@@ -170,14 +161,10 @@ class _SlidingNavBar extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem({
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-  });
+  const _NavItem({required this.icon, required this.label});
 
+  /// One glyph for both states.
   final IconData icon;
-  final IconData selectedIcon;
   final String label;
 }
 
@@ -207,9 +194,11 @@ class _NavSegment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: SdIconV2(
-            icon: selected ? item.selectedIcon : item.icon,
+            icon: item.icon,
             size: SdSpacingConstant.r26,
             color: color,
+            // Solid when selected, outline when not — colour is never the only signal (hard rule 3), and this is the second one.
+            fill: selected ? 1 : 0,
           ),
         ),
       ),
@@ -217,25 +206,11 @@ class _NavSegment extends StatelessWidget {
   }
 }
 
-/// Wraps a bottom bar in the floating frosted-glass treatment: side margins so
-/// it "lifts" off the edges, rounded glass, and
-/// [SdContentPaddingV2.navBarOffset] below it — the home indicator where there
-/// is one, a flat 16 where there is none — with the child's own bottom inset
-/// removed so nothing re-adds the safe area inside. Applied
-/// unconditionally — the nav pill is the one surface that stays glass even
-/// where [SdGlassV2.isSupported] is false, because its floating geometry is
-/// layout the tab screens already pad for; the renderer degrades the surface
-/// itself to `FakeGlass` there.
-///
-/// Any tap on the bar plays a little overshoot pop ([SdPopScaleV2], the same
-/// feedback the app bar's buttons use) — smaller here, and anchored to the
-/// bottom edge so the pill grows upward off the line it rests on. The scale is
-/// paint-only, so the layout slot and body insets never move.
+/// Wraps a bottom bar in the floating frosted-glass treatment.
 class _FloatingBar extends StatelessWidget {
   const _FloatingBar({required this.child});
 
-  /// Barely there: this is a wide surface, and the same 18% the small icons
-  /// pop by would read as the whole bar lurching.
+  /// Barely there: this is a wide surface, and the same 18% the small icons pop by would read as the whole bar lurching.
   static const double _popPeakScale = 1.02;
 
   final Widget child;

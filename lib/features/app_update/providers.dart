@@ -24,8 +24,7 @@ final storeLauncherProvider = Provider<StoreLauncher>(
   (ref) => const UrlStoreLauncher(),
 );
 
-/// Null anywhere the update record has no section for (desktop, web) —
-/// nothing to compare, nothing to block.
+/// Null anywhere the update record has no section for (desktop, web) — nothing to compare, nothing to block.
 final currentAppPlatformProvider = Provider<AppPlatform?>(
   (ref) => switch (defaultTargetPlatform) {
     TargetPlatform.android => AppPlatform.android,
@@ -34,8 +33,7 @@ final currentAppPlatformProvider = Provider<AppPlatform?>(
   },
 );
 
-/// Build number 0 when it can't be parsed — the checker reads that as
-/// "unknown" and blocks nobody.
+/// Build number 0 when it can't be parsed — the checker reads that as "unknown" and blocks nobody.
 final installedAppVersionProvider = FutureProvider<InstalledAppVersion>((
   ref,
 ) async {

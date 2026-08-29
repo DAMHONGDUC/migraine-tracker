@@ -1,24 +1,10 @@
 part of 'pressure_card.dart';
 
 /// The pressure alert, set from the pressure card itself.
-///
-/// **It lives with the forecast it acts on.** It sat on the weather card
-/// first, which put the threshold next to readings it has nothing to do with;
-/// pressure is its subject, so it belongs under the pressure line. There is
-/// no detail screen behind it any more — this IS where alerts are set.
-///
-/// **Without premium neither control is built at all** (owner's call). They
-/// were shown inert first, on the theory that a locked control still says
-/// what it would do; a switch that will not switch and a threshold that will
-/// not open read as a broken card rather than as an offer. A free user gets
-/// the pitch and one Unlock button, which is the same shape `PremiumGate`
-/// uses everywhere else — and the same rule holds, that the locked branch
-/// never builds the premium branch.
 class _AlertControls extends ConsumerStatefulWidget {
   const _AlertControls();
 
-  /// How long the row stays lit after being scrolled to. Long enough to find
-  /// with the eye, short enough not to become part of the design.
+  /// How long the row stays lit after being scrolled to. Long enough to find with the eye, short enough not to become part of the design.
   static const Duration highlightHold = Duration(milliseconds: 1800);
 
   @override
@@ -26,8 +12,7 @@ class _AlertControls extends ConsumerStatefulWidget {
 }
 
 class _AlertControlsState extends ConsumerState<_AlertControls> {
-  /// Anchors `Scrollable.ensureVisible` on the switch row itself, not on the
-  /// section — the section's top is already on screen when the card is.
+  /// Anchors `Scrollable.ensureVisible` on the switch row itself, not on the section — the section's top is already on screen when the card is.
   final GlobalKey _rowKey = GlobalKey();
   Timer? _fade;
   bool _lit = false;
@@ -39,10 +24,6 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
   }
 
   /// Consumes the pending request, scrolls the row up and lights it.
-  ///
-  /// Runs after the frame: it is triggered from `build`, and both the scroll
-  /// and the provider write are things a build must not do while it is
-  /// running.
   void _reveal() {
     if (!mounted) return;
 
@@ -55,8 +36,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
         row,
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
-        // Centred rather than merely on-screen: the row is the last thing on
-        // a tall card, so "just visible" leaves it against the bottom edge.
+        // Centred rather than merely on-screen: the row is the last thing on a tall card, so "just visible" leaves it against the bottom edge.
         alignment: 0.5,
       );
     }
@@ -99,9 +79,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    // Watched, not listened to: the request is usually set before this card
-    // is built at all, so a listener would be subscribing to something that
-    // has already fired.
+    // Watched, not listened to: the request is usually set before this card is built at all, so a listener would be subscribing to something that has.
     if (ref.watch(pressureAlertHighlightProvider)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
     }
@@ -127,9 +105,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // No section heading: it said "Pressure-drop alerts" directly above a
-        // row whose title said the same thing.
-        // A tint that fades in and back out — calm, no flash (hard rule 3).
+        // No section heading: it said "Pressure-drop alerts" directly above a row whose title said the same thing.
         AnimatedContainer(
           key: _rowKey,
           duration: const Duration(milliseconds: 300),
@@ -141,12 +117,10 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
             borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
           child: _AlertRow(
-            icon: Icons.notifications_active_outlined,
+            icon: AppIconConstant.reminderActive,
             title: l10n.alertsToggleTitle,
             trailing: Switch(
-              // Without this the switch brings Material's 48pt tap target
-              // with it, which makes its row taller than the threshold row
-              // and leaves the divider sitting closer to one than the other.
+              // Without this the switch brings Material's 48pt tap target with it,.
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               value: settings.enabled,
               onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
@@ -155,12 +129,10 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
         ),
         const SdDividerV2(),
         _AlertRow(
-          icon: Icons.compress,
+          icon: AppIconConstant.pressure,
           title: l10n.alertsThresholdTitle,
           onTap: () => _pickThreshold(context, ref, threshold),
-          // The value, then the chevron that says it can be changed. Without
-          // the glyph the row reads as a readout, and nothing else on it
-          // suggests a sheet is one tap away.
+          // The value, then the chevron that says it can be changed.
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -170,8 +142,8 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
               ),
               SizedBox(width: SdSpacingConstant.w4),
               SdIconV2(
-                icon: Icons.chevron_right,
-                size: SdSpacingConstant.r20,
+                icon: AppIconConstant.disclosure,
+                size: AppIconSize.small,
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ],
@@ -189,12 +161,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
   }
 }
 
-/// One alert setting: glyph and name on the left, whatever changes it on the
-/// right.
-///
-/// Both rows share it so the switch and the threshold line up on the same two
-/// edges — a `SwitchListTile` beside a `ListTile` put their titles at
-/// different insets and their controls at different heights.
+/// One alert setting: glyph and name on the left, whatever changes it on the right.
 class _AlertRow extends StatelessWidget {
   const _AlertRow({
     required this.icon,
@@ -209,22 +176,15 @@ class _AlertRow extends StatelessWidget {
   final String title;
   final Widget trailing;
 
-  /// Null for a row whose control is the whole interaction — tapping the
-  /// label of a switch row would be a second, invisible way to toggle it.
+  /// Null for a row whose control is the whole interaction — tapping the label of a switch row would be a second, invisible way to toggle it.
   final VoidCallback? onTap;
 
   /// Both rows are exactly this tall, whatever they hold.
-  ///
-  /// A switch and a line of text are different heights, so without a floor
-  /// the two rows differ and the divider between them sits closer to one than
-  /// the other. It is also the minimum a row carrying a control may be.
   static double get height => SdSpacingConstant.h44;
 
   @override
   Widget build(BuildContext context) {
-    // ConstrainedBox, not a Container with an `alignment`: that one sizes
-    // through Align, whose height under an unbounded parent depends on its
-    // child. This states the floor and lets the Row centre inside it.
+    // ConstrainedBox, not a Container with an `alignment`: that one sizes through Align, whose height under an unbounded parent depends on its child.
     final Widget row = ConstrainedBox(
       constraints: BoxConstraints(minHeight: height),
       child: Padding(
@@ -233,7 +193,7 @@ class _AlertRow extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.medium,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

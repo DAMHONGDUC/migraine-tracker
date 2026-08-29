@@ -133,8 +133,7 @@ void main() {
   );
 
   test('updateDetails leaves the exertion answer alone', () async {
-    // The details sheet does not show exertion any more, so saving it must
-    // not blank an answer the log flow's fourth step recorded.
+    // The details sheet does not show exertion any more, so saving it must not blank an answer the log flow's fourth step recorded.
     await repository.insert(fullAttack());
 
     await repository.updateDetails(

@@ -209,14 +209,12 @@ line in with what was sent, a line out with what came back.
 
 ## Comments
 
-- **Short and plain.** One or two lines. Say *why*, not what the code already
-  says, in the fewest words that still land.
-- **Multi-point comments are bullet lists**, one `//` line per point, each
-  starting with `-`. No run-on `// does X, and also Y, but watch out for Z`. A
-  single-point comment stays one plain line, no dash.
-- **Never more than 3 lines.** A 4th means the comment is doing too much: cut to
-  the one reason that matters, or move the design rationale into the `///` doc
-  comment of the function or class.
+- **Every comment occupies one physical line**, including `//`, `///` and block
+  comments. Keep it short, clear and complete; a reader should understand the
+  reason without joining fragments across lines. If the full reason does not fit
+  clearly on one line, move it to the relevant rule or decision document.
+- **Say why, never what the code already says.** Repeating the implementation
+  makes the comment longer and lets it drift out of date.
 
 ## Navigation
 

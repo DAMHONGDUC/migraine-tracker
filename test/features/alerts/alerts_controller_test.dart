@@ -12,8 +12,7 @@ import '../../helpers/alert_fakes.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  /// Prefs are the source of truth for the UI, so every case starts from a
-  /// stored state and asserts what ended up back in prefs.
+  /// Prefs are the source of truth for the UI, so every case starts from a stored state and asserts what ended up back in prefs.
   Future<ProviderContainer> containerWith({
     Map<String, Object> stored = const <String, Object>{},
     RecordingAlertRegistration? registration,
@@ -105,9 +104,7 @@ void main() {
       expect(prefs.getBool(PrefsKeyConstant.alertsEnabled), isFalse);
     });
 
-    // A registration that failed must not leave prefs saying alerts are on:
-    // the toggle would come back on next launch pointing at a server that
-    // has no token for this device.
+    // A registration that failed must not leave prefs saying alerts are on.
     test(
       'a failed registration surfaces as an error and persists nothing',
       () async {
@@ -158,8 +155,7 @@ void main() {
       );
     });
 
-    // Nothing is registered while alerts are off, so there is no server
-    // record to update — the value is kept for the next time they go on.
+    // Nothing is registered while alerts are off, so there is no server record to update — the value is kept for the next time they go on.
     test('persists without touching the server while alerts are off', () async {
       final RecordingAlertRegistration registration =
           RecordingAlertRegistration();

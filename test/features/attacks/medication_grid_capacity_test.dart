@@ -5,8 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// Adds [count] medications straight to the database, named so their
-/// alphabetical order is predictable.
+/// Adds [count] medications straight to the database, named so their alphabetical order is predictable.
 Future<void> _seedMedications(AppDatabase db, int count) async {
   const uuid = Uuid();
   for (var i = 0; i < count; i++) {
@@ -21,8 +20,7 @@ Future<void> _seedMedications(AppDatabase db, int count) async {
   }
 }
 
-/// Opens the log flow from the dashboard, walks intensity → location →
-/// medication, and stops on the medication step.
+/// Opens the log flow from the dashboard, walks intensity → location → medication, and stops on the medication step.
 Future<void> _toMedicationStep(WidgetTester tester) async {
   await openLog(tester);
   await tester.tap(find.text('7'));
@@ -37,8 +35,7 @@ Future<void> _toMedicationStep(WidgetTester tester) async {
 }
 
 void main() {
-  // - the grid exists so a scrolling list never costs time mid-attack
-  // - at the 393×852 design size it holds 16 medications plus its fixed first row — guard against that quietly shrinking
+  // - the grid exists so a scrolling list never costs time mid-attack.
   testWidgets('grid holds a realistic medication list without scrolling', (
     tester,
   ) async {
@@ -85,8 +82,7 @@ void main() {
     await _seedMedications(app.db, 12);
     await _toMedicationStep(tester);
 
-    // "No medication" then "Add a medication" occupy row 1, above every
-    // saved medication.
+    // "No medication" then "Add a medication" occupy row 1, above every saved medication.
     final noneY = tester.getTopLeft(find.text('No medication')).dy;
     final addY = tester.getTopLeft(find.text('Add a medication')).dy;
     final firstMedY = tester.getTopLeft(find.text('Medication 00')).dy;

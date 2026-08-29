@@ -7,6 +7,8 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
@@ -18,12 +20,7 @@ part 'onboarding_screen_page_scaffold.dart';
 part 'onboarding_screen_threshold_page.dart';
 part 'onboarding_screen_welcome_page.dart';
 
-/// Three calm pages: welcome + medical disclaimer (hard rule 10), the location
-/// permission explainer (hard rule 2), and threshold setup.
-///
-/// What the app does is not a page any more — the last step offers it as a
-/// sheet, so the nine-row feature list is there for whoever asks and out of
-/// the way of everyone else.
+/// Three calm pages: welcome + medical disclaimer (hard rule 10), the location permission explainer (hard rule 2), and threshold setup.
 class OnboardingScreen extends HookConsumerWidget {
   const OnboardingScreen({super.key});
 
@@ -44,9 +41,7 @@ class OnboardingScreen extends HookConsumerWidget {
 
     Future<void> finish() async {
       await controller.complete(thresholdHpa: threshold.value);
-      // Asked here rather than on a page of its own: the user has just set a
-      // threshold, so what the notification is for is as clear as it gets.
-      // Awaited, so the dashboard does not slide in under the OS dialog.
+      // Asked here rather than on a page of its own: the user has just set a threshold, so what the notification is for is as clear as it gets.
       await controller.requestNotifications();
 
       if (context.mounted) context.goNamed(AppRoutes.dashboard.name);
@@ -87,20 +82,19 @@ class OnboardingScreen extends HookConsumerWidget {
                       label: l10n.onboardingContinue,
                     ),
                   ],
+                  // One button, reading "Continue", and the OS prompt always follows it.
                   1 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       onPressed: () async {
-                        await controller.requestLocation();
+                        try {
+                          await controller.requestLocation();
+                        } catch (_) {
+                          // Logged by the controller.
+                        }
                         await next();
                       },
-                      label: l10n.onboardingLocationAllow,
-                    ),
-                    SizedBox(height: SdSpacingConstant.h8),
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.outlined,
-                      onPressed: next,
-                      label: l10n.onboardingNotNow,
+                      label: l10n.onboardingContinue,
                     ),
                   ],
                   _ => [

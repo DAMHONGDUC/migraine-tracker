@@ -24,14 +24,6 @@
   "@onboardingLocationBody": {
     "description": "Onboarding page 2 body explaining the location permission"
   },
-  "onboardingLocationAllow": "Enable location",
-  "@onboardingLocationAllow": {
-    "description": "Primary button that triggers the location permission prompt"
-  },
-  "onboardingNotNow": "Not now",
-  "@onboardingNotNow": {
-    "description": "Secondary button to skip the location permission"
-  },
   "onboardingThresholdTitle": "When should we warn you?",
   "@onboardingThresholdTitle": {
     "description": "Onboarding page 3 headline (alert threshold)"
@@ -127,7 +119,7 @@
   "@appFeatureAlertsBody": {
     "description": "Premium feature: pressure alerts, detail"
   },
-  "appFeatureForecastTitle": "48-hour pressure forecast",
+  "appFeatureForecastTitle": "7-day pressure forecast",
   "@appFeatureForecastTitle": {
     "description": "Premium feature: pressure forecast"
   },
@@ -530,6 +522,42 @@
   "@attackDetailDuration": {
     "description": "Field label: how long the attack lasted"
   },
+  "attackDetailAura": "Aura",
+  "@attackDetailAura": {
+    "description": "Field label on the attack detail screen: the aura kinds reported"
+  },
+  "auraSheetTitle": "Did you have an aura?",
+  "@auraSheetTitle": {
+    "description": "Title of the sheet recording which auras an attack came with"
+  },
+  "auraSheetHint": "An aura usually starts before the pain and fades within an hour.",
+  "@auraSheetHint": {
+    "description": "One line explaining what an aura is, for users who do not know the word"
+  },
+  "auraNotRecorded": "Not recorded",
+  "@auraNotRecorded": {
+    "description": "Value and clear action when the aura question was never answered — distinct from a recorded \"no aura\""
+  },
+  "auraNone": "No aura",
+  "@auraNone": {
+    "description": "The user answering that this attack came with no aura at all"
+  },
+  "auraVisual": "Visual",
+  "@auraVisual": {
+    "description": "Aura kind: zigzags, blind spots, flashing lights"
+  },
+  "auraSensory": "Numbness or tingling",
+  "@auraSensory": {
+    "description": "Aura kind: pins and needles or numbness, usually spreading up one side"
+  },
+  "auraSpeech": "Trouble speaking",
+  "@auraSpeech": {
+    "description": "Aura kind: trouble finding or forming words"
+  },
+  "auraMotor": "Weakness on one side",
+  "@auraMotor": {
+    "description": "Aura kind: weakness down one side"
+  },
   "attackDurationNotRecorded": "Not recorded",
   "@attackDurationNotRecorded": {
     "description": "Value shown when no end time was ever given for an attack"
@@ -580,6 +608,22 @@
   "@reportTypicalDuration": {
     "description": "Doctor report summary row: the median attack duration"
   },
+  "reportMonthlyDays": "Migraine days per month",
+  "@reportMonthlyDays": {
+    "description": "Doctor report summary row: distinct days with at least one attack, per month"
+  },
+  "reportAura": "Attacks with aura",
+  "@reportAura": {
+    "description": "Doctor report summary row: how many answered attacks came with an aura, and which kinds"
+  },
+  "reportMedicationDays": "Acute medication days per month",
+  "@reportMedicationDays": {
+    "description": "Doctor report summary row: distinct days per month on which acute medication was taken — the denominator behind medication-overuse headache"
+  },
+  "reportMedicationOveruse": "Medication overuse (ICHD-3)",
+  "@reportMedicationOveruse": {
+    "description": "Doctor report summary row, shown only when a month reaches the ICHD-3 intake threshold"
+  },
   "attackDetailMedicationEffect": "Did it help?",
   "@attackDetailMedicationEffect": {
     "description": "Field label: whether the medication taken helped"
@@ -623,6 +667,71 @@
   "medicationEffectNoAnswers": "No outcomes recorded yet. Open an attack you took this for and say whether it helped.",
   "@medicationEffectNoAnswers": {
     "description": "Shown on a medication screen when no attack has an outcome for it"
+  },
+  "medicationOveruseTitle": "{days, plural, =1{1 day with medication this month} other{{days} days with medication this month}}",
+  "@medicationOveruseTitle": {
+    "description": "Headline of the medication-overuse warning: distinct days this month on which any acute medication was recorded",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseApproaching": "At {threshold} days a month, acute medication can start causing the headaches it treats.",
+  "@medicationOveruseApproaching": {
+    "description": "Medication-overuse warning while the month is still steerable, below the ICHD-3 threshold",
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseAtRisk": "That is at or over {threshold} days a month. Taken this often, acute medication can start causing the headaches it treats.",
+  "@medicationOveruseAtRisk": {
+    "description": "Medication-overuse warning at or over the ICHD-3 threshold. Never phrased as a diagnosis",
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationOveruseSustained": "{months, plural, other{{months} months running. Worth showing your doctor.}}",
+  "@medicationOveruseSustained": {
+    "description": "Added when the threshold has been passed several months running, which is the pattern ICHD-3 describes",
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationEffectReliefShare": "Relief {percent}% of the time",
+  "@medicationEffectReliefShare": {
+    "description": "How often a medication gave any relief, full or partial",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationEffectTypicalIntensity": "Usually taken at {intensity}/10",
+  "@medicationEffectTypicalIntensity": {
+    "description": "Median intensity of the attacks a medication was taken for, so two medications are not compared across different severities",
+    "placeholders": {
+      "intensity": {
+        "type": "String",
+        "example": "6"
+      }
+    }
+  },
+  "medicationEffectTypicalDuration": "Those attacks usually lasted {duration}",
+  "@medicationEffectTypicalDuration": {
+    "description": "Median length of the attacks a medication was taken for",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "4h 20m"
+      }
+    }
   },
   "reportColMedicationEffect": "Helped",
   "@reportColMedicationEffect": {
@@ -684,6 +793,30 @@
   "@attackDetailDeleteBody": {
     "description": "Body of the single-attack delete confirmation"
   },
+  "attackShareTitle": "Share this attack",
+  "@attackShareTitle": {
+    "description": "Title of the sheet that previews the shareable attack card"
+  },
+  "attackShareAction": "Share",
+  "@attackShareAction": {
+    "description": "Button that hands the rendered card to the system share sheet"
+  },
+  "attackShareHeadline": "Migraine attack",
+  "@attackShareHeadline": {
+    "description": "Headline printed on the shareable card image"
+  },
+  "attackShareStarted": "Started",
+  "@attackShareStarted": {
+    "description": "Label on the shareable card for when the attack began"
+  },
+  "attackSharePrivacy": "Only what you see here is shared — no notes, no location.",
+  "@attackSharePrivacy": {
+    "description": "Reassurance under the preview: the card carries only the fields shown, never notes or location"
+  },
+  "attackShareFailed": "Could not create the image.",
+  "@attackShareFailed": {
+    "description": "Error shown when the card could not be rendered to an image"
+  },
   "historyEmpty": "No attacks logged yet.",
   "@historyEmpty": {
     "description": "Empty state on the history screen"
@@ -695,6 +828,73 @@
   "insightsPressureTitle": "Pressure",
   "@insightsPressureTitle": {
     "description": "Title of the combined pressure card on Insights, which opens the pressure detail screen"
+  },
+  "insightsPressureHistoryTitle": "Your attacks on the pressure line",
+  "@insightsPressureHistoryTitle": {
+    "description": "Heading of the chart that draws the last 30 days of pressure with the user’s attacks marked on it"
+  },
+  "insightsPressureHistoryEmpty": "No pressure readings yet. Open the app on a few more days and the line fills in.",
+  "@insightsPressureHistoryEmpty": {
+    "description": "Shown when no daily pressure readings have been recorded yet"
+  },
+  "insightsPressureHistoryStranded": "{count, plural, =1{1 attack is not marked — no pressure reading that day} other{{count} attacks are not marked — no pressure reading on those days}}",
+  "@insightsPressureHistoryStranded": {
+    "description": "Footnote: attacks inside the window that fall on days with no pressure reading, so they could not be plotted",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsPressureHistoryYoung": "Daily pressure readings started recently, so earlier attacks are not marked yet.",
+  "@insightsPressureHistoryYoung": {
+    "description": "Replaces the stranded-attack count when more attacks are missing from the chart than are on it — the normal state for a user whose history predates the daily pressure readings"
+  },
+  "a11yPressureHistoryChart": "Pressure over the last {days} days, with {attacks} attacks marked on it.",
+  "@a11yPressureHistoryChart": {
+    "description": "VoiceOver description of the pressure history chart — chart pixels mean nothing to a screen reader",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "attacks": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsVerdictPending": "Not enough logged yet to say whether weather is your trigger — {analyzed} of {required} attacks.",
+  "@insightsVerdictPending": {
+    "description": "The trigger verdict while no factor has settled. Deliberately not a verdict of \"no\"",
+    "placeholders": {
+      "analyzed": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "insightsVerdictWeatherYes": "Weather does look like a trigger for you.",
+  "@insightsVerdictWeatherYes": {
+    "description": "Trigger verdict: pressure drops really do raise this user’s attack rate"
+  },
+  "insightsVerdictWeatherNo": "Pressure drops do not look like your trigger.",
+  "@insightsVerdictWeatherNo": {
+    "description": "Trigger verdict: pressure has settled and does not raise this user’s attack rate. The app is allowed to say no"
+  },
+  "insightsVerdictAlternative": "{factor} shows the strongest pattern in your logs.",
+  "@insightsVerdictAlternative": {
+    "description": "Names the factor with the widest gap between attack days and quiet days",
+    "placeholders": {
+      "factor": {
+        "type": "String",
+        "example": "Sleep"
+      }
+    }
+  },
+  "insightsVerdictNoPattern": "Nothing in your logs stands out as a clear trigger yet.",
+  "@insightsVerdictNoPattern": {
+    "description": "Shown when factors have settled but none of them shows a meaningful gap"
   },
   "pressureScreenTitle": "Pressure",
   "@pressureScreenTitle": {
@@ -797,7 +997,7 @@
       }
     }
   },
-  "insightsForecastTitle": "48h pressure forecast",
+  "insightsForecastTitle": "7-day pressure forecast",
   "@insightsForecastTitle": {
     "description": "Title of the pressure forecast line chart card"
   },
@@ -1085,7 +1285,7 @@
   "@premiumUnlock": {
     "description": "CTA on a locked premium surface, opens the paywall"
   },
-  "premiumLockedForecast": "See the pressure forecast 48 hours ahead, so you can plan around it.",
+  "premiumLockedForecast": "See the pressure a week ahead, so you can plan around it.",
   "@premiumLockedForecast": {
     "description": "Locked-state copy on the forecast card"
   },
@@ -1267,7 +1467,7 @@
   "@paywallBenefitAlertsBody": {
     "description": "Paywall benefit detail: push alerts"
   },
-  "paywallBenefitForecast": "48h pressure forecast",
+  "paywallBenefitForecast": "7-day pressure forecast",
   "@paywallBenefitForecast": {
     "description": "Paywall benefit: forecast chart"
   },
@@ -1310,10 +1510,6 @@
   "paywallPlanYearly": "Yearly",
   "@paywallPlanYearly": {
     "description": "Paywall plan row title for the annual subscription"
-  },
-  "paywallPlanLifetime": "Lifetime",
-  "@paywallPlanLifetime": {
-    "description": "Paywall plan row title for the one-time lifetime purchase"
   },
   "paywallPlanTrial": "{days}-day free trial",
   "@paywallPlanTrial": {
@@ -1985,7 +2181,7 @@
       }
     }
   },
-  "a11yForecastChart": "Pressure chart, past 12 hours and next 48 hours. Now {now} hPa, lowest ahead {min} hPa.",
+  "a11yForecastChart": "Pressure chart, past 12 hours and the next 7 days. Now {now} hPa, lowest ahead {min} hPa.",
   "@a11yForecastChart": {
     "description": "VoiceOver summary of the pressure forecast line chart",
     "placeholders": {
@@ -2126,6 +2322,45 @@
   "@dashboardWeekEmpty": {
     "description": "Stands in for the trend line on the dashboard week card when neither this week nor last week has an attack, so there is no trend to state"
   },
+  "dashboardThisMonth": "This month",
+  "@dashboardThisMonth": {
+    "description": "Caption on the dashboard card counting this month’s migraine days"
+  },
+  "dashboardMigraineDaysLabel": "{count, plural, =1{migraine day} other{migraine days}}",
+  "@dashboardMigraineDaysLabel": {
+    "description": "Unit beside the migraine-day count on the dashboard",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendUp": "{count, plural, =1{1 more than last month} other{{count} more than last month}}",
+  "@dashboardMonthTrendUp": {
+    "description": "Month-on-month trend: more migraine days than last month",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendDown": "{count, plural, =1{1 fewer than last month} other{{count} fewer than last month}}",
+  "@dashboardMonthTrendDown": {
+    "description": "Month-on-month trend: fewer migraine days than last month",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMonthTrendSame": "Same as last month",
+  "@dashboardMonthTrendSame": {
+    "description": "Month-on-month trend: the same number of migraine days"
+  },
+  "dashboardMonthPartial": "This month is still running",
+  "@dashboardMonthPartial": {
+    "description": "Caveat beside the month-on-month trend: the current month is not over, so it compares a partial month against a whole one"
+  },
   "dashboardSeverityEmpty": "The split appears after your first log.",
   "@dashboardSeverityEmpty": {
     "description": "Sits under the band names on the dashboard severity card before any attack exists, where the ring shows the scale rather than a reading"
@@ -2143,7 +2378,7 @@
   "@dashboardPremiumTitle": {
     "description": "Title of the premium promo card on the dashboard"
   },
-  "dashboardPremiumBody": "Pressure alerts, the 48h forecast chart, and your trigger analysis.",
+  "dashboardPremiumBody": "Pressure alerts, the 7-day forecast chart, and your trigger analysis.",
   "@dashboardPremiumBody": {
     "description": "Body of the premium promo card on the dashboard"
   },
@@ -2309,13 +2544,9 @@
   "@settingsSignOutConfirmBody": {
     "description": "Body of the sign-out confirmation dialog"
   },
-  "paywallSignInFirst": "Sign in to continue",
-  "@paywallSignInFirst": {
-    "description": "Paywall CTA shown to a signed-out user, opens the login screen"
-  },
-  "paywallWhySignIn": "Premium needs an account so your subscription can follow you.",
+  "paywallWhySignIn": "Sign in to use Premium on your other devices",
   "@paywallWhySignIn": {
-    "description": "Line under the paywall CTA explaining why signing in comes first"
+    "description": "Optional sign-in link under the paywall CTA: an account carries the subscription to the user's other devices"
   },
   "settingsSectionGeneral": "General",
   "@settingsSectionGeneral": {
@@ -2746,9 +2977,9 @@
   "@weatherLocationOffBody": {
     "description": "Weather card copy shown when location permission has not been granted"
   },
-  "weatherLocationOffAction": "Enable location",
+  "weatherLocationOffAction": "Continue",
   "@weatherLocationOffAction": {
-    "description": "Button on the weather card that raises the location permission prompt"
+    "description": "Button on the weather card that raises the location permission prompt (App Store 5.1.1(iv): neutral wording, never 'Enable location')"
   },
   "weatherA11yPlace": "Location: {place}",
   "weatherA11yDetail": "Weather details",

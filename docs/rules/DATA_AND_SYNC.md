@@ -72,3 +72,33 @@ column named type`. **"Unshipped" means no database anywhere has run it, and
 your own simulator counts.** v9 exists purely to undo this, and it *recreates*
 the table rather than renaming a column: nothing records what the intermediate
 v8 looked like, and a drop works whatever it was.
+
+## A recreated table poisons every migration after it
+
+`v13` drops `attacks.location` the only way SQLite allows: `m.alterTable(
+TableMigration(attacks))`, which **rebuilds the table from TODAY's
+definition**, not from v13's. That definition keeps growing, and every column
+added after v13 pays for it twice.
+
+- **Name it in v13's `newColumns`.** Otherwise drift writes
+  `INSERT INTO tmp SELECT …, "aura", … FROM attacks` against an old table that
+  has no such column, and the whole migration dies on `no such column`.
+- **Guard its own step on `from >= 13`.** A database coming from v12 or below
+  arrives at v14/v15 with the column already created by the rebuild, and
+  `ADD COLUMN` dies on a duplicate. Only a database that was *already* at 13
+  or later needs the `ADD COLUMN`.
+
+Both were live when this was found: `steps` (v14) shipped with neither, so a
+migration from v12 or below was broken for anyone who had not already run
+v13. It went unnoticed because **the migration suite itself was red** — its
+guard still asserted schema 12 while the database was at 14, so nobody's v13
+or v14 step had ever been exercised.
+
+- **The guard test is `test('database is at schema version N')`, and bumping
+  the schema means bumping it in the same change.** It exists to fail loudly;
+  a stale one fails quietly and takes the rest of the file with it.
+- **Dump the schema in the same change too** (`dart run drift_dev schema dump
+  lib/core/db/app_database.dart drift_schemas/`, then `schema generate
+  drift_schemas/ test/db_migration/generated/`). v13 and v14 have no dump and
+  never will — the code that produced them is gone — so no test can ever
+  `startAt(13)` or `startAt(14)`.

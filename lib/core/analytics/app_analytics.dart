@@ -7,20 +7,6 @@ import 'package:system_design/common.dart';
 import '../../core/constants/log_tag_constant.dart';
 
 /// The single place the app talks to Firebase Analytics.
-///
-/// Every event is a typed method here — feature code never types an event
-/// name or a parameter key, so the whole inventory of what we send is this
-/// one file, reviewable in one read.
-///
-/// PRIVACY (hard rule 1): analytics carries *usage* only, never health data.
-/// No attack intensity, no head location, no medication names, no attack
-/// timestamps, no coordinates — ever, not even hashed. Counts and enum-ish
-/// labels (which step, which export format) are fine; the values a user
-/// logged are not. If a new event needs one of those, the answer is no.
-///
-/// Silent until [init] runs (it is only called from `main`), so widget tests
-/// and any pre-Firebase code path are automatic no-ops rather than crashes.
-/// Every call is fire-and-forget: a failed log must never break a user flow.
 abstract final class AppAnalytics {
   // --- Event names (Firebase: snake_case, ≤40 chars). ---
   static const String _appOpen = 'app_open';
@@ -29,6 +15,7 @@ abstract final class AppAnalytics {
   static const String _attackLogged = 'attack_logged';
   static const String _attackEdited = 'attack_edited';
   static const String _attackDeleted = 'attack_deleted';
+  static const String _attackShared = 'attack_shared';
   static const String _medicationAdded = 'medication_added';
   static const String _medicationRenamed = 'medication_renamed';
   static const String _medicationDeleted = 'medication_deleted';
@@ -78,8 +65,7 @@ abstract final class AppAnalytics {
   static const String _upPremium = 'is_premium';
   static const String _upAlertsEnabled = 'alerts_enabled';
 
-  /// Null until [init] — the no-op switch, and also what keeps this file
-  /// importable from tests that never boot Firebase.
+  /// Null until [init] — the no-op switch, and also what keeps this file importable from tests that never boot Firebase.
   static FirebaseAnalytics? _analytics;
 
   static bool get isReady => _analytics != null;
@@ -93,9 +79,7 @@ abstract final class AppAnalytics {
     logAppOpen();
   }
 
-  /// Feeds `screen_view` for pushed routes automatically. Empty before
-  /// [init] so the router builds fine in tests. Tab switches inside the
-  /// shell never push a route — [logScreenView] covers those.
+  /// Feeds `screen_view` for pushed routes automatically.
   static List<NavigatorObserver> get navigatorObservers {
     final FirebaseAnalytics? analytics = _analytics;
 
@@ -103,17 +87,14 @@ abstract final class AppAnalytics {
     return <NavigatorObserver>[FirebaseAnalyticsObserver(analytics: analytics)];
   }
 
-  /// The kill switch behind a future "share usage data" setting. Also stops
-  /// the SDK from collecting anything at all, not just our events.
+  /// The kill switch behind a future "share usage data" setting. Also stops the SDK from collecting anything at all, not just our events.
   static void setCollectionEnabled(bool enabled) {
     unawaited(_analytics?.setAnalyticsCollectionEnabled(enabled));
   }
 
   // --- Identity / cohorts ---------------------------------------------
 
-  /// [uid] is the Firebase Auth UID (opaque, not an email) or null when
-  /// signed out. Anonymous users get a UID too — that is the point: the
-  /// account-optional flow still needs to be measurable.
+  /// [uid] is the Firebase Auth UID (opaque, not an email) or null when signed out.
   static void setUser({required String? uid, required bool signedIn}) {
     unawaited(_analytics?.setUserId(id: uid));
     _setUserProperty(_upSignedIn, signedIn.toString());
@@ -127,8 +108,7 @@ abstract final class AppAnalytics {
 
   // --- Screens ---------------------------------------------------------
 
-  /// For screens no navigator observer sees: the five shell tabs, which are
-  /// branches of an IndexedStack rather than pushed routes.
+  /// For screens no navigator observer sees: the five shell tabs, which are branches of an IndexedStack rather than pushed routes.
   static void logScreenView(String screenName) {
     unawaited(
       _guard(
@@ -149,31 +129,30 @@ abstract final class AppAnalytics {
 
   // --- The 3-tap log flow (funnel) -------------------------------------
 
-  /// [step] is the flow step reached (`intensity`, `location`, …) — the
-  /// drop-off funnel for the sacred flow. The picked *values* stay local.
+  /// [step] is the flow step reached (`intensity`, `location`, …) — the drop-off funnel for the sacred flow. The picked *values* stay local.
   static void logLogFlowStep(String step) =>
       _log(_logFlowStep, <String, Object>{_pStep: step});
 
-  /// Deliberately parameterless: intensity, head location and medication
-  /// are health data (see the privacy note above).
+  /// Deliberately parameterless: intensity, head location and medication are health data (see the privacy note above).
   static void logAttackLogged() => _log(_attackLogged);
 
   static void logAttackEdited() => _log(_attackEdited);
 
   static void logAttackDeleted() => _log(_attackDeleted);
 
+  /// The card only; hard rule 1 still holds, so no intensity, no location and no time ever becomes a parameter.
+  static void logAttackShared() => _log(_attackShared);
+
   // --- Sync -------------------------------------------------------------
 
-  /// Counts only. What was in those attacks is health data, and so is when
-  /// they happened (hard rule 1).
+  /// Counts only. What was in those attacks is health data, and so is when they happened (hard rule 1).
   static void logAttacksSynced({required int pushed, required int pulled}) =>
       _log(_attacksSynced, <String, Object>{
         _pPushed: pushed,
         _pPulled: pulled,
       });
 
-  // --- Medications & reminders ------------------------------------------
-  // No medication names: what someone takes is health data.
+  // --- Medications & reminders ------------------------------------------ No medication names: what someone takes is health data.
 
   static void logMedicationAdded() => _log(_medicationAdded);
 
@@ -200,8 +179,7 @@ abstract final class AppAnalytics {
   static void logAlertThresholdSet(double thresholdHpa) =>
       _log(_alertThresholdSet, <String, Object>{_pThresholdHpa: thresholdHpa});
 
-  // --- Apple Health -------------------------------------------------------
-  // Only whether the source is connected — sleep hours are health data and stay on-device (hard rule 1).
+  // --- Apple Health ------------------------------------------------------- Only whether the source is connected.
 
   static void logHealthConnectionToggled({required bool enabled}) => _log(
     _healthConnectionToggled,
@@ -210,8 +188,7 @@ abstract final class AppAnalytics {
 
   // --- Auth -------------------------------------------------------------
 
-  /// Firebase's reserved `login` event, so it shows up in the standard
-  /// reports. [method] is the provider name (google/apple).
+  /// Firebase's reserved `login` event, so it shows up in the standard reports. [method] is the provider name (google/apple).
   static void logLogin(String method) {
     unawaited(
       _guard(() => _analytics!.logLogin(loginMethod: method), 'login($method)'),
@@ -224,8 +201,7 @@ abstract final class AppAnalytics {
   }) =>
       _log(_signInFailed, <String, Object>{_pMethod: method, _pReason: reason});
 
-  /// Deliberately parameterless: by the time this fires there is nothing
-  /// left to describe, and why someone left is not ours to record.
+  /// Deliberately parameterless: by the time this fires there is nothing left to describe, and why someone left is not ours to record.
   static void logAccountDeleted() => _log(_accountDeleted);
 
   static void logSignOut() => _log(_signOut);
@@ -246,9 +222,7 @@ abstract final class AppAnalytics {
     <String, Object>{_pSignedIn: signedIn.toString()},
   );
 
-  /// [period] is the plan shape (`monthly`, `yearly`, `lifetime`) — never a
-  /// price or a transaction id. The store owns revenue reporting; this is
-  /// only the funnel from tap to entitlement.
+  /// [period] is the plan shape (`monthly`, `yearly`) — never a price or a transaction id.
   static void logPurchaseStarted({required String period}) =>
       _log(_purchaseStarted, <String, Object>{_pPeriod: period});
 
@@ -259,8 +233,7 @@ abstract final class AppAnalytics {
 
   // --- Force update ------------------------------------------------------
 
-  /// The blocking sheet went up — how many installs are actually stuck on
-  /// an old build, and how many of them then leave for the store.
+  /// The blocking sheet went up — how many installs are actually stuck on an old build, and how many of them then leave for the store.
   static void logForceUpdateShown() => _log(_forceUpdateShown);
 
   static void logForceUpdateCtaTapped() => _log(_forceUpdateCtaTapped);
@@ -278,14 +251,11 @@ abstract final class AppAnalytics {
   static void logDoctorReportShared({required int attackCount}) =>
       _log(_doctorReportShared, <String, Object>{_pAttackCount: attackCount});
 
-  /// The store review dialog was **asked for** — never that it appeared, and
-  /// never that anyone rated anything. iOS tells us neither. [moment] is the
-  /// `ReviewMoment` name, which is what makes the two triggers comparable.
+  /// The store review dialog was asked for — never that it appeared, and never that anyone rated anything.
   static void logReviewPromptRequested({required String moment}) =>
       _log(_reviewPromptRequested, <String, Object>{_pMoment: moment});
 
-  /// Re-sharing / saving / dropping something already in the export history.
-  /// The format only — never the file's contents (hard rule 1).
+  /// Re-sharing / saving / dropping something already in the export history. The format only — never the file's contents (hard rule 1).
   static void logExportShared({required String format}) =>
       _log(_exportShared, <String, Object>{_pFormat: format});
 
@@ -316,8 +286,7 @@ abstract final class AppAnalytics {
     );
   }
 
-  /// No-op before [init], and a swallowed warning after: analytics is never
-  /// worth failing a user action over.
+  /// No-op before [init], and a swallowed warning after: analytics is never worth failing a user action over.
   static Future<void> _guard(
     Future<void> Function() send,
     String description,

@@ -10,9 +10,7 @@ import 'package:migraine_tracker/features/notifications/providers.dart';
 
 import '../../helpers/notification_fakes.dart';
 
-/// The reconcile writes through the real Drift repository, because what is
-/// being proved is that re-running it does not duplicate or un-read a row —
-/// and that is the store's behaviour, not the controller's.
+/// The reconcile writes through the real Drift repository,.
 void main() {
   late AppDatabase db;
 
@@ -72,8 +70,7 @@ void main() {
     );
   });
 
-  // It runs on every launch and every resume against a doc that only ever
-  // holds the latest alert, so it re-writes the same row constantly.
+  // It runs on every launch and every resume against a doc that only ever holds the latest alert, so it re-writes the same row constantly.
   test('running it again does not duplicate the row', () async {
     final ProviderContainer container = containerWith(
       FakeLastAlertRepository(alert: alert()),
@@ -93,8 +90,7 @@ void main() {
     );
   });
 
-  // The badge coming back on every launch is exactly what insert-if-absent
-  // exists to prevent (hard rule 16).
+  // The badge coming back on every launch is exactly what insert-if-absent exists to prevent (hard rule 16).
   test('a row the user has read stays read', () async {
     final ProviderContainer container = containerWith(
       FakeLastAlertRepository(alert: alert()),
@@ -112,8 +108,7 @@ void main() {
     expect(rows.single.isRead, isTrue);
   });
 
-  // It runs unawaited at launch: a throw here must not take the app start
-  // with it, so this method is the one that swallows rather than rethrows.
+  // It runs unawaited at launch: a throw here must not take the app start with it, so this method is the one that swallows rather than rethrows.
   test('a failed read is swallowed, not rethrown', () async {
     final ProviderContainer container = containerWith(
       ThrowingLastAlertRepository(),

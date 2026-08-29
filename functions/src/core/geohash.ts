@@ -5,10 +5,7 @@ export interface LatLon {
   lon: number;
 }
 
-/**
- * Decodes a geohash to the center of its bounding box. The app stores
- * 5-char hashes (~±2.4km), which is all the precision alerts ever need.
- */
+/** Decodes a geohash to the center of its bounding box. The app stores 5-char hashes (~±2.4km), which is all the precision alerts ever need. */
 export function geohashCenter(hash: string): LatLon {
   if (hash.length === 0) throw new Error("empty geohash");
   let even = true;

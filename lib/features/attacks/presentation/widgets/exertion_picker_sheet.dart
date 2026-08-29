@@ -5,16 +5,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/exertion_level.dart';
 import 'exertion_level_picker.dart';
 
-/// Corrects a logged attack's exertion, with the same tiles the log flow's
-/// fourth step uses.
-///
-/// A tap only moves the highlight: unlike the log flow, where the step is
-/// already advancing, here the sheet edits something that has a value, so it
-/// waits for the tick. The X leaves it as it was.
-///
-/// Pops the picked level, or null when dismissed — safe because
-/// [ExertionLevel.none] is a real value, so "no exertion" never arrives as
-/// null.
+/// Corrects a logged attack's exertion, with the same tiles the log flow's fourth step uses.
 class ExertionPickerSheet extends StatefulWidget {
   const ExertionPickerSheet({required this.selected, super.key});
 
@@ -25,8 +16,7 @@ class ExertionPickerSheet extends StatefulWidget {
 }
 
 class _ExertionPickerSheetState extends State<ExertionPickerSheet> {
-  // Attacks logged before the step existed carry null; editing one starts
-  // from the same default the flow would have given it.
+  // Attacks logged before the step existed carry null; editing one starts from the same default the flow would have given it.
   late ExertionLevel _selected = widget.selected ?? ExertionLevel.none;
 
   @override
@@ -45,8 +35,7 @@ class _ExertionPickerSheetState extends State<ExertionPickerSheet> {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExertionPickerSheetExt on ExertionPickerSheet {
   Future<ExertionLevel?> show(BuildContext context) =>
       showSdBottomSheetV2<ExertionLevel>(

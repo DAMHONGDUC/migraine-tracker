@@ -1,9 +1,6 @@
 part of 'export_screen.dart';
 
-/// Shown when exports exist but none fall inside the picked date window. A
-/// separate state from [_EmptyState] on purpose: "you have none yet" and "your
-/// filter hides them all" need different ways out, and the filter pill stays
-/// on screen above this one.
+/// Shown when exports exist but none fall inside the picked date window.
 class _NoMatchState extends StatelessWidget {
   const _NoMatchState();
 
@@ -19,8 +16,8 @@ class _NoMatchState extends StatelessWidget {
       child: Column(
         children: <Widget>[
           SdIconV2(
-            icon: Icons.event_busy_outlined,
-            size: SdSpacingConstant.r44,
+            icon: AppIconConstant.noMatch,
+            size: AppIconSize.xLarge,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(height: SdSpacingConstant.h12),

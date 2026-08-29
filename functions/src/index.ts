@@ -4,7 +4,7 @@ import { getAuth } from "firebase-admin/auth";
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
-import { defineSecret } from "firebase-functions/params";
+import { defineSecret, defineString } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
@@ -13,6 +13,7 @@ import { runPressureAlerts } from "./core/alertRun";
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
+import { premiumEmailMatches } from "./core/premiumAccount";
 import { tearDownAccount } from "./core/accountTeardown";
 import {
   ANONYMOUS_PROVIDER,
@@ -41,16 +42,13 @@ initializeApp();
 const REGION = "europe-west1";
 const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
 
+/** The build's own premium account, premium in the app whatever RevenueCat says — see `lib/features/premium/CLAUDE.md`. Unset on a normal deploy. */
+const premiumEmail = defineString("PREMIUM_EMAIL");
+
 /** Firestore caps a batch at 500 writes. */
 const BATCH_LIMIT = 500;
 
-/**
- * Every 3h: group alert-enabled premium users by geohash cell, fetch ONE
- * forecast per cell, push to users whose personal threshold is exceeded.
- * Idempotent: dedupe state lives on the user doc, so re-runs never
- * double-send. Weather failures are collected and re-thrown at the end —
- * fail loud, never silently skip a cohort.
- */
+/** Every 3h: group alert-enabled premium users by geohash cell, fetch ONE forecast per cell, push to users whose personal threshold is exceeded. */
 export const pressureAlertJob = onSchedule(
   {
     schedule: "every 3 hours",
@@ -60,21 +58,30 @@ export const pressureAlertJob = onSchedule(
     maxInstances: 1,
     memory: "256MiB",
     timeoutSeconds: 540,
-    // Without this the signing key is empty at runtime and every WeatherKit
-    // request 401s — a deploy-time binding, not something the code can check.
+    // Without this the signing key is empty at runtime and every WeatherKit request 401s — a deploy-time binding, not something the code can check.
     secrets: [weatherKitPrivateKey],
   },
   async () => {
     const db = getFirestore();
     const now = new Date();
 
-    const snapshot = await db
-      .collection("users")
-      .where("premium", "==", true)
-      .get();
+    const emails = premiumEmailMatches(premiumEmail.value());
+    const queries = [db.collection("users").where("premium", "==", true).get()];
+
+    // The webhook is the only writer of `premium`, so a PREMIUM_EMAIL account never carries it — without this query the cron is the one surface that disagrees with the app.
+    if (emails.length > 0) {
+      queries.push(db.collection("users").where("email", "in", emails).get());
+    }
+
+    const snapshots = await Promise.all(queries);
 
     const users: AlertUser[] = [];
-    for (const doc of snapshot.docs) {
+    const seen = new Set<string>();
+    for (const doc of snapshots.flatMap((snapshot) => snapshot.docs)) {
+      // A premium subscriber signed in as PREMIUM_EMAIL matches both queries.
+      if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
+
       const data = doc.data();
       if (typeof data.fcmToken !== "string" || data.fcmToken.length === 0) {
         continue;
@@ -117,27 +124,20 @@ export const pressureAlertJob = onSchedule(
               `Barometric pressure is forecast to fall ` +
               `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
           },
-          // - The app renders the row from its own ARB: the strings above are
-          //   English whatever language the user picked, so only numbers travel.
-          // - eventId is what keeps every writer of this row idempotent.
+          // - The app renders the row from its own ARB: the strings above are English whatever language the user picked, so only numbers travel.
           data: {
             type: "pressureAlert",
             eventId: drop.eventId,
             dropHpa: String(drop.dropHpa),
             at: now.toISOString(),
           },
-          // Sent so a background handler can be added later without touching
-          // the cron. There is none today, so an alert arriving while the app
-          // is shut reaches the list only via sync from a device that saw it.
+          // Sent so a background handler can be added later without touching the cron.
           apns: {
             payload: { aps: { sound: "default", "content-available": 1 } },
           },
         });
       },
-      // lastAlertDropHpa is written for the client, not for dedupe: the
-      // launch reconcile rebuilds the missed notification row from these
-      // three fields, and without the reading the row cannot say how far
-      // pressure fell.
+      // lastAlertDropHpa is written for the client, not for dedupe.
       recordAlert: async (uid, drop, at) => {
         await db.collection("users").doc(uid).update({
           lastAlertAt: Timestamp.fromDate(at),
@@ -167,17 +167,7 @@ export const pressureAlertJob = onSchedule(
   },
 );
 
-/**
- * Hands a signed-in user the key their devices encrypt attack payloads with,
- * minting one on first use. Read-or-create runs in a transaction so two
- * devices signing in at once cannot each mint a key, which would leave one
- * writing payloads the other could not read.
- *
- * The key lives in `sync_keys/{uid}`, which no client can reach: rules deny
- * that collection outright and only the Admin SDK bypasses them. This is
- * server-held custody, NOT end-to-end encryption — the copy shown to the user
- * must not claim otherwise.
- */
+/** Hands a signed-in user the key their devices encrypt attack payloads with, minting one on first use. */
 export const getSyncKey = onCall(
   { region: REGION, maxInstances: 10, memory: "256MiB" },
   async (request) => {
@@ -185,8 +175,7 @@ export const getSyncKey = onCall(
     if (!uid) {
       throw new HttpsError("unauthenticated", "sign in first");
     }
-    // Anonymous sessions never sync (hard rule 1), and their uid dies with
-    // the install, so a key issued to one could never be recovered.
+    // Anonymous sessions never sync (hard rule 1), and their uid dies with the install, so a key issued to one could never be recovered.
     if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
       throw new HttpsError("permission-denied", "account required");
     }
@@ -214,16 +203,7 @@ export const getSyncKey = onCall(
   },
 );
 
-/**
- * Deletes everything the backend holds about the caller, then their account.
- *
- * Server-side of necessity, not convenience: firestore.rules denies a client
- * deleting users/{uid} — its write rule reads request.resource.data, which
- * does not exist on a delete — and denies sync_keys/{uid} to everyone. Only
- * the Admin SDK reaches them.
- *
- * The client still wipes its own device: this is the half it cannot do.
- */
+/** Deletes everything the backend holds about the caller, then their account. */
 export const deleteAccount = onCall(
   { region: REGION, maxInstances: 10, memory: "256MiB" },
   async (request) => {
@@ -231,8 +211,7 @@ export const deleteAccount = onCall(
     if (!uid) {
       throw new HttpsError("unauthenticated", "sign in first");
     }
-    // An anonymous session has nothing on the server to delete, and letting
-    // it through would delete an auth user the app still believes it has.
+    // An anonymous session has nothing on the server to delete, and letting it through would delete an auth user the app still believes it has.
     if (request.auth?.token.firebase?.sign_in_provider === ANONYMOUS_PROVIDER) {
       throw new HttpsError("permission-denied", "account required");
     }
@@ -242,8 +221,7 @@ export const deleteAccount = onCall(
     return tearDownAccount(uid, {
       deleteRecords: async (owner, collection) => {
         let deleted = 0;
-        // Paged: a long history would blow the 500-write batch limit, and a
-        // teardown that half-runs is what hard rule 8 forbids.
+        // Paged: a long history would blow the 500-write batch limit, and a teardown that half-runs is what hard rule 8 forbids.
         for (;;) {
           const page = await db
             .collection(collection)
@@ -271,10 +249,7 @@ export const deleteAccount = onCall(
   },
 );
 
-/**
- * RevenueCat → Firestore premium flag. Auth via shared secret header
- * configured in the RevenueCat dashboard.
- */
+/** RevenueCat → Firestore premium flag. Auth via shared secret header configured in the RevenueCat dashboard. */
 export const revenuecatWebhook = onRequest(
   {
     region: REGION,
@@ -311,47 +286,8 @@ export const revenuecatWebhook = onRequest(
   },
 );
 
-/**
- * Sends a push to the caller's own registered device. Dev tooling for the
- * one thing no test can prove: that the APNs key, the entitlement and the
- * token all line up on real hardware.
- *
- * **It never takes a token or a uid.** The target is always
- * `request.auth.uid`'s own `fcmToken`, so the worst anyone can do with it is
- * notify themselves. That is the whole of its security model, and it is why
- * it can ship to the same project real users are on — there is no dev
- * project to hide it in (`env/dev.json` and `env/prod.json` share one).
- *
- * Anonymous callers are refused, like `getSyncKey` and `deleteAccount`.
- * Premium requires an account, alerts require premium, so the cron can never
- * target an anonymous session — letting one test push here would prove a path
- * that does not exist in production.
- *
- * The payload mirrors a real pressure alert — same `data` keys, same
- * `content-available` — so a successful test exercises the path the cron
- * uses, not a simpler one. `eventId` is stamped `test:` so the client's
- * idempotent writers cannot mistake it for a real event.
- */
-/**
- * The app's only weather source. It has none of its own: WeatherKit's signing
- * key cannot ship in a binary, so the app asks here and here asks Apple
- * (CLAUDE.md's tech-stack rule).
- *
- * **Any signed-in caller, anonymous included.** Weather is free: it is what
- * pairs a logged attack with the pressure at that moment, and hard rule 1
- * keeps every feature except sync and alerts working without an account. Auth
- * is required only so the endpoint has a caller at all — the app signs in
- * anonymously at launch, so this costs the user nothing.
- *
- * Only the *alert* is premium, and that is enforced in the cron, which reads
- * `users` where `premium == true`. Nothing about it belongs here.
- *
- * **The cache is what protects the quota.** Coordinates round to ~11km and a
- * series is reused for an hour, so WeatherKit calls scale with populated cells
- * rather than with users or taps — the 500k monthly quota now lands on one key
- * instead of being spread across users' own devices. The rounding pays twice:
- * no precise position is ever stored, matching what hard rule 1 allows.
- */
+/** Sends a push to the caller's own registered device. */
+/** The app's only weather source. */
 export const getWeather = onCall(
   {
     region: REGION,
@@ -376,18 +312,14 @@ export const getWeather = onCall(
       throw new HttpsError("invalid-argument", "lat or lon out of range");
     }
 
-    // Hours before and after now. Bounded so one caller cannot ask for a
-    // decade and turn a cache miss into an enormous fetch.
+    // Hours before and after now. Bounded so one caller cannot ask for a decade and turn a cache miss into an enormous fetch.
     const hoursBack = Math.min(Math.max(Number(request.data?.hoursBack) || 0, 0), 240);
     const hoursForward = Math.min(
       Math.max(Number(request.data?.hoursForward) || 0, 0),
       240,
     );
 
-    // Whether the caller wants current conditions and the daily forecast on
-    // top of the hourly series. Costs the quota nothing extra — one request
-    // to Apple carries all three datasets — but the pressure paths ask for
-    // neither, so they are not cached against the same key.
+    // Whether the caller wants current conditions and the daily forecast on top of the hourly series.
     const full = request.data?.full === true;
 
     const now = new Date();
@@ -409,9 +341,7 @@ export const getWeather = onCall(
     let current: WeatherCurrent | null = null;
     let days: WeatherDay[] = [];
 
-    // Named rather than left to become a bare `internal`: the app treats any
-    // weather failure as "no weather" (hard rule 4), so this log is the only
-    // place the reason is ever stated.
+    // Named rather than left to become a bare `internal`.
     try {
       const window = {
         start: new Date(now.getTime() - hoursBack * 3_600_000),
@@ -441,8 +371,7 @@ export const getWeather = onCall(
       throw new HttpsError("unavailable", String(error));
     }
 
-    // Best-effort: a cache that fails to write must not fail the request the
-    // caller actually made.
+    // Best-effort: a cache that fails to write must not fail the request the caller actually made.
     try {
       await doc.set({ hours, current, days, cachedAt: now });
     } catch (error) {
@@ -467,10 +396,7 @@ export const sendTestPush = onCall(
     const snapshot = await getFirestore().collection("users").doc(uid).get();
     const token = snapshot.get("fcmToken");
     if (typeof token !== "string" || token.length === 0) {
-      // Not an error on our side: the device never registered, which is
-      // itself the diagnosis the caller is looking for. Logged all the same —
-      // an HttpsError reaches the caller and nothing else, so without this
-      // the run leaves no trace at all in the function's own log.
+      // Not an error on our side: the device never registered, which is itself the diagnosis the caller is looking for.
       logger.warn("test push refused: no fcmToken", {
         uid,
         userDocExists: snapshot.exists,
@@ -480,9 +406,7 @@ export const sendTestPush = onCall(
 
     const now = new Date();
 
-    // FCM's own refusals are the answer this row exists to get — a missing
-    // APNs key, a token from another project, a token the device dropped.
-    // Unhandled they reach the app as a bare `internal` with nothing in it.
+    // FCM's own refusals are the answer this row exists to get — a missing APNs key, a token from another project, a token the device dropped.
     try {
       await getMessaging().send({
         token,

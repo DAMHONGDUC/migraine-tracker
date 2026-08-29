@@ -12,35 +12,15 @@ import '../../domain/enums/sync_trigger.dart';
 import '../../providers.dart';
 
 /// Runs attack sync and holds the only state the UI may see.
-///
-/// Never throws to its callers: every trigger fires it unawaited and no
-/// screen waits on it (hard rule 12), so a failure is logged and left for the
-/// next pass rather than surfaced as an error the user must dismiss.
 class SyncController extends Notifier<SyncStatus> {
   Future<void>? _inFlight;
 
   /// The floor between two [SyncTrigger.automatic] passes.
-  ///
-  /// Without it every launch and every resume ran a whole pass: ten app
-  /// opens in ten minutes were ten passes, each a callable plus a query
-  /// and a push per collection, usually to find nothing had changed.
-  ///
-  /// Six hours is the owner's number, and the cost is stated plainly: a
-  /// change made on another device can wait that long to arrive unless
-  /// the user logs an attack or syncs by hand — both of which skip this.
 
   @override
   SyncStatus build() => const SyncStatus();
 
   /// Syncs the signed-in account, if there is one.
-  ///
-  /// Concurrent calls join the running pass instead of starting a second: the
-  /// launch, resume and after-logging triggers all overlap in normal use, and
-  /// two passes at once would push the same records twice.
-  ///
-  /// An [SyncTrigger.automatic] call inside [SyncConstant.automaticCooldown] of the last
-  /// finished pass does nothing at all — no state change, so a skipped pass
-  /// is invisible rather than looking like a failure or a fresh sync.
   Future<void> sync({SyncTrigger trigger = SyncTrigger.automatic}) async {
     final AuthUser? user = _currentUser();
 
@@ -51,8 +31,7 @@ class SyncController extends Notifier<SyncStatus> {
     return _inFlight ??= _run(user.uid).whenComplete(() => _inFlight = null);
   }
 
-  /// Clears the account's sync state on sign-out. Local attacks stay — they
-  /// are the source of truth, and signing out is not a delete.
+  /// Clears the account's sync state on sign-out. Local attacks stay — they are the source of truth, and signing out is not a delete.
   Future<void> onSignedOut() async {
     state = const SyncStatus();
     try {
@@ -77,9 +56,7 @@ class SyncController extends Notifier<SyncStatus> {
           .read(syncServiceProvider)
           .sync(
             uid,
-            // Only when the whole percent moves: the service reports once per
-            // record, and a thousand-record account would otherwise rebuild
-            // the row a thousand times to draw the same number.
+            // Only when the whole percent moves: the service reports once per record, and a thousand-record account would otherwise rebuild the row a thousand.
             onProgress: (double fraction) {
               final int percent = (fraction * 100).round();
 
@@ -97,8 +74,7 @@ class SyncController extends Notifier<SyncStatus> {
         pushed: outcome.pushed,
         pulled: outcome.pulled,
       );
-      // Data is up there that this build cannot read: never expected, and
-      // invisible to the user, so it has to reach us some other way.
+      // Data is up there that this build cannot read: never expected, and invisible to the user, so it has to reach us some other way.
       if (outcome.unreadable > 0) {
         SdLogger.error(
           LogTagConstant.sync,
@@ -117,16 +93,12 @@ class SyncController extends Notifier<SyncStatus> {
         error: error,
         stackTrace: stackTrace,
       );
-      // Deliberately not rethrown: the next launch, resume or logged attack
-      // retries, and nothing on screen was waiting on this.
+      // Deliberately not rethrown: the next launch, resume or logged attack retries, and nothing on screen was waiting on this.
       state = state.copyWith(phase: SyncPhase.failed, isFirstPull: false);
     }
   }
 
   /// Whether a pass finished recently enough to skip this one.
-  ///
-  /// A store that will not answer means no cooldown: syncing once too
-  /// often is wasteful, and never syncing is wrong.
   Future<bool> _isCoolingDown(String uid) async {
     try {
       final DateTime? last = await ref
@@ -147,8 +119,7 @@ class SyncController extends Notifier<SyncStatus> {
     }
   }
 
-  /// Only after a pass that worked: a failure must be retried by the next
-  /// open, not held off for another six hours.
+  /// Only after a pass that worked: a failure must be retried by the next open, not held off for another six hours.
   Future<void> _stampSyncedAt(String uid) async {
     try {
       await ref
@@ -164,8 +135,7 @@ class SyncController extends Notifier<SyncStatus> {
     }
   }
 
-  /// Null rather than throwing: the log flow fires sync straight after saving
-  /// an attack, and must not fail because auth is unavailable (hard rule 4).
+  /// Null rather than throwing: the log flow fires sync straight after saving an attack, and must not fail because auth is unavailable (hard rule 4).
   AuthUser? _currentUser() {
     try {
       return ref.read(authRepositoryProvider).currentUser;

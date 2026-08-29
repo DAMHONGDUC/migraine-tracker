@@ -5,6 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/alert_threshold_dialog.dart';
 import '../../../../core/widgets/premium_gate.dart';
@@ -18,19 +20,12 @@ import '../../providers.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 import 'pressure_forecast_body.dart';
+import 'pressure_history_body.dart';
+import 'trigger_verdict_body.dart';
 
 part 'pressure_card_alert.dart';
 
-/// Everything pressure, on one card: the forecast, what it has done to this
-/// user, and the alert that acts on both.
-///
-/// **There is no detail screen behind it.** `/pressure` existed to hold the
-/// alert controls; they are here now, so the card is the destination rather
-/// than a preview of one — which is why it takes no `onTap` and draws no
-/// chevron.
-///
-/// The whole card is premium: the forecast chart gates itself, the
-/// correlation already did, and the alert is what is being sold.
+/// Everything pressure, on one card: the forecast, what it has done to this user, and the alert that acts on both.
 class PressureCard extends ConsumerWidget {
   const PressureCard({required this.result, super.key});
 
@@ -43,16 +38,20 @@ class PressureCard extends ConsumerWidget {
     return InsightCard(
       title: context.l10n.insightsPressureTitle,
       trailing: hasPremium ? null : const PremiumBadge(),
-      // ONE pitch for the whole card when locked, not one per section. All
-      // three sections are the same purchase, and each carrying its own line
-      // and its own button made a single offer look like three.
+      // ONE pitch for the whole card when locked, not one per section.
       child: hasPremium
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // The conclusion first, then the working: everything below this line is the evidence it was drawn from.
+                const TriggerVerdictBody(),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
                 const PressureForecastBody(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 CorrelationBody(result: result),
+                SizedBox(height: SdContentPaddingV2.sectionGap),
+                // Directly under the sentence it draws: the share and the picture of the same month belong to one another.
+                const PressureHistoryBody(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 const SdDividerV2(),
                 SizedBox(height: SdContentPaddingV2.sectionGap),

@@ -6,22 +6,18 @@ import '../../features/premium/providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
+import '../theme/app_icon_constant.dart';
 import '../theme/app_text_style.dart';
 import 'premium_gate.dart';
 
 /// Everything the app does, in one list, free group then premium group.
-///
-/// Shared by the onboarding sheet and the About screen, which is why it lives
-/// here rather than in either feature: two copies of this list would be two
-/// places to forget a feature when one ships.
 class AppFeatureList extends ConsumerWidget {
   const AppFeatureList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    // A subscriber has these already, so the badge would be telling them to
-    // buy what they bought. The group heading still says which half is which.
+    // A subscriber has these already, so the badge would be telling them to buy what they bought. The group heading still says which half is which.
     final bool badges = !ref.watch(hasPremiumProvider);
 
     return Column(
@@ -40,29 +36,24 @@ class AppFeatureList extends ConsumerWidget {
 }
 
 /// One feature, and which half of the offer it belongs to.
-///
-/// An enum rather than a list of (icon, title, body) triples at the call
-/// site: a row can then never be handed one feature's title and another's
-/// body, and adding a feature is one entry in one place.
 enum AppFeature {
-  log(Icons.add_circle_outline),
-  history(Icons.calendar_month_outlined),
-  medications(Icons.medication_outlined),
-  reminders(Icons.notifications_active_outlined),
-  widget(Icons.widgets_outlined),
-  notifications(Icons.inbox_outlined),
-  sync(Icons.cloud_done_outlined),
-  // Free because hard rule 8 makes it a promise: export moved behind the
-  // paywall, the wipe never can.
-  wipe(Icons.delete_outline),
-  calm(Icons.dark_mode_outlined),
-  export(Icons.ios_share_outlined, premium: true),
-  alerts(Icons.notifications_none, premium: true),
-  forecast(Icons.show_chart, premium: true),
-  correlation(Icons.analytics_outlined, premium: true),
-  activity(Icons.directions_walk, premium: true),
-  sleep(Icons.bedtime_outlined, premium: true),
-  report(Icons.picture_as_pdf_outlined, premium: true);
+  log(AppIconConstant.attackLog),
+  history(AppIconConstant.history),
+  medications(AppIconConstant.medication),
+  reminders(AppIconConstant.reminderActive),
+  widget(AppIconConstant.homeWidget),
+  notifications(AppIconConstant.inbox),
+  sync(AppIconConstant.synced),
+  // Free because hard rule 8 makes it a promise: export moved behind the paywall, the wipe never can.
+  wipe(AppIconConstant.delete),
+  calm(AppIconConstant.darkMode),
+  export(AppIconConstant.export, premium: true),
+  alerts(AppIconConstant.notifications, premium: true),
+  forecast(AppIconConstant.lineChart, premium: true),
+  correlation(AppIconConstant.analysis, premium: true),
+  activity(AppIconConstant.steps, premium: true),
+  sleep(AppIconConstant.sleep, premium: true),
+  report(AppIconConstant.exportPdf, premium: true);
 
   const AppFeature(this.icon, {this.premium = false});
 
@@ -76,12 +67,6 @@ enum AppFeature {
       values.where((AppFeature feature) => feature.premium);
 
   /// Title and body together, so the pair can only ever come from one branch.
-  ///
-  /// The three capped features say their limit in the row itself, and the
-  /// number comes from [PremiumLimitConstant] rather than the string: the
-  /// About screen is where a user goes to find out what the free plan holds,
-  /// and a copy of "40" in an ARB file is a copy that outlives the change
-  /// that moves the limit.
   (String, String) copy(AppLocalizations l10n) => switch (this) {
     AppFeature.log => (
       l10n.appFeatureLogTitle,

@@ -1,22 +1,11 @@
 import SwiftUI
 import WidgetKit
 
-/// The whole widget: the fixed log button, this week's count, the latest
-/// pressure. The button is always there and always the same size — someone
-/// reaching for it is mid-attack, so it must be found without reading.
-///
-/// The whole widget is one `Link` to the same place. A widget has no
-/// hit-testing worth the name at this size, and there is only one thing to
-/// do here, so a mistap still logs an attack rather than doing nothing.
+/// The whole widget: the fixed log button, this week's count, the latest pressure.
 struct BaroEaseWidgetView: View {
   let entry: BaroEaseEntry
 
-  /// The app's own scheme. `HomeWidgetTapListener` reads the host.
-  ///
-  /// **The `homeWidget` query item is load-bearing.** The plugin's
-  /// `isWidgetUrl` matches on that parameter's presence and silently ignores
-  /// any URL without it, so `baroease://log` reached the app and went
-  /// nowhere — the app just opened on the dashboard. Its value is never read.
+  /// The app's own scheme.
   private let logURL = URL(string: "baroease://log?homeWidget=true")!
 
   var body: some View {
@@ -32,8 +21,7 @@ struct BaroEaseWidgetView: View {
         )
         Spacer(minLength: 0)
         if !entry.attribution.isEmpty {
-          // Required wherever WeatherKit data is shown. Quiet and last: it
-          // has to be legible, not prominent.
+          // Required wherever WeatherKit data is shown. Quiet and last: it has to be legible, not prominent.
           Text(entry.attribution)
             .font(.system(size: 9))
             .foregroundColor(BaroEasePalette.textSecondary)
@@ -47,8 +35,7 @@ struct BaroEaseWidgetView: View {
   }
 }
 
-/// The one control, drawn as the app's own hero button: a flat lavender fill,
-/// no gradient and no motion (hard rule 3 — the user is photophobic).
+/// The one control, drawn as the app's own hero button: a flat lavender fill, no gradient and no motion (hard rule 3 — the user is photophobic).
 private struct LogButton: View {
   let label: String
 
@@ -69,12 +56,7 @@ private struct LogButton: View {
   }
 }
 
-/// A quiet label with its number opposite. [detail] and [symbol] are the
-/// pressure row's extra; the week row passes neither.
-///
-/// Label and value share a line rather than stacking, which is what keeps a
-/// small widget from spending most of its height on two-line rows — and it
-/// puts both values on one right edge, so they read as a pair.
+/// A quiet label with its number opposite.
 private struct StatRow: View {
   let label: String
   let value: String
@@ -88,9 +70,7 @@ private struct StatRow: View {
           .font(.system(size: 12, weight: .medium))
           .foregroundColor(BaroEasePalette.textSecondary)
           .lineLimit(1)
-          // Shrinks further than the value does before it gives up: a
-          // truncated "This week" was the visible overflow, and a slightly
-          // small label still names its row while an ellipsis does not.
+          // Shrinks further than the value does before it gives up.
           .minimumScaleFactor(0.7)
         Spacer(minLength: 2)
         if let symbol {
@@ -98,8 +78,7 @@ private struct StatRow: View {
             .font(.system(size: 11, weight: .semibold))
             .foregroundColor(BaroEasePalette.textSecondary)
         }
-        // The value wins the squeeze: a clipped label still names the row,
-        // a clipped number says nothing.
+        // The value wins the squeeze: a clipped label still names the row, a clipped number says nothing.
         Text(value)
           .font(.system(size: 14, weight: .semibold))
           .foregroundColor(BaroEasePalette.textPrimary)
@@ -119,22 +98,7 @@ private struct StatRow: View {
 }
 
 private extension View {
-  /// iOS 17 requires a widget to declare its background through
-  /// `containerBackground`, and refuses to draw one that does not. Below 17
-  /// that modifier does not exist, so the plain background is the fallback —
-  /// the extension ships to the same iOS 15 floor as the app.
-  ///
-  /// The widget's only padding — and how much of it we owe depends on the OS.
-  ///
-  /// iOS 17 gives every widget ~16pt of content margin of its own. On a small
-  /// widget that is ~155pt wide, adding our own on top took roughly a third of
-  /// the width before anything was drawn, so on 17+ we add none horizontally
-  /// and let the system's be the whole of it.
-  ///
-  /// Removing the system's instead would be tighter still, but
-  /// `contentMarginsDisabled()` is iOS 17+ with no conditional form — see
-  /// BaroEaseWidget.swift. An `if #available` is legal *here* because
-  /// `@ViewBuilder` allows it where the widget builders do not.
+  /// iOS 17 requires a widget to declare its background through `containerBackground`, and refuses to draw one that does not.
   @ViewBuilder
   func widgetBackground(_ color: Color) -> some View {
     if #available(iOSApplicationExtension 17.0, *) {

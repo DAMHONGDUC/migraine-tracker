@@ -24,17 +24,6 @@ part 'sleep_card_analysis.dart';
 part 'sleep_card_nights.dart';
 
 /// Insights' sleep card: what Apple Health recorded, then what it means.
-///
-/// Same split as [ActivityCard] — the reading is free because it is the
-/// answer to "did connecting work", and the analysis under it is premium.
-/// Sleep keeps its own card rather than joining activity: the night is a
-/// different question from the day, and merging them would put one range
-/// selector over two unrelated readings.
-///
-/// **The Day range shows the one night, not its stages.** This version of the
-/// `health` plugin collapses IN_BED / ASLEEP / AWAKE onto a single HealthKit
-/// type and drops the category value before Dart sees it, so the stages
-/// cannot be told apart — a hypnogram here would be invented.
 class SleepCard extends ConsumerWidget {
   const SleepCard({super.key});
 

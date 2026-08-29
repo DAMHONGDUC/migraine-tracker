@@ -6,12 +6,9 @@ import '../../../core/theme/app_text_style.dart';
 import '../../../features/health/domain/enums/health_data_kind.dart';
 import '../../../features/health/providers.dart';
 import '../../extensions/context_extensions.dart';
+import '../../theme/app_icon_size.dart';
 
-/// One Apple Health source's connect switch, on the detail screen for the
-/// insight it feeds — sleep on the sleep screen, steps on the activity one.
-///
-/// One switch per source, so refusing the sheet for one leaves the other
-/// alone. Absent off iOS, where the plugin would talk to Google Fit.
+/// One Apple Health source's connect switch, on the detail screen for the insight it feeds — sleep on the sleep screen, steps on the activity one.
 class HealthConnectionTile extends ConsumerWidget {
   const HealthConnectionTile({
     required this.kind,
@@ -48,7 +45,7 @@ class HealthConnectionTile extends ConsumerWidget {
     final bool connected = ref.watch(healthControllerProvider).of(kind);
 
     return SwitchListTile(
-      secondary: SdIconV2(icon: icon),
+      secondary: SdIconV2(icon: icon, size: AppIconSize.medium),
       title: Text(title, style: AppTextStyle.bodyLarge),
       value: connected,
       onChanged: (bool value) => _toggle(context, ref, value),

@@ -1,6 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
+import '../../core/constants/log_tag_constant.dart';
 import '../../core/env/app_env.dart';
+import '../auth/domain/entities/auth_user.dart';
 import '../auth/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
@@ -16,8 +19,7 @@ final revenueCatClientProvider = Provider<RevenueCatClient>(
   (ref) => RevenueCatClient(),
 );
 
-/// Widget tests MUST override this: gates watch it at build time, so a real
-/// one would drag the store SDK into every test tree.
+/// Widget tests MUST override this: gates watch it at build time, so a real one would drag the store SDK into every test tree.
 final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
   final RevenueCatPremiumRepository repo = RevenueCatPremiumRepository(
     ref.watch(revenueCatClientProvider),
@@ -28,34 +30,17 @@ final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
   return repo;
 });
 
-/// Only read inside paywall actions, never watched by a gate: buying and
-/// being entitled are separate concerns, and only this one can raise a
-/// payment sheet.
+/// Only read inside paywall actions, never watched by a gate: buying and being entitled are separate concerns, and only this one can raise a payment sheet.
 final purchaseRepositoryProvider = Provider<PurchaseRepository>(
   (ref) => RevenueCatPurchaseRepository(ref.watch(revenueCatClientProvider)),
 );
 
-/// The single source of truth for gating. Defaults to NOT premium while
-/// loading, so a free user never briefly sees a premium surface.
+/// The single source of truth for gating. Defaults to NOT premium while loading, so a free user never briefly sees a premium surface.
 final isPremiumProvider = StreamProvider<bool>(
   (ref) => ref.watch(premiumRepositoryProvider).watchIsPremium(),
 );
 
-/// What every gate reads. Falls back to the repository while loading, so a
-/// premium gate never flashes locked on the first frame.
-///
-/// An entitlement without an account unlocks nothing — a subscription needs
-/// something that survives a reinstall. Both conditions live here so no
-/// gate can forget one.
-/// Dev-only forced premium state. Null means "follow RevenueCat", which is
-/// what it is until a developer flips the Settings toggle.
-///
-/// CLAUDE.md deleted the old `DebugPremiumRepository` because a premium state
-/// the client can *write* is the one thing this project must not ship. This
-/// is deliberately not that: it holds no repository, writes nothing to disk,
-/// and lives only in memory for the run. [hasPremiumProvider] reads it behind
-/// `!AppEnv.isProd`, so in a prod flavour the branch can never be taken and
-/// the only answer is RevenueCat's.
+/// Dev-only forced premium state.
 class DevPremiumOverride extends Notifier<bool?> {
   @override
   bool? build() => null;
@@ -68,7 +53,33 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
   DevPremiumOverride.new,
 );
 
+/// Whether the session belongs to the address [AppEnv.premiumEmail] names — the App Review account, or the owner's own (owner's rule).
+final isPremiumEmailProvider = Provider<bool>((ref) {
+  final String allowed = AppEnv.premiumEmail.trim().toLowerCase();
+
+  if (allowed.isEmpty) return false;
+
+  final AuthUser? user = switch (ref.watch(authUserProvider)) {
+    AsyncData(value: final AuthUser? value) => value,
+    _ => ref.watch(authRepositoryProvider).currentUser,
+  };
+  final bool granted = user?.email?.trim().toLowerCase() == allowed;
+
+  if (granted) {
+    SdLogger.info(
+      LogTagConstant.premium,
+      'Premium granted by PREMIUM_EMAIL build config',
+    );
+  }
+
+  return granted;
+});
+
+/// What every gate reads.
 final hasPremiumProvider = Provider<bool>((ref) {
+  // The build's own allow-list, ahead of everything: a reviewer signed in as that address is premium in a prod flavour too, which is the whole point.
+  if (ref.watch(isPremiumEmailProvider)) return true;
+
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {
     final bool? forced = ref.watch(devPremiumOverrideProvider);
@@ -76,23 +87,19 @@ final hasPremiumProvider = Provider<bool>((ref) {
     if (forced != null) return forced;
   }
 
-  if (!ref.watch(isSignedInProvider)) return false;
-
   return switch (ref.watch(isPremiumProvider)) {
     AsyncData(value: final bool value) => value,
     _ => ref.watch(premiumRepositoryProvider).isPremium,
   };
 });
 
-/// The paywall's offers, and the purchase/restore actions over them (see
-/// [PaywallController]).
+/// The paywall's offers, and the purchase/restore actions over them (see [PaywallController]).
 final paywallControllerProvider =
     AsyncNotifierProvider<PaywallController, List<PremiumOffer>>(
       PaywallController.new,
     );
 
-/// Binds purchases to the signed-in account (see [PurchaseIdentity]). Read
-/// from the app root's auth listener.
+/// Binds purchases to the signed-in account (see [PurchaseIdentity]). Read from the app root's auth listener.
 final purchaseIdentityProvider = Provider<PurchaseIdentity>(
   PurchaseIdentity.new,
 );

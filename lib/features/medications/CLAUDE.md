@@ -45,3 +45,47 @@
   - **`docs/PREMIUM_RULES.md` is the authority** on the numbers and on every
     gate's behaviour; the limits live in `PremiumLimitConstant`, and there are
     three of them — attacks and medications as well as reminders.
+
+## The medication-overuse warning
+
+`MedicationOveruseBanner` counts the days this month on which any acute
+medication was recorded, and says what happens past the line. It is the one
+analysis in the app that exists to tell the user something they do not want
+to hear.
+
+- **It is FREE, and it is never gated.** Every other analysis is something the
+  user gains by paying; this one is a harm they avoid by being told. Selling
+  it would mean a paying user is warned and a free user is not.
+- **It takes the top slot on the medications tab**, ahead of
+  `FreeLimitProgress` — and with it the inset under the pinned filter bar,
+  which only whichever sliver comes first may carry (`limitTop`/`contentTop`
+  in `MedicationsScreen`). If a third sliver is ever added above these, that
+  inset moves again.
+- **Ten intake days a month**, where ICHD-3 8.2 puts triptans, ergots, opioids
+  and combination analgesics, and where 8.2.6 puts several classes taken
+  together. Simple analgesics alone are 15, but **the app does not know a
+  drug's class** — there is no field for it — and the safe error is the early
+  word rather than the late one.
+- **It speaks at eight, not at ten.** A month is steerable at eight and spent
+  at ten; a warning that arrives on the day the line is crossed is a report.
+  Below eight it draws nothing at all, because a banner that appears every
+  month is one nobody reads in the month it matters.
+- **"Months running" appears only at three.** One heavy month is a bad month,
+  and ICHD-3 asks for the pattern to hold longer than three months before it
+  is medication-overuse headache at all.
+- **Amber, never the error red, and never a diagnosis.** This is a course
+  someone can still change; an alarm over a month they cannot undo reads as
+  blame. The copy states the count and what it can lead to, then stops.
+
+## The relief figure on the list
+
+Each row carries its medication's relief figure (`MedicationEffectivenessLabel`
+in `core/extensions/`), so the list ranks itself at a glance rather than
+needing a visit to each screen in turn.
+
+- **Under five answers it stays "helped 2 of 3 times".** A percentage off that
+  few doses is 0 or 100 wearing a decimal point.
+- **A medication with no answers shows nothing**, not "no outcomes yet": that
+  sentence belongs on the screen that can do something about it, not on every
+  row of a list.
+- The engine and its rules live in `lib/features/insights/CLAUDE.md`.

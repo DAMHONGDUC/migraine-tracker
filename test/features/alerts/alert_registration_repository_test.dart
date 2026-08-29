@@ -15,8 +15,7 @@ const FakeUser _signedIn = FakeUser();
 /// Hanoi, which `geohash_test.dart` and the backend both agree is `w7er8`.
 const GeoPoint _hanoi = GeoPoint(latitude: 21.03, longitude: 105.85);
 
-/// Answers one fixed position, or none. The dev `FakeLocationSource` in `lib/`
-/// always has a point, and half of these cases are about not having one.
+/// Answers one fixed position, or none. The dev `FakeLocationSource` in `lib/` always has a point, and half of these cases are about not having one.
 class _StubLocationSource implements LocationSource {
   const _StubLocationSource([this.point]);
 
@@ -81,8 +80,7 @@ void main() {
 
       expect(harnessed.firestore.collectionPaths, <String>['users']);
       expect(harnessed.firestore.document.paths, <String?>['uid-1']);
-      // Hard rule 1: the doc holds these four and nothing else — no health
-      // data, and never `premium`, which is the webhook's to write.
+      // Hard rule 1: the doc holds these four and nothing else — no health data, and never `premium`, which is the webhook's to write.
       expect(harnessed.firestore.document.sets.single.keys, <String>[
         'geohash5',
         'fcmToken',
@@ -110,13 +108,11 @@ void main() {
         ),
       );
       expect(harnessed.firestore.document.sets, isEmpty);
-      // It must not even ask for notification permission: the prompt is spent
-      // once, and spending it on a device that cannot register wastes it.
+      // It must not even ask for notification permission: the prompt is spent once, and spending it on a device that cannot register wastes it.
       expect(harnessed.messaging.permissionRequests, isZero);
     });
 
-    /// Hard rule 7: premium needs an account, alerts need premium, so an
-    /// anonymous session can never reach the push path.
+    /// Hard rule 7: premium needs an account, alerts need premium, so an anonymous session can never reach the push path.
     test('refuses an anonymous session exactly like a signed-out one', () async {
       final harnessed = harness(user: FakeUser(isAnonymous: true));
 
@@ -149,8 +145,7 @@ void main() {
       expect(harnessed.firestore.document.sets, isEmpty);
     });
 
-    /// The simulator case: APNs does not exist there, so `getToken` answers
-    /// null. It is not a refusal and must not be reported as one.
+    /// The simulator case: APNs does not exist there, so `getToken` answers null. It is not a refusal and must not be reported as one.
     test('maps a null token to pushUnavailable', () async {
       final harnessed = harness(token: null);
 
@@ -182,9 +177,7 @@ void main() {
       expect(harnessed.firestore.document.sets, isEmpty);
     });
 
-    /// The console keeps the real exception; the UI gets an enum it can
-    /// render. What must never happen is the raw Firebase error reaching a
-    /// screen.
+    /// The console keeps the real exception; the UI gets an enum it can render. What must never happen is the raw Firebase error reaching a screen.
     test('maps an unexpected write failure to unknown', () async {
       final harnessed = harness(
         setThrows: FirebaseException(plugin: 'firestore', code: 'unavailable'),
@@ -225,8 +218,7 @@ void main() {
   });
 
   group('unregister', () {
-    /// Only the token: turning alerts off must not forget the threshold the
-    /// user chose, which they will want back when they turn them on again.
+    /// Only the token: turning alerts off must not forget the threshold the user chose, which they will want back when they turn them on again.
     test('deletes the token and leaves the threshold alone', () async {
       final harnessed = harness();
 
@@ -241,8 +233,7 @@ void main() {
       );
     });
 
-    /// An update, never a delete: the doc also carries `premium`, and a
-    /// delete would take a paying subscriber's alerts with it.
+    /// An update, never a delete: the doc also carries `premium`, and a delete would take a paying subscriber's alerts with it.
     test('swallows not-found — there was nothing to forget', () async {
       final harnessed = harness(
         updateThrows: FirebaseException(
@@ -270,8 +261,7 @@ void main() {
   });
 
   group('forgetRegistration', () {
-    /// The GDPR wipe: nothing may survive that could still reach the user or
-    /// say where they were.
+    /// The GDPR wipe: nothing may survive that could still reach the user or say where they were.
     test('deletes the token, the geohash, the threshold and the zone', () async {
       final harnessed = harness();
 
@@ -295,9 +285,7 @@ void main() {
   });
 
   group('sendTestPush', () {
-    /// It registers the token itself rather than requiring `register` to have
-    /// run: the token is only written when alerts are turned on, which needs
-    /// premium and a location fix.
+    /// It registers the token itself rather than requiring `register` to have run.
     test('writes the token, then calls the backend', () async {
       final harnessed = harness();
 
@@ -322,10 +310,7 @@ void main() {
       expect(harnessed.functions.callable.calls, isZero);
     });
 
-    /// Unlike `register`, this one does NOT map its failures: the dev row
-    /// that calls it wants the backend's own code (`unauthenticated`,
-    /// `permission-denied`, `failed-precondition`), which is the whole
-    /// diagnostic.
+    /// Unlike `register`, this one does NOT map its failures.
     test('lets the callable failure through unmapped', () async {
       final harnessed = harness();
       final FakeFirebaseFunctions functions = harnessed.functions;

@@ -1,22 +1,4 @@
 // Erase the Gemini watermark from a generated app-icon PNG.
-//
-//   dart run tool/strip_icon_marker.dart <in.png> <out.png> \
-//     [--rect=x,y,w,h] [--from=dx,dy] [--feather=n]
-//
-// Gemini stamps two four-point sparkles into the bottom-right corner of every
-// image it makes. They are not part of the artwork and must not ship, so this
-// clone-stamps a clean patch of the same background over them: the pixels at
-// `rect` are replaced by the pixels at `rect + from`, cross-faded over a
-// `feather`-wide band so no seam appears.
-//
-// Why a clone and not a flat fill: the background is a gradient with faint
-// diagonal streaks. A solid rectangle of #0C0C0E reads as a patch at 1024,
-// which is exactly the size App Store Connect shows the marketing icon at.
-//
-// The defaults are tuned for the v2 artwork (1024x1024, sparkles inside
-// x 866..1014 / y 864..1014, clean background 220px straight above). Pass the
-// flags for any other image, and always eyeball the result at 1024 before
-// running flutter_launcher_icons over it.
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -25,8 +7,7 @@ import 'package:image/image.dart';
 /// Region covering both sparkles, out to the two image edges.
 const _defaultRect = [826, 824, 198, 200];
 
-/// Offset to the patch that replaces it — straight up, clear of the head and
-/// of the analysis panel.
+/// Offset to the patch that replaces it — straight up, clear of the head and of the analysis panel.
 const _defaultFrom = [0, -220];
 
 /// Width of the cross-fade band, in pixels.
@@ -66,9 +47,7 @@ void main(List<String> args) {
   final dx = from[0];
   final dy = from[1];
 
-  // Only fade on the sides that have image beyond them. A side sitting on the
-  // image border has nothing to fade into, and fading there would leave the
-  // watermark half-visible in the corner.
+  // Only fade on the sides that have image beyond them.
   final fadeLeft = x0 > 0;
   final fadeTop = y0 > 0;
   final fadeRight = x1 < image.width;
@@ -82,9 +61,7 @@ void main(List<String> args) {
     exit(65);
   }
 
-  // Level-match the patch on the fade band, where both regions describe the
-  // same background: the corner is darker than the pixels 220 up, and copying
-  // them across untouched would show as a bright block.
+  // Level-match the patch on the fade band,.
   var bandCount = 0;
   var dr = 0.0, dg = 0.0, db = 0.0;
   for (var y = y0; y < y1; y++) {
@@ -111,8 +88,7 @@ void main(List<String> args) {
     '${db.toStringAsFixed(2)} over $bandCount px',
   );
 
-  // Read the whole patch before writing, so a patch that overlaps the region
-  // cannot feed already-rewritten pixels back into itself.
+  // Read the whole patch before writing, so a patch that overlaps the region cannot feed already-rewritten pixels back into itself.
   final source = copyCrop(
     image,
     x: x0 + dx,
@@ -145,8 +121,7 @@ void main(List<String> args) {
   stdout.writeln('out      ${output.path}');
 }
 
-/// Cross-fade weight of the patch at ([x], [y]): 1 in the core, 0 at a faded
-/// edge, smoothstepped in between.
+/// Cross-fade weight of the patch at ([x], [y]): 1 in the core, 0 at a faded edge, smoothstepped in between.
 double _weight(
   int x,
   int y,

@@ -3,10 +3,6 @@ import 'package:meta/meta.dart';
 import '../enums/health_data_kind.dart';
 
 /// Which Apple Health sources the user has connected.
-///
-/// The user's own choice, not a mirror of the OS grant — iOS never reports
-/// whether a *read* was allowed, so this records intent and the reads speak
-/// for themselves (empty = no access or no data).
 @immutable
 class HealthConnections {
   const HealthConnections({required this.sleep, required this.steps});

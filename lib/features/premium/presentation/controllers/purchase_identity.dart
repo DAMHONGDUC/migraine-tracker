@@ -5,30 +5,15 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../providers.dart';
 
 /// Keeps the store's idea of who is buying in step with the account.
-///
-/// RevenueCat identifies customers by its own app-user id. Left alone that
-/// is a per-install anonymous id, and an entitlement bought on one device
-/// would not exist on the next — so it is bound to the Firebase UID the
-/// moment there is one, and released on sign-out so the next account on a
-/// shared device does not inherit it.
 class PurchaseIdentity {
   PurchaseIdentity(this._ref);
 
   final Ref _ref;
 
-  /// The UID currently bound, so an unchanged auth state is not re-sent —
-  /// `logIn` is a network call and the auth stream fires on every launch.
-  /// Per instance, never static: one ProviderScope is one app, and a static
-  /// would carry one run's binding into the next (which is exactly what it
-  /// did across tests in the same file).
+  /// The UID currently bound, so an unchanged auth state is not re-sent — `logIn` is a network call and the auth stream fires on every launch.
   String? _boundUid;
 
-  /// [uid] null = signed out (or anonymous, which has nothing durable to
-  /// attach a purchase to).
-  ///
-  /// Never throws: purchases failing to identify must not take down the app
-  /// root's auth listener. The worst case is an entitlement that does not
-  /// follow the user until the next launch, which the logs will show.
+  /// [uid] null = signed out (or anonymous, which has nothing durable to attach a purchase to).
   Future<void> sync(String? uid) async {
     if (uid == _boundUid) return;
 

@@ -5,13 +5,10 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_style.dart';
 import '../extensions/context_extensions.dart';
 import '../permissions/app_permission_types.dart';
+import '../theme/app_icon_constant.dart';
+import '../theme/app_icon_size.dart';
 
-/// Shown when a permission is permanently denied — explains why the feature
-/// needs it and offers a jump to the OS Settings (the only way to re-enable
-/// it). [onOpenSettings] runs after the sheet closes.
-///
-/// Present it with `PermissionSettingsSheet(...).show(context)` — see
-/// [PermissionSettingsSheetExt].
+/// Shown when a permission is permanently denied — explains why the feature needs it and offers a jump to the OS Settings (the only way to re-enable it).
 class PermissionSettingsSheet extends StatelessWidget {
   const PermissionSettingsSheet({
     required this.type,
@@ -26,12 +23,12 @@ class PermissionSettingsSheet extends StatelessWidget {
     final l10n = context.l10n;
     return switch (type) {
       AppPermissionType.notification => (
-        icon: Icons.notifications_off_outlined,
+        icon: AppIconConstant.notificationsOff,
         title: l10n.permissionNotificationTitle,
         body: l10n.permissionNotificationBody,
       ),
       AppPermissionType.location => (
-        icon: Icons.location_off_outlined,
+        icon: AppIconConstant.locationOff,
         title: l10n.permissionLocationTitle,
         body: l10n.permissionLocationBody,
       ),
@@ -56,7 +53,7 @@ class PermissionSettingsSheet extends StatelessWidget {
           children: [
             SdIconV2(
               icon: content.icon,
-              size: SdSpacingConstant.r44,
+              size: AppIconSize.xLarge,
               color: AppColors.primary,
             ),
             SizedBox(height: SdSpacingConstant.h16),
@@ -93,10 +90,7 @@ class PermissionSettingsSheet extends StatelessWidget {
   }
 }
 
-/// Presents [PermissionSettingsSheet] as a bottom sheet. Completes when the
-/// sheet is dismissed. Sheets expose their opener as a `.show(context)`
-/// extension instead of a top-level `showX` function (see CLAUDE.md § Code
-/// style, "Bottom sheets and dialogs").
+/// Presents [PermissionSettingsSheet] as a bottom sheet.
 extension PermissionSettingsSheetExt on PermissionSettingsSheet {
   Future<void> show(BuildContext context) =>
       showSdBottomSheetV2<void>(context, builder: (_) => this);

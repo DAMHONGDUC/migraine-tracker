@@ -128,9 +128,11 @@ jobs:
       # file cannot be found", 300 seconds in, on a message that names a path
       # and no reason.
       #
-      # One secret, not one per flavor: both env files point at the same
-      # Firebase project today (docs/rules/PENDING_SETUP.md). Split them the
-      # way the env step splits its two the day that stops being true.
+      # One secret per flavor, since dev and prod are two Firebase projects
+      # (.firebaserc). They were one when this step was written, and the single
+      # secret is still read as a fallback so a repo that has not split it yet
+      # keeps releasing — but only for the flavor it actually belongs to: the
+      # lane's config check refuses the other one before the build.
       #
       # Base64, because the file is multi-line XML and a secret that loses its
       # newlines fails as an unreadable plist rather than as a missing one —
@@ -138,17 +140,50 @@ jobs:
       # job only ever runs on macos-*.
       - name: Write GoogleService-Info.plist
         env:
+          GOOGLE_SERVICE_INFO_PLIST_PROD: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PROD }}
+          GOOGLE_SERVICE_INFO_PLIST_DEV: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_DEV }}
           GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+          FLAVOR: ${{ inputs.flavor }}
         run: |
-          if [ -z "$GOOGLE_SERVICE_INFO_PLIST" ]; then
-            echo "::error::GOOGLE_SERVICE_INFO_PLIST is empty. Set it to the base64 of ios/Runner/GoogleService-Info.plist."
+          case "$FLAVOR" in
+            prod) CONTENT="$GOOGLE_SERVICE_INFO_PLIST_PROD" ;;
+            dev) CONTENT="$GOOGLE_SERVICE_INFO_PLIST_DEV" ;;
+            *) echo "::error::unknown flavor $FLAVOR"; exit 1 ;;
+          esac
+          [ -n "$CONTENT" ] || CONTENT="$GOOGLE_SERVICE_INFO_PLIST"
+          if [ -z "$CONTENT" ]; then
+            echo "::error::No plist secret for $FLAVOR. Set GOOGLE_SERVICE_INFO_PLIST_PROD / GOOGLE_SERVICE_INFO_PLIST_DEV to the base64 of that project's ios/Runner/GoogleService-Info.plist."
             exit 1
           fi
-          printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" | base64 -D > ios/Runner/GoogleService-Info.plist
+          printf '%s' "$CONTENT" | base64 -D > ios/Runner/GoogleService-Info.plist
           # Checks the shape, never the contents: a truncated or wrongly
           # encoded paste is otherwise indistinguishable from a good one until
           # Firebase.initializeApp throws on a device.
           plutil -lint ios/Runner/GoogleService-Info.plist
+
+      # ios/Runner/Info.plist is COMMITTED, and it carries the Google sign-in
+      # URL scheme — the reversed client id of ONE Firebase project, whichever
+      # `melos run prepare-env-dev|prod` was last run on the machine that made
+      # the commit. So the branch is right for one flavor and wrong for the
+      # other, and the wrong one builds, installs, opens the Google sheet and
+      # never gets its callback.
+      #
+      # Derived here from the plist just written, rather than carried as a
+      # third secret: it IS derived data, and two copies of it is what causes
+      # this. `sed` and not PlistBuddy because the value sits inside an array
+      # of dicts with no key addressing it, and it appears exactly once.
+      #
+      # The edit never reaches git: `commit_build_number` stages pubspec.yaml
+      # and the submodule only, and the checkout is discarded after the run.
+      - name: Point the sign-in URL scheme at this flavor's project
+        run: |
+          SCHEME=$(/usr/libexec/PlistBuddy -c 'Print :REVERSED_CLIENT_ID' ios/Runner/GoogleService-Info.plist)
+          if [ -z "$SCHEME" ]; then
+            echo "::error::GoogleService-Info.plist has no REVERSED_CLIENT_ID — Google sign-in is not configured on this Firebase project."
+            exit 1
+          fi
+          sed -i '' "s|com\.googleusercontent\.apps\.[A-Za-z0-9._-]*|$SCHEME|" ios/Runner/Info.plist
+          plutil -lint ios/Runner/Info.plist
 
       - name: Bootstrap
         run: melos bootstrap
@@ -198,7 +233,7 @@ jobs:
           MATCH_GIT_BEARER_AUTHORIZATION: ${{ secrets.MATCH_GIT_BEARER_AUTHORIZATION }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           # Unset simply skips the Crashlytics symbol upload with a warning.
-          FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
+          FIREBASE_APP_ID_IOS: ${{ secrets.FIREBASE_APP_ID_IOS }}
           # Fastlane's own output is long and its failures are near the end.
           FASTLANE_SKIP_UPDATE_CHECK: 'true'
           # The tester note travels as an env var, never as a lane argument:

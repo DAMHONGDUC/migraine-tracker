@@ -7,11 +7,6 @@ import '../../../sync/domain/entities/sync_record.dart';
 import '../../domain/entities/app_notification.dart';
 
 /// The notifications side of sync.
-///
-/// Nothing here holds a foreign key, so unlike reminders a row never has to
-/// wait for something else to arrive first — it is last in the collection
-/// order only so the medication and reminder it names are already on the
-/// device when the list renders it.
 class DriftAppNotificationSyncStore
     extends DriftSyncLocalStore<AppNotification> {
   const DriftAppNotificationSyncStore(super.db);
@@ -102,8 +97,7 @@ class DriftAppNotificationSyncStore
     db.appNotifications,
   )..where((r) => r.id.equals(id))).getSingleOrNull();
 
-  /// Matches the other stores: a row with no `updatedAt` has nothing to date
-  /// it by, so any remote copy wins.
+  /// Matches the other stores: a row with no `updatedAt` has nothing to date it by, so any remote copy wins.
   static final DateTime _beginning = DateTime.fromMillisecondsSinceEpoch(
     0,
     isUtc: true,

@@ -38,21 +38,58 @@ the medications tab the medication budget, each from that record's one
 ## The paywall
 
 - **Two doors, and every gate uses one of them.** A locked surface opens the
-  paywall sheet via `NavigationUtils.toPaywall`, signed in or not; the paywall
-  itself asks the account question ("Sign in to continue" →
-  `NavigationUtils.toLogin`, then back offering the purchase). The Settings
-  sign-in row is the only other way in. Never `pushNamed(AppRoutes.paywall…)` at
+  paywall sheet via `NavigationUtils.toPaywall`, signed in or not; the Settings
+  premium row is the only other way in. Never `pushNamed(AppRoutes.paywall…)` at
   a call site, and **never put a login screen in front of a paywall the user has
   not been shown** — the pitch comes first.
+- **Nothing on it waits on an account.** The plans, the CTA and Restore are the
+  same signed out as signed in, because premium unlocks the app's own features
+  rather than account-based content — App Store 5.1.1(v), and submission
+  1.0(20) was rejected for gating it. Under the CTA, and only signed out, one
+  text link offers sign-in for what it is actually worth ("use Premium on your
+  other devices"); it is an extra, never a step. The purchase lives on
+  RevenueCat's anonymous id until then, and `logIn` carries it onto the account.
+- **The sheet is a flat opaque panel on `AppColors.surfaceModal`** (owner's
+  call). It used to be the app's one frosted Liquid Glass surface, on the card
+  colour: the pitch, the plans and the CTA are all reading matter, and the
+  screen moving behind them competed with the one sheet that has to be read.
+  The modal colour is a step *darker* than `surface`, which is what lets the
+  cards it holds — the benefits, the plans — read as cards rather than as more
+  sheet. The close button carries no surface of its own.
+- **A plan row is an `SdCardV2`, and selection is the card's own fill and
+  edge**: `fillColor` at alpha 0.14 inside `borderColor`, both the accent.
+  There is no radio glyph — the tint and the edge already say which one is
+  chosen, and the circle said it a third time. Never reach for a 2px border to
+  make it louder; `SdCardV2.borderWidth` is a hairline on purpose.
 - **The pitch is one framed card, centred in the space above the plans**
   (owner's call). The six benefits sit in an `SdCardV2` on
-  `SdCardSurfaceV2.elevated` — a step up from the panel's glass, so what is being
+  `SdCardSurfaceV2.elevated` — a step up from the panel, so what is being
   sold reads as one block rather than loose rows. The headline and that card are
   centred together in what is left over the plans. **The hero storm icon is
   gone**: at `r64` it was the largest thing on the sheet and said nothing the
   headline does not. The pitch scrolls (`SliverFillRemaining`,
   `hasScrollBody: false`) so a long locale or large text outgrows it without
   clipping, while the plans and CTA stay pinned.
+
+## The build's own premium account
+
+**`PREMIUM_EMAIL` in `env/<flavor>.json` is premium on that build, in every
+flavour** (owner's rule). For the App Review account and the owner's device: a
+reviewer has to reach every gated screen, and a build cannot hand them a real
+subscription. `isPremiumEmailProvider` (`premium/providers.dart`) matches it
+against the signed-in address, trimmed and case-insensitive, and
+`hasPremiumProvider` reads it ahead of everything else.
+
+- **It is not the client-side premium flag this repo forbids.** That rule is
+  about state the running app can *write*. This is a compile-time constant, put
+  there by whoever ran the build, matched against an address only Google or
+  Apple sign-in can put on the session — so an anonymous session never matches
+  and nothing on device can change the answer.
+- **Unset is the normal state**, and an unset build cannot take the branch at
+  all: the provider returns false without even watching auth, which is why no
+  test had to learn about it.
+- **Unlike `DevPremiumOverride`, it is deliberately live in prod** — a dev-only
+  grant would be useless to the reviewer it exists for.
 
 ## What is locked, and how
 

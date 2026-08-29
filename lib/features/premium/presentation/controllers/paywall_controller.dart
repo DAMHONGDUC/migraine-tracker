@@ -8,20 +8,12 @@ import '../../domain/enums/purchase_error.dart';
 import '../../providers.dart';
 
 /// Loads what can be bought and runs the store flows.
-///
-/// Holds only the offers. Whether the user *is* premium stays with
-/// `hasPremiumProvider`, fed by the entitlement stream — this controller
-/// never decides that, so a bug here cannot unlock anything.
 class PaywallController extends AsyncNotifier<List<PremiumOffer>> {
   @override
   Future<List<PremiumOffer>> build() =>
       ref.watch(purchaseRepositoryProvider).offers();
 
   /// Returns true once the entitlement is active.
-  ///
-  /// A cancelled purchase is not an error — the user closed Apple's sheet —
-  /// so it comes back false and silent, exactly like `AuthError.cancelled`
-  /// in [LoginController]. Everything else rethrows for the widget to show.
   Future<bool> purchase(PremiumOffer offer) async {
     SdLogger.action(
       LogTagConstant.paywall,
@@ -60,9 +52,7 @@ class PaywallController extends AsyncNotifier<List<PremiumOffer>> {
     }
   }
 
-  /// Re-applies a purchase from another device or a reinstall. Returns
-  /// whether anything came back, so the caller can say "nothing to restore"
-  /// rather than leaving the user staring at an unchanged screen.
+  /// Re-applies a purchase from another device or a reinstall.
   Future<bool> restore() async {
     SdLogger.action(LogTagConstant.paywall, 'Restore purchases');
     AppAnalytics.logPurchaseRestored();

@@ -13,27 +13,19 @@ import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
 import '../logging/crash_reporter.dart';
 
-/// One-time app initialization run before `runApp`: Firebase with crash
-/// reporting and analytics on top of it, then the timezone DB used to
-/// schedule reminders at local wall time.
+/// One-time app initialization run before `runApp`.
 final class AppBootstrap {
   const AppBootstrap._();
 
-  /// Each step is guarded on its own, and deliberately NOT wrapped as a
-  /// whole: these concerns are independent, and one `try` around all of them
-  /// would let the first failure skip everything after it — including the
-  /// crash reporting that would have told us about it.
+  /// Each step is guarded on its own, and deliberately NOT wrapped as a whole.
   static Future<void> init() async {
     _installErrorLogging();
 
-    // - Firebase first so Crashlytics is up before anything else can fail.
-    // - It used to run last, which left a timezone failure reported nowhere.
+    // - Firebase first so Crashlytics is up before anything else can fail. - It used to run last, which left a timezone failure reported nowhere.
     await _initFirebase();
     await _initTimezone();
 
-    // One assert walking every required AppEnv value, so a missing
-    // --dart-define-from-file reports every gap at once. Debug only: Dart
-    // strips asserts from release, the build where the flag goes missing.
+    // One assert walking every required AppEnv value, so a missing --dart-define-from-file reports every gap at once.
     assert(
       AppEnv.missingConfigKeys.isEmpty,
       'Missing required config: ${AppEnv.missingConfigKeys.join(', ')}. '
@@ -49,15 +41,11 @@ final class AppBootstrap {
 
       await CrashReporter.init();
       // After init, so the first report SdLogger forwards has somewhere to go.
-      // Before this line every `SdLogger.error` reported to the package's
-      // no-op; after it the same calls reach Crashlytics, unnamed.
       SdCrashReporter.attach(const FirebaseCrashReporter());
       CrashReporter.setCustomKey('flavor', AppEnv.flavor);
       await AppAnalytics.init();
 
-      // iOS shows nothing for a push landing while the app is open unless it
-      // is told to — no banner, and no sound. Local reminders ask per
-      // notification (`presentSound`); a push cannot, so it is set once here.
+      // iOS shows nothing for a push landing while the app is open unless it is told to — no banner, and no sound.
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
             alert: true,
@@ -75,23 +63,7 @@ final class AppBootstrap {
     }
   }
 
-  /// "Anonymous by default": the app is fully usable without an account, but
-  /// the callables behind it still need a caller.
-  ///
-  /// `getWeather` is why. Weather is free (hard rule 1) and is what pairs a
-  /// logged attack with the pressure at that moment, but the endpoint spends
-  /// our WeatherKit key, so it will not serve a caller it cannot name. Without
-  /// this a fresh install got no forecast and no pressure on a logged attack,
-  /// both failing silently as "no weather".
-  ///
-  /// Awaited rather than fired off: a race would show that empty state on
-  /// first launch and nowhere else, which is the kind of bug reproduced once
-  /// and never again. Firebase persists the session, so this is one network
-  /// call on first launch and a no-op after.
-  ///
-  /// **Needs Anonymous enabled in the Firebase console.** Without it this
-  /// throws `admin-restricted-operation`, which the caller's guard swallows —
-  /// the app still starts, and weather is simply dead.
+  /// "Anonymous by default": the app is fully usable without an account, but the callables behind it still need a caller.
   static Future<void> _ensureAnonymousSession() async {
     if (FirebaseAuth.instance.currentUser != null) return;
 
@@ -99,16 +71,6 @@ final class AppBootstrap {
   }
 
   /// Timezone DB, so reminders fire at local wall time.
-  ///
-  /// Guarded because it runs before `runApp`: an unhandled throw here does
-  /// not show an error screen, it stops the app from starting at all. A
-  /// device can report an identifier this database has never heard of, and
-  /// that must not be the difference between a working app and a dead one.
-  ///
-  /// The fallback leaves `tz.local` at UTC, so reminders would fire at the
-  /// wrong hour rather than not at all — worse than correct, better than an
-  /// app that will not open, and reported either way so it does not stay
-  /// invisible.
   static Future<void> _initTimezone() async {
     tzdata.initializeTimeZones();
 
@@ -128,9 +90,7 @@ final class AppBootstrap {
     }
   }
 
-  /// Console logging for framework errors, installed before anything else so
-  /// a failed Firebase init still leaves a usable debug build.
-  /// [CrashReporter.init] chains onto this handler and adds the reporting.
+  /// Console logging for framework errors, installed before anything else so a failed Firebase init still leaves a usable debug build.
   static void _installErrorLogging() {
     final FlutterExceptionHandler? previousOnError = FlutterError.onError;
 

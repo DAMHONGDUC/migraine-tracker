@@ -1,9 +1,6 @@
 import 'package:meta/meta.dart';
 
 /// Weather conditions captured (or backfilled) at the time of an attack.
-///
-/// [pressureDelta24hHpa] is the pressure change over the 24 hours *before*
-/// [capturedAt]; negative values mean the pressure dropped.
 @immutable
 class WeatherSnapshot {
   WeatherSnapshot({

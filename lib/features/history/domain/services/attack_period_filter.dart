@@ -5,9 +5,7 @@ import '../enums/history_period.dart';
 class AttackPeriodFilterer {
   const AttackPeriodFilterer();
 
-  /// Inclusive lower bound (local time) of [period] relative to [now], or
-  /// null for [HistoryPeriod.all]. Weeks start on Monday to match the
-  /// frequency chart.
+  /// Inclusive lower bound (local time) of [period] relative to [now], or null for [HistoryPeriod.all]. Weeks start on Monday to match the frequency chart.
   DateTime? periodStart(HistoryPeriod period, DateTime now) {
     final local = now.toLocal();
     final midnight = DateTime(local.year, local.month, local.day);

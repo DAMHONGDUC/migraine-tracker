@@ -14,18 +14,14 @@ import '../../domain/entities/medication_reminder.dart';
 import '../../domain/services/notification_scheduler.dart';
 import '../../providers.dart';
 
-/// Orchestrates reminders: persists them AND (re)schedules the matching OS
-/// notifications. The notification body strings are passed in from the UI
-/// (l10n lives there, not in the controller).
+/// Orchestrates reminders: persists them AND (re)schedules the matching OS notifications.
 class RemindersController {
   const RemindersController(this._ref);
 
   final Ref _ref;
   static const _uuid = Uuid();
 
-  /// Persists a new reminder and schedules its notification. Notification
-  /// permission is the caller's responsibility now (via `AppPermission`), so
-  /// this no longer prompts.
+  /// Persists a new reminder and schedules its notification.
   Future<void> add({
     required String medicationId,
     required String medicationName,
@@ -65,10 +61,7 @@ class RemindersController {
     }
   }
 
-  /// Changes an existing reminder's time of day and reschedules its
-  /// notification (which fires at the new time). A disabled reminder just
-  /// updates its stored time — [NotificationScheduler.schedule] cancels the
-  /// old one and skips scheduling until it's re-enabled.
+  /// Changes an existing reminder's time of day and reschedules its notification (which fires at the new time).
   Future<void> updateTime(
     MedicationReminder reminder, {
     required String medicationName,
@@ -143,15 +136,6 @@ class RemindersController {
   }
 
   /// Re-lays the OS notification for every enabled reminder.
-  ///
-  /// Sync moves the rows but not the schedules: a notification is registered
-  /// with the OS of the device that made it, so a reminder pulled from
-  /// another phone would sit in the list and never fire. Called after a pull
-  /// brought reminders down.
-  ///
-  /// Never throws — this is background work behind a sync that nothing waits
-  /// on, and a reminder that failed to schedule is fixed by the next pull or
-  /// by the user touching it.
   Future<void> rescheduleAll() async {
     try {
       final List<MedicationReminder> reminders = await _ref
@@ -183,8 +167,7 @@ class RemindersController {
       for (final MedicationReminder reminder in reminders) {
         final String? medicationName = names[reminder.medicationId];
 
-        // The medication has not arrived yet; the pull that brings it will
-        // bring this reminder's schedule with it.
+        // The medication has not arrived yet; the pull that brings it will bring this reminder's schedule with it.
         if (medicationName == null) continue;
         await scheduler.schedule(
           reminder,
@@ -203,9 +186,7 @@ class RemindersController {
     }
   }
 
-  /// Debug-only: fires a one-off notification shortly from now so a developer
-  /// can confirm delivery without waiting for a real reminder. Strings come
-  /// from the UI (l10n).
+  /// Debug-only: fires a one-off notification shortly from now so a developer can confirm delivery without waiting for a real reminder.
   Future<void> sendTest({
     required String title,
     required String body,

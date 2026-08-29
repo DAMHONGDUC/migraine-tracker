@@ -1,8 +1,6 @@
 part of 'login_screen.dart';
 
-/// Hard rule 1: state this where the user decides, and keep it true. Today
-/// an account uploads nothing beyond the alert settings they opted into.
-/// The copy changes when encrypted sync ships — not before.
+/// Hard rule 1: state this where the user decides, and keep it true.
 class _PrivacyDisclosure extends StatelessWidget {
   const _PrivacyDisclosure();
 
@@ -21,8 +19,8 @@ class _PrivacyDisclosure extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SdIconV2(
-           icon: Icons.lock_outline,
-            size: SdSpacingConstant.r20,
+           icon: AppIconConstant.locked,
+            size: AppIconSize.xSmall,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(width: SdSpacingConstant.w12),

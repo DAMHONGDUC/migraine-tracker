@@ -54,8 +54,7 @@ void main() {
   });
 
   test('week boundary uses local Monday midnight, not a rolling 7 days', () {
-    // The Monday that starts "this week" belongs to this week; the Sunday
-    // just before it belongs to last week.
+    // The Monday that starts "this week" belongs to this week; the Sunday just before it belongs to last week.
     final summary = calculator.compute([
       _attack(DateTime(2026, 7, 20)), // Mon 00:00 — this week
       _attack(DateTime(2026, 7, 19, 23, 59)), // Sun 23:59 — last week

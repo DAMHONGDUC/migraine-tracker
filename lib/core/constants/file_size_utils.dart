@@ -1,7 +1,6 @@
 import '../../l10n/gen/app_localizations.dart';
 
-/// Formats a byte count for display. Localized because the unit sits next to
-/// the number and some locales space it differently.
+/// Formats a byte count for display. Localized because the unit sits next to the number and some locales space it differently.
 final class FileSizeUtils {
   static const int _kb = 1024;
   static const int _mb = 1024 * 1024;

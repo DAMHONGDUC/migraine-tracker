@@ -4,15 +4,13 @@ import '../../../dashboard/domain/services/week_summary_calculator.dart';
 import '../../../weather/domain/entities/daily_pressure.dart';
 import '../entities/home_widget_snapshot.dart';
 
-/// Turns the app's own data into what the home-screen widget shows. Pure
-/// Dart — the numbers are decided here, the wording elsewhere.
+/// Turns the app's own data into what the home-screen widget shows. Pure Dart — the numbers are decided here, the wording elsewhere.
 class HomeWidgetSnapshotBuilder {
   const HomeWidgetSnapshotBuilder({
     this.weeks = const WeekSummaryCalculator(),
   });
 
-  /// The dashboard's own calculator, so the widget's count and the card's
-  /// can never disagree about where a week starts.
+  /// The dashboard's own calculator, so the widget's count and the card's can never disagree about where a week starts.
   final WeekSummaryCalculator weeks;
 
   HomeWidgetSnapshot build({
@@ -25,8 +23,7 @@ class HomeWidgetSnapshotBuilder {
       HomeWidgetConstant.pressureMaxAge,
     );
 
-    // A row survives however long the phone stayed shut, so the widget shows
-    // its dash rather than last week's weather as today's.
+    // A row survives however long the phone stayed shut, so the widget shows its dash rather than last week's weather as today's.
     if (pressure == null || expiresAt == null || !expiresAt.isAfter(now)) {
       return HomeWidgetSnapshot(weekCount: weekCount);
     }

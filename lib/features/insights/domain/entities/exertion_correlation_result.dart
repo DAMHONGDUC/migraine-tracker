@@ -11,8 +11,7 @@ sealed class ExertionCorrelationResult {
   /// Attacks the user actually answered the exertion question for.
   final int attacksAnalyzed;
 
-  /// Where the figure stops moving with every new log. Not a gate — the
-  /// analysis is returned below it too, flagged by [isPreliminary].
+  /// Where the figure stops moving with every new log. Not a gate — the analysis is returned below it too, flagged by [isPreliminary].
   final int requiredAttacks;
 
   /// The figure is real but still shifts a lot per attack, so say so beside it.
@@ -61,7 +60,6 @@ class ExertionInsight extends ExertionCorrelationResult {
   double get moderateOrSeverePercent =>
       moderateOrSevereCount * 100 / attacksAnalyzed;
 
-  /// A percentage off this few attacks is false precision — one attack is
-  /// 0% or 100%. "2 of 3" is the same fact without the overclaim.
+  /// A percentage off this few attacks is false precision — one attack is 0% or 100%. "2 of 3" is the same fact without the overclaim.
   bool get isCountOnly => attacksAnalyzed < minAttacksForShare;
 }

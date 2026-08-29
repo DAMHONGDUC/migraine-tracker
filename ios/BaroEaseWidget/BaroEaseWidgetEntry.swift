@@ -2,8 +2,7 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-/// Which way pressure moved. Mirrors `PressureTrend` on the Dart side; the
-/// raw values are the tokens that travel in the App Group.
+/// Which way pressure moved. Mirrors `PressureTrend` on the Dart side; the raw values are the tokens that travel in the App Group.
 enum BaroEasePressureTrend: String {
   case falling
   case rising
@@ -25,11 +24,6 @@ enum BaroEasePressureTrend: String {
 }
 
 /// One rendering of the widget.
-///
-/// Every string arrives finished from the app. The only text this extension
-/// owns is [placeholder]'s, which is shown in the widget gallery before any
-/// data exists and is deliberately neutral rather than translated — there is
-/// no locale to read at that point.
 struct BaroEaseEntry: TimelineEntry {
   let date: Date
   let logLabel: String
@@ -38,8 +32,7 @@ struct BaroEaseEntry: TimelineEntry {
   let pressureLabel: String
   let pressureValue: String
   let pressureDetail: String
-  /// Apple's weather trademark, required wherever WeatherKit data is drawn.
-  /// Arrives already worded — the extension cannot reach the ARB files.
+  /// Apple's weather trademark, required wherever WeatherKit data is drawn. Arrives already worded — the extension cannot reach the ARB files.
   let attribution: String
   let trend: BaroEasePressureTrend
 
@@ -57,8 +50,7 @@ struct BaroEaseEntry: TimelineEntry {
     trend: .unknown
   )
 
-  /// Reads the App Group. [withPressure] false is the same entry with the
-  /// reading blanked — what the timeline shows once it has expired.
+  /// Reads the App Group. [withPressure] false is the same entry with the reading blanked — what the timeline shows once it has expired.
   static func fromStore(date: Date, withPressure: Bool) -> BaroEaseEntry {
     let hasPressure = withPressure && BaroEaseWidgetStore.string("pressure_value") != nil
 

@@ -4,8 +4,7 @@ import 'package:migraine_tracker/features/app_update/data/repositories/app_updat
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/enums/app_platform.dart';
 
-/// The record is typed by hand in the Firebase console, so every parse has
-/// to degrade to "don't block" instead of throwing on launch.
+/// The record is typed by hand in the Firebase console, so every parse has to degrade to "don't block" instead of throwing on launch.
 void main() {
   Map<String, Object?> platform({
     Object? buildNumber = 12,

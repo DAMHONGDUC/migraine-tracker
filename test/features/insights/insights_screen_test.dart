@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -30,9 +31,7 @@ void main() {
     await pumpApp(tester);
     await openPressureInsight(tester);
 
-    // The whole card is the purchase now, so the forecast, the correlation and
-    // the alert share ONE offer — each carrying its own line made a single
-    // offer read as three.
+    // The whole card is the purchase now, so the forecast, the correlation and the alert share ONE offer.
     expect(
       find.text(
         'See the pressure forecast, how closely your attacks track it, and '
@@ -131,8 +130,7 @@ void main() {
 
     await openPressureInsight(tester);
 
-    // The point of the lock is that the number is never computed into a free
-    // user's widget tree — not that it is computed and then hidden.
+    // The point of the lock is that the number is never computed into a free user's widget tree — not that it is computed and then hidden.
     expect(find.text('60%'), findsNothing);
     expect(find.text('100%'), findsNothing);
     expect(find.text('10/10'), findsNothing);
@@ -151,19 +149,13 @@ void main() {
     await openInsights(tester);
     await pumpCountUp(tester);
 
-    // Insights opens on Pressure now that weather has left for the dashboard,
-    // so the card is up without a tab switch: the segment and the card's own
-    // title are both on screen, which is why nothing here taps "Pressure".
+    // Insights opens on Pressure now that weather has left for the dashboard, so the card is up without a tab switch.
     expect(find.text('Pressure'), findsWidgets);
 
-    // ONE card, not a forecast card beside a correlation card: the bodies are
-    // cardless and folded in, so the standalone `Pressure correlation` title
-    // never appears here.
+    // ONE card, not a forecast card beside a correlation card.
     expect(find.text('Pressure correlation'), findsNothing);
     expect(find.text('Pressure-drop alerts'), findsOneWidget);
-    // A bare Switch inside `_AlertRow`, never a SwitchListTile — that one
-    // brings Material's 48pt tap target and makes the two rows different
-    // heights, which is what made the pair look unfinished.
+    // A bare Switch inside `_AlertRow`, never a SwitchListTile.
     expect(find.byType(Switch), findsOneWidget);
 
     await finishTest(tester);
@@ -178,9 +170,7 @@ void main() {
 
     await openPressureInsight(tester);
 
-    // Owner's call, and it reversed the first version: a switch that will not
-    // switch and a threshold row that will not open read as a broken screen
-    // rather than as an offer, so neither control is built at all.
+    // Owner's call, and it reversed the first version.
     expect(find.text('Pressure-drop alerts'), findsNothing);
     expect(find.byType(Switch), findsNothing);
 
@@ -194,17 +184,17 @@ void main() {
     final repository = DriftAttackRepository(app.db);
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
-    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    // `.last` is the nav bar: the dashboard's quick-access tile draws the same glyph, since the tile and the tab share one constant.
+    await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     // History defaults to list mode; switch to chart via the app-bar toggle.
-    await tester.tap(find.byIcon(Icons.bar_chart));
+    await tester.tap(find.byIcon(AppIconConstant.barChart));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    // The chart deck now stacks several charts (some also BarCharts), so
-    // target the weekly-frequency one specifically.
+    // The chart deck now stacks several charts (some also BarCharts), so target the weekly-frequency one specifically.
     expect(find.byType(WeeklyFrequencyChart), findsOneWidget);
     expect(find.text('Attacks per week'), findsOneWidget);
 

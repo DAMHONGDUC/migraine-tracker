@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
 /// An AES-GCM ciphertext and everything needed to open it again, all base64.
-///
-/// The nonce is fresh per write and the MAC authenticates the ciphertext, so
-/// a payload tampered with in transit or at rest fails to decrypt rather than
-/// decoding to something plausible.
 @immutable
 class EncryptedPayload {
   const EncryptedPayload({

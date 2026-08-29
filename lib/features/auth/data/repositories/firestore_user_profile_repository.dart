@@ -7,9 +7,7 @@ import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'user_profile_mapper.dart';
 
-/// The account document for a signed-in user, in the same `users/{uid}` doc
-/// the alert registration already writes (merge writes, disjoint keys — see
-/// [UserProfileMapper]).
+/// The account document for a signed-in user, in the same `users/{uid}` doc the alert registration already writes (merge writes, disjoint keys.
 class FirestoreUserProfileRepository implements UserProfileRepository {
   const FirestoreUserProfileRepository(this._firestore);
 
@@ -29,9 +27,7 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
         return UserProfileMapper.fromMap(uid, data);
       });
 
-  /// One read before the write, to answer two questions the write itself
-  /// cannot: is this the first time (stamp `createdAt`), and has the user
-  /// already named themselves here (then the provider's name must not win).
+  /// One read before the write, to answer two questions the write itself cannot.
   @override
   Future<void> upsertFromAccount(AuthUser user) async {
     final DocumentSnapshot<Map<String, dynamic>> existing = await _doc(
@@ -54,8 +50,7 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
       write[UserProfileMapper.createdAtField] = FieldValue.serverTimestamp();
     }
 
-    // Field names, never their values: this document holds the user's name,
-    // email and photo URL, and none of that belongs in a console.
+    // Field names, never their values: this document holds the user's name, email and photo URL, and none of that belongs in a console.
     final Map<String, Object?> what = <String, Object?>{
       'uid': user.uid,
       'isNew': !existing.exists,

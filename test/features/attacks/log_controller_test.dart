@@ -20,8 +20,7 @@ class _NoWeather implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => null;
 
-  // The weather card's payload. No widget test draws it, and no non-UI
-  // test needs it, so every fake answers "no weather".
+  // The weather card's payload. No widget test draws it, and no non-UI test needs it, so every fake answers "no weather".
   @override
   Future<WeatherReport?> report() async => null;
 }
@@ -116,8 +115,7 @@ void main() {
     expect(state().hasDraft, isTrue);
     expect(state().draft, ExertionLevel.none);
 
-    // Straight through both without touching either: neither step may hold
-    // an attack hostage (hard rule 5).
+    // Straight through both without touching either: neither step may hold an attack hostage (hard rule 5).
     await controller().confirmStep();
 
     expect(state().step, LogStep.saved);

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import 'attack_details_sheet.dart';
 
@@ -31,8 +33,8 @@ class SavedStep extends StatelessWidget {
               builder: (context, scale, child) =>
                   Transform.scale(scale: scale, child: child),
               child: SdIconV2(
-                icon: Icons.check_circle_outline,
-                size: SdSpacingConstant.r64,
+                icon: AppIconConstant.saved,
+                size: AppIconSize.xxLarge,
                 color: context.colorScheme.primary,
               ),
             ),

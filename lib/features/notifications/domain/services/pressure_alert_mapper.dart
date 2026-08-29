@@ -2,24 +2,13 @@ import '../entities/app_notification.dart';
 import '../enums/notification_type.dart';
 
 /// Turns the `data` payload of a pressure-alert push into a list row.
-///
-/// Pure, so the awkward part of push handling — what the message means — is
-/// testable without a device, a token or a live Firebase.
-///
-/// The text is deliberately NOT read off the message: the backend writes it
-/// in English whatever language the user picked, so only the numbers travel
-/// and the list renders its own strings (hard rule 6).
 final class PressureAlertMapper {
   const PressureAlertMapper._();
 
-  /// The value the backend sets on `type`, so a future message of some
-  /// other type is not mistaken for this one.
+  /// The value the backend sets on `type`, so a future message of some other type is not mistaken for this one.
   static const String typeValue = 'pressureAlert';
 
-  /// Null when the message is not a pressure alert, or is missing the two
-  /// fields the row cannot be built without. Returning null rather than
-  /// throwing is deliberate: a push arrives from outside the app, and a
-  /// malformed one must be ignored, not crash a handler.
+  /// Null when the message is not a pressure alert, or is missing the two fields the row cannot be built without.
   static AppNotification? fromData(Map<String, dynamic> data) {
     if (data['type'] != typeValue) return null;
 
@@ -32,15 +21,7 @@ final class PressureAlertMapper {
     );
   }
 
-  /// The same row from the `lastAlert*` fields on `users/{uid}`, which the
-  /// cron writes after every push.
-  ///
-  /// This is how an alert that arrived while the app was shut reaches the
-  /// list: the push handler only runs with the app open, so without a
-  /// reconcile a user who never taps the banner never gets the row.
-  ///
-  /// Takes plain Dart values — the caller converts the Firestore `Timestamp`
-  /// — so `domain/` keeps no dependency on cloud_firestore.
+  /// The same row from the `lastAlert*` fields on `users/{uid}`, which the cron writes after every push.
   static AppNotification? fromRecord({
     required Object? eventId,
     required DateTime? occurredAt,
@@ -50,8 +31,7 @@ final class PressureAlertMapper {
     if (occurredAt == null) return null;
 
     return AppNotification(
-      // Keyed by the event the backend already dedupes on, so the foreground
-      // handler, a reconcile and a pull of the same alert land on one row.
+      // Keyed by the event the backend already dedupes on, so the foreground handler, a reconcile and a pull of the same alert land on one row.
       id: AppNotification.pressureAlertId(eventId),
       type: NotificationType.pressureAlert,
       occurredAt: occurredAt.toUtc(),
@@ -59,9 +39,7 @@ final class PressureAlertMapper {
     );
   }
 
-  /// The row survives a missing or unparseable drop — the detail screen
-  /// leaves the reading out rather than printing a number the forecast
-  /// never gave.
+  /// The row survives a missing or unparseable drop — the detail screen leaves the reading out rather than printing a number the forecast never gave.
   static double? _drop(Object? value) => switch (value) {
     final num number => number.toDouble(),
     final String text => double.tryParse(text),

@@ -25,10 +25,11 @@ silent one, so don't read "no sheet appeared" as "it works".
    fast an un-block must reach users, and never cache the "blocked" verdict
    longer than the "not blocked" one.
 
-`env/dev.json` and `env/prod.json` point at the SAME Firebase project, so a
-blocking record written while testing hits real users. Fix it by standing up a
-second project (`docs/setup/FIREBASE_PROJECT.md`), or wire the emulator behind
-`!AppEnv.isProd` before testing one post-launch.
+`env/dev.json` and `env/prod.json` point at two projects now
+(`migraine-tracker-9f7b2` and `migraine-tracker-prd`, per `.firebaserc`), so a
+blocking record written while testing stays off real users — as long as the
+checkout really is the dev one. `fastlane beta` verifies that before it builds;
+`melos run prepare-env-dev` is what puts it right.
 
 ## HealthKit — code and Xcode project done, portal side not
 
@@ -201,15 +202,18 @@ match can succeed and the build still fail to sign.
    is `readonly: true` and can only install what already exists.
 5. **`ios/fastlane/.env`** on the developer's Mac — six keys, gitignored.
 6. **Repository secrets** (Settings → Secrets and variables → Actions):
-   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST`, `ASC_KEY_ID`,
-   `ASC_ISSUER_ID`, `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and
-   **one of** `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
-   `GOOGLE_SERVICE_INFO_PLIST` is base64 of `ios/Runner/GoogleService-Info.plist`
-   — gitignored, and a build input of the Runner target, so without it the
-   archive fails rather than the app misbehaving. `FIREBASE_IOS_APP_ID` is
-   optional (unset skips the Crashlytics symbol upload with a warning); it is an
-   env var rather than a plist read because that file is absent from a CI
-   checkout.
+   `ENV_PROD_JSON`, `ENV_DEV_JSON`, `GOOGLE_SERVICE_INFO_PLIST_PROD`,
+   `GOOGLE_SERVICE_INFO_PLIST_DEV`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
+   `ASC_KEY_CONTENT`, `MATCH_PASSWORD`, `MATCH_GIT_URL`, and **one of**
+   `MATCH_GIT_BASIC_AUTHORIZATION` / `MATCH_GIT_BEARER_AUTHORIZATION`.
+   The two plist secrets are base64 of each project's
+   `ios/Runner/GoogleService-Info.plist` — gitignored, and a build input of the
+   Runner target, so without one the archive fails rather than the app
+   misbehaving. One per flavor because dev and prod are two Firebase projects,
+   and the lane refuses a build whose plist is not the flavor's own.
+   `FIREBASE_APP_ID_IOS` is optional (unset skips the Crashlytics symbol upload
+   with a warning) but is checked against the plist when set; it is an env var
+   rather than a plist read because that file is absent from a CI checkout.
 7. **Fastlane on the Mac**, for step 4 and for a local run: `brew install
    fastlane`, or rbenv plus `cd ios && bundle install`. The system Ruby is 2.6
    and deprecated — gems there need sudo and are not worth the trouble.
@@ -241,7 +245,7 @@ release. Note the shape of the trap: the one check meant to catch missing config
 is compiled out in precisely the build where the mistake happens.
 
 **The crash was RevenueCat, and it was a bad API key — `test_...` left in
-`REVENUECAT_IOS_KEY`.** RevenueCat's native SDK answers a key carrying another
+`REVENUECAT_KEY_IOS`.** RevenueCat's native SDK answers a key carrying another
 platform's prefix with `fatalError`, which kills the process. **No Dart `catch`
 can survive that**, so the guards around `ensureConfigured` never applied — they
 only ever caught Dart throws — and Swift keeps `fatalError` in release, so it
@@ -263,20 +267,20 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
 `StateError`. What the owner must do by hand:
 
 1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders already
-   added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and optionally
+   added): `REVENUECAT_KEY_IOS`, `REVENUECAT_KEY_ANDROID`, and optionally
    `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and `REVENUECAT_OFFERING`
    (empty = whatever the dashboard marks current).
-2. **Products in App Store Connect** — monthly $4.99, yearly $29.99, lifetime
-   $44.99 — plus the Paid Apps Agreement, then the same three attached to a
-   RevenueCat offering. Until an offering exists the paywall correctly shows "no
+2. **Products in App Store Connect** — monthly $4.99 and yearly $29.99 — plus
+   the Paid Apps Agreement, then the same two attached to a RevenueCat
+   offering. Until an offering exists the paywall correctly shows "no
    plans available"; that is not a bug. **Submission 1.0(11) was rejected under
    App Store 2.1(b) for exactly that screen**, so the checklist, in order:
    - the Paid Apps Agreement signed and *active*;
-   - all three IAPs in **Ready to Submit** and attached to the build at
+   - both IAPs in **Ready to Submit** and attached to the build at
      submission;
-   - in RevenueCat, the three products in **one offering marked Current**, under
+   - in RevenueCat, both products in **one offering marked Current**, under
      entitlement id `premium`;
-   - `REVENUECAT_IOS_KEY` a real `appl_...` key (a `test_...` one is the fatal
+   - `REVENUECAT_KEY_IOS` a real `appl_...` key (a `test_...` one is the fatal
      crash above, not an empty paywall);
    - bought once in **sandbox on a real device** before resubmitting.
 
@@ -286,7 +290,7 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
    store's own string: currency, position and decimal separator belong to the
    customer's storefront.
 
-Only `PackageType.monthly` / `annual` / `lifetime` are rendered; anything else
-the dashboard adds is skipped rather than drawn blind. Purchases are bound to the
-Firebase UID via `PurchaseIdentity`, so an entitlement follows the person, not
-the install.
+Only `PackageType.monthly` / `annual` are rendered; anything else the dashboard
+adds — a leftover `lifetime` included — is skipped rather than drawn blind.
+Purchases are bound to the Firebase UID via `PurchaseIdentity`, so an
+entitlement follows the person, not the install.

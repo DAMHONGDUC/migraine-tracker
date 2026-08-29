@@ -1,9 +1,7 @@
 import '../../features/history/domain/services/chart_analytics.dart';
 import '../../l10n/gen/app_localizations.dart';
 
-/// User-facing labels for the History chart enums, kept out of the pure-Dart
-/// calculators (which stay Flutter/l10n free) — same split as
-/// `head_location_label.dart`.
+/// User-facing labels for the History chart enums, kept out of the pure-Dart calculators (which stay Flutter/l10n free).
 extension SeverityBandLabel on SeverityBand {
   String label(AppLocalizations l10n) => switch (this) {
     SeverityBand.mild => l10n.historySeverityMild,

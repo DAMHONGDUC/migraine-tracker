@@ -3,15 +3,11 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/export_kind_label.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/export_kind.dart';
 
-/// Picks what to export. Pops the choice, or null.
-///
-/// Not the generic filter sheet: there is no "currently selected" kind to
-/// pre-check. It is an action picker, so rows carry an icon, not a radio.
-///
-/// Show it with `ExportKindSheet().show(context)`.
+/// Picks what to export.
 class ExportKindSheet extends StatelessWidget {
   const ExportKindSheet({super.key});
 
@@ -43,8 +39,7 @@ class ExportKindSheet extends StatelessWidget {
   }
 }
 
-/// One export option. No gate here: the export screen is premium in full
-/// (`NavigationUtils.toExport`), so nothing free ever reaches this sheet.
+/// One export option. No gate here: the export screen is premium in full (`NavigationUtils.toExport`), so nothing free ever reaches this sheet.
 class _KindTile extends StatelessWidget {
   const _KindTile({required this.kind});
 
@@ -53,15 +48,15 @@ class _KindTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: SdIconV2(icon: kind.icon, color: context.colorScheme.primary),
+      leading: SdIconV2(icon: kind.icon,
+                size: AppIconSize.medium, color: context.colorScheme.primary),
       title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportKindSheetExt on ExportKindSheet {
   Future<ExportKind?> show(BuildContext context) =>
       showSdBottomSheetV2<ExportKind>(context, builder: (_) => this);

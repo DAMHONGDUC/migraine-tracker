@@ -11,8 +11,7 @@ import 'domain/entities/alerts_settings.dart';
 import 'domain/repositories/alert_registration_repository.dart';
 import 'presentation/controllers/alerts_controller.dart';
 
-/// Only read inside controller actions (never watched at build time) so
-/// screens and tests don't touch Firebase until the user flips the toggle.
+/// Only read inside controller actions (never watched at build time) so screens and tests don't touch Firebase until the user flips the toggle.
 final alertRegistrationRepositoryProvider =
     Provider<AlertRegistrationRepository>(
       (ref) => FirebaseAlertRegistrationRepository(

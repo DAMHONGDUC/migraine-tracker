@@ -26,8 +26,7 @@ void main() {
       const Offset(0, -200),
     );
 
-    // Alongside export and delete: sync is one more thing that happens to the
-    // user's data, not a section of its own.
+    // Alongside export and delete: sync is one more thing that happens to the user's data, not a section of its own.
     expect(find.text('Export data'), findsOneWidget);
 
     await tapVisible(tester, find.text('Sync data to cloud'));

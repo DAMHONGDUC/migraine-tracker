@@ -186,8 +186,7 @@ void main() {
             startedAt: DateTime.utc(2026, 3, 8, 12).add(Duration(days: i)),
           ),
       ]);
-      // Same instants expressed as local wall-clock time (crosses the US
-      // DST shift on 2026-03-08).
+      // Same instants expressed as local wall-clock time (crosses the US DST shift on 2026-03-08).
       final localResult = engine.analyze([
         for (var i = 0; i < 15; i++)
           attack(

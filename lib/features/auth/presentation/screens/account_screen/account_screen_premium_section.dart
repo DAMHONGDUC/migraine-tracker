@@ -1,8 +1,6 @@
 part of 'account_screen.dart';
 
-/// Entitlement state, read from [hasPremiumProvider] — the one source every
-/// gate uses, never a flag stored on the account document. The row is a
-/// summary; the detail (and the purchase) lives on [PremiumScreen].
+/// Entitlement state, read from [hasPremiumProvider] — the one source every gate uses, never a flag stored on the account document.
 class _PremiumSection extends ConsumerWidget {
   const _PremiumSection();
 
@@ -13,7 +11,7 @@ class _PremiumSection extends ConsumerWidget {
 
     return ListTile(
       leading: SdIconV2(
-        icon: premium ? Icons.workspace_premium : Icons.lock_outline,
+        icon: premium ? AppIconConstant.premium : AppIconConstant.locked,
         color: premium ? context.colorScheme.primary : null,
       ),
       title: Text(
@@ -24,7 +22,8 @@ class _PremiumSection extends ConsumerWidget {
         premium ? l10n.accountPremiumActiveBody : l10n.accountPremiumFreeBody,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const SdIconV2(icon: Icons.chevron_right),
+      trailing: SdIconV2(icon: AppIconConstant.disclosure,
+        size: AppIconSize.small),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

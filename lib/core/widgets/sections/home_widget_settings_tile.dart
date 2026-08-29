@@ -4,17 +4,11 @@ import 'package:system_design/index.dart';
 
 import '../../../features/home_widget/providers.dart';
 import '../../extensions/context_extensions.dart';
+import '../../theme/app_icon_constant.dart';
+import '../../theme/app_icon_size.dart';
 import '../../theme/app_text_style.dart';
 
 /// Settings switch for the home-screen widget.
-///
-/// A switch and not a row leading somewhere: there is nothing to configure —
-/// the widget shows the log button, this week's count and the latest
-/// pressure, and the only question is whether it is fed at all. Turning it
-/// off empties the shared container rather than freezing the last numbers on
-/// the home screen.
-///
-/// Absent where no widget extension ships, which today is everywhere but iOS.
 class HomeWidgetSettingsTile extends ConsumerWidget {
   const HomeWidgetSettingsTile({super.key});
 
@@ -34,7 +28,8 @@ class HomeWidgetSettingsTile extends ConsumerWidget {
     if (!ref.watch(homeWidgetSupportedProvider)) return const SizedBox.shrink();
 
     return SwitchListTile(
-      secondary: const SdIconV2(icon: Icons.widgets_outlined),
+      secondary: SdIconV2(icon: AppIconConstant.homeWidget,
+        size: AppIconSize.medium),
       title: Text(
         context.l10n.homeWidgetSettingsTitle,
         style: AppTextStyle.bodyLarge,

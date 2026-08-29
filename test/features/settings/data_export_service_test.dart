@@ -56,7 +56,7 @@ void main() {
               as Map<String, dynamic>;
 
       expect(json['format'], 'baroease-export');
-      expect(json['version'], 1);
+      expect(json['version'], DataExportService.formatVersion);
       expect(json['exportedAtUtc'], '2026-07-08T12:00:00.000Z');
 
       final attacks = json['attacks'] as List<dynamic>;
@@ -64,7 +64,7 @@ void main() {
       expect(a1['id'], 'a1');
       expect(a1['startedAtUtc'], '2026-07-01T08:30:00.000Z');
       expect(a1['intensity'], 7);
-      expect(a1['location'], 'right');
+      expect(a1['regions'], <String>['templeR']);
       expect(a1['medication'], 'Sumatriptan');
       expect(a1['symptoms'], ['aura', 'nausea']);
       expect(a1['exertionLevel'], 'moderate');
@@ -90,8 +90,7 @@ void main() {
       final csv = service.toCsv([full]);
       final lines = csv.split('\r\n');
       expect(lines.first, startsWith('id,started_at_utc,intensity'));
-      // The notes field must be quoted with doubled inner quotes; the
-      // embedded newline stays inside the quoted field.
+      // The notes field must be quoted with doubled inner quotes; the embedded newline stays inside the quoted field.
       expect(
         csv,
         contains('"notes with, comma and ""quotes""\nand a newline"'),
@@ -104,7 +103,7 @@ void main() {
     test('missing weather, medication and exertion become empty fields', () {
       final csv = service.toCsv([bare]);
       final row = csv.split('\r\n')[1];
-      expect(row, 'a2,2026-07-02T00:00:00.000Z,3,front,,,,,,,,,,');
+      expect(row, 'a2,2026-07-02T00:00:00.000Z,3,foreheadL,,,,,,,,,,');
     });
 
     test('empty export is just the header', () {

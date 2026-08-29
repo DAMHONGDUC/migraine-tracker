@@ -12,6 +12,8 @@ class _Chart extends StatelessWidget {
       fontSize: SdSpacingConstant.sp10,
     );
     final timeFormat = DateFormat.Hm(context.l10n.localeName);
+    // Weekday labels distinguish days across the week-long timeline.
+    final dayFormat = DateFormat.E(context.l10n.localeName);
 
     final past = <FlSpot>[];
     final future = <FlSpot>[];
@@ -25,8 +27,7 @@ class _Chart extends StatelessWidget {
     final pressures = forecast.points.map((p) => p.pressureHpa);
     final minY = ChartAxisUtils.minBound(pressures);
     final maxY = ChartAxisUtils.maxBound(pressures);
-    // One interval for the grid and the axis labels both — computing it
-    // twice is how the two drift apart.
+    // One interval for the grid and the axis labels both — computing it twice is how the two drift apart.
     final gridInterval = ChartAxisUtils.interval(minY, maxY);
 
     DateTime timeAt(double x) =>
@@ -70,14 +71,14 @@ class _Chart extends StatelessWidget {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 12,
+                    interval: 24,
                     reservedSize: SdSpacingConstant.h24,
                     getTitlesWidget: (value, meta) => Padding(
                       padding: EdgeInsets.only(top: SdSpacingConstant.h6),
                       child: Text(
                         value == 0
                             ? context.l10n.insightsForecastNow
-                            : timeFormat.format(timeAt(value).toLocal()),
+                            : dayFormat.format(timeAt(value).toLocal()),
                         style: labelStyle,
                       ),
                     ),
@@ -101,6 +102,7 @@ class _Chart extends StatelessWidget {
                     for (final spot in spots)
                       LineTooltipItem(
                         '${context.l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
+                        '${dayFormat.format(timeAt(spot.x).toLocal())} '
                         '${timeFormat.format(timeAt(spot.x).toLocal())}',
                         AppTextStyle.bodySmall.copyWith(
                           color: AppColors.textPrimary,

@@ -1,15 +1,6 @@
 part of 'medication_detail_screen.dart';
 
-/// The medication's name — shown and edited in the same field, so there is
-/// no "now you are reading, now you are editing" mode to enter.
-///
-/// It commits when the user leaves the field or presses done, never on every
-/// keystroke: a rename rewrites the row the whole screen is built from, and
-/// doing that per character would fight the cursor.
-///
-/// A [ConsumerStatefulWidget] because the controller has to outlive a
-/// rebuild: the screen rebuilds on every reminder change, and a controller
-/// created in `build` would drop the caret mid-edit.
+/// The medication's name — shown and edited in the same field, so there is no "now you are reading, now you are editing" mode to enter.
 class _Header extends ConsumerStatefulWidget {
   const _Header({required this.medication});
 
@@ -25,8 +16,7 @@ class _HeaderState extends ConsumerState<_Header> {
   );
   final FocusNode _focus = FocusNode();
 
-  /// Drives the suffix glyph: a pencil says the name can be changed, a tick
-  /// says the change is saved by tapping it.
+  /// Drives the suffix glyph: a pencil says the name can be changed, a tick says the change is saved by tapping it.
   bool _editing = false;
 
   @override
@@ -53,8 +43,7 @@ class _HeaderState extends ConsumerState<_Header> {
     super.dispose();
   }
 
-  /// Blur is still the one commit path — the tick just unfocuses, so tapping
-  /// it and tapping away save through exactly the same line.
+  /// Blur is still the one commit path — the tick just unfocuses, so tapping it and tapping away save through exactly the same line.
   void _onFocusChanged() {
     setState(() => _editing = _focus.hasFocus);
     if (!_focus.hasFocus) _commit();
@@ -95,13 +84,13 @@ class _HeaderState extends ConsumerState<_Header> {
             focusNode: _focus,
             label: l10n.medicationDetailName,
             hint: l10n.logMedicationNameHint,
-            prefixIcon: Icons.medication_outlined,
+            prefixIcon: AppIconConstant.medication,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _focus.unfocus(),
             suffix: SdIconButtonV2(
               icon: SdIconV2(
-                icon: _editing ? Icons.check : Icons.edit_outlined,
-                size: SdSpacingConstant.r20,
+                icon: _editing ? AppIconConstant.confirm : AppIconConstant.edit,
+                size: AppIconSize.medium,
                 color: _editing
                     ? context.colorScheme.secondary
                     : context.colorScheme.onSurfaceVariant,

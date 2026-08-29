@@ -1,12 +1,8 @@
 import 'dart:typed_data';
 
-/// Where export files live on disk (a fake in tests). Exports go to the app's
-/// documents directory rather than a temp one: the history screen offers to
-/// re-share and save them later, and a temp file the OS reclaimed would leave
-/// rows pointing at nothing.
+/// Where export files live on disk (a fake in tests).
 abstract interface class ExportFileStore {
-  /// Writes [bytes] under [filename] and returns the absolute path and the
-  /// size actually written.
+  /// Writes [bytes] under [filename] and returns the absolute path and the size actually written.
   Future<StoredExportFile> write({
     required String filename,
     required Uint8List bytes,
@@ -14,8 +10,7 @@ abstract interface class ExportFileStore {
 
   Future<bool> exists(String path);
 
-  /// The bytes of a stored export, for the preview screen. Callers check
-  /// [exists] first — a file taken out from under us throws here.
+  /// The bytes of a stored export, for the preview screen. Callers check [exists] first — a file taken out from under us throws here.
   Future<Uint8List> read(String path);
 
   /// Best-effort: a file that is already gone is not an error.

@@ -6,16 +6,12 @@ sealed class StepCorrelationResult {
   const StepCorrelationResult();
 }
 
-/// Apple Health is not connected, so there is nothing to analyse. Produced by
-/// the provider rather than the engine — the engine only ever sees data that
-/// was actually read.
+/// Apple Health is not connected, so there is nothing to analyse.
 class StepNotConnected extends StepCorrelationResult {
   const StepNotConnected();
 }
 
-/// One of the two groups is empty, so no comparison exists at all: an
-/// average over "attack days" means nothing without "every other day" to
-/// compare it against. Thin-but-present groups still get a result.
+/// One of the two groups is empty, so no comparison exists at all.
 class StepInsufficientData extends StepCorrelationResult {
   const StepInsufficientData({
     required this.daysWithSteps,
@@ -38,8 +34,7 @@ class StepInsufficientData extends StepCorrelationResult {
   final int requiredPerGroup;
 }
 
-/// The two averages are within noise of each other — steps say nothing about
-/// this user's attacks, which is a real answer, not a failure.
+/// The two averages are within noise of each other — steps say nothing about this user's attacks, which is a real answer, not a failure.
 class StepNoVariation extends StepCorrelationResult {
   const StepNoVariation({required this.daysAnalyzed});
 
@@ -66,8 +61,7 @@ class StepInsight extends StepCorrelationResult {
   final int attackDays;
   final int restDays;
 
-  /// Where the comparison settles, and the minimum each side needs before
-  /// the difference between them is worth stating as one number.
+  /// Where the comparison settles, and the minimum each side needs before the difference between them is worth stating as one number.
   final int requiredDays;
   final int requiredPerGroup;
 
@@ -79,13 +73,11 @@ class StepInsight extends StepCorrelationResult {
       attackDays < requiredPerGroup ||
       restDays < requiredPerGroup;
 
-  /// One side is too thin for the difference to be worth a headline — show
-  /// the two averages that were measured instead of the gap between them.
+  /// One side is too thin for the difference to be worth a headline — show the two averages that were measured instead of the gap between them.
   bool get isCountOnly =>
       attackDays < requiredPerGroup || restDays < requiredPerGroup;
 
-  /// How many fewer steps the user took on an attack day. Negative means
-  /// they moved *more* — an honest engine has to be able to say that.
+  /// How many fewer steps the user took on an attack day. Negative means they moved *more* — an honest engine has to be able to say that.
   double get shortfall => restDayAverage - attackDayAverage;
 
   /// Whether attacks follow the days the user moved less.

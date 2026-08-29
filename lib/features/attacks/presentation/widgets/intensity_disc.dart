@@ -4,12 +4,7 @@ import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 
-/// The severity number in its coloured disc — the log flow's tappable
-/// intensity choice and the detail screen's header badge are the same mark at
-/// two sizes.
-///
-/// Severity lives in the fill and border; the number wears the text token so
-/// it stays readable at every step of the ramp.
+/// The severity number in its coloured disc — the log flow's tappable intensity choice and the detail screen's header badge are the same mark at two sizes.
 class IntensityDisc extends StatelessWidget {
   const IntensityDisc({required this.value, required this.size, super.key});
 

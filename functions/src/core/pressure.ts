@@ -9,20 +9,13 @@ export interface DropForecast {
   dropHpa: number;
   currentHpa: number;
   minAt: Date;
-  /**
-   * Identifies the pressure event (the UTC hour of the forecast minimum)
-   * so the same front never triggers two pushes to one user.
-   */
+  /** Identifies the pressure event (the UTC hour of the forecast minimum) so the same front never triggers two pushes to one user. */
   eventId: string;
 }
 
 const NEAREST_TOLERANCE_MS = 90 * 60 * 1000;
 
-/**
- * The worst (largest) forecast pressure drop within 24h of [now], relative
- * to the pressure at [now]. Null when the forecast doesn't cover [now] or
- * has no samples in the window.
- */
+/** The worst (largest) forecast pressure drop within 24h of [now], relative to the pressure at [now]. */
 export function maxDrop24h(
   forecast: HourlyForecast,
   now: Date,

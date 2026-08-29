@@ -1,10 +1,6 @@
 part of 'about_screen.dart';
 
 /// Name, one line on what the app is for, and the build it is.
-///
-/// The version sits here rather than at the bottom because this screen is
-/// also where someone goes to answer "which build am I on" — Settings' own
-/// row carries the same string for the same reason.
 class _AboutHeader extends ConsumerWidget {
   const _AboutHeader();
 

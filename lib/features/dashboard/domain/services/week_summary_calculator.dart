@@ -1,9 +1,7 @@
 import '../../../attacks/domain/entities/attack.dart';
 import '../entities/week_summary.dart';
 
-/// Computes the dashboard's [WeekSummary] from the full attack list. Pure
-/// Dart, no Flutter — buckets by the user's local Monday-start week so the
-/// summary matches the History chart's week boundaries.
+/// Computes the dashboard's [WeekSummary] from the full attack list.
 class WeekSummaryCalculator {
   const WeekSummaryCalculator();
 

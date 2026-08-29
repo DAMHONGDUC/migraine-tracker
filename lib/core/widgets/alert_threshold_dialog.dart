@@ -5,13 +5,6 @@ import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_text_style.dart';
 
 /// Picks how far pressure must fall before an alert fires, in hPa.
-///
-/// Public and in `core/widgets/` because two surfaces raise it now — the
-/// pressure detail screen's `AlertsSection` and the weather card on Insights
-/// — and a second copy of the slider is a second chance for the two to allow
-/// different ranges.
-///
-/// Pops the picked value, or null when the user backs out.
 class AlertThresholdDialog extends StatefulWidget {
   const AlertThresholdDialog({
     required this.initial,
@@ -23,8 +16,6 @@ class AlertThresholdDialog extends StatefulWidget {
   final AppLocalizations l10n;
 
   /// The tunable range, hard rule 7's "threshold is user-tunable" in numbers.
-  /// Below 3 hPa every weather system in the country would fire one; above
-  /// 10 almost nothing would.
   static const double minHpa = 3;
   static const double maxHpa = 10;
 

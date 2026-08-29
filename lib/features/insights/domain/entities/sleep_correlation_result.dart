@@ -6,16 +6,12 @@ sealed class SleepCorrelationResult {
   const SleepCorrelationResult();
 }
 
-/// Apple Health is not connected, so there is nothing to analyse. Produced by
-/// the provider rather than the engine — the engine only ever sees data that
-/// was actually read.
+/// Apple Health is not connected, so there is nothing to analyse.
 class SleepNotConnected extends SleepCorrelationResult {
   const SleepNotConnected();
 }
 
-/// One of the two groups is empty, so no comparison exists at all: an
-/// average over "nights before an attack" means nothing without "every other
-/// night" to compare it against. Thin-but-present groups still get a result.
+/// One of the two groups is empty, so no comparison exists at all.
 class SleepInsufficientData extends SleepCorrelationResult {
   const SleepInsufficientData({
     required this.nightsWithSleep,
@@ -38,8 +34,7 @@ class SleepInsufficientData extends SleepCorrelationResult {
   final int requiredPerGroup;
 }
 
-/// The two averages are within noise of each other — sleep says nothing
-/// about this user's attacks, which is a real answer, not a failure.
+/// The two averages are within noise of each other — sleep says nothing about this user's attacks, which is a real answer, not a failure.
 class SleepNoVariation extends SleepCorrelationResult {
   const SleepNoVariation({required this.nightsAnalyzed});
 
@@ -66,8 +61,7 @@ class SleepInsight extends SleepCorrelationResult {
   final int attackNights;
   final int restNights;
 
-  /// Where the comparison settles, and the minimum each side needs before
-  /// the difference between them is worth stating as one number.
+  /// Where the comparison settles, and the minimum each side needs before the difference between them is worth stating as one number.
   final int requiredNights;
   final int requiredPerGroup;
 
@@ -79,13 +73,11 @@ class SleepInsight extends SleepCorrelationResult {
       attackNights < requiredPerGroup ||
       restNights < requiredPerGroup;
 
-  /// One side is too thin for the difference to be worth a headline — show
-  /// the two averages that were measured instead of the gap between them.
+  /// One side is too thin for the difference to be worth a headline — show the two averages that were measured instead of the gap between them.
   bool get isCountOnly =>
       attackNights < requiredPerGroup || restNights < requiredPerGroup;
 
-  /// How much less the user slept before an attack. Negative means they
-  /// slept *more* — an honest engine has to be able to say that.
+  /// How much less the user slept before an attack. Negative means they slept *more* — an honest engine has to be able to say that.
   Duration get shortfall => restNightAverage - attackNightAverage;
 
   /// Whether the short nights are the ones attacks follow.

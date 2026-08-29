@@ -6,17 +6,24 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../insights/domain/entities/medication_effectiveness_result.dart';
+import '../../../../insights/domain/entities/medication_overuse_result.dart';
+import '../../../../insights/providers.dart';
 import '../../../domain/entities/medication.dart';
 import '../../../domain/enums/medication_filters.dart';
 import '../../../providers.dart';
 import '../../controllers/medication_filters_controller.dart';
+import '../../widgets/medication_overuse_banner.dart';
 
 part 'medications_screen_medication_card.dart';
 
@@ -52,12 +59,7 @@ final class _FilterLabels {
       };
 }
 
-/// Manages saved medications: add, filter by when they were added / whether
-/// they have a reminder / whether they've ever been used, and open one. Each
-/// row says how many reminders its medication has; reading or changing them
-/// happens on [MedicationDetailScreen]. The 3-tap log flow's own medication
-/// picker (`MedicationStep`) is untouched and unaffected by anything filtered
-/// or sorted here.
+/// Manages saved medications: add, filter by when they were added / whether they have a reminder / whether they've ever been used, and open one.
 class MedicationsScreen extends ConsumerStatefulWidget {
   const MedicationsScreen({super.key});
 
@@ -68,9 +70,7 @@ class MedicationsScreen extends ConsumerStatefulWidget {
 class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   bool _handlingAdd = false;
 
-  /// Whether the app bar is showing the name-search field in place of the
-  /// title. The query itself lives in [medicationSearchProvider] so filtering
-  /// survives a tab switch; this only toggles the field's visibility.
+  /// Whether the app bar is showing the name-search field in place of the title.
   bool _searching = false;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
@@ -78,8 +78,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   @override
   void initState() {
     super.initState();
-    // Dashboard's add shortcut may have set a request before this tab was
-    // built — pick it up on first mount.
+    // Dashboard's add shortcut may have set a request before this tab was built — pick it up on first mount.
     if (ref.read(medicationAddRequestProvider)) _handleAddRequest();
   }
 
@@ -104,8 +103,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     setState(() => _searching = false);
   }
 
-  /// The name-search field shown in the app bar title slot while searching.
-  /// The app's one field, unlabelled — the bar it sits in is the label.
+  /// The name-search field shown in the app bar title slot while searching. The app's one field, unlabelled — the bar it sits in is the label.
   Widget _searchField(BuildContext context) {
     return SdTextFieldV2(
       controller: _searchController,
@@ -116,8 +114,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     );
   }
 
-  /// Consumes a pending "add medication" request and opens the dialog, once,
-  /// after the current frame (so it runs post-navigation, never during build).
+  /// Consumes a pending "add medication" request and opens the dialog, once, after the current frame (so it runs post-navigation, never during build).
   void _handleAddRequest() {
     if (_handlingAdd) return;
     _handlingAdd = true;
@@ -129,8 +126,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   Future<void> _add() async {
-    // The limit is named before the pitch — this button says "Add
-    // medication", so a purchase screen out of it reads as a bug.
+    // The limit is named before the pitch — this button says "Add medication", so a purchase screen out of it reads as a bug.
     if (!ref.read(canAddMedicationProvider)) {
       await NavigationUtils.toPaywallFromLimit(
         context,
@@ -158,17 +154,19 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final filters = ref.watch(medicationFiltersProvider);
     final filtersController = ref.read(medicationFiltersProvider.notifier);
     final searchQuery = ref.watch(medicationSearchProvider);
-    // Gap cards leave for the bar/filter strip; fixed regardless of collapse
-    // state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
+    // Gap cards leave for the bar/filter strip; fixed regardless of collapse state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final filterBarHeight = SdContentPaddingV2.belowPinnedFilterBar(context);
-    // Null while premium. When shown it takes the filter strip's gap, so
-    // whatever follows starts flush against it instead of clearing the bar twice.
+    // Null while premium. When shown it takes the filter strip's gap, so whatever follows starts flush against it instead of clearing the bar twice.
     final int? used = ref.watch(medicationsUsedProvider);
-    final double contentTop = used == null ? filterBarHeight : 0;
+    // A safety count outranks a plan meter, so it takes the top slot.
+    final bool overusing =
+        ref.watch(medicationOveruseProvider).risk !=
+        MedicationOveruseRisk.none;
+    final double limitTop = overusing ? 0 : filterBarHeight;
+    final double contentTop = overusing || used != null ? 0 : filterBarHeight;
 
     return SdCollapsingFilterScaffoldV2(
-      // - While searching: title slot is the search field, close button leads.
-      // - Otherwise: tab title with a search affordance right after it.
+      // - While searching: title slot is the search field, close button leads. - Otherwise: tab title with a search affordance right after it.
       title: _searching
           ? _searchField(context)
           : Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
@@ -179,13 +177,12 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               onPressed: _stopSearch,
             )
           : null,
-      // - No FAB: the floating glass nav overlays content and would eat the tap.
-      // - Every other tab puts its primary action in the app bar; this follows suit.
+      // - No FAB: the floating glass nav overlays content and would eat the tap. - Every other tab puts its primary action in the app bar; this follows suit.
       actions: _searching
           ? [
               if (searchQuery.isNotEmpty)
                 SdAppBarButtonV2(
-                  icon: Icons.close,
+                  icon: AppIconConstant.close,
                   tooltip: l10n.medicationsSearchClear,
                   onPressed: () {
                     _searchController.clear();
@@ -197,22 +194,21 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
             ]
           : [
               SdAppBarButtonV2(
-                icon: Icons.search,
+                icon: AppIconConstant.search,
                 color: AppColors.secondary,
                 tooltip: l10n.medicationsSearchTooltip,
                 onPressed: _startSearch,
               ),
               SdHorizontalSpacingV2(),
               SdAppBarButtonV2(
-                icon: Icons.add,
+                icon: AppIconConstant.add,
                 color: AppColors.secondary,
                 tooltip: l10n.logAddMedication,
                 onPressed: _add,
               ),
               SizedBox(width: SdSpacingConstant.w12),
             ],
-      // - Chips sit under the app bar while reading, lift in once scrolled.
-      // - Except while searching: the bar is the search field's, stays put.
+      // - Chips sit under the app bar while reading, lift in once scrolled. - Except while searching: the bar is the search field's, stays put.
       filter: _filterRow(context, filters, filtersController),
       collapsible: !_searching,
       // No outer top padding: list scrolls behind the translucent app bar, like History.
@@ -227,13 +223,24 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Ahead of the first card, and ahead of the empty state too — how
-            // many the free plan holds is worth saying before any exist.
-            if (used != null)
+            if (overusing)
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
                   SdContentPaddingV2.horizontal,
                   filterBarHeight,
+                  SdContentPaddingV2.horizontal,
+                  SdContentPaddingV2.listItemGap,
+                ),
+                sliver: const SliverToBoxAdapter(
+                  child: MedicationOveruseBanner(),
+                ),
+              ),
+            // Ahead of the first card, and ahead of the empty state too — how many the free plan holds is worth saying before any exist.
+            if (used != null)
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  SdContentPaddingV2.horizontal,
+                  limitTop,
                   SdContentPaddingV2.horizontal,
                   SdContentPaddingV2.listItemGap,
                 ),
@@ -253,7 +260,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 child: Padding(
                   padding: EdgeInsets.only(top: contentTop),
                   child: SdEmptyStateV2(
-                    icon: Icons.medication_outlined,
+                    icon: AppIconConstant.medication,
                     message: searchQuery.trim().isEmpty
                         ? l10n.medicationsEmpty
                         : l10n.medicationsSearchEmpty,
@@ -289,9 +296,6 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
   }
 
   /// The row of independent filter chips (date / reminder / usage).
-  /// `SdCollapsingFilterScaffoldV2` supplies the horizontal scrolling in both places
-  /// it shows this row, so it stays a bare [Row] — a scroll view here would
-  /// nest two.
   Widget _filterRow(
     BuildContext context,
     MedicationFilters filters,
@@ -301,8 +305,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     return Row(
       children: [
         SdFilterChipV2<MedicationDateFilter>(
-          // 3 chips default to "all" and would all just read "All"; axis
-          // name leads until something is actually picked.
+          // 3 chips default to "all" and would all just read "All"; axis name leads until something is actually picked.
           label: filters.date == MedicationDateFilter.all
               ? l10n.medicationsFilterDateTitle
               : _FilterLabels.date(context, filters.date),

@@ -3,8 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/entities/encrypted_record.dart';
 
-/// Field names and types for `<collection>/{id}`, in one place so the read
-/// and the write cannot drift apart.
+/// Field names and types for `<collection>/{id}`, in one place so the read and the write cannot drift apart.
 final class EncryptedRecordMapper {
   const EncryptedRecordMapper._();
 
@@ -14,9 +13,7 @@ final class EncryptedRecordMapper {
   static const String updatedAt = 'updatedAt';
   static const String deleted = 'deleted';
 
-  /// Who the record belongs to. The collections are shared, so this field is
-  /// the entire boundary between one user's records and another's — the rules
-  /// check it on every operation, and every query filters on it.
+  /// Who the record belongs to.
   static const String userId = 'userId';
 
   static Map<String, Object?> toDocument(EncryptedRecord record, String uid) {
@@ -26,16 +23,14 @@ final class EncryptedRecordMapper {
       userId: uid,
       updatedAt: Timestamp.fromDate(record.updatedAt),
       deleted: record.isDeleted,
-      // Cleared rather than left behind, so a deletion does not keep the
-      // ciphertext it was meant to remove.
+      // Cleared rather than left behind, so a deletion does not keep the ciphertext it was meant to remove.
       ciphertext: payload?.ciphertext,
       nonce: payload?.nonce,
       mac: payload?.mac,
     };
   }
 
-  /// Null when the document cannot be read as a record at all — a shape we do
-  /// not recognise is skipped rather than guessed at.
+  /// Null when the document cannot be read as a record at all — a shape we do not recognise is skipped rather than guessed at.
   static EncryptedRecord? fromDocument(String id, Map<String, Object?>? data) {
     if (data == null) return null;
 

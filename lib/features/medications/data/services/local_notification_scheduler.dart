@@ -6,8 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 import '../../domain/entities/medication_reminder.dart';
 import '../../domain/services/notification_scheduler.dart';
 
-/// flutter_local_notifications implementation. Assumes timezone data has
-/// been initialized once at app start (see medications/providers.dart).
+/// flutter_local_notifications implementation. Assumes timezone data has been initialized once at app start (see medications/providers.dart).
 class LocalNotificationScheduler implements NotificationScheduler {
   LocalNotificationScheduler(this._plugin);
 
@@ -16,11 +15,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
   static const _channelId = 'medication_reminders';
   static const _channelName = 'Medication reminders';
 
-  /// - `presentSound` is what makes a reminder audible on iOS: the plugin
-  ///   builds the content's default sound from it, and it also governs the
-  ///   foreground banner. Without it iOS delivers the reminder silently.
-  /// - Always on, with no app-level switch — muting is the OS's own job
-  ///   (Settings › Notifications, the ring switch, Focus).
+  /// - `presentSound` is what makes a reminder audible on iOS.
   static const NotificationDetails _details = NotificationDetails(
     android: AndroidNotificationDetails(
       _channelId,
@@ -35,20 +30,13 @@ class LocalNotificationScheduler implements NotificationScheduler {
     ),
   );
 
-  /// Broadcast: nobody may be listening when a tap lands (the app can be
-  /// mid-launch), and a single-subscription stream would keep that event
-  /// buffered for whoever listened first.
+  /// Broadcasts taps because listeners may attach after app launch starts.
   final StreamController<String> _taps = StreamController<String>.broadcast();
 
-  /// True once the launch details have been handed over, so a resume does
-  /// not reopen the screen the app was started on.
+  /// True once the launch details have been handed over, so a resume does not reopen the screen the app was started on.
   bool _launchTapTaken = false;
 
-  /// Wires the plugin up, including the tap callback. Called once, from the
-  /// provider that builds this.
-  ///
-  /// The callback lives here rather than in the provider because the payload
-  /// it carries is this class's own — [schedule] is what put it there.
+  /// Wires the plugin up, including the tap callback.
   Future<void> initialize() async {
     await _plugin.initialize(
       settings: const InitializationSettings(
@@ -56,9 +44,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestSoundPermission: false,
-          // These drive the plugin's own willPresent handler; without them
-          // iOS drops foreground notifications and reminders only show
-          // backgrounded.
+          // These drive the plugin's own willPresent handler; without them iOS drops foreground notifications and reminders only show backgrounded.
           defaultPresentAlert: true,
           defaultPresentSound: true,
           defaultPresentBanner: true,
@@ -93,8 +79,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
     if (reminderId != null) _taps.add(reminderId);
   }
 
-  /// The payload a reminder carries is its own id and nothing else. The debug
-  /// test notification has none, which is what an empty answer means here.
+  /// The payload a reminder carries is its own id and nothing else. The debug test notification has none, which is what an empty answer means here.
   String? _reminderIdOf(String? payload) =>
       payload == null || payload.isEmpty ? null : payload;
 
@@ -136,9 +121,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
       title: title,
       body: bodyTemplate.replaceFirst('{name}', medicationName),
       scheduledDate: _nextInstanceOf(reminder.hour, reminder.minute),
-      // What the tap handler resolves back to a row in the notification
-      // list. The id alone: no medication name, so nothing about the user's
-      // health sits in an OS payload.
+      // What the tap handler resolves back to a row in the notification list.
       payload: reminder.id,
       notificationDetails: _details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -153,8 +136,7 @@ class LocalNotificationScheduler implements NotificationScheduler {
   @override
   Future<void> cancelAll() => _plugin.cancelAll();
 
-  /// Fixed id for the debug test notification, kept far from reminder ids
-  /// (which are masked hashCodes) so it never clobbers a real reminder.
+  /// Fixed id for the debug test notification, kept far from reminder ids (which are masked hashCodes) so it never clobbers a real reminder.
   static const _testNotificationId = 2147483646;
 
   @override

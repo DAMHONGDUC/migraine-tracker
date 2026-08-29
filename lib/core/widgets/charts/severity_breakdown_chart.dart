@@ -7,23 +7,9 @@ import '../../extensions/chart_labels.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_colors.dart';
 
-/// Attacks split across the four severity bands, coloured with the same
-/// green → yellow → orange → red scale as `AppColors.intensity`.
-///
-/// Shared by the History → Chart deck and the dashboard's severity card; the
-/// counts come from the pure [SeverityBreakdownCalculator]. The slices and
-/// legend are `SdDonutChartV2`; what stays here is the app's own vocabulary —
-/// which bands exist, what they are called, and what colour each one is.
-/// The app's severity vocabulary in one place: which bands exist, what each is
-/// called, and what colour it wears.
-///
-/// Both the full chart below and the dashboard's compact row read it, so the
-/// two surfaces can never name or colour a band differently — the layouts
-/// differ, the meaning cannot.
+/// Attacks split across the four severity bands, coloured with the same green → yellow → orange → red scale as `AppColors.intensity`.
 final class SeverityBreakdownSlices {
-  /// How far the placeholder's colours are dialled back. Enough to still name
-  /// each band, far enough from full strength that it cannot be taken for a
-  /// reading.
+  /// How far the placeholder's colours are dialled back. Enough to still name each band, far enough from full strength that it cannot be taken for a reading.
   static const double _placeholderAlpha = 0.4;
 
   static List<SdDonutSliceV2> of(
@@ -38,13 +24,7 @@ final class SeverityBreakdownSlices {
       ),
   ];
 
-  /// The scale itself, for a surface with nothing to split yet: four equal
-  /// arcs in the real band colours, dialled back, named but uncounted.
-  ///
-  /// It is the app's severity key drawn as a ring rather than a stand-in for
-  /// data — three things say so at once: the arcs are equal, the colours are
-  /// faded, and no label carries a number. A card showing this teaches what
-  /// it is about to become, which an empty grey ring cannot.
+  /// The scale itself, for a surface with nothing to split yet: four equal arcs in the real band colours, dialled back, named but uncounted.
   static List<SdDonutSliceV2> placeholder(AppLocalizations l10n) =>
       <SdDonutSliceV2>[
         for (final SeverityBand band in SeverityBand.values)
