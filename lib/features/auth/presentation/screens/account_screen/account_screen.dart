@@ -6,6 +6,8 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../premium/providers.dart';
@@ -83,8 +85,8 @@ class _DataNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SdIconV2(
-            icon: Icons.lock_outline,
-            size: SdSpacingConstant.r16,
+            icon: AppIconConstant.locked,
+            size: AppIconSize.inline,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(width: SdSpacingConstant.w8),
@@ -141,7 +143,7 @@ class _SignOutButton extends ConsumerWidget {
       variant: SdButtonVariantV2.primary,
       onPressed: () => _signOut(context, ref),
       label: context.l10n.settingsSignOut,
-      icon: Icons.logout,
+      icon: AppIconConstant.signOut,
     );
   }
 }

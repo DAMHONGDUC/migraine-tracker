@@ -5,6 +5,8 @@ import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/aura_label.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/aura_type.dart';
 
@@ -114,10 +116,10 @@ class _AuraTile extends StatelessWidget {
   /// A glyph per kind, because colour is never the only signal and because
   /// "sensory" is a word people recognise faster as a picture.
   static const Map<AuraType, IconData> _icons = <AuraType, IconData>{
-    AuraType.visual: Icons.remove_red_eye_outlined,
-    AuraType.sensory: Icons.back_hand_outlined,
-    AuraType.speech: Icons.record_voice_over_outlined,
-    AuraType.motor: Icons.accessibility_new,
+    AuraType.visual: AppIconConstant.auraVisual,
+    AuraType.sensory: AppIconConstant.auraSensory,
+    AuraType.speech: AppIconConstant.auraSpeech,
+    AuraType.motor: AppIconConstant.auraMotor,
   };
 
   @override
@@ -152,7 +154,7 @@ class _AuraTile extends StatelessWidget {
             children: <Widget>[
               SdIconV2(
                 icon: _icons[type]!,
-                size: SdSpacingConstant.r20,
+                size: AppIconSize.row,
                 color: color,
               ),
               SizedBox(width: SdSpacingConstant.w8),

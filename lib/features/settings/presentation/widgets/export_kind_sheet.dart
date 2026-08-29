@@ -3,6 +3,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/export_kind_label.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/export_kind.dart';
 
@@ -53,7 +54,8 @@ class _KindTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: SdIconV2(icon: kind.icon, color: context.colorScheme.primary),
+      leading: SdIconV2(icon: kind.icon,
+                size: AppIconSize.row, color: context.colorScheme.primary),
       title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );

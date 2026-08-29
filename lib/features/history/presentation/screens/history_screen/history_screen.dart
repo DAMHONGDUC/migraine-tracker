@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
@@ -91,14 +92,14 @@ class HistoryScreen extends HookConsumerWidget {
             SdScrollFillV2(
               topInset: SdContentPaddingV2.appBarInset(context),
               child: SdEmptyStateV2(
-                icon: Icons.cloud_download_outlined,
+                icon: AppIconConstant.cloudDownload,
                 message: l10n.historyFirstSyncLoading,
               ),
             ),
           AsyncData(value: final all) when all.isEmpty => SdScrollFillV2(
             topInset: SdContentPaddingV2.appBarInset(context),
             child: SdEmptyStateV2(
-              icon: Icons.event_note_outlined,
+              icon: AppIconConstant.attackList,
               message: l10n.historyEmpty,
             ),
           ),
@@ -144,7 +145,7 @@ class HistoryScreen extends HookConsumerWidget {
           AsyncError() => SdScrollFillV2(
             topInset: SdContentPaddingV2.appBarInset(context),
             child: SdEmptyStateV2(
-              icon: Icons.event_note_outlined,
+              icon: AppIconConstant.attackList,
               message: l10n.historyEmpty,
             ),
           ),

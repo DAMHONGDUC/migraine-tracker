@@ -43,7 +43,7 @@ class _NotificationTile extends ConsumerWidget {
       onTap: () => _open(context),
       child: ListTile(
         leading: SdIconBadgeV2(
-          icon: isAlert ? Icons.trending_down : Icons.alarm,
+          icon: isAlert ? AppIconConstant.trendDown : AppIconConstant.reminder,
           color: isAlert
               ? context.colorScheme.secondary
               : context.colorScheme.primary,
@@ -67,8 +67,8 @@ class _NotificationTile extends ConsumerWidget {
           color: context.colorScheme.error,
           showing: !notification.isRead,
           child: SdIconV2(
-            icon: Icons.chevron_right,
-            size: SdSpacingConstant.r24,
+            icon: AppIconConstant.disclosure,
+            size: AppIconSize.affordance,
             color: context.colorScheme.onSurfaceVariant,
           ),
         ),

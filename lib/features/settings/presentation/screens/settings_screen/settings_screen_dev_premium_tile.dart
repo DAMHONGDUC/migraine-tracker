@@ -18,7 +18,7 @@ class _DevPremiumTile extends ConsumerWidget {
     final bool premium = ref.watch(hasPremiumProvider);
 
     return SettingsTile(
-      icon: Icons.workspace_premium_outlined,
+      icon: AppIconConstant.premium,
       iconColor: context.colorScheme.primary,
       title: l10n.settingsDevPremium,
       trailing: SdSwitcherV2(

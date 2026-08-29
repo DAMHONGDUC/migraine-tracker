@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 /// The shell every insight on the Insights screen wears: a card with its
@@ -37,8 +39,8 @@ class InsightCard extends StatelessWidget {
                 ?trailing,
                 if (onTap != null)
                   SdIconV2(
-                    icon: Icons.chevron_right,
-                    size: SdSpacingConstant.r20,
+                    icon: AppIconConstant.disclosure,
+                    size: AppIconSize.affordance,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
               ],

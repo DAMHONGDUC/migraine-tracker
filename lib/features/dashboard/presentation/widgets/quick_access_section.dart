@@ -7,6 +7,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
@@ -42,7 +44,7 @@ class QuickAccessSection extends ConsumerWidget {
   /// and fits a third of the design width on its own line.
   static double get cellHeight =>
       SdSpacingConstant.h12 * 2 +
-      SdSpacingConstant.r20 +
+      AppIconSize.tile +
       SdSpacingConstant.h6 +
       SdSpacingConstant.h20;
 
@@ -60,17 +62,17 @@ class QuickAccessSection extends ConsumerWidget {
 
     final List<_Shortcut> shortcuts = <_Shortcut>[
       _Shortcut(
-        icon: Icons.history,
+        icon: AppIconConstant.history,
         label: l10n.navHistory,
         onTap: openHistory,
       ),
       _Shortcut(
-        icon: Icons.medication_outlined,
+        icon: AppIconConstant.medication,
         label: l10n.navMedications,
         onTap: () => context.goNamed(AppRoutes.medications.name),
       ),
       _Shortcut(
-        icon: Icons.notifications_active_outlined,
+        icon: AppIconConstant.reminderActive,
         label: l10n.dashboardAlertShortcut,
         // Through NavigationUtils, like the Settings row: the alert lives on
         // Insights' pressure card now, so "take me to it" is a tab selection
@@ -135,7 +137,7 @@ class _QuickAccessCard extends StatelessWidget {
             // under the lavender log button was two accents arguing.
             SdIconV2(
               icon: shortcut.icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.tile,
               color: AppColors.textPrimary,
             ),
             SizedBox(height: SdSpacingConstant.h6),

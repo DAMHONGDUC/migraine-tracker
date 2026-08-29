@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -16,7 +16,7 @@ Future<void> createExport(WidgetTester tester, String kind) async {
 }
 
 Future<void> openActions(WidgetTester tester) async {
-  await tapVisible(tester, find.byIcon(Icons.more_horiz));
+  await tapVisible(tester, find.byIcon(AppIconConstant.more));
   await tester.pump(const Duration(milliseconds: 400));
 }
 

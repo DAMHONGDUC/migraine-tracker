@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -11,6 +12,7 @@ import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
@@ -941,7 +943,7 @@ double _appBarBottom(WidgetTester tester, Finder finder) {
 /// Tab switches from the shell's bottom nav. Every widget test that leaves
 /// the dashboard goes through these rather than re-tapping the icons.
 Future<void> openSettings(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.settings_outlined));
+  await tester.tap(find.byIcon(AppIconConstant.settings));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -985,13 +987,16 @@ Future<void> openMedications(WidgetTester tester) async {
   // `.last` is the nav bar, same as `openInsights`: the dashboard's
   // quick-access tile carries this glyph too, and the bottom bar is built
   // after the body, so it comes last.
-  await tester.tap(find.byIcon(Icons.medication_outlined).last);
+  await tester.tap(find.byIcon(AppIconConstant.medication).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
 
 Future<void> openHistory(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+  // `.last` is the nav bar, same as `openMedications`: the dashboard's
+  // quick-access tile carries this glyph too now that the tile and the tab
+  // it opens are drawn from one AppIconConstant.
+  await tester.tap(find.byIcon(AppIconConstant.history).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -1000,7 +1005,7 @@ Future<void> openHistory(WidgetTester tester) async {
 /// The "+" is in the app bar: a FAB would sit under the floating nav's hit
 /// region on a shell tab (see MedicationsScreen).
 Future<void> addMedication(WidgetTester tester, String name) async {
-  await tester.tap(find.byIcon(Icons.add));
+  await tester.tap(find.byIcon(AppIconConstant.add));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.enterText(
@@ -1035,7 +1040,7 @@ Future<void> confirmReminderTime(WidgetTester tester) async {
   await tester.tap(
     find.descendant(
       of: find.byType(SdSheetHeaderV2),
-      matching: find.byIcon(Icons.check),
+      matching: find.byIcon(Symbols.check_rounded),
     ),
   );
   await tester.pump();
@@ -1057,7 +1062,7 @@ Future<void> addReminders(WidgetTester tester, int count) async {
 /// matches two.
 Finder reminderDelete() => find.descendant(
   of: find.byType(SdCardV2),
-  matching: find.byIcon(Icons.delete_outline),
+  matching: find.byIcon(AppIconConstant.delete),
 );
 
 /// The notification list, from the dashboard's app-bar bell.
@@ -1066,7 +1071,7 @@ Finder reminderDelete() => find.descendant(
 /// starts once the list watches it, so a row renders its generic label for
 /// one frame before it can name the medication.
 Future<void> openNotifications(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.notifications_none));
+  await tester.tap(find.byIcon(AppIconConstant.notifications));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
   await tester.pump(const Duration(milliseconds: 100));
@@ -1075,7 +1080,7 @@ Future<void> openNotifications(WidgetTester tester) async {
 /// History, switched to the chart deck via the view toggle.
 Future<void> openHistoryCharts(WidgetTester tester) async {
   await openHistory(tester);
-  await tester.tap(find.byIcon(Icons.bar_chart));
+  await tester.tap(find.byIcon(AppIconConstant.barChart));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -1085,7 +1090,7 @@ Future<void> openHistoryCharts(WidgetTester tester) async {
 Future<void> openInsights(WidgetTester tester) async {
   // `.last` is the nav bar: the dashboard's quick-access tile now carries the
   // same glyph, and the bottom bar is built after the body, so it comes last.
-  await tester.tap(find.byIcon(Icons.insights_outlined).last);
+  await tester.tap(find.byIcon(AppIconConstant.insights).last);
   await pumpCountUp(tester);
 }
 

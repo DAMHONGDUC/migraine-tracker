@@ -29,7 +29,7 @@ class _DetailsSection extends StatelessWidget {
               l10n.attackDetailNoDetails,
               style: AppTextStyle.bodyMedium.secondary,
             ),
-            trailing: const SdIconV2(icon: Icons.add),
+            trailing: SdIconV2(icon: AppIconConstant.add, size: AppIconSize.row),
             onTap: edit,
           )
         else ...[
@@ -64,7 +64,7 @@ class _DetailsSection extends StatelessWidget {
               child: SdButtonV2(
                 variant: SdButtonVariantV2.text,
                 onPressed: edit,
-                icon: Icons.edit_outlined,
+                icon: AppIconConstant.edit,
                 label: l10n.attackDetailEdit,
               ),
             ),

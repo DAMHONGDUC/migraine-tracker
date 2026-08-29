@@ -26,12 +26,12 @@ class _HealthSection extends ConsumerWidget {
       children: <Widget>[
         HealthConnectionTile(
           kind: HealthDataKind.sleep,
-          icon: Icons.bedtime_outlined,
+          icon: AppIconConstant.sleep,
           title: l10n.healthSleepTitle,
         ),
         HealthConnectionTile(
           kind: HealthDataKind.steps,
-          icon: Icons.directions_walk,
+          icon: AppIconConstant.steps,
           title: l10n.healthStepsTitle,
         ),
         // The list is full-bleed for its ListTiles, so the one non-row here

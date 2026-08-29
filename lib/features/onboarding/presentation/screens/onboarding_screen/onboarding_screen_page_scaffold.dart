@@ -23,7 +23,7 @@ class _PageScaffold extends StatelessWidget {
         children: [
           SdIconV2(
             icon: icon,
-            size: SdSpacingConstant.r64,
+            size: AppIconSize.display,
             color: context.colorScheme.primary,
           ),
           SizedBox(height: SdSpacingConstant.h24),

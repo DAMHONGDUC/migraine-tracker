@@ -144,7 +144,7 @@ class _DayRow extends StatelessWidget {
             ),
             SdIconV2(
               icon: WeatherConditionUtils.icon(day.condition),
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.row,
               color: AppColors.primary,
             ),
             // Beside the glyph it belongs to, and only where Apple gave a

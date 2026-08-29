@@ -95,13 +95,13 @@ class _HeaderState extends ConsumerState<_Header> {
             focusNode: _focus,
             label: l10n.medicationDetailName,
             hint: l10n.logMedicationNameHint,
-            prefixIcon: Icons.medication_outlined,
+            prefixIcon: AppIconConstant.medication,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _focus.unfocus(),
             suffix: SdIconButtonV2(
               icon: SdIconV2(
-                icon: _editing ? Icons.check : Icons.edit_outlined,
-                size: SdSpacingConstant.r20,
+                icon: _editing ? AppIconConstant.confirm : AppIconConstant.edit,
+                size: AppIconSize.row,
                 color: _editing
                     ? context.colorScheme.secondary
                     : context.colorScheme.onSurfaceVariant,

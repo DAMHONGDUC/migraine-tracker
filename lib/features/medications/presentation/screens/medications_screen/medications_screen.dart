@@ -10,6 +10,8 @@ import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
@@ -197,7 +199,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           ? [
               if (searchQuery.isNotEmpty)
                 SdAppBarButtonV2(
-                  icon: Icons.close,
+                  icon: AppIconConstant.close,
                   tooltip: l10n.medicationsSearchClear,
                   onPressed: () {
                     _searchController.clear();
@@ -209,14 +211,14 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
             ]
           : [
               SdAppBarButtonV2(
-                icon: Icons.search,
+                icon: AppIconConstant.search,
                 color: AppColors.secondary,
                 tooltip: l10n.medicationsSearchTooltip,
                 onPressed: _startSearch,
               ),
               SdHorizontalSpacingV2(),
               SdAppBarButtonV2(
-                icon: Icons.add,
+                icon: AppIconConstant.add,
                 color: AppColors.secondary,
                 tooltip: l10n.logAddMedication,
                 onPressed: _add,
@@ -277,7 +279,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                 child: Padding(
                   padding: EdgeInsets.only(top: contentTop),
                   child: SdEmptyStateV2(
-                    icon: Icons.medication_outlined,
+                    icon: AppIconConstant.medication,
                     message: searchQuery.trim().isEmpty
                         ? l10n.medicationsEmpty
                         : l10n.medicationsSearchEmpty,

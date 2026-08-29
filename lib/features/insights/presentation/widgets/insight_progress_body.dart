@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 
@@ -37,7 +38,7 @@ class InsightProgressBody extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.row,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w8),

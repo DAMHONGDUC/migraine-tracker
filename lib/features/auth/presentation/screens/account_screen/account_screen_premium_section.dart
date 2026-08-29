@@ -13,7 +13,7 @@ class _PremiumSection extends ConsumerWidget {
 
     return ListTile(
       leading: SdIconV2(
-        icon: premium ? Icons.workspace_premium : Icons.lock_outline,
+        icon: premium ? AppIconConstant.premium : AppIconConstant.locked,
         color: premium ? context.colorScheme.primary : null,
       ),
       title: Text(
@@ -24,7 +24,8 @@ class _PremiumSection extends ConsumerWidget {
         premium ? l10n.accountPremiumActiveBody : l10n.accountPremiumFreeBody,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: const SdIconV2(icon: Icons.chevron_right),
+      trailing: SdIconV2(icon: AppIconConstant.disclosure,
+        size: AppIconSize.affordance),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

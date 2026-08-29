@@ -71,7 +71,7 @@ class _DeleteAllTile extends ConsumerWidget {
     final WipeStatus status = ref.watch(settingsControllerProvider);
 
     return SettingsTile(
-      icon: Icons.delete_forever_outlined,
+      icon: AppIconConstant.deleteForever,
       titleColor: context.colorScheme.error,
       title: signedIn ? l10n.settingsDelete : l10n.settingsDeleteLocal,
       trailing: status.isRunning

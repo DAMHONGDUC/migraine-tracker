@@ -8,6 +8,8 @@ import '../../core/theme/app_text_style.dart';
 import '../../features/premium/providers.dart';
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
+import '../theme/app_icon_constant.dart';
+import '../theme/app_icon_size.dart';
 import 'settings_tile.dart';
 
 /// Renders [child] for premium users, and a locked pitch otherwise.
@@ -19,7 +21,7 @@ class PremiumGate extends ConsumerWidget {
   const PremiumGate({
     required this.lockedMessage,
     required this.child,
-    this.lockedIcon = Icons.lock_outline,
+    this.lockedIcon = AppIconConstant.locked,
     super.key,
   });
 
@@ -44,7 +46,7 @@ class PremiumGate extends ConsumerWidget {
 class PremiumLockedBody extends ConsumerWidget {
   const PremiumLockedBody({
     required this.message,
-    this.icon = Icons.lock_outline,
+    this.icon = AppIconConstant.locked,
     super.key,
   });
 
@@ -62,7 +64,7 @@ class PremiumLockedBody extends ConsumerWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.row,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w8),

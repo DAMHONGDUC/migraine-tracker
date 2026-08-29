@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/duration_label.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/sleep_correlation_result.dart';
@@ -37,7 +38,7 @@ class SleepCorrelationBody extends ConsumerWidget {
       AsyncData(value: final SleepCorrelationResult value) => switch (value) {
         SleepNotConnected() => const _NotConnected(),
         final SleepInsufficientData r => InsightProgressBody(
-          icon: Icons.hourglass_empty,
+          icon: AppIconConstant.duration,
           message: context.l10n.insightsSleepInsufficientData(
             r.requiredNights,
             r.requiredPerGroup,

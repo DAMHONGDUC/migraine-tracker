@@ -9,7 +9,7 @@ class _ThresholdPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PageScaffold(
-      icon: Icons.compress,
+      icon: AppIconConstant.pressure,
       title: l10n.onboardingThresholdTitle,
       body: l10n.onboardingThresholdBody,
       // - Same control as the attack detail's intensity dialog, same severity ramp.

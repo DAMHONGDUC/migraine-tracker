@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
-
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
@@ -130,7 +129,7 @@ void main() {
       await tester.pump();
       await openMedications(tester);
 
-      await tapVisible(tester, find.byIcon(Icons.add));
+      await tapVisible(tester, find.byIcon(AppIconConstant.add));
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(

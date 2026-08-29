@@ -9,6 +9,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/doctor_report_strings_l10n.dart';
 import '../../../../../core/extensions/export_kind_label.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_date_filter.dart';
@@ -143,7 +145,7 @@ class ExportScreen extends ConsumerWidget {
         SdButtonV2(
           variant: SdButtonVariantV2.primary,
           label: l10n.exportNewAction,
-          icon: Icons.ios_share,
+          icon: AppIconConstant.share,
           onPressed: () => _create(context, ref),
         ),
         SizedBox(width: SdSpacingConstant.w4),

@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
+import '../theme/app_icon_constant.dart';
 import 'app_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -70,28 +71,23 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
           items: [
             _NavItem(
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home,
+              icon: AppIconConstant.home,
               label: l10n.navDashboard,
             ),
             _NavItem(
-              icon: Icons.calendar_month_outlined,
-              selectedIcon: Icons.calendar_month,
+              icon: AppIconConstant.history,
               label: l10n.navHistory,
             ),
             _NavItem(
-              icon: Icons.medication_outlined,
-              selectedIcon: Icons.medication,
+              icon: AppIconConstant.medication,
               label: l10n.navMedications,
             ),
             _NavItem(
-              icon: Icons.insights_outlined,
-              selectedIcon: Icons.insights,
+              icon: AppIconConstant.insights,
               label: l10n.navInsights,
             ),
             _NavItem(
-              icon: Icons.settings_outlined,
-              selectedIcon: Icons.settings,
+              icon: AppIconConstant.settings,
               label: l10n.navSettings,
             ),
           ],
@@ -170,14 +166,14 @@ class _SlidingNavBar extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem({
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-  });
+  const _NavItem({required this.icon, required this.label});
 
+  /// One glyph for both states. Material Symbols is a variable font, so the
+  /// selected tab is the SAME icon filled in — see [_NavSegment.fill]. It
+  /// used to be a pair of names (`home_outlined` / `home`), which is how the
+  /// tab bar's filled glyph and the outlined one on the screen it opened
+  /// came to be two different drawings of the same idea.
   final IconData icon;
-  final IconData selectedIcon;
   final String label;
 }
 
@@ -207,9 +203,12 @@ class _NavSegment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: SdIconV2(
-            icon: selected ? item.selectedIcon : item.icon,
+            icon: item.icon,
             size: SdSpacingConstant.r26,
             color: color,
+            // Solid when selected, outline when not — colour is never the
+            // only signal (hard rule 3), and this is the second one.
+            fill: selected ? 1 : 0,
           ),
         ),
       ),

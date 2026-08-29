@@ -7,6 +7,8 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../attacks/domain/entities/attack.dart';
 
@@ -69,8 +71,8 @@ class AttackTile extends StatelessWidget {
           style: AppTextStyle.bodyMedium.secondary,
         ),
         trailing: SdIconV2(
-          icon: Icons.chevron_right,
-          size: SdSpacingConstant.r20,
+          icon: AppIconConstant.disclosure,
+          size: AppIconSize.affordance,
           color: context.colorScheme.onSurfaceVariant,
         ),
         onTap: () => context.pushNamed(

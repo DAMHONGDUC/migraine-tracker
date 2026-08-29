@@ -146,7 +146,7 @@ class _ConditionTile extends StatelessWidget {
         child: Center(
           child: SdIconV2(
             icon: WeatherConditionUtils.icon(condition, daylight: daylight),
-            size: SdSpacingConstant.r24,
+            size: AppIconSize.row,
             color: AppColors.primary,
           ),
         ),
@@ -180,8 +180,8 @@ class _PlaceLine extends StatelessWidget {
         child: Row(
           children: <Widget>[
             SdIconV2(
-              icon: Icons.location_on_outlined,
-              size: SdSpacingConstant.r16,
+              icon: AppIconConstant.location,
+              size: AppIconSize.inline,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w4),

@@ -19,12 +19,12 @@ class _AboutSection extends ConsumerWidget {
     return Column(
       children: [
         SettingsTile(
-          icon: Icons.email_outlined,
+          icon: AppIconConstant.email,
           title: l10n.settingsContactSupport,
           onTap: () => context.pushNamed(AppRoutes.contact.name),
         ),
         SettingsTile(
-          icon: Icons.info_outline,
+          icon: AppIconConstant.info,
           title: l10n.aboutTitle,
           value: AppVersionLabel.build(version),
           onTap: () => context.pushNamed(AppRoutes.about.name),

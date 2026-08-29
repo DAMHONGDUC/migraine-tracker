@@ -3,6 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../insights/domain/entities/medication_overuse_result.dart';
 import '../../../insights/providers.dart';
@@ -43,8 +45,8 @@ class MedicationOveruseBanner extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SdIconV2(
-              icon: Icons.info_outline,
-              size: SdSpacingConstant.r20,
+              icon: AppIconConstant.info,
+              size: AppIconSize.row,
               color: color,
             ),
             SizedBox(width: SdSpacingConstant.w12),

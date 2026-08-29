@@ -8,6 +8,8 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
@@ -123,9 +125,9 @@ class _TrendRow extends StatelessWidget {
         ? AppColors.secondary
         : AppColors.textSecondary;
     final IconData icon = switch (trend) {
-      < 0 => Icons.trending_down,
-      > 0 => Icons.trending_up,
-      _ => Icons.trending_flat,
+      < 0 => AppIconConstant.trendDown,
+      > 0 => AppIconConstant.trendUp,
+      _ => AppIconConstant.trendFlat,
     };
     final String label = switch (trend) {
       < 0 => l10n.dashboardTrendDown(-trend),
@@ -135,7 +137,7 @@ class _TrendRow extends StatelessWidget {
 
     return Row(
       children: [
-        SdIconV2(icon: icon, size: SdSpacingConstant.r16, color: color),
+        SdIconV2(icon: icon, size: AppIconSize.inline, color: color),
         SizedBox(width: SdSpacingConstant.w6),
         Flexible(
           child: Text(

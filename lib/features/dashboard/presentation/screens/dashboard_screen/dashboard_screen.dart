@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/providers.dart';
@@ -86,7 +87,7 @@ class DashboardScreen extends ConsumerWidget {
           count: ref.watch(unreadNotificationCountProvider).value ?? 0,
           showing: (ref.watch(unreadNotificationCountProvider).value ?? 0) > 0,
           child: SdAppBarButtonV2(
-            icon: Icons.notifications_none,
+            icon: AppIconConstant.notifications,
             tooltip: l10n.notificationsA11yOpen,
             onPressed: () =>
                 context.pushNamed<void>(AppRoutes.notifications.name),

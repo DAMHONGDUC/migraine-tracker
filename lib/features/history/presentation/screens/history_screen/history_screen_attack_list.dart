@@ -66,7 +66,7 @@ class _AttackList extends ConsumerWidget {
             SliverFillRemaining(
               hasScrollBody: false,
               child: SdEmptyStateV2(
-                icon: Icons.filter_alt_outlined,
+                icon: AppIconConstant.filter,
                 message: context.l10n.historyEmptyFiltered,
               ),
             )

@@ -41,7 +41,7 @@ class _GeneralSection extends ConsumerWidget {
         const PremiumSettingsTile(),
         const NotificationsSettingsTile(),
         SettingsTile(
-          icon: Icons.language,
+          icon: AppIconConstant.language,
           title: context.l10n.settingsLanguage,
           value: current.label(context),
           onTap: () => _pickLanguage(context, ref),

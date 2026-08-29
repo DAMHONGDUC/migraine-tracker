@@ -21,8 +21,8 @@ class _PrivacyDisclosure extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SdIconV2(
-           icon: Icons.lock_outline,
-            size: SdSpacingConstant.r20,
+           icon: AppIconConstant.locked,
+            size: AppIconSize.inline,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(width: SdSpacingConstant.w12),

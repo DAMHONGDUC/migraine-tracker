@@ -19,8 +19,8 @@ class _NoMatchState extends StatelessWidget {
       child: Column(
         children: <Widget>[
           SdIconV2(
-            icon: Icons.event_busy_outlined,
-            size: SdSpacingConstant.r44,
+            icon: AppIconConstant.noMatch,
+            size: AppIconSize.hero,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(height: SdSpacingConstant.h12),

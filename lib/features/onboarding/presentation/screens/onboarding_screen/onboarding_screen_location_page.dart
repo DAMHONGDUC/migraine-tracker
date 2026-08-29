@@ -8,7 +8,7 @@ class _LocationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PageScaffold(
-      icon: Icons.location_on_outlined,
+      icon: AppIconConstant.location,
       title: l10n.onboardingLocationTitle,
       body: l10n.onboardingLocationBody,
     );

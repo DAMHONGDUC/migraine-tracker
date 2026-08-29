@@ -83,9 +83,9 @@ class _PlanRow extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              size: SdSpacingConstant.r20,
+                  ? AppIconConstant.radioSelected
+                  : AppIconConstant.radioUnselected,
+              size: AppIconSize.row,
               color: selected ? accent : context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

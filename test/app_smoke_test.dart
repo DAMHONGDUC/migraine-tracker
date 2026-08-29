@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 
 import 'helpers/pump_app.dart';
 
@@ -14,11 +15,11 @@ void main() {
     // Icon-only bottom nav: Home is selected (filled), the rest outlined.
     // `findsWidgets` for the four, not `findsOneWidget` — the quick-access
     // tiles draw some of the same glyphs, so an exact count fails on a good one.
-    expect(find.byIcon(Icons.home), findsOneWidget);
-    expect(find.byIcon(Icons.calendar_month_outlined), findsWidgets);
-    expect(find.byIcon(Icons.medication_outlined), findsWidgets);
-    expect(find.byIcon(Icons.insights_outlined), findsWidgets);
-    expect(find.byIcon(Icons.settings_outlined), findsWidgets);
+    expect(find.byIcon(AppIconConstant.home), findsOneWidget);
+    expect(find.byIcon(AppIconConstant.history), findsWidgets);
+    expect(find.byIcon(AppIconConstant.medication), findsWidgets);
+    expect(find.byIcon(AppIconConstant.insights), findsWidgets);
+    expect(find.byIcon(AppIconConstant.settings), findsWidgets);
 
     await finishTest(tester);
   });
@@ -26,12 +27,14 @@ void main() {
   testWidgets('bottom navigation switches between tabs', (tester) async {
     await pumpApp(tester);
 
-    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    // `.last` is the nav bar: the dashboard's quick-access tile draws the
+    // same glyph, since the tile and the tab it opens share one constant.
+    await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('No attacks logged yet.'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.tap(find.byIcon(AppIconConstant.settings));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Language'), findsOneWidget);
@@ -42,7 +45,7 @@ void main() {
   testWidgets('theme is dark with no pure white surfaces', (tester) async {
     await pumpApp(tester);
 
-    final context = tester.element(find.byIcon(Icons.home));
+    final context = tester.element(find.byIcon(AppIconConstant.home));
     final theme = Theme.of(context);
     expect(theme.brightness, Brightness.dark);
     expect(theme.scaffoldBackgroundColor, isNot(Colors.white));

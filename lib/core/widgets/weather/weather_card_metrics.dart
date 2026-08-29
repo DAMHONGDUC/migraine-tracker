@@ -24,7 +24,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
   return <_Metric>[
     if (data.pressureHpa case final double value)
       _Metric(
-        icon: Icons.compress,
+        icon: AppIconConstant.pressure,
         label: l10n.weatherDetailPressure,
         // One decimal, unlike every other reading here: a migraine-relevant
         // move is a few hPa, so rounding to whole units hides half of it.
@@ -32,7 +32,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
       ),
     if (data.pressureDelta24hHpa case final double value)
       _Metric(
-        icon: Icons.timeline,
+        icon: AppIconConstant.correlation,
         label: l10n.weatherDetailPressureDelta,
         // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
         // is neither of them.
@@ -40,7 +40,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
       ),
     if (data.precipitationChancePercent case final double value)
       _Metric(
-        icon: Icons.umbrella_outlined,
+        icon: AppIconConstant.precipitation,
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
@@ -49,7 +49,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
     //   the left column, third's own column
     if (data.precipitationAmountMm case final double value)
       _Metric(
-        icon: Icons.water_outlined,
+        icon: AppIconConstant.rainfall,
         label: l10n.weatherDetailPrecipitationAmount,
         // One decimal, like pressure and unlike the rest: a day of drizzle is
         // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
@@ -57,20 +57,20 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
       ),
     if (data.humidityPercent case final double value)
       _Metric(
-        icon: Icons.water_drop_outlined,
+        icon: AppIconConstant.humidity,
         label: l10n.weatherDetailHumidity,
         value: l10n.weatherPercent(value.round()),
       ),
 
     if (data.windSpeedKph case final double value)
       _Metric(
-        icon: Icons.air,
+        icon: AppIconConstant.weatherWindy,
         label: l10n.weatherDetailWind,
         value: l10n.weatherWindValue(value.round()),
       ),
     if (data.uvIndex case final double value)
       _Metric(
-        icon: Icons.wb_sunny_outlined,
+        icon: AppIconConstant.weatherClear,
         label: l10n.weatherDetailUv,
         value: l10n.weatherUvValue(value.round()),
       ),
@@ -78,20 +78,20 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
     // in visibility is not worth a decimal place.
     if (data.visibilityKm case final double value)
       _Metric(
-        icon: Icons.visibility_outlined,
+        icon: AppIconConstant.visibility,
         label: l10n.weatherDetailVisibility,
         value: l10n.weatherVisibilityValue(value.round()),
       ),
 
     if (data.sunrise case final DateTime value)
       _Metric(
-        icon: Icons.wb_twilight,
+        icon: AppIconConstant.daylight,
         label: l10n.weatherDetailSunrise,
         value: DateFormat.jm(l10n.localeName).format(value.toLocal()),
       ),
     if (data.sunset case final DateTime value)
       _Metric(
-        icon: Icons.nightlight_outlined,
+        icon: AppIconConstant.weatherClearNight,
         label: l10n.weatherDetailSunset,
         value: DateFormat.jm(l10n.localeName).format(value.toLocal()),
       ),
@@ -184,7 +184,7 @@ class _MetricGlance extends StatelessWidget {
         children: <Widget>[
           SdIconV2(
             icon: metric.icon,
-            size: SdSpacingConstant.r18,
+            size: AppIconSize.row,
             color: AppColors.textSecondary,
           ),
           SizedBox(height: SdSpacingConstant.h4),
@@ -287,7 +287,7 @@ class _MetricCell extends StatelessWidget {
             children: <Widget>[
               SdIconV2(
                 icon: metric.icon,
-                size: SdSpacingConstant.r16,
+                size: AppIconSize.inline,
                 color: AppColors.textSecondary,
               ),
               SizedBox(width: SdSpacingConstant.w4),

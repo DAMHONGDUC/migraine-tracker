@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 
 /// Name-search field that filters a [MedicationGrid].
 ///
@@ -34,12 +36,12 @@ class MedicationSearchField extends StatelessWidget {
     return SdTextFieldV2(
       controller: controller,
       hint: context.l10n.medicationsSearchHint,
-      prefixIcon: Icons.search,
+      prefixIcon: AppIconConstant.search,
       textInputAction: TextInputAction.search,
       onChanged: onChanged,
       suffix: hasText
           ? IconButton(
-              icon: SdIconV2(icon: Icons.close, size: SdSpacingConstant.r18),
+              icon: SdIconV2(icon: AppIconConstant.close, size: AppIconSize.affordance),
               tooltip: context.l10n.medicationsSearchClear,
               onPressed: onClear,
             )

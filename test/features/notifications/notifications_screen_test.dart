@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/core/widgets/settings_tile.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -58,7 +59,7 @@ void main() {
   testWidgets('the bell wears the unread count', (tester) async {
     final PumpedApp app = await pumpApp(tester);
 
-    expect(find.byIcon(Icons.notifications_none), findsOneWidget);
+    expect(find.byIcon(AppIconConstant.notifications), findsOneWidget);
     expect(
       tester.widget<SdBadgeV2>(find.byType(SdBadgeV2)).showing,
       isFalse,

@@ -7,6 +7,8 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 /// The dashboard's hero call-to-action: a tall lavender block, centred glyph
@@ -51,8 +53,8 @@ class DashboardLogButton extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SdIconV2(
-              icon: Icons.add_rounded,
-              size: SdSpacingConstant.r28,
+              icon: AppIconConstant.add,
+              size: AppIconSize.tile,
               color: AppColors.onPrimary,
             ),
             SizedBox(width: SdSpacingConstant.w12),

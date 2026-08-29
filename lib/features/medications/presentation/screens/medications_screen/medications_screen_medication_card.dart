@@ -35,7 +35,8 @@ class _MedicationCard extends ConsumerWidget {
             AppRoutes.medicationIdParam: medication.id,
           },
         ),
-        leading: const SdIconV2(icon: Icons.medication_outlined),
+        leading: SdIconV2(icon: AppIconConstant.medication,
+          size: AppIconSize.row),
         title: Text(medication.name, style: AppTextStyle.titleMedium),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,8 +57,8 @@ class _MedicationCard extends ConsumerWidget {
           ],
         ),
         trailing: SdIconV2(
-          icon: Icons.chevron_right,
-          size: SdSpacingConstant.r20,
+          icon: AppIconConstant.disclosure,
+          size: AppIconSize.affordance,
           color: context.colorScheme.onSurfaceVariant,
         ),
       ),

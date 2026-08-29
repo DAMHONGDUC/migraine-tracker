@@ -141,7 +141,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
             borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
           child: _AlertRow(
-            icon: Icons.notifications_active_outlined,
+            icon: AppIconConstant.reminderActive,
             title: l10n.alertsToggleTitle,
             trailing: Switch(
               // Without this the switch brings Material's 48pt tap target
@@ -155,7 +155,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
         ),
         const SdDividerV2(),
         _AlertRow(
-          icon: Icons.compress,
+          icon: AppIconConstant.pressure,
           title: l10n.alertsThresholdTitle,
           onTap: () => _pickThreshold(context, ref, threshold),
           // The value, then the chevron that says it can be changed. Without
@@ -170,8 +170,8 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
               ),
               SizedBox(width: SdSpacingConstant.w4),
               SdIconV2(
-                icon: Icons.chevron_right,
-                size: SdSpacingConstant.r20,
+                icon: AppIconConstant.disclosure,
+                size: AppIconSize.affordance,
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ],
@@ -233,7 +233,7 @@ class _AlertRow extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: SdSpacingConstant.r20,
+              size: AppIconSize.row,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

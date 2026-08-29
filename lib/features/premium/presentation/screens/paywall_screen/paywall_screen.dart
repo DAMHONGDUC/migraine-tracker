@@ -13,6 +13,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../auth/providers.dart';
@@ -187,7 +189,7 @@ class PaywallScreen extends HookConsumerWidget {
               Align(
                 alignment: AlignmentDirectional.topEnd,
                 child: SdAppBarButtonV2(
-                  icon: Icons.close,
+                  icon: AppIconConstant.close,
                   // Already on the sheet's glass: a circle here would nest glass inside glass.
                   surface: SdAppBarButtonSurfaceV2.none,
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,

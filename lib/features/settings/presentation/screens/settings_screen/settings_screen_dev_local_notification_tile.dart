@@ -74,7 +74,7 @@ class _DevLocalNotificationTileState
   @override
   Widget build(BuildContext context) {
     return SettingsTile(
-      icon: Icons.notification_add_outlined,
+      icon: AppIconConstant.notificationAdd,
       iconColor: context.colorScheme.primary,
       title: context.l10n.settingsDevLocalNotification,
       trailing: _sending

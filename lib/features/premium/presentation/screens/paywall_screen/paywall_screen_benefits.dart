@@ -29,27 +29,27 @@ class _Benefits extends StatelessWidget {
         child: Column(
           children: <Widget>[
             SdBenefitRowV2(
-              icon: Icons.all_inclusive,
+              icon: AppIconConstant.unlimited,
               title: l10n.paywallBenefitUnlimited,
             ),
             SdBenefitRowV2(
-              icon: Icons.notifications_active_outlined,
+              icon: AppIconConstant.reminderActive,
               title: l10n.paywallBenefitAlerts,
             ),
             SdBenefitRowV2(
-              icon: Icons.show_chart,
+              icon: AppIconConstant.lineChart,
               title: l10n.paywallBenefitForecast,
             ),
             SdBenefitRowV2(
-              icon: Icons.insights_outlined,
+              icon: AppIconConstant.insights,
               title: l10n.paywallBenefitInsights,
             ),
             SdBenefitRowV2(
-              icon: Icons.picture_as_pdf_outlined,
+              icon: AppIconConstant.exportPdf,
               title: l10n.paywallBenefitReport,
             ),
             SdBenefitRowV2(
-              icon: Icons.bedtime_outlined,
+              icon: AppIconConstant.sleep,
               title: l10n.paywallBenefitSleep,
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
 
@@ -79,7 +80,7 @@ void main() {
     );
     await openAccount(tester);
 
-    await tapVisible(tester, find.byIcon(Icons.edit_outlined));
+    await tapVisible(tester, find.byIcon(AppIconConstant.edit));
     await tester.enterText(find.byType(TextField), 'Hong Duc');
     await tester.pump();
     await tester.tap(find.text('Save'));

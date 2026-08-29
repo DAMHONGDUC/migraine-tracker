@@ -16,10 +16,10 @@ class _DataSection extends ConsumerWidget {
         // Where the data goes, before what you can get out of it or destroy.
         const SyncSettingsTile(),
         PremiumTileGate(
-          icon: Icons.ios_share,
+          icon: AppIconConstant.share,
           title: l10n.settingsExport,
           child: SettingsTile(
-            icon: Icons.ios_share,
+            icon: AppIconConstant.share,
             title: l10n.settingsExport,
             onTap: () => NavigationUtils.toExport(context, ref),
           ),

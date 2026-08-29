@@ -7,6 +7,8 @@ import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/medication_name_dialog.dart';
 import '../../../medications/domain/entities/medication.dart';
@@ -107,7 +109,7 @@ class MedicationGrid extends ConsumerWidget {
         if (i == 0) {
           return _Tile(
             kind: _TileKind.option,
-            icon: Icons.block,
+            icon: AppIconConstant.noMedication,
             label: l10n.logNoMedication,
             selected: hasSelection && selectedName == null,
             onTap: () => onSelected(null),
@@ -116,7 +118,7 @@ class MedicationGrid extends ConsumerWidget {
         if (i == 1) {
           return _Tile(
             kind: _TileKind.add,
-            icon: Icons.add,
+            icon: AppIconConstant.add,
             label: l10n.logAddMedication,
             onTap: () => _add(context, ref),
           );
@@ -125,7 +127,7 @@ class MedicationGrid extends ConsumerWidget {
 
         return _Tile(
           kind: _TileKind.option,
-          icon: Icons.medication_outlined,
+          icon: AppIconConstant.medication,
           label: med.name,
           selected: hasSelection && selectedName == med.name,
           onTap: () => onSelected(med.name),
@@ -206,7 +208,7 @@ class _Tile extends StatelessWidget {
               SdIconV2(
                 icon: icon,
                 color: foreground,
-                size: SdSpacingConstant.r24,
+                size: AppIconSize.row,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:system_design/index.dart';
 
 /// The one app-bar button: a small glyph inside a touch target big enough to
@@ -23,7 +24,7 @@ void main() {
           home: Scaffold(
             body: Center(
               child: SdAppBarButtonV2(
-                icon: Icons.delete_outline,
+                icon: AppIconConstant.delete,
                 tooltip: 'Delete',
                 surface: surface,
                 onPressed: onPressed,
@@ -51,7 +52,7 @@ void main() {
     await pumpButton(tester, onPressed: () {});
 
     expect(
-      tester.getSize(find.byIcon(Icons.delete_outline)).width,
+      tester.getSize(find.byIcon(AppIconConstant.delete)).width,
       SdAppBarButtonV2.iconSize,
     );
     expect(

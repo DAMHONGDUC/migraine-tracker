@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/exertion_level_picker.dart';
@@ -161,7 +163,9 @@ void main() {
 
     await logAttack(tester, intensity: '4', location: 'Crown');
 
-    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    // `.last` is the nav bar: the dashboard's quick-access tile draws
+    // the same glyph, since the tile and the tab share one constant.
+    await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -211,7 +215,7 @@ void main() {
     await tester.enterText(findLabelledField('Notes'), 'bad one');
     // The details sheet commits from its header — a pencil, since it
     // overwrites details the attack may already carry.
-    await tester.tap(find.byIcon(Icons.edit));
+    await tester.tap(find.byIcon(Symbols.edit_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

@@ -4,6 +4,8 @@ import 'package:system_design/index.dart';
 
 import '../../../features/home_widget/providers.dart';
 import '../../extensions/context_extensions.dart';
+import '../../theme/app_icon_constant.dart';
+import '../../theme/app_icon_size.dart';
 import '../../theme/app_text_style.dart';
 
 /// Settings switch for the home-screen widget.
@@ -34,7 +36,8 @@ class HomeWidgetSettingsTile extends ConsumerWidget {
     if (!ref.watch(homeWidgetSupportedProvider)) return const SizedBox.shrink();
 
     return SwitchListTile(
-      secondary: const SdIconV2(icon: Icons.widgets_outlined),
+      secondary: SdIconV2(icon: AppIconConstant.homeWidget,
+        size: AppIconSize.row),
       title: Text(
         context.l10n.homeWidgetSettingsTitle,
         style: AppTextStyle.bodyLarge,

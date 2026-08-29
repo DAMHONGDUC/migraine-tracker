@@ -8,6 +8,8 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../medications/domain/entities/medication.dart';
@@ -50,7 +52,7 @@ class NotificationDetailScreen extends HookConsumerWidget {
       return SdScaffoldV2(
         title: Text(l10n.notificationsTitle, style: AppTextStyle.titleLarge),
         body: SdEmptyStateV2(
-          icon: Icons.notifications_none,
+          icon: AppIconConstant.notifications,
           message: l10n.notificationDetailMissing,
         ),
       );

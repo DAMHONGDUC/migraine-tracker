@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 /// One cell of the dashboard's explore grid: glyph, name, and whatever the
@@ -27,11 +28,12 @@ class DashboardExploreCard extends StatelessWidget {
   });
 
   /// The header row's height, reserved for every cell whether or not it has a
-  /// [trailing]. Taller than the glyph on purpose: a `PremiumBadge` is a
-  /// line of `labelSmall` plus its own padding, and the grid's fixed cell
-  /// cannot grow for it — see [DashboardExploreSection.cellHeight], which
-  /// reads this rather than the glyph size.
-  static double get headerHeight => SdSpacingConstant.r24;
+  /// [trailing]. Stated as the glyph plus slack, so it moves when the glyph
+  /// does: a `PremiumBadge` is a line of `labelSmall` inside its own h4
+  /// padding — a shade taller than the icon beside it — and the grid's fixed
+  /// cell cannot grow for it. [DashboardExploreSection.cellHeight] reads this
+  /// rather than the glyph size.
+  static double get headerHeight => AppIconSize.row + SdSpacingConstant.h4;
 
   final IconData icon;
   final String title;
@@ -55,12 +57,12 @@ class DashboardExploreCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // - a bare glyph, not a tinted badge: at two cards a row the disc was most of the card's top edge
-            // - r20 like the quick-access tiles above: at half a screen wide the glyph is a marker, not the subject
+            // - AppIconSize.row, a step under the quick-access tiles: at half a screen wide, beside a title and two lines of subtitle, the glyph marks the card rather than being it
             Row(
               children: <Widget>[
                 SdIconV2(
                   icon: icon,
-                  size: SdSpacingConstant.r20,
+                  size: AppIconSize.row,
                   color: AppColors.primary,
                 ),
                 const Spacer(),

@@ -13,6 +13,8 @@ import '../../../../../core/extensions/exertion_level_label.dart';
 import '../../../../../core/extensions/head_region_label.dart';
 import '../../../../../core/extensions/medication_effect_label.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/weather_card.dart';
 import '../../../domain/entities/attack.dart';
@@ -236,13 +238,13 @@ class AttackDetailScreen extends HookConsumerWidget {
         // deleted or still-loading record has nothing to render.
         if (attack.value case final Attack loaded)
           SdAppBarButtonV2(
-            icon: Icons.ios_share,
+            icon: AppIconConstant.share,
             color: AppColors.secondary,
             tooltip: l10n.attackShareTitle,
             onPressed: () => AttackShareSheet.show(context, loaded),
           ),
         SdAppBarButtonV2(
-          icon: Icons.delete_outline,
+          icon: AppIconConstant.delete,
           color: context.colorScheme.error,
           tooltip: l10n.attackDetailDeleteTitle,
           onPressed: () => _delete(context, ref),

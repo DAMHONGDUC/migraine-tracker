@@ -67,7 +67,7 @@ class _DevResetTileState extends ConsumerState<_DevResetTile> {
     final AppLocalizations l10n = context.l10n;
 
     return SettingsTile(
-      icon: Icons.restart_alt,
+      icon: AppIconConstant.reset,
       titleColor: context.colorScheme.error,
       title: l10n.settingsDevReset,
       trailing: _running

@@ -8,6 +8,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
@@ -71,7 +72,7 @@ class _NextReminderBannerState extends ConsumerState<NextReminderBanner> {
         child: Row(
           children: [
             SdIconBadgeV2(
-              icon: Icons.medication_outlined,
+              icon: AppIconConstant.medication,
               color: AppColors.secondary,
             ),
             SizedBox(width: SdSpacingConstant.w16),

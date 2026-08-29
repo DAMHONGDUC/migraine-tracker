@@ -38,7 +38,7 @@ class _DevSeedTileState extends ConsumerState<_DevSeedTile> {
     final AppLocalizations l10n = context.l10n;
 
     return SettingsTile(
-      icon: Icons.science_outlined,
+      icon: AppIconConstant.devTool,
       iconColor: AppColors.secondary,
       title: l10n.settingsDevSeed,
       trailing: _running

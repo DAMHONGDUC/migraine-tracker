@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -194,12 +195,14 @@ void main() {
     final repository = DriftAttackRepository(app.db);
     await repository.insert(seededAttack(0, pressureDelta: -7));
 
-    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    // `.last` is the nav bar: the dashboard's quick-access tile draws
+    // the same glyph, since the tile and the tab share one constant.
+    await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     // History defaults to list mode; switch to chart via the app-bar toggle.
-    await tester.tap(find.byIcon(Icons.bar_chart));
+    await tester.tap(find.byIcon(AppIconConstant.barChart));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

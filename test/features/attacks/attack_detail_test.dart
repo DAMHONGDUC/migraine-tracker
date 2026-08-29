@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -41,14 +43,14 @@ Future<void> openEditSheet(WidgetTester tester, String row) async {
 /// These sheets overwrite a value the attack already has, so the glyph is
 /// the pencil (`SdSheetActionV2.edit`), not the tick.
 Future<void> confirmSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.edit));
+  await tester.tap(find.byIcon(Symbols.edit_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
 /// The X in the sheet header — leaves without applying the pick.
 Future<void> closeSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.close));
+  await tester.tap(find.byIcon(Symbols.close_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -242,8 +244,8 @@ void main() {
       );
       // Every one of them offers both answers in its header. The commit is
       // the pencil, not the tick: these overwrite a value the attack has.
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
+      expect(find.byIcon(Symbols.edit_rounded), findsOneWidget);
 
       await closeSheet(tester);
     }
@@ -301,7 +303,7 @@ void main() {
     await DriftAttackRepository(app.db).insert(attack());
 
     await openDetail(tester);
-    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.tap(find.byIcon(AppIconConstant.delete));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 

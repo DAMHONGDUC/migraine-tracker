@@ -9,6 +9,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/extensions/medication_effectiveness_label.dart';
 import '../../../../../core/permissions/app_permission.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
 import '../../../../../core/widgets/app_time_picker_sheet.dart';
@@ -135,7 +137,7 @@ class MedicationDetailScreen extends ConsumerWidget {
       return SdScaffoldV2(
         title: Text(l10n.medicationsTitle, style: AppTextStyle.titleLarge),
         body: SdEmptyStateV2(
-          icon: Icons.medication_outlined,
+          icon: AppIconConstant.medication,
           message: l10n.medicationDetailMissing,
         ),
       );
@@ -151,7 +153,7 @@ class MedicationDetailScreen extends ConsumerWidget {
       title: Text(medication.name, style: AppTextStyle.titleLarge),
       actions: <Widget>[
         SdAppBarButtonV2(
-          icon: Icons.delete_outline,
+          icon: AppIconConstant.delete,
           color: context.colorScheme.error,
           tooltip: l10n.settingsDeleteConfirmAction,
           onPressed: () => _delete(context, ref, medication),
@@ -231,8 +233,8 @@ class MedicationDetailScreen extends ConsumerWidget {
             // The button stays — it opens the paywall instead. Only the
             // glyph says the budget is spent, so the label never changes.
             icon: ref.watch(canAddReminderProvider)
-                ? Icons.alarm_add
-                : Icons.lock_outline,
+                ? AppIconConstant.reminderAdd
+                : AppIconConstant.locked,
             onPressed: () => _addReminder(context, ref, medication),
             label: l10n.remindersAdd,
           ),

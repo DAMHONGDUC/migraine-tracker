@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/health_connection_tile.dart';
@@ -37,7 +38,7 @@ class ActivityScreen extends ConsumerWidget {
           // Steps only: the exertion half is typed in by hand, it reads nothing.
           HealthConnectionTile(
             kind: HealthDataKind.steps,
-            icon: Icons.directions_walk,
+            icon: AppIconConstant.steps,
             title: context.l10n.healthStepsTitle,
           ),
           SizedBox(height: SdContentPaddingV2.sectionGap),
@@ -62,7 +63,7 @@ class ActivityScreen extends ConsumerWidget {
                 },
                 SizedBox(height: SdContentPaddingV2.sectionGap),
                 PremiumGate(
-                  lockedIcon: Icons.directions_walk,
+                  lockedIcon: AppIconConstant.steps,
                   lockedMessage: context.l10n.premiumLockedSteps,
                   child: const StepCorrelationCard(),
                 ),

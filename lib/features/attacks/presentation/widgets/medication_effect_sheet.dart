@@ -5,6 +5,8 @@ import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/medication_effect_label.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/medication_effect.dart';
 
@@ -85,9 +87,9 @@ class _EffectTile extends StatelessWidget {
   /// that clears the contrast floor for text).
   static const Map<MedicationEffect, IconData> _icons =
       <MedicationEffect, IconData>{
-        MedicationEffect.helped: Icons.sentiment_very_satisfied,
-        MedicationEffect.partly: Icons.sentiment_neutral,
-        MedicationEffect.didNotHelp: Icons.sentiment_dissatisfied,
+        MedicationEffect.helped: AppIconConstant.effectHelped,
+        MedicationEffect.partly: AppIconConstant.effectPartly,
+        MedicationEffect.didNotHelp: AppIconConstant.effectNone,
       };
 
   @override
@@ -124,7 +126,7 @@ class _EffectTile extends StatelessWidget {
               SdIconV2(
                 icon: _icons[effect]!,
                 color: color,
-                size: SdSpacingConstant.r24,
+                size: AppIconSize.row,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

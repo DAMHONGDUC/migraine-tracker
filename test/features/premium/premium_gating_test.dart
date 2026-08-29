@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
@@ -193,7 +194,7 @@ void main() {
 
       await addReminders(tester, PremiumLimitConstant.reminders);
       expect(
-        find.byIcon(Icons.alarm),
+        find.byIcon(AppIconConstant.reminder),
         findsNWidgets(PremiumLimitConstant.reminders),
       );
 
@@ -227,7 +228,7 @@ void main() {
       // No paywall, no extra reminder, still on the medication.
       expect(find.text('BaroEase Premium'), findsNothing);
       expect(
-        find.byIcon(Icons.alarm),
+        find.byIcon(AppIconConstant.reminder),
         findsNWidgets(PremiumLimitConstant.reminders),
       );
       expect(find.text('Sumatriptan'), findsWidgets);
@@ -271,7 +272,7 @@ void main() {
       expect(find.text('Medications'), findsOneWidget);
 
       // Logging works — reachable from the dashboard's hero button.
-      await tester.tap(find.byIcon(Icons.home_outlined));
+      await tester.tap(find.byIcon(AppIconConstant.home));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await openLog(tester);
@@ -444,7 +445,7 @@ void main() {
       await addReminders(tester, PremiumLimitConstant.reminders + 1);
 
       expect(
-        find.byIcon(Icons.alarm),
+        find.byIcon(AppIconConstant.reminder),
         findsNWidgets(PremiumLimitConstant.reminders + 1),
       );
       expect(find.textContaining('on the free plan'), findsNothing);

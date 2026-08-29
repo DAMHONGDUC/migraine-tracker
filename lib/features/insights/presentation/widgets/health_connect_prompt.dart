@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../health/domain/enums/health_data_kind.dart';
 import '../../../health/providers.dart';
@@ -69,7 +70,7 @@ class HealthConnectPrompt extends ConsumerWidget {
           child: SdButtonV2(
             variant: SdButtonVariantV2.secondary,
             size: SdButtonSizeV2.small,
-            icon: Icons.favorite_outline,
+            icon: AppIconConstant.health,
             onPressed: () => _connect(context, ref),
             label: context.l10n.dashboardHealthConnect,
           ),

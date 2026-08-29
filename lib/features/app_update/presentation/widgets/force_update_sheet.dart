@@ -3,6 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/app_update_config.dart';
@@ -37,8 +39,8 @@ class ForceUpdateSheet extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               SdIconV2(
-                icon: Icons.system_update_alt,
-                size: SdSpacingConstant.r44,
+                icon: AppIconConstant.appUpdate,
+                size: AppIconSize.hero,
                 color: context.colorScheme.primary,
               ),
               SizedBox(height: SdSpacingConstant.h16),
@@ -83,7 +85,7 @@ class _UpdateButton extends ConsumerWidget {
     return SdButtonV2(
       variant: SdButtonVariantV2.primary,
       label: label,
-      icon: Icons.open_in_new,
+      icon: AppIconConstant.externalLink,
       onPressed: () async {
         final AppLocalizations l10n = context.l10n;
         final bool opened = await ref

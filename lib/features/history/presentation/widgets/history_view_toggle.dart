@@ -3,6 +3,8 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../domain/enums/history_view_mode.dart';
 
 /// Segmented toggle for the History representations: a pill track with an
@@ -20,10 +22,10 @@ class HistoryViewToggle extends StatelessWidget {
   final ValueChanged<HistoryViewMode> onChanged;
 
   static const _icons = {
-    HistoryViewMode.list: Icons.list_alt,
+    HistoryViewMode.list: AppIconConstant.listView,
     // Not calendar_month — that's the History tab's own icon in the bottom nav, and one icon must not mean two things.
-    HistoryViewMode.calendar: Icons.calendar_view_month,
-    HistoryViewMode.chart: Icons.bar_chart,
+    HistoryViewMode.calendar: AppIconConstant.calendarView,
+    HistoryViewMode.chart: AppIconConstant.barChart,
   };
 
   @override
@@ -141,8 +143,11 @@ class _Segment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: SdIconV2(
+            // `row`, not `tile`: the segment is icon-only, but the thumb it
+            // sits in is 34 tall (h42 less its h4 inset either side), and a
+            // 28 glyph leaves it 3pt of breathing room.
             icon: icon,
-            size: SdSpacingConstant.r20,
+            size: AppIconSize.row,
             // Dark on the filled thumb, light off it — the pair inverts, so
             // the selected one is legible rather than merely tinted.
             color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,

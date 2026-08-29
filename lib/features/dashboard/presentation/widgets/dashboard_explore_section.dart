@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../premium/providers.dart';
@@ -83,7 +84,7 @@ class DashboardExploreSection extends ConsumerWidget {
           physics: const NeverScrollableScrollPhysics(),
           children: <Widget>[
             DashboardExploreCard(
-              icon: Icons.notifications_active_outlined,
+              icon: AppIconConstant.reminderActive,
               title: l10n.dashboardReminderTitle,
               content: DashboardExploreSubtitle(l10n.dashboardReminderBody),
               onTap: () => context.goNamed(AppRoutes.medications.name),
@@ -91,7 +92,7 @@ class DashboardExploreSection extends ConsumerWidget {
             DashboardExploreCard(
               // Distinct from the bottom nav's insights_outlined so byIcon
               // finders stay unambiguous.
-              icon: Icons.analytics_outlined,
+              icon: AppIconConstant.analysis,
               title: l10n.dashboardInsightsBannerTitle,
               content: DashboardExploreSubtitle(
                 l10n.dashboardInsightsBannerBody,
@@ -99,7 +100,7 @@ class DashboardExploreSection extends ConsumerWidget {
               onTap: () => context.goNamed(AppRoutes.insights.name),
             ),
             DashboardExploreCard(
-              icon: Icons.ios_share_outlined,
+              icon: AppIconConstant.export,
               title: l10n.dashboardExportTitle,
               content: DashboardExploreSubtitle(l10n.dashboardExportBody),
               // Export is premium in full, so the cell says so before it is
@@ -113,7 +114,7 @@ class DashboardExploreSection extends ConsumerWidget {
               onTap: () => NavigationUtils.toExport(context, ref),
             ),
             DashboardExploreCard(
-              icon: Icons.info_outline,
+              icon: AppIconConstant.info,
               title: l10n.dashboardAboutTitle,
               content: DashboardExploreSubtitle(l10n.dashboardAboutBody),
               // Same screen the Settings row opens: the feature list and the

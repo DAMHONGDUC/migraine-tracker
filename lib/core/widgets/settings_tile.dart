@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../theme/app_icon_constant.dart';
+import '../theme/app_icon_size.dart';
 import '../theme/app_text_style.dart';
 
 /// One Settings row: icon, title, and — when the row leads somewhere — a
@@ -46,7 +48,11 @@ class SettingsTile extends StatelessWidget {
     final bool hasEnd = value != null || hasChevron;
 
     return ListTile(
-      leading: SdIconV2(icon: icon, color: iconColor ?? titleColor),
+      leading: SdIconV2(
+        icon: icon,
+        size: AppIconSize.row,
+        color: iconColor ?? titleColor,
+      ),
       title: Text(
         title,
         style: titleColor == null
@@ -85,8 +91,8 @@ class _TileEnd extends StatelessWidget {
         if (value != null && chevron) SizedBox(width: SdSpacingConstant.w4),
         if (chevron)
           SdIconV2(
-            icon: Icons.chevron_right,
-            size: SdSpacingConstant.r20,
+            icon: AppIconConstant.disclosure,
+            size: AppIconSize.affordance,
             color: context.colorScheme.onSurfaceVariant,
           ),
       ],

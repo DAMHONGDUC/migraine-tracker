@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../attacks/providers.dart';
 
 /// How many free logs are left, once there are few enough to say.
@@ -26,7 +27,7 @@ class AttackLimitBanner extends ConsumerWidget {
     if (left == null) return const SizedBox.shrink();
 
     return SdBannerV2(
-      icon: Icons.hourglass_bottom_outlined,
+      icon: AppIconConstant.runningOut,
       color: AppColors.primary,
       title: context.l10n.attackLimitBannerTitle(left),
       subtitle: context.l10n.attackLimitBannerBody,

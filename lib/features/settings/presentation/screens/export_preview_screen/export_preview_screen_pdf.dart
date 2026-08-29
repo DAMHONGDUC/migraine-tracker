@@ -30,7 +30,7 @@ class _PdfBody extends ConsumerWidget {
         loadingWidget: const CircularProgressIndicator(),
       ),
       AsyncError<Uint8List>() => SdEmptyStateV2(
-        icon: Icons.description_outlined,
+        icon: AppIconConstant.document,
         message: l10n.exportFileMissing,
       ),
       _ => const Center(child: CircularProgressIndicator()),

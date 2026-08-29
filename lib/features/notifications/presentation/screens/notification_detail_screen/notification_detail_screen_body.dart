@@ -19,11 +19,11 @@ class _Body extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           SdIconBadgeV2(
-            icon: isAlert ? Icons.trending_down : Icons.alarm,
+            icon: isAlert ? AppIconConstant.trendDown : AppIconConstant.reminder,
             color: isAlert
                 ? context.colorScheme.secondary
                 : context.colorScheme.primary,
-            size: SdSpacingConstant.r64,
+            size: AppIconSize.display,
           ),
           SizedBox(height: SdContentPaddingV2.sectionGap),
           Text(
@@ -101,14 +101,14 @@ class _Body extends ConsumerWidget {
     if (isAlert) {
       return SdButtonV2(
         variant: SdButtonVariantV2.secondary,
-        icon: Icons.show_chart,
+        icon: AppIconConstant.lineChart,
         onPressed: () => NavigationUtils.toPressure(context, ref),
         label: l10n.notificationPressureAction,
       );
     }
     return SdButtonV2(
       variant: SdButtonVariantV2.primary,
-      icon: Icons.medication_outlined,
+      icon: AppIconConstant.medication,
       onPressed: medication == null
           ? null
           : () => context.pushNamed<void>(

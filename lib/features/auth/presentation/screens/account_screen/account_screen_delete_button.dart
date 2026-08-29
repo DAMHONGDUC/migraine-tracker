@@ -82,7 +82,7 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
       variant: SdButtonVariantV2.outlinedDestructive,
       onPressed: _deleting ? null : _delete,
       label: _deleting ? l10n.commonDeleting : l10n.accountDelete,
-      icon: Icons.delete_forever_outlined,
+      icon: AppIconConstant.deleteForever,
     );
   }
 }

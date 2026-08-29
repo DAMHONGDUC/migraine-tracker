@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:system_design/index.dart';
@@ -35,7 +37,7 @@ void main() {
     final double rowBefore = tester.getTopLeft(firstRow).dy;
 
     // Drag a reminder row, so the gesture lands inside the list's scroll view.
-    await tester.drag(find.byIcon(Icons.alarm).first, const Offset(0, -300));
+    await tester.drag(find.byIcon(AppIconConstant.reminder).first, const Offset(0, -300));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -95,18 +97,18 @@ void main() {
     await openMedication(tester, 'Sumatriptan');
 
     // At rest the pencil says the name can be changed.
-    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsNothing);
+    expect(find.byIcon(AppIconConstant.edit), findsOneWidget);
+    expect(find.byIcon(Symbols.check_rounded), findsNothing);
 
     // Tapping it focuses the field, and the glyph becomes the save action.
-    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.tap(find.byIcon(AppIconConstant.edit));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byIcon(Icons.check), findsOneWidget);
-    expect(find.byIcon(Icons.edit_outlined), findsNothing);
+    expect(find.byIcon(Symbols.check_rounded), findsOneWidget);
+    expect(find.byIcon(AppIconConstant.edit), findsNothing);
 
     await tester.enterText(find.byType(TextField).first, 'Rizatriptan');
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.tap(find.byIcon(Symbols.check_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -114,7 +116,7 @@ void main() {
     final rows = await app.db.select(app.db.medications).get();
     expect(rows.single.name, 'Rizatriptan');
     expect(rows.single.id, 'm1', reason: 'renames in place');
-    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+    expect(find.byIcon(AppIconConstant.edit), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -179,7 +181,7 @@ void main() {
 
     await openMedications(tester);
     await openMedication(tester, 'Sumatriptan');
-    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.tap(find.byIcon(AppIconConstant.delete));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -210,11 +212,11 @@ void main() {
     // - custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour + minute) confirm it's open
     // - the checkmark saves the default (current) time without touching the wheels
     expect(find.byType(ListWheelScrollView), findsNWidgets(2));
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.tap(find.byIcon(Symbols.check_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byIcon(Icons.alarm), findsOneWidget);
+    expect(find.byIcon(AppIconConstant.reminder), findsOneWidget);
     expect(find.byType(Switch), findsOneWidget);
     // A confirmation snackbar spells out when it will fire.
     expect(find.textContaining('Reminder set for'), findsOneWidget);
@@ -227,7 +229,7 @@ void main() {
     await tester.tap(reminderDelete());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.byIcon(Icons.alarm), findsNothing);
+    expect(find.byIcon(AppIconConstant.reminder), findsNothing);
 
     await finishTest(tester);
   });
@@ -267,8 +269,15 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    // Edit mode shows the confirm action as a pencil (Icons.edit), not a check.
-    await tester.tap(find.byIcon(Icons.edit));
+    // Edit mode shows the confirm action as a pencil, not a check. Scoped to
+    // the sheet header: the screen behind it carries the same glyph now that
+    // the app and the design system draw from one icon family.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(SdSheetHeaderV2),
+        matching: find.byIcon(Symbols.edit_rounded),
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -303,7 +312,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.tap(find.byIcon(Symbols.check_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -339,13 +348,13 @@ void main() {
 
     // The row says how many; no time is on the list at all.
     expect(find.textContaining('5 reminders'), findsOneWidget);
-    expect(find.byIcon(Icons.alarm), findsNothing);
+    expect(find.byIcon(AppIconConstant.reminder), findsNothing);
     expect(find.text('01:00'), findsNothing);
 
     await openMedication(tester, 'Sumatriptan');
 
     // All five, none collapsed away.
-    expect(find.byIcon(Icons.alarm), findsNWidgets(5));
+    expect(find.byIcon(AppIconConstant.reminder), findsNWidgets(5));
     expect(find.text('05:00'), findsOneWidget);
 
     await finishTest(tester);
@@ -384,7 +393,7 @@ void main() {
     expect(find.text('Ibuprofen'), findsOneWidget);
 
     // Open the search field and type a partial, case-insensitive name.
-    await tester.tap(find.byIcon(Icons.search));
+    await tester.tap(find.byIcon(AppIconConstant.search));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.enterText(find.byType(TextField), 'ibu');
@@ -395,7 +404,7 @@ void main() {
     expect(find.text('Sumatriptan'), findsNothing);
 
     // Closing search restores the full list.
-    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

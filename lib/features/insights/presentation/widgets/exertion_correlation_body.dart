@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/exertion_correlation_result.dart';
 import 'insight_progress_body.dart';
@@ -24,7 +25,7 @@ class ExertionCorrelationBody extends StatelessWidget {
     return switch (result) {
       // No padlock: this body is free, so nothing here is ever locked.
       final ExertionInsufficientData r => InsightProgressBody(
-        icon: Icons.timeline,
+        icon: AppIconConstant.correlation,
         message: context.l10n.insightsExertionInsufficientData(
           r.requiredAttacks - r.attacksAnalyzed,
         ),

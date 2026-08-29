@@ -49,7 +49,7 @@ class _DevPushTileState extends ConsumerState<_DevPushTile> {
   @override
   Widget build(BuildContext context) {
     return SettingsTile(
-      icon: Icons.notifications_active_outlined,
+      icon: AppIconConstant.reminderActive,
       iconColor: context.colorScheme.primary,
       title: context.l10n.settingsDevPush,
       trailing: _sending

@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import 'dashboard_chevron.dart';
 
@@ -62,7 +63,7 @@ class PremiumBanner extends ConsumerWidget {
         child: Row(
           children: <Widget>[
             SdIconBadgeV2(
-              icon: Icons.workspace_premium_outlined,
+              icon: AppIconConstant.premium,
               color: AppColors.primary,
               size: badgeSize,
               iconSize: SdSpacingConstant.r20,

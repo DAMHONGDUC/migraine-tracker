@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/health_connection_tile.dart';
@@ -32,7 +33,7 @@ class SleepScreen extends ConsumerWidget {
         children: <Widget>[
           HealthConnectionTile(
             kind: HealthDataKind.sleep,
-            icon: Icons.bedtime_outlined,
+            icon: AppIconConstant.sleep,
             title: context.l10n.healthSleepTitle,
           ),
           SizedBox(height: SdContentPaddingV2.sectionGap),
@@ -50,7 +51,7 @@ class SleepScreen extends ConsumerWidget {
                 if (ref.watch(healthControllerProvider).sleep)
                   SizedBox(height: SdContentPaddingV2.sectionGap),
                 PremiumGate(
-                  lockedIcon: Icons.bedtime_outlined,
+                  lockedIcon: AppIconConstant.sleep,
                   lockedMessage: context.l10n.premiumLockedSleep,
                   child: const SleepCorrelationCard(),
                 ),

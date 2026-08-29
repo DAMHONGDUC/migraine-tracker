@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/attack.dart';
 import '../../providers.dart';
@@ -73,7 +74,7 @@ class _AttackShareSheetState extends ConsumerState<AttackShareSheet> {
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
             label: l10n.attackShareAction,
-            icon: Icons.ios_share,
+            icon: AppIconConstant.share,
             // Disabled rather than spinning: the capture is a frame or two,
             // and a spinner that flashes for 30ms reads as a glitch.
             onPressed: _sharing ? null : _share,

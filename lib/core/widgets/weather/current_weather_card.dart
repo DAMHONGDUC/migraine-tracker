@@ -7,6 +7,8 @@ import '../../../features/weather/providers.dart';
 import '../../constants/log_tag_constant.dart';
 import '../../extensions/context_extensions.dart';
 import '../../permissions/app_permission.dart';
+import '../../theme/app_icon_constant.dart';
+import '../../theme/app_icon_size.dart';
 import '../../theme/app_text_style.dart';
 import 'weather_card.dart';
 

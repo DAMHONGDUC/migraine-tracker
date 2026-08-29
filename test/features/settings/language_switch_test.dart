@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -9,7 +9,7 @@ void main() {
   ) async {
     final app = await pumpApp(tester);
 
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.tap(find.byIcon(AppIconConstant.settings));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -25,7 +25,7 @@ void main() {
     expect(app.prefs.getString('app_locale'), 'vi');
 
     // The log flow is Vietnamese too — open it from the dashboard.
-    await tester.tap(find.byIcon(Icons.home_outlined));
+    await tester.tap(find.byIcon(AppIconConstant.home));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('Ghi cơn đau mới'));

@@ -4,6 +4,8 @@ import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -40,27 +42,27 @@ class PremiumScreen extends ConsumerWidget {
             ),
             SizedBox(height: SdSpacingConstant.h12),
             SdBenefitRowV2(
-              icon: Icons.notifications_active_outlined,
+              icon: AppIconConstant.reminderActive,
               title: l10n.paywallBenefitAlerts,
               body: l10n.paywallBenefitAlertsBody,
             ),
             SdBenefitRowV2(
-              icon: Icons.show_chart,
+              icon: AppIconConstant.lineChart,
               title: l10n.paywallBenefitForecast,
               body: l10n.paywallBenefitForecastBody,
             ),
             SdBenefitRowV2(
-              icon: Icons.insights_outlined,
+              icon: AppIconConstant.insights,
               title: l10n.paywallBenefitInsights,
               body: l10n.paywallBenefitInsightsBody,
             ),
             SdBenefitRowV2(
-              icon: Icons.picture_as_pdf_outlined,
+              icon: AppIconConstant.exportPdf,
               title: l10n.paywallBenefitReport,
               body: l10n.paywallBenefitReportBody,
             ),
             SdBenefitRowV2(
-              icon: Icons.bedtime_outlined,
+              icon: AppIconConstant.sleep,
               title: l10n.paywallBenefitSleep,
               body: l10n.paywallBenefitSleepBody,
             ),

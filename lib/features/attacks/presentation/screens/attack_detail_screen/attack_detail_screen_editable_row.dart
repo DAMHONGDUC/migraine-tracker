@@ -69,8 +69,8 @@ class _EditableRow extends StatelessWidget {
         ],
       ),
       trailing: SdIconV2(
-        icon: Icons.chevron_right,
-        size: SdSpacingConstant.r20,
+        icon: AppIconConstant.disclosure,
+        size: AppIconSize.affordance,
         color: context.colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,

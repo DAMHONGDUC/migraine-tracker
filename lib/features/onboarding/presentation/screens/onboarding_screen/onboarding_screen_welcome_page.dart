@@ -8,7 +8,7 @@ class _WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PageScaffold(
-      icon: Icons.storm_outlined,
+      icon: AppIconConstant.storm,
       title: l10n.onboardingWelcomeTitle,
       body: l10n.onboardingWelcomeBody,
       footer: Container(
@@ -24,8 +24,8 @@ class _WelcomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SdIconV2(
-              icon: Icons.info_outline,
-              size: SdSpacingConstant.r20,
+              icon: AppIconConstant.info,
+              size: AppIconSize.row,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

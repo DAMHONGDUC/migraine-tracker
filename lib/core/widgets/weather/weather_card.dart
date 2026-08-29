@@ -12,6 +12,8 @@ import '../../constants/log_tag_constant.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_icon_constant.dart';
+import '../../theme/app_icon_size.dart';
 import '../../theme/app_text_style.dart';
 import '../../utils/date_time_utils.dart';
 import '../../utils/signed_number_utils.dart';
@@ -173,8 +175,8 @@ class WeatherCard extends StatelessWidget {
                     trailing: Semantics(
                       label: l10n.weatherA11yDetail,
                       child: SdIconV2(
-                        icon: Icons.chevron_right,
-                        size: SdSpacingConstant.r20,
+                        icon: AppIconConstant.disclosure,
+                        size: AppIconSize.affordance,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
                     ),

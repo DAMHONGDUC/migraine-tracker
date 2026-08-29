@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../features/health/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
+import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
 /// Settings row for activity: opens the screen holding the exertion report,
@@ -18,7 +19,7 @@ class ActivitySettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsTile(
-      icon: Icons.directions_walk,
+      icon: AppIconConstant.steps,
       title: context.l10n.insightsActivityTitle,
       onTap: () => context.pushNamed(AppRoutes.activity.name),
     );
@@ -43,7 +44,7 @@ class SleepSettingsTile extends ConsumerWidget {
     if (!ref.watch(healthAvailableProvider)) return const SizedBox.shrink();
 
     return SettingsTile(
-      icon: Icons.bedtime_outlined,
+      icon: AppIconConstant.sleep,
       title: context.l10n.sleepScreenTitle,
       onTap: () => context.pushNamed(AppRoutes.sleep.name),
     );

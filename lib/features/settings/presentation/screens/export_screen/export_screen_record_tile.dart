@@ -21,13 +21,14 @@ class _RecordTile extends StatelessWidget {
     return ListTile(
       leading: SdIconV2(
         icon: record.kind.icon,
+        size: AppIconSize.row,
         color: context.colorScheme.primary,
       ),
       title: Text(record.kind.label(l10n), style: AppTextStyle.bodyLarge),
       subtitle: Text(subtitle, style: AppTextStyle.bodyMedium.secondary),
       trailing: SdIconV2(
-        icon: Icons.more_horiz,
-        size: SdSpacingConstant.r20,
+        icon: AppIconConstant.more,
+        size: AppIconSize.affordance,
         color: context.colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,

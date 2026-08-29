@@ -7,6 +7,7 @@ import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
+import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
 /// Settings row for the subscription: says where it stands and opens
@@ -21,9 +22,10 @@ class PremiumSettingsTile extends ConsumerWidget {
     final bool premium = ref.watch(hasPremiumProvider);
 
     return SettingsTile(
-      icon: premium
-          ? Icons.workspace_premium
-          : Icons.workspace_premium_outlined,
+      icon: AppIconConstant.premium,
+      // One glyph, tinted when it is on. The row's value says "Active" or
+      // "Free" beside it, so the colour is the second signal, never the only
+      // one.
       iconColor: premium ? context.colorScheme.primary : null,
       title: l10n.settingsPremium,
       // - The state reads as the row's value, at the end like every other row.

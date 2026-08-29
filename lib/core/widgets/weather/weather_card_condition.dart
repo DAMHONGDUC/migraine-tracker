@@ -12,21 +12,21 @@ final class WeatherConditionUtils {
 
     return switch (condition) {
       WeatherCondition.clear =>
-        night ? Icons.nightlight_outlined : Icons.wb_sunny_outlined,
+        night ? AppIconConstant.weatherClearNight : AppIconConstant.weatherClear,
       WeatherCondition.partlyCloudy =>
-        night ? Icons.nights_stay_outlined : Icons.wb_cloudy_outlined,
-      WeatherCondition.cloudy => Icons.cloud_outlined,
+        night ? AppIconConstant.weatherCloudyNight : AppIconConstant.weatherPartlyCloudy,
+      WeatherCondition.cloudy => AppIconConstant.weatherCloudy,
       // A cloud shedding drops, not `water_drop_outlined` — a bare droplet is
       // the humidity glyph, so a rainy hour read as a humidity readout.
-      WeatherCondition.rain => Icons.cloudy_snowing,
-      WeatherCondition.snow => Icons.ac_unit,
-      WeatherCondition.sleet => Icons.grain,
-      WeatherCondition.thunderstorms => Icons.thunderstorm_outlined,
-      WeatherCondition.fog => Icons.foggy,
-      WeatherCondition.windy => Icons.air,
-      WeatherCondition.hazy => Icons.blur_on,
+      WeatherCondition.rain => AppIconConstant.weatherRain,
+      WeatherCondition.snow => AppIconConstant.weatherSnow,
+      WeatherCondition.sleet => AppIconConstant.weatherSleet,
+      WeatherCondition.thunderstorms => AppIconConstant.weatherThunderstorms,
+      WeatherCondition.fog => AppIconConstant.weatherFog,
+      WeatherCondition.windy => AppIconConstant.weatherWindy,
+      WeatherCondition.hazy => AppIconConstant.weatherHazy,
       // A code this build has never heard of, or none at all.
-      null => Icons.help_outline,
+      null => AppIconConstant.weatherUnknown,
     };
   }
 

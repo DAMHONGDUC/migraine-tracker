@@ -5,6 +5,8 @@ import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/exertion_level_label.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/exertion_level.dart';
 
@@ -71,10 +73,10 @@ class _ExertionTile extends StatelessWidget {
   final VoidCallback onTap;
 
   static const Map<ExertionLevel, IconData> _icons = <ExertionLevel, IconData>{
-    ExertionLevel.none: Icons.self_improvement,
-    ExertionLevel.light: Icons.directions_walk,
-    ExertionLevel.moderate: Icons.directions_run,
-    ExertionLevel.severe: Icons.fitness_center,
+    ExertionLevel.none: AppIconConstant.exertionNone,
+    ExertionLevel.light: AppIconConstant.steps,
+    ExertionLevel.moderate: AppIconConstant.exertionModerate,
+    ExertionLevel.severe: AppIconConstant.exertionSevere,
   };
 
   @override
@@ -111,7 +113,7 @@ class _ExertionTile extends StatelessWidget {
               SdIconV2(
                 icon: _icons[level]!,
                 color: color,
-                size: SdSpacingConstant.r24,
+                size: AppIconSize.row,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

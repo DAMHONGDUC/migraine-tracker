@@ -7,6 +7,7 @@ import '../../../features/sync/domain/entities/sync_status.dart';
 import '../../../features/sync/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
+import '../../theme/app_icon_constant.dart';
 import '../settings_row_progress.dart';
 import '../settings_tile.dart';
 
@@ -29,7 +30,7 @@ class SyncSettingsTile extends ConsumerWidget {
     final SyncStatus status = ref.watch(syncControllerProvider);
 
     return SettingsTile(
-      icon: Icons.sync,
+      icon: AppIconConstant.sync,
       title: context.l10n.settingsSync,
       // Only while syncing; otherwise the row falls back to the plain chevron
       // that says "this leads somewhere", which is what it now does.

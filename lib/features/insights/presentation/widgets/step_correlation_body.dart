@@ -4,6 +4,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/step_count_label.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/step_correlation_result.dart';
@@ -38,7 +39,7 @@ class StepCorrelationBody extends ConsumerWidget {
       AsyncData(value: final StepCorrelationResult value) => switch (value) {
         StepNotConnected() => const _StepNotConnected(),
         final StepInsufficientData r => InsightProgressBody(
-          icon: Icons.directions_walk,
+          icon: AppIconConstant.steps,
           message: context.l10n.insightsStepsInsufficientData(
             r.requiredDays,
             r.requiredPerGroup,

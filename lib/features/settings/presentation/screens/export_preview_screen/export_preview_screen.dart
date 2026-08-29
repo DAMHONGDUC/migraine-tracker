@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/export_preview.dart';
@@ -37,7 +38,7 @@ class ExportPreviewScreen extends ConsumerWidget {
       return SdScaffoldV2(
         title: Text(l10n.exportPreviewTitle, style: AppTextStyle.titleLarge),
         body: SdEmptyStateV2(
-          icon: Icons.description_outlined,
+          icon: AppIconConstant.document,
           message: l10n.exportFileMissing,
         ),
       );

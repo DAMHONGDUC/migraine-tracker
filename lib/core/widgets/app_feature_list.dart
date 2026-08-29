@@ -6,6 +6,7 @@ import '../../features/premium/providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
+import '../theme/app_icon_constant.dart';
 import '../theme/app_text_style.dart';
 import 'premium_gate.dart';
 
@@ -45,24 +46,24 @@ class AppFeatureList extends ConsumerWidget {
 /// site: a row can then never be handed one feature's title and another's
 /// body, and adding a feature is one entry in one place.
 enum AppFeature {
-  log(Icons.add_circle_outline),
-  history(Icons.calendar_month_outlined),
-  medications(Icons.medication_outlined),
-  reminders(Icons.notifications_active_outlined),
-  widget(Icons.widgets_outlined),
-  notifications(Icons.inbox_outlined),
-  sync(Icons.cloud_done_outlined),
+  log(AppIconConstant.attackLog),
+  history(AppIconConstant.history),
+  medications(AppIconConstant.medication),
+  reminders(AppIconConstant.reminderActive),
+  widget(AppIconConstant.homeWidget),
+  notifications(AppIconConstant.inbox),
+  sync(AppIconConstant.synced),
   // Free because hard rule 8 makes it a promise: export moved behind the
   // paywall, the wipe never can.
-  wipe(Icons.delete_outline),
-  calm(Icons.dark_mode_outlined),
-  export(Icons.ios_share_outlined, premium: true),
-  alerts(Icons.notifications_none, premium: true),
-  forecast(Icons.show_chart, premium: true),
-  correlation(Icons.analytics_outlined, premium: true),
-  activity(Icons.directions_walk, premium: true),
-  sleep(Icons.bedtime_outlined, premium: true),
-  report(Icons.picture_as_pdf_outlined, premium: true);
+  wipe(AppIconConstant.delete),
+  calm(AppIconConstant.darkMode),
+  export(AppIconConstant.export, premium: true),
+  alerts(AppIconConstant.notifications, premium: true),
+  forecast(AppIconConstant.lineChart, premium: true),
+  correlation(AppIconConstant.analysis, premium: true),
+  activity(AppIconConstant.steps, premium: true),
+  sleep(AppIconConstant.sleep, premium: true),
+  report(AppIconConstant.exportPdf, premium: true);
 
   const AppFeature(this.icon, {this.premium = false});
 

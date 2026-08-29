@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/sync_status.dart';
@@ -138,7 +139,7 @@ class _SyncNowButton extends ConsumerWidget {
       variant: SdButtonVariantV2.primary,
       onPressed: isSyncing ? null : () => _syncNow(context, ref),
       label: context.l10n.settingsSync,
-      icon: Icons.sync,
+      icon: AppIconConstant.sync,
     );
   }
 }

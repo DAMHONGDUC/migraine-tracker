@@ -50,7 +50,7 @@ class _TextBody extends ConsumerWidget {
       // The row is still here but its file is not — the same thing the
       // actions sheet says when share or save is picked.
       AsyncError<ExportPreview>() => SdEmptyStateV2(
-        icon: Icons.description_outlined,
+        icon: AppIconConstant.document,
         message: l10n.exportFileMissing,
       ),
       _ => const Center(child: CircularProgressIndicator()),

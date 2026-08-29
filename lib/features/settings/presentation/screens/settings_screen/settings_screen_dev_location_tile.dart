@@ -41,7 +41,7 @@ class _DevLocationTile extends ConsumerWidget {
     final AppLocalizations l10n = context.l10n;
 
     return SettingsTile(
-      icon: Icons.wrong_location_outlined,
+      icon: AppIconConstant.locationUnknown,
       iconColor: AppColors.secondary,
       title: l10n.settingsDevLocation,
       value: ref.watch(devLocationProvider).label(l10n),

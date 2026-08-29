@@ -8,6 +8,7 @@ import '../../../features/alerts/providers.dart';
 import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
+import '../../theme/app_icon_constant.dart';
 import '../alert_threshold_dialog.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
@@ -58,7 +59,7 @@ class AlertsSection extends ConsumerWidget {
     // fill in, so the alert state is none of this branch's business.
     if (!ref.watch(hasPremiumProvider)) {
       return PremiumTileGate(
-        icon: Icons.notifications_active_outlined,
+        icon: AppIconConstant.reminderActive,
         title: l10n.alertsToggleTitle,
         // Never built for a free user — that is the gate, not the styling.
         child: const SizedBox.shrink(),
@@ -82,14 +83,14 @@ class AlertsSection extends ConsumerWidget {
       children: [
         SwitchListTile(
           secondary: const SdIconV2(
-            icon: Icons.notifications_active_outlined,
+            icon: AppIconConstant.reminderActive,
           ),
           title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
           value: settings.enabled,
           onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
         ),
         SettingsTile(
-          icon: Icons.compress,
+          icon: AppIconConstant.pressure,
           title: l10n.alertsThresholdTitle,
           value: l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
           onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
