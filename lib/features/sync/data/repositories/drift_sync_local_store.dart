@@ -6,11 +6,7 @@ import '../../domain/entities/sync_collection.dart';
 import '../../domain/entities/sync_record.dart';
 import '../../domain/repositories/sync_local_store.dart';
 
-/// Everything the three local stores do the same way: tombstone bookkeeping,
-/// last-write-wins, and doing the compare-then-write in one transaction.
-///
-/// Subclasses supply only what is genuinely per-table — the dirty query, the
-/// row write, and reading a row's current revision and timestamp.
+/// Everything the three local stores do the same way: tombstone bookkeeping, last-write-wins, and doing the compare-then-write in one transaction.
 abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   const DriftSyncLocalStore(this.db);
 
@@ -22,8 +18,6 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   Future<List<SyncRecord<T>>> loadDirty();
 
   /// The row's last-modified instant, or null when there is no such row.
-  /// Must come back in UTC — drift hands dates back in local time, and
-  /// comparing a local one to a UTC one silently shifts by the offset.
   @protected
   Future<DateTime?> localUpdatedAt(String id);
 
@@ -31,8 +25,6 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   Future<int> nextRevision(String id);
 
   /// Writes a record that came down from the server, already in step.
-  /// Returns false when it cannot be applied at all — a reminder whose
-  /// medication is not here yet, say.
   @protected
   Future<bool> writeFromRemote(T value, DateTime updatedAt, int revision);
 
@@ -49,8 +41,7 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
       ...await _tombstones(),
     ];
 
-    // Id breaks the tie: dates are stored to the second, so two changes made
-    // in the same one would otherwise come out in an arbitrary order.
+    // Id breaks the tie: dates are stored to the second, so two changes made in the same one would otherwise come out in an arbitrary order.
     records.sort((a, b) {
       final int byTime = a.updatedAt.compareTo(b.updatedAt);
       return byTime != 0 ? byTime : a.id.compareTo(b.id);
@@ -93,8 +84,7 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   @protected
   String idOf(T value);
 
-  /// Ties go to the server so two devices converge on the same answer instead
-  /// of each preferring its own.
+  /// Ties go to the server so two devices converge on the same answer instead of each preferring its own.
   Future<bool> _localIsNewer(String id, DateTime remote) async {
     final DateTime? local = await localUpdatedAt(id);
 
@@ -119,8 +109,7 @@ abstract class DriftSyncLocalStore<T> implements SyncLocalStore<T> {
   }
 }
 
-/// Writes a tombstone for a deleted row. Used by the feature repositories,
-/// which are the ones that do the deleting.
+/// Writes a tombstone for a deleted row. Used by the feature repositories, which are the ones that do the deleting.
 final class SyncTombstoneWriter {
   const SyncTombstoneWriter._();
 
@@ -144,8 +133,7 @@ final class SyncTombstoneWriter {
     }
   }
 
-  /// Drops any tombstone for [ids] — a re-used id would otherwise be deleted
-  /// again by its own stale tombstone.
+  /// Drops any tombstone for [ids] — a re-used id would otherwise be deleted again by its own stale tombstone.
   static Future<void> clear(
     AppDatabase db,
     SyncCollection collection,

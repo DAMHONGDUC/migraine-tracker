@@ -9,24 +9,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/attack.dart';
 
-/// The picture that leaves the phone: what this attack was, in the fewest
-/// facts somebody who is not the patient can act on.
-///
-/// **It carries only logged fields, and never `notes`.** Notes are where
-/// people write the most private thing in the app, and a user who shared one
-/// six months ago will not remember that they did.
-///
-/// A picture rather than a paragraph, because it renders inline in every
-/// messaging app and the recipient can keep it — which is the actual use for
-/// half the people who reach for this: proof, to somebody who does not
-/// believe the illness is real.
+/// The picture that leaves the phone: what this attack was, in the fewest facts somebody who is not the patient can act on.
 class AttackShareCard extends StatelessWidget {
   const AttackShareCard({required this.attack, super.key});
 
   final Attack attack;
 
-  /// The card renders at a fixed logical width so the image is the same
-  /// shape from a small phone and a tablet alike.
+  /// The card renders at a fixed logical width so the image is the same shape from a small phone and a tablet alike.
   static const double width = 340;
 
   @override
@@ -93,9 +82,7 @@ class _CardRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Both halves flex, so a long localized location cannot squeeze the
-          // label into a column of single letters — the same rule the attack
-          // detail rows follow.
+          // Flex prevents long localized values from crushing their labels.
           Expanded(
             child: Text(label, style: AppTextStyle.bodySmall.secondary),
           ),

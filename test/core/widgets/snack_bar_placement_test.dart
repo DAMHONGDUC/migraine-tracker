@@ -4,14 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:system_design/index.dart';
 
-/// A bottom snackbar draws into the root overlay, above everything — so on a
-/// tab screen it has to be told the nav pill is down there, or it lands on it.
+/// A bottom snackbar draws into the root overlay, above everything — so on a tab screen it has to be told the nav pill is down there, or it lands on it.
 void main() {
   setUp(() => SdGlassV2.debugSupported = true);
   tearDown(() => SdGlassV2.debugSupported = null);
 
-  /// Shows a snackbar on a 393×852 view with a 34pt home indicator, and
-  /// returns how far its card sits above the bottom edge.
+  /// Shows a snackbar on a 393×852 view with a 34pt home indicator, and returns how far its card sits above the bottom edge.
   Future<double> gapAboveBottom(
     WidgetTester tester, {
     required bool withFloatingBar,

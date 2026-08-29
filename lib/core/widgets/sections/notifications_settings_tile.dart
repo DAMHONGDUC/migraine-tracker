@@ -10,17 +10,6 @@ import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
 /// Settings → Notifications, the second way into the list.
-///
-/// The dashboard's bell is the fast one; this is the one people find by
-/// looking, which is the whole reason for having both.
-///
-/// Its value is how many are unread — the same number the bell carries, and
-/// the only thing about the list worth stating before you open it. Nothing at
-/// all when there are none: an empty row saying "0" is noise.
-///
-/// It is capped exactly like the bell, through [SdBadgeV2.formatCount]: this
-/// row and that badge state one number, so they cap at one place. The full
-/// figure is on the list's own app bar, where there is room for it.
 class NotificationsSettingsTile extends ConsumerWidget {
   const NotificationsSettingsTile({super.key});
 

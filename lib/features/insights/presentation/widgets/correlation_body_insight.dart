@@ -35,9 +35,7 @@ class _Insight extends StatelessWidget {
           style: AppTextStyle.bodyMedium,
         ),
         SizedBox(height: SdSpacingConstant.h12),
-        // The share alone says nothing about risk — someone in a stormy
-        // climate scores high whatever causes their migraines. This is the
-        // comparison against days that had no attack.
+        // The share alone says nothing about risk — someone in a stormy climate scores high whatever causes their migraines.
         if (result.baseline case final PressureBaseline baseline) ...<Widget>[
           Text(
             l10n.insightsBaselineSentence(

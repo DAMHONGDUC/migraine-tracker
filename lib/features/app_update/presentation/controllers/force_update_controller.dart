@@ -14,24 +14,18 @@ import '../../providers.dart';
 class ForceUpdateState {
   const ForceUpdateState({this.blockingUpdate});
 
-  /// Non-null once the app must be blocked; it also carries the store link
-  /// and the version to name in the sheet.
+  /// Non-null once the app must be blocked; it also carries the store link and the version to name in the sheet.
   final PlatformUpdateConfig? blockingUpdate;
 
   bool get isBlocking => blockingUpdate != null;
 }
 
-/// Owns the force-update decision. The wrapper widget only calls [check]
-/// and renders what this exposes.
+/// Owns the force-update decision. The wrapper widget only calls [check] and renders what this exposes.
 class ForceUpdateController extends Notifier<ForceUpdateState> {
   @override
   ForceUpdateState build() => const ForceUpdateState();
 
   /// Runs on every entry into the app (cold start and each resume).
-  ///
-  /// Fails open on ANY failure — offline, permission denied, plugin
-  /// missing, malformed record. A backend hiccup must never stand between
-  /// someone mid-migraine and the log button (hard rules 1 and 4).
   Future<void> check() async {
     if (state.isBlocking) return;
 
@@ -74,8 +68,7 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
     }
   }
 
-  /// Sends the user to the store. False when the link could not be opened,
-  /// so the sheet can say so instead of looking dead.
+  /// Sends the user to the store. False when the link could not be opened, so the sheet can say so instead of looking dead.
   Future<bool> openStore() async {
     final PlatformUpdateConfig? blocking = state.blockingUpdate;
 

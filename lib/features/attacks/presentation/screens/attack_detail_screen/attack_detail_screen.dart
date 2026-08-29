@@ -43,8 +43,7 @@ part 'attack_detail_screen_read_only_row.dart';
 part 'attack_detail_screen_section.dart';
 part 'attack_detail_screen_weather_section.dart';
 
-/// View and correct a logged attack. Reachable from History; the 3-tap log
-/// flow itself stays untouched.
+/// View and correct a logged attack. Reachable from History; the 3-tap log flow itself stays untouched.
 class AttackDetailScreen extends HookConsumerWidget {
   const AttackDetailScreen({required this.attackId, super.key});
 
@@ -164,8 +163,7 @@ class AttackDetailScreen extends HookConsumerWidget {
     WidgetRef ref,
     Attack attack,
   ) async {
-    // Wrapped so a recorded "no aura" (an empty list) stays distinguishable
-    // from clearing the answer, and both from dismissing the sheet.
+    // Wrapped so a recorded "no aura" (an empty list) stays distinguishable from clearing the answer, and both from dismissing the sheet.
     final ({List<AuraType>? aura})? picked = await AuraPickerSheet(
       selected: attack.aura,
     ).show(context);
@@ -212,9 +210,7 @@ class AttackDetailScreen extends HookConsumerWidget {
     final l10n = context.l10n;
     final attack = ref.watch(attackByIdProvider(attackId));
 
-    // The header's two facts move into the bar once the header itself has
-    // scrolled out from under it, so what the screen is about never leaves
-    // the screen (owner's rule).
+    // The header's two facts move into the bar once the header itself has scrolled out from under it, so what the screen is about never leaves the screen.
     final ScrollController controller = useScrollController();
     final ValueNotifier<bool> collapsed = useState(false);
 
@@ -234,8 +230,7 @@ class AttackDetailScreen extends HookConsumerWidget {
         title: Text(l10n.attackDetailTitle, style: AppTextStyle.titleLarge),
       ),
       actions: [
-        // Only once the attack has actually loaded — a share button over a
-        // deleted or still-loading record has nothing to render.
+        // Only once the attack has actually loaded — a share button over a deleted or still-loading record has nothing to render.
         if (attack.value case final Attack loaded)
           SdAppBarButtonV2(
             icon: AppIconConstant.share,
@@ -281,8 +276,7 @@ class AttackDetailScreen extends HookConsumerWidget {
                   value: a.medicationName ?? l10n.logNoMedication,
                   onTap: () => _editMedication(context, ref, a),
                 ),
-                // Only where a medication was actually taken: asking whether
-                // "no medication" helped is a question with no answer.
+                // Only where a medication was actually taken: asking whether "no medication" helped is a question with no answer.
                 if (a.medicationName != null)
                   _EditableRow(
                     label: l10n.attackDetailMedicationEffect,
@@ -291,29 +285,23 @@ class AttackDetailScreen extends HookConsumerWidget {
                         l10n.medicationEffectNotRecorded,
                     onTap: () => _editMedicationEffect(context, ref, a),
                   ),
-                // Above duration, because aura runs BEFORE the pain and the
-                // rows read in the order the attack happened.
+                // Above duration, because aura runs BEFORE the pain and the rows read in the order the attack happened.
                 _EditableRow(
                   label: l10n.attackDetailAura,
-                  // Three states, not two: "Not recorded" is a question
-                  // nobody put, "No aura" is the user's answer, and migraine
-                  // with aura and without it are different diagnoses.
+      // Keep unanswered, no-aura and aura states distinct.
                   value: a.aura.label(l10n),
                   onTap: () => _editAura(context, ref, a),
                 ),
                 _EditableRow(
                   label: l10n.attackDetailDuration,
-                  // Null reads as "not recorded", which is also what a still
-                  // running attack looks like — the app cannot tell them
-                  // apart and must not pretend it can.
+      // Null means the attack has no recorded end time.
                   value:
                       a.duration?.label(l10n) ?? l10n.attackDurationNotRecorded,
                   onTap: () => _editDuration(context, ref, a),
                 ),
                 _EditableRow(
                   label: l10n.detailsExertionLabel,
-                  // Attacks logged before the step existed read as "None",
-                  // which is the same answer their blank column means.
+                  // Attacks logged before the step existed read as "None", which is the same answer their blank column means.
                   value:
                       (a.exertionLevel ?? ExertionLevel.none).label(l10n),
                   onTap: () => _editExertion(context, ref, a),

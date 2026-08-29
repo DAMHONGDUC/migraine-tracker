@@ -4,8 +4,7 @@ import 'package:system_design/common.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/enums/medication_filters.dart';
 
-/// The medications tab's three filter axes (date added, reminder, usage).
-/// Mirrors `HistoryController`'s role for `HistoryPeriod`.
+/// The medications tab's three filter axes (date added, reminder, usage). Mirrors `HistoryController`'s role for `HistoryPeriod`.
 class MedicationFiltersController extends Notifier<MedicationFilters> {
   @override
   MedicationFilters build() => const MedicationFilters();

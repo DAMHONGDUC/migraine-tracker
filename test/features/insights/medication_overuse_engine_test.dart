@@ -101,8 +101,7 @@ void main() {
   });
 
   group('the sustained pattern', () {
-    // ICHD-3 needs the pattern held longer than three months; a single heavy
-    // month is a bad month, and calling it overuse would be a false alarm.
+    // ICHD-3 needs the pattern held longer than three months; a single heavy month is a bad month, and calling it overuse would be a false alarm.
     test('one heavy month is not the pattern', () {
       final MedicationOveruseResult result = engine.analyze(
         intakeDays(2026, 8, 12),

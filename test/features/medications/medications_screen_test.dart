@@ -41,8 +41,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    // Proves the drag scrolled something — otherwise the button holding
-    // still would say nothing at all.
+    // Proves the drag scrolled something — otherwise the button holding still would say nothing at all.
     expect(
       tester.getTopLeft(firstRow).dy,
       lessThan(rowBefore),
@@ -155,8 +154,7 @@ void main() {
     await openMedications(tester);
     await openMedication(tester, 'Sumatriptan');
 
-    // The name is edited in place on its own field, not via a dialog — it
-    // commits when the field loses focus (here, "done" on the keyboard).
+    // The name is edited in place on its own field, not via a dialog — it commits when the field loses focus (here, "done" on the keyboard).
     await tester.enterText(findLabelledField('Name'), 'Rizatriptan');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
@@ -209,8 +207,7 @@ void main() {
     await openMedication(tester, 'Sumatriptan');
     await openAddReminder(tester);
 
-    // - custom wheel picker sheet (AppTimePickerSheet) — two wheels (hour + minute) confirm it's open
-    // - the checkmark saves the default (current) time without touching the wheels
+    // - custom wheel picker sheet (AppTimePickerSheet).
     expect(find.byType(ListWheelScrollView), findsNWidgets(2));
     await tester.tap(find.byIcon(Symbols.check_rounded));
     await tester.pump();
@@ -269,9 +266,7 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    // Edit mode shows the confirm action as a pencil, not a check. Scoped to
-    // the sheet header: the screen behind it carries the same glyph now that
-    // the app and the design system draw from one icon family.
+    // Edit mode shows the confirm action as a pencil, not a check.
     await tester.tap(
       find.descendant(
         of: find.byType(SdSheetHeaderV2),
@@ -302,9 +297,7 @@ void main() {
     await openMedication(tester, 'Sumatriptan');
     await openAddReminder(tester);
 
-    // - over-drag the hour wheel (first ListWheelScrollView) UP past the end so it clamps at 23
-    // - independent of the current-time default the picker opens on
-    // - dragging up brings higher-index rows to the centered selection; row height is SdSpacingConstant.h44 (44px at the pinned 393×852 design size)
+    // - over-drag the hour wheel (first ListWheelScrollView) UP past the end so it clamps at 23.
     await tester.drag(
       find.byType(ListWheelScrollView).first,
       const Offset(0, -44 * 30),
@@ -316,8 +309,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    // The saved hour is whatever the wheel was dragged to (23), proving the
-    // wheel drives the stored time.
+    // The saved hour is whatever the wheel was dragged to (23), proving the wheel drives the stored time.
     final rows = await app.db.select(app.db.medicationReminders).get();
     expect(rows.single.minuteOfDay ~/ 60, 23);
 

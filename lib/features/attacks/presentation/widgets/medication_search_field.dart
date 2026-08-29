@@ -6,14 +6,6 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 
 /// Name-search field that filters a [MedicationGrid].
-///
-/// The app's one field ([SdTextFieldV2]) with a magnifier in front and no
-/// label — the glyph says what it is, and a "Search" line above it would
-/// only push the grid further down.
-///
-/// Shared by both places the grid appears — above it in the log flow's third
-/// tap ([MedicationStep]), and floating at the bottom of the attack detail's
-/// medication sheet ([MedicationPickerSheet]).
 class MedicationSearchField extends StatelessWidget {
   const MedicationSearchField({
     required this.controller,

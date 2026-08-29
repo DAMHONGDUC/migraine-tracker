@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
 /// One day's pressure reading, attack or no attack.
-///
-/// The point of it is the days with no attack: those are the denominator the
-/// pressure correlation needs to say anything about risk rather than about
-/// the local climate.
 @immutable
 class DailyPressure {
   DailyPressure({

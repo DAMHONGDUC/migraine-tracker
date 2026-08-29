@@ -12,9 +12,6 @@ part 'exertion_correlation_body_insight.dart';
 part 'exertion_correlation_body_no_variation.dart';
 
 /// What the exertion self-report found, without a card around it.
-///
-/// Free, unlike the step body beside it: exertion is self-reported, not read
-/// from HealthKit, so there is no premium data boundary to gate.
 class ExertionCorrelationBody extends StatelessWidget {
   const ExertionCorrelationBody({required this.result, super.key});
 

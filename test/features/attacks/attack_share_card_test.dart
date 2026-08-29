@@ -7,8 +7,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 import 'package:migraine_tracker/features/attacks/presentation/widgets/attack_share_card.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
-/// The card leaves the phone as a picture, so what it draws is what gets
-/// handed to a messaging app. These are the fields it must never carry.
+/// The card leaves the phone as a picture, so what it draws is what gets handed to a messaging app. These are the fields it must never carry.
 void main() {
   Attack attack({String? notes}) => Attack(
     id: 'a1',
@@ -41,10 +40,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  // The whole privacy design of the feature rests on this, and it rested on
-  // nothing but code review until now: notes is where the most private thing
-  // in the app gets written, and somebody who shared a card six months ago
-  // will not remember that they did.
+  // The whole privacy design of the feature rests on this, and it rested on nothing but code review until now.
   testWidgets('never draws the notes', (WidgetTester tester) async {
     await pumpCard(tester, attack(notes: 'my-private-note'));
 

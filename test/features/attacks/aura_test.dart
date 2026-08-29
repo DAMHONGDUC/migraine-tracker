@@ -18,9 +18,7 @@ Attack attack({List<AuraType>? aura}) => Attack(
 );
 
 void main() {
-  // Null and empty are different records on purpose: migraine with aura and
-  // without it are different diagnoses, so "nobody asked" may never be
-  // stored as "no aura".
+  // Null and empty are different records on purpose.
   group('the repository', () {
     late AppDatabase db;
     late DriftAttackRepository repository;
@@ -68,8 +66,7 @@ void main() {
       expect((await repository.getAll()).single.aura, isNull);
     });
 
-    // Its own method for the same reason updateExertion is: the details
-    // sheet never shows aura, so a save from there must not blank it.
+    // Its own method for the same reason updateExertion is: the details sheet never shows aura, so a save from there must not blank it.
     test('editing details leaves the aura alone', () async {
       await repository.insert(attack(aura: <AuraType>[AuraType.sensory]));
 
@@ -130,8 +127,7 @@ void main() {
       expect(decoded.aura, isNull);
     });
 
-    // Additive, so schemaVersion stays 1: a payload written before aura
-    // existed has no such key and must still decode.
+    // Additive, so schemaVersion stays 1: a payload written before aura existed has no such key and must still decode.
     test('a payload written before aura decodes as unanswered', () {
       final Map<String, dynamic> payload =
           jsonDecode(codec.encode(attack(aura: <AuraType>[AuraType.visual])))
@@ -142,8 +138,7 @@ void main() {
       expect(codec.decode(jsonEncode(payload), id: 'a1').aura, isNull);
     });
 
-    // The other direction: a build that learned a fifth kind must not make
-    // this one throw away the whole record.
+    // The other direction: a build that learned a fifth kind must not make this one throw away the whole record.
     test('an unknown kind is dropped, never thrown on', () {
       final Map<String, dynamic> payload =
           jsonDecode(codec.encode(attack(aura: <AuraType>[AuraType.visual])))

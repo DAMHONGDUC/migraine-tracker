@@ -13,8 +13,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    // The picker is a bottom sheet now: it slides in on the root navigator,
-    // so both the open and the dismiss need a full transition, not 100ms.
+    // The picker is a bottom sheet now: it slides in on the root navigator, so both the open and the dismiss need a full transition, not 100ms.
     await tapVisible(tester, find.text('Language'));
     await tapVisible(tester, find.text('Tiếng Việt'));
 

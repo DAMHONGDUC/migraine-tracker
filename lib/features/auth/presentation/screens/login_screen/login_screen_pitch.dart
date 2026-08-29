@@ -1,7 +1,6 @@
 part of 'login_screen.dart';
 
-/// What an account is for, and what it does not do with health data.
-/// `const`, so the sign-in state machine below never rebuilds it.
+/// What an account is for, and what it does not do with health data. `const`, so the sign-in state machine below never rebuilds it.
 class _Pitch extends StatelessWidget {
   const _Pitch();
 

@@ -10,21 +10,10 @@ import '../../../weather/domain/entities/weather_snapshot.dart';
 import 'sync_payload_codec.dart';
 
 /// Turns an attack into the JSON that gets encrypted, and back.
-///
-/// The weather snapshot travels inside the attack rather than as a record of
-/// its own: it is meaningless without the attack, and one document per attack
-/// keeps a partial sync from ever splitting the two apart.
 class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
   const AttackPayloadCodec();
 
-  /// Bumped only when the shape changes incompatibly. Written on every
-  /// payload so an older build can tell "I cannot read this" from "this is
-  /// corrupt", instead of guessing.
-  ///
-  /// Adding an optional field is NOT a bump: [decode] ignores keys it does
-  /// not know, so an older build keeps reading the newer payload. Bump only
-  /// when an old build would misread the result — and expect it to skip every
-  /// record written by the new one from then on.
+  /// Bumped only when the shape changes incompatibly.
   static const int schemaVersion = 1;
 
   static const String _versionKey = 'v';
@@ -38,9 +27,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       'startedAt': attack.startedAt.toUtc().toIso8601String(),
       'intensity': attack.intensity,
       'regions': <String>[for (final HeadRegion r in attack.regions) r.name],
-      // Written for readers, never read back here: a device still on the
-      // build that predates `regions` throws on a payload without this, and
-      // that failure would be the user's whole history, not one record.
+      // Written for readers, never read back here.
       'location': HeadLocation.coarsest(attack.regions).name,
       'aura': attack.aura == null
           ? null
@@ -65,9 +52,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
     });
   }
 
-  /// Throws [FormatException] on anything it cannot faithfully rebuild — a
-  /// half-read attack is worse than a skipped one, since it would overwrite
-  /// the good local copy.
+  /// Throws [FormatException] on anything it cannot faithfully rebuild.
   @override
   Attack decode(String json, {required String id}) {
     final Object? decoded = jsonDecode(json);
@@ -77,9 +62,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
     }
     final Object? version = decoded[_versionKey];
 
-    // Only the future is unreadable. Refusing anything that merely differs
-    // would mean the first bump orphaned every record already uploaded — the
-    // new build would reject the user's entire history.
+    // Only the future is unreadable.
     if (version is! int || version > schemaVersion) {
       throw FormatException('unsupported attack payload version $version');
     }
@@ -89,15 +72,11 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       id: id,
       startedAt: _date(decoded['startedAt'], 'startedAt'),
       intensity: _int(decoded['intensity'], 'intensity'),
-      // `regions` when the writer had it; otherwise the coarse `location`
-      // an older build wrote, widened rather than guessed (see
-      // [HeadLocationRegions.regions]).
+    // Fall back to the legacy coarse location without guessing finer regions.
       regions: decoded['regions'] == null
           ? _enum(decoded['location'], HeadLocation.values, 'location').regions
           : _regions(decoded['regions']),
-      // Optional and additive, so schemaVersion stays 1. An unknown kind
-      // is dropped rather than throwing: a payload from a build that
-      // learned a fifth aura must still decode here.
+      // Optional and additive, so schemaVersion stays 1.
       aura: _aura(decoded['aura']),
       medicationName: _stringOrNull(decoded['medicationName']),
       symptoms: _strings(decoded['symptoms']),
@@ -110,8 +89,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
               ExertionLevel.values,
               'exertionLevel',
             ),
-      // Optional and additive, so schemaVersion stays 1: a build that
-      // predates this reads the payload and simply drops the field.
+      // Optional and additive, so schemaVersion stays 1: a build that predates this reads the payload and simply drops the field.
       endedAt: _dateOrNull(decoded['endedAt']),
       steps: _intOrNull(decoded['steps']),
       medicationEffect: decoded['medicationEffect'] == null
@@ -166,14 +144,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
   static List<String> _strings(Object? value) =>
       value is List ? value.whereType<String>().toList() : const <String>[];
 
-  /// Throws when the list holds no region the app knows: an attack with no
-  /// location cannot be rebuilt faithfully, and the entity forbids it.
-  /// A single unknown name is dropped instead — that is a newer build's
-  /// record, and losing one area beats losing the record.
-  /// Absent or null is "never asked", which is what every payload written
-  /// before aura existed carries. An unknown kind inside a real list is
-  /// dropped rather than throwing, so a payload from a build that learned a
-  /// fifth kind still decodes here.
+  /// Throws when the list holds no region the app knows: an attack with no location cannot be rebuilt faithfully, and the entity forbids it.
   static List<AuraType>? _aura(Object? value) {
     if (value is! List) return null;
 

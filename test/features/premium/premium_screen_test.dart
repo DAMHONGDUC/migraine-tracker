@@ -3,9 +3,7 @@ import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dar
 
 import '../../helpers/pump_app.dart';
 
-/// The Premium row is the user's view of their subscription — everyone's,
-/// account or not. The screen behind it reports status; buying still happens
-/// on the paywall.
+/// The Premium row is the user's view of their subscription — everyone's, account or not.
 void main() {
   testWidgets('free: the row opens the premium screen', (tester) async {
     await pumpApp(tester);
@@ -39,9 +37,7 @@ void main() {
   });
 
   testWidgets('signed out: Settings still has the premium row', (tester) async {
-    // It used to be hidden without an account. App Store 5.1.1(v): premium
-    // is not account-based content, so neither the purchase nor the row
-    // reporting it may wait on registration.
+    // It used to be hidden without an account.
     await pumpApp(tester);
     await openSettings(tester);
 

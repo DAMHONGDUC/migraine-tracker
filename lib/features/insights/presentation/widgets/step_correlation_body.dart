@@ -17,15 +17,6 @@ part 'step_correlation_body_not_connected.dart';
 part 'step_correlation_body_no_variation.dart';
 
 /// What the step analysis found: did attacks follow the low-activity days?
-///
-/// Cardless, because two places draw it — `ActivityCard` folds it in with the
-/// exertion self-report, and the activity detail screen shows it on its own
-/// card. Premium either way: a free user never builds it, so no HealthKit
-/// read is issued for them at all.
-///
-/// While the read is in flight it renders nothing rather than a spinner: a
-/// card that pops in half a second later is calmer than one that flickers a
-/// placeholder first.
 class StepCorrelationBody extends ConsumerWidget {
   const StepCorrelationBody({super.key});
 

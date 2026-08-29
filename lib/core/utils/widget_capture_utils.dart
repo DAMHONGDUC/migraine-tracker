@@ -6,22 +6,11 @@ import 'package:flutter/widgets.dart';
 import 'package:system_design/common.dart';
 
 /// Turns a widget the user is looking at into a PNG.
-///
-/// `core/utils/` rather than a feature: it is platform rendering and knows
-/// nothing about attacks. It is deliberately NOT in any `domain/`, which is
-/// pure Dart by rule and could not import `flutter/rendering.dart` at all.
 final class WidgetCaptureUtils {
-  /// Three times the logical size. A card captured at 1x goes soft the moment
-  /// a messaging app scales it up, and these images exist to be looked at by
-  /// somebody else.
+  /// Three times the logical size.
   static const double defaultPixelRatio = 3;
 
-  /// PNG bytes for the [RepaintBoundary] behind [boundaryKey], or null when
-  /// it is not on screen or the platform refused the capture.
-  ///
-  /// Capturing a boundary that is **already on screen** is the point: the
-  /// preview and the file are then the same pixels by construction, so a
-  /// share cannot carry anything the user was not shown.
+  /// PNG bytes for the [RepaintBoundary] behind [boundaryKey], or null when it is not on screen or the platform refused the capture.
   static Future<Uint8List?> toPng(
     GlobalKey boundaryKey, {
     double pixelRatio = defaultPixelRatio,

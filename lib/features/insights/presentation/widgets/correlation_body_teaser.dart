@@ -1,7 +1,6 @@
 part of 'correlation_body.dart';
 
-/// Shown once the user HAS enough data but isn't premium — the value moment
-/// the paywall is sold on. Deliberately carries no analysis output.
+/// Shown once the user HAS enough data but isn't premium — the value moment the paywall is sold on. Deliberately carries no analysis output.
 class _Teaser extends ConsumerWidget {
   const _Teaser();
 

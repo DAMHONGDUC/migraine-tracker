@@ -9,8 +9,7 @@ import '../../domain/enums/head_region.dart';
 import '../../domain/enums/medication_effect.dart';
 import '../../providers.dart';
 
-/// Edits/deletes an already-logged attack from the detail screen. The
-/// widget only renders the streamed attack and calls these.
+/// Edits/deletes an already-logged attack from the detail screen. The widget only renders the streamed attack and calls these.
 class AttackDetailController {
   const AttackDetailController(this._ref);
 
@@ -65,9 +64,6 @@ class AttackDetailController {
   }
 
   /// Records (or takes back) which auras the attack came with.
-  ///
-  /// An empty list is a recorded "no aura"; null is the question unanswered.
-  /// The two are different diagnoses, so they stay different records.
   Future<void> updateAura(String id, List<AuraType>? aura) async {
     SdLogger.action(LogTagConstant.attackDetail, 'Update aura', <String,
         Object?>{'id': id, 'aura': aura?.map((AuraType a) => a.name).toList()});

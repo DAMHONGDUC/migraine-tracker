@@ -4,15 +4,8 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 
 /// Pure-Dart aggregations behind the History → Chart view's richer charts.
-/// Each calculator is const and side-effect free (unit-tested independently);
-/// widgets only render the results. All bucketing is done in the user's local
-/// timezone — [Attack.startedAt] is stored in UTC.
-///
-/// The weekly attack-frequency chart keeps its own `WeeklyBucketsCalculator`;
-/// these cover the trend, severity, location and time-of-day breakdowns.
 
-/// One week's average pain intensity (null when that week had no attacks, so
-/// the line can leave a gap rather than plunge to zero).
+/// One week's average pain intensity (null when that week had no attacks, so the line can leave a gap rather than plunge to zero).
 @immutable
 class IntensityTrendPoint {
   const IntensityTrendPoint({
@@ -26,8 +19,7 @@ class IntensityTrendPoint {
   final int count;
 }
 
-/// Average pain intensity per calendar week (Monday-start), oldest first —
-/// the same window as the frequency chart so the two read together.
+/// Average pain intensity per calendar week (Monday-start), oldest first — the same window as the frequency chart so the two read together.
 class IntensityTrendCalculator {
   const IntensityTrendCalculator();
 
@@ -68,12 +60,10 @@ class IntensityTrendCalculator {
   }
 }
 
-/// Pain severity in four bands, matching `AppColors.intensity`'s green →
-/// yellow → orange → red scale.
+/// Pain severity in four bands, matching `AppColors.intensity`'s green → yellow → orange → red scale.
 enum SeverityBand { mild, moderate, severe, extreme }
 
-/// A representative intensity for each band, so the chart can colour a band
-/// through `AppColors.intensity` without duplicating the thresholds.
+/// A representative intensity for each band, so the chart can colour a band through `AppColors.intensity` without duplicating the thresholds.
 extension SeverityBandX on SeverityBand {
   int get sampleIntensity => switch (this) {
     SeverityBand.mild => 2,
@@ -91,8 +81,7 @@ class SeverityCount {
   final int count;
 }
 
-/// Counts attacks into the four severity bands (always returns all four, in
-/// order, so the legend/colours stay stable even when a band is empty).
+/// Counts attacks into the four severity bands (always returns all four, in order, so the legend/colours stay stable even when a band is empty).
 class SeverityBreakdownCalculator {
   const SeverityBreakdownCalculator();
 
@@ -124,14 +113,7 @@ class LocationCount {
   final int count;
 }
 
-/// Counts attacks per head area, dropping areas that never occur and sorting
-/// most-frequent first (ties keep enum order for a stable layout).
-///
-/// **An attack counts once in every area it names**, so the column totals add
-/// up to more than the number of attacks. That is the honest reading: the
-/// chart answers "how often does my left temple hurt", not "how do my attacks
-/// divide up", and picking one area per attack to make the sum tidy would
-/// throw away the very thing the multi-area picker exists to record.
+/// Counts attacks per head area, dropping areas that never occur and sorting most-frequent first (ties keep enum order for a stable layout).
 class LocationBreakdownCalculator {
   const LocationBreakdownCalculator();
 
@@ -165,9 +147,7 @@ class DayPartCount {
   final int count;
 }
 
-/// Counts attacks by quarter of the (local) day: night 00–06, morning 06–12,
-/// afternoon 12–18, evening 18–24. Always returns all four in chronological
-/// order so the bars never reshuffle.
+/// Counts attacks by quarter of the (local) day: night 00–06, morning 06–12, afternoon 12–18, evening 18–24.
 class TimeOfDayCalculator {
   const TimeOfDayCalculator();
 

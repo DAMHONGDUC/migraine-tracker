@@ -7,12 +7,7 @@ import 'package:system_design/common.dart';
 import '../../../core/constants/log_tag_constant.dart';
 import '../domain/services/attack_share_file_store.dart';
 
-/// Keeps share images in one `attack_shares/` folder inside the app's
-/// temporary directory.
-///
-/// **A folder of its own, never the temp root.** The wipe deletes the whole
-/// directory, and pointing that at the root would take plugin caches and
-/// anything else living there with it.
+/// Keeps share images in one `attack_shares/` folder inside the app's temporary directory.
 class TemporaryShareFileStore implements AttackShareFileStore {
   const TemporaryShareFileStore();
 
@@ -38,8 +33,7 @@ class TemporaryShareFileStore implements AttackShareFileStore {
 
       if (dir.existsSync()) await dir.delete(recursive: true);
     } catch (error, stackTrace) {
-      // Best-effort, like every other wipe step that touches the filesystem:
-      // a folder that cannot be removed must not abort the rest of the wipe.
+      // Best-effort, like every other wipe step that touches the filesystem: a folder that cannot be removed must not abort the rest of the wipe.
       SdLogger.error(
         LogTagConstant.attackShare,
         'Failed to clear share images',

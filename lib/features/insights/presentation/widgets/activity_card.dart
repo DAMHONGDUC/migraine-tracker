@@ -27,17 +27,6 @@ part 'activity_card_analysis.dart';
 part 'activity_card_steps.dart';
 
 /// Insights' activity card: what Apple Health counted, then what it means.
-///
-/// **The step chart on top is free**, like every other reading that only says
-/// what HealthKit handed over — it is the answer to "did connecting work", so
-/// locking it would leave a user who just flipped the switch looking at
-/// nothing. **The analysis below it is premium**, and that now includes the
-/// exertion correlation as well as the step one (owner's spec; this moved
-/// exertion from free, see `docs/PREMIUM_RULES.md`).
-///
-/// Not tappable as a whole, unlike before: the card owns a range selector,
-/// and a card-level tap would fight it. `/activity` is still reached from its
-/// Settings row. No chevron, for the same reason.
 class ActivityCard extends ConsumerWidget {
   const ActivityCard({required this.result, super.key});
 
@@ -45,8 +34,7 @@ class ActivityCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Off iOS there is no step source at all, so the free half would only
-    // ever say "connect", pointing at a switch that is not there.
+    // Off iOS there is no step source at all, so the free half would only ever say "connect", pointing at a switch that is not there.
     final bool hasHealth = ref.watch(healthAvailableProvider);
 
     return SdCardV2(

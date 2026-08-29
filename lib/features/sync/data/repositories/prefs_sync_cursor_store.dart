@@ -5,8 +5,7 @@ import '../../../../core/constants/prefs_key_constant.dart';
 import '../../domain/entities/sync_collection.dart';
 import '../../domain/repositories/sync_cursor_store.dart';
 
-/// Cursor in shared_preferences. Losing it costs one full re-pull, which is
-/// wasteful but never wrong, so it does not belong in the database.
+/// Cursor in shared_preferences. Losing it costs one full re-pull, which is wasteful but never wrong, so it does not belong in the database.
 class PrefsSyncCursorStore implements SyncCursorStore {
   const PrefsSyncCursorStore(this._prefs);
 

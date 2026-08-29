@@ -6,8 +6,7 @@ import 'package:migraine_tracker/features/settings/presentation/widgets/date_ran
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
 void main() {
-  /// Pumps the calendar alone, pinned to the 393×852 design size that
-  /// screenutil's `.r`/`.sp` assume (see `pumpApp`'s note).
+  /// Pumps the calendar alone, pinned to the 393×852 design size that screenutil's `.r`/`.sp` assume (see `pumpApp`'s note).
   Future<void> pumpCalendar(
     WidgetTester tester, {
     DateTime? from,

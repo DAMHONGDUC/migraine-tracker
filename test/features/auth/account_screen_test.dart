@@ -6,8 +6,7 @@ import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart
 
 import '../../helpers/pump_app.dart';
 
-/// The account screen is reached from Settings and only exists with an
-/// account; it shows account data and nothing about attacks (hard rule 1).
+/// The account screen is reached from Settings and only exists with an account; it shows account data and nothing about attacks (hard rule 1).
 void main() {
   Future<void> openAccount(WidgetTester tester) async {
     await openSettings(tester);
@@ -22,9 +21,7 @@ void main() {
     await openSettings(tester);
 
     expect(find.text('Sign in'), findsOneWidget);
-    // The premium row needs no account (App Store 5.1.1(v)) and sits next to
-    // the sign-in one. 'Premium' the word also appears on the locked gates,
-    // so this asks for the row itself.
+    // The premium row needs no account (App Store 5.1.1(v)) and sits next to the sign-in one.
     expect(find.byType(PremiumSettingsTile), findsOneWidget);
     await finishTest(tester);
   });

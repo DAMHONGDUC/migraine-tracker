@@ -6,14 +6,7 @@ import 'dashboard_severity_card.dart';
 import 'month_days_card.dart';
 import 'week_summary_card.dart';
 
-/// The week count, this month's migraine days and the severity mix, nested
-/// inside one outer card.
-///
-/// They answer the same question — how has it been — so grouping them is
-/// what stops the dashboard reading as an undifferentiated stack of cards.
-/// The nesting uses the two surfaces the app already has: the group takes the
-/// card colour, the two inside it step up to `surfaceElevated`, which is what
-/// that token has always been for.
+/// The week count, this month's migraine days and the severity mix, nested inside one outer card.
 class DashboardSummaryGroup extends ConsumerWidget {
   const DashboardSummaryGroup({super.key});
 
@@ -26,8 +19,7 @@ class DashboardSummaryGroup extends ConsumerWidget {
           children: [
             const WeekSummaryCard(),
             SizedBox(height: SdSpacingConstant.h12),
-            // Week then month then severity: the same history at widening
-            // granularity, so the group reads in one direction.
+            // Week then month then severity: the same history at widening granularity, so the group reads in one direction.
             const MonthDaysCard(),
             SizedBox(height: SdSpacingConstant.h12),
             const DashboardSeverityCard(),

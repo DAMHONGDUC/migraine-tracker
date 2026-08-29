@@ -7,8 +7,7 @@ import '../../domain/services/store_launcher.dart';
 class UrlStoreLauncher implements StoreLauncher {
   const UrlStoreLauncher();
 
-  /// [LaunchMode.externalApplication] so an `https://apps.apple.com/...`
-  /// link hands off to the store app instead of an in-app webview.
+  /// [LaunchMode.externalApplication] so an `https://apps.apple.com/...` link hands off to the store app instead of an in-app webview.
   @override
   Future<bool> open(String url) async {
     final Uri? uri = Uri.tryParse(url);
@@ -25,8 +24,7 @@ class UrlStoreLauncher implements StoreLauncher {
     try {
       return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (error, stackTrace) {
-      // The force-update screen's only button — a silent false leaves the
-      // user stuck on it with nothing said anywhere.
+      // The force-update screen's only button — a silent false leaves the user stuck on it with nothing said anywhere.
       SdLogger.error(
         LogTagConstant.appUpdate,
         'Store launch failed: $url',

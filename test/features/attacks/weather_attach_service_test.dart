@@ -26,8 +26,7 @@ class RecordingWeatherRepository implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => null;
 
-  // The weather card's payload. No widget test draws it, and no non-UI
-  // test needs it, so every fake answers "no weather".
+  // The weather card's payload. No widget test draws it, and no non-UI test needs it, so every fake answers "no weather".
   @override
   Future<WeatherReport?> report() async => null;
 }

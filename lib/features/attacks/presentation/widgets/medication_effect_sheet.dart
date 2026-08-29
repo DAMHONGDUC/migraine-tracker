@@ -11,13 +11,6 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/medication_effect.dart';
 
 /// Records whether the medication taken for an attack helped.
-///
-/// Asked after the fact and never in the log flow (hard rule 5): at the
-/// moment an attack is logged the drug has not had time to work, so the
-/// question could only be answered wrong.
-///
-/// Pops `(effect: …)`; `(effect: null)` takes the answer back, and a bare
-/// null is dismissal — the X must never clear what the user already said.
 class MedicationEffectSheet extends StatelessWidget {
   const MedicationEffectSheet({required this.selected, super.key});
 
@@ -57,8 +50,7 @@ class MedicationEffectSheet extends StatelessWidget {
             },
           ),
           SizedBox(height: SdSpacingConstant.h8),
-          // Only once there is something to take back — a "clear" on a field
-          // that was never set says nothing.
+          // Only once there is something to take back — a "clear" on a field that was never set says nothing.
           if (selected != null)
             SdButtonV2(
               variant: SdButtonVariantV2.text,
@@ -82,9 +74,7 @@ class _EffectTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  /// Three distinct glyphs, because colour is never the only signal
-  /// (hard rule: accessibility, and the palette carries no green/red pair
-  /// that clears the contrast floor for text).
+  /// Uses distinct glyphs so color is never the only status signal.
   static const Map<MedicationEffect, IconData> _icons =
       <MedicationEffect, IconData>{
         MedicationEffect.helped: AppIconConstant.effectHelped,
@@ -145,8 +135,7 @@ class _EffectTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension MedicationEffectSheetExt on MedicationEffectSheet {
   Future<({MedicationEffect? effect})?> show(BuildContext context) =>
       showSdBottomSheetV2<({MedicationEffect? effect})>(

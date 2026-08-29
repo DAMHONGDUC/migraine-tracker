@@ -10,10 +10,7 @@ import '../../domain/entities/export_record.dart';
 import '../../domain/enums/export_action.dart';
 import '../../domain/enums/export_kind.dart';
 
-/// What to do with one export from the history. Pops the chosen action, or
-/// null when dismissed.
-///
-/// Show it with `ExportActionsSheet(record: r).show(context)`.
+/// What to do with one export from the history. Pops the chosen action, or null when dismissed. Show it with `ExportActionsSheet(record: r).show(context)`.
 class ExportActionsSheet extends StatelessWidget {
   const ExportActionsSheet({required this.record, super.key});
 
@@ -37,9 +34,7 @@ class ExportActionsSheet extends StatelessWidget {
             ),
             child: Text(record.filename, style: AppTextStyle.titleMedium),
           ),
-          // No preview for CSV: 14 columns of comma-separated text tell a
-          // reader nothing a phone screen can show usefully. Share or save it
-          // and open it in something that reads spreadsheets.
+          // No preview for CSV: 14 columns of comma-separated text tell a reader nothing a phone screen can show usefully.
           if (record.kind != ExportKind.csv)
             _ActionTile(
               icon: AppIconConstant.visibility,
@@ -101,8 +96,7 @@ class _ActionTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportActionsSheetExt on ExportActionsSheet {
   Future<ExportAction?> show(BuildContext context) =>
       showSdBottomSheetV2<ExportAction>(context, builder: (_) => this);

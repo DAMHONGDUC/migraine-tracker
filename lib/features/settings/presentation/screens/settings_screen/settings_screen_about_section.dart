@@ -1,11 +1,6 @@
 part of 'settings_screen.dart';
 
-/// One way to reach a human, and the way into [AboutScreen] — which carries
-/// the full feature list. Nothing else belongs here.
-///
-/// The About row's value is the same diagnostic string the version row used
-/// to show on its own (env, version, build): a bug report still names its
-/// build without anyone opening a screen.
+/// One way to reach a human, and the way into [AboutScreen] — which carries the full feature list.
 class _AboutSection extends ConsumerWidget {
   const _AboutSection();
 

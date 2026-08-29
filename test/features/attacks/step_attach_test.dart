@@ -13,8 +13,7 @@ import 'package:migraine_tracker/features/health/domain/enums/health_data_kind.d
 import 'package:migraine_tracker/features/health/domain/repositories/health_repository.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
-/// Records what was attached and nothing else — every other method is here
-/// only because the interface has it.
+/// Records what was attached and nothing else — every other method is here only because the interface has it.
 class _Attacks implements AttackRepository {
   final Map<String, int> attachedSteps = <String, int>{};
 
@@ -140,8 +139,7 @@ void main() {
     await StepAttachService(attacks, health).onAttackLogged(attack());
 
     expect(attacks.attachedSteps, <String, int>{'a1': 4210});
-    // The window ends at the log, not at the end of the day: the number is
-    // how much the user had moved BEFORE the attack.
+    // The window ends at the log, not at the end of the day: the number is how much the user had moved BEFORE the attack.
     expect(health.to, loggedAt.toLocal());
     expect(health.from, DateTime(2026, 8, 20));
   });
@@ -151,8 +149,7 @@ void main() {
 
     await StepAttachService(attacks, _Health()).onAttackLogged(attack());
 
-    // Null and zero are different answers — an absent day must not be filed
-    // as a day spent still.
+    // Null and zero are different answers — an absent day must not be filed as a day spent still.
     expect(attacks.attachedSteps, isEmpty);
   });
 

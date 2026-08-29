@@ -19,24 +19,7 @@ import '../../../premium/providers.dart';
 import '../../../weather/domain/entities/weather_report.dart';
 import '../../../weather/providers.dart';
 
-/// What today's readings say, in one line each, straight to the card that
-/// explains them.
-///
-/// **Each row follows the gating of the reading it shows**, not the section's
-/// — steps and sleep are free readings (hard rule 1 and
-/// `docs/PREMIUM_RULES.md`), so a free user sees them here; only pressure is
-/// premium and only that row is withheld.
-///
-/// **There is no weather row any more.** `CurrentWeatherCard` sits on this
-/// same screen and says the temperature in full, so the row was the same
-/// reading twice — and the Insights tab it opened is gone.
-///
-/// **And only what actually has a value.** A row with nothing behind it is
-/// left out rather than printed as a dash, so the section is absent entirely
-/// on a device where none of them has data.
-///
-/// Deliberately terse: it is a glance on the way past, and every row is a
-/// door into the Insights tab that carries the whole story.
+/// What today's readings say, in one line each, straight to the card that explains them.
 class DashboardTodaySection extends ConsumerWidget {
   const DashboardTodaySection({super.key});
 
@@ -55,8 +38,7 @@ class DashboardTodaySection extends ConsumerWidget {
           children: <Widget>[
             Text(l10n.dashboardTodayTitle, style: AppTextStyle.titleMedium),
             SizedBox(height: SdSpacingConstant.h8),
-            // Between rows only — a rule above the first would sit on the
-            // card's own edge.
+            // Between rows only — a rule above the first would sit on the card's own edge.
             for (final (int index, _Reading reading) in readings.indexed) ...[
               if (index > 0) const SdDividerV2(),
               _ReadingRow(reading: reading),
@@ -76,8 +58,7 @@ class DashboardTodaySection extends ConsumerWidget {
     final bool hasPremium = ref.watch(hasPremiumProvider);
 
     return <_Reading>[
-      // The one premium row: the pressure reading is what is sold, and a
-      // free user tapping through would land on a card of pitches.
+      // The one premium row: the pressure reading is what is sold, and a free user tapping through would land on a card of pitches.
       if (now?.pressureHpa case final double value when hasPremium)
         _Reading(
           icon: AppIconConstant.pressure,
@@ -114,8 +95,7 @@ class _Reading {
 
   final IconData icon;
 
-  /// Both already localized. [label] is the Insights tab's own name, from the
-  /// same ARB key, so the row and the card it opens cannot disagree.
+  /// Both already localized. [label] is the Insights tab's own name, from the same ARB key, so the row and the card it opens cannot disagree.
   final String label;
   final String value;
 

@@ -1,9 +1,7 @@
 import '../entities/next_reminder.dart';
 import '../repositories/medication_reminder_repository.dart';
 
-/// Picks the soonest enabled daily reminder relative to "now". Pure Dart —
-/// each reminder repeats daily at its [minuteOfDay], so its next occurrence is
-/// today at that time if still ahead, otherwise the same time tomorrow.
+/// Picks the soonest enabled daily reminder relative to "now".
 class NextReminderCalculator {
   const NextReminderCalculator();
 

@@ -20,12 +20,7 @@ part 'onboarding_screen_page_scaffold.dart';
 part 'onboarding_screen_threshold_page.dart';
 part 'onboarding_screen_welcome_page.dart';
 
-/// Three calm pages: welcome + medical disclaimer (hard rule 10), the location
-/// permission explainer (hard rule 2), and threshold setup.
-///
-/// What the app does is not a page any more — the last step offers it as a
-/// sheet, so the nine-row feature list is there for whoever asks and out of
-/// the way of everyone else.
+/// Three calm pages: welcome + medical disclaimer (hard rule 10), the location permission explainer (hard rule 2), and threshold setup.
 class OnboardingScreen extends HookConsumerWidget {
   const OnboardingScreen({super.key});
 
@@ -46,9 +41,7 @@ class OnboardingScreen extends HookConsumerWidget {
 
     Future<void> finish() async {
       await controller.complete(thresholdHpa: threshold.value);
-      // Asked here rather than on a page of its own: the user has just set a
-      // threshold, so what the notification is for is as clear as it gets.
-      // Awaited, so the dashboard does not slide in under the OS dialog.
+      // Asked here rather than on a page of its own: the user has just set a threshold, so what the notification is for is as clear as it gets.
       await controller.requestNotifications();
 
       if (context.mounted) context.goNamed(AppRoutes.dashboard.name);
@@ -89,13 +82,7 @@ class OnboardingScreen extends HookConsumerWidget {
                       label: l10n.onboardingContinue,
                     ),
                   ],
-                  // One button, reading "Continue", and the OS prompt always
-                  // follows it. App Store 5.1.1(iv), which submission 1.0(20)
-                  // was rejected under: an explainer in front of a permission
-                  // may not word its button as the grant itself ("Enable
-                  // location"), and may not offer a second button that skips
-                  // the prompt — the "Not now" that used to sit here. Saying
-                  // no stays the user's choice, made in iOS's own dialog.
+                  // One button, reading "Continue", and the OS prompt always follows it.
                   1 => [
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
@@ -103,9 +90,7 @@ class OnboardingScreen extends HookConsumerWidget {
                         try {
                           await controller.requestLocation();
                         } catch (_) {
-                          // Logged by the controller. Swallowed here because
-                          // this is now the page's only button: a throw that
-                          // skipped `next()` would strand the user on it.
+                          // Logged by the controller.
                         }
                         await next();
                       },

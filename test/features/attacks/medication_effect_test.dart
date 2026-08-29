@@ -52,8 +52,7 @@ void main() {
       expect((await repository.getAll()).single.medicationEffect, isNull);
     });
 
-    // Its own method for the same reason updateExertion is: the details
-    // sheet never shows it, so a save from there must not blank it.
+    // Its own method for the same reason updateExertion is: the details sheet never shows it, so a save from there must not blank it.
     test('editing details leaves the outcome alone', () async {
       await repository.insert(
         attack(medication: 'Sumatriptan', effect: MedicationEffect.helped),

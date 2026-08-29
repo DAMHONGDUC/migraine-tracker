@@ -8,8 +8,7 @@ import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 
-/// The correlation on its own card, as the pressure detail screen shows it.
-/// Insights folds this into `PressureCard` alongside the forecast instead.
+/// The correlation on its own card, as the pressure detail screen shows it. Insights folds this into `PressureCard` alongside the forecast instead.
 class CorrelationCard extends ConsumerWidget {
   const CorrelationCard({required this.result, super.key});
 

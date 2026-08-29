@@ -33,8 +33,7 @@ class DriftMedicationRepository implements MedicationRepository {
     return rows.map(_toDomain).toList();
   }
 
-  // - Callers own createdAt: stamped once on add, threaded unchanged on rename.
-  // - Repository never invents or overwrites it, so rename can't reset it.
+  // - Callers own createdAt: stamped once on add, threaded unchanged on rename. - Repository never invents or overwrites it, so rename can't reset it.
   @override
   Future<void> upsert(Medication medication) {
     return _db.transaction(() async {
@@ -60,13 +59,7 @@ class DriftMedicationRepository implements MedicationRepository {
     });
   }
 
-  /// Really deletes, leaving tombstones for the medication and every reminder
-  /// that went with it.
-  ///
-  /// The reminders matter: the FK cascade removes them here and on any device
-  /// that pulls this deletion, but the server's copies belong to no cascade —
-  /// without their own tombstones they would sit there forever, waiting to be
-  /// handed to a device that has no medication to attach them to.
+  /// Really deletes, leaving tombstones for the medication and every reminder that went with it.
   @override
   Future<void> deleteById(String id) {
     return _db.transaction(() async {
@@ -84,8 +77,7 @@ class DriftMedicationRepository implements MedicationRepository {
     });
   }
 
-  /// GDPR wipe. Tombstones go too: the remote copy is deleted wholesale in
-  /// the same pass, so there is nothing left to tell the server about.
+  /// GDPR wipe. Tombstones go too: the remote copy is deleted wholesale in the same pass, so there is nothing left to tell the server about.
   @override
   Future<void> deleteAll() {
     return _db.transaction(() async {

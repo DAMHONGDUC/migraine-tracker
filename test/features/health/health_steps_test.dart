@@ -36,8 +36,7 @@ void main() {
       await pumpApp(tester, premium: true);
       await openActivityInsight(tester);
 
-      // The activity card still stands — its exertion half is free and needs
-      // no HealthKit — but the step half is gone with the source.
+      // The activity card still stands — its exertion half is free and needs no HealthKit — but the step half is gone with the source.
       expect(find.text('Activity'), findsWidgets);
       expect(
         find.textContaining('Connect Apple Health steps'),
@@ -59,17 +58,14 @@ void main() {
       );
       await openActivityInsight(tester);
 
-      // The analysis half is what premium buys: a free user gets the pitch,
-      // and nothing behind it reads HealthKit again.
+      // The analysis half is what premium buys: a free user gets the pitch, and nothing behind it reads HealthKit again.
       expect(
         find.text(
           'Unlock to see whether your attacks follow your least active days.',
         ),
         findsOneWidget,
       );
-      // No read-count assertion: the reading is free on both surfaces and the
-      // range selector reads for itself, so a count says nothing about whether
-      // the gated half ran. The pitch above is what does.
+      // Skip read-count assertions because each free surface reads independently.
       expect(app.health.stepReads, greaterThan(0));
 
       await finishTest(tester);
@@ -81,9 +77,7 @@ void main() {
       await pumpApp(tester, premium: true, healthAvailable: true);
       await openActivityInsight(tester);
 
-      // Said twice, and that is the card: the steps half says it and the
-      // analysis half says it. `dragUntilVisible` used to stand in for the
-      // tab tap, which on the Pressure tab scrolled until the test timed out.
+      // Said twice, and that is the card: the steps half says it and the analysis half says it.
       expect(find.textContaining('Connect Apple Health steps'), findsWidgets);
 
       await finishTest(tester);
@@ -138,8 +132,7 @@ void main() {
       await openActivityInsight(tester);
       await dragInsightsTo(tester, find.text('6000 steps'));
 
-      // Twice: the steps half prints the day's own figure and the analysis
-      // prints the same number as one of its two averages.
+      // Twice: the steps half prints the day's own figure and the analysis prints the same number as one of its two averages.
       expect(find.text('6000 steps'), findsWidgets);
       expect(
         find.text('fewer steps on the days your attacks started.'),

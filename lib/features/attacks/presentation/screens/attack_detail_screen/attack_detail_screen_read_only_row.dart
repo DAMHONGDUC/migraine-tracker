@@ -1,8 +1,6 @@
 part of 'attack_detail_screen.dart';
 
-/// A "label … value" row with nothing to tap. Same shape and same reason as
-/// [_EditableRow]: the value sits beside the label inside the title, and both
-/// halves carry a flex so the row cannot overflow.
+/// A "label … value" row with nothing to tap.
 class _ReadOnlyRow extends StatelessWidget {
   const _ReadOnlyRow({required this.label, required this.value});
 

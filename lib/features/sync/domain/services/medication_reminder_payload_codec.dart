@@ -4,16 +4,11 @@ import '../../../medications/domain/entities/medication_reminder.dart';
 import 'sync_payload_codec.dart';
 
 /// Reminder ↔ the JSON that gets encrypted.
-///
-/// `medicationId` travels because a reminder is meaningless without the
-/// medication it belongs to; the receiving device holds the reminder back
-/// until that medication has arrived.
 class MedicationReminderPayloadCodec
     implements SyncPayloadCodec<MedicationReminder> {
   const MedicationReminderPayloadCodec();
 
-  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when
-  /// it deliberately is not.
+  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when it deliberately is not.
   static const int schemaVersion = 1;
 
   static const String _versionKey = 'v';
@@ -27,9 +22,7 @@ class MedicationReminderPayloadCodec
     'medicationId': value.medicationId,
     'minuteOfDay': value.minuteOfDay,
     'enabled': value.enabled,
-    // Optional field, so no version bump: an older build ignores keys it
-    // does not know. It travels because the notification list bounds its
-    // history by this, and every device has to agree where that starts.
+    // Optional field, so no version bump: an older build ignores keys it does not know.
     'createdAt': value.createdAt?.toUtc().toIso8601String(),
   });
 
@@ -50,8 +43,7 @@ class MedicationReminderPayloadCodec
     if (medicationId is! String || medicationId.isEmpty) {
       throw const FormatException('reminder payload has no medication');
     }
-    // A time outside the day would schedule a notification that never fires,
-    // or crash the scheduler — refuse it rather than store it.
+    // A time outside the day would schedule a notification that never fires, or crash the scheduler — refuse it rather than store it.
     if (minuteOfDay is! int ||
         minuteOfDay < 0 ||
         minuteOfDay > _maxMinuteOfDay) {
@@ -65,8 +57,7 @@ class MedicationReminderPayloadCodec
       medicationId: medicationId,
       minuteOfDay: minuteOfDay,
       enabled: decoded['enabled'] != false,
-      // Absent from anything written before this field existed, and an
-      // unparseable value is the same as absent: unknown, not invalid.
+      // Absent from anything written before this field existed, and an unparseable value is the same as absent: unknown, not invalid.
       createdAt: createdAt is String ? DateTime.tryParse(createdAt) : null,
     );
   }

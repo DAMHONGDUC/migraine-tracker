@@ -29,15 +29,7 @@ part 'export_screen_history.dart';
 part 'export_screen_no_match_state.dart';
 part 'export_screen_record_tile.dart';
 
-/// Export data, and everything already exported. Reached from Settings.
-///
-/// Exports are written to disk and recorded, so a row can be re-shared or
-/// saved to the device later without rebuilding the file.
-///
-/// The history can be narrowed to a date window. The pill that does it rides in
-/// a [SdCollapsingFilterScaffoldV2], so it sits under the app bar while reading and
-/// lifts into it once the list scrolls — the same behaviour as the medications
-/// tab.
+/// Export data, and everything already exported.
 class ExportScreen extends ConsumerWidget {
   const ExportScreen({super.key});
 
@@ -151,8 +143,7 @@ class ExportScreen extends ConsumerWidget {
         SizedBox(width: SdSpacingConstant.w4),
       ],
       filter: hasAny ? const _DateFilterPill() : null,
-      // - pads itself to scroll behind the frosted bar and strip; no gutter — a ListTile brings one
-      // - top inset stays put whether the strip is showing or not (see SdCollapsingFilterScaffoldV2)
+      // - pads itself to scroll behind the frosted bar and strip.
       body: ListView(
         padding: EdgeInsets.only(
           top: hasAny

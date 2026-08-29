@@ -11,13 +11,7 @@ import 'aura_label.dart';
 import 'head_region_label.dart';
 import 'medication_effect_label.dart';
 
-/// Collects the doctor report's localized strings in one place. The builder
-/// is pure Dart and takes its copy as data; this is the only translation of
-/// l10n into that shape, so the export screen doesn't carry 30 lines of it.
-///
-/// A locale the report's fonts cannot draw falls back to English here rather
-/// than at the call site, so every caller gets a readable PDF by default —
-/// see [ExportConstant.reportFontlessLocales].
+/// Collects the doctor report's localized strings in one place.
 extension DoctorReportStringsL10n on AppLocalizations {
   DoctorReportStrings doctorReportStrings(DateTime now) =>
       ExportConstant.reportFontlessLocales.contains(localeName)

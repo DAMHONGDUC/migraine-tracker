@@ -4,8 +4,7 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_report
 
 import '../../helpers/pump_app.dart';
 
-/// The weather card's third state: no position, so the card asks for one
-/// instead of reporting the feature as unavailable.
+/// The weather card's third state: no position, so the card asks for one instead of reporting the feature as unavailable.
 void main() {
   const String prompt =
       'Turn on location to see the weather and pressure where you are.';
@@ -16,8 +15,7 @@ void main() {
     await pumpApp(tester, permissionStatus: AppPermissionStatus.denied);
 
     expect(find.text(prompt), findsOneWidget);
-    // "Continue", never "Enable location": App Store 5.1.1(iv) reads a
-    // button that names the grant as steering the answer.
+    // "Continue", never "Enable location": App Store 5.1.1(iv) reads a button that names the grant as steering the answer.
     expect(find.text('Continue'), findsOneWidget);
     expect(find.text('Enable location'), findsNothing);
     // The failure line belongs to states the user cannot fix; this one they can.
@@ -47,9 +45,7 @@ void main() {
     await tapVisible(tester, find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // The grant has to invalidate the report, not just the permission. Left
-    // alone the provider keeps whatever null it completed with before the
-    // permission existed, and the card swaps the ask for "unavailable".
+    // The grant has to invalidate the report, not just the permission.
     expect(app.weather.reportCalls, greaterThan(before));
     expect(find.text(prompt), findsNothing);
     expect(find.text('Weather is unavailable right now.'), findsNothing);
@@ -69,8 +65,7 @@ void main() {
     await tapVisible(tester, find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // iOS will not show its dialog again, so the button has to lead somewhere:
-    // the sheet, and from it the Settings app.
+    // iOS will not show its dialog again, so the button has to lead somewhere: the sheet, and from it the Settings app.
     expect(find.text('Turn on location'), findsOneWidget);
     await tapVisible(tester, find.text('Open Settings'));
     await tester.pump(const Duration(milliseconds: 400));

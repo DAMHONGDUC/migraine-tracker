@@ -3,13 +3,11 @@ import 'dart:convert';
 import '../../../medications/domain/entities/medication.dart';
 import 'sync_payload_codec.dart';
 
-/// Medication ↔ the JSON that gets encrypted. The name is health data (what
-/// someone takes), so it only ever leaves the device inside a payload.
+/// Medication ↔ the JSON that gets encrypted. The name is health data (what someone takes), so it only ever leaves the device inside a payload.
 class MedicationPayloadCodec implements SyncPayloadCodec<Medication> {
   const MedicationPayloadCodec();
 
-  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when
-  /// it deliberately is not.
+  /// See `AttackPayloadCodec.schemaVersion` for when this is bumped, and when it deliberately is not.
   static const int schemaVersion = 1;
 
   static const String _versionKey = 'v';
@@ -41,8 +39,7 @@ class MedicationPayloadCodec implements SyncPayloadCodec<Medication> {
     return Medication(
       id: id,
       name: name,
-      // Null stays null: a medication saved before v3 has no recorded date,
-      // and inventing one would list it under "added this week".
+      // Null stays null: a medication saved before v3 has no recorded date, and inventing one would list it under "added this week".
       createdAt: createdAt is String ? DateTime.parse(createdAt).toUtc() : null,
     );
   }

@@ -1,7 +1,6 @@
 part of 'step_correlation_body.dart';
 
-/// The headline: the gap between the two averages, then both averages so the
-/// number is never a claim the user has to take on trust.
+/// The headline: the gap between the two averages, then both averages so the number is never a claim the user has to take on trust.
 class _StepInsightBody extends StatelessWidget {
   const _StepInsightBody({required this.result});
 
@@ -14,8 +13,7 @@ class _StepInsightBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // One thin side makes the gap between the averages a claim neither
-        // supports — show what was measured and skip the headline.
+        // One thin side makes the gap between the averages a claim neither supports — show what was measured and skip the headline.
         if (!result.isCountOnly) ...<Widget>[
           Text(
             result.shortfall.abs().label(l10n),
@@ -50,8 +48,7 @@ class _StepInsightBody extends StatelessWidget {
   }
 }
 
-/// Label left, average right. The label takes the slack so a long
-/// translation wraps instead of pushing the number off the card.
+/// Label left, average right. The label takes the slack so a long translation wraps instead of pushing the number off the card.
 class _AverageRow extends StatelessWidget {
   const _AverageRow({required this.label, required this.value});
 

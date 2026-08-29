@@ -90,8 +90,7 @@ void main() {
       final csv = service.toCsv([full]);
       final lines = csv.split('\r\n');
       expect(lines.first, startsWith('id,started_at_utc,intensity'));
-      // The notes field must be quoted with doubled inner quotes; the
-      // embedded newline stays inside the quoted field.
+      // The notes field must be quoted with doubled inner quotes; the embedded newline stays inside the quoted field.
       expect(
         csv,
         contains('"notes with, comma and ""quotes""\nand a newline"'),

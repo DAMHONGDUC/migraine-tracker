@@ -10,8 +10,7 @@ import '../../router/navigation_utils.dart';
 import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
-/// Offers sign-in, or — once there is an account — a way into the account
-/// tab, which owns everything else about it (name, email, sign-out).
+/// Offers sign-in, or — once there is an account — a way into the account tab, which owns everything else about it (name, email, sign-out).
 class AccountSection extends ConsumerWidget {
   const AccountSection({super.key});
 
@@ -29,8 +28,6 @@ class AccountSection extends ConsumerWidget {
     }
 
     // - Signed in: the account lives on its own screen; this row only points there, so sign-out exists in one place.
-    // - The email stays off this row — Settings is scrolled past in public, and the account screen is one tap away.
-    // - Nothing about sync here: it is a row in "Your data" now (SyncSettingsTile).
     return SettingsTile(
       icon: AppIconConstant.account,
       title: l10n.settingsAccount,

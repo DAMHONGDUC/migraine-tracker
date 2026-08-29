@@ -18,9 +18,6 @@ import 'package:migraine_tracker/features/sync/domain/services/sync_payload_code
 import 'package:migraine_tracker/features/sync/domain/services/sync_service.dart';
 
 /// A real sync service over fake transport, for tests that need one.
-///
-/// [onRemindersPulled] defaults to a no-op: only the tests about reminder
-/// scheduling care that it fired.
 SyncService syncServiceOver(
   AppDatabase db, {
   RemoteSyncRepository? remote,
@@ -61,10 +58,7 @@ Future<EncryptedRecord> encryptedFor<T>(
   ),
 );
 
-/// The server, as a map per collection. Failures are armed per test to stand
-/// in for a dropped connection at a chosen point.
-///
-/// Also what `pumpApp` wires in, so no widget test ever reaches Firebase.
+/// The server, as a map per collection.
 class FakeRemoteSyncRepository implements RemoteSyncRepository {
   final Map<SyncCollection, Map<String, EncryptedRecord>> stored =
       <SyncCollection, Map<String, EncryptedRecord>>{};

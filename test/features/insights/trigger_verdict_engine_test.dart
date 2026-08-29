@@ -5,8 +5,7 @@ import 'package:migraine_tracker/features/insights/domain/entities/step_correlat
 import 'package:migraine_tracker/features/insights/domain/entities/trigger_verdict.dart';
 import 'package:migraine_tracker/features/insights/domain/services/trigger_verdict_engine.dart';
 
-/// A settled pressure insight whose drop days ended in an attack
-/// [dropPercent]% of the time against [calmPercent]% of quiet days.
+/// A settled pressure insight whose drop days ended in an attack [dropPercent]% of the time against [calmPercent]% of quiet days.
 CorrelationResult pressure({
   required int dropPercent,
   required int calmPercent,
@@ -87,8 +86,7 @@ void main() {
       expect(verdict, isA<TriggerVerdictPending>());
     });
 
-    // The share alone is high for anyone living somewhere stormy and says
-    // nothing about cause, so it may never carry a verdict on its own.
+    // The share alone is high for anyone living somewhere stormy and says nothing about cause, so it may never carry a verdict on its own.
     test('an unreliable baseline does not rule the weather out either', () {
       final TriggerVerdict verdict = engine.analyze(
         pressure: pressure(dropPercent: 50, calmPercent: 10, reliable: false),

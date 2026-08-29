@@ -4,12 +4,7 @@ import 'package:health/health.dart';
 
 import '../../domain/entities/sleep_interval.dart';
 
-/// Abstracts the `health` plugin so the repository is testable without
-/// HealthKit — same role `LocationSource` plays for geolocator.
-///
-/// Authorization is NOT part of this interface: it lives on
-/// [HealthRepository][../../domain/repositories/health_repository.dart] so
-/// one sheet covers every source together ("one switch, one sheet").
+/// Abstracts the `health` plugin so the repository is testable without HealthKit — same role `LocationSource` plays for geolocator.
 abstract interface class SleepSampleSource {
   bool get isAvailable;
 
@@ -23,13 +18,7 @@ abstract interface class SleepSampleSource {
 class HealthKitSleepSampleSource implements SleepSampleSource {
   HealthKitSleepSampleSource();
 
-  /// One sleep type, not three. This version of the plugin maps
-  /// SLEEP_IN_BED / SLEEP_ASLEEP / SLEEP_AWAKE onto the same
-  /// `HKCategoryType.sleepAnalysis` and drops the category value before
-  /// Dart sees it, so asking for all three returns the same samples three
-  /// times over and none of them can be told apart. Asking for one and
-  /// taking the union (see `SleepNightAggregator`) is the honest reading:
-  /// total time the device recorded as sleep.
+  /// One sleep type, not three.
   static const List<HealthDataType> types = <HealthDataType>[
     HealthDataType.SLEEP_IN_BED,
   ];

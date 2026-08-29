@@ -8,11 +8,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/health_range.dart';
 import '../../domain/services/health_range_buckets.dart';
 
-/// The bar chart under a [HealthRangeSelector], for steps and for sleep
-/// alike.
-///
-/// One widget for both, so a range means the same thing on either card. What
-/// differs is passed in: the colour, and how a value is worded.
+/// The bar chart under a [HealthRangeSelector], for steps and for sleep alike.
 class HealthRangeChart extends StatelessWidget {
   const HealthRangeChart({
     required this.buckets,
@@ -33,9 +29,7 @@ class HealthRangeChart extends StatelessWidget {
   /// What the chart is, for VoiceOver: bars themselves say nothing.
   final String semanticsLabel;
 
-  /// Above this many bars the labels are dropped rather than overlapped — 30
-  /// day-of-month numbers do not fit the card's width, and a smear of digits
-  /// under the axis is worse than none.
+  /// Above this many bars the labels are dropped rather than overlapped.
   static const int _maxLabelledBars = 14;
 
   /// How a bucket's start reads under its bar.
@@ -63,9 +57,7 @@ class HealthRangeChart extends StatelessWidget {
       );
     }
 
-    // Not SdChartFrameV2: that one carries a title, and the card heading plus
-    // the range selector already say what this is — a third label above the
-    // bars would be the same fact stated twice.
+    // Not SdChartFrameV2: that one carries a title, and the card heading plus the range selector already say what this is — a third label above the bars.
     return Semantics(
       container: true,
       label: semanticsLabel,

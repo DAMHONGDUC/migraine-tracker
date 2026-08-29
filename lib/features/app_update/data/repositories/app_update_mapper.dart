@@ -3,17 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/app_update_config.dart';
 
 /// The Firestore document schema, in one place.
-///
-/// ```
-/// app_updates/{autoId}
-///   create_date: Timestamp
-///   android: { store_link, build_name, build_number, enable_force_update }
-///   ios:     { store_link, build_name, build_number, enable_force_update }
-/// ```
-///
-/// Every field is parsed defensively: a record typed by hand in the console
-/// is the input here, and a typo must degrade to "don't block", never to a
-/// crash on launch.
 abstract final class AppUpdateMapper {
   static const String createDateField = 'create_date';
   static const String androidField = 'android';
@@ -35,8 +24,7 @@ abstract final class AppUpdateMapper {
     );
   }
 
-  /// Null unless the section carries both a store link and a build number —
-  /// without either there is nothing to block on.
+  /// Null unless the section carries both a store link and a build number — without either there is nothing to block on.
   static PlatformUpdateConfig? _platformFrom(Object? value) {
     if (value is! Map) return null;
 
@@ -70,8 +58,7 @@ abstract final class AppUpdateMapper {
     _ => null,
   };
 
-  /// Anything that is not an explicit true stays false: force update is
-  /// opt-in, never inferred.
+  /// Anything that is not an explicit true stays false: force update is opt-in, never inferred.
   static bool _boolFrom(Object? value) => switch (value) {
     final bool flag => flag,
     final String text => text.toLowerCase() == 'true',

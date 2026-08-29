@@ -59,15 +59,7 @@ class _SilentScheduler implements NotificationScheduler {
   }) async {}
 }
 
-/// The dev fixture is the only data most screens are ever developed against,
-/// so what it guarantees matters: the exact counts the owner set, no two rows
-/// alike, and a different shape every run.
-///
-/// **What it can no longer promise is a spread.** At a hundred rows a
-/// one-in-seven chance produced a handful of every case; at five it is a coin
-/// the test would be asserting rather than the seed. So the shape assertions
-/// here are the ones that hold at any size, plus the one case the seed now
-/// forces outright — the weatherless attack the backfill queue exists for.
+/// The dev fixture is the only data most screens are ever developed against, so what it guarantees matters.
 void main() {
   late AppDatabase db;
   late FakeExportFileStore files;
@@ -117,8 +109,7 @@ void main() {
   test('seeds exactly the promised number of rows of each kind', () async {
     await seeder.seed();
 
-    // Exact, tombstones included: the surplus rows the seed deletes again are
-    // written ON TOP of these counts, so a list is never left a row short.
+    // Exact, tombstones included: the surplus rows the seed deletes again are written ON TOP of these counts, so a list is never left a row short.
     expect((await attacks()).length, DevSeedService.attackCount);
     expect((await medications()).length, DevSeedService.medicationCount);
     expect((await reminders()).length, DevSeedService.reminderCount);
@@ -230,8 +221,7 @@ void main() {
       for (final Attack a in await attacks()) a.intensity,
     ];
 
-    // Both draw from the same 150 names — what must differ is which ones, and
-    // the attacks built on top of them.
+    // Both draw from the same 150 names — what must differ is which ones, and the attacks built on top of them.
     expect(
       firstNames.difference(secondNames),
       isNotEmpty,
@@ -249,16 +239,14 @@ void main() {
 
     final List<Attack> all = await attacks();
 
-    // At most one, and at least one: a chance per attack would seed the
-    // offline-log case in some runs and not others at this size.
+    // At most one, and at least one: a chance per attack would seed the offline-log case in some runs and not others at this size.
     expect(all.where((Attack a) => a.weather == null).length, lessThan(2));
   });
 
   test('fills the tables the charts and the list read, not just attacks', () async {
     await seeder.seed();
 
-    // One reading per day across the window: the correlation's denominator,
-    // without which the pressure card can only talk about attacks.
+    // One reading per day across the window: the correlation's denominator, without which the pressure card can only talk about attacks.
     final List<DailyPressure> days = await DriftDailyPressureRepository(
       db,
     ).since(DateTime(2000));
@@ -282,8 +270,7 @@ void main() {
       rows.any((AppNotification n) => n.type == NotificationType.pressureAlert),
       isTrue,
     );
-    // No read/unread assertion: whether a row was read is a roll per row, and
-    // over this few rows the test would be checking the RNG.
+    // No read/unread assertion: whether a row was read is a roll per row, and over this few rows the test would be checking the RNG.
   });
 
   test('a pressure alert row carries how far it fell', () async {

@@ -16,13 +16,7 @@ part 'correlation_body_no_variation.dart';
 part 'correlation_body_progress.dart';
 part 'correlation_body_teaser.dart';
 
-/// What the correlation analysis found, without a card around it — the
-/// summary card on Insights and the detail screen both draw this.
-///
-/// Premium sees the analysis from the first attack: as counts while the
-/// sample is tiny, then as a percentage carrying a "still settling" note.
-/// Free keeps the "keep logging" progress until the insight is worth paying
-/// for — that's the road to the value moment, and no number reaches the tree.
+/// What the correlation analysis found, without a card around it — the summary card on Insights and the detail screen both draw this.
 class CorrelationBody extends ConsumerWidget {
   const CorrelationBody({required this.result, super.key});
 

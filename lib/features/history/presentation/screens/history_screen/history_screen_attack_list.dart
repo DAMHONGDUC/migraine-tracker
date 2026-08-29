@@ -41,9 +41,7 @@ class _AttackList extends ConsumerWidget {
               child: _FilterRow(count: attacks.length),
             ),
           ),
-          // Under the filter row rather than above it: the pill has to start
-          // at offset 0 or `_FilterRow.scrolledPastExtent` fires while it is
-          // still on screen. Still ahead of the first attack tile.
+          // Under the filter row rather than above it: the pill has to start at offset 0 or `_FilterRow.scrolledPastExtent` fires while it is still on screen.
           if (used != null)
             SliverPadding(
               padding: EdgeInsets.fromLTRB(

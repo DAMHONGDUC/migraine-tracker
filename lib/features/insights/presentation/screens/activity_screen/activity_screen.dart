@@ -14,12 +14,7 @@ import '../../widgets/exertion_correlation_card.dart';
 import '../../widgets/step_correlation_card.dart';
 import '../../widgets/step_summary_card.dart';
 
-/// Everything about how much the user moved: the exertion they reported, the
-/// steps their phone counted, and the switch that lets the app read them.
-///
-/// Controls first, cards last: the switch is what the user came to change.
-/// Full-bleed list because it is a `ListTile`, which insets itself; the cards
-/// take the gutter on their own.
+/// Everything about how much the user moved: the exertion they reported, the steps their phone counted, and the switch that lets the app read them.
 class ActivityScreen extends ConsumerWidget {
   const ActivityScreen({super.key});
 
@@ -48,10 +43,7 @@ class ActivityScreen extends ConsumerWidget {
             ),
             child: Column(
               children: <Widget>[
-                // What was counted comes before what is drawn from it. Always
-                // mounted — the card hides itself while steps are
-                // disconnected, and mounting it on the flag instead cost a
-                // mid-build provider flush (see [SleepSummaryCard]).
+                // What was counted comes before what is drawn from it.
                 const StepSummaryCard(),
                 if (ref.watch(healthControllerProvider).steps)
                   SizedBox(height: SdContentPaddingV2.sectionGap),

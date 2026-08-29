@@ -4,13 +4,7 @@ import { defineSecret, defineString } from "firebase-functions/params";
 
 import { HourlyForecast } from "../core/pressure";
 
-/**
- * The private `.p8` that signs the ES256 JWT. A secret, unlike the three
- * identifiers below — those name things, this one proves we are us.
- *
- * Any function calling into this module must list it in its own `secrets`,
- * or the value is empty at runtime and every request 401s.
- */
+/** The private `.p8` that signs the ES256 JWT. */
 export const weatherKitPrivateKey = defineSecret("WEATHERKIT_PRIVATE_KEY");
 
 /** From the key's filename — `AuthKey_<KEY_ID>.p8` — and the JWT's `kid`. */
@@ -19,12 +13,7 @@ export const weatherKitKeyId = defineString("WEATHERKIT_KEY_ID");
 /** Membership details. The JWT's `iss`, and half of its `id` header. */
 export const weatherKitTeamId = defineString("WEATHERKIT_TEAM_ID");
 
-/**
- * The registered Services ID, and the JWT's `sub`.
- *
- * **Not the app's Bundle ID.** A Services ID is its own identifier type, and
- * a bundle id in its place returns a bare 401 with nothing saying why.
- */
+/** The registered Services ID, and the JWT's `sub`. */
 export const weatherKitServiceId = defineString("WEATHERKIT_SERVICE_ID");
 
 const MAX_ATTEMPTS = 3;
@@ -51,15 +40,7 @@ export interface WeatherKitCredentials {
   serviceId: string;
 }
 
-/**
- * A credential is missing, so no request was made.
- *
- * Its own type because it is the one weather failure retrying cannot fix, and
- * the one a caller should report differently: Apple answers an empty `kid`,
- * `iss` or `sub` with a bare `401 MISSING_AUTH`, which reads as a revoked key
- * rather than as an unset deploy variable — three attempts and several
- * seconds later.
- */
+/** A credential is missing, so no request was made. */
 export class WeatherKitConfigError extends Error {
   constructor(readonly missing: string[]) {
     super(`weatherkit not configured: ${missing.join(", ")} empty`);
@@ -94,13 +75,7 @@ function base64Url(input: Buffer | string): string {
     .replace(/=+$/, "");
 }
 
-/**
- * Signs a WeatherKit JWT, reusing the last one until it is nearly expired.
- *
- * Signing per request would be wasted CPU on every cron run — the token is
- * bound to the team and the service, never to the coordinates being asked
- * about, so one covers the whole run.
- */
+/** Signs a WeatherKit JWT, reusing the last one until it is nearly expired. */
 export function weatherKitToken(
   credentials: WeatherKitCredentials,
   now: Date = new Date(),
@@ -128,8 +103,7 @@ export function weatherKitToken(
   const signingInput = `${base64Url(JSON.stringify(header))}.${base64Url(
     JSON.stringify(payload),
   )}`;
-  // `ieee-p1363` is the raw r||s JOSE expects; Node's default is DER, which
-  // Apple rejects as a malformed signature rather than a wrong one.
+  // `ieee-p1363` is the raw r||s JOSE expects; Node's default is DER, which Apple rejects as a malformed signature rather than a wrong one.
   const signature = cryptoSign("sha256", Buffer.from(signingInput), {
     key: credentials.privateKey,
     dsaEncoding: "ieee-p1363",
@@ -150,15 +124,7 @@ function readCredentials(): WeatherKitCredentials {
   };
 }
 
-/**
- * Fetches 48h of hourly surface pressure from WeatherKit. Retries with
- * exponential backoff and THROWS after the final failure — weather errors
- * must fail loud, never silently skip a cohort (hard rule: Cloud Functions).
- *
- * Same signature and same contract as the Open-Meteo source it replaced, so
- * the geohash grouping, the dedupe window and the alert maths above it are
- * untouched by the provider swap.
- */
+/** Fetches 48h of hourly surface pressure from WeatherKit. */
 export async function fetchHourlyPressure(
   lat: number,
   lon: number,
@@ -243,13 +209,7 @@ export interface WeatherBundle {
   days: WeatherDay[];
 }
 
-/**
- * One request to Apple, with the token handling and the backoff.
- *
- * Shared by both fetches below rather than written twice: the 401-resets-the-
- * token rule is the kind of thing that gets fixed in one copy and not the
- * other.
- */
+/** One request to Apple, with the token handling and the backoff. */
 async function requestWeather(
   lat: number,
   lon: number,
@@ -262,8 +222,7 @@ async function requestWeather(
   const credentials = deps.credentials ?? readCredentials();
   const missing = missingCredentials(credentials);
 
-  // Before the retry loop: an unset variable is not an outage, and three
-  // round trips to Apple cannot discover what is already known here.
+  // Before the retry loop: an unset variable is not an outage, and three round trips to Apple cannot discover what is already known here.
   if (missing.length > 0) throw new WeatherKitConfigError(missing);
 
   const url =
@@ -296,14 +255,7 @@ async function requestWeather(
   );
 }
 
-/**
- * The hourly series, optionally over an explicit window.
- *
- * `hourlyStart`/`hourlyEnd` are what let the app backfill an attack logged
- * offline days ago with the weather *at its start time* — without them
- * WeatherKit answers from the current hour forward, which cannot describe
- * something that already happened.
- */
+/** The hourly series, optionally over an explicit window. */
 export async function fetchHourlyWeather(
   lat: number,
   lon: number,
@@ -318,17 +270,7 @@ export async function fetchHourlyWeather(
   return parseHours(await requestWeather(lat, lon, params, deps));
 }
 
-/**
- * Current conditions, the hourly series and the daily forecast together.
- *
- * One request for all three datasets rather than three: WeatherKit bills per
- * call, not per dataset, so this costs the 500k quota exactly what the
- * pressure-only fetch already cost.
- *
- * Every field is optional all the way down. Apple omits what it has no data
- * for at a location, and the card renders what arrived — hard rule 4's
- * "weather is best-effort" applies to a field as much as to a request.
- */
+/** Current conditions, the hourly series and the daily forecast together. */
 export async function fetchWeatherBundle(
   lat: number,
   lon: number,
@@ -385,14 +327,7 @@ function asText(value: string | null | undefined): string | undefined {
   return value === null || value === undefined || value === "" ? undefined : value;
 }
 
-/**
- * WeatherKit reports `pressure` in millibars, which is hPa — the same unit
- * Open-Meteo returned and the unit the alert threshold is already in, so
- * nothing downstream converts.
- *
- * `humidity` is the one that does convert: Apple sends a 0–1 fraction and
- * every surface in the app says a percentage.
- */
+/** WeatherKit reports `pressure` in millibars,. */
 function parseHours(body: unknown): WeatherHour[] {
   const hours = (body as { forecastHourly?: { hours?: unknown } })
     ?.forecastHourly?.hours;
@@ -443,13 +378,7 @@ interface CurrentWeatherBody {
   daylight?: boolean | null;
 }
 
-/**
- * Current conditions, or undefined when the dataset is absent.
- *
- * Undefined rather than a throw: the hourly series is what the pressure
- * feature needs, and a location Apple has no `currentWeather` for must still
- * answer the alert maths.
- */
+/** Current conditions, or undefined when the dataset is absent. */
 function parseCurrent(body: unknown): WeatherCurrent | undefined {
   const current = (body as { currentWeather?: CurrentWeatherBody })
     ?.currentWeather;

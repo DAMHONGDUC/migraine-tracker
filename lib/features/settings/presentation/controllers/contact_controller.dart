@@ -5,8 +5,7 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/env/app_env.dart';
 import '../../providers.dart';
 
-/// Opens the mail app addressed to support. The contact screen only calls
-/// [emailSupport] and shows a snackbar when it comes back false.
+/// Opens the mail app addressed to support. The contact screen only calls [emailSupport] and shows a snackbar when it comes back false.
 class ContactController {
   const ContactController(this._ref);
 

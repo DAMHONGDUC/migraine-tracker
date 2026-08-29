@@ -1,20 +1,10 @@
 import '../entities/medication.dart';
 
-/// Orders the log flow's medication picker by what the user actually reaches
-/// for. Pure Dart, no state — unit-tested independently.
+/// Orders the log flow's medication picker by what the user actually reaches for. Pure Dart, no state — unit-tested independently.
 class MedicationRanking {
   const MedicationRanking();
 
-  /// Alphabetical order is wrong at the moment of use: mid-attack the med you
-  /// took last time should be the first thing under your thumb, not the one
-  /// whose name starts with "A". Recency is derived from attack history rather
-  /// than a denormalized `lastUsedAt` column, so there is nothing to keep in
-  /// sync and existing histories rank correctly with no migration.
-  ///
-  /// [recentNamesNewestFirst] is every logged attack's medication name, newest
-  /// first; nulls ("no medication") and names with no matching [Medication]
-  /// are ignored. Medications never taken keep their incoming order — the
-  /// repository already sorts alphabetically — and follow the ranked ones.
+  /// Alphabetical order is wrong at the moment of use.
   static List<Medication> byRecentUse(
     List<Medication> medications,
     Iterable<String?> recentNamesNewestFirst,

@@ -22,14 +22,7 @@ part 'account_screen_header.dart';
 part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
 
-/// The signed-in user's own record: who they are, what the subscription is,
-/// and the way out. Pushed from the Settings account row; the router's
-/// redirect turns it away while signed out, so it can assume an account.
-///
-/// Health data is deliberately absent: attacks live on the device and as
-/// encrypted payloads in their own top-level collection, never in the account
-/// document (hard rule 1). [_DataNote] says so on the screen, not just in a
-/// comment.
+/// The signed-in user's own record: who they are, what the subscription is, and the way out.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -67,8 +60,7 @@ class AccountScreen extends ConsumerWidget {
   }
 }
 
-/// What the account document holds, in the user's words. Sign-in already
-/// discloses the sync; this is the same promise where they can re-read it.
+/// What the account document holds, in the user's words. Sign-in already discloses the sync; this is the same promise where they can re-read it.
 class _DataNote extends StatelessWidget {
   const _DataNote();
 

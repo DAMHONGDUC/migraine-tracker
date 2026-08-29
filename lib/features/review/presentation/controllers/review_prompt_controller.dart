@@ -11,11 +11,6 @@ import '../../domain/services/review_prompt_policy.dart';
 import '../../providers.dart';
 
 /// Turns a value moment into a store review prompt, or into nothing.
-///
-/// **Every entry point is best-effort and must be called unawaited.** A
-/// review prompt is the least important thing happening on the screen it
-/// interrupts, so nothing here rethrows: a failure is logged and the moment
-/// is dropped, exactly like the weather backfill (hard rule 4).
 class ReviewPromptController {
   const ReviewPromptController(this._ref);
 
@@ -27,10 +22,6 @@ class ReviewPromptController {
   Future<void> onDoctorReportShared() => _consider(ReviewMoment.doctorReport);
 
   /// An attack was logged at [attackAt].
-  ///
-  /// A moment only when a pressure alert came first and close enough to have
-  /// predicted it: the alert being right is what the subscription is for, and
-  /// an attack on a quiet day says nothing about the app.
   Future<void> onAttackLogged(DateTime attackAt) async {
     try {
       final AppNotification? alert = await _ref
@@ -61,8 +52,7 @@ class ReviewPromptController {
     }
   }
 
-  /// Asks the platform when [ReviewPromptPolicy] allows it, and records the
-  /// ask either way it lands.
+  /// Asks the platform when [ReviewPromptPolicy] allows it, and records the ask either way it lands.
   Future<void> _consider(ReviewMoment moment) async {
     SdLogger.action(LogTagConstant.review, 'Review moment', moment.name);
     try {
@@ -82,9 +72,7 @@ class ReviewPromptController {
 
       final bool asked = await _ref.read(reviewPrompterProvider).request();
 
-      // Only a real ask is recorded: a platform with no review flow never
-      // showed anything, and spending one of three on it would silence the
-      // next moment for four months.
+      // Record only prompts the platform actually displayed.
       if (!asked) return;
 
       await _ref.read(reviewPromptStoreProvider).recordAsked(now);

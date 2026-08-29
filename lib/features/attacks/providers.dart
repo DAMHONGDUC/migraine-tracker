@@ -24,14 +24,12 @@ final attacksStreamProvider = StreamProvider<List<Attack>>(
   (ref) => ref.watch(attackRepositoryProvider).watchAll(),
 );
 
-/// One attack by id; emits null once it's deleted so the detail screen can
-/// show its gone-state instead of stale data.
+/// One attack by id; emits null once it's deleted so the detail screen can show its gone-state instead of stale data.
 final attackByIdProvider = StreamProvider.autoDispose.family<Attack?, String>(
   (ref, id) => ref.watch(attackRepositoryProvider).watchById(id),
 );
 
-/// Where a rendered share card is written before the share sheet reads it.
-/// The GDPR wipe clears the same folder.
+/// Where a rendered share card is written before the share sheet reads it. The GDPR wipe clears the same folder.
 final attackShareFileStoreProvider = Provider<AttackShareFileStore>(
   (ref) => const TemporaryShareFileStore(),
 );
@@ -57,11 +55,6 @@ final stepAttachServiceProvider = Provider<StepAttachService>(
 );
 
 /// Whether another attack may be logged.
-///
-/// Only the log button asks. A free user who already holds more — from
-/// before this limit existed, or pulled down by a sync from a device that had
-/// premium — keeps every one of them and never loses a record: taking back
-/// someone's own medical history is not a paywall, it is data loss.
 final canLogAttackProvider = Provider<bool>((ref) {
   if (ref.watch(hasPremiumProvider)) return true;
 
@@ -71,9 +64,7 @@ final canLogAttackProvider = Provider<bool>((ref) {
   return attacks.length < PremiumLimitConstant.attacks;
 });
 
-/// How many logs are left before the wall, once it is close enough to be
-/// worth saying. Null while premium, and while the end is still far off —
-/// the dashboard shows its warning only for a non-null answer.
+/// How many logs are left before the wall, once it is close enough to be worth saying.
 final attacksLeftProvider = Provider<int?>((ref) {
   if (ref.watch(hasPremiumProvider)) return null;
 
@@ -85,11 +76,6 @@ final attacksLeftProvider = Provider<int?>((ref) {
 });
 
 /// How many of the free plan's logs are spent, for [FreeLimitProgress].
-///
-/// Null while premium, which is what hides the indicator — unlike
-/// [attacksLeftProvider] it does not go quiet as the wall approaches: History
-/// shows the count all the way along, and the dashboard banner is the one
-/// that only speaks near the end.
 final attacksUsedProvider = Provider<int?>((ref) {
   if (ref.watch(hasPremiumProvider)) return null;
 

@@ -6,8 +6,6 @@ import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:system_design/index.dart';
 
 /// The control the intensity dialog and the onboarding threshold page share.
-/// What matters here is the one thing both rely on: the accent reaches BOTH
-/// the readout and the active track, so the number and the bar always agree.
 void main() {
   Future<void> pumpSlider(WidgetTester tester, {Color? accent}) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
@@ -18,8 +16,7 @@ void main() {
       ScreenUtilInit(
         designSize: const Size(393, 852),
         builder: (BuildContext context, Widget? child) => MaterialApp(
-          // The widget resolves its fallback accent from the theme, so the
-          // test has to render under the app's, not Material's default.
+          // The widget resolves its fallback accent from the theme, so the test has to render under the app's, not Material's default.
           theme: AppTheme.dark,
           home: Scaffold(
             body: SdValueSliderV2(

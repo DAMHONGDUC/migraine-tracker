@@ -11,14 +11,6 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/aura_type.dart';
 
 /// Records which auras an attack came with.
-///
-/// **Never a step in the log flow** (hard rule 5). Aura runs before the pain
-/// in most people, so by the time an attack is logged it is already over —
-/// the same reason `endedAt` and `medicationEffect` are asked here instead.
-///
-/// Pops `(aura: …)`: a list is the answer, an EMPTY list is "no aura", and
-/// `(aura: null)` takes the answer back. A bare null is dismissal, so the X
-/// can never clear what the user already said.
 class AuraPickerSheet extends StatefulWidget {
   const AuraPickerSheet({required this.selected, super.key});
 
@@ -78,9 +70,7 @@ class _AuraPickerSheetState extends State<AuraPickerSheet> {
             },
           ),
           SizedBox(height: SdSpacingConstant.h16),
-          // Saving with nothing picked IS the "no aura" answer, so the button
-          // says so — an empty list and a null are different records and the
-          // user has to be able to reach both on purpose.
+          // Saving with nothing picked IS the "no aura" answer, so the button says so.
           SdButtonV2(
             variant: SdButtonVariantV2.primary,
             label: _picked.isEmpty ? l10n.auraNone : l10n.commonDone,
@@ -88,8 +78,7 @@ class _AuraPickerSheetState extends State<AuraPickerSheet> {
               context,
             ).pop((aura: <AuraType>[..._picked])),
           ),
-          // Only once there is something to take back — a "clear" on a field
-          // that was never set says nothing.
+          // Only once there is something to take back — a "clear" on a field that was never set says nothing.
           if (widget.selected != null)
             SdButtonV2(
               variant: SdButtonVariantV2.text,
@@ -113,8 +102,7 @@ class _AuraTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  /// A glyph per kind, because colour is never the only signal and because
-  /// "sensory" is a word people recognise faster as a picture.
+  /// A glyph per kind, because colour is never the only signal and because "sensory" is a word people recognise faster as a picture.
   static const Map<AuraType, IconData> _icons = <AuraType, IconData>{
     AuraType.visual: AppIconConstant.auraVisual,
     AuraType.sensory: AppIconConstant.auraSensory,

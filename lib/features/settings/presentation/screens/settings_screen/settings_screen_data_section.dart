@@ -1,9 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Get the data out, or destroy it. **Export is premium in full now** — the
-/// JSON and CSV exports as well as the doctor report — so the row wears the
-/// badge and `NavigationUtils.toExport` holds the gate. The wipe stays free:
-/// hard rule 8 makes deleting everything a promise, never an upsell.
+/// Get the data out, or destroy it.
 class _DataSection extends ConsumerWidget {
   const _DataSection();
 

@@ -5,11 +5,7 @@ export interface AlertHistory {
 
 const DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Hard rule 9 dedupe: max 1 push per user per 24h per pressure event —
- * the same event never fires twice, and no user gets more than one push
- * in any 24h window regardless of how many fronts pass through.
- */
+/** Hard rule 9 dedupe: max 1 push per user per 24h per pressure event — the same event never fires twice, and no user gets more than one push in any. */
 export function shouldAlert(args: {
   dropHpa: number;
   thresholdHpa: number;

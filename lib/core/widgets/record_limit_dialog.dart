@@ -4,19 +4,7 @@ import 'package:system_design/index.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_text_style.dart';
 
-/// Says which free limit was just reached, before the paywall does any
-/// selling. Pops true for "Unlock".
-///
-/// Every record limit goes through this — attacks, medications, reminders —
-/// because the button that raised it never says "buy": it says "Add
-/// medication", "Add reminder", or it is the log button. A purchase screen
-/// appearing straight out of one of those reads as a bug rather than an
-/// offer, so the limit is named first and the user chooses whether to hear
-/// the pitch.
-///
-/// Shown through [NavigationUtils.toPaywallFromLimit], which owns the order.
-/// A gate whose surface already announces itself as premium (a locked card, a
-/// badged row) still goes straight to the paywall.
+/// Says which free limit was just reached, before the paywall does any selling.
 class RecordLimitDialog extends StatelessWidget {
   const RecordLimitDialog({
     required this.title,

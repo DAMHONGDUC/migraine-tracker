@@ -3,18 +3,11 @@ import '../../../weather/domain/entities/daily_pressure.dart';
 import '../entities/pressure_timeline.dart';
 
 /// Joins the daily pressure readings to the attacks that fell on them.
-///
-/// Pure Dart and deterministic. It invents nothing: a day with no reading is
-/// left out of the line rather than interpolated, and the attacks stranded on
-/// such days are counted so the chart can say why it is showing fewer dots
-/// than the user remembers.
 class PressureTimelineBuilder {
   const PressureTimelineBuilder({this.windowDays = defaultWindowDays})
     : assert(windowDays > 0, 'windowDays must be positive');
 
-  /// A month. Long enough to hold several weather systems — the thing the
-  /// chart is for — and short enough that a day is still a distinguishable
-  /// step on a card-width axis.
+  /// A month.
   static const int defaultWindowDays = 30;
 
   final int windowDays;
@@ -32,8 +25,7 @@ class PressureTimelineBuilder {
     final Map<DateTime, List<Attack>> attacksByDay = <DateTime, List<Attack>>{};
 
     for (final Attack attack in attacks) {
-      // Local, like every day count in this feature: an attack at 23:30 is
-      // stored as the next UTC day and would land on the wrong reading.
+      // Local, like every day count in this feature: an attack at 23:30 is stored as the next UTC day and would land on the wrong reading.
       final DateTime local = attack.startedAt.toLocal();
       final DateTime day = DateTime(local.year, local.month, local.day);
 

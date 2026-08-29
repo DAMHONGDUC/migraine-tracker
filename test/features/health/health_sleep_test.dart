@@ -12,8 +12,7 @@ import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The sleep connect switch, which lives on the sleep detail screen now —
-/// steps have their own on the activity screen, so name the row it sits in.
+/// The sleep connect switch, which lives on the sleep detail screen now — steps have their own on the activity screen, so name the row it sits in.
 Finder healthSwitch() => find.ancestor(
   of: find.text('Apple Health sleep'),
   matching: find.byType(SwitchListTile),
@@ -110,8 +109,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(app.prefs.getBool(PrefsKeyConstant.healthSleep), isNot(isTrue));
-      // The ARB's own words — `healthConnectFailed`. The copy grew a second
-      // sentence and this assertion kept the old one.
+      // The ARB's own words — `healthConnectFailed`. The copy grew a second sentence and this assertion kept the old one.
       expect(
         find.text(
           "Couldn't connect Apple Health. Try again from the Health app if "
@@ -126,8 +124,7 @@ void main() {
     testWidgets('the old single flag still counts as connected', (
       tester,
     ) async {
-      // Someone who connected before sleep and steps split apart must not
-      // find themselves silently disconnected.
+      // Someone who connected before sleep and steps split apart must not find themselves silently disconnected.
       final PumpedApp app = await pumpApp(
         tester,
         premium: true,
@@ -150,8 +147,7 @@ void main() {
       await pumpApp(tester, premium: true);
       await openInsights(tester);
 
-      // Off HealthKit there is no sleep source, so Insights does not offer
-      // the tab — see InsightsScreen's own list.
+      // Off HealthKit there is no sleep source, so Insights does not offer the tab — see InsightsScreen's own list.
       expect(
         find.descendant(
           of: find.byType(SdSegmentedTabsV2),
@@ -175,8 +171,7 @@ void main() {
       );
       await openSleepInsight(tester);
 
-      // The analysis half is what premium buys, so a free user gets the
-      // pitch and nothing is computed behind it.
+      // The analysis half is what premium buys, so a free user gets the pitch and nothing is computed behind it.
       expect(
         find.text(
           'Unlock to see whether your attacks follow the nights you sleep '
@@ -184,9 +179,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      // The reading itself is free (`docs/PREMIUM_RULES.md`): it answers
-      // "did connecting Apple Health work". This used to assert no read at
-      // all, from back when the whole card sat behind the gate.
+      // The reading itself is free (`docs/PREMIUM_RULES.md`): it answers "did connecting Apple Health work".
       expect(app.health.sleepReads, greaterThan(0));
 
       await finishTest(tester);
@@ -198,12 +191,9 @@ void main() {
       await pumpApp(tester, premium: true, healthAvailable: true);
       await openSleepInsight(tester);
 
-      // The card carries no heading of its own any more — the tab above it
-      // is the heading, so what marks the section is the analysis title.
+      // The card carries no heading of its own any more — the tab above it is the heading, so what marks the section is the analysis title.
       expect(find.text('Analysis'), findsOneWidget);
-      // Twice over, and that is the card: the nights half says it and the
-      // analysis half says it, because either one alone would leave a user
-      // wondering which of the two the switch feeds.
+      // Twice over, and that is the card.
       expect(find.textContaining('Connect Apple Health sleep'), findsWidgets);
 
       await finishTest(tester);
@@ -233,8 +223,7 @@ void main() {
 
       await openSleepInsight(tester);
 
-      // A whole number of hours drops the minutes: DurationLabel renders
-      // "3h", not "3h 0m".
+      // A whole number of hours drops the minutes: DurationLabel renders "3h", not "3h 0m".
       expect(find.text('3h'), findsOneWidget);
       expect(
         find.text('less sleep on the nights before an attack.'),

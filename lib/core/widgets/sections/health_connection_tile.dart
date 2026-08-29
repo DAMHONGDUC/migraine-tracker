@@ -8,11 +8,7 @@ import '../../../features/health/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_icon_size.dart';
 
-/// One Apple Health source's connect switch, on the detail screen for the
-/// insight it feeds — sleep on the sleep screen, steps on the activity one.
-///
-/// One switch per source, so refusing the sheet for one leaves the other
-/// alone. Absent off iOS, where the plugin would talk to Google Fit.
+/// One Apple Health source's connect switch, on the detail screen for the insight it feeds — sleep on the sleep screen, steps on the activity one.
 class HealthConnectionTile extends ConsumerWidget {
   const HealthConnectionTile({
     required this.kind,

@@ -3,15 +3,7 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/medication_effect.dart';
 import '../entities/medication_effectiveness_result.dart';
 
-/// Medication effectiveness: of the drugs this user actually takes, which
-/// ones work?
-///
-/// Pure Dart and deterministic. It reads only what the app already stores —
-/// [Attack.medicationName], [Attack.medicationEffect] and [Attack.duration] —
-/// so it needs no new question in the log flow (hard rule 5).
-///
-/// Like every engine here it grades the answer rather than withholding it:
-/// a thin sample comes back as counts, never as a percentage.
+/// Medication effectiveness: of the drugs this user actually takes, which ones work?
 class MedicationEffectivenessEngine {
   const MedicationEffectivenessEngine({
     this.minAnswers = defaultMinAnswers,
@@ -19,9 +11,7 @@ class MedicationEffectivenessEngine {
   }) : assert(minAnswers > 0, 'minAnswers must be positive'),
        assert(minAnswersForShare > 0, 'minAnswersForShare must be positive');
 
-  /// Where the rates settle. Lower than the 15 the other engines use because
-  /// this sample is split across the drugs the user takes: at 15 per drug a
-  /// three-drug regimen would still read "preliminary" past a hundred attacks.
+  /// Where the rates settle.
   static const int defaultMinAnswers = 10;
 
   /// Below this the row asks for counts instead of a percentage.
@@ -49,8 +39,7 @@ class MedicationEffectivenessEngine {
       byMedication.putIfAbsent(name, () => <Attack>[]).add(attack);
     }
 
-    // No answer anywhere means there is nothing to rank — the rows would all
-    // be "taken 6 times, effect unknown", which is the prompt, not the answer.
+    // No answer anywhere means there is nothing to rank — the rows would all be "taken 6 times, effect unknown", which is the prompt, not the answer.
     if (answeredAttacks == 0) {
       return MedicationEffectivenessInsufficientData(
         answeredAttacks: 0,
@@ -63,8 +52,7 @@ class MedicationEffectivenessEngine {
         .map((entry) => _summarise(entry.key, entry.value))
         .toList();
 
-    // Most-used first, and never by relief rate: ranking by a rate puts the
-    // drug taken twice above the one taken forty times.
+    // Most-used first, and never by relief rate: ranking by a rate puts the drug taken twice above the one taken forty times.
     medications.sort((a, b) {
       final int byUse = b.timesTaken.compareTo(a.timesTaken);
 
@@ -113,14 +101,12 @@ class MedicationEffectivenessEngine {
       didNotHelpCount: didNotHelp,
       minAnswersForShare: minAnswersForShare,
       medianIntensity: _median(intensities),
-      // The one median the app already owns, and it stays owned there —
-      // duration arithmetic belongs to DateTimeUtils by house rule.
+      // The one median the app already owns, and it stays owned there — duration arithmetic belongs to DateTimeUtils by house rule.
       medianDuration: DateTimeUtils.median(durations),
     );
   }
 
-  /// Median, not mean: one attack at 10/10 among a dozen mild ones drags an
-  /// average somewhere no attack actually was.
+  /// Median, not mean: one attack at 10/10 among a dozen mild ones drags an average somewhere no attack actually was.
   double? _median(List<int> values) {
     if (values.isEmpty) {
       return null;

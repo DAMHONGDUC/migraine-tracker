@@ -13,14 +13,7 @@ import '../../../history/domain/services/chart_analytics.dart';
 import '../../../history/providers.dart';
 import 'dashboard_chevron.dart';
 
-/// Dashboard preview of the severity mix: the donut beside its legend rather
-/// than above it, which is what lets the whole card sit in one glance next to
-/// the week summary.
-///
-/// The full deck on History keeps the tall layout — only the arrangement
-/// differs. Both read [SeverityBreakdownSlices] and the pure
-/// [SeverityBreakdownCalculator], so the bands, their names and their colours
-/// stay in lockstep. Tapping opens History already on the chart view.
+/// Dashboard preview of the severity mix.
 class DashboardSeverityCard extends ConsumerWidget {
   const DashboardSeverityCard({super.key});
 
@@ -31,9 +24,7 @@ class DashboardSeverityCard extends ConsumerWidget {
     final List<SeverityCount> counts = const SeverityBreakdownCalculator()
         .compute(attacks);
     final bool hasAttacks = attacks.isNotEmpty;
-    // The real mix, or the scale it will be drawn on — same four bands, same
-    // four colours, so the card teaches its own vocabulary before it has
-    // anything to say with it.
+    // The real mix, or the scale it will be drawn on.
     final List<SdDonutSliceV2> slices = hasAttacks
         ? SeverityBreakdownSlices.of(counts, l10n)
         : SeverityBreakdownSlices.placeholder(l10n);
@@ -45,15 +36,13 @@ class DashboardSeverityCard extends ConsumerWidget {
 
     return SdCardV2(
       surface: SdCardSurfaceV2.elevated,
-      // Nothing to open while there is nothing to chart: the History chart is
-      // as empty as this card, so tapping through would be a dead end.
+      // Nothing to open while there is nothing to chart: the History chart is as empty as this card, so tapping through would be a dead end.
       onTap: hasAttacks ? openChart : null,
       child: Padding(
         padding: EdgeInsets.all(SdSpacingConstant.w16),
         child: Row(
           children: [
-            // The ring is hidden from VoiceOver: the legend beside it already
-            // names every band and its count.
+            // The ring is hidden from VoiceOver: the legend beside it already names every band and its count.
             ExcludeSemantics(
               child: SizedBox(
                 width: SdSpacingConstant.r88,
@@ -78,16 +67,12 @@ class DashboardSeverityCard extends ConsumerWidget {
                           style: AppTextStyle.titleSmall,
                         ),
                       ),
-                      // Absent while empty, where the card opens nothing —
-                      // the mark promises a screen, so it may not appear
-                      // above a tap that goes nowhere.
+                      // Absent while empty, where the card opens nothing — the mark promises a screen, so it may not appear above a tap that goes nowhere.
                       if (hasAttacks) const DashboardChevron(),
                     ],
                   ),
                   SizedBox(height: SdSpacingConstant.h8),
-                  // The legend carries the band names either way — with the
-                  // counts once there are any, and on its own before that,
-                  // where four zeroes would say less than nothing.
+                  // The legend carries the band names either way.
                   SdDonutLegendV2(slices: slices),
                   if (!hasAttacks) ...<Widget>[
                     SizedBox(height: SdSpacingConstant.h8),

@@ -6,8 +6,7 @@ import 'package:migraine_tracker/features/insights/domain/services/migraine_days
 
 int _nextId = 0;
 
-/// [at] is a LOCAL wall-clock time; the entity stores it as UTC, which is
-/// exactly the round trip the engine has to undo.
+/// [at] is a LOCAL wall-clock time; the entity stores it as UTC, which is exactly the round trip the engine has to undo.
 Attack attackAt(DateTime at) => Attack(
   id: 'a${_nextId++}',
   startedAt: at,
@@ -131,9 +130,7 @@ void main() {
     expect(summary.peakDays, 0);
   });
 
-  // A late-evening attack is stored as the next UTC day for anyone east of
-  // Greenwich; taking the UTC date would file it under the wrong month at the
-  // end of one.
+  // A late-evening attack is stored as the next UTC day for anyone east of Greenwich.
   test('a late-night attack stays in the local month it happened in', () {
     final DateTime lastEvening = DateTime(2026, 7, 31, 23, 30);
     final MigraineDaysSummary summary = engine.analyze(<Attack>[

@@ -55,8 +55,7 @@ class HistoryScreen extends HookConsumerWidget {
     };
 
     return SdScaffoldV2(
-      // - at rest, the pill lives in the scroll content
-      // - once scrolled, it takes the title slot and the "History" heading hides
+      // - at rest, the pill lives in the scroll content - once scrolled, it takes the title slot and the "History" heading hides
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 250),
         switchInCurve: Curves.easeOutCubic,
@@ -85,9 +84,7 @@ class HistoryScreen extends HookConsumerWidget {
           () => ref.invalidate(attacksStreamProvider),
         ),
         child: switch (allAttacks) {
-          // Signed in on a new device: the list is empty because the history
-          // is still arriving, not because there is none. Scoped to the first
-          // pull only — no later sync ever gates this screen (hard rule 12).
+          // Signed in on a new device: the list is empty because the history is still arriving, not because there is none.
           AsyncData(value: final all) when all.isEmpty && isFirstSync =>
             SdScrollFillV2(
               topInset: SdContentPaddingV2.appBarInset(context),
@@ -109,8 +106,7 @@ class HistoryScreen extends HookConsumerWidget {
                 AsyncData(value: final value) => value,
                 _ => const <Attack>[],
               };
-              // - computed once and passed down so the three views can't drift apart
-              // - floatingNav is unconditional: the shell's nav pill floats on every device
+          // One shared inset keeps all history views above the floating navigation.
               final topInset = SdContentPaddingV2.top(context);
               final bottomInset = SdContentPaddingV2.bottom(
                 context,
@@ -149,9 +145,7 @@ class HistoryScreen extends HookConsumerWidget {
               message: l10n.historyEmpty,
             ),
           ),
-          // The list's own shape. It clears the app bar and takes the screen
-          // gutter itself, because the real list's insets come from the view
-          // below it and that view does not exist yet.
+          // The list's own shape.
           _ => Padding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,

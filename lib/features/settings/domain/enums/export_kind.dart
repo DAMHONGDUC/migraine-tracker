@@ -1,6 +1,4 @@
-/// What an export produced. Replaces the old `ExportFormat`, which only knew
-/// the two data formats — the doctor report now lands in the same history,
-/// so one enum covers everything the export screen can make.
+/// What an export produced.
 enum ExportKind {
   json,
   csv,

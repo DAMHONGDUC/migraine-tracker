@@ -10,10 +10,7 @@ import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The free plan's record limits. What matters at every one of them is the
-/// order: the limit is named first, and the paywall only follows if the user
-/// asks for it — the buttons that raise these say "Add medication" or they
-/// are the log button, never "buy".
+/// The free plan's record limits.
 Future<void> seedAttacks(PumpedApp app, int count) async {
   final DriftAttackRepository repo = DriftAttackRepository(app.db);
 
@@ -57,8 +54,7 @@ void main() {
       tester,
     ) async {
       final PumpedApp app = await pumpApp(tester);
-      // The wall lands mid-attack, so it must never be the first the user
-      // hears of it.
+      // The wall lands mid-attack, so it must never be the first the user hears of it.
       await seedAttacks(
         app,
         PremiumLimitConstant.attacks - PremiumLimitConstant.attacksWarnAt,
@@ -92,8 +88,7 @@ void main() {
       expect(find.text('How intense is the pain?'), findsNothing);
       expect(find.text('BaroEase Premium'), findsNothing);
 
-      // Scoped to the dialog: the dashboard's own countdown banner carries
-      // an "Unlock" button too, and it is still in the tree underneath.
+      // Scoped to the dialog: the dashboard's own countdown banner carries an "Unlock" button too, and it is still in the tree underneath.
       await tester.tap(
         find.descendant(
           of: find.byType(SdDialogV2),

@@ -6,8 +6,7 @@ class _ReminderRow extends ConsumerWidget {
 
   final MedicationReminderView view;
 
-  /// Opens the wheel picker pre-filled with this reminder's time; on confirm,
-  /// updates the time and reschedules the notification.
+  /// Opens the wheel picker pre-filled with this reminder's time; on confirm, updates the time and reschedules the notification.
   Future<void> _editTime(BuildContext context, WidgetRef ref) async {
     // Ask up front; if permanently off, AppPermission shows the Settings sheet.
     final bool granted = await ref

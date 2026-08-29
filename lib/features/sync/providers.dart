@@ -52,8 +52,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   final db = ref.watch(databaseProvider);
 
   return SyncService(
-    // Order matters: a reminder points at a medication, so medications have
-    // to land before the reminders that reference them.
+    // Order matters: a reminder points at a medication, so medications have to land before the reminders that reference them.
     <SyncBinding<dynamic>>[
       SyncBinding<Medication>(
         DriftMedicationSyncStore(db),
@@ -64,8 +63,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         const MedicationReminderPayloadCodec(),
       ),
       SyncBinding<Attack>(DriftAttackSyncStore(db), const AttackPayloadCodec()),
-      // Last: a notification names the reminder and medication it came
-      // from, so both are already here by the time the list renders it.
+      // Last: a notification names the reminder and medication it came from, so both are already here by the time the list renders it.
       SyncBinding<AppNotification>(
         DriftAppNotificationSyncStore(db),
         const AppNotificationPayloadCodec(),
@@ -85,8 +83,7 @@ final syncControllerProvider = NotifierProvider<SyncController, SyncStatus>(
   SyncController.new,
 );
 
-/// True while a sync is in flight. Watched by `SyncScreen` to arm its manual
-/// button, and nowhere else — no flow is ever gated on it (hard rule 12).
+/// True while a sync is in flight. Watched by `SyncScreen` to arm its manual button, and nowhere else — no flow is ever gated on it (hard rule 12).
 final isSyncingProvider = Provider<bool>(
   (ref) => ref.watch(syncControllerProvider).isSyncing,
 );

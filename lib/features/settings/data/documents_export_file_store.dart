@@ -6,8 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../core/constants/export_constant.dart';
 import '../domain/services/export_file_store.dart';
 
-/// Keeps exports in an `exports/` folder inside the app's documents
-/// directory, so the history screen can re-share and save them later.
+/// Keeps exports in an `exports/` folder inside the app's documents directory, so the history screen can re-share and save them later.
 class DocumentsExportFileStore implements ExportFileStore {
   const DocumentsExportFileStore();
 
@@ -40,13 +39,6 @@ class DocumentsExportFileStore implements ExportFileStore {
   }
 
   /// The file a stored path means *now*.
-  ///
-  /// iOS gives the app container a new UUID on reinstall and can move it on
-  /// update, so the absolute path a record was written with stops resolving
-  /// while the file itself is still sitting in the new container under the
-  /// same name. Falling back to today's exports folder keeps every past
-  /// export shareable across an update instead of silently becoming "no
-  /// longer on this device".
   Future<File> _resolve(String path) async {
     final File direct = File(path);
 
@@ -57,8 +49,7 @@ class DocumentsExportFileStore implements ExportFileStore {
     return File('${dir.path}/${_basename(path)}');
   }
 
-  /// Last segment of [path], for either separator — the records were written
-  /// on this device, but the separator is not worth assuming.
+  /// Last segment of [path], for either separator — the records were written on this device, but the separator is not worth assuming.
   String _basename(String path) => path.split(RegExp(r'[/\\]')).last;
 
   @override

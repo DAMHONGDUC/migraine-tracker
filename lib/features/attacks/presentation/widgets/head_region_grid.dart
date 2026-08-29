@@ -11,23 +11,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/head_region.dart';
 
-/// The areas of one view as named tiles, three to a row — the second way to
-/// answer the question the head above it asks.
-///
-/// It exists because the diagram alone makes the user guess: the bands carry
-/// no labels, so "temple" and "eye" are told apart by where a finger lands
-/// rather than by a word, and the smallest areas are the hardest to hit
-/// exactly. Every area has a full-width target down here, named outright.
-/// **Both write the same list** — this is a second door to one answer, not a
-/// second answer, so a tile and its band toggle together in either
-/// direction.
-///
-/// Shows only [view]'s own areas, because that is what the head above is
-/// showing; turning the head swaps the tiles with it — but never resizes
-/// the grid, see [reservedHeight].
-///
-/// Shrink-wraps and never scrolls itself: whatever holds it owns the
-/// scrolling, and the log step must fit on one screen with none.
+/// The areas of one view as named tiles, three to a row — the second way to answer the question the head above it asks.
 class HeadRegionGrid extends StatelessWidget {
   const HeadRegionGrid({
     required this.view,
@@ -43,9 +27,7 @@ class HeadRegionGrid extends StatelessWidget {
   /// The shortest a tile may be: two lines of label.
   static double get _tileHeight => SdSpacingConstant.h38;
 
-  /// And the tallest. Slack is worth spending on a tap target up to a point,
-  /// past which a one-word tile is a slab with a word lost in the middle of
-  /// it — better given back to the whitespace around the step.
+  /// And the tallest.
   static double get _tileHeightMax => SdSpacingConstant.h56;
 
   /// Rows in the roomiest view — the front's eleven areas.
@@ -57,14 +39,7 @@ class HeadRegionGrid extends StatelessWidget {
       )
       .reduce(math.max);
 
-  /// The **least** height the grid takes, whichever view is showing.
-  ///
-  /// Fixed, and sized for the roomiest view, **because the head above it
-  /// must not move when the head is turned**: the back has four tiles to the
-  /// front's eleven, and a grid that shrank to its own content would hand the
-  /// difference to the diagram's `Expanded` and redraw the head at another
-  /// size in another place. The empty rows on the back view are the price,
-  /// and they are cheaper than a head that jumps.
+  /// The least height the grid takes, whichever view is showing.
   static double get reservedHeight =>
       _rows * _tileHeight + (_rows - 1) * SdSpacingConstant.h6;
 
@@ -79,9 +54,7 @@ class HeadRegionGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double spacing = SdSpacingConstant.h6;
-        // Whatever height it is handed goes into the tiles, never a gap under
-        // them. Bounded both ways: [_tileHeight] is two lines of label,
-        // [_tileHeightMax] is where a tile stops being a button.
+        // Whatever height it is handed goes into the tiles, never a gap under them.
         final double byHeight =
             (constraints.maxHeight - (_rows - 1) * spacing) / _rows;
 
@@ -93,9 +66,7 @@ class HeadRegionGrid extends StatelessWidget {
             crossAxisCount: LogFlowConstant.locationOptionsPerRow,
             mainAxisSpacing: spacing,
             crossAxisSpacing: SdSpacingConstant.w8,
-            // A row height, not an aspect ratio: the tile is one label, so its
-            // height has nothing to do with the screen's width. Same box every
-            // cell, which keeps a selected tile the size of its neighbour.
+            // A row height, not an aspect ratio: the tile is one label, so its height has nothing to do with the screen's width.
             mainAxisExtent: byHeight.clamp(_tileHeight, _tileHeightMax),
           ),
           itemCount: regions.length,

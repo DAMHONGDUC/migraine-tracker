@@ -2,34 +2,17 @@ import { shouldAlert } from "./alerts";
 import { AlertUser, groupByGeohash } from "./grouping";
 import { DropForecast } from "./pressure";
 
-/**
- * The stale-token error code FCM returns once an app is uninstalled or its
- * token rotates. We drop such tokens so the orphan doc stops costing pushes
- * and weather calls.
- */
+/** The stale-token error code FCM returns once an app is uninstalled or its token rotates. */
 export const STALE_TOKEN_CODE = "messaging/registration-token-not-registered";
 
-/**
- * Side-effecting dependencies of {@link runPressureAlerts}, injected so the
- * orchestration (grouping, dedupe, stale-token cleanup, fail-loud on weather
- * errors) can be unit-tested without Firestore, FCM, or the network.
- */
+/** Side-effecting dependencies of {@link runPressureAlerts}, injected so the orchestration (grouping, dedupe, stale-token cleanup, fail-loud on weather. */
 export interface AlertRunDeps {
   now: Date;
-  /**
-   * The worst 24h pressure drop for a geohash cell, or null when nothing in
-   * the window crosses into a drop. Hard rule 9: called ONCE per cell.
-   * Throws on weather-API failure — the caller collects and re-throws.
-   */
+  /** The worst 24h pressure drop for a geohash cell, or null when nothing in the window crosses into a drop. */
   fetchCellDrop: (geohash5: string) => Promise<DropForecast | null>;
   /** Sends the push. Throws on failure; `error.code` drives token cleanup. */
   sendPush: (user: AlertUser, drop: DropForecast) => Promise<void>;
-  /**
-   * Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa)
-   * after a push. Takes the whole forecast, not just its id: the client's
-   * launch reconcile rebuilds the notification row from this record, and a
-   * row without the reading is an alert that cannot say how far pressure fell.
-   */
+  /** Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa) after a push. */
   recordAlert: (uid: string, drop: DropForecast, now: Date) => Promise<void>;
   /** Removes a stale FCM token so the doc stops costing work. */
   removeToken: (uid: string) => Promise<void>;
@@ -44,14 +27,7 @@ export interface AlertRunResult {
   pushesSent: number;
 }
 
-/**
- * Core of the pressure-alert cron, pure orchestration over injected effects.
- * Groups users by geohash (one forecast per cell), applies the per-user
- * dedupe policy, pushes, and cleans up stale tokens. A cell whose forecast
- * fetch throws is recorded in {@link AlertRunResult.failedCells} and skipped
- * — the caller decides whether to fail the run, so one bad cell never
- * silently swallows the rest of a cohort.
- */
+/** Core of the pressure-alert cron, pure orchestration over injected effects. */
 export async function runPressureAlerts(
   users: AlertUser[],
   deps: AlertRunDeps,

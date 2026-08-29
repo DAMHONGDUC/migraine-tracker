@@ -5,8 +5,7 @@ import '../../domain/entities/exertion_correlation_result.dart';
 import 'exertion_correlation_body.dart';
 import 'insight_card.dart';
 
-/// The exertion self-report on its own card, as the activity detail screen
-/// shows it. Insights folds this into `ActivityCard` alongside the steps.
+/// The exertion self-report on its own card, as the activity detail screen shows it. Insights folds this into `ActivityCard` alongside the steps.
 class ExertionCorrelationCard extends StatelessWidget {
   const ExertionCorrelationCard({required this.result, super.key});
 

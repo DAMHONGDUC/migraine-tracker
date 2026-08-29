@@ -4,12 +4,7 @@ import 'package:health/health.dart';
 
 import '../../domain/entities/step_sample.dart';
 
-/// Abstracts the `health` plugin so the repository is testable without
-/// HealthKit — same role [SleepSampleSource] plays for sleep.
-///
-/// Authorization is NOT part of this interface: it lives on
-/// `HealthRepository` so one sheet covers every source together ("one
-/// switch, one sheet").
+/// Abstracts the `health` plugin so the repository is testable without HealthKit — same role [SleepSampleSource] plays for sleep.
 abstract interface class StepSampleSource {
   bool get isAvailable;
 

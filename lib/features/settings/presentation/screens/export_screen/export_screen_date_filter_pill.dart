@@ -1,8 +1,6 @@
 part of 'export_screen.dart';
 
-/// Opens the date filter and says what it is currently set to: "All dates"
-/// while nothing is applied, otherwise the window itself. Sits beside the
-/// history heading, the same slot History's period pill takes.
+/// Opens the date filter and says what it is currently set to: "All dates" while nothing is applied, otherwise the window itself.
 class _DateFilterPill extends ConsumerWidget {
   const _DateFilterPill();
 

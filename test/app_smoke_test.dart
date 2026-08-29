@@ -13,8 +13,6 @@ void main() {
     // The dashboard's hero log button is front and centre.
     expect(find.text('Log an attack'), findsOneWidget);
     // Icon-only bottom nav: Home is selected (filled), the rest outlined.
-    // `findsWidgets` for the four, not `findsOneWidget` — the quick-access
-    // tiles draw some of the same glyphs, so an exact count fails on a good one.
     expect(find.byIcon(AppIconConstant.home), findsOneWidget);
     expect(find.byIcon(AppIconConstant.history), findsWidgets);
     expect(find.byIcon(AppIconConstant.medication), findsWidgets);
@@ -27,8 +25,7 @@ void main() {
   testWidgets('bottom navigation switches between tabs', (tester) async {
     await pumpApp(tester);
 
-    // `.last` is the nav bar: the dashboard's quick-access tile draws the
-    // same glyph, since the tile and the tab it opens share one constant.
+    // `.last` is the nav bar: the dashboard's quick-access tile draws the same glyph, since the tile and the tab it opens share one constant.
     await tester.tap(find.byIcon(AppIconConstant.history).last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));

@@ -35,8 +35,7 @@ void main() {
   });
 
   test('a bad byte does not stop the preview opening', () {
-    // A preview that refuses to open says less about the file than one with
-    // a replacement character in it.
+    // A preview that refuses to open says less about the file than one with a replacement character in it.
     final ExportPreview preview = ExportPreview.fromBytes(
       Uint8List.fromList(<int>[0xC3, 0x28, 0x61]),
     );

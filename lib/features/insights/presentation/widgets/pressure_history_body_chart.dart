@@ -1,17 +1,12 @@
 part of 'pressure_history_body.dart';
 
 /// The pressure line with a dot on every day that ended in an attack.
-///
-/// Dots only on attack days, and coloured by the worst intensity of that day
-/// — a dot on every point would be a dotted line, and the attacks are the
-/// whole reason this chart exists.
 class _Chart extends StatelessWidget {
   const _Chart({required this.timeline});
 
   final PressureTimeline timeline;
 
-  /// Big enough to find with a thumb on a card-width axis, small enough that
-  /// two on neighbouring days do not merge into one blob.
+  /// Big enough to find with a thumb on a card-width axis, small enough that two on neighbouring days do not merge into one blob.
   static double get dotRadius => SdSpacingConstant.r4;
 
   @override
@@ -33,11 +28,9 @@ class _Chart extends StatelessWidget {
     final double maxY = ChartAxisUtils.maxBound(
       days.map((PressureTimelineDay d) => d.pressureHpa),
     );
-    // One interval for the grid and the axis labels both — computing it twice
-    // is how the two drift apart.
+    // One interval for the grid and the axis labels both — computing it twice is how the two drift apart.
     final double gridInterval = ChartAxisUtils.interval(minY, maxY);
-    // Roughly a label a week however many days actually carry a reading, so
-    // the axis never becomes a smear of dates.
+    // Roughly a label a week however many days actually carry a reading, so the axis never becomes a smear of dates.
     final double dayInterval = (days.length / 4).ceilToDouble().clamp(1, 30);
 
     return Semantics(

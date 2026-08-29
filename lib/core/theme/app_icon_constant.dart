@@ -1,29 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-/// Every icon the app draws, named for what it MEANS rather than for the
-/// glyph it happens to be.
-///
-/// One owner, for two reasons. The glyph for "medication" was written out at
-/// nine call sites and "pressure" at five, so changing either meant finding
-/// them all; and a name like `Icons.compress` says what the picture is, not
-/// what the row is about, which is why the same idea kept arriving as a
-/// different picture on a different screen.
-///
-/// **Material Symbols Rounded throughout**, one family at one optical
-/// weight. The app used to mix Material's filled and outlined sets — a
-/// filled `medication` in the tab bar beside an outlined one on the card it
-/// opened — and a screen of glyphs at two different stroke weights reads as
-/// two different apps. The one exception is `SimpleIcons`, which carries the
-/// Apple and Google brand marks: a brand glyph is the brand's, not ours.
-///
-/// **A filled variant is a `fill:` on `SdIconV2`, never a second constant.**
-/// Symbols is a variable font, so selected/unselected is one glyph at two
-/// fill values — which is also why the nav bar can animate between them.
-///
-/// Naming: what it stands for in this product. `pressure`, not `compress`;
-/// `attackLog`, not `addCircle`. Where the meaning genuinely is the picture
-/// (a chevron, a close cross) the name stays literal.
+/// Every icon the app draws, named for what it MEANS rather than for the glyph it happens to be.
 final class AppIconConstant {
   // --- Navigation and chrome ---------------------------------------------
 
@@ -42,8 +20,7 @@ final class AppIconConstant {
   /// The Settings tab.
   static const IconData settings = Symbols.settings_rounded;
 
-  /// A row opens something. Paired with [AppIconSize.affordance] — it says
-  /// "tappable" and must never outweigh the glyph naming the row.
+  /// A row opens something. Paired with [AppIconSize.affordance] — it says "tappable" and must never outweigh the glyph naming the row.
   static const IconData disclosure = Symbols.chevron_right_rounded;
 
   /// Step back — the calendar's previous month.

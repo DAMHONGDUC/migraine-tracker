@@ -2,16 +2,7 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../health/domain/entities/step_day.dart';
 import '../entities/step_correlation_result.dart';
 
-/// Step correlation: did the user move less on the days their attacks
-/// started?
-///
-/// Pure Dart and deterministic. Unlike [SleepCorrelationEngine] the join is
-/// same-day, not "the night before": a step count only exists for the day it
-/// was taken, and the plan is explicit that this compares steps against the
-/// day of the attack itself, not the day before. `Attack.startedAt` is stored
-/// in UTC, so the engine converts back before taking the date — comparing a
-/// UTC date to a local one silently shifts whole days into the wrong bucket
-/// for anyone east of Greenwich.
+/// Step correlation: did the user move less on the days their attacks started?
 class StepCorrelationEngine {
   const StepCorrelationEngine({
     this.minDays = defaultMinDays,
@@ -20,21 +11,16 @@ class StepCorrelationEngine {
   }) : assert(minDays > 0, 'minDays must be positive'),
        assert(minDaysPerGroup > 0, 'minDaysPerGroup must be positive');
 
-  /// Same floor as the sleep correlation: below this many days the
-  /// comparison is noise.
+  /// Same floor as the sleep correlation: below this many days the comparison is noise.
   static const int defaultMinDays = 15;
 
-  /// And each side of the comparison needs its own minimum — 14 quiet days
-  /// and one attack day is one anecdote, not an average.
+  /// And each side of the comparison needs its own minimum — 14 quiet days and one attack day is one anecdote, not an average.
   static const int defaultMinDaysPerGroup = 3;
 
-  /// Averages closer than this are the same activity as far as a person is
-  /// concerned.
+  /// Averages closer than this are the same activity as far as a person is concerned.
   static const double defaultVariationEpsilonSteps = 1000;
 
-  /// How far back to read steps for the analysis. Bounded on purpose:
-  /// HealthKit hands over every day ever recorded if asked, and the app has
-  /// no business reading years it will not use.
+  /// How far back to read steps for the analysis.
   static const int defaultLookbackDays = 180;
 
   final int minDays;
@@ -57,8 +43,7 @@ class StepCorrelationEngine {
       (attackDates.contains(date) ? attackDays : restDays).add(day);
     }
 
-    // An empty side is the one thing no result can be built from: there is
-    // no comparison, not merely a thin one.
+    // An empty side is the one thing no result can be built from: there is no comparison, not merely a thin one.
     if (attackDays.isEmpty || restDays.isEmpty) {
       return StepInsufficientData(
         daysWithSteps: days.length,
@@ -76,8 +61,7 @@ class StepCorrelationEngine {
         attackDays.length >= minDaysPerGroup &&
         restDays.length >= minDaysPerGroup;
 
-    // "The same activity" is only a verdict at a real sample; below it the
-    // card shows the two averages, which need no spread to be true.
+    // "The same activity" is only a verdict at a real sample; below it the card shows the two averages, which need no spread to be true.
     if (settled && (restAverage - attackAverage).abs() < variationEpsilonSteps) {
       return StepNoVariation(daysAnalyzed: days.length);
     }

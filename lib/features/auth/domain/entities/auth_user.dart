@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// The account behind the current session. Anonymous is still a real UID
-/// (alert registration uses it); [isSignedIn] is what gating cares about.
+/// The account behind the current session. Anonymous is still a real UID (alert registration uses it); [isSignedIn] is what gating cares about.
 @immutable
 class AuthUser {
   const AuthUser({

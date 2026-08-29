@@ -4,13 +4,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 
-/// Asks for the account's display name, prefilled with [initial]. Returns
-/// the trimmed name, or null when cancelled or left blank. Present it with
-/// `DisplayNameDialog(...).show(context)` — see [DisplayNameDialogExt].
-///
-/// A [StatefulWidget] so the [TextEditingController] outlives the awaited
-/// result: [SdDialogV2] fades out over 220ms and the field is still painting
-/// for all of it (see [MedicationNameDialog] for the crash this avoids).
+/// Asks for the account's display name, prefilled with [initial].
 class DisplayNameDialog extends StatefulWidget {
   const DisplayNameDialog({this.initial, super.key});
 

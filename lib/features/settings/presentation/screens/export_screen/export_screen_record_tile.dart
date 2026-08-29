@@ -1,7 +1,6 @@
 part of 'export_screen.dart';
 
-/// One past export: what it is, when it was made, how big it is. Tapping it
-/// opens the actions sheet — share, save to device, delete.
+/// One past export: what it is, when it was made, how big it is. Tapping it opens the actions sheet — share, save to device, delete.
 class _RecordTile extends StatelessWidget {
   const _RecordTile({required this.record, required this.onTap});
 

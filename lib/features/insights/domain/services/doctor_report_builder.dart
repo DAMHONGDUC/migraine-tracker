@@ -17,10 +17,7 @@ import 'medication_effectiveness_engine.dart';
 import 'medication_overuse_engine.dart';
 import 'migraine_days_engine.dart';
 
-/// Labels injected by the presentation layer so this service stays free of
-/// Flutter/l10n imports. The PDF renders with the bundled Noto Sans faces
-/// (see [DoctorReportBuilder.build]), which cover Vietnamese, so these
-/// strings may be fully localized.
+/// Labels injected by the presentation layer so this service stays free of Flutter/l10n imports.
 class DoctorReportStrings {
   const DoctorReportStrings({
     required this.title,
@@ -60,23 +57,18 @@ class DoctorReportStrings {
   final String commonLocation;
   final String typicalDuration;
 
-  /// Label for the migraine-days-per-month row — the figure a headache
-  /// clinic opens with and every preventive is judged on.
+  /// Label for the migraine-days-per-month row — the figure a headache clinic opens with and every preventive is judged on.
   final String monthlyDays;
 
-  /// Label for the aura row. Migraine with aura and without it are separate
-  /// ICHD-3 entries, so the split is the first thing a headache clinic wants
-  /// after the day count.
+  /// Label for the aura row.
   final String aura;
 
   final Map<AuraType, String> auraLabels;
 
-  /// Label for the acute-medication-days row — the denominator behind
-  /// medication-overuse headache.
+  /// Label for the acute-medication-days row — the denominator behind medication-overuse headache.
   final String medicationDays;
 
-  /// Label for the overuse row, which appears only when a month is at or
-  /// over the threshold. Absent is the good news and needs no line.
+  /// Label for the overuse row, which appears only when a month is at or over the threshold. Absent is the good news and needs no line.
   final String medicationOveruse;
   final String attacksDuringDrops;
   final String baseline;
@@ -93,8 +85,7 @@ class DoctorReportStrings {
   final Map<HeadRegion, String> locationLabels;
 }
 
-/// Builds the shareable doctor report: 90-day summary stats + attack table.
-/// Pure Dart (package:pdf has no Flutter dependency).
+/// Builds the shareable doctor report: 90-day summary stats + attack table. Pure Dart (package:pdf has no Flutter dependency).
 class DoctorReportBuilder {
   const DoctorReportBuilder();
 
@@ -103,9 +94,7 @@ class DoctorReportBuilder {
   /// The same window stated in months, for the per-month row.
   static const _periodMonths = 3;
 
-  /// [regularFont] and [boldFont] are the bundled Noto Sans faces, passed in
-  /// by the caller (the loader lives in the presentation layer so this stays
-  /// pure Dart). They cover Vietnamese, so [strings] may now be localized.
+  /// [regularFont] and [boldFont] are the bundled Noto Sans faces, passed in by the caller (the loader lives in the presentation layer so this stays pure.
   Future<Uint8List> build({
     required List<Attack> attacks,
     required CorrelationResult correlation,
@@ -178,17 +167,14 @@ class DoctorReportBuilder {
         ],
       if (attacks.isNotEmpty)
         [strings.commonLocation, _modalLocation(attacks, strings)],
-      // Only the attacks the user actually timed. Median, so one 72-hour
-      // outlier cannot move the figure a doctor reads as typical.
+      // Only the attacks the user actually timed. Median, so one 72-hour outlier cannot move the figure a doctor reads as typical.
       if (DateTimeUtils.median(<Duration>[
             for (final Attack a in attacks)
               if (a.duration case final Duration d) d,
           ])
           case final Duration typical)
         [strings.typicalDuration, _durationLabel(typical)],
-      // Days, not attacks: three attacks in one day is one day lost, and a
-      // drug that halves the attacks without touching the days has not
-      // worked. This is the row a preventive is judged on.
+      // Days, not attacks: three attacks in one day is one day lost, and a drug that halves the attacks without touching the days has not worked.
       if (attacks.isNotEmpty)
         [
           strings.monthlyDays,
@@ -198,10 +184,7 @@ class DoctorReportBuilder {
             ).analyze(attacks, now: now),
           ),
         ],
-      // One row per medication that has outcomes. This is the part a doctor
-      // acts on: a drug that only ever partly works is a drug being changed.
-      // Rows with nothing answered are dropped — "0/0" is the prompt to start
-      // answering, not a finding.
+      // One row per medication that has outcomes.
       if (const MedicationEffectivenessEngine().analyze(attacks)
           case MedicationEffectivenessInsight(:final medications))
         for (final MedicationEffectiveness row in medications)
@@ -211,13 +194,10 @@ class DoctorReportBuilder {
               '${row.helpedCount}/${row.answeredCount} '
                   '(${strings.colMedicationEffect.toLowerCase()})',
             ],
-      // With aura or without is a diagnostic split, not a detail, so it
-      // rides in the summary rather than as an eighth column on a table that
-      // already fills the width.
+      // With aura or without is a diagnostic split, not a detail, so it rides in the summary rather than as an eighth column on a table that already fills.
       if (_auraLabel(attacks, strings) case final String label)
         [strings.aura, label],
-      // The denominator behind medication-overuse headache. Days of intake,
-      // which is what ICHD-3 counts — never doses.
+      // The denominator behind medication-overuse headache. Days of intake, which is what ICHD-3 counts — never doses.
       if (attacks.isNotEmpty)
         [
           strings.medicationDays,
@@ -227,8 +207,7 @@ class DoctorReportBuilder {
             ).analyze(attacks, now: now),
           ),
         ],
-      // Only when a month is actually at or over it: absent is the good news
-      // and does not need a line in a document a doctor skims.
+      // Only when a month is actually at or over it: absent is the good news and does not need a line in a document a doctor skims.
       if (_overuseLabel(
         const MedicationOveruseEngine(
           months: _periodMonths,
@@ -236,8 +215,7 @@ class DoctorReportBuilder {
       )
           case final String label)
         [strings.medicationOveruse, label],
-      // Mature figures only: a share still settling has no business in a
-      // document a doctor reads as settled.
+      // Mature figures only: a share still settling has no business in a document a doctor reads as settled.
       if (correlation case CorrelationInsight(
         isPreliminary: false,
         :final dropSharePercent,
@@ -247,8 +225,7 @@ class DoctorReportBuilder {
           strings.attacksDuringDrops,
           '${dropSharePercent.round()}% (>=$dropThresholdHpa hPa/24h)',
         ],
-      // The comparison, where there is one. Without it the row above states a
-      // share with no denominator, which a doctor would rightly discount.
+      // The comparison, where there is one. Without it the row above states a share with no denominator, which a doctor would rightly discount.
       if (correlation case CorrelationInsight(
         isPreliminary: false,
         baseline: final PressureBaseline b?,
@@ -283,11 +260,7 @@ class DoctorReportBuilder {
     );
   }
 
-  /// Locale-free on purpose: `DoctorReportStrings` carries no plural forms,
-  /// and "6h 30m" reads the same in both locales the app ships.
-  /// "2026-06: 5 · 2026-07: 8 · 2026-08: 3". Numeric months, not names:
-  /// this builder takes its copy as data and has no locale of its own, and
-  /// the attack table already dates rows the same way.
+  /// Locale-free on purpose: `DoctorReportStrings` carries no plural forms, and "6h 30m" reads the same in both locales the app ships.
   String _monthlyDaysLabel(MigraineDaysSummary summary) => summary.months
       .map(
         (MonthlyMigraineDays m) =>
@@ -296,11 +269,7 @@ class DoctorReportBuilder {
       )
       .join(' | ');
 
-  /// "12/34 (Visual 10, Sensory 3)" — attacks that came with an aura out of
-  /// those where the question was answered, then the kinds.
-  ///
-  /// Null when nobody answered it, because "0/0" is a prompt to start
-  /// recording rather than a finding about the patient.
+  /// "12/34 (Visual 10, Sensory 3)" — attacks that came with an aura out of those where the question was answered, then the kinds.
   String? _auraLabel(List<Attack> attacks, DoctorReportStrings strings) {
     final Map<AuraType, int> counts = <AuraType, int>{};
     int answered = 0;
@@ -331,8 +300,7 @@ class DoctorReportBuilder {
         : '$withAura/$answered ($kinds)';
   }
 
-  /// "2026-06: 11 | 2026-07: 12 | 2026-08: 8", the same numeric-month shape
-  /// the migraine-days row uses.
+  /// "2026-06: 11 | 2026-07: 12 | 2026-08: 8", the same numeric-month shape the migraine-days row uses.
   String _monthlyIntakeLabel(MedicationOveruseResult result) => result.months
       .map(
         (MonthlyIntakeDays m) =>
@@ -342,10 +310,6 @@ class DoctorReportBuilder {
       .join(' | ');
 
   /// "2/3 months >= 10 days", or null while no month reaches the threshold.
-  ///
-  /// Stated as a count of months rather than as a verdict: ICHD-3 needs the
-  /// pattern held for more than three months plus a clinician, and this
-  /// document is read by one.
   String? _overuseLabel(MedicationOveruseResult result) {
     final int over = result.months
         .where((MonthlyIntakeDays m) => m.days >= result.thresholdDays)
@@ -365,10 +329,7 @@ class DoctorReportBuilder {
     return '${minutes}m';
   }
 
-  /// The single area named by most attacks. Counted per area, not per
-  /// attack, so an attack naming three of them votes for all three — the same
-  /// reading the history chart gives, and the one a doctor asked "where is it
-  /// usually" actually wants.
+  /// The single area named by most attacks.
   String _modalLocation(List<Attack> attacks, DoctorReportStrings strings) {
     final Map<HeadRegion, int> counts = <HeadRegion, int>{};
 
@@ -386,9 +347,7 @@ class DoctorReportBuilder {
     return strings.locationLabels[modal] ?? modal.name;
   }
 
-  /// Every area of one attack, in one cell. Joined here rather than by the
-  /// l10n extension the app uses, because this service stays free of Flutter
-  /// imports and takes its copy as data.
+  /// Every area of one attack, in one cell.
   String _regionsLabel(List<HeadRegion> regions, DoctorReportStrings strings) =>
       regions
           .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)

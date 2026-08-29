@@ -18,11 +18,6 @@ part 'export_preview_screen_pdf.dart';
 part 'export_preview_screen_text.dart';
 
 /// What is actually inside one past export, before sharing it with anyone.
-///
-/// A doctor report is a document, so it renders as pages; JSON is read as the
-/// text it is. CSV has no preview — see [ExportActionsSheet]. Either way the
-/// file on disk is what is shown, so the preview cannot disagree with what
-/// gets shared.
 class ExportPreviewScreen extends ConsumerWidget {
   const ExportPreviewScreen({required this.exportId, super.key});
 

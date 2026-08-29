@@ -2,9 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../enums/export_kind.dart';
 
-/// One past export, kept so the export screen can list what the user has
-/// already produced and act on it again (share, save to device) without
-/// rebuilding the file.
+/// One past export, kept so the export screen can list what the user has already produced and act on it again (share, save to device) without.
 @immutable
 class ExportRecord {
   const ExportRecord({
@@ -20,8 +18,7 @@ class ExportRecord {
   final ExportKind kind;
   final String filename;
 
-  /// Absolute path inside the app's documents directory. The file can go
-  /// missing (a restore, a manual clean-up), so callers check before use.
+  /// Absolute path inside the app's documents directory. The file can go missing (a restore, a manual clean-up), so callers check before use.
   final String filePath;
   final int sizeBytes;
 

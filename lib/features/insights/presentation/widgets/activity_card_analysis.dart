@@ -1,11 +1,6 @@
 part of 'activity_card.dart';
 
 /// The premium half: how attacks line up with exertion, and with steps.
-///
-/// Free users get the shape of it under a blur, not a blank — and what is
-/// blurred is [SampleChartData], never their own attacks. A cover over real
-/// numbers still leaves them in the tree, one screenshot or one accessibility
-/// dump away, which is the rule `PremiumGate` exists to keep.
 class _Analysis extends ConsumerWidget {
   const _Analysis({required this.result, required this.hasHealth});
 

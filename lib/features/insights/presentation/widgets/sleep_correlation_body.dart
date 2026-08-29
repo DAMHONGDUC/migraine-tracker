@@ -17,14 +17,6 @@ part 'sleep_correlation_body_not_connected.dart';
 part 'sleep_correlation_body_no_variation.dart';
 
 /// What the sleep analysis found: did attacks follow the short nights?
-///
-/// Cardless, because the summary card on Insights and the sleep detail screen
-/// both draw it. Premium either way: a free user never builds it, so no
-/// HealthKit read is issued for them at all.
-///
-/// While the read is in flight it renders nothing rather than a spinner: a
-/// card that pops in half a second later is calmer than one that flickers a
-/// placeholder first.
 class SleepCorrelationBody extends ConsumerWidget {
   const SleepCorrelationBody({super.key});
 

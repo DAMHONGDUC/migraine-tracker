@@ -7,12 +7,7 @@ import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/enums/export_kind.dart';
 
-/// Picks what to export. Pops the choice, or null.
-///
-/// Not the generic filter sheet: there is no "currently selected" kind to
-/// pre-check. It is an action picker, so rows carry an icon, not a radio.
-///
-/// Show it with `ExportKindSheet().show(context)`.
+/// Picks what to export.
 class ExportKindSheet extends StatelessWidget {
   const ExportKindSheet({super.key});
 
@@ -44,8 +39,7 @@ class ExportKindSheet extends StatelessWidget {
   }
 }
 
-/// One export option. No gate here: the export screen is premium in full
-/// (`NavigationUtils.toExport`), so nothing free ever reaches this sheet.
+/// One export option. No gate here: the export screen is premium in full (`NavigationUtils.toExport`), so nothing free ever reaches this sheet.
 class _KindTile extends StatelessWidget {
   const _KindTile({required this.kind});
 
@@ -62,8 +56,7 @@ class _KindTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportKindSheetExt on ExportKindSheet {
   Future<ExportKind?> show(BuildContext context) =>
       showSdBottomSheetV2<ExportKind>(context, builder: (_) => this);

@@ -10,9 +10,7 @@ import '../../router/app_router.dart';
 import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
-/// Settings row for the subscription: says where it stands and opens
-/// `PremiumScreen` for the rest. Shown to everyone — buying premium needs no
-/// account (App Store 5.1.1(v)), so neither does the row reporting it.
+/// Settings row for the subscription: says where it stands and opens `PremiumScreen` for the rest.
 class PremiumSettingsTile extends ConsumerWidget {
   const PremiumSettingsTile({super.key});
 
@@ -23,13 +21,10 @@ class PremiumSettingsTile extends ConsumerWidget {
 
     return SettingsTile(
       icon: AppIconConstant.premium,
-      // One glyph, tinted when it is on. The row's value says "Active" or
-      // "Free" beside it, so the colour is the second signal, never the only
-      // one.
+      // One glyph, tinted when it is on. The row's value says "Active" or "Free" beside it, so the colour is the second signal, never the only one.
       iconColor: premium ? context.colorScheme.primary : null,
       title: l10n.settingsPremium,
       // - The state reads as the row's value, at the end like every other row.
-      // - Uses a chevron, never PremiumBadge — that badge marks a locked teaser, this row is a way in.
       value: premium ? l10n.accountPremiumActive : l10n.accountPremiumFree,
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );

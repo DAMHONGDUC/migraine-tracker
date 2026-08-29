@@ -10,13 +10,11 @@ import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
 import '../../providers.dart';
 
-/// Login screen state. [error] stays null on cancellation — backing out is
-/// not a failure worth reporting.
+/// Login screen state. [error] stays null on cancellation — backing out is not a failure worth reporting.
 class LoginState {
   const LoginState({this.pending, this.error});
 
-  /// The open provider sheet, or null when idle. Disables the other button
-  /// so two sheets cannot race.
+  /// The open provider sheet, or null when idle. Disables the other button so two sheets cannot race.
   final AuthProviderKind? pending;
   final AuthError? error;
 
@@ -79,9 +77,7 @@ class LoginController extends Notifier<LoginState> {
   }
 }
 
-/// The account itself — sign-out and the profile document. Separate from
-/// [LoginController], whose state machine only means anything while the
-/// login screen is up.
+/// The account itself — sign-out and the profile document.
 class AccountController {
   const AccountController(this._ref);
 
@@ -93,21 +89,11 @@ class AccountController {
     await _ref.read(authRepositoryProvider).signOut();
   }
 
-  /// Deletes the account, everything the backend held about it, and this
-  /// device's copy (App Store 5.1.1(v)).
-  ///
-  /// The device goes FIRST, and a failure there stops the rest: once the auth
-  /// user is gone nothing can authorise the server wipe, and the account's
-  /// records would be stranded with nobody left who could ask for them to go.
-  ///
-  /// Rethrows — unlike the background flows, someone is watching this one and
-  /// the account still exists to retry with.
+  /// Deletes the account, everything the backend held about it, and this device's copy (App Store 5.1.1(v)).
   Future<void> deleteAccount() async {
     SdLogger.action(LogTagConstant.account, 'Delete account');
     try {
-      // Apple first, and before the wipe: it re-opens the Apple sheet, so it
-      // is the one step the user can still back out of. Backing out after
-      // `wipeAll()` costs the records and leaves the account standing.
+      // Apple first, and before the wipe: it re-opens the Apple sheet, so it is the one step the user can still back out of.
       await _ref.read(authRepositoryProvider).revokeAppleTokenIfLinked();
       await _ref.read(dataWipeServiceProvider).wipeAll();
       await _ref.read(authRepositoryProvider).deleteAccount();
@@ -123,11 +109,7 @@ class AccountController {
     }
   }
 
-  /// Pushes what the auth provider knows into `users/{uid}`. Called on
-  /// sign-in and on each launch of a signed-in session.
-  ///
-  /// Best-effort: an account record that failed to write is not worth
-  /// blocking anyone over, and the next launch retries it.
+  /// Pushes what the auth provider knows into `users/{uid}`.
   Future<void> syncProfile(AuthUser user) async {
     if (!user.isSignedIn) return;
 
@@ -144,9 +126,7 @@ class AccountController {
     }
   }
 
-  /// Renames the account. Writes Firestore first — that is what the app
-  /// reads back — then the Firebase Auth profile, so a second device that
-  /// only has the auth record shows the same name.
+  /// Renames the account.
   Future<void> updateDisplayName(String displayName) async {
     final AuthUser? user = _ref.read(authRepositoryProvider).currentUser;
     final String trimmed = displayName.trim();

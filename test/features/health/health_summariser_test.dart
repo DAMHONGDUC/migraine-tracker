@@ -20,8 +20,7 @@ void main() {
         night(3, const Duration(hours: 8)),
       ]);
 
-      // A night with no samples is absent, not zero — averaging over the
-      // window instead would report 4h40m for someone who slept fine.
+      // A night with no samples is absent, not zero — averaging over the window instead would report 4h40m for someone who slept fine.
       expect(summary.average, const Duration(hours: 7));
     });
 

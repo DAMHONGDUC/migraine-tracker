@@ -5,11 +5,6 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/services/review_prompter.dart';
 
 /// `SKStoreReviewController` on iOS, the Play In-App Review API on Android.
-///
-/// **Never wire this to a button.** Apple's guidelines forbid a control that
-/// calls `requestReview` — the dialog has to arrive on its own, which is why
-/// the only callers are value moments. `openStoreListing` is the API for a
-/// button, and nothing here needs one yet.
 class InAppReviewPrompter implements ReviewPrompter {
   const InAppReviewPrompter(this._review);
 

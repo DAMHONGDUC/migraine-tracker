@@ -16,19 +16,7 @@ import '../../widgets/log_step_bar.dart';
 import '../../widgets/medication_step.dart';
 import '../../widgets/saved_step.dart';
 
-/// The sacred flow: intensity → head location → medication → saved, with a
-/// skippable exertion step before the save. Pure
-/// rendering — all state lives in [logControllerProvider]. Intensity
-/// advances immediately on tap (fastest way in, mid-attack); location and
-/// medication are pick-then-confirm — the app bar's Next button commits
-/// the active step's draft and advances (the last step's own "Done" is on
-/// the saved screen itself, so Next never needs to relabel).
-///
-/// This is a full-screen pushed route (opened from the dashboard's log
-/// button). The step progress lives in a floating bottom bar ([LogStepBar])
-/// — the same slot the shell's bottom nav used to morph into. The app bar's
-/// leading button cancels the flow (pops the route) on the first step and
-/// steps back on later ones. "Done" on the saved screen pops back.
+/// The sacred flow: intensity → head location → medication → saved, with a skippable exertion step before the save.
 class LogScreen extends ConsumerWidget {
   const LogScreen({super.key});
 
@@ -41,8 +29,7 @@ class LogScreen extends ConsumerWidget {
         state.step == LogStep.location ||
         state.step == LogStep.medication ||
         state.step == LogStep.exertion;
-    // Medication and exertion arrive pre-selected, so Next is armed on
-    // arrival; location is the only step that waits for a pick.
+    // Medication and exertion arrive pre-selected, so Next is armed on arrival; location is the only step that waits for a pick.
     final canAdvance = state.hasDraft;
 
     final question = switch (state.step) {
@@ -58,27 +45,21 @@ class LogScreen extends ConsumerWidget {
       context.pop();
     }
 
-    // - Body clears the floating step bar while it shows.
-    // - Else just the home indicator + a gap, once saved.
+    // - Body clears the floating step bar while it shows. - Else just the home indicator + a gap, once saved.
     final bottomInset = question != null
         ? SdContentPaddingV2.bottomBar(context)
         : SdContentPaddingV2.bottom(context);
-    // Medication step scrolls its grid behind the step bar (like the tab
-    // flows); the grid applies [bottomInset] as its own scroll padding.
+    // Medication step scrolls its grid behind the step bar (like the tab flows); the grid applies [bottomInset] as its own scroll padding.
     final isMedication = state.step == LogStep.medication;
 
     return SdScaffoldV2(
-      // The question IS the title: a headline in the body under a bar saying
-      // "Log" spent the top of every step twice. SdFittedTextV2 shrinks rather
-      // than wraps, because the bar has back on one side and Next on the other.
+      // The question IS the title: a headline in the body under a bar saying "Log" spent the top of every step twice.
       title: SdFittedTextV2(
         question ?? l10n.logTitle,
         style: AppTextStyle.titleLarge,
         maxLines: 1,
       ),
       // - First step: leading button cancels the whole flow (pops route).
-      // - Later steps: leading button steps back via LogController.
-      // - Saved: no leading — only "Done" leaves.
       leading: switch (state.step) {
         LogStep.saved => null,
         LogStep.intensity => SdAppBarButtonV2(
@@ -100,8 +81,7 @@ class LogScreen extends ConsumerWidget {
           ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      // Step progress lives in the bottom bar slot (same floating spot the
-      // shell's nav morphs into); hidden once saved, body uses a plain inset.
+      // Step progress lives in the bottom bar slot (same floating spot the shell's nav morphs into); hidden once saved, body uses a plain inset.
       bottomNavigationBar: question != null
           ? LogStepBar(step: state.step)
           : null,

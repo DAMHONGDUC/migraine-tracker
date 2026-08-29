@@ -9,11 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/services/chart_analytics.dart';
 
-/// Horizontal bar chart of attacks per head area, most-frequent first. The
-/// bars sum to more than the number of attacks, because an attack counts in
-/// every area it names — see [LocationBreakdownCalculator].
-/// Proportional tracks rather than a rotated fl_chart bar chart: a handful of
-/// labelled category rows reads cleaner, and lighter, that way.
+/// Horizontal bar chart of attacks per head area, most-frequent first.
 class LocationBreakdownChart extends StatelessWidget {
   const LocationBreakdownChart({required this.counts, super.key});
 

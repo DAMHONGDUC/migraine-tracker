@@ -1,7 +1,6 @@
 part of 'export_screen.dart';
 
-/// Shown until the first export exists. Says what the list will hold rather
-/// than just "nothing here".
+/// Shown until the first export exists. Says what the list will hold rather than just "nothing here".
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
 

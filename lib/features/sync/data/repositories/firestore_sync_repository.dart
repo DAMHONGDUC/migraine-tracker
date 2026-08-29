@@ -8,16 +8,7 @@ import '../../domain/repositories/remote_sync_repository.dart';
 import 'encrypted_record_mapper.dart';
 import 'owned_collection.dart';
 
-/// Firestore-backed [RemoteSyncRepository]: one top-level collection per kind
-/// of record, each document carrying the `userId` it belongs to.
-///
-/// Every document is ciphertext plus its timestamp, so this class never sees
-/// an intensity, a note or a medication name. Hard rule 1 allows nothing else
-/// up here.
-///
-/// Every read and write goes through [OwnedCollection], which is what keeps
-/// `userId` on the write and the filter on the query — the two things that
-/// stand between one user's records and another's.
+/// Firestore-backed [RemoteSyncRepository]: one top-level collection per kind of record, each document carrying the `userId` it belongs to.
 class FirestoreSyncRepository implements RemoteSyncRepository {
   const FirestoreSyncRepository(this._firestore);
 
@@ -32,8 +23,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     SyncCollection collection,
     EncryptedRecord record,
   ) async {
-    // Ids and timestamps only — the payload is ciphertext and the plaintext
-    // never reaches this class, so there is nothing here to leak.
+    // Ids and timestamps only — the payload is ciphertext and the plaintext never reaches this class, so there is nothing here to leak.
     final Map<String, Object?> what = <String, Object?>{
       'collection': collection.name,
       'id': record.id,
@@ -52,8 +42,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
         'Sync push failed',
         error: error,
         stackTrace: stackTrace,
-        // `permission-denied` here almost always means the rules or the
-        // indexes were never deployed — worth saying which collection.
+        // `permission-denied` here almost always means the rules or the indexes were never deployed — worth saying which collection.
         data: <String, Object?>{...what, 'code': error.code},
       );
       rethrow;
@@ -66,9 +55,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     SyncCollection collection,
     DateTime? since,
   ) async {
-    // Needs the composite index (userId, updatedAt) in firestore.indexes.json:
-    // an equality filter on one field with a range and order on another is
-    // exactly what Firestore will not serve on its own.
+    // Needs the composite index (userId, updatedAt) in firestore.indexes.json.
     Query<Map<String, dynamic>> query = _owned(
       uid,
       collection,
@@ -91,8 +78,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
         'collection': collection.name,
         'since': since?.toIso8601String(),
         'documents': snapshot.docs.length,
-        // A gap between the two means rows that would not map — a payload
-        // version this build cannot read, which is otherwise silent.
+        // A gap between the two means rows that would not map — a payload version this build cannot read, which is otherwise silent.
         'usable': records.length,
       });
 
@@ -123,8 +109,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
   Future<void> _deleteCollection(String uid, SyncCollection collection) async {
     final OwnedCollection owned = _owned(uid, collection);
 
-    // Deleted in pages: a long history would otherwise blow the batch limit,
-    // and a wipe that half-runs is exactly what hard rule 8 forbids.
+    // Deleted in pages: a long history would otherwise blow the batch limit, and a wipe that half-runs is exactly what hard rule 8 forbids.
     while (true) {
       final QuerySnapshot<Map<String, dynamic>> page = await owned
           .owned()

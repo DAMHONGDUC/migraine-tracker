@@ -5,13 +5,7 @@ import '../theme/app_icon_constant.dart';
 import '../theme/app_icon_size.dart';
 import '../theme/app_text_style.dart';
 
-/// One Settings row: icon, title, and — when the row leads somewhere — a
-/// chevron at the end.
-///
-/// No subtitles. Settings reads as a list of names, so anything that used to
-/// explain a row in a second line is gone; what survives is the row's current
-/// value ("English", "5 hPa"), which sits at the end next to the chevron
-/// rather than under the title.
+/// One Settings row: icon, title, and — when the row leads somewhere — a chevron at the end.
 class SettingsTile extends StatelessWidget {
   const SettingsTile({
     required this.icon,
@@ -36,8 +30,7 @@ class SettingsTile extends StatelessWidget {
   /// Tints the icon alone — a state the row wants to signal (premium).
   final Color? iconColor;
 
-  /// Tints the label too — the destructive rows, which need the whole row to
-  /// read as one.
+  /// Tints the label too — the destructive rows, which need the whole row to read as one.
   final Color? titleColor;
 
   final VoidCallback? onTap;
@@ -67,8 +60,7 @@ class SettingsTile extends StatelessWidget {
   }
 }
 
-/// The value, then the chevron — the row's answer and its way in, in the one
-/// place the thumb is heading.
+/// The value, then the chevron — the row's answer and its way in, in the one place the thumb is heading.
 class _TileEnd extends StatelessWidget {
   const _TileEnd({required this.value, required this.chevron});
 

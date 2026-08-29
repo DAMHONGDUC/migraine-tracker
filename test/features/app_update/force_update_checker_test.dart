@@ -3,8 +3,7 @@ import 'package:migraine_tracker/features/app_update/domain/entities/app_update_
 import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_update/domain/services/force_update_checker.dart';
 
-/// The gate that can lock every install out of the app: build name first,
-/// build number as the tiebreaker, and every fail-open branch pinned.
+/// The gate that can lock every install out of the app: build name first, build number as the tiebreaker, and every fail-open branch pinned.
 void main() {
   const ForceUpdateChecker checker = ForceUpdateChecker();
 

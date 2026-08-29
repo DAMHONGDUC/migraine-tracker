@@ -3,20 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/user_profile.dart';
 
 /// The account half of the `users/{uid}` document, in one place.
-///
-/// The same document also carries the alert-registration keys (`geohash5`,
-/// `fcmToken`, `alertThreshold`, `tz`) and the webhook-owned `premium` flag
-/// — this mapper reads and writes ONLY the account keys below, so the two
-/// concerns can never clobber each other.
-///
-/// ```
-/// users/{uid}
-///   displayName: string
-///   email:       string
-///   photoUrl:    string
-///   createdAt:   Timestamp (server, written once)
-///   updatedAt:   Timestamp (server)
-/// ```
 abstract final class UserProfileMapper {
   static const String displayNameField = 'displayName';
   static const String emailField = 'email';
@@ -34,9 +20,7 @@ abstract final class UserProfileMapper {
         updatedAt: _dateFrom(data[updatedAtField]),
       );
 
-  /// Only the keys the provider actually gave us: a merge write with a null
-  /// would erase a good value (Apple withholds the email after the first
-  /// sign-in) and `displayName` is the user's to own once they edit it.
+  /// Only the keys the provider actually gave us.
   static Map<String, Object?> toWrite({
     String? displayName,
     String? email,

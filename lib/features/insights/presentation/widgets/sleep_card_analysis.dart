@@ -1,9 +1,6 @@
 part of 'sleep_card.dart';
 
 /// The premium half: whether attacks follow short nights.
-///
-/// Free users get one line and an Unlock button, no blurred sample — same
-/// call as [ActivityCard]'s analysis.
 class _Analysis extends ConsumerWidget {
   const _Analysis();
 

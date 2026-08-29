@@ -16,10 +16,6 @@ import '../../domain/enums/head_region.dart';
 import '../../providers.dart';
 
 /// Steps of the sacred flow: pick a value, then confirm with Next/Done.
-///
-/// [medication] and [exertion] both arrive with their common answer already
-/// selected ("No medication", "None"), so Next is armed on arrival and
-/// neither can stand between the user and a saved attack.
 enum LogStep { intensity, location, medication, exertion, saved }
 
 @immutable
@@ -36,47 +32,36 @@ class LogFlowState {
 
   final LogStep step;
   final int? intensity;
-  /// Every area confirmed on the location step. Null until it is confirmed,
-  /// which is a different thing from the empty list the step starts on: null
-  /// means "not answered yet", empty means "answered nothing", and the step
-  /// refuses to advance on the second.
+  /// Every area confirmed on the location step.
   final List<HeadRegion>? regions;
 
-  /// Committed on the medication step, held until the save at the end of the
-  /// exertion step. Null is a real answer here ("No medication").
+  /// Committed on the medication step, held until the save at the end of the exertion step. Null is a real answer here ("No medication").
   final String? medicationName;
 
   final String? savedId;
 
-  /// Whether the active step currently has a pick worth confirming — arms
-  /// the app bar's Next/Done button. Kept separate from [draft] because a
-  /// valid medication pick can itself be null ("No medication").
+  /// Whether the active step currently has a pick worth confirming — arms the app bar's Next/Done button.
   final bool hasDraft;
 
-  /// The active step's picked-but-not-yet-confirmed value: an `int`
-  /// (intensity), a `List<HeadRegion>`, a `String?` (medication name) or an
-  /// [ExertionLevel].
+  /// The active step's picked-but-not-yet-confirmed value: an `int` (intensity), a `List<HeadRegion>`, a `String?` (medication name) or an [ExertionLevel].
   final Object? draft;
 }
 
-/// Owns the flow's state machine and persistence. Widgets only render this
-/// state and call these methods — no business logic in the UI layer.
+/// Owns the flow's state machine and persistence. Widgets only render this state and call these methods — no business logic in the UI layer.
 class LogController extends Notifier<LogFlowState> {
   static const _uuid = Uuid();
 
   @override
   LogFlowState build() => const LogFlowState();
 
-  /// First tap: intensity advances immediately, no confirm step — it's the
-  /// fastest way into the flow, mid-attack.
+  /// First tap: intensity advances immediately, no confirm step — it's the fastest way into the flow, mid-attack.
   void selectIntensity(int value) {
     state = LogFlowState(step: LogStep.location, intensity: value);
     // Funnel only — the step reached, never the value picked (health data).
     AppAnalytics.logLogFlowStep(LogStep.location.name);
   }
 
-  /// Called by a step whenever the user picks or changes a value. Only arms
-  /// the app bar's Next button — doesn't advance the flow.
+  /// Called by a step whenever the user picks or changes a value. Only arms the app bar's Next button — doesn't advance the flow.
   void updateDraft(Object? value) {
     state = LogFlowState(
       step: state.step,
@@ -89,8 +74,7 @@ class LogController extends Notifier<LogFlowState> {
     );
   }
 
-  /// App bar Next: commits the active step's draft and advances. On the
-  /// exertion step this also persists the attack.
+  /// App bar Next: commits the active step's draft and advances. On the exertion step this also persists the attack.
   Future<void> confirmStep() async {
     switch (state.step) {
       case LogStep.location:
@@ -98,8 +82,7 @@ class LogController extends Notifier<LogFlowState> {
           step: LogStep.medication,
           intensity: state.intensity,
           regions: state.draft! as List<HeadRegion>,
-          // Defaults to "No medication": the common answer costs no tap, and
-          // Next is armed on arrival rather than after a pick.
+          // Defaults to "No medication": the common answer costs no tap, and Next is armed on arrival rather than after a pick.
           hasDraft: true,
         );
         AppAnalytics.logLogFlowStep(LogStep.medication.name);
@@ -115,8 +98,7 @@ class LogController extends Notifier<LogFlowState> {
         );
         AppAnalytics.logLogFlowStep(LogStep.exertion.name);
       case LogStep.exertion:
-        // Never blocks: the step arrives on [ExertionLevel.none], so Next
-        // works before the user touches anything (hard rule 5).
+        // Never blocks: the step arrives on [ExertionLevel.none], so Next works before the user touches anything (hard rule 5).
         await _save(state.medicationName, state.draft as ExertionLevel?);
       case LogStep.intensity:
       case LogStep.saved:
@@ -124,8 +106,7 @@ class LogController extends Notifier<LogFlowState> {
     }
   }
 
-  /// Persists the attack and moves to the saved confirmation. Weather is
-  /// attached best-effort; logging never waits for the network.
+  /// Persists the attack and moves to the saved confirmation. Weather is attached best-effort; logging never waits for the network.
   Future<void> _save(
     String? medicationName,
     ExertionLevel? exertionLevel,
@@ -150,21 +131,15 @@ class LogController extends Notifier<LogFlowState> {
       AppAnalytics.logAttackLogged();
       AppAnalytics.logLogFlowStep(LogStep.saved.name);
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
-      // Local read, but still unawaited: HealthKit is another process, and
-      // nothing in the log flow waits (hard rule 4). It bumps the attack's
-      // revision, so the sync below - or the next one - carries the number up.
+      // Local read, but still unawaited: HealthKit is another process, and nothing in the log flow waits (hard rule 4).
       unawaited(ref.read(stepAttachServiceProvider).onAttackLogged(attack));
-      // Same best-effort shape: the attack is already saved, so a failure here
-      // leaves it pending for the next sync (hard rule 4). Exempt from the
-      // cooldown — a just-logged attack must reach the server.
+      // Same best-effort shape: the attack is already saved, so a failure here leaves it pending for the next sync (hard rule 4).
       unawaited(
         ref
             .read(syncControllerProvider.notifier)
             .sync(trigger: SyncTrigger.record),
       );
-      // Only a moment when a pressure alert came first — the controller
-      // decides that. Unawaited for the same reason as everything above it:
-      // nothing in the log flow waits (hard rule 4).
+      // Only a moment when a pressure alert came first — the controller decides that.
       unawaited(
         ref
             .read(reviewPromptControllerProvider)
@@ -182,9 +157,7 @@ class LogController extends Notifier<LogFlowState> {
     }
   }
 
-  /// Steps back one screen so a mis-tap can be corrected. The previous
-  /// step's committed value is kept both on record and pre-filled as the
-  /// draft, so Next is armed immediately and the old pick shows selected.
+  /// Steps back one screen so a mis-tap can be corrected.
   void back() {
     state = switch (state.step) {
       LogStep.location => LogFlowState(
@@ -200,8 +173,7 @@ class LogController extends Notifier<LogFlowState> {
         draft: state.regions,
         hasDraft: state.regions != null,
       ),
-      // Medication was confirmed to get here, and "No medication" is a valid
-      // confirmed pick — so Next is armed even though the draft is null.
+      // Medication was confirmed to get here, and "No medication" is a valid confirmed pick — so Next is armed even though the draft is null.
       LogStep.exertion => LogFlowState(
         step: LogStep.medication,
         intensity: state.intensity,

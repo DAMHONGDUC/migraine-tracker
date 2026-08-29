@@ -182,9 +182,7 @@ void main() {
   });
 
   group('the stranded count', () {
-    // The normal state for a user whose history predates the daily readings:
-    // the chart is young, not broken, and the surface says so instead of
-    // printing a number that looks like a fault.
+    // The normal state for a user whose history predates the daily readings.
     test('outweighs the plotted attacks when the readings are young', () {
       final PressureTimeline timeline = builder.build(
         attacks: <Attack>[

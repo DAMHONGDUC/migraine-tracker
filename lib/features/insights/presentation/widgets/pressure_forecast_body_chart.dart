@@ -12,9 +12,7 @@ class _Chart extends StatelessWidget {
       fontSize: SdSpacingConstant.sp10,
     );
     final timeFormat = DateFormat.Hm(context.l10n.localeName);
-    // A weekday, not a clock time: over a week of hours the axis has room
-    // for about six labels, and "14:00" six times says nothing about which
-    // day the drop lands on.
+    // Weekday labels distinguish days across the week-long timeline.
     final dayFormat = DateFormat.E(context.l10n.localeName);
 
     final past = <FlSpot>[];
@@ -29,8 +27,7 @@ class _Chart extends StatelessWidget {
     final pressures = forecast.points.map((p) => p.pressureHpa);
     final minY = ChartAxisUtils.minBound(pressures);
     final maxY = ChartAxisUtils.maxBound(pressures);
-    // One interval for the grid and the axis labels both — computing it
-    // twice is how the two drift apart.
+    // One interval for the grid and the axis labels both — computing it twice is how the two drift apart.
     final gridInterval = ChartAxisUtils.interval(minY, maxY);
 
     DateTime timeAt(double x) =>

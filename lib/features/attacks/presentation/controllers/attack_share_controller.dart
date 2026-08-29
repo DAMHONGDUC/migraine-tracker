@@ -11,12 +11,6 @@ import '../../../settings/providers.dart';
 import '../../providers.dart';
 
 /// Renders the previewed card and hands it to the system share sheet.
-///
-/// It reuses `ExportSharer` from `settings/` rather than reaching for
-/// share_plus again: one path-based sharer already covers JSON, CSV and the
-/// PDF, and a second call site for the same job is how two of them come to
-/// behave differently. Importing another feature's `domain/` and
-/// `providers.dart` is what the dependency rule allows.
 class AttackShareController {
   const AttackShareController(this._ref);
 
@@ -25,10 +19,6 @@ class AttackShareController {
   static const String _mimeType = 'image/png';
 
   /// True once the share sheet has been handed the file.
-  ///
-  /// The file goes to temporary storage, not documents (see
-  /// [AttackShareFileStore]) — and the GDPR wipe clears that folder, because
-  /// the picture is a fourth copy of health data on the device.
   Future<bool> share({
     required GlobalKey boundaryKey,
     required String attackId,

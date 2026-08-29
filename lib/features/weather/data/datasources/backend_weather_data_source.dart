@@ -7,15 +7,6 @@ import '../../domain/entities/weather_report.dart';
 import '../../domain/entities/weather_snapshot.dart';
 
 /// Reads weather through the `getWeather` callable.
-///
-/// **The app has no weather API of its own, and must not gain one.**
-/// WeatherKit's ES256 signing key cannot ship in a binary, so the app asks the
-/// backend and the backend asks Apple (CLAUDE.md's tech-stack rule). Nothing
-/// here knows a provider name — swapping Apple for something else is a change
-/// on the server alone.
-///
-/// Every method returns null on any failure. Hard rule 4: logging an attack
-/// works fully offline, so a weather read is best-effort and never an error.
 class BackendWeatherDataSource {
   const BackendWeatherDataSource(this._functions);
 
@@ -24,15 +15,10 @@ class BackendWeatherDataSource {
   /// Nearest hourly sample to the target instant must be within this.
   static const Duration _tolerance = Duration(minutes: 90);
 
-  /// How far back the snapshot window reaches, so an attack logged offline is
-  /// backfilled with the weather at *its* start time rather than today's.
+  /// How far back the snapshot window reaches, so an attack logged offline is backfilled with the weather at *its* start time rather than today's.
   static const int _backfillDays = 7;
 
   /// How far the weather card looks ahead.
-  ///
-  /// Every day the sheet lists needs hours behind it, because the readings a
-  /// picked day shows are averaged from them — `WeatherReport.forecastDayCount`
-  /// days at 24, which is 240 and exactly the callable's own ceiling.
   static const int _reportHoursForward = WeatherReport.forecastDayCount * 24;
 
   Future<Map<Object?, Object?>?> _call({
@@ -42,9 +28,7 @@ class BackendWeatherDataSource {
     required int hoursForward,
     bool full = false,
   }) async {
-    // Coordinates are rounded before they are logged: the backend already
-    // rounds to ~11km before storing anything, and a log is no place to be
-    // more precise about where the user is than the server is.
+    // Coordinates are rounded before they are logged.
     final Map<String, Object?> request = <String, Object?>{
       'lat': latitude.toStringAsFixed(1),
       'lon': longitude.toStringAsFixed(1),
@@ -77,9 +61,7 @@ class BackendWeatherDataSource {
 
       return data;
     } on FirebaseFunctionsException catch (error, stackTrace) {
-      // Best-effort by rule, silent by accident: every weather failure reaches
-      // the UI as "no weather" and nowhere else. `failed-precondition` is the
-      // backend saying its own credentials are unset.
+      // Best-effort by rule, silent by accident: every weather failure reaches the UI as "no weather" and nowhere else.
       SdLogger.error(
         LogTagConstant.weather,
         'getWeather failed',
@@ -130,8 +112,7 @@ class BackendWeatherDataSource {
         .toList();
   }
 
-  /// Conditions now, the hours ahead and the days after — the weather card's
-  /// whole payload, from one call.
+  /// Conditions now, the hours ahead and the days after — the weather card's whole payload, from one call.
   Future<WeatherReport?> report({
     required double latitude,
     required double longitude,
@@ -160,8 +141,7 @@ class BackendWeatherDataSource {
           .toList(),
     );
 
-    // Nothing to draw is the same answer as no answer, so the card has one
-    // empty state rather than two that look identical.
+    // Nothing to draw is the same answer as no answer, so the card has one empty state rather than two that look identical.
     return report.isEmpty ? null : report;
   }
 
@@ -188,8 +168,7 @@ class BackendWeatherDataSource {
     );
   }
 
-  /// Null for an hour with no time or no pressure, so one unusable entry does
-  /// not cost the series around it.
+  /// Null for an hour with no time or no pressure, so one unusable entry does not cost the series around it.
   WeatherHourly? _hourly(Map<Object?, Object?> raw) {
     final DateTime? time = DateTime.tryParse('${raw['time']}');
     final double? pressure = _double(raw['pressureHpa']);
@@ -232,11 +211,7 @@ class BackendWeatherDataSource {
 
   double? _double(Object? value) => (value as num?)?.toDouble();
 
-  /// Hourly pressure for the forecast chart: [PressureForecast.contextHours]
-  /// behind, [PressureForecast.forecastDays] days ahead.
-  ///
-  /// The window is one request to Apple whatever its width, so the week
-  /// costs exactly what the two days cost.
+  /// Hourly pressure for the forecast chart: [PressureForecast.contextHours] behind, [PressureForecast.forecastDays] days ahead.
   Future<List<PressurePoint>?> pressureSeries({
     required double latitude,
     required double longitude,
@@ -261,10 +236,6 @@ class BackendWeatherDataSource {
   }
 
   /// The weather at [instant], with the 24h delta the insight cards read.
-  ///
-  /// The window reaches a day further back than [instant] on purpose — the
-  /// delta needs the reading 24h before it, so a window that merely contains
-  /// the instant would return a snapshot with nothing to compare against.
   Future<WeatherSnapshot?> snapshotAt({
     required double latitude,
     required double longitude,
@@ -345,8 +316,7 @@ class _Hour {
   final double? humidityPercent;
   final double? temperatureCelsius;
 
-  /// Null for a row that cannot be read, so one bad entry does not lose the
-  /// series around it.
+  /// Null for a row that cannot be read, so one bad entry does not lose the series around it.
   static _Hour? fromMap(Map<Object?, Object?> map) {
     final DateTime? time = DateTime.tryParse('${map['time']}');
     final num? pressure = map['pressureHpa'] as num?;

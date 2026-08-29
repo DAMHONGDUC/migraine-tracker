@@ -1,26 +1,17 @@
 import 'dart:ui';
 
-/// Photophobia-friendly palette. Hard rule: no pure white anywhere;
-/// the brightest surface allowed is the #1C1C1E family.
+/// Photophobia-friendly palette. Hard rule: no pure white anywhere; the brightest surface allowed is the #1C1C1E family.
 final class AppColors {
   /// Scaffold background — near black.
   static const Color background = Color(0xFF0E0E10);
 
-  /// The one card colour. Every card in the app wears exactly this —
-  /// dashboard, insights, chart panels — and so does every bottom sheet, so
-  /// a sheet opening over a card is never a second shade of dark.
+  /// The one card colour.
   static const Color surface = Color(0xFF1C1C1E);
 
   /// The one surface every modal wears — bottom sheets and dialogs alike.
-  ///
-  /// A step *below* [surface] rather than above it: a modal already separates
-  /// itself with the barrier scrim and its rounded corners, and going darker
-  /// keeps the cards sitting on it reading as the nearer layer.
   static const Color surfaceModal = Color(0xFF161618);
 
-  /// One step above [surface], for anything that has to stay visible while
-  /// sitting *on* a card or a sheet: dialogs, snack bars, chart tooltips,
-  /// option tiles, filter chips.
+  /// One step above [surface], for anything that has to stay visible while sitting *on* a card or a sheet.
   static const Color surfaceElevated = Color(0xFF2C2C2E);
 
   /// Muted lavender — calm, low-glare accent.
@@ -33,8 +24,7 @@ final class AppColors {
   /// Desaturated red for errors — no harsh alarm tones.
   static const Color error = Color(0xFFE5766E);
 
-  /// Chart series color — one step darker than [primary] so it sits inside
-  /// the dark-mode lightness band (validated: contrast ≥3:1 on [surface]).
+  /// Chart series color — one step darker than [primary] so it sits inside the dark-mode lightness band (validated: contrast ≥3:1 on [surface]).
   static const Color chartSeries = Color(0xFF9182EC);
 
   /// Recessive grid lines for charts.
@@ -49,23 +39,7 @@ final class AppColors {
 
   static const Color transparent = Color(0x00000000);
 
-  /// Severity tint for a 1–10 pain intensity, in four bands: the familiar
-  /// green → yellow → orange → red scale.
-  ///
-  /// Every step is measured, not eyeballed. Each adjacent pair clears the
-  /// normal-vision floor (ΔE ≥ 15) AND the colour-blind target (ΔE ≥ 8)
-  /// against the dark surface:
-  ///   green↔yellow  ΔE 18.0 normal / 14.8 CVD
-  ///   yellow↔orange ΔE 15.4 normal / 10.1 CVD
-  ///   orange↔red    ΔE 15.7 normal / 13.5 CVD
-  ///
-  /// Squeezing four bands into one hue journey is tight — nudging any step
-  /// toward its neighbour collapses that pair (the previous orange/red sat
-  /// at ΔE 5.0 normal, 1.7 deutan: the same colour to most eyes). Re-measure
-  /// before changing any value here.
-  ///
-  /// Use for fills/borders only — the red is 3.5:1 on [surface], fine for a
-  /// mark but below the 4.5:1 text floor, so numbers wear [textPrimary].
+  /// Severity tint for a 1–10 pain intensity, in four bands: the familiar green → yellow → orange → red scale.
   static Color intensity(int value) {
     if (value <= 3) return const Color(0xFF6FA890); // mild — green
     if (value <= 6) return const Color(0xFFD9C24E); // moderate — yellow

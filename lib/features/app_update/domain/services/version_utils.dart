@@ -1,15 +1,6 @@
 /// Version-name comparison for the update gate.
-///
-/// Never compare build names as strings: `"1.10.0" < "1.9.0"` is true for a
-/// string and false for a version, and that one lie is enough to lock every
-/// install out of the app. Segments are compared as numbers, in order.
 abstract final class VersionUtils {
-  /// `1.4.0` → `[1, 4, 0]`. Null when nothing numeric can be read, which is
-  /// the caller's signal to fall back to the build number.
-  ///
-  /// Tolerant on purpose — the value is typed by hand into a console:
-  /// `v1.4` and `1.4.0-beta.2` both parse (to `[1, 4]` and `[1, 4, 0]`),
-  /// trailing pre-release tags are ignored.
+  /// `1.4.0` → `[1, 4, 0]`.
   static List<int>? parse(String version) {
     final String normalized = version.trim().replaceFirst(RegExp('^[vV]'), '');
     final List<String> rawSegments = normalized.split('.');
@@ -28,9 +19,6 @@ abstract final class VersionUtils {
   }
 
   /// Negative when [a] is older than [b], 0 when equal, positive when newer.
-  /// Null when either side is unparseable.
-  ///
-  /// Missing segments count as 0, so `1.4` and `1.4.0` are the same version.
   static int? compare(String a, String b) {
     final List<int>? left = parse(a);
     final List<int>? right = parse(b);

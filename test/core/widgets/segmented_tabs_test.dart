@@ -4,9 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:system_design/index.dart';
 
-/// The segmented control's tap targets. A segment is the whole cell of the
-/// track — its full height, not the line of text sitting in the middle of it —
-/// because this control is chrome tapped one-handed while a migraine builds.
+/// The segmented control's tap targets.
 void main() {
   late List<int> taps;
 
@@ -56,8 +54,7 @@ void main() {
     final Rect track = tester.getRect(find.byType(SdSegmentedTabsV2));
     final double right = track.left + track.width * 0.75;
 
-    // Just inside the track's own bounds, above and below the label — where
-    // a hit box the size of the text alone lets the tap fall through.
+    // Just inside the track's own bounds, above and below the label — where a hit box the size of the text alone lets the tap fall through.
     await tester.tapAt(Offset(right, track.top + 2));
     await tester.tapAt(Offset(right, track.bottom - 2));
     await tester.pump();

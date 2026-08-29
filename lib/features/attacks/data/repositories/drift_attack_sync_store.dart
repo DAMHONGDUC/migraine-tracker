@@ -61,8 +61,7 @@ class DriftAttackSyncStore extends DriftSyncLocalStore<Attack> {
     DateTime updatedAt,
     int revision,
   ) async {
-    // Same revision both sides: it arrived from the server, so it is in step
-    // the moment it lands and must not push straight back.
+    // Same revision both sides: it arrived from the server, so it is in step the moment it lands and must not push straight back.
     await db
         .into(db.attacks)
         .insertOnConflictUpdate(
@@ -88,9 +87,7 @@ class DriftAttackSyncStore extends DriftSyncLocalStore<Attack> {
 
   @override
   Future<void> writeSyncedRevision(String id, int revision) async {
-    // Guarded on the revision that was actually sent: an edit landing
-    // mid-push has already bumped it, so that row stays dirty rather than
-    // being marked clean and never uploaded.
+    // Guarded on the revision that was actually sent.
     await (db.update(db.attacks)
           ..where((t) => t.id.equals(id) & t.revision.equals(revision)))
         .write(AttacksCompanion(syncedRevision: Value(revision)));
@@ -99,8 +96,7 @@ class DriftAttackSyncStore extends DriftSyncLocalStore<Attack> {
   Future<AttackRow?> _row(String id) =>
       (db.select(db.attacks)..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  /// Rows logged before v6 have no `updatedAt`; their own start time is the
-  /// best "last modified" available, and beats inventing the upgrade's clock.
+  /// Rows logged before v6 have no `updatedAt`; their own start time is the best "last modified" available, and beats inventing the upgrade's clock.
   DateTime _effectiveUpdatedAt(AttackRow row) =>
       (row.updatedAt ?? row.startedAt).toUtc();
 }

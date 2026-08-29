@@ -89,9 +89,7 @@ class DriftMedicationSyncStore extends DriftSyncLocalStore<Medication> {
     db.medications,
   )..where((m) => m.id.equals(id))).getSingleOrNull();
 
-  /// Rows saved before v7 have no `updatedAt`. Their creation date is the
-  /// best "last modified" available; the ones older than v3 have neither, and
-  /// fall back to the epoch so any remote copy wins.
+  /// Rows saved before v7 have no `updatedAt`.
   DateTime _effectiveUpdatedAt(MedicationRow row) =>
       (row.updatedAt ?? row.createdAt ?? _beginning).toUtc();
 

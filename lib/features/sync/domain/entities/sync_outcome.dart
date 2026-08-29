@@ -11,7 +11,6 @@ class SyncOutcome {
   /// Remote changes applied on top of local data.
   final int pulled;
 
-  /// Records that could not be decrypted or parsed and were skipped. Always
-  /// worth reporting: it means data is up there that this build cannot read.
+  /// Records that could not be decrypted or parsed and were skipped. Always worth reporting: it means data is up there that this build cannot read.
   final int unreadable;
 }

@@ -10,10 +10,6 @@ import '../../providers.dart';
 import 'attack_share_card.dart';
 
 /// Previews the card, then hands it to the system share sheet.
-///
-/// **The preview is not a courtesy, it is the mechanism.** What gets captured
-/// is this very boundary, so the user cannot send a card they were not shown
-/// — which is the only honest way to put health data into a messaging app.
 class AttackShareSheet extends ConsumerStatefulWidget {
   const AttackShareSheet({required this.attack, super.key});
 
@@ -75,8 +71,7 @@ class _AttackShareSheetState extends ConsumerState<AttackShareSheet> {
             variant: SdButtonVariantV2.primary,
             label: l10n.attackShareAction,
             icon: AppIconConstant.share,
-            // Disabled rather than spinning: the capture is a frame or two,
-            // and a spinner that flashes for 30ms reads as a glitch.
+            // Disabled rather than spinning: the capture is a frame or two, and a spinner that flashes for 30ms reads as a glitch.
             onPressed: _sharing ? null : _share,
           ),
         ],

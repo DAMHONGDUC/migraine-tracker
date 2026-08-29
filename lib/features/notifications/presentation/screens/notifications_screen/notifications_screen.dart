@@ -17,20 +17,7 @@ import '../../../providers.dart';
 
 part 'notifications_screen_tile.dart';
 
-/// Everything the app has told the user, split by what told it: medication
-/// reminders on one tab, pressure alerts on the other.
-///
-/// Two tabs rather than one mixed list because the two answer different
-/// questions — "have I been taking this" and "was there weather" — and a
-/// reminder arriving every day would otherwise bury the alerts entirely.
-///
-/// Opening the screen reads nothing: a row is read when its detail is
-/// opened, so the dot on a row means what it says.
-///
-/// The app bar carries the unread count in full, uncapped — unlike the bell
-/// and the Settings row, which cap at [SdBadgeV2.maxCount] because a badge
-/// that grows covers the icon under it. Here it is a line of text with a bar
-/// to itself, so there is nothing to protect it from and no reason to round.
+/// Everything the app has told the user, split by what told it: medication reminders on one tab, pressure alerts on the other.
 class NotificationsScreen extends HookConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -110,11 +97,6 @@ class NotificationsScreen extends HookConsumerWidget {
 }
 
 /// How many are unread, at the end of the app bar.
-///
-/// The error colour, like the bell's badge and the rows' dots — the three
-/// mark the same thing and must not read as three different things. Plain
-/// text and not a chip: the bell is the one place a count wears a filled
-/// pill, and a second one here would compete with the title beside it.
 class _UnreadCount extends StatelessWidget {
   const _UnreadCount({required this.unread});
 

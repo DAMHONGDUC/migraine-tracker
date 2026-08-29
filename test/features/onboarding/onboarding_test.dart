@@ -2,14 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// Onboarding runs before anything else exists, so what matters here is that
-/// a first-launch user can get through every page, and that the sheet telling
-/// them what the app does is honest about which parts they have to pay for.
+/// Onboarding runs before anything else exists, so what matters here is that a first-launch user can get through every page, and that the sheet telling.
 void main() {
-  /// Onboarding's buttons sit in a fixed bar at the bottom, always on screen,
-  /// so they are tapped directly — `tapVisible` would try to scroll the
-  /// PageView and leave its ballistic simulation running past the test.
-  /// Bounded pumps rather than `pumpAndSettle` for the same reason.
+  /// Onboarding's buttons sit in a fixed bar at the bottom, always on screen, so they are tapped directly.
   Future<void> tapButton(WidgetTester tester, String label) async {
     await tester.tap(find.text(label));
     await tester.pump();
@@ -46,15 +41,13 @@ void main() {
       expect(find.text('Three-tap attack log'), findsNothing);
       await tapButton(tester, 'See all app features');
 
-      // Free — none of these wears a badge. The wipe is here and stays here:
-      // hard rule 8 makes deleting your own records a promise, not an offer.
+      // Free — none of these wears a badge. The wipe is here and stays here: hard rule 8 makes deleting your own records a promise, not an offer.
       expect(find.text('Three-tap attack log'), findsOneWidget);
       expect(find.text('History and charts'), findsOneWidget);
       expect(find.text('Medication reminders'), findsOneWidget);
       expect(find.text('Delete everything'), findsOneWidget);
 
-      // Premium — one badge each, and the group heading is the eighth.
-      // Export moved over here whole: the file is premium, the wipe is not.
+      // Premium — one badge each, and the group heading is the eighth. Export moved over here whole: the file is premium, the wipe is not.
       expect(find.text('Export your data'), findsOneWidget);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.text('7-day pressure forecast'), findsOneWidget);
@@ -80,9 +73,6 @@ void main() {
     expect(find.text('Why location?'), findsOneWidget);
 
     // One button, reading "Continue", and it always raises the OS prompt.
-    // App Store 5.1.1(iv) forbids both halves of what used to be here: an
-    // explainer whose button names the grant ("Enable location"), and a
-    // second button that moves on without asking ("Not now").
     expect(find.text('Not now'), findsNothing);
     expect(find.text('Enable location'), findsNothing);
     expect(app.location.requestCalls, 0);

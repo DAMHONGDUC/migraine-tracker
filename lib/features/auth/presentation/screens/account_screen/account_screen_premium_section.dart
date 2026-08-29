@@ -1,8 +1,6 @@
 part of 'account_screen.dart';
 
-/// Entitlement state, read from [hasPremiumProvider] — the one source every
-/// gate uses, never a flag stored on the account document. The row is a
-/// summary; the detail (and the purchase) lives on [PremiumScreen].
+/// Entitlement state, read from [hasPremiumProvider] — the one source every gate uses, never a flag stored on the account document.
 class _PremiumSection extends ConsumerWidget {
   const _PremiumSection();
 

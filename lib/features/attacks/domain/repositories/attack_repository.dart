@@ -5,13 +5,7 @@ import '../enums/exertion_level.dart';
 import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
-/// Contract for attack storage. Features depend on this, never on the Drift
-/// implementation.
-///
-/// Deliberately knows nothing about sync: every mutation records that the row
-/// changed, and `AttackSyncRepository` reads that separately. A decorator that
-/// uploaded on write would put the network in front of the log flow, which
-/// hard rule 4 forbids.
+/// Contract for attack storage.
 abstract interface class AttackRepository {
   /// All attacks, newest first, with their weather snapshot when present.
   Stream<List<Attack>> watchAll();
@@ -19,22 +13,16 @@ abstract interface class AttackRepository {
   /// One-shot read of everything [watchAll] would emit (e.g. for export).
   Future<List<Attack>> getAll();
 
-  /// A single attack (with its weather), or null if it no longer exists —
-  /// e.g. deleted from another screen while the detail view was open.
+  /// A single attack (with its weather), or null if it no longer exists — e.g. deleted from another screen while the detail view was open.
   Stream<Attack?> watchById(String id);
 
-  /// Inserts the attack and, if already available, its weather snapshot.
-  /// Works fully offline: [Attack.weather] may simply be null.
+  /// Inserts the attack and, if already available, its weather snapshot. Works fully offline: [Attack.weather] may simply be null.
   Future<void> insert(Attack attack);
 
   /// Backfills the weather snapshot for an attack logged offline.
   Future<void> attachWeather(String attackId, WeatherSnapshot weather);
 
   /// Records the day's step count on an already-saved attack.
-  ///
-  /// Its own method for the same reason `updateExertion` is: the details
-  /// sheet never shows steps, so a save from there must not blank a number
-  /// the user was never offered.
   Future<void> attachSteps(String attackId, int steps);
 
   /// Attacks still waiting for a weather snapshot (offline backfill queue).
@@ -48,30 +36,19 @@ abstract interface class AttackRepository {
     String? notes,
   });
 
-  /// Exertion on its own, because it is no longer a "detail": it is a step of
-  /// the log flow, and folding it into [updateDetails] would let a save from
-  /// the details sheet blank an answer that sheet never showed.
+  /// Updates exertion independently because it is part of the main log flow.
   Future<void> updateExertion(String id, ExertionLevel? exertionLevel);
 
-  /// When the attack stopped, or null to take the answer back. Its own method
-  /// for the same reason [updateExertion] is: it is never shown by the details
-  /// sheet, so a save from there must not be able to blank it.
+  /// When the attack stopped, or null to take the answer back.
   Future<void> updateEndedAt(String id, DateTime? endedAt);
 
-  /// Whether the medication helped, or null to take the answer back. Its own
-  /// method for the same reason [updateExertion] is.
+  /// Whether the medication helped, or null to take the answer back. Its own method for the same reason [updateExertion] is.
   Future<void> updateMedicationEffect(String id, MedicationEffect? effect);
 
   /// Records the aura kinds for an attack, after the fact.
-  ///
-  /// Null takes the answer back; an empty list is a recorded "no aura".
-  ///
-  /// Its own method for the same reason [updateExertion] is: the details
-  /// sheet never shows aura, so a save from there must not blank it.
   Future<void> updateAura(String id, List<AuraType>? aura);
 
-  /// Corrects the core fields of an already-logged attack (detail screen).
-  /// The weather snapshot is untouched — it belongs to [startedAt].
+  /// Corrects the core fields of an already-logged attack (detail screen). The weather snapshot is untouched — it belongs to [startedAt].
   Future<void> updateCore(
     String id, {
     required int intensity,
@@ -79,9 +56,7 @@ abstract interface class AttackRepository {
     String? medicationName,
   });
 
-  /// Removes one attack; its weather snapshot goes with it via cascade. The
-  /// row is really deleted — what is left behind is a tombstone holding only
-  /// the id, so the deletion can still reach the user's other devices.
+  /// Removes one attack; its weather snapshot goes with it via cascade.
   Future<void> deleteById(String id);
 
   /// GDPR wipe.

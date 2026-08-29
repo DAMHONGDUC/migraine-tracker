@@ -5,9 +5,7 @@ import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 
-/// An insight that cannot be computed yet, shown as the road to it rather
-/// than a locked door: what is still missing, how far along it is, and the
-/// count behind the bar.
+/// An insight that cannot be computed yet, shown as the road to it rather than a locked door.
 class InsightProgressBody extends StatelessWidget {
   const InsightProgressBody({
     required this.icon,
@@ -22,8 +20,7 @@ class InsightProgressBody extends StatelessWidget {
   /// What is still missing, already localized.
   final String message;
 
-  /// How far along, clamped here so a caller that over-counts can't overflow
-  /// the bar.
+  /// How far along, clamped here so a caller that over-counts can't overflow the bar.
   final double progress;
 
   /// The counts behind the bar ("12 of 15"), already localized.

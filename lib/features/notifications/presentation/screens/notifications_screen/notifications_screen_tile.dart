@@ -1,14 +1,12 @@
 part of 'notifications_screen.dart';
 
-/// One row: what it was and when. Tapping opens the detail screen, which
-/// is where the type decides what the user is offered.
+/// One row: what it was and when. Tapping opens the detail screen, which is where the type decides what the user is offered.
 class _NotificationTile extends ConsumerWidget {
   const _NotificationTile({required this.notification});
 
   final AppNotification notification;
 
-  /// Nothing is stored but the facts, so the line is built here from the
-  /// medication's current name — rename it and the history renames with it.
+  /// Nothing is stored but the facts, so the line is built here from the medication's current name — rename it and the history renames with it.
   String _title(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
@@ -28,8 +26,7 @@ class _NotificationTile extends ConsumerWidget {
     return ref.watch(medicationByIdProvider(id))?.name;
   }
 
-  /// One destination for every row, whatever the type. What the type decides
-  /// is what the detail screen offers, not whether the user gets one.
+  /// One destination for every row, whatever the type. What the type decides is what the detail screen offers, not whether the user gets one.
   void _open(BuildContext context) =>
       NavigationUtils.toNotification(context, notification.id);
 
@@ -48,8 +45,7 @@ class _NotificationTile extends ConsumerWidget {
               ? context.colorScheme.secondary
               : context.colorScheme.primary,
         ),
-        // One line, always: a long medication name would otherwise wrap and
-        // make one row twice the height of the one under it.
+        // One line, always: a long medication name would otherwise wrap and make one row twice the height of the one under it.
         title: Text(
           _title(context, ref),
           style: AppTextStyle.bodyLarge,
@@ -60,9 +56,7 @@ class _NotificationTile extends ConsumerWidget {
           DateFormat.yMMMd(l10n.localeName).add_Hm().format(at),
           style: AppTextStyle.bodyMedium.secondary,
         ),
-        // A dot, not a count: per row there is only ever one of it, so a
-        // number would say nothing the dot does not. Red, like the bell —
-        // the two mark the same thing and must not read as two.
+        // A dot, not a count: per row there is only ever one of it, so a number would say nothing the dot does not.
         trailing: SdBadgeV2(
           color: context.colorScheme.error,
           showing: !notification.isRead,

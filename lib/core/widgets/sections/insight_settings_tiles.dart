@@ -8,11 +8,7 @@ import '../../router/app_router.dart';
 import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
-/// Settings row for activity: opens the screen holding the exertion report,
-/// the step insight and the step connect switch.
-///
-/// Not premium-gated, unlike [SleepSettingsTile]: the exertion half of that
-/// screen is free, so a locked row would hide something the user already has.
+/// Settings row for activity: opens the screen holding the exertion report, the step insight and the step connect switch.
 class ActivitySettingsTile extends StatelessWidget {
   const ActivitySettingsTile({super.key});
 
@@ -26,16 +22,7 @@ class ActivitySettingsTile extends StatelessWidget {
   }
 }
 
-/// Settings row for sleep: opens the screen holding the sleep insight and its
-/// connect switch.
-///
-/// **Not premium-gated any more, and this reversed the original.** It used to
-/// wrap itself in `PremiumTileGate` on the argument that connecting first
-/// would be a permission prompt for nothing — but the screen behind it also
-/// holds the Apple Health switch and `SleepSummaryCard`, both free, and the
-/// gate made the app's only HealthKit surfaces unreachable for a free user.
-/// Submission 1.0(11) was rejected under App Store 2.5.1 for exactly that.
-/// Only [SleepCorrelationCard] on the screen itself stays premium.
+/// Settings row for sleep: opens the screen holding the sleep insight and its connect switch.
 class SleepSettingsTile extends ConsumerWidget {
   const SleepSettingsTile({super.key});
 

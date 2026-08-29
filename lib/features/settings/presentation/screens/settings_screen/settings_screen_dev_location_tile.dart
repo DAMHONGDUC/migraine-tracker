@@ -1,15 +1,6 @@
 part of 'settings_screen.dart';
 
 /// Dev-only: read the weather at a fixed city instead of the device position.
-///
-/// **This exists for the Simulator**, which reports no location at all — so
-/// every weather read stopped at "no location" before reaching the backend,
-/// and that is indistinguishable on screen from a backend that is broken
-/// (hard rule 4 gives all three failures one message). Pinning a city
-/// separates the two questions: still nothing, and the problem is the backend.
-///
-/// Compiled out of a prod flavour with the rest of the section, and
-/// `DevLocationController` refuses to read the preference there as well.
 class _DevLocationTile extends ConsumerWidget {
   const _DevLocationTile();
 
@@ -28,9 +19,7 @@ class _DevLocationTile extends ConsumerWidget {
 
     await ref.read(devLocationProvider.notifier).set(picked);
 
-    // The report is cached for an hour and survives a rebuild by design, so
-    // without this the card would keep drawing the old city until the TTL ran
-    // out — which reads as the picker having done nothing.
+    // The report is cached for an hour and survives a rebuild by design, so without this the card would keep drawing the old city until the TTL ran out.
     ref
       ..invalidate(weatherReportProvider)
       ..invalidate(pressureForecastProvider);

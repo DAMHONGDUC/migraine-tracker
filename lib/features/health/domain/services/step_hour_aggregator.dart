@@ -2,21 +2,10 @@ import '../entities/step_hour.dart';
 import '../entities/step_sample.dart';
 
 /// Turns raw HealthKit step samples into one count per hour.
-///
-/// The hourly twin of [StepDayAggregator], and it sums for the same reason:
-/// HealthKit already dedupes steps across the phone and the watch, so adding
-/// every sample in an hour is the honest total.
-///
-/// A sample is credited to the hour it *starts* in. Splitting one across the
-/// hours it spans would need a distribution HealthKit does not report, and
-/// inventing a flat one would put steps in minutes the user was sitting
-/// still.
 class StepHourAggregator {
   const StepHourAggregator();
 
-  /// [samples] in any order; the result is one entry per hour that has data,
-  /// oldest first. An hour with no samples is absent rather than zero — "no
-  /// record" is not "no steps", the same rule the daily aggregator follows.
+  /// [samples] in any order; the result is one entry per hour that has data, oldest first.
   List<StepHour> aggregate(List<StepSample> samples) {
     final Map<DateTime, int> totals = <DateTime, int>{};
 

@@ -10,16 +10,11 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_regi
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
-/// The location step's two doors onto one answer, and the one-screen rule it
-/// has to keep: the head, the named tiles under it, and no scrolling
-/// anywhere.
+/// The location step's two doors onto one answer, and the one-screen rule it has to keep: the head, the named tiles under it, and no scrolling anywhere.
 void main() {
   late List<HeadRegion> selected;
 
-  /// The height the log screen actually leaves `LocationStep` on a 393x852
-  /// phone, measured off the real tree rather than estimated: app bar,
-  /// status bar and the floating step bar taken off. If the picker ever
-  /// stops fitting in this, the step scrolls on a real device.
+  /// The height the log screen actually leaves `LocationStep` on a 393x852 phone, measured off the real tree rather than estimated.
   const double stepHeight = 706;
 
   Future<void> pumpPicker(
@@ -65,8 +60,7 @@ void main() {
   ) async {
     await pumpPicker(tester);
 
-    // Every scrollable in the tree must refuse to scroll: the grid shrink
-    // wraps, and nothing above it may add one either.
+    // Every scrollable in the tree must refuse to scroll: the grid shrink wraps, and nothing above it may add one either.
     for (final Scrollable scrollable
         in tester.widgetList<Scrollable>(find.byType(Scrollable))) {
       expect(scrollable.physics, isA<NeverScrollableScrollPhysics>());
@@ -74,8 +68,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  /// Scoped to the grid: the summary line under it spells the same areas
-  /// out, so a bare text finder matches twice.
+  /// Scoped to the grid: the summary line under it spells the same areas out, so a bare text finder matches twice.
   Finder tile(String label) => find.descendant(
     of: find.byType(HeadRegionGrid),
     matching: find.text(label),
@@ -117,18 +110,14 @@ void main() {
     await tester.tap(find.text('Back'));
     await tester.pumpAndSettle();
 
-    // The back view has four tiles to the front's eleven. The grid reserves
-    // the taller of the two either way, or the difference would land on the
-    // diagram above it.
+    // The back view has four tiles to the front's eleven.
     expect(tester.getRect(find.byType(HeadDiagram)), front);
   });
 
   testWidgets('the drawing fills the box it was given', (tester) async {
     await pumpPicker(tester);
 
-    // The bug this exists for: AnimatedSwitcher stacks its children under
-    // loose constraints, so the SVG drew at the asset's own 200x248 inside a
-    // box twice that size — and taps, mapped against the box, landed wrong.
+    // The bug this exists for: AnimatedSwitcher stacks its children under loose constraints, so the SVG drew at the asset's own 200x248 inside a box twice.
     expect(
       tester.getRect(
         find.descendant(
@@ -146,8 +135,7 @@ void main() {
     await pumpPicker(tester);
     final Rect head = tester.getRect(find.byType(HeadDiagram));
 
-    // The drawing is 200x248, and it must never be stretched to fill a box
-    // that is not — a head squashed sideways is worse than a small one.
+    // The drawing is 200x248, and it must never be stretched to fill a box that is not — a head squashed sideways is worse than a small one.
     expect(head.width / head.height, closeTo(200 / 248, 0.01));
     expect(head.width, lessThanOrEqualTo(393));
   });
@@ -160,9 +148,7 @@ void main() {
     final Rect head = tester.getRect(find.byType(HeadDiagram));
     final Rect grid = tester.getRect(find.byType(HeadRegionGrid));
 
-    // Owner's rule: 30 in from each edge, and the height follows from that
-    // width — never the other way round, which is what left the head adrift
-    // in a field of nothing on a tall phone.
+    // Derive height from the width so the head stays aligned.
     expect(head.left, 30);
     expect(head.width, 393 - 60);
     expect(head.height, closeTo(head.width / (200 / 248), 0.5));
@@ -176,15 +162,12 @@ void main() {
   ) async {
     await pumpPicker(tester);
 
-    // One area, no L/R pair: it sits ON the midline rather than either side
-    // of it. Owner reported the nose as unpickable — it was never dead, it
-    // was filed as an eye or a cheek.
+    // One area, no L/R pair: it sits ON the midline rather than either side of it.
     await tester.tap(tile('Nose'));
     await tester.pump();
     expect(selected, <HeadRegion>[HeadRegion.nose]);
 
-    // And the areas around it are cut to its outline, not run under it: the
-    // tip of the nose is the nose, from either side of the face.
+    // And the areas around it are cut to its outline, not run under it: the tip of the nose is the nose, from either side of the face.
     const Size design = HeadRegionGeometry.designSize;
     for (final Offset point in <Offset>[
       const Offset(96, 130), // bridge, left of centre
@@ -202,8 +185,7 @@ void main() {
   testWidgets('the head is still tappable beside the tiles', (tester) async {
     await pumpPicker(tester);
 
-    // The crown: the top of the drawing, which is the one band no other
-    // area can be confused with on either view.
+    // The crown: the top of the drawing, which is the one band no other area can be confused with on either view.
     final Rect head = tester.getRect(find.byType(HeadDiagram));
     await tester.tapAt(Offset(head.center.dx, head.top + head.height * 0.06));
     await tester.pump();

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/widgets/dismiss_keyboard_on_tap.dart';
 
-/// The app-wide rule: a tap on nothing puts the keyboard away, and a tap on
-/// something still reaches it.
+/// The app-wide rule: a tap on nothing puts the keyboard away, and a tap on something still reaches it.
 void main() {
   late FocusNode fieldFocus;
   late int buttonTaps;
@@ -51,9 +50,7 @@ void main() {
     await tester.tap(find.byType(TextField));
     await tester.pump();
 
-    // The child wins the gesture arena, so the button fires. Whether the
-    // field also loses focus is Flutter's business, not this widget's — what
-    // must not happen is the tap being swallowed.
+    // The child wins the gesture arena, so the button fires.
     await tester.tap(find.text('Save'));
     await tester.pump();
     expect(buttonTaps, 1);

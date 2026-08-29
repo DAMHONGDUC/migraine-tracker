@@ -64,8 +64,7 @@ void main() {
             )
             as Map<String, dynamic>;
 
-    // The document id is the record's identity; a second copy inside could
-    // only ever disagree with it.
+    // The document id is the record's identity; a second copy inside could only ever disagree with it.
     expect(json.containsKey('id'), isFalse);
   });
 
@@ -76,8 +75,7 @@ void main() {
       'occurredAt': DateTime.utc(2026, 8, 7).toIso8601String(),
     });
 
-    // Counted unreadable and skipped by the sync, which shows one row fewer
-    // rather than a row labelled as the wrong thing.
+    // Counted unreadable and skipped by the sync, which shows one row fewer rather than a row labelled as the wrong thing.
     expect(() => codec.decode(json, id: 'x'), throwsFormatException);
   });
 

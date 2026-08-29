@@ -9,17 +9,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 
 /// Records how long an attack lasted, after the fact.
-///
-/// Never part of the log flow: at the moment an attack is logged nobody knows
-/// how long it will run, and the three taps are sacred (hard rule 5).
-///
-/// Asks for a duration, not an end time — "about four hours" is what a person
-/// remembers, "it stopped at 14:37" is not. The end time is then derived from
-/// the attack's start.
-///
-/// Pops `(endedAt: …)`; `(endedAt: null)` is the user taking the answer back,
-/// and a bare null is dismissal. The two must stay distinguishable or the X
-/// would silently clear a duration.
 class AttackDurationSheet extends StatelessWidget {
   const AttackDurationSheet({
     required this.startedAt,
@@ -47,13 +36,10 @@ class AttackDurationSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // The common case for an attack still running: the user is looking
-          // at the app because it has just stopped.
+          // The common case for an attack still running: the user is looking at the app because it has just stopped.
           if (!sinceStart.isNegative)
             SizedBox(
-              // The same box the grid gives every other option: left to size
-              // itself it shrank to its line of text, a thin pill above ten
-              // chunky tiles. Same kind of answer, same kind of target.
+              // The same box the grid gives every other option: left to size itself it shrank to its line of text, a thin pill above ten chunky tiles.
               height: _DurationTile.height,
               child: _DurationTile(
                 label: l10n.attackDurationEndedNow,
@@ -86,8 +72,7 @@ class AttackDurationSheet extends StatelessWidget {
             },
           ),
           SizedBox(height: SdSpacingConstant.h8),
-          // Only offered once there is something to take back — a "clear"
-          // on a field that was never set says nothing.
+          // Only offered once there is something to take back — a "clear" on a field that was never set says nothing.
           if (endedAt != null)
             SdButtonV2(
               variant: SdButtonVariantV2.text,
@@ -108,9 +93,7 @@ class _DurationTile extends StatelessWidget {
     this.detail,
   });
 
-  /// One owner for how tall an option is, used by the grid's
-  /// `mainAxisExtent` and by the full-width tile above it — the two used to
-  /// carry the number separately and only one of them had it.
+  /// One owner for how tall an option is, used by the grid's `mainAxisExtent` and by the full-width tile above it.
   static double get height => SdSpacingConstant.h64;
 
   final String label;
@@ -170,8 +153,7 @@ class _DurationTile extends StatelessWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension AttackDurationSheetExt on AttackDurationSheet {
   Future<({DateTime? endedAt})?> show(BuildContext context) =>
       showSdBottomSheetV2<({DateTime? endedAt})>(

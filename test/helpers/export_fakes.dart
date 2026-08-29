@@ -5,8 +5,7 @@ import 'package:migraine_tracker/features/settings/domain/services/export_file_s
 import 'package:migraine_tracker/features/settings/domain/services/export_sharer.dart';
 import 'package:migraine_tracker/features/settings/domain/services/file_saver.dart';
 
-/// In-memory stand-in for the documents directory. Widget tests have no
-/// path_provider, so the real store would throw the moment anything exports.
+/// In-memory stand-in for the documents directory. Widget tests have no path_provider, so the real store would throw the moment anything exports.
 class FakeExportFileStore implements ExportFileStore {
   final Map<String, Uint8List> files = <String, Uint8List>{};
 
@@ -42,9 +41,7 @@ class FakeExportFileStore implements ExportFileStore {
   @override
   Future<void> deleteAll() async => files.clear();
 
-  /// The only file written, decoded as text — what the JSON/CSV assertions
-  /// read. Throws when there isn't exactly one, which is the bug worth
-  /// failing on rather than silently reading the wrong export.
+  /// The only file written, decoded as text — what the JSON/CSV assertions read.
   String get singleContent => utf8.decode(files.values.single);
 }
 
@@ -62,8 +59,7 @@ class RecordingExportSharer implements ExportSharer {
   }
 }
 
-/// Records "Save to Files" calls. [result] false simulates the user
-/// dismissing the system picker.
+/// Records "Save to Files" calls. [result] false simulates the user dismissing the system picker.
 class RecordingFileSaver implements FileSaver {
   RecordingFileSaver({this.result = true});
 

@@ -5,19 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_style.dart';
 import '../extensions/context_extensions.dart';
 
-/// Opens the picker and returns the picked time, or null if dismissed —
-/// `AppTimePickerSheet(initialTime: ...).show(context)`. See
-/// [AppTimePickerSheetExt].
-///
-/// A two-column hour/minute wheel picker, styled like iOS's built-in alarm
-/// time picker — built from Flutter's own [ListWheelScrollView] rather than
-/// the Cupertino widget so it can wear the app's own dark palette and text
-/// styles instead of Cupertino's fixed look.
-///
-/// Replaces the platform [showTimePicker] dialog for reminder times: that
-/// dialog is a bare Material route that bypasses `showSdDialogV2`/
-/// `showSdBottomSheetV2` entirely, so it never picked up this app's calm
-/// fade-in chrome or its `#1C1C1E`-family dark surface (hard rule 3).
+/// Opens the picker and returns the picked time, or null if dismissed — `AppTimePickerSheet(initialTime: ...).show(context)`.
 class AppTimePickerSheet extends StatefulWidget {
   const AppTimePickerSheet({
     required this.initialTime,
@@ -28,13 +16,10 @@ class AppTimePickerSheet extends StatefulWidget {
 
   final TimeOfDay initialTime;
 
-  /// Sheet heading. Defaults to the generic "Reminder time" when null so the
-  /// caller can name the action instead (e.g. "Add reminder" / "Edit
-  /// reminder").
+  /// Sheet heading. Defaults to the generic "Reminder time" when null so the caller can name the action instead (e.g. "Add reminder" / "Edit reminder").
   final String? title;
 
-  /// Row height shared by both wheels and the selection band behind them —
-  /// must match for the band to sit exactly behind the centered row.
+  /// Row height shared by both wheels and the selection band behind them — must match for the band to sit exactly behind the centered row.
   static double get rowExtent => SdSpacingConstant.h44;
 
   /// Rows visible at once (odd, so one sits exactly centered).
@@ -46,9 +31,7 @@ class AppTimePickerSheet extends StatefulWidget {
   State<AppTimePickerSheet> createState() => _AppTimePickerSheetState();
 }
 
-/// Presents the picker as a scroll-controlled bottom sheet and returns the
-/// picked time, or null when dismissed (see CLAUDE.md § Code style,
-/// "Bottom sheets and dialogs").
+/// Presents the picker as a scroll-controlled bottom sheet and returns the picked time, or null.
 extension AppTimePickerSheetExt on AppTimePickerSheet {
   Future<TimeOfDay?> show(BuildContext context) =>
       showSdBottomSheetV2<TimeOfDay>(
@@ -71,7 +54,6 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // - Cancel/Done flank the title (iOS-style), not a row under the wheels — keeps the confirm action next to the title.
-          // - Shared with every sheet that has actions; it brings its own insets, so nothing here pads around it.
           SdSheetHeaderV2(
             title: widget.title ?? l10n.remindersPickTimeTitle,
             closeTooltip: l10n.commonClose,
@@ -133,9 +115,7 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
   }
 }
 
-/// The rounded highlight band behind the centered row — spans both wheels
-/// and the colon between them, matching iOS's single continuous band across
-/// every column of its picker rather than one band per column.
+/// The rounded highlight band behind the centered row.
 class _SelectionBand extends StatelessWidget {
   const _SelectionBand();
 
@@ -158,11 +138,7 @@ class _SelectionBand extends StatelessWidget {
   }
 }
 
-/// One scrollable, snapping column of zero-padded numbers (hours or
-/// minutes). Rows fade and shrink continuously with distance from center —
-/// driven straight off the scroll controller's offset every frame, not
-/// just on settle — so the motion reads the same as a native wheel instead
-/// of an abrupt highlight swap.
+/// One scrollable, snapping column of zero-padded numbers (hours or minutes).
 class _NumberWheel extends StatefulWidget {
   const _NumberWheel({
     required this.itemCount,

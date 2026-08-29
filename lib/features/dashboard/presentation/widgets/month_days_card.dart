@@ -10,16 +10,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../insights/domain/entities/migraine_days_summary.dart';
 import '../../../insights/providers.dart';
 
-/// Migraine days this month — the figure a headache clinic opens with, and
-/// the one every preventive is judged on.
-///
-/// Days, not attacks, which is what separates it from [WeekSummaryCard] one
-/// card above: three attacks in one day is one day someone lost, and a drug
-/// that halves the attacks without touching the days has not worked.
-///
-/// It takes no `onTap`. The card above it already opens History's calendar,
-/// and two cards in one group leading to the same screen make the chevron
-/// mean nothing.
+/// Migraine days this month — the figure a headache clinic opens with, and the one every preventive is judged on.
 class MonthDaysCard extends ConsumerWidget {
   const MonthDaysCard({super.key});
 
@@ -45,8 +36,7 @@ class MonthDaysCard extends ConsumerWidget {
             ),
             SizedBox(height: SdSpacingConstant.h8),
             _DaysRow(days: current.days),
-            // Nothing to compare against on a first month, and a trend line
-            // that has to invent a baseline is worse than no line.
+            // Nothing to compare against on a first month, and a trend line that has to invent a baseline is worse than no line.
             if (change != null) ...<Widget>[
               SizedBox(height: SdSpacingConstant.h8),
               _MonthTrendRow(change: change),
@@ -58,8 +48,7 @@ class MonthDaysCard extends ConsumerWidget {
   }
 }
 
-/// The number at display size with its unit beside it, on a shared baseline —
-/// the same shape [WeekSummaryCard] uses, so the two read as one family.
+/// The number at display size with its unit beside it, on a shared baseline — the same shape [WeekSummaryCard] uses, so the two read as one family.
 class _DaysRow extends StatelessWidget {
   const _DaysRow({required this.days});
 
@@ -73,8 +62,7 @@ class _DaysRow extends StatelessWidget {
       children: <Widget>[
         Text('$days', style: AppTextStyle.displaySmall.w600),
         SizedBox(width: SdSpacingConstant.w8),
-        // Flexible, not Expanded: the unit runs longer in several locales and
-        // must wrap without the number losing its baseline.
+        // Flexible, not Expanded: the unit runs longer in several locales and must wrap without the number losing its baseline.
         Flexible(
           child: Text(
             context.l10n.dashboardMigraineDaysLabel(days),
@@ -86,9 +74,7 @@ class _DaysRow extends StatelessWidget {
   }
 }
 
-/// The month-on-month change, with the caveat that makes it honest: the
-/// current month is still running, so it is a partial month against a whole
-/// one and reads low early on.
+/// The month-on-month change, with the caveat that makes it honest.
 class _MonthTrendRow extends StatelessWidget {
   const _MonthTrendRow({required this.change});
 
@@ -98,8 +84,6 @@ class _MonthTrendRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     // - Teal marks the good direction; up and flat stay muted.
-    // - Never the error red: telling someone mid-month that they are in the
-    //   red is an alarm, not information. Same rule as the week card.
     final Color color = change < 0
         ? AppColors.secondary
         : AppColors.textSecondary;

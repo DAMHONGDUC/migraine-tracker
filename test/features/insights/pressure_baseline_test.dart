@@ -6,15 +6,12 @@ import 'package:migraine_tracker/features/insights/domain/services/correlation_e
 import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
-/// The denominator: what the correlation could not say before, because
-/// `WeatherSnapshots` is keyed by attackId and days without an attack carried
-/// no weather at all.
+/// The denominator: what the correlation could not say before, because `WeatherSnapshots` is keyed by attackId and days without an attack carried no.
 void main() {
   const CorrelationEngine engine = CorrelationEngine();
   final DateTime start = DateTime(2026, 6, 1);
 
-  /// The delta varies with the day so the engine does not read the history as
-  /// "all the same weather" — a real history never is.
+  /// The delta varies with the day so the engine does not read the history as "all the same weather" — a real history never is.
   Attack attackOn(int dayOffset, {double? delta}) => Attack(
     id: 'a$dayOffset',
     startedAt: start.add(Duration(days: dayOffset, hours: 9)),
@@ -50,8 +47,7 @@ void main() {
     }
     for (int i = 0; i < calmDays; i++, offset++) {
       days.add(day(offset, delta: 1));
-      // A calm DAY can still hold an attack whose own snapshot fell — the two
-      // readings are taken at different times.
+      // A calm DAY can still hold an attack whose own snapshot fell — the two readings are taken at different times.
       if (i < calmWithAttack) attacks.add(attackOn(offset, delta: 1.0 + i));
     }
     return (attacks: attacks, days: days);
@@ -62,8 +58,7 @@ void main() {
 
     expect(result, isA<CorrelationInsight>());
     expect((result as CorrelationInsight).baseline, isNull);
-    // The old figure is untouched — an existing user whose history predates
-    // the daily readings must not lose the card.
+    // The old figure is untouched — an existing user whose history predates the daily readings must not lose the card.
     expect(result.attacksDuringPressureDrop, 1);
   });
 
@@ -88,9 +83,7 @@ void main() {
     expect(baseline.timesMoreLikely, 6);
   });
 
-  // The exact failure the denominator exists to fix: someone in a stormy
-  // climate whose attacks have nothing to do with pressure. Their share of
-  // attacks-during-drops is high, and the baseline says so.
+  // The exact failure the denominator exists to fix: someone in a stormy climate whose attacks have nothing to do with pressure.
   test('a stormy climate no longer looks like a finding', () {
     final ({List<Attack> attacks, List<DailyPressure> days}) h = history(
       dropDays: 25,
@@ -141,8 +134,7 @@ void main() {
       );
     });
 
-    // Dividing by zero would print "infinitely more likely" off a handful of
-    // quiet days.
+    // Dividing by zero would print "infinitely more likely" off a handful of quiet days.
     test('no calm day with an attack means no multiplier, but still rates', () {
       final ({List<Attack> attacks, List<DailyPressure> days}) h = history(
         dropDays: 10,
@@ -160,8 +152,7 @@ void main() {
     });
   });
 
-  // Three attacks in one day is still one day that ended in an attack;
-  // counting them separately would let a single bad day carry the comparison.
+  // Three attacks in one day is still one day that ended in an attack; counting them separately would let a single bad day carry the comparison.
   test('a day counts once however many attacks it held', () {
     final List<DailyPressure> days = <DailyPressure>[
       for (int i = 0; i < 10; i++) day(i, delta: -8),

@@ -1,11 +1,6 @@
 part of 'export_screen.dart';
 
 /// The list of past exports, newest first, narrowed to the picked date window.
-/// Streams from Drift, so a new export appears the moment it is recorded.
-///
-/// Three states, not two: nothing exported yet ([_EmptyState], no filter to
-/// offer), a window that matches nothing ([_NoMatchState], with the pill still
-/// there to widen or clear it), or the rows.
 class _History extends ConsumerWidget {
   const _History({required this.onRecordTap});
 
@@ -46,8 +41,7 @@ class _History extends ConsumerWidget {
         ],
       ),
       AsyncError() => const _EmptyState(),
-      // Rows rather than a spinner: this sits under a heading in a column, so
-      // the block below it should not jump when the records arrive.
+      // Rows rather than a spinner: this sits under a heading in a column, so the block below it should not jump when the records arrive.
       _ => const SdListSkeletonV2(rows: 3),
     };
   }

@@ -1,13 +1,4 @@
-/**
- * Rounds a coordinate to the cell the weather is cached against.
- *
- * Two jobs at once, and both matter. It bounds WeatherKit calls: everyone in
- * roughly the same place shares one fetch, so the 500k monthly quota scales
- * with populated cells rather than with users — the same reasoning as the
- * cron's geohash grouping (hard rule 10). And it means the backend never
- * stores a precise position: 0.1° is ~11km, the same order as the 5-char
- * geohash hard rule 1 allows for alert registration.
- */
+/** Rounds a coordinate to the cell the weather is cached against. */
 export const CELL_DEGREES = 0.1;
 
 /** How long a cached hourly series is served before it is refetched. */

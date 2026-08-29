@@ -48,8 +48,7 @@ void main() {
         HealthRange.halfYear,
       );
 
-      // The week between them had no samples at all — "no record" is not
-      // "no steps", so it must not be drawn as a bar on the floor.
+      // The week between them had no samples at all — "no record" is not "no steps", so it must not be drawn as a bar on the floor.
       expect(buckets, hasLength(2));
     });
   });

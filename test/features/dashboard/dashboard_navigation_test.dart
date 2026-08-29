@@ -33,8 +33,7 @@ Future<void> _settle(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// The explore grid sits below the fold, and its last row is under the
-/// floating nav pill — [tapVisible] is what clears both.
+/// The explore grid sits below the fold, and its last row is under the floating nav pill — [tapVisible] is what clears both.
 Future<void> _tapExploreCard(WidgetTester tester, String title) async {
   await tapVisible(tester, find.text(title));
   await _settle(tester);
@@ -66,8 +65,7 @@ void main() {
     // The severity mix card appears once there are attacks.
     expect(find.text('Severity mix'), findsOneWidget);
 
-    // Chart is wrapped in IgnorePointer so the whole card is one tap target;
-    // warnIfMissed lets the hit fall through to the SdPressableScaleV2 behind it.
+    // Chart is wrapped in IgnorePointer so the whole card is one tap target; warnIfMissed lets the hit fall through to the SdPressableScaleV2 behind it.
     final card = find.byType(DashboardSeverityCard);
     await tester.ensureVisible(card);
     await _settle(tester);
@@ -135,8 +133,7 @@ void main() {
     await tapVisible(tester, find.byType(NextReminderBanner));
     await _settle(tester);
 
-    // Landed on that medication's own screen, with the reminder on it —
-    // not the Medications tab it used to scroll and flash.
+    // Landed on that medication's own screen, with the reminder on it — not the Medications tab it used to scroll and flash.
     expect(find.text('Ibuprofen'), findsWidgets);
     expect(find.text('Reminders'), findsOneWidget);
     expect(find.text('09:00'), findsOneWidget);
@@ -170,8 +167,7 @@ void main() {
 
     await _tapExploreCard(tester, 'Export');
 
-    // - not the Settings tab with an "Export data" row — the card must land on the screen it advertised
-    // - both surfaces carry that title, so match the screen itself, not the text
+    // - not the Settings tab with an "Export data" row.
     expect(find.byType(ExportScreen), findsOneWidget);
     expect(find.text('No exports yet'), findsOneWidget);
 
@@ -199,14 +195,12 @@ void main() {
     await _settle(tester);
 
     expect(find.byType(PremiumBanner), findsOneWidget);
-    // Above the log button, which is what "top" means here — the order of the
-    // sections list is the whole feature.
+    // Above the log button, which is what "top" means here — the order of the sections list is the whole feature.
     expect(
       tester.getRect(find.byType(PremiumBanner)).top,
       lessThan(tester.getRect(find.byType(DashboardLogButton)).top),
     );
-    // One line and one line only: the supporting sentence was dropped to keep
-    // the offer from being the tallest thing above the fold.
+    // One line and one line only: the supporting sentence was dropped to keep the offer from being the tallest thing above the fold.
     expect(
       find.descendant(
         of: find.byType(PremiumBanner),

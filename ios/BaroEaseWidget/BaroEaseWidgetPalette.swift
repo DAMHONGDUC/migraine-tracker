@@ -1,11 +1,6 @@
 import SwiftUI
 
 /// The app's palette, mirrored.
-///
-/// `lib/core/theme/app_colors.dart` is the source of truth and this is the
-/// one place allowed to restate it: a widget extension is a separate binary
-/// and cannot read Dart. Every value here names the `AppColors` field it
-/// copies, so a change over there has one place to land over here.
 enum BaroEasePalette {
   /// AppColors.background
   static let background = Color(hex: 0x0E0E10)

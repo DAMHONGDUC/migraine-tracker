@@ -11,7 +11,6 @@ class InstalledAppVersion {
   /// `1.4.0` — the marketing version.
   final String buildName;
 
-  /// `+12` in pubspec. 0 means it could not be read; the checker treats
-  /// that as unknown and blocks nobody.
+  /// `+12` in pubspec. 0 means it could not be read; the checker treats that as unknown and blocks nobody.
   final int buildNumber;
 }

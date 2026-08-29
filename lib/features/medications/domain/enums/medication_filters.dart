@@ -1,24 +1,15 @@
 import 'package:meta/meta.dart';
 
-/// When the medication was added, bucketed the same calendar windows as
-/// History's period filter (today / this week / this month / this year /
-/// all). Kept as its own enum rather than reusing `HistoryPeriod` —
-/// identical buckets, but coupling this feature to History's enum would be
-/// a surprising cross-feature dependency for what is really its own filter
-/// axis with its own null case (see [MedicationFilterer]).
+/// When the medication was added, bucketed the same calendar windows as History's period filter (today / this week / this month / this year / all).
 enum MedicationDateFilter { today, week, month, year, all }
 
-/// Whether the medication has any local reminder configured. Asks "did the
-/// user set one up", not "is it currently firing" — a disabled reminder
-/// still counts as [withReminder].
+/// Whether the medication has any local reminder configured.
 enum MedicationReminderFilter { all, withReminder, withoutReminder }
 
 /// Whether the medication has ever been picked in a logged attack.
 enum MedicationUsageFilter { all, everUsed, neverUsed }
 
-/// The medications tab's three independent filter axes, combined with AND.
-/// Each axis defaults to "no filter" so a freshly opened tab shows
-/// everything.
+/// The medications tab's three independent filter axes, combined with AND. Each axis defaults to "no filter" so a freshly opened tab shows everything.
 @immutable
 class MedicationFilters {
   const MedicationFilters({

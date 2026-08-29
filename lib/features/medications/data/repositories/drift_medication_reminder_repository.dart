@@ -55,8 +55,7 @@ class DriftMedicationReminderRepository
               medicationId: reminder.medicationId,
               minuteOfDay: reminder.minuteOfDay,
               enabled: Value(reminder.enabled),
-              // Stamped once and preserved: an edit must not move the bound
-              // the notification window reads off it.
+              // Stamped once and preserved: an edit must not move the bound the notification window reads off it.
               createdAt: Value(
                 existing?.createdAt ??
                     reminder.createdAt ??
@@ -73,8 +72,7 @@ class DriftMedicationReminderRepository
     });
   }
 
-  /// Really deletes, and leaves a tombstone holding only the id so the
-  /// deletion still reaches the user's other devices.
+  /// Really deletes, and leaves a tombstone holding only the id so the deletion still reaches the user's other devices.
   @override
   Future<void> deleteById(String id) {
     return _db.transaction(() async {
@@ -87,8 +85,7 @@ class DriftMedicationReminderRepository
     });
   }
 
-  /// GDPR wipe. Tombstones go too: the remote copy is deleted wholesale in
-  /// the same pass, so there is nothing left to tell the server about.
+  /// GDPR wipe. Tombstones go too: the remote copy is deleted wholesale in the same pass, so there is nothing left to tell the server about.
   @override
   Future<void> deleteAll() {
     return _db.transaction(() async {

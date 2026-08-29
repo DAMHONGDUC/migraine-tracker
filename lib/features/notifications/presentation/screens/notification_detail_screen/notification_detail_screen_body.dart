@@ -1,7 +1,6 @@
 part of 'notification_detail_screen.dart';
 
-/// The reading, then the action. `SdActionViewV2` so the button holds the
-/// bottom edge and the content above it can grow.
+/// The reading, then the action. `SdActionViewV2` so the button holds the bottom edge and the content above it can grow.
 class _Body extends ConsumerWidget {
   const _Body({required this.notification});
 
@@ -60,8 +59,7 @@ class _Body extends ConsumerWidget {
     return ref.watch(medicationByIdProvider(id));
   }
 
-  /// Built from the medication's current name, never a stored string — rename
-  /// it and the history renames with it.
+  /// Built from the medication's current name, never a stored string — rename it and the history renames with it.
   String _headline(AppLocalizations l10n, Medication? medication) =>
       switch (notification.type) {
         NotificationType.pressureAlert => l10n.notificationPressureTitle,
@@ -71,14 +69,12 @@ class _Body extends ConsumerWidget {
               : l10n.notificationReminderTitle(medication.name),
       };
 
-  /// Null where there is nothing more to say than the headline — a reminder
-  /// is its own explanation.
+  /// Null where there is nothing more to say than the headline — a reminder is its own explanation.
   String? _body(AppLocalizations l10n) {
     final double? drop = notification.pressureDropHpa;
 
     if (notification.type != NotificationType.pressureAlert) return null;
-    // A drop the payload never carried leaves the reading out rather than
-    // printing a number the forecast did not give.
+    // A drop the payload never carried leaves the reading out rather than printing a number the forecast did not give.
     if (drop == null) return null;
     return l10n.notificationPressureBody(
       NumberFormat.decimalPattern(l10n.localeName).format(drop.abs()),
@@ -86,10 +82,6 @@ class _Body extends ConsumerWidget {
   }
 
   /// One button, and which one is the whole reason the type is stored.
-  ///
-  /// A reminder whose medication has since been deleted gets the disabled
-  /// button rather than none: the row still says what it was, and a button
-  /// that vanishes reads as a bug.
   Widget _action(
     BuildContext context,
     WidgetRef ref, {

@@ -51,9 +51,7 @@ class DriftNotificationRepository implements NotificationRepository {
               revision: const Value(1),
             ),
         ],
-        // The whole point of a derived id: a row already here is the same
-        // row, so ignoring the second write costs nothing and protects the
-        // read state it already carries.
+        // The whole point of a derived id.
         mode: InsertMode.insertOrIgnore,
       );
     });
@@ -88,8 +86,7 @@ class DriftNotificationRepository implements NotificationRepository {
         _db.appNotifications,
       )..where((t) => t.id.equals(id))).getSingleOrNull();
 
-      // Already read, or gone: bumping the revision would push a row that
-      // says exactly what the server already has.
+      // Already read, or gone: bumping the revision would push a row that says exactly what the server already has.
       if (row == null || row.readAt != null) return;
       await (_db.update(
         _db.appNotifications,
@@ -104,8 +101,7 @@ class DriftNotificationRepository implements NotificationRepository {
     });
   }
 
-  /// GDPR wipe. Tombstones go too — the remote copy is deleted wholesale in
-  /// the same pass, so there is nothing left to tell the server about.
+  /// GDPR wipe. Tombstones go too — the remote copy is deleted wholesale in the same pass, so there is nothing left to tell the server about.
   @override
   Future<void> deleteAll() {
     return _db.transaction(() async {

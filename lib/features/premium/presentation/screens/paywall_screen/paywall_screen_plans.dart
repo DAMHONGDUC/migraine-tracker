@@ -1,9 +1,6 @@
 part of 'paywall_screen.dart';
 
 /// The buyable plans, one selectable row each.
-///
-/// Prices are the store's own formatted strings — never assembled here, so
-/// the currency and its placement always match the customer's storefront.
 class _Plans extends StatelessWidget {
   const _Plans({
     required this.offers,

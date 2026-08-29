@@ -1,10 +1,6 @@
 import 'package:meta/meta.dart';
 
 /// What the Settings row is allowed to know about a wipe in flight.
-///
-/// A bool and a fraction, with no `failed` state on purpose: a failed wipe
-/// says so in a snackbar and the row goes back to being a row. A phase
-/// nothing renders is state that can only drift.
 @immutable
 class WipeStatus {
   const WipeStatus({this.isRunning = false, this.progress = 0});
@@ -13,8 +9,7 @@ class WipeStatus {
 
   final bool isRunning;
 
-  /// How far the wipe in flight has got, 0 to 1. Only meaningful while
-  /// [isRunning].
+  /// How far the wipe in flight has got, 0 to 1. Only meaningful while [isRunning].
   final double progress;
 
   /// [progress] as whole percent, which is all the UI ever shows.

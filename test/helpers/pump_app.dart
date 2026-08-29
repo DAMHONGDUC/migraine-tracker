@@ -63,18 +63,11 @@ import 'notification_fakes.dart';
 import 'review_fakes.dart';
 import 'sync_fakes.dart';
 
-/// Stands in for geolocator, which a widget test has no platform channel
-/// for — the real source's `requestPermission` never completes there, so a
-/// screen awaiting it would hang forever.
-///
-/// It records the ask, which is what onboarding asserts on: App Store
-/// 5.1.1(iv) makes "the explainer is always followed by the OS prompt" a
-/// rule, and only a recorded call proves it.
+/// Stands in for geolocator, which a widget test has no platform channel for — the real source's `requestPermission` never completes there, so a screen.
 class RecordingLocationSource implements LocationSource {
   RecordingLocationSource({this.granted = true});
 
-  /// What the OS answers. False covers a denial, which changes nothing about
-  /// onboarding moving on.
+  /// What the OS answers. False covers a denial, which changes nothing about onboarding moving on.
   final bool granted;
 
   int requestCalls = 0;
@@ -91,8 +84,7 @@ class RecordingLocationSource implements LocationSource {
   }
 }
 
-/// Offline-behaving weather stub: widget tests never touch geolocator or
-/// the network.
+/// Offline-behaving weather stub: widget tests never touch geolocator or the network.
 class FakeWeatherRepository implements WeatherRepository {
   FakeWeatherRepository({this.snapshot});
 
@@ -108,9 +100,7 @@ class FakeWeatherRepository implements WeatherRepository {
   @override
   Future<PressureForecast?> pressureForecast() async => forecast;
 
-  /// The weather card's payload. Null by default — no weather — because most
-  /// tests care about some other card. Set it to make the card draw, and
-  /// count [reportCalls] to prove something asked again.
+  /// The weather card's payload.
   WeatherReport? weatherReport;
 
   int reportCalls = 0;
@@ -125,8 +115,7 @@ class FakeWeatherRepository implements WeatherRepository {
 
 /// No-op scheduler so widget tests never touch the notifications plugin.
 class FakeNotificationScheduler implements NotificationScheduler {
-  /// Set when [scheduleTest] is called, so a test can assert the debug
-  /// "test notification" action reached the scheduler.
+  /// Set when [scheduleTest] is called, so a test can assert the debug "test notification" action reached the scheduler.
   bool testScheduled = false;
 
   /// Reminder id a test replays as a tap on a running app.
@@ -170,8 +159,7 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
-/// Serves whatever update record a test asks for. Default: no record at
-/// all, so the force-update wrapper never blocks the app under test.
+/// Serves whatever update record a test asks for. Default: no record at all, so the force-update wrapper never blocks the app under test.
 class FakeAppUpdateRepository implements AppUpdateRepository {
   FakeAppUpdateRepository({this.config});
 
@@ -201,8 +189,7 @@ class FakeStoreLauncher implements StoreLauncher {
   }
 }
 
-/// Records the mailto: recipient/subject instead of leaving the test to
-/// url_launcher.
+/// Records the mailto: recipient/subject instead of leaving the test to url_launcher.
 class FakeMailLauncher implements MailLauncher {
   String? to;
   String? subject;
@@ -224,8 +211,7 @@ class FakeMailLauncher implements MailLauncher {
   }
 }
 
-/// In-memory account. Not optional like the other fakes: `authUserProvider`
-/// is watched at build time, so a real one drags Firebase into the tree.
+/// In-memory account. Not optional like the other fakes: `authUserProvider` is watched at build time, so a real one drags Firebase into the tree.
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({bool signedIn = false})
     : _user = signedIn
@@ -289,12 +275,10 @@ class FakeAuthRepository implements AuthRepository {
   /// Records that the account was torn down, without pretending to do it.
   int deleteAccountCalls = 0;
 
-  /// Records the Apple revoke, so a test can assert it ran BEFORE the wipe —
-  /// the ordering the real deletion depends on.
+  /// Records the Apple revoke, so a test can assert it ran BEFORE the wipe — the ordering the real deletion depends on.
   int revokeAppleTokenCalls = 0;
 
-  /// Set to make [revokeAppleTokenIfLinked] throw, standing in for the user
-  /// backing out of the Apple sheet that deletion re-opens.
+  /// Set to make [revokeAppleTokenIfLinked] throw, standing in for the user backing out of the Apple sheet that deletion re-opens.
   AuthError? revokeFailsWith;
 
   @override
@@ -325,8 +309,7 @@ class FakeAuthRepository implements AuthRepository {
   void dispose() => _controller.close();
 }
 
-/// In-memory account document. The account tab watches it, so a real one
-/// would drag Firestore into the test tree.
+/// In-memory account document. The account tab watches it, so a real one would drag Firestore into the test tree.
 class FakeUserProfileRepository implements UserProfileRepository {
   FakeUserProfileRepository({this.profile});
 
@@ -374,10 +357,6 @@ class FakeUserProfileRepository implements UserProfileRepository {
 }
 
 /// Entitlement state a test sets directly.
-///
-/// There is no local premium repository in the app any more — premium comes
-/// from RevenueCat and nothing the client can write (CLAUDE.md) — so the way
-/// a test gets a premium user is to override the provider with this.
 class FakePremiumRepository implements PremiumRepository {
   FakePremiumRepository({bool premium = false}) : _isPremium = premium;
 
@@ -402,9 +381,7 @@ class FakePremiumRepository implements PremiumRepository {
   void dispose() => _controller.close();
 }
 
-/// The store, without a store. A purchase grants the entitlement through
-/// [FakePremiumRepository], so it behaves like the real thing: the paywall
-/// never decides premium itself, the entitlement stream does.
+/// The store, without a store.
 class FakePurchaseRepository implements PurchaseRepository {
   FakePurchaseRepository(this._premium);
 
@@ -426,14 +403,9 @@ class FakePurchaseRepository implements PurchaseRepository {
   ];
 
   /// Set to make [purchase] and [restore] throw this instead of granting.
-  ///
-  /// Deliberately NOT applied to [offers]: when one flag drove both, setting
-  /// it emptied the paywall, which disabled the CTA — so a "purchase fails"
-  /// test passed without a purchase ever being attempted.
   Exception? failWith;
 
-  /// Set to make loading the offerings fail, which is a different story: the
-  /// paywall has nothing to show rather than something that fails on tap.
+  /// Set to make loading the offerings fail, which is a different story: the paywall has nothing to show rather than something that fails on tap.
   Exception? offersFailWith;
 
   /// Whether [restore] finds anything.
@@ -486,25 +458,20 @@ class FakePurchaseRepository implements PurchaseRepository {
   Future<void> forget() async => identified.add(null);
 }
 
-/// Stands in for HealthKit. Unavailable by default, so every existing test
-/// sees the shipped Android/simulator shape (no Apple Health row, no sleep
-/// card) and nothing touches the plugin.
+/// Stands in for HealthKit.
 class FakeHealthRepository implements HealthRepository {
   FakeHealthRepository({this.isAvailable = false});
 
   @override
   bool isAvailable;
 
-  /// What the authorization sheet reports. False covers the "couldn't
-  /// connect" branch.
+  /// What the authorization sheet reports. False covers the "couldn't connect" branch.
   bool authorizes = true;
 
-  /// Served by [sleepNights], unfiltered — tests hand over exactly the nights
-  /// they want analysed.
+  /// Served by [sleepNights], unfiltered — tests hand over exactly the nights they want analysed.
   List<SleepNight> nights = <SleepNight>[];
 
-  /// Served by [stepDays], unfiltered — tests hand over exactly the days they
-  /// want analysed.
+  /// Served by [stepDays], unfiltered — tests hand over exactly the days they want analysed.
   List<StepDay> days = <StepDay>[];
 
   /// Served by [stepHours], unfiltered — the step chart's Day range.
@@ -512,15 +479,13 @@ class FakeHealthRepository implements HealthRepository {
 
   int authorizationRequests = 0;
 
-  /// How many times sleep was actually read — the assertion behind "a free
-  /// user never reaches a HealthKit read".
+  /// How many times sleep was actually read — the assertion behind "a free user never reaches a HealthKit read".
   int sleepReads = 0;
 
   /// How many times steps were actually read — same role as [sleepReads].
   int stepReads = 0;
 
-  /// Reads of the hourly series, counted separately: the Day range is its own
-  /// query, so a test can tell which one a card issued.
+  /// Reads of the hourly series, counted separately: the Day range is its own query, so a test can tell which one a card issued.
   int stepHourReads = 0;
 
   /// Which sources were asked for: sleep and steps prompt separately now.
@@ -562,8 +527,7 @@ class FakeHealthRepository implements HealthRepository {
   }
 }
 
-/// Grants permissions by default; a test can flip [statusFor] to exercise the
-/// permanently-denied → settings-sheet path. Never touches the OS.
+/// Grants permissions by default; a test can flip [statusFor] to exercise the permanently-denied → settings-sheet path. Never touches the OS.
 class FakeAppPermissionGateway implements AppPermissionGateway {
   AppPermissionStatus statusFor = AppPermissionStatus.granted;
   int openSettingsCalls = 0;
@@ -605,8 +569,7 @@ class PumpedApp {
   final FakeNotificationScheduler scheduler;
   final FakeAppPermissionGateway permissions;
 
-  /// The location plugin's stand-in. `requestCalls` is how a test proves
-  /// the OS prompt was actually raised.
+  /// The location plugin's stand-in. `requestCalls` is how a test proves the OS prompt was actually raised.
   final RecordingLocationSource location;
   final FakeAuthRepository auth;
   final FakeAppUpdateRepository appUpdate;
@@ -623,56 +586,44 @@ class PumpedApp {
   /// The fake store behind the paywall.
   final FakePurchaseRepository purchases;
 
-  /// Where exports landed. Read `singleContent` to assert on what was
-  /// written without touching a real filesystem.
+  /// Where exports landed. Read `singleContent` to assert on what was written without touching a real filesystem.
   final FakeExportFileStore exportFiles;
 
   /// The share images the GDPR wipe has to reach. `cleared` says it did.
   final RecordingShareFileStore shareFiles;
 }
 
-/// Boots the full app with an in-memory database, mock prefs, and stubbed
-/// weather. Uses bounded pumps — see the Drift/pumpAndSettle note below.
+/// Boots the full app with an in-memory database, mock prefs, and stubbed weather. Uses bounded pumps — see the Drift/pumpAndSettle note below.
 Future<PumpedApp> pumpApp(
   WidgetTester tester, {
   Map<String, Object> initialPrefs = const {},
   WeatherSnapshot? weatherSnapshot,
-  // Riverpod 3 no longer exports the `Override` type, so the helper takes
-  // the concrete fakes it knows about instead of a generic override list.
+  // Riverpod 3 no longer exports the `Override` type, so the helper takes the concrete fakes it knows about instead of a generic override list.
   RecordingExportSharer? exportSharer,
   RecordingFileSaver? fileSaver,
 
   /// Default free — gating tests must opt in to premium explicitly.
   bool premium = false,
 
-  /// Default signed out, and independent of [premium]: buying needs no
-  /// account (App Store 5.1.1(v)), so the two are unrelated states.
+  /// Default signed out, and independent of [premium]: buying needs no account (App Store 5.1.1(v)), so the two are unrelated states.
   bool signedIn = false,
 
-  /// On, as shipped: the Apple button runs the real flow (App Store 4.8).
-  /// False covers the kill-switch state, where tapping it says so instead.
+  /// On, as shipped: the Apple button runs the real flow (App Store 4.8). False covers the kill-switch state, where tapping it says so instead.
   bool appleSignIn = true,
 
-  /// What `SdGlassV2.isSupported` reports. Defaults to true (the shipped iOS
-  /// path); pass false to cover the Android/Skia fallback chrome.
+  /// What `SdGlassV2.isSupported` reports. Defaults to true (the shipped iOS path); pass false to cover the Android/Skia fallback chrome.
   bool glassSupported = true,
 
-  /// What every OS permission answers from the first frame. Granted by
-  /// default; set before the pump because the weather card reads location's
-  /// status while it builds, and flipping `permissions.statusFor` afterwards
-  /// is a frame too late.
+  /// What every OS permission answers from the first frame.
   AppPermissionStatus permissionStatus = AppPermissionStatus.granted,
 
-  /// The account document the account tab reads. Null = not written yet,
-  /// which is what a brand-new sign-in looks like.
+  /// The account document the account tab reads. Null = not written yet, which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
 
-  /// The record the force-update check reads. Null (default) = no record,
-  /// so the blocking sheet never appears.
+  /// The record the force-update check reads. Null (default) = no record, so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
 
-  /// Whether this fake device has HealthKit. False by default — the Apple
-  /// Health row and the sleep card are iOS-only surfaces.
+  /// Whether this fake device has HealthKit. False by default — the Apple Health row and the sleep card are iOS-only surfaces.
   bool healthAvailable = false,
 
   /// Nights the fake HealthKit serves to the sleep correlation.
@@ -681,27 +632,23 @@ Future<PumpedApp> pumpApp(
   /// Days the fake HealthKit serves to the step correlation.
   List<StepDay> stepDays = const <StepDay>[],
 
-  /// The build this fake device is running. Both are high by default, so a
-  /// test that passes [appUpdate] still has to opt into being out of date.
+  /// The build this fake device is running. Both are high by default, so a test that passes [appUpdate] still has to opt into being out of date.
   String installedBuildName = '99.0.0',
   int installedBuildNumber = 9999,
 }) async {
-  // - pin the test view to the 393×852 design size (an iPhone-class screen, DPR 3 = 1179×2556 physical)
-  // - the default 800×600 surface scales `.sp`/`.w`/`.h` ~2×, distorting layout and pushing tap targets off-screen
+  // - pin the test view to the 393×852 design size (an iPhone-class screen, DPR 3 = 1179×2556 physical).
   tester.view.physicalSize = const Size(393 * 3, 852 * 3);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  // - the test engine is Skia, so SdGlassV2.isSupported would always be false and tests would assert the fallback layout
-  // - glass still renders as FakeGlass here; only the insets follow
+  // - the test engine is Skia, so SdGlassV2.isSupported would always be false and tests would assert the fallback layout.
   SdGlassV2.debugSupported = glassSupported;
   addTearDown(() => SdGlassV2.debugSupported = null);
 
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
-  // Onboarding is considered done by default so existing tests land on the
-  // dashboard; pass onboarding_completed: false to exercise onboarding.
+  // Onboarding is considered done by default so existing tests land on the dashboard; pass onboarding_completed: false to exercise onboarding.
   SharedPreferences.setMockInitialValues({
     PrefsKeyConstant.onboardingCompleted: true,
     ...initialPrefs,
@@ -761,31 +708,24 @@ Future<PumpedApp> pumpApp(
           ),
         ),
         appleSignInImplementedProvider.overrideWithValue(appleSignIn),
-        // Always overridden: the real store needs path_provider, which a
-        // widget test does not have.
+        // Always overridden: the real store needs path_provider, which a widget test does not have.
         exportFileStoreProvider.overrideWithValue(exportFiles),
-        // Same reason, and the wipe awaits it: `TemporaryShareFileStore`
-        // asks path_provider for the temp folder, which never answers in a
-        // test — so "Delete all data" would sit unfinished forever.
+        // Same reason, and the wipe awaits it.
         attackShareFileStoreProvider.overrideWithValue(shareFiles),
-        // Always overridden too: the app root fires a sync on sign-in, and
-        // the real repositories reach for Firebase, which no widget test has.
+        // Always overridden too: the app root fires a sync on sign-in, and the real repositories reach for Firebase, which no widget test has.
         syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
         remoteSyncRepositoryProvider.overrideWithValue(
           FakeRemoteSyncRepository(),
         ),
-        // Same reason: the GDPR wipe gives up the push token, and the real
-        // repository reaches for FirebaseAuth and Firestore to do it.
+        // Same reason: the GDPR wipe gives up the push token, and the real repository reaches for FirebaseAuth and Firestore to do it.
         alertRegistrationRepositoryProvider.overrideWithValue(
           RecordingAlertRegistration(),
         ),
-        // And again: the app root reconciles the last pressure alert on
-        // launch, which is a Firestore read of `users/{uid}`.
+        // And again: the app root reconciles the last pressure alert on launch, which is a Firestore read of `users/{uid}`.
         lastAlertRepositoryProvider.overrideWithValue(
           FakeLastAlertRepository(),
         ),
-        // Every saved attack and every shared report reaches the review
-        // prompt, and the real one is a platform channel.
+        // Every saved attack and every shared report reaches the review prompt, and the real one is a platform channel.
         reviewPrompterProvider.overrideWithValue(RecordingReviewPrompter()),
         if (exportSharer != null)
           exportSharerProvider.overrideWithValue(exportSharer),
@@ -818,44 +758,18 @@ Future<PumpedApp> pumpApp(
 }
 
 /// Must be the last statement of every test that used [pumpApp].
-///
-/// Flutter's end-of-test "no pending timers" check runs the instant the
-/// test body returns — before addTearDown callbacks. Disposing the tree
-/// here lets Drift's zero-duration stream-cancellation Timer (scheduled
-/// when a Drift-backed StreamProvider is torn down) fire first.
 Future<void> finishTest(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(milliseconds: 500));
 }
 
 /// The [TextField] inside the [SdTextFieldV2] labelled [label].
-///
-/// [SdTextFieldV2] draws its label as a `Text` *above* the box, not inside
-/// its `InputDecoration` — so, unlike a raw `TextField`,
-/// `find.widgetWithText(TextField, label)` never matches it (that finder
-/// wants the label as a descendant of the `TextField` itself). This walks up
-/// from the label to the field that owns it instead.
 Finder findLabelledField(String label) => find.descendant(
   of: find.ancestor(of: find.text(label), matching: find.byType(SdTextFieldV2)),
   matching: find.byType(TextField),
 );
 
-/// Scrolls until [finder] has been built, and does nothing when it already
-/// has been.
-///
-/// A long list builds lazily, so a row far enough down does not exist yet and
-/// anything measuring it throws on an empty finder — as `Bad state: No
-/// element`, which reads as a broken helper rather than as "scroll further".
-/// Two rows added to Settings is all it took the first time, and the dev
-/// group moving to the top of that screen is what took it a second time.
-///
-/// **An `expect(find.text(...), findsOneWidget)` on a settings row needs this
-/// first.** A finder is not a camera: a row below the built range is absent
-/// from the tree, not merely off-screen, and the assertion fails on a screen
-/// that is perfectly correct.
-///
-/// `find.byType(Scrollable).first` is the visible tab's own list — the shell's
-/// other branches are offstage in its `IndexedStack`, and finders skip those.
+/// Scrolls until [finder] has been built, and does nothing when it already has been.
 Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isNotEmpty) return;
 
@@ -871,17 +785,7 @@ Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
   await tester.pump();
 }
 
-/// Taps a target below the fold. A plain `tap()` on an off-screen widget
-/// only warns and taps nothing, failing some later assertion instead.
-///
-/// Deliberately not a bare `ensureVisible` + `tap`: `ensureVisible` aligns the
-/// target to the viewport's LEADING edge, and every screen's viewport starts
-/// at y=0 because content scrolls *behind* the frosted app bar. Called on a
-/// row that is already on screen, it therefore drags that row UNDER the bar,
-/// and the tap hit-tests the bar instead of the row — which `tap()` only
-/// warns about, so it surfaces later as a missing widget somewhere else.
-/// So: scroll only when the target really is off-screen, then make sure
-/// whatever the scroll left behind is clear of the chrome.
+/// Taps a target below the fold.
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await scrollIntoView(tester, finder);
 
@@ -895,9 +799,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // - only when there's something to scroll: a bottom-sheet target has no Scrollable ancestor
-  // - `find.byType(SdAppBarV2)` still matches bars sitting behind the sheet in the shell's IndexedStack
-  // - without this guard the nudge dragged a scrollable that doesn't exist and threw `Bad state: No element`
+  // - only when there's something to scroll: a bottom-sheet target has no Scrollable ancestor - `find.byType(SdAppBarV2)` still matches bars sitting.
   final Finder scrollable = find.ancestor(
     of: finder,
     matching: find.byType(Scrollable),
@@ -912,9 +814,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.pump();
   }
 
-  // - the same at the other end: a tab screen's nav pill covers its last
-  //   rows, and tap() only warns when it hits the pill
-  // - asks whether the row can be hit rather than measuring the chrome
+  // - the same at the other end: a tab screen's nav pill covers its last rows, and tap() only warns when it hits the pill - asks whether the row can be.
   for (int i = 0; i < 5; i++) {
     if (finder.hitTestable().evaluate().isNotEmpty) break;
     if (scrollable.evaluate().isEmpty) break;
@@ -931,29 +831,21 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Bottom edge of the frosted app bar covering [finder]'s screen, or 0 where
-/// that screen has none (a sheet, the log flow). Reads the app's own
-/// [SdContentPaddingV2.appBarInset] rather than a second copy of the number.
+/// Bottom edge of the frosted app bar covering [finder]'s screen, or 0 where that screen has none (a sheet, the log flow).
 double _appBarBottom(WidgetTester tester, Finder finder) {
   if (find.byType(SdAppBarV2).evaluate().isEmpty) return 0;
 
   return SdContentPaddingV2.appBarInset(tester.element(finder));
 }
 
-/// Tab switches from the shell's bottom nav. Every widget test that leaves
-/// the dashboard goes through these rather than re-tapping the icons.
+/// Tab switches from the shell's bottom nav. Every widget test that leaves the dashboard goes through these rather than re-tapping the icons.
 Future<void> openSettings(WidgetTester tester) async {
   await tester.tap(find.byIcon(AppIconConstant.settings));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// Settings → Export data. The export screen is pushed over the tab shell,
-/// so it covers the bottom nav.
-///
-/// **Needs `pumpApp(premium: true)`**: export is premium in full, so the row
-/// opens the paywall for a free user and every assertion after this lands on
-/// the wrong screen.
+/// Settings → Export data.
 Future<void> openExportScreen(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Export data'));
@@ -967,16 +859,14 @@ Future<void> openSleepScreen(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Settings → Activity. Carries the exertion report, the step insight and
-/// the step connect switch.
+/// Settings → Activity. Carries the exertion report, the step insight and the step connect switch.
 Future<void> openActivityScreen(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Activity'));
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Runs the export flow's chain of awaits (repository reads, the file
-/// write, the record insert) to completion on the fake event loop.
+/// Runs the export flow's chain of awaits (repository reads, the file write, the record insert) to completion on the fake event loop.
 Future<void> settleExport(WidgetTester tester) async {
   for (int i = 0; i < 10; i++) {
     await tester.pump(const Duration(milliseconds: 50));
@@ -984,26 +874,20 @@ Future<void> settleExport(WidgetTester tester) async {
 }
 
 Future<void> openMedications(WidgetTester tester) async {
-  // `.last` is the nav bar, same as `openInsights`: the dashboard's
-  // quick-access tile carries this glyph too, and the bottom bar is built
-  // after the body, so it comes last.
+  // `.last` is the nav bar, same as `openInsights`.
   await tester.tap(find.byIcon(AppIconConstant.medication).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
 
 Future<void> openHistory(WidgetTester tester) async {
-  // `.last` is the nav bar, same as `openMedications`: the dashboard's
-  // quick-access tile carries this glyph too now that the tile and the tab
-  // it opens are drawn from one AppIconConstant.
+  // `.last` is the nav bar, same as `openMedications`.
   await tester.tap(find.byIcon(AppIconConstant.history).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
 
 /// Medications tab → the add dialog → a medication named [name].
-/// The "+" is in the app bar: a FAB would sit under the floating nav's hit
-/// region on a shell tab (see MedicationsScreen).
 Future<void> addMedication(WidgetTester tester, String name) async {
   await tester.tap(find.byIcon(AppIconConstant.add));
   await tester.pump();
@@ -1024,18 +908,14 @@ Future<void> openMedication(WidgetTester tester, String name) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Taps "Add reminder" on a medication's detail screen. What comes up is the
-/// caller's business: the time picker when the budget allows one, the paywall
-/// when it does not.
+/// Taps "Add reminder" on a medication's detail screen.
 Future<void> openAddReminder(WidgetTester tester) async {
   await tester.tap(find.text('Add reminder'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Confirms the reminder time picker at whatever time it opened on. Scoped
-/// to the sheet's own header: a focused medication name field carries a tick
-/// too, and a bare `byIcon` would match both.
+/// Confirms the reminder time picker at whatever time it opened on.
 Future<void> confirmReminderTime(WidgetTester tester) async {
   await tester.tap(
     find.descendant(
@@ -1047,9 +927,7 @@ Future<void> confirmReminderTime(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// Adds [count] reminders from a medication's detail screen, each at the
-/// time the picker opens on. Only valid while the budget allows them — past
-/// the limit the dialog comes up instead and there is no picker to confirm.
+/// Adds [count] reminders from a medication's detail screen, each at the time the picker opens on.
 Future<void> addReminders(WidgetTester tester, int count) async {
   for (int i = 0; i < count; i++) {
     await openAddReminder(tester);
@@ -1057,19 +935,13 @@ Future<void> addReminders(WidgetTester tester, int count) async {
   }
 }
 
-/// The delete button ON a reminder row — the detail screen's app bar carries
-/// the same icon for deleting the medication itself, so a bare byIcon
-/// matches two.
+/// The delete button ON a reminder row — the detail screen's app bar carries the same icon for deleting the medication itself, so a bare byIcon matches two.
 Finder reminderDelete() => find.descendant(
   of: find.byType(SdCardV2),
   matching: find.byIcon(AppIconConstant.delete),
 );
 
 /// The notification list, from the dashboard's app-bar bell.
-///
-/// The extra frame is the medication stream's first emission: it only
-/// starts once the list watches it, so a row renders its generic label for
-/// one frame before it can name the medication.
 Future<void> openNotifications(WidgetTester tester) async {
   await tester.tap(find.byIcon(AppIconConstant.notifications));
   await tester.pump();
@@ -1085,47 +957,27 @@ Future<void> openHistoryCharts(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// Pumps real frames so the correlation count-up (700ms) can run — one big
-/// jump skips its start frame.
+/// Pumps real frames so the correlation count-up (700ms) can run — one big jump skips its start frame.
 Future<void> openInsights(WidgetTester tester) async {
-  // `.last` is the nav bar: the dashboard's quick-access tile now carries the
-  // same glyph, and the bottom bar is built after the body, so it comes last.
+  // `.last` is the nav bar: the dashboard's quick-access tile now carries the same glyph, and the bottom bar is built after the body, so it comes last.
   await tester.tap(find.byIcon(AppIconConstant.insights).last);
   await pumpCountUp(tester);
 }
 
 /// Real frames, enough of them for the correlation's 700ms count-up to land.
-///
-/// One big `pump` skips its start frame, and `pumpAndSettle` cannot be used
-/// while it is running — so the frames are walked by hand.
 Future<void> pumpCountUp(WidgetTester tester) async {
   for (int i = 0; i < 15; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
 }
 
-/// Insights, standing on its Pressure tab — which is where the correlation
-/// lives.
-///
-/// **No tap any more: Insights opens on Pressure** (`InsightsTabController`),
-/// now that the weather it used to open on lives on the dashboard. Tapping
-/// the segment here would also be ambiguous — "Pressure" is on screen twice,
-/// as the segment and as the card's own title.
-///
-/// The extra count-up still earns its place: the tabs build lazily, so the
-/// first frames go on mounting the card and the hero number is still counting
-/// when the frames inside `openInsights` run out.
+/// Insights, standing on its Pressure tab — which is where the correlation lives.
 Future<void> openPressureInsight(WidgetTester tester) async {
   await openInsights(tester);
   await pumpCountUp(tester);
 }
 
 /// Drags [target] into view with bounded pumps, and never `pumpAndSettle`.
-///
-/// **Insights never settles.** Its cards keep frames coming, so
-/// `pumpAndSettle` — which `dragUntilVisible` and `scrollUntilVisible` both
-/// use — waits out its own ten-minute timeout instead of scrolling. Two tests
-/// spent that timeout each and read as a hung suite rather than a bad helper.
 Future<void> dragInsightsTo(WidgetTester tester, Finder target) async {
   for (int i = 0; i < 12 && target.evaluate().isEmpty; i++) {
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -260));
@@ -1134,11 +986,6 @@ Future<void> dragInsightsTo(WidgetTester tester, Finder target) async {
 }
 
 /// Insights, standing on its Sleep tab.
-///
-/// **The tab has to be tapped**: Insights opens on Pressure, so a test that
-/// only calls [openInsights] looks for the sleep card on a tab that does not
-/// draw it. Scoped to the segment strip because the dashboard branch stays
-/// mounted behind Insights and its Today section has a "Sleep" row too.
 Future<void> openSleepInsight(WidgetTester tester) async {
   await openInsights(tester);
   await tester.tap(
@@ -1150,8 +997,7 @@ Future<void> openSleepInsight(WidgetTester tester) async {
   await pumpCountUp(tester);
 }
 
-/// Insights, standing on its Activity tab — same reason as
-/// [openSleepInsight].
+/// Insights, standing on its Activity tab — same reason as [openSleepInsight].
 Future<void> openActivityInsight(WidgetTester tester) async {
   await openInsights(tester);
   await tester.tap(
@@ -1163,22 +1009,14 @@ Future<void> openActivityInsight(WidgetTester tester) async {
   await pumpCountUp(tester);
 }
 
-/// Opens the log flow from the dashboard's hero button (the flow is a pushed
-/// route now, not a tab). Leaves the tester on the intensity step.
+/// Opens the log flow from the dashboard's hero button (the flow is a pushed route now, not a tab). Leaves the tester on the intensity step.
 Future<void> openLog(WidgetTester tester) async {
   await tester.tap(find.text('Log an attack'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 350));
 }
 
-/// Taps through the sacred flow with sensible defaults, starting from the
-/// dashboard. Intensity advances immediately; location and medication are
-/// pick-then-confirm — each pick is followed by a tap on the app bar's Next
-/// (see LogScreen/LogController). Exertion is skipped unless [exertion] names
-/// a level, which is what most tests want: it is the one optional step. By
-/// default it also taps "Done" on the saved screen to return to the
-/// dashboard; pass finish: false to stay on the saved step (e.g. to open
-/// "Add details").
+/// Taps through the sacred flow with sensible defaults, starting from the dashboard.
 Future<void> logAttack(
   WidgetTester tester, {
   String intensity = '7',
@@ -1200,8 +1038,7 @@ Future<void> logAttack(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 
-  // Expanded and collapsed action rows both stay mounted (cross-fade on scroll),
-  // so the label matches twice — .first is the visible, tappable expanded one.
+  // Expanded and collapsed action rows both stay mounted (cross-fade on scroll), so the label matches twice — .first is the visible, tappable expanded one.
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));

@@ -1,8 +1,6 @@
 part of 'medications_screen.dart';
 
-/// One medication in the list: name, when it was added, and how many
-/// reminders it has. The reminders themselves are a tap away — the whole card
-/// opens [MedicationDetailScreen].
+/// One medication in the list: name, when it was added, and how many reminders it has.
 class _MedicationCard extends ConsumerWidget {
   const _MedicationCard({required this.medication, super.key});
 
@@ -20,9 +18,7 @@ class _MedicationCard extends ConsumerWidget {
         : l10n.medicationsAddedOn(
             DateFormat.yMMMd(l10n.localeName).format(createdAt.toLocal()),
           );
-    // The one figure that ranks this list against itself. Absent until the
-    // medication has an answer, because "no outcomes yet" belongs on the
-    // screen that can do something about it, not on every row of a list.
+    // The one figure that ranks this list against itself.
     final MedicationEffectiveness? effectiveness = ref.watch(
       medicationEffectivenessRowProvider(medication.name),
     );

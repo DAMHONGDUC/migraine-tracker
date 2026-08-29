@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// At-a-glance stats for the dashboard's weekly summary card. Pure value
-/// object computed by [WeekSummaryCalculator] from the attack list — the
-/// dashboard widget only renders it.
+/// At-a-glance stats for the dashboard's weekly summary card.
 @immutable
 class WeekSummary {
   const WeekSummary({
@@ -17,8 +15,7 @@ class WeekSummary {
   /// Attacks in the previous Monday-start week — the trend comparison.
   final int lastWeekCount;
 
-  /// Mean pain intensity of this week's attacks, or null when there were
-  /// none (nothing to average).
+  /// Mean pain intensity of this week's attacks, or null when there were none (nothing to average).
   final double? averageIntensity;
 
   /// Signed change vs last week: positive = more attacks this week.

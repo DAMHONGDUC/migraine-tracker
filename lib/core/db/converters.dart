@@ -17,17 +17,7 @@ class StringListConverter extends TypeConverter<List<String>, String> {
   String toSql(List<String> value) => jsonEncode(value);
 }
 
-/// Stores an attack's tapped head areas as a JSON array of [HeadRegion]
-/// names. Names, not indices: reordering the enum then cannot silently
-/// re-point every stored row at a different part of the head.
-///
-/// An unknown name is dropped rather than thrown on — it can only come from
-/// a newer build's row arriving through sync, and losing one area is a far
-/// better failure than a history screen that cannot open at all.
-/// Aura kinds as a JSON array of enum names, like the head regions below.
-///
-/// Unknown names are dropped rather than throwing: a row written by a newer
-/// build that learned a fifth kind must still open on this one.
+/// Stores an attack's tapped head areas as a JSON array of [HeadRegion] names.
 class AuraTypeListConverter extends TypeConverter<List<AuraType>, String> {
   const AuraTypeListConverter();
 

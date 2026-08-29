@@ -8,11 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../controllers/log_controller.dart' show LogStep;
 
-/// The flow's progress as a floating bottom bar — the same slot, glass
-/// treatment, side margin and bottom offset the shell's bottom nav used to
-/// morph into while logging (both read `SdContentPaddingV2.
-/// floatingBarHorizontal` and `.navBarOffset`, never their own copy). Sits in
-/// [SdScaffoldV2.bottomNavigationBar]; the log flow's body scrolls behind it.
+/// The flow's progress as a floating bottom bar.
 class LogStepBar extends StatelessWidget {
   const LogStepBar({required this.step, super.key});
 
@@ -40,8 +36,7 @@ class LogStepBar extends StatelessWidget {
       );
     }
 
-    // - Glass on: floating frosted pill, same margins/offset as the nav pill.
-    // - Child's bottom inset removed to avoid a double gap.
+    // - Glass on: floating frosted pill, same margins/offset as the nav pill. - Child's bottom inset removed to avoid a double gap.
     return Padding(
       padding: EdgeInsets.fromLTRB(
         SdContentPaddingV2.floatingBarHorizontal,

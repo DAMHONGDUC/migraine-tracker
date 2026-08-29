@@ -6,10 +6,7 @@ import 'package:migraine_tracker/core/widgets/weather/weather_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
-/// The detail is a screen, and the owner's rule for it is that the page never
-/// moves: the readings stay put and only the ten days scroll. None of that is
-/// visible to a `find.text` assertion, so it is asserted on the scrollables
-/// themselves — there must be exactly one, and it must be the day list.
+/// The detail is a screen, and the owner's rule for it is that the page never moves: the readings stay put and only the ten days scroll.
 void main() {
   WeatherReport report({int days = WeatherReport.forecastDayCount}) {
     final DateTime start = DateTime.utc(2026, 8, 18);
@@ -70,8 +67,7 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
-            // The home indicator, so the page is measured against the room a
-            // real iPhone leaves rather than 34 points it does not have.
+            // The home indicator, so the page is measured against the room a real iPhone leaves rather than 34 points it does not have.
             builder: (BuildContext context) => MediaQuery(
               data: MediaQuery.of(
                 context,
@@ -94,8 +90,7 @@ void main() {
   testWidgets('only the day list scrolls, never the page', (tester) async {
     await pumpScreen(tester, report());
 
-    // One scrollable on the screen, and it is the list: anything else means
-    // the readings can be scrolled away from under the user.
+    // One scrollable on the screen, and it is the list: anything else means the readings can be scrolled away from under the user.
     expect(find.byType(Scrollable), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
     expect(
@@ -114,8 +109,7 @@ void main() {
     // The last cell of the grid: if it is built, every reading above it is.
     expect(find.text('Sunset'), findsOneWidget);
 
-    // Scrolling the days to the end moves them and nothing else: the grid's
-    // last cell is still on screen, and the tenth day has been built.
+    // Scrolling the days to the end moves them and nothing else: the grid's last cell is still on screen, and the tenth day has been built.
     final ScrollableState list = tester.state<ScrollableState>(
       find.byType(Scrollable),
     );
@@ -134,13 +128,11 @@ void main() {
     // Day 0 is today, which keeps the live reading: 28°.
     expect(find.text('28°'), findsOneWidget);
 
-    // 18 Aug 2026 is a Tuesday, so the row under today is Wednesday — the
-    // FIRST one, because ten days come round to a second of most weekdays.
+    // 18 Aug 2026 is a Tuesday, so the row under today is Wednesday — the FIRST one, because ten days come round to a second of most weekdays.
     await tester.tap(find.text('Wednesday').first);
     await tester.pumpAndSettle();
 
-    // A day that has not happened has no "now", so the headline falls back
-    // to that day's low and high.
+    // A day that has not happened has no "now", so the headline falls back to that day's low and high.
     expect(find.text('28°'), findsNothing);
     expect(find.text('24° / 31°'), findsOneWidget);
   });

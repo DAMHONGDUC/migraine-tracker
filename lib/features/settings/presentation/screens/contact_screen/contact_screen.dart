@@ -13,8 +13,7 @@ import '../../../../app_update/providers.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../providers.dart';
 
-/// Where a user reaches a human: the support inbox, shown, and a one-tap
-/// way to open it. Pushed from Settings' About section.
+/// Where a user reaches a human: the support inbox, shown, and a one-tap way to open it. Pushed from Settings' About section.
 class ContactScreen extends ConsumerWidget {
   const ContactScreen({super.key});
 

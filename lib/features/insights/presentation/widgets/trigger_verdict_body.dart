@@ -9,17 +9,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/trigger_verdict.dart';
 import '../../providers.dart';
 
-/// The answer the app was installed for, in one sentence: is weather actually
-/// your trigger?
-///
-/// It sits above the forecast on `PressureCard` because it is the conclusion
-/// and everything under it is the working. Cardless like the other bodies, so
-/// the card owns the shell.
-///
-/// **It is allowed to say no**, and when it does it points at what the logs
-/// actually show instead. A weather app that only ever confirms the reason
-/// someone installed it is a horoscope, and the user who logs forty attacks
-/// to hear "yes, weather" when it is really their sleep has been misled.
+/// The answer the app was installed for, in one sentence: is weather actually your trigger?
 class TriggerVerdictBody extends ConsumerWidget {
   const TriggerVerdictBody({super.key});
 
@@ -47,8 +37,7 @@ class TriggerVerdictBody extends ConsumerWidget {
         detail:
             _alternativeLine(l10n, verdict) ?? l10n.insightsVerdictNoPattern,
       ),
-      // Something settled, but not pressure — nothing may be said about the
-      // weather either way, so only the alternative is stated.
+      // Something settled, but not pressure — nothing may be said about the weather either way, so only the alternative is stated.
       TriggerVerdictAnswer() => _Verdict(
         headline:
             _alternativeLine(l10n, verdict) ?? l10n.insightsVerdictNoPattern,
@@ -73,8 +62,7 @@ class _Verdict extends StatelessWidget {
   final String headline;
   final String? detail;
 
-  /// A sentence that says "not yet" or "nothing stands out" is not the
-  /// finding the card is for, so it does not get the finding's weight.
+  /// A sentence that says "not yet" or "nothing stands out" is not the finding the card is for, so it does not get the finding's weight.
   final bool muted;
 
   @override

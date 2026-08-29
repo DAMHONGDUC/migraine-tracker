@@ -9,11 +9,6 @@ import '../../../../core/l10n/locale_provider.dart';
 import '../../domain/enums/dev_location.dart';
 
 /// Holds the dev-only faked position, and is the only thing that writes it.
-///
-/// **A prod flavour reads [DevLocation.off] whatever is stored.** The gate is
-/// here rather than only on the Settings row, so a preference left behind by
-/// a dev build installed over the same bundle id cannot follow the user into
-/// a release one.
 class DevLocationController extends Notifier<DevLocation> {
   @override
   DevLocation build() {

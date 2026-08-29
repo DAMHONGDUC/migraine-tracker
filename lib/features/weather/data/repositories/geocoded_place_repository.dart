@@ -7,9 +7,6 @@ import '../datasources/location_source.dart';
 import '../datasources/place_name_source.dart';
 
 /// The device's position, run through the platform's geocoder.
-///
-/// The same shape as `BackendWeatherRepository`: read the point, hand it to
-/// the source, answer null for everything that can go wrong on the way.
 class GeocodedPlaceRepository implements PlaceRepository {
   const GeocodedPlaceRepository(this._location, this._names);
 

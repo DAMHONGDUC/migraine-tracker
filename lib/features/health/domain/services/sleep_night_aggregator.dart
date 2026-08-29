@@ -2,15 +2,6 @@ import '../entities/sleep_interval.dart';
 import '../entities/sleep_night.dart';
 
 /// Turns raw HealthKit sleep samples into one duration per night.
-///
-/// Pure Dart, deterministic. Two things it exists to get right:
-///
-/// * **Overlap.** HealthKit hands out "in bed" from the phone *and* a stage
-///   sample per REM/core/deep block from the watch, covering the same
-///   minutes. Summing them double-counts, sometimes triple — the union of
-///   the intervals is the only figure that isn't inflated.
-/// * **Which night a session belongs to.** Falling asleep before midnight
-///   and after it are the same night; [nightCutoffHour] decides.
 class SleepNightAggregator {
   const SleepNightAggregator({
     this.nightCutoffHour = defaultNightCutoffHour,
@@ -20,22 +11,16 @@ class SleepNightAggregator {
          'nightCutoffHour must be an hour of the day',
        );
 
-  /// A block ending at or after this local hour counts toward the night that
-  /// ends the *next* morning: someone asleep at 22:00 is sleeping for
-  /// tomorrow. Below it (a 06:00 wake-up, an afternoon nap) the block belongs
-  /// to the night ending that same day.
+  /// A block ending at or after this local hour counts toward the night that ends the *next* morning: someone asleep at 22:00 is sleeping for tomorrow.
   static const int defaultNightCutoffHour = 18;
 
-  /// Merged blocks shorter than this are sensor noise (a watch registering a
-  /// still wrist), not sleep.
+  /// Merged blocks shorter than this are sensor noise (a watch registering a still wrist), not sleep.
   static const Duration defaultMinSession = Duration(minutes: 10);
 
   final int nightCutoffHour;
   final Duration minSession;
 
-  /// [samples] in any order; the result is one entry per night with data,
-  /// oldest first. Nights the user has no samples for are simply absent —
-  /// "no record" is not "no sleep".
+  /// [samples] in any order; the result is one entry per night with data, oldest first.
   List<SleepNight> aggregate(List<SleepInterval> samples) {
     final List<SleepInterval> merged = _merge(samples);
     final Map<DateTime, Duration> totals = <DateTime, Duration>{};

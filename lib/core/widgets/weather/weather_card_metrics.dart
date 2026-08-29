@@ -1,41 +1,20 @@
 part of 'weather_card.dart';
 
 /// The readings, in the order both the card and the sheet list them.
-///
-/// **Only what actually has a value.** A reading Apple never sent, or a
-/// snapshot field that was never stored, is left out rather than printed as
-/// a dash — so it is four readings on one surface and three on another, and
-/// neither reads as broken.
-///
-/// **The order is the gate between the two surfaces.** The card draws the
-/// first `_MetricStrip.maxOnCard` (4) and the sheet draws them all, so what
-/// leads this list is what a glance gets: pressure, its 24-hour change, the
-/// chance of rain and the humidity (owner's call). Everything after — how
-/// much rain, wind, UV, visibility, the sun's hours — is worth knowing and
-/// not worth a quarter of the card, so it reaches the sheet alone.
-///
-/// **The sheet's grid is two columns, and that is load-bearing here.** How
-/// much rain sits fifth so the card keeps its four, which puts it in the
-/// left column directly under the chance it belongs to.
-///
-/// A stored snapshot has only three readings in total, so its card shows all
-/// of them and the order decides nothing.
 List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
   return <_Metric>[
     if (data.pressureHpa case final double value)
       _Metric(
         icon: AppIconConstant.pressure,
         label: l10n.weatherDetailPressure,
-        // One decimal, unlike every other reading here: a migraine-relevant
-        // move is a few hPa, so rounding to whole units hides half of it.
+        // One decimal, unlike every other reading here: a migraine-relevant move is a few hPa, so rounding to whole units hides half of it.
         value: l10n.weatherPressureValue(value.toStringAsFixed(1)),
       ),
     if (data.pressureDelta24hHpa case final double value)
       _Metric(
         icon: AppIconConstant.correlation,
         label: l10n.weatherDetailPressureDelta,
-        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3
-        // is neither of them.
+        // Signed, always: "+3" and "-3" are opposite answers, and a bare 3 is neither of them.
         value: l10n.weatherPressureValue(SignedNumberUtils.format(value)),
       ),
     if (data.precipitationChancePercent case final double value)
@@ -44,15 +23,12 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailPrecipitation,
         value: l10n.weatherPercent(value.round()),
       ),
-    // - fifth, so the card keeps the four readings above this one
-    // - still under the chance in the sheet's two-column grid: fifth lands in
-    //   the left column, third's own column
+    // - fifth, so the card keeps the four readings above this one.
     if (data.precipitationAmountMm case final double value)
       _Metric(
         icon: AppIconConstant.rainfall,
         label: l10n.weatherDetailPrecipitationAmount,
-        // One decimal, like pressure and unlike the rest: a day of drizzle is
-        // 0.4mm, and rounded to whole millimetres it reads as no rain at all.
+        // One decimal, like pressure and unlike the rest: a day of drizzle is 0.4mm, and rounded to whole millimetres it reads as no rain at all.
         value: l10n.weatherMillimetreValue(value.toStringAsFixed(1)),
       ),
     if (data.humidityPercent case final double value)
@@ -74,8 +50,7 @@ List<_Metric> _metrics(AppLocalizations l10n, WeatherCardData data) {
         label: l10n.weatherDetailUv,
         value: l10n.weatherUvValue(value.round()),
       ),
-    // Already kilometres off the wire, and rounded: a city block's difference
-    // in visibility is not worth a decimal place.
+    // Already kilometres off the wire, and rounded: a city block's difference in visibility is not worth a decimal place.
     if (data.visibilityKm case final double value)
       _Metric(
         icon: AppIconConstant.visibility,
@@ -109,21 +84,6 @@ class _Metric {
 }
 
 /// The card's compact readings: glyph over number, sharing one tray.
-///
-/// **No labels, and that is what the arrow is for.** A named grid on the card
-/// is what made it the tallest thing on the dashboard; here the glyph stands
-/// for the reading and [WeatherDetailSheet] spells every one of them out.
-///
-/// **One tray, not four chips.** They were bare on the gradient first, which
-/// left four small marks floating with nothing holding them together; a chip
-/// each was the other try, and its padding ate the width — at a quarter of
-/// the card "12 km/h" does not fit inside a chip's own inset. A single
-/// rounded surface gives the row an edge, keeps every reading the same
-/// quarter wide, and costs the numbers no room at all.
-///
-/// **At most [maxOnCard] of them.** Four is what fits the design width with
-/// a number under each still legible; a fifth would squeeze all five, and the
-/// arrow is already the way to the rest.
 class _MetricStrip extends StatelessWidget {
   const _MetricStrip({required this.metrics});
 
@@ -131,8 +91,7 @@ class _MetricStrip extends StatelessWidget {
 
   static const int maxOnCard = 4;
 
-  /// Read by the loading skeleton too, so the placeholder reserves the tray's
-  /// height rather than a guess at it.
+  /// Read by the loading skeleton too, so the placeholder reserves the tray's height rather than a guess at it.
   static double get height =>
       SdSpacingConstant.h8 * 2 +
       SdSpacingConstant.r18 +
@@ -145,8 +104,7 @@ class _MetricStrip extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        // A step up from the card, like everything else that sits on one —
-        // and opaque, so it reads the same at both ends of the gradient.
+        // A step up from the card, like everything else that sits on one — and opaque, so it reads the same at both ends of the gradient.
         color: context.sdTheme.surfaceElevated,
         borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
       ),
@@ -166,8 +124,7 @@ class _MetricStrip extends StatelessWidget {
   }
 }
 
-/// One compact reading. Its name is on it for VoiceOver, which cannot read a
-/// glyph — the label is dropped from the drawing, never from the semantics.
+/// One compact reading. Its name is on it for VoiceOver, which cannot read a glyph — the label is dropped from the drawing, never from the semantics.
 class _MetricGlance extends StatelessWidget {
   const _MetricGlance({required this.metric});
 
@@ -188,9 +145,7 @@ class _MetricGlance extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
           SizedBox(height: SdSpacingConstant.h4),
-          // Fitted rather than ellipsed: a quarter of the card is tight for
-          // "12 km/h" at some text sizes, and a reading cut to "12 k…" is
-          // worse than the same reading a point smaller.
+          // Fitted rather than ellipsed: a quarter of the card is tight for "12 km/h" at some text sizes, and a reading cut to "12 k…" is worse than the same.
           SdFittedTextV2(
             metric.value,
             style: AppTextStyle.bodySmall.w600,
@@ -203,22 +158,12 @@ class _MetricGlance extends StatelessWidget {
 }
 
 /// The sheet's readings: every one of them, named, two to a row.
-///
-/// **Rows of `Expanded`, never a `GridView` with a `childAspectRatio`.** A
-/// ratio ties a cell's height to whatever width is left over, which is how
-/// the previous weather card's details grid came to overflow (see the
-/// dashboard's own rules); this sizes to content and cannot.
-///
-/// **An odd count leaves the last cell at half width** rather than stretching
-/// it across the row: a cell suddenly twice as wide as the ones above it
-/// reads as a different kind of thing.
 class _MetricGrid extends StatelessWidget {
   const _MetricGrid({required this.metrics});
 
   final List<_Metric> metrics;
 
-  /// One gap for both axes, so the grid reads as a grid rather than as rows
-  /// that happen to be near each other.
+  /// One gap for both axes, so the grid reads as a grid rather than as rows that happen to be near each other.
   static double get gap => SdSpacingConstant.w8;
 
   @override
@@ -229,9 +174,7 @@ class _MetricGrid extends StatelessWidget {
       children: <Widget>[
         for (int i = 0; i < metrics.length; i += 2) ...<Widget>[
           if (i > 0) SizedBox(height: gap),
-          // IntrinsicHeight is not optional: `stretch` makes a Row fill the
-          // cross axis, unbounded inside a Column in a scroll view — an
-          // infinite-height assert every frame. This bounds it to the taller.
+          // IntrinsicHeight is not optional.
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -253,15 +196,6 @@ class _MetricGrid extends StatelessWidget {
 }
 
 /// One named cell: the glyph and the name on top, the reading under them.
-///
-/// **Two lines, kept tight** (owner's call). Side by side on one line was the
-/// other try and it read as a settings row, not as a reading; the height came
-/// back out of the padding and the type instead — h8 rather than h12 around
-/// it, and the number at `bodyMedium.w600` rather than `titleSmall`, which is
-/// a third off the cell for nothing a reader would miss.
-///
-/// The name is capped at one line rather than wrapped, so the two cells of a
-/// row are the same height whatever locale they are read in.
 class _MetricCell extends StatelessWidget {
   const _MetricCell({required this.metric});
 

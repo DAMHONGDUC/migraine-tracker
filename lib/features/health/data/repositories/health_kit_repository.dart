@@ -13,15 +13,7 @@ import '../../domain/services/step_hour_aggregator.dart';
 import '../datasources/sleep_sample_source.dart';
 import '../datasources/step_sample_source.dart';
 
-/// HealthKit-backed [HealthRepository]: each plugin source fetches raw
-/// samples, its aggregator turns them into days/nights. Nothing is cached and
-/// nothing is written to the app's own database — HealthKit is already
-/// on-device storage, and a second copy here would be one more pile of health
-/// data the "delete everything" wipe has to chase (hard rule 8).
-///
-/// Owns the `HealthFactory` authorization call, and asks for one kind at a
-/// time: sleep and steps are connected separately, so a sheet refused for one
-/// must not take the other down with it.
+/// HealthKit-backed [HealthRepository]: each plugin source fetches raw samples, its aggregator turns them into days/nights.
 class HealthKitRepository implements HealthRepository {
   HealthKitRepository(
     this._sleepSource,

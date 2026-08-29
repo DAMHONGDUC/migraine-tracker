@@ -2,13 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../core/utils/date_time_utils.dart';
 
-/// Everything the weather card draws: conditions now, the hours ahead, and
-/// the days after that.
-///
-/// **Every field below the top level is nullable, and that is the contract.**
-/// WeatherKit omits what it has no data for at a location, so the card
-/// renders what arrived rather than asserting a shape — the field-level twin
-/// of hard rule 4's "weather is best-effort".
+/// Everything the weather card draws: conditions now, the hours ahead, and the days after that.
 @immutable
 class WeatherReport {
   const WeatherReport({
@@ -27,11 +21,6 @@ class WeatherReport {
   bool get isEmpty => current == null && hours.isEmpty && days.isEmpty;
 
   /// How many days the forecast offers, today counted as the first.
-  ///
-  /// **Ten, which is also Apple's ceiling** (owner's call). `forecastDaily`
-  /// runs ten days out and `forecastHourly` 240 hours, so this is the whole
-  /// of what WeatherKit knows rather than a number picked to look round —
-  /// asking for an eleventh would return nothing to draw.
   static const int forecastDayCount = 10;
 
   /// The days the sheet's rainfall forecast lists, today first.
@@ -39,9 +28,6 @@ class WeatherReport {
       days.take(forecastDayCount).toList();
 
   /// The hours falling on [day], by local calendar date.
-  ///
-  /// Local and not UTC: the user picks "Wednesday" from a strip drawn in
-  /// their own timezone, so the hours under it have to be their Wednesday.
   List<WeatherHourly> hoursOn(DateTime day) => hours
       .where((WeatherHourly hour) => DateTimeUtils.isSameDay(hour.time, day))
       .toList();
@@ -102,8 +88,7 @@ class WeatherHourly {
   /// UTC, hour resolution.
   final DateTime time;
 
-  /// The one field that is never null: an hour without it is dropped by the
-  /// backend, because pressure is what the alert maths runs on.
+  /// The one field that is never null: an hour without it is dropped by the backend, because pressure is what the alert maths runs on.
   final double pressureHpa;
 
   final double? temperatureCelsius;
@@ -113,9 +98,7 @@ class WeatherHourly {
   final WeatherCondition? condition;
   final double? precipitationChancePercent;
 
-  /// Millimetres in the hour — rain and melted snow together, as Apple sends
-  /// it. Separate from the chance: a 90% chance of 0.2mm and a 30% chance of
-  /// 20mm are different days, and only one of them changes plans.
+  /// Millimetres in the hour — rain and melted snow together, as Apple sends it.
   final double? precipitationAmountMm;
 
   final double? windSpeedKph;
@@ -154,10 +137,6 @@ class WeatherDaily {
 }
 
 /// Which way the pressure is going, as Apple reports it.
-///
-/// Its own enum rather than the raw string: the card reads a direction, and
-/// an unrecognised word from a future WeatherKit version becomes null instead
-/// of reaching the UI as text nobody translated.
 enum PressureTrend {
   rising,
   falling,
@@ -171,12 +150,7 @@ enum PressureTrend {
   };
 }
 
-/// The weather in one word, reduced from WeatherKit's ~50 condition codes to
-/// the handful the card can draw a glyph for.
-///
-/// Deliberately coarse. Apple distinguishes `Drizzle` from `HeavyRain` from
-/// `Rain`; this app is a migraine tracker, and the extra precision would buy
-/// nothing but more strings to translate into both locales (hard rule 6).
+/// The weather in one word, reduced from WeatherKit's ~50 condition codes to the handful the card can draw a glyph for.
 enum WeatherCondition {
   clear,
   cloudy,
@@ -189,8 +163,7 @@ enum WeatherCondition {
   windy,
   hazy;
 
-  /// Maps Apple's code, or null for one this build has never heard of — a
-  /// new code must degrade to "no glyph", never to a wrong one.
+  /// Maps Apple's code, or null for one this build has never heard of — a new code must degrade to "no glyph", never to a wrong one.
   static WeatherCondition? fromCode(String? code) {
     if (code == null) return null;
 

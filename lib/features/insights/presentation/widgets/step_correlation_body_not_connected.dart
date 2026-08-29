@@ -1,8 +1,6 @@
 part of 'step_correlation_body.dart';
 
-/// No Apple Health, no analysis. The connect switch lives in Settings and
-/// stays there: the HealthKit prompt is asked once, next to the sentence
-/// explaining what is read, not from a card the user scrolled past.
+/// No Apple Health, no analysis.
 class _StepNotConnected extends StatelessWidget {
   const _StepNotConnected();
 

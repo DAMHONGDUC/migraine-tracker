@@ -3,76 +3,33 @@ import 'dart:ui';
 import '../../domain/enums/head_region.dart';
 
 /// The one owner of where every [HeadRegion] is on the drawing.
-///
-/// Everything here is in **design units** — a [designSize] box that
-/// `head_front.svg` and `head_back.svg` share as their viewBox. Nothing is
-/// ever scaled here: the painter scales its canvas instead, and [hitTest]
-/// divides the tap back down. One scale in one direction each way beats a
-/// transform on every path, and it keeps every number in this file readable
-/// against the SVGs beside it. The two SVGs carry only line art: the
-/// silhouette, the ears, the neck and (front only) the face. Every filled
-/// area and every divider between areas is drawn from this file, so the
-/// region a tap lands in and the region that lights up can never drift
-/// apart.
-///
-/// **A pickable area follows the artwork exactly** (owner's rule, see the
-/// feature's `CLAUDE.md`). That is why the cuts down the head are curves
-/// rather than the straight rules they used to be: the drawing's brow,
-/// cheek and jaw lines bow with the face, so a band that cut straight across
-/// them would fill a strip the user can see is not the strip they tapped.
-/// [_cut] is the single curve every band, every divider and every hit test
-/// is built from, so all three bow together by construction.
-///
-/// The head and the neck are the two shapes that live in both places —
-/// traced here for clipping and hit-testing, stroked there for the visible
-/// outline. Edit one and you must edit the other two.
 final class HeadRegionGeometry {
   const HeadRegionGeometry._();
 
   /// The SVG viewBox, and the aspect ratio the widget locks itself to.
-  ///
-  /// **Only as tall as the drawing needs.** The diagram is height bound
-  /// wherever it is used — an `Expanded` in the log step, a fixed row on the
-  /// detail screen — so its width comes out of this ratio and every empty
-  /// row in the box is size the head does not get. The neck runs off the
-  /// bottom edge rather than ending inside it for the same reason.
   static const Size designSize = Size(200, 248);
 
   static double get aspectRatio => designSize.width / designSize.height;
 
-  // Horizontal cuts down the head. Named for what a user would call them,
-  // not for the anatomy, since they are also where the divider lines land.
+  // Horizontal cuts down the head. Named for what a user would call them, not for the anatomy, since they are also where the divider lines land.
   static const double _hairline = 62;
   static const double _brow = 102;
   static const double _underEye = 144;
   static const double _mouth = 184;
   static const double _chin = 231;
 
-  /// Where the back view splits the back of the head from the nape — below
-  /// the ears, which is the only landmark that view has. The front's own
-  /// cuts are useless here: there is no brow and no mouth to line up with.
+  /// Where the back view splits the back of the head from the nape — below the ears, which is the only landmark that view has.
   static const double _backNeck = 160;
 
-  // Vertical cuts. [_centre] splits every band into a left and a right; the
-  // other two only cut the eye band, so a temple is its own area.
+  // Vertical cuts. [_centre] splits every band into a left and a right; the other two only cut the eye band, so a temple is its own area.
   static const double _centre = 100;
   static const double _templeEdgeL = 46;
   static const double _templeEdgeR = 154;
 
-  /// How far the ends of a horizontal cut hang below its middle. Matched to
-  /// the drawing: the face is a curved surface, and a line across it rises
-  /// in the centre.
+  /// How far the ends of a horizontal cut hang below its middle.
   static const double _sag = 5;
 
-  /// One band of the drawing, as (top cut, bottom cut, left edge, right
-  /// edge). Clipped to the silhouette on the way out, so four numbers are
-  /// enough to describe a shape that ends up curved on every side.
-  ///
-  /// [HeadRegion.crown] gets the same band on both views on purpose — the
-  /// top of the head is one place however you look at it. Its top is the top
-  /// of the box rather than a cut, and [HeadRegion.nape]'s bottom is the
-  /// bottom of the box, because both run off the drawing rather than meeting
-  /// another area.
+  /// One band of the drawing, as (top cut, bottom cut, left edge, right edge).
   static const Map<HeadRegion, _Band> _bands = <HeadRegion, _Band>{
     HeadRegion.crown: _Band(0, _hairline, 0, 200, topSag: 0),
     HeadRegion.foreheadL: _Band(_hairline, _brow, 0, _centre),
@@ -103,11 +60,7 @@ final class HeadRegionGeometry {
     ..cubicTo(19, 42, 52, 8, 100, 8)
     ..close();
 
-  /// The neck, from where it leaves the jaw down to the bottom of the box —
-  /// the same two curves the SVGs stroke, closed across the top and the
-  /// bottom so it can be filled. The top edge runs between the two points
-  /// where those curves meet the head, so the union of the two shapes has no
-  /// notch where they join.
+  /// The neck, from where it leaves the jaw down to the bottom of the box — the same two curves the SVGs stroke, closed across the top and the bottom so.
   static Path _neckPath() => Path()
     ..moveTo(146, 206)
     ..cubicTo(137, 222, 141, 236, 155, 248)
@@ -116,10 +69,6 @@ final class HeadRegionGeometry {
     ..close();
 
   /// What a region is clipped to, and what the painter tints as the body.
-  ///
-  /// The neck belongs to the back view alone: [HeadRegion.nape] is the only
-  /// area drawn over it, so on the front it is line art the user cannot tap
-  /// and must not see filled either.
   static Path outline(HeadView view) => switch (view) {
     HeadView.front => _headPath(),
     HeadView.back => Path.combine(
@@ -130,16 +79,6 @@ final class HeadRegionGeometry {
   };
 
   /// The nose, as its own closed shape rather than a slab of a band.
-  ///
-  /// **It is the one region whose edge is a drawing, not a cut**, which is
-  /// also why the SVGs no longer stroke a nose in line-art white: the shape
-  /// below IS the nose the user sees, drawn by `HeadRegionPainter` in the
-  /// same colour as every other divider, so the boundary they tap and the
-  /// boundary they see are one line. The SVG keeps only a couple of thin
-  /// strokes inside it — nostrils, no outline (owner's rule).
-  ///
-  /// It starts just under [_brow] and ends above [_mouth], so it never
-  /// reaches a cut and never has to be clipped to one.
   static Path nosePath() => Path()
     ..moveTo(96, 104)
     ..cubicTo(94, 124, 88, 142, 83, 154)
@@ -148,13 +87,7 @@ final class HeadRegionGeometry {
     ..cubicTo(112, 142, 106, 124, 104, 104)
     ..close();
 
-  /// One region's fillable shape, or null when [region] is not drawn on
-  /// [view].
-  ///
-  /// Every band that the nose reaches into gets it subtracted, so the four
-  /// areas around it stop at its outline instead of running under it — the
-  /// difference between a nose you can tap and a nose that is a picture of
-  /// somebody's cheek.
+  /// One region's fillable shape, or null when [region] is not drawn on [view].
   static Path? regionPath(HeadRegion region, HeadView view) {
     if (!region.showsOn(view)) return null;
 
@@ -171,8 +104,7 @@ final class HeadRegionGeometry {
         : band;
   }
 
-  /// The four the nose is cut out of. Named rather than computed: intersect
-  /// tests on every region on every paint is work to save four constants.
+  /// The four the nose is cut out of. Named rather than computed: intersect tests on every region on every paint is work to save four constants.
   static const Set<HeadRegion> _touchesNose = <HeadRegion>{
     HeadRegion.eyeL,
     HeadRegion.eyeR,
@@ -180,13 +112,7 @@ final class HeadRegionGeometry {
     HeadRegion.cheekR,
   };
 
-  /// The region a tap fell in, or null when it missed the head. [local] is
-  /// in widget coordinates and [size] the widget's own, so the tap comes
-  /// back down to design units here rather than every path going up.
-  ///
-  /// Walks [HeadRegion.of] rather than the band map so the answer follows the
-  /// view: the same point is a cheek from the front and the back of the head
-  /// from behind.
+  /// The region a tap fell in, or null when it missed the head.
   static HeadRegion? hitTest(Offset local, HeadView view, Size size) {
     if (size.isEmpty) return null;
 
@@ -203,17 +129,7 @@ final class HeadRegionGeometry {
     return null;
   }
 
-  /// The lines between regions, as one path to stroke. Drawn from the same
-  /// [_cut] the bands are built from, so a line can never sit somewhere a
-  /// tap does not also divide — and never runs past the last area it
-  /// separates, which is why the centre line stops at the chin on the front
-  /// and at the nape's own cut on the back.
-  ///
-  /// The centre line and the under-eye cut both run straight at the nose;
-  /// neither is shortened here. `HeadRegionPainter` clips this whole path to
-  /// the face MINUS [nosePath], which erases exactly the stretches that
-  /// would have crossed a single area, and keeps this method free of the
-  /// nose entirely.
+  /// The lines between regions, as one path to stroke.
   static Path dividers(HeadView view) {
     final Path path = Path();
 
@@ -251,16 +167,7 @@ final class HeadRegionGeometry {
     return path;
   }
 
-  /// The stretch of the cut at [y] between [xFrom] and [xTo], as its own
-  /// quadratic.
-  ///
-  /// The full cut is the quadratic through `(0, y + sag)`, `(100, y - sag)`
-  /// and `(200, y + sag)`. Its x moves linearly with t — the three control
-  /// x's are evenly spaced — so `t = x / 200` exactly, and the sub-curve
-  /// falls out of the blossom without a search. That is what lets a band
-  /// stop at the temple edge on the *same* curve its neighbour continues
-  /// on: two bands meeting at x = 50 share a point, not an approximation of
-  /// one.
+  /// The stretch of the cut at [y] between [xFrom] and [xTo], as its own quadratic.
   static _Arc _cut(double y, double sag, double xFrom, double xTo) {
     final double t0 = xFrom / 200;
     final double t1 = xTo / 200;
@@ -289,8 +196,7 @@ final class _Arc {
   final Offset end;
 }
 
-/// One area before it is clipped — two cuts and the two vertical edges
-/// between them.
+/// One area before it is clipped — two cuts and the two vertical edges between them.
 final class _Band {
   const _Band(
     this.top,
@@ -306,8 +212,7 @@ final class _Band {
   final double left;
   final double right;
 
-  /// Zero where the edge is the edge of the box rather than a cut against
-  /// another area — the crown's top and the nape's bottom.
+  /// Zero where the edge is the edge of the box rather than a cut against another area — the crown's top and the nape's bottom.
   final double topSag;
   final double bottomSag;
 

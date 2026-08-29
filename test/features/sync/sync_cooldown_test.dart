@@ -12,8 +12,7 @@ import 'package:migraine_tracker/features/sync/providers.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
-/// Counts passes without running one: the cooldown decides whether
-/// `SyncService.sync` is reached at all, which is the only thing under test.
+/// Counts passes without running one: the cooldown decides whether `SyncService.sync` is reached at all, which is the only thing under test.
 class CountingSyncService implements SyncService {
   int passes = 0;
 
@@ -108,8 +107,7 @@ void main() {
     await controller().sync();
     await controller().sync(trigger: SyncTrigger.record);
 
-    // Hard rule 12: the record has to reach the server before the phone can
-    // be lost.
+    // Hard rule 12: the record has to reach the server before the phone can be lost.
     expect(service.passes, 2);
   });
 

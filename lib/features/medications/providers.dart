@@ -32,11 +32,7 @@ final medicationsStreamProvider = StreamProvider<List<Medication>>(
   (ref) => ref.watch(medicationRepositoryProvider).watchAll(),
 );
 
-/// The medication list as the log flow's picker wants it: most recently
-/// taken first, never-taken ones alphabetically after. Ordering follows real
-/// use so the usual med sits under the thumb mid-attack — see
-/// [MedicationRanking.byRecentUse]. Everywhere else (settings, reminders) keeps the plain
-/// alphabetical [medicationsStreamProvider].
+/// The medication list as the log flow's picker wants it: most recently taken first, never-taken ones alphabetically after.
 final medicationsByRecentUseProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
@@ -47,23 +43,18 @@ final medicationsByRecentUseProvider = Provider<List<Medication>>((ref) {
   );
 });
 
-/// The medications tab's filter state (date added / reminder / usage). See
-/// [MedicationFiltersController].
+/// The medications tab's filter state (date added / reminder / usage). See [MedicationFiltersController].
 final medicationFiltersProvider =
     NotifierProvider<MedicationFiltersController, MedicationFilters>(
       MedicationFiltersController.new,
     );
 
-/// Orchestrates the medications tab's add/rename/delete. See
-/// [MedicationsController].
+/// Orchestrates the medications tab's add/rename/delete. See [MedicationsController].
 final medicationsControllerProvider = Provider<MedicationsController>(
   MedicationsController.new,
 );
 
-/// One-shot request to open the "add medication" dialog, set by the dashboard
-/// shortcut and consumed by the medications tab once it becomes active (it
-/// listens for this and, on first mount, checks it). Kept out of the widget
-/// tree so the request survives the branch switch that follows it.
+/// One-shot request to open the "add medication" dialog, set by the dashboard shortcut and consumed by the medications tab once it becomes active (it.
 class MedicationAddRequestController extends Notifier<bool> {
   @override
   bool build() => false;
@@ -78,9 +69,7 @@ final medicationAddRequestProvider =
       MedicationAddRequestController.new,
     );
 
-/// Free-text search over medication names, driven by the search field in the
-/// medications tab app bar. Narrows [filteredMedicationsProvider] on top of the
-/// three filter axes. Empty string = not searching.
+/// Free-text search over medication names, driven by the search field in the medications tab app bar.
 class MedicationSearchController extends Notifier<String> {
   @override
   String build() => '';
@@ -95,8 +84,7 @@ final medicationSearchProvider =
       MedicationSearchController.new,
     );
 
-/// One medication by id, for [MedicationDetailScreen]. Null once it is
-/// deleted — the screen pops itself rather than showing a stale name.
+/// One medication by id, for [MedicationDetailScreen]. Null once it is deleted — the screen pops itself rather than showing a stale name.
 final medicationByIdProvider = Provider.family<Medication?, String>((
   ref,
   medicationId,
@@ -110,8 +98,7 @@ final medicationByIdProvider = Provider.family<Medication?, String>((
   return null;
 });
 
-/// Medication ids with at least one reminder configured (any enabled
-/// state) — feeds [MedicationReminderFilter].
+/// Medication ids with at least one reminder configured (any enabled state) — feeds [MedicationReminderFilter].
 final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
   final reminders =
       ref.watch(medicationRemindersStreamProvider).value ??
@@ -119,10 +106,7 @@ final _medicationIdsWithRemindersProvider = Provider<Set<String>>((ref) {
   return {for (final view in reminders) view.reminder.medicationId};
 });
 
-/// Medication names that appear at least once in logged attack history —
-/// feeds [MedicationUsageFilter]. Matched by name, same join key as
-/// [MedicationRanking.byRecentUse]: attacks keep an immutable name snapshot, not a
-/// foreign key to [Medication.id].
+/// Medication names that appear at least once in logged attack history — feeds [MedicationUsageFilter].
 final _everUsedMedicationNamesProvider = Provider<Set<String>>((ref) {
   final attacks = ref.watch(attacksStreamProvider).value ?? const <Attack>[];
   return {
@@ -131,10 +115,7 @@ final _everUsedMedicationNamesProvider = Provider<Set<String>>((ref) {
   };
 });
 
-/// The medications tab's list: [medicationsStreamProvider] filtered by
-/// [medicationFiltersProvider] and sorted most-recently-added first. See
-/// [MedicationFilterer] — independent from [medicationsByRecentUseProvider],
-/// the log flow's own ordering.
+/// The medications tab's list: [medicationsStreamProvider] filtered by [medicationFiltersProvider] and sorted most-recently-added first.
 final filteredMedicationsProvider = Provider<List<Medication>>((ref) {
   final medications =
       ref.watch(medicationsStreamProvider).value ?? const <Medication>[];
@@ -146,8 +127,7 @@ final filteredMedicationsProvider = Provider<List<Medication>>((ref) {
     reminderMedicationIds: ref.watch(_medicationIdsWithRemindersProvider),
     everUsedNames: ref.watch(_everUsedMedicationNamesProvider),
   );
-  // Free-text search narrows further, on top of the enum filters, so the
-  // filterer stays a pure enum-axis engine.
+  // Free-text search narrows further, on top of the enum filters, so the filterer stays a pure enum-axis engine.
   final query = ref.watch(medicationSearchProvider).trim().toLowerCase();
   if (query.isEmpty) return filtered;
   return filtered
@@ -165,8 +145,7 @@ final medicationRemindersStreamProvider =
       (ref) => ref.watch(medicationReminderRepositoryProvider).watchAll(),
     );
 
-/// One medication's reminders: the detail screen's list, and the count the
-/// medications tab shows on its card.
+/// One medication's reminders: the detail screen's list, and the count the medications tab shows on its card.
 final remindersForMedicationProvider =
     Provider.family<List<MedicationReminderView>, String>((ref, medicationId) {
       final all =
@@ -178,12 +157,6 @@ final remindersForMedicationProvider =
     });
 
 /// Whether another medication may be added.
-///
-/// Asked by both add paths — the medications tab and the log flow's own
-/// picker. The log flow is the one place a gate normally may not appear
-/// (hard rule 5), and it is here by the owner's call: the limit dialog names
-/// it first, and "No medication" plus every medication already on file stay
-/// reachable, so the three taps still complete.
 final canAddMedicationProvider = Provider<bool>((ref) {
   if (ref.watch(hasPremiumProvider)) return true;
 
@@ -193,11 +166,7 @@ final canAddMedicationProvider = Provider<bool>((ref) {
   return medications.length < PremiumLimitConstant.medications;
 });
 
-/// How many of the free plan's medications are spent, for
-/// [FreeLimitProgress]. Null while premium — there is no limit to draw.
-///
-/// One provider for both surfaces that show it, the medications tab and a
-/// medication's own detail screen, so the two can never count differently.
+/// How many of the free plan's medications are spent, for [FreeLimitProgress].
 final medicationsUsedProvider = Provider<int?>((ref) {
   if (ref.watch(hasPremiumProvider)) return null;
 
@@ -206,12 +175,6 @@ final medicationsUsedProvider = Provider<int?>((ref) {
 });
 
 /// Whether another reminder may be created.
-///
-/// Free users get [PremiumLimitConstant.reminders] across every medication,
-/// not one each. **Only the add path asks.** A free user who already has
-/// more — from before this limit existed, or pulled down by a sync from a
-/// device that had premium — keeps every one of them: taking back a reminder
-/// someone relies on to take medication is not a paywall, it is a regression.
 final canAddReminderProvider = Provider<bool>((ref) {
   if (ref.watch(hasPremiumProvider)) return true;
 
@@ -223,13 +186,6 @@ final canAddReminderProvider = Provider<bool>((ref) {
 });
 
 /// How many of the free plan's reminders are spent, for [FreeLimitProgress].
-/// Null while premium — there is no limit to draw.
-///
-/// Counted across every medication, exactly like [canAddReminderProvider]
-/// gates it: the limit is not per medication, so a detail screen must not
-/// draw it as though it were. **The used figure can exceed the limit** — a
-/// free user who kept reminders from before the limit existed keeps them, and
-/// `FreeLimitProgress` clamps rather than pretending otherwise.
 final remindersUsedProvider = Provider<int?>((ref) {
   if (ref.watch(hasPremiumProvider)) return null;
 
@@ -238,15 +194,13 @@ final remindersUsedProvider = Provider<int?>((ref) {
       .length;
 });
 
-/// The flutter_local_notifications plugin, initialized once (timezone setup
-/// happens in main()). Override in tests with a fake NotificationScheduler.
+/// The flutter_local_notifications plugin, initialized once (timezone setup happens in main()). Override in tests with a fake NotificationScheduler.
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
   final scheduler = LocalNotificationScheduler(
     FlutterLocalNotificationsPlugin(),
   );
 
-  // Unawaited like the plugin call it replaced: nothing here waits on the
-  // plugin being ready, and a scheduled reminder is queued behind it anyway.
+  // Unawaited like the plugin call it replaced: nothing here waits on the plugin being ready, and a scheduled reminder is queued behind it anyway.
   unawaited(scheduler.initialize());
   ref.onDispose(scheduler.dispose);
 
@@ -258,12 +212,7 @@ final remindersControllerProvider = Provider<RemindersController>(
   RemindersController.new,
 );
 
-/// The soonest upcoming enabled reminder relative to now, for the dashboard's
-/// next-reminder banner; null when nothing is scheduled. Recomputes when the
-/// reminders change. The dashboard uses this to decide whether to show the
-/// banner; the banner itself re-ticks the live countdown on a widget-owned
-/// timer (a stream-driven clock here would invalidate this during layout and
-/// crash — see NextReminderBanner).
+/// The soonest upcoming enabled reminder relative to now, for the dashboard's next-reminder banner; null when nothing is scheduled.
 final nextReminderProvider = Provider<NextReminder?>((ref) {
   final views =
       ref.watch(medicationRemindersStreamProvider).value ??

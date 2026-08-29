@@ -14,18 +14,7 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../domain/services/attacks_by_day.dart';
 import 'attack_tile.dart';
 
-/// Month calendar: each day with attacks is dotted in its **worst**
-/// intensity's severity colour; tapping a day lists that day's attacks
-/// below. Owns its month navigation, so the period filter is hidden in this
-/// mode (see HistoryScreen).
-///
-/// The calendar sits ABOVE the day list (not inside its scroll view):
-/// scrolling the list collapses it to a compact strip — weekday labels +
-/// the selected week, month-title header hidden. It stays collapsed until
-/// the user deliberately expands it: a pull past the top of the list, or a
-/// swipe down on the strip itself. Because the list starts right under the
-/// calendar box and the height change is a single animation, there is
-/// never a dead gap between the strip and the first tile.
+/// Month calendar: each day with attacks is dotted in its worst intensity's severity colour; tapping a day lists that day's attacks below.
 class HistoryCalendarView extends HookWidget {
   const HistoryCalendarView({
     required this.attacks,
@@ -36,8 +25,7 @@ class HistoryCalendarView extends HookWidget {
 
   final List<Attack> attacks;
 
-  /// Bar clearances, computed by the parent from a context inside the
-  /// Scaffold body (where MediaQuery reports the real bar heights).
+  /// Bar clearances, computed by the parent from a context inside the Scaffold body (where MediaQuery reports the real bar heights).
   final double topInset;
   final double bottomInset;
 
@@ -52,9 +40,7 @@ class HistoryCalendarView extends HookWidget {
     final collapsed = useState(false);
     final scrollController = useScrollController();
 
-    // - collapses once the list is meaningfully scrolled
-    // - expanding is never automatic; returning to the top just keeps it compact
-    // - the user expands deliberately: pull past the top, or swipe the strip (onFormatChanged below)
+    // - collapses once the list is meaningfully scrolled.
     useEffect(() {
       void onScroll() {
         if (!collapsed.value &&
@@ -67,8 +53,7 @@ class HistoryCalendarView extends HookWidget {
       return () => scrollController.removeListener(onScroll);
     }, [scrollController]);
 
-    // - a drag past the top edge re-expands the calendar
-    // - dragDetails filters out ballistic bounces, so only an actual pull counts
+    // - a drag past the top edge re-expands the calendar - dragDetails filters out ballistic bounces, so only an actual pull counts
     bool onScrollNotification(ScrollNotification notification) {
       if (!collapsed.value) return false;
       final pulling = switch (notification) {
@@ -96,8 +81,7 @@ class HistoryCalendarView extends HookWidget {
       ),
       child: Column(
         children: [
-          // - calm height animation between month grid and week strip (hard rule 3: nothing flashy)
-          // - ClipRect keeps the mid-animation overflow invisible
+          // - calm height animation between month grid and week strip (hard rule 3: nothing flashy) - ClipRect keeps the mid-animation overflow invisible
           ClipRect(
             child: AnimatedSize(
               duration: const Duration(milliseconds: 250),
@@ -183,9 +167,7 @@ class HistoryCalendarView extends HookWidget {
               onNotification: onScrollNotification,
               child: ListView(
                 controller: scrollController,
-                // - app bar clearance is handled by topInset above the calendar
-                // - bottom nav clearance is handled by the trailing SizedBox
-                // - the default MediaQuery padding would leave a dead gap here
+                // - app bar clearance is handled by topInset above the calendar.
                 padding: EdgeInsets.zero,
                 children: [
                   Padding(

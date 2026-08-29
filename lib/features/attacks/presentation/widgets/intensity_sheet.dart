@@ -4,11 +4,7 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Corrects a logged attack's intensity. Dragging only moves the readout —
-/// the value lands on the header's tick, so a stray drag on the way to
-/// dismissing costs nothing.
-///
-/// Pops the new intensity, or null when dismissed.
+/// Corrects a logged attack's intensity.
 class IntensitySheet extends StatefulWidget {
   const IntensitySheet({required this.initial, super.key});
 
@@ -44,8 +40,7 @@ class _IntensitySheetState extends State<IntensitySheet> {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension IntensitySheetExt on IntensitySheet {
   Future<int?> show(BuildContext context) => showSdBottomSheetV2<int>(
     context,

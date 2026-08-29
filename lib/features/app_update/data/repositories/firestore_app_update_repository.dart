@@ -7,10 +7,6 @@ import '../../domain/repositories/app_update_repository.dart';
 import 'app_update_mapper.dart';
 
 /// Reads the published-build record from Firestore.
-///
-/// The collection is world-readable and never written by the app (see
-/// `firestore.rules`) — it carries release metadata only, no user data, so
-/// the read works before sign-in and while anonymous.
 class FirestoreAppUpdateRepository implements AppUpdateRepository {
   const FirestoreAppUpdateRepository(this._firestore);
 
@@ -18,8 +14,7 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
 
   final FirebaseFirestore _firestore;
 
-  /// Newest `create_date` first, one document — a new release is published
-  /// by adding a record, so history stays in the collection.
+  /// Newest `create_date` first, one document — a new release is published by adding a record, so history stays in the collection.
   @override
   Future<AppUpdateConfig?> latest() async {
     SdLogger.action(LogTagConstant.appUpdate, 'Read $collectionPath');
@@ -31,8 +26,7 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        // Not an error: hard rule 9 fails open, and "no record published"
-        // is the normal state before the first release is announced.
+        // Not an error: hard rule 9 fails open, and "no record published" is the normal state before the first release is announced.
         SdLogger.info(LogTagConstant.appUpdate, '$collectionPath is empty');
 
         return null;
@@ -44,8 +38,7 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
 
       return AppUpdateMapper.fromMap(raw);
     } catch (error, stackTrace) {
-      // The launch check swallows this and lets the user in (hard rule 9),
-      // so this line is the only place the reason is ever stated.
+      // The launch check swallows this and lets the user in (hard rule 9), so this line is the only place the reason is ever stated.
       SdLogger.error(
         LogTagConstant.appUpdate,
         'Read $collectionPath failed',

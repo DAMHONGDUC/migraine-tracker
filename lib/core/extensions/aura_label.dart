@@ -12,10 +12,6 @@ extension AuraLabel on AuraType {
 }
 
 /// The whole answer as one line, including the two ways of having none.
-///
-/// Null and empty are different sentences and must stay that way: "not
-/// recorded" is a question nobody put, "no aura" is the user's answer, and
-/// migraine with aura and without it are different diagnoses.
 extension AuraListLabel on List<AuraType>? {
   String label(AppLocalizations l10n) {
     final List<AuraType>? aura = this;

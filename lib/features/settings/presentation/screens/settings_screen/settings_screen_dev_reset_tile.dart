@@ -1,12 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: throw every trace of use away and land back on onboarding, the
-/// way a first install does. Sits next to the seed tile, behind the same
-/// `!AppEnv.isProd` guard on the whole section.
-///
-/// It confirms first even though nobody real can reach it — this one is
-/// destructive AND kicks you off the screen, so a mis-tap next to "seed"
-/// would be an unpleasant surprise mid-testing.
+/// Dev-only: throw every trace of use away and land back on onboarding, the way a first install does.
 class _DevResetTile extends ConsumerStatefulWidget {
   const _DevResetTile();
 

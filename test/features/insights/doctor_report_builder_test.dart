@@ -103,9 +103,7 @@ void main() {
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });
 
-  // The three clinical rows added after the first version. They are smoke
-  // tests on purpose: the output is a PDF, so what can be asserted here is
-  // that a shape which used to have no row now builds without throwing.
+  // The three clinical rows added after the first version.
   group('the clinical rows', () {
     Attack medicated(int daysAgo, {List<AuraType>? aura}) => Attack(
       id: 'm$daysAgo',

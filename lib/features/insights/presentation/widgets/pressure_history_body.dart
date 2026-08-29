@@ -15,12 +15,6 @@ import '../../providers.dart';
 part 'pressure_history_body_chart.dart';
 
 /// The correlation card's sentence, drawn.
-///
-/// "X% of your attacks fell during rapid drops" is a number somebody has to
-/// take on trust. This is the same fact as a picture they can argue with:
-/// the month's pressure as a line, their own attacks as dots on it.
-///
-/// Cardless like the other bodies — `PressureCard` owns the shell.
 class PressureHistoryBody extends ConsumerWidget {
   const PressureHistoryBody({super.key});
 
@@ -44,14 +38,11 @@ class PressureHistoryBody extends ConsumerWidget {
           )
         else ...<Widget>[
           _Chart(timeline: timeline),
-          // Said rather than silently dropped: a user counting dots against
-          // their own memory deserves to know why the two disagree.
+          // Said rather than silently dropped: a user counting dots against their own memory deserves to know why the two disagree.
           if (timeline.attacksWithoutReading > 0) ...<Widget>[
             SizedBox(height: SdSpacingConstant.h8),
             Text(
-              // Once more attacks are missing than are shown, the count
-              // stops informing and starts looking like a fault. Say why
-              // instead: the readings are young, the chart is not broken.
+              // Once more attacks are missing than are shown, the count stops informing and starts looking like a fault.
               timeline.strandedOutweighsPlotted
                   ? l10n.insightsPressureHistoryYoung
                   : l10n.insightsPressureHistoryStranded(

@@ -4,8 +4,7 @@ import 'package:migraine_tracker/features/settings/domain/entities/export_record
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/export_record_filterer.dart';
 
-/// A record made at [local] on the device's own clock, stored in UTC like the
-/// real thing.
+/// A record made at [local] on the device's own clock, stored in UTC like the real thing.
 ExportRecord recordAt(DateTime local) => ExportRecord(
   id: local.toIso8601String(),
   kind: ExportKind.json,
@@ -37,8 +36,7 @@ void main() {
       ExportDateFilter(from: DateTime(2026, 3, 10), to: DateTime(2026, 3, 12)),
     );
 
-    // The 23:59 export belongs to the 12th: comparing instants against
-    // midnight would drop it from a window that ends on its own day.
+    // The 23:59 export belongs to the 12th: comparing instants against midnight would drop it from a window that ends on its own day.
     expect(kept, <ExportRecord>[march10, march12Late]);
   });
 

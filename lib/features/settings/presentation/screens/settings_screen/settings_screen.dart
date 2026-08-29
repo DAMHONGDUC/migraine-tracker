@@ -53,11 +53,7 @@ part 'settings_screen_general_section.dart';
 part 'settings_screen_health_section.dart';
 part 'settings_screen_monitoring_section.dart';
 
-/// Five groups: "General" is the app itself, "Monitoring" is what it watches
-/// on your behalf, "Apple Health" is what it reads from elsewhere, "Your
-/// data" is what it holds, "About" is the app's own details. Deleting closes
-/// "Your data" — same subject as the exports, and the irreversible end of it.
-/// Apple Health is iOS-only, so off iOS the count is back to four.
+/// Five groups: "General" is the app itself, "Monitoring" is what it watches on your behalf, "Apple Health" is what it reads from elsewhere, "Your.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -75,30 +71,21 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
-            // Fixture tooling — only off prod, and always at the top of the
-            // screen (owner's rule): it is the group a developer opens
-            // Settings for, and below the real sections it meant scrolling.
+              // Keep non-production fixture tools at the top for quick access.
             if (!AppEnv.isProd) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
-              // Forced premium needs no account, exactly like the real thing
-              // (App Store 5.1.1(v) — see `hasPremiumProvider`).
+              // Forced premium needs no account, exactly like the real thing (App Store 5.1.1(v) — see `hasPremiumProvider`).
               const _DevPremiumTile(),
-              // The push fixture still does: sendTestPush refuses an
-              // anonymous session, so the row would only ever fail.
+              // The push fixture still does: sendTestPush refuses an anonymous session, so the row would only ever fail.
               if (ref.watch(isSignedInProvider)) const _DevPushTile(),
-              // Beside the push row but outside the account gate: a local
-              // notification needs no account, and the pair is what says which
-              // half of the delivery path failed when a reminder never lands.
+              // Beside the push row but outside the account gate.
               const _DevLocalNotificationTile(),
-              // First of the fixtures: it is the one that decides whether the
-              // weather card has anything to draw on a Simulator, so it is
-              // what a dev reaches for before the seed.
+                  // Location comes first because Simulator weather depends on it.
               const _DevLocationTile(),
               const _DevSeedTile(),
               const _DevResetTile(),
             ],
-            // `first` follows the section above: the dev group takes the
-            // screen's top gap whenever it is there.
+            // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.
             SdSectionHeaderV2(
               l10n.settingsSectionGeneral,
               first: AppEnv.isProd,
@@ -106,9 +93,7 @@ class SettingsScreen extends ConsumerWidget {
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),
             const _MonitoringSection(),
-            // Its own group, right under Monitoring: the sources it reads feed
-            // two of the rows above, and naming Apple Health at the top level
-            // is what App Store 2.5.1 asks for (see [_HealthSection]).
+            // Its own group, right under Monitoring.
             if (ref.watch(healthAvailableProvider)) ...<Widget>[
               SdSectionHeaderV2(l10n.settingsSectionHealth),
               const _HealthSection(),

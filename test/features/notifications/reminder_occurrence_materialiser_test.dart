@@ -174,8 +174,7 @@ void main() {
       window: const Duration(days: 30),
     );
 
-    // The window opens on 8 July at 12:00, so that day's 09:00 is already
-    // outside it: 30 occurrences, not 31.
+    // The window opens on 8 July at 12:00, so that day's 09:00 is already outside it: 30 occurrences, not 31.
     expect(result, hasLength(30));
     expect(result.first.occurredAt.toLocal(), DateTime(2026, 7, 9, 9));
     expect(result.last.occurredAt.toLocal(), DateTime(2026, 8, 7, 9));

@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// One day on the timeline: what the pressure did, and whether it ended in an
-/// attack.
+/// One day on the timeline: what the pressure did, and whether it ended in an attack.
 @immutable
 class PressureTimelineDay {
   const PressureTimelineDay({
@@ -23,8 +22,7 @@ class PressureTimelineDay {
   /// Attacks that started on this local day.
   final int attacks;
 
-  /// The worst of them, or null on a day with none. It sizes the marker, so
-  /// a bad day reads as one at a glance rather than after a tap.
+  /// The worst of them, or null on a day with none. It sizes the marker, so a bad day reads as one at a glance rather than after a tap.
   final int? peakIntensity;
 
   bool get hasAttack => attacks > 0;
@@ -33,10 +31,6 @@ class PressureTimelineDay {
 }
 
 /// The pressure line with the user's attacks marked on it.
-///
-/// The picture the correlation card states in words. Two people read the same
-/// number differently, and "your attacks sit on the falling edges" is a thing
-/// somebody can see in a second and argue with — which is the point.
 @immutable
 class PressureTimeline {
   const PressureTimeline({
@@ -48,16 +42,10 @@ class PressureTimeline {
     : days = const <PressureTimelineDay>[],
       attacksWithoutReading = 0;
 
-  /// Oldest first. **Only days that actually have a reading.** A day the app
-  /// was never opened is a gap in the line, never a zero or an interpolation
-  /// — the same rule the health charts follow, and for the same reason: a
-  /// drawn point is a claim that a measurement happened.
+  /// Oldest first.
   final List<PressureTimelineDay> days;
 
-  /// Attacks inside the window that fall on days with no reading, so they
-  /// could not be plotted. Stated rather than silently dropped: a user
-  /// counting dots against their own memory deserves to know why the two
-  /// disagree.
+  /// Attacks inside the window that fall on days with no reading, so they could not be plotted.
   final int attacksWithoutReading;
 
   bool get isEmpty => days.isEmpty;
@@ -66,11 +54,6 @@ class PressureTimeline {
       days.fold(0, (sum, PressureTimelineDay day) => sum + day.attacks);
 
   /// More attacks are missing from the line than are on it.
-  ///
-  /// The normal state for anyone whose history predates the daily readings.
-  /// The plain count then reads "23 attacks are not marked" under a chart
-  /// with four dots, which looks like a broken chart rather than a young one,
-  /// so the surface swaps the sentence for the reason at that point.
   bool get strandedOutweighsPlotted => attacksWithoutReading > attacksPlotted;
 
   /// Lowest reading in the window, or null when there are none.

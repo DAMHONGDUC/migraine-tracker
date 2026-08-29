@@ -4,13 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:system_design/index.dart';
 
-/// The app's one spacing rule, pinned on a notched device: [topGap] below
-/// the bar, [bottomGap] above the home indicator, [horizontal] either side.
-/// The numbers are spelled out rather than read back from the class — a test
-/// that computes the same expression it is testing proves nothing.
+/// The app's one spacing rule, pinned on a notched device: [topGap] below the bar, [bottomGap] above the home indicator, [horizontal] either side.
 void main() {
-  /// Pumps [builder] on a 393×852 view (so screenutil scales 1:1) with a
-  /// 47pt status bar and a 34pt home indicator.
+  /// Pumps [builder] on a 393×852 view (so screenutil scales 1:1) with a 47pt status bar and a 34pt home indicator.
   Future<EdgeInsets> insetsOf(
     WidgetTester tester,
     EdgeInsets Function(BuildContext context) read,
@@ -67,8 +63,7 @@ void main() {
           SdContentPaddingV2.screen(context, floatingNav: true),
     );
 
-    // The 34 home indicator is deeper than the pill's ceiling, so the offset
-    // caps at 20: that + its 56 of height + bottomGap.
+    // The 34 home indicator is deeper than the pill's ceiling, so the offset caps at 20: that + its 56 of height + bottomGap.
     expect(insets.bottom, 20 + 56 + 16);
     // The pill changes nothing above it.
     expect(insets.top, 47 + kToolbarHeight + 8);
@@ -101,8 +96,7 @@ void main() {
       ),
     );
 
-    // Nothing to rest on, so the pill takes the floor: that + its 56 +
-    // bottomGap.
+    // Nothing to rest on, so the pill takes the floor: that + its 56 + bottomGap.
     expect(bottom, 16 + 56 + 16);
   });
 
@@ -140,8 +134,7 @@ void main() {
   testWidgets('a bottom inset below the floor is raised to it', (tester) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
-    // An iPad, or an iPhone in landscape: there IS a home indicator, but a
-    // shallower one than a portrait phone's 34 — 8, under the floor.
+    // An iPad, or an iPhone in landscape: there IS a home indicator, but a shallower one than a portrait phone's 34 — 8, under the floor.
     tester.view.padding = const FakeViewPadding(top: 60, bottom: 24);
     tester.view.viewPadding = const FakeViewPadding(top: 60, bottom: 24);
     addTearDown(tester.view.reset);
@@ -206,8 +199,7 @@ void main() {
               title: const Text('Title'),
               body: Builder(
                 builder: (BuildContext inner) {
-                  // Scaffold strips the body's top padding under an app bar; the inset
-                  // must survive that (SdActionViewV2 is the body, so this is where it's read).
+    // Preserve the app-bar inset after Scaffold removes body padding.
                   below = SdContentPaddingV2.appBarInset(inner);
                   return const SizedBox();
                 },
@@ -254,15 +246,13 @@ void main() {
         ScreenUtilInit(
           designSize: const Size(393, 852),
           builder: (BuildContext _, Widget? _) => MaterialApp(
-            // The shape both floating bars come in: a bottom bar, and a body
-            // that reaches under it.
+            // The shape both floating bars come in: a bottom bar, and a body that reaches under it.
             home: Scaffold(
               extendBody: true,
               bottomNavigationBar: const SizedBox(height: 56),
               body: Builder(
                 builder: (BuildContext context) {
-                  // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar
-                  // - so an ambient read here loses the home indicator entirely and the last row ends up under the bar
+                  // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar.
                   tabScreen = SdContentPaddingV2.bottom(
                     context,
                     floatingNav: true,
@@ -276,8 +266,7 @@ void main() {
         ),
       );
 
-      // - neither lost the home indicator, which is what this test is for
-      // - both floating bars agree: they read the same `navBarOffset`, clamping 34 down to 20
+      // - neither lost the home indicator, which is what this test is for - both floating bars agree: they read the same `navBarOffset`, clamping 34 down to 20
       expect(tabScreen, 20 + 56 + 16);
       expect(logFlow, 20 + 56 + 16);
     },

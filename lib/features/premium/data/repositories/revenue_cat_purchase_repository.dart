@@ -17,10 +17,6 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
   final RevenueCatClient _client;
 
   /// The `Package` behind each offer we handed out, by offer id.
-  ///
-  /// `PremiumOffer` stays a pure domain object — it cannot carry an SDK type
-  /// across the layer boundary — so the store's own object is parked here
-  /// and looked up again when the user taps buy.
   final Map<String, Package> _packages = <String, Package>{};
 
   @override
@@ -109,9 +105,7 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
     });
   }
 
-  /// Runs [action], turning the SDK's `PlatformException` into a domain
-  /// [PurchaseException] so nothing above the data layer has to know about
-  /// `PurchasesErrorCode`.
+  /// Runs [action], turning the SDK's `PlatformException` into a domain [PurchaseException] so nothing above the data layer has to know about.
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
       return await action();
@@ -120,8 +114,7 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
         PurchasesErrorHelper.getErrorCode(error),
       );
 
-      // - Mapping drops the SDK's own code, which is the readable half.
-      // - Cancelling is the user's choice, not a failure.
+      // - Mapping drops the SDK's own code, which is the readable half. - Cancelling is the user's choice, not a failure.
       if (mapped != PurchaseError.cancelled) {
         SdLogger.error(
           LogTagConstant.purchase,
@@ -161,14 +154,11 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
   PremiumPeriod? _periodOf(PackageType type) => switch (type) {
     PackageType.monthly => PremiumPeriod.monthly,
     PackageType.annual => PremiumPeriod.yearly,
-    // Lifetime included: the product is retired, so a dashboard that still
-    // carries it must not put a row back on the paywall.
+    // Lifetime included: the product is retired, so a dashboard that still carries it must not put a row back on the paywall.
     _ => null,
   };
 
-  /// Introductory offers are described as a period + a count of units, so a
-  /// "1 month" trial and a "30 day" one arrive differently. Normalize to days
-  /// so the paywall has one number to say.
+  /// Introductory offers are described as a period + a count of units, so a "1 month" trial and a "30 day" one arrive differently.
   int? _trialDays(IntroductoryPrice? intro) {
     if (intro == null || intro.price > 0) return null;
 

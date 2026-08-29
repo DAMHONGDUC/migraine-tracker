@@ -5,8 +5,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 
 import '../../helpers/pump_app.dart';
 
-/// App Store 5.1.1(v): once accounts exist, deleting one has to be possible
-/// from inside the app.
+/// App Store 5.1.1(v): once accounts exist, deleting one has to be possible from inside the app.
 void main() {
   Future<void> openAccount(WidgetTester tester) async {
     await openSettings(tester);
@@ -40,8 +39,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    // The dialog must say the subscription is untouched: someone who assumes
-    // otherwise stops managing it and keeps being charged.
+    // The dialog must say the subscription is untouched: someone who assumes otherwise stops managing it and keeps being charged.
     expect(find.textContaining('does not cancel your subscription'), findsOne);
 
     await tapVisible(tester, find.text('Cancel'));
@@ -77,8 +75,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(app.auth.deleteAccountCalls, 1);
-    // The device copy goes too — the account being gone is no help if the
-    // records are still sitting in the database.
+    // The device copy goes too — the account being gone is no help if the records are still sitting in the database.
     expect(await app.db.select(app.db.attacks).get(), isEmpty);
 
     await finishTest(tester);

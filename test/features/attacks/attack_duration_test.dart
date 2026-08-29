@@ -35,9 +35,7 @@ void main() {
       );
     });
 
-    // "Still going" and "never said" are one state on purpose: nothing here
-    // can tell them apart, and guessing would put a number in the doctor
-    // report the user never gave.
+    // "Still going" and "never said" are one state on purpose.
     test('no end means no duration', () {
       expect(attack().duration, isNull);
     });
@@ -80,8 +78,7 @@ void main() {
       expect((await repository.getAll()).single.endedAt, isNull);
     });
 
-    // Its own method for the same reason updateExertion is: the details sheet
-    // never shows the duration, so a save from there must not blank it.
+    // Its own method for the same reason updateExertion is: the details sheet never shows the duration, so a save from there must not blank it.
     test('editing details leaves the end alone', () async {
       await repository.insert(attack(endedAt: DateTime.utc(2026, 7, 1, 14)));
 
@@ -113,8 +110,7 @@ void main() {
       );
     });
 
-    // Every mutation has to mark the row dirty or the edit never leaves the
-    // device (hard rule 12).
+    // Every mutation has to mark the row dirty or the edit never leaves the device (hard rule 12).
     test('recording the end marks the row for sync', () async {
       await repository.insert(attack());
       final AttackRow before = await (db.select(

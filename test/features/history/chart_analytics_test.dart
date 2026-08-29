@@ -110,8 +110,7 @@ void main() {
         ),
       ]);
 
-      // Three bars from one attack: the chart answers "how often does this
-      // area hurt", so the column total deliberately exceeds the attack count.
+      // Three bars from one attack: the chart answers "how often does this area hurt", so the column total deliberately exceeds the attack count.
       expect(counts, hasLength(3));
       expect(counts.every((c) => c.count == 1), isTrue);
     });

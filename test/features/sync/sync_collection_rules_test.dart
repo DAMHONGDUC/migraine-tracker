@@ -4,14 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_collection.dart';
 
-/// `SyncCollection`, `firestore.rules` and `firestore.indexes.json` are one
-/// contract split across three files, and nothing but this test holds them
-/// together. Both halves fail the same way — a query that dies at runtime,
-/// logged as "Didn't finish" and nothing more.
-///
-/// They drifted once already: medications and reminders were added to the
-/// enum while the rules still named only `attacks`, so every sync died on its
-/// first query with `permission-denied`, and so did the dev seed.
+/// `SyncCollection`, `firestore.rules` and `firestore.indexes.json` are one contract split across three files, and nothing but this test holds them.
 void main() {
   late String rules;
   late Map<String, dynamic> indexes;
@@ -42,9 +35,7 @@ void main() {
     });
 
     test('${collection.name} has the composite index its query needs', () {
-      // The pull filters on userId and orders by updatedAt. Firestore serves
-      // an equality on one field with a range on another only from a
-      // composite index; without it the query throws at runtime.
+      // The pull filters on userId and orders by updatedAt.
       final List<Map<String, dynamic>> found = indexesFor(collection.name);
 
       expect(
@@ -64,9 +55,7 @@ void main() {
 
   for (final SyncCollection collection in SyncCollection.values) {
     test('${collection.name} does not index its ciphertext', () {
-      // Firestore indexes every field by default, ascending AND descending:
-      // on payload that is ~1.4 KB of index for a 572-byte string nothing
-      // queries. Exempting the three opaque fields cuts most of the bytes.
+      // Firestore indexes every field by default, ascending AND descending: on payload that is ~1.4 KB of index for a 572-byte string nothing queries.
       final Set<String?> exempt = (indexes['fieldOverrides'] as List<dynamic>)
           .cast<Map<String, dynamic>>()
           .where(
@@ -94,9 +83,7 @@ void main() {
   });
 
   test('read is its own rule, never folded in with write', () {
-    // Folding them means a disjunction covering creates, leaving a branch that
-    // constrains nothing: Firestore then denies EVERY query while the file
-    // looks right. Four verbs, because sync_keys uses `if false` correctly.
+    // Folding them means a disjunction covering creates, leaving a branch that constrains nothing.
     for (final String verb in <String>['read', 'create', 'update', 'delete']) {
       expect(
         rules,
@@ -107,8 +94,7 @@ void main() {
   });
 
   test('the rules do not hand out every collection at once', () {
-    // At the root a bare `{collection}` would match sync_keys and app_updates
-    // too, not just the synced ones.
+    // At the root a bare `{collection}` would match sync_keys and app_updates too, not just the synced ones.
     expect(rules, contains('collection in ['));
   });
 }

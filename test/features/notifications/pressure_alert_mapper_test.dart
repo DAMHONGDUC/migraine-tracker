@@ -51,8 +51,7 @@ void main() {
       data(dropHpa: null),
     );
 
-    // The sheet leaves the number out rather than printing one the forecast
-    // never gave.
+    // The sheet leaves the number out rather than printing one the forecast never gave.
     expect(result, isNotNull);
     expect(result!.pressureDropHpa, isNull);
   });
@@ -82,16 +81,14 @@ void main() {
       final AppNotification? fromPush = PressureAlertMapper.fromData(data());
 
       expect(fromRecord, isNotNull);
-      // Same id is the whole point: the reconcile must land on the row the
-      // push handler would have written, not beside it.
+      // Same id is the whole point: the reconcile must land on the row the push handler would have written, not beside it.
       expect(fromRecord!.id, fromPush!.id);
       expect(fromRecord.occurredAt, fromPush.occurredAt);
       expect(fromRecord.pressureDropHpa, fromPush.pressureDropHpa);
       expect(fromRecord.type, NotificationType.pressureAlert);
     });
 
-    // An account that has never been sent an alert has none of these fields,
-    // which is the ordinary case on every launch — not an error.
+    // An account that has never been sent an alert has none of these fields, which is the ordinary case on every launch — not an error.
     test('an empty or half-written record is no row', () {
       expect(
         PressureAlertMapper.fromRecord(eventId: null, occurredAt: null),
@@ -129,8 +126,7 @@ void main() {
       expect(result!.occurredAt.isUtc, isTrue);
     });
 
-    // The record predates lastAlertDropHpa, so old accounts carry an alert
-    // with no reading. The row is still worth having.
+    // The record predates lastAlertDropHpa, so old accounts carry an alert with no reading. The row is still worth having.
     test('a record with no drop still yields a row', () {
       final AppNotification? result = PressureAlertMapper.fromRecord(
         eventId: 'evt-1',

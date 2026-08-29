@@ -10,11 +10,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../providers.dart';
 
-/// The blocking sheet. There is no way out of it on purpose: no drag
-/// handle, no barrier dismiss, and [PopScope] eats the back gesture — the
-/// only action is going to the store.
-///
-/// Show it with `ForceUpdateSheet(config: ...).show(context)`.
+/// The blocking sheet.
 class ForceUpdateSheet extends ConsumerWidget {
   const ForceUpdateSheet({required this.config, super.key});
 
@@ -73,8 +69,7 @@ class ForceUpdateSheet extends ConsumerWidget {
   }
 }
 
-/// Separate widget so a failed launch can flip its own state without
-/// rebuilding the sheet around it.
+/// Separate widget so a failed launch can flip its own state without rebuilding the sheet around it.
 class _UpdateButton extends ConsumerWidget {
   const _UpdateButton({required this.label});
 
@@ -100,8 +95,7 @@ class _UpdateButton extends ConsumerWidget {
   }
 }
 
-/// Sheets expose their opener as `.show(context)`, never a top-level
-/// `showX` (CLAUDE.md § Code style).
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ForceUpdateSheetExt on ForceUpdateSheet {
   Future<void> show(BuildContext context) => showSdBottomSheetV2<void>(
     context,

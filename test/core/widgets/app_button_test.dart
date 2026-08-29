@@ -3,17 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:system_design/index.dart';
 
-/// The login screen's pair: a filled Apple button over an outlined Google
-/// one, two labels of different lengths. Under
-/// [SdButtonIconPlacementV2.aligned] the icon+label cluster sits in the middle
-/// of the button AND lands on the same x in both — whatever the variant and
-/// whatever the label length.
-///
-/// Labels are kept short here on purpose: the test font draws every character
-/// a full font-size wide, so a realistic "Continue with Google" measures ~280
-/// against the ~146 it takes in SF on a device, and would overflow the slot
-/// in the test while fitting in the app. The last test covers that overflow
-/// deliberately.
+/// The login screen's pair: a filled Apple button over an outlined Google one, two labels of different lengths.
 void main() {
   const IconData appleIcon = Icons.apple;
   const IconData googleIcon = Icons.g_mobiledata;
@@ -72,8 +62,7 @@ void main() {
   testWidgets('aligned starts both labels on the same x', (tester) async {
     await pumpPair(tester, placement: SdButtonIconPlacementV2.aligned);
 
-    // Same slot, same left edge — and start-aligned, so the first character
-    // sits on that edge instead of floating in the middle of the slot.
+    // Same slot, same left edge — and start-aligned, so the first character sits on that edge instead of floating in the middle of the slot.
     expect(
       tester.getTopLeft(find.text('Apple')).dx,
       tester.getTopLeft(find.text('Google')).dx,
@@ -119,8 +108,7 @@ void main() {
     );
   });
 
-  // The slot is a minimum, not a cage: a label too long for it takes the room
-  // it needs — widening, then wrapping — rather than being cut off.
+  // The slot is a minimum, not a cage: a label too long for it takes the room it needs — widening, then wrapping — rather than being cut off.
   testWidgets('a label wider than the slot is never truncated', (tester) async {
     await pumpPair(
       tester,
@@ -140,8 +128,7 @@ void main() {
     );
   });
 
-  // Per-button override, for a brand glyph whose mark reads light or heavy
-  // at the shared box. The button next to it keeps the default.
+  // Per-button override, for a brand glyph whose mark reads light or heavy at the shared box. The button next to it keeps the default.
   testWidgets('iconSize overrides the default for that button alone', (
     tester,
   ) async {
@@ -161,8 +148,7 @@ void main() {
     );
   });
 
-  // Optical correction must not cost the alignment the pair was built for:
-  // the bigger glyph grows around its centre, inside an unchanged slot.
+  // Optical correction must not cost the alignment the pair was built for: the bigger glyph grows around its centre, inside an unchanged slot.
   testWidgets('a resized glyph keeps the pair aligned', (tester) async {
     await pumpPair(
       tester,
@@ -180,8 +166,7 @@ void main() {
     );
   });
 
-  // The inline default is what the shrink-wrapped text buttons (the "Add
-  // reminder" / "Edit" rows) sit on: it must not grow to the full width.
+  // The inline default is what the shrink-wrapped text buttons (the "Add reminder" / "Edit" rows) sit on: it must not grow to the full width.
   testWidgets('inline still shrink-wraps to its content', (tester) async {
     await pumpPair(tester, placement: SdButtonIconPlacementV2.inline);
 
@@ -242,8 +227,7 @@ void main() {
       expect(large, moreOrLessEquals(SdButtonV2.defaultIconSize * 1.25));
     });
 
-    // Material's own 48-tall tap target can floor the rendered size at
-    // small — read the padding the style carries, not the final render box.
+    // Material's own 48-tall tap target can floor the rendered size at small — read the padding the style carries, not the final render box.
     double verticalPadding(WidgetTester tester) {
       final ButtonStyle style = tester.widget<FilledButton>(
         find.byType(FilledButton),
@@ -268,8 +252,7 @@ void main() {
       expect(medium, lessThan(large));
     });
 
-    // Chrome-sized app-bar actions are always small, whatever `size` a call
-    // site passes alongside `compact` — the two must never disagree.
+    // Chrome-sized app-bar actions are always small, whatever `size` a call site passes alongside `compact` — the two must never disagree.
     testWidgets('compact always scales as small, overriding size', (
       tester,
     ) async {

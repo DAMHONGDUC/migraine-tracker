@@ -1,10 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/premium/data/datasources/revenue_cat_client.dart';
 
-/// A wrong-platform key does not throw in Dart — RevenueCat's native SDK
-/// answers it with `fatalError` and kills the process, in release builds only.
-/// So the key never reaches `Purchases.configure` unless it is one the SDK
-/// will survive.
+/// A wrong-platform key does not throw in Dart — RevenueCat's native SDK answers it with `fatalError` and kills the process, in release builds only.
 void main() {
   group('on Apple', () {
     bool usable(String key) =>
@@ -31,8 +28,7 @@ void main() {
     });
 
     test('a legacy unprefixed key is allowed through', () {
-      // RevenueCat only warns about these, so refusing them would break a
-      // working setup for the sake of a crash that cannot happen.
+      // RevenueCat only warns about these, so refusing them would break a working setup for the sake of a crash that cannot happen.
       expect(usable('aBcDeFgH12345'), isTrue);
     });
   });

@@ -3,19 +3,7 @@ import '../entities/sleep_correlation_result.dart';
 import '../entities/step_correlation_result.dart';
 import '../entities/trigger_verdict.dart';
 
-/// Answers the question the app was installed for: is weather actually your
-/// trigger?
-///
-/// It runs over what the other engines already produced rather than over the
-/// attacks again — one place decides what "settled" means per factor, and it
-/// is the engine that owns that factor.
-///
-/// **It is allowed to say no.** Roughly a quarter to a third of migraine
-/// sufferers are weather-sensitive, and the published evidence on barometric
-/// pressure is suggestive rather than consistent. An app that only ever
-/// confirms the reason someone installed it is a horoscope, and the user who
-/// logs forty attacks to be told "yes, weather" when it is really their sleep
-/// has been actively misled.
+/// Answers the question the app was installed for: is weather actually your trigger?
 class TriggerVerdictEngine {
   const TriggerVerdictEngine({this.meaningfulEffect = defaultMeaningfulEffect})
     : assert(
@@ -23,9 +11,7 @@ class TriggerVerdictEngine {
         'meaningfulEffect is a share of the larger group, 0–1',
       );
 
-  /// A fifth apart. Below it the two groups are the same group as far as
-  /// anyone can act on: an attack rate of 22% against 20%, or 7h10 of sleep
-  /// against 7h30, changes nothing a person would do differently.
+  /// A fifth apart.
   static const double defaultMeaningfulEffect = 0.2;
 
   final double meaningfulEffect;
@@ -42,8 +28,7 @@ class TriggerVerdictEngine {
       if (_steps(steps) case final TriggerStrength strength) strength,
     ]..sort((a, b) => b.effect.compareTo(a.effect));
 
-    // Nothing settled anywhere. Report how far along the pressure sample is,
-    // because that is the one the user is waiting on.
+    // Nothing settled anywhere. Report how far along the pressure sample is, because that is the one the user is waiting on.
     if (ranked.isEmpty) {
       return TriggerVerdictPending(
         attacksAnalyzed: switch (pressure) {
@@ -62,10 +47,7 @@ class TriggerVerdictEngine {
     return TriggerVerdictAnswer(ranked: ranked, weather: pressureStrength);
   }
 
-  /// Pressure counts only with a reliable baseline behind it. The share alone
-  /// — "60% of your attacks fell during drops" — is high for anyone living
-  /// somewhere stormy and says nothing about cause, so a verdict built on it
-  /// would confirm the weather for half the people who asked.
+  /// Pressure counts only with a reliable baseline behind it.
   TriggerStrength? _pressure(CorrelationResult result) {
     if (result
         case CorrelationInsight(
@@ -109,8 +91,7 @@ class TriggerVerdictEngine {
     return null;
   }
 
-  /// The gap as a share of the larger group, so a rate, a duration and a step
-  /// count can be ordered against one another.
+  /// The gap as a share of the larger group, so a rate, a duration and a step count can be ordered against one another.
   TriggerStrength _strength(TriggerFactor factor, double a, double b) {
     final double larger = a > b ? a : b;
 

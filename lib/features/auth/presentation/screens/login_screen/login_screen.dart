@@ -19,9 +19,7 @@ part 'login_screen_buttons.dart';
 part 'login_screen_disclosure.dart';
 part 'login_screen_pitch.dart';
 
-/// The optional account (hard rule 1) — it exists so a subscription has
-/// something durable to hang off. Pops `true` once an account exists, so
-/// whatever sent the user here can continue.
+/// The optional account (hard rule 1) — it exists so a subscription has something durable to hang off.
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
@@ -74,8 +72,7 @@ class LoginScreen extends ConsumerWidget {
             onSignIn: (AuthProviderKind provider) =>
                 _signIn(context, ref, provider),
           ),
-          // Text, not a button: the two provider buttons above are the offer,
-          // and a third button under them reads as a third way in.
+          // Text, not a button: the two provider buttons above are the offer, and a third button under them reads as a third way in.
           SdTextActionV2(
             label: l10n.loginNotNow,
             onTap: state.isBusy ? null : () => context.pop(false),

@@ -6,8 +6,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 
 import '../../helpers/pump_app.dart';
 
-/// The preview reads the file that was actually written, so what it shows and
-/// what a share hands over can never disagree.
+/// The preview reads the file that was actually written, so what it shows and what a share hands over can never disagree.
 Future<void> createExport(WidgetTester tester, String kind) async {
   await tapVisible(tester, find.text('Export'));
   await tester.pump(const Duration(milliseconds: 400));
@@ -44,8 +43,7 @@ void main() {
     await createExport(tester, 'CSV');
     await openActions(tester);
 
-    // 14 columns of comma-separated text say nothing on a phone — share or
-    // save it and open it in something that reads spreadsheets.
+    // 14 columns of comma-separated text say nothing on a phone — share or save it and open it in something that reads spreadsheets.
     expect(find.text('Preview'), findsNothing);
     expect(find.text('Share'), findsOneWidget);
     expect(find.text('Save to device'), findsOneWidget);

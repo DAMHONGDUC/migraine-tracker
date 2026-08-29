@@ -15,9 +15,7 @@ class WeeklyBucket {
 class WeeklyBucketsCalculator {
   const WeeklyBucketsCalculator();
 
-  /// Buckets attacks into the last [weeks] calendar weeks (Monday-start,
-  /// user-local time), oldest first. Weeks with no attacks are included
-  /// with a zero count so the chart never hides quiet weeks.
+  /// Buckets attacks into the last [weeks] calendar weeks (Monday-start, user-local time), oldest first.
   List<WeeklyBucket> compute(
     List<Attack> attacks, {
     required DateTime now,

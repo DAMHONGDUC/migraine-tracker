@@ -297,8 +297,7 @@ void main() {
       expect(rows.firstWhere((r) => r.name == 'Ibuprofen').helpedCount, 0);
     });
 
-    // The surfaces drop these rows rather than print "0/0", so the engine has
-    // to keep them distinguishable instead of guessing on their behalf.
+    // The surfaces drop these rows rather than print "0/0", so the engine has to keep them distinguishable instead of guessing on their behalf.
     test('a medication nobody answered for is a row with no answers', () {
       final MedicationEffectivenessResult result = engine.analyze(<Attack>[
         ...doses('Sumatriptan', <MedicationEffect?>[MedicationEffect.helped]),

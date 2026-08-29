@@ -21,13 +21,6 @@ import '../../../providers.dart';
 part 'notification_detail_screen_body.dart';
 
 /// One notification, in full: what it said, when, and the one place it leads.
-///
-/// Opening this is what marks it read — not opening the list, which reads
-/// nothing.
-///
-/// Every row in the list opens this, whatever its type — the type decides
-/// what the screen offers, not whether the user gets a screen at all. That is
-/// what makes the list uniform to use: one tap, one destination, always.
 class NotificationDetailScreen extends HookConsumerWidget {
   const NotificationDetailScreen({required this.notificationId, super.key});
 
@@ -40,8 +33,7 @@ class NotificationDetailScreen extends HookConsumerWidget {
       notificationByIdProvider(notificationId),
     );
 
-    // Once per mount: the row rebuilds the moment it is marked, and a
-    // second call would be a no-op anyway.
+    // Once per mount: the row rebuilds the moment it is marked, and a second call would be a no-op anyway.
     useEffect(() {
       ref.read(notificationsControllerProvider).markRead(notificationId);
       return null;

@@ -1,8 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: throw the database away and refill it with fixtures. The whole
-/// section is compiled out of a prod flavour by its `!AppEnv.isProd` guard,
-/// so there is no confirm dialog — nobody real can reach it.
+/// Dev-only: throw the database away and refill it with fixtures.
 class _DevSeedTile extends ConsumerStatefulWidget {
   const _DevSeedTile();
 

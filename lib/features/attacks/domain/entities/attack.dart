@@ -6,9 +6,7 @@ import '../enums/exertion_level.dart';
 import '../enums/head_region.dart';
 import '../enums/medication_effect.dart';
 
-/// A single migraine attack. The three required fields ([intensity],
-/// [regions], [medicationName]) mirror the 3-tap log flow; everything else
-/// is optional detail. [weather] is null while offline and backfilled later.
+/// A single migraine attack.
 @immutable
 class Attack {
   Attack({
@@ -51,15 +49,9 @@ class Attack {
   final int intensity;
 
   /// Aura kinds reported for this attack.
-  ///
-  /// Null is "never asked"; an EMPTY list is the user answering "no aura".
-  /// The two are different facts — migraine with aura and without it are
-  /// different diagnoses — so unlike [endedAt] they are not collapsed.
   final List<AuraType>? aura;
 
-  /// Every area the user tapped, never empty. A set in meaning but a list in
-  /// storage, kept in [HeadRegion] order so two attacks naming the same areas
-  /// serialize identically and the sync codec's comparison stays honest.
+  /// Every area the user tapped, never empty.
   final List<HeadRegion> regions;
 
   final String? medicationName;
@@ -68,43 +60,18 @@ class Attack {
   final String? notes;
   final ExertionLevel? exertionLevel;
 
-  /// Whether [medicationName] helped, once the user has said. Null is "not
-  /// answered", which is also every attack where nothing was taken — the
-  /// medication row is what tells the two apart, so nothing here needs a
-  /// fourth state.
+  /// Whether [medicationName] helped, once the user has said.
   final MedicationEffect? medicationEffect;
 
-  /// When the attack stopped, in UTC. Null means "still going, or never
-  /// said" — the two are deliberately one state, because the app cannot tell
-  /// them apart and guessing either way would put a number in the doctor
-  /// report that the user never gave.
-  ///
-  /// Never asked during the log flow: at the moment an attack is logged
-  /// nobody knows how long it will last, and the three taps are sacred
-  /// (hard rule 5). It is recorded afterwards, from the detail screen.
+  /// When the attack stopped, in UTC.
   final DateTime? endedAt;
 
   final WeatherSnapshot? weather;
 
-  /// Steps taken that day up to the moment the attack was logged, or null
-  /// when Apple Health had nothing to give — access refused, no samples, or
-  /// not iOS.
-  ///
-  /// **The day so far, not the whole day**, which is the same shape as
-  /// [weather]: a reading taken at the time, not a figure the day settles on
-  /// later. What a doctor wants beside an attack is how much the person had
-  /// moved *before* it, and a total that keeps climbing after the attack
-  /// answers a different question.
-  ///
-  /// Null and zero are different answers and both are real: zero is a day
-  /// spent still, null is a day Health would not talk about.
+  /// Steps taken that day up to the moment the attack was logged, or null when Apple Health had nothing to give — access refused, no samples, or not iOS.
   final int? steps;
 
   /// How long the attack lasted, or null while [endedAt] is unset.
-  ///
-  /// The 4–72h band is what separates a migraine from a tension headache, so
-  /// this is the first thing a neurologist asks and the report could not
-  /// answer before.
   Duration? get duration => endedAt?.difference(startedAt);
 
   Attack copyWith({WeatherSnapshot? weather, int? steps}) => Attack(

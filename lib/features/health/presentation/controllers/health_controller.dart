@@ -11,15 +11,8 @@ import '../../domain/enums/health_data_kind.dart';
 import '../../providers.dart';
 
 /// Owns which Apple Health sources are connected, one flag per source.
-///
-/// "Connected" is the user's own choice, kept in prefs — it is not a mirror
-/// of the OS grant, because there is nothing to mirror: iOS never reports
-/// whether a *read* permission was allowed. All the app can observe is that
-/// the sheet was answered, so the switch records intent and the reads speak
-/// for themselves (empty = nothing to show).
 class HealthController extends Notifier<HealthConnections> {
-  /// The single flag both sources shared before they could be connected
-  /// separately. Read once, to carry an existing user across.
+  /// The single flag both sources shared before they could be connected separately. Read once, to carry an existing user across.
 
   static String keyOf(HealthDataKind kind) => switch (kind) {
     HealthDataKind.sleep => PrefsKeyConstant.healthSleep,
@@ -29,8 +22,7 @@ class HealthController extends Notifier<HealthConnections> {
   @override
   HealthConnections build() {
     final SharedPreferences prefs = ref.watch(sharedPreferencesProvider);
-    // Someone who connected under the old single switch had both; splitting
-    // the flag must not read as the app quietly disconnecting on them.
+    // Someone who connected under the old single switch had both; splitting the flag must not read as the app quietly disconnecting on them.
     final bool legacy =
         prefs.getBool(PrefsKeyConstant.healthConnected) ?? false;
 
@@ -40,9 +32,7 @@ class HealthController extends Notifier<HealthConnections> {
     );
   }
 
-  /// Returns false when the platform refused outright (no HealthKit on this
-  /// device, or the sheet failed) — the caller surfaces that. A granted-
-  /// looking true still guarantees nothing about what was ticked.
+  /// Returns false when the platform refused outright (no HealthKit on this device, or the sheet failed) — the caller surfaces that.
   Future<bool> connect(HealthDataKind kind) async {
     SdLogger.action(
       LogTagConstant.health,
@@ -72,9 +62,7 @@ class HealthController extends Notifier<HealthConnections> {
     }
   }
 
-  /// Stops the app reading this source. It cannot revoke the OS grant — only
-  /// Settings → Privacy & Security → Health can — so this is the app's own
-  /// switch, and the UI says so rather than implying a revoke.
+  /// Stops the app reading this source.
   Future<void> disconnect(HealthDataKind kind) async {
     SdLogger.action(
       LogTagConstant.health,
@@ -104,8 +92,7 @@ class HealthController extends Notifier<HealthConnections> {
     return true;
   }
 
-  /// Every source at once, for the GDPR wipe — it clears the legacy flag too,
-  /// so a wipe cannot leave the old key behind to reconnect on next launch.
+  /// Every source at once, for the GDPR wipe — it clears the legacy flag too, so a wipe cannot leave the old key behind to reconnect on next launch.
   Future<void> disconnectAll() async {
     final SharedPreferences prefs = ref.read(sharedPreferencesProvider);
 

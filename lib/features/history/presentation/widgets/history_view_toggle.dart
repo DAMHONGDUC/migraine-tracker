@@ -7,10 +7,7 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../domain/enums/history_view_mode.dart';
 
-/// Segmented toggle for the History representations: a pill track with an
-/// animated thumb that slides under the selected segment. Driven by
-/// [HistoryViewMode.values], so adding a mode needs no layout maths here.
-/// Calm 200ms ease — no flash.
+/// Segmented toggle for the History representations: a pill track with an animated thumb that slides under the selected segment.
 class HistoryViewToggle extends StatelessWidget {
   const HistoryViewToggle({
     required this.mode,
@@ -44,8 +41,7 @@ class HistoryViewToggle extends StatelessWidget {
         // Opaque fill only when glass is off; the glass supplies the surface.
         color: SdGlassV2.isSupported ? null : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(height / 2),
-        // A hairline edge so the track reads as a control against the app
-        // bar behind it — frosted glass alone left its bounds guessable.
+        // A hairline edge so the track reads as a control against the app bar behind it — frosted glass alone left its bounds guessable.
         border: Border.all(
           color: scheme.onSurfaceVariant.withValues(alpha: 0.28),
         ),
@@ -69,9 +65,7 @@ class HistoryViewToggle extends StatelessWidget {
                   horizontal: SdSpacingConstant.w4,
                   vertical: SdSpacingConstant.h4,
                 ),
-                // Solid, not a 22% wash. Over a frosted track on a dark
-                // background that tint was almost invisible, and "which view
-                // am I in" is the only thing this control says.
+                // Solid, not a 22% wash.
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: scheme.primary,
@@ -143,13 +137,10 @@ class _Segment extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: SdIconV2(
-            // `row`, not `tile`: the segment is icon-only, but the thumb it
-            // sits in is 34 tall (h42 less its h4 inset either side), and a
-            // 28 glyph leaves it 3pt of breathing room.
+        // Row-sized icons fit the compact segment thumb.
             icon: icon,
             size: AppIconSize.row,
-            // Dark on the filled thumb, light off it — the pair inverts, so
-            // the selected one is legible rather than merely tinted.
+            // Dark on the filled thumb, light off it — the pair inverts, so the selected one is legible rather than merely tinted.
             color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
           ),
         ),

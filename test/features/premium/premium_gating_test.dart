@@ -18,15 +18,12 @@ import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-/// The pressure card's single locked pitch. One offer covers the forecast,
-/// the correlation and the alert, so this is what a free user sees in place
-/// of all three.
+/// The pressure card's single locked pitch.
 const String lockedPressurePitch =
     'See the pressure forecast, how closely your attacks track it, and get '
     'alerted before the next drop.';
 
-/// 15 attacks with weather — enough for the correlation engine to produce a
-/// real insight (9 during rapid drops → 60%).
+/// 15 attacks with weather — enough for the correlation engine to produce a real insight (9 during rapid drops → 60%).
 Future<void> seedInsightData(WidgetTester tester, PumpedApp app) async {
   final repo = DriftAttackRepository(app.db);
   for (var i = 0; i < 15; i++) {
@@ -62,9 +59,7 @@ void main() {
   testWidgets('the dev toggle unlocks every gate, and locking re-locks them', (
     tester,
   ) async {
-    // Signed out on purpose: the dev row no longer sits behind an account,
-    // because neither does premium (App Store 5.1.1(v)). Unentitled is still
-    // not premium.
+    // Signed out on purpose: the dev row no longer sits behind an account, because neither does premium (App Store 5.1.1(v)). Unentitled is still not premium.
     final PumpedApp app = await pumpApp(tester);
     await seedInsightData(tester, app);
     await openPressureInsight(tester);
@@ -72,14 +67,11 @@ void main() {
     // With no entitlement, the analysis is teased.
     expect(find.text('60%'), findsNothing);
 
-    // Driven through the row a developer actually taps: the override must
-    // reach the gates, not just the switch — the whole point of hasPremiumProvider.
+    // Driven through the row a developer actually taps: the override must reach the gates, not just the switch — the whole point of hasPremiumProvider.
     await openSettings(tester);
     await tapVisible(tester, find.text('Premium (mock)'));
 
-    // `openInsights`, not `openPressureInsight`: the tab choice above is
-    // remembered, and tapping the segment again would be ambiguous once the
-    // card is built — its title is the word 'Pressure' too.
+    // `openInsights`, not `openPressureInsight`.
     await openInsights(tester);
     expect(find.text('60%'), findsOneWidget);
 
@@ -92,9 +84,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // Both bodies were added to PressureCard after the gating tests were
-  // written, and TESTING.md item 4 is explicit that proving a free user's
-  // tree holds no premium data is debt that must be paid before release.
+  // Both bodies were added to PressureCard after the gating tests were written, and TESTING.md item 4 is explicit that proving a free user's tree holds.
   group('the two bodies added to the pressure card', () {
     testWidgets('a free user gets neither the verdict nor the chart', (
       tester,
@@ -104,8 +94,7 @@ void main() {
 
       await openPressureInsight(tester);
 
-      // Absent from the tree entirely, not merely covered: a scrim over a
-      // real figure is one screenshot away from leaking it.
+      // Absent from the tree entirely, not merely covered: a scrim over a real figure is one screenshot away from leaking it.
       expect(find.byType(TriggerVerdictBody), findsNothing);
       expect(find.byType(PressureHistoryBody), findsNothing);
 
@@ -137,17 +126,14 @@ void main() {
       // The analysis output is absent from the tree entirely.
       expect(find.text('60%'), findsNothing);
       expect(find.textContaining('Based on'), findsNothing);
-      // The value moment is teased instead — ONE pitch for the whole card,
-      // covering the forecast, the correlation and the alert together.
+      // The value moment is teased instead — ONE pitch for the whole card, covering the forecast, the correlation and the alert together.
       expect(find.text(lockedPressurePitch), findsOneWidget);
       expect(find.text('Premium'), findsWidgets);
 
       await finishTest(tester);
     });
 
-    // Flipped twice by the owner and premium again: the free promise is the
-    // weather card, and the pressure chart is the paid reading. This asserts
-    // the chart is NOT drawn without premium.
+    // Flipped twice by the owner and premium again: the free promise is the weather card, and the pressure chart is the paid reading.
     testWidgets('never sees the forecast chart — pressure is the product', (
       tester,
     ) async {
@@ -172,10 +158,7 @@ void main() {
       // Four of the five: the severity donut is the dashboard's, free here too.
       expect(find.byType(PremiumChartLock), findsNWidgets(4));
       expect(find.text('Moderate · 15'), findsOneWidget);
-      // The locked four draw the sample, which spans every head region — the
-      // seeded attacks name one apiece, so a handful of rows would mean the
-      // user's own data is sitting under the blur. Counted off the enum: the
-      // head map has grown before and the number is not the point.
+      // The locked four draw the sample,.
       expect(
         find.byType(SdProgressRowV2),
         findsNWidgets(HeadRegion.values.length),
@@ -242,14 +225,12 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      // - locked rows replace the real controls: the alerts row is a name wearing the badge, never the toggle
-      // - SwitchListTile, not Switch: the dev-only premium mock is a Switch too; this asks about gated toggles only
+      // - locked rows replace the real controls.
       expect(find.byType(SwitchListTile), findsNothing);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
-      // Export is premium in full now — the data exports as well as the PDF
-      // — so the row is a badge and a paywall, never a path to a file.
+      // Export is premium in full now — the data exports as well as the PDF — so the row is a badge and a paywall, never a path to a file.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('BaroEase Premium'), findsOneWidget);
@@ -261,9 +242,7 @@ void main() {
       final app = await pumpApp(tester);
       await seedInsightData(tester, app);
 
-      // The export row stays, wearing the badge rather than vanishing — one
-      // that disappeared would read as a feature the app lost. Scrolled to
-      // first: it sits below the built range now the dev group leads.
+      // The export row stays, wearing the badge rather than vanishing — one that disappeared would read as a feature the app lost.
       await openSettings(tester);
       await scrollIntoView(tester, find.text('Export data'));
       expect(find.text('Export data'), findsOneWidget);
@@ -292,8 +271,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      // The pitch comes first: a login screen must never appear in front of
-      // a paywall the user has not been shown yet.
+      // The pitch comes first: a login screen must never appear in front of a paywall the user has not been shown yet.
       expect(find.text('BaroEase Premium'), findsOneWidget);
       expect(find.text('Sign in to unlock Premium'), findsNothing);
       // …and it sells straight away, signed out (App Store 5.1.1(v)).
@@ -323,8 +301,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      // Back on the paywall it was opened from, still selling — the link is
-      // gone because there is an account now.
+      // Back on the paywall it was opened from, still selling — the link is gone because there is an account now.
       expect(app.auth.signInCalls, [AuthProviderKind.google]);
       expect(find.text('BaroEase Premium'), findsOneWidget);
       expect(
@@ -365,9 +342,7 @@ void main() {
     testWidgets('an entitlement without an account unlocks everything', (
       tester,
     ) async {
-      // The combination RevenueCat produces after a purchase nobody signed
-      // in for. It used to unlock nothing; App Store 5.1.1(v) says the
-      // entitlement is the whole answer.
+      // The combination RevenueCat produces after a purchase nobody signed in for.
       final app = await pumpApp(tester, premium: true, signedIn: false);
       await seedInsightData(tester, app);
 
@@ -384,9 +359,7 @@ void main() {
       await pumpApp(tester); // no attacks
       await openPressureInsight(tester);
 
-      // The gate comes before the data now: how far off the threshold a free
-      // user is is itself part of what premium shows, so the locked card says
-      // the same thing whether they have 0 attacks or 14.
+      // The gate comes before the data now.
       expect(find.text(lockedPressurePitch), findsOneWidget);
       expect(
         find.text(
@@ -458,8 +431,7 @@ void main() {
       await pumpApp(tester, premium: true);
       await openSettings(tester);
 
-      // The Settings row only reports On/Off — the control itself lives on
-      // Insights' pressure card, so the row carries no switch of its own.
+      // The Settings row only reports On/Off — the control itself lives on Insights' pressure card, so the row carries no switch of its own.
       expect(
         find.descendant(
           of: find.byType(AlertsSettingsTile),
@@ -468,15 +440,13 @@ void main() {
         findsNothing,
       );
 
-      // The row switches tabs rather than pushing a route (/pressure is gone),
-      // so there is nothing to page back from — Settings is reopened below.
+      // The row switches tabs rather than pushing a route (/pressure is gone), so there is nothing to page back from — Settings is reopened below.
       await tapVisible(tester, find.text('Pressure-drop alerts'));
       await pumpCountUp(tester);
       // Past `_AlertControls.highlightHold`, so its timer is not left pending.
       await tester.pump(const Duration(milliseconds: 600));
 
-      // Unlocked means the switch is built at all: a free user gets one pitch
-      // and no controls, which is what makes this the gating assertion.
+      // Unlocked means the switch is built at all: a free user gets one pitch and no controls, which is what makes this the gating assertion.
       expect(
         find.descendant(
           of: find.byType(PressureCard),
@@ -487,12 +457,10 @@ void main() {
 
       await openSettings(tester);
 
-      // No locked teaser left anywhere on the screen. (The Premium row is
-      // titled 'Premium' now, so the badge is what marks a gate.)
+      // No locked teaser left anywhere on the screen. (The Premium row is titled 'Premium' now, so the badge is what marks a gate.)
       expect(find.byType(PremiumBadge), findsNothing);
 
-      // The whole export screen is reachable, and the report is offered for
-      // real in its picker — no badge, no pitch, just the row that makes it.
+      // The whole export screen is reachable, and the report is offered for real in its picker — no badge, no pitch, just the row that makes it.
       await tapVisible(tester, find.text('Export data'));
       await tester.pump(const Duration(milliseconds: 400));
       await tapVisible(tester, find.text('Export'));

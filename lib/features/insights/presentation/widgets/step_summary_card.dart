@@ -15,15 +15,7 @@ import 'insight_value_row.dart';
 
 part 'step_summary_card_chart.dart';
 
-/// What Apple Health actually counted: today, the week's average, and the
-/// days behind them.
-///
-/// Free, unlike the correlation card under it — same reason as
-/// [SleepSummaryCard]: it is the answer to "did connecting work".
-///
-/// Absent entirely while steps are disconnected, and it decides that itself
-/// rather than being mounted conditionally — see [SleepSummaryCard] for the
-/// mid-build flush that costs.
+/// What Apple Health actually counted: today, the week's average, and the days behind them.
 class StepSummaryCard extends ConsumerWidget {
   const StepSummaryCard({super.key});
 
@@ -42,12 +34,9 @@ class StepSummaryCard extends ConsumerWidget {
         value.isEmpty
             ? _Empty(message: l10n.stepsSummaryEmpty)
             : _Loaded(summary: value),
-      // A read that failed and a read that returned nothing are the same
-      // thing to the user — iOS never says which (see HealthRepository).
+      // A read that failed and a read that returned nothing are the same thing to the user — iOS never says which (see HealthRepository).
       AsyncError<StepSummary>() => _Empty(message: l10n.stepsSummaryEmpty),
-      // The card's own shape rather than a spinner in a box: this sits in a
-      // scrolling column, so a placeholder of the wrong height moves
-      // everything below it when the read returns.
+      // The card's own shape rather than a spinner in a box.
       _ => const SdChartCardSkeletonV2(),
     };
   }
@@ -91,8 +80,7 @@ class _Loaded extends StatelessWidget {
   }
 }
 
-/// Connected, but nothing came back — no samples on this device, or the read
-/// was refused and iOS will not say which.
+/// Connected, but nothing came back — no samples on this device, or the read was refused and iOS will not say which.
 class _Empty extends StatelessWidget {
   const _Empty({required this.message});
 

@@ -1,7 +1,6 @@
 part of 'account_screen.dart';
 
-/// The editable name plus the read-only facts. Email and "member since"
-/// come from the provider and the account document — nothing to edit there.
+/// The editable name plus the read-only facts. Email and "member since" come from the provider and the account document — nothing to edit there.
 class _ProfileSection extends ConsumerWidget {
   const _ProfileSection({required this.user, required this.profile});
 

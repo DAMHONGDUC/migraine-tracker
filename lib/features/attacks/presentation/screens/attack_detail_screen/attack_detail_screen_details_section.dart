@@ -75,5 +75,4 @@ class _DetailsSection extends StatelessWidget {
   }
 }
 
-/// Intensity picker: a slider keeps the dialog small (a 10-circle grid
-/// belongs to the log flow, not here).
+/// Intensity picker: a slider keeps the dialog small (a 10-circle grid belongs to the log flow, not here).

@@ -1,21 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: schedules a local notification ~10s out **from the device
-/// itself**, so a developer can confirm delivery without waiting for a real
-/// reminder — and without the backend being involved at all.
-///
-/// The pair to [_DevPushTile], which is the same test through Firebase. The
-/// two rows and every string they show name their sender, because "test
-/// notification" and "test push" read as the same row and a developer holding
-/// a phone cannot tell which one just arrived. Deliberately not gated on an
-/// account:
-/// nothing about a local notification needs one — the OS schedules it on the
-/// device. That is also the difference the two rows exist to tell apart. When
-/// the reminder never arrives, this one says whether the fault is on the
-/// device or in the backend that sends the push.
-///
-/// It lived in the medications tab's app bar behind `kDebugMode`, which put a
-/// developer tool in the chrome of a screen users see, next to Search and Add.
+/// Dev-only: schedules a local notification ~10s out from the device itself, so a developer can confirm delivery without waiting for a real reminder.
 class _DevLocalNotificationTile extends ConsumerStatefulWidget {
   const _DevLocalNotificationTile();
 
@@ -34,8 +19,7 @@ class _DevLocalNotificationTileState
     if (_sending) return;
     setState(() => _sending = true);
     try {
-      // Asked for here rather than assumed: the tool is most useful on a
-      // device that has never been asked, which is the state it is testing.
+      // Asked for here rather than assumed: the tool is most useful on a device that has never been asked, which is the state it is testing.
       final bool granted = await ref
           .read(appPermissionProvider)
           .ensure(context, AppPermissionType.notification);
@@ -51,8 +35,7 @@ class _DevLocalNotificationTileState
 
       if (mounted) SdSnackBarUtilsV2.info(context, l10n.remindersTestScheduled);
     } catch (error, stackTrace) {
-      // The reason is the whole point of the row — the console keeps the
-      // stack trace the snackbar has no room for.
+      // The reason is the whole point of the row — the console keeps the stack trace the snackbar has no room for.
       SdLogger.error(
         LogTagConstant.reminders,
         'Test local notification failed',

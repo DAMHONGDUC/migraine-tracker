@@ -35,17 +35,14 @@ Future<void> seedNotifications(PumpedApp app) async {
   ]);
 }
 
-/// Pops the topmost route. Not `pageBack()`: with the list and a detail
-/// both pushed there are two back buttons in the tree, and it insists on
-/// exactly one.
+/// Pops the topmost route. Not `pageBack()`: with the list and a detail both pushed there are two back buttons in the tree, and it insists on exactly one.
 Future<void> popTop(WidgetTester tester) async {
   await tester.tap(find.byIcon(SdAppBarButtonV2.backIcon).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// The unread dots on the list's own rows — not the dashboard's bell,
-/// which is an `SdBadgeV2` too and sits under the pushed route.
+/// The unread dots on the list's own rows — not the dashboard's bell, which is an `SdBadgeV2` too and sits under the pushed route.
 Iterable<SdBadgeV2> rowDots(WidgetTester tester) => tester
     .widgetList<SdBadgeV2>(
       find.descendant(
@@ -111,8 +108,6 @@ void main() {
 
     await openNotifications(tester);
     // Both rows are unread, so both wear a dot.
-    // Scoped to the list: the dashboard's bell is an SdBadgeV2 too, and it
-    // is still in the tree under the pushed route.
     expect(rowDots(tester), hasLength(1), reason: 'one row, one dot');
 
     await tapVisible(tester, find.text('Time for Sumatriptan'));
@@ -122,9 +117,7 @@ void main() {
     // That row's dot is gone; the alert on the other tab is untouched.
     expect(rowDots(tester), isEmpty);
 
-    // One at a time, not all at once. Read off the rows rather than the
-    // bell: getting back to the dashboard means popping two routes, and
-    // what is under test is the state, not the navigation.
+    // One at a time, not all at once.
     final List<AppNotificationRow> rows = await app.db
         .select(app.db.appNotifications)
         .get();
@@ -162,9 +155,7 @@ void main() {
     expect(tabs.segments.map((SdSegmentV2 s) => s.count), <int>[1, 1]);
     expect(tabs.selectedIndex, 0);
 
-    // Centred in the track, not sitting against its top edge: the Stack
-    // hands its children loose constraints, so the row of segments has to
-    // be told to fill the height.
+    // Centred in the track, not sitting against its top edge.
     final Rect track = tester.getRect(find.byType(SdSegmentedTabsV2));
     final Rect label = tester.getRect(find.text('Reminders'));
 

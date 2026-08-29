@@ -127,8 +127,7 @@ void main() {
               as Map<String, dynamic>;
       json['v'] = 0;
 
-      // The day the version is bumped, everything already uploaded is a
-      // version behind. Refusing it would orphan the user's whole history.
+      // The day the version is bumped, everything already uploaded is a version behind. Refusing it would orphan the user's whole history.
       expect(
         const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').intensity,
         7,
@@ -141,8 +140,7 @@ void main() {
               as Map<String, dynamic>;
       json['fieldFromALaterBuild'] = 'whatever';
 
-      // Adding an optional field must not need a version bump, or two builds
-      // in the wild could never read each other.
+      // Adding an optional field must not need a version bump, or two builds in the wild could never read each other.
       expect(
         const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1').notes,
         'woke up with it',
@@ -169,9 +167,7 @@ void main() {
               as Map<String, dynamic>;
       json['regions'] = <String>['sideways'];
 
-      // An attack with no location cannot be rebuilt faithfully and the
-      // entity forbids it. The legacy `location` field is not checked at all
-      // any more — it is written for older builds to read, never read here.
+      // An attack with no location cannot be rebuilt faithfully and the entity forbids it.
       expect(
         () => const AttackPayloadCodec().decode(jsonEncode(json), id: 'a1'),
         throwsFormatException,
@@ -212,9 +208,7 @@ void main() {
   });
 
   group('endedAt', () {
-    // It arrived after schemaVersion 1 shipped, and adding an optional field
-    // is deliberately not a bump — so a payload written by the older build
-    // must still decode, with the duration simply unknown.
+    // It arrived after schemaVersion 1 shipped, and adding an optional field is deliberately not a bump.
     test('a payload written before it existed still decodes', () {
       final Map<String, dynamic> old =
           jsonDecode(const AttackPayloadCodec().encode(full()))
@@ -272,8 +266,7 @@ void main() {
 
     expect(codec.decode(codec.encode(full()), id: 'a1').steps, 4210);
 
-    // Null and zero are different answers: an attack Health never answered
-    // for must not come back as a day spent still.
+    // Null and zero are different answers: an attack Health never answered for must not come back as a day spent still.
     final Attack none = Attack(
       id: 'a2',
       startedAt: DateTime.utc(2026, 7, 2),

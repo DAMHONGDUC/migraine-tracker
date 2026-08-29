@@ -9,35 +9,24 @@ class MonthlyMigraineDays {
     required this.attacks,
   });
 
-  /// The first of the month, in local time — the month a person lived, not
-  /// the one UTC was in.
+  /// The first of the month, in local time — the month a person lived, not the one UTC was in.
   final DateTime month;
 
-  /// Distinct local days with at least one attack. Days, not attacks: three
-  /// attacks in one day is one migraine day, and it is the count every
-  /// headache clinic asks for and every preventive is judged on.
+  /// Distinct local days with at least one attack.
   final int days;
 
-  /// Attacks logged that month, which [days] deliberately collapses. Kept
-  /// because "8 days, 20 attacks" and "8 days, 8 attacks" are different
-  /// months to the person who lived them.
+  /// Attacks logged that month, which [days] deliberately collapses.
   final int attacks;
 }
 
 /// Migraine days over the recent months, newest last.
-///
-/// Not a sealed result like the correlation engines, and deliberately: those
-/// state a relationship, which a thin sample can make a false claim about.
-/// This is a count. One month of logging gives a true count of one month, so
-/// there is no minimum to grade against and nothing to withhold.
 @immutable
 class MigraineDaysSummary {
   const MigraineDaysSummary({required this.months});
 
   const MigraineDaysSummary.empty() : months = const <MonthlyMigraineDays>[];
 
-  /// Oldest first, one entry per month in the window, including the months
-  /// with no attacks at all.
+  /// Oldest first, one entry per month in the window, including the months with no attacks at all.
   final List<MonthlyMigraineDays> months;
 
   /// The month in progress — the figure the dashboard leads with.
@@ -47,12 +36,7 @@ class MigraineDaysSummary {
   MonthlyMigraineDays? get previousMonth =>
       months.length < 2 ? null : months[months.length - 2];
 
-  /// Days more (positive) or fewer (negative) than last month, or null while
-  /// there is no last month to compare against.
-  ///
-  /// **The current month is still running**, so this compares a partial month
-  /// against a whole one and will read low early on. Whatever states it has
-  /// to say so.
+  /// Days more (positive) or fewer (negative) than last month, or null while there is no last month to compare against.
   int? get changeFromPreviousMonth {
     final MonthlyMigraineDays? current = currentMonth;
     final MonthlyMigraineDays? previous = previousMonth;

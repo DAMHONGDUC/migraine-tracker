@@ -52,9 +52,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await openSettings(tester);
 
-    // Scrolled to first: the row sits below the built range now that the dev
-    // group leads the screen, and an unbuilt row fails a finder that the
-    // screen itself would satisfy.
+    // Scrolled to first: the row sits below the built range now that the dev group leads the screen, and an unbuilt row fails a finder that the screen.
     await scrollIntoView(tester, find.text('Delete all data'));
 
     // There is an account copy to delete now, so the promise widens with it.
@@ -214,8 +212,7 @@ void main() {
     await tapVisible(tester, find.text('Export data'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // Export is premium in full now — the badged row opens the pitch, never
-    // the screen that produces a file.
+    // Export is premium in full now — the badged row opens the pitch, never the screen that produces a file.
     expect(find.text('No exports yet'), findsNothing);
     expect(find.text('BaroEase Premium'), findsOneWidget);
 

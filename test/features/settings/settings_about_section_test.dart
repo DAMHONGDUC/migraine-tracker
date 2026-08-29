@@ -16,8 +16,7 @@ void main() {
       const Offset(0, -200),
     );
 
-    // The version row is gone: the About row carries the same diagnostic
-    // string as its value, so a bug report still names its build.
+    // The version row is gone: the About row carries the same diagnostic string as its value, so a bug report still names its build.
     expect(find.text('About BaroEase'), findsOneWidget);
     expect(find.text('dev - 99.0.0 (9999)'), findsOneWidget);
 

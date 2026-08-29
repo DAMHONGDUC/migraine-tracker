@@ -9,14 +9,6 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../attacks/providers.dart';
 
 /// How many free logs are left, once there are few enough to say.
-///
-/// The attack wall lands on the log button, which is tapped mid-attack — the
-/// worst possible moment to learn a limit exists. So the last few logs are
-/// counted down here instead, where the user is calm and can decide in their
-/// own time.
-///
-/// Absent while premium, and while the end is still far off — a banner that
-/// is always there stops being read (see [attacksLeftProvider]).
 class AttackLimitBanner extends ConsumerWidget {
   const AttackLimitBanner({super.key});
 

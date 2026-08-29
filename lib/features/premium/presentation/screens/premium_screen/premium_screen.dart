@@ -13,13 +13,7 @@ import '../../../providers.dart';
 
 part 'premium_screen_status_card.dart';
 
-/// What the subscription is right now, and what it includes. Pushed from
-/// Settings and from the account screen.
-///
-/// It is the *status* page — the purchase itself stays on the paywall
-/// sheet, so there is one place that sells and one place that reports.
-/// Entitlement comes from [hasPremiumProvider] (RevenueCat once wired),
-/// never from a flag this app could write.
+/// What the subscription is right now, and what it includes.
 class PremiumScreen extends ConsumerWidget {
   const PremiumScreen({super.key});
 

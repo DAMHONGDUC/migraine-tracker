@@ -1,14 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Dev-only: asks the Firebase backend to push a notification to this device
-/// — FCM to APNs to here, the whole path a real alert takes.
-///
-/// The pair to [_DevLocalNotificationTile]; its title and its snackbars say
-/// "Firebase" so the arriving notification identifies its own sender.
-///
-/// The only way to prove the APNs key, the entitlement and the token line up,
-/// because none of that exists on a Simulator and no test can stand in for
-/// it. The callable only ever targets the caller's own registered device.
+/// Dev-only: asks the Firebase backend to push a notification to this device — FCM to APNs to here, the whole path a real alert takes.
 class _DevPushTile extends ConsumerStatefulWidget {
   const _DevPushTile();
 
@@ -29,8 +21,7 @@ class _DevPushTileState extends ConsumerState<_DevPushTile> {
 
       if (mounted) SdSnackBarUtilsV2.success(context, l10n.settingsDevPushSent);
     } catch (error, stackTrace) {
-      // The reason is the whole point of the row — the console keeps the
-      // stack trace the snackbar has no room for.
+      // The reason is the whole point of the row — the console keeps the stack trace the snackbar has no room for.
       SdLogger.error(
         LogTagConstant.devPush,
         'Test push failed',

@@ -11,8 +11,7 @@ import 'package:migraine_tracker/features/review/providers.dart';
 
 import '../../helpers/review_fakes.dart';
 
-/// In-memory prompt state. The prefs-backed one has its own concerns; this
-/// test is about what the controller does with what it reads.
+/// In-memory prompt state. The prefs-backed one has its own concerns; this test is about what the controller does with what it reads.
 class _FakeReviewPromptStore implements ReviewPromptStore {
   _FakeReviewPromptStore({this.state = ReviewPromptState.never, this.throws});
 
@@ -36,8 +35,7 @@ class _FakeReviewPromptStore implements ReviewPromptStore {
   }
 }
 
-/// Answers only [latestPressureAlert]; anything else the controller touched
-/// would be a call it has no business making.
+/// Answers only [latestPressureAlert]; anything else the controller touched would be a call it has no business making.
 class _FakeNotificationRepository implements NotificationRepository {
   _FakeNotificationRepository({this.alert});
 
@@ -128,8 +126,7 @@ void main() {
       expect(harnessed.store.recorded, isEmpty);
     });
 
-    /// A device with no review flow — every simulator. Recording the ask
-    /// would spend one of three on a dialog nobody could have seen.
+    /// A device with no review flow — every simulator. Recording the ask would spend one of three on a dialog nobody could have seen.
     test('records nothing when the platform has no review flow', () async {
       final harnessed = harness(prompterAvailable: false);
 

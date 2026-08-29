@@ -109,16 +109,13 @@ void main() {
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
-    // A shared attack is a fourth copy of health data on disk, sitting in
-    // temporary storage. "Delete all data" has to reach it too.
+    // A shared attack is a fourth copy of health data on disk, sitting in temporary storage. "Delete all data" has to reach it too.
     expect(shareFiles.cleared, isTrue);
     expect(await attacks.getAll(), isEmpty);
     expect(await medications.getAll(), isEmpty);
-    // The list is derived from reminders but stored, so a wipe that
-    // skipped it would keep naming medications the user just deleted.
+    // The list is derived from reminders but stored, so a wipe that skipped it would keep naming medications the user just deleted.
     expect(await db.select(db.appNotifications).get(), isEmpty);
-    // The App Group is off the database entirely, so nothing else here
-    // would notice the week count still sitting on the home screen.
+    // The App Group is off the database entirely, so nothing else here would notice the week count still sitting on the home screen.
     expect(homeWidget.clears, 1);
   });
 
@@ -186,9 +183,7 @@ void main() {
       reported.add(done);
     });
 
-    // Starts at 0 so the row can show a bar before the first step lands, then
-    // climbs one at a time and stops on the last — a count that skipped or
-    // repeated would show a bar that jumps or stalls.
+    // Starts at 0 so the row can show a bar before the first step lands, then climbs one at a time and stops on the last.
     expect(reported, <int>[for (int i = 0; i <= DataWipeService.steps; i++) i]);
   });
 
@@ -253,8 +248,7 @@ void main() {
         throwsA(isA<Exception>()),
       );
 
-      // Wiping the device first would leave the cloud copy with nothing left
-      // to say it should go, and the next sync would pull it all back down.
+      // Wiping the device first would leave the cloud copy with nothing left to say it should go, and the next sync would pull it all back down.
       expect(await attacks.getAll(), hasLength(1));
     });
 
@@ -278,9 +272,7 @@ void main() {
       RecordingHomeWidgetRepository(),
       ).wipeAll();
 
-      // The FCM token is the one thing that can still reach someone after
-      // they deleted everything: the cron would go on pushing pressure
-      // alerts to a device with nothing left in it.
+      // The FCM token is the one thing that can still reach someone after they deleted everything.
       expect(alerts.forgetCalls, 1);
     });
 

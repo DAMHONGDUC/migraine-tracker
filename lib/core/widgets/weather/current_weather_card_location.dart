@@ -1,28 +1,6 @@
 part of 'current_weather_card.dart';
 
-/// The weather card with no position to draw: what the reading needs, and the
-/// button that grants it.
-///
-/// **It keeps the card's shape** — the same gradient, the same two lines — so
-/// the dashboard neither gains nor loses a card as the permission changes;
-/// only what fills it does.
-///
-/// **This is the second place the app asks for location, and the first
-/// outside onboarding** (owner's call). The onboarding step is where the ask
-/// is explained; a denial in the OS dialog there used to be final, because
-/// nothing in the app asked again and the card the permission feeds said only
-/// that the weather was unavailable. Asking here is asking on the surface the
-/// answer changes.
-///
-/// **The button is worded neutrally, never "Enable location"** — App Store
-/// 5.1.1(iv) reads a custom message whose button names the grant as steering
-/// the answer, and submission 1.0(20) was rejected for exactly that.
-///
-/// **The prompt is [AppPermission.ensure], not the geolocator's own
-/// request.** Once iOS has been told no it will not show its dialog again, so
-/// the ask has to be able to fall through to `PermissionSettingsSheet` and
-/// the Settings app — a button that silently did nothing is exactly what a
-/// second ask must not be.
+/// The weather card with no position to draw: what the reading needs, and the button that grants it.
 class _LocationPrompt extends ConsumerWidget {
   const _LocationPrompt();
 
@@ -35,13 +13,10 @@ class _LocationPrompt extends ConsumerWidget {
           .ensure(context, AppPermissionType.location);
 
       SdLogger.info(LogTagConstant.location, 'Location answered', granted);
-      // Whichever way it went: a denial that has become permanent changes
-      // what the next tap does, and only re-reading the status can tell.
+      // Whichever way it went: a denial that has become permanent changes what the next tap does, and only re-reading the status can tell.
       ref.invalidate(locationPermissionProvider);
 
-      // And the reading itself, or the grant buys nothing: both providers may
-      // hold a null from before the permission existed, and a completed value
-      // is not recomputed just because a new watcher arrived.
+      // And the reading itself, or the grant buys nothing.
       if (granted) {
         ref.invalidate(weatherReportProvider);
         ref.invalidate(placeNameProvider);

@@ -7,10 +7,6 @@ import '../../domain/enums/exertion_level.dart';
 import 'exertion_level_picker.dart';
 
 /// Fourth step: how hard the user was moving around the attack.
-///
-/// Arrives on [ExertionLevel.none] — the common answer — so Next works
-/// immediately and this step can never stand between the user and a saved
-/// attack (hard rule 5).
 class ExertionStep extends StatelessWidget {
   const ExertionStep({
     required this.selected,

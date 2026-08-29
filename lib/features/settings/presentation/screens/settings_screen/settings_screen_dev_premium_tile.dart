@@ -1,12 +1,6 @@
 part of 'settings_screen.dart';
 
 /// Dev-only: force premium on or off without going near the store.
-///
-/// Every gate reads `hasPremiumProvider`, so flipping this unlocks and locks
-/// the whole app at once — the insights cards, the alerts row, the PDF
-/// export. Nothing is written anywhere: the override lives in memory for the
-/// run, which is the line between this and the `DebugPremiumRepository`
-/// CLAUDE.md deleted.
 
 class _DevPremiumTile extends ConsumerWidget {
   const _DevPremiumTile();

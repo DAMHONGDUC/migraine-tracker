@@ -4,10 +4,7 @@ import '../../../../core/db/app_database.dart';
 import '../../domain/entities/daily_pressure.dart';
 import '../../domain/repositories/daily_pressure_repository.dart';
 
-/// Drift-backed [DailyPressureRepository]. Returns domain models, never rows.
-///
-/// Carries no sync bookkeeping at all — no `revision`, no tombstone — because
-/// this table deliberately never leaves the device.
+/// Drift-backed [DailyPressureRepository].
 class DriftDailyPressureRepository implements DailyPressureRepository {
   const DriftDailyPressureRepository(this._db);
 

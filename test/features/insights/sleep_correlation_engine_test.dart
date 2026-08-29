@@ -5,9 +5,7 @@ import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dar
 import 'package:migraine_tracker/features/insights/domain/entities/sleep_correlation_result.dart';
 import 'package:migraine_tracker/features/insights/domain/services/sleep_correlation_engine.dart';
 
-/// Local wall-clock on purpose: `Attack` stores UTC, and the engine converts
-/// back before taking a date. Building attacks from local time is what a user
-/// in any timezone actually produces, so these assertions hold on any machine.
+/// Local wall-clock on purpose: `Attack` stores UTC, and the engine converts back before taking a date.
 Attack attackOn(DateTime localStart) => Attack(
   id: 'attack-${localStart.toIso8601String()}',
   startedAt: localStart,
@@ -20,8 +18,7 @@ SleepNight night(DateTime date, {required double hours}) => SleepNight(
   duration: Duration(minutes: (hours * 60).round()),
 );
 
-/// [hours] one entry per night, starting at 2026-01-02 and running forward.
-/// A night whose date is in [attackMornings] is followed by an attack.
+/// [hours] one entry per night, starting at 2026-01-02 and running forward. A night whose date is in [attackMornings] is followed by an attack.
 ({List<SleepNight> nights, List<Attack> attacks}) history({
   required List<double> attackNightHours,
   required List<double> restNightHours,

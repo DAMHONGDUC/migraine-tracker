@@ -56,8 +56,7 @@ void main() {
     await openHistory(tester);
     await switchToCalendar(tester);
 
-    // The tile for today's attack (selection defaults to today). Scope the
-    // intensity to the tile — a bare "8" would also match day 8 in the grid.
+    // The tile for today's attack (selection defaults to today). Scope the intensity to the tile — a bare "8" would also match day 8 in the grid.
     expect(find.text('Left temple'), findsOneWidget);
     expect(
       find.descendant(of: find.byType(AttackTile), matching: find.text('8')),
