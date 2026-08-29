@@ -23,7 +23,7 @@ class _PremiumSection extends ConsumerWidget {
         style: AppTextStyle.bodyMedium.secondary,
       ),
       trailing: SdIconV2(icon: AppIconConstant.disclosure,
-        size: AppIconSize.affordance),
+        size: AppIconSize.small),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

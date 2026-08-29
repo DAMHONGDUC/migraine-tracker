@@ -23,7 +23,7 @@ class QuickAccessSection extends ConsumerWidget {
   /// Summed from a cell's contents: the padding, the glyph, the gap and ONE line of label.
   static double get cellHeight =>
       SdSpacingConstant.h12 * 2 +
-      AppIconSize.tile +
+      AppIconSize.large +
       SdSpacingConstant.h6 +
       SdSpacingConstant.h20;
 
@@ -110,7 +110,7 @@ class _QuickAccessCard extends StatelessWidget {
             // Plain text colour, not the accent: a grid of lavender glyphs under the lavender log button was two accents arguing.
             SdIconV2(
               icon: shortcut.icon,
-              size: AppIconSize.row,
+              size: AppIconSize.small,
               color: AppColors.textPrimary,
             ),
             SizedBox(height: SdSpacingConstant.h6),

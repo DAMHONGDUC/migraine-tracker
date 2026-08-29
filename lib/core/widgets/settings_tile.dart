@@ -43,7 +43,7 @@ class SettingsTile extends StatelessWidget {
     return ListTile(
       leading: SdIconV2(
         icon: icon,
-        size: AppIconSize.row,
+        size: AppIconSize.medium,
         color: iconColor ?? titleColor,
       ),
       title: Text(
@@ -84,7 +84,7 @@ class _TileEnd extends StatelessWidget {
         if (chevron)
           SdIconV2(
             icon: AppIconConstant.disclosure,
-            size: AppIconSize.affordance,
+            size: AppIconSize.small,
             color: context.colorScheme.onSurfaceVariant,
           ),
       ],

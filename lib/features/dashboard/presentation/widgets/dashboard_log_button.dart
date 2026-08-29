@@ -44,7 +44,7 @@ class DashboardLogButton extends ConsumerWidget {
           children: [
             SdIconV2(
               icon: AppIconConstant.add,
-              size: AppIconSize.tile,
+              size: AppIconSize.large,
               color: AppColors.onPrimary,
             ),
             SizedBox(width: SdSpacingConstant.w12),

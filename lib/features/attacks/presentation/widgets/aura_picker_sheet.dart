@@ -142,7 +142,7 @@ class _AuraTile extends StatelessWidget {
             children: <Widget>[
               SdIconV2(
                 icon: _icons[type]!,
-                size: AppIconSize.row,
+                size: AppIconSize.medium,
                 color: color,
               ),
               SizedBox(width: SdSpacingConstant.w8),

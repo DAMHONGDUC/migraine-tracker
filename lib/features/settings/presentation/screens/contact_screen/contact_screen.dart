@@ -62,7 +62,7 @@ class ContactScreen extends ConsumerWidget {
                 child: Row(
                   children: <Widget>[
                     SdIconV2(icon: AppIconConstant.email,
-              size: AppIconSize.row),
+              size: AppIconSize.medium),
                     SizedBox(width: SdSpacingConstant.w12),
                     Expanded(
                       child: Text(

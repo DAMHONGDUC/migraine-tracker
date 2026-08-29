@@ -90,7 +90,7 @@ class _HeaderState extends ConsumerState<_Header> {
             suffix: SdIconButtonV2(
               icon: SdIconV2(
                 icon: _editing ? AppIconConstant.confirm : AppIconConstant.edit,
-                size: AppIconSize.row,
+                size: AppIconSize.medium,
                 color: _editing
                     ? context.colorScheme.secondary
                     : context.colorScheme.onSurfaceVariant,

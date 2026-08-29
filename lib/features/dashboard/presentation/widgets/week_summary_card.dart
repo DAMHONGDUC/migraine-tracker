@@ -125,7 +125,7 @@ class _TrendRow extends StatelessWidget {
 
     return Row(
       children: [
-        SdIconV2(icon: icon, size: AppIconSize.inline, color: color),
+        SdIconV2(icon: icon, size: AppIconSize.xSmall, color: color),
         SizedBox(width: SdSpacingConstant.w6),
         Flexible(
           child: Text(

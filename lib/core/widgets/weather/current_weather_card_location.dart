@@ -47,7 +47,7 @@ class _LocationPrompt extends ConsumerWidget {
               children: <Widget>[
                 SdIconV2(
                   icon: AppIconConstant.locationOff,
-                  size: AppIconSize.row,
+                  size: AppIconSize.medium,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
                 SizedBox(width: SdSpacingConstant.w8),

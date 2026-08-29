@@ -20,7 +20,7 @@ class _StatusCard extends StatelessWidget {
               children: <Widget>[
                 SdIconV2(
                   icon: premium ? AppIconConstant.premium : AppIconConstant.locked,
-        size: AppIconSize.row,
+        size: AppIconSize.medium,
                   color: premium ? context.colorScheme.primary : null,
                 ),
                 SizedBox(width: SdSpacingConstant.w8),

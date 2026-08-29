@@ -17,7 +17,7 @@ class _EmptyState extends StatelessWidget {
         children: <Widget>[
           SdIconV2(
             icon: AppIconConstant.inbox,
-            size: AppIconSize.hero,
+            size: AppIconSize.xLarge,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(height: SdSpacingConstant.h12),

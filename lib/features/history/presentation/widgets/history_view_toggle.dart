@@ -139,7 +139,7 @@ class _Segment extends StatelessWidget {
           child: SdIconV2(
         // Row-sized icons fit the compact segment thumb.
             icon: icon,
-            size: AppIconSize.row,
+            size: AppIconSize.medium,
             // Dark on the filled thumb, light off it — the pair inverts, so the selected one is legible rather than merely tinted.
             color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
           ),

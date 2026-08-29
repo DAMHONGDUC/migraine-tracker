@@ -35,7 +35,7 @@ class MedicationOveruseBanner extends ConsumerWidget {
           children: <Widget>[
             SdIconV2(
               icon: AppIconConstant.info,
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: color,
             ),
             SizedBox(width: SdSpacingConstant.w12),

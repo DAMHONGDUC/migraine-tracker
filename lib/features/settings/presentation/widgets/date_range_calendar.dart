@@ -105,7 +105,7 @@ class _MonthHeader extends StatelessWidget {
         IconButton(
           onPressed: onPrevious,
           tooltip: material.previousMonthTooltip,
-          icon: SdIconV2(icon: AppIconConstant.previous, size: AppIconSize.row),
+          icon: SdIconV2(icon: AppIconConstant.previous, size: AppIconSize.medium),
         ),
         Expanded(
           child: Text(
@@ -119,7 +119,7 @@ class _MonthHeader extends StatelessWidget {
           tooltip: material.nextMonthTooltip,
           icon: SdIconV2(
             icon: AppIconConstant.disclosure,
-            size: AppIconSize.row,
+            size: AppIconSize.medium,
           ),
         ),
       ],

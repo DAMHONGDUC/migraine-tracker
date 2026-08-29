@@ -101,7 +101,7 @@ class _ExertionTile extends StatelessWidget {
               SdIconV2(
                 icon: _icons[level]!,
                 color: color,
-                size: AppIconSize.row,
+                size: AppIconSize.medium,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

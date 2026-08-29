@@ -103,7 +103,7 @@ class _MonthTrendRow extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            SdIconV2(icon: icon, size: AppIconSize.inline, color: color),
+            SdIconV2(icon: icon, size: AppIconSize.xSmall, color: color),
             SizedBox(width: SdSpacingConstant.w6),
             Flexible(
               child: Text(

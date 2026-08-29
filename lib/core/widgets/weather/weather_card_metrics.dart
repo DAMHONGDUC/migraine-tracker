@@ -141,7 +141,7 @@ class _MetricGlance extends StatelessWidget {
         children: <Widget>[
           SdIconV2(
             icon: metric.icon,
-            size: AppIconSize.row,
+            size: AppIconSize.medium,
             color: AppColors.textSecondary,
           ),
           SizedBox(height: SdSpacingConstant.h4),
@@ -221,7 +221,7 @@ class _MetricCell extends StatelessWidget {
             children: <Widget>[
               SdIconV2(
                 icon: metric.icon,
-                size: AppIconSize.inline,
+                size: AppIconSize.xSmall,
                 color: AppColors.textSecondary,
               ),
               SizedBox(width: SdSpacingConstant.w4),

@@ -36,7 +36,7 @@ class ForceUpdateSheet extends ConsumerWidget {
             children: <Widget>[
               SdIconV2(
                 icon: AppIconConstant.appUpdate,
-                size: AppIconSize.hero,
+                size: AppIconSize.xLarge,
                 color: context.colorScheme.primary,
               ),
               SizedBox(height: SdSpacingConstant.h16),

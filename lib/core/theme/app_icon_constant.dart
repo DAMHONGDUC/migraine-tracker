@@ -20,7 +20,7 @@ final class AppIconConstant {
   /// The Settings tab.
   static const IconData settings = Symbols.settings_rounded;
 
-  /// A row opens something. Paired with [AppIconSize.affordance] — it says "tappable" and must never outweigh the glyph naming the row.
+  /// A row opens something. Paired with [AppIconSize.small] — it says "tappable" and must never outweigh the glyph naming the row.
   static const IconData disclosure = Symbols.chevron_right_rounded;
 
   /// Step back — the calendar's previous month.

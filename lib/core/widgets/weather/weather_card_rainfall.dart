@@ -111,7 +111,7 @@ class _DayRow extends StatelessWidget {
             ),
             SdIconV2(
               icon: WeatherConditionUtils.icon(day.condition),
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: AppColors.primary,
             ),
             // Beside the glyph it belongs to, and only where Apple gave a figure — a dash here would be a forecast the app invented.

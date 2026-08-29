@@ -49,7 +49,7 @@ class _KindTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: SdIconV2(icon: kind.icon,
-                size: AppIconSize.row, color: context.colorScheme.primary),
+                size: AppIconSize.medium, color: context.colorScheme.primary),
       title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );

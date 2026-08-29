@@ -25,7 +25,7 @@ class _WelcomePage extends StatelessWidget {
           children: [
             SdIconV2(
               icon: AppIconConstant.info,
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

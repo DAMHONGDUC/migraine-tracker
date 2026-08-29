@@ -51,7 +51,7 @@ class _ReminderRow extends ConsumerWidget {
     return ListTile(
       // Tap the row to change the time (the switch/delete keep their own taps).
       onTap: () => _editTime(context, ref),
-      leading: SdIconV2(icon: AppIconConstant.reminder, size: AppIconSize.row),
+      leading: SdIconV2(icon: AppIconConstant.reminder, size: AppIconSize.medium),
       title: Text(time, style: AppTextStyle.bodyLarge),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -70,7 +70,7 @@ class _ReminderRow extends ConsumerWidget {
                 ),
           ),
           SdIconButtonV2(
-            icon: SdIconV2(icon: AppIconConstant.delete, size: AppIconSize.row),
+            icon: SdIconV2(icon: AppIconConstant.delete, size: AppIconSize.medium),
             onPressed: () =>
                 ref.read(remindersControllerProvider).delete(reminder.id),
           ),

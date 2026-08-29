@@ -45,7 +45,7 @@ class HealthConnectionTile extends ConsumerWidget {
     final bool connected = ref.watch(healthControllerProvider).of(kind);
 
     return SwitchListTile(
-      secondary: SdIconV2(icon: icon, size: AppIconSize.row),
+      secondary: SdIconV2(icon: icon, size: AppIconSize.medium),
       title: Text(title, style: AppTextStyle.bodyLarge),
       value: connected,
       onChanged: (bool value) => _toggle(context, ref, value),

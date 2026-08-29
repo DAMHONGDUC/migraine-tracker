@@ -32,7 +32,7 @@ class _MedicationCard extends ConsumerWidget {
           },
         ),
         leading: SdIconV2(icon: AppIconConstant.medication,
-          size: AppIconSize.row),
+          size: AppIconSize.medium),
         title: Text(medication.name, style: AppTextStyle.titleMedium),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +54,7 @@ class _MedicationCard extends ConsumerWidget {
         ),
         trailing: SdIconV2(
           icon: AppIconConstant.disclosure,
-          size: AppIconSize.affordance,
+          size: AppIconSize.small,
           color: context.colorScheme.onSurfaceVariant,
         ),
       ),

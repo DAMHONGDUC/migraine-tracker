@@ -22,7 +22,7 @@ class _Body extends ConsumerWidget {
             color: isAlert
                 ? context.colorScheme.secondary
                 : context.colorScheme.primary,
-            size: AppIconSize.display,
+            size: AppIconSize.xxLarge,
           ),
           SizedBox(height: SdContentPaddingV2.sectionGap),
           Text(

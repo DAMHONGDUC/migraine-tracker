@@ -116,7 +116,7 @@ class _EffectTile extends StatelessWidget {
               SdIconV2(
                 icon: _icons[effect]!,
                 color: color,
-                size: AppIconSize.row,
+                size: AppIconSize.medium,
               ),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(

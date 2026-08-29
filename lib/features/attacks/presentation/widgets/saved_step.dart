@@ -34,7 +34,7 @@ class SavedStep extends StatelessWidget {
                   Transform.scale(scale: scale, child: child),
               child: SdIconV2(
                 icon: AppIconConstant.saved,
-                size: AppIconSize.display,
+                size: AppIconSize.xxLarge,
                 color: context.colorScheme.primary,
               ),
             ),

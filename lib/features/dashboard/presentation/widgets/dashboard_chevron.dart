@@ -11,7 +11,7 @@ class DashboardChevron extends StatelessWidget {
   Widget build(BuildContext context) {
     return SdIconV2(
       icon: AppIconConstant.disclosure,
-      size: AppIconSize.affordance,
+      size: AppIconSize.small,
       color: context.colorScheme.onSurfaceVariant,
     );
   }

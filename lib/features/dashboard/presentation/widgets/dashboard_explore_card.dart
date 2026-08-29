@@ -17,7 +17,7 @@ class DashboardExploreCard extends StatelessWidget {
   });
 
   /// The header row's height, reserved for every cell whether or not it has a [trailing].
-  static double get headerHeight => AppIconSize.row + SdSpacingConstant.h4;
+  static double get headerHeight => AppIconSize.medium + SdSpacingConstant.h4;
 
   final IconData icon;
   final String title;
@@ -42,7 +42,7 @@ class DashboardExploreCard extends StatelessWidget {
               children: <Widget>[
                 SdIconV2(
                   icon: icon,
-                  size: AppIconSize.row,
+                  size: AppIconSize.medium,
                   color: AppColors.primary,
                 ),
                 const Spacer(),

@@ -30,17 +30,17 @@ class _ProfileSection extends ConsumerWidget {
     return Column(
       children: <Widget>[
         ListTile(
-          leading: SdIconV2(icon: AppIconConstant.profileName, size: AppIconSize.row),
+          leading: SdIconV2(icon: AppIconConstant.profileName, size: AppIconSize.medium),
           title: Text(l10n.accountName, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             name ?? l10n.accountNoName,
             style: AppTextStyle.bodyMedium.secondary,
           ),
-          trailing: SdIconV2(icon: AppIconConstant.edit, size: AppIconSize.row),
+          trailing: SdIconV2(icon: AppIconConstant.edit, size: AppIconSize.medium),
           onTap: () => _editName(context, ref),
         ),
         ListTile(
-          leading: SdIconV2(icon: AppIconConstant.profileEmail, size: AppIconSize.row),
+          leading: SdIconV2(icon: AppIconConstant.profileEmail, size: AppIconSize.medium),
           title: Text(l10n.accountEmail, style: AppTextStyle.bodyLarge),
           subtitle: Text(
             // Apple only sends the email on the very first sign-in, so it can genuinely be missing.
@@ -50,7 +50,7 @@ class _ProfileSection extends ConsumerWidget {
         ),
         if (createdAt != null)
           ListTile(
-            leading: SdIconV2(icon: AppIconConstant.profileCreated, size: AppIconSize.row),
+            leading: SdIconV2(icon: AppIconConstant.profileCreated, size: AppIconSize.medium),
             title: Text(l10n.accountMemberSince, style: AppTextStyle.bodyLarge),
             subtitle: Text(
               DateFormat.yMMMMd(l10n.localeName).format(createdAt.toLocal()),

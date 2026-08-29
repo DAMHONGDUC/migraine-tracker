@@ -54,7 +54,7 @@ class PremiumLockedBody extends ConsumerWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w8),

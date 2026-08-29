@@ -62,7 +62,7 @@ class _NotificationTile extends ConsumerWidget {
           showing: !notification.isRead,
           child: SdIconV2(
             icon: AppIconConstant.disclosure,
-            size: AppIconSize.affordance,
+            size: AppIconSize.small,
             color: context.colorScheme.onSurfaceVariant,
           ),
         ),

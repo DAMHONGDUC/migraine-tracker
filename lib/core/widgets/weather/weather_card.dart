@@ -111,7 +111,7 @@ class WeatherCard extends StatelessWidget {
                       label: l10n.weatherA11yDetail,
                       child: SdIconV2(
                         icon: AppIconConstant.disclosure,
-                        size: AppIconSize.affordance,
+                        size: AppIconSize.small,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
                     ),

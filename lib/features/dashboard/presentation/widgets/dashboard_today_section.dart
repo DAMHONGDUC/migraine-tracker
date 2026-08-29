@@ -117,7 +117,7 @@ class _ReadingRow extends ConsumerWidget {
           children: <Widget>[
             SdIconV2(
               icon: reading.icon,
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: AppColors.textSecondary,
             ),
             SizedBox(width: SdSpacingConstant.w12),
@@ -134,7 +134,7 @@ class _ReadingRow extends ConsumerWidget {
             SizedBox(width: SdSpacingConstant.w4),
             SdIconV2(
               icon: AppIconConstant.disclosure,
-              size: AppIconSize.affordance,
+              size: AppIconSize.small,
               color: context.colorScheme.onSurfaceVariant,
             ),
           ],

@@ -53,7 +53,7 @@ class PermissionSettingsSheet extends StatelessWidget {
           children: [
             SdIconV2(
               icon: content.icon,
-              size: AppIconSize.hero,
+              size: AppIconSize.xLarge,
               color: AppColors.primary,
             ),
             SizedBox(height: SdSpacingConstant.h16),

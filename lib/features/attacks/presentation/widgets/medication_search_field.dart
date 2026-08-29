@@ -33,7 +33,7 @@ class MedicationSearchField extends StatelessWidget {
       onChanged: onChanged,
       suffix: hasText
           ? IconButton(
-              icon: SdIconV2(icon: AppIconConstant.close, size: AppIconSize.affordance),
+              icon: SdIconV2(icon: AppIconConstant.close, size: AppIconSize.small),
               tooltip: context.l10n.medicationsSearchClear,
               onPressed: onClear,
             )

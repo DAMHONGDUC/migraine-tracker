@@ -78,7 +78,7 @@ class _DataNote extends StatelessWidget {
         children: <Widget>[
           SdIconV2(
             icon: AppIconConstant.locked,
-            size: AppIconSize.inline,
+            size: AppIconSize.xSmall,
             color: context.colorScheme.onSurfaceVariant,
           ),
           SizedBox(width: SdSpacingConstant.w8),

@@ -36,7 +36,7 @@ class InsightCard extends StatelessWidget {
                 if (onTap != null)
                   SdIconV2(
                     icon: AppIconConstant.disclosure,
-                    size: AppIconSize.affordance,
+                    size: AppIconSize.small,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
               ],

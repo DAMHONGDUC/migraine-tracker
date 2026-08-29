@@ -14,7 +14,7 @@ class _Pitch extends StatelessWidget {
         // Starts flush: SdActionViewV2 already applied the screen's top gap.
         SdIconV2(
           icon: AppIconConstant.synced,
-          size: AppIconSize.display,
+          size: AppIconSize.xxLarge,
           color: context.colorScheme.primary,
         ),
         SizedBox(height: SdSpacingConstant.h16),

@@ -143,7 +143,7 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
               SizedBox(width: SdSpacingConstant.w4),
               SdIconV2(
                 icon: AppIconConstant.disclosure,
-                size: AppIconSize.affordance,
+                size: AppIconSize.small,
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ],
@@ -193,7 +193,7 @@ class _AlertRow extends StatelessWidget {
           children: <Widget>[
             SdIconV2(
               icon: icon,
-              size: AppIconSize.row,
+              size: AppIconSize.medium,
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w12),

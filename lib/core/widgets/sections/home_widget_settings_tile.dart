@@ -29,7 +29,7 @@ class HomeWidgetSettingsTile extends ConsumerWidget {
 
     return SwitchListTile(
       secondary: SdIconV2(icon: AppIconConstant.homeWidget,
-        size: AppIconSize.row),
+        size: AppIconSize.medium),
       title: Text(
         context.l10n.homeWidgetSettingsTitle,
         style: AppTextStyle.bodyLarge,
