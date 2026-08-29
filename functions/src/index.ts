@@ -4,7 +4,7 @@ import { getAuth } from "firebase-admin/auth";
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
-import { defineSecret } from "firebase-functions/params";
+import { defineSecret, defineString } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
@@ -13,6 +13,7 @@ import { runPressureAlerts } from "./core/alertRun";
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
+import { premiumEmailMatches } from "./core/premiumAccount";
 import { tearDownAccount } from "./core/accountTeardown";
 import {
   ANONYMOUS_PROVIDER,
@@ -41,6 +42,9 @@ initializeApp();
 const REGION = "europe-west1";
 const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
 
+/** The build's own premium account, premium in the app whatever RevenueCat says — see `lib/features/premium/CLAUDE.md`. Unset on a normal deploy. */
+const premiumEmail = defineString("PREMIUM_EMAIL");
+
 /** Firestore caps a batch at 500 writes. */
 const BATCH_LIMIT = 500;
 
@@ -61,13 +65,23 @@ export const pressureAlertJob = onSchedule(
     const db = getFirestore();
     const now = new Date();
 
-    const snapshot = await db
-      .collection("users")
-      .where("premium", "==", true)
-      .get();
+    const emails = premiumEmailMatches(premiumEmail.value());
+    const queries = [db.collection("users").where("premium", "==", true).get()];
+
+    // The webhook is the only writer of `premium`, so a PREMIUM_EMAIL account never carries it — without this query the cron is the one surface that disagrees with the app.
+    if (emails.length > 0) {
+      queries.push(db.collection("users").where("email", "in", emails).get());
+    }
+
+    const snapshots = await Promise.all(queries);
 
     const users: AlertUser[] = [];
-    for (const doc of snapshot.docs) {
+    const seen = new Set<string>();
+    for (const doc of snapshots.flatMap((snapshot) => snapshot.docs)) {
+      // A premium subscriber signed in as PREMIUM_EMAIL matches both queries.
+      if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
+
       const data = doc.data();
       if (typeof data.fcmToken !== "string" || data.fcmToken.length === 0) {
         continue;
