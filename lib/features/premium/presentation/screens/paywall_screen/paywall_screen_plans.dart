@@ -58,34 +58,18 @@ class _PlanRow extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
     final Color accent = context.colorScheme.primary;
 
-    return SdPressableScaleV2(
+    // - SdCardV2 rather than a Container of its own: an accent fill inside an accent hairline is what it already draws for one offer among identical ones. - The radio glyph is gone: the tint and the edge said the same thing twice.
+    return SdCardV2(
       onTap: onTap,
-      child: Container(
+      borderColor: selected ? accent : null,
+      fillColor: selected ? accent.withValues(alpha: 0.14) : null,
+      child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: SdSpacingConstant.w16,
           vertical: SdSpacingConstant.h12,
         ),
-        decoration: BoxDecoration(
-          // Unselected stays a hairline — a filled card would flatten the panel.
-          color: selected ? accent.withValues(alpha: 0.16) : null,
-          borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
-          border: Border.all(
-            color: selected
-                ? accent
-                : context.colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
-            width: selected ? 2 : 1,
-          ),
-        ),
         child: Row(
           children: <Widget>[
-            SdIconV2(
-              icon: selected
-                  ? AppIconConstant.radioSelected
-                  : AppIconConstant.radioUnselected,
-              size: AppIconSize.row,
-              color: selected ? accent : context.colorScheme.onSurfaceVariant,
-            ),
-            SizedBox(width: SdSpacingConstant.w12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

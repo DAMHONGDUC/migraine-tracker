@@ -13,7 +13,6 @@ import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
-import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../auth/providers.dart';
@@ -27,37 +26,13 @@ part 'paywall_screen_legal_links.dart';
 part 'paywall_screen_plans.dart';
 
 /// The premium pitch, and the only place a purchase is started.
-/// Prices deliberately live with the store products, not hardcoded here.
-///
-/// Although this is a routed page (deep-linkable, pushed by name), it
-/// *presents* as a modal bottom sheet: ~85% tall, slides up from the bottom
-/// (see the paywall route's CustomTransitionPage), drag-handle indicator,
-/// and an X to dismiss. The area above the sheet stays see-through so the
-/// barrier shows the screen underneath.
-///
-/// Its surface is the same flat opaque panel every other sheet in the app
-/// wears (owner's call). It used to be the one exception, a frosted Liquid
-/// Glass layer: the pitch, the plans and the CTA are all reading matter, and
-/// the moving screen behind them competed with the one screen that has to be
-/// read.
-///
-/// **Buying needs no account** (App Store 5.1.1(v), which submission 1.0(20)
-/// was rejected under): the plans, the CTA and Restore are all here signed
-/// out, because a subscription to the app's own features is not account-based
-/// content. Signing in is offered under the CTA as what it actually buys —
-/// the same subscription on the user's other devices — never as the price of
-/// buying at all.
 class PaywallScreen extends HookConsumerWidget {
   const PaywallScreen({super.key});
 
-  /// Messages land at the top. The sheet covers the bottom ~87% of the
-  /// screen, so a card at the usual edge would sit on the plans the user is
-  /// still reading — or, worse, under the sheet's own surface.
+  /// Messages land at the top.
   static const SdSnackBarPlacementV2 _placement = SdSnackBarPlacementV2.top;
 
-  /// Localized outcome for a failed purchase or restore. [PurchaseError
-  /// .cancelled] never reaches here — the controller swallows it, because
-  /// closing Apple's sheet is a decision, not an error.
+  /// Localized outcome for a failed purchase or restore.
   String _errorMessage(AppLocalizations l10n, Object error) => switch (error) {
     PurchaseException(error: final PurchaseError code) => switch (code) {
       PurchaseError.network => l10n.paywallErrorNetwork,
@@ -213,9 +188,7 @@ class PaywallScreen extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // - only the pitch scrolls; the plans and CTA stay pinned so what the user buys is never under the fold
-                // - benefit titles only — five two-line rows pushed the prices off the sheet; full descriptions live on PremiumScreen
-                // - a sliver that fills what is left, so the pitch sits centred in the free space and still scrolls once a long locale outgrows it
+                // Keep plans and the purchase action visible while the pitch scrolls.
                 Expanded(
                   child: CustomScrollView(
                     slivers: <Widget>[
@@ -267,9 +240,7 @@ class PaywallScreen extends HookConsumerWidget {
                       label: l10n.paywallRestore,
                       onTap: () => unawaited(_restore(context, ref)),
                     ),
-                    // The optional half of 5.1.1(v): a way to register at any
-                    // time, saying what registering is worth, under a purchase
-                    // that never waited on it.
+                    // The optional half of 5.1.1(v): a way to register at any time, saying what registering is worth, under a purchase that never waited on it.
                     if (!signedIn)
                       SdTextActionV2(
                         label: l10n.paywallWhySignIn,
@@ -277,8 +248,7 @@ class PaywallScreen extends HookConsumerWidget {
                             unawaited(NavigationUtils.toLogin(context)),
                       ),
                     SizedBox(height: SdSpacingConstant.h8),
-                    // App Store 3.1.2 requires these in the binary too, not
-                    // only in the listing's metadata.
+                    // App Store 3.1.2 requires these in the binary too, not only in the listing's metadata.
                     const _LegalLinks(),
                   ],
                 ),
@@ -290,7 +260,8 @@ class PaywallScreen extends HookConsumerWidget {
     );
 
     final Widget surface = Material(
-      color: AppColors.surface,
+      // The app's modal colour, a step darker than the card colour this wore: the cards it holds only read as cards while what is under them is darker than they are.
+      color: AppColors.surfaceModal,
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(SdSpacingConstant.r22),
       ),
@@ -298,11 +269,11 @@ class PaywallScreen extends HookConsumerWidget {
       child: sheet,
     );
 
-    // ~94% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
+    // ~90% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
-        heightFactor: 0.94,
+        heightFactor: 0.9,
         widthFactor: 1,
         child: surface,
       ),
