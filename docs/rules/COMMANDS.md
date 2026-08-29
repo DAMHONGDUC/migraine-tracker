@@ -139,6 +139,30 @@ environment passes straight to `flutter build ipa`.
 
 ## Releasing to TestFlight
 
+### `melos run release-dev` / `release-prod`
+
+The whole thing in one command: `prepare-env-<flavor>`, then
+`deploy-firebase-<flavor>`, then `cd ios && bundle exec fastlane beta
+flavor:<flavor> bump:true notes:"<flavor>"`. `tool/release.sh` takes the
+environment as its argument; the sections below still describe each step.
+
+- **The order is the whole reason it is one command.** The native config has to
+  be in the tree before the deploy reads `functions/.env`, and before the lane's
+  `verify_flavor_config` compares `GoogleService-Info.plist` against the flavor —
+  running the three by hand in another order is exactly the mistake that ships an
+  app writing into the wrong Firestore.
+- **One command per environment, like the deploys it wraps.** A prod release is
+  typed, never a flag on a shared command.
+- **It wraps, it does not replace.** Every prompt and guard stays: the firebase
+  deploy still names the project and asks, the lane still refuses a build number
+  App Store Connect has seen. `bundler` is checked up front rather than twenty
+  minutes in, with the config installed and the backend already deployed.
+- **`bump:true` rewrites `pubspec.yaml` but a local run does not commit it**
+  (`if bump && is_ci`), so the script says so on the way out. Commit that number
+  by hand after the upload.
+
+### The lane itself
+
 `cd ios && bundle exec fastlane beta flavor:prod` — the same build, plus signing,
 export and upload. **Fastlane never archives**: it shells out to
 `tool/build-ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an

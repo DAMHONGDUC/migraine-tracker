@@ -67,15 +67,19 @@ Do not use the full test suite as change verification.
 
 ## Release
 
+One command per environment. Each installs that environment's configuration,
+deploys its Firebase side, then builds and uploads to TestFlight.
+
 ```sh
-melos run prepare-env-dev
-cd ios && bundle exec fastlane beta flavor:dev bump:true notes:"dev" && cd ..
+melos run release-dev
 ```
 
 ```sh
-melos run prepare-env-prod
-cd ios && bundle exec fastlane beta flavor:prod bump:true notes:"prod" && cd ..
+melos run release-prod
 ```
+
+The Firebase deploy still names the project and asks before it runs, and the
+build number is bumped in `pubspec.yaml` — commit it after the upload.
 
 See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
 [`docs/release/CREDENTIALS.md`](docs/release/CREDENTIALS.md) for required keys.
