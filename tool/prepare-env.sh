@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install one environment's Firebase and RevenueCat config where the build reads it.
+# Install one environment's Firebase, RevenueCat and Cloud Functions config where each is read.
 set -eu
 . "$(dirname "$0")/_common.sh"
 
@@ -27,6 +27,7 @@ prod.json|env/prod.json
 $TARGET-google-services.json|android/app/google-services.json
 $TARGET-GoogleService-Info.plist|ios/Runner/GoogleService-Info.plist
 $TARGET-Info.plist|ios/Runner/Info.plist
+$TARGET-function.env|functions/.env
 "
 
 # All checked before anything is written.
@@ -51,3 +52,5 @@ for pair in $PAIRS; do
 done
 
 done_msg "Installed $TARGET config. Run with --dart-define-from-file=env/$TARGET.json."
+# functions/.env is read by the Firebase CLI at deploy time, not by the app.
+warn "functions/.env reaches the backend only on the next deploy-firebase-$TARGET."

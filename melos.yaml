@@ -46,14 +46,14 @@ scripts:
   prepare-env-dev:
     description: >
       Copy env_assets/ into place for dev: both env/*.json, plus dev's
-      google-services.json, GoogleService-Info.plist and Info.plist.
-      Overwrites.
+      google-services.json, GoogleService-Info.plist, Info.plist and
+      function.env (to functions/.env). Overwrites.
     run: sh tool/prepare-env.sh dev
 
   prepare-env-prod:
     description: >
-      Same, with prod's native files instead. Both env/*.json are written
-      either way — only the native trio differs.
+      Same, with prod's files instead. Both env/*.json are written either
+      way — only the flavor-picked four differ.
     run: sh tool/prepare-env.sh prod
 
   gen:

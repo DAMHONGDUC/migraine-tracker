@@ -40,13 +40,18 @@ env_assets/
   dev-google-services.json          prod-google-services.json
   dev-GoogleService-Info.plist      prod-GoogleService-Info.plist
   dev-Info.plist                    prod-Info.plist
+  dev-function.env                  prod-function.env
 ```
 
 `tool/prepare-env.sh <dev|prod>` copies them where the build reads them. Its
 contract:
 
-1. **Both `env/*.json` every run**; only the native trio is flavor-picked. One
+1. **Both `env/*.json` every run**; the other four are flavor-picked. One
    destination each, so there is nothing to choose.
+   - `<flavor>-function.env` lands on `functions/.env`, the Cloud Functions
+     config the Firebase CLI reads **at deploy time** — `WEATHERKIT_*` and
+     `PREMIUM_EMAIL`. Copying it changes nothing until the next deploy, which is
+     why the script says so on the way out.
 2. **Destinations carry no `dev-`/`prod-` prefix.** Those exact paths are what
    the google-services gradle plugin and the Runner target read; a prefixed
    copy beside them is a file nothing opens.
