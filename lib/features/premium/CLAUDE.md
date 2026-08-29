@@ -49,15 +49,41 @@ the medications tab the medication budget, each from that record's one
   text link offers sign-in for what it is actually worth ("use Premium on your
   other devices"); it is an extra, never a step. The purchase lives on
   RevenueCat's anonymous id until then, and `logIn` carries it onto the account.
+- **The sheet is a flat opaque panel, like every other sheet** (owner's call).
+  It used to be the app's one frosted Liquid Glass surface; the pitch, the plans
+  and the CTA are all reading matter, and the screen moving behind them competed
+  with the one sheet that has to be read. Nothing on the paywall carries a
+  surface of its own except the benefits card — the close button stays
+  `SdAppBarButtonSurfaceV2.none` and the unselected plan stays a hairline.
 - **The pitch is one framed card, centred in the space above the plans**
   (owner's call). The six benefits sit in an `SdCardV2` on
-  `SdCardSurfaceV2.elevated` — a step up from the panel's glass, so what is being
+  `SdCardSurfaceV2.elevated` — a step up from the panel, so what is being
   sold reads as one block rather than loose rows. The headline and that card are
   centred together in what is left over the plans. **The hero storm icon is
   gone**: at `r64` it was the largest thing on the sheet and said nothing the
   headline does not. The pitch scrolls (`SliverFillRemaining`,
   `hasScrollBody: false`) so a long locale or large text outgrows it without
   clipping, while the plans and CTA stay pinned.
+
+## The build's own premium account
+
+**`PREMIUM_EMAIL` in `env/<flavor>.json` is premium on that build, in every
+flavour** (owner's rule). For the App Review account and the owner's device: a
+reviewer has to reach every gated screen, and a build cannot hand them a real
+subscription. `isPremiumEmailProvider` (`premium/providers.dart`) matches it
+against the signed-in address, trimmed and case-insensitive, and
+`hasPremiumProvider` reads it ahead of everything else.
+
+- **It is not the client-side premium flag this repo forbids.** That rule is
+  about state the running app can *write*. This is a compile-time constant, put
+  there by whoever ran the build, matched against an address only Google or
+  Apple sign-in can put on the session — so an anonymous session never matches
+  and nothing on device can change the answer.
+- **Unset is the normal state**, and an unset build cannot take the branch at
+  all: the provider returns false without even watching auth, which is why no
+  test had to learn about it.
+- **Unlike `DevPremiumOverride`, it is deliberately live in prod** — a dev-only
+  grant would be useless to the reviewer it exists for.
 
 ## What is locked, and how
 
