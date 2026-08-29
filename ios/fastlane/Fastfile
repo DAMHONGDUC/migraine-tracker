@@ -151,11 +151,32 @@ platform :ios do
     # minutes, not the full processing — writes the note, and skips the rest.
     # Worth those minutes because the note is the only thing on the build
     # that says dev or prod; see `testflight_changelog`.
+    note = testflight_changelog(flavor, version, build, notes)
+
+    # BOTH, and neither one alone works.
+    #
+    # `changelog` is the flag pilot reads to decide whether to wait at all
+    # (`build_manager.rb`: `return if config[:changelog].nil?`), so dropping
+    # it makes the lane return before the build appears and write nothing.
+    #
+    # But `changelog` alone writes nothing either. It ends up in
+    # `update_localized_build_review(build, {}, default_info: …)`, which
+    # builds its list of locales from the localizations the build ALREADY
+    # has — and a build fetched the moment it appears has none, because App
+    # Store Connect creates them during processing. The loop then iterates an
+    # empty list, raises nothing, and pilot still logs "Successfully set the
+    # changelog for build". That is the whole bug: every build shipped with
+    # an empty "What to Test" and a green lane.
+    #
+    # `localized_build_info` is checked first and names the locale outright,
+    # so the same code path takes its `post_beta_build_localizations` branch
+    # and CREATES the localization instead of needing one to exist.
     upload_to_testflight(
       api_key: key,
       ipa: ipa,
       app_identifier: APP_ID,
-      changelog: testflight_changelog(flavor, version, build, notes),
+      changelog: note,
+      localized_build_info: { "en-US" => { whats_new: note } },
       skip_waiting_for_build_processing: true,
     )
 
