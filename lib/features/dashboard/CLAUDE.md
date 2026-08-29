@@ -43,13 +43,18 @@ scrolling row advertises a gesture with a cut edge that revealed nothing.
   nav bar tabs, Premium leads Settings — so the row is only the destinations with
   no other one-tap door.
 - **Every cell is ONE fixed height (`QuickAccessSection.cellHeight`)**, summed
-  from a glyph plus ONE line of label. It was two, because "Pressure-drop alerts"
-  needed them at a third of the design width; that tile says "Alert" now
+  from a glyph plus ONE line of label. The label was two lines, because
+  "Pressure-drop alerts" needed them at a third of the design width; that tile
+  says "Alert" now
   (`dashboardAlertShortcut`), and "Medications" is the widest label left. Check a
   new label against the third-width — a longer one ellipses rather than
   overflowing the fixed cell. A `childAspectRatio` ties height to leftover width,
   which is how the old weather card's details grid came to overflow, so the extent
   is stated instead.
+  - **It sums `AppIconSize.tile`, the same constant the glyph is drawn at**, so
+    the cell and what sits in it cannot drift. `tile` (28) is the role here
+    rather than `row`: a third of the screen holds a glyph and one word, so the
+    glyph carries the shortcut's identity on its own.
 - **The glyph sits above the label**, not beside it: a third of the screen is too
   narrow for both on one line. **A label may wrap to two lines rather than be
   cut** — ellipsing a shortcut's name leaves the user unable to tell what they are
@@ -85,11 +90,14 @@ row but never across them, so cards of different content read as unrelated pairs
   card's details grid came to overflow. It is summed from what is in a cell: the
   padding, the header row, the gaps, one line of title and two of subtitle — and
   `DashboardExploreSubtitle` caps at two for that reason.
-  - **The header row reserves `DashboardExploreCard.headerHeight` (24), not the
-    glyph's 20**, and `cellHeight` reads that constant rather than repeating a
-    number. The extra four is the `PremiumBadge` the export cell wears: a badge is
-    a line of `labelSmall` inside its own padding, and a fixed cell cannot grow
-    for it. The cells without one simply have four spare, which is invisible.
+  - **The header row reserves `DashboardExploreCard.headerHeight`, stated as
+    `AppIconSize.row + h4` so it moves when the glyph does**, and `cellHeight`
+    reads that constant rather than repeating a number. The extra four is the
+    `PremiumBadge` the export cell wears: a badge is a line of `labelSmall`
+    inside its own padding — a shade taller than the icon beside it — and a fixed
+    cell cannot grow for it. The cells without one simply have four spare, which
+    is invisible. It was a bare 24 against a 20 glyph, which stopped being slack
+    the moment the glyph went to `AppIconSize.row`.
 - **The export cell is badged and gated.** Export is premium in full, so the cell
   says so before it is tapped and goes through `NavigationUtils.toExport` — a
   paywall out of a card that looked free reads as a bug rather than an offer, the

@@ -156,7 +156,13 @@ the same curve its neighbour continues on.
   cheek scored a different area. Never let this widget's child take loose
   constraints; `head_region_picker_test.dart` compares the `SvgPicture`'s rect to
   the diagram's.
-- **One thin hand across the whole face: nothing above 1.4** (owner's rule). The
+- **One thin hand across the whole face: nothing above 0.9, every feature under
+  0.4 opacity** (owner's rule, 2026-08-29, down from 1.4 at 0.62). The face is a
+  hint, not a portrait: at the old weights the brows, eyes and mouth were nearly
+  as heavy as the silhouette, and what the user is actually reading is the
+  region fill painted underneath. The ears came down with them (1.1/0.85 at
+  0.42–0.5) so they do not outweigh the features they frame — on both views,
+  since the two files must stay drawn from the same numbers. The
   features are traced from the reference — arched brows tucked down at the outer
   end, a closed lid meeting its lash at a point in both corners, one continuous
   stroke down the bridge and round the nose with the wings set *inside* that curve
@@ -165,7 +171,8 @@ the same curve its neighbour continues on.
   inside the nose. This replaced a graded pass (2.5 brows down to 1.3 nostrils)
   that stopped working the moment the nose lost its outline to the painter: a 2.5
   brow beside a 1.3 nostril read as a different drawing pasted on. The silhouette
-  at 2.0 is the only heavy line left, which is what makes it the silhouette.
+  at 2.0 is the only heavy line left, which is what makes it the silhouette —
+  and the gap between it and the face is now the whole point, not a side effect.
 - **The head is sized from its WIDTH, and sits 30pt in from everything around it**
   (owner's rule, after 40 and 24): the screen edge either side, the tabs above, the
   tiles below. The height falls out of the drawing's ratio; height only overrides
