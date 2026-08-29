@@ -1,6 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/common.dart';
 
+import '../../core/constants/log_tag_constant.dart';
 import '../../core/env/app_env.dart';
+import '../auth/domain/entities/auth_user.dart';
+import '../auth/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
 import 'data/repositories/revenue_cat_purchase_repository.dart';
@@ -61,6 +65,38 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
   DevPremiumOverride.new,
 );
 
+/// Whether the session belongs to the address [AppEnv.premiumEmail] names —
+/// the App Review account, or the owner's own (owner's rule).
+///
+/// False, and watching nothing, on every build that passes no `PREMIUM_EMAIL`:
+/// the key is a compile-time constant, so an unset build cannot take this
+/// branch at all, and the gates keep depending on the entitlement alone.
+///
+/// The address comes from the auth session, which only Google or Apple can
+/// write, and both verify it — an anonymous session carries none, so it can
+/// never match. Compared case-insensitively and trimmed, because a JSON value
+/// typed by hand is where the stray capital and the trailing space live.
+final isPremiumEmailProvider = Provider<bool>((ref) {
+  final String allowed = AppEnv.premiumEmail.trim().toLowerCase();
+
+  if (allowed.isEmpty) return false;
+
+  final AuthUser? user = switch (ref.watch(authUserProvider)) {
+    AsyncData(value: final AuthUser? value) => value,
+    _ => ref.watch(authRepositoryProvider).currentUser,
+  };
+  final bool granted = user?.email?.trim().toLowerCase() == allowed;
+
+  if (granted) {
+    SdLogger.info(
+      LogTagConstant.premium,
+      'Premium granted by PREMIUM_EMAIL build config',
+    );
+  }
+
+  return granted;
+});
+
 /// What every gate reads. Falls back to the repository while loading, so a
 /// premium gate never flashes locked on the first frame.
 ///
@@ -72,6 +108,10 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
 /// is what "Restore purchases" is for, and signing in is offered on the
 /// paywall as what carries the subscription to a second device.
 final hasPremiumProvider = Provider<bool>((ref) {
+  // The build's own allow-list, ahead of everything: a reviewer signed in as
+  // that address is premium in a prod flavour too, which is the whole point.
+  if (ref.watch(isPremiumEmailProvider)) return true;
+
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {
     final bool? forced = ref.watch(devPremiumOverrideProvider);

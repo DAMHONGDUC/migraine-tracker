@@ -106,6 +106,19 @@ final class AppEnv {
     defaultValue: 'support@baroease.app',
   );
 
+  /// Account that is premium on any build carrying this key, whatever
+  /// RevenueCat says. For the App Review account and the owner's own device:
+  /// a reviewer must reach every gated screen without a sandbox purchase, and
+  /// giving them a real subscription is not something a build can do.
+  ///
+  /// This is **not** the client-side premium flag CLAUDE.md forbids. That rule
+  /// is about state the running app can *write*; this is a compile-time
+  /// constant baked in by whoever ran the build, matched against an address
+  /// only Google/Apple sign-in can put on the session. An empty value — every
+  /// build that does not pass it, including every test — leaves the
+  /// entitlement as the only answer.
+  static const String premiumEmail = String.fromEnvironment('PREMIUM_EMAIL');
+
   // --- Legal ---
 
   /// Privacy Policy the paywall links to — App Store 3.1.2 wants it in the
@@ -123,9 +136,9 @@ final class AppEnv {
   /// Every config value the app cannot run without, keyed by its dart-define
   /// name. Only the platform's own RevenueCat key is required — the other
   /// platform's is allowed to stay empty (Android isn't polished yet).
-  /// `revenueCatOffering`, `supportEmail` and `privacyPolicyUrl` are
-  /// deliberately excluded: all are meant to be empty/defaulted, not missing
-  /// config.
+  /// `revenueCatOffering`, `supportEmail`, `privacyPolicyUrl` and
+  /// `premiumEmail` are deliberately excluded: all are meant to be
+  /// empty/defaulted, not missing config.
   static Map<String, String> get _requiredConfig => {
     'FIREBASE_ANDROID_API_KEY': firebaseAndroidApiKey,
     'FIREBASE_ANDROID_APP_ID': firebaseAndroidAppId,
