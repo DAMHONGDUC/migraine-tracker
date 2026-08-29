@@ -67,22 +67,14 @@ Do not use the full test suite as change verification.
 
 ## Release
 
-Never archive from Xcode: it omits `--dart-define-from-file`. Use the release
-workflow or Fastlane.
+```sh
+melos run prepare-env-dev
+cd ios && bundle exec fastlane beta flavor:dev bump:true notes:"dev" && cd ..
+```
 
-| Command | Result |
-|---|---|
-| `cd ios && CI=true bundle exec fastlane preflight` | Validate credentials and signing |
-| `cd ios && bundle exec fastlane beta flavor:dev` | Upload a development build to TestFlight |
-| `cd ios && bundle exec fastlane beta flavor:prod` | Upload a production build to TestFlight |
-| `cd ios && bundle exec fastlane certificates` | Create or renew distribution signing assets |
-
-One-time local Fastlane setup:
-
-```bash
-cd ios
-bundle config set --local path vendor/bundle
-bundle install
+```sh
+melos run prepare-env-prod
+cd ios && bundle exec fastlane beta flavor:prod bump:true notes:"prod" && cd ..
 ```
 
 See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
