@@ -382,9 +382,9 @@ end
 # something to go and fix; they are not a reason to re-cut a build that is
 # already on TestFlight.
 def upload_dsyms(root)
-  app_id = ENV["FIREBASE_IOS_APP_ID"]
+  app_id = ENV["FIREBASE_APP_ID_IOS"]
   if app_id.nil? || app_id.empty?
-    UI.important("FIREBASE_IOS_APP_ID is unset — skipping the Crashlytics symbol upload.")
+    UI.important("FIREBASE_APP_ID_IOS is unset — skipping the Crashlytics symbol upload.")
     return
   end
 
@@ -577,20 +577,20 @@ def verify_sign_in_url_scheme(root, gsp, flavor)
   )
 end
 
-# dSYMs go wherever FIREBASE_IOS_APP_ID points, and that one is a CI secret
+# dSYMs go wherever FIREBASE_APP_ID_IOS points, and that one is a CI secret
 # rather than something read from the build — so it is the only value here
 # that can name the other project while everything in the tree is right. The
 # upload then succeeds and puts the symbols where no crash will look for them.
 # Unset is fine and stays fine: `upload_dsyms` skips with a warning.
 def verify_crashlytics_app_id(gsp)
-  configured = ENV["FIREBASE_IOS_APP_ID"].to_s
+  configured = ENV["FIREBASE_APP_ID_IOS"].to_s
   return if configured.empty?
 
   expected = plist_value(gsp, "GOOGLE_APP_ID").to_s
   return if expected.empty? || configured == expected
 
   UI.user_error!(
-    "FIREBASE_IOS_APP_ID is not this project's iOS app id — GoogleService-Info.plist says " \
+    "FIREBASE_APP_ID_IOS is not this project's iOS app id — GoogleService-Info.plist says " \
     "#{expected}. Crashlytics symbols would go to the wrong Firebase app.",
   )
 end

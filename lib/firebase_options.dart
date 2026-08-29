@@ -1,6 +1,4 @@
 // - Hand-edited from FlutterFire CLI output: values come from `AppEnv` (--dart-define-from-file=env/<flavor>.json).
-// - Non-secret client identifiers (real access control is Firestore Rules), kept out of git to avoid leaking the project.
-// - Rerunning `flutterfire configure` overwrites this — reapply from git history after.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -44,19 +42,19 @@ class DefaultFirebaseOptions {
   }
 
   static final FirebaseOptions android = FirebaseOptions(
-    apiKey: AppEnv.firebaseAndroidApiKey,
-    appId: AppEnv.firebaseAndroidAppId,
+    apiKey: AppEnv.firebaseApiKeyAndroid,
+    appId: AppEnv.firebaseAppIdAndroid,
     messagingSenderId: AppEnv.firebaseMessagingSenderId,
     projectId: AppEnv.firebaseProjectId,
     storageBucket: AppEnv.firebaseStorageBucket,
   );
 
   static final FirebaseOptions ios = FirebaseOptions(
-    apiKey: AppEnv.firebaseIosApiKey,
-    appId: AppEnv.firebaseIosAppId,
+    apiKey: AppEnv.firebaseApiKeyIos,
+    appId: AppEnv.firebaseAppIdIos,
     messagingSenderId: AppEnv.firebaseMessagingSenderId,
     projectId: AppEnv.firebaseProjectId,
     storageBucket: AppEnv.firebaseStorageBucket,
-    iosBundleId: AppEnv.firebaseIosBundleId,
+    iosBundleId: AppEnv.firebaseBundleIdIos,
   );
 }
