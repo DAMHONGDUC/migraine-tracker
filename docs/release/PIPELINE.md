@@ -74,6 +74,19 @@ image's Ruby and a job pinned to another one leave `pod` unable to load itself
 — which Flutter reports as a skipped step, not as a failure, and the archive
 then goes missing the `health` plugin's pods.
 
+**The "What to Test" note is passed twice, as `changelog` AND as
+`localized_build_info`.** `skip_waiting_for_build_processing: true` keeps the
+lane off a 10–20 minute macOS bill, and pilot reads `changelog` — that key
+specifically — to decide whether to wait for the build to appear at all. But
+`changelog` alone then lands in a code path that writes the note into the beta
+localizations the build ALREADY has, and a build fetched the instant it
+appears has none: App Store Connect creates them during processing. The loop
+runs zero times, raises nothing, and pilot still logs "Successfully set the
+changelog for build" — so every build shipped with an empty note and a green
+lane. `localized_build_info` names the locale outright, which is what makes
+pilot create the localization instead of needing one to exist. Neither key
+alone works; drop either and the note silently disappears again.
+
 ## What runs where
 
 The lane runs the same `tool/build-ipa.sh` a developer runs by hand. Fastlane
