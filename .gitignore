@@ -10,6 +10,10 @@
 .history
 .svn/
 .swiftpm/
+
+# A local index cache: staging shadows, apply/intent locks and a parse cache,
+# keyed by a per-machine UUID. Rebuilt on demand and useless to anyone else.
+.gitnexus/
 migrate_working_dir/
 
 # IntelliJ related
