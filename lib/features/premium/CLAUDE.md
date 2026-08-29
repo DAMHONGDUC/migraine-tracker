@@ -49,12 +49,18 @@ the medications tab the medication budget, each from that record's one
   text link offers sign-in for what it is actually worth ("use Premium on your
   other devices"); it is an extra, never a step. The purchase lives on
   RevenueCat's anonymous id until then, and `logIn` carries it onto the account.
-- **The sheet is a flat opaque panel, like every other sheet** (owner's call).
-  It used to be the app's one frosted Liquid Glass surface; the pitch, the plans
-  and the CTA are all reading matter, and the screen moving behind them competed
-  with the one sheet that has to be read. Nothing on the paywall carries a
-  surface of its own except the benefits card — the close button stays
-  `SdAppBarButtonSurfaceV2.none` and the unselected plan stays a hairline.
+- **The sheet is a flat opaque panel on `AppColors.surfaceModal`** (owner's
+  call). It used to be the app's one frosted Liquid Glass surface, on the card
+  colour: the pitch, the plans and the CTA are all reading matter, and the
+  screen moving behind them competed with the one sheet that has to be read.
+  The modal colour is a step *darker* than `surface`, which is what lets the
+  cards it holds — the benefits, the plans — read as cards rather than as more
+  sheet. The close button carries no surface of its own.
+- **A plan row is an `SdCardV2`, and selection is the card's own fill and
+  edge**: `fillColor` at alpha 0.14 inside `borderColor`, both the accent.
+  There is no radio glyph — the tint and the edge already say which one is
+  chosen, and the circle said it a third time. Never reach for a 2px border to
+  make it louder; `SdCardV2.borderWidth` is a hairline on purpose.
 - **The pitch is one framed card, centred in the space above the plans**
   (owner's call). The six benefits sit in an `SdCardV2` on
   `SdCardSurfaceV2.elevated` — a step up from the panel, so what is being
