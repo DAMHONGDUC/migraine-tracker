@@ -211,7 +211,7 @@ match can succeed and the build still fail to sign.
    Runner target, so without one the archive fails rather than the app
    misbehaving. One per flavor because dev and prod are two Firebase projects,
    and the lane refuses a build whose plist is not the flavor's own.
-   `FIREBASE_IOS_APP_ID` is optional (unset skips the Crashlytics symbol upload
+   `FIREBASE_APP_ID_IOS` is optional (unset skips the Crashlytics symbol upload
    with a warning) but is checked against the plist when set; it is an env var
    rather than a plist read because that file is absent from a CI checkout.
 7. **Fastlane on the Mac**, for step 4 and for a local run: `brew install
@@ -245,7 +245,7 @@ release. Note the shape of the trap: the one check meant to catch missing config
 is compiled out in precisely the build where the mistake happens.
 
 **The crash was RevenueCat, and it was a bad API key — `test_...` left in
-`REVENUECAT_IOS_KEY`.** RevenueCat's native SDK answers a key carrying another
+`REVENUECAT_KEY_IOS`.** RevenueCat's native SDK answers a key carrying another
 platform's prefix with `fatalError`, which kills the process. **No Dart `catch`
 can survive that**, so the guards around `ensureConfigured` never applied — they
 only ever caught Dart throws — and Swift keeps `fatalError` in release, so it
@@ -267,7 +267,7 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
 `StateError`. What the owner must do by hand:
 
 1. **Keys in `env/dev.json` / `env/prod.json`** (gitignored, placeholders already
-   added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and optionally
+   added): `REVENUECAT_KEY_IOS`, `REVENUECAT_KEY_ANDROID`, and optionally
    `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and `REVENUECAT_OFFERING`
    (empty = whatever the dashboard marks current).
 2. **Products in App Store Connect** — monthly $4.99 and yearly $29.99 — plus
@@ -280,7 +280,7 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
      submission;
    - in RevenueCat, both products in **one offering marked Current**, under
      entitlement id `premium`;
-   - `REVENUECAT_IOS_KEY` a real `appl_...` key (a `test_...` one is the fatal
+   - `REVENUECAT_KEY_IOS` a real `appl_...` key (a `test_...` one is the fatal
      crash above, not an empty paywall);
    - bought once in **sandbox on a real device** before resubmitting.
 

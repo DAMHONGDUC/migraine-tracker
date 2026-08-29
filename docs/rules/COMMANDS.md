@@ -171,7 +171,7 @@ archive without it is the crash above. Do not "simplify" the lane into
   `PROJECT_ID` against the flavor's alias in `.firebaserc` (the same file
   `firebase deploy` reads, so there is no second list), its `BUNDLE_ID` against
   the app's, its `REVERSED_CLIENT_ID` against the scheme in `Info.plist`, and
-  `FIREBASE_IOS_APP_ID` against `GOOGLE_APP_ID` when it is set. Nothing here
+  `FIREBASE_APP_ID_IOS` against `GOOGLE_APP_ID` when it is set. Nothing here
   opens `env/` (hard rule 13). Run it alone with `fastlane preflight
   flavor:dev|prod`.
 - **Entitlements are checked against the installed profiles before the build**

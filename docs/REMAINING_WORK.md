@@ -37,7 +37,7 @@ state before acting because this list includes consoles and legal work.
 | `MATCH_PASSWORD` | Yes |
 | `MATCH_GIT_BASIC_AUTHORIZATION` | Yes, base64 `user:PAT` |
 | `MATCH_GIT_URL` | Optional |
-| `FIREBASE_IOS_APP_ID` | Optional |
+| `FIREBASE_APP_ID_IOS` | Optional |
 
 Never place secret values in documentation or command output.
 

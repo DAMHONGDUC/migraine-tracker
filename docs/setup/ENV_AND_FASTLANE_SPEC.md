@@ -64,6 +64,12 @@ One `final class AppEnv` under `lib/core/env/`, holding every
 the set of expected keys is self-documenting, and a renamed key is a one-line
 fix.
 
+**A key that belongs to one platform ends in `_IOS` or `_ANDROID`**, and its
+getter ends in the same word — `FIREBASE_API_KEY_IOS` / `firebaseApiKeyIos`.
+Suffix rather than infix, so the two halves of a pair sort together and the
+platform is the last thing read on every line, which is the question asked when
+a build carries the wrong one. No suffix means both platforms read it.
+
 Three properties worth copying verbatim:
 
 - **`missingConfigKeys`** — a getter listing every *required* key still empty,
@@ -259,7 +265,7 @@ Steps, in the order that matters:
 | `ASC_KEY_CONTENT` | base64 of the `.p8`. |
 | `MATCH_PASSWORD`, `MATCH_GIT_URL` | Plain. |
 | `MATCH_GIT_BASIC_AUTHORIZATION` *or* `..._BEARER_...` | Basic = base64 of `user:PAT`; Bearer = the PAT verbatim. **Set exactly one.** |
-| `FIREBASE_IOS_APP_ID` | Plain, optional — unset skips the dSYM upload with a warning. |
+| `FIREBASE_APP_ID_IOS` | Plain, optional — unset skips the dSYM upload with a warning. |
 
 The certificates repo is **private and separate**: match stores a real
 distribution certificate's private key in it, encrypted with `MATCH_PASSWORD`.

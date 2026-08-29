@@ -182,7 +182,7 @@ Repository secrets → Settings → Secrets and variables → Actions.
 `ENV_DEV_JSON` and `GOOGLE_SERVICE_INFO_PLIST_DEV` keep pointing at the old
 project. Both plist secrets are needed from here on: the release lane compares
 the plist's `PROJECT_ID` against the flavor's alias in `.firebaserc` and stops
-if they disagree. `FIREBASE_IOS_APP_ID` is the new iOS app id, or the
+if they disagree. `FIREBASE_APP_ID_IOS` is the new iOS app id, or the
 Crashlytics symbol upload is skipped with a warning
 (`docs/release/CREDENTIALS.md`).
 
