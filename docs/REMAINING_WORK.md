@@ -56,7 +56,7 @@ can never prove the project has them, which is what the deploy did.
 | ~~20~~ | ~~Key with WeatherKit enabled~~ | **Done 12 Aug.** |
 | ~~21~~ | ~~Services ID~~ | **Done 12 Aug.** Weather data reaching the app is what proves both — the callable cannot sign its JWT without them. |
 | ~~7b~~ | ~~App Group on both App IDs~~ | **Done 10 Aug**, on the app's App ID and on `…​.BaroEaseWidgetExtension`. |
-| 8 | Create the three products — monthly $4.99, yearly $29.99, lifetime $44.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
+| 8 | Create the two products — monthly $4.99, yearly $29.99 | The paywall correctly shows "no plans available". That is not a bug to chase. |
 | 9 | Sign the Paid Apps Agreement | Products stay unavailable no matter what the dashboard says. |
 | 10 | App Privacy label | Must match the policy, which now says more than the old draft: Analytics and Crashlytics are tied to the account identifier while signed in, so they are **linked to identity**, and synced health data is linked too. **Fitness is linked too** — the step count for the day of an attack travels with that attack into sync. Apple Health *sleep* is the only reading declared at all that never leaves the device, and it is not declared, because we do not collect it. |
 | 11 | **(repo)** Replace the placeholder `storeLinks.appStore` id in `docs/privacy/privacy.json` | Still `id0000000000`, so the published policy links to nothing. Only fillable once the App Store record exists. |

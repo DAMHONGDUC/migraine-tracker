@@ -25,9 +25,9 @@ Positioning: *"Know your storm before it hits."*
 | Free | $0 | 40 logged attacks, 5 medications, 2 reminders across all medications; severity donut, weather snapshot attached to each log, the weather card minus pressure, the exertion question itself, sleep/step readings, the GDPR wipe |
 | Premium monthly | $4.99/mo | Unlimited attacks/medications/reminders, pressure-drop push alerts, 48h pressure forecast chart, every correlation (trigger, exertion, step, sleep), the other four history charts, the whole export screen including the PDF doctor report |
 | Premium yearly | $29.99/yr | Same as monthly (50% discount framing) |
-| Lifetime | $44.99 | Same, one-time (chronic illness communities love lifetime) |
 
 - Managed via **RevenueCat** (free < $2.5k MRR). 7-day free trial on yearly.
+- **A lifetime tier was specified here and is deliberately dropped (2026-08-29, owner's call).** A non-consumable is sold once and can never be re-monetized, while the app's cost is recurring — WeatherKit calls, the alert cron, Firestore. Two subscriptions is the whole offer.
 - The full rules — every limit, why each number is what it is, and how a gate behaves — live in `docs/PREMIUM_RULES.md`, which is the authority.
 - **No ads.** "No ads, we don't sell your data" is a selling point in this niche.
 

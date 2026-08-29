@@ -82,11 +82,11 @@ Send only after a sandbox purchase has succeeded on a real device.
 > configured and attached to the build, so the app received an empty list of
 > products from the App Store.
 >
-> This is now resolved. The three products — Monthly ($4.99), Yearly ($29.99)
-> and Lifetime ($44.99) — are configured, in Ready to Submit status, and
-> submitted with this build. We have verified the full purchase and restore
-> flow in the sandbox environment on a physical device, and the subscription
-> screen now lists all three plans with their prices.
+> This is now resolved. Both products — Monthly ($4.99) and Yearly ($29.99) —
+> are configured, in Ready to Submit status, and submitted with this build. We
+> have verified the full purchase and restore flow in the sandbox environment
+> on a physical device, and the subscription screen now lists both plans with
+> their prices.
 >
 > To reach it: **Settings → the premium banner at the top of the screen**, or
 > any premium feature — for example the "Analysis" section of Settings →

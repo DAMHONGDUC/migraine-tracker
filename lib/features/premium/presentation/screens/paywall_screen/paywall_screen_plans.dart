@@ -54,7 +54,6 @@ class _PlanRow extends StatelessWidget {
   String _title(AppLocalizations l10n) => switch (offer.period) {
     PremiumPeriod.monthly => l10n.paywallPlanMonthly,
     PremiumPeriod.yearly => l10n.paywallPlanYearly,
-    PremiumPeriod.lifetime => l10n.paywallPlanLifetime,
   };
 
   @override

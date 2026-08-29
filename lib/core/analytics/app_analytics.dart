@@ -251,7 +251,7 @@ abstract final class AppAnalytics {
     <String, Object>{_pSignedIn: signedIn.toString()},
   );
 
-  /// [period] is the plan shape (`monthly`, `yearly`, `lifetime`) — never a
+  /// [period] is the plan shape (`monthly`, `yearly`) — never a
   /// price or a transaction id. The store owns revenue reporting; this is
   /// only the funnel from tap to entitlement.
   static void logPurchaseStarted({required String period}) =>

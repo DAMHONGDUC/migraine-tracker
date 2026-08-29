@@ -198,7 +198,7 @@ syncs like any other record (§4), so every device shows the same history.
 
 ## 7. Payments
 
-Subscriptions and the lifetime purchase are processed by **Apple** and
+Subscriptions are processed by **Apple** and
 managed through **RevenueCat**, our subscription infrastructure provider. We
 never see or store your card details. RevenueCat receives a purchase
 identifier and, once you are signed in, your account identifier — so your
