@@ -87,6 +87,19 @@ scripts:
       left pointing at.
     run: sh tool/deploy-firebase.sh prod
 
+  release-dev:
+    description: >
+      The whole dev release in one command: prepare-env-dev, then
+      deploy-firebase-dev, then fastlane beta flavor:dev bump:true. Each step
+      keeps its own prompts — the firebase deploy still asks before it deploys.
+    run: sh tool/release.sh dev
+
+  release-prod:
+    description: >
+      The same against prod. Separate command, like the deploys it wraps, so a
+      prod release is typed on purpose rather than passed as a flag.
+    run: sh tool/release.sh prod
+
   analyze:
     description: Analyze every package. Must pass with zero findings.
     run: sh tool/analyze.sh
