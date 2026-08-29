@@ -1,125 +1,83 @@
 # BaroEase
 
-Migraine tracker with barometric pressure alerts. Flutter, iOS first.
+An iOS-first Flutter app for tracking migraines and barometric-pressure risk.
+It works offline, uses dark mode by default and supports seven languages.
 
-See `CLAUDE.md` for architecture and `PLAN.md` for the product spec.
+| Document | Use it for |
+|---|---|
+| [`PLAN.md`](PLAN.md) | Product scope and architecture |
+| [`AGENTS.md`](AGENTS.md) | Repository rules and document routing |
+| [`docs/README.md`](docs/README.md) | Documentation index |
+| [`docs/DONE_WORK.md`](docs/DONE_WORK.md) | What is built |
+| [`docs/REMAINING_WORK.md`](docs/REMAINING_WORK.md) | What still blocks release |
 
-## App ids
+## Requirements
 
-| Platform | Id |
-| --- | --- |
-| iOS (Runner) | `app.dd.migraine.tracker` |
-| iOS widget extension | `app.dd.migraine.tracker.BaroEaseWidgetExtension` |
-| iOS App Group | `group.app.dd.migraine.tracker` |
-| Android | `com.dd.migraine.tracker` |
+| Tool | Requirement |
+|---|---|
+| Flutter | Stable, Dart 3 |
+| Melos | `6.3.3` |
+| Xcode | iOS build and signing |
+| Ruby 3.x + Bundler | Fastlane release only |
+| JDK 11+ | Firebase emulator only |
 
-**The two platforms deliberately do not share one string** — iOS is `app.dd.…`,
-Android is `com.dd.…`. The iOS App ID was registered that way in the portal and
-is baked into the provisioning profiles, the App Group and the widget
-extension's own App ID; renaming it now would invalidate all of them. Read the
-id from `ios/Runner.xcodeproj/project.pbxproj` (`PRODUCT_BUNDLE_IDENTIFIER`) and
-`android/app/build.gradle.kts` (`appId`) before assuming either.
-
-## Getting started
-
-Clone with submodules — the design system lives in one:
+## Setup
 
 ```bash
 git clone --recurse-submodules <url>
 cd migraine_tracker
-```
-
-Already cloned without them? `git submodule update --init --recursive`, or just
-run setup below, which does it for you.
-
-Install the task runner once per machine, at the version this repo pins:
-
-```bash
 dart pub global activate melos 6.3.3
-```
-
-Then one command does the rest:
-
-```bash
 melos run set-up
 ```
 
-It wipes build artefacts first — `flutter clean`, gradle, pods — then fetches
-submodules, resolves both packages, generates localizations and Drift code, lays
-down `env/*.json` from the templates, installs the Cloud Functions dependencies
-and, on macOS, runs `pod install` for the one plugin that still needs CocoaPods.
-Safe to re-run at any time.
+`set-up` restores submodules, dependencies, generated code and native setup. It
+also creates missing key-only files from `env/*.example.json`.
 
-**The wipe is unconditional on purpose**: setup is the one answer to "it built
-yesterday and not today". Use `melos run gen` when all you changed is a table or
-a string. When even setup does not help — Xcode refusing a precompiled module, a
-header resolving to a version you no longer depend on, a failure that comes and
-goes on one commit — use `melos run deep-set-up`, which adds Xcode's DerivedData.
-It is separate because clearing that cache costs a full cold build every time.
-
-**Submodules follow their branch, they are not pinned.** Setup checks the design
-system out on `main` (the branch named in `.gitmodules`) and fast-forwards it, so
-you can edit it in place — but what you build is whatever is on `main`, not what
-this repo's commit records. When `main` moves ahead, git shows
-`packages/system_design` as modified: commit that gitlink when you mean to.
-
-**The Firebase emulator needs a JDK** (11+) on your PATH — the Firestore emulator
-is a Java program, and macOS ships a `/usr/bin/java` stub whose only job is to
-say Java is missing, so it looks like a PATH problem rather than a missing
-install. `sdk install java 21.0.12-tem` with SDKMAN, or a JDK from anywhere else.
-Nothing but the emulator needs it.
-
-**One thing setup cannot do for you:** `env/dev.json` and `env/prod.json` hold
-Firebase and RevenueCat keys and are gitignored, so a fresh clone gets key-only
-templates from `env/*.example.json`. Fill them in before running the app — setup
-says so loudly when it creates them.
-
-Already keep the real files? Put them in a gitignored `env_assets/` folder
-(`dev.json`, `prod.json`, `dev-`/`prod-google-services.json`,
-`dev-`/`prod-GoogleService-Info.plist`, `dev-`/`prod-Info.plist`) and
-`melos run prepare-env-dev` copies them where the build looks: both
-`env/*.json`, plus that environment's `android/app/google-services.json`,
-`ios/Runner/GoogleService-Info.plist` and `ios/Runner/Info.plist`.
-`prepare-env-prod` installs the prod trio instead. It overwrites — that is how
-you switch a checkout between the two. `Info.plist` is tracked, so switching
-environments shows in `git status`.
-
-## Commands
-
-| Command | What it does |
-| --- | --- |
-| `melos run set-up` | Wipe build artefacts, then everything a clone needs. Idempotent. |
-| `melos run prepare-env-dev` | Copy `env_assets/` into place for dev — env + native files. |
-| `melos run prepare-env-prod` | The same, with prod's native files. |
-| `melos run gen` | Regenerate localizations + `build_runner` output. |
-| `melos run analyze` | Analyze every package, zero warnings (what CI runs). |
-| `melos run test` | The Flutter test suite. |
-| `melos run deep-set-up` | Setup, plus Xcode's DerivedData. Costs a cold build. |
-| `melos run build-ipa-prod` | The TestFlight/App Store IPA, config flag attached. |
-| `melos run build-ipa-dev` | The same IPA with `env/dev.json` attached instead. |
-
-Run the app:
+Real configuration is gitignored. Put local source files in `env_assets/`, then
+install one environment:
 
 ```bash
-flutter run --dart-define-from-file=env/dev.json
+melos run prepare-env-dev
+# or
+melos run prepare-env-prod
 ```
 
-The VS Code launch configs already pass that flag (dev → `env/dev.json`, prod →
-`env/prod.json`).
+Never print or commit files from `env/`, `env_assets/`,
+`ios/Flutter/Generated.xcconfig` or native Firebase configuration.
 
-**Never archive from Xcode.** Product > Archive knows nothing about
-`--dart-define-from-file`, so the build ships with empty Firebase and RevenueCat
-config and crashes on launch with `[core/no-app] No Firebase App '[DEFAULT]' has
-been created` — which names nothing to do with the missing flag. Use `melos run
-build-ipa-prod`, then upload the `.ipa` it leaves in `build/ios/ipa/`.
+## Daily commands
 
-Releasing to TestFlight is normally the manually-triggered **Release iOS**
-workflow in GitHub Actions, which builds with that same script and uploads
-through fastlane. To run the same lane from your own Mac, see below.
+| Command | Purpose |
+|---|---|
+| `melos run set-up` | Clean and restore a normal checkout |
+| `melos run deep-set-up` | Also clear Xcode DerivedData |
+| `melos run prepare-env-dev` | Install development configuration |
+| `melos run prepare-env-prod` | Install production configuration |
+| `melos run gen` | Generate localization and Drift code |
+| `melos run analyze` | Run the CI analyzer with zero findings allowed |
+| `flutter run --dart-define-from-file=env/dev.json` | Run the development app |
 
-## Fastlane, locally
+Run only tests related to the change:
 
-One-time, per machine:
+```bash
+flutter test test/features/<feature>/<test_file>_test.dart
+```
+
+Do not use the full test suite as change verification.
+
+## Release
+
+Never archive from Xcode: it omits `--dart-define-from-file`. Use the release
+workflow or Fastlane.
+
+| Command | Result |
+|---|---|
+| `cd ios && CI=true bundle exec fastlane preflight` | Validate credentials and signing |
+| `cd ios && bundle exec fastlane beta flavor:dev` | Upload a development build to TestFlight |
+| `cd ios && bundle exec fastlane beta flavor:prod` | Upload a production build to TestFlight |
+| `cd ios && bundle exec fastlane certificates` | Create or renew distribution signing assets |
+
+One-time local Fastlane setup:
 
 ```bash
 cd ios
@@ -127,133 +85,43 @@ bundle config set --local path vendor/bundle
 bundle install
 ```
 
-**The local path is not optional on a Homebrew Ruby**: its gem files are
-read-only, so a plain `bundle install` dies on `Permission denied @ rb_sysopen …
-rdoc_plugin.rb`. `ios/.bundle/` and `ios/vendor/` are gitignored — CI pins its
-own Ruby through `ruby/setup-ruby` and resolves gems its own way.
+See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
+[`docs/release/CREDENTIALS.md`](docs/release/CREDENTIALS.md) for required keys.
 
-Credentials live in `ios/fastlane/.env` (gitignored, six keys). Check its shape
-without printing any values: `cut -d= -f1 ios/fastlane/.env`. How each one is
-made: `docs/release/CREDENTIALS.md`.
+## Project map
 
-| Command | What it does |
-| --- | --- |
-| `cd ios && CI=true bundle exec fastlane preflight` | Rehearse the release without building — API key, build number, `match`. Three minutes, not twenty-eight. |
-| `cd ios && bundle exec fastlane beta flavor:prod` | Build with `env/prod.json`, sign, export, upload to TestFlight. |
-| `cd ios && bundle exec fastlane beta flavor:dev` | The same, with `env/dev.json` attached instead. |
-| `cd ios && bundle exec fastlane beta flavor:prod bump:false` | Ship the build number already in `pubspec.yaml`, unchanged. |
-| `cd ios && bundle exec fastlane certificates` | Create or renew the distribution certificate and both profiles. Mac only. |
-| `cd ios && bundle exec fastlane certificates force:true` | Regenerate the profiles — the only way a newly-enabled capability reaches CI. |
+| Path | Ownership |
+|---|---|
+| `lib/core/` | Cross-cutting infrastructure only |
+| `lib/features/` | Feature-based app code |
+| `lib/l10n/` | Seven ARB localization files |
+| `functions/` | Firebase Cloud Functions |
+| `packages/system_design/` | Design-system git submodule |
+| `test/features/` | Tests mirroring app features |
+| `tool/` | Scripts called by Melos |
 
-Three things differ from the CI run:
+Dependencies inside a feature point `presentation → domain ← data`. Across
+features, import only `domain/` or `providers.dart`.
 
-- **`CI=true` on `preflight` is the point.** Without it the lane skips `match`,
-  the half most likely to break.
-- **`match` and manual signing are skipped locally** — your Mac signs
-  automatically and never touches the shared certificate.
-- **`bump:true` (the default) rewrites `pubspec.yaml` but does not commit it.**
-  Only CI commits the number back, so commit it yourself after the upload — or a
-  build sits on TestFlight whose version is in no commit, the one thing the
-  build-number rule exists to prevent.
+## App identifiers
 
-**If codesign asks for keychain permission, the export has already failed.** The
-prompt — *"codesign wants to access key \"Apple Distribution: …\" in your
-keychain"* — is raised at `exportArchive`, after the archive is built, so a lane
-that dies there has spent its whole four minutes. `Always Allow` clears it for
-one key; the permanent fix hands codesign the whole login keychain once:
+| Target | Identifier |
+|---|---|
+| iOS app | `app.dd.migraine.tracker` |
+| iOS widget | `app.dd.migraine.tracker.BaroEaseWidgetExtension` |
+| iOS App Group | `group.app.dd.migraine.tracker` |
+| Android app | `com.dd.migraine.tracker` |
 
-```bash
-security unlock-keychain ~/Library/Keychains/login.keychain-db
-security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
-  -k "$(read -rs -p 'login password: ' p; echo "$p")" \
-  ~/Library/Keychains/login.keychain-db
-```
+The iOS and Android identifiers intentionally differ. Do not normalize them.
 
-It is your Mac's login password, typed into your own terminal — nothing here
-stores it, and CI never runs this (its keychain is the throwaway one `setup_ci`
-makes).
+## Core behavior
 
-If `security find-identity -v -p codesigning` shows the same "Apple Distribution"
-several times, that is a keychain an older `CI=true preflight` left in the search
-list. `setup_ci` is gated on a real runner now, so no new one appears, but an
-existing one has to be cleared by hand:
-
-```bash
-security list-keychains -d user -s ~/Library/Keychains/login.keychain-db
-security default-keychain -s ~/Library/Keychains/login.keychain-db
-security delete-keychain ~/Library/Keychains/fastlane_tmp_keychain-db
-```
-
-The first line rewrites the whole user search list, so `login.keychain-db` has to
-be named in it or nothing signs afterwards — **and it clears the default
-keychain, which is what the second line puts back.** Without it, `security
-default-keychain` answers *"A default keychain could not be found"* and Xcode
-logs `DVTDeveloperAccountManager: Failed to load credentials … Code=-25307`, so
-automatic signing can no longer refresh a profile.
-
-Both flavors go to the **same** TestFlight app: one bundle id serves both, so the
-build number is the only thing telling a dev build from a prod one. Full detail
-in `docs/rules/COMMANDS.md`; the pipeline as a diagram is
-`docs/release/PIPELINE.md`.
-
-## Layout
-
-```
-lib/                      the app
-packages/system_design/   the design system — its own repo, a git submodule
-functions/                Firebase Cloud Functions (TypeScript)
-tool/                     what the melos commands actually run
-```
-
-`melos.yaml` only names each command; the body is a POSIX `sh` script in `tool/`.
-Melos echoes a `run:` block twice per run, so anything longer than one line
-drowns its own output.
-
-**This app renders design system generation `v2`.** One generation belongs to one
-product, so nothing else imports `v2/` and a change there can only reach this app
-— but only while this line stays accurate, because the gitlink records the commit
-pinned, never the folder imported. Move it in the same change as any generation
-move.
-
-The design system is deliberately separate and deliberately ignorant of this app;
-see `packages/system_design/WIDGET_RULES.md` before adding to it.
-
-## Sync
-
-Signing in backs up attacks, medications and their reminders to the account and
-keeps them in step across devices. An account is optional: everything else works
-without one, and the on-device database stays the source of truth — the cloud
-copy is a copy, never the only one. Past exports deliberately stay out of it:
-their file paths belong to one device.
-
-It never blocks the UI. Sync runs in the background on sign-in, launch, resume
-and after logging an attack, and a pass that fails leaves the work for the next
-one. The one visible control is a row in Settings' "Your data", which runs a sync
-on tap and shows how the last one went.
-
-Records are encrypted with AES-GCM before they leave the device, so no intensity,
-note or medication name reaches Firestore readable. **This is not end-to-end
-encryption:** the key is minted and held by the `getSyncKey` Cloud Function, so
-the backend can decrypt. The in-app copy therefore says "encrypted" and never
-"only you can read this" — hold any new wording to that bar.
-
-Nothing syncs until `firestore.rules` and `functions/` are deployed. Until then
-the app behaves exactly as it did before sync existed.
-
-## rm icon marker
-
-dart run tool/strip_icon_marker.dart assets/images/app_icon_v3.png assets/images/final_app_icon.png
-
-dart run flutter_launcher_icons
-
-## build app to tesflight (local)
-
-melos run prepare-env-dev
-
-cd ios && bundle exec fastlane beta flavor:dev
-
-=======
-
-melos run prepare-env-prod
-
-cd ios && bundle exec fastlane beta flavor:prod
+| Area | Rule |
+|---|---|
+| Storage | Drift on-device is the source of truth |
+| Attack log | Fully usable offline; weather is best-effort |
+| Account | Optional; Google/Apple upgrades the anonymous UID |
+| Sync | AES-GCM encrypted, server-assisted, not end-to-end encrypted |
+| Weather | WeatherKit is called only by Cloud Functions |
+| Premium | RevenueCat entitlement is the only access source |
+| Theme | Dark mode is the default; no pure-white or flashing UI |
