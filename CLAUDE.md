@@ -27,12 +27,17 @@ holds for anything written down** — docs, this file, code comments: keep the
 *why*, cut the words around it. Complete, never padded. A comment nobody finishes
 reading records nothing.
 
+**Project documentation prefers tables over prose** when the content is a set of
+facts, choices, commands or mappings. Tables make the answer scannable; prose is
+reserved for context that cannot be expressed clearly in rows. Keep every
+document short, direct and free of repeated detail.
+
 ## What this project is
 
 Flutter iOS-first app for migraine sufferers sensitive to barometric pressure.
 Local-first data; Firebase backend for pressure alerts, optional sign-in
 (Google/Apple), and encrypted attack sync for signed-in users. Monetization:
-RevenueCat subscriptions ($4.99/mo, $29.99/yr, $44.99 lifetime). No ads.
+RevenueCat subscriptions ($4.99/mo, $29.99/yr). No ads.
 
 `docs/PREMIUM_RULES.md` is the authority on what is gated, the free limits and
 why each number is what it is; this file only points at it.
