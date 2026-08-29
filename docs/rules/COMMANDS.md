@@ -37,21 +37,21 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
 
 ### `melos run prepare-env-dev` / `prepare-env-prod`
 
-Copy the real config from `env_assets/` into the seven paths the build, the
-backend and fastlane read: `env/dev.json`, `env/prod.json`,
-`ios/fastlane/.env`, `android/app/google-services.json`,
-`ios/Runner/GoogleService-Info.plist`, `ios/Runner/Info.plist` and
-`functions/.env`. `env_assets/` holds the same live keys `env/` does, so it is
-gitignored and a clone never has it.
+Copy the real config from `env_assets/` into the six paths the build, the
+backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
+`android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist`,
+`ios/Runner/Info.plist` and `functions/.env`. `env_assets/` holds the same live
+keys `env/` does, so it is gitignored and a clone never has it.
 
-- **Both `env/*.json` and `ios/fastlane/.env` are written whatever the target
-  is** — one destination each, nothing to choose. The target picks the other
-  four, which also have one destination each: one bundle id serves both
-  environments, so there is no second path a `prod-` file could go to.
-- **`fastlane.env` has no flavor to pick.** Its six credentials — the match
-  repo, its passphrase, the App Store Connect key — belong to the one bundle id
-  both environments ship under, so a `dev-`/`prod-` pair would be two copies of
-  the same secret.
+- **Only the flavor named is installed.** Owner's rule: `prepare-env-dev`
+  writes `env/dev.json` and leaves `env/prod.json` alone, so a checkout carries
+  the keys of the environment it builds rather than both. Each flavored file has
+  one destination — one bundle id serves both environments, so there is no
+  second path a `prod-` file could go to.
+- **`ios/fastlane/.env` is the exception, written every run.** Its six
+  credentials — the match repo, its passphrase, the App Store Connect key —
+  belong to the one bundle id both environments ship under, so a `dev-`/`prod-`
+  pair would be two copies of the same secret.
 - **`<flavor>-function.env` → `functions/.env` is the backend's half**, and the
   only destination nothing in the app reads: the Firebase CLI reads it at deploy
   time for the `defineString` params (`WEATHERKIT_*`, `PREMIUM_EMAIL`). Copying
@@ -61,7 +61,7 @@ gitignored and a clone never has it.
   is the reversed client id of the Firebase project this checkout points at, so
   it has to change with `GoogleService-Info.plist` or the two disagree — which
   builds cleanly and then drops the sign-in callback at runtime. Unlike the
-  other six destinations `ios/Runner/Info.plist` is **tracked**, so a
+  other five destinations `ios/Runner/Info.plist` is **tracked**, so a
   `prepare-env` run shows up in `git status`; that is expected. CI has no
   `env_assets/`, so it rewrites that one scheme from the
   `GoogleService-Info.plist` it wrote from a secret rather than trusting what
