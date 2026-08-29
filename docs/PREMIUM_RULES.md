@@ -4,7 +4,7 @@ The authority on what Premium costs, what it unlocks and what the free plan
 holds. `CLAUDE.md` points here rather than restating any of it, so there is one
 place to change when the offer changes.
 
-Last updated: 2026-08-26.
+Last updated: 2026-08-29.
 
 ## Prices
 
@@ -12,10 +12,17 @@ Last updated: 2026-08-26.
 |---|---|---|
 | Premium Monthly | Auto-renewable subscription | $4.99/mo |
 | Premium Yearly | Auto-renewable subscription (7-day free trial) | $29.99/yr |
-| Premium Lifetime | Non-consumable | $44.99 |
 
 Yearly is a 50% saving against monthly ($59.88/yr), which is the framing the
 paywall and the store listing use.
+
+**There is no lifetime tier** (owner's call, 2026-08-29). A $44.99
+non-consumable was specified and is dropped: it is sold once against a cost that
+recurs forever — WeatherKit calls, the alert cron, Firestore — so the customers
+most worth having are the ones it earns least from. `PremiumPeriod` no longer
+has the value and `_periodOf` skips `PackageType.lifetime`, so an offering that
+still carries the old product renders two rows, not three. Anyone who already
+bought one keeps the entitlement; nothing reads the period to decide access.
 
 **Prices are never formatted in Dart.** `PremiumOffer.priceLabel` is the store's
 own string: currency, position and decimal separator belong to the customer's

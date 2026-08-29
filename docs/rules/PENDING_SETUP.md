@@ -270,15 +270,15 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
    added): `REVENUECAT_IOS_KEY`, `REVENUECAT_ANDROID_KEY`, and optionally
    `REVENUECAT_ENTITLEMENT` (defaults to `premium`) and `REVENUECAT_OFFERING`
    (empty = whatever the dashboard marks current).
-2. **Products in App Store Connect** — monthly $4.99, yearly $29.99, lifetime
-   $44.99 — plus the Paid Apps Agreement, then the same three attached to a
-   RevenueCat offering. Until an offering exists the paywall correctly shows "no
+2. **Products in App Store Connect** — monthly $4.99 and yearly $29.99 — plus
+   the Paid Apps Agreement, then the same two attached to a RevenueCat
+   offering. Until an offering exists the paywall correctly shows "no
    plans available"; that is not a bug. **Submission 1.0(11) was rejected under
    App Store 2.1(b) for exactly that screen**, so the checklist, in order:
    - the Paid Apps Agreement signed and *active*;
-   - all three IAPs in **Ready to Submit** and attached to the build at
+   - both IAPs in **Ready to Submit** and attached to the build at
      submission;
-   - in RevenueCat, the three products in **one offering marked Current**, under
+   - in RevenueCat, both products in **one offering marked Current**, under
      entitlement id `premium`;
    - `REVENUECAT_IOS_KEY` a real `appl_...` key (a `test_...` one is the fatal
      crash above, not an empty paywall);
@@ -290,7 +290,7 @@ without a key, because every call site catches the `RevenueCatClient.apiKey`
    store's own string: currency, position and decimal separator belong to the
    customer's storefront.
 
-Only `PackageType.monthly` / `annual` / `lifetime` are rendered; anything else
-the dashboard adds is skipped rather than drawn blind. Purchases are bound to the
-Firebase UID via `PurchaseIdentity`, so an entitlement follows the person, not
-the install.
+Only `PackageType.monthly` / `annual` are rendered; anything else the dashboard
+adds — a leftover `lifetime` included — is skipped rather than drawn blind.
+Purchases are bound to the Firebase UID via `PurchaseIdentity`, so an
+entitlement follows the person, not the install.
