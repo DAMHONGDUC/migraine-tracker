@@ -173,9 +173,18 @@ is composed, what a chart should say. Take that; leave the tokens.
 
 ### What size: `AppIconSize`, never a raw `r*`
 
-- **Every icon size is a role from `AppIconSize` (`core/theme/`)** — `inline`,
-  `affordance`, `row`, `tile`, `hero`, `display`. Never an
-  `SdSpacingConstant.r*` at an icon call site. Pick the role, never the number.
+- **Every icon size is a step on `AppIconSize` (`core/theme/`)**. Never an
+  `SdSpacingConstant.r*` at an icon call site. Pick the step, never the number.
+
+| Step | Size | Where |
+|---|---|---|
+| `xSmall` | 16 | punctuation inside a line of text — the pin before a place name |
+| `small` | 20 | the chevron, and nothing else |
+| `medium` | 24 | **the default** — what a row, a settings tile or a compact reading IS |
+| `large` | 32 | a tile whose whole content is one glyph and one word |
+| `xLarge` | 48 | an empty state, a permission sheet |
+| `xxLarge` | 64 | the one-per-screen illustration |
+
 - **The rule it encodes: a glyph that identifies is always a step above a glyph
   that only decorates.** The app had no ladder — identifying glyphs at r16, r18,
   r20 and r24 depending on which screen wrote them, chevrons at r20 in some rows
@@ -183,9 +192,12 @@ is composed, what a chart should say. Take that; leave the tokens.
   one feature drawing the same shape at two sizes. On a settings row the arrow
   saying "tappable" carried exactly as much weight as the glyph saying what the
   row was about.
-- **`row` (24) is the default** — reach for it unless another role fits. `tile`
-  (28) is for a glyph carrying an identity alone: a dashboard shortcut, an
-  icon-only segment. `affordance` (20) is the chevron and nothing else.
+- **The steps are named by size, not by job.** The first ladder named them for
+  the role — `inline`, `affordance`, `row`, `tile`, `hero`, `display` — and a
+  role name claims one number without saying where on the scale it sits, so the
+  ladder went 16-20-24-28 four apart and then jumped to 44 and 64. Sizes are what
+  these are, and every step above `medium` is a multiple of 8, on the same grid
+  the spacing uses.
 - **`AppIconSize` and the palette live in the app, not the package**, for the
   same reason the type scale does: it is this product's look, and the package
   must stay droppable into the next one.

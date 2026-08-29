@@ -51,10 +51,10 @@ scrolling row advertises a gesture with a cut edge that revealed nothing.
   overflowing the fixed cell. A `childAspectRatio` ties height to leftover width,
   which is how the old weather card's details grid came to overflow, so the extent
   is stated instead.
-  - **It sums `AppIconSize.tile`, the same constant the glyph is drawn at**, so
-    the cell and what sits in it cannot drift. `tile` (28) is the role here
-    rather than `row`: a third of the screen holds a glyph and one word, so the
-    glyph carries the shortcut's identity on its own.
+  - **It sums `AppIconSize.large`, the same constant the glyph is drawn at**, so
+    the cell and what sits in it cannot drift. `large` (32) is the step here
+    rather than `medium`: a third of the screen holds a glyph and one word, so
+    the glyph carries the shortcut's identity on its own.
 - **The glyph sits above the label**, not beside it: a third of the screen is too
   narrow for both on one line. **A label may wrap to two lines rather than be
   cut** — ellipsing a shortcut's name leaves the user unable to tell what they are
@@ -91,13 +91,13 @@ row but never across them, so cards of different content read as unrelated pairs
   padding, the header row, the gaps, one line of title and two of subtitle — and
   `DashboardExploreSubtitle` caps at two for that reason.
   - **The header row reserves `DashboardExploreCard.headerHeight`, stated as
-    `AppIconSize.row + h4` so it moves when the glyph does**, and `cellHeight`
+    `AppIconSize.medium + h4` so it moves when the glyph does**, and `cellHeight`
     reads that constant rather than repeating a number. The extra four is the
     `PremiumBadge` the export cell wears: a badge is a line of `labelSmall`
     inside its own padding — a shade taller than the icon beside it — and a fixed
     cell cannot grow for it. The cells without one simply have four spare, which
     is invisible. It was a bare 24 against a 20 glyph, which stopped being slack
-    the moment the glyph went to `AppIconSize.row`.
+    the moment the glyph went to `AppIconSize.medium`.
 - **The export cell is badged and gated.** Export is premium in full, so the cell
   says so before it is tapped and goes through `NavigationUtils.toExport` — a
   paywall out of a card that looked free reads as a bug rather than an offer, the
