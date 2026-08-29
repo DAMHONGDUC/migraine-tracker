@@ -110,7 +110,7 @@ class _QuickAccessCard extends StatelessWidget {
             // Plain text colour, not the accent: a grid of lavender glyphs under the lavender log button was two accents arguing.
             SdIconV2(
               icon: shortcut.icon,
-              size: AppIconSize.tile,
+              size: AppIconSize.row,
               color: AppColors.textPrimary,
             ),
             SizedBox(height: SdSpacingConstant.h6),
