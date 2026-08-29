@@ -98,7 +98,9 @@ Three details in that snippet, each of which has already cost a failed run:
 
 ## `ios/fastlane/.env`
 
-Read automatically by fastlane, gitignored by `ios/fastlane/.env*`. Six keys:
+Read automatically by fastlane, gitignored by `ios/fastlane/.env*`, and laid
+down by `melos run prepare-env-dev|prod` from `env_assets/fastlane.env` — one
+copy for both flavors, because nothing in it differs between them. Six keys:
 
 ```
 ASC_KEY_ID=

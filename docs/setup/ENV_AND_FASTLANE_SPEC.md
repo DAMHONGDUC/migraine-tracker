@@ -41,13 +41,17 @@ env_assets/
   dev-GoogleService-Info.plist      prod-GoogleService-Info.plist
   dev-Info.plist                    prod-Info.plist
   dev-function.env                  prod-function.env
+  fastlane.env                      (one, both flavors)
 ```
 
 `tool/prepare-env.sh <dev|prod>` copies them where the build reads them. Its
 contract:
 
-1. **Both `env/*.json` every run**; the other four are flavor-picked. One
-   destination each, so there is nothing to choose.
+1. **Both `env/*.json` and `fastlane.env` every run**; the other four are
+   flavor-picked. One destination each, so there is nothing to choose.
+   - `fastlane.env` → `ios/fastlane/.env` carries no flavor because the six
+     credentials in it do not have one: one bundle id, one match repo, one App
+     Store Connect key serve both environments.
    - `<flavor>-function.env` lands on `functions/.env`, the Cloud Functions
      config the Firebase CLI reads **at deploy time** — `WEATHERKIT_*` and
      `PREMIUM_EMAIL`. Copying it changes nothing until the next deploy, which is

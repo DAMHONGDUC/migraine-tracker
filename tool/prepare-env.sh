@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install one environment's Firebase, RevenueCat and Cloud Functions config where each is read.
+# Install one environment's Firebase, RevenueCat and Cloud Functions config where each is read, plus the unflavored files both share.
 set -eu
 . "$(dirname "$0")/_common.sh"
 
@@ -24,6 +24,7 @@ fi
 PAIRS="
 dev.json|env/dev.json
 prod.json|env/prod.json
+fastlane.env|ios/fastlane/.env
 $TARGET-google-services.json|android/app/google-services.json
 $TARGET-GoogleService-Info.plist|ios/Runner/GoogleService-Info.plist
 $TARGET-Info.plist|ios/Runner/Info.plist
