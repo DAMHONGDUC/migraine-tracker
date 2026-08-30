@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:system_design/index.dart';
 
 import '../analytics/app_analytics.dart';
@@ -53,193 +52,40 @@ class _AppShellState extends ConsumerState<AppShell> {
     final navigationShell = widget.navigationShell;
     final l10n = context.l10n;
 
-    return Scaffold(
-      // - Lets branch content flow behind the floating glass bar so it refracts (hard rule 3: calm and dark).
-      extendBody: true,
-      // Tells anything drawn over the app — a snackbar goes into the root overlay, above the shell — that the pill is down there to clear.
-      body: SdFloatingBarScopeV2(child: navigationShell),
-      // The log flow is a pushed route now, not a tab, so the bar always shows the tab nav (no step-progress morph mid-log).
-      bottomNavigationBar: _FloatingBar(
-        child: _SlidingNavBar(
-          selectedIndex: navigationShell.currentIndex,
-          onSelected: (index) => navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          ),
-          items: [
-            _NavItem(
-              icon: AppIconConstant.home,
-              label: l10n.navDashboard,
-            ),
-            _NavItem(
-              icon: AppIconConstant.history,
-              label: l10n.navHistory,
-            ),
-            _NavItem(
-              icon: AppIconConstant.medication,
-              label: l10n.navMedications,
-            ),
-            _NavItem(
-              icon: AppIconConstant.insights,
-              label: l10n.navInsights,
-            ),
-            _NavItem(
-              icon: AppIconConstant.settings,
-              label: l10n.navSettings,
-            ),
-          ],
+    // The frame — glass pill, sliding thumb, behind-the-bar body and the
+    // adjacent-tab swipe — is SdBottomNavigationV2's. The shell keeps what is
+    // its own: which branches exist, what they are called, and the analytics.
+    // The log flow is a pushed route, not a tab, so the bar always shows the
+    // tab nav (no step-progress morph mid-log).
+    return SdBottomNavigationV2(
+      selectedIndex: navigationShell.currentIndex,
+      onSelected: (int index) => navigationShell.goBranch(
+        index,
+        initialLocation: index == navigationShell.currentIndex,
+      ),
+      destinations: <SdNavDestinationV2>[
+        SdNavDestinationV2(
+          icon: AppIconConstant.home,
+          label: l10n.navDashboard,
         ),
-      ),
-    );
-  }
-}
-
-/// A tab bar whose highlight *slides* under the selected destination (same mechanic as the History view toggle) instead of Material's fade-in indicator.
-class _SlidingNavBar extends StatelessWidget {
-  const _SlidingNavBar({
-    required this.selectedIndex,
-    required this.onSelected,
-    required this.items,
-  });
-
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
-  final List<_NavItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    final count = items.length;
-    return SizedBox(
-      // Shared with the log flow's step bar and what content clears it — see SdContentPaddingV2.floatingBarHeight.
-      height: SdContentPaddingV2.floatingBarHeight,
-      child: Stack(
-        children: [
-          // The sliding thumb: 1/N wide, aligned to the selected segment.
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            alignment: AlignmentDirectional(
-              count == 1 ? 0 : -1 + 2 * selectedIndex / (count - 1),
-              0,
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 1 / count,
-              heightFactor: 1,
-              child: Padding(
-                // Slim inset so the thumb hugs the container border.
-                padding: EdgeInsets.symmetric(
-                  horizontal: SdSpacingConstant.w6,
-                  vertical: SdSpacingConstant.w6,
-                ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.22),
-                    // Oversized radius = stadium caps, matching the bar.
-                    borderRadius: BorderRadius.circular(SdSpacingConstant.r64),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              for (int i = 0; i < count; i++)
-                Expanded(
-                  child: _NavSegment(
-                    item: items[i],
-                    selected: i == selectedIndex,
-                    onTap: () => onSelected(i),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem {
-  const _NavItem({required this.icon, required this.label});
-
-  /// One glyph for both states.
-  final IconData icon;
-  final String label;
-}
-
-class _NavSegment extends StatelessWidget {
-  const _NavSegment({
-    required this.item,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final _NavItem item;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    final color = selected ? scheme.primary : scheme.onSurfaceVariant;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: item.label,
-      excludeSemantics: true,
-      onTap: onTap,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Center(
-          child: SdIconV2(
-            icon: item.icon,
-            size: SdSpacingConstant.r26,
-            color: color,
-            // Solid when selected, outline when not — colour is never the only signal (hard rule 3), and this is the second one.
-            fill: selected ? 1 : 0,
-          ),
+        SdNavDestinationV2(
+          icon: AppIconConstant.history,
+          label: l10n.navHistory,
         ),
-      ),
-    );
-  }
-}
-
-/// Wraps a bottom bar in the floating frosted-glass treatment.
-class _FloatingBar extends StatelessWidget {
-  const _FloatingBar({required this.child});
-
-  /// Barely there: this is a wide surface, and the same 18% the small icons pop by would read as the whole bar lurching.
-  static const double _popPeakScale = 1.02;
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        SdContentPaddingV2.floatingBarHorizontal,
-        0,
-        SdContentPaddingV2.floatingBarHorizontal,
-        SdContentPaddingV2.navBarOffset(context),
-      ),
-      child: SdPopScaleV2(
-        peakScale: _popPeakScale,
-        alignment: Alignment.bottomCenter,
-        child: LiquidGlass.withOwnLayer(
-          settings: kChromeGlass,
-          shape: LiquidRoundedSuperellipse(
-            borderRadius: SdContentPaddingV2.floatingBarRadius,
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: MediaQuery.removePadding(
-            context: context,
-            removeBottom: true,
-            child: child,
-          ),
+        SdNavDestinationV2(
+          icon: AppIconConstant.medication,
+          label: l10n.navMedications,
         ),
-      ),
+        SdNavDestinationV2(
+          icon: AppIconConstant.insights,
+          label: l10n.navInsights,
+        ),
+        SdNavDestinationV2(
+          icon: AppIconConstant.settings,
+          label: l10n.navSettings,
+        ),
+      ],
+      body: navigationShell,
     );
   }
 }
