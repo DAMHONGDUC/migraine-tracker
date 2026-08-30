@@ -6,8 +6,8 @@ seeding or deploying anything.
 **Melos carries eight commands, and they are the ones a human types**:
 `set-up`, `deep-set-up`, `release-dev`, `release-prod`, `deploy-firebase-dev`,
 `deploy-firebase-prod`, `upload-ipa-dev`, `upload-ipa-prod`. Everything else a
-release needs — `gen`, `analyze`, `test`, `prepare-env`, `pre-build`,
-`build-ipa` — is still a script, run by the command that needs it or by hand as
+release needs — `gen`, `analyze`, `test`, `prepare-env`, `build-ipa` — is
+still a script, run by the command that needs it or by hand as
 `sh packages/system_design/tool/<name>.sh`. Owner's rule: the list you scroll
 through should be the list of things you actually run.
 
@@ -97,8 +97,8 @@ keys `env/` does, so it is gitignored and a clone never has it.
   codegen or ARB files. It is also inside `set-up`, so a release never runs it
   by hand.
 - `sh packages/system_design/tool/analyze.sh` — `--fatal-infos`, exactly what CI
-  runs. Zero findings before any task is done, and `pre-build.sh` fails the
-  release on it.
+  runs. Zero findings before any task is done. **A release does not run it** —
+  CI does, on the branch being released.
 - `sh packages/system_design/tool/test.sh` — the whole suite. **Never run it to
   verify a change, no exception** — not for shared code (theme, spacing, the
   design system), not "just before a commit". Scope to what changed: `flutter test
@@ -123,11 +123,6 @@ keys `env/` does, so it is gitignored and a clone never has it.
   (`lib/core/env/app_env.dart`) — the ONLY place `String.fromEnvironment` may
   appear; `firebase_options.dart` and everything else read `AppEnv.*`. The VS
   Code launch configs already pass the flag.
-- `sh packages/system_design/tool/pre-build.sh` — the release gate: one ✓/✗ line
-  per check, non-zero if any blocker is unmet. It is step 3 of a release, so it
-  is rarely run alone — but it is the fastest way to ask "would a release stop
-  on this tree?". **It never reads `env/`** (hard rule 13): every check on a
-  secret file is existence only.
 - `cd functions && npm run build && npm test` — after touching Cloud Functions.
 
 ## Building the IPA
@@ -161,15 +156,20 @@ the environment passes straight to `flutter build ipa`.
 
 ### `melos run release-dev` / `release-prod`
 
-Five steps, in this order — `release.sh <flavor>`:
+Four steps, in this order — `release.sh <flavor>`:
 
 | # | Step | What it is |
 |---|---|---|
 | 1 | `set-up.sh` | wipe, submodules, deps, `gen-l10n`, `build_runner`, pods |
 | 2 | `prepare-env.sh <flavor>` | the flavor's real config into the tree |
-| 3 | `pre-build.sh` | the ✓/✗ gate, analyzer included |
-| 4 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
-| 5 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
+| 3 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
+| 4 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
+
+- **`release.sh` names no app** (owner's rule): the flavour is an argument and
+  every path in it is one that any app embedding this design system already
+  has. Anything that has to know what the app *is* — its bundle ids, its
+  entitlements, its store rules — lives in that app's fastlane lane, which is
+  why the app-specific pre-build gate that briefly sat here is gone.
 
 - **The order is the whole reason it is one command.** `set-up` wipes and
   regenerates, so it runs before the config it would otherwise build against;

@@ -75,7 +75,6 @@ command that needs it or by hand.
 | `sh packages/system_design/tool/gen.sh` | Generate localization and Drift code |
 | `sh packages/system_design/tool/analyze.sh` | The CI analyzer, zero findings allowed |
 | `sh packages/system_design/tool/test.sh` | The full test suite |
-| `sh packages/system_design/tool/pre-build.sh` | The release gate, one ✓/✗ per check |
 | `sh packages/system_design/tool/prepare-env.sh <dev\|prod>` | Install one environment's configuration |
 | `sh packages/system_design/tool/build-ipa.sh <dev\|prod>` | Build the IPA and nothing else |
 | `flutter run --dart-define-from-file=env/dev.json` | Run the development app |
@@ -90,9 +89,8 @@ Do not use the full test suite as change verification.
 
 ## Release
 
-One command per environment, five steps: set up, install that environment's
-configuration, run the pre-build gate, deploy its Firebase side, then build and
-upload to TestFlight.
+One command per environment, four steps: set up, install that environment's
+configuration, deploy its Firebase side, then build and upload to TestFlight.
 
 ```sh
 melos run release-dev
