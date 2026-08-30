@@ -29,9 +29,11 @@ final class FreshInstallGuard {
         .where((String key) => key != installMarkerKey)
         .toList();
 
+    // The key NAMES are logged, not their values: which keys survived is the whole diagnosis when a reinstall is misread as an update, and a key name says nothing about the user.
     SdLogger.action(LogTagConstant.storage, 'First launch of this install', {
       'isUpgrade': legacy.isNotEmpty,
-      'legacyKeys': legacy.length,
+      'legacyKeys': legacy,
+      'hasSecureValues': store.getKeys().isNotEmpty,
     });
     try {
       if (legacy.isEmpty) {
