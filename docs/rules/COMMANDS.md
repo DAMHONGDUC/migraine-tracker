@@ -453,22 +453,51 @@ will not catch this — its `/bin/sh` is bash under another name — so check wi
 - **The SDK**: `fvm flutter` when `.fvmrc` and fvm are both present, plain
   `flutter` otherwise — a shell alias is invisible inside a script.
 - **The output vocabulary**, and it is deliberately small (owner's rule).
-  Colour carries one meaning each:
+  Every line is three columns — the time, a three-wide gutter holding the mark,
+  then the message:
 
-  | Call | Looks like | For |
+  ```text
+  10:04:31 ==> config — dev
+  10:04:31   i installing 6 files
+  10:04:31   · env_assets/dev.json     -> env/dev.json
+  10:04:31   · env_assets/fastlane.env -> ios/fastlane/.env
+  10:04:32   ⚠ functions/.env reaches the backend only on the next deploy
+  10:04:32 ✔   dev config installed
+  ```
+
+  | Call | Mark | For |
   |---|---|---|
-  | `step` | cyan `==> title` | opening an action |
-  | `info` | plain, indented | ordinary output |
-  | `warn` | yellow `!` | something to know, not to stop for |
-  | `ok` | green `✓` | a check that passed |
-  | `bad` | red `✗` | a check that failed |
-  | `done_msg` | green `✓` | the whole script succeeded |
-  | `fail` | red `✗`, exits 1 | the whole script stopped |
+  | `step` | cyan `==>` | opening an action |
+  | `info` | blue `i` | ordinary output |
+  | `item` | dim `·` | one entry in a list under the line above |
+  | `warn` | yellow `⚠` | something to know, not to stop for |
+  | `ok` | green `✔` | a check that passed |
+  | `bad` | red `✘` | a check that failed |
+  | `ask` | magenta `?`, no newline | a question answered on the same line |
+  | `done_msg` | green `✔` | the whole script succeeded |
+  | `fail` | red `✘`, exits 1 | the whole script stopped |
 
   **The mark carries the colour; the message stays plain** (owner's rule). A
-  wall of coloured sentences is a wall — an eye scanning for the `✗` should
+  wall of coloured sentences is a wall — an eye scanning for the `✘` should
   find it, not read for it. `step` is the one exception: it has no mark, so
-  the title is the mark.
+  the title is the mark. The time is that rule upside down: it is on *every*
+  line, so it is dimmed to get out of the way rather than coloured to be found.
+
+  **Nesting is the mark's position in the gutter, never an indented message.**
+  Flush left is the script talking about itself — a step opening, the run
+  ending; hung right is one line inside the step above it. Indenting the
+  message instead would leave the marks in a ragged column, and the marks are
+  the column the eye scans.
+
+  **A list lines its second column up** — `pad "$text" "$WIDTH"` after a pass
+  that measures the widest entry, as `prepare-env.sh` does for its six copies.
+  Read down the arrow, not across each line.
+
+  **Nothing prints a bare `echo`.** A line without the helpers is a line
+  without a time, and it breaks the one column the rest of the run keeps. The
+  single place that cannot call them is the body of `git submodule foreach`,
+  which runs in a shell of its own: the colours are exported for it, and it
+  rebuilds the same three columns by hand.
 
   Messages are short and lower-case: one line says what happened, not why. The
   why belongs in a comment in the script, where the person fixing it is looking.
