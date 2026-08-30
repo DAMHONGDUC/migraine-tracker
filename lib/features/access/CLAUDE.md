@@ -1,8 +1,9 @@
 # Access — the owner's allow-list
 
 Two grants the owner hands out by address, from Firestore rather than from the
-build: **premium** (in the app, and as a target of the pressure-alert cron) and
-**devSettings** (the Dev group in Settings).
+build: **`premium`** (in the app, and as a target of the pressure-alert cron)
+and **`dev_settings`** (the Dev group in Settings). Field names are snake_case
+per `docs/rules/DATA_AND_SYNC.md`; the Dart entity that carries them is not.
 
 It replaced `PREMIUM_EMAIL` and `SHOW_DEV_SETTINGS`, two `--dart-define` keys
 that lived in `env/<flavor>.json` and `functions/.env`. **The reason is the
@@ -15,7 +16,7 @@ files that had to be edited together and could disagree.
 ```
 app_access/{email}          # document id IS the address, lower-cased
   premium: true             # premium in the app + a target of the cron
-  devSettings: true         # Settings shows its Dev group
+  dev_settings: true        # Settings shows its Dev group
 ```
 
 **The address is the document id so a client can be given its own row and no
@@ -31,6 +32,9 @@ the whole is a list of real people's email addresses.
 - **A flag is granted only by exactly `true`.** `"true"` typed into the console
   as a string is not a grant — see `premiumEmailsFrom` on the functions side,
   which is tested for it.
+- **Both names are constants, and both are pinned by a test.** A `devSettings`
+  typed by hand instead of `dev_settings` returns nothing at all: no error, no
+  log, just a grant that never applies.
 - **Written only from the Firebase console.** `allow write: if false`, for
   everyone. A client that could write its own row is precisely the client-side
   premium flag this project forbids.

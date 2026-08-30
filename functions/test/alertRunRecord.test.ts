@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { AlertRunResult } from "../src/core/alertRun";
 import {
+  alertRunDocument,
   alertRunId,
   alertRunRecord,
   FAILED_CELL_LIMIT,
@@ -72,5 +73,38 @@ describe("alertRunRecord", () => {
 
     expect(record.failedCells).toHaveLength(FAILED_CELL_LIMIT);
     expect(record.failedCellCount).toBe(120);
+  });
+});
+
+describe("alertRunDocument", () => {
+  it("writes snake_case fields, and only those", () => {
+    const doc = alertRunDocument(
+      alertRunRecord({ startedAt, finishedAt, result: result() }),
+    );
+
+    // Pinned: a camelCase key slipping back in is invisible until someone
+    // reads the collection in the console and finds two spellings of it.
+    expect(Object.keys(doc).sort()).toEqual([
+      "cells",
+      "duration_ms",
+      "error",
+      "failed_cell_count",
+      "failed_cells",
+      "finished_at",
+      "pushes_sent",
+      "started_at",
+      "status",
+      "users",
+    ]);
+  });
+
+  it("passes the dates through for the Admin SDK to store as Timestamps", () => {
+    const doc = alertRunDocument(
+      alertRunRecord({ startedAt, finishedAt, result: result() }),
+    );
+
+    expect(doc.started_at).toBe(startedAt);
+    expect(doc.finished_at).toBe(finishedAt);
+    expect(doc.pushes_sent).toBe(1);
   });
 });

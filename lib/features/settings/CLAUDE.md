@@ -94,7 +94,7 @@ past the whole app to reach the tools that build the state being tested.
 - **`showDevSettingsProvider` decides, not the flavour alone.** It is
   `!AppEnv.isProd || grants.devSettings`: a dev flavour shows the group with no
   grant at all — exactly what the screen did before any of this existed — and a
-  `devSettings: true` row in `app_access` is how a TestFlight tester reaches the
+  `dev_settings: true` row in `app_access` is how a TestFlight tester reaches the
   fixtures against real Firebase, which a dev flavour cannot give them. It was
   the `SHOW_DEV_SETTINGS` build flag, and moved to Firestore so that granting a
   tester the group no longer needs a new binary

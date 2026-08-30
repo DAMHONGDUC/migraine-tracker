@@ -64,3 +64,28 @@ export function alertRunRecord(input: {
     error: error === undefined ? null : String(error),
   };
 }
+
+/**
+ * The record as it is stored. Firestore fields are snake_case
+ * (`docs/rules/DATA_AND_SYNC.md`) while TypeScript stays camelCase, so the
+ * rename lives here rather than being spelled awkwardly through the code that
+ * builds and logs the record.
+ *
+ * Dates are passed through: the Admin SDK stores a JS `Date` as a `Timestamp`,
+ * which is what `weather_cache` already relies on, and importing
+ * firebase-admin here would drag it into a module that is pure by design.
+ */
+export function alertRunDocument(record: AlertRunRecord): Record<string, unknown> {
+  return {
+    started_at: record.startedAt,
+    finished_at: record.finishedAt,
+    duration_ms: record.durationMs,
+    status: record.status,
+    users: record.users,
+    cells: record.cells,
+    pushes_sent: record.pushesSent,
+    failed_cells: record.failedCells,
+    failed_cell_count: record.failedCellCount,
+    error: record.error,
+  };
+}

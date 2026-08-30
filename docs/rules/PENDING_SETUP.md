@@ -18,8 +18,9 @@ extra accounts. Shape and reasoning: `lib/features/access/CLAUDE.md`.
      `request.auth.token.email.lower()` against the id, so a capital letter in
      the id means the row can never be read by the person it is for.
    - Fields, both optional booleans, and both granted only by an actual
-     `true`: `premium` (premium in the app and an alert target),
-     `devSettings` (the Dev group in Settings).
+     `true`: **`premium`** (premium in the app and an alert target) and
+     **`dev_settings`** (the Dev group in Settings). snake_case, like every
+     Firestore field — `devSettings` is read as absent, silently.
 3. **The address must be one Google or Apple sign-in actually produces.** An
    anonymous session carries no address and matches nothing. For the cron, the
    account also has to have signed in at least once — it resolves the address

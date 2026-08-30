@@ -185,7 +185,7 @@ describe.skipIf(!available)("firestore.rules", () => {
     }
 
     it("lets a signed-in user read the row for their own address", async () => {
-      await grant("alice@baroease.app", { premium: true, devSettings: false });
+      await grant("alice@baroease.app", { premium: true, dev_settings: false });
       const db = env
         .authenticatedContext("alice", { email: "alice@baroease.app" })
         .firestore();
@@ -260,7 +260,7 @@ describe.skipIf(!available)("firestore.rules", () => {
         .firestore()
         .collection("pressure_alert_runs")
         .doc("2026-08-30T12:00:00.000Z")
-        .set({ status: "ok", pushesSent: 1 });
+        .set({ status: "ok", pushes_sent: 1 });
     });
     const db = env
       .authenticatedContext("alice", { email: "alice@baroease.app" })

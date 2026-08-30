@@ -22,6 +22,7 @@ import {
 import { AlertRunResult, runPressureAlerts } from "./core/alertRun";
 import {
   ALERT_RUN_COLLECTION,
+  alertRunDocument,
   alertRunId,
   alertRunRecord,
 } from "./core/alertRunRecord";
@@ -97,11 +98,7 @@ export const pressureAlertJob = onSchedule(
       await db
         .collection(ALERT_RUN_COLLECTION)
         .doc(alertRunId(now))
-        .set({
-          ...record,
-          startedAt: Timestamp.fromDate(record.startedAt),
-          finishedAt: Timestamp.fromDate(record.finishedAt),
-        });
+        .set(alertRunDocument(record));
     } catch (error) {
       logger.error("alert run history write failed", {
         runId: alertRunId(now),

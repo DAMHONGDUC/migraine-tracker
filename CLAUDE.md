@@ -51,7 +51,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | running, building, seeding, deploying | `docs/rules/COMMANDS.md` |
 | any Dart file | `docs/rules/CODE_STYLE.md` |
 | anything with a look — widgets, spacing, colour, text | `docs/rules/DESIGN_SYSTEM.md` |
-| Drift tables, schema versions, Firestore collections | `docs/rules/DATA_AND_SYNC.md` |
+| Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
 | WeatherKit, iOS build/SPM/CocoaPods | `docs/rules/TECH_STACK.md` |
