@@ -25,6 +25,17 @@ class FirebaseAuthRepository implements AuthRepository {
   /// Firebase's id for the Apple provider, on `UserInfo.providerId` and on `OAuthProvider`. One constant so the two cannot drift apart.
   static const String appleProviderId = 'apple.com';
 
+  /// Whether the Apple sheet answered for the identity linked to this account: [sheetUserIdentifier] is Apple's `sub` for whoever is signed in on the device, [linkedProviderUid] the same `sub` as Firebase stored it at link time.
+  ///
+  /// A null identifier is a no, not a maybe — the revoke it guards takes an app authorization away, and there is no safe way to do that to an identity nothing confirmed. See [revokeAppleTokenIfLinked].
+  static bool isSameAppleIdentity({
+    required String? sheetUserIdentifier,
+    required String? linkedProviderUid,
+  }) =>
+      sheetUserIdentifier != null &&
+      sheetUserIdentifier.isNotEmpty &&
+      sheetUserIdentifier == linkedProviderUid;
+
   final FirebaseAuth _auth;
   final GoogleSignIn _google;
   final FirebaseFunctions _functions;
@@ -130,11 +141,16 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> revokeAppleTokenIfLinked() async {
     final User? user = _auth.currentUser;
-    final bool linked =
-        user?.providerData.any(
+    final Iterable<UserInfo> appleProviders =
+        user?.providerData.where(
           (UserInfo info) => info.providerId == appleProviderId,
         ) ??
-        false;
+        const <UserInfo>[];
+    // Firebase stores Apple's `sub` as the provider uid, which is what the sheet returns as `userIdentifier` — the two are comparable, and that is the whole guard below.
+    final UserInfo? apple = appleProviders.isEmpty
+        ? null
+        : appleProviders.first;
+    final bool linked = apple != null;
 
     // Guarded on the platform as well as the provider.
     if (!linked || (!Platform.isIOS && !Platform.isMacOS)) {
@@ -161,6 +177,28 @@ class FirebaseAuthRepository implements AuthRepository {
       LogTagConstant.account,
       _sha256(_nonce()),
     );
+
+    // The sheet answers for whichever Apple ID is signed in on the DEVICE, not
+    // for the one linked to the account being deleted. Revoking that code
+    // unasked took the app authorization away from a bystander's Apple ID —
+    // deleting one account reaching into another. No match, no revoke: the
+    // account still goes, it just stops speaking for someone it is not.
+    if (!isSameAppleIdentity(
+      sheetUserIdentifier: credential.userIdentifier,
+      linkedProviderUid: apple.uid,
+    )) {
+      SdLogger.warning(
+        LogTagConstant.account,
+        'Revoke Apple token skipped: the sheet answered for another Apple ID',
+        // Presence and the verdict, never the ids: an Apple id is the account itself.
+        <String, Object?>{
+          'uid': user.uid,
+          'hasUserIdentifier': credential.userIdentifier != null,
+        },
+      );
+
+      return;
+    }
 
     try {
       await _auth.revokeTokenWithAuthorizationCode(
