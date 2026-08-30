@@ -51,6 +51,8 @@ final class AppBootstrap {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
+      // Immediately after initializeApp, ahead of Crashlytics, Analytics and messaging: each of those is an await that can throw, and the catch below would then swallow the purge along with it — leaving the reinstall signed in, which is the one thing this guard exists to prevent.
+      await FreshInstallGuard.run(prefs, store, FirebaseAuth.instance.signOut);
       await CrashReporter.init();
       // After init, so the first report SdLogger forwards has somewhere to go.
       SdCrashReporter.attach(const FirebaseCrashReporter());
@@ -64,8 +66,7 @@ final class AppBootstrap {
             badge: true,
             sound: true,
           );
-      // Before the session is ensured, never after: a reinstall has to be signed out before anything signs it back in.
-      await FreshInstallGuard.run(prefs, store, FirebaseAuth.instance.signOut);
+      // After the guard, never before: a reinstall has to be signed out before anything signs it back in.
       await _ensureAnonymousSession();
     } catch (err, stackTrace) {
       SdLogger.error(

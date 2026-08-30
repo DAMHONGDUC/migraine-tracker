@@ -57,11 +57,22 @@ final class FreshInstallGuard {
     SecureStore store,
     Future<void> Function() signOut,
   ) async {
+    // The session first, and in its own try: it is the half the user can see, and a Keychain wipe that fails must not be what stops it.
+    try {
+      await signOut();
+      SdLogger.info(LogTagConstant.storage, 'Reinstall: signed out');
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.storage,
+        'Reinstall: sign-out failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
     await store.deleteAll();
-    await signOut();
     SdLogger.info(
       LogTagConstant.storage,
-      'Reinstall detected: Keychain cleared and the session signed out',
+      'Reinstall: Keychain cleared and the session signed out',
     );
   }
 
