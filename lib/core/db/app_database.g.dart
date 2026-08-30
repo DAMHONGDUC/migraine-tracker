@@ -398,11 +398,7 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final DateTime startedAt;
   final int intensity;
 
-  /// Every head area the user tapped, JSON-encoded. Never empty — the
-  /// location step is the one step of the log flow that waits for a pick.
-  /// The default exists only so the v13 migration can add the column to
-  /// rows that still hold the old single `location`, which it then backfills
-  /// in the same step.
+  /// Every head area the user tapped, JSON-encoded.
   final List<HeadRegion> regions;
   final String? medicationName;
   final List<String> symptoms;
@@ -410,38 +406,25 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   final String? notes;
   final ExertionLevel? exertionLevel;
 
-  /// Whether the medication helped. Null is "never answered", which also
-  /// covers every attack where nothing was taken.
+  /// Whether the medication helped. Null is "never answered", which also covers every attack where nothing was taken.
   final MedicationEffect? medicationEffect;
 
   /// Aura kinds reported for this attack, JSON-encoded.
-  ///
-  /// NULL is "never asked"; an empty list is the user saying "no aura". The
-  /// two are kept apart because migraine with aura and without it are
-  /// different diagnoses, and a doctor reading the report has to be able to
-  /// tell a recorded "no" from a question nobody put.
   final List<AuraType>? aura;
 
-  /// When the attack stopped, UTC. Null is "still going, or never said" —
-  /// one state on purpose, since nothing here can tell those apart.
+  /// When the attack stopped, UTC. Null is "still going, or never said" — one state on purpose, since nothing here can tell those apart.
   final DateTime? endedAt;
 
-  /// Steps that day up to the log, from Apple Health. Nullable because the
-  /// source is optional in every sense: not iOS, not granted, or no samples.
+  /// Steps that day up to the log, from Apple Health. Nullable because the source is optional in every sense: not iOS, not granted, or no samples.
   final int? steps;
 
-  /// Wall clock of the last local mutation, used only to settle which of two
-  /// devices' versions wins. Null on rows that predate sync, which then fall
-  /// back to [startedAt] — the best "last modified" we actually have.
+  /// Wall clock of the last local mutation, used only to settle which of two devices' versions wins.
   final DateTime? updatedAt;
 
-  /// Bumped on every local mutation. Deliberately not a timestamp: drift
-  /// stores dates as whole seconds, so an edit in the same second as the
-  /// push that preceded it would look unchanged and never sync.
+  /// Bumped on every local mutation.
   final int revision;
 
-  /// The [revision] the server confirmed. Dirty is `syncedRevision !=
-  /// revision`, so a clock stepping backwards cannot hide an edit either.
+  /// The [revision] the server confirmed. Dirty is `syncedRevision != revision`, so a clock stepping backwards cannot hide an edit either.
   final int? syncedRevision;
   const AttackRow({
     required this.id,
@@ -1613,18 +1596,10 @@ class MedicationRow extends DataClass implements Insertable<MedicationRow> {
   final String id;
   final String name;
 
-  /// When the user saved this medication (UTC). Added in schema v3 to sort
-  /// and filter the medications tab.
-  ///
-  /// Nullable on purpose: rows that predate v3 have no recorded creation
-  /// date and stamping them with the migration's timestamp would invent one
-  /// — "added this week" would then list medications saved years ago. Null
-  /// means "unknown", sorts last, and matches only the "all" filter.
+  /// When the user saved this medication (UTC).
   final DateTime? createdAt;
 
-  /// Sync state, added in v7. Same three columns and same reasoning as
-  /// `Attacks`: a revision decides what is dirty because drift stores dates
-  /// to the second, and [updatedAt] only settles which device's version wins.
+  /// Sync state, added in v7.
   final DateTime? updatedAt;
   final int revision;
   final int? syncedRevision;
@@ -2107,21 +2082,10 @@ class MedicationReminderRow extends DataClass
   final int minuteOfDay;
   final bool enabled;
 
-  /// When this reminder was created (UTC). Added in schema v8, and it syncs:
-  /// the notification list materialises past occurrences over a window, and
-  /// without a lower bound it would invent months of "you were reminded" for
-  /// a reminder created yesterday. Every device has to agree where that
-  /// history starts, which is why it travels in the payload.
-  ///
-  /// Nullable for the same reason `Medications.createdAt` is: rows that
-  /// predate v8 have no recorded creation date, and stamping them with the
-  /// migration's timestamp would invent the very bound this exists to give.
-  /// Null means "unknown" and the window alone bounds them.
+  /// When this reminder was created (UTC).
   final DateTime? createdAt;
 
-  /// Sync state, added in v7. Note what syncs and what does not: the row
-  /// travels, the scheduled OS notification does not — it is local to each
-  /// device and gets re-scheduled after a pull.
+  /// Sync state, added in v7.
   final DateTime? updatedAt;
   final int revision;
   final int? syncedRevision;
@@ -2690,20 +2654,15 @@ class AppNotificationRow extends DataClass
   /// When it fired (UTC).
   final DateTime occurredAt;
 
-  /// Null while unread. Syncs like everything else, so reading on one device
-  /// clears the badge on the others.
+  /// Null while unread. Syncs like everything else, so reading on one device clears the badge on the others.
   final DateTime? readAt;
 
-  /// No `references` on purpose, unlike `MedicationReminders.medicationId`:
-  /// deleting a medication cascades its reminders away, and the history of
-  /// having been reminded must survive that.
+  /// No `references` on purpose, unlike `MedicationReminders.medicationId`.
   final String? medicationId;
   final String? reminderId;
   final double? pressureDropHpa;
 
-  /// Sync state, same three columns and same reasoning as every other synced
-  /// table: a revision decides what is dirty, [updatedAt] only settles which
-  /// device's version wins.
+  /// Sync state, same three columns and same reasoning as every other synced table.
   final DateTime? updatedAt;
   final int revision;
   final int? syncedRevision;
@@ -3254,8 +3213,7 @@ class ExportRecordRow extends DataClass implements Insertable<ExportRecordRow> {
   final String kind;
   final String filename;
 
-  /// Absolute path in the app's documents directory. Stored rather than
-  /// rebuilt so a rename of the naming scheme can't orphan old rows.
+  /// Absolute path in the app's documents directory. Stored rather than rebuilt so a rename of the naming scheme can't orphan old rows.
   final String filePath;
   final int sizeBytes;
   final DateTime createdAt;
@@ -3592,8 +3550,7 @@ class SyncTombstoneRow extends DataClass
   final String collection;
   final String id;
 
-  /// Doubles as the row's `updatedAt` when a deletion races an edit made on
-  /// another device — latest wins either way.
+  /// Doubles as the row's `updatedAt` when a deletion races an edit made on another device — latest wins either way.
   final DateTime deletedAt;
   const SyncTombstoneRow({
     required this.collection,
@@ -3895,9 +3852,7 @@ class $DailyWeatherTable extends DailyWeather
 }
 
 class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
-  /// Local midnight of the day this reading belongs to — the identity of a
-  /// day as the user lived it, not a UTC one, since "the day I had an attack"
-  /// is a local idea.
+  /// Local midnight of the day this reading belongs to.
   final DateTime day;
   final DateTime capturedAt;
   final double pressureHpa;
