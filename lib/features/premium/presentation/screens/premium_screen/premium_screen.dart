@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/log_tag_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/navigation_utils.dart';
+import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
@@ -11,6 +15,7 @@ import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 
+part 'premium_screen_manage_button.dart';
 part 'premium_screen_status_card.dart';
 
 /// What the subscription is right now, and what it includes.
@@ -63,13 +68,14 @@ class PremiumScreen extends ConsumerWidget {
           ],
         ),
         actions: <Widget>[
-          if (premium)
-            // Cancelling and refunds are the store's, not ours — say so instead of a dead button.
+          if (premium) ...<Widget>[
+            const _ManageButton(),
+            // The note stays under the button: cancelling and refunds happen on the store's page, not here, and the button only opens it.
             Text(
               l10n.premiumScreenManageNote,
               style: AppTextStyle.bodySmall.secondary,
-            )
-          else
+            ),
+          ] else
             SdButtonV2(
               variant: SdButtonVariantV2.primary,
               onPressed: () => NavigationUtils.toPaywall(context, ref),

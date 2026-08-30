@@ -35,6 +35,12 @@ final purchaseRepositoryProvider = Provider<PurchaseRepository>(
   (ref) => RevenueCatPurchaseRepository(ref.watch(revenueCatClientProvider)),
 );
 
+/// The store page where the subscription is cancelled or changed, or null when the store has nothing to point at. Read only by the manage button, which is why nothing keeps it alive for a free user.
+final managementUrlProvider = FutureProvider<String?>(
+  // `read`, not `watch`: the purchase repository is a constant, and watching it is what the gate rule warns against.
+  (ref) => ref.read(purchaseRepositoryProvider).managementUrl(),
+);
+
 /// The single source of truth for gating. Defaults to NOT premium while loading, so a free user never briefly sees a premium surface.
 final isPremiumProvider = StreamProvider<bool>(
   (ref) => ref.watch(premiumRepositoryProvider).watchIsPremium(),

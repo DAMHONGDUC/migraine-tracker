@@ -411,6 +411,9 @@ class FakePurchaseRepository implements PurchaseRepository {
   /// Whether [restore] finds anything.
   bool hasPastPurchase = false;
 
+  /// The store page [managementUrl] hands back. Null is the store having nothing to manage, which hides the manage button.
+  String? management = 'https://apps.apple.com/account/subscriptions';
+
   final List<String> purchased = <String>[];
 
   /// UIDs passed to [identify]; null entries are [forget] calls.
@@ -449,6 +452,15 @@ class FakePurchaseRepository implements PurchaseRepository {
     _premium.setPremium(true);
 
     return true;
+  }
+
+  @override
+  Future<String?> managementUrl() async {
+    final Exception? failure = failWith;
+
+    if (failure != null) throw failure;
+
+    return management;
   }
 
   @override

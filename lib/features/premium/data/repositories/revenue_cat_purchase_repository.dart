@@ -90,6 +90,16 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
   }
 
   @override
+  Future<String?> managementUrl() async {
+    return _guard(() async {
+      await _client.ensureConfigured();
+
+      // Apple's own page, minted per customer by RevenueCat. Null until the account has a store subscription to point at.
+      return (await Purchases.getCustomerInfo()).managementURL;
+    });
+  }
+
+  @override
   Future<void> identify(String uid) async {
     await _guard(() async {
       await _client.ensureConfigured();

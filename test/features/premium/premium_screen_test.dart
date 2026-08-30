@@ -29,6 +29,27 @@ void main() {
 
     expect(find.text('Premium is active'), findsWidgets);
     expect(find.text('Unlock'), findsNothing);
+    expect(find.text('Manage subscription'), findsOneWidget);
+    expect(
+      find.textContaining('Manage or cancel your subscription'),
+      findsOneWidget,
+    );
+    await finishTest(tester);
+  });
+
+  testWidgets('nothing for the store to manage hides the button, not the note', (
+    tester,
+  ) async {
+    // A build premium by PREMIUM_EMAIL has no purchase behind it, so the store hands back no page — and a button onto nothing reads as broken.
+    final PumpedApp app = await pumpApp(tester, premium: true);
+
+    app.purchases.management = null;
+
+    await openSettings(tester);
+    await tapVisible(tester, find.byType(PremiumSettingsTile));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Manage subscription'), findsNothing);
     expect(
       find.textContaining('Manage or cancel your subscription'),
       findsOneWidget,

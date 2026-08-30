@@ -2726,17 +2726,21 @@
   "@historyFirstSyncLoading": {
     "description": "Shown on the history list during the first pull after signing in, so an empty list does not read as 'you have no attacks'"
   },
-  "settingsPremium": "Premium",
+  "settingsPremium": "Subscriptions",
   "@settingsPremium": {
-    "description": "Settings row that opens the subscription detail screen, shown only while signed in"
+    "description": "Settings row that opens the subscription detail screen"
   },
-  "premiumScreenTitle": "Premium",
+  "premiumScreenTitle": "Subscriptions",
   "@premiumScreenTitle": {
     "description": "App bar title of the subscription detail screen"
   },
   "premiumScreenIncluded": "What premium includes",
   "@premiumScreenIncluded": {
     "description": "Heading above the list of premium features on the subscription screen"
+  },
+  "premiumScreenManage": "Manage subscription",
+  "@premiumScreenManage": {
+    "description": "Button on the subscription screen that opens the store's own subscription page"
   },
   "premiumScreenManageNote": "Manage or cancel your subscription in the App Store or Google Play, under your account's subscriptions.",
   "@premiumScreenManageNote": {
