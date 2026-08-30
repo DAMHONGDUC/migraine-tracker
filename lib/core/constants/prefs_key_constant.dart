@@ -1,4 +1,4 @@
-/// Every `shared_preferences` key the app writes, in one place.
+/// Every `SecureStore` key the app writes, in one place. The one `shared_preferences` key left is `FreshInstallGuard.installMarkerKey`, which lives there precisely because iOS deletes it with the app.
 final class PrefsKeyConstant {
   /// Onboarding has been completed — the router's redirect reads this.
   static const String onboardingCompleted = 'onboarding_completed';

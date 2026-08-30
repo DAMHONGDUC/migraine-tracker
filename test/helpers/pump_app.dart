@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,9 +10,9 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
-import 'package:migraine_tracker/core/l10n/locale_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
@@ -53,7 +54,6 @@ import 'package:migraine_tracker/features/weather/domain/entities/weather_report
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:migraine_tracker/features/weather/domain/repositories/weather_repository.dart';
 import 'package:migraine_tracker/features/weather/providers.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/index.dart';
 
 import 'alert_fakes.dart';
@@ -580,7 +580,7 @@ class PumpedApp {
   });
 
   final AppDatabase db;
-  final SharedPreferences prefs;
+  final SecureStore prefs;
   final FakeWeatherRepository weather;
   final FakeNotificationScheduler scheduler;
   final FakeAppPermissionGateway permissions;
@@ -665,11 +665,14 @@ Future<PumpedApp> pumpApp(
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
   // Onboarding is considered done by default so existing tests land on the dashboard; pass onboarding_completed: false to exercise onboarding.
-  SharedPreferences.setMockInitialValues({
-    PrefsKeyConstant.onboardingCompleted: true,
-    ...initialPrefs,
+  // The Keychain mock takes strings only, so a seed value is encoded the way SecureStore writes it.
+  FlutterSecureStorage.setMockInitialValues(<String, String>{
+    PrefsKeyConstant.onboardingCompleted: 'true',
+    ...initialPrefs.map(
+      (String key, Object value) => MapEntry<String, String>(key, '$value'),
+    ),
   });
-  final prefs = await SharedPreferences.getInstance();
+  final SecureStore prefs = await SecureStore.open();
   final weather = FakeWeatherRepository(snapshot: weatherSnapshot);
   final scheduler = FakeNotificationScheduler();
   addTearDown(scheduler.dispose);
@@ -704,7 +707,7 @@ Future<PumpedApp> pumpApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
-        sharedPreferencesProvider.overrideWithValue(prefs),
+        secureStoreProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),

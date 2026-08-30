@@ -4,7 +4,7 @@ import 'package:system_design/common.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
-import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
@@ -12,7 +12,7 @@ import '../../providers.dart';
 class AlertsController extends AsyncNotifier<AlertsSettings> {
   @override
   AlertsSettings build() {
-    final prefs = ref.watch(sharedPreferencesProvider);
+    final prefs = ref.watch(secureStoreProvider);
     return AlertsSettings(
       enabled: prefs.getBool(PrefsKeyConstant.alertsEnabled) ?? false,
       thresholdHpa: prefs.getDouble(PrefsKeyConstant.alertThreshold) ?? 5,
@@ -33,7 +33,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
         await repo.unregister();
       }
       await ref
-          .read(sharedPreferencesProvider)
+          .read(secureStoreProvider)
           .setBool(PrefsKeyConstant.alertsEnabled, enabled);
       return current.copyWith(enabled: enabled);
     });
@@ -58,7 +58,7 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     AppAnalytics.logAlertThresholdSet(thresholdHpa);
     try {
       await ref
-          .read(sharedPreferencesProvider)
+          .read(secureStoreProvider)
           .setDouble(PrefsKeyConstant.alertThreshold, thresholdHpa);
       if (current.enabled) {
         await ref

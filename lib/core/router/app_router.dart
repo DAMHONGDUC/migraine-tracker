@@ -28,7 +28,7 @@ import '../../features/settings/presentation/screens/settings_screen/settings_sc
 import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/prefs_key_constant.dart';
-import '../l10n/locale_provider.dart';
+import '../storage/secure_store.dart';
 import '../widgets/weather/weather_card.dart';
 import 'app_shell.dart';
 
@@ -133,7 +133,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final done =
           ref
-              .read(sharedPreferencesProvider)
+              .read(secureStoreProvider)
               .getBool(PrefsKeyConstant.onboardingCompleted) ??
           false;
       final onOnboarding = state.matchedLocation == AppRoutes.onboarding.path;

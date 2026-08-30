@@ -144,9 +144,52 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 | Area | Rule |
 |---|---|
 | Storage | Drift on-device is the source of truth |
+| Settings | Keychain via `SecureStore`; deleting the app and reinstalling starts clean |
 | Attack log | Fully usable offline; weather is best-effort |
 | Account | Optional; Google/Apple upgrades the anonymous UID |
 | Sync | AES-GCM encrypted, server-assisted, not end-to-end encrypted |
 | Weather | WeatherKit is called only by Cloud Functions |
 | Premium | RevenueCat entitlement is the only access source |
 | Theme | Dark mode is the default; no pure-white or flashing UI |
+
+## Premium identity
+
+Premium is an entitlement RevenueCat holds against the current **App User ID**.
+The app stores no premium flag of its own, on device or in Firestore.
+
+```mermaid
+flowchart LR
+  A["Apple<br/>receipt"] --> B["RevenueCat server<br/>validates, sets expiry,<br/>binds to App User ID"]
+  B --> C["CustomerInfo<br/>entitlements.active"]
+  C --> D["RevenueCatPremiumRepository<br/>(listener + first read)"]
+  D --> E["isPremiumProvider"]
+  E --> F["hasPremiumProvider<br/>→ every gate"]
+```
+
+| Session | App User ID | Set by |
+|---|---|---|
+| Anonymous | `$RCAnonymousID:…`, kept inside the install | The SDK, on first launch |
+| Signed in | The Firebase UID | `Purchases.logIn(uid)`, from the auth listener |
+| Signed out again | A new, empty anonymous ID | `Purchases.logOut()` |
+
+| Situation | What the user gets |
+|---|---|
+| Buys while anonymous | Premium on that install only |
+| Signs in after buying anonymously | The purchase transfers onto the account |
+| Signed-in purchase, second device | Sign in — premium appears, no Restore tap |
+| Anonymous purchase, second device | Restore only, and only on the same Apple ID |
+| Signs out | Premium goes away on that device until sign-in or Restore |
+| Signs out, signs in as another account | The other account gets nothing; premium stays on the first |
+| Reinstalls while anonymous | The anonymous ID is gone; Restore is the only way back |
+
+Restoring a receipt that another App User ID already owns is decided by
+RevenueCat's project-level **Restore Behavior** setting, not by this app:
+*Transfer to new App User ID* moves premium and strips it from the first
+account, *Keep with original* fails as `PurchaseError.alreadyOwned`.
+
+Two things sit outside the chain: `PREMIUM_EMAIL` in `env/<flavor>.json` is
+premium ahead of any entitlement (the App Review account), and no account is
+ever required to buy, restore or use premium (App Store 5.1.1(v)).
+
+Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
+behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).

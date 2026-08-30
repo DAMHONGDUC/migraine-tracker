@@ -89,13 +89,21 @@ not the offer. Premium is also sold by the Settings row, every `PremiumGate`,
 
 **It is FIRST on the screen, above General** (owner's rule): it is the group a
 developer opens Settings for, and below every real section it meant scrolling
-past the whole app to reach the tools that build the state being tested. Only
-where `!AppEnv.isProd`, so a release build still opens on General.
+past the whole app to reach the tools that build the state being tested.
 
-- **`first: true` follows whichever heading is actually first**: Dev takes it off
-  prod, General is `first: AppEnv.isProd`. The flag is the screen's own top gap,
-  so two headings claiming it would double the gap and neither claiming it would
-  lose it.
+- **`AppEnv.showDevSettings` decides, not the flavour.** `SHOW_DEV_SETTINGS`
+  unset means the flavour decides — `!isProd`, exactly what the screen did
+  before the key existed — and setting it `true` on a prod build is how a
+  TestFlight tester reaches the fixtures against real Firebase, which a dev
+  flavour cannot give them.
+  - **Two rows stay on `!AppEnv.isProd` regardless**: `_DevPremiumTile` and
+    `_DevLocationTile`. `hasPremiumProvider` ignores `DevPremiumOverride` in
+    prod and `DevLocationController` returns `off` there, so under the flag they
+    would be controls that visibly do nothing — worse than absent.
+- **`first: true` follows whichever heading is actually first**: Dev takes it
+  whenever it is shown, General is `first: !AppEnv.showDevSettings`. The flag is
+  the screen's own top gap, so two headings claiming it would double the gap and
+  neither claiming it would lose it.
 - **`_DevLocalNotificationTile` is the local half of the delivery path and needs
   no account.** It sits beside `_DevPushTile` but outside that pair's
   `isSignedInProvider` gate — a local notification is scheduled by the OS on the

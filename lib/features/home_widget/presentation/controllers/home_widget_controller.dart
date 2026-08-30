@@ -1,12 +1,12 @@
 import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../../../core/utils/locale_utils.dart';
 import '../../../../core/utils/signed_number_utils.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -25,13 +25,13 @@ class HomeWidgetController extends Notifier<bool> {
   /// On by default.
   bool build() =>
       ref
-          .watch(sharedPreferencesProvider)
+          .watch(secureStoreProvider)
           .getBool(PrefsKeyConstant.homeWidgetEnabled) ??
       true;
 
   /// The Settings switch.
   Future<void> setEnabled(bool enabled) async {
-    final SharedPreferences prefs = ref.read(sharedPreferencesProvider);
+    final SecureStore prefs = ref.read(secureStoreProvider);
     final HomeWidgetRepository widget = ref.read(homeWidgetRepositoryProvider);
 
     try {

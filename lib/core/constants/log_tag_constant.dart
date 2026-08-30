@@ -6,6 +6,9 @@ final class LogTagConstant {
   /// `AppBootstrap` and the global error handlers it installs.
   static const String bootstrap = 'Bootstrap';
 
+  /// `SecureStore` and the first-launch guard over it — the Keychain, not a user flow.
+  static const String storage = 'Storage';
+
   /// `AppAnalytics` reporting on itself — an event sent, or one that threw.
   static const String analytics = 'Analytics';
 

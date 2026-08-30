@@ -1,11 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/env/app_env.dart';
-import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../domain/enums/dev_location.dart';
 
 /// Holds the dev-only faked position, and is the only thing that writes it.
@@ -16,13 +15,13 @@ class DevLocationController extends Notifier<DevLocation> {
 
     return DevLocation.fromName(
       ref
-          .watch(sharedPreferencesProvider)
+          .watch(secureStoreProvider)
           .getString(PrefsKeyConstant.devFakeLocation),
     );
   }
 
   Future<void> set(DevLocation location) async {
-    final SharedPreferences prefs = ref.read(sharedPreferencesProvider);
+    final SecureStore prefs = ref.read(secureStoreProvider);
 
     SdLogger.action(
       LogTagConstant.devLocation,

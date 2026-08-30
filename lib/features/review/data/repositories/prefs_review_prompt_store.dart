@@ -1,21 +1,21 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../domain/entities/review_prompt_state.dart';
 import '../../domain/repositories/review_prompt_store.dart';
 
-/// Prefs, not the database: losing this costs at most one extra prompt, so it has no business in a table the sync engine has to carry.
+/// `SecureStore`, not the database: losing this costs at most one extra prompt, so it has no business in a table the sync engine has to carry.
 class PrefsReviewPromptStore implements ReviewPromptStore {
-  const PrefsReviewPromptStore(this._prefs);
+  const PrefsReviewPromptStore(this._store);
 
-  final SharedPreferences _prefs;
+  final SecureStore _store;
 
   @override
   Future<ReviewPromptState> read() async {
-    final int count = _prefs.getInt(PrefsKeyConstant.reviewPromptCount) ?? 0;
-    final String? raw = _prefs.getString(
+    final int count = _store.getInt(PrefsKeyConstant.reviewPromptCount) ?? 0;
+    final String? raw = _store.getString(
       PrefsKeyConstant.reviewPromptLastAskedAt,
     );
 
@@ -28,10 +28,10 @@ class PrefsReviewPromptStore implements ReviewPromptStore {
   @override
   Future<void> recordAsked(DateTime at) async {
     final int next =
-        (_prefs.getInt(PrefsKeyConstant.reviewPromptCount) ?? 0) + 1;
+        (_store.getInt(PrefsKeyConstant.reviewPromptCount) ?? 0) + 1;
 
-    await _prefs.setInt(PrefsKeyConstant.reviewPromptCount, next);
-    await _prefs.setString(
+    await _store.setInt(PrefsKeyConstant.reviewPromptCount, next);
+    await _store.setString(
       PrefsKeyConstant.reviewPromptLastAskedAt,
       at.toUtc().toIso8601String(),
     );

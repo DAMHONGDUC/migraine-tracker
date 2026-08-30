@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -12,17 +13,23 @@ import '../../firebase_options.dart';
 import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
 import '../logging/crash_reporter.dart';
+import '../storage/fresh_install_guard.dart';
+import '../storage/secure_store.dart';
 
 /// One-time app initialization run before `runApp`.
 final class AppBootstrap {
   const AppBootstrap._();
 
-  /// Each step is guarded on its own, and deliberately NOT wrapped as a whole.
-  static Future<void> init() async {
+  /// Each step is guarded on its own, and deliberately NOT wrapped as a whole. Hands back the store `main` overrides the provider with.
+  static Future<SecureStore> init() async {
     _installErrorLogging();
 
+    // Both before Firebase: the first-launch guard runs inside it, and it needs the marker and the store already open.
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SecureStore store = await SecureStore.open();
+
     // - Firebase first so Crashlytics is up before anything else can fail. - It used to run last, which left a timezone failure reported nowhere.
-    await _initFirebase();
+    await _initFirebase(prefs, store);
     await _initTimezone();
 
     // One assert walking every required AppEnv value, so a missing --dart-define-from-file reports every gap at once.
@@ -31,9 +38,14 @@ final class AppBootstrap {
       'Missing required config: ${AppEnv.missingConfigKeys.join(', ')}. '
       'Run with --dart-define-from-file=env/dev.json (or env/prod.json).',
     );
+
+    return store;
   }
 
-  static Future<void> _initFirebase() async {
+  static Future<void> _initFirebase(
+    SharedPreferences prefs,
+    SecureStore store,
+  ) async {
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -52,6 +64,8 @@ final class AppBootstrap {
             badge: true,
             sound: true,
           );
+      // Before the session is ensured, never after: a reinstall has to be signed out before anything signs it back in.
+      await FreshInstallGuard.run(prefs, store, FirebaseAuth.instance.signOut);
       await _ensureAnonymousSession();
     } catch (err, stackTrace) {
       SdLogger.error(

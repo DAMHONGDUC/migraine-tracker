@@ -72,23 +72,25 @@ class SettingsScreen extends ConsumerWidget {
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
               // Keep non-production fixture tools at the top for quick access.
-            if (!AppEnv.isProd) ...[
+            if (AppEnv.showDevSettings) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
               // Forced premium needs no account, exactly like the real thing (App Store 5.1.1(v) — see `hasPremiumProvider`).
-              const _DevPremiumTile(),
+              // On the flavour, not on the flag: `hasPremiumProvider` ignores the override in prod, so a prod build carrying SHOW_DEV_SETTINGS would draw a switch that does nothing.
+              if (!AppEnv.isProd) const _DevPremiumTile(),
               // The push fixture still does: sendTestPush refuses an anonymous session, so the row would only ever fail.
               if (ref.watch(isSignedInProvider)) const _DevPushTile(),
               // Beside the push row but outside the account gate.
               const _DevLocalNotificationTile(),
-                  // Location comes first because Simulator weather depends on it.
-              const _DevLocationTile(),
+              // Location comes first because Simulator weather depends on it.
+              // Same reason as the premium row: `DevLocationController` returns `off` in prod.
+              if (!AppEnv.isProd) const _DevLocationTile(),
               const _DevSeedTile(),
               const _DevResetTile(),
             ],
             // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.
             SdSectionHeaderV2(
               l10n.settingsSectionGeneral,
-              first: AppEnv.isProd,
+              first: !AppEnv.showDevSettings,
             ),
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),

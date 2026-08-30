@@ -187,7 +187,7 @@ line in with what was sent, a line out with what came back.
     the widget *is*, not configuration about it. Spacing stays on
     `SdContentPaddingV2`, itself the constants class for that job.
   - `core/constants/` now holds `PremiumLimitConstant`, `PrefsKeyConstant` (every
-    shared_preferences key, so a collision is visible rather than silent),
+    `SecureStore` key, so a collision is visible rather than silent),
     `SyncConstant`, `ExportConstant` and `LogFlowConstant`. No entity, controller
     or widget in `lib/` carries a configuration constant any more.
   - **Two things were deliberately left.** A canonical empty instance

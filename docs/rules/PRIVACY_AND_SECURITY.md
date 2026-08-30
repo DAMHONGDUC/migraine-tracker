@@ -27,8 +27,11 @@ Every feature except sync and alerts must work without an account.
   anything. **Anonymous must be enabled in the Firebase console** — without it
   the call throws `admin-restricted-operation`, the guard swallows it, and
   weather is silently dead on every fresh install.
-- **An account is required to buy premium** (`PurchaseIdentity` binds only when
-  `isSignedIn`), **and premium is required for alerts.** Registration refuses a
+- **An account is NOT required to buy premium** (App Store 5.1.1(v), and
+  `docs/PREMIUM_RULES.md`): the purchase sits on RevenueCat's anonymous id, and
+  `PurchaseIdentity` moves it onto the account at the first sign-in — binding
+  only when `isSignedIn`, because an anonymous uid has nothing durable to carry
+  it. **Premium is required for alerts**, though. Registration refuses a
   signed-out or anonymous device (`AlertRegistrationError.accountRequired`)
   rather than writing a token the cron can never read, and a free user is never
   shown the switch at all.
@@ -42,6 +45,44 @@ as encrypted payloads in the top-level `attacks` / `medications` /
 disclosed in the sign-in UI. **Any other path that uploads health data: stop
 and flag it** — including `AppAnalytics`, whose events carry usage only, never
 intensity, head location, medication names, attack timestamps or coordinates.
+
+## Local storage: the Keychain, and a reinstall starts clean
+
+**Every local key-value the app keeps goes through `SecureStore`
+(`core/storage/`), which is `flutter_secure_storage`** (owner's rule). Locale,
+onboarding state, the alert threshold, the health toggles, sync cursors, the
+review counters: all of it is health-adjacent, and none of it belongs in a plist
+any file-level backup reads. Reads are synchronous off one snapshot taken at
+startup, because controllers read them inside `build`; writes go to the Keychain
+first and update the snapshot after.
+
+| Where | What | Why there |
+|---|---|---|
+| Keychain (`SecureStore`) | Every setting and cursor | Encrypted at rest, `first_unlock_this_device` so it is readable in the background and never restored onto a second device |
+| `shared_preferences` | `FreshInstallGuard.installMarkerKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
+| Drift | The records themselves | The source of truth, and far too big for a Keychain item |
+
+**Deleting the app and installing it again must look like a first install**
+(owner's rule). iOS keeps the Keychain across a delete, so the Firebase session
+came back and the user was still signed in on what they thought was a clean
+install. `FreshInstallGuard.run` closes that, from inside
+`AppBootstrap._initFirebase`:
+
+- **The marker is absent and `shared_preferences` is empty → a reinstall.** The
+  Keychain is cleared and the session signed out, before
+  `_ensureAnonymousSession` can sign anyone back in.
+- **The marker is absent but old keys are there → an update, not a reinstall.**
+  Those values are carried into the Keychain and then dropped, so one owner
+  keeps each. Wiping here would have signed out every existing user on the
+  update that shipped this.
+- **The marker is written last**, so a crash mid-way is retried on the next
+  launch rather than skipped, and the adopt step is idempotent for that reason.
+- **It never throws**: a cleanup that fails must not take the launch with it.
+  Every branch logs what it decided under `LogTagConstant.storage`.
+- **RevenueCat needs nothing here** — its anonymous id lives in
+  `NSUserDefaults`, which iOS already deletes with the app. A premium user who
+  reinstalls signed-in gets the entitlement back automatically; one who bought
+  anonymously has to tap Restore. See the README's premium identity table.
 
 ## 2. Location: While-Using and reduced accuracy only
 
@@ -94,6 +135,22 @@ Firestore doc, synced records, FCM token revoke, then Firebase Auth. App Store
   everyone.
 - **The auth user goes last.** Delete it first and every remaining step is
   unauthorised, leaving records nobody can reach.
+- **Deleting one account never reaches into another** (owner's rule). Deleting
+  the Google account deletes Google; deleting the Apple account deletes Apple.
+  The Apple revoke is where this went wrong: `revokeAppleTokenIfLinked` has to
+  re-open the Apple sheet for a fresh authorization code, and that sheet answers
+  for whichever Apple ID is signed in **on the device** — not for the one linked
+  to the account being deleted. Handing that code to
+  `revokeTokenWithAuthorizationCode` took the app authorization away from a
+  bystander's Apple ID.
+  - `FirebaseAuthRepository.isSameAppleIdentity` compares the sheet's
+    `userIdentifier` against the `apple.com` entry in `providerData` — both are
+    Apple's `sub`, so they match when it is the same person. **No match, no
+    revoke**: the account still goes, it just stops speaking for an identity
+    that never asked it to. A missing identifier on either side is a no, not a
+    maybe.
+  - A Google-only account never reaches the sheet at all — the provider guard
+    above it returns first.
 - The dialog says the subscription is **not** cancelled — a user who assumes
   otherwise keeps being charged.
 - **Exports are health data on disk.** Each export is written to the app's
