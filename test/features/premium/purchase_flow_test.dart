@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -244,6 +246,30 @@ void main() {
     await tapVisible(tester, find.text('Restore purchases'));
     await tester.pump(const Duration(milliseconds: 400));
 
+    expect(app.premiumRepository.isPremium, isTrue);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('tapping restore twice runs one restore, not two', (tester) async {
+    // A store call takes seconds with nothing on screen to show for it, so an impatient second tap is the normal case. Two restores landing together popped twice, and the second pop took the screen under the paywall with it.
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
+
+    app.purchases.hasPastPurchase = true;
+    app.purchases.restoreGate = Completer<void>();
+    await openPaywall(tester, app);
+
+    await tapVisible(tester, find.text('Restore purchases'));
+    await tester.pump();
+    await tapVisible(tester, find.text('Restore purchases'));
+    await tester.pump();
+
+    expect(app.purchases.restoreCalls, 1);
+
+    app.purchases.restoreGate!.complete();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(app.purchases.restoreCalls, 1);
     expect(app.premiumRepository.isPremium, isTrue);
 
     await finishTest(tester);

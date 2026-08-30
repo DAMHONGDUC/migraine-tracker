@@ -49,7 +49,12 @@ class PaywallScreen extends HookConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     PremiumOffer offer,
+    ValueNotifier<bool> busy,
   ) async {
+    if (busy.value) return;
+
+    busy.value = true;
+
     final AppLocalizations l10n = context.l10n;
 
     try {
@@ -73,10 +78,22 @@ class PaywallScreen extends HookConsumerWidget {
           placement: _placement,
         );
       }
+    } finally {
+      // The hook is gone once the sheet pops, and writing to it then throws.
+      if (context.mounted) busy.value = false;
     }
   }
 
-  Future<void> _restore(BuildContext context, WidgetRef ref) async {
+  /// A store call takes seconds with nothing on screen to show for it, so the guard is not a nicety: a second tap ran a second restore, and both popped when they landed — the second one taking the screen under the paywall with it.
+  Future<void> _restore(
+    BuildContext context,
+    WidgetRef ref,
+    ValueNotifier<bool> busy,
+  ) async {
+    if (busy.value) return;
+
+    busy.value = true;
+
     final AppLocalizations l10n = context.l10n;
 
     try {
@@ -108,6 +125,8 @@ class PaywallScreen extends HookConsumerWidget {
           placement: _placement,
         );
       }
+    } finally {
+      if (context.mounted) busy.value = false;
     }
   }
 
@@ -123,6 +142,8 @@ class PaywallScreen extends HookConsumerWidget {
       _ => const <PremiumOffer>[],
     };
     final ValueNotifier<String?> selectedId = useState<String?>(null);
+    // One flag for both store flows: while either is in flight neither control accepts a tap.
+    final ValueNotifier<bool> busy = useState<bool>(false);
     final PremiumOffer? selected = offers
         .where((PremiumOffer o) => o.id == selectedId.value)
         .firstOrNull;
@@ -224,12 +245,12 @@ class PaywallScreen extends HookConsumerWidget {
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
                       // Null while offerings load or when the store has nothing to sell — never a CTA that can only fail.
-                      onPressed: active != null
+                      onPressed: active != null && !busy.value
                           ? () {
                               AppAnalytics.logPaywallCtaTapped(
                                 signedIn: signedIn,
                               );
-                              unawaited(_buy(context, ref, active));
+                              unawaited(_buy(context, ref, active, busy));
                             }
                           : null,
                       label: l10n.premiumUnlock,
@@ -238,7 +259,10 @@ class PaywallScreen extends HookConsumerWidget {
                     // App Store 3.1.1 requires a restore path — a reinstall or a second device.
                     SdTextActionV2(
                       label: l10n.paywallRestore,
-                      onTap: () => unawaited(_restore(context, ref)),
+                      // Null while a store call runs: the control greys out, which is the only thing on screen saying the tap landed.
+                      onTap: busy.value
+                          ? null
+                          : () => unawaited(_restore(context, ref, busy)),
                     ),
                     // The optional half of 5.1.1(v): a way to register at any time, saying what registering is worth, under a purchase that never waited on it.
                     if (!signedIn)

@@ -411,6 +411,9 @@ class FakePurchaseRepository implements PurchaseRepository {
   /// Whether [restore] finds anything.
   bool hasPastPurchase = false;
 
+  /// Held open to keep [restore] in flight, so a test can tap while the store call has not landed. Complete it to let the call finish.
+  Completer<void>? restoreGate;
+
   /// The store page [managementUrl] hands back. Null is the store having nothing to manage, which hides the manage button.
   String? management = 'https://apps.apple.com/account/subscriptions';
 
@@ -446,6 +449,7 @@ class FakePurchaseRepository implements PurchaseRepository {
     final Exception? failure = failWith;
 
     restoreCalls++;
+    await restoreGate?.future;
     if (failure != null) throw failure;
     if (!hasPastPurchase) return false;
 
