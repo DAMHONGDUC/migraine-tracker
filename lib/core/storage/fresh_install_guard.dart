@@ -10,8 +10,8 @@ import 'secure_store.dart';
 final class FreshInstallGuard {
   const FreshInstallGuard._();
 
-  /// The one `shared_preferences` key in the app. Present = this install has run before; absent = the Keychain is speaking for an install that no longer exists.
-  static const String installMarkerKey = 'install_marker';
+  /// The one `shared_preferences` key in the app. True = this install has run before; absent (which reads as false) = the Keychain is speaking for an install that no longer exists, because a delete takes `shared_preferences` with it and only the Keychain survives.
+  static const String isInstalledKey = 'is_installed';
 
   /// Runs before the anonymous session is created, so a purge is not immediately followed by signing the old user back in. [signOut] is `FirebaseAuth.instance.signOut` — passed in because the session is the one thing here a unit test cannot have.
   ///
@@ -21,17 +21,19 @@ final class FreshInstallGuard {
     SecureStore store,
     Future<void> Function() signOut,
   ) async {
-    if (prefs.getBool(installMarkerKey) ?? false) return;
+    if (prefs.getBool(isInstalledKey) ?? false) return;
 
-    // Keys other than the marker mean an install that predates it — an update, not a reinstall. Wiping there would sign out everyone who already had the app.
+    // Keys other than the marker mean an install that predates it — an update, not a reinstall. An update keeps its settings AND its session (owner's rule): nothing was deleted, so there is nothing to make fresh.
     final List<String> legacy = prefs
         .getKeys()
-        .where((String key) => key != installMarkerKey)
+        .where((String key) => key != isInstalledKey)
         .toList();
 
+    // The key NAMES are logged, not their values: which keys survived is the whole diagnosis when a reinstall is misread as an update, and a key name says nothing about the user.
     SdLogger.action(LogTagConstant.storage, 'First launch of this install', {
       'isUpgrade': legacy.isNotEmpty,
-      'legacyKeys': legacy.length,
+      'legacyKeys': legacy,
+      'hasSecureValues': store.getKeys().isNotEmpty,
     });
     try {
       if (legacy.isEmpty) {
@@ -40,7 +42,7 @@ final class FreshInstallGuard {
         await _adopt(prefs, legacy, store);
       }
       // Last, so a crash anywhere above is retried on the next launch rather than skipped.
-      await prefs.setBool(installMarkerKey, true);
+      await prefs.setBool(isInstalledKey, true);
       if (legacy.isNotEmpty) await _dropLegacy(prefs, legacy);
     } catch (error, stackTrace) {
       SdLogger.error(
@@ -52,17 +54,27 @@ final class FreshInstallGuard {
     }
   }
 
-  /// A reinstall: the Keychain is the only thing that survived, so it is the only thing to clear.
+  /// A reinstall: the Keychain is all that survived, so it is all there is to clear. The session is Firebase's own Keychain item rather than ours, and signing out is the only way to reach it — `_ensureAnonymousSession` opens a fresh anonymous one right after.
   static Future<void> _purge(
     SecureStore store,
     Future<void> Function() signOut,
   ) async {
+    // The session first, and in its own try: it is the half the user can see, and a Keychain wipe that fails must not be what stops it.
+    try {
+      await signOut();
+      SdLogger.info(LogTagConstant.storage, 'Reinstall: signed out');
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.storage,
+        'Reinstall: sign-out failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
     await store.deleteAll();
-    // The session is Firebase's own Keychain item, not ours — signing out is the only way to reach it.
-    await signOut();
     SdLogger.info(
       LogTagConstant.storage,
-      'Reinstall detected: Keychain cleared and the session signed out',
+      'Reinstall: Keychain cleared and the session signed out',
     );
   }
 

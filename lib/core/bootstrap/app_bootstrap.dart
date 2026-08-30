@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -13,7 +12,6 @@ import '../../firebase_options.dart';
 import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
 import '../logging/crash_reporter.dart';
-import '../storage/fresh_install_guard.dart';
 import '../storage/secure_store.dart';
 
 /// One-time app initialization run before `runApp`.
@@ -24,12 +22,10 @@ final class AppBootstrap {
   static Future<SecureStore> init() async {
     _installErrorLogging();
 
-    // Both before Firebase: the first-launch guard runs inside it, and it needs the marker and the store already open.
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
     final SecureStore store = await SecureStore.open();
 
     // - Firebase first so Crashlytics is up before anything else can fail. - It used to run last, which left a timezone failure reported nowhere.
-    await _initFirebase(prefs, store);
+    await _initFirebase();
     await _initTimezone();
 
     // One assert walking every required AppEnv value, so a missing --dart-define-from-file reports every gap at once.
@@ -42,10 +38,7 @@ final class AppBootstrap {
     return store;
   }
 
-  static Future<void> _initFirebase(
-    SharedPreferences prefs,
-    SecureStore store,
-  ) async {
+  static Future<void> _initFirebase() async {
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -64,9 +57,7 @@ final class AppBootstrap {
             badge: true,
             sound: true,
           );
-      // Before the session is ensured, never after: a reinstall has to be signed out before anything signs it back in.
-      await FreshInstallGuard.run(prefs, store, FirebaseAuth.instance.signOut);
-      await _ensureAnonymousSession();
+      await ensureAnonymousSession();
     } catch (err, stackTrace) {
       SdLogger.error(
         LogTagConstant.bootstrap,
@@ -77,8 +68,8 @@ final class AppBootstrap {
     }
   }
 
-  /// "Anonymous by default": the app is fully usable without an account, but the callables behind it still need a caller.
-  static Future<void> _ensureAnonymousSession() async {
+  /// "Anonymous by default": the app is fully usable without an account, but the callables behind it still need a caller. Public because `SplashController` calls it again after a reinstall purge — the sign-out there leaves no caller at all.
+  static Future<void> ensureAnonymousSession() async {
     if (FirebaseAuth.instance.currentUser != null) return;
 
     await FirebaseAuth.instance.signInAnonymously();

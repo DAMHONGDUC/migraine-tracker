@@ -118,9 +118,35 @@ mask, another collapsed into an unreadable smear.
 `flutter_launcher_icons` does **not** touch it, and it is not an image.
 
 - **iOS**: `ios/Runner/Base.lproj/LaunchScreen.storyboard`, the `backgroundColor`
-  on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` are the
-  Flutter template's 1×1 transparent placeholders, so that colour is the only
-  thing ever on screen.
+  on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` were the
+  Flutter template's 1×1 transparent placeholders, so the colour was the only
+  thing on screen and everything `AppBootstrap.init` took read as a black
+  screen. They carry the app icon now, 112/224/336px, `sips -Z`'d from
+  `assets/images/final_app_icon.png`.
+  - **The rounded corners are baked into the alpha**, because a storyboard image
+    view cannot clip: `tool/round_icon_corners.dart` masks the PNG at Apple's own
+    corner ratio (22.37% of the side) and supersamples the curve so it does not
+    step. Regenerate all three from the package:
+
+    ```sh
+    melos run gen-app-icon
+    ```
+
+    That command is the whole pipeline — watermark stripped, launcher icons
+    generated, these three written — and is the only one worth remembering. The
+    per-file form, for a launch icon alone:
+
+    ```sh
+    dart run packages/system_design/tool/round_icon_corners.dart assets/images/final_app_icon.png ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png 112
+    ```
+
+  - **Never point `sips -Z` at the source.** It resized the 1024px original in
+    place once when the `--out` path was wrong; the script above only ever reads
+    it.
+  - The Flutter splash that follows shows only the dots, so the icon does go away
+    at the handover — the alternative was a black wait, which is worse.
+- **Android's launch screen still carries no icon.** iOS first; this is the same
+  edit against `launch_background.xml` when it comes up.
 - **Android**: `@color/launch_background` in `values/colors.xml`, used by both
   `drawable/launch_background.xml` and `drawable-v21/launch_background.xml`, and
   by `NormalTheme` in both `styles.xml` files.

@@ -83,6 +83,13 @@ scripts:
       left pointing at.
     run: sh packages/system_design/tool/deploy-firebase.sh prod
 
+  gen-app-icon:
+    description: >
+      One source PNG to every icon: the watermark stripped, every launcher
+      size generated, and the launch screen's rounded copies. Reads
+      assets/images/app_icon.png.
+    run: sh packages/system_design/tool/gen-app-icon.sh
+
   upload-ipa-dev:
     description: >
       Upload the IPA already in build/ios/ipa, without rebuilding. For a

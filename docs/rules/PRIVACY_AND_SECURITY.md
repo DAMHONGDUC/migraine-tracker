@@ -59,7 +59,7 @@ first and update the snapshot after.
 | Where | What | Why there |
 |---|---|---|
 | Keychain (`SecureStore`) | Every setting and cursor | Encrypted at rest, `first_unlock_this_device` so it is readable in the background and never restored onto a second device |
-| `shared_preferences` | `FreshInstallGuard.installMarkerKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
+| `shared_preferences` | `FreshInstallGuard.isInstalledKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
 | Drift | The records themselves | The source of truth, and far too big for a Keychain item |
 
 **Deleting the app and installing it again must look like a first install**
@@ -73,8 +73,9 @@ install. `FreshInstallGuard.run` closes that, from inside
   `_ensureAnonymousSession` can sign anyone back in.
 - **The marker is absent but old keys are there → an update, not a reinstall.**
   Those values are carried into the Keychain and then dropped, so one owner
-  keeps each. Wiping here would have signed out every existing user on the
-  update that shipped this.
+  keeps each. **An update keeps its settings and its session** (owner's rule):
+  nothing was deleted, so there is nothing to make fresh — and wiping here would
+  sign out every existing user on the update that ships this.
 - **The marker is written last**, so a crash mid-way is retried on the next
   launch rather than skipped, and the adopt step is idempotent for that reason.
 - **It never throws**: a cleanup that fails must not take the launch with it.
