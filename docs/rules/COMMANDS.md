@@ -95,7 +95,11 @@ keys `env/` does, so it is gitignored and a clone never has it.
 
 - `sh packages/system_design/tool/gen.sh` — after editing Drift tables, Riverpod
   codegen or ARB files. It is also inside `set-up`, so a release never runs it
-  by hand.
+  by hand. **The codegen half is skipped when `pubspec.yaml` declares no
+  `build_runner`** (`has_dep` in `_common.sh`): these scripts are shared with
+  apps that generate nothing, and there `dart run build_runner` fails with
+  "could not find package build_runner", which reads as a broken checkout
+  rather than as a step that does not apply.
 - `sh packages/system_design/tool/analyze.sh` — `--fatal-infos`, exactly what CI
   runs. Zero findings before any task is done. **A release does not run it** —
   CI does, on the branch being released.
