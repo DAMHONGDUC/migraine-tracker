@@ -3,10 +3,10 @@
 Melos is the task runner (`melos.yaml`). Read this before running, building,
 seeding or deploying anything.
 
-**Melos carries ten commands, and they are the ones a human types**:
+**Melos carries eleven commands, and they are the ones a human types**:
 `set-up`, `deep-set-up`, `prepare-env-dev`, `prepare-env-prod`, `release-dev`,
 `release-prod`, `deploy-firebase-dev`, `deploy-firebase-prod`,
-`upload-ipa-dev`, `upload-ipa-prod`. Everything else a release needs — `gen`,
+`upload-ipa-dev`, `upload-ipa-prod`, `gen-app-icon`. Everything else a release needs — `gen`,
 `analyze`, `test`, `build-ipa` — is still a script, run by the command that
 needs it or by hand as `sh packages/system_design/tool/<name>.sh`. Owner's
 rule: the list you scroll through should be the list of things you actually
@@ -360,6 +360,29 @@ was a whole afternoon.
 
 The pipeline as a diagram is `docs/release/PIPELINE.md`; every credential is
 `docs/release/CREDENTIALS.md`; what is still missing is `PENDING_SETUP.md`.
+
+## The app icon
+
+`melos run gen-app-icon` — one source PNG to every icon the app ships. Reads
+`assets/images/app_icon.png` and does three things in order, each of which used
+to be typed by hand:
+
+| Step | What it writes |
+|---|---|
+| `strip_icon_marker.dart` | `assets/images/final_app_icon.png`, the source minus the generator's watermark |
+| `flutter_launcher_icons` | every iOS and Android launcher size, from that file |
+| `round_icon_corners.dart` ×3 | `LaunchImage.imageset` at 112/224/336px, corners baked into the alpha |
+
+- **It is a command, not a script, because it is typed on its own** — a new
+  icon is a thing a person decides to do, like `prepare-env`. Nothing in a
+  release reaches it.
+- **The order is the whole point.** Each step reads what the one before wrote,
+  and doing them out of order silently ships the watermark or a stale launch
+  screen. It checks the source exists before any of them run, so a missing
+  original fails at the start rather than halfway.
+- **The launch icons are rounded here and nowhere else.** A storyboard image
+  view cannot clip, so the mask has to be in the alpha —
+  `docs/setup/APP_ICON.md` has the reasoning and the per-file commands.
 
 ## Firebase
 

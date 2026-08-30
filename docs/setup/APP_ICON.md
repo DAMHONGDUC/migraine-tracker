@@ -129,10 +129,15 @@ mask, another collapsed into an unreadable smear.
     step. Regenerate all three from the package:
 
     ```sh
-    cd packages/system_design
-    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png 112
-    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png 224
-    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png 336
+    melos run gen-app-icon
+    ```
+
+    That command is the whole pipeline — watermark stripped, launcher icons
+    generated, these three written — and is the only one worth remembering. The
+    per-file form, for a launch icon alone:
+
+    ```sh
+    dart run packages/system_design/tool/round_icon_corners.dart assets/images/final_app_icon.png ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png 112
     ```
 
   - **Never point `sips -Z` at the source.** It resized the 1024px original in
