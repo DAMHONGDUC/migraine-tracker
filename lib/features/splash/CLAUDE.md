@@ -25,4 +25,9 @@ dashboard.
   splash waits out its whole timeout instead of settling.
 - **Nothing on it but the dots** (owner's call), at a raw pixel size — the first
   frame gains nothing from the design-size scale.
+- **The native launch screen before it carries the app icon**
+  (`LaunchImage.imageset`, `docs/setup/APP_ICON.md`), because `AppBootstrap.init`
+  runs before any Dart and a bare colour field for that whole wait reads as a
+  black screen. The icon goes away when this screen takes over; putting it here
+  too is the one-line fix if that ever reads worse than the black did.
 - **No ARB strings.** Nothing on the screen is a word.
