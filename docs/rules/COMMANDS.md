@@ -3,13 +3,20 @@
 Melos is the task runner (`melos.yaml`). Read this before running, building,
 seeding or deploying anything.
 
-**Melos carries eight commands, and they are the ones a human types**:
-`set-up`, `deep-set-up`, `release-dev`, `release-prod`, `deploy-firebase-dev`,
-`deploy-firebase-prod`, `upload-ipa-dev`, `upload-ipa-prod`. Everything else a
-release needs — `gen`, `analyze`, `test`, `prepare-env`, `build-ipa` — is
-still a script, run by the command that needs it or by hand as
-`sh packages/system_design/tool/<name>.sh`. Owner's rule: the list you scroll
-through should be the list of things you actually run.
+**Melos carries ten commands, and they are the ones a human types**:
+`set-up`, `deep-set-up`, `prepare-env-dev`, `prepare-env-prod`, `release-dev`,
+`release-prod`, `deploy-firebase-dev`, `deploy-firebase-prod`,
+`upload-ipa-dev`, `upload-ipa-prod`. Everything else a release needs — `gen`,
+`analyze`, `test`, `build-ipa` — is still a script, run by the command that
+needs it or by hand as `sh packages/system_design/tool/<name>.sh`. Owner's
+rule: the list you scroll through should be the list of things you actually
+run.
+
+**`prepare-env` is a command because it is typed on its own** (owner's rule).
+`gen`, `analyze` and `build-ipa` are only ever reached through something else;
+switching a checkout between dev and prod is a thing a person decides to do,
+and one per environment — never one command with a flag — for the same reason
+the deploys it feeds are split.
 
 **Every script lives in `packages/system_design/tool/`**, inside the design
 system submodule, so `git clone --recurse-submodules` is not optional: without
@@ -48,7 +55,7 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
 
-### `sh packages/system_design/tool/prepare-env.sh <dev|prod>`
+### `melos run prepare-env-dev` / `prepare-env-prod`
 
 Copy the real config from `env_assets/` into the six paths the build, the
 backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
