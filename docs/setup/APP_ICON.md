@@ -123,14 +123,23 @@ mask, another collapsed into an unreadable smear.
   thing on screen and everything `AppBootstrap.init` took read as a black
   screen. They carry the app icon now, 112/224/336px, `sips -Z`'d from
   `assets/images/final_app_icon.png`.
-  - Regenerate with
-    `sips -Z 112 --out ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png assets/images/final_app_icon.png`,
-    then 224 for `@2x` and 336 for `@3x`. **Copy the source first**: `sips` has
-    resized it in place when the `--out` path was wrong, and it is a 1024px
-    original.
-  - **Square, because a storyboard image view cannot clip corners.** The Flutter
-    splash that follows shows only the dots, so the icon does go away at the
-    handover — the alternative was a black wait, which is worse.
+  - **The rounded corners are baked into the alpha**, because a storyboard image
+    view cannot clip: `tool/round_icon_corners.dart` masks the PNG at Apple's own
+    corner ratio (22.37% of the side) and supersamples the curve so it does not
+    step. Regenerate all three from the package:
+
+    ```sh
+    cd packages/system_design
+    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png 112
+    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png 224
+    dart run tool/round_icon_corners.dart ../../assets/images/final_app_icon.png ../../ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png 336
+    ```
+
+  - **Never point `sips -Z` at the source.** It resized the 1024px original in
+    place once when the `--out` path was wrong; the script above only ever reads
+    it.
+  - The Flutter splash that follows shows only the dots, so the icon does go away
+    at the handover — the alternative was a black wait, which is worse.
 - **Android's launch screen still carries no icon.** iOS first; this is the same
   edit against `launch_background.xml` when it comes up.
 - **Android**: `@color/launch_background` in `values/colors.xml`, used by both
