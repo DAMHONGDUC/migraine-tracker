@@ -40,7 +40,7 @@ void main() {
   testWidgets('nothing for the store to manage hides the button, not the note', (
     tester,
   ) async {
-    // A build premium by PREMIUM_EMAIL has no purchase behind it, so the store hands back no page — and a button onto nothing reads as broken.
+    // An account premium by the app_access allow-list has no purchase behind it, so the store hands back no page — and a button onto nothing reads as broken.
     final PumpedApp app = await pumpApp(tester, premium: true);
 
     app.purchases.management = null;

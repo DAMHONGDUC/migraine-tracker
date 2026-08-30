@@ -39,6 +39,9 @@ final class LogTagConstant {
   /// The `users/{uid}` document and the display name on the auth record.
   static const String profile = 'Profile';
 
+  /// The `app_access` allow-list — what the owner has granted this address, read once per session and re-read when it changes.
+  static const String access = 'Access';
+
   static const String health = 'Health';
   static const String history = 'History';
   static const String homeWidget = 'Home Widget';

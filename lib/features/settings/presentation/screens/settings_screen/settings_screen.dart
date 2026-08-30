@@ -25,6 +25,7 @@ import '../../../../../core/widgets/sections/sync_settings_tile.dart';
 import '../../../../../core/widgets/settings_row_progress.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../access/providers.dart';
 import '../../../../alerts/providers.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
@@ -60,6 +61,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // Watched once here, not read at each row: it is a Firestore document now, so the group has to appear the moment the read lands rather than only on the next rebuild.
+    final bool showDev = ref.watch(showDevSettingsProvider);
 
     return SdScaffoldV2(
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
@@ -71,11 +74,11 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
-              // Keep non-production fixture tools at the top for quick access.
-            if (AppEnv.showDevSettings) ...[
+            // Keep non-production fixture tools at the top for quick access.
+            if (showDev) ...[
               SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
               // Forced premium needs no account, exactly like the real thing (App Store 5.1.1(v) — see `hasPremiumProvider`).
-              // On the flavour, not on the flag: `hasPremiumProvider` ignores the override in prod, so a prod build carrying SHOW_DEV_SETTINGS would draw a switch that does nothing.
+              // On the flavour, not on the grant: `hasPremiumProvider` ignores the override in prod, so a prod build the allow-list opened the group on would draw a switch that does nothing.
               if (!AppEnv.isProd) const _DevPremiumTile(),
               // The push fixture still does: sendTestPush refuses an anonymous session, so the row would only ever fail.
               if (ref.watch(isSignedInProvider)) const _DevPushTile(),
@@ -88,10 +91,7 @@ class SettingsScreen extends ConsumerWidget {
               const _DevResetTile(),
             ],
             // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.
-            SdSectionHeaderV2(
-              l10n.settingsSectionGeneral,
-              first: !AppEnv.showDevSettings,
-            ),
+            SdSectionHeaderV2(l10n.settingsSectionGeneral, first: !showDev),
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),
             const _MonitoringSection(),

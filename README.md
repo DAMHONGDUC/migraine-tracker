@@ -221,9 +221,10 @@ RevenueCat's project-level **Restore Behavior** setting, not by this app:
 *Transfer to new App User ID* moves premium and strips it from the first
 account, *Keep with original* fails as `PurchaseError.alreadyOwned`.
 
-Two things sit outside the chain: `PREMIUM_EMAIL` in `env/<flavor>.json` is
-premium ahead of any entitlement (the App Review account), and no account is
-ever required to buy, restore or use premium (App Store 5.1.1(v)).
+Two things sit outside the chain: an address in the `app_access` collection is
+premium ahead of any entitlement (the App Review account, the owner's own), and
+no account is ever required to buy, restore or use premium (App Store
+5.1.1(v)).
 
 Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).

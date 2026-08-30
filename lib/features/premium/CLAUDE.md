@@ -100,9 +100,9 @@ place. The ARB keys keep their `premium*` names — the whole namespace is
   Apple's; an in-app control that acted otherwise would be lying about what it
   can do.
 - **No URL means no button, and the note stays.** Loading, failure and "the
-  store has nothing to manage" are deliberately one branch. A build premium by
-  `PREMIUM_EMAIL` has no purchase behind it, so its button would open nothing —
-  and the note under it already says where to go.
+  store has nothing to manage" are deliberately one branch. An account premium
+  by the allow-list has no purchase behind it, so its button would open nothing
+  — and the note under it already says where to go.
 - **It does not make a TestFlight cancel testable.** Apple's subscriptions page
   does not carry TestFlight purchases; only StoreKit's own
   `showManageSubscriptions` sheet does, and `purchases_flutter` 10 does not
@@ -110,23 +110,27 @@ place. The ARB keys keep their `premium*` names — the whole namespace is
   testable with a Sandbox Apple Account on a directly installed build, never
   from TestFlight.
 
-## The build's own premium account
+## The owner's premium account
 
-**`PREMIUM_EMAIL` in `env/<flavor>.json` is premium on that build, in every
-flavour** (owner's rule). For the App Review account and the owner's device: a
-reviewer has to reach every gated screen, and a build cannot hand them a real
-subscription. `isPremiumEmailProvider` (`premium/providers.dart`) matches it
-against the signed-in address, trimmed and case-insensitive, and
-`hasPremiumProvider` reads it ahead of everything else.
+**An address the owner puts in `app_access` is premium in every flavour**
+(owner's rule). For the App Review account and the owner's device: a reviewer
+has to reach every gated screen, and a build cannot hand them a real
+subscription. `hasPremiumProvider` reads `hasAccessPremiumProvider` ahead of
+everything else.
+
+It was `PREMIUM_EMAIL`, a `--dart-define` in `env/<flavor>.json`, and moved to
+Firestore so that granting a reviewer premium no longer means a new binary
+through review. The full shape, the rules that keep the list unreadable, and
+what the cron does with it: `lib/features/access/CLAUDE.md`.
 
 - **It is not the client-side premium flag this repo forbids.** That rule is
-  about state the running app can *write*. This is a compile-time constant, put
-  there by whoever ran the build, matched against an address only Google or
+  about state the running app can *write*. `app_access` is `allow write: if
+  false` for every client, and is matched against an address only Google or
   Apple sign-in can put on the session — so an anonymous session never matches
   and nothing on device can change the answer.
-- **Unset is the normal state**, and an unset build cannot take the branch at
-  all: the provider returns false without even watching auth, which is why no
-  test had to learn about it.
+- **No grant is the normal state**, and an anonymous session cannot take the
+  branch at all: the provider answers `none` without issuing a read, which is
+  why no widget test had to learn about it.
 - **Unlike `DevPremiumOverride`, it is deliberately live in prod** — a dev-only
   grant would be useless to the reviewer it exists for.
 

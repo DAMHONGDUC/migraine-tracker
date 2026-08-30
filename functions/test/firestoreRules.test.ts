@@ -176,6 +176,105 @@ describe.skipIf(!available)("firestore.rules", () => {
     });
   }
 
+  describe("app_access", () => {
+    /** A row the owner typed in the console; the id IS the address. */
+    async function grant(email: string, fields: Record<string, boolean>) {
+      await env.withSecurityRulesDisabled(async (context) => {
+        await context.firestore().collection("app_access").doc(email).set(fields);
+      });
+    }
+
+    it("lets a signed-in user read the row for their own address", async () => {
+      await grant("alice@baroease.app", { premium: true, devSettings: false });
+      const db = env
+        .authenticatedContext("alice", { email: "alice@baroease.app" })
+        .firestore();
+
+      await assertSucceeds(
+        db.collection("app_access").doc("alice@baroease.app").get(),
+      );
+    });
+
+    it("matches the address case-insensitively, as the app does", async () => {
+      await grant("alice@baroease.app", { premium: true });
+      const db = env
+        .authenticatedContext("alice", { email: "Alice@BaroEase.app" })
+        .firestore();
+
+      await assertSucceeds(
+        db.collection("app_access").doc("alice@baroease.app").get(),
+      );
+    });
+
+    it("refuses reading someone else's row", async () => {
+      await grant("alice@baroease.app", { premium: true });
+      const db = env
+        .authenticatedContext("mallory", { email: "mallory@example.com" })
+        .firestore();
+
+      await assertFails(
+        db.collection("app_access").doc("alice@baroease.app").get(),
+      );
+    });
+
+    it("refuses listing the collection — the whole list is real addresses", async () => {
+      await grant("alice@baroease.app", { premium: true });
+      const db = env
+        .authenticatedContext("alice", { email: "alice@baroease.app" })
+        .firestore();
+
+      await assertFails(db.collection("app_access").get());
+      await assertFails(
+        db.collection("app_access").where("premium", "==", true).get(),
+      );
+    });
+
+    it("refuses a session with no address at all", async () => {
+      await grant("alice@baroease.app", { premium: true });
+      const db = env.authenticatedContext("anon").firestore();
+
+      await assertFails(
+        db.collection("app_access").doc("alice@baroease.app").get(),
+      );
+    });
+
+    it("refuses a client granting itself premium", async () => {
+      const db = env
+        .authenticatedContext("mallory", { email: "mallory@example.com" })
+        .firestore();
+
+      // The one write that would make this the client-side premium flag the
+      // project forbids.
+      await assertFails(
+        db
+          .collection("app_access")
+          .doc("mallory@example.com")
+          .set({ premium: true }),
+      );
+    });
+  });
+
+  it("keeps pressure_alert_runs away from every client", async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await context
+        .firestore()
+        .collection("pressure_alert_runs")
+        .doc("2026-08-30T12:00:00.000Z")
+        .set({ status: "ok", pushesSent: 1 });
+    });
+    const db = env
+      .authenticatedContext("alice", { email: "alice@baroease.app" })
+      .firestore();
+
+    // Operational history: uids and geohash cells, for the owner's console.
+    await assertFails(
+      db.collection("pressure_alert_runs").doc("2026-08-30T12:00:00.000Z").get(),
+    );
+    await assertFails(
+      db.collection("pressure_alert_runs").doc("forged").set({ status: "ok" }),
+    );
+  });
+
   it("keeps sync_keys away from every client", async () => {
     await env.withSecurityRulesDisabled(async (context) => {
       await context.firestore().collection("sync_keys").doc("alice").set({

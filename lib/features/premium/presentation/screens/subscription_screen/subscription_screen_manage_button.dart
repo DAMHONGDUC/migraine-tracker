@@ -2,9 +2,9 @@ part of 'subscription_screen.dart';
 
 /// Opens the store's own subscription page, which is the only place a subscription can be cancelled or switched.
 ///
-/// Absent until the store hands back a page to open: a build made premium by
-/// `PREMIUM_EMAIL` has no purchase behind it, and a button onto nothing reads
-/// as broken where the note beside it already says where to go.
+/// Absent until the store hands back a page to open: an account made premium by
+/// the `app_access` allow-list has no purchase behind it, and a button onto
+/// nothing reads as broken where the note beside it already says where to go.
 class _ManageButton extends ConsumerWidget {
   const _ManageButton();
 
