@@ -6,7 +6,7 @@ import '../../../../../core/theme/app_colors.dart';
 
 /// What the user looks at while `AppBootstrap.init` runs: the app icon the native launch screen was already showing, plus the dots that say it is working.
 ///
-/// Sizes here are raw logical pixels rather than `.r`/`SdSpacingConstant`, and they have to be: this screen lives ABOVE the app, outside the `ScreenUtilInit` that gives those their scale. Two centred elements do not need it.
+/// Sizes here are raw logical pixels rather than `.r`, on purpose: the native launch screen draws the icon at a fixed 112pt and cannot scale with the screen, so scaling this copy would make the handover jump.
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 

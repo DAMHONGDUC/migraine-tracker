@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
 import '../../bare_ease_app.dart';
 import '../../features/splash/presentation/screens/splash_screen/splash_screen.dart';
+import '../constants/app_layout_constant.dart';
 import '../constants/log_tag_constant.dart';
 import '../storage/secure_store.dart';
 import '../theme/app_theme.dart';
@@ -44,13 +46,19 @@ class AppBootstrapGate extends ConsumerWidget {
         overrides: [secureStoreProvider.overrideWithValue(store)],
         child: const BaroEaseApp(),
       ),
-      // A MaterialApp of its own: MediaQuery is what picks the 2×/3× icon, and there is no app above this to provide one.
-      _ => MaterialApp(
-        theme: AppTheme.dark,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.dark,
-        debugShowCheckedModeBanner: false,
-        home: const SplashScreen(),
+      // ScreenUtilInit before the theme, never after: AppTextStyle sizes are `.sp`, so building AppTheme.dark outside an initialized ScreenUtil throws. The app's own copy lives in BaroEaseApp, past this branch entirely.
+      _ => ScreenUtilInit(
+        designSize: AppLayoutConstant.designSize,
+        minTextAdapt: true,
+        splitScreenMode: true,
+        // A MaterialApp of its own: MediaQuery is what picks the 2×/3× icon, and there is no app above this to provide one.
+        builder: (BuildContext context, Widget? child) => MaterialApp(
+          theme: AppTheme.dark,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeMode.dark,
+          debugShowCheckedModeBanner: false,
+          home: const SplashScreen(),
+        ),
       ),
     };
   }
