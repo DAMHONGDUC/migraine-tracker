@@ -6,11 +6,8 @@ final class SplashConstant {
   /// How long the splash stays up at minimum. Nothing waits on it — `AppBootstrap.init` has already finished by the time a frame is drawn — so this is a deliberate pause, kept short: long enough that the icon reads, not long enough to be in the way of someone opening the app mid-attack (hard rule 4).
   static const Duration minimumVisible = Duration(milliseconds: 1200);
 
-  /// The icon's drawn size, before `.r`.
+  /// The icon's drawn size, before `.r`. The three `LaunchImage.imageset` PNGs are this size at 1×/2×/3×, so the handover from the native launch screen changes nothing on screen.
   static const double iconSize = 112;
-
-  /// Apple's own icon corner ratio (~22.37% of the side), so the square PNG reads as the icon the user tapped rather than as a picture of it.
-  static const double iconCornerRatio = 0.2237;
 
   /// The dots' size, before `.r`.
   static const double dotsSize = 40;

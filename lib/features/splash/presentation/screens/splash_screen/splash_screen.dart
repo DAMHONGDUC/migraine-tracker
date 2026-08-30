@@ -35,17 +35,13 @@ class SplashScreen extends HookConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(
-                (SplashConstant.iconSize * SplashConstant.iconCornerRatio).r,
-              ),
-              child: Image.asset(
-                SplashConstant.iconAsset,
-                width: SplashConstant.iconSize.r,
-                height: SplashConstant.iconSize.r,
-                // The icon is the app's own mark; a screen reader has nothing to gain from it and the label would be the app name it already announced.
-                excludeFromSemantics: true,
-              ),
+            // Square, at the same size the native launch screen draws it: that screen is a storyboard image view and cannot round anything, so a rounded copy here would pop the moment Flutter took over.
+            Image.asset(
+              SplashConstant.iconAsset,
+              width: SplashConstant.iconSize.r,
+              height: SplashConstant.iconSize.r,
+              // The icon is the app's own mark; a screen reader has nothing to gain from it and the label would be the app name it already announced.
+              excludeFromSemantics: true,
             ),
             SizedBox(height: SdSpacingConstant.h32),
             LoadingAnimationWidget.staggeredDotsWave(
