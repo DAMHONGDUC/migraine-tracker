@@ -169,19 +169,17 @@ flowchart TD
   A["App launch"] --> B{"Install marker in<br/>shared_preferences?"}
   B -- "yes" --> C["Same install<br/>— nothing to do"]
   B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
-  D -- "no → reinstall" --> E["Keychain cleared<br/>SecureStore.deleteAll"]
+  D -- "no → reinstall" --> E["Keychain cleared, session<br/>signed out"]
   D -- "yes → update" --> F["Settings carried into the Keychain,<br/>the old copies dropped"]
-  E --> G["Firebase session signed out"]
-  F --> G
-  G --> H["Marker written last,<br/>so a crash retries"]
-  H --> I["Fresh anonymous session"]
+  E --> H
+  F --> H["Marker written last,<br/>so a crash retries"]
+  H --> I["Anonymous session ensured"]
 ```
 
-- **The session is signed out on both paths**: it is the one thing the Keychain
-  carries across a delete, and guessing wrong leaves the user signed into an
-  install they never signed into.
-- **An update keeps its settings** — they are moved into the Keychain, not
-  wiped. Only a reinstall clears them.
+- **Only a reinstall signs out.** An update deleted nothing, so it keeps both
+  its session and its settings — the settings just move into the Keychain.
+- **The sign-out is the point of the reinstall branch**: the Firebase session is
+  the one thing the Keychain carries across a delete.
 - **Signed-in data comes back on its own.** The local database is gone, but the
   first sync after signing in pulls the account's attacks down again; that is
   the sync working, not the delete failing.
