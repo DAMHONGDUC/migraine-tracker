@@ -1,4 +1,4 @@
-part of 'premium_screen.dart';
+part of 'subscription_screen.dart';
 
 /// Opens the store's own subscription page, which is the only place a subscription can be cancelled or switched.
 ///

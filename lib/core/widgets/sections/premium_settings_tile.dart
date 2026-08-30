@@ -10,7 +10,7 @@ import '../../router/app_router.dart';
 import '../../theme/app_icon_constant.dart';
 import '../settings_tile.dart';
 
-/// Settings row for the subscription: says where it stands and opens `PremiumScreen` for the rest.
+/// Settings row for the subscription: says where it stands and opens `SubscriptionScreen` for the rest.
 class PremiumSettingsTile extends ConsumerWidget {
   const PremiumSettingsTile({super.key});
 

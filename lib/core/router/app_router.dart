@@ -19,7 +19,7 @@ import '../../features/notifications/presentation/screens/notification_detail_sc
 import '../../features/notifications/presentation/screens/notifications_screen/notifications_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen/onboarding_screen.dart';
 import '../../features/premium/presentation/screens/paywall_screen/paywall_screen.dart';
-import '../../features/premium/presentation/screens/premium_screen/premium_screen.dart';
+import '../../features/premium/presentation/screens/subscription_screen/subscription_screen.dart';
 import '../../features/settings/presentation/screens/about_screen/about_screen.dart';
 import '../../features/settings/presentation/screens/contact_screen/contact_screen.dart';
 import '../../features/settings/presentation/screens/export_preview_screen/export_preview_screen.dart';
@@ -199,7 +199,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: AppRoutes.premium.name,
         path: AppRoutes.premium.path,
-        builder: (context, state) => const PremiumScreen(),
+        builder: (context, state) => const SubscriptionScreen(),
       ),
       GoRoute(
         name: AppRoutes.export.name,

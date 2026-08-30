@@ -1,4 +1,4 @@
-part of 'premium_screen.dart';
+part of 'subscription_screen.dart';
 
 /// The answer to "am I premium?", stated once, at the top.
 class _StatusCard extends StatelessWidget {

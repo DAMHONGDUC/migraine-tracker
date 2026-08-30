@@ -15,12 +15,12 @@ import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 
-part 'premium_screen_manage_button.dart';
-part 'premium_screen_status_card.dart';
+part 'subscription_screen_manage_button.dart';
+part 'subscription_screen_status_card.dart';
 
 /// What the subscription is right now, and what it includes.
-class PremiumScreen extends ConsumerWidget {
-  const PremiumScreen({super.key});
+class SubscriptionScreen extends ConsumerWidget {
+  const SubscriptionScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
