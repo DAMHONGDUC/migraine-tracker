@@ -60,7 +60,7 @@ scripts:
   release-dev:
     description: >
       The whole dev release: set-up, dev config, the firebase deploy, then
-      the TestFlight build. Each step keeps its own prompts.
+      the TestFlight build. Runs start to finish unattended — nothing asks.
     run: sh packages/system_design/tool/release.sh dev
 
   release-prod:
@@ -72,8 +72,8 @@ scripts:
   deploy-firebase-dev:
     description: >
       Deploy firestore rules, indexes and functions to the `dev` project.
-      Optional target: `rules` or `functions`. Names the project and confirms
-      first — dev and prod are still one project, so this reaches real users.
+      Optional target: `rules` or `functions`. Prints the resolved project id
+      and does not ask; typing the environment is the decision.
     run: sh packages/system_design/tool/deploy-firebase.sh dev
 
   deploy-firebase-prod:
