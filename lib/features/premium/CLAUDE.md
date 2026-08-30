@@ -71,6 +71,31 @@ the medications tab the medication budget, each from that record's one
   `hasScrollBody: false`) so a long locale or large text outgrows it without
   clipping, while the plans and CTA stay pinned.
 
+## The subscription screen
+
+**The Settings row and the screen behind it are called "Subscriptions", not
+"Premium"** (owner's call). Premium is the tier; the row is about the thing the
+user bought and can cancel, which is what sends them to Settings in the first
+place. The ARB keys keep their `premium*` names — the whole namespace is
+`premium*`, and renaming two of them leaves the set less consistent, not more.
+
+- **The manage button opens the store's own page and does nothing else.**
+  `PurchaseRepository.managementUrl` hands back `CustomerInfo.managementURL`,
+  and the screen opens it through `linkLauncherProvider`, the same way the
+  paywall's legal links go out. Cancelling, refunds and plan changes are
+  Apple's; an in-app control that acted otherwise would be lying about what it
+  can do.
+- **No URL means no button, and the note stays.** Loading, failure and "the
+  store has nothing to manage" are deliberately one branch. A build premium by
+  `PREMIUM_EMAIL` has no purchase behind it, so its button would open nothing —
+  and the note under it already says where to go.
+- **It does not make a TestFlight cancel testable.** Apple's subscriptions page
+  does not carry TestFlight purchases; only StoreKit's own
+  `showManageSubscriptions` sheet does, and `purchases_flutter` 10 does not
+  expose it — it offers `managementURL` and nothing more. Cancelling is
+  testable with a Sandbox Apple Account on a directly installed build, never
+  from TestFlight.
+
 ## The build's own premium account
 
 **`PREMIUM_EMAIL` in `env/<flavor>.json` is premium on that build, in every
