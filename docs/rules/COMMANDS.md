@@ -74,7 +74,7 @@ keys `env/` does, so it is gitignored and a clone never has it.
   pair would be two copies of the same secret.
 - **`<flavor>-function.env` → `functions/.env` is the backend's half**, and the
   only destination nothing in the app reads: the Firebase CLI reads it at deploy
-  time for the `defineString` params (`WEATHERKIT_*`, `PREMIUM_EMAIL`). Copying
+  time for the `defineString` params (`WEATHERKIT_*`). Copying
   it switches nothing until `melos run deploy-firebase-<flavor>`, so the script
   says so on the way out.
 - **`Info.plist` is in the list because of the Google sign-in URL scheme.** It

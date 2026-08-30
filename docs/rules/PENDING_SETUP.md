@@ -2,6 +2,33 @@
 
 None of this is in the repo, and none of it can be assumed to exist.
 
+## The `app_access` allow-list
+
+**Nothing is granted until the owner creates a row.** The collection replaces
+the `PREMIUM_EMAIL` and `SHOW_DEV_SETTINGS` build flags, and an empty collection
+is the normal state — the app simply grants nothing and the cron fetches no
+extra accounts. Shape and reasoning: `lib/features/access/CLAUDE.md`.
+
+1. **`firestore.rules` must be deployed** for the app to read its own row at
+   all. Until `firebase deploy --only firestore:rules` runs, every read is
+   `permission-denied`, which the app logs and treats as "nothing granted".
+2. **Create one document per address, in `app_access`.**
+   - **The document id IS the address, lower-cased** — `review@baroease.app`,
+     never `Review@BaroEase.app`. The rule matches
+     `request.auth.token.email.lower()` against the id, so a capital letter in
+     the id means the row can never be read by the person it is for.
+   - Fields, both optional booleans, and both granted only by an actual
+     `true`: `premium` (premium in the app and an alert target),
+     `devSettings` (the Dev group in Settings).
+3. **The address must be one Google or Apple sign-in actually produces.** An
+   anonymous session carries no address and matches nothing. For the cron, the
+   account also has to have signed in at least once — it resolves the address
+   through Firebase Auth, and logs `allow-listed address has no account` when it
+   cannot.
+4. **`PREMIUM_EMAIL` may still be sitting in `functions/.env` and in
+   `env_assets/<flavor>-function.env`.** Nothing reads it any more; remove it
+   the next time those files are touched.
+
 ## Force update
 
 `app_update` is coded and tested; nothing on the Firebase side is done. Until all

@@ -54,9 +54,9 @@ contract:
      run, because the six credentials in it carry no flavor: one bundle id, one
      match repo, one App Store Connect key serve both environments.
    - `<flavor>-function.env` lands on `functions/.env`, the Cloud Functions
-     config the Firebase CLI reads **at deploy time** — `WEATHERKIT_*` and
-     `PREMIUM_EMAIL`. Copying it changes nothing until the next deploy, which is
-     why the script says so on the way out.
+     config the Firebase CLI reads **at deploy time** — `WEATHERKIT_*`. Copying
+     it changes nothing until the next deploy, which is why the script says so
+     on the way out.
 2. **Destinations carry no `dev-`/`prod-` prefix.** Those exact paths are what
    the google-services gradle plugin and the Runner target read; a prefixed
    copy beside them is a file nothing opens.
@@ -92,12 +92,11 @@ Three properties worth copying verbatim:
 - **Asserts are stripped from release builds**, which is exactly where the
   mistake happens. The assert is a developer convenience; Part B's checks are
   the real guard.
-- **A flag whose default is the flavour is spelled with three states, not two.**
-  `SHOW_DEV_SETTINGS` is read as a `String`, and empty — the normal state —
-  means "let the flavour decide" (`showDevSettings` falls back to `!isProd`).
-  `bool.fromEnvironment` cannot say that: its default is a value, so an unset
-  key would be indistinguishable from a deliberate `false`, and the flavour
-  would stop being the answer for every build that never mentions the key.
+- **A grant per address does not belong here at all.** `PREMIUM_EMAIL` and
+  `SHOW_DEV_SETTINGS` used to live in these files, and each grant then cost a
+  new binary — for `PREMIUM_EMAIL`, one through App Review. Both moved to the
+  `app_access` Firestore collection (`lib/features/access/CLAUDE.md`). What
+  stays a `--dart-define` is what the *build* is, never who is privileged in it.
 
 ### A4. The gitignore contract
 
