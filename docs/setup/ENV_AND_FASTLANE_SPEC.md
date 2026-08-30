@@ -92,6 +92,12 @@ Three properties worth copying verbatim:
 - **Asserts are stripped from release builds**, which is exactly where the
   mistake happens. The assert is a developer convenience; Part B's checks are
   the real guard.
+- **A flag whose default is the flavour is spelled with three states, not two.**
+  `SHOW_DEV_SETTINGS` is read as a `String`, and empty — the normal state —
+  means "let the flavour decide" (`showDevSettings` falls back to `!isProd`).
+  `bool.fromEnvironment` cannot say that: its default is a value, so an unset
+  key would be indistinguishable from a deliberate `false`, and the flavour
+  would stop being the answer for every build that never mentions the key.
 
 ### A4. The gitignore contract
 
