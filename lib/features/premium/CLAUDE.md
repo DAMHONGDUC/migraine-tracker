@@ -49,6 +49,13 @@ the medications tab the medication budget, each from that record's one
   text link offers sign-in for what it is actually worth ("use Premium on your
   other devices"); it is an extra, never a step. The purchase lives on
   RevenueCat's anonymous id until then, and `logIn` carries it onto the account.
+- **Buy and Restore share one busy flag, and both controls go dead while
+  either runs.** A store call takes seconds with nothing on screen to show for
+  it, so an impatient second tap is the normal case, not the edge one. Two
+  restores landing together each called `context.pop()`, and the second pop took
+  the screen *under* the paywall with it — the user saw a blank screen and had
+  to kill the app, having in fact been granted the entitlement. Never give a
+  store call a control that stays tappable while it is in flight.
 - **The sheet is a flat opaque panel on `AppColors.surfaceModal`** (owner's
   call). It used to be the app's one frosted Liquid Glass surface, on the card
   colour: the pitch, the plans and the CTA are all reading matter, and the
