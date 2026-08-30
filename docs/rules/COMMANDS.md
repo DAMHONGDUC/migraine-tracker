@@ -453,18 +453,22 @@ will not catch this — its `/bin/sh` is bash under another name — so check wi
 - **The SDK**: `fvm flutter` when `.fvmrc` and fvm are both present, plain
   `flutter` otherwise — a shell alias is invisible inside a script.
 - **The output vocabulary**, and it is deliberately small (owner's rule).
-  Colour carries one meaning each, and only the part that carries it is
-  coloured — colour everything and none of it means anything:
+  Colour carries one meaning each:
 
   | Call | Looks like | For |
   |---|---|---|
   | `step` | cyan `==> title` | opening an action |
   | `info` | plain, indented | ordinary output |
-  | `warn` | yellow | something to know, not to stop for |
+  | `warn` | yellow `!` | something to know, not to stop for |
   | `ok` | green `✓` | a check that passed |
   | `bad` | red `✗` | a check that failed |
   | `done_msg` | green `✓` | the whole script succeeded |
   | `fail` | red `✗`, exits 1 | the whole script stopped |
+
+  **The mark carries the colour; the message stays plain** (owner's rule). A
+  wall of coloured sentences is a wall — an eye scanning for the `✗` should
+  find it, not read for it. `step` is the one exception: it has no mark, so
+  the title is the mark.
 
   Messages are short and lower-case: one line says what happened, not why. The
   why belongs in a comment in the script, where the person fixing it is looking.
