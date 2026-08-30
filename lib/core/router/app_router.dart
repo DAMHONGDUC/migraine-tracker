@@ -25,6 +25,7 @@ import '../../features/settings/presentation/screens/contact_screen/contact_scre
 import '../../features/settings/presentation/screens/export_preview_screen/export_preview_screen.dart';
 import '../../features/settings/presentation/screens/export_screen/export_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen/settings_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen/splash_screen.dart';
 import '../../features/sync/presentation/screens/sync_screen/sync_screen.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/prefs_key_constant.dart';
@@ -41,6 +42,8 @@ class AppRoute {
 }
 
 final class AppRoutes {
+  /// Where every launch lands. It leaves on its own — see `SplashScreen`.
+  static const splash = AppRoute(name: 'splash', path: '/splash');
   static const onboarding = AppRoute(name: 'onboarding', path: '/onboarding');
   static const dashboard = AppRoute(name: 'dashboard', path: '/dashboard');
   static const log = AppRoute(name: 'log', path: '/log');
@@ -123,14 +126,22 @@ final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
   (ref) => GlobalKey<NavigatorState>(debugLabel: 'root'),
 );
 
+/// Where a launch starts. Overridden by `pumpApp`: a widget test has no reason to sit through the splash, and `pumpAndSettle` would wait out its never-ending dots animation for the full timeout rather than settling.
+final initialLocationProvider = Provider<String>(
+  (ref) => AppRoutes.splash.path,
+);
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: ref.watch(rootNavigatorKeyProvider),
-    initialLocation: AppRoutes.dashboard.path,
+    initialLocation: ref.watch(initialLocationProvider),
     // - `screen_view` for pushed routes (log, login, paywall, attack detail). - Empty outside a Firebase build — tabs are logged by hand in AppShell instead.
     observers: AppAnalytics.navigatorObservers,
     // First launch lands on onboarding until completed; afterwards /onboarding is never reachable again.
     redirect: (context, state) {
+      // The splash is exempt from every rule below: it holds the screen for its own moment and then goes to the dashboard, where these rules apply as usual.
+      if (state.matchedLocation == AppRoutes.splash.path) return null;
+
       final done =
           ref
               .read(secureStoreProvider)
@@ -149,6 +160,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        name: AppRoutes.splash.name,
+        path: AppRoutes.splash.path,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         name: AppRoutes.onboarding.name,
         path: AppRoutes.onboarding.path,
