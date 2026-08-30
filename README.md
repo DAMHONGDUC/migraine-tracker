@@ -144,6 +144,7 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 | Area | Rule |
 |---|---|
 | Storage | Drift on-device is the source of truth |
+| Settings | Keychain via `SecureStore`; deleting the app and reinstalling starts clean |
 | Attack log | Fully usable offline; weather is best-effort |
 | Account | Optional; Google/Apple upgrades the anonymous UID |
 | Sync | AES-GCM encrypted, server-assisted, not end-to-end encrypted |

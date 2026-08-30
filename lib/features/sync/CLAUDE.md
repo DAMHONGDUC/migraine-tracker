@@ -26,7 +26,7 @@ per collection each time, usually to find nothing had changed.
   exists so a just-logged attack reaches the server before the phone can be lost.
 - **The stamp is written only after a pass that worked**, so a failure is retried
   by the next open rather than parked for six hours. It lives in `SyncCursorStore`
-  (prefs, per uid) rather than memory, because the automatic triggers are launch
+  (`SecureStore`, per uid) rather than memory, because the automatic triggers are launch
   and resume — a cooldown the app forgets on close would let ten cold starts run
   ten passes. `clear()` drops it with the cursors, so signing into another
   account syncs at once.

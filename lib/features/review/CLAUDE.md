@@ -38,6 +38,6 @@ nothing more.
   `RecordingReviewPrompter` (`test/helpers/review_fakes.dart`). Every saved
   attack reaches this controller, and the real prompter is a platform channel
   no widget test has.
-- The state lives in `shared_preferences`, not the database, and **never
+- The state lives in `SecureStore` (the Keychain), not the database, and **never
   syncs**: the cap it feeds is one device's OS quota, so a second phone gets
   its own three.
