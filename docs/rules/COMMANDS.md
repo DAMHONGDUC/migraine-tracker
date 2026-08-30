@@ -382,18 +382,14 @@ optional target, `rules` or `functions`, to do half of it:
   firestore:rules,firestore:indexes`): a missing composite index fails at
   runtime rather than at build, so shipping one without the other is a live
   breakage.
-- **It prints the resolved project id and asks before deploying.** `dev` and
-  `prod` are still the SAME project, so `deploy-firebase-dev` is a production
-  deploy under another name — the script says so in the prompt, because the
-  alias alone would hide it. Splitting the two projects is
-  `docs/setup/FIREBASE_PROJECT.md`; the warning disappears on its own once the
-  aliases differ. The prompt reads from `/dev/tty` because melos pipes the
-  script's stdout.
-  - **`YES=1` answers it**, and so does any CI (which sets `CI` itself):
-    `YES=1 melos run deploy-firebase-dev`. A run with nobody at the keyboard has
-    no terminal to type into, so the prompt would hang until the job times out
-    rather than protect anything. Typing the environment is still the guard that
-    matters — `YES` skips the confirmation, never the choice of project.
+- **It prints the resolved project id and does NOT ask** (owner's rule). Typing
+  the environment is the decision; a second question the same hand answers every
+  time protects nothing and breaks every unattended run. `dev` and `prod` may
+  still be the SAME project, so `deploy-firebase-dev` can be a production deploy
+  under another name — the script prints the id and warns when the two aliases
+  match, which is what makes a wrong destination visible. Splitting the projects
+  is `docs/setup/FIREBASE_PROJECT.md`; the warning disappears once the aliases
+  differ.
 - **Both `npm run build` and `npm test` are optional** (`has_npm_script` in
   `_common.sh`, which asks `npm pkg get`). These scripts are shared with
   backends that define neither, where `npm test` fails with "Missing script:
