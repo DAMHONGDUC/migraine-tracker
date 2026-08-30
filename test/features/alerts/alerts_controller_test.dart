@@ -1,27 +1,30 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
-import 'package:migraine_tracker/core/l10n/locale_provider.dart';
+import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/features/alerts/domain/entities/alerts_settings.dart';
 import 'package:migraine_tracker/features/alerts/domain/enums/alert_registration_error.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/alert_fakes.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  /// Prefs are the source of truth for the UI, so every case starts from a stored state and asserts what ended up back in prefs.
+  /// The store is the source of truth for the UI, so every case starts from a stored state and asserts what ended up back in it.
   Future<ProviderContainer> containerWith({
     Map<String, Object> stored = const <String, Object>{},
     RecordingAlertRegistration? registration,
   }) async {
-    SharedPreferences.setMockInitialValues(stored);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    FlutterSecureStorage.setMockInitialValues(<String, String>{
+      for (final MapEntry<String, Object> entry in stored.entries)
+        entry.key: '${entry.value}',
+    });
+    final SecureStore store = await SecureStore.open();
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
+        secureStoreProvider.overrideWithValue(store),
         alertRegistrationRepositoryProvider.overrideWithValue(
           registration ?? RecordingAlertRegistration(),
         ),
@@ -71,16 +74,14 @@ void main() {
           stored: <String, Object>{PrefsKeyConstant.alertThreshold: 7.0},
           registration: registration,
         );
-        final SharedPreferences prefs = container.read(
-          sharedPreferencesProvider,
-        );
+        final SecureStore store = container.read(secureStoreProvider);
 
         await container
             .read(alertsControllerProvider.notifier)
             .setEnabled(true);
 
         expect(registration.registeredThresholds, <double>[7]);
-        expect(prefs.getBool(PrefsKeyConstant.alertsEnabled), isTrue);
+        expect(store.getBool(PrefsKeyConstant.alertsEnabled), isTrue);
         expect(
           container.read(alertsControllerProvider).requireValue.enabled,
           isTrue,
@@ -95,13 +96,13 @@ void main() {
         stored: <String, Object>{PrefsKeyConstant.alertsEnabled: true},
         registration: registration,
       );
-      final SharedPreferences prefs = container.read(sharedPreferencesProvider);
+      final SecureStore store = container.read(secureStoreProvider);
 
       await container.read(alertsControllerProvider.notifier).setEnabled(false);
 
       expect(registration.unregisterCalls, 1);
       expect(registration.registeredThresholds, isEmpty);
-      expect(prefs.getBool(PrefsKeyConstant.alertsEnabled), isFalse);
+      expect(store.getBool(PrefsKeyConstant.alertsEnabled), isFalse);
     });
 
     // A registration that failed must not leave prefs saying alerts are on.
@@ -113,9 +114,7 @@ void main() {
             failWith: AlertRegistrationError.notificationsDenied,
           ),
         );
-        final SharedPreferences prefs = container.read(
-          sharedPreferencesProvider,
-        );
+        final SecureStore store = container.read(secureStoreProvider);
 
         await container
             .read(alertsControllerProvider.notifier)
@@ -130,7 +129,7 @@ void main() {
           (state as AsyncError<AlertsSettings>).error,
           isA<AlertRegistrationException>(),
         );
-        expect(prefs.getBool(PrefsKeyConstant.alertsEnabled), isNull);
+        expect(store.getBool(PrefsKeyConstant.alertsEnabled), isNull);
       },
     );
   });
@@ -143,12 +142,12 @@ void main() {
         stored: <String, Object>{PrefsKeyConstant.alertsEnabled: true},
         registration: registration,
       );
-      final SharedPreferences prefs = container.read(sharedPreferencesProvider);
+      final SecureStore store = container.read(secureStoreProvider);
 
       await container.read(alertsControllerProvider.notifier).setThreshold(9);
 
       expect(registration.updatedThresholds, <double>[9]);
-      expect(prefs.getDouble(PrefsKeyConstant.alertThreshold), 9);
+      expect(store.getDouble(PrefsKeyConstant.alertThreshold), 9);
       expect(
         container.read(alertsControllerProvider).requireValue.thresholdHpa,
         9,
@@ -162,12 +161,12 @@ void main() {
       final ProviderContainer container = await containerWith(
         registration: registration,
       );
-      final SharedPreferences prefs = container.read(sharedPreferencesProvider);
+      final SecureStore store = container.read(secureStoreProvider);
 
       await container.read(alertsControllerProvider.notifier).setThreshold(3);
 
       expect(registration.updatedThresholds, isEmpty);
-      expect(prefs.getDouble(PrefsKeyConstant.alertThreshold), 3);
+      expect(store.getDouble(PrefsKeyConstant.alertThreshold), 3);
     });
 
     test('rethrows when the server update fails', () async {

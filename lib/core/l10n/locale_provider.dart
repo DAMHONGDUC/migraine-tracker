@@ -1,14 +1,8 @@
 import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-/// Overridden in `main()` with the real instance (and in tests with a mock).
-final sharedPreferencesProvider = Provider<SharedPreferences>(
-  (ref) => throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden at app start',
-  ),
-);
+import '../storage/secure_store.dart';
 
 /// The user's language choice. `null` means "follow the system locale".
 final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
@@ -20,17 +14,17 @@ class LocaleController extends Notifier<Locale?> {
 
   @override
   Locale? build() {
-    final code = ref.watch(sharedPreferencesProvider).getString(_prefsKey);
+    final String? code = ref.watch(secureStoreProvider).getString(_prefsKey);
     return code == null ? null : Locale(code);
   }
 
   Future<void> set(Locale? locale) async {
     state = locale;
-    final prefs = ref.read(sharedPreferencesProvider);
+    final SecureStore store = ref.read(secureStoreProvider);
     if (locale == null) {
-      await prefs.remove(_prefsKey);
+      await store.remove(_prefsKey);
     } else {
-      await prefs.setString(_prefsKey, locale.languageCode);
+      await store.setString(_prefsKey, locale.languageCode);
     }
   }
 }

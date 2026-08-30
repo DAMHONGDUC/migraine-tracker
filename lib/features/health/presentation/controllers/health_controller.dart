@@ -1,11 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
-import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../domain/entities/health_connections.dart';
 import '../../domain/enums/health_data_kind.dart';
 import '../../providers.dart';
@@ -21,7 +20,7 @@ class HealthController extends Notifier<HealthConnections> {
 
   @override
   HealthConnections build() {
-    final SharedPreferences prefs = ref.watch(sharedPreferencesProvider);
+    final SecureStore prefs = ref.watch(secureStoreProvider);
     // Someone who connected under the old single switch had both; splitting the flag must not read as the app quietly disconnecting on them.
     final bool legacy =
         prefs.getBool(PrefsKeyConstant.healthConnected) ?? false;
@@ -46,7 +45,7 @@ class HealthController extends Notifier<HealthConnections> {
 
       if (!answered) return false;
 
-      await ref.read(sharedPreferencesProvider).setBool(keyOf(kind), true);
+      await ref.read(secureStoreProvider).setBool(keyOf(kind), true);
       AppAnalytics.logHealthConnectionToggled(enabled: true);
       state = state.withKind(kind, true);
 
@@ -70,7 +69,7 @@ class HealthController extends Notifier<HealthConnections> {
       false,
     );
     try {
-      await ref.read(sharedPreferencesProvider).setBool(keyOf(kind), false);
+      await ref.read(secureStoreProvider).setBool(keyOf(kind), false);
       AppAnalytics.logHealthConnectionToggled(enabled: false);
       state = state.withKind(kind, false);
     } catch (error, stackTrace) {
@@ -94,7 +93,7 @@ class HealthController extends Notifier<HealthConnections> {
 
   /// Every source at once, for the GDPR wipe — it clears the legacy flag too, so a wipe cannot leave the old key behind to reconnect on next launch.
   Future<void> disconnectAll() async {
-    final SharedPreferences prefs = ref.read(sharedPreferencesProvider);
+    final SecureStore prefs = ref.read(secureStoreProvider);
 
     await prefs.setBool(PrefsKeyConstant.healthConnected, false);
     for (final HealthDataKind kind in HealthDataKind.values) {

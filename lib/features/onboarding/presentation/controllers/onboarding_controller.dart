@@ -4,8 +4,8 @@ import 'package:system_design/common.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
-import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/permissions/app_permission.dart';
+import '../../../../core/storage/secure_store.dart';
 import '../../../weather/providers.dart';
 
 /// Orchestrates onboarding: the location permission request and persisting the user's choices. The screen only renders pages and calls these.
@@ -31,7 +31,7 @@ class OnboardingController {
 
   /// Forgets that onboarding was ever done, so the router redirects here again on the next frame.
   Future<void> reset() async {
-    final prefs = _ref.read(sharedPreferencesProvider);
+    final prefs = _ref.read(secureStoreProvider);
 
     try {
       await prefs.remove(PrefsKeyConstant.onboardingCompleted);
@@ -66,7 +66,7 @@ class OnboardingController {
 
   /// Persists the personal pressure threshold (hard rule 7: user-tunable) and marks onboarding as done so the router stops redirecting here.
   Future<void> complete({required double thresholdHpa}) async {
-    final prefs = _ref.read(sharedPreferencesProvider);
+    final prefs = _ref.read(secureStoreProvider);
 
     try {
       await prefs.setDouble(PrefsKeyConstant.alertThreshold, thresholdHpa);

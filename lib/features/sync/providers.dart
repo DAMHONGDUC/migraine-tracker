@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/firebase_constants.dart';
 import '../../core/db/database_provider.dart';
-import '../../core/l10n/locale_provider.dart';
+import '../../core/storage/secure_store.dart';
 import '../attacks/data/repositories/drift_attack_sync_store.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../medications/data/repositories/drift_medication_reminder_sync_store.dart';
@@ -41,7 +41,7 @@ final remoteSyncRepositoryProvider = Provider<RemoteSyncRepository>(
 );
 
 final syncCursorStoreProvider = Provider<SyncCursorStore>(
-  (ref) => PrefsSyncCursorStore(ref.watch(sharedPreferencesProvider)),
+  (ref) => PrefsSyncCursorStore(ref.watch(secureStoreProvider)),
 );
 
 final attackCipherProvider = Provider<AttackCipher>(
