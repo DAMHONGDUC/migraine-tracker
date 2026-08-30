@@ -40,7 +40,7 @@ void main() {
 
       expect(store.getString('app_locale'), isNull);
       expect(signOut.calls, 1);
-      expect(prefs.getBool(FreshInstallGuard.installMarkerKey), isTrue);
+      expect(prefs.getBool(FreshInstallGuard.isInstalledKey), isTrue);
     });
 
     /// The whole reason the guard exists: install, sign in, delete, install again. Only the Keychain survives that, and it must not be what carries the session back.
@@ -83,7 +83,7 @@ void main() {
 
         expect(signOut.calls, 1);
         expect(store.getKeys(), isEmpty);
-        expect(prefs.getBool(FreshInstallGuard.installMarkerKey), isTrue);
+        expect(prefs.getBool(FreshInstallGuard.isInstalledKey), isTrue);
       },
     );
   });
@@ -109,14 +109,14 @@ void main() {
       // Nothing was deleted on an update, so there is nothing to make fresh.
       expect(signOut.calls, isZero);
       // One owner per value: the copies left in shared_preferences go once they are carried.
-      expect(prefs.getKeys(), <String>{FreshInstallGuard.installMarkerKey});
+      expect(prefs.getKeys(), <String>{FreshInstallGuard.isInstalledKey});
     });
   });
 
   group('same install', () {
     test('a later launch touches nothing', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{FreshInstallGuard.installMarkerKey: true},
+        prefs: <String, Object>{FreshInstallGuard.isInstalledKey: true},
         keychain: <String, String>{'app_locale': 'vi'},
       );
       final RecordingSignOut signOut = RecordingSignOut();
@@ -130,7 +130,7 @@ void main() {
     /// The marker is written by the guard itself, so counting it as a legacy value would make every first launch look like an update.
     test('the marker alone is not read as an update', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{FreshInstallGuard.installMarkerKey: false},
+        prefs: <String, Object>{FreshInstallGuard.isInstalledKey: false},
       );
       final RecordingSignOut signOut = RecordingSignOut();
 

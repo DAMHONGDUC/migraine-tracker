@@ -10,8 +10,8 @@ import 'secure_store.dart';
 final class FreshInstallGuard {
   const FreshInstallGuard._();
 
-  /// The one `shared_preferences` key in the app. Present = this install has run before; absent = the Keychain is speaking for an install that no longer exists.
-  static const String installMarkerKey = 'install_marker';
+  /// The one `shared_preferences` key in the app. True = this install has run before; absent (which reads as false) = the Keychain is speaking for an install that no longer exists, because a delete takes `shared_preferences` with it and only the Keychain survives.
+  static const String isInstalledKey = 'is_installed';
 
   /// Runs before the anonymous session is created, so a purge is not immediately followed by signing the old user back in. [signOut] is `FirebaseAuth.instance.signOut` — passed in because the session is the one thing here a unit test cannot have.
   ///
@@ -21,12 +21,12 @@ final class FreshInstallGuard {
     SecureStore store,
     Future<void> Function() signOut,
   ) async {
-    if (prefs.getBool(installMarkerKey) ?? false) return;
+    if (prefs.getBool(isInstalledKey) ?? false) return;
 
     // Keys other than the marker mean an install that predates it — an update, not a reinstall. An update keeps its settings AND its session (owner's rule): nothing was deleted, so there is nothing to make fresh.
     final List<String> legacy = prefs
         .getKeys()
-        .where((String key) => key != installMarkerKey)
+        .where((String key) => key != isInstalledKey)
         .toList();
 
     // The key NAMES are logged, not their values: which keys survived is the whole diagnosis when a reinstall is misread as an update, and a key name says nothing about the user.
@@ -42,7 +42,7 @@ final class FreshInstallGuard {
         await _adopt(prefs, legacy, store);
       }
       // Last, so a crash anywhere above is retried on the next launch rather than skipped.
-      await prefs.setBool(installMarkerKey, true);
+      await prefs.setBool(isInstalledKey, true);
       if (legacy.isNotEmpty) await _dropLegacy(prefs, legacy);
     } catch (error, stackTrace) {
       SdLogger.error(
