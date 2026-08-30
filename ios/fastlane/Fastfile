@@ -1,5 +1,5 @@
 # Fastlane never archives in this project — it signs, exports and distributes
-# what `tool/build-ipa.sh` builds.
+# what `packages/system_design/tool/build-ipa.sh` builds.
 #
 # Firebase and RevenueCat config arrive through `--dart-define-from-file`, a
 # flag xcodebuild and `gym` know nothing about. An archive made by them carries
@@ -7,7 +7,7 @@
 # app dies on the first `FirebaseAuth.instance` with "[core/no-app] No Firebase
 # App '[DEFAULT]' has been created" — a crash naming nothing to do with the
 # missing flag. That is the same trap as archiving from Xcode, and the reason
-# `tool/build-ipa.sh` exists at all. Do not replace the `sh` call below with
+# that script exists at all. Do not replace the `sh` call below with
 # `build_app`.
 
 require "English"
@@ -22,7 +22,7 @@ WIDGET_ID = "app.dd.migraine.tracker.BaroEaseWidgetExtension".freeze
 TEAM_ID = "WNG5UWNJ6H".freeze
 
 platform :ios do
-  desc "Build through tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false, notes: a line for What to Test"
+  desc "Build through packages/system_design/tool/build-ipa.sh and upload to TestFlight. flavor: dev|prod, bump: true|false, notes: a line for What to Test"
   lane :beta do |options|
     flavor = validate_flavor!((options[:flavor] || "prod").to_s)
 
@@ -35,7 +35,7 @@ platform :ios do
 
     # First, before the network and long before the build. `flavor` picks
     # env/<flavor>.json and nothing else; the Firebase project the app really
-    # talks to comes from the native files `melos run prepare-env-<flavor>`
+    # talks to comes from the native files `packages/system_design/tool/prepare-env.sh <flavor>`
     # copied into the tree, and nothing ties the two together. So
     # `prepare-env-dev` followed by `beta flavor:prod` uploads an app that
     # writes into the wrong Firestore — and it RUNS, so nothing downstream
@@ -133,7 +133,7 @@ platform :ios do
       )
     end
 
-    command = ["sh", "tool/build-ipa.sh", flavor]
+    command = ["sh", "packages/system_design/tool/build-ipa.sh", flavor]
     command << "--export-options-plist=#{export_plist}" if export_plist
     Dir.chdir(root) { sh(*command) }
 
@@ -192,6 +192,54 @@ platform :ios do
     # If the push fails here the job fails loudly with the build already up —
     # commit the number by hand rather than releasing over it.
     commit_build_number(root, version, build) if bump && is_ci
+
+    UI.success("Uploaded #{flavor} #{version}+#{build} to TestFlight.")
+  end
+
+  desc "Upload an IPA that is already in build/ios/ipa, without rebuilding. flavor: dev|prod. For a build that succeeded and an upload that did not."
+  lane :upload do |options|
+    # The recovery path for `beta` dying after the twenty-five minute build:
+    # a network drop, an expired token, a rejected binary. The IPA on disk is
+    # the one that was built, so nothing here builds, bumps or signs — doing
+    # any of it would produce a DIFFERENT binary and the one on disk would
+    # still be unuploaded.
+    flavor = validate_flavor!((options[:flavor] || "prod").to_s)
+    notes = (options[:notes] || ENV["RELEASE_NOTES"]).to_s.strip
+
+    root = repo_root
+    verify_flavor_config(root, flavor)
+
+    ipa = Dir["#{root}/build/ios/ipa/*.ipa"].first
+    UI.user_error!("No IPA under build/ios/ipa. Build one first: melos run release-#{flavor}.") if ipa.nil?
+
+    # pubspec is the number the binary carries: `beta` writes it there BEFORE
+    # the build, so the file and the IPA agree unless someone edited it in
+    # between — which would make the note lie about the build it describes.
+    version, build = pubspec_version(root)
+    latest = latest_testflight_build_number(
+      api_key: asc_api_key,
+      app_identifier: APP_ID,
+      version: version,
+      initial_build_number: 0,
+    )
+    if build.to_i <= latest.to_i
+      UI.user_error!(
+        "TestFlight already has build #{latest} for #{version}, and this IPA is #{build}. " \
+        "It was uploaded already, or it needs rebuilding with a higher number.",
+      )
+    end
+
+    note = testflight_changelog(flavor, version, build, notes)
+    upload_to_testflight(
+      api_key: asc_api_key,
+      ipa: ipa,
+      app_identifier: APP_ID,
+      changelog: note,
+      localized_build_info: { "en-US" => { whats_new: note } },
+      skip_waiting_for_build_processing: true,
+    )
+
+    upload_dsyms(root)
 
     UI.success("Uploaded #{flavor} #{version}+#{build} to TestFlight.")
   end
@@ -515,7 +563,7 @@ def verify_flavor_config(root, flavor)
 
   gsp = "#{root}/ios/Runner/GoogleService-Info.plist"
   unless File.exist?(gsp)
-    UI.user_error!("#{gsp} is missing. Run `melos run prepare-env-#{flavor}`, or download it from the Firebase console.")
+    UI.user_error!("#{gsp} is missing. Run `sh packages/system_design/tool/prepare-env.sh #{flavor}`, or download it from the Firebase console.")
   end
 
   project = plist_value(gsp, "PROJECT_ID")
@@ -523,7 +571,7 @@ def verify_flavor_config(root, flavor)
     UI.user_error!(
       "GoogleService-Info.plist is #{project.inspect}, but flavor #{flavor} means #{expected.inspect} " \
       "(.firebaserc). The tree is set up for the other environment — run " \
-      "`melos run prepare-env-#{flavor}` and start again.",
+      "`sh packages/system_design/tool/prepare-env.sh #{flavor}` and start again.",
     )
   end
 
@@ -573,7 +621,7 @@ def verify_sign_in_url_scheme(root, gsp, flavor)
   UI.user_error!(
     "ios/Runner/Info.plist does not carry #{reversed}, the sign-in URL scheme of the " \
     "#{flavor} Firebase project. Google sign-in would build fine and never receive its " \
-    "callback. Run `melos run prepare-env-#{flavor}`.",
+    "callback. Run `sh packages/system_design/tool/prepare-env.sh #{flavor}`.",
   )
 end
 

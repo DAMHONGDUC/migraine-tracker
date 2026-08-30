@@ -71,13 +71,13 @@ jobs:
         run: melos bootstrap
 
       - name: Generate
-        run: melos run gen
+        run: sh packages/system_design/tool/gen.sh
 
       - name: Analyze (zero warnings allowed)
-        run: melos run analyze
+        run: sh packages/system_design/tool/analyze.sh
 
       - name: Test
-        run: melos run test
+        run: sh packages/system_design/tool/test.sh
 
   functions:
     runs-on: ubuntu-latest

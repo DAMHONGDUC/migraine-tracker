@@ -163,7 +163,7 @@ jobs:
 
       # ios/Runner/Info.plist is COMMITTED, and it carries the Google sign-in
       # URL scheme — the reversed client id of ONE Firebase project, whichever
-      # `melos run prepare-env-dev|prod` was last run on the machine that made
+      # `prepare-env.sh dev|prod` was last run on the machine that made
       # the commit. So the branch is right for one flavor and wrong for the
       # other, and the wrong one builds, installs, opens the Google sheet and
       # never gets its callback.
@@ -189,7 +189,7 @@ jobs:
         run: melos bootstrap
 
       - name: Generate
-        run: melos run gen
+        run: sh packages/system_design/tool/gen.sh
 
       # The runner image ships its own fastlane and its own CocoaPods, at
       # whatever versions the image happens to carry. Pinning Ruby and
