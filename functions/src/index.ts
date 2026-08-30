@@ -2,18 +2,32 @@ import { randomBytes } from "node:crypto";
 
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp } from "firebase-admin/app";
-import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
+import {
+  DocumentData,
+  FieldValue,
+  getFirestore,
+  Timestamp,
+} from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
-import { defineSecret, defineString } from "firebase-functions/params";
+import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
-import { runPressureAlerts } from "./core/alertRun";
+import {
+  ACCESS_COLLECTION,
+  PREMIUM_FIELD,
+  premiumEmailsFrom,
+} from "./core/accessAllowlist";
+import { AlertRunResult, runPressureAlerts } from "./core/alertRun";
+import {
+  ALERT_RUN_COLLECTION,
+  alertRunId,
+  alertRunRecord,
+} from "./core/alertRunRecord";
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
-import { premiumEmailMatches } from "./core/premiumAccount";
 import { tearDownAccount } from "./core/accountTeardown";
 import {
   ANONYMOUS_PROVIDER,
@@ -42,9 +56,6 @@ initializeApp();
 const REGION = "europe-west1";
 const revenuecatAuth = defineSecret("REVENUECAT_WEBHOOK_AUTH");
 
-/** The build's own premium account, premium in the app whatever RevenueCat says — see `lib/features/premium/CLAUDE.md`. Unset on a normal deploy. */
-const premiumEmail = defineString("PREMIUM_EMAIL");
-
 /** Firestore caps a batch at 500 writes. */
 const BATCH_LIMIT = 500;
 
@@ -65,107 +76,187 @@ export const pressureAlertJob = onSchedule(
     const db = getFirestore();
     const now = new Date();
 
-    const emails = premiumEmailMatches(premiumEmail.value());
-    const queries = [db.collection("users").where("premium", "==", true).get()];
+    let result: AlertRunResult | null = null;
+    let thrown: unknown;
 
-    // The webhook is the only writer of `premium`, so a PREMIUM_EMAIL account never carries it — without this query the cron is the one surface that disagrees with the app.
-    if (emails.length > 0) {
-      queries.push(db.collection("users").where("email", "in", emails).get());
+    try {
+      result = await runAlertPass(db, now);
+    } catch (error) {
+      thrown = error;
+      logger.error("pressureAlertJob failed", { error: String(error) });
     }
 
-    const snapshots = await Promise.all(queries);
-
-    const users: AlertUser[] = [];
-    const seen = new Set<string>();
-    for (const doc of snapshots.flatMap((snapshot) => snapshot.docs)) {
-      // A premium subscriber signed in as PREMIUM_EMAIL matches both queries.
-      if (seen.has(doc.id)) continue;
-      seen.add(doc.id);
-
-      const data = doc.data();
-      if (typeof data.fcmToken !== "string" || data.fcmToken.length === 0) {
-        continue;
-      }
-      if (typeof data.geohash5 !== "string" || data.geohash5.length !== 5) {
-        continue;
-      }
-      users.push({
-        uid: doc.id,
-        geohash5: data.geohash5,
-        fcmToken: data.fcmToken,
-        thresholdHpa:
-          typeof data.alertThreshold === "number" ? data.alertThreshold : 5,
-        history: {
-          lastAlertAt:
-            data.lastAlertAt instanceof Timestamp
-              ? data.lastAlertAt.toDate()
-              : undefined,
-          lastEventId:
-            typeof data.lastAlertEventId === "string"
-              ? data.lastAlertEventId
-              : undefined,
-        },
+    // Best-effort, and after the catch: the history is a record OF the run, so a run that threw is the one it most needs to hold. A failure to write it must not become a second failure on top.
+    const record = alertRunRecord({
+      startedAt: now,
+      finishedAt: new Date(),
+      result,
+      error: thrown,
+    });
+    try {
+      await db
+        .collection(ALERT_RUN_COLLECTION)
+        .doc(alertRunId(now))
+        .set({
+          ...record,
+          startedAt: Timestamp.fromDate(record.startedAt),
+          finishedAt: Timestamp.fromDate(record.finishedAt),
+        });
+    } catch (error) {
+      logger.error("alert run history write failed", {
+        runId: alertRunId(now),
+        status: record.status,
+        error: String(error),
       });
     }
 
-    const result = await runPressureAlerts(users, {
-      now,
-      fetchCellDrop: async (cell) => {
-        const { lat, lon } = geohashCenter(cell);
-        const forecast = await fetchHourlyPressure(lat, lon);
-        return maxDrop24h(forecast, now);
-      },
-      sendPush: async (user, drop) => {
-        await getMessaging().send({
-          token: user.fcmToken,
-          notification: {
-            title: "Pressure drop ahead",
-            body:
-              `Barometric pressure is forecast to fall ` +
-              `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
-          },
-          // - The app renders the row from its own ARB: the strings above are English whatever language the user picked, so only numbers travel.
-          data: {
-            type: "pressureAlert",
-            eventId: drop.eventId,
-            dropHpa: String(drop.dropHpa),
-            at: now.toISOString(),
-          },
-          // Sent so a background handler can be added later without touching the cron.
-          apns: {
-            payload: { aps: { sound: "default", "content-available": 1 } },
-          },
-        });
-      },
-      // lastAlertDropHpa is written for the client, not for dedupe.
-      recordAlert: async (uid, drop, at) => {
-        await db.collection("users").doc(uid).update({
-          lastAlertAt: Timestamp.fromDate(at),
-          lastAlertEventId: drop.eventId,
-          lastAlertDropHpa: drop.dropHpa,
-        });
-      },
-      removeToken: async (uid) => {
-        await db
-          .collection("users")
-          .doc(uid)
-          .update({ fcmToken: FieldValue.delete() });
-      },
-      logError: (message, data) => logger.error(message, data),
-      logInfo: (message, data) => logger.info(message, data),
+    logger.info("pressureAlertJob done", {
+      runId: alertRunId(now),
+      status: record.status,
+      users: record.users,
+      cells: record.cells,
+      failedCells: record.failedCellCount,
+      pushesSent: record.pushesSent,
     });
 
-    logger.info("pressureAlertJob done", {
-      users: result.users,
-      cells: result.cells,
-      failedCells: result.failedCells.length,
-      pushesSent: result.pushesSent,
-    });
-    if (result.failedCells.length > 0) {
-      throw new Error(`${result.failedCells.length} cells failed weather fetch`);
+    // Re-thrown so the run still shows as failed to the scheduler; the history is written either way.
+    if (thrown !== undefined) throw thrown;
+    if (record.failedCellCount > 0) {
+      throw new Error(`${record.failedCellCount} cells failed weather fetch`);
     }
   },
 );
+
+/**
+ * Everything `pressureAlertJob` does apart from writing its own history —
+ * split out so the history write sits outside the try/catch that guards it
+ * and cannot be skipped by an early return or a throw from inside.
+ */
+async function runAlertPass(
+  db: FirebaseFirestore.Firestore,
+  now: Date,
+): Promise<AlertRunResult> {
+  const rows = await db
+    .collection(ACCESS_COLLECTION)
+    .where(PREMIUM_FIELD, "==", true)
+    .get();
+  const emails = premiumEmailsFrom(
+    rows.docs.map((doc) => ({ id: doc.id, premium: doc.get(PREMIUM_FIELD) })),
+  );
+
+  // The webhook is the only writer of `premium`, so an allow-listed account never carries it — without this the cron is the one surface that disagrees with the app.
+  //
+  // Resolved through Auth rather than a `users.email` query: Auth normalises an address to lower case, Firestore `==` does not, so a doc written "Review@BaroEase.app" is invisible to the query the allow-list can build. Auth also answers for an account that has no `users` doc yet, which the query cannot.
+  const granted = new Set<string>();
+  for (const email of emails) {
+    try {
+      granted.add((await getAuth().getUserByEmail(email)).uid);
+    } catch (error) {
+      // Normal, not broken: an address the owner added before that person ever signed in. Logged with the address because a list of two or three the owner typed themselves is exactly what this line has to name to be useful.
+      logger.warn("allow-listed address has no account", {
+        email,
+        error: String(error),
+      });
+    }
+  }
+
+  const subscribers = await db
+    .collection("users")
+    .where("premium", "==", true)
+    .get();
+  const docs: { id: string; data: DocumentData }[] = subscribers.docs.map(
+    (doc) => ({ id: doc.id, data: doc.data() }),
+  );
+
+  if (granted.size > 0) {
+    const refs = [...granted].map((uid) => db.collection("users").doc(uid));
+    for (const doc of await db.getAll(...refs)) {
+      const data = doc.data();
+      // No doc means the account exists but has never registered a device — nothing to push to.
+      if (data !== undefined) docs.push({ id: doc.id, data });
+    }
+  }
+
+  const users: AlertUser[] = [];
+  const seen = new Set<string>();
+  for (const doc of docs) {
+    // A premium subscriber who is also allow-listed appears in both sets.
+    if (seen.has(doc.id)) continue;
+    seen.add(doc.id);
+
+    const data = doc.data;
+    if (typeof data.fcmToken !== "string" || data.fcmToken.length === 0) {
+      continue;
+    }
+    if (typeof data.geohash5 !== "string" || data.geohash5.length !== 5) {
+      continue;
+    }
+    users.push({
+      uid: doc.id,
+      geohash5: data.geohash5,
+      fcmToken: data.fcmToken,
+      thresholdHpa:
+        typeof data.alertThreshold === "number" ? data.alertThreshold : 5,
+      history: {
+        lastAlertAt:
+          data.lastAlertAt instanceof Timestamp
+            ? data.lastAlertAt.toDate()
+            : undefined,
+        lastEventId:
+          typeof data.lastAlertEventId === "string"
+            ? data.lastAlertEventId
+            : undefined,
+      },
+    });
+  }
+
+  return runPressureAlerts(users, {
+    now,
+    fetchCellDrop: async (cell) => {
+      const { lat, lon } = geohashCenter(cell);
+      const forecast = await fetchHourlyPressure(lat, lon);
+      return maxDrop24h(forecast, now);
+    },
+    sendPush: async (user, drop) => {
+      await getMessaging().send({
+        token: user.fcmToken,
+        notification: {
+          title: "Pressure drop ahead",
+          body:
+            `Barometric pressure is forecast to fall ` +
+            `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
+        },
+        // - The app renders the row from its own ARB: the strings above are English whatever language the user picked, so only numbers travel.
+        data: {
+          type: "pressureAlert",
+          eventId: drop.eventId,
+          dropHpa: String(drop.dropHpa),
+          at: now.toISOString(),
+        },
+        // Sent so a background handler can be added later without touching the cron.
+        apns: {
+          payload: { aps: { sound: "default", "content-available": 1 } },
+        },
+      });
+    },
+    // lastAlertDropHpa is written for the client, not for dedupe.
+    recordAlert: async (uid, drop, at) => {
+      await db.collection("users").doc(uid).update({
+        lastAlertAt: Timestamp.fromDate(at),
+        lastAlertEventId: drop.eventId,
+        lastAlertDropHpa: drop.dropHpa,
+      });
+    },
+    removeToken: async (uid) => {
+      await db
+        .collection("users")
+        .doc(uid)
+        .update({ fcmToken: FieldValue.delete() });
+    },
+    logError: (message, data) => logger.error(message, data),
+    logInfo: (message, data) => logger.info(message, data),
+  });
+}
 
 /** Hands a signed-in user the key their devices encrypt attack payloads with, minting one on first use. */
 export const getSyncKey = onCall(

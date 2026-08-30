@@ -40,6 +40,37 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // The owner's allow-list: one document per address, id = the address
+    // lower-cased. `premium` grants premium in the app and makes the account a
+    // target of the pressure-alert cron; `devSettings` shows the Dev group in
+    // Settings. Replaces the PREMIUM_EMAIL / SHOW_DEV_SETTINGS build flags,
+    // which could only be changed by shipping a new binary.
+    //
+    // A client may read ONE document — its own — and never list the
+    // collection. That is the whole reason the address is the document id
+    // rather than a field: a collection matched on a field has to be readable
+    // as a whole to be readable at all, and the whole is a list of real
+    // people's email addresses. The cron reads it through the Admin SDK,
+    // which bypasses rules.
+    //
+    // Written only from the console. A client that could grant itself premium
+    // is exactly the client-side premium flag this project forbids.
+    match /app_access/{email} {
+      allow read: if request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email.lower() == email;
+      allow write: if false;
+    }
+
+    // One document per pressureAlertJob run — see functions/src/index.ts.
+    // Operational history for the owner, written by the Admin SDK and read
+    // from the console. No client has any business with it, and it names uids
+    // and geohash cells, so it is denied outright rather than left to the
+    // allow-list below.
+    match /pressure_alert_runs/{runId} {
+      allow read, write: if false;
+    }
+
     // The per-user key that attack payloads are encrypted with. Denied to
     // every client, including its owner: it is handed out only by the
     // getSyncKey callable, which checks the caller is signed in (never
@@ -77,9 +108,11 @@ service cloud.firestore {
     // list drift apart — which is how medications and reminders once shipped
     // denied, breaking sync AND the dev seed on their first query.
     //
-    // `weather_cache` relies on this being an allowlist: it is written only by
-    // the Admin SDK behind `getWeather` and must stay unreachable from a
-    // client, so it is deliberately absent rather than overlooked.
+    // `weather_cache`, `app_access` and `pressure_alert_runs` rely on this
+    // being an allowlist: each is written only by the Admin SDK and must stay
+    // unreachable from a client here, so all three are deliberately absent
+    // rather than overlooked. (`app_access` grants a one-document read of its
+    // own above; this wildcard must not widen that to a query.)
     //
     // Note what these rules can NOT do: a query over one of these collections
     // has no single document to evaluate, so Firestore refuses it unless the

@@ -1,10 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:system_design/common.dart';
 
-import '../../core/constants/log_tag_constant.dart';
 import '../../core/env/app_env.dart';
-import '../auth/domain/entities/auth_user.dart';
-import '../auth/providers.dart';
+import '../access/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
 import 'data/repositories/revenue_cat_purchase_repository.dart';
@@ -59,32 +56,10 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
   DevPremiumOverride.new,
 );
 
-/// Whether the session belongs to the address [AppEnv.premiumEmail] names — the App Review account, or the owner's own (owner's rule).
-final isPremiumEmailProvider = Provider<bool>((ref) {
-  final String allowed = AppEnv.premiumEmail.trim().toLowerCase();
-
-  if (allowed.isEmpty) return false;
-
-  final AuthUser? user = switch (ref.watch(authUserProvider)) {
-    AsyncData(value: final AuthUser? value) => value,
-    _ => ref.watch(authRepositoryProvider).currentUser,
-  };
-  final bool granted = user?.email?.trim().toLowerCase() == allowed;
-
-  if (granted) {
-    SdLogger.info(
-      LogTagConstant.premium,
-      'Premium granted by PREMIUM_EMAIL build config',
-    );
-  }
-
-  return granted;
-});
-
 /// What every gate reads.
 final hasPremiumProvider = Provider<bool>((ref) {
-  // The build's own allow-list, ahead of everything: a reviewer signed in as that address is premium in a prod flavour too, which is the whole point.
-  if (ref.watch(isPremiumEmailProvider)) return true;
+  // The owner's allow-list, ahead of everything: a reviewer signed in as that address is premium in a prod flavour too, which is the whole point.
+  if (ref.watch(hasAccessPremiumProvider)) return true;
 
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {

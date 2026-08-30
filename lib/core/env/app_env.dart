@@ -13,16 +13,6 @@ final class AppEnv {
 
   static bool get isProd => flavor == 'prod';
 
-  /// `true`/`false` to decide the Dev group by hand; empty — the normal state — lets the flavour decide (see [showDevSettings]).
-  static const String _showDevSettings = String.fromEnvironment(
-    'SHOW_DEV_SETTINGS',
-  );
-
-  /// Whether Settings shows its Dev group. Unset it follows the flavour, which is what every build did before the key existed; set on a prod build it is how a TestFlight tester reaches the fixtures without a dev Firebase project behind them.
-  static bool get showDevSettings => _showDevSettings.isEmpty
-      ? !isProd
-      : _showDevSettings.toLowerCase() == 'true';
-
   // --- Firebase (non-secret identifiers; access control is Firestore rules). ---
   static const String firebaseApiKeyAndroid = String.fromEnvironment(
     'FIREBASE_API_KEY_ANDROID',
@@ -96,9 +86,6 @@ final class AppEnv {
     'SUPPORT_EMAIL',
     defaultValue: 'support@baroease.app',
   );
-
-  /// Account that is premium on any build carrying this key, whatever RevenueCat says.
-  static const String premiumEmail = String.fromEnvironment('PREMIUM_EMAIL');
 
   // --- Legal ---
 
