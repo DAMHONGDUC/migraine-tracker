@@ -428,7 +428,8 @@ export const sendTestPush = onCall(
       const code = (error as { code?: string })?.code ?? "unknown";
 
       logger.error("test push failed", { uid, code, error: String(error) });
-      throw new HttpsError("unavailable", `${code}: ${String(error)}`);
+      // The code alone, because this message lands in a snackbar: `String(error)` beside it ran to several lines of SDK prose and pushed the card off the screen. The full text is in the log line above and in `details` for a caller that wants it.
+      throw new HttpsError("unavailable", code, { error: String(error) });
     }
 
     logger.info("test push sent", { uid });
