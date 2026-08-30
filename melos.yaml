@@ -46,9 +46,8 @@ scripts:
 
   release-dev:
     description: >
-      The whole dev release: set-up, dev config, pre-build checks, the
-      firebase deploy, then the TestFlight build. Each step keeps its own
-      prompts.
+      The whole dev release: set-up, dev config, the firebase deploy, then
+      the TestFlight build. Each step keeps its own prompts.
     run: sh packages/system_design/tool/release.sh dev
 
   release-prod:
