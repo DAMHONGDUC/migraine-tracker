@@ -13,7 +13,7 @@ export const ACCESS_COLLECTION = "app_access";
 export const PREMIUM_FIELD = "premium";
 
 /** Shows the Dev group in Settings. Read by the app only — no function branches on it. */
-export const DEV_SETTINGS_FIELD = "devSettings";
+export const DEV_SETTINGS_FIELD = "dev_settings";
 
 /** One row as it comes back from Firestore. */
 export interface AccessRow {

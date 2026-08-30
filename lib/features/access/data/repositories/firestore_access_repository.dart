@@ -19,8 +19,8 @@ class FirestoreAccessRepository implements AccessRepository {
   /// Grants premium in the app and makes the address a target of the pressure-alert cron.
   static const String premiumField = 'premium';
 
-  /// Shows the Dev group in Settings.
-  static const String devSettingsField = 'devSettings';
+  /// Shows the Dev group in Settings. snake_case, like every Firestore field — see `docs/rules/DATA_AND_SYNC.md`.
+  static const String devSettingsField = 'dev_settings';
 
   final FirebaseFirestore _firestore;
 

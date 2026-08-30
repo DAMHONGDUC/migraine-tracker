@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/features/access/data/repositories/firestore_access_repository.dart';
 import 'package:migraine_tracker/features/access/domain/entities/access_grants.dart';
 import 'package:migraine_tracker/features/access/domain/repositories/access_repository.dart';
 import 'package:migraine_tracker/features/access/providers.dart';
@@ -144,5 +145,18 @@ void main() {
     await container.read(accessGrantsProvider.future);
 
     expect(container.read(showDevSettingsProvider), isTrue);
+  });
+
+  test('the document is keyed and shaped the way the console writes it', () {
+    // The Dart entity is camelCase and the document is snake_case
+    // (docs/rules/DATA_AND_SYNC.md), so a rename on one side silently stops
+    // matching the other — and a wrong id is unreadable even to its owner,
+    // because the rule compares it to the lower-cased token address.
+    expect(FirestoreAccessRepository.premiumField, 'premium');
+    expect(FirestoreAccessRepository.devSettingsField, 'dev_settings');
+    expect(
+      FirestoreAccessRepository.documentId('  Review@BaroEase.app  '),
+      'review@baroease.app',
+    );
   });
 }

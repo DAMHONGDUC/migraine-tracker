@@ -42,7 +42,7 @@ service cloud.firestore {
 
     // The owner's allow-list: one document per address, id = the address
     // lower-cased. `premium` grants premium in the app and makes the account a
-    // target of the pressure-alert cron; `devSettings` shows the Dev group in
+    // target of the pressure-alert cron; `dev_settings` shows the Dev group in
     // Settings. Replaces the PREMIUM_EMAIL / SHOW_DEV_SETTINGS build flags,
     // which could only be changed by shipping a new binary.
     //
