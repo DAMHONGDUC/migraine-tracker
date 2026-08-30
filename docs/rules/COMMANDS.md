@@ -382,6 +382,12 @@ optional target, `rules` or `functions`, to do half of it:
   `docs/setup/FIREBASE_PROJECT.md`; the warning disappears on its own once the
   aliases differ. The prompt reads from `/dev/tty` because melos pipes the
   script's stdout.
+- **Both `npm run build` and `npm test` are optional** (`has_npm_script` in
+  `_common.sh`, which asks `npm pkg get`). These scripts are shared with
+  backends that define neither, where `npm test` fails with "Missing script:
+  test" — a message that reads as a broken checkout rather than as a check that
+  does not apply. A skipped one says so on its own line; it never passes
+  silently.
 - **`firebase.json`'s functions predeploy calls `tsc` directly, never `npm run
   build`.** The standalone Firebase CLI is a pkg snapshot bundling its own Node
   and npm 8.19.4; that npm crashes inside `promiseSpawnUid` reading
