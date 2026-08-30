@@ -457,12 +457,12 @@ will not catch this — its `/bin/sh` is bash under another name — so check wi
   then the message:
 
   ```text
-  10:04:31 ==> config — dev
-  10:04:31   i installing 6 files
-  10:04:31   · env_assets/dev.json     -> env/dev.json
-  10:04:31   · env_assets/fastlane.env -> ios/fastlane/.env
-  10:04:32   ⚠ functions/.env reaches the backend only on the next deploy
-  10:04:32 ✔   dev config installed
+  [10:04:31]: ==> config — dev
+  [10:04:31]:   i installing 6 files
+  [10:04:31]:   · env_assets/dev.json     -> env/dev.json
+  [10:04:31]:   · env_assets/fastlane.env -> ios/fastlane/.env
+  [10:04:32]:   ⚠ functions/.env reaches the backend only on the next deploy
+  [10:04:32]: ✔   dev config installed
   ```
 
   | Call | Mark | For |
@@ -480,8 +480,10 @@ will not catch this — its `/bin/sh` is bash under another name — so check wi
   **The mark carries the colour; the message stays plain** (owner's rule). A
   wall of coloured sentences is a wall — an eye scanning for the `✘` should
   find it, not read for it. `step` is the one exception: it has no mark, so
-  the title is the mark. The time is that rule upside down: it is on *every*
-  line, so it is dimmed to get out of the way rather than coloured to be found.
+  the title is the mark. **The time is white and written `[10:04:31]:`**
+  (owner's rule) — it opens every line, so the brackets and the colon are what
+  make it the line's edge rather than the start of the message, and white is
+  what keeps it out of the five colours that each mean something.
 
   **Nesting is the mark's position in the gutter, never an indented message.**
   Flush left is the script talking about itself — a step opening, the run
