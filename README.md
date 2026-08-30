@@ -161,18 +161,18 @@ first install anyway.
 | Deleted with the app | Survives the delete |
 |---|---|
 | The Drift database — attacks, medications, reminders | The Firebase session (Keychain) |
-| `shared_preferences`, which is why the install marker lives there | Every `SecureStore` value (Keychain) |
+| `shared_preferences`, which is why the `is_installed` flag lives there | Every `SecureStore` value (Keychain) |
 | RevenueCat's anonymous id (`NSUserDefaults`) | The App Store subscription itself, on the Apple ID |
 
 ```mermaid
 flowchart TD
-  A["App launch"] --> B{"Install marker in<br/>shared_preferences?"}
+  A["App launch"] --> B{"is_installed set in<br/>shared_preferences?"}
   B -- "yes" --> C["Same install<br/>— nothing to do"]
   B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
   D -- "no → reinstall" --> E["Keychain cleared, session<br/>signed out"]
   D -- "yes → update" --> F["Settings carried into the Keychain,<br/>the old copies dropped"]
   E --> H
-  F --> H["Marker written last,<br/>so a crash retries"]
+  F --> H["is_installed written last,<br/>so a crash retries"]
   H --> I["Anonymous session ensured"]
 ```
 

@@ -59,7 +59,7 @@ first and update the snapshot after.
 | Where | What | Why there |
 |---|---|---|
 | Keychain (`SecureStore`) | Every setting and cursor | Encrypted at rest, `first_unlock_this_device` so it is readable in the background and never restored onto a second device |
-| `shared_preferences` | `FreshInstallGuard.installMarkerKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
+| `shared_preferences` | `FreshInstallGuard.isInstalledKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
 | Drift | The records themselves | The source of truth, and far too big for a Keychain item |
 
 **Deleting the app and installing it again must look like a first install**
