@@ -47,10 +47,13 @@ Logging retention window may have closed over the run that should have sent it.
 | Field | Reads |
 |---|---|
 | `status` | `ok`, `partial` (finished with cells it could not fetch), `failed` (threw) |
-| `users` / `cells` / `pushesSent` | Users considered, WeatherKit calls spent, pushes actually sent |
-| `failedCells` / `failedCellCount` | A sample capped at 50; the count is always the true total |
-| `startedAt` / `finishedAt` / `durationMs` | Where the 540s timeout is going |
+| `users` / `cells` / `pushes_sent` | Users considered, WeatherKit calls spent, pushes actually sent |
+| `failed_cells` / `failed_cell_count` | A sample capped at 50; the count is always the true total |
+| `started_at` / `finished_at` / `duration_ms` | Where the 540s timeout is going |
 | `error` | Null on any run that finished, whatever its status |
+
+Fields are snake_case (`docs/rules/DATA_AND_SYNC.md`) and TypeScript is not, so
+`alertRunDocument` does the rename in one place and a test pins the key set.
 
 - **The write sits outside the try/catch that guards the run.** A run that threw
   is the one the history most needs to hold, so `runAlertPass` is a separate

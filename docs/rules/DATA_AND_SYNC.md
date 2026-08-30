@@ -62,6 +62,40 @@ flat shape reads like SQL and browses in the console, and costs the following.
   user record, and three copies of the same two columns would be three chances
   to disagree.
 
+## Firestore field names are snake_case
+
+**Every field written to Firestore is `snake_case`** (owner's rule):
+`dev_settings`, `pushes_sent`, `failed_cell_count`. Dart and TypeScript stay
+camelCase on their own side — the rename happens at the mapper, which is where
+`AlertRunRecord` → `alertRunDocument` and `FirestoreAccessRepository`'s
+`*Field` constants already sit. **A field name is a string the console shows
+and a query has to spell**, and a collection carrying both spellings of the
+same idea cannot be read at a glance or filtered without guessing which one a
+given document used.
+
+- **Name the field once, as a constant beside the mapper**, never inline at the
+  call site. `dev_settings` typed by hand in three places is three chances for
+  one of them to be `devSettings`, and the read simply returns nothing —
+  no error, no log, just a grant that never applies.
+- **Pin the names in a test.** `alertRunDocument` asserts the exact key set and
+  the access test asserts both `*Field` constants: a camelCase key slipping
+  back in is otherwise invisible until someone opens the console.
+
+**Collections written before the rule are grandfathered, and are not to be
+"fixed".** Renaming a live field is a data migration over documents real users
+own, not a cleanup — and half a rename is worse than neither half.
+
+| Collection | Spelling | Why |
+|---|---|---|
+| `app_access`, `pressure_alert_runs` | snake_case | Written under the rule |
+| `app_updates` | snake_case | `enable_force_update`, `build_number`, `create_date` — already was |
+| `users` | camelCase, grandfathered | `fcmToken`, `alertThreshold`, `geohash5`, `lastAlertAt`, `lastAlertEventId`, `lastAlertDropHpa`, `displayName`, `photoUrl`, `createdAt`, `updatedAt` |
+| `attacks`, `medications`, `medication_reminders`, `notifications` | camelCase, grandfathered | `userId`, `updatedAt`, `payload`, `nonce`, `mac` — and `userId` is named in `firestore.rules` and every index |
+| `weather_cache`, `sync_keys` | camelCase, grandfathered | `cachedAt`, `createdAt` |
+
+**Collection names were already snake_case** and stay that way — the rule
+changes nothing there.
+
 ## 15. Never edit a schema version in place once any database has run it
 
 Bump instead. `AppNotifications.type` was called `kind` in a v8 that had only
