@@ -46,7 +46,7 @@ The v1.0 MVP is implemented. `PLAN.md` is the scope authority.
 | `.github/workflows/ci.yml` | Analyze, test and build Cloud Functions |
 | `.github/workflows/release-ios.yml` | Signed TestFlight build and upload |
 | `ios/fastlane/` | Preflight, certificates and beta lanes |
-| `tool/build-ipa.sh` | Shared local/CI IPA build |
+| `packages/system_design/tool/build-ipa.sh` | Shared local/CI IPA build |
 | `drift_schemas/` | Migration verification against prior schemas |
 | Seven ARB files | Complete localization key set |
 

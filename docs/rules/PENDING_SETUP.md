@@ -29,7 +29,7 @@ silent one, so don't read "no sheet appeared" as "it works".
 (`migraine-tracker-9f7b2` and `migraine-tracker-prd`, per `.firebaserc`), so a
 blocking record written while testing stays off real users — as long as the
 checkout really is the dev one. `fastlane beta` verifies that before it builds;
-`melos run prepare-env-dev` is what puts it right.
+`sh packages/system_design/tool/prepare-env.sh dev` is what puts it right.
 
 ## HealthKit — code and Xcode project done, portal side not
 
@@ -259,7 +259,7 @@ legacy keys, and it merely warns.
 `--dart-define-from-file`, so the archive carries empty config;
 `Firebase.initializeApp` throws, `main()` swallows it, and the app dies on the
 first `FirebaseAuth.instance` with `[core/no-app] No Firebase App '[DEFAULT]' has
-been created`. Always build with `melos run build-ipa-prod` (or `build-ipa-dev`),
+been created`. Always build with `sh packages/system_design/tool/build-ipa.sh prod` (or `build-ipa-dev`),
 or let the Release iOS workflow do it — the fastlane lane calls the same script.
 
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase runs

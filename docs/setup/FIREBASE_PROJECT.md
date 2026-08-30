@@ -65,7 +65,7 @@ Project settings → Your apps.
 - **iOS**: bundle id `app.dd.migraine.tracker`. Download `GoogleService-Info.plist`.
 - **Android**: package `app.dd.migraine.tracker`. Download `google-services.json`.
 
-Put both in `env_assets/` under the `prod-` names `melos run prepare-env-prod`
+Put both in `env_assets/` under the `prod-` names `sh packages/system_design/tool/prepare-env.sh prod`
 expects: `prod-GoogleService-Info.plist`, `prod-google-services.json`. A third
 name goes beside them, `prod-Info.plist` — the Runner `Info.plist` carrying this
 project's Google sign-in URL scheme, which has to switch with the plist rather
@@ -163,7 +163,7 @@ the two RevenueCat keys as they are.
 Then put everything where the build reads it:
 
 ```bash
-melos run prepare-env-prod
+sh packages/system_design/tool/prepare-env.sh prod
 ```
 
 **Do not open `env/*.json` to check the values** (hard rule 13). If a build

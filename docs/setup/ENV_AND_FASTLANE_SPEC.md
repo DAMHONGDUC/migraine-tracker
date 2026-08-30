@@ -44,7 +44,7 @@ env_assets/
   fastlane.env                      (one, both flavors)
 ```
 
-`tool/prepare-env.sh <dev|prod>` copies them where the build reads them. Its
+`packages/system_design/tool/prepare-env.sh <dev|prod>` copies them where the build reads them. Its
 contract:
 
 1. **Only the flavor named is installed** (owner's rule): `dev` writes
@@ -133,7 +133,7 @@ template and says loudly which files it created.
 | `ios/Gemfile` | `fastlane`, plus `cocoapods` pinned to the version in `Podfile.lock` if any plugin still needs pods. |
 | `ios/fastlane/.env` | The six local credentials, gitignored. |
 | `ios/fastlane/Fastfile` | The three lanes below. |
-| `tool/build-ipa.sh` | The build, and only the build. |
+| `packages/system_design/tool/build-ipa.sh` | The build, and only the build. |
 
 `ios/fastlane/.env`, six keys, values never printed — check its shape with
 `cut -d= -f1 ios/fastlane/.env`:

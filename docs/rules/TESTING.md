@@ -12,7 +12,7 @@ What is tested, what is suspended, and what is still owed.
 ## Tests are suspended for the UI redesign — owner's call, and it has an end
 
 While the redesign in `docs/archive/UI_SPEC.md` is in flight, a UI change ships
-without updating the widget tests it breaks, and `melos run test` gates none of
+without updating the widget tests it breaks, and `sh packages/system_design/tool/test.sh` gates none of
 that work. The reason is churn: the redesign moves layout, sizes and widget
 identity across ~22 screens plus the design system, so most of those tests fail
 on the change rather than on a bug, and fixing them screen by screen would be
@@ -20,7 +20,7 @@ redone at the next iteration.
 
 What this does **not** suspend:
 
-- **`melos run analyze` still passes with zero findings.** It catches real
+- **`sh packages/system_design/tool/analyze.sh` still passes with zero findings.** It catches real
   breakage, costs seconds, and does not care how a screen looks.
 - **Non-UI tests stay honest.** `domain/`, `data/`, the correlation engines,
   migrations and the Cloud Functions are unaffected.

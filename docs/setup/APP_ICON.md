@@ -28,7 +28,7 @@ it. Nothing else here is negotiable.
 ## Regenerating the set
 
 ```sh
-dart run tool/strip_icon_marker.dart assets/images/app_icon_v5.png assets/images/final_app_icon.png
+dart run packages/system_design/tool/strip_icon_marker.dart assets/images/app_icon_v5.png assets/images/final_app_icon.png
 dart run flutter_launcher_icons
 ```
 
@@ -41,7 +41,7 @@ exactly what 2.3.8 was.
 Gemini stamps two four-point sparkles into the bottom-right corner of every
 image it generates. At 1024 — the size App Store Connect shows the marketing
 icon at — they are plainly a watermark, which is what
-`tool/strip_icon_marker.dart` removes.
+`packages/system_design/tool/strip_icon_marker.dart` removes.
 
 It clone-stamps a clean patch of background over the corner, cross-faded so no
 seam shows. A flat `#0C0C0E` rectangle would not do: the background is a

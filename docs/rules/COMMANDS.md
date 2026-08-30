@@ -3,6 +3,19 @@
 Melos is the task runner (`melos.yaml`). Read this before running, building,
 seeding or deploying anything.
 
+**Melos carries eight commands, and they are the ones a human types**:
+`set-up`, `deep-set-up`, `release-dev`, `release-prod`, `deploy-firebase-dev`,
+`deploy-firebase-prod`, `upload-ipa-dev`, `upload-ipa-prod`. Everything else a
+release needs — `gen`, `analyze`, `test`, `prepare-env`, `pre-build`,
+`build-ipa` — is still a script, run by the command that needs it or by hand as
+`sh packages/system_design/tool/<name>.sh`. Owner's rule: the list you scroll
+through should be the list of things you actually run.
+
+**Every script lives in `packages/system_design/tool/`**, inside the design
+system submodule, so `git clone --recurse-submodules` is not optional: without
+it there is no `set-up.sh` to run — recover with `git submodule update --init
+--recursive`.
+
 Installed once per machine at the version `pubspec.yaml` pins — `dart pub global
 activate melos 6.3.3`. **The global and local versions must match exactly**, or
 melos runs one version's code against the other's asset templates and bootstrap
@@ -18,9 +31,9 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
 `gen-l10n`, `build_runner`, `env/*.json` from the templates, `npm ci` in
 `functions/`, `pod install` on macOS. Idempotent.
 
-- **It always wipes first** (`tool/_clean.sh`: `flutter clean`, gradle, pods).
+- **It always wipes first** (`_clean.sh`: `flutter clean`, gradle, pods).
   Unconditional on purpose: setup is the one answer to "it built yesterday and
-  not today". Don't reach for it when `melos run gen` would do.
+  not today". Don't reach for it when `gen.sh` would do.
 - **It puts each submodule on the branch named in `.gitmodules` (`main`) and
   fast-forwards it**, rather than leaving it detached at the recorded gitlink, so
   the design system is always editable in place. The price: what you build is
@@ -35,7 +48,7 @@ Everything a clone needs, in order: submodules, `pub get` for both packages,
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
 
-### `melos run prepare-env-dev` / `prepare-env-prod`
+### `sh packages/system_design/tool/prepare-env.sh <dev|prod>`
 
 Copy the real config from `env_assets/` into the six paths the build, the
 backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
@@ -43,7 +56,7 @@ backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
 `ios/Runner/Info.plist` and `functions/.env`. `env_assets/` holds the same live
 keys `env/` does, so it is gitignored and a clone never has it.
 
-- **Only the flavor named is installed.** Owner's rule: `prepare-env-dev`
+- **Only the flavor named is installed.** Owner's rule: `prepare-env.sh dev`
   writes `env/dev.json` and leaves `env/prod.json` alone, so a checkout carries
   the keys of the environment it builds rather than both. Each flavored file has
   one destination — one bundle id serves both environments, so there is no
@@ -80,12 +93,15 @@ keys `env/` does, so it is gitignored and a clone never has it.
 
 ### The rest
 
-- `melos run gen` — after editing Drift tables, Riverpod codegen or ARB files.
-- `melos run analyze` — `--fatal-infos`, exactly what CI runs. Zero findings
-  before any task is done.
-- `melos run test` — the whole suite. **Never run it to verify a change, no
-  exception** — not for shared code (theme, spacing, the design system), not
-  "just before a commit". Scope to what changed: `flutter test
+- `sh packages/system_design/tool/gen.sh` — after editing Drift tables, Riverpod
+  codegen or ARB files. It is also inside `set-up`, so a release never runs it
+  by hand.
+- `sh packages/system_design/tool/analyze.sh` — `--fatal-infos`, exactly what CI
+  runs. Zero findings before any task is done, and `pre-build.sh` fails the
+  release on it.
+- `sh packages/system_design/tool/test.sh` — the whole suite. **Never run it to
+  verify a change, no exception** — not for shared code (theme, spacing, the
+  design system), not "just before a commit". Scope to what changed: `flutter test
   test/features/<x>/<y>_test.dart`, narrowed with `--plain-name`. The full suite
   is minutes of wall clock to re-learn what one scoped file already said.
 - `melos run deep-set-up` — setup plus **Xcode's DerivedData**. Separate because
@@ -98,7 +114,7 @@ keys `env/` does, so it is gitignored and a clone never has it.
   app builds a target called `Runner`, so deleting `Runner-*` would take other
   projects' caches with it.
 - **There are exactly two entry points, `set-up` and `deep-set-up`.** The wipe
-  itself is `tool/_clean.sh`, underscore-prefixed like `_common.sh` because it is
+  itself is `_clean.sh`, underscore-prefixed like `_common.sh` because it is
   not a command. Don't add a third clean-shaped one; the choice is only ever
   "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from
@@ -107,15 +123,19 @@ keys `env/` does, so it is gitignored and a clone never has it.
   (`lib/core/env/app_env.dart`) — the ONLY place `String.fromEnvironment` may
   appear; `firebase_options.dart` and everything else read `AppEnv.*`. The VS
   Code launch configs already pass the flag.
+- `sh packages/system_design/tool/pre-build.sh` — the release gate: one ✓/✗ line
+  per check, non-zero if any blocker is unmet. It is step 3 of a release, so it
+  is rarely run alone — but it is the fastest way to ask "would a release stop
+  on this tree?". **It never reads `env/`** (hard rule 13): every check on a
+  secret file is existence only.
 - `cd functions && npm run build && npm test` — after touching Cloud Functions.
 
 ## Building the IPA
 
-`melos run build-ipa-prod` / `build-ipa-dev`. **They build and nothing else** —
-uploading is fastlane's job, which is why the pair is no longer called
-`release-ios`. One `tool/build-ipa.sh` takes the environment as its argument;
-the two differ only by which `env/*.json` is attached. Anything after the
-environment passes straight to `flutter build ipa`.
+`sh packages/system_design/tool/build-ipa.sh <dev|prod>`. **It builds and
+nothing else** — uploading is fastlane's job. It is not a melos command because
+nobody types it: `release-<flavor>` reaches it through the lane. Anything after
+the environment passes straight to `flutter build ipa`.
 
 - **Both export `app-store`** — both are meant for TestFlight, and that is the
   only method App Store Connect accepts.
@@ -141,16 +161,25 @@ environment passes straight to `flutter build ipa`.
 
 ### `melos run release-dev` / `release-prod`
 
-The whole thing in one command: `prepare-env-<flavor>`, then
-`deploy-firebase-<flavor>`, then `cd ios && bundle exec fastlane beta
-flavor:<flavor> bump:true notes:"<flavor>"`. `tool/release.sh` takes the
-environment as its argument; the sections below still describe each step.
+Five steps, in this order — `release.sh <flavor>`:
 
-- **The order is the whole reason it is one command.** The native config has to
-  be in the tree before the deploy reads `functions/.env`, and before the lane's
-  `verify_flavor_config` compares `GoogleService-Info.plist` against the flavor —
-  running the three by hand in another order is exactly the mistake that ships an
-  app writing into the wrong Firestore.
+| # | Step | What it is |
+|---|---|---|
+| 1 | `set-up.sh` | wipe, submodules, deps, `gen-l10n`, `build_runner`, pods |
+| 2 | `prepare-env.sh <flavor>` | the flavor's real config into the tree |
+| 3 | `pre-build.sh` | the ✓/✗ gate, analyzer included |
+| 4 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
+| 5 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
+
+- **The order is the whole reason it is one command.** `set-up` wipes and
+  regenerates, so it runs before the config it would otherwise build against;
+  the config has to be in the tree before the deploy reads `functions/.env` and
+  before the lane's `verify_flavor_config` compares `GoogleService-Info.plist`
+  against the flavor. Typed by hand in another order, the build ships against
+  the wrong Firebase project and nothing says so.
+- **`set-up` is inside the release** (owner's rule), so a release is never a
+  build of whatever half-generated state the tree was left in. It costs a cold
+  build every time; that is the price of the guarantee.
 - **One command per environment, like the deploys it wraps.** A prod release is
   typed, never a flag on a shared command.
 - **It wraps, it does not replace.** Every prompt and guard stays: the firebase
@@ -161,11 +190,26 @@ environment as its argument; the sections below still describe each step.
   (`if bump && is_ci`), so the script says so on the way out. Commit that number
   by hand after the upload.
 
+### `melos run upload-ipa-dev` / `upload-ipa-prod`
+
+The recovery path when the build succeeded and the upload did not — a dropped
+network, an expired token, a rejected binary. It takes the IPA already in
+`build/ios/ipa` and runs `fastlane upload`, which **builds nothing, bumps
+nothing and signs nothing**: any of those would produce a different binary and
+leave the one on disk still unuploaded.
+
+- **The build number comes from `pubspec.yaml`**, which is what the binary
+  carries — `beta` writes it there before the build. The lane refuses when
+  TestFlight already has that number, because then the IPA either went up
+  already or needs rebuilding.
+- **The flavor is still checked against the tree** (`verify_flavor_config`), so
+  an upload cannot label a prod binary `dev` after a `prepare-env` switch.
+
 ### The lane itself
 
 `cd ios && bundle exec fastlane beta flavor:prod` — the same build, plus signing,
 export and upload. **Fastlane never archives**: it shells out to
-`tool/build-ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an
+`build-ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an
 archive without it is the crash above. Do not "simplify" the lane into
 `build_app`.
 
@@ -388,18 +432,39 @@ few of the rows it just wrote — the only way a tombstone is ever made.
 
 ## Writing a script
 
-**Every script's body lives in `tool/<name>.sh`; `melos.yaml` only names it.**
-Melos echoes the whole `run:` block before and after each run with no flag to
-turn it off, so a multi-line body buries the output it introduces — and a file is
-the only version that can be linted and run directly. Adding a command is a
-`tool/*.sh` plus one line in `melos.yaml`.
+**Every script's body lives in `packages/system_design/tool/<name>.sh`;
+`melos.yaml` only names it.** Melos echoes the whole `run:` block before and
+after each run with no flag to turn it off, so a multi-line body buries the
+output it introduces — and a file is the only version that can be linted and run
+directly.
 
 They are **POSIX sh, not bash**: melos runs them through `/bin/sh`, which is dash
 on Linux, where `set -o pipefail`, `[[ ]]` and `local` are syntax errors. macOS
 will not catch this — its `/bin/sh` is bash under another name — so check with
-`dash -n tool/<name>.sh`.
+`dash -n <name>.sh`.
 
-`tool/_common.sh` is sourced by all of them and holds what they share: the SDK
-resolution (`fvm flutter` when `.fvmrc` and fvm are both present, plain `flutter`
-otherwise — a shell alias is invisible inside a script) and
-`step`/`warn`/`done_msg`.
+`_common.sh` is sourced by all of them and holds what they share:
+
+- **The app root, derived rather than assumed.** `MELOS_ROOT_PATH` when melos
+  set it, otherwise three levels up from the script. The scripts sit in the
+  submodule but every path they touch — `ios/`, `functions/`, `env_assets/` —
+  is the app's, so a `cd .` would point them at the wrong repo and the failure
+  would name a missing file rather than the wrong directory.
+- **The SDK**: `fvm flutter` when `.fvmrc` and fvm are both present, plain
+  `flutter` otherwise — a shell alias is invisible inside a script.
+- **The output vocabulary**, and it is deliberately small (owner's rule).
+  Colour carries one meaning each, and only the part that carries it is
+  coloured — colour everything and none of it means anything:
+
+  | Call | Looks like | For |
+  |---|---|---|
+  | `step` | cyan `==> title` | opening an action |
+  | `info` | plain, indented | ordinary output |
+  | `warn` | yellow | something to know, not to stop for |
+  | `ok` | green `✓` | a check that passed |
+  | `bad` | red `✗` | a check that failed |
+  | `done_msg` | green `✓` | the whole script succeeded |
+  | `fail` | red `✗`, exits 1 | the whole script stopped |
+
+  Messages are short and lower-case: one line says what happened, not why. The
+  why belongs in a comment in the script, where the person fixing it is looking.

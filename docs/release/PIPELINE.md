@@ -54,7 +54,7 @@ is why a fresh clone alone can never produce a release.
 | Trigger, environment, secrets | `.github/workflows/release-ios.yml` |
 | Build number, signing, export, upload | `ios/fastlane/Fastfile` |
 | Which certificate and profiles | `ios/fastlane/Matchfile` |
-| The build itself | `tool/build-ipa.sh` |
+| The build itself | `packages/system_design/tool/build-ipa.sh` |
 
 ## The orderings that are not arbitrary
 
@@ -89,6 +89,7 @@ alone works; drop either and the note silently disappears again.
 
 ## What runs where
 
-The lane runs the same `tool/build-ipa.sh` a developer runs by hand. Fastlane
-adds signing, the export options and the upload around it — it never archives
+The lane runs the same `packages/system_design/tool/build-ipa.sh` a developer
+runs by hand. Fastlane adds signing, the export options and the upload around
+it — it never archives
 anything itself, and `docs/rules/COMMANDS.md` says why that is not negotiable.
