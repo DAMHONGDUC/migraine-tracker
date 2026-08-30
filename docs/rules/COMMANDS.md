@@ -193,10 +193,17 @@ Four steps, in this order — `release.sh <flavor>`:
   build every time; that is the price of the guarantee.
 - **One command per environment, like the deploys it wraps.** A prod release is
   typed, never a flag on a shared command.
-- **It wraps, it does not replace.** Every prompt and guard stays: the firebase
-  deploy still names the project and asks, the lane still refuses a build number
-  App Store Connect has seen. `bundler` is checked up front rather than twenty
-  minutes in, with the config installed and the backend already deployed.
+- **It runs start to finish unattended — nothing in the chain asks.** The
+  firebase deploy prints its project id and deploys (owner's rule, below); the
+  fastlane lane authenticates with an App Store Connect API key, so there is no
+  2FA prompt either. Typing `release-prod` rather than `release-dev` is the only
+  decision the command takes from you, and it is the whole guard.
+- **It wraps, it does not replace.** Every *guard* stays: the deploy still
+  refuses a missing `.firebaserc` alias and warns when `dev` and `prod` resolve
+  to one project, the functions still build and pass their own tests before they
+  ship, and the lane still refuses a build number App Store Connect has seen.
+  `bundler` is checked up front rather than twenty minutes in, with the config
+  installed and the backend already deployed.
 - **`bump:true` rewrites `pubspec.yaml` but a local run does not commit it**
   (`if bump && is_ci`), so the script says so on the way out. Commit that number
   by hand after the upload.

@@ -123,15 +123,18 @@ Its contract, in order:
 
 1. Validate the flavor, and an optional target (`rules` | `functions` | both).
 2. **Resolve the alias to a project id from `.firebaserc` yourself**, so the
-   prompt can name the project *before* anything is sent, and so a missing
-   alias fails with the command that creates it rather than a CLI error naming
+   run can print the project *before* anything is sent, and so a missing alias
+   fails with the command that creates it rather than a CLI error naming
    neither.
 3. **Warn when dev and prod resolve to the same project.** Until they are split,
    `deploy-firebase-dev` is a production deploy wearing another name — the one
-   thing the alias in the prompt would otherwise hide.
-4. **Confirm interactively**, reading from `/dev/tty` with a fallback: the
-   runner pipes stdout but leaves stdin alone, and `/dev/tty` is the descriptor
-   that survives a redirected invocation.
+   thing the alias alone would otherwise hide.
+4. **Do not confirm.** Naming the environment is the decision — that is why
+   there is a command per environment instead of one taking a flag. A second
+   question the same hand answers every time protects nothing, and it hangs
+   every unattended run: the release script calls this mid-pipeline. Steps 2
+   and 3 are what replace it — a wrong destination is made *visible*, which a
+   prompt never did on its own.
 5. **Build and test the functions before deploying them.** Deploying a build
    that fails its own tests costs a second deploy to undo.
 6. **Pass `--project` on every deploy; never run `firebase use` first.** `use`
