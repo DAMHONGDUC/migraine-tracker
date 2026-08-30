@@ -3,12 +3,10 @@ final class SplashConstant {
   /// The app icon, shown at the size below. The same file `flutter_launcher_icons` generates from — see `docs/setup/APP_ICON.md`.
   static const String iconAsset = 'assets/images/final_app_icon.png';
 
-  /// How long the splash stays up at minimum. Nothing waits on it — `AppBootstrap.init` has already finished by the time a frame is drawn — so this is a deliberate pause, kept short: long enough that the icon reads, not long enough to be in the way of someone opening the app mid-attack (hard rule 4).
-  static const Duration minimumVisible = Duration(milliseconds: 1200);
-
-  /// The icon's drawn size, before `.r`. The three `LaunchImage.imageset` PNGs are this size at 1×/2×/3×, so the handover from the native launch screen changes nothing on screen.
+  /// The icon's drawn size. The three `LaunchImage.imageset` PNGs are this size at 1×/2×/3×, so the handover from the native launch screen changes nothing on screen.
   static const double iconSize = 112;
 
-  /// The dots' size, before `.r`.
+  static const double iconToDotsGap = 32;
+
   static const double dotsSize = 40;
 }
