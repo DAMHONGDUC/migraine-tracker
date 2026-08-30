@@ -18,8 +18,11 @@ The app icon and a loading indicator, for `SplashConstant.minimumVisible`
   the dashboard: the dots animation never ends, so a `pumpAndSettle` on the
   splash waits out its whole timeout instead of settling.
 - **There are two launch screens, and only this one is Flutter.** The native one
-  (`LaunchScreen.storyboard`, `launch_background.xml`) is a bare `#0C0C0E` field
-  drawn by the platform before any Dart runs — same colour as this screen, so the
-  icon appears rather than the background changing. `docs/setup/APP_ICON.md`
-  covers it.
+  (`LaunchScreen.storyboard`, `launch_background.xml`) is drawn by the platform
+  while `AppBootstrap.init` runs, before any Dart of ours. It carries the SAME
+  icon at the same size on the same colour, so the handover adds the dots and
+  changes nothing else — bootstrap used to be a black screen for as long as it
+  took. `docs/setup/APP_ICON.md` covers regenerating those PNGs.
+- **The icon is square in both**, because a storyboard image view cannot clip
+  corners and only one of the two rounding would pop at the handover.
 - **No ARB strings.** Nothing on the screen is a word.
