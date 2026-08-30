@@ -55,7 +55,10 @@ the medications tab the medication budget, each from that record's one
   restores landing together each called `context.pop()`, and the second pop took
   the screen *under* the paywall with it — the user saw a blank screen and had
   to kill the app, having in fact been granted the entitlement. Never give a
-  store call a control that stays tappable while it is in flight.
+  store call a control that stays tappable while it is in flight. The CTA
+  carries `SdButtonV2.loading` for the wait itself — the spinner is the only
+  thing on screen saying the tap landed, which is what stopped the second tap
+  from being the reasonable thing to do.
 - **The sheet is a flat opaque panel on `AppColors.surfaceModal`** (owner's
   call). It used to be the app's one frosted Liquid Glass surface, on the card
   colour: the pitch, the plans and the CTA are all reading matter, and the
@@ -81,7 +84,11 @@ the medications tab the medication budget, each from that record's one
 ## The subscription screen
 
 **The Settings row and the screen behind it are called "Subscriptions", not
-"Premium"** (owner's call). Premium is the tier; the row is about the thing the
+"Premium"** (owner's call). The screen is `SubscriptionScreen`, under
+`presentation/screens/subscription_screen/`. Its route is still
+`AppRoutes.premium` at `/premium`, and `PremiumSettingsTile` still opens it —
+a path is an identity, and renaming one to match a label is churn the user
+never sees. Premium is the tier; the row is about the thing the
 user bought and can cancel, which is what sends them to Settings in the first
 place. The ARB keys keep their `premium*` names — the whole namespace is
 `premium*`, and renaming two of them leaves the set less consistent, not more.
