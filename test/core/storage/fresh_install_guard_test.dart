@@ -34,7 +34,7 @@ void main() {
     },
   );
 
-  test('an update carries the old settings over and keeps the session', () async {
+  test('an update carries the old settings over and still signs out', () async {
     final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
       prefs: <String, Object>{
         'onboarding_completed': true,
@@ -47,7 +47,8 @@ void main() {
 
     expect(store.getBool('onboarding_completed'), isTrue);
     expect(store.getDouble('alert_threshold'), 7);
-    expect(signOuts, isZero);
+    // The session goes on every first launch: guessing wrong about which kind it is would leave the user signed into an install they never signed into.
+    expect(signOuts, 1);
     // One owner per value: the copies left in shared_preferences go once they are carried.
     expect(prefs.getKeys(), <String>{FreshInstallGuard.installMarkerKey});
   });

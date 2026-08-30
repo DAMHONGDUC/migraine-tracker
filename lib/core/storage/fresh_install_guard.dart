@@ -23,7 +23,7 @@ final class FreshInstallGuard {
   ) async {
     if (prefs.getBool(installMarkerKey) ?? false) return;
 
-    // Keys other than the marker mean an install that predates it — an update, not a reinstall. Wiping there would sign out everyone who already had the app.
+    // Keys other than the marker mean an install that predates it — an update, not a reinstall. Its settings are carried over rather than wiped; the session goes either way (owner's rule).
     final List<String> legacy = prefs
         .getKeys()
         .where((String key) => key != installMarkerKey)
@@ -35,10 +35,12 @@ final class FreshInstallGuard {
     });
     try {
       if (legacy.isEmpty) {
-        await _purge(store, signOut);
+        await store.deleteAll();
       } else {
         await _adopt(prefs, legacy, store);
       }
+      // Unconditional, and the reason it is not inside the reinstall branch: the session is the ONE thing the Keychain carries across a delete, and a first launch that guesses wrong about which kind it is would leave the user signed into an install they never signed into. Signing out costs a tap; the other way round is the bug this guard exists for.
+      await _signOut(signOut);
       // Last, so a crash anywhere above is retried on the next launch rather than skipped.
       await prefs.setBool(installMarkerKey, true);
       if (legacy.isNotEmpty) await _dropLegacy(prefs, legacy);
@@ -52,17 +54,12 @@ final class FreshInstallGuard {
     }
   }
 
-  /// A reinstall: the Keychain is the only thing that survived, so it is the only thing to clear.
-  static Future<void> _purge(
-    SecureStore store,
-    Future<void> Function() signOut,
-  ) async {
-    await store.deleteAll();
-    // The session is Firebase's own Keychain item, not ours — signing out is the only way to reach it.
+  /// The session is Firebase's own Keychain item, not ours — signing out is the only way to reach it, and `_ensureAnonymousSession` opens a fresh anonymous one right after.
+  static Future<void> _signOut(Future<void> Function() signOut) async {
     await signOut();
     SdLogger.info(
       LogTagConstant.storage,
-      'Reinstall detected: Keychain cleared and the session signed out',
+      'First launch: the carried-over session signed out',
     );
   }
 
