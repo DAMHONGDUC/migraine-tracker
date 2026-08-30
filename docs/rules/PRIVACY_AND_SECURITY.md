@@ -94,6 +94,22 @@ Firestore doc, synced records, FCM token revoke, then Firebase Auth. App Store
   everyone.
 - **The auth user goes last.** Delete it first and every remaining step is
   unauthorised, leaving records nobody can reach.
+- **Deleting one account never reaches into another** (owner's rule). Deleting
+  the Google account deletes Google; deleting the Apple account deletes Apple.
+  The Apple revoke is where this went wrong: `revokeAppleTokenIfLinked` has to
+  re-open the Apple sheet for a fresh authorization code, and that sheet answers
+  for whichever Apple ID is signed in **on the device** — not for the one linked
+  to the account being deleted. Handing that code to
+  `revokeTokenWithAuthorizationCode` took the app authorization away from a
+  bystander's Apple ID.
+  - `FirebaseAuthRepository.isSameAppleIdentity` compares the sheet's
+    `userIdentifier` against the `apple.com` entry in `providerData` — both are
+    Apple's `sub`, so they match when it is the same person. **No match, no
+    revoke**: the account still goes, it just stops speaking for an identity
+    that never asked it to. A missing identifier on either side is a no, not a
+    maybe.
+  - A Google-only account never reaches the sheet at all — the provider guard
+    above it returns first.
 - The dialog says the subscription is **not** cancelled — a user who assumes
   otherwise keeps being charged.
 - **Exports are health data on disk.** Each export is written to the app's
