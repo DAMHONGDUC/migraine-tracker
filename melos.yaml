@@ -44,6 +44,19 @@ scripts:
       explain. Costs a full cold build afterwards.
     run: sh packages/system_design/tool/deep-set-up.sh
 
+  prepare-env-dev:
+    description: >
+      Install dev's real config from env_assets/ into the six paths the build,
+      the backend and fastlane read. Overwrites: this is how a checkout
+      switches environment.
+    run: sh packages/system_design/tool/prepare-env.sh dev
+
+  prepare-env-prod:
+    description: >
+      The same, prod's files. Separate command, like the deploys it feeds, so
+      pointing a checkout at prod is typed rather than passed as a flag.
+    run: sh packages/system_design/tool/prepare-env.sh prod
+
   release-dev:
     description: >
       The whole dev release: set-up, dev config, the firebase deploy, then
