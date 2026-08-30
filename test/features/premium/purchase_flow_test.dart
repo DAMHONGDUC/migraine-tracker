@@ -265,6 +265,14 @@ void main() {
     await tester.pump();
 
     expect(app.purchases.restoreCalls, 1);
+    // The spinner on the CTA is the only thing on screen saying the tap landed.
+    expect(
+      find.descendant(
+        of: find.byType(PaywallScreen),
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsOneWidget,
+    );
 
     app.purchases.restoreGate!.complete();
     await tester.pump(const Duration(milliseconds: 400));

@@ -244,8 +244,10 @@ class PaywallScreen extends HookConsumerWidget {
                     SizedBox(height: SdSpacingConstant.h12),
                     SdButtonV2(
                       variant: SdButtonVariantV2.primary,
+                      // The spinner is the only thing on screen saying the tap landed: a store call runs for seconds with nothing else to show for it.
+                      loading: busy.value,
                       // Null while offerings load or when the store has nothing to sell — never a CTA that can only fail.
-                      onPressed: active != null && !busy.value
+                      onPressed: active != null
                           ? () {
                               AppAnalytics.logPaywallCtaTapped(
                                 signedIn: signedIn,
