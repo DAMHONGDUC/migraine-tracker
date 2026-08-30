@@ -152,6 +152,42 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 | Premium | RevenueCat entitlement is the only access source |
 | Theme | Dark mode is the default; no pure-white or flashing UI |
 
+## First launch, reinstall, and what a delete takes with it
+
+iOS deletes the app's container when the app is deleted, but not its Keychain.
+`FreshInstallGuard` (`core/storage/`) is what makes a reinstall look like a
+first install anyway.
+
+| Deleted with the app | Survives the delete |
+|---|---|
+| The Drift database — attacks, medications, reminders | The Firebase session (Keychain) |
+| `shared_preferences`, which is why the install marker lives there | Every `SecureStore` value (Keychain) |
+| RevenueCat's anonymous id (`NSUserDefaults`) | The App Store subscription itself, on the Apple ID |
+
+```mermaid
+flowchart TD
+  A["App launch"] --> B{"Install marker in<br/>shared_preferences?"}
+  B -- "yes" --> C["Same install<br/>— nothing to do"]
+  B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
+  D -- "no → reinstall" --> E["Keychain cleared<br/>SecureStore.deleteAll"]
+  D -- "yes → update" --> F["Settings carried into the Keychain,<br/>the old copies dropped"]
+  E --> G["Firebase session signed out"]
+  F --> G
+  G --> H["Marker written last,<br/>so a crash retries"]
+  H --> I["Fresh anonymous session"]
+```
+
+- **The session is signed out on both paths**: it is the one thing the Keychain
+  carries across a delete, and guessing wrong leaves the user signed into an
+  install they never signed into.
+- **An update keeps its settings** — they are moved into the Keychain, not
+  wiped. Only a reinstall clears them.
+- **Signed-in data comes back on its own.** The local database is gone, but the
+  first sync after signing in pulls the account's attacks down again; that is
+  the sync working, not the delete failing.
+- **The guard never throws.** A cleanup that fails must not take the launch with
+  it — every branch logs under the `Storage` tag.
+
 ## Premium identity
 
 Premium is an entitlement RevenueCat holds against the current **App User ID**.

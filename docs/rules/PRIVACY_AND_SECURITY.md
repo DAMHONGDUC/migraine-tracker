@@ -69,12 +69,16 @@ install. `FreshInstallGuard.run` closes that, from inside
 `AppBootstrap._initFirebase`:
 
 - **The marker is absent and `shared_preferences` is empty → a reinstall.** The
-  Keychain is cleared and the session signed out, before
-  `_ensureAnonymousSession` can sign anyone back in.
+  Keychain is cleared.
 - **The marker is absent but old keys are there → an update, not a reinstall.**
   Those values are carried into the Keychain and then dropped, so one owner
-  keeps each. Wiping here would have signed out every existing user on the
-  update that shipped this.
+  keeps each — an update keeps its settings rather than being wiped.
+- **The session is signed out on either path** (owner's rule), before
+  `_ensureAnonymousSession` can sign anyone back in. It is the one thing the
+  Keychain carries across a delete, and a first launch that guessed wrong about
+  which kind it is would leave the user signed into an install they never signed
+  into. The cost is one sign-in for existing users on the update that ships
+  this; the other direction is the bug the guard exists for.
 - **The marker is written last**, so a crash mid-way is retried on the next
   launch rather than skipped, and the adopt step is idempotent for that reason.
 - **It never throws**: a cleanup that fails must not take the launch with it.
