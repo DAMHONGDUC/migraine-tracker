@@ -173,7 +173,8 @@ log), `medications`, `weather` (WeatherSnapshot + API clients), `history`,
 `linkWithCredential`, account screen, `users/{uid}` profile doc), `sync`,
 `paywall`, `settings`, `health` (HealthKit sleep, read-only), `notifications`
 (hard rule 16), `home_widget` (the iOS home screen widget, hard rule 18),
-`review` (the store review prompt, asked for only after a value moment).
+`review` (the store review prompt, asked for only after a value moment),
+`splash` (the icon and the dots, ahead of the dashboard).
 
 Create a layer folder only when it gets its first file — no empty placeholders.
 

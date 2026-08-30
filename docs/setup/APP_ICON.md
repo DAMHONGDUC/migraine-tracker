@@ -117,6 +117,12 @@ mask, another collapsed into an unreadable smear.
 
 `flutter_launcher_icons` does **not** touch it, and it is not an image.
 
+**There are two of them.** The native one below is a bare colour field the
+platform draws before any Dart runs; `SplashScreen`
+(`features/splash/`) is the Flutter one that follows, carrying the app icon and
+the loading dots on the SAME colour — so the icon appears rather than the
+background changing under it.
+
 - **iOS**: `ios/Runner/Base.lproj/LaunchScreen.storyboard`, the `backgroundColor`
   on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` are the
   Flutter template's 1×1 transparent placeholders, so that colour is the only
