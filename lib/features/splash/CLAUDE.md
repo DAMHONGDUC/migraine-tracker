@@ -1,28 +1,27 @@
 # Splash
 
-The app icon and a loading indicator, for `SplashConstant.minimumVisible`
-(1200ms), then the dashboard.
+The app icon and a loading indicator, on screen for exactly as long as
+`AppBootstrap.init` takes.
 
-- **It waits on nothing, and that is deliberate.** `AppBootstrap.init` finishes
-  before `runApp`, so everything is ready by the first frame — the pause is for
-  the icon to read, not for work. Never hang it on a future: hard rule 4 says
-  nothing stands between a user mid-attack and the log button, and a splash that
-  waits on the network is exactly that.
-- **It goes to the dashboard, never to onboarding.** The router's `redirect`
-  already owns that decision and sends a first launch on from there; a second
-  copy of the rule here is one that can disagree with it.
-- **The splash is exempt from `redirect`.** Without the exemption the
-  onboarding rule would bounce a first launch off the splash before it ever
-  drew.
-- **`initialLocationProvider` exists for the tests.** `pumpApp` overrides it to
-  the dashboard: the dots animation never ends, so a `pumpAndSettle` on the
-  splash waits out its whole timeout instead of settling.
+- **It is not a route.** `AppBootstrapGate` (`core/bootstrap/`) watches
+  `appBootstrapProvider` and shows this while it is pending; nothing about it
+  touches go_router, and there is no timer. It lasts what startup lasts.
+- **Bootstrap used to run before `runApp`**, which left the platform's launch
+  screen standing in for it — nothing moving, and nothing to tell a slow start
+  from a hang. Same wait now, but it looks like work.
+- **Nothing of the app is built until bootstrap resolves.** `BaroEaseApp`
+  installs listeners that read Firebase and the store on their first frame, and
+  `FreshInstallGuard` has to have signed a reinstall out before any of them run —
+  which is why the gate branches rather than overlaying.
+- **The store arrives through a child `ProviderScope`.** It does not exist when
+  the root scope is created, and every controller reads it synchronously.
+- **Raw pixel sizes here, on purpose.** This screen lives above the app, outside
+  the `ScreenUtilInit` that gives `.r` and `SdSpacingConstant` their scale. Two
+  centred elements do not need it — `SplashConstant` holds the three numbers.
 - **There are two launch screens, and only this one is Flutter.** The native one
-  (`LaunchScreen.storyboard`, `launch_background.xml`) is drawn by the platform
-  while `AppBootstrap.init` runs, before any Dart of ours. It carries the SAME
-  icon at the same size on the same colour, so the handover adds the dots and
-  changes nothing else — bootstrap used to be a black screen for as long as it
-  took. `docs/setup/APP_ICON.md` covers regenerating those PNGs.
+  (`LaunchScreen.storyboard`, `launch_background.xml`) carries the SAME icon at
+  the same size on the same colour, so the handover only adds the dots.
+  `docs/setup/APP_ICON.md` covers regenerating those PNGs.
 - **The icon is square in both**, because a storyboard image view cannot clip
-  corners and only one of the two rounding would pop at the handover.
+  corners and rounding only one of them would pop at the handover.
 - **No ARB strings.** Nothing on the screen is a word.
