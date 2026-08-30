@@ -1,12 +1,5 @@
-/// The launch screen's own numbers.
+/// The splash's own numbers.
 final class SplashConstant {
-  /// The app icon, shown at the size below. The same file `flutter_launcher_icons` generates from — see `docs/setup/APP_ICON.md`.
-  static const String iconAsset = 'assets/images/final_app_icon.png';
-
-  /// The icon's drawn size. The three `LaunchImage.imageset` PNGs are this size at 1×/2×/3×, so the handover from the native launch screen changes nothing on screen.
-  static const double iconSize = 112;
-
-  static const double iconToDotsGap = 32;
-
+  /// The dots' size. A raw logical pixel value rather than `.r`: the splash is the first frame, and one centred indicator gains nothing from the scale.
   static const double dotsSize = 40;
 }

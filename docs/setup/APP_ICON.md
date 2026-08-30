@@ -117,24 +117,10 @@ mask, another collapsed into an unreadable smear.
 
 `flutter_launcher_icons` does **not** touch it, and it is not an image.
 
-**There are two of them.** The native one below is a bare colour field the
-platform draws before any Dart runs; `SplashScreen`
-(`features/splash/`) is the Flutter one that follows, carrying the app icon and
-the loading dots on the SAME colour — so the icon appears rather than the
-background changing under it.
-
 - **iOS**: `ios/Runner/Base.lproj/LaunchScreen.storyboard`, the `backgroundColor`
-  on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` were the
-  Flutter template's 1×1 transparent placeholders, so the colour was the only
-  thing on screen and a slow bootstrap read as a black screen. They are now the
-  app icon at 112/224/336px, `sips -Z`'d from `assets/images/final_app_icon.png`
-  — the same file and the same drawn size as `SplashScreen`, so Flutter taking
-  over changes nothing the user can see. **Square, not rounded**: a storyboard
-  image view cannot clip corners, so rounding the Flutter copy alone would make
-  the handover pop.
-  - Regenerate with
-    `sips -Z 112 --out ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png assets/images/final_app_icon.png`,
-    then 224 for `@2x` and 336 for `@3x`.
+  on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` are the
+  Flutter template's 1×1 transparent placeholders, so that colour is the only
+  thing ever on screen.
 - **Android**: `@color/launch_background` in `values/colors.xml`, used by both
   `drawable/launch_background.xml` and `drawable-v21/launch_background.xml`, and
   by `NormalTheme` in both `styles.xml` files.

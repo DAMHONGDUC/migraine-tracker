@@ -12,6 +12,7 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
+import 'package:migraine_tracker/core/router/app_router.dart';
 import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
@@ -707,6 +708,8 @@ Future<PumpedApp> pumpApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
+        initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
         secureStoreProvider.overrideWithValue(prefs),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),

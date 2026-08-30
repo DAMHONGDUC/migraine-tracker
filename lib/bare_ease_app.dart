@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'core/analytics/app_analytics.dart';
-import 'core/constants/app_layout_constant.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
@@ -149,7 +148,8 @@ class BaroEaseApp extends HookConsumerWidget {
     });
 
     return ScreenUtilInit(
-      designSize: AppLayoutConstant.designSize,
+      // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this.
+      designSize: const Size(393, 852),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp.router(
