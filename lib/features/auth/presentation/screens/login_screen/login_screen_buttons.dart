@@ -37,9 +37,12 @@ class _ProviderButtons extends ConsumerWidget {
           label: l10n.loginGoogle,
         ),
         SizedBox(
-          height: SdSpacingConstant.h4,
+          height: SdSpacingConstant.h16,
           child: state.isBusy
-              ? const LinearProgressIndicator()
+              ? const Align(
+                  alignment: Alignment.bottomCenter,
+                  child: LinearProgressIndicator(),
+                )
               : const SizedBox.shrink(),
         ),
       ],
