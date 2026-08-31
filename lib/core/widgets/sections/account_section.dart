@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../features/auth/domain/entities/auth_user.dart';
 import '../../../features/auth/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
@@ -17,8 +16,14 @@ import '../settings_tile.dart';
 ///
 /// **The row says which of the two it is without being opened** (owner's
 /// call). It used to read "Sign in" or "Account" and nothing else, so the one
-/// state a user checks Settings for — am I signed in, and as whom — was two
-/// taps away, and "Account" on an anonymous session looked like an account.
+/// state a user checks Settings for was two taps away, and "Account" on an
+/// anonymous session looked like an account.
+///
+/// **The state, never the address** (owner's call, reversing a version that
+/// showed the email). Settings is read in public; an address printed on a row
+/// anyone glancing over can see is a cost the row's answer does not need —
+/// "signed in" is the whole question, and the account screen behind it is
+/// where the address belongs.
 class AccountSection extends ConsumerWidget {
   const AccountSection({super.key});
 
@@ -40,14 +45,12 @@ class AccountSection extends ConsumerWidget {
       );
     }
 
-    final AuthUser? user = ref.watch(authUserProvider).value;
-
     // - Signed in: the account lives on its own screen; this row only points there, so sign-out exists in one place.
     return SettingsTile(
       icon: AppIconConstant.account,
       title: l10n.settingsAccount,
-      // The address answers "signed in?" and "as whom?" in one line. Apple withholds it on every sign-in after the first, and the fallback is the word — never the UID.
-      value: user?.label + "11111111111" ?? l10n.settingsAccountSignedIn,
+      // The accent, against the off state's grey: the two tags are the same shape, so colour is what tells them apart at a glance.
+      valueTag: SdTagV2(label: l10n.settingsAccountSignedIn),
       onTap: () => context.pushNamed(AppRoutes.account.name),
     );
   }
