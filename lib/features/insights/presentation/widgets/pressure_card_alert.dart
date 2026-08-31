@@ -121,14 +121,11 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
             icon: AppIconConstant.reminderActive,
             title: l10n.alertsToggleTitle,
             onTap: () => _edit(context, ref, settings),
-            // The state and its number, then the chevron that says both can be changed.
+            // The state and its number as a tag — coloured by the threshold, so the row says how sensitive the alert is before it is read.
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text(
-                  settings.summary(l10n),
-                  style: AppTextStyle.bodyMedium.secondary,
-                ),
+                AlertSummaryTag(settings: settings),
                 SizedBox(width: SdSpacingConstant.w4),
                 SdIconV2(
                   icon: AppIconConstant.disclosure,

@@ -7,9 +7,9 @@ import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
 import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
-import '../../extensions/alerts_settings_label.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_icon_constant.dart';
+import '../alert_summary_tag.dart';
 import '../alert_threshold_sheet.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
@@ -76,7 +76,7 @@ class AlertsSection extends ConsumerWidget {
     return SettingsTile(
       icon: AppIconConstant.reminderActive,
       title: l10n.alertsToggleTitle,
-      value: settings.summary(l10n),
+      valueTag: AlertSummaryTag(settings: settings),
       onTap: () => _edit(context, ref, settings),
     );
   }

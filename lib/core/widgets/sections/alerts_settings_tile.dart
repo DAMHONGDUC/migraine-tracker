@@ -3,10 +3,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../features/alerts/domain/entities/alerts_settings.dart';
 import '../../../features/alerts/providers.dart';
-import '../../extensions/alerts_settings_label.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/navigation_utils.dart';
 import '../../theme/app_icon_constant.dart';
+import '../alert_summary_tag.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
 
@@ -30,7 +30,7 @@ class AlertsSettingsTile extends ConsumerWidget {
       child: SettingsTile(
         icon: AppIconConstant.reminderActive,
         title: context.l10n.alertsToggleTitle,
-        value: settings?.summary(context.l10n) ?? context.l10n.alertsStatusOff,
+        valueTag: AlertSummaryTag(settings: settings),
         onTap: () =>
             NavigationUtils.toPressure(context, ref, highlightAlert: true),
       ),
