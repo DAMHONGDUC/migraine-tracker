@@ -18,20 +18,20 @@ flowchart TD
     trigger["You press Run workflow<br/><small>branch main, flavor prod</small>"]
     prep["Runner builds the environment<br/><small>Flutter stable, melos 6.3.3, pods for health</small>"]
     check["Check the config matches the flavor<br/><small>bundle id app.dd.migraine.tracker</small>"]
-    num["Settle the build number<br/><small>pubspec 42, TestFlight 47 → 48</small>"]
+    num["Settle the build number<br/><small>pubspec 30, TestFlight 34 → 35</small>"]
     certs["Install the signing identity<br/><small>match appstore, then installs</small>"]
     sign["Switch to manual signing<br/><small>Runner + BaroEaseWidgetExtension</small>"]
     build["build-ipa.sh makes the IPA<br/><small>flutter build ipa --dart-define-from-file=env/prod.json</small>"]
-    upload["Upload to TestFlight<br/><small>build 1.0 (48), does not wait for processing</small>"]
+    upload["Upload to TestFlight<br/><small>build 1.1.0 (35), does not wait for processing</small>"]
     dsym["Upload dSYMs to Crashlytics<br/><small>best effort, never blocks</small>"]
-    commit["Commit the build number<br/><small>pubspec version: 1.0.0+48</small>"]
+    commit["Commit the build number<br/><small>pubspec version: 1.1.0+35</small>"]
 
     envjson(["GitHub Secret<br/><small>ENV_PROD_JSON → env/prod.json</small>"])
     firebaserc([".firebaserc<br/><small>prod → the production project id</small>"])
-    asc1(["App Store Connect<br/><small>latest build number: 47</small>"])
+    asc1(["App Store Connect<br/><small>latest build number: 34</small>"])
     matchrepo(["Repo certificates<br/><small>MATCH_PASSWORD, MATCH_GIT_BASIC_AUTHORIZATION</small>"])
-    asc2(["App Store Connect API key<br/><small>the .p8, from ASC_KEY_P8</small>"])
-    token(["GITHUB_TOKEN<br/><small>contents: write, pushes 1.0.0+48</small>"])
+    asc2(["App Store Connect API key<br/><small>the .p8, from ASC_KEY_CONTENT</small>"])
+    token(["GITHUB_TOKEN<br/><small>contents: write, pushes 1.1.0+35</small>"])
 
     trigger --> prep --> check --> num --> certs --> sign --> build --> upload --> dsym --> commit
 
