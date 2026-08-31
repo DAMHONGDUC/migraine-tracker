@@ -60,7 +60,7 @@ Melos carries eight commands, and they are the ones a human types.
 |---|---|
 | `melos run set-up` | Clean and restore a normal checkout |
 | `melos run deep-set-up` | Also clear Xcode DerivedData |
-| `melos run release-dev` | Full dev release: set up, config, checks, deploy, TestFlight |
+| `melos run release-dev` | Full dev release: config, deploy, TestFlight |
 | `melos run release-prod` | The same against production |
 | `melos run deploy-firebase-dev` | Rules, indexes and functions to dev |
 | `melos run deploy-firebase-prod` | The same against production |
@@ -89,8 +89,9 @@ Do not use the full test suite as change verification.
 
 ## Release
 
-One command per environment, four steps: set up, install that environment's
-configuration, deploy its Firebase side, then build and upload to TestFlight.
+One command per environment, three steps: install that environment's
+configuration, deploy its Firebase side, then build and upload to TestFlight. It
+does not set up first — run `melos run set-up` yourself when the tree needs it.
 
 ```sh
 melos run release-dev

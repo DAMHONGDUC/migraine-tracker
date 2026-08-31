@@ -59,8 +59,9 @@ scripts:
 
   release-dev:
     description: >
-      The whole dev release: set-up, dev config, the firebase deploy, then
-      the TestFlight build. Runs start to finish unattended — nothing asks.
+      The whole dev release: dev config, the firebase deploy, then the
+      TestFlight build. Runs start to finish unattended — nothing asks. It does
+      not set up first; run `melos run set-up` when the tree needs it.
     run: sh packages/system_design/tool/release.sh dev
 
   release-prod:
