@@ -258,7 +258,18 @@ is composed, what a chart should say. Take that; leave the tokens.
 - **`SdSheetContentV2`** is that header plus content scrolling under a ceiling of
   85% of the screen, with an optional pinned footer. Pass
   `isScrollControlled: true` when showing it, or the route caps itself near half
-  the screen and the ceiling never applies.
+  the screen and the ceiling never applies. **Every sheet in the app wears one**,
+  a menu whose tap IS the answer included — that one simply passes no
+  `onConfirm`, and the reserved slot keeps its title on the same centre as
+  everyone else's. A sheet that draws its own title in a `Padding` is the drift
+  this closes.
+- **A sheet that edits something commits from the header tick, never from a
+  button in its body.** The pairing is the whole point: X abandons, tick writes,
+  and a primary button below the content is a third answer competing with both.
+  A footer is for the answers that are neither — "not recorded", a clear.
+- **A `ListTile` inside a sheet takes `contentPadding: EdgeInsets.zero`.**
+  `SdSheetContentV2` already holds the gutter, and the tile's own 16 on top of it
+  insets those rows past everything else in the sheet.
 - **Bottom sheets and dialogs: widget + `.show()` extension, never a top-level
   `showX()`.** The sheet or dialog is a public widget class, and its opener is an
   extension named `<Widget>Ext` exposing

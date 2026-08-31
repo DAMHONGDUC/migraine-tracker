@@ -61,21 +61,20 @@ the feature dependency rule.
   promise is kept by that card; the pressure chart is the paid reading.
   `premiumLockedForecast` is its pitch, and `PressureCard`'s `PremiumBadge` marks
   the whole card rather than just the alert.
-- **The two alert controls are one `_AlertRow` each: glyph and name left, the
-  control right.** A `SwitchListTile` beside a `ListTile` put their titles at
-  different insets and their controls at different heights, which is what made the
-  pair look unfinished.
-  - **Both rows are one fixed height (`_AlertRow.height`), and the switch is
-    `MaterialTapTargetSize.shrinkWrap`** — otherwise the switch brings Material's
-    48pt tap target with it, its row comes out taller, and the divider sits closer
-    to one than the other.
-  - The threshold row carries a **chevron after its value**: without it the row
-    reads as a readout and nothing says a sheet is one tap away. **Only that row
-    takes an `onTap`** — tapping a switch row's label would be a second, invisible
-    way to toggle it.
+- **The alert is ONE `_AlertRow`, and `AlertThresholdSheet` behind it owns both
+  answers.** It was a switch row above a threshold row: two titles saying the same
+  word, a control on one and a value on the other, and the number the alert
+  actually runs on readable only by opening the second. The row now states both —
+  `AlertsSettingsLabel.summary`, "On · 5 hPa" or "Off" — and one tap opens the
+  sheet that sets them.
+  - The row keeps its **chevron after the value**: without it the row reads as a
+    readout and nothing says a sheet is one tap away. It takes the `onTap` for the
+    whole row now, because there is no control inside it to fight over the tap.
+  - `_AlertRow.height` stays fixed so the highlight the doors ask for lands on a
+    row of a known height whatever it holds.
   - The section heading is gone: it said "Pressure-drop alerts" directly above a
-    row whose title said the same thing. The sentence explaining what the alert
-    does moved below the pair.
+    row whose title said the same thing. The sentence under the row explains what
+    the alert does while it is on, and says what it would do while it is off.
 - **Without premium, neither alert control is built — not the switch, not the
   threshold.** Owner's call, reversing the first version, which showed both inert
   with a lock glyph on the theory that a locked control still says what it would

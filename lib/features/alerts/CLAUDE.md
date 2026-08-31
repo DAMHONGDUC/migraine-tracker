@@ -37,6 +37,28 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
     weather (hard rule 1), so "has a uid" and "may register for alerts" are
     different questions.
 
+## The switch and the threshold are one sheet
+
+`AlertThresholdSheet` (`core/widgets/`, because both Insights and Settings reach
+it and neither may import the other's `presentation/`) holds the enable switch,
+the 3-10 hPa slider and the explanation. Every row that leads to it —
+`AlertsSection`, `AlertsSettingsTile`, the pressure card's `_AlertRow` — shows
+`AlertsSettingsLabel.summary` ("On · 5 hPa"), so the state and its number are
+readable without opening anything.
+
+- **Nothing applies until the header tick.** The switch inside the sheet is local
+  state: registering the device on the way past would make the X a lie, and
+  registration is the step that asks for notification permission and a location
+  fix.
+- **`AlertsController.apply` writes the threshold first, then the switch.**
+  `setEnabled(true)` registers with the threshold it reads off the current state,
+  so the other order would register the old number and leave the server
+  disagreeing with the slider the user just moved.
+- **The sheet says what the number is measured against.** A threshold is a delta
+  over the 24h forecast, not an absolute pressure, and it is capped at one push
+  per 24 hours — without both, 3 hPa reads as a promise to be woken hourly. The
+  copy is `alertsSheetFormula`, `alertsSheetRange` and `alertsSheetLimit`.
+
 ## Every run is written down
 
 **`pressure_alert_runs` holds one document per `pressureAlertJob` run**, id =
