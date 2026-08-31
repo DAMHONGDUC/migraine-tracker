@@ -48,68 +48,49 @@ class _AppTimePickerSheetState extends State<AppTimePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // - Cancel/Done flank the title (iOS-style), not a row under the wheels — keeps the confirm action next to the title.
-          SdSheetHeaderV2(
-            title: widget.title ?? l10n.remindersPickTimeTitle,
-            closeTooltip: l10n.commonClose,
-            confirmTooltip: l10n.commonDone,
-            action: widget.isEditMode
-                ? SdSheetActionV2.edit
-                : SdSheetActionV2.confirm,
-            onConfirm: () => Navigator.of(
-              context,
-            ).pop(TimeOfDay(hour: _hour, minute: _minute)),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              SdContentPaddingV2.horizontal,
-              0,
-              SdContentPaddingV2.horizontal,
-              SdSpacingConstant.h16,
-            ),
-            child: SizedBox(
-              height:
-                  AppTimePickerSheet.rowExtent * AppTimePickerSheet.visibleRows,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const _SelectionBand(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _NumberWheel(
-                          itemCount: 24,
-                          initial: _hour,
-                          semanticsLabel: l10n.remindersHourLabel,
-                          onChanged: (value) => setState(() => _hour = value),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: SdSpacingConstant.w4,
-                        ),
-                        child: Text(':', style: AppTextStyle.headlineSmall),
-                      ),
-                      Expanded(
-                        child: _NumberWheel(
-                          itemCount: 60,
-                          initial: _minute,
-                          semanticsLabel: l10n.remindersMinuteLabel,
-                          onChanged: (value) => setState(() => _minute = value),
-                        ),
-                      ),
-                    ],
+
+    // The shared shell, rather than a hand-built Column: it is what puts this sheet's commit on the same bottom edge as every other one, and what clears the home indicator under it.
+    return SdSheetContentV2(
+      title: widget.title ?? l10n.remindersPickTimeTitle,
+      closeTooltip: l10n.commonClose,
+      // "Update" only when a time is being overwritten — the word is what tells the user which of the two this is.
+      confirmLabel: widget.isEditMode ? l10n.commonUpdate : l10n.commonSave,
+      onConfirm: () =>
+          Navigator.of(context).pop(TimeOfDay(hour: _hour, minute: _minute)),
+      child: SizedBox(
+        height: AppTimePickerSheet.rowExtent * AppTimePickerSheet.visibleRows,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const _SelectionBand(),
+            Row(
+              children: [
+                Expanded(
+                  child: _NumberWheel(
+                    itemCount: 24,
+                    initial: _hour,
+                    semanticsLabel: l10n.remindersHourLabel,
+                    onChanged: (value) => setState(() => _hour = value),
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: SdSpacingConstant.w4,
+                  ),
+                  child: Text(':', style: AppTextStyle.headlineSmall),
+                ),
+                Expanded(
+                  child: _NumberWheel(
+                    itemCount: 60,
+                    initial: _minute,
+                    semanticsLabel: l10n.remindersMinuteLabel,
+                    onChanged: (value) => setState(() => _minute = value),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

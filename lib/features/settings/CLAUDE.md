@@ -1,5 +1,38 @@
 # Settings
 
+- **The account row says whether there is an account, without being opened**
+  (owner's call). Two `SdTagV2`s of the same shape — "Signed in" in the accent,
+  "Not signed in" in the muted grey the alerts row wears when it is off — so
+  colour is what tells them apart at a glance. It read "Sign in" or "Account" and
+  nothing else before, so the one state a user opens Settings to check was two
+  taps away, and "Account" on an anonymous session looked like an account.
+  - **The state, never the address** (owner's call, reversing a version that
+    printed the email). Settings is read in public; an address on a row anyone
+    glancing over can see is a cost the answer does not need. The account screen
+    behind it is where the address belongs.
+- **The subscription row is the same pair**: `PremiumBadge` when it is on — the
+  actual widget, so the row and every other premium marker in the app cannot
+  come out different — and a muted "Free" tag when it is not. One word each;
+  "Premium is active" was a sentence where the row only had to name a state.
+  Those longer lines still stand where there is room for them, on the account and
+  subscription screens.
+
+## The export preview
+
+**The PDF preview's surround is the app's own background, not the package's.**
+`PdfPreview` defaults to a light grey gradient — a bright panel filling the
+screen of an app whose users are photophobic — so `scrollViewDecoration` is set
+and `pdfPreviewPageDecoration` replaces its hard offset black shadow with the
+calm one everything else on a dark surface wears.
+
+- **The page itself stays white.** It is paper: a doctor report tinted to match
+  the app would print wrong and read as a rendering fault.
+- **Both previews name the file** (`_FileName`), because the app bar says only
+  what kind of screen this is. It carries no gutter of its own — the text
+  preview sits inside an already-padded list.
+- **`onError` draws the same missing-file state as the outer branch.** The
+  package's own is red English on grey.
+
 ## The feature list
 
 **One widget, `AppFeatureList` (`core/widgets/`), strings `appFeature*`.** Two
@@ -60,16 +93,16 @@ watched.
   section widget and its part file carry the new name too: a key named for a word
   the UI no longer says sends the next editor to the wrong place. Chinese kept
   监测 — that already meant monitoring, never the advertising sense (跟踪).
-- **"Apple Health" exists to be found, and it is iOS-only.** `_HealthSection`
-  holds the sleep and step connect switches — the same `HealthConnectionTile` and
-  the same provider `/sleep` and `/activity` use, so the surfaces cannot disagree
-  about what is connected — plus one caption saying what is read and that it never
-  leaves the device. The switches stay on the detail screens too; that is where a
-  user changes their mind. It is a top-level group rather than two rows under
-  Monitoring because **submission 1.0(11) was rejected under App Store 2.5.1 for
-  not identifying HealthKit in the UI**: the only entrances were rows named
-  "Sleep" and "Activity", neither saying "Apple Health", and the sleep one was
-  premium-gated on top. The whole group is absent off iOS
+- **The "Apple Health" group is gone from Settings** (owner's call): the two
+  switches moved onto the Insights tabs they fill, where the user is already
+  looking at the empty chart. Settings keeps the rows that lead there.
+  **Submission 1.0(11) was rejected under App Store 2.5.1 for not identifying
+  HealthKit in the UI**, and that group was the answer — so what carries the
+  identification now is the switch's own title ("Apple Health sleep", "Apple
+  Health steps") and the caption under it, on a tab in the main nav and behind no
+  gate. Do not rename those switches to "Sleep" and "Steps": that is the exact
+  wording the rejection was about. Detail: `lib/features/insights/CLAUDE.md`.
+  The removed group was absent off iOS
   (`healthAvailableProvider`) — heading included, since a heading over nothing
   reads as a screen that failed to load.
 

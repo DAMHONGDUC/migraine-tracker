@@ -10,6 +10,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../features/alerts/domain/entities/alert_threshold_range.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
 import '../../widgets/onboarding_features_sheet.dart';
@@ -32,7 +33,7 @@ class OnboardingScreen extends HookConsumerWidget {
     final controller = ref.read(onboardingControllerProvider);
     final pageController = usePageController();
     final page = useState(0);
-    final threshold = useState<double>(5);
+    final threshold = useState<double>(AlertThresholdRange.initial);
 
     Future<void> next() => pageController.nextPage(
       duration: const Duration(milliseconds: 300),

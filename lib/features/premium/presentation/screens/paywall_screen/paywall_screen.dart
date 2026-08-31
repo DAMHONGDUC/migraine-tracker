@@ -237,6 +237,7 @@ class PaywallScreen extends HookConsumerWidget {
                     SizedBox(height: SdSpacingConstant.h8),
                     _Plans(
                       offers: offers,
+                      isLoading: offersState.isLoading,
                       selectedId: active?.id,
                       onSelected: (PremiumOffer offer) =>
                           selectedId.value = offer.id,

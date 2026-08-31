@@ -24,8 +24,7 @@ class _ExertionPickerSheetState extends State<ExertionPickerSheet> {
     return SdSheetContentV2(
       title: context.l10n.logExertionTitle,
       closeTooltip: context.l10n.commonClose,
-      confirmTooltip: context.l10n.commonDone,
-      action: SdSheetActionV2.edit,
+      confirmLabel: context.l10n.commonUpdate,
       onConfirm: () => Navigator.of(context).pop(_selected),
       child: ExertionLevelPicker(
         selected: _selected,

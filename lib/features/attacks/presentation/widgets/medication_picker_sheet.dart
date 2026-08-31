@@ -43,8 +43,7 @@ class _MedicationPickerSheetState extends ConsumerState<MedicationPickerSheet> {
     return SdSheetContentV2(
       title: context.l10n.logMedicationTitle,
       closeTooltip: context.l10n.commonClose,
-      confirmTooltip: context.l10n.commonDone,
-      action: SdSheetActionV2.edit,
+      confirmLabel: context.l10n.commonUpdate,
       onConfirm: () => Navigator.of(context).pop((name: _selectedName)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

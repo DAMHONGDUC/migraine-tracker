@@ -1,6 +1,13 @@
 part of 'activity_card.dart';
 
-/// The premium half: how attacks line up with exertion, and with steps.
+/// The premium half: how attacks line up with exertion, and with steps — a
+/// card each (owner's call).
+///
+/// They were two sections under one "Analysis" heading, which put a
+/// self-reported share and a HealthKit comparison on one surface as if they
+/// answered the same question. They do not: one has no baseline and the other
+/// has two groups of days, and the explanation behind each says something
+/// different.
 class _Analysis extends ConsumerWidget {
   const _Analysis({required this.result, required this.hasHealth});
 
@@ -12,36 +19,46 @@ class _Analysis extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final bool hasPremium = ref.watch(hasPremiumProvider);
+
+    // ONE pitch for the whole tab when locked, not one per card — the same shape the pressure tab takes.
+    if (!ref.watch(hasPremiumProvider)) {
+      return InsightCard(
+        title: l10n.insightsAnalysisTitle,
+        trailing: const PremiumBadge(),
+        child: PremiumUnlockPrompt(message: l10n.premiumLockedSteps),
+      );
+    }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                l10n.insightsAnalysisTitle,
-                style: AppTextStyle.titleMedium,
-              ),
-            ),
-            if (!hasPremium) const PremiumBadge(),
-          ],
-        ),
-        SizedBox(height: SdSpacingConstant.h16),
-        if (hasPremium)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ExertionCorrelationBody(result: result),
-              if (hasHealth) ...<Widget>[
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                const StepCorrelationBody(),
-              ],
+        InsightCard(
+          title: l10n.insightsExertionTitle,
+          onInfo: () => InsightInfoSheet(
+            title: l10n.insightsExertionTitle,
+            paragraphs: <String>[
+              l10n.insightsExplainExertion1,
+              l10n.insightsExplainExertion2,
+              l10n.insightsExplainExertion3,
             ],
-          )
-        else
-          PremiumUnlockPrompt(message: l10n.premiumLockedSteps),
+          ).show(context),
+          child: ExertionCorrelationBody(result: result),
+        ),
+        if (hasHealth) ...<Widget>[
+          SizedBox(height: SdContentPaddingV2.sectionGap),
+          InsightCard(
+            title: l10n.insightsStepsTitle,
+            onInfo: () => InsightInfoSheet(
+              title: l10n.insightsStepsTitle,
+              paragraphs: <String>[
+                l10n.insightsExplainSteps1,
+                l10n.insightsExplainSteps2,
+                l10n.insightsExplainSteps3,
+              ],
+            ).show(context),
+            child: const StepCorrelationBody(),
+          ),
+        ],
       ],
     );
   }

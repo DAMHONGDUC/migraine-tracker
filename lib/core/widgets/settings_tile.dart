@@ -11,6 +11,7 @@ class SettingsTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.value,
+    this.valueTag,
     this.trailing,
     this.iconColor,
     this.titleColor,
@@ -23,6 +24,11 @@ class SettingsTile extends StatelessWidget {
 
   /// What the row currently holds, shown just before the chevron.
   final String? value;
+
+  /// Stands where [value] would, keeping the chevron — for a state worth a
+  /// tag rather than a line of grey text. Wins over [value] when both are
+  /// passed.
+  final Widget? valueTag;
 
   /// Replaces the value + chevron cluster entirely (a badge, a spinner).
   final Widget? trailing;
@@ -38,7 +44,7 @@ class SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasChevron = onTap != null;
-    final bool hasEnd = value != null || hasChevron;
+    final bool hasEnd = value != null || valueTag != null || hasChevron;
 
     return ListTile(
       leading: SdIconV2(
@@ -54,7 +60,9 @@ class SettingsTile extends StatelessWidget {
       ),
       trailing:
           trailing ??
-          (hasEnd ? _TileEnd(value: value, chevron: hasChevron) : null),
+          (hasEnd
+              ? _TileEnd(value: value, valueTag: valueTag, chevron: hasChevron)
+              : null),
       onTap: onTap,
     );
   }
@@ -62,25 +70,32 @@ class SettingsTile extends StatelessWidget {
 
 /// The value, then the chevron — the row's answer and its way in, in the one place the thumb is heading.
 class _TileEnd extends StatelessWidget {
-  const _TileEnd({required this.value, required this.chevron});
+  const _TileEnd({
+    required this.value,
+    required this.valueTag,
+    required this.chevron,
+  });
 
   final String? value;
+  final Widget? valueTag;
   final bool chevron;
 
   @override
   Widget build(BuildContext context) {
+    final Widget? end = valueTag ??
+        (value == null
+            ? null
+            : Text(
+                value!,
+                style: AppTextStyle.bodyMedium.secondary,
+                textAlign: TextAlign.end,
+              ));
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        if (value != null)
-          Flexible(
-            child: Text(
-              value!,
-              style: AppTextStyle.bodyMedium.secondary,
-              textAlign: TextAlign.end,
-            ),
-          ),
-        if (value != null && chevron) SizedBox(width: SdSpacingConstant.w4),
+        if (end != null) Flexible(child: end),
+        if (end != null && chevron) SizedBox(width: SdSpacingConstant.w4),
         if (chevron)
           SdIconV2(
             icon: AppIconConstant.disclosure,

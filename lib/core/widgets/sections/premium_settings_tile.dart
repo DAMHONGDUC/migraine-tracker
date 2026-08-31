@@ -8,6 +8,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/app_router.dart';
 import '../../theme/app_icon_constant.dart';
+import '../premium_gate.dart';
 import '../settings_tile.dart';
 
 /// Settings row for the subscription: says where it stands and opens `SubscriptionScreen` for the rest.
@@ -21,11 +22,17 @@ class PremiumSettingsTile extends ConsumerWidget {
 
     return SettingsTile(
       icon: AppIconConstant.premium,
-      // One glyph, tinted when it is on. The row's value says "Active" or "Free" beside it, so the colour is the second signal, never the only one.
+      // One glyph, tinted when it is on. The tag beside it says the same thing in words, so the colour is the second signal, never the only one.
       iconColor: premium ? context.colorScheme.primary : null,
       title: l10n.settingsPremium,
-      // - The state reads as the row's value, at the end like every other row.
-      value: premium ? l10n.accountPremiumActive : l10n.accountPremiumFree,
+      // One word, as a tag, like the account row above it: "Premium is active" was a sentence where the row only had to name a state.
+      // PremiumBadge itself when it is on — the row and every other premium marker in the app are then literally the same widget.
+      valueTag: premium
+          ? const PremiumBadge()
+          : SdTagV2(
+              label: l10n.premiumPlanFree,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

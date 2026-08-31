@@ -109,6 +109,19 @@ is composed, what a chart should say. Take that; leave the tokens.
   whatever they hold, and `onTap` clips its own ink to the radius.
   `SdChartCardV2` and `SdBannerV2` compose it; `ThemeData.cardTheme` is a
   backstop for any `Card` Flutter builds internally, same colour, zero margin.
+- **A bordered box is drawn with `SdOutlineV2`, never a hand-rolled
+  `Border.all`.** One width, one radius, and a colour that is the secondary text
+  colour at `SdOutlineV2.opacity` rather than a slot of its own — a border is the
+  quietest thing on a surface, and its own palette entry would invite it to drift
+  from the text it frames. `SdTextFieldV2` and the Insights health switch read
+  the same three values, so a field and the row beside it cannot come out a
+  different grey.
+- **A divider inside a card runs edge to edge, never inset by the card's
+  gutter** (owner's rule). Inset, it reads as a line under the column above it;
+  full width, it reads as the break between two sections, which is what every
+  divider in a card is for. Insights' cards use `InsightCardDivider`, which
+  cancels `InsightCard.gutter` — a negative padding cannot do it, because
+  `Padding` and `Container.margin` both assert their insets are non-negative.
 
 ## Type
 
@@ -244,21 +257,89 @@ is composed, what a chart should say. Take that; leave the tokens.
   the glass circle — an action that is not one passes through undecorated.
   `IconButton` is still fine inside content: list rows, text-field suffixes.
 
+## Tags
+
+- **A state worth reading at a glance is an `SdTagV2`, not a line of grey
+  text** — the alert row's "On · 7 hPa", the `PremiumBadge`. One tinted pill,
+  the label's own colour at `SdTagV2.fillOpacity`, never a foreground and a
+  background that can drift apart. **Never hand-roll the pill again**: both of
+  those were separate copies of the same `Container` before this widget existed.
+- **The colour carries the meaning, and it comes from a ramp the app already
+  owns.** `AlertSummaryTag` tints itself with `AppColors.intensity` at the
+  chosen threshold — the same ramp the slider that sets it uses — so the row and
+  the control behind it cannot say different things about one number. Off sits
+  off that ramp on `onSurfaceVariant`: a threshold nothing acts on has no
+  severity, and green there would read as "all good".
+- **A tag stands where a value string would, and the chevron stays.**
+  `SettingsTile.valueTag` is that slot; `trailing` replaces the whole cluster
+  and takes the chevron with it.
+
+## Waiting, and having nothing
+
+- **A wait whose shape is known is drawn, never spun for — owner's rule.**
+  `SdSkeletonV2` and its two compositions (`SdListSkeletonV2`,
+  `SdChartSkeletonV2`) reserve the space the content will take, so nothing jumps
+  when it lands. A `CircularProgressIndicator` is left for two cases only: an
+  action the user just started (a sign-in, a dev tile), and a determinate bar
+  that is reporting real progress (`sync`, the free-limit meter).
+  - **Two waits are deliberately blank and must stay blank.** Insights' tab card
+    and the correlation bodies' error branch: the engines run over the local
+    database and settle in a frame or two, so a placeholder there would flash —
+    which hard rule 3 forbids outright. The bodies that DO skeleton
+    (`InsightBodySkeleton`) are waiting on a HealthKit read, which takes as long
+    as it takes.
+- **An empty state is never text alone — owner's rule.** `SdEmptyStateV2`, glyph
+  over message. A line of grey prose where content should be reads as a caption
+  on something missing, or as a failure; the glyph is what says "this is a
+  state, and it is a normal one".
+  - **`SdEmptyStateSizeV2.compact` is for a slot inside something that is not
+    empty** — a chart's plot area, one section of a card — where the full 64pt
+    glyph would push the card to twice the height its content needs. Reach for
+    it rather than dropping back to a bare `Text`.
+  - **Empty and loading are not the same screen.** The paywall showed "no plans"
+    while the store was still answering; a card with no data yet and a card whose
+    source is switched off say different things and get different glyphs.
+
 ## Sheets and dialogs
 
-- **A sheet with actions wears `SdSheetHeaderV2`**: X on the left that leaves,
-  title centred, commit on the right. Both are `SdAppBarButtonV2`s wearing
+- **Every sheet wears `SdSheetHeaderV2`**: X on the left that leaves, title
+  centred, nothing on the right. The X is an `SdAppBarButtonV2` wearing
   `SdAppBarButtonSurfaceV2.glassCircle` — the sheet is a flat opaque panel, so a
-  frosted disc on it has real background to refract — and the commit's glyph is
-  tinted `AppColors.secondary` so the action that writes something reads
-  differently from the one that abandons. Its glyph is a tick for
-  `SdSheetActionV2.confirm` (answering for the first time) or a pencil for
-  `SdSheetActionV2.edit` (overwriting an existing value). It brings its own
-  insets; nothing pads around it.
+  frosted disc on it has real background to refract. The right slot stays
+  reserved so the title sits on the sheet's centre. It brings its own insets;
+  nothing pads around it.
+- **A sheet that updates or adds anything commits from a labelled button pinned
+  along its bottom edge — owner's rule.** `SdSheetContentV2` draws it from
+  `confirmLabel` + `onConfirm`: full width, `SdButtonVariantV2.primary`, always
+  the last thing above the safe area. The commit used to be a tick or a pencil
+  opposite the X, which put the button that writes something in the corner
+  furthest from the thumb and sized it like an icon. `SdSheetActionV2` is gone
+  with it; the promise is now the word:
+  - **`commonSave`** — an answer given for the first time.
+  - **`commonUpdate`** — a value being overwritten.
+  - Anything else only when the sheet is not recording a value at all (a filter
+    applies with `commonDone`).
+  - **`confirmLabel` null is what says a sheet has no commit** — a menu whose tap
+    on a row IS the answer. **`onConfirm` null with a label disables the button
+    rather than removing it**: a commit that appears and disappears as the
+    selection changes moves everything under the thumb.
+  - `footer` is for the answers that are neither commit nor leave — a "clear", a
+    "not recorded" — and sits above the button.
 - **`SdSheetContentV2`** is that header plus content scrolling under a ceiling of
   85% of the screen, with an optional pinned footer. Pass
   `isScrollControlled: true` when showing it, or the route caps itself near half
-  the screen and the ceiling never applies.
+  the screen and the ceiling never applies. **Every sheet in the app wears one**,
+  a menu whose tap IS the answer included — that one simply passes no
+  `onConfirm`, and the reserved slot keeps its title on the same centre as
+  everyone else's. A sheet that draws its own title in a `Padding` is the drift
+  this closes.
+- **A sheet that edits something commits from the header tick, never from a
+  button in its body.** The pairing is the whole point: X abandons, tick writes,
+  and a primary button below the content is a third answer competing with both.
+  A footer is for the answers that are neither — "not recorded", a clear.
+- **A `ListTile` inside a sheet takes `contentPadding: EdgeInsets.zero`.**
+  `SdSheetContentV2` already holds the gutter, and the tile's own 16 on top of it
+  insets those rows past everything else in the sheet.
 - **Bottom sheets and dialogs: widget + `.show()` extension, never a top-level
   `showX()`.** The sheet or dialog is a public widget class, and its opener is an
   extension named `<Widget>Ext` exposing

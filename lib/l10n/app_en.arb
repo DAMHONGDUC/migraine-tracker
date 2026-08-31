@@ -28,7 +28,7 @@
   "@onboardingThresholdTitle": {
     "description": "Onboarding page 3 headline (alert threshold)"
   },
-  "onboardingThresholdBody": "You get an alert when the pressure is forecast to fall by at least this much within 24 hours. Most people start at 5 hPa and adjust later — Settings lets you change it any time.",
+  "onboardingThresholdBody": "You're alerted when pressure is forecast to fall by at least this much within 24 hours. Most start at 5 and adjust later.",
   "@onboardingThresholdBody": {
     "description": "Onboarding page 3 body explaining the threshold slider"
   },
@@ -402,10 +402,6 @@
   "@exertionLevelSevere": {
     "description": "Exertion level option: severe/strenuous activity"
   },
-  "detailsSave": "Save",
-  "@detailsSave": {
-    "description": "Save button in the details sheet"
-  },
   "commonCancel": "Cancel",
   "@commonCancel": {
     "description": "Generic cancel button"
@@ -413,6 +409,14 @@
   "commonAdd": "Add",
   "@commonAdd": {
     "description": "Generic add/confirm button"
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Commit button of a sheet or dialog recording an answer for the first time"
+  },
+  "commonUpdate": "Update",
+  "@commonUpdate": {
+    "description": "Commit button of a sheet or dialog overwriting a value that already exists"
   },
   "commonClose": "Close",
   "@commonClose": {
@@ -1281,6 +1285,10 @@
   "@premiumBadge": {
     "description": "Small badge marking a premium-only surface"
   },
+  "premiumPlanFree": "Free",
+  "@premiumPlanFree": {
+    "description": "Tag on the Settings subscription row while nothing is subscribed"
+  },
   "premiumUnlock": "Unlock",
   "@premiumUnlock": {
     "description": "CTA on a locked premium surface, opens the paywall"
@@ -1634,6 +1642,68 @@
   "alertsThresholdTitle": "Alert threshold",
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"
+  },
+  "commonHpaUnit": "hPa",
+  "@commonHpaUnit": {
+    "description": "The pressure unit on its own, as the suffix inside the threshold field"
+  },
+  "alertsThresholdInvalid": "Enter a whole number from {min} to {max} hPa.",
+  "@alertsThresholdInvalid": {
+    "description": "Error under the threshold field; {min} and {max} come from AlertThresholdRange",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsSummaryOn": "On · {value}",
+  "@alertsSummaryOn": {
+    "description": "Alerts row value when alerts are on: the state and the threshold together",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsSheetHowTitle": "How it works",
+  "@alertsSheetHowTitle": {
+    "description": "Heading of the explanation block in the alert threshold sheet"
+  },
+  "alertsSheetFormula": "You're alerted when pressure is forecast to fall by at least your threshold within 24 hours.",
+  "@alertsSheetFormula": {
+    "description": "Explains what the threshold is measured against — the drop from now to the 24h forecast low"
+  },
+  "alertsSheetRange": "2 hPa catches almost every front. 20 hPa, only a deep storm. Most start at 5.",
+  "@alertsSheetRange": {
+    "description": "Explains what the two ends of the 3-10 hPa slider mean"
+  },
+  "alertsSheetLimit": "At most one alert a day, and never twice for the same drop.",
+  "@alertsSheetLimit": {
+    "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
+  },
+  "alertsSheetExampleTitle": "For example",
+  "@alertsSheetExampleTitle": {
+    "description": "Heading of the worked example in the alert threshold sheet"
+  },
+  "alertsSheetExampleNow": "Pressure now",
+  "@alertsSheetExampleNow": {
+    "description": "Example row label: the pressure the example starts from"
+  },
+  "alertsSheetExampleThreshold": "Your threshold",
+  "@alertsSheetExampleThreshold": {
+    "description": "Example row label: the drop the user picked on the slider"
+  },
+  "alertsSheetExampleResult": "You're notified if the next 24 hours are forecast to reach {value} or lower.",
+  "@alertsSheetExampleResult": {
+    "description": "Example conclusion; {value} is the example pressure minus the threshold, already formatted",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
   "alertsErrorAccount": "Sign in and unlock Premium to get pressure alerts.",
   "@alertsErrorAccount": {
@@ -2532,6 +2602,10 @@
   "@settingsAccountSignedIn": {
     "description": "Account row title when the provider gave us no email or name"
   },
+  "settingsAccountSignedOut": "Not signed in",
+  "@settingsAccountSignedOut": {
+    "description": "Tag on the Settings account row while the session is anonymous"
+  },
   "settingsSignOut": "Sign out",
   "@settingsSignOut": {
     "description": "Sign-out action on the account row"
@@ -2556,13 +2630,13 @@
   "@settingsSectionMonitoring": {
     "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf. Deliberately not the word \"Tracking\": on the App Store that word means cross-app tracking for advertising, which this app does not do"
   },
-  "settingsSectionHealth": "Apple Health",
-  "@settingsSectionHealth": {
-    "description": "Settings section heading above the Apple Health sleep and step connect switches"
+  "settingsHealthCaptionSteps": "Read-only, from Apple Health. Steps from an attack's day are saved with that attack, so they travel into your export and sync.",
+  "@settingsHealthCaptionSteps": {
+    "description": "Privacy line under the steps switch on the Insights activity tab"
   },
-  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only. Your sleep never leaves this device. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
-  "@settingsHealthCaption": {
-    "description": "Line under the Apple Health switches in Settings: what is read, that sleep stays put and that an attack's step count travels with it"
+  "settingsHealthCaptionSleep": "Read-only, from Apple Health. Your sleep never leaves this device.",
+  "@settingsHealthCaptionSleep": {
+    "description": "Privacy line under the sleep switch on the Insights sleep tab"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
@@ -2899,10 +2973,6 @@
   "@homeWidgetFailed": {
     "description": "Error snackbar when writing the widget's shared data failed"
   },
-  "dashboardHealthConnect": "Connect",
-  "@dashboardHealthConnect": {
-    "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
-  },
   "settingsDevPush": "Test push notification (Firebase)",
   "@settingsDevPush": {
     "description": "Dev-only Settings row that asks the Firebase backend to push to this device"
@@ -3222,6 +3292,58 @@
   "insightsAnalysisTitle": "Analysis",
   "@insightsAnalysisTitle": {
     "description": "Heading of the premium half of an insight card"
+  },
+  "insightsExplainTooltip": "What this means",
+  "@insightsExplainTooltip": {
+    "description": "Tooltip on the info glyph in an analysis card's header"
+  },
+  "insightsExplainPressure1": "Compares how often you get an attack on days pressure falls against days it doesn't.",
+  "@insightsExplainPressure1": {
+    "description": "Explanation sheet, pressure correlation: what the card compares"
+  },
+  "insightsExplainPressure2": "The app logs one pressure reading a day, wherever you are. Both sides need enough days before a number appears.",
+  "@insightsExplainPressure2": {
+    "description": "Explanation sheet, pressure correlation: how it is worked out"
+  },
+  "insightsExplainPressure3": "A pattern, not a cause. Days you didn't open the app leave gaps, so some attacks have no reading behind them.",
+  "@insightsExplainPressure3": {
+    "description": "Explanation sheet, pressure correlation: what it cannot claim"
+  },
+  "insightsExplainExertion1": "Of the attacks where you logged exertion, how many followed moderate or hard activity.",
+  "@insightsExplainExertion1": {
+    "description": "Explanation sheet, exertion: what the card counts"
+  },
+  "insightsExplainExertion2": "You type exertion in, so only the attacks you answered count. Your answers also have to vary — all the same level, nothing to compare.",
+  "@insightsExplainExertion2": {
+    "description": "Explanation sheet, exertion: how it is worked out"
+  },
+  "insightsExplainExertion3": "A share, not a comparison: the app has no exertion for the days you had no attack, so it can't say exertion makes an attack likelier.",
+  "@insightsExplainExertion3": {
+    "description": "Explanation sheet, exertion: why it is a share and not a comparison"
+  },
+  "insightsExplainSteps1": "Compares your average steps on days an attack started against all your other days.",
+  "@insightsExplainSteps1": {
+    "description": "Explanation sheet, steps: what the card compares"
+  },
+  "insightsExplainSteps2": "Steps come from Apple Health, read-only, counted by local day. Both groups need enough days first.",
+  "@insightsExplainSteps2": {
+    "description": "Explanation sheet, steps: where the data comes from"
+  },
+  "insightsExplainSteps3": "A difference runs both ways: an attack can follow a busy day, or be the reason a day stayed quiet.",
+  "@insightsExplainSteps3": {
+    "description": "Explanation sheet, steps: why a difference is not a direction"
+  },
+  "insightsExplainSleep1": "Compares how long you slept the night before an attack against your other nights.",
+  "@insightsExplainSleep1": {
+    "description": "Explanation sheet, sleep: what the card compares"
+  },
+  "insightsExplainSleep2": "Sleep comes from Apple Health, read-only, and never leaves this device. Both groups need enough nights first.",
+  "@insightsExplainSleep2": {
+    "description": "Explanation sheet, sleep: where the data comes from"
+  },
+  "insightsExplainSleep3": "A pattern, not a cause — a restless night can be an early sign of the attack already coming. Worth raising with your doctor.",
+  "@insightsExplainSleep3": {
+    "description": "Explanation sheet, sleep: pattern, not cause"
   },
   "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
   "@premiumLockedPressure": {

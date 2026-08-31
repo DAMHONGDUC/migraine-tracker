@@ -6,6 +6,7 @@ import '../../../features/alerts/providers.dart';
 import '../../extensions/context_extensions.dart';
 import '../../router/navigation_utils.dart';
 import '../../theme/app_icon_constant.dart';
+import '../alert_summary_tag.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
 
@@ -29,11 +30,8 @@ class AlertsSettingsTile extends ConsumerWidget {
       child: SettingsTile(
         icon: AppIconConstant.reminderActive,
         title: context.l10n.alertsToggleTitle,
-        value: (settings?.enabled ?? false)
-            ? context.l10n.alertsStatusOn
-            : context.l10n.alertsStatusOff,
-        onTap: () =>
-            NavigationUtils.toPressure(context, ref, highlightAlert: true),
+        valueTag: AlertSummaryTag(settings: settings),
+        onTap: () => NavigationUtils.toPressureAlert(context, ref),
       ),
     );
   }

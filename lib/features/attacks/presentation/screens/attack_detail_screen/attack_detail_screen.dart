@@ -314,7 +314,11 @@ class AttackDetailScreen extends HookConsumerWidget {
             _DetailsSection(attack: a),
           ],
         ),
-        _ => const Center(child: CircularProgressIndicator()),
+        // The detail is a stack of rows and it is always the same stack, so the wait is drawn in that shape rather than spun for.
+        _ => Padding(
+          padding: SdContentPaddingV2.screen(context),
+          child: const SdListSkeletonV2(),
+        ),
       },
     );
   }

@@ -59,10 +59,12 @@ scrolling row advertises a gesture with a cut edge that revealed nothing.
   narrow for both on one line. **A label may wrap to two lines rather than be
   cut** — ellipsing a shortcut's name leaves the user unable to tell what they are
   about to tap.
-- **The pressure-alert tile goes through
-  `NavigationUtils.toPressure(highlightAlert: true)`**, like the Settings row and
-  the alert notification: "take me to it" is a tab selection plus a branch switch,
-  and three call sites must not each half-remember it.
+- **The pressure-alert tile goes through `NavigationUtils.toPressureAlert`**,
+  like the Settings row: it selects the pressure tab and opens the threshold
+  sheet over it. "Take me to it" is a tab selection plus a branch switch plus the
+  sheet, and three call sites must not each half-remember it. (The alert
+  notification still uses plain `toPressure` — it is telling the user what
+  happened, not asking them to change a setting.)
 - `_QuickAccessCard` has no `width` any more, which retires it as the
   constants-rule exception it used to be cited as. Nothing calls
   `medicationAddRequestProvider` either — the Medications screen still honours it,

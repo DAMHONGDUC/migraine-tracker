@@ -27,6 +27,14 @@ holds for anything written down** — docs, this file, code comments: keep the
 *why*, cut the words around it. Complete, never padded. A comment nobody finishes
 reading records nothing.
 
+**Every diagram carries concrete example values.** Owner's rule. A node that
+says "current pressure" and one that says "1013.2 hPa → 1006.4, drop 6.8" cost the
+same space, but only the second lets the reader check the shape against a case
+they can hold in their head — an abstract box is the reader taking the diagram's
+word for it. Applies to every mermaid and ASCII diagram in the repo: the boxes
+name the step, and a `<small>` line under it (or the label itself) shows real
+numbers, real ids, real field values.
+
 **Project documentation prefers tables over prose** when the content is a set of
 facts, choices, commands or mappings. Tables make the answer scannable; prose is
 reserved for context that cannot be expressed clearly in rows. Keep every

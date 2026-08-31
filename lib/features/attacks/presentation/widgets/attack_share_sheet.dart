@@ -18,6 +18,8 @@ class AttackShareSheet extends ConsumerStatefulWidget {
   static Future<void> show(BuildContext context, Attack attack) =>
       showSdBottomSheetV2<void>(
         context,
+        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+        isScrollControlled: true,
         builder: (_) => AttackShareSheet(attack: attack),
       );
 

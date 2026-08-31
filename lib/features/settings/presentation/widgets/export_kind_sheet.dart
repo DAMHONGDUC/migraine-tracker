@@ -13,26 +13,16 @@ class ExportKindSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    // Same chrome as every other sheet, and no tick: a tap on a row IS the answer here, so there is nothing left for a commit to do.
+    return SdSheetContentV2(
+      title: context.l10n.exportPickTitle,
+      closeTooltip: context.l10n.commonClose,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              SdContentPaddingV2.horizontal,
-              SdSpacingConstant.h4,
-              SdContentPaddingV2.horizontal,
-              SdSpacingConstant.h12,
-            ),
-            child: Text(
-              context.l10n.exportPickTitle,
-              style: AppTextStyle.titleMedium,
-            ),
-          ),
           for (final ExportKind kind in ExportKind.values)
             _KindTile(kind: kind),
-          SizedBox(height: SdSpacingConstant.h8),
         ],
       ),
     );
@@ -48,6 +38,8 @@ class _KindTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      // The sheet already holds the gutter; ListTile's own 16 on top of it would inset these rows past everything else in the sheet.
+      contentPadding: EdgeInsets.zero,
       leading: SdIconV2(icon: kind.icon,
                 size: AppIconSize.medium, color: context.colorScheme.primary),
       title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
@@ -59,5 +51,10 @@ class _KindTile extends StatelessWidget {
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportKindSheetExt on ExportKindSheet {
   Future<ExportKind?> show(BuildContext context) =>
-      showSdBottomSheetV2<ExportKind>(context, builder: (_) => this);
+      showSdBottomSheetV2<ExportKind>(
+        context,
+        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+        isScrollControlled: true,
+        builder: (_) => this,
+      );
 }

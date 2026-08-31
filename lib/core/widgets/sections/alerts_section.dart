@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../core/theme/app_text_style.dart';
 import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
 import '../../../features/premium/providers.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../extensions/context_extensions.dart';
 import '../../theme/app_icon_constant.dart';
-import '../alert_threshold_dialog.dart';
+import '../alert_summary_tag.dart';
+import '../alert_threshold_sheet.dart';
 import '../premium_gate.dart';
 import '../settings_tile.dart';
 
-/// The alerts detail screen's body: enable switch + threshold.
+/// The alerts detail screen's body: one row saying where the alert stands, opening the sheet that sets it.
 class AlertsSection extends ConsumerWidget {
   const AlertsSection({super.key});
 
@@ -28,21 +28,6 @@ class AlertsSection extends ConsumerWidget {
     },
     _ => l10n.alertsErrorGeneric,
   };
-
-  Future<void> _pickThreshold(
-    BuildContext context,
-    WidgetRef ref,
-    double current,
-  ) async {
-    final double? picked = await AlertThresholdDialog(
-      initial: current,
-      l10n: context.l10n,
-    ).show(context);
-
-    if (picked != null) {
-      await ref.read(alertsControllerProvider.notifier).setThreshold(picked);
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,23 +56,12 @@ class AlertsSection extends ConsumerWidget {
     };
     if (settings == null) return const SizedBox.shrink();
 
-    return Column(
-      children: [
-        SwitchListTile(
-          secondary: const SdIconV2(
-            icon: AppIconConstant.reminderActive,
-          ),
-          title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
-          value: settings.enabled,
-          onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
-        ),
-        SettingsTile(
-          icon: AppIconConstant.pressure,
-          title: l10n.alertsThresholdTitle,
-          value: l10n.onboardingThresholdValue(settings.thresholdHpa.round()),
-          onTap: () => _pickThreshold(context, ref, settings.thresholdHpa),
-        ),
-      ],
+    // One row, not a switch above a threshold row: the sheet behind it owns both, so the row's job is to say where they stand and open it.
+    return SettingsTile(
+      icon: AppIconConstant.reminderActive,
+      title: l10n.alertsToggleTitle,
+      valueTag: AlertSummaryTag(settings: settings),
+      onTap: () => AlertThresholdEditor.open(context, ref),
     );
   }
 }

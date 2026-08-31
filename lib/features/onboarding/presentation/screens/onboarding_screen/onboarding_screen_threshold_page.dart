@@ -18,9 +18,9 @@ class _ThresholdPage extends StatelessWidget {
         builder: (BuildContext context, double value, _) => SdValueSliderV2(
           label: l10n.onboardingThresholdValue(value.round()),
           value: value,
-          min: 3,
-          max: 10,
-          divisions: 7,
+          min: AlertThresholdRange.min,
+          max: AlertThresholdRange.max,
+          divisions: AlertThresholdRange.divisions,
           accent: AppColors.intensity(value.round()),
           onChanged: (double v) => threshold.value = v,
         ),

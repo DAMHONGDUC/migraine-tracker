@@ -16,12 +16,6 @@ class AuraPickerSheet extends StatefulWidget {
 
   final List<AuraType>? selected;
 
-  Future<({List<AuraType>? aura})?> show(BuildContext context) =>
-      showSdBottomSheetV2<({List<AuraType>? aura})>(
-        context,
-        builder: (_) => this,
-      );
-
   @override
   State<AuraPickerSheet> createState() => _AuraPickerSheetState();
 }
@@ -40,6 +34,18 @@ class _AuraPickerSheetState extends State<AuraPickerSheet> {
     return SdSheetContentV2(
       title: l10n.auraSheetTitle,
       closeTooltip: l10n.commonClose,
+      // Committing with nothing picked IS the "no aura" answer, so the button says so rather than being disabled.
+      confirmLabel: _picked.isEmpty ? l10n.auraNone : l10n.commonUpdate,
+      onConfirm: () =>
+          Navigator.of(context).pop((aura: <AuraType>[..._picked])),
+      // Only once there is something to take back — a "clear" on a field that was never set says nothing.
+      footer: widget.selected == null
+          ? null
+          : SdButtonV2(
+              variant: SdButtonVariantV2.text,
+              label: l10n.auraNotRecorded,
+              onPressed: () => Navigator.of(context).pop((aura: null)),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -69,22 +75,6 @@ class _AuraPickerSheetState extends State<AuraPickerSheet> {
               );
             },
           ),
-          SizedBox(height: SdSpacingConstant.h16),
-          // Saving with nothing picked IS the "no aura" answer, so the button says so.
-          SdButtonV2(
-            variant: SdButtonVariantV2.primary,
-            label: _picked.isEmpty ? l10n.auraNone : l10n.commonDone,
-            onPressed: () => Navigator.of(
-              context,
-            ).pop((aura: <AuraType>[..._picked])),
-          ),
-          // Only once there is something to take back — a "clear" on a field that was never set says nothing.
-          if (widget.selected != null)
-            SdButtonV2(
-              variant: SdButtonVariantV2.text,
-              label: l10n.auraNotRecorded,
-              onPressed: () => Navigator.of(context).pop((aura: null)),
-            ),
         ],
       ),
     );
@@ -158,4 +148,15 @@ class _AuraTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
+extension AuraPickerSheetExt on AuraPickerSheet {
+  Future<({List<AuraType>? aura})?> show(BuildContext context) =>
+      showSdBottomSheetV2<({List<AuraType>? aura})>(
+        context,
+        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+        isScrollControlled: true,
+        builder: (_) => this,
+      );
 }

@@ -6,9 +6,10 @@ class _NotConnected extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      context.l10n.insightsSleepNotConnected,
-      style: AppTextStyle.bodyMedium,
+    return SdEmptyStateV2(
+      icon: AppIconConstant.sleep,
+      message: context.l10n.insightsSleepNotConnected,
+      size: SdEmptyStateSizeV2.compact,
     );
   }
 }

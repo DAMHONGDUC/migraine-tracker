@@ -107,6 +107,48 @@ describe("runPressureAlerts", () => {
     expect(deps.sendPush).not.toHaveBeenCalled();
     expect(result.pushesSent).toBe(0);
     expect(result.failedCells).toEqual([]);
+    // No reading came back, so the cell leaves no entry to read.
+    expect(result.cellDrops).toEqual({});
+  });
+
+  it("keeps every cell's reading, including one that pushed to nobody", async () => {
+    const { deps } = harness(async (cell) =>
+      cell === "u1234"
+        ? drop({ dropHpa: 1.2, currentHpa: 1008, eventId: "E1" })
+        : drop({ dropHpa: 7, currentHpa: 1015, eventId: "E2" }),
+    );
+    const result = await runPressureAlerts(
+      [user("a", "u1234"), user("b", "gcpvj")],
+      deps,
+    );
+
+    // The whole point: a run that sent one push still says what the quiet cell saw.
+    expect(result.cellDrops).toEqual({
+      u1234: { currentHpa: 1008, dropHpa: 1.2, eventId: "E1" },
+      gcpvj: { currentHpa: 1015, dropHpa: 7, eventId: "E2" },
+    });
+    expect(result.pushesSent).toBe(1);
+  });
+
+  it("keeps the reading of a cell whose users were all deduped", async () => {
+    const { deps } = harness(async () => drop({ eventId: "E1" }));
+    const result = await runPressureAlerts(
+      [user("a", "u1234", { history: { lastEventId: "E1" } })],
+      deps,
+    );
+
+    expect(result.pushesSent).toBe(0);
+    expect(result.cellDrops.u1234.dropHpa).toBe(7);
+  });
+
+  it("leaves out a cell whose forecast failed", async () => {
+    const { deps } = harness(async () => {
+      throw new Error("weatherkit HTTP 503");
+    });
+    const result = await runPressureAlerts([user("a", "bad00")], deps);
+
+    expect(result.failedCells).toEqual(["bad00"]);
+    expect(result.cellDrops).toEqual({});
   });
 
   it("records a failed cell and keeps processing the rest (fail loud, don't skip cohort)", async () => {

@@ -51,9 +51,8 @@ class QuickAccessSection extends ConsumerWidget {
       _Shortcut(
         icon: AppIconConstant.reminderActive,
         label: l10n.dashboardAlertShortcut,
-        // Through NavigationUtils, like the Settings row.
-        onTap: () =>
-            NavigationUtils.toPressure(context, ref, highlightAlert: true),
+        // Through NavigationUtils, like the Settings row — and to the same place: the pressure tab with the threshold sheet open.
+        onTap: () => NavigationUtils.toPressureAlert(context, ref),
       ),
     ];
 

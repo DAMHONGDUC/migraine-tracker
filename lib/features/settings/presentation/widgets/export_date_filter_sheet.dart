@@ -61,7 +61,7 @@ class _ExportDateFilterSheetState extends State<ExportDateFilterSheet> {
     return SdSheetContentV2(
       title: l10n.exportFilterTitle,
       closeTooltip: l10n.commonClose,
-      confirmTooltip: l10n.commonDone,
+      confirmLabel: l10n.commonDone,
       onConfirm: () => Navigator.of(
         context,
       ).pop(ExportDateFilter.ordered(from: _from, to: _to)),

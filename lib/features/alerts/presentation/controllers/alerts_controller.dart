@@ -5,6 +5,7 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/storage/secure_store.dart';
+import '../../domain/entities/alert_threshold_range.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
@@ -15,8 +16,25 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final prefs = ref.watch(secureStoreProvider);
     return AlertsSettings(
       enabled: prefs.getBool(PrefsKeyConstant.alertsEnabled) ?? false,
-      thresholdHpa: prefs.getDouble(PrefsKeyConstant.alertThreshold) ?? 5,
+      thresholdHpa:
+          prefs.getDouble(PrefsKeyConstant.alertThreshold) ??
+          AlertThresholdRange.initial,
     );
+  }
+
+  /// Applies what the threshold sheet came back with.
+  ///
+  /// Threshold first, and that order is the point: `setEnabled(true)`
+  /// registers the device with the threshold it reads off the current state,
+  /// so writing the number second would register the old one and leave the
+  /// server disagreeing with the slider the user just moved.
+  Future<void> apply(AlertsSettings next) async {
+    final AlertsSettings current = state.requireValue;
+
+    if (next.thresholdHpa != current.thresholdHpa) {
+      await setThreshold(next.thresholdHpa);
+    }
+    if (next.enabled != current.enabled) await setEnabled(next.enabled);
   }
 
   Future<void> setEnabled(bool enabled) async {

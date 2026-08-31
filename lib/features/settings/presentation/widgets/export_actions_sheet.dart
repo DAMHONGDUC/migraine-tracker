@@ -20,20 +20,14 @@ class ExportActionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return SafeArea(
+    // Same chrome as every other sheet, and no tick: a tap on a row IS the answer here, so there is nothing left for a commit to do.
+    return SdSheetContentV2(
+      title: record.filename,
+      closeTooltip: l10n.commonClose,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              SdContentPaddingV2.horizontal,
-              SdSpacingConstant.h4,
-              SdContentPaddingV2.horizontal,
-              SdSpacingConstant.h12,
-            ),
-            child: Text(record.filename, style: AppTextStyle.titleMedium),
-          ),
           // No preview for CSV: 14 columns of comma-separated text tell a reader nothing a phone screen can show usefully.
           if (record.kind != ExportKind.csv)
             _ActionTile(
@@ -57,7 +51,6 @@ class ExportActionsSheet extends StatelessWidget {
             action: ExportAction.delete,
             isDestructive: true,
           ),
-          SizedBox(height: SdSpacingConstant.h8),
         ],
       ),
     );
@@ -84,6 +77,8 @@ class _ActionTile extends StatelessWidget {
         : AppColors.primary;
 
     return ListTile(
+      // The sheet already holds the gutter; ListTile's own 16 on top of it would inset these rows past everything else in the sheet.
+      contentPadding: EdgeInsets.zero,
       leading: SdIconV2(icon: icon, size: AppIconSize.medium, color: color),
       title: Text(
         label,
@@ -99,5 +94,10 @@ class _ActionTile extends StatelessWidget {
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportActionsSheetExt on ExportActionsSheet {
   Future<ExportAction?> show(BuildContext context) =>
-      showSdBottomSheetV2<ExportAction>(context, builder: (_) => this);
+      showSdBottomSheetV2<ExportAction>(
+        context,
+        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+        isScrollControlled: true,
+        builder: (_) => this,
+      );
 }

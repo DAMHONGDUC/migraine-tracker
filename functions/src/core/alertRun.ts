@@ -20,11 +20,25 @@ export interface AlertRunDeps {
   logInfo?: (message: string, data: Record<string, unknown>) => void;
 }
 
+/**
+ * What one cell's forecast said. Kept because a run that sent nothing is the
+ * usual run, and without the reading behind it the record cannot say whether
+ * that was a flat forecast, a drop under everyone's threshold, or dedupe.
+ */
+export interface CellDrop {
+  currentHpa: number;
+  /** Positive = falling; negative is a rising forecast and is worth seeing. */
+  dropHpa: number;
+  eventId: string;
+}
+
 export interface AlertRunResult {
   users: number;
   cells: number;
   failedCells: string[];
   pushesSent: number;
+  /** Keyed by geohash5. A fetched cell is missing only when its forecast held no usable sample. */
+  cellDrops: Record<string, CellDrop>;
 }
 
 /** Core of the pressure-alert cron, pure orchestration over injected effects. */
@@ -35,6 +49,7 @@ export async function runPressureAlerts(
   const { now } = deps;
   const cells = groupByGeohash(users);
   const failedCells: string[] = [];
+  const cellDrops: Record<string, CellDrop> = {};
   let pushesSent = 0;
 
   for (const [cell, cellUsers] of cells) {
@@ -51,6 +66,11 @@ export async function runPressureAlerts(
       continue;
     }
     if (drop === null) continue;
+    cellDrops[cell] = {
+      currentHpa: drop.currentHpa,
+      dropHpa: drop.dropHpa,
+      eventId: drop.eventId,
+    };
 
     for (const user of cellUsers) {
       if (
@@ -83,5 +103,11 @@ export async function runPressureAlerts(
     }
   }
 
-  return { users: users.length, cells: cells.size, failedCells, pushesSent };
+  return {
+    users: users.length,
+    cells: cells.size,
+    failedCells,
+    pushesSent,
+    cellDrops,
+  };
 }

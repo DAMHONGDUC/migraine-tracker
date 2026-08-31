@@ -207,23 +207,7 @@ class PremiumBadge extends StatelessWidget {
   const PremiumBadge({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w8,
-        vertical: SdSpacingConstant.h4,
-      ),
-      decoration: BoxDecoration(
-        color: context.colorScheme.primary.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
-      ),
-      child: Text(
-        context.l10n.premiumBadge,
-        style: AppTextStyle.labelSmall.copyWith(
-          color: context.colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  // The pill is SdTagV2's, not this widget's: the alert row wears the same
+  // shape, and two hand-rolled copies of one pill is two chances to drift.
+  Widget build(BuildContext context) => SdTagV2(label: context.l10n.premiumBadge);
 }

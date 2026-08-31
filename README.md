@@ -167,13 +167,13 @@ first install anyway.
 ```mermaid
 flowchart TD
   A["App launch"] --> B{"is_installed set in<br/>shared_preferences?"}
-  B -- "yes" --> C["Same install<br/>— nothing to do"]
+  B -- "yes" --> C["Same install — nothing to do<br/><small>is_installed = true</small>"]
   B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
-  D -- "no → reinstall" --> E["Keychain cleared, session<br/>signed out"]
-  D -- "yes → update" --> F["Settings carried into the Keychain,<br/>the old copies dropped"]
+  D -- "no → reinstall<br/><small>getKeys is empty</small>" --> E["Keychain cleared, session signed out<br/><small>SecureStore.deleteAll, uid 7Qk2… gone</small>"]
+  D -- "yes → update<br/><small>getKeys = alerts_enabled,<br/>alert_threshold</small>" --> F["Settings carried into the Keychain,<br/>the old copies dropped<br/><small>alert_threshold 5.0 → SecureStore</small>"]
   E --> H
-  F --> H["is_installed written last,<br/>so a crash retries"]
-  H --> I["Anonymous session ensured"]
+  F --> H["is_installed written last,<br/>so a crash retries<br/><small>setBool is_installed true</small>"]
+  H --> I["Anonymous session ensured<br/><small>signInAnonymously → uid c9Xf…</small>"]
 ```
 
 - **Only a reinstall signs out.** An update deleted nothing, so it keeps both
@@ -193,11 +193,11 @@ The app stores no premium flag of its own, on device or in Firestore.
 
 ```mermaid
 flowchart LR
-  A["Apple<br/>receipt"] --> B["RevenueCat server<br/>validates, sets expiry,<br/>binds to App User ID"]
-  B --> C["CustomerInfo<br/>entitlements.active"]
-  C --> D["RevenueCatPremiumRepository<br/>(listener + first read)"]
-  D --> E["isPremiumProvider"]
-  E --> F["hasPremiumProvider<br/>→ every gate"]
+  A["Apple receipt<br/><small>yearly, $29.99</small>"] --> B["RevenueCat server validates,<br/>sets expiry, binds to App User ID<br/><small>uid c9Xf…, expires 2027-08-31</small>"]
+  B --> C["CustomerInfo.entitlements.active<br/><small>premium: active</small>"]
+  C --> D["RevenueCatPremiumRepository<br/><small>listener + first read</small>"]
+  D --> E["isPremiumProvider<br/><small>true</small>"]
+  E --> F["hasPremiumProvider → every gate<br/><small>PDF export, drop alerts, unlimited attacks</small>"]
 ```
 
 | Session | App User ID | Set by |
@@ -228,3 +228,62 @@ no account is ever required to buy, restore or use premium (App Store
 
 Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).
+
+## The pressure alert cron
+
+`pressureAlertJob` (`functions/src/index.ts:64`) runs every 3 hours on Cloud
+Scheduler, UTC, in `europe-west1`. One run resolves who is eligible, spends one
+WeatherKit call per geohash cell, pushes to the users whose own threshold is
+crossed, and writes down what it did.
+
+```mermaid
+flowchart TD
+  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_access where premium == true<br/>→ Auth getUserByEmail → uid<br/><small>review@baroease.app → uid 7Qk2…</small>"]
+  A --> C["users where premium == true<br/><small>1 842 docs, written by the RevenueCat webhook</small>"]
+  B --> D["Merge, dedupe by uid<br/><small>1 843 → 1 843, one overlap dropped</small>"]
+  C --> D
+  D --> E{"fcmToken set and<br/>geohash5 is 5 chars?"}
+  E -- "no" --> F["Skipped<br/><small>211 docs: no token or no location yet</small>"]
+  E -- "yes" --> G["groupByGeohash<br/><small>1 632 users → 87 cells; u2j0k holds 54</small>"]
+  G --> H["fetchHourlyPressure at the cell centre<br/><small>u2j0k → 52.52, 13.40</small>"]
+  H -- "throws" --> I["Cell recorded as failed, run continues<br/><small>failed_cells: gcpvj</small>"]
+  H --> J["maxDrop24h<br/><small>now 1013.2 hPa, min 1006.4 at 06:00Z<br/>→ drop 6.8, eventId 2026-09-01T06</small>"]
+  J -- "null" --> K["Cell skipped<br/><small>nearest hour is 2h off, outside the 90min window</small>"]
+  J --> L{"shouldAlert per user"}
+  L -- "no" --> M["Quiet — the usual outcome<br/><small>threshold 8.0 &gt; drop 6.8</small>"]
+  L -- "yes" --> N["FCM push<br/><small>threshold 5.0, eventId new, last alert 31h ago</small>"]
+  N -- "ok" --> O["users/7Qk2… updated<br/><small>lastAlertDropHpa 6.8,<br/>lastAlertEventId 2026-09-01T06</small>"]
+  N -- "token not registered" --> P["fcmToken deleted<br/><small>messaging/registration-token-not-registered</small>"]
+  I --> Q
+  K --> Q
+  M --> Q
+  O --> Q
+  P --> Q["pressure_alert_runs/2026-08-31T18:00:00.000Z<br/><small>status partial, cells 87, pushes_sent 39,<br/>max_drop_hpa 6.8</small>"]
+```
+
+| Step | What it does | Where |
+|---|---|---|
+| Audience | Premium subscribers plus the `app_access` allow-list, deduped by uid | `index.ts` `runAlertPass` |
+| Eligibility | Needs an `fcmToken` and a 5-character `geohash5`; threshold is `alertThreshold`, default 5 hPa | `index.ts` `runAlertPass` |
+| Grouping | One forecast call per cell, never per user (hard rule 10) | `core/grouping.ts` |
+| Forecast | Hourly pressure at the cell centre, from WeatherKit | `weather/weatherKit.ts` |
+| Drop | Nearest hour to now is the current reading; the minimum within 24h is the event | `core/pressure.ts` `maxDrop24h` |
+| Dedupe | Drop ≥ threshold, `eventId` not already sent, and no push in the last 24h | `core/alerts.ts` `shouldAlert` |
+| Push | FCM notification plus a data payload the app localizes itself | `index.ts` `sendPush` |
+| History | One document per run, `ok` / `partial` / `failed` | `core/alertRunRecord.ts` |
+
+- **The allow-list is resolved through Auth, not a Firestore query.** Auth
+  lower-cases an address and answers for an account that has no `users` doc yet;
+  a Firestore `==` on an email does neither.
+- **A failure is contained to its own cell or user.** A cell whose forecast
+  throws is recorded and the run moves on; a push that fails is logged, and only
+  a stale token (`messaging/registration-token-not-registered`) changes the user
+  document — by deleting the token.
+- **The history write sits outside the try/catch.** A run that threw is the run
+  the record is most needed for, so `runAlertPass` is split out and the document
+  is written either way.
+- **The job still throws at the end** when the pass threw or any cell failed, so
+  the scheduler sees a failed run — the record is written first.
+- **The push carries English text and the numbers.** The app renders its own
+  localized row from the `data` payload; only `dropHpa`, `eventId` and `at`
+  actually travel.

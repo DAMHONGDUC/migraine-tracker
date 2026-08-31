@@ -9,6 +9,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/entities/sleep_correlation_result.dart';
 import '../../providers.dart';
+import 'insight_body_skeleton.dart';
 import 'insight_progress_body.dart';
 import 'insight_settling_note.dart';
 
@@ -44,6 +45,8 @@ class SleepCorrelationBody extends ConsumerWidget {
         SleepNoVariation() => const _SleepNoVariationBody(),
         final SleepInsight r => _SleepInsightBody(result: r),
       },
+      // The read is HealthKit's, which takes as long as it takes — drawn in the shape it will resolve into rather than left blank.
+      AsyncLoading<dynamic>() => const InsightBodySkeleton(),
       // A HealthKit failure is not worth an error state on a secondary card.
       _ => const SizedBox.shrink(),
     };

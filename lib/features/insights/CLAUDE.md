@@ -1,6 +1,6 @@
 # Insights
 
-The three cards, their tabs, and the detail screens behind them.
+The three tabs, the two cards each one carries, and the doors that reach them.
 
 **Weather is not here any more.** The live conditions moved to the dashboard as
 `CurrentWeatherCard` (owner's call) — see `lib/features/dashboard/CLAUDE.md`.
@@ -10,10 +10,78 @@ not deserve a tab. `InsightsTab` has no `weather` member, the screen opens on
 `pressure`, and `WeatherMetric`, `weatherMetricProvider` and `weatherDayProvider`
 are gone entirely.
 
+## Two cards per tab: the reading, then the analysis
+
+**Every Insights tab is a chart card and an analysis card — owner's rule.** Each
+tab used to be one card with a divider through it, which made a measurement and
+the conclusion drawn from it read as one long section. A card is this app's unit
+of "one subject", so the two get one each, separated by
+`SdContentPaddingV2.sectionGap`.
+
+| Tab | Chart card | Analysis card(s) |
+|---|---|---|
+| Pressure | `PressureForecastBody` + `_AlertControls` | "Analysis": `TriggerVerdictBody`, `CorrelationBody`, `PressureHistoryBody` |
+| Activity | `_StepsSection` | "Physical exertion", then "Steps & attacks" — **one card each** |
+| Sleep | `_NightsSection` | "Sleep & attacks" |
+
+**Exertion and steps are two cards, not two sections of one** (owner's call).
+They were under a single "Analysis" heading, which put a self-reported share
+and a HealthKit comparison on one surface as if they answered the same
+question. They do not: one has no baseline of days without an attack and the
+other has two groups of days, and the explanation behind each says something
+different.
+
+**Every analysis card carries an info glyph that opens `InsightInfoSheet`**
+(owner's rule). A correlation states a relationship in one sentence, and the
+sentence alone never says what was compared against what, how the number was
+arrived at, or why the card is still empty. Three paragraphs each, in this
+order, and the third is the one that matters:
+
+1. what the card compares,
+2. where the data comes from and what it is waiting for,
+3. **what it cannot claim** — a pattern is not a cause, and each card has its
+   own reason. Exertion has no record of the days without an attack, so it is a
+   share and never a comparison. A step difference can run either way: the
+   attack can follow the hard day, or be the reason the day ended up quiet. A
+   short night can be an early sign of the attack that was already coming.
+
+- The sheet carries no commit — nothing to save, so the X is the only way out.
+- `InsightCard.onInfo` draws the glyph, quiet, in the title row: it is there for
+  the reader who stops, not a call to action.
+- **Locked, a tab collapses to one card with one pitch** — pressure and activity
+  alike. Two locked cards would be two pitches for one purchase.
+
+- **The alert rides on the chart card**, not the analysis one: it fires on what
+  the forecast above it draws.
+- **`PressureHistoryBody` stays with the analysis** even though it is a chart —
+  it is the working behind the sentence directly above it, not a reading of its
+  own.
+- **Locked, the pressure tab collapses back to one card.** One pitch for the
+  whole tab, not one per card, so the locked branch returns a single titled
+  `InsightCard` carrying the `PremiumBadge`.
+- **`InsightCard.title` is nullable** for exactly this: a card the tab strip
+  above already names skips the heading row entirely rather than opening on 16pt
+  of empty.
+- **Dividers inside these cards are `InsightCardDivider`, not `SdDividerV2`** —
+  they cancel `InsightCard.gutter` and run to the card's own edges. A rule that
+  stops 20pt short reads as a line under one column instead of the break between
+  two sections.
+- **`InsightCard.stackGap` is the one vertical gap between a card's parts** —
+  above the first item, either side of a divider, under a title. The gap above an
+  item and the gap below it are only even if one place decides both: the switch
+  rows sat 20 from the card's top edge and flush against the divider, which read
+  as the line hanging off the row. A gap *inside* one part — a selector to its
+  chart, a headline to its bars — stays the tighter `h16`; only part boundaries
+  take `stackGap`.
+  - It is `h20` where the gutter is `w20`: the card padded itself with
+    `EdgeInsets.all`, spending a horizontal scale on its top and bottom, so the
+    card's own top gap and every gap stacked under it were measured against
+    different scales.
+
 ## One card for everything pressure
 
-`PressureCard` on the Insights pressure tab holds the 48h forecast, the
-correlation and the alert switch + threshold together (`pressure_card_alert.dart`
+`PressureCard` on the Insights pressure tab holds the 7-day forecast, the
+correlation and the alert row together (`pressure_card_alert.dart`
 is its part file). They were three places before — a card on Insights, another
 beside it, and a Settings row two taps away — so the number and the alert it
 drives never appeared together.
@@ -29,31 +97,32 @@ dashboard tile, the alert notification — selects this tab through
 own and anything in `alerts/` reaching into `insights/presentation/` would break
 the feature dependency rule.
 
-- **The doors that mean *alerts* ask the row to reveal itself:
-  `NavigationUtils.toPressure(highlightAlert: true)`.** The switch is the last
-  thing on a tall card and usually below the fold, so landing on the tab without
-  pointing at it leaves the user hunting. The row scrolls itself to centre and holds a tint
-  for `_AlertControls.highlightHold`, fading in and out (hard rule 3: calm, never
-  a flash).
+- **A door that means *alerts* opens the sheet, not a highlight:
+  `NavigationUtils.toPressureAlert`** (owner's call). It used to land on the tab
+  and light the alert row up — asking the user to find a highlight and then tap
+  it, two steps to reach the thing the door was named after. The sheet over the
+  tab is the same destination with neither, so `pressureAlertHighlightProvider`,
+  the scroll-to-centre and the fading tint are all gone and `_AlertControls` is a
+  plain `ConsumerWidget` again.
   - **Only with premium, and that check lives in `NavigationUtils`.** Without it
-    the card renders one pitch and no controls, so there would be no row to
-    scroll to and the request would sit unconsumed until it fired on some
-    unrelated later visit.
-  - **It is a flag the row consumes, not an event it listens for.** The card is
-    built *after* the move, so a listener would subscribe to something that
-    already fired; the row `watch`es it, reveals itself after the frame, then
-    calls `consume()`.
+    the card renders one pitch and no controls, so a sheet over it would be
+    editing something the user cannot have.
+  - **`AlertThresholdEditor.open` is the one place that opens it and applies the
+    answer**, because four doors reach it: the Settings row, the dashboard
+    shortcut, the alerts section and the card's own row. A sheet opened without
+    the apply discards the answer, which looks exactly like a save that worked.
 - **The Apple Weather mark sits bottom-right of `PressureForecastBody`, and it is
   the `WeatherAttribution` widget, never a plain `Text`.** WeatherKit requires the
   mark to LINK to Apple's attribution page and App Review checks for it — a credit
   that only reads right is not compliance. It lives in `core/widgets/weather/`
   beside the shared weather card, whose own copy is drawn on the detail screen
   rather than on the card.
-- **Bodies are cardless so two surfaces can draw them.** `CorrelationBody` and
-  `PressureForecastBody` are the content; `CorrelationCard` /
-  `PressureForecastCard` are the shells the detail screen uses, and `PressureCard`
-  folds the two bodies onto one card. `InsightCard` takes an `onTap` and draws the
-  chevron itself — never add one at a call site.
+- **Bodies are cardless, and `InsightCard` is the only shell.** `CorrelationBody`
+  and `PressureForecastBody` are the content; the tab's two cards place them. The
+  per-body card shells (`CorrelationCard`, `StepSummaryCard`, `SleepSummaryCard`,
+  the three `*CorrelationCard`s) went with the detail screens that were their
+  only callers. `InsightCard` takes an `onTap` and draws the chevron itself —
+  never add one at a call site.
 - **The forecast is premium again, and this has flipped twice — do not flip it a
   third time without the owner saying so.** It shipped premium, was reversed to
   free ("seeing the pressure you live in is the app's own promise"), and is
@@ -61,21 +130,20 @@ the feature dependency rule.
   promise is kept by that card; the pressure chart is the paid reading.
   `premiumLockedForecast` is its pitch, and `PressureCard`'s `PremiumBadge` marks
   the whole card rather than just the alert.
-- **The two alert controls are one `_AlertRow` each: glyph and name left, the
-  control right.** A `SwitchListTile` beside a `ListTile` put their titles at
-  different insets and their controls at different heights, which is what made the
-  pair look unfinished.
-  - **Both rows are one fixed height (`_AlertRow.height`), and the switch is
-    `MaterialTapTargetSize.shrinkWrap`** — otherwise the switch brings Material's
-    48pt tap target with it, its row comes out taller, and the divider sits closer
-    to one than the other.
-  - The threshold row carries a **chevron after its value**: without it the row
-    reads as a readout and nothing says a sheet is one tap away. **Only that row
-    takes an `onTap`** — tapping a switch row's label would be a second, invisible
-    way to toggle it.
+- **The alert is ONE `_AlertRow`, and `AlertThresholdSheet` behind it owns both
+  answers.** It was a switch row above a threshold row: two titles saying the same
+  word, a control on one and a value on the other, and the number the alert
+  actually runs on readable only by opening the second. The row now states both —
+  `AlertsSettingsLabel.summary`, "On · 5 hPa" or "Off" — and one tap opens the
+  sheet that sets them.
+  - The row keeps its **chevron after the value**: without it the row reads as a
+    readout and nothing says a sheet is one tap away. It takes the `onTap` for the
+    whole row now, because there is no control inside it to fight over the tap.
+  - `_AlertRow.height` stays fixed so the highlight the doors ask for lands on a
+    row of a known height whatever it holds.
   - The section heading is gone: it said "Pressure-drop alerts" directly above a
-    row whose title said the same thing. The sentence explaining what the alert
-    does moved below the pair.
+    row whose title said the same thing. The sentence under the row explains what
+    the alert does while it is on, and says what it would do while it is off.
 - **Without premium, neither alert control is built — not the switch, not the
   threshold.** Owner's call, reversing the first version, which showed both inert
   with a lock glyph on the theory that a locked control still says what it would
@@ -113,10 +181,10 @@ several screens down.
 - **A tab's label is its card's name, from the same ARB key**
   (`insightsPressureTitle`, `activityCardTitle`, `sleepCardTitle`), so the segment
   and the card cannot come to disagree.
-  - **Which is why two cards carry no heading of their own.** `ActivityCard` and
-    `SleepCard` open straight onto their content: the tab above already says the
-    word. `PressureCard` keeps its `InsightCard` title, because that row is also
-    where its `PremiumBadge` sits.
+  - **Which is why no unlocked card carries a heading of its own.** All three
+    tabs open straight onto their content: the tab above already says the word.
+    The one exception is the pressure tab while it is locked, where the title row
+    is also where its `PremiumBadge` sits.
 - **Each tab waits only on what it draws.** The screen used to hold every card
   behind one `switch` on both correlation providers, so a card needing neither
   stayed blank until the engines had run.
@@ -130,27 +198,40 @@ several screens down.
 - **Pull-to-refresh invalidates everything, not just the visible tab**: the
   gesture belongs to the screen rather than to the card in front of it.
 
-## `/activity` and `/sleep`
+## There are no insight detail screens
 
-Exertion and steps share `/activity` and one `ActivityCard`, because they are the
-same question asked twice — how much did the user move. Sleep keeps its own card
-and screen: the night is a different question from the day, and merging them would
-put one switch over two unrelated readings. Both screens are reached from their
-own Settings row, **not from their Insights card**.
+**`/activity` and `/sleep` are gone, and so is `/pressure` before them** (owner's
+call). Each held the same reading and the same analysis as its tab, reachable
+only from Settings — a second copy of one subject, and a second place for it to
+drift. **The Settings rows are doors to the tab**:
+`NavigationUtils.toInsights(context, ref, InsightsTab.activity | .sleep)`.
 
-- **Each card is a free reading over a premium analysis.** Owner's spec: the top
-  half is what was measured and is free, a divider, then an "Analysis" heading
-  with the correlation drawn from it, which is premium. `docs/PREMIUM_RULES.md` is
-  the authority on which half is which.
-- **Neither takes a card-level `onTap`, and so neither wears a chevron.** Each
-  owns an interactive control — a view switcher, a range selector, an alert switch
-  — and a tap on the card would fight the control inside it. That is why the
-  detail screens are reached from Settings: a card cannot be both a control
-  surface and a door.
+- **The Apple Health switch moved onto the card it fills.**
+  `HealthConnectionTile` sits at the top of the activity and sleep chart cards,
+  above the divider, with the privacy caption under the reading. A switch two
+  screens away from the empty chart it fills is a switch nobody connects.
+  - **It lives in `insights/presentation/widgets/` now**, not
+    `core/widgets/sections/`: Insights is the only surface that draws it, and
+    `health/presentation/` would be a forbidden import from here.
+  - **`HealthConnectPrompt` is deleted with it.** Its Connect button and the
+    switch above it were two ways to grant one permission; the disconnected state
+    is now the switch plus the line saying what connecting would give.
+  - **App Store 2.5.1 is why the copy names Apple Health, not the section
+    header.** Submission 1.0(11) was rejected for not identifying HealthKit in
+    the UI. The header that answered it is gone from Settings, and what carries
+    the identification now is the switch's own title — "Apple Health sleep",
+    "Apple Health steps" — plus the caption under it, on a tab in the main nav
+    and behind no gate.
+- **Each tab is a free reading over a premium analysis.** Owner's spec: the first
+  card is what was measured and is free, the second is the correlation drawn from
+  it, which is premium. `docs/PREMIUM_RULES.md` is the authority on which half is
+  which.
+- **No card takes a card-level `onTap`, and so none wears a chevron.** Each owns
+  an interactive control — a range selector, a switch, an alert row — and a tap on
+  the card would fight the control inside it.
 - **The free half must never be gated, even when the analysis under it is.** It
   is the answer to "did connecting Apple Health work" and "what is the pressure
   doing"; locking it leaves a user who just flipped a switch looking at nothing.
-  So `SleepCard` carries no `PremiumGate` around it any more.
 - **What a locked analysis blurs is a sample, never the user's own data.**
   `PremiumChartLock` draws `sampleExertionCorrelationProvider` /
   `sampleSleepCorrelationProvider`, both running `SampleChartData` through the
@@ -160,20 +241,13 @@ own Settings row, **not from their Insights card**.
   it means the provider is never watched, so no HealthKit read is issued for a
   free user.
 - **Neither Settings row is premium-gated**, and the sleep one used to be. Same
-  rule as the free half above: the screen behind the row holds the Apple Health
-  switch and a free summary card, so a locked row hides something the user already
-  has. Submission 1.0(11) was rejected under App Store 2.5.1 partly because of
-  that gate — with the paywall returning no offerings, the sleep row could not be
-  unlocked, and it led to the app's only screen naming Apple Health. Only
-  `SleepCorrelationCard` on the screen itself is premium. Inside the activity
-  card, the step half shows `premiumLockedSteps` until premium, and is absent
-  entirely off iOS (`healthAvailableProvider`), where the prompt would point at a
-  switch that isn't there.
-- **On both insight detail screens the controls come first and the cards last.**
-  The switch is what the user opened the screen to change, so it sits under the
-  thumb; the reading is what they scroll to. `/activity` and `/sleep` alike — the
-  pressure card is not a screen and puts its alert row at the bottom, which is why
-  the doors above ask it to reveal itself.
+  rule as the free half above: the tab behind the row holds the Apple Health
+  switch and a free reading, so a locked row hides something the user already has.
+  Submission 1.0(11) was rejected under App Store 2.5.1 partly because of that
+  gate — with the paywall returning no offerings, the sleep row could not be
+  unlocked, and it led to the app's only surface naming Apple Health. Inside the
+  activity tab, the step half of the analysis shows `premiumLockedSteps` until
+  premium, and is absent entirely off iOS (`healthAvailableProvider`).
 
 ## The health range selector
 
