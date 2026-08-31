@@ -1,13 +1,15 @@
 # Settings
 
 - **The account row says whether there is an account, without being opened**
-  (owner's call). Signed in it carries the address (`AuthUser.label` — never the
-  UID; Apple withholds the address on every sign-in after the first, and the
-  fallback is the word "Signed in"). Anonymous it carries the muted "Not signed
-  in" tag, the same shape the alerts row wears when it is off. It read "Sign in"
-  or "Account" and nothing else before, so the one state a user opens Settings to
-  check was two taps away — and "Account" on an anonymous session looked like an
-  account.
+  (owner's call). Two `SdTagV2`s of the same shape — "Signed in" in the accent,
+  "Not signed in" in the muted grey the alerts row wears when it is off — so
+  colour is what tells them apart at a glance. It read "Sign in" or "Account" and
+  nothing else before, so the one state a user opens Settings to check was two
+  taps away, and "Account" on an anonymous session looked like an account.
+  - **The state, never the address** (owner's call, reversing a version that
+    printed the email). Settings is read in public; an address on a row anyone
+    glancing over can see is a cost the answer does not need. The account screen
+    behind it is where the address belongs.
 
 ## The export preview
 
