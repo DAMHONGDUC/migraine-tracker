@@ -32,12 +32,16 @@ class InsightCard extends StatelessWidget {
 
   final VoidCallback? onTap;
 
+  /// The inset every card holds its content at. Public because
+  /// [InsightCardDivider] cancels exactly this and the two must not drift.
+  static double get gutter => SdSpacingConstant.w20;
+
   @override
   Widget build(BuildContext context) {
     return SdCardV2(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w20),
+        padding: EdgeInsets.all(gutter),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -77,6 +81,39 @@ class InsightCard extends StatelessWidget {
             child,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// A divider that reaches the card's own edges, cancelling [InsightCard.gutter].
+///
+/// A rule inset by the gutter reads as a line under the column above it; one
+/// that runs edge to edge reads as the break between two sections, which is
+/// what every divider inside these cards is for.
+///
+/// It cannot be done with a negative padding — `Padding` and `Container`'s
+/// margin both assert their insets are non-negative — so the line is measured
+/// against the space it was given and then allowed to exceed it. The
+/// [SizedBox] is what keeps the [OverflowBox] out of the Column's unbounded
+/// vertical constraint; the width is pinned at both ends so the line takes
+/// exactly the card's width rather than whatever a loose constraint hands it.
+class InsightCardDivider extends StatelessWidget {
+  const InsightCardDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final double bleed = InsightCard.gutter * 2;
+
+    return SizedBox(
+      height: SdSpacingConstant.h1,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) =>
+            OverflowBox(
+              minWidth: constraints.maxWidth + bleed,
+              maxWidth: constraints.maxWidth + bleed,
+              child: const SdDividerV2(),
+            ),
       ),
     );
   }

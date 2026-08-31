@@ -23,7 +23,7 @@ class _NightsSection extends ConsumerWidget {
           icon: AppIconConstant.sleep,
           title: l10n.healthSleepTitle,
         ),
-        const SdDividerV2(),
+        const InsightCardDivider(),
         SizedBox(height: SdSpacingConstant.h16),
         if (connected) ...<Widget>[
           HealthRangeSelector(

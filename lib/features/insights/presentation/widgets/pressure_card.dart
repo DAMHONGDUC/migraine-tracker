@@ -57,7 +57,7 @@ class PressureCard extends ConsumerWidget {
             children: <Widget>[
               const PressureForecastBody(),
               SizedBox(height: SdContentPaddingV2.sectionGap),
-              const SdDividerV2(),
+              const InsightCardDivider(),
               SizedBox(height: SdContentPaddingV2.sectionGap),
               // On the forecast's card, not the analysis': the alert fires on what the chart above it draws.
               const _AlertControls(),

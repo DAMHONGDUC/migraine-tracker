@@ -20,7 +20,7 @@ class _StepsSection extends ConsumerWidget {
           icon: AppIconConstant.steps,
           title: l10n.healthStepsTitle,
         ),
-        const SdDividerV2(),
+        const InsightCardDivider(),
         SizedBox(height: SdSpacingConstant.h16),
         if (connected) ...<Widget>[
           HealthRangeSelector(
