@@ -21,7 +21,7 @@ import '../../../domain/services/weekly_buckets.dart';
 import '../../../providers.dart';
 import '../../widgets/attack_tile.dart';
 import '../../widgets/history_calendar_view.dart';
-import '../../widgets/history_filter_sheet.dart';
+import '../../widgets/history_filters_pill.dart';
 import '../../widgets/history_view_toggle.dart';
 import '../../widgets/intensity_trend_chart.dart';
 import '../../widgets/location_breakdown_chart.dart';
@@ -61,13 +61,9 @@ class HistoryScreen extends HookConsumerWidget {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         child: pastFilter
-            ? Align(
+            ? const Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: HistoryFilterChip(
-                  selected: ref.watch(historyPeriodProvider),
-                  count: filtered.value?.length,
-                  onSelected: ref.read(historyPeriodProvider.notifier).select,
-                ),
+                child: HistoryFiltersPill(),
               )
             : Text(l10n.historyTitle, style: AppTextStyle.titleLarge),
       ),

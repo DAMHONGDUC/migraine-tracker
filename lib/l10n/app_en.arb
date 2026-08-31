@@ -1168,7 +1168,7 @@
   },
   "historyFilterWithCount": "{label} ({count})",
   "@historyFilterWithCount": {
-    "description": "Filter pill text: the active period plus how many attacks it matches, e.g. \"All (10)\"",
+    "description": "Filter pill text: the pill's own label plus a count, e.g. \"Filters (2)\"",
     "placeholders": {
       "label": {
         "type": "String"
@@ -1198,13 +1198,82 @@
   "@historyFilterAll": {
     "description": "History filter chip: all attacks ever"
   },
-  "historyEmptyFiltered": "No attacks in this period.",
+  "historyEmptyFiltered": "No attacks match these filters.",
   "@historyEmptyFiltered": {
-    "description": "Empty state when the selected period has no attacks"
+    "description": "Empty state when nothing matches the filters that are on"
   },
-  "historyFilterSheetTitle": "Filter by period",
-  "@historyFilterSheetTitle": {
-    "description": "Title of the period filter bottom sheet"
+  "historyFiltersTitle": "Filters",
+  "@historyFiltersTitle": {
+    "description": "Label of the History filter pill and title of the filter sheet behind it"
+  },
+  "historyFiltersReset": "Reset all",
+  "@historyFiltersReset": {
+    "description": "Button in the History filter sheet that clears every axis at once"
+  },
+  "historyFiltersApply": "{count, plural, =0{No attacks} =1{Show 1 attack} other{Show {count} attacks}}",
+  "@historyFiltersApply": {
+    "description": "Commit button of the History filter sheet, counting what the draft filters would leave",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyFilterSectionPeriod": "Period",
+  "@historyFilterSectionPeriod": {
+    "description": "Section heading in the History filter sheet: the time window"
+  },
+  "historyFilterSectionMedicationName": "Which medication",
+  "@historyFilterSectionMedicationName": {
+    "description": "Section heading in the History filter sheet: which medication was taken"
+  },
+  "historyFilterDurationUnder4h": "Under 4h",
+  "@historyFilterDurationUnder4h": {
+    "description": "Duration filter chip: attacks shorter than the 4h a migraine is defined from"
+  },
+  "historyFilterDuration4To72h": "4–72h",
+  "@historyFilterDuration4To72h": {
+    "description": "Duration filter chip: the 4-72h band a migraine is defined by"
+  },
+  "historyFilterDurationOver72h": "Over 72h",
+  "@historyFilterDurationOver72h": {
+    "description": "Duration filter chip: attacks longer than 72h"
+  },
+  "historyFilterDurationUnrecorded": "Not recorded",
+  "@historyFilterDurationUnrecorded": {
+    "description": "Duration filter chip: attacks with no end time recorded"
+  },
+  "historyFilterMedicationTaken": "Taken",
+  "@historyFilterMedicationTaken": {
+    "description": "Medication filter chip: something was taken for the attack"
+  },
+  "historyFilterMedicationNotTaken": "None taken",
+  "@historyFilterMedicationNotTaken": {
+    "description": "Medication filter chip: nothing was taken"
+  },
+  "historyFilterNotesWith": "Has notes",
+  "@historyFilterNotesWith": {
+    "description": "Notes filter chip: the attack carries a written note"
+  },
+  "historyFilterNotesWithout": "No notes",
+  "@historyFilterNotesWithout": {
+    "description": "Notes filter chip: the attack carries no note"
+  },
+  "historyFilterPressureFalling": "Falling",
+  "@historyFilterPressureFalling": {
+    "description": "Pressure filter chip: pressure was falling over the 24h before the attack"
+  },
+  "historyFilterPressureRising": "Rising",
+  "@historyFilterPressureRising": {
+    "description": "Pressure filter chip: pressure was rising"
+  },
+  "historyFilterPressureSteady": "Steady",
+  "@historyFilterPressureSteady": {
+    "description": "Pressure filter chip: pressure barely moved"
+  },
+  "historyFilterPressureNoData": "No reading",
+  "@historyFilterPressureNoData": {
+    "description": "Pressure filter chip: no weather reading is attached to the attack"
   },
   "historyChartTooltip": "{count} attacks",
   "@historyChartTooltip": {

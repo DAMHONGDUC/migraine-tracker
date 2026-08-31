@@ -37,9 +37,7 @@ class _AttackList extends ConsumerWidget {
               SdContentPaddingV2.horizontal,
               0,
             ),
-            sliver: SliverToBoxAdapter(
-              child: _FilterRow(count: attacks.length),
-            ),
+            sliver: const SliverToBoxAdapter(child: _FilterRow()),
           ),
           // Under the filter row rather than above it: the pill has to start at offset 0 or `_FilterRow.scrolledPastExtent` fires while it is still on screen.
           if (used != null)

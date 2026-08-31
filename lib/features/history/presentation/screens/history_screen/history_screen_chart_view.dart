@@ -36,7 +36,7 @@ class _ChartView extends StatelessWidget {
               0,
             ),
             sliver: SliverToBoxAdapter(
-              child: _FilterRow(count: attacks.length),
+              child: const _FilterRow(),
             ),
           ),
           if (attacks.isEmpty)

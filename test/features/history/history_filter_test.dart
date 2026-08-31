@@ -5,24 +5,45 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
-Attack at(String id, DateTime local) => Attack(
+Attack at(String id, DateTime local, {String? notes}) => Attack(
   id: id,
   startedAt: local.toUtc(),
   intensity: 5,
   regions: const <HeadRegion>[HeadRegion.templeL],
+  notes: notes,
 );
 
-/// Opens the filter bottom sheet from the app bar and picks [period].
-Future<void> selectPeriod(WidgetTester tester, String period) async {
+/// Opens the filter sheet from the pill.
+Future<void> openFilters(WidgetTester tester) async {
   await tester.tap(find.byIcon(Symbols.filter_list_rounded));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
-  await tester.tap(find.text(period));
+}
+
+/// Toggles one chip in the open sheet. It scrolls to it first: the sheet holds every axis, so most of them start below the fold.
+Future<void> pickFilter(WidgetTester tester, String label) async {
+  await tester.ensureVisible(find.text(label));
+  await tester.pump();
+  await tester.tap(find.text(label));
+  await tester.pump();
+}
+
+/// Commits the draft. The confirm button is the last [SdButtonV2] in the sheet — its label counts the matches, so it cannot be found by a fixed string.
+Future<void> applyFilters(WidgetTester tester) async {
+  await tester.tap(find.byType(SdButtonV2).last);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// The whole flow for one chip: open, pick, commit.
+Future<void> applyFilter(WidgetTester tester, String label) async {
+  await openFilters(tester);
+  await pickFilter(tester, label);
+  await applyFilters(tester);
 }
 
 void main() {
@@ -38,13 +59,14 @@ void main() {
 
     await openHistory(tester);
 
-    // Default = All → both listed; the pill carries the count.
+    // Nothing filtered → both listed, and the pill counts no axes.
     expect(find.byType(AttackTile), findsNWidgets(2));
-    expect(find.text('All (2)'), findsOneWidget);
+    expect(find.text('Filters'), findsOneWidget);
 
-    await selectPeriod(tester, 'Today');
+    await applyFilter(tester, 'Today');
     expect(find.byType(AttackTile), findsOneWidget);
-    expect(find.text('Today (1)'), findsOneWidget);
+    // One axis on, which is what the pill says — the count of matches is the list itself.
+    expect(find.text('Filters (1)'), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -59,9 +81,29 @@ void main() {
     );
 
     await openHistory(tester);
-    await selectPeriod(tester, 'Today');
+    await applyFilter(tester, 'Today');
 
-    expect(find.text('No attacks in this period.'), findsOneWidget);
+    expect(find.text('No attacks match these filters.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('an axis other than the period narrows the list too', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repo = DriftAttackRepository(app.db);
+    final now = DateTime.now();
+    await repo.insert(
+      at('noted', now.subtract(const Duration(hours: 2)), notes: 'after wine'),
+    );
+    await repo.insert(at('bare', now.subtract(const Duration(hours: 3))));
+
+    await openHistory(tester);
+    await applyFilter(tester, 'Has notes');
+
+    expect(find.byType(AttackTile), findsOneWidget);
+    expect(find.text('Filters (1)'), findsOneWidget);
 
     await finishTest(tester);
   });

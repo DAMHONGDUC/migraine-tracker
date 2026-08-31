@@ -2,29 +2,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
-import '../../../attacks/domain/entities/attack.dart';
-import '../../domain/enums/history_period.dart';
 import '../../domain/enums/history_view_mode.dart';
-import '../../domain/services/attack_period_filter.dart';
 
-/// The period the History screen is filtered to (shared by list AND chart).
-class HistoryController extends Notifier<HistoryPeriod> {
-  static const _filterer = AttackPeriodFilterer();
-
-  @override
-  HistoryPeriod build() => HistoryPeriod.all;
-
-  void select(HistoryPeriod period) {
-    SdLogger.action(LogTagConstant.history, 'History period', period.name);
-    state = period;
-  }
-
-  /// Attacks whose local start time falls within the selected period.
-  List<Attack> filter(List<Attack> attacks) =>
-      _filterer.filterByPeriod(attacks, state, DateTime.now());
-}
-
-/// List ↔ chart toggle on the History app bar.
+/// List ↔ calendar ↔ chart toggle on the History app bar.
+///
+/// The period filter used to live here beside it; it is one axis of
+/// [AttackFilters] now, held by `AttackFiltersController`, because a screen
+/// with twelve axes and one sheet cannot have one of them stored somewhere
+/// else.
 class HistoryViewModeController extends Notifier<HistoryViewMode> {
   @override
   HistoryViewMode build() => HistoryViewMode.list;
