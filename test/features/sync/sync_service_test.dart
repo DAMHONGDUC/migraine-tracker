@@ -342,36 +342,46 @@ void main() {
     });
   });
 
-  group('progress', () {
-    test('climbs from 0 to 1 and never goes backwards', () async {
-      await attacks.insert(attack('a1'));
-      await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
-      final List<double> seen = <double>[];
-
-      await service.sync(uid, onProgress: seen.add);
-
-      expect(seen.first, 0);
-      expect(seen.last, 1);
-      // A bar that jumps backwards reads as a bug even when the sync is fine, which is why progress counts fixed steps and not records discovered.
-      for (int i = 1; i < seen.length; i++) {
-        expect(seen[i], greaterThanOrEqualTo(seen[i - 1]), reason: 'step $i');
-      }
-    });
-
-    test('reaches 1 even with nothing to move', () async {
-      final List<double> seen = <double>[];
-
-      await service.sync(uid, onProgress: seen.add);
-
-      // An empty account must not leave the row stuck partway.
-      expect(seen.last, 1);
-    });
-
-    test('is reported without a callback too', () async {
+  group('pushing without a pull', () {
+    test('a local change goes up on its own, and nothing comes down', () async {
       await attacks.insert(attack('a1'));
 
-      // The callback is optional; every other caller passes nothing.
-      await expectLater(service.sync(uid), completes);
+      expect(await service.pushPending(uid), 1);
+      // The whole point of the push: a write reaches the server without paying for a query per collection.
+      expect(remote.of(SyncCollection.attacks), contains('a1'));
+      expect(remote.queryCount, 0);
+    });
+
+    test('a pushed record stops being owed', () async {
+      await attacks.insert(attack('a1'));
+      await service.pushPending(uid);
+
+      // The second push is the one that every push schedules — marking a1 synced was itself a write.
+      expect(await service.pushPending(uid), 0);
+      expect(remote.putCount, 1);
+    });
+
+    test('a deletion goes up as a deletion', () async {
+      await attacks.insert(attack('a1'));
+      await service.pushPending(uid);
+      await attacks.deleteById('a1');
+
+      expect(await service.pushPending(uid), 1);
+      expect(remote.of(SyncCollection.attacks)['a1']?.isDeleted, isTrue);
+    });
+
+    test('an empty push never asks for the account key', () async {
+      final FakeSyncKeyRepository keys = FakeSyncKeyRepository();
+      final SyncService quiet = syncServiceOver(
+        db,
+        remote: remote,
+        cursor: cursor,
+        keys: keys,
+      );
+
+      expect(await quiet.pushPending(uid), 0);
+      // Every real push schedules one more that finds nothing; a `getSyncKey` call each time would make that chain expensive.
+      expect(keys.keyRequests, 0);
     });
   });
 }

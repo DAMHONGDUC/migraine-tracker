@@ -8,8 +8,6 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../review/providers.dart';
-import '../../../sync/domain/enums/sync_trigger.dart';
-import '../../../sync/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
 import '../../domain/enums/head_region.dart';
@@ -133,12 +131,6 @@ class LogController extends Notifier<LogFlowState> {
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
       // Local read, but still unawaited: HealthKit is another process, and nothing in the log flow waits (hard rule 4).
       unawaited(ref.read(stepAttachServiceProvider).onAttackLogged(attack));
-      // Same best-effort shape: the attack is already saved, so a failure here leaves it pending for the next sync (hard rule 4).
-      unawaited(
-        ref
-            .read(syncControllerProvider.notifier)
-            .sync(trigger: SyncTrigger.record),
-      );
       // Only a moment when a pressure alert came first — the controller decides that.
       unawaited(
         ref

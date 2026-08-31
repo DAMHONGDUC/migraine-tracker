@@ -13,9 +13,6 @@ import '../repositories/sync_local_store.dart';
 import 'attack_cipher.dart';
 import 'sync_payload_codec.dart';
 
-/// How far a sync has got, 0 to 1.
-typedef SyncProgressCallback = void Function(double fraction);
-
 /// One kind of record and the two things sync needs to move it: where it lives locally, and how it becomes a payload.
 class SyncBinding<T> {
   const SyncBinding(this.store, this.codec);
@@ -58,33 +55,20 @@ class SyncService {
   Future<bool> isFirstPull(String uid) async =>
       await _cursor.lastPulledAt(uid, SyncCollection.attacks) == null;
 
-  Future<SyncOutcome> sync(
-    String uid, {
-    SyncProgressCallback? onProgress,
-  }) async {
-    final int steps = _bindings.length * 2;
+  /// The whole pass: what changed elsewhere comes down, then what is still owed goes up. Launch and resume only — a local write goes up through [pushPending].
+  Future<SyncOutcome> sync(String uid) async {
     final String key = await _keys.keyFor(uid);
-    int stepsDone = 0;
     int pushed = 0;
     int pulled = 0;
     int unreadable = 0;
     bool remindersArrived = false;
 
-    /// [within] is how far the step in flight has got, so the fraction moves during a long collection instead of sitting still and then jumping.
-    void report(double within) =>
-        onProgress?.call((stepsDone + within) / steps);
-
-    report(0);
     for (final SyncBinding<dynamic> binding in _bindings) {
-      final SyncOutcome pull = await _pull(uid, binding, key, report);
+      final SyncOutcome pull = await _pull(uid, binding, key);
 
-      stepsDone++;
-      report(0);
       pulled += pull.pulled;
       unreadable += pull.unreadable;
-      pushed += await _push(uid, binding, key, report);
-      stepsDone++;
-      report(0);
+      pushed += await _push(uid, binding, key, await binding.store.pendingChanges());
       if (binding.collection == SyncCollection.medicationReminders &&
           pull.pulled > 0) {
         remindersArrived = true;
@@ -93,6 +77,27 @@ class SyncService {
     if (remindersArrived) await _onRemindersPulled();
 
     return SyncOutcome(pushed: pushed, pulled: pulled, unreadable: unreadable);
+  }
+
+  /// Everything the device still owes the server, and no pull — what a local write costs (hard rule 12).
+  ///
+  /// The key is fetched only once something is actually pending. Marking a
+  /// record synced writes to its own table, which is itself what schedules the
+  /// next push, so every real push is followed by one that finds nothing: that
+  /// one has to cost four local queries and no network, or the chain would pay
+  /// a `getSyncKey` call for nothing every time.
+  Future<int> pushPending(String uid) async {
+    String? key;
+    int pushed = 0;
+
+    for (final SyncBinding<dynamic> binding in _bindings) {
+      final List<SyncRecord<dynamic>> pending = await binding.store
+          .pendingChanges();
+
+      if (pending.isEmpty) continue;
+      pushed += await _push(uid, binding, key ??= await _keys.keyFor(uid), pending);
+    }
+    return pushed;
   }
 
   /// Deletes the account's whole synced history and forgets where the pull had got to (GDPR wipe, hard rule 8).
@@ -111,12 +116,9 @@ class SyncService {
     String uid,
     SyncBinding<dynamic> binding,
     String key,
-    SyncProgressCallback report,
+    List<SyncRecord<dynamic>> pending,
   ) async {
-    final List<SyncRecord<dynamic>> pending = await binding.store
-        .pendingChanges();
     int pushed = 0;
-    int done = 0;
 
     for (final SyncRecord<dynamic> record in pending) {
       final Object? value = record.value;
@@ -143,8 +145,6 @@ class SyncService {
         await binding.store.markSynced(record.id, record.revision);
       }
       pushed++;
-      done++;
-      report(done / pending.length);
     }
     return pushed;
   }
@@ -153,7 +153,6 @@ class SyncService {
     String uid,
     SyncBinding<dynamic> binding,
     String key,
-    SyncProgressCallback report,
   ) async {
     final SyncCollection collection = binding.collection;
     final DateTime? since = await _cursor.lastPulledAt(uid, collection);
@@ -173,7 +172,6 @@ class SyncService {
     DateTime? newest = since;
     int pulled = 0;
     int unreadable = 0;
-    int done = 0;
 
     for (final (int index, EncryptedRecord change) in changes.indexed) {
       if (change.isDeleted) {
@@ -195,8 +193,6 @@ class SyncService {
       if (newest == null || change.updatedAt.isAfter(newest)) {
         newest = change.updatedAt;
       }
-      done++;
-      report(done / changes.length);
     }
     // - Saved only once the batch is through, so anything that threw leaves the cursor put and the next pass redoes the batch harmlessly.
     await _cursor.save(uid, collection, newest ?? since ?? _beginning);

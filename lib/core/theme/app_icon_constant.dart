@@ -285,9 +285,6 @@ final class AppIconConstant {
   /// Sign out.
   static const IconData signOut = Symbols.logout_rounded;
 
-  /// Sync is running, or the row that starts one.
-  static const IconData sync = Symbols.sync_rounded;
-
   /// Everything is synced — the login pitch's promise.
   static const IconData synced = Symbols.cloud_done_rounded;
 
