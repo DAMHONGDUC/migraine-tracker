@@ -50,13 +50,24 @@ class HealthConnectionTile extends ConsumerWidget {
 
     final bool connected = ref.watch(healthControllerProvider).of(kind);
 
-    return SwitchListTile(
-      // The card already holds the gutter; the tile's own would inset this row past the chart under it.
-      contentPadding: EdgeInsets.zero,
-      secondary: SdIconV2(icon: icon, size: AppIconSize.medium),
-      title: Text(title, style: AppTextStyle.bodyLarge),
-      value: connected,
-      onChanged: (bool value) => _toggle(context, ref, value),
+    // Outlined, so the one control on a card of readings reads as a control.
+    // Everything else here is something the app is telling the user; this is
+    // the row they can act on, and a box is what separates the two without a
+    // second colour or a second weight of type.
+    return Container(
+      decoration: BoxDecoration(
+        border: SdOutlineV2.border(context),
+        borderRadius: SdOutlineV2.borderRadius,
+      ),
+      child: SwitchListTile(
+        // Its own inset now: the card's gutter stops at the border, and content flush against a line reads as overflowing it.
+        contentPadding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w12),
+        shape: RoundedRectangleBorder(borderRadius: SdOutlineV2.borderRadius),
+        secondary: SdIconV2(icon: icon, size: AppIconSize.medium),
+        title: Text(title, style: AppTextStyle.bodyLarge),
+        value: connected,
+        onChanged: (bool value) => _toggle(context, ref, value),
+      ),
     );
   }
 }

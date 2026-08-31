@@ -18,7 +18,7 @@ class _StepsSection extends ConsumerWidget {
         HealthConnectionTile(
           kind: HealthDataKind.steps,
           icon: AppIconConstant.steps,
-          title: l10n.healthStepsTitle,
+          title: l10n.healthStepsTitle,  
         ),
         // One rhythm above and below: the row was 20 from the card's top edge and flush against the divider, which read as the line hanging off it.
         SizedBox(height: InsightCard.stackGap),
