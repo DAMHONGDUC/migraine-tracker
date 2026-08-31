@@ -228,3 +228,62 @@ no account is ever required to buy, restore or use premium (App Store
 
 Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).
+
+## The pressure alert cron
+
+`pressureAlertJob` (`functions/src/index.ts:64`) runs every 3 hours on Cloud
+Scheduler, UTC, in `europe-west1`. One run resolves who is eligible, spends one
+WeatherKit call per geohash cell, pushes to the users whose own threshold is
+crossed, and writes down what it did.
+
+```mermaid
+flowchart TD
+  A["Cloud Scheduler<br/>every 3h, UTC"] --> B["app_access where premium == true<br/>→ Auth getUserByEmail → uid"]
+  A --> C["users where premium == true<br/>(written by the RevenueCat webhook)"]
+  B --> D["Merge, dedupe by uid"]
+  C --> D
+  D --> E{"fcmToken set and<br/>geohash5 is 5 chars?"}
+  E -- "no" --> F["Skipped — nothing to push to"]
+  E -- "yes" --> G["groupByGeohash<br/>one cell, many users"]
+  G --> H["fetchHourlyPressure<br/>at the cell centre"]
+  H -- "throws" --> I["Cell recorded as failed,<br/>run continues"]
+  H --> J["maxDrop24h<br/>drop, eventId = UTC hour of the minimum"]
+  J -- "null" --> K["Cell skipped — no usable reading"]
+  J --> L{"shouldAlert per user:<br/>drop ≥ threshold,<br/>new eventId,<br/>last alert > 24h ago"}
+  L -- "no" --> M["Quiet — the usual outcome"]
+  L -- "yes" --> N["FCM push"]
+  N -- "ok" --> O["users/uid: lastAlertAt,<br/>lastAlertEventId, lastAlertDropHpa"]
+  N -- "token not registered" --> P["fcmToken deleted"]
+  I --> Q
+  K --> Q
+  M --> Q
+  O --> Q
+  P --> Q["pressure_alert_runs/{startedAt}<br/>written after the catch"]
+```
+
+| Step | What it does | Where |
+|---|---|---|
+| Audience | Premium subscribers plus the `app_access` allow-list, deduped by uid | `index.ts` `runAlertPass` |
+| Eligibility | Needs an `fcmToken` and a 5-character `geohash5`; threshold is `alertThreshold`, default 5 hPa | `index.ts` `runAlertPass` |
+| Grouping | One forecast call per cell, never per user (hard rule 10) | `core/grouping.ts` |
+| Forecast | Hourly pressure at the cell centre, from WeatherKit | `weather/weatherKit.ts` |
+| Drop | Nearest hour to now is the current reading; the minimum within 24h is the event | `core/pressure.ts` `maxDrop24h` |
+| Dedupe | Drop ≥ threshold, `eventId` not already sent, and no push in the last 24h | `core/alerts.ts` `shouldAlert` |
+| Push | FCM notification plus a data payload the app localizes itself | `index.ts` `sendPush` |
+| History | One document per run, `ok` / `partial` / `failed` | `core/alertRunRecord.ts` |
+
+- **The allow-list is resolved through Auth, not a Firestore query.** Auth
+  lower-cases an address and answers for an account that has no `users` doc yet;
+  a Firestore `==` on an email does neither.
+- **A failure is contained to its own cell or user.** A cell whose forecast
+  throws is recorded and the run moves on; a push that fails is logged, and only
+  a stale token (`messaging/registration-token-not-registered`) changes the user
+  document — by deleting the token.
+- **The history write sits outside the try/catch.** A run that threw is the run
+  the record is most needed for, so `runAlertPass` is split out and the document
+  is written either way.
+- **The job still throws at the end** when the pass threw or any cell failed, so
+  the scheduler sees a failed run — the record is written first.
+- **The push carries English text and the numbers.** The app renders its own
+  localized row from the `data` payload; only `dropHpa`, `eventId` and `at`
+  actually travel.

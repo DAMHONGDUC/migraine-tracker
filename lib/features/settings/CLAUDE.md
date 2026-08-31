@@ -1,5 +1,30 @@
 # Settings
 
+- **The account row says whether there is an account, without being opened**
+  (owner's call). Signed in it carries the address (`AuthUser.label` — never the
+  UID; Apple withholds the address on every sign-in after the first, and the
+  fallback is the word "Signed in"). Anonymous it carries the muted "Not signed
+  in" tag, the same shape the alerts row wears when it is off. It read "Sign in"
+  or "Account" and nothing else before, so the one state a user opens Settings to
+  check was two taps away — and "Account" on an anonymous session looked like an
+  account.
+
+## The export preview
+
+**The PDF preview's surround is the app's own background, not the package's.**
+`PdfPreview` defaults to a light grey gradient — a bright panel filling the
+screen of an app whose users are photophobic — so `scrollViewDecoration` is set
+and `pdfPreviewPageDecoration` replaces its hard offset black shadow with the
+calm one everything else on a dark surface wears.
+
+- **The page itself stays white.** It is paper: a doctor report tinted to match
+  the app would print wrong and read as a rendering fault.
+- **Both previews name the file** (`_FileName`), because the app bar says only
+  what kind of screen this is. It carries no gutter of its own — the text
+  preview sits inside an already-padded list.
+- **`onError` draws the same missing-file state as the outer branch.** The
+  package's own is red English on grey.
+
 ## The feature list
 
 **One widget, `AppFeatureList` (`core/widgets/`), strings `appFeature*`.** Two
