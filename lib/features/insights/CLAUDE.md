@@ -18,11 +18,38 @@ the conclusion drawn from it read as one long section. A card is this app's unit
 of "one subject", so the two get one each, separated by
 `SdContentPaddingV2.sectionGap`.
 
-| Tab | Chart card | Analysis card |
+| Tab | Chart card | Analysis card(s) |
 |---|---|---|
-| Pressure | `PressureForecastBody` + `_AlertControls` | `TriggerVerdictBody`, `CorrelationBody`, `PressureHistoryBody` |
-| Activity | `_StepsSection` | `_Analysis` (exertion + steps) |
-| Sleep | `_NightsSection` | `_Analysis` |
+| Pressure | `PressureForecastBody` + `_AlertControls` | "Analysis": `TriggerVerdictBody`, `CorrelationBody`, `PressureHistoryBody` |
+| Activity | `_StepsSection` | "Physical exertion", then "Steps & attacks" — **one card each** |
+| Sleep | `_NightsSection` | "Sleep & attacks" |
+
+**Exertion and steps are two cards, not two sections of one** (owner's call).
+They were under a single "Analysis" heading, which put a self-reported share
+and a HealthKit comparison on one surface as if they answered the same
+question. They do not: one has no baseline of days without an attack and the
+other has two groups of days, and the explanation behind each says something
+different.
+
+**Every analysis card carries an info glyph that opens `InsightInfoSheet`**
+(owner's rule). A correlation states a relationship in one sentence, and the
+sentence alone never says what was compared against what, how the number was
+arrived at, or why the card is still empty. Three paragraphs each, in this
+order, and the third is the one that matters:
+
+1. what the card compares,
+2. where the data comes from and what it is waiting for,
+3. **what it cannot claim** — a pattern is not a cause, and each card has its
+   own reason. Exertion has no record of the days without an attack, so it is a
+   share and never a comparison. A step difference can run either way: the
+   attack can follow the hard day, or be the reason the day ended up quiet. A
+   short night can be an early sign of the attack that was already coming.
+
+- The sheet carries no commit — nothing to save, so the X is the only way out.
+- `InsightCard.onInfo` draws the glyph, quiet, in the title row: it is there for
+  the reader who stops, not a call to action.
+- **Locked, a tab collapses to one card with one pitch** — pressure and activity
+  alike. Two locked cards would be two pitches for one purchase.
 
 - **The alert rides on the chart card**, not the analysis one: it fires on what
   the forecast above it draws.
