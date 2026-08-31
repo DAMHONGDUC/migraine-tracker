@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "Cách hoạt động",
   "alertsSheetFormula": "Bạn được cảnh báo khi áp suất được dự báo giảm ít nhất bằng ngưỡng của bạn trong vòng 24 giờ.",
   "alertsSheetRange": "2 hPa bắt gần như mọi đợt front. 20 hPa chỉ bão sâu. Đa số bắt đầu ở 5.",
-  "alertsSheetLimit": "Tối đa hai cảnh báo mỗi ngày, cách nhau 12 tiếng, không bao giờ lặp lại cùng một đợt giảm.",
+  "alertsSheetLimit": "Tối đa ba cảnh báo mỗi ngày, cách nhau 8 tiếng, không bao giờ lặp lại cùng một đợt giảm.",
   "alertsSheetQuietHours": "Cảnh báo từ 22h đến 7h sẽ không phát âm thanh.",
   "alertsSheetExampleTitle": "Ví dụ",
   "alertsSheetExampleNow": "Áp suất lúc này",

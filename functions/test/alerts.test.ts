@@ -33,7 +33,7 @@ describe("shouldAlert", () => {
     ).toBe(false);
   });
 
-  it("suppresses a second push within 12h even for a new event", () => {
+  it("suppresses a second push within 8h even for a new event", () => {
     expect(
       shouldAlert({
         ...base,
@@ -46,26 +46,26 @@ describe("shouldAlert", () => {
     ).toBe(false);
   });
 
-  it("alerts for a new event once 12h have passed — the second of the day", () => {
+  it("alerts for a new event once 8h have passed — the next of the day", () => {
     expect(
       shouldAlert({
         ...base,
         history: {
           lastEventId: "2026-07-08T03",
-          // Midnight to noon: exactly the gap, and the boundary counts as clear.
-          lastAlertAt: new Date("2026-07-08T00:00:00Z"),
+          // 04:00 to 12:00: exactly the gap, and the boundary counts as clear.
+          lastAlertAt: new Date("2026-07-08T04:00:00Z"),
         },
       }),
     ).toBe(true);
   });
 
-  it("caps the day at two — a third event 11h after the second is still refused", () => {
+  it("caps the day at three — a fourth event 7h after the third is still refused", () => {
     expect(
       shouldAlert({
         ...base,
         history: {
           lastEventId: "2026-07-08T03",
-          lastAlertAt: new Date("2026-07-08T01:00:00Z"),
+          lastAlertAt: new Date("2026-07-08T05:00:00Z"),
         },
       }),
     ).toBe(false);

@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "仕組み",
   "alertsSheetFormula": "24時間以内にしきい値以上の気圧低下が予想されると通知します。",
   "alertsSheetRange": "2 hPa はほぼすべての前線、20 hPa は強い低気圧だけ。多くの人は 5 から。",
-  "alertsSheetLimit": "通知は1日に最大2回、12時間以上あけて送られ、同じ低下で二度は通知しません。",
+  "alertsSheetLimit": "通知は1日に最大3回、8時間以上あけて送られ、同じ低下で二度は通知しません。",
   "alertsSheetQuietHours": "22時から7時までの通知は音が鳴りません。",
   "alertsSheetExampleTitle": "例",
   "alertsSheetExampleNow": "現在の気圧",

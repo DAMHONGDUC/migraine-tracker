@@ -1680,9 +1680,9 @@
   "@alertsSheetRange": {
     "description": "Explains what the two ends of the 3-10 hPa slider mean"
   },
-  "alertsSheetLimit": "At most two alerts a day, 12 hours apart, and never twice for the same drop.",
+  "alertsSheetLimit": "At most three alerts a day, 8 hours apart, and never twice for the same drop.",
   "@alertsSheetLimit": {
-    "description": "Sheet: how often an alert can arrive — the two-a-day cap and the 12h gap the server enforces"
+    "description": "Sheet: how often an alert can arrive — the three-a-day cap and the 8h gap the server enforces"
   },
   "alertsSheetQuietHours": "An alert between 10 pm and 7 am arrives without a sound.",
   "@alertsSheetQuietHours": {

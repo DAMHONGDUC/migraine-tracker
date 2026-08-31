@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "运作方式",
   "alertsSheetFormula": "当预报显示 24 小时内气压将下降到你的阈值或更多时，就会通知你。",
   "alertsSheetRange": "2 hPa 几乎能捕捉每次锋面，20 hPa 只捕捉强低压。多数人从 5 开始。",
-  "alertsSheetLimit": "每天最多两条通知，间隔 12 小时，同一次下降绝不重复。",
+  "alertsSheetLimit": "每天最多三条通知，间隔 8 小时，同一次下降绝不重复。",
   "alertsSheetQuietHours": "22 点至 7 点之间的通知不会发出声音。",
   "alertsSheetExampleTitle": "举个例子",
   "alertsSheetExampleNow": "当前气压",

@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "Comment ça marche",
   "alertsSheetFormula": "Vous êtes alerté quand la pression doit baisser d'au moins votre seuil en 24 heures.",
   "alertsSheetRange": "2 hPa capte presque tous les fronts. 20 hPa, seulement une forte tempête. La plupart commencent à 5.",
-  "alertsSheetLimit": "Deux alertes par jour au maximum, espacées de 12 heures, jamais deux fois pour la même baisse.",
+  "alertsSheetLimit": "Trois alertes par jour au maximum, espacées de 8 heures, jamais deux fois pour la même baisse.",
   "alertsSheetQuietHours": "Une alerte entre 22 h et 7 h arrive sans son.",
   "alertsSheetExampleTitle": "Par exemple",
   "alertsSheetExampleNow": "Pression actuelle",

@@ -4,13 +4,13 @@ export interface AlertHistory {
 }
 
 /**
- * The gap a user is guaranteed between two pushes. 12h is what caps them at
- * two a day: a front that arrives in the morning and a second one that evening
- * are different warnings, and 24h silently threw the second away.
+ * The gap a user is guaranteed between two pushes. 8h is what caps them at
+ * three a day: morning, afternoon and evening fronts are three different
+ * warnings, and a wider window silently threw the later ones away.
  */
-const MIN_PUSH_GAP_MS = 12 * 60 * 60 * 1000;
+const MIN_PUSH_GAP_MS = 8 * 60 * 60 * 1000;
 
-/** Dedupe: at most 2 pushes per user per day, {@link MIN_PUSH_GAP_MS} apart, and never twice for the same pressure event. */
+/** Dedupe: at most 3 pushes per user per day, {@link MIN_PUSH_GAP_MS} apart, and never twice for the same pressure event. */
 export function shouldAlert(args: {
   dropHpa: number;
   thresholdHpa: number;

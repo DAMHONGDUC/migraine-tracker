@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "So funktioniert es",
   "alertsSheetFormula": "Du wirst gewarnt, wenn der Druck laut Vorhersage innerhalb von 24 Stunden um mindestens deinen Schwellenwert fällt.",
   "alertsSheetRange": "2 hPa erfasst fast jede Front. 20 hPa nur einen tiefen Sturm. Die meisten starten bei 5.",
-  "alertsSheetLimit": "Höchstens zwei Meldungen pro Tag, 12 Stunden auseinander, nie zweimal für denselben Abfall.",
+  "alertsSheetLimit": "Höchstens drei Meldungen pro Tag, 8 Stunden auseinander, nie zweimal für denselben Abfall.",
   "alertsSheetQuietHours": "Eine Meldung zwischen 22 und 7 Uhr kommt ohne Ton.",
   "alertsSheetExampleTitle": "Ein Beispiel",
   "alertsSheetExampleNow": "Druck jetzt",

@@ -340,7 +340,7 @@
   "alertsSheetHowTitle": "Cómo funciona",
   "alertsSheetFormula": "Recibes un aviso cuando se prevé que la presión baje al menos tu umbral en 24 horas.",
   "alertsSheetRange": "2 hPa detecta casi todos los frentes. 20 hPa, solo tormentas fuertes. La mayoría empieza en 5.",
-  "alertsSheetLimit": "Como máximo dos avisos al día, con 12 horas de diferencia, y nunca dos por la misma caída.",
+  "alertsSheetLimit": "Como máximo tres avisos al día, con 8 horas de diferencia, y nunca dos por la misma caída.",
   "alertsSheetQuietHours": "Un aviso entre las 22:00 y las 7:00 llega sin sonido.",
   "alertsSheetExampleTitle": "Por ejemplo",
   "alertsSheetExampleNow": "Presión ahora",
