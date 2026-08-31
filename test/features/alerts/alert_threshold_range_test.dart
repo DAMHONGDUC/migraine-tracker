@@ -36,18 +36,10 @@ void main() {
     });
   });
 
-  group('AlertThresholdRange.divisionsBetween', () {
-    test('lands every whole hPa across the whole range', () {
-      expect(
-        AlertThresholdRange.divisions,
-        AlertThresholdRange.max - AlertThresholdRange.min,
-      );
-    });
-
-    test('lands every whole hPa across a narrowed window', () {
-      // The sheet lets the user shrink the slider to get finer control; the
-      // stops have to follow, or a 5-wide window would keep 18 of them.
-      expect(AlertThresholdRange.divisionsBetween(5, 10), 5);
-    });
+  test('divisions land every whole hPa', () {
+    expect(
+      AlertThresholdRange.divisions,
+      AlertThresholdRange.max - AlertThresholdRange.min,
+    );
   });
 }

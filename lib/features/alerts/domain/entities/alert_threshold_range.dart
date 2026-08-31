@@ -7,18 +7,12 @@
 final class AlertThresholdRange {
   const AlertThresholdRange._();
 
-  /// The absolute floor. Below 2 hPa a 24h drop is ordinary weather almost
-  /// everywhere, so the alert would fire on the dedupe window rather than on
-  /// a front.
-  ///
-  /// The threshold sheet lets the user pick a narrower *window* inside
-  /// [min]-[max] to drag within; these two are the walls that window may not
-  /// pass, not the ends of the slider.
+  /// Below 2 hPa a 24h drop is ordinary weather almost everywhere, so the
+  /// alert would fire on the dedupe window rather than on a front.
   static const double min = 2;
 
-  /// The absolute ceiling. 20 hPa in 24 hours is a deep storm; past it the
-  /// alert is one nobody would ever receive, which is a setting that only
-  /// looks like a choice.
+  /// 20 hPa in 24 hours is a deep storm. Past it the alert is one nobody
+  /// would ever receive, which is a setting that only looks like a choice.
   static const double max = 20;
 
   /// The default a fresh install starts on, and what the server falls back to
@@ -26,12 +20,8 @@ final class AlertThresholdRange {
   static const double initial = 5;
 
   /// Whole hPa only: the forecast is not precise enough for halves, and a
-  /// slider that stops on 6.5 invites a confidence the data cannot pay. Pass
-  /// a narrower window's ends to get its own stop count.
-  static int divisionsBetween(double from, double to) => (to - from).round();
-
-  /// The stops across the whole allowed range.
-  static int get divisions => divisionsBetween(min, max);
+  /// slider that stops on 6.5 invites a confidence the data cannot pay.
+  static int get divisions => (max - min).round();
 
   static bool contains(num value) => value >= min && value <= max;
 
