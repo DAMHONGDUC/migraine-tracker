@@ -28,7 +28,7 @@
   "@onboardingThresholdTitle": {
     "description": "Onboarding page 3 headline (alert threshold)"
   },
-  "onboardingThresholdBody": "You get an alert when the pressure is forecast to fall by at least this much within 24 hours. Most people start at 5 hPa and adjust later — Settings lets you change it any time.",
+  "onboardingThresholdBody": "You're alerted when pressure is forecast to fall by at least this much within 24 hours. Most start at 5 and adjust later.",
   "@onboardingThresholdBody": {
     "description": "Onboarding page 3 body explaining the threshold slider"
   },
@@ -1672,15 +1672,15 @@
   "@alertsSheetHowTitle": {
     "description": "Heading of the explanation block in the alert threshold sheet"
   },
-  "alertsSheetFormula": "We compare the pressure now with the lowest pressure forecast for the next 24 hours. You are alerted when that fall reaches your threshold.",
+  "alertsSheetFormula": "You're alerted when pressure is forecast to fall by at least your threshold within 24 hours.",
   "@alertsSheetFormula": {
     "description": "Explains what the threshold is measured against — the drop from now to the 24h forecast low"
   },
-  "alertsSheetRange": "2 hPa catches almost every front; 20 hPa only a deep storm. Most people start at 5.",
+  "alertsSheetRange": "2 hPa catches almost every front. 20 hPa, only a deep storm. Most start at 5.",
   "@alertsSheetRange": {
     "description": "Explains what the two ends of the 3-10 hPa slider mean"
   },
-  "alertsSheetLimit": "One alert per 24 hours at most, and never twice for the same pressure drop.",
+  "alertsSheetLimit": "At most one alert a day, and never twice for the same drop.",
   "@alertsSheetLimit": {
     "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
   },
@@ -1696,7 +1696,7 @@
   "@alertsSheetExampleThreshold": {
     "description": "Example row label: the drop the user picked on the slider"
   },
-  "alertsSheetExampleResult": "You are notified as soon as the next 24 hours are forecast to reach {value} or lower.",
+  "alertsSheetExampleResult": "You're notified if the next 24 hours are forecast to reach {value} or lower.",
   "@alertsSheetExampleResult": {
     "description": "Example conclusion; {value} is the example pressure minus the threshold, already formatted",
     "placeholders": {
@@ -2630,7 +2630,7 @@
   "@settingsSectionMonitoring": {
     "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf. Deliberately not the word \"Tracking\": on the App Store that word means cross-app tracking for advertising, which this app does not do"
   },
-  "settingsHealthCaptionSteps": "Read-only, from Apple Health. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
+  "settingsHealthCaptionSteps": "Read-only, from Apple Health. Steps from an attack's day are saved with that attack, so they travel into your export and sync.",
   "@settingsHealthCaptionSteps": {
     "description": "Privacy line under the steps switch on the Insights activity tab"
   },
@@ -3297,51 +3297,51 @@
   "@insightsExplainTooltip": {
     "description": "Tooltip on the info glyph in an analysis card's header"
   },
-  "insightsExplainPressure1": "This card compares how often you had an attack on days the pressure fell against how often you had one on days it did not.",
+  "insightsExplainPressure1": "Compares how often you get an attack on days pressure falls against days it doesn't.",
   "@insightsExplainPressure1": {
     "description": "Explanation sheet, pressure correlation: what the card compares"
   },
-  "insightsExplainPressure2": "The app records one pressure reading a day where you are, whether or not you logged an attack. Both sides of the comparison need enough days before a number appears at all.",
+  "insightsExplainPressure2": "The app logs one pressure reading a day, wherever you are. Both sides need enough days before a number appears.",
   "@insightsExplainPressure2": {
     "description": "Explanation sheet, pressure correlation: how it is worked out"
   },
-  "insightsExplainPressure3": "It is a pattern in your own log, not a diagnosis, and it cannot prove that pressure caused anything. Days you did not open the app leave gaps, which is why the chart below can show an attack with no reading behind it.",
+  "insightsExplainPressure3": "A pattern, not a cause. Days you didn't open the app leave gaps, so some attacks have no reading behind them.",
   "@insightsExplainPressure3": {
     "description": "Explanation sheet, pressure correlation: what it cannot claim"
   },
-  "insightsExplainExertion1": "This card counts the attacks where you logged how hard you had been exerting yourself, and shows what share of them followed moderate-to-severe activity.",
+  "insightsExplainExertion1": "Of the attacks where you logged exertion, how many followed moderate or hard activity.",
   "@insightsExplainExertion1": {
     "description": "Explanation sheet, exertion: what the card counts"
   },
-  "insightsExplainExertion2": "Exertion is something you type in, so only the attacks you answered it on are counted. It needs a few of them, and it needs your answers to vary — if every attack says the same level there is nothing to compare.",
+  "insightsExplainExertion2": "You type exertion in, so only the attacks you answered count. Your answers also have to vary — all the same level, nothing to compare.",
   "@insightsExplainExertion2": {
     "description": "Explanation sheet, exertion: how it is worked out"
   },
-  "insightsExplainExertion3": "It is a share, not a comparison: the app has no record of how hard you exerted yourself on the days you had no attack, so this one cannot say exertion makes an attack more likely.",
+  "insightsExplainExertion3": "A share, not a comparison: the app has no exertion for the days you had no attack, so it can't say exertion makes an attack likelier.",
   "@insightsExplainExertion3": {
     "description": "Explanation sheet, exertion: why it is a share and not a comparison"
   },
-  "insightsExplainSteps1": "This card compares your average step count on the days an attack started against your average on every other day.",
+  "insightsExplainSteps1": "Compares your average steps on days an attack started against all your other days.",
   "@insightsExplainSteps1": {
     "description": "Explanation sheet, steps: what the card compares"
   },
-  "insightsExplainSteps2": "The steps come from Apple Health, read-only, and are counted by local day. Both groups need enough days before the comparison is shown at all.",
+  "insightsExplainSteps2": "Steps come from Apple Health, read-only, counted by local day. Both groups need enough days first.",
   "@insightsExplainSteps2": {
     "description": "Explanation sheet, steps: where the data comes from"
   },
-  "insightsExplainSteps3": "A difference can run either way: an attack can follow a hard day, and it can also be the reason a day ended up quiet. The card says which days differ, never which one caused the other.",
+  "insightsExplainSteps3": "A difference runs both ways: an attack can follow a busy day, or be the reason a day stayed quiet.",
   "@insightsExplainSteps3": {
     "description": "Explanation sheet, steps: why a difference is not a direction"
   },
-  "insightsExplainSleep1": "This card compares how long you slept on the nights before an attack against how long you slept on your other nights.",
+  "insightsExplainSleep1": "Compares how long you slept the night before an attack against your other nights.",
   "@insightsExplainSleep1": {
     "description": "Explanation sheet, sleep: what the card compares"
   },
-  "insightsExplainSleep2": "The nights come from Apple Health, read-only, and never leave this device. Both groups need enough nights before the comparison is shown at all.",
+  "insightsExplainSleep2": "Sleep comes from Apple Health, read-only, and never leaves this device. Both groups need enough nights first.",
   "@insightsExplainSleep2": {
     "description": "Explanation sheet, sleep: where the data comes from"
   },
-  "insightsExplainSleep3": "A short night before an attack is a pattern, not a cause — the same restless night can be an early sign of the attack that was already coming. Treat it as something to raise with your doctor, not as a verdict.",
+  "insightsExplainSleep3": "A pattern, not a cause — a restless night can be an early sign of the attack already coming. Worth raising with your doctor.",
   "@insightsExplainSleep3": {
     "description": "Explanation sheet, sleep: pattern, not cause"
   },
