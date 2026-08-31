@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/sync_constant.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_outcome.dart';
-import 'package:migraine_tracker/features/sync/domain/enums/sync_trigger.dart';
 import 'package:migraine_tracker/features/sync/domain/repositories/sync_cursor_store.dart';
 import 'package:migraine_tracker/features/sync/domain/services/sync_service.dart';
 import 'package:migraine_tracker/features/sync/presentation/controllers/sync_controller.dart';
@@ -15,14 +14,18 @@ import '../../helpers/sync_fakes.dart';
 /// Counts passes without running one: the cooldown decides whether `SyncService.sync` is reached at all, which is the only thing under test.
 class CountingSyncService implements SyncService {
   int passes = 0;
+  int pushes = 0;
 
   @override
-  Future<SyncOutcome> sync(
-    String uid, {
-    SyncProgressCallback? onProgress,
-  }) async {
+  Future<SyncOutcome> sync(String uid) async {
     passes++;
     return const SyncOutcome(pushed: 0, pulled: 0, unreadable: 0);
+  }
+
+  @override
+  Future<int> pushPending(String uid) async {
+    pushes++;
+    return 0;
   }
 
   @override
@@ -95,20 +98,22 @@ void main() {
     expect(service.passes, 2);
   });
 
-  test('a manual pass is never held back', () async {
+  test('a local write is never held back by the cooldown', () async {
     await controller().sync();
-    await controller().sync(trigger: SyncTrigger.manual);
+    await controller().pushPending();
 
-    // The user is watching the screen for the answer.
-    expect(service.passes, 2);
+    // Hard rule 12: a change is on the server as it is made. The floor is about the pull, which a push does not do.
+    expect(service.pushes, 1);
+    expect(service.passes, 1);
   });
 
-  test('a just-logged attack is never held back', () async {
-    await controller().sync();
-    await controller().sync(trigger: SyncTrigger.record);
+  test('a second write while one push is queued owes one push', () async {
+    final Future<void> first = controller().pushPending();
+    final Future<void> second = controller().pushPending();
+    await Future.wait(<Future<void>>[first, second]);
 
-    // Hard rule 12: the record has to reach the server before the phone can be lost.
-    expect(service.passes, 2);
+    // The debounce collapses a burst; this is the same answer for two bursts that both land before the first push starts.
+    expect(service.pushes, 1);
   });
 
   test('a failed pass is retried by the next open, not held off', () async {
@@ -149,13 +154,13 @@ class FailingSyncService implements SyncService {
   int attempts = 0;
 
   @override
-  Future<SyncOutcome> sync(
-    String uid, {
-    SyncProgressCallback? onProgress,
-  }) async {
+  Future<SyncOutcome> sync(String uid) async {
     attempts++;
     throw StateError('offline');
   }
+
+  @override
+  Future<int> pushPending(String uid) async => throw StateError('offline');
 
   @override
   Future<bool> isFirstPull(String uid) async => false;

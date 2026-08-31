@@ -23,6 +23,7 @@ import 'features/home_widget/providers.dart';
 import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
 import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
+import 'features/sync/data/services/sync_write_through_service.dart';
 import 'features/sync/providers.dart';
 import 'features/weather/providers.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -86,6 +87,16 @@ class BaroEaseApp extends HookConsumerWidget {
             ),
           );
       return messages.cancel;
+    }, const []);
+
+    // - Watches the synced tables for the whole life of the app: every local write goes up as it is made, sign-in onwards (hard rule 12). Signed out it costs nothing — the push returns without an account.
+    useEffect(() {
+      final SyncWriteThroughService writeThrough = ref.read(
+        syncWriteThroughProvider,
+      );
+
+      writeThrough.start();
+      return writeThrough.dispose;
     }, const []);
 
     // Coming back from the background counts as entering the app.

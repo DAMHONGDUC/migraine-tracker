@@ -150,10 +150,11 @@ pressure alert's sound is the payload's own (`aps.sound` in
   row and `fromData` funnels into it, so the push and the reconcile cannot derive
   different ids for one event.
   - **`users/{uid}` holds only the LATEST alert, so this catches up one alert,
-    not a backlog.** Enough while the cron sends at most one push per user per
-    24h. A background isolate handler — its own Drift connection, a
-    `@pragma('vm:entry-point')` static, not a top-level function — is what would
-    close that, and is not built.
+    not a backlog.** The cron sends at most three pushes a day, 8h apart
+    (`lib/features/alerts/CLAUDE.md`), so an app shut across two of them
+    reconciles the later one and loses the earlier row. A background isolate handler — its own
+    Drift connection, a `@pragma('vm:entry-point')` static, not a top-level
+    function — is what would close that, and is not built.
   - **It never rethrows**, unlike every other controller method here: it runs
     unawaited at launch, where a throw would take app start with it.
   - **`lastAlertDropHpa` is written for the client, not for dedupe** —

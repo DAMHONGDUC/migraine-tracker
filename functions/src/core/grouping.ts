@@ -3,6 +3,8 @@ export interface AlertUser {
   geohash5: string;
   fcmToken: string;
   thresholdHpa: number;
+  /** Minutes east of UTC, so the run can tell whether it is the middle of this user's night. Resolved once when the run builds the user — the device's own offset, or the one its cell's longitude implies. */
+  tzOffsetMinutes: number;
   history: { lastAlertAt?: Date; lastEventId?: string };
 }
 

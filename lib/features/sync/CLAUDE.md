@@ -2,38 +2,82 @@
 
 Hard rule 12.
 
-12. **Sync never blocks UI — automatic, with one manual control in Settings.**
-    It runs silently in the background on sign-in, on launch/resume, and after
-    logging an attack: the same best-effort, retry-on-next-launch shape as
+12. **Sync never blocks UI, and it is entirely automatic — there is no control
+    for it anywhere** (owner's rule, reversing the manual button). Signed out,
+    data is local and nothing goes anywhere. Signed in, **every local write goes
+    to the server as it is made**, and the pull runs on sign-in, launch and
+    resume: the same best-effort, retry-on-next-launch shape as
     `WeatherAttachService`. No screen, especially the log flow, ever waits on it
     (hard rule 4).
 
-**Three kinds of record sync, in this order**: medications, then their reminders
+    Signing in is what moves a local-only history up: the sign-in listener in
+    `bare_ease_app.dart` fires the pass, and the cooldown stamp is per uid and
+    dropped on sign-out, so a fresh account is never held back.
+
+**Do not add a sync screen, row, button or indicator back.** The manual control
+and its `SyncScreen` are deleted, `/sync` is not a route, and the eight
+`syncScreen*` / `settingsSync*` ARB keys are gone from all seven locales. A user
+who cannot make sync happen also cannot be asked to; the app is either signed in,
+in which case it is saving, or it is not.
+
+**Four kinds of record sync, in this order**: medications, then their reminders
 (a reminder points at a medication, so the other order hits a foreign key that is
-not there yet), then attacks. **Exports deliberately do not sync** — `filePath`
+not there yet), then attacks, then notifications (one names the reminder and
+medication it came from). **Exports deliberately do not sync** — `filePath`
 is local to one device, and uploading them would multiply the copies hard rule 8
 has to chase.
 
+## Two passes, and which one runs when
+
+| | `SyncService.sync` | `SyncService.pushPending` |
+|---|---|---|
+| Does | pull, then push, per collection | push only |
+| Fired by | sign-in, launch, resume | every write to a synced table |
+| Held back by | the 6h cooldown | nothing |
+| Costs when idle | `getSyncKey` + a query per collection | four local queries, no network |
+
+**A local change never waits for a pass.** `SyncWriteThroughService`
+(`data/services/`) watches Drift's `tableUpdates` for the synced tables and the
+tombstones, debounces `SyncConstant.writeThroughDebounce` (2s) and pushes.
+
+- **It watches tables rather than asking each controller to call sync after its
+  own save** — the log flow used to, and medications and reminders never did, so
+  an edit sat on the device until the next launch. A rule that has to be repeated
+  at every new write is already broken somewhere; a new synced table joins by
+  being added to `_syncedTables`.
+- **The 2s debounce is what makes a burst one push**: saving a medication with
+  three reminders writes four rows.
+- **The chain terminates, and that is why `pushPending` must not fetch the key
+  when nothing is pending.** Marking a record synced is itself a write to that
+  table, so every real push schedules one more; the second finds nothing, sends
+  nothing, and stops. A `getSyncKey` call in that empty pass would be paid after
+  every single write.
+- **A push writes no state and stamps no cooldown** — nothing on screen shows
+  one, and a push is not the pull the floor is about. A failed push waits for the
+  next write or the next pass; it is not retried on its own.
+
 ## The cooldown
 
-**Automatic sync has a floor between passes: `SyncController.automaticCooldown`
-(6h).** Launch and resume both fire it, so without one, ten app opens in ten
-minutes were ten whole passes — a `getSyncKey` callable plus a query and a push
-per collection each time, usually to find nothing had changed.
+**The pull has a floor between passes: `SyncConstant.automaticCooldown` (6h).**
+Launch and resume both fire it, so without one, ten app opens in ten minutes were
+ten whole passes — a `getSyncKey` callable plus a query and a push per collection
+each time, usually to find nothing had changed. It holds back only the pull;
+**what this device writes is already gone up by then**.
 
-- **`SyncTrigger` decides who is held back: only `automatic`.** `manual` is the
-  user asking in as many words with the screen in front of them, and `record`
-  exists so a just-logged attack reaches the server before the phone can be lost.
 - **The stamp is written only after a pass that worked**, so a failure is retried
   by the next open rather than parked for six hours. It lives in `SyncCursorStore`
-  (`SecureStore`, per uid) rather than memory, because the automatic triggers are launch
+  (`SecureStore`, per uid) rather than memory, because the triggers are launch
   and resume — a cooldown the app forgets on close would let ten cold starts run
   ten passes. `clear()` drops it with the cursors, so signing into another
   account syncs at once.
-- **A skipped pass changes no state at all** — not `lastSyncedAt`, not the phase.
-  `SyncScreen` must show it neither as a fresh sync nor as a failure.
-- The cost is the owner's call and worth stating: a change made on another device
-  can wait up to six hours, unless the user logs an attack or taps the button.
+- **A skipped pass changes no state at all**, not the phase. It is neither a
+  fresh sync nor a failure.
+- The cost is the owner's call and worth stating: a change made on **another**
+  device can wait up to six hours before this one sees it.
+- **Passes and pushes run one at a time**, through `SyncController`'s queue: two
+  that overlapped would send the same record twice, and one would mark it synced
+  while the other was still writing it. Each kind collapses while it is queued —
+  two writes a second apart owe one push, ten app opens owe one pass.
 
 ## Decrypting a pull
 
@@ -60,27 +104,12 @@ frames and a thousand is a visible stutter.
 
 ## Where sync is visible
 
-- **A row in Settings' "Your data" leading to `SyncScreen`**
-  (`features/sync/presentation/screens/sync_screen/`), sitting with export and
-  delete because it is one more thing that happens to the user's data. The row
-  (`SyncSettingsTile`, `core/widgets/sections/`) is a plain chevron row **except
-  while a pass runs**: then its trailing slot carries a spinner and the
-  percentage, spinner first. Both, never just the spinner — a row that only spins
-  cannot tell a slow sync from a stuck one. The row is absent without an account,
-  and the router turns `/sync` away while signed out.
-- **`SyncScreen` shows it in full**: a determinate bar with the percentage while
-  a pass runs, the last-synced time when it does not, and the one manual button.
-  Determinate on purpose — an indeterminate bar next to "42%" says two things at
-  once. **Nothing about sync appears on the Account screen**, and no other row
-  anywhere shows an indicator.
-- **Progress counts fixed steps, never records** — two per collection, plus the
-  fraction of the step in flight. Counting records means discovering more work
-  mid-pass, and a bar that jumps backwards reads as a bug even when the sync is
-  fine. `SyncController` pushes a new state only when the whole percent changes,
-  so a thousand-record account rebuilds the row a hundred times, not a thousand.
-- The History list has one extra, scoped to the very first pull after signing in
-  on a device: an empty list says "getting your attacks" instead of "you have
-  none". **No flow is ever gated on sync completing.**
+**In one place, and only to say the history is on its way.** The History list,
+for the very first pull after signing in on a device, says "getting your attacks"
+instead of "you have none" — `SyncStatus` carries exactly what that needs
+(`isSyncing`, `isFirstPull`) and nothing else: no progress, no last-synced time.
+**No flow is ever gated on sync completing**, nothing about sync appears in
+Settings or on the Account screen, and no row anywhere shows an indicator.
 
 ## The crypto
 
@@ -136,7 +165,8 @@ stop two builds in the wild reading each other.
   files are right, never that the project has them.
 - **`pumpApp` overrides `syncKeyRepositoryProvider` and
   `remoteSyncRepositoryProvider`** with the fakes in
-  `test/helpers/sync_fakes.dart`, because the app root fires a sync on sign-in.
+  `test/helpers/sync_fakes.dart`, because the app root fires a sync on sign-in
+  and a push after every write.
   Without them a widget test reaches for Firebase, the spinner renders, and every
   `pumpAndSettle` waits out its full 10-minute timeout — the suite goes from 30
   seconds to 10 minutes.

@@ -20,7 +20,6 @@ import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
-import '../../../../../core/widgets/sections/sync_settings_tile.dart';
 import '../../../../../core/widgets/settings_row_progress.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';

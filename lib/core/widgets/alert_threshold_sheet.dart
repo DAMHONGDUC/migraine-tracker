@@ -184,6 +184,12 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           SizedBox(height: SdSpacingConstant.h12),
           // Says the quiet part the server enforces, so dragging to 3 does not read as asking to be woken hourly.
           Text(l10n.alertsSheetLimit, style: AppTextStyle.bodySmall.secondary),
+          SizedBox(height: SdSpacingConstant.h4),
+          // Its own line, not folded into the one above: "two a day" is about how often, this is about being woken, and someone deciding whether to turn alerts on at all is reading for the second.
+          Text(
+            l10n.alertsSheetQuietHours,
+            style: AppTextStyle.bodySmall.secondary,
+          ),
         ],
       ),
     );

@@ -32,8 +32,8 @@ void main() {
     ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
 
     await openHistory(tester);
-    // List mode: the filter chip is up top.
-    expect(find.byIcon(Symbols.filter_list_rounded), findsOneWidget);
+    // List mode: the filter strip is up top — one chip per axis.
+    expect(find.byIcon(Symbols.filter_list_rounded), findsWidgets);
 
     await switchToCalendar(tester);
 
@@ -98,7 +98,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(AttackTile), findsOneWidget);
-    expect(find.byIcon(Symbols.filter_list_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.filter_list_rounded), findsWidgets);
 
     await finishTest(tester);
   });

@@ -89,7 +89,7 @@ own, not a cleanup — and half a rename is worse than neither half.
 |---|---|---|
 | `app_access`, `pressure_alert_runs` | snake_case | Written under the rule |
 | `app_updates` | snake_case | `enable_force_update`, `build_number`, `create_date` — already was |
-| `users` | camelCase, grandfathered | `fcmToken`, `alertThreshold`, `geohash5`, `lastAlertAt`, `lastAlertEventId`, `lastAlertDropHpa`, `displayName`, `photoUrl`, `createdAt`, `updatedAt` |
+| `users` | camelCase, grandfathered | `fcmToken`, `alertThreshold`, `geohash5`, `tz`, `tzOffsetMinutes`, `lastAlertAt`, `lastAlertEventId`, `lastAlertDropHpa`, `displayName`, `photoUrl`, `createdAt`, `updatedAt` |
 | `attacks`, `medications`, `medication_reminders`, `notifications` | camelCase, grandfathered | `userId`, `updatedAt`, `payload`, `nonce`, `mac` — and `userId` is named in `firestore.rules` and every index |
 | `weather_cache`, `sync_keys` | camelCase, grandfathered | `cachedAt`, `createdAt` |
 

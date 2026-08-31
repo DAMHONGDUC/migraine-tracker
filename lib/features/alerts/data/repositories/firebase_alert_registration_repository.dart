@@ -83,6 +83,8 @@ class FirebaseAlertRegistrationRepository
         'fcmToken': token,
         'alertThreshold': thresholdHpa,
         'tz': DateTime.now().timeZoneName,
+        // The cron sends a night-time alert without a sound, and `tz` above is an abbreviation ("ICT", "+07") the server cannot parse — the offset in minutes is the only form of this the backend can act on. Written at registration, so a DST change leaves it an hour out until the next one; the quiet window is nine hours wide and absorbs that.
+        'tzOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
       }, SetOptions(merge: true));
       SdLogger.info(LogTagConstant.alerts, 'Alerts registered', {
         'thresholdHpa': thresholdHpa,
@@ -116,7 +118,13 @@ class FirebaseAlertRegistrationRepository
 
   @override
   Future<void> forgetRegistration() =>
-      _clear(<String>['fcmToken', 'geohash5', 'alertThreshold', 'tz']);
+      _clear(<String>[
+        'fcmToken',
+        'geohash5',
+        'alertThreshold',
+        'tz',
+        'tzOffsetMinutes',
+      ]);
 
   @override
   Future<void> sendTestPush() async {

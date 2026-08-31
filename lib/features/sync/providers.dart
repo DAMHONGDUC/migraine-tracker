@@ -18,6 +18,7 @@ import 'data/repositories/firestore_sync_repository.dart';
 import 'data/repositories/functions_sync_key_repository.dart';
 import 'data/repositories/prefs_sync_cursor_store.dart';
 import 'data/services/aes_gcm_attack_cipher.dart';
+import 'data/services/sync_write_through_service.dart';
 import 'domain/entities/sync_status.dart';
 import 'domain/repositories/remote_sync_repository.dart';
 import 'domain/repositories/sync_cursor_store.dart';
@@ -83,7 +84,14 @@ final syncControllerProvider = NotifierProvider<SyncController, SyncStatus>(
   SyncController.new,
 );
 
-/// True while a sync is in flight. Watched by `SyncScreen` to arm its manual button, and nowhere else — no flow is ever gated on it (hard rule 12).
-final isSyncingProvider = Provider<bool>(
-  (ref) => ref.watch(syncControllerProvider).isSyncing,
-);
+/// Pushes every local change as it is made. Started by the app root, which is also what keeps it alive (hard rule 12).
+final syncWriteThroughProvider = Provider<SyncWriteThroughService>((ref) {
+  final SyncWriteThroughService service = SyncWriteThroughService(
+    ref.watch(databaseProvider),
+    () => ref.read(syncControllerProvider.notifier).pushPending(),
+  );
+
+  // The debounce timer outlives the widget tree otherwise, which a widget test reports as a pending timer rather than as a leak.
+  ref.onDispose(service.dispose);
+  return service;
+});

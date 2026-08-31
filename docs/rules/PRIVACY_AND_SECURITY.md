@@ -167,8 +167,9 @@ Firestore doc, synced records, FCM token revoke, then Firebase Auth. App Store
   that route changes.
 - **The wipe shows spinner and percentage.** It reaches the network, the OS
   scheduler and several tables, so it can run long enough that a row which only
-  spins cannot tell slow from stuck — same widget as the sync row
-  (`SettingsRowProgress`, `core/widgets/`, reading `commonProgressPercent`).
+  spins cannot tell slow from stuck (`SettingsRowProgress`, `core/widgets/`,
+  reading `commonProgressPercent`) — the only row in Settings that shows one,
+  now that sync has no row at all (hard rule 12).
   `SettingsController` is a `Notifier<WipeStatus>`, so the indicator survives a
   rebuild and the dev reset gets it free.
   - **Progress counts `DataWipeService.steps`, never records.** Counting rows

@@ -29,6 +29,7 @@ import {
 import { geohashCenter } from "./core/geohash";
 import { AlertUser } from "./core/grouping";
 import { maxDrop24h } from "./core/pressure";
+import { offsetFromLongitude } from "./core/quietHours";
 import { tearDownAccount } from "./core/accountTeardown";
 import {
   ANONYMOUS_PROVIDER,
@@ -114,6 +115,7 @@ export const pressureAlertJob = onSchedule(
       cells: record.cells,
       failedCells: record.failedCellCount,
       pushesSent: record.pushesSent,
+      silentPushes: record.silentPushes,
       // The one number that says whether a zero-push run was quiet weather or a broken run.
       maxDropHpa: record.maxDropHpa,
     });
@@ -196,6 +198,7 @@ async function runAlertPass(
       fcmToken: data.fcmToken,
       thresholdHpa:
         typeof data.alertThreshold === "number" ? data.alertThreshold : 5,
+      tzOffsetMinutes: resolveOffsetMinutes(data, doc.id),
       history: {
         lastAlertAt:
           data.lastAlertAt instanceof Timestamp
@@ -216,7 +219,7 @@ async function runAlertPass(
       const forecast = await fetchHourlyPressure(lat, lon);
       return maxDrop24h(forecast, now);
     },
-    sendPush: async (user, drop) => {
+    sendPush: async (user, drop, { silent }) => {
       await getMessaging().send({
         token: user.fcmToken,
         notification: {
@@ -232,9 +235,15 @@ async function runAlertPass(
           dropHpa: String(drop.dropHpa),
           at: now.toISOString(),
         },
-        // Sent so a background handler can be added later without touching the cron.
+        // `content-available` is sent so a background handler can be added later without touching the cron.
+        //
+        // A push in the user's night carries no `sound` key at all — an empty string still plays the default — and `passive` on top of that keeps it off the lock screen until the phone is next picked up. The alert is still worth having at 03:00; being woken by it is not.
         apns: {
-          payload: { aps: { sound: "default", "content-available": 1 } },
+          payload: {
+            aps: silent
+              ? { "content-available": 1, "interruption-level": "passive" }
+              : { sound: "default", "content-available": 1 },
+          },
         },
       });
     },
@@ -255,6 +264,31 @@ async function runAlertPass(
     logError: (message, data) => logger.error(message, data),
     logInfo: (message, data) => logger.info(message, data),
   });
+}
+
+/**
+ * How far east of UTC the user is, which is all the run needs to know whether a
+ * push would land in their night.
+ *
+ * The device writes it at registration; longitude answers for one that
+ * registered before the app started sending it, and is why an existing user
+ * gets a quiet night without having to open the app. `tz` beside it is the zone
+ * abbreviation ("ICT") and is for a human reading the document — it is not
+ * parseable, which is exactly why this field exists.
+ */
+function resolveOffsetMinutes(data: DocumentData, uid: string): number {
+  if (typeof data.tzOffsetMinutes === "number") return data.tzOffsetMinutes;
+  try {
+    return offsetFromLongitude(geohashCenter(data.geohash5).lon);
+  } catch (error) {
+    // A geohash the decoder refuses. UTC is the only answer left, and the run must not lose the user over it — the push still goes, it just may carry a sound at the wrong hour.
+    logger.warn("offset fallback failed, assuming UTC", {
+      uid,
+      geohash5: data.geohash5,
+      error: String(error),
+    });
+    return 0;
+  }
 }
 
 /** Hands a signed-in user the key their devices encrypt attack payloads with, minting one on first use. */

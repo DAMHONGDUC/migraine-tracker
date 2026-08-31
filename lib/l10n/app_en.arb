@@ -1168,7 +1168,7 @@
   },
   "historyFilterWithCount": "{label} ({count})",
   "@historyFilterWithCount": {
-    "description": "Filter pill text: the active period plus how many attacks it matches, e.g. \"All (10)\"",
+    "description": "Filter pill text: the pill's own label plus a count, e.g. \"Filters (2)\"",
     "placeholders": {
       "label": {
         "type": "String"
@@ -1198,13 +1198,94 @@
   "@historyFilterAll": {
     "description": "History filter chip: all attacks ever"
   },
-  "historyEmptyFiltered": "No attacks in this period.",
+  "historyEmptyFiltered": "No attacks match these filters.",
   "@historyEmptyFiltered": {
-    "description": "Empty state when the selected period has no attacks"
+    "description": "Empty state when nothing matches the filters that are on"
   },
-  "historyFilterSheetTitle": "Filter by period",
-  "@historyFilterSheetTitle": {
-    "description": "Title of the period filter bottom sheet"
+  "historyFilterAxisPeriod": "Period",
+  "@historyFilterAxisPeriod": {
+    "description": "Name of the period filter chip while it is resting on \"All\""
+  },
+  "historyFilterAxisMedicationName": "Which medication",
+  "@historyFilterAxisMedicationName": {
+    "description": "Name of the \"which medication\" filter chip while it is resting on \"All\""
+  },
+  "historyFilterAreaLeft": "Left",
+  "@historyFilterAreaLeft": {
+    "description": "Head-area filter chip: any left-side region"
+  },
+  "historyFilterAreaRight": "Right",
+  "@historyFilterAreaRight": {
+    "description": "Head-area filter chip: any right-side region"
+  },
+  "historyFilterAreaFront": "Front",
+  "@historyFilterAreaFront": {
+    "description": "Head-area filter chip: the forehead"
+  },
+  "historyFilterAreaBack": "Back",
+  "@historyFilterAreaBack": {
+    "description": "Head-area filter chip: the back of the head and the nape"
+  },
+  "filtersAppliedCount": "{count, plural, =1{1 filter applied} other{{count} filters applied}}",
+  "@filtersAppliedCount": {
+    "description": "Line above a filtered list saying how many filter axes are narrowing it",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filtersClearAll": "Clear all",
+  "@filtersClearAll": {
+    "description": "Action beside that line putting every filter axis back to \"all\""
+  },
+  "historyFilterDurationUnder4h": "Under 4h",
+  "@historyFilterDurationUnder4h": {
+    "description": "Duration filter chip: attacks shorter than the 4h a migraine is defined from"
+  },
+  "historyFilterDuration4To72h": "4–72h",
+  "@historyFilterDuration4To72h": {
+    "description": "Duration filter chip: the 4-72h band a migraine is defined by"
+  },
+  "historyFilterDurationOver72h": "Over 72h",
+  "@historyFilterDurationOver72h": {
+    "description": "Duration filter chip: attacks longer than 72h"
+  },
+  "historyFilterDurationUnrecorded": "Not recorded",
+  "@historyFilterDurationUnrecorded": {
+    "description": "Duration filter chip: attacks with no end time recorded"
+  },
+  "historyFilterMedicationTaken": "Taken",
+  "@historyFilterMedicationTaken": {
+    "description": "Medication filter chip: something was taken for the attack"
+  },
+  "historyFilterMedicationNotTaken": "None taken",
+  "@historyFilterMedicationNotTaken": {
+    "description": "Medication filter chip: nothing was taken"
+  },
+  "historyFilterNotesWith": "Has notes",
+  "@historyFilterNotesWith": {
+    "description": "Notes filter chip: the attack carries a written note"
+  },
+  "historyFilterNotesWithout": "No notes",
+  "@historyFilterNotesWithout": {
+    "description": "Notes filter chip: the attack carries no note"
+  },
+  "historyFilterPressureFalling": "Falling",
+  "@historyFilterPressureFalling": {
+    "description": "Pressure filter chip: pressure was falling over the 24h before the attack"
+  },
+  "historyFilterPressureRising": "Rising",
+  "@historyFilterPressureRising": {
+    "description": "Pressure filter chip: pressure was rising"
+  },
+  "historyFilterPressureSteady": "Steady",
+  "@historyFilterPressureSteady": {
+    "description": "Pressure filter chip: pressure barely moved"
+  },
+  "historyFilterPressureNoData": "No reading",
+  "@historyFilterPressureNoData": {
+    "description": "Pressure filter chip: no weather reading is attached to the attack"
   },
   "historyChartTooltip": "{count} attacks",
   "@historyChartTooltip": {
@@ -1680,9 +1761,13 @@
   "@alertsSheetRange": {
     "description": "Explains what the two ends of the 3-10 hPa slider mean"
   },
-  "alertsSheetLimit": "At most one alert a day, and never twice for the same drop.",
+  "alertsSheetLimit": "At most three alerts a day, 8 hours apart, and never twice for the same drop.",
   "@alertsSheetLimit": {
-    "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
+    "description": "Sheet: how often an alert can arrive — the three-a-day cap and the 8h gap the server enforces"
+  },
+  "alertsSheetQuietHours": "An alert between 10 pm and 7 am arrives without a sound.",
+  "@alertsSheetQuietHours": {
+    "description": "Sheet: an alert landing in the user's local night is delivered silently"
   },
   "alertsSheetExampleTitle": "For example",
   "@alertsSheetExampleTitle": {
@@ -1816,46 +1901,14 @@
       }
     }
   },
-  "syncScreenTitle": "Sync",
-  "@syncScreenTitle": {
-    "description": "App bar title of the sync detail screen, pushed from the Settings row"
-  },
-  "syncScreenBody": "Your attacks, medications and reminders are backed up to your account, encrypted, and kept in step across your devices. This happens on its own — the button is only here for when you want to be sure.",
-  "@syncScreenBody": {
-    "description": "Explains what syncs and that the manual button is never required. Says encrypted, never that only the user can read it — the key is server-held"
-  },
-  "syncScreenLastSynced": "Last synced",
-  "@syncScreenLastSynced": {
-    "description": "Row label on the sync screen, followed by when the last pass finished"
-  },
-  "syncScreenSyncing": "Syncing…",
-  "@syncScreenSyncing": {
-    "description": "Shown in place of the last-synced time while a pass is running"
-  },
-  "settingsSync": "Sync data to cloud",
-  "@settingsSync": {
-    "description": "Settings row that runs a sync by hand. Sync is automatic; this is only for a deliberate retry, and the row is absent without an account"
-  },
-  "settingsSyncFailed": "Sync didn't finish. It'll try again on its own.",
-  "@settingsSyncFailed": {
-    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
-  },
-  "settingsSyncStatusNever": "Not synced yet",
-  "@settingsSyncStatusNever": {
-    "description": "End-of-row status on the sync row before the first sync of this session has finished"
-  },
   "commonProgressPercent": "{percent}%",
   "@commonProgressPercent": {
-    "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
+    "description": "How far the job in flight has got, shown at the end of a Settings row beside its spinner",
     "placeholders": {
       "percent": {
         "type": "int"
       }
     }
-  },
-  "settingsSyncStatusFailed": "Didn't finish",
-  "@settingsSyncStatusFailed": {
-    "description": "End-of-row status on the sync row after a failed pass. Short by necessity — it shares the row with the title"
   },
   "settingsExport": "Export data",
   "@settingsExport": {

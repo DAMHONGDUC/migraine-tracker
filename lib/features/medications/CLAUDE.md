@@ -89,3 +89,22 @@ needing a visit to each screen in turn.
   sentence belongs on the screen that can do something about it, not on every
   row of a list.
 - The engine and its rules live in `lib/features/insights/CLAUDE.md`.
+
+## The filter strip
+
+Three chips — date added, reminder, usage — and the two rules History's
+thirteen follow, because both strips are read the same way (owner's call,
+2026-08-31):
+
+- **A chip that is narrowing the list is highlighted** (`SdFilterPillV2.active`),
+  not merely labelled with its value. The label alone is a word among three
+  words.
+- **The strip never lifts into the app bar** — `collapsible: false`. It used to
+  hand itself to the bar once scrolled; the filters now stay where they were
+  put. The flag is still what the search field needs, so it is passed as a
+  constant rather than removed.
+- **`ActiveFilterSummary` (`core/widgets/`) sits above the first card**, under
+  the overuse banner and the free-plan meter, saying how many axes are on and
+  clearing all three in one tap (`MedicationFiltersController.reset`). Whichever
+  of the three comes first still carries the strip's gap — that inset moved
+  again when the summary was added (`limitTop`/`summaryTop`/`contentTop`).

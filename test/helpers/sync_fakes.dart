@@ -22,6 +22,7 @@ SyncService syncServiceOver(
   AppDatabase db, {
   RemoteSyncRepository? remote,
   SyncCursorStore? cursor,
+  SyncKeyRepository? keys,
   Future<void> Function()? onRemindersPulled,
 }) => SyncService(
   <SyncBinding<dynamic>>[
@@ -36,7 +37,7 @@ SyncService syncServiceOver(
     SyncBinding<Attack>(DriftAttackSyncStore(db), const AttackPayloadCodec()),
   ],
   remote ?? FakeRemoteSyncRepository(),
-  FakeSyncKeyRepository(),
+  keys ?? FakeSyncKeyRepository(),
   cursor ?? FakeSyncCursorStore(),
   const AesGcmAttackCipher(),
   onRemindersPulled ?? () async {},
@@ -64,6 +65,9 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
       <SyncCollection, Map<String, EncryptedRecord>>{};
 
   int putCount = 0;
+
+  /// Pulls asked for, which is what tells a push-only pass apart from a whole one.
+  int queryCount = 0;
   DateTime? lastSince;
   bool failNextPut = false;
   bool failNextQuery = false;
@@ -107,6 +111,7 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
     DateTime? since,
   ) async {
     _putsThisRun = 0;
+    queryCount++;
     lastSince = since;
     if (failNextQuery) {
       failNextQuery = false;
@@ -137,10 +142,16 @@ class FakeSyncKeyRepository implements SyncKeyRepository {
 
   bool forgotten = false;
 
+  /// Times the account key was asked for. A push with nothing pending must never reach the callable.
+  int keyRequests = 0;
+
   String get key => _key;
 
   @override
-  Future<String> keyFor(String uid) async => _key;
+  Future<String> keyFor(String uid) async {
+    keyRequests++;
+    return _key;
+  }
 
   @override
   void forget() => forgotten = true;

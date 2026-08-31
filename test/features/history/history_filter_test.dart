@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -8,25 +8,40 @@ import 'package:migraine_tracker/features/history/presentation/widgets/attack_ti
 
 import '../../helpers/pump_app.dart';
 
-Attack at(String id, DateTime local) => Attack(
+Attack at(String id, DateTime local, {String? notes}) => Attack(
   id: id,
   startedAt: local.toUtc(),
   intensity: 5,
   regions: const <HeadRegion>[HeadRegion.templeL],
+  notes: notes,
 );
 
-/// Opens the filter bottom sheet from the app bar and picks [period].
-Future<void> selectPeriod(WidgetTester tester, String period) async {
-  await tester.tap(find.byIcon(Symbols.filter_list_rounded));
+/// Opens the [axis] chip's sheet and picks [option].
+///
+/// A chip is labelled by its axis while it rests on "All", and the strip
+/// scrolls sideways, so the chip is scrolled to first. The option is matched
+/// inside the sheet's own rows — the same word can sit on a tile behind it.
+Future<void> pickFilter(
+  WidgetTester tester,
+  String axis,
+  String option,
+) async {
+  await tester.ensureVisible(find.text(axis));
+  await tester.pump();
+  await tester.tap(find.text(axis));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
-  await tester.tap(find.text(period));
+  await tester.tap(
+    find
+        .descendant(of: find.byType(ListTile), matching: find.text(option))
+        .last,
+  );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
 
 void main() {
-  testWidgets('the filter sheet narrows the list to the selected period', (
+  testWidgets('the period chip narrows the list to the selected period', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -38,18 +53,20 @@ void main() {
 
     await openHistory(tester);
 
-    // Default = All → both listed; the pill carries the count.
+    // Nothing filtered → both listed, and the chip carries its axis name.
     expect(find.byType(AttackTile), findsNWidgets(2));
-    expect(find.text('All (2)'), findsOneWidget);
+    expect(find.text('Period'), findsOneWidget);
 
-    await selectPeriod(tester, 'Today');
+    await pickFilter(tester, 'Period', 'Today');
+
     expect(find.byType(AttackTile), findsOneWidget);
-    expect(find.text('Today (1)'), findsOneWidget);
+    // The chip carries the picked value now, not the axis name.
+    expect(find.text('Today'), findsOneWidget);
 
     await finishTest(tester);
   });
 
-  testWidgets('a period with no attacks shows the filtered empty state', (
+  testWidgets('a filter with no matches shows the filtered empty state', (
     tester,
   ) async {
     final app = await pumpApp(tester);
@@ -59,9 +76,28 @@ void main() {
     );
 
     await openHistory(tester);
-    await selectPeriod(tester, 'Today');
+    await pickFilter(tester, 'Period', 'Today');
 
-    expect(find.text('No attacks in this period.'), findsOneWidget);
+    expect(find.text('No attacks match these filters.'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('an axis other than the period narrows the list too', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repo = DriftAttackRepository(app.db);
+    final now = DateTime.now();
+    await repo.insert(
+      at('noted', now.subtract(const Duration(hours: 2)), notes: 'after wine'),
+    );
+    await repo.insert(at('bare', now.subtract(const Duration(hours: 3))));
+
+    await openHistory(tester);
+    await pickFilter(tester, 'Notes', 'Has notes');
+
+    expect(find.byType(AttackTile), findsOneWidget);
 
     await finishTest(tester);
   });

@@ -3,7 +3,14 @@ import { describe, expect, it } from "vitest";
 import { AlertUser, groupByGeohash } from "../src/core/grouping";
 
 function user(uid: string, geohash5: string): AlertUser {
-  return { uid, geohash5, fcmToken: `tok-${uid}`, thresholdHpa: 5, history: {} };
+  return {
+    uid,
+    geohash5,
+    fcmToken: `tok-${uid}`,
+    thresholdHpa: 5,
+    tzOffsetMinutes: 0,
+    history: {},
+  };
 }
 
 describe("groupByGeohash", () => {

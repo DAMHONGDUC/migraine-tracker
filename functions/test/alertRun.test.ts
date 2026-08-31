@@ -8,6 +8,7 @@ import {
 import { AlertUser } from "../src/core/grouping";
 import { DropForecast } from "../src/core/pressure";
 
+/** 12:00 UTC — midday for a user at UTC, so every test is loud unless it says otherwise. */
 const now = new Date("2026-07-08T12:00:00Z");
 
 function user(
@@ -20,6 +21,7 @@ function user(
     geohash5,
     fcmToken: `tok-${uid}`,
     thresholdHpa: 5,
+    tzOffsetMinutes: 0,
     history: {},
     ...overrides,
   };
@@ -75,6 +77,53 @@ describe("runPressureAlerts", () => {
     // rebuilds the notification row from the recorded drop.
     expect(recordAlert).toHaveBeenCalledWith("a", forecast, now);
     expect(result.pushesSent).toBe(1);
+    expect(result.silentPushes).toBe(0);
+  });
+
+  it("sends silently to a user whose local time is the middle of the night", async () => {
+    const { deps } = harness(async () => drop());
+    // 12:00 UTC is 02:00 in Auckland.
+    const result = await runPressureAlerts(
+      [user("a", "rckq2", { tzOffsetMinutes: 14 * 60 })],
+      deps,
+    );
+
+    expect(deps.sendPush).toHaveBeenCalledWith(
+      expect.objectContaining({ uid: "a" }),
+      expect.anything(),
+      { silent: true },
+    );
+    expect(result.pushesSent).toBe(1);
+    expect(result.silentPushes).toBe(1);
+  });
+
+  it("decides silence per user, not per cell — two zones can share a forecast", async () => {
+    const { deps } = harness(async () => drop());
+    const result = await runPressureAlerts(
+      [
+        user("day", "u1234", { tzOffsetMinutes: 0 }),
+        user("night", "u1234", { tzOffsetMinutes: 14 * 60 }),
+      ],
+      deps,
+    );
+
+    expect(deps.fetchCellDrop).toHaveBeenCalledTimes(1);
+    expect(result.pushesSent).toBe(2);
+    expect(result.silentPushes).toBe(1);
+  });
+
+  it("does not count a silent push that failed to send", async () => {
+    const sendPush = vi.fn(async () => {
+      throw Object.assign(new Error("stale"), { code: STALE_TOKEN_CODE });
+    });
+    const { deps } = harness(async () => drop(), sendPush);
+    const result = await runPressureAlerts(
+      [user("a", "rckq2", { tzOffsetMinutes: 14 * 60 })],
+      deps,
+    );
+
+    expect(result.pushesSent).toBe(0);
+    expect(result.silentPushes).toBe(0);
   });
 
   it("skips users whose personal threshold isn't met", async () => {

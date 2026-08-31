@@ -169,10 +169,9 @@ class AttackDetailScreen extends HookConsumerWidget {
     ).show(context);
 
     if (picked == null) return;
-    await ref.read(attackDetailControllerProvider).updateAura(
-      attack.id,
-      picked.aura,
-    );
+    await ref
+        .read(attackDetailControllerProvider)
+        .updateAura(attack.id, picked.aura);
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
@@ -215,8 +214,7 @@ class AttackDetailScreen extends HookConsumerWidget {
     final ValueNotifier<bool> collapsed = useState(false);
 
     useEffect(() {
-      void onScroll() =>
-          collapsed.value = controller.offset > _Header.height;
+      void onScroll() => collapsed.value = controller.offset > _Header.height;
 
       controller.addListener(onScroll);
 
@@ -231,13 +229,15 @@ class AttackDetailScreen extends HookConsumerWidget {
       ),
       actions: [
         // Only once the attack has actually loaded — a share button over a deleted or still-loading record has nothing to render.
-        if (attack.value case final Attack loaded)
+        if (attack.value case final Attack loaded) ...[
           SdAppBarButtonV2(
             icon: AppIconConstant.share,
             color: AppColors.secondary,
             tooltip: l10n.attackShareTitle,
             onPressed: () => AttackShareSheet.show(context, loaded),
           ),
+          SdHorizontalSpacingV2(),
+        ],
         SdAppBarButtonV2(
           icon: AppIconConstant.delete,
           color: context.colorScheme.error,
@@ -288,13 +288,13 @@ class AttackDetailScreen extends HookConsumerWidget {
                 // Above duration, because aura runs BEFORE the pain and the rows read in the order the attack happened.
                 _EditableRow(
                   label: l10n.attackDetailAura,
-      // Keep unanswered, no-aura and aura states distinct.
+                  // Keep unanswered, no-aura and aura states distinct.
                   value: a.aura.label(l10n),
                   onTap: () => _editAura(context, ref, a),
                 ),
                 _EditableRow(
                   label: l10n.attackDetailDuration,
-      // Null means the attack has no recorded end time.
+                  // Null means the attack has no recorded end time.
                   value:
                       a.duration?.label(l10n) ?? l10n.attackDurationNotRecorded,
                   onTap: () => _editDuration(context, ref, a),
@@ -302,8 +302,7 @@ class AttackDetailScreen extends HookConsumerWidget {
                 _EditableRow(
                   label: l10n.detailsExertionLabel,
                   // Attacks logged before the step existed read as "None", which is the same answer their blank column means.
-                  value:
-                      (a.exertionLevel ?? ExertionLevel.none).label(l10n),
+                  value: (a.exertionLevel ?? ExertionLevel.none).label(l10n),
                   onTap: () => _editExertion(context, ref, a),
                 ),
               ],
