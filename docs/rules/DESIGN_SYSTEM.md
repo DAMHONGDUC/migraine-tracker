@@ -274,6 +274,32 @@ is composed, what a chart should say. Take that; leave the tokens.
   `SettingsTile.valueTag` is that slot; `trailing` replaces the whole cluster
   and takes the chevron with it.
 
+## Waiting, and having nothing
+
+- **A wait whose shape is known is drawn, never spun for — owner's rule.**
+  `SdSkeletonV2` and its two compositions (`SdListSkeletonV2`,
+  `SdChartSkeletonV2`) reserve the space the content will take, so nothing jumps
+  when it lands. A `CircularProgressIndicator` is left for two cases only: an
+  action the user just started (a sign-in, a dev tile), and a determinate bar
+  that is reporting real progress (`sync`, the free-limit meter).
+  - **Two waits are deliberately blank and must stay blank.** Insights' tab card
+    and the correlation bodies' error branch: the engines run over the local
+    database and settle in a frame or two, so a placeholder there would flash —
+    which hard rule 3 forbids outright. The bodies that DO skeleton
+    (`InsightBodySkeleton`) are waiting on a HealthKit read, which takes as long
+    as it takes.
+- **An empty state is never text alone — owner's rule.** `SdEmptyStateV2`, glyph
+  over message. A line of grey prose where content should be reads as a caption
+  on something missing, or as a failure; the glyph is what says "this is a
+  state, and it is a normal one".
+  - **`SdEmptyStateSizeV2.compact` is for a slot inside something that is not
+    empty** — a chart's plot area, one section of a card — where the full 64pt
+    glyph would push the card to twice the height its content needs. Reach for
+    it rather than dropping back to a bare `Text`.
+  - **Empty and loading are not the same screen.** The paywall showed "no plans"
+    while the store was still answering; a card with no data yet and a card whose
+    source is switched off say different things and get different glyphs.
+
 ## Sheets and dialogs
 
 - **Every sheet wears `SdSheetHeaderV2`**: X on the left that leaves, title
