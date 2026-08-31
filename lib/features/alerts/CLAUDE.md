@@ -55,25 +55,20 @@ readable without opening anything.
     everywhere, and the alert would be firing on the dedupe window rather than
     on a front. **20 is the ceiling because past it nobody would ever be
     alerted** — a setting that only looks like a choice.
-  - **The sheet has three boxes: the slider's low end, the threshold, its high
-    end.** 19 stops is a lot to hit with a thumb, and a field is the only way in
-    for someone who cannot drag at all. The ends are a **view control** — how
-    the slider is scaled, so someone who only cares about 5-10 gets five times
-    the precision — and are **not stored**: nothing outside the sheet reads
-    them, and they reset to the full range on the next open.
-  - **`AlertThresholdRange.min`/`max` are the walls, not the slider's ends.**
-    A typed window must sit inside them; `divisionsBetween` gives the narrowed
-    window its own whole-hPa stops.
-  - **One error line under all three, never one per box.** The rules are
-    *between* the numbers — an order and a containment — so a message under
-    whichever box was typed into last would be describing the pair rather than
-    the box. `FilteringTextInputFormatter.digitsOnly` refuses the shape (a
-    decimal point cannot be typed); the shared line states the meaning.
-  - **The unit sits outside the boxes.** All three carry the same "hPa", and one
-    word beside them says it once instead of taking width from every digit three
-    times over.
+  - **The threshold can be typed as well as dragged**, in one box beside the
+    slider. 18 stops is a lot to hit with a thumb, and a field is the only way
+    in for someone who cannot drag at all.
+  - **2-20 is fixed and the user does not set it** (owner's call, reversing a
+    version where the slider's own ends were two more boxes). The ends are not a
+    setting: nothing outside the sheet reads them, and three boxes made a
+    one-number decision look like three.
+  - **The unit sits outside the box, never as a suffix inside it.** "hPa" never
+    changes; inside, it takes width from the digits that do.
+  - **`AlertThresholdRange.parse` is the one validator** and is unit-tested.
+    `FilteringTextInputFormatter.digitsOnly` refuses the shape (a decimal point
+    cannot be typed); the line under the box states the meaning (out of range).
   - **Refused input disables the commit, it does not hide it**, and the slider
-    keeps the last good numbers — there is always something to go back to.
+    keeps the last good value — there is always something to go back to.
   - **A stored threshold is clamped onto the slider** (`clamp`): a value written
     under a different range would be handed to `Slider` outside its bounds,
     which throws rather than degrading.
