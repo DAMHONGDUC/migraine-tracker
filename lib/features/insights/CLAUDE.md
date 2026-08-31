@@ -66,6 +66,17 @@ order, and the third is the one that matters:
   they cancel `InsightCard.gutter` and run to the card's own edges. A rule that
   stops 20pt short reads as a line under one column instead of the break between
   two sections.
+- **`InsightCard.stackGap` is the one vertical gap between a card's parts** —
+  above the first item, either side of a divider, under a title. The gap above an
+  item and the gap below it are only even if one place decides both: the switch
+  rows sat 20 from the card's top edge and flush against the divider, which read
+  as the line hanging off the row. A gap *inside* one part — a selector to its
+  chart, a headline to its bars — stays the tighter `h16`; only part boundaries
+  take `stackGap`.
+  - It is `h20` where the gutter is `w20`: the card padded itself with
+    `EdgeInsets.all`, spending a horizontal scale on its top and bottom, so the
+    card's own top gap and every gap stacked under it were measured against
+    different scales.
 
 ## One card for everything pressure
 
