@@ -246,15 +246,29 @@ is composed, what a chart should say. Take that; leave the tokens.
 
 ## Sheets and dialogs
 
-- **A sheet with actions wears `SdSheetHeaderV2`**: X on the left that leaves,
-  title centred, commit on the right. Both are `SdAppBarButtonV2`s wearing
+- **Every sheet wears `SdSheetHeaderV2`**: X on the left that leaves, title
+  centred, nothing on the right. The X is an `SdAppBarButtonV2` wearing
   `SdAppBarButtonSurfaceV2.glassCircle` — the sheet is a flat opaque panel, so a
-  frosted disc on it has real background to refract — and the commit's glyph is
-  tinted `AppColors.secondary` so the action that writes something reads
-  differently from the one that abandons. Its glyph is a tick for
-  `SdSheetActionV2.confirm` (answering for the first time) or a pencil for
-  `SdSheetActionV2.edit` (overwriting an existing value). It brings its own
-  insets; nothing pads around it.
+  frosted disc on it has real background to refract. The right slot stays
+  reserved so the title sits on the sheet's centre. It brings its own insets;
+  nothing pads around it.
+- **A sheet that updates or adds anything commits from a labelled button pinned
+  along its bottom edge — owner's rule.** `SdSheetContentV2` draws it from
+  `confirmLabel` + `onConfirm`: full width, `SdButtonVariantV2.primary`, always
+  the last thing above the safe area. The commit used to be a tick or a pencil
+  opposite the X, which put the button that writes something in the corner
+  furthest from the thumb and sized it like an icon. `SdSheetActionV2` is gone
+  with it; the promise is now the word:
+  - **`commonSave`** — an answer given for the first time.
+  - **`commonUpdate`** — a value being overwritten.
+  - Anything else only when the sheet is not recording a value at all (a filter
+    applies with `commonDone`).
+  - **`confirmLabel` null is what says a sheet has no commit** — a menu whose tap
+    on a row IS the answer. **`onConfirm` null with a label disables the button
+    rather than removing it**: a commit that appears and disappears as the
+    selection changes moves everything under the thumb.
+  - `footer` is for the answers that are neither commit nor leave — a "clear", a
+    "not recorded" — and sits above the button.
 - **`SdSheetContentV2`** is that header plus content scrolling under a ceiling of
   85% of the screen, with an optional pinned footer. Pass
   `isScrollControlled: true` when showing it, or the route caps itself near half
