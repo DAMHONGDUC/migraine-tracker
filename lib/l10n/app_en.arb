@@ -1285,6 +1285,10 @@
   "@premiumBadge": {
     "description": "Small badge marking a premium-only surface"
   },
+  "premiumPlanFree": "Free",
+  "@premiumPlanFree": {
+    "description": "Tag on the Settings subscription row while nothing is subscribed"
+  },
   "premiumUnlock": "Unlock",
   "@premiumUnlock": {
     "description": "CTA on a locked premium surface, opens the paywall"

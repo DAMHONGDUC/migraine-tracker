@@ -259,6 +259,7 @@
   "historyDayEvening": "夜",
   "a11yChart": "{title}のグラフ",
   "premiumBadge": "プレミアム",
+  "premiumPlanFree": "無料",
   "premiumUnlock": "解除",
   "premiumLockedForecast": "1週間先の気圧まで見えるので、前もって予定を組めます。",
   "premiumLockedCorrelation": "解除すると、痛みのどれくらいが天気に連動しているかを見られます。",
