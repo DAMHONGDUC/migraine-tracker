@@ -19,9 +19,11 @@
   want it counting their days, and a refused sheet must cost only the source it
   was asked about. `HealthConnections` holds the two flags, `HealthController`
   owns them, everything else reads `healthControllerProvider`.
-- **The switches live on the detail screens they feed** — sleep on `/sleep`,
-  steps on `/activity` — and those are the only places a prompt is raised, never
-  Settings.
+- **The switches live on the cards they feed** — sleep on Insights' sleep tab,
+  steps on its activity tab, at the top of the chart card — and those are the only
+  places permission is asked for, never Settings. The detail screens they used to
+  sit on are gone, and so is the Settings group: a switch away from the empty
+  chart it fills is a switch nobody connects.
 - `HealthController.connectedKey` is the single flag both sources shared before
   the split. It is still read as a fallback, so a user who connected under it is
   not silently disconnected, and the GDPR wipe clears it too (`disconnectAll`)

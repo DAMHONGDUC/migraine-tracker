@@ -153,19 +153,19 @@ what the cron does with it: `lib/features/access/CLAUDE.md`.
     preview cannot drift from what premium unlocks. It is `ExcludeSemantics`'d so
     VoiceOver never reads the made-up figures, and the card carries
     `premiumLockedCharts` as its label instead.
-- **The sleep and step summary cards are the second chart exemption** (owner's
-  call). `SleepSummaryCard` and `StepSummaryCard`
-  (`insights/presentation/widgets/`) show what HealthKit actually handed over —
-  last night / today, the 7-entry average, a bar of the window — and are free
-  wherever they appear. The card *is* the answer to "did connecting work", so
-  locking it would leave a user who just flipped the switch looking at nothing.
-  They are absent entirely while the source is disconnected. The correlation card
-  under each stays premium.
+- **The sleep and step readings are the second chart exemption** (owner's call).
+  The first card of each Insights tab shows what HealthKit actually handed over —
+  last night / today, the average, a bar of the window — and is free. It *is* the
+  answer to "did connecting work", so locking it would leave a user who just
+  flipped the switch looking at nothing. While the source is disconnected the
+  chart is absent and the switch is what stands there. The analysis card under it
+  stays premium. (`SleepSummaryCard` / `StepSummaryCard` were the shells for this
+  on the detail screens; both screens and both shells are gone.)
 - **A gate must never sit between a user and a free surface — including the row
   that leads to one.** `SleepSettingsTile` used to wrap itself in
-  `PremiumTileGate`, reasoning that the sleep *insight* is premium. But the
-  screen behind that row also holds the Apple Health switch and the free
-  `SleepSummaryCard`, so the gate locked a door onto a room the user owned. It
+  `PremiumTileGate`, reasoning that the sleep *insight* is premium. But the tab
+  behind that row also holds the Apple Health switch and the free reading, so the
+  gate locked a door onto a room the user owned. It
   cost a rejection: submission 1.0(11) came back under App Store 2.5.1 for not
   identifying HealthKit in the UI, because that locked row led to the app's only
   screen naming Apple Health — and with the paywall returning no offerings

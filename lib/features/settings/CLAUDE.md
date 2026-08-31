@@ -60,16 +60,16 @@ watched.
   section widget and its part file carry the new name too: a key named for a word
   the UI no longer says sends the next editor to the wrong place. Chinese kept
   监测 — that already meant monitoring, never the advertising sense (跟踪).
-- **"Apple Health" exists to be found, and it is iOS-only.** `_HealthSection`
-  holds the sleep and step connect switches — the same `HealthConnectionTile` and
-  the same provider `/sleep` and `/activity` use, so the surfaces cannot disagree
-  about what is connected — plus one caption saying what is read and that it never
-  leaves the device. The switches stay on the detail screens too; that is where a
-  user changes their mind. It is a top-level group rather than two rows under
-  Monitoring because **submission 1.0(11) was rejected under App Store 2.5.1 for
-  not identifying HealthKit in the UI**: the only entrances were rows named
-  "Sleep" and "Activity", neither saying "Apple Health", and the sleep one was
-  premium-gated on top. The whole group is absent off iOS
+- **The "Apple Health" group is gone from Settings** (owner's call): the two
+  switches moved onto the Insights tabs they fill, where the user is already
+  looking at the empty chart. Settings keeps the rows that lead there.
+  **Submission 1.0(11) was rejected under App Store 2.5.1 for not identifying
+  HealthKit in the UI**, and that group was the answer — so what carries the
+  identification now is the switch's own title ("Apple Health sleep", "Apple
+  Health steps") and the caption under it, on a tab in the main nav and behind no
+  gate. Do not rename those switches to "Sleep" and "Steps": that is the exact
+  wording the rejection was about. Detail: `lib/features/insights/CLAUDE.md`.
+  The removed group was absent off iOS
   (`healthAvailableProvider`) — heading included, since a heading over nothing
   reads as a screen that failed to load.
 
