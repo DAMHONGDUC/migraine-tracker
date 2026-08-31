@@ -58,6 +58,14 @@ readable without opening anything.
   over the 24h forecast, not an absolute pressure, and it is capped at one push
   per 24 hours — without both, 3 hPa reads as a promise to be woken hourly. The
   copy is `alertsSheetFormula`, `alertsSheetRange` and `alertsSheetLimit`.
+- **Under the rule sits one worked case, and its numbers move with the slider.**
+  `AlertThresholdSheet.exampleHpa` (1013, the standard atmosphere) minus the
+  chosen threshold is the pressure the forecast has to reach; drag the slider and
+  that number changes, which teaches the subtraction in one gesture.
+  - **1013 is invented on purpose and labelled "For example".** A number close to
+    the user's real reading would be taken for it, and the sheet has no live
+    weather to hand: reading one would fire a fetch — and on Settings a location
+    prompt — for a line of explanation.
 
 ## Every run is written down
 
