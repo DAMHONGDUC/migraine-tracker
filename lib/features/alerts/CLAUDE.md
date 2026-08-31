@@ -81,9 +81,13 @@ readable without opening anything.
   so the other order would register the old number and leave the server
   disagreeing with the slider the user just moved.
 - **The sheet says what the number is measured against.** A threshold is a delta
-  over the 24h forecast, not an absolute pressure, and it is capped at one push
-  per 24 hours — without both, 3 hPa reads as a promise to be woken hourly. The
-  copy is `alertsSheetFormula`, `alertsSheetRange` and `alertsSheetLimit`.
+  over the 24h forecast, not an absolute pressure, and it is capped at two
+  pushes a day — without both, 3 hPa reads as a promise to be woken hourly. The
+  copy is `alertsSheetFormula`, `alertsSheetRange`, `alertsSheetLimit` and
+  `alertsSheetQuietHours`.
+  - **The night line is its own line, not folded into the cap.** "Two a day" is
+    about how often; "no sound at night" is about being woken, and someone
+    deciding whether to turn alerts on at all is reading for the second.
 - **Under the rule sits one worked case, and its numbers move with the slider.**
   `AlertThresholdSheet.exampleHpa` (1013, the standard atmosphere) minus the
   chosen threshold is the pressure the forecast has to reach; drag the slider and
@@ -92,6 +96,42 @@ readable without opening anything.
     the user's real reading would be taken for it, and the sheet has no live
     weather to hand: reading one would fire a fetch — and on Settings a location
     prompt — for a line of explanation.
+
+## Two a day, and never a sound at night
+
+**`MIN_PUSH_GAP_MS` is 12h, which is what caps a user at two pushes a day**
+(`functions/src/core/alerts.ts`). It was 24h, and a front arriving in the
+morning and a second one that evening are different warnings — the old window
+threw the second away silently. The per-event check is unchanged and still does
+the other half: the same front never fires twice, however long the gap.
+
+**A push landing between 22:00 and 07:00 in the user's own time carries no
+`sound` key**, plus `interruption-level: passive` so it waits on the lock
+screen rather than lighting it. The alert is still worth having at 03:00 —
+the front is coming either way — and being woken by it is exactly the thing
+this app exists to help with, not cause. `isQuietHour`
+(`functions/src/core/quietHours.ts`) is the one place the window is written
+down.
+
+- **Silence is decided per user, never per cell.** One geohash cell is one
+  forecast, but two users in it can be in different zones — the run computes
+  `silent` inside the user loop, after the dedupe check.
+- **The zone comes from `users.tzOffsetMinutes`, minutes east of UTC**, written
+  by the device at registration. `tz` beside it (`"ICT"`, `"+07"`) stays, and
+  is for a human reading the document: an abbreviation is not parseable, which
+  is why the offset field exists at all.
+  - **Longitude answers for a device that registered before the field
+    existed** — `offsetFromLongitude`, 15° an hour. Wrong by up to two hours
+    where civil time ignores the sun (Urumqi runs on Beijing time), which a
+    nine-hour window absorbs, and it means an existing user gets a quiet night
+    without opening the app. A geohash the decoder refuses falls back to UTC
+    and logs; the push still goes.
+  - **The offset is written at registration, so a DST change leaves it an hour
+    out** until the next one. Nine hours wide, one hour of error: the choice is
+    deliberate, and the alternative was a third-party timezone package.
+- **`pressure_alert_runs.silent_pushes` is why a quiet night is legible.**
+  Without it, "3 pushes sent, nobody heard anything" cannot be told apart from
+  the offsets being wrong.
 
 ## Every run is written down
 
@@ -104,6 +144,7 @@ Logging retention window may have closed over the run that should have sent it.
 |---|---|
 | `status` | `ok`, `partial` (finished with cells it could not fetch), `failed` (threw) |
 | `users` / `cells` / `pushes_sent` | Users considered, WeatherKit calls spent, pushes actually sent |
+| `silent_pushes` | Of `pushes_sent`, how many went out soundless because it was that user's night |
 | `failed_cells` / `failed_cell_count` | A sample capped at 50; the count is always the true total |
 | `max_drop_hpa` | The worst drop seen anywhere that run; null when no cell returned a reading |
 | `cell_drops` / `cell_drop_count` | Per cell: `current_hpa`, `drop_hpa`, `event_id`. Biggest drops first, capped at 50 |
