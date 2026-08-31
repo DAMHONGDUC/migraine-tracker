@@ -10,6 +10,12 @@
     printed the email). Settings is read in public; an address on a row anyone
     glancing over can see is a cost the answer does not need. The account screen
     behind it is where the address belongs.
+- **The subscription row is the same pair**: `PremiumBadge` when it is on — the
+  actual widget, so the row and every other premium marker in the app cannot
+  come out different — and a muted "Free" tag when it is not. One word each;
+  "Premium is active" was a sentence where the row only had to name a state.
+  Those longer lines still stand where there is room for them, on the account and
+  subscription screens.
 
 ## The export preview
 

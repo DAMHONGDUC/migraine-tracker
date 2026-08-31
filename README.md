@@ -167,13 +167,13 @@ first install anyway.
 ```mermaid
 flowchart TD
   A["App launch"] --> B{"is_installed set in<br/>shared_preferences?"}
-  B -- "yes" --> C["Same install<br/>— nothing to do"]
+  B -- "yes" --> C["Same install — nothing to do<br/><small>is_installed = true</small>"]
   B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
-  D -- "no → reinstall" --> E["Keychain cleared, session<br/>signed out"]
-  D -- "yes → update" --> F["Settings carried into the Keychain,<br/>the old copies dropped"]
+  D -- "no → reinstall<br/><small>getKeys is empty</small>" --> E["Keychain cleared, session signed out<br/><small>SecureStore.deleteAll, uid 7Qk2… gone</small>"]
+  D -- "yes → update<br/><small>getKeys = alerts_enabled,<br/>alert_threshold</small>" --> F["Settings carried into the Keychain,<br/>the old copies dropped<br/><small>alert_threshold 5.0 → SecureStore</small>"]
   E --> H
-  F --> H["is_installed written last,<br/>so a crash retries"]
-  H --> I["Anonymous session ensured"]
+  F --> H["is_installed written last,<br/>so a crash retries<br/><small>setBool is_installed true</small>"]
+  H --> I["Anonymous session ensured<br/><small>signInAnonymously → uid c9Xf…</small>"]
 ```
 
 - **Only a reinstall signs out.** An update deleted nothing, so it keeps both
@@ -193,11 +193,11 @@ The app stores no premium flag of its own, on device or in Firestore.
 
 ```mermaid
 flowchart LR
-  A["Apple<br/>receipt"] --> B["RevenueCat server<br/>validates, sets expiry,<br/>binds to App User ID"]
-  B --> C["CustomerInfo<br/>entitlements.active"]
-  C --> D["RevenueCatPremiumRepository<br/>(listener + first read)"]
-  D --> E["isPremiumProvider"]
-  E --> F["hasPremiumProvider<br/>→ every gate"]
+  A["Apple receipt<br/><small>yearly, $29.99</small>"] --> B["RevenueCat server validates,<br/>sets expiry, binds to App User ID<br/><small>uid c9Xf…, expires 2027-08-31</small>"]
+  B --> C["CustomerInfo.entitlements.active<br/><small>premium: active</small>"]
+  C --> D["RevenueCatPremiumRepository<br/><small>listener + first read</small>"]
+  D --> E["isPremiumProvider<br/><small>true</small>"]
+  E --> F["hasPremiumProvider → every gate<br/><small>PDF export, drop alerts, unlimited attacks</small>"]
 ```
 
 | Session | App User ID | Set by |
@@ -238,27 +238,27 @@ crossed, and writes down what it did.
 
 ```mermaid
 flowchart TD
-  A["Cloud Scheduler<br/>every 3h, UTC"] --> B["app_access where premium == true<br/>→ Auth getUserByEmail → uid"]
-  A --> C["users where premium == true<br/>(written by the RevenueCat webhook)"]
-  B --> D["Merge, dedupe by uid"]
+  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_access where premium == true<br/>→ Auth getUserByEmail → uid<br/><small>review@baroease.app → uid 7Qk2…</small>"]
+  A --> C["users where premium == true<br/><small>1 842 docs, written by the RevenueCat webhook</small>"]
+  B --> D["Merge, dedupe by uid<br/><small>1 843 → 1 843, one overlap dropped</small>"]
   C --> D
   D --> E{"fcmToken set and<br/>geohash5 is 5 chars?"}
-  E -- "no" --> F["Skipped — nothing to push to"]
-  E -- "yes" --> G["groupByGeohash<br/>one cell, many users"]
-  G --> H["fetchHourlyPressure<br/>at the cell centre"]
-  H -- "throws" --> I["Cell recorded as failed,<br/>run continues"]
-  H --> J["maxDrop24h<br/>drop, eventId = UTC hour of the minimum"]
-  J -- "null" --> K["Cell skipped — no usable reading"]
-  J --> L{"shouldAlert per user:<br/>drop ≥ threshold,<br/>new eventId,<br/>last alert > 24h ago"}
-  L -- "no" --> M["Quiet — the usual outcome"]
-  L -- "yes" --> N["FCM push"]
-  N -- "ok" --> O["users/uid: lastAlertAt,<br/>lastAlertEventId, lastAlertDropHpa"]
-  N -- "token not registered" --> P["fcmToken deleted"]
+  E -- "no" --> F["Skipped<br/><small>211 docs: no token or no location yet</small>"]
+  E -- "yes" --> G["groupByGeohash<br/><small>1 632 users → 87 cells; u2j0k holds 54</small>"]
+  G --> H["fetchHourlyPressure at the cell centre<br/><small>u2j0k → 52.52, 13.40</small>"]
+  H -- "throws" --> I["Cell recorded as failed, run continues<br/><small>failed_cells: gcpvj</small>"]
+  H --> J["maxDrop24h<br/><small>now 1013.2 hPa, min 1006.4 at 06:00Z<br/>→ drop 6.8, eventId 2026-09-01T06</small>"]
+  J -- "null" --> K["Cell skipped<br/><small>nearest hour is 2h off, outside the 90min window</small>"]
+  J --> L{"shouldAlert per user"}
+  L -- "no" --> M["Quiet — the usual outcome<br/><small>threshold 8.0 &gt; drop 6.8</small>"]
+  L -- "yes" --> N["FCM push<br/><small>threshold 5.0, eventId new, last alert 31h ago</small>"]
+  N -- "ok" --> O["users/7Qk2… updated<br/><small>lastAlertDropHpa 6.8,<br/>lastAlertEventId 2026-09-01T06</small>"]
+  N -- "token not registered" --> P["fcmToken deleted<br/><small>messaging/registration-token-not-registered</small>"]
   I --> Q
   K --> Q
   M --> Q
   O --> Q
-  P --> Q["pressure_alert_runs/{startedAt}<br/>written after the catch"]
+  P --> Q["pressure_alert_runs/2026-08-31T18:00:00.000Z<br/><small>status partial, cells 87, pushes_sent 39,<br/>max_drop_hpa 6.8</small>"]
 ```
 
 | Step | What it does | Where |
