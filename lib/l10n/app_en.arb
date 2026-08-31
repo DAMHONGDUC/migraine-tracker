@@ -2622,13 +2622,13 @@
   "@settingsSectionMonitoring": {
     "description": "Settings section heading above the pressure, activity, sleep and home screen widget rows — the surfaces the app watches on the user's behalf. Deliberately not the word \"Tracking\": on the App Store that word means cross-app tracking for advertising, which this app does not do"
   },
-  "settingsSectionHealth": "Apple Health",
-  "@settingsSectionHealth": {
-    "description": "Settings section heading above the Apple Health sleep and step connect switches"
+  "settingsHealthCaptionSteps": "Read-only, from Apple Health. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
+  "@settingsHealthCaptionSteps": {
+    "description": "Privacy line under the steps switch on the Insights activity tab"
   },
-  "settingsHealthCaption": "BaroEase reads your sleep and step count from Apple Health to look for patterns with your attacks. Read-only. Your sleep never leaves this device. The steps from the day of an attack are saved with that attack, so they travel with it into your export and, if you sign in, your encrypted sync.",
-  "@settingsHealthCaption": {
-    "description": "Line under the Apple Health switches in Settings: what is read, that sleep stays put and that an attack's step count travels with it"
+  "settingsHealthCaptionSleep": "Read-only, from Apple Health. Your sleep never leaves this device.",
+  "@settingsHealthCaptionSleep": {
+    "description": "Privacy line under the sleep switch on the Insights sleep tab"
   },
   "settingsSectionData": "Your data",
   "@settingsSectionData": {
@@ -2964,10 +2964,6 @@
   "homeWidgetFailed": "Couldn't update the home screen widget.",
   "@homeWidgetFailed": {
     "description": "Error snackbar when writing the widget's shared data failed"
-  },
-  "dashboardHealthConnect": "Connect",
-  "@dashboardHealthConnect": {
-    "description": "Button on a dashboard health card that opens the screen holding the Apple Health switch"
   },
   "settingsDevPush": "Test push notification (Firebase)",
   "@settingsDevPush": {

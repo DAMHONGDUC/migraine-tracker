@@ -1,36 +1,49 @@
 part of 'activity_card.dart';
 
-/// The free half: the step count, a D/W/M/6M selector, and the bars.
+/// The free half: the Apple Health switch, the step count, a D/W/M/6M
+/// selector, and the bars.
 class _StepsSection extends ConsumerWidget {
   const _StepsSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-
-    // The sheet is raised right here now (owner's call) — the user is looking at the empty reading, so the fix belongs where they look.
-    if (!ref.watch(healthControllerProvider).steps) {
-      return HealthConnectPrompt(
-        kind: HealthDataKind.steps,
-        message: l10n.insightsStepsNotConnected,
-      );
-    }
-
+    final bool connected = ref.watch(healthControllerProvider).steps;
     final HealthRange range = ref.watch(stepRangeProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        HealthRangeSelector(
-          selected: range,
-          onSelected: ref.read(stepRangeProvider.notifier).set,
+        // The switch that fills this card, on the card it fills (owner's call) — it was a Settings row two screens from the chart it turns on.
+        HealthConnectionTile(
+          kind: HealthDataKind.steps,
+          icon: AppIconConstant.steps,
+          title: l10n.healthStepsTitle,
         ),
+        const SdDividerV2(),
         SizedBox(height: SdSpacingConstant.h16),
-        // Today by hour, everything wider by day — a single daily total is one bar, which is not a chart.
-        if (range == HealthRange.day)
-          const _StepHourChart()
-        else
-          _StepDayChart(range: range),
+        if (connected) ...<Widget>[
+          HealthRangeSelector(
+            selected: range,
+            onSelected: ref.read(stepRangeProvider.notifier).set,
+          ),
+          SizedBox(height: SdSpacingConstant.h16),
+          // Today by hour, everything wider by day — a single daily total is one bar, which is not a chart.
+          if (range == HealthRange.day)
+            const _StepHourChart()
+          else
+            _StepDayChart(range: range),
+        ] else
+          // No connect button beside it any more: the switch above IS the button, and two ways to grant one permission is one too many.
+          Text(
+            l10n.insightsStepsNotConnected,
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(
+          l10n.settingsHealthCaptionSteps,
+          style: AppTextStyle.bodySmall.secondary,
+        ),
       ],
     );
   }

@@ -1,52 +1,12 @@
 part of 'pressure_card.dart';
 
 /// The pressure alert, set from the pressure card itself.
-class _AlertControls extends ConsumerStatefulWidget {
+///
+/// It used to scroll itself into view and light up when a door elsewhere asked
+/// for it. Those doors open the sheet directly now, so the row is only ever a
+/// row: nothing to reveal, nothing to consume, no timer to cancel.
+class _AlertControls extends ConsumerWidget {
   const _AlertControls();
-
-  /// How long the row stays lit after being scrolled to. Long enough to find with the eye, short enough not to become part of the design.
-  static const Duration highlightHold = Duration(milliseconds: 1800);
-
-  @override
-  ConsumerState<_AlertControls> createState() => _AlertControlsState();
-}
-
-class _AlertControlsState extends ConsumerState<_AlertControls> {
-  /// Anchors `Scrollable.ensureVisible` on the switch row itself, not on the section — the section's top is already on screen when the card is.
-  final GlobalKey _rowKey = GlobalKey();
-  Timer? _fade;
-  bool _lit = false;
-
-  @override
-  void dispose() {
-    _fade?.cancel();
-    super.dispose();
-  }
-
-  /// Consumes the pending request, scrolls the row up and lights it.
-  void _reveal() {
-    if (!mounted) return;
-
-    ref.read(pressureAlertHighlightProvider.notifier).consume();
-
-    final BuildContext? row = _rowKey.currentContext;
-
-    if (row != null) {
-      Scrollable.ensureVisible(
-        row,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
-        // Centred rather than merely on-screen: the row is the last thing on a tall card, so "just visible" leaves it against the bottom edge.
-        alignment: 0.5,
-      );
-    }
-
-    setState(() => _lit = true);
-    _fade?.cancel();
-    _fade = Timer(_AlertControls.highlightHold, () {
-      if (mounted) setState(() => _lit = false);
-    });
-  }
 
   String _errorMessage(AppLocalizations l10n, Object? error) => switch (error) {
     AlertRegistrationException(:final error) => switch (error) {
@@ -60,29 +20,9 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
     _ => l10n.alertsErrorGeneric,
   };
 
-  Future<void> _edit(
-    BuildContext context,
-    WidgetRef ref,
-    AlertsSettings current,
-  ) async {
-    final AlertsSettings? picked = await AlertThresholdSheet(
-      initial: current,
-      l10n: context.l10n,
-    ).show(context);
-
-    if (picked == null) return;
-
-    await ref.read(alertsControllerProvider.notifier).apply(picked);
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-
-    // Watched, not listened to: the request is usually set before this card is built at all, so a listener would be subscribing to something that has.
-    if (ref.watch(pressureAlertHighlightProvider)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
-    }
 
     ref.listen(alertsControllerProvider, (_, AsyncValue<AlertsSettings> next) {
       if (next.hasError && !next.isLoading) {
@@ -106,34 +46,23 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // No section heading: it said "Pressure-drop alerts" directly above a row whose title said the same thing.
-        AnimatedContainer(
-          key: _rowKey,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: _lit
-                ? context.colorScheme.primary.withValues(alpha: 0.16)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
-          ),
-          // One row for both answers: the switch and the threshold row said the same thing twice, and the sheet behind this one now owns them together.
-          child: _AlertRow(
-            icon: AppIconConstant.reminderActive,
-            title: l10n.alertsToggleTitle,
-            onTap: () => _edit(context, ref, settings),
-            // The state and its number as a tag — coloured by the threshold, so the row says how sensitive the alert is before it is read.
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                AlertSummaryTag(settings: settings),
-                SizedBox(width: SdSpacingConstant.w4),
-                SdIconV2(
-                  icon: AppIconConstant.disclosure,
-                  size: AppIconSize.small,
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
+        // One row for both answers: the switch and the threshold row said the same thing twice, and the sheet behind this one now owns them together.
+        _AlertRow(
+          icon: AppIconConstant.reminderActive,
+          title: l10n.alertsToggleTitle,
+          onTap: () => AlertThresholdEditor.open(context, ref),
+          // The state and its number as a tag — coloured by the threshold, so the row says how sensitive the alert is before it is read.
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              AlertSummaryTag(settings: settings),
+              SizedBox(width: SdSpacingConstant.w4),
+              SdIconV2(
+                icon: AppIconConstant.disclosure,
+                size: AppIconSize.small,
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ],
           ),
         ),
         SizedBox(height: SdSpacingConstant.h12),
@@ -169,7 +98,7 @@ class _AlertRow extends StatelessWidget {
   /// The whole row opens the sheet — there is no control inside it to fight over the tap.
   final VoidCallback onTap;
 
-  /// Fixed, so the highlight the doors ask for lands on a row of a known height whatever it holds.
+  /// Fixed, so the row keeps its height whatever it holds.
   static double get height => SdSpacingConstant.h44;
 
   @override
@@ -177,28 +106,25 @@ class _AlertRow extends StatelessWidget {
     // ConstrainedBox, not a Container with an `alignment`: that one sizes through Align, whose height under an unbounded parent depends on its child.
     final Widget row = ConstrainedBox(
       constraints: BoxConstraints(minHeight: height),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w8),
-        child: Row(
-          children: <Widget>[
-            SdIconV2(
-              icon: icon,
-              size: AppIconSize.medium,
-              color: context.colorScheme.onSurfaceVariant,
+      child: Row(
+        children: <Widget>[
+          SdIconV2(
+            icon: icon,
+            size: AppIconSize.medium,
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+          SizedBox(width: SdSpacingConstant.w12),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.bodyLarge,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(width: SdSpacingConstant.w12),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTextStyle.bodyLarge,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(width: SdSpacingConstant.w8),
-            trailing,
-          ],
-        ),
+          ),
+          SizedBox(width: SdSpacingConstant.w8),
+          trailing,
+        ],
       ),
     );
 

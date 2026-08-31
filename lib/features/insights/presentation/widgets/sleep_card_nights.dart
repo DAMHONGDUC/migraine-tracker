@@ -1,21 +1,14 @@
 part of 'sleep_card.dart';
 
-/// The free half: last night, the range selector, and the nights behind it.
+/// The free half: the Apple Health switch, last night, the range selector, and
+/// the nights behind it.
 class _NightsSection extends ConsumerWidget {
   const _NightsSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-
-    // The sheet is raised right here now (owner's call), same as steps.
-    if (!ref.watch(healthControllerProvider).sleep) {
-      return HealthConnectPrompt(
-        kind: HealthDataKind.sleep,
-        message: l10n.insightsSleepNotConnected,
-      );
-    }
-
+    final bool connected = ref.watch(healthControllerProvider).sleep;
     final HealthRange range = ref.watch(sleepRangeProvider);
     final List<SleepNight> nights =
         ref.watch(rangedSleepNightsProvider).value ?? const <SleepNight>[];
@@ -24,20 +17,39 @@ class _NightsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        HealthRangeSelector(
-          selected: range,
-          onSelected: ref.read(sleepRangeProvider.notifier).set,
+        // Same move as steps: the switch sits on the card it fills, not in Settings.
+        HealthConnectionTile(
+          kind: HealthDataKind.sleep,
+          icon: AppIconConstant.sleep,
+          title: l10n.healthSleepTitle,
         ),
+        const SdDividerV2(),
         SizedBox(height: SdSpacingConstant.h16),
-        _Headline(nights: nights, range: range),
-        SizedBox(height: SdSpacingConstant.h16),
-        HealthRangeChart(
-          buckets: buckets,
-          range: range,
-          color: AppColors.chartSeries,
-          tooltip: (num value) =>
-              Duration(minutes: (value * 60).round()).label(l10n),
-          semanticsLabel: l10n.a11ySleepSummaryChart(buckets.length),
+        if (connected) ...<Widget>[
+          HealthRangeSelector(
+            selected: range,
+            onSelected: ref.read(sleepRangeProvider.notifier).set,
+          ),
+          SizedBox(height: SdSpacingConstant.h16),
+          _Headline(nights: nights, range: range),
+          SizedBox(height: SdSpacingConstant.h16),
+          HealthRangeChart(
+            buckets: buckets,
+            range: range,
+            color: AppColors.chartSeries,
+            tooltip: (num value) =>
+                Duration(minutes: (value * 60).round()).label(l10n),
+            semanticsLabel: l10n.a11ySleepSummaryChart(buckets.length),
+          ),
+        ] else
+          Text(
+            l10n.insightsSleepNotConnected,
+            style: AppTextStyle.bodyMedium.secondary,
+          ),
+        SizedBox(height: SdSpacingConstant.h12),
+        Text(
+          l10n.settingsHealthCaptionSleep,
+          style: AppTextStyle.bodySmall.secondary,
         ),
       ],
     );

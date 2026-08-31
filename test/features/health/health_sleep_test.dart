@@ -79,7 +79,7 @@ void main() {
         premium: true,
         healthAvailable: true,
       );
-      await openSleepScreen(tester);
+      await openSleepTab(tester);
 
       await tapVisible(tester, healthSwitch());
       await tester.pump(const Duration(milliseconds: 100));
@@ -103,7 +103,7 @@ void main() {
         healthAvailable: true,
       );
       app.health.authorizes = false;
-      await openSleepScreen(tester);
+      await openSleepTab(tester);
 
       await tapVisible(tester, healthSwitch());
       await tester.pump(const Duration(milliseconds: 100));
@@ -133,7 +133,7 @@ void main() {
           PrefsKeyConstant.healthConnected: true,
         },
       );
-      await openSleepScreen(tester);
+      await openSleepTab(tester);
 
       expect(tester.widget<SwitchListTile>(healthSwitch()).value, isTrue);
       expect(app.health.authorizationRequests, 0);

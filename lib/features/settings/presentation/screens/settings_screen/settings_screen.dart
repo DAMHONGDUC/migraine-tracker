@@ -16,7 +16,6 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
 import '../../../../../core/widgets/sections/alerts_settings_tile.dart';
-import '../../../../../core/widgets/sections/health_connection_tile.dart';
 import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';
@@ -30,8 +29,6 @@ import '../../../../alerts/providers.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
-import '../../../../health/domain/enums/health_data_kind.dart';
-import '../../../../health/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../weather/domain/enums/dev_location.dart';
@@ -51,7 +48,6 @@ part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
-part 'settings_screen_health_section.dart';
 part 'settings_screen_monitoring_section.dart';
 
 /// Five groups: "General" is the app itself, "Monitoring" is what it watches on your behalf, "Apple Health" is what it reads from elsewhere, "Your.
@@ -95,11 +91,6 @@ class SettingsScreen extends ConsumerWidget {
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),
             const _MonitoringSection(),
-            // Its own group, right under Monitoring.
-            if (ref.watch(healthAvailableProvider)) ...<Widget>[
-              SdSectionHeaderV2(l10n.settingsSectionHealth),
-              const _HealthSection(),
-            ],
             SdSectionHeaderV2(l10n.settingsSectionData),
             const _DataSection(),
             // Diagnostic info — always last, so a bug report always names its build.

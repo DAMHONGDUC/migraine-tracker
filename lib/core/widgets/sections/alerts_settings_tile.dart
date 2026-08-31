@@ -31,8 +31,7 @@ class AlertsSettingsTile extends ConsumerWidget {
         icon: AppIconConstant.reminderActive,
         title: context.l10n.alertsToggleTitle,
         valueTag: AlertSummaryTag(settings: settings),
-        onTap: () =>
-            NavigationUtils.toPressure(context, ref, highlightAlert: true),
+        onTap: () => NavigationUtils.toPressureAlert(context, ref),
       ),
     );
   }

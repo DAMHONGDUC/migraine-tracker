@@ -10,6 +10,7 @@ import '../../features/premium/providers.dart';
 import '../analytics/app_analytics.dart';
 import '../constants/premium_limit_constant.dart';
 import '../extensions/context_extensions.dart';
+import '../widgets/alert_threshold_sheet.dart';
 import '../widgets/record_limit_dialog.dart';
 import 'app_router.dart';
 
@@ -60,15 +61,29 @@ final class NavigationUtils {
   }
 
   /// Insights, with the pressure card showing.
-  static void toPressure(
+  static void toPressure(BuildContext context, WidgetRef ref) =>
+      toInsights(context, ref, InsightsTab.pressure);
+
+  /// A door that means *alerts*: the pressure tab, with the threshold sheet
+  /// already open on top of it (owner's call).
+  ///
+  /// It used to land on the tab and light the alert row up, which asked the
+  /// user to find a highlight and then tap it — two steps to reach the thing
+  /// the door was named after. The sheet over the tab is the same destination
+  /// with neither step.
+  ///
+  /// **Only with premium**, and the check lives here rather than at each door:
+  /// without it the card renders a pitch and no controls, so a sheet over it
+  /// would be editing something the user cannot have.
+  static Future<void> toPressureAlert(
     BuildContext context,
-    WidgetRef ref, {
-    bool highlightAlert = false,
-  }) {
-    if (highlightAlert && ref.read(hasPremiumProvider)) {
-      ref.read(pressureAlertHighlightProvider.notifier).request();
-    }
-    toInsights(context, ref, InsightsTab.pressure);
+    WidgetRef ref,
+  ) async {
+    toPressure(context, ref);
+
+    if (!ref.read(hasPremiumProvider) || !context.mounted) return;
+
+    await AlertThresholdEditor.open(context, ref);
   }
 
   /// One notification in full. Both the list's rows and a tapped OS notification land here, so the route's path parameter is named once.

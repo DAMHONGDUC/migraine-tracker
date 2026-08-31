@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
@@ -17,7 +15,6 @@ import '../../../alerts/domain/enums/alert_registration_error.dart';
 import '../../../alerts/providers.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
-import '../../providers.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
 import 'pressure_forecast_body.dart';

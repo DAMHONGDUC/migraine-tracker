@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../features/alerts/domain/entities/alert_threshold_range.dart';
 import '../../features/alerts/domain/entities/alerts_settings.dart';
+import '../../features/alerts/providers.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../extensions/context_extensions.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_icon_constant.dart';
 import '../theme/app_icon_size.dart';
@@ -263,4 +266,34 @@ extension AlertThresholdSheetExt on AlertThresholdSheet {
         isScrollControlled: true,
         builder: (_) => this,
       );
+}
+
+/// Opening the sheet and applying what it comes back with, in one place.
+///
+/// Four doors reach it now — the Settings row, the dashboard shortcut, the
+/// alerts section and the pressure card's own row — and the two steps have to
+/// stay together: a sheet opened without the apply silently discards the
+/// answer, which looks exactly like a save that worked.
+///
+/// A static holder rather than a top-level function, because `showX()` at
+/// file scope is what the sheet rules forbid; this is not a presenter anyway
+/// — [AlertThresholdSheetExt.show] is.
+final class AlertThresholdEditor {
+  const AlertThresholdEditor._();
+
+  static Future<void> open(BuildContext context, WidgetRef ref) async {
+    // Whatever the controller last settled on. Null is a read still in flight — there is nothing to seed the sheet with, and a default would be a number the user never chose.
+    final AlertsSettings? current = ref.read(alertsControllerProvider).value;
+
+    if (current == null) return;
+
+    final AlertsSettings? picked = await AlertThresholdSheet(
+      initial: current,
+      l10n: context.l10n,
+    ).show(context);
+
+    if (picked == null) return;
+
+    await ref.read(alertsControllerProvider.notifier).apply(picked);
+  }
 }

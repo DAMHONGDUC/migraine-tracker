@@ -30,7 +30,6 @@ import 'domain/services/step_correlation_engine.dart';
 import 'domain/services/trigger_verdict_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
 import 'presentation/controllers/insights_tab_controller.dart';
-import 'presentation/controllers/pressure_alert_highlight_controller.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold becomes user-tunable in the alerts phase.
 final correlationEngineProvider = Provider<CorrelationEngine>(
@@ -278,8 +277,3 @@ final insightsTabProvider =
       InsightsTabController.new,
     );
 
-/// Whether the pressure card should scroll to its alert row and light it up. See [PressureAlertHighlightController].
-final pressureAlertHighlightProvider =
-    NotifierProvider<PressureAlertHighlightController, bool>(
-      PressureAlertHighlightController.new,
-    );

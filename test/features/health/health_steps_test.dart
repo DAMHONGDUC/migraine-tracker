@@ -89,7 +89,7 @@ void main() {
         premium: true,
         healthAvailable: true,
       );
-      await openActivityScreen(tester);
+      await openActivityTab(tester);
 
       await tapVisible(
         tester,

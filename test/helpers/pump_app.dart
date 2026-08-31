@@ -873,15 +873,17 @@ Future<void> openExportScreen(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Settings → Sleep. Carries the sleep insight and its connect switch.
-Future<void> openSleepScreen(WidgetTester tester) async {
+/// Settings → Sleep, which now selects Insights' sleep tab rather than
+/// pushing a screen of its own.
+Future<void> openSleepTab(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Sleep'));
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Settings → Activity. Carries the exertion report, the step insight and the step connect switch.
-Future<void> openActivityScreen(WidgetTester tester) async {
+/// Settings → Activity, which now selects Insights' activity tab rather than
+/// pushing a screen of its own.
+Future<void> openActivityTab(WidgetTester tester) async {
   await openSettings(tester);
   await tapVisible(tester, find.text('Activity'));
   await tester.pump(const Duration(milliseconds: 400));

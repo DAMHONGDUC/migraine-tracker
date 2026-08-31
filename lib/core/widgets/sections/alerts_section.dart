@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../features/alerts/domain/entities/alerts_settings.dart';
 import '../../../features/alerts/domain/enums/alert_registration_error.dart';
 import '../../../features/alerts/providers.dart';
 import '../../../features/premium/providers.dart';
@@ -29,21 +28,6 @@ class AlertsSection extends ConsumerWidget {
     },
     _ => l10n.alertsErrorGeneric,
   };
-
-  Future<void> _edit(
-    BuildContext context,
-    WidgetRef ref,
-    AlertsSettings current,
-  ) async {
-    final AlertsSettings? picked = await AlertThresholdSheet(
-      initial: current,
-      l10n: context.l10n,
-    ).show(context);
-
-    if (picked == null) return;
-
-    await ref.read(alertsControllerProvider.notifier).apply(picked);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,7 +61,7 @@ class AlertsSection extends ConsumerWidget {
       icon: AppIconConstant.reminderActive,
       title: l10n.alertsToggleTitle,
       valueTag: AlertSummaryTag(settings: settings),
-      onTap: () => _edit(context, ref, settings),
+      onTap: () => AlertThresholdEditor.open(context, ref),
     );
   }
 }
