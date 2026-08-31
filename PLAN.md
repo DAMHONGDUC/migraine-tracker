@@ -89,7 +89,7 @@ Release blockers are tracked only in
 | 2 | A 3-hour cron groups users by geohash |
 | 3 | The backend requests one WeatherKit forecast per cell |
 | 4 | A drop at or above the threshold sends FCM |
-| 5 | Dedupe limits each user to 2 alerts a day, 12h apart, one per event |
+| 5 | Dedupe limits each user to 3 alerts a day, 8h apart, one per event |
 | 6 | An alert landing in the user's local night (22:00-07:00) is sent silently |
 
 ## Privacy boundaries

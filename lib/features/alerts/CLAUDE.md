@@ -81,12 +81,12 @@ readable without opening anything.
   so the other order would register the old number and leave the server
   disagreeing with the slider the user just moved.
 - **The sheet says what the number is measured against.** A threshold is a delta
-  over the 24h forecast, not an absolute pressure, and it is capped at two
+  over the 24h forecast, not an absolute pressure, and it is capped at three
   pushes a day — without both, 3 hPa reads as a promise to be woken hourly. The
   copy is `alertsSheetFormula`, `alertsSheetRange`, `alertsSheetLimit` and
   `alertsSheetQuietHours`.
-  - **The night line is its own line, not folded into the cap.** "Two a day" is
-    about how often; "no sound at night" is about being woken, and someone
+  - **The night line is its own line, not folded into the cap.** "Three a day"
+    is about how often; "no sound at night" is about being woken, and someone
     deciding whether to turn alerts on at all is reading for the second.
 - **Under the rule sits one worked case, and its numbers move with the slider.**
   `AlertThresholdSheet.exampleHpa` (1013, the standard atmosphere) minus the
@@ -97,13 +97,14 @@ readable without opening anything.
     weather to hand: reading one would fire a fetch — and on Settings a location
     prompt — for a line of explanation.
 
-## Two a day, and never a sound at night
+## Three a day, and never a sound at night
 
-**`MIN_PUSH_GAP_MS` is 12h, which is what caps a user at two pushes a day**
-(`functions/src/core/alerts.ts`). It was 24h, and a front arriving in the
-morning and a second one that evening are different warnings — the old window
-threw the second away silently. The per-event check is unchanged and still does
-the other half: the same front never fires twice, however long the gap.
+**`MIN_PUSH_GAP_MS` is 8h, which is what caps a user at three pushes a day**
+(`functions/src/core/alerts.ts`). It was 24h, then 12h: a morning front, an
+afternoon one and an evening one are three different warnings, and a wider
+window threw the later ones away silently. The per-event check is unchanged and
+still does the other half: the same front never fires twice, however long the
+gap.
 
 **A push landing between 22:00 and 07:00 in the user's own time carries no
 `sound` key**, plus `interruption-level: passive` so it waits on the lock
