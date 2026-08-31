@@ -46,10 +46,29 @@ the 3-10 hPa slider and the explanation. Every row that leads to it —
 `AlertsSettingsLabel.summary` ("On · 5 hPa"), so the state and its number are
 readable without opening anything.
 
-- **Nothing applies until the header tick.** The switch inside the sheet is local
-  state: registering the device on the way past would make the X a lie, and
-  registration is the step that asks for notification permission and a location
-  fix.
+- **`AlertThresholdRange` owns the range, and nothing else may.** 2-20 hPa,
+  whole numbers, default 5 — `domain/entities/`, so the sheet, the onboarding
+  page and the controller's fallback all read the same numbers. It was two
+  copies of `3` and `10`, which is two chances for the picker a user starts on
+  and the one they come back to to disagree.
+  - **2 is the floor because below it a 24h drop is ordinary weather** almost
+    everywhere, and the alert would be firing on the dedupe window rather than
+    on a front. **20 is the ceiling because past it nobody would ever be
+    alerted** — a setting that only looks like a choice.
+  - **The threshold can be typed as well as dragged.** 19 stops is a lot to hit
+    with a thumb, and a field is the only way in for someone who cannot drag.
+    `AlertThresholdRange.parse` is the one validator and is unit-tested;
+    `FilteringTextInputFormatter.digitsOnly` refuses the shape (a decimal point
+    cannot be typed), the error line states the meaning (out of range).
+  - **Refused input disables the commit, it does not hide it**, and the slider
+    keeps the last good value — there is always something to go back to.
+  - **A stored threshold is clamped onto the slider** (`clamp`): a value written
+    under a different range would be handed to `Slider` outside its bounds,
+    which throws rather than degrading.
+- **Nothing applies until the button at the bottom.** The switch inside the
+  sheet is local state: registering the device on the way past would make the X
+  a lie, and registration is the step that asks for notification permission and
+  a location fix.
 - **`AlertsController.apply` writes the threshold first, then the switch.**
   `setEnabled(true)` registers with the threshold it reads off the current state,
   so the other order would register the old number and leave the server
