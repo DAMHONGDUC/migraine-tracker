@@ -244,6 +244,23 @@ is composed, what a chart should say. Take that; leave the tokens.
   the glass circle — an action that is not one passes through undecorated.
   `IconButton` is still fine inside content: list rows, text-field suffixes.
 
+## Tags
+
+- **A state worth reading at a glance is an `SdTagV2`, not a line of grey
+  text** — the alert row's "On · 7 hPa", the `PremiumBadge`. One tinted pill,
+  the label's own colour at `SdTagV2.fillOpacity`, never a foreground and a
+  background that can drift apart. **Never hand-roll the pill again**: both of
+  those were separate copies of the same `Container` before this widget existed.
+- **The colour carries the meaning, and it comes from a ramp the app already
+  owns.** `AlertSummaryTag` tints itself with `AppColors.intensity` at the
+  chosen threshold — the same ramp the slider that sets it uses — so the row and
+  the control behind it cannot say different things about one number. Off sits
+  off that ramp on `onSurfaceVariant`: a threshold nothing acts on has no
+  severity, and green there would read as "all good".
+- **A tag stands where a value string would, and the chevron stays.**
+  `SettingsTile.valueTag` is that slot; `trailing` replaces the whole cluster
+  and takes the chevron with it.
+
 ## Sheets and dialogs
 
 - **Every sheet wears `SdSheetHeaderV2`**: X on the left that leaves, title
