@@ -60,19 +60,19 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
     _ => l10n.alertsErrorGeneric,
   };
 
-  Future<void> _pickThreshold(
+  Future<void> _edit(
     BuildContext context,
     WidgetRef ref,
-    double current,
+    AlertsSettings current,
   ) async {
-    final double? picked = await AlertThresholdDialog(
+    final AlertsSettings? picked = await AlertThresholdSheet(
       initial: current,
       l10n: context.l10n,
     ).show(context);
 
     if (picked == null) return;
 
-    await ref.read(alertsControllerProvider.notifier).setThreshold(picked);
+    await ref.read(alertsControllerProvider.notifier).apply(picked);
   }
 
   @override
@@ -116,44 +116,37 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
           ),
+          // One row for both answers: the switch and the threshold row said the same thing twice, and the sheet behind this one now owns them together.
           child: _AlertRow(
             icon: AppIconConstant.reminderActive,
             title: l10n.alertsToggleTitle,
-            trailing: Switch(
-              // Without this the switch brings Material's 48pt tap target with it,.
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              value: settings.enabled,
-              onChanged: ref.read(alertsControllerProvider.notifier).setEnabled,
+            onTap: () => _edit(context, ref, settings),
+            // The state and its number, then the chevron that says both can be changed.
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  settings.summary(l10n),
+                  style: AppTextStyle.bodyMedium.secondary,
+                ),
+                SizedBox(width: SdSpacingConstant.w4),
+                SdIconV2(
+                  icon: AppIconConstant.disclosure,
+                  size: AppIconSize.small,
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ],
             ),
-          ),
-        ),
-        const SdDividerV2(),
-        _AlertRow(
-          icon: AppIconConstant.pressure,
-          title: l10n.alertsThresholdTitle,
-          onTap: () => _pickThreshold(context, ref, threshold),
-          // The value, then the chevron that says it can be changed.
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                l10n.onboardingThresholdValue(threshold.round()),
-                style: AppTextStyle.bodyMedium.secondary,
-              ),
-              SizedBox(width: SdSpacingConstant.w4),
-              SdIconV2(
-                icon: AppIconConstant.disclosure,
-                size: AppIconSize.small,
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ],
           ),
         ),
         SizedBox(height: SdSpacingConstant.h12),
         Text(
-          l10n.weatherAlertActiveBody(
-            l10n.onboardingThresholdValue(threshold.round()),
-          ),
+          // Only while it is actually on: read under an off switch it describes something that is not happening.
+          settings.enabled
+              ? l10n.weatherAlertActiveBody(
+                  l10n.onboardingThresholdValue(threshold.round()),
+                )
+              : l10n.weatherAlertLockedBody,
           style: AppTextStyle.bodySmall.secondary,
         ),
       ],
@@ -161,13 +154,13 @@ class _AlertControlsState extends ConsumerState<_AlertControls> {
   }
 }
 
-/// One alert setting: glyph and name on the left, whatever changes it on the right.
+/// The alert setting: glyph and name on the left, where it stands on the right.
 class _AlertRow extends StatelessWidget {
   const _AlertRow({
     required this.icon,
     required this.title,
     required this.trailing,
-    this.onTap,
+    required this.onTap,
   });
 
   final IconData icon;
@@ -176,10 +169,10 @@ class _AlertRow extends StatelessWidget {
   final String title;
   final Widget trailing;
 
-  /// Null for a row whose control is the whole interaction — tapping the label of a switch row would be a second, invisible way to toggle it.
-  final VoidCallback? onTap;
+  /// The whole row opens the sheet — there is no control inside it to fight over the tap.
+  final VoidCallback onTap;
 
-  /// Both rows are exactly this tall, whatever they hold.
+  /// Fixed, so the highlight the doors ask for lands on a row of a known height whatever it holds.
   static double get height => SdSpacingConstant.h44;
 
   @override
@@ -211,8 +204,6 @@ class _AlertRow extends StatelessWidget {
         ),
       ),
     );
-
-    if (onTap == null) return row;
 
     return InkWell(
       onTap: onTap,

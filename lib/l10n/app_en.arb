@@ -1635,6 +1635,31 @@
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"
   },
+  "alertsSummaryOn": "On · {value}",
+  "@alertsSummaryOn": {
+    "description": "Alerts row value when alerts are on: the state and the threshold together",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsSheetHowTitle": "How it works",
+  "@alertsSheetHowTitle": {
+    "description": "Heading of the explanation block in the alert threshold sheet"
+  },
+  "alertsSheetFormula": "We compare the pressure now with the lowest pressure forecast for the next 24 hours. You are alerted when that fall reaches your threshold.",
+  "@alertsSheetFormula": {
+    "description": "Explains what the threshold is measured against — the drop from now to the 24h forecast low"
+  },
+  "alertsSheetRange": "3 hPa catches ordinary weather fronts; 10 hPa only the strongest. Most people start at 5.",
+  "@alertsSheetRange": {
+    "description": "Explains what the two ends of the 3-10 hPa slider mean"
+  },
+  "alertsSheetLimit": "One alert per 24 hours at most, and never twice for the same pressure drop.",
+  "@alertsSheetLimit": {
+    "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
+  },
   "alertsErrorAccount": "Sign in and unlock Premium to get pressure alerts.",
   "@alertsErrorAccount": {
     "description": "Shown when alerts are enabled without a signed-in account. Alerts need premium and premium needs an account, so both are named"

@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/extensions/alerts_settings_label.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
-import '../../../../core/widgets/alert_threshold_dialog.dart';
+import '../../../../core/widgets/alert_threshold_sheet.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/domain/entities/alerts_settings.dart';

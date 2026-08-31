@@ -19,6 +19,21 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     );
   }
 
+  /// Applies what the threshold sheet came back with.
+  ///
+  /// Threshold first, and that order is the point: `setEnabled(true)`
+  /// registers the device with the threshold it reads off the current state,
+  /// so writing the number second would register the old one and leave the
+  /// server disagreeing with the slider the user just moved.
+  Future<void> apply(AlertsSettings next) async {
+    final AlertsSettings current = state.requireValue;
+
+    if (next.thresholdHpa != current.thresholdHpa) {
+      await setThreshold(next.thresholdHpa);
+    }
+    if (next.enabled != current.enabled) await setEnabled(next.enabled);
+  }
+
   Future<void> setEnabled(bool enabled) async {
     final current = state.requireValue;
 
