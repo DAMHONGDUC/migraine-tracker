@@ -109,6 +109,13 @@ is composed, what a chart should say. Take that; leave the tokens.
   whatever they hold, and `onTap` clips its own ink to the radius.
   `SdChartCardV2` and `SdBannerV2` compose it; `ThemeData.cardTheme` is a
   backstop for any `Card` Flutter builds internally, same colour, zero margin.
+- **A bordered box is drawn with `SdOutlineV2`, never a hand-rolled
+  `Border.all`.** One width, one radius, and a colour that is the secondary text
+  colour at `SdOutlineV2.opacity` rather than a slot of its own — a border is the
+  quietest thing on a surface, and its own palette entry would invite it to drift
+  from the text it frames. `SdTextFieldV2` and the Insights health switch read
+  the same three values, so a field and the row beside it cannot come out a
+  different grey.
 - **A divider inside a card runs edge to edge, never inset by the card's
   gutter** (owner's rule). Inset, it reads as a line under the column above it;
   full width, it reads as the break between two sections, which is what every
