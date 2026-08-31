@@ -1655,6 +1655,34 @@
       }
     }
   },
+  "alertsRangeMinLabel": "Lowest",
+  "@alertsRangeMinLabel": {
+    "description": "Label above the field setting the low end of the threshold slider"
+  },
+  "alertsRangeMaxLabel": "Highest",
+  "@alertsRangeMaxLabel": {
+    "description": "Label above the field setting the high end of the threshold slider"
+  },
+  "alertsThresholdFieldLabel": "Alert at",
+  "@alertsThresholdFieldLabel": {
+    "description": "Label above the field holding the threshold itself"
+  },
+  "alertsRangeOrderInvalid": "The lowest must be below the highest.",
+  "@alertsRangeOrderInvalid": {
+    "description": "Shared error line when the typed low end is not below the high end"
+  },
+  "alertsThresholdOutsideRange": "The threshold has to sit between {min} and {max} hPa.",
+  "@alertsThresholdOutsideRange": {
+    "description": "Shared error line when the threshold falls outside the typed ends",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "alertsSummaryOn": "On · {value}",
   "@alertsSummaryOn": {
     "description": "Alerts row value when alerts are on: the state and the threshold together",

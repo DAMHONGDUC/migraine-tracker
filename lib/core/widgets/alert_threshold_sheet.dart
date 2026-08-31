@@ -44,41 +44,89 @@ class AlertThresholdSheet extends StatefulWidget {
 class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
   late bool _enabled = widget.initial.enabled;
 
+  /// The slider's own ends. They start at the whole allowed range and the user
+  /// may narrow them: 19 stops across a phone is coarse under a thumb, and
+  /// someone who only cares about 5-10 gets five times the precision by saying
+  /// so. They are a view control — how the slider is scaled — and are not
+  /// stored, because nothing outside this sheet reads them.
+  late double _min = AlertThresholdRange.min;
+  late double _max = AlertThresholdRange.max;
+
   /// Clamped: a threshold stored under a different range would be handed to
   /// the slider outside its bounds, which throws rather than degrading.
   late double _value = AlertThresholdRange.clamp(widget.initial.thresholdHpa);
 
-  late final TextEditingController _field = TextEditingController(
+  late final TextEditingController _minField = TextEditingController(
+    text: '${_min.round()}',
+  );
+  late final TextEditingController _maxField = TextEditingController(
+    text: '${_max.round()}',
+  );
+  late final TextEditingController _valueField = TextEditingController(
     text: '${_value.round()}',
   );
 
-  /// True while the field holds something the range refuses. The slider keeps
-  /// the last good value, so there is always something to go back to.
-  bool _invalid = false;
+  /// The one line all three fields share, or null while they agree. One line
+  /// rather than one per field: the rules are *between* the three — an order
+  /// and a containment — so an error under whichever box was typed into last
+  /// would be describing the pair rather than the box.
+  String? _error;
 
   @override
   void dispose() {
-    _field.dispose();
+    _minField.dispose();
+    _maxField.dispose();
+    _valueField.dispose();
     super.dispose();
   }
 
-  /// Typed. The slider follows valid input and ignores the rest.
-  void _onTyped(String text) {
-    final double? parsed = AlertThresholdRange.parse(text);
+  /// Re-reads all three boxes after any of them changed, and either applies
+  /// them together or leaves the last good numbers alone with a message.
+  void _onTyped() {
+    final AppLocalizations l10n = widget.l10n;
+    final int? min = int.tryParse(_minField.text.trim());
+    final int? max = int.tryParse(_maxField.text.trim());
+    final int? value = int.tryParse(_valueField.text.trim());
 
     setState(() {
-      _invalid = parsed == null;
-      if (parsed != null) _value = parsed;
+      if (min == null ||
+          max == null ||
+          value == null ||
+          !AlertThresholdRange.contains(min) ||
+          !AlertThresholdRange.contains(max) ||
+          !AlertThresholdRange.contains(value)) {
+        _error = l10n.alertsThresholdInvalid(
+          AlertThresholdRange.min.round(),
+          AlertThresholdRange.max.round(),
+        );
+
+        return;
+      }
+      if (min >= max) {
+        _error = l10n.alertsRangeOrderInvalid;
+
+        return;
+      }
+      if (value < min || value > max) {
+        _error = l10n.alertsThresholdOutsideRange(min, max);
+
+        return;
+      }
+
+      _error = null;
+      _min = min.toDouble();
+      _max = max.toDouble();
+      _value = value.toDouble();
     });
   }
 
-  /// Dragged. The field follows, cursor at the end so a keyboard left open
-  /// does not park it mid-number.
+  /// Dragged. Only the threshold's own box follows, cursor at the end so a
+  /// keyboard left open does not park it mid-number.
   void _onDragged(double value) {
     setState(() {
       _value = value;
-      _invalid = false;
-      _field.value = TextEditingValue(
+      _error = null;
+      _valueField.value = TextEditingValue(
         text: '${value.round()}',
         selection: TextSelection.collapsed(offset: '${value.round()}'.length),
       );
@@ -93,10 +141,10 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
     return SdSheetContentV2(
       title: l10n.alertsScreenTitle,
       closeTooltip: l10n.commonClose,
-      // Both fields already have a value, even a fresh install's default.
+      // Everything here already has a value, even a fresh install's default.
       confirmLabel: l10n.commonUpdate,
-      // Null while the field is refused: SdSheetContentV2 disables the button rather than hiding it, so nothing moves and the error under the field is what explains it.
-      onConfirm: _invalid
+      // Null while any field is refused: SdSheetContentV2 disables the button rather than hiding it, so nothing moves and the line under the fields is what explains it.
+      onConfirm: _error != null
           ? null
           : () => Navigator.of(context).pop(
               AlertsSettings(enabled: _enabled, thresholdHpa: _value),
@@ -124,35 +172,64 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           SdValueSliderV2(
             label: reading,
             value: _value,
-            min: AlertThresholdRange.min,
-            max: AlertThresholdRange.max,
-            divisions: AlertThresholdRange.divisions,
+            min: _min,
+            max: _max,
+            divisions: AlertThresholdRange.divisionsBetween(_min, _max),
             // A bigger drop is worth warning more, so it reads redder as it climbs — the same ramp the onboarding page sets it on.
             accent: AppColors.intensity(_value.round()),
             onChanged: _onDragged,
-            // Typed as well as dragged: 19 stops is a lot to hit with a thumb, and a field is the only way in for someone who cannot drag at all.
-            readout: SizedBox(
-              width: SdSpacingConstant.w160,
-              child: SdTextFieldV2(
-                controller: _field,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                // Digits only, so a decimal point cannot be typed at all — the range refuses halves and an error is a worse way to say so than a key that does nothing.
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                suffix: Text(
-                  l10n.commonHpaUnit,
-                  style: AppTextStyle.bodyMedium.secondary,
+            // Typed as well as dragged, and the ends are typed too: a thumb on 19 stops is coarse, and a field is the only way in for someone who cannot drag at all.
+            readout: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Row(
+                  // The boxes line up on their bottoms, so the unit beside them sits on the same line whatever the labels above do.
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Expanded(
+                      child: _NumberField(
+                        label: l10n.alertsRangeMinLabel,
+                        controller: _minField,
+                        onChanged: _onTyped,
+                      ),
+                    ),
+                    SizedBox(width: SdSpacingConstant.w8),
+                    Expanded(
+                      child: _NumberField(
+                        label: l10n.alertsThresholdFieldLabel,
+                        controller: _valueField,
+                        onChanged: _onTyped,
+                      ),
+                    ),
+                    SizedBox(width: SdSpacingConstant.w8),
+                    Expanded(
+                      child: _NumberField(
+                        label: l10n.alertsRangeMaxLabel,
+                        controller: _maxField,
+                        onChanged: _onTyped,
+                      ),
+                    ),
+                    SizedBox(width: SdSpacingConstant.w8),
+                    // Outside the boxes: all three carry the same unit, and one word beside them says it once instead of stealing width from every digit three times over.
+                    Padding(
+                      padding: EdgeInsets.only(bottom: SdSpacingConstant.h12),
+                      child: Text(
+                        l10n.commonHpaUnit,
+                        style: AppTextStyle.bodyMedium.secondary,
+                      ),
+                    ),
+                  ],
                 ),
-                errorText: _invalid
-                    ? l10n.alertsThresholdInvalid(
-                        AlertThresholdRange.min.round(),
-                        AlertThresholdRange.max.round(),
-                      )
-                    : null,
-                onChanged: _onTyped,
-              ),
+                if (_error != null) ...<Widget>[
+                  SizedBox(height: SdSpacingConstant.h8),
+                  Text(
+                    _error!,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: context.colorScheme.error,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           Text(l10n.alertsSheetRange, style: AppTextStyle.bodySmall.secondary),
@@ -171,6 +248,36 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           Text(l10n.alertsSheetLimit, style: AppTextStyle.bodySmall.secondary),
         ],
       ),
+    );
+  }
+}
+
+/// One of the three boxes: a whole number, nothing else typeable.
+class _NumberField extends StatelessWidget {
+  const _NumberField({
+    required this.label,
+    required this.controller,
+    required this.onChanged,
+  });
+
+  /// Already localized.
+  final String label;
+  final TextEditingController controller;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SdTextFieldV2(
+      label: label,
+      controller: controller,
+      keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.done,
+      // Digits only, so a decimal point cannot be typed at all — the range refuses halves and an error is a worse way to say so than a key that does nothing.
+      inputFormatters: <TextInputFormatter>[
+        FilteringTextInputFormatter.digitsOnly,
+      ],
+      // No errorText here: the rules are between the three boxes, so the line under them all is where the message goes.
+      onChanged: (_) => onChanged(),
     );
   }
 }
