@@ -5,6 +5,7 @@ import {
   alertRunDocument,
   alertRunId,
   alertRunRecord,
+  CELL_DROP_LIMIT,
   FAILED_CELL_LIMIT,
 } from "../src/core/alertRunRecord";
 
@@ -12,7 +13,17 @@ const startedAt = new Date("2026-08-30T12:00:00.000Z");
 const finishedAt = new Date("2026-08-30T12:00:04.500Z");
 
 function result(overrides: Partial<AlertRunResult> = {}): AlertRunResult {
-  return { users: 3, cells: 2, failedCells: [], pushesSent: 1, ...overrides };
+  return {
+    users: 3,
+    cells: 2,
+    failedCells: [],
+    pushesSent: 1,
+    cellDrops: {
+      u1234: { currentHpa: 1015, dropHpa: 7, eventId: "2026-08-31T06" },
+      gcpvj: { currentHpa: 1008, dropHpa: 1.5, eventId: "2026-08-31T09" },
+    },
+    ...overrides,
+  };
 }
 
 describe("alertRunId", () => {
@@ -32,7 +43,21 @@ describe("alertRunRecord", () => {
     expect(record.pushesSent).toBe(1);
     expect(record.failedCells).toEqual([]);
     expect(record.failedCellCount).toBe(0);
+    expect(record.maxDropHpa).toBe(7);
+    expect(record.cellDropCount).toBe(2);
     expect(record.error).toBeNull();
+  });
+
+  it("has no max drop when no cell returned a reading", () => {
+    const record = alertRunRecord({
+      startedAt,
+      finishedAt,
+      result: result({ cellDrops: {} }),
+    });
+
+    // Null, not 0: a run that saw nothing and a run that saw a flat forecast are different answers to "why no push".
+    expect(record.maxDropHpa).toBeNull();
+    expect(record.cellDropCount).toBe(0);
   });
 
   it("records a run that finished with failed cells as partial", () => {
@@ -60,6 +85,8 @@ describe("alertRunRecord", () => {
     expect(record.users).toBe(0);
     expect(record.cells).toBe(0);
     expect(record.pushesSent).toBe(0);
+    expect(record.maxDropHpa).toBeNull();
+    expect(record.cellDropCount).toBe(0);
     expect(record.error).toContain("weatherkit 401");
   });
 
@@ -74,6 +101,27 @@ describe("alertRunRecord", () => {
     expect(record.failedCells).toHaveLength(FAILED_CELL_LIMIT);
     expect(record.failedCellCount).toBe(120);
   });
+
+  it("keeps the biggest drops when the cell map is capped, and the true max above it", () => {
+    const cellDrops = Object.fromEntries(
+      Array.from({ length: 120 }, (_, i) => [
+        `cell${i}`,
+        { currentHpa: 1000 + i, dropHpa: i, eventId: `E${i}` },
+      ]),
+    );
+    const record = alertRunRecord({
+      startedAt,
+      finishedAt,
+      result: result({ cellDrops }),
+    });
+
+    expect(Object.keys(record.cellDrops)).toHaveLength(CELL_DROP_LIMIT);
+    expect(record.cellDropCount).toBe(120);
+    // The cap keeps the cells that came closest to alerting, and the max is the true one either way.
+    expect(record.cellDrops.cell119.dropHpa).toBe(119);
+    expect(record.cellDrops.cell0).toBeUndefined();
+    expect(record.maxDropHpa).toBe(119);
+  });
 });
 
 describe("alertRunDocument", () => {
@@ -85,12 +133,15 @@ describe("alertRunDocument", () => {
     // Pinned: a camelCase key slipping back in is invisible until someone
     // reads the collection in the console and finds two spellings of it.
     expect(Object.keys(doc).sort()).toEqual([
+      "cell_drop_count",
+      "cell_drops",
       "cells",
       "duration_ms",
       "error",
       "failed_cell_count",
       "failed_cells",
       "finished_at",
+      "max_drop_hpa",
       "pushes_sent",
       "started_at",
       "status",
@@ -106,5 +157,18 @@ describe("alertRunDocument", () => {
     expect(doc.started_at).toBe(startedAt);
     expect(doc.finished_at).toBe(finishedAt);
     expect(doc.pushes_sent).toBe(1);
+  });
+
+  it("renames the cell readings too — a nested camelCase key is just as invisible", () => {
+    const doc = alertRunDocument(
+      alertRunRecord({ startedAt, finishedAt, result: result() }),
+    );
+
+    expect(doc.max_drop_hpa).toBe(7);
+    expect(doc.cell_drop_count).toBe(2);
+    expect(doc.cell_drops).toEqual({
+      u1234: { current_hpa: 1015, drop_hpa: 7, event_id: "2026-08-31T06" },
+      gcpvj: { current_hpa: 1008, drop_hpa: 1.5, event_id: "2026-08-31T09" },
+    });
   });
 });

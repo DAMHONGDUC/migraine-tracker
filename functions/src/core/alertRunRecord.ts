@@ -1,4 +1,4 @@
-import { AlertRunResult } from "./alertRun";
+import { AlertRunResult, CellDrop } from "./alertRun";
 
 /**
  * What one pressureAlertJob run is written down as. The job is a cron: nobody
@@ -24,12 +24,20 @@ export interface AlertRunRecord {
   /** Capped at {@link FAILED_CELL_LIMIT}; `failedCellCount` is always the true total. */
   failedCells: string[];
   failedCellCount: number;
+  /** The worst forecast drop the run saw anywhere, or null when no cell returned a reading. */
+  maxDropHpa: number | null;
+  /** The biggest drops first, capped at {@link CELL_DROP_LIMIT}; `cellDropCount` is always the true total. */
+  cellDrops: Record<string, CellDrop>;
+  cellDropCount: number;
   /** Null on any run that finished, whatever its status. */
   error: string | null;
 }
 
 /** A run failing wholesale fails every cell it had, and a document is capped at 1 MiB — so the list is a sample and the count is the fact. */
 export const FAILED_CELL_LIMIT = 50;
+
+/** Same 1 MiB ceiling, one entry per cell the users occupy. The biggest drops are kept because they are the ones that came closest to alerting. */
+export const CELL_DROP_LIMIT = 50;
 
 /** Sortable, unique per run, and readable in the console without opening the document. */
 export function alertRunId(startedAt: Date): string {
@@ -45,6 +53,9 @@ export function alertRunRecord(input: {
 }): AlertRunRecord {
   const { startedAt, finishedAt, result, error } = input;
   const failed = result?.failedCells ?? [];
+  const drops = Object.entries(result?.cellDrops ?? {}).sort(
+    (a, b) => b[1].dropHpa - a[1].dropHpa,
+  );
   const status: AlertRunStatus = error !== undefined
     ? "failed"
     : failed.length > 0
@@ -61,6 +72,10 @@ export function alertRunRecord(input: {
     pushesSent: result?.pushesSent ?? 0,
     failedCells: failed.slice(0, FAILED_CELL_LIMIT),
     failedCellCount: failed.length,
+    // Read off the sorted list, so the cap never moves it.
+    maxDropHpa: drops.length > 0 ? drops[0][1].dropHpa : null,
+    cellDrops: Object.fromEntries(drops.slice(0, CELL_DROP_LIMIT)),
+    cellDropCount: drops.length,
     error: error === undefined ? null : String(error),
   };
 }
@@ -86,6 +101,18 @@ export function alertRunDocument(record: AlertRunRecord): Record<string, unknown
     pushes_sent: record.pushesSent,
     failed_cells: record.failedCells,
     failed_cell_count: record.failedCellCount,
+    max_drop_hpa: record.maxDropHpa,
+    cell_drops: Object.fromEntries(
+      Object.entries(record.cellDrops).map(([cell, drop]) => [
+        cell,
+        {
+          current_hpa: drop.currentHpa,
+          drop_hpa: drop.dropHpa,
+          event_id: drop.eventId,
+        },
+      ]),
+    ),
+    cell_drop_count: record.cellDropCount,
     error: record.error,
   };
 }

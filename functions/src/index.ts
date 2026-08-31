@@ -114,6 +114,8 @@ export const pressureAlertJob = onSchedule(
       cells: record.cells,
       failedCells: record.failedCellCount,
       pushesSent: record.pushesSent,
+      // The one number that says whether a zero-push run was quiet weather or a broken run.
+      maxDropHpa: record.maxDropHpa,
     });
 
     // Re-thrown so the run still shows as failed to the scheduler; the history is written either way.
