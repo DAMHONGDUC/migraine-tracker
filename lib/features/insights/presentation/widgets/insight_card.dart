@@ -8,14 +8,15 @@ import '../../../../core/theme/app_text_style.dart';
 /// The shell every insight on the Insights screen wears: a card with its title, then the body that says what the analysis found.
 class InsightCard extends StatelessWidget {
   const InsightCard({
-    required this.title,
     required this.child,
+    this.title,
     this.trailing,
     this.onTap,
     super.key,
   });
 
-  final String title;
+  /// Null on a card the tab strip above already names — a heading repeating the segment over it is a line of nothing. [trailing] still shows, on a row of its own.
+  final String? title;
   final Widget child;
   final Widget? trailing;
   final VoidCallback? onTap;
@@ -29,19 +30,26 @@ class InsightCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(child: Text(title, style: AppTextStyle.titleMedium)),
-                ?trailing,
-                if (onTap != null)
-                  SdIconV2(
-                    icon: AppIconConstant.disclosure,
-                    size: AppIconSize.small,
-                    color: context.colorScheme.onSurfaceVariant,
+            // A card with nothing to put on that row skips it entirely, rather than opening on 16pt of empty.
+            if (title != null || trailing != null || onTap != null) ...<Widget>[
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: title == null
+                        ? const SizedBox.shrink()
+                        : Text(title!, style: AppTextStyle.titleMedium),
                   ),
-              ],
-            ),
-            SizedBox(height: SdSpacingConstant.h16),
+                  ?trailing,
+                  if (onTap != null)
+                    SdIconV2(
+                      icon: AppIconConstant.disclosure,
+                      size: AppIconSize.small,
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                ],
+              ),
+              SizedBox(height: SdSpacingConstant.h16),
+            ],
             child,
           ],
         ),

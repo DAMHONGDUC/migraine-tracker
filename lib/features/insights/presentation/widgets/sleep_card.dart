@@ -18,33 +18,27 @@ import '../../providers.dart';
 import 'health_connect_prompt.dart';
 import 'health_range_chart.dart';
 import 'health_range_selector.dart';
+import 'insight_card.dart';
 import 'sleep_correlation_body.dart';
 
 part 'sleep_card_analysis.dart';
 part 'sleep_card_nights.dart';
 
-/// Insights' sleep card: what Apple Health recorded, then what it means.
+/// Insights' sleep tab: what Apple Health recorded, then what it means — a
+/// card each, the same split as the activity tab.
 class SleepCard extends ConsumerWidget {
   const SleepCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    return SdCardV2(
-      child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // No heading — the tab above the card is it.
-            const _NightsSection(),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const SdDividerV2(),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            const _Analysis(),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // No title on either — the tab above them is it.
+        const InsightCard(child: _NightsSection()),
+        SizedBox(height: SdContentPaddingV2.sectionGap),
+        const InsightCard(child: _Analysis()),
+      ],
     );
   }
 }

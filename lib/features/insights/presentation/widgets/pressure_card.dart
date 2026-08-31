@@ -26,7 +26,13 @@ import 'trigger_verdict_body.dart';
 
 part 'pressure_card_alert.dart';
 
-/// Everything pressure, on one card: the forecast, what it has done to this user, and the alert that acts on both.
+/// Everything pressure, on two cards: what the weather is about to do and the
+/// alert that acts on it, then what it has done to this user.
+///
+/// It was one card, which put a forecast, a verdict, a correlation, a history
+/// chart and a switch in a single column — six subjects reading as one. The
+/// split is the same as the activity and sleep tabs': the reading first, the
+/// analysis drawn from it second.
 class PressureCard extends ConsumerWidget {
   const PressureCard({required this.result, super.key});
 
@@ -34,32 +40,49 @@ class PressureCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool hasPremium = ref.watch(hasPremiumProvider);
+    // ONE pitch for the whole tab when locked, not one per card — which is why the locked branch stays a single titled card carrying the badge.
+    if (!ref.watch(hasPremiumProvider)) {
+      return InsightCard(
+        title: context.l10n.insightsPressureTitle,
+        trailing: const PremiumBadge(),
+        child: PremiumUnlockPrompt(message: context.l10n.premiumLockedPressure),
+      );
+    }
 
-    return InsightCard(
-      title: context.l10n.insightsPressureTitle,
-      trailing: hasPremium ? null : const PremiumBadge(),
-      // ONE pitch for the whole card when locked, not one per section.
-      child: hasPremium
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // The conclusion first, then the working: everything below this line is the evidence it was drawn from.
-                const TriggerVerdictBody(),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                const PressureForecastBody(),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                CorrelationBody(result: result),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                // Directly under the sentence it draws: the share and the picture of the same month belong to one another.
-                const PressureHistoryBody(),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                const SdDividerV2(),
-                SizedBox(height: SdContentPaddingV2.sectionGap),
-                const _AlertControls(),
-              ],
-            )
-          : PremiumUnlockPrompt(message: context.l10n.premiumLockedPressure),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // No title on either — the tab above them is it.
+        InsightCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const PressureForecastBody(),
+              SizedBox(height: SdContentPaddingV2.sectionGap),
+              const SdDividerV2(),
+              SizedBox(height: SdContentPaddingV2.sectionGap),
+              // On the forecast's card, not the analysis': the alert fires on what the chart above it draws.
+              const _AlertControls(),
+            ],
+          ),
+        ),
+        SizedBox(height: SdContentPaddingV2.sectionGap),
+        InsightCard(
+          title: context.l10n.insightsAnalysisTitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // The conclusion first, then the working: everything below this line is the evidence it was drawn from.
+              const TriggerVerdictBody(),
+              SizedBox(height: SdContentPaddingV2.sectionGap),
+              CorrelationBody(result: result),
+              SizedBox(height: SdContentPaddingV2.sectionGap),
+              // Directly under the sentence it draws: the share and the picture of the same month belong to one another.
+              const PressureHistoryBody(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

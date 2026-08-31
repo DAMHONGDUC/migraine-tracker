@@ -21,12 +21,18 @@ import 'exertion_correlation_body.dart';
 import 'health_connect_prompt.dart';
 import 'health_range_chart.dart';
 import 'health_range_selector.dart';
+import 'insight_card.dart';
 import 'step_correlation_body.dart';
 
 part 'activity_card_analysis.dart';
 part 'activity_card_steps.dart';
 
-/// Insights' activity card: what Apple Health counted, then what it means.
+/// Insights' activity tab: what Apple Health counted, then what it means —
+/// a card each (owner's call).
+///
+/// The two were one card split by a divider, which made a reading and the
+/// analysis drawn from it read as one long section. A card is the app's unit
+/// of "one subject", so the measurement and the conclusion each get one.
 class ActivityCard extends ConsumerWidget {
   const ActivityCard({required this.result, super.key});
 
@@ -37,23 +43,16 @@ class ActivityCard extends ConsumerWidget {
     // Off iOS there is no step source at all, so the free half would only ever say "connect", pointing at a switch that is not there.
     final bool hasHealth = ref.watch(healthAvailableProvider);
 
-    return SdCardV2(
-      child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // No heading — the tab above the card is it.
-            if (hasHealth) ...<Widget>[
-              const _StepsSection(),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
-              const SdDividerV2(),
-            ],
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            _Analysis(result: result, hasHealth: hasHealth),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // No title on either — the tab above them is it.
+        if (hasHealth) ...<Widget>[
+          const InsightCard(child: _StepsSection()),
+          SizedBox(height: SdContentPaddingV2.sectionGap),
+        ],
+        InsightCard(child: _Analysis(result: result, hasHealth: hasHealth)),
+      ],
     );
   }
 }
