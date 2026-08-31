@@ -20,6 +20,7 @@ import 'health_connection_tile.dart';
 import 'health_range_chart.dart';
 import 'health_range_selector.dart';
 import 'insight_card.dart';
+import 'insight_info_sheet.dart';
 import 'sleep_correlation_body.dart';
 
 part 'sleep_card_analysis.dart';
@@ -38,7 +39,7 @@ class SleepCard extends ConsumerWidget {
         // No title on either — the tab above them is it.
         const InsightCard(child: _NightsSection()),
         SizedBox(height: SdContentPaddingV2.sectionGap),
-        const InsightCard(child: _Analysis()),
+        const _Analysis(),
       ],
     );
   }

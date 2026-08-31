@@ -23,6 +23,7 @@ import 'health_connection_tile.dart';
 import 'health_range_chart.dart';
 import 'health_range_selector.dart';
 import 'insight_card.dart';
+import 'insight_info_sheet.dart';
 import 'step_correlation_body.dart';
 
 part 'activity_card_analysis.dart';
@@ -47,12 +48,12 @@ class ActivityCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        // No title on either — the tab above them is it.
+        // No title — the tab above it is it.
         if (hasHealth) ...<Widget>[
           const InsightCard(child: _StepsSection()),
           SizedBox(height: SdContentPaddingV2.sectionGap),
         ],
-        InsightCard(child: _Analysis(result: result, hasHealth: hasHealth)),
+        _Analysis(result: result, hasHealth: hasHealth),
       ],
     );
   }

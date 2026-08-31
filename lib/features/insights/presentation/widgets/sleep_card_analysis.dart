@@ -7,28 +7,26 @@ class _Analysis extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final bool hasPremium = ref.watch(hasPremiumProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                l10n.insightsAnalysisTitle,
-                style: AppTextStyle.titleMedium,
-              ),
-            ),
-            if (!hasPremium) const PremiumBadge(),
-          ],
-        ),
-        SizedBox(height: SdSpacingConstant.h16),
-        if (hasPremium)
-          const SleepCorrelationBody()
-        else
-          PremiumUnlockPrompt(message: l10n.premiumLockedSleep),
-      ],
+    if (!ref.watch(hasPremiumProvider)) {
+      return InsightCard(
+        title: l10n.insightsAnalysisTitle,
+        trailing: const PremiumBadge(),
+        child: PremiumUnlockPrompt(message: l10n.premiumLockedSleep),
+      );
+    }
+
+    return InsightCard(
+      title: l10n.insightsSleepTitle,
+      onInfo: () => InsightInfoSheet(
+        title: l10n.insightsSleepTitle,
+        paragraphs: <String>[
+          l10n.insightsExplainSleep1,
+          l10n.insightsExplainSleep2,
+          l10n.insightsExplainSleep3,
+        ],
+      ).show(context),
+      child: const SleepCorrelationBody(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -11,6 +12,7 @@ class InsightCard extends StatelessWidget {
     required this.child,
     this.title,
     this.trailing,
+    this.onInfo,
     this.onTap,
     super.key,
   });
@@ -19,6 +21,15 @@ class InsightCard extends StatelessWidget {
   final String? title;
   final Widget child;
   final Widget? trailing;
+
+  /// Opens the sheet explaining what this card's analysis means.
+  ///
+  /// **Every analysis card has one** (owner's rule): a correlation states a
+  /// relationship in one sentence, and the sentence alone never says what was
+  /// compared against what, or why it is still empty. The glyph is quiet on
+  /// purpose — it is there for the reader who stops, not a call to action.
+  final VoidCallback? onInfo;
+
   final VoidCallback? onTap;
 
   @override
@@ -31,7 +42,10 @@ class InsightCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // A card with nothing to put on that row skips it entirely, rather than opening on 16pt of empty.
-            if (title != null || trailing != null || onTap != null) ...<Widget>[
+            if (title != null ||
+                trailing != null ||
+                onInfo != null ||
+                onTap != null) ...<Widget>[
               Row(
                 children: <Widget>[
                   Expanded(
@@ -39,6 +53,16 @@ class InsightCard extends StatelessWidget {
                         ? const SizedBox.shrink()
                         : Text(title!, style: AppTextStyle.titleMedium),
                   ),
+                  if (onInfo != null)
+                    SdIconButtonV2(
+                      icon: SdIconV2(
+                        icon: AppIconConstant.info,
+                        size: AppIconSize.small,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                      tooltip: context.l10n.insightsExplainTooltip,
+                      onPressed: onInfo,
+                    ),
                   ?trailing,
                   if (onTap != null)
                     SdIconV2(

@@ -17,6 +17,7 @@ import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
+import 'insight_info_sheet.dart';
 import 'pressure_forecast_body.dart';
 import 'pressure_history_body.dart';
 import 'trigger_verdict_body.dart';
@@ -66,6 +67,14 @@ class PressureCard extends ConsumerWidget {
         SizedBox(height: SdContentPaddingV2.sectionGap),
         InsightCard(
           title: context.l10n.insightsAnalysisTitle,
+          onInfo: () => InsightInfoSheet(
+            title: context.l10n.insightsCorrelationTitle,
+            paragraphs: <String>[
+              context.l10n.insightsExplainPressure1,
+              context.l10n.insightsExplainPressure2,
+              context.l10n.insightsExplainPressure3,
+            ],
+          ).show(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

@@ -3285,6 +3285,58 @@
   "@insightsAnalysisTitle": {
     "description": "Heading of the premium half of an insight card"
   },
+  "insightsExplainTooltip": "What this means",
+  "@insightsExplainTooltip": {
+    "description": "Tooltip on the info glyph in an analysis card's header"
+  },
+  "insightsExplainPressure1": "This card compares how often you had an attack on days the pressure fell against how often you had one on days it did not.",
+  "@insightsExplainPressure1": {
+    "description": "Explanation sheet, pressure correlation: what the card compares"
+  },
+  "insightsExplainPressure2": "The app records one pressure reading a day where you are, whether or not you logged an attack. Both sides of the comparison need enough days before a number appears at all.",
+  "@insightsExplainPressure2": {
+    "description": "Explanation sheet, pressure correlation: how it is worked out"
+  },
+  "insightsExplainPressure3": "It is a pattern in your own log, not a diagnosis, and it cannot prove that pressure caused anything. Days you did not open the app leave gaps, which is why the chart below can show an attack with no reading behind it.",
+  "@insightsExplainPressure3": {
+    "description": "Explanation sheet, pressure correlation: what it cannot claim"
+  },
+  "insightsExplainExertion1": "This card counts the attacks where you logged how hard you had been exerting yourself, and shows what share of them followed moderate-to-severe activity.",
+  "@insightsExplainExertion1": {
+    "description": "Explanation sheet, exertion: what the card counts"
+  },
+  "insightsExplainExertion2": "Exertion is something you type in, so only the attacks you answered it on are counted. It needs a few of them, and it needs your answers to vary — if every attack says the same level there is nothing to compare.",
+  "@insightsExplainExertion2": {
+    "description": "Explanation sheet, exertion: how it is worked out"
+  },
+  "insightsExplainExertion3": "It is a share, not a comparison: the app has no record of how hard you exerted yourself on the days you had no attack, so this one cannot say exertion makes an attack more likely.",
+  "@insightsExplainExertion3": {
+    "description": "Explanation sheet, exertion: why it is a share and not a comparison"
+  },
+  "insightsExplainSteps1": "This card compares your average step count on the days an attack started against your average on every other day.",
+  "@insightsExplainSteps1": {
+    "description": "Explanation sheet, steps: what the card compares"
+  },
+  "insightsExplainSteps2": "The steps come from Apple Health, read-only, and are counted by local day. Both groups need enough days before the comparison is shown at all.",
+  "@insightsExplainSteps2": {
+    "description": "Explanation sheet, steps: where the data comes from"
+  },
+  "insightsExplainSteps3": "A difference can run either way: an attack can follow a hard day, and it can also be the reason a day ended up quiet. The card says which days differ, never which one caused the other.",
+  "@insightsExplainSteps3": {
+    "description": "Explanation sheet, steps: why a difference is not a direction"
+  },
+  "insightsExplainSleep1": "This card compares how long you slept on the nights before an attack against how long you slept on your other nights.",
+  "@insightsExplainSleep1": {
+    "description": "Explanation sheet, sleep: what the card compares"
+  },
+  "insightsExplainSleep2": "The nights come from Apple Health, read-only, and never leave this device. Both groups need enough nights before the comparison is shown at all.",
+  "@insightsExplainSleep2": {
+    "description": "Explanation sheet, sleep: where the data comes from"
+  },
+  "insightsExplainSleep3": "A short night before an attack is a pattern, not a cause — the same restless night can be an early sign of the attack that was already coming. Treat it as something to raise with your doctor, not as a verdict.",
+  "@insightsExplainSleep3": {
+    "description": "Explanation sheet, sleep: pattern, not cause"
+  },
   "premiumLockedPressure": "See the pressure forecast, how closely your attacks track it, and get alerted before the next drop.",
   "@premiumLockedPressure": {
     "description": "The pressure card's single locked pitch, covering forecast, correlation and alert"
