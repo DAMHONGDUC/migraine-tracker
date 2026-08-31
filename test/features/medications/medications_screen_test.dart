@@ -266,13 +266,8 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    // Edit mode shows the confirm action as a pencil, not a check.
-    await tester.tap(
-      find.descendant(
-        of: find.byType(SdSheetHeaderV2),
-        matching: find.byIcon(Symbols.edit_rounded),
-      ),
-    );
+    // Edit mode labels the bottom button "Update", not "Save".
+    await tester.tap(find.widgetWithText(SdButtonV2, 'Update'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

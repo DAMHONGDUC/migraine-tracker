@@ -50,9 +50,8 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
     return SdSheetContentV2(
       title: l10n.alertsScreenTitle,
       closeTooltip: l10n.commonClose,
-      confirmTooltip: l10n.commonDone,
       // Both fields already have a value, even a fresh install's default.
-      action: SdSheetActionV2.edit,
+      confirmLabel: l10n.commonUpdate,
       onConfirm: () => Navigator.of(context).pop(
         AlertsSettings(enabled: _enabled, thresholdHpa: _value),
       ),

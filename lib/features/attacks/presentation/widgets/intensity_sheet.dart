@@ -24,8 +24,7 @@ class _IntensitySheetState extends State<IntensitySheet> {
     return SdSheetContentV2(
       title: context.l10n.logIntensityTitle,
       closeTooltip: context.l10n.commonClose,
-      confirmTooltip: context.l10n.commonDone,
-      action: SdSheetActionV2.edit,
+      confirmLabel: context.l10n.commonUpdate,
       onConfirm: () => Navigator.of(context).pop(rounded),
       child: SdValueSliderV2(
         label: '$rounded',

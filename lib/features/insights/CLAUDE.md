@@ -10,10 +10,36 @@ not deserve a tab. `InsightsTab` has no `weather` member, the screen opens on
 `pressure`, and `WeatherMetric`, `weatherMetricProvider` and `weatherDayProvider`
 are gone entirely.
 
+## Two cards per tab: the reading, then the analysis
+
+**Every Insights tab is a chart card and an analysis card — owner's rule.** Each
+tab used to be one card with a divider through it, which made a measurement and
+the conclusion drawn from it read as one long section. A card is this app's unit
+of "one subject", so the two get one each, separated by
+`SdContentPaddingV2.sectionGap`.
+
+| Tab | Chart card | Analysis card |
+|---|---|---|
+| Pressure | `PressureForecastBody` + `_AlertControls` | `TriggerVerdictBody`, `CorrelationBody`, `PressureHistoryBody` |
+| Activity | `_StepsSection` | `_Analysis` (exertion + steps) |
+| Sleep | `_NightsSection` | `_Analysis` |
+
+- **The alert rides on the chart card**, not the analysis one: it fires on what
+  the forecast above it draws.
+- **`PressureHistoryBody` stays with the analysis** even though it is a chart —
+  it is the working behind the sentence directly above it, not a reading of its
+  own.
+- **Locked, the pressure tab collapses back to one card.** One pitch for the
+  whole tab, not one per card, so the locked branch returns a single titled
+  `InsightCard` carrying the `PremiumBadge`.
+- **`InsightCard.title` is nullable** for exactly this: a card the tab strip
+  above already names skips the heading row entirely rather than opening on 16pt
+  of empty.
+
 ## One card for everything pressure
 
-`PressureCard` on the Insights pressure tab holds the 48h forecast, the
-correlation and the alert switch + threshold together (`pressure_card_alert.dart`
+`PressureCard` on the Insights pressure tab holds the 7-day forecast, the
+correlation and the alert row together (`pressure_card_alert.dart`
 is its part file). They were three places before — a card on Insights, another
 beside it, and a Settings row two taps away — so the number and the alert it
 drives never appeared together.
@@ -112,10 +138,10 @@ several screens down.
 - **A tab's label is its card's name, from the same ARB key**
   (`insightsPressureTitle`, `activityCardTitle`, `sleepCardTitle`), so the segment
   and the card cannot come to disagree.
-  - **Which is why two cards carry no heading of their own.** `ActivityCard` and
-    `SleepCard` open straight onto their content: the tab above already says the
-    word. `PressureCard` keeps its `InsightCard` title, because that row is also
-    where its `PremiumBadge` sits.
+  - **Which is why no unlocked card carries a heading of its own.** All three
+    tabs open straight onto their content: the tab above already says the word.
+    The one exception is the pressure tab while it is locked, where the title row
+    is also where its `PremiumBadge` sits.
 - **Each tab waits only on what it draws.** The screen used to hold every card
   behind one `switch` on both correlation providers, so a card needing neither
   stayed blank until the engines had run.

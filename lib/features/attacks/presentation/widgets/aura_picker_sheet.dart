@@ -34,9 +34,8 @@ class _AuraPickerSheetState extends State<AuraPickerSheet> {
     return SdSheetContentV2(
       title: l10n.auraSheetTitle,
       closeTooltip: l10n.commonClose,
-      confirmTooltip: _picked.isEmpty ? l10n.auraNone : l10n.commonDone,
-      action: SdSheetActionV2.edit,
-      // Committing with nothing picked IS the "no aura" answer, which is why the tick is never disabled — the tooltip is what says which of the two it is about to record.
+      // Committing with nothing picked IS the "no aura" answer, so the button says so rather than being disabled.
+      confirmLabel: _picked.isEmpty ? l10n.auraNone : l10n.commonUpdate,
       onConfirm: () =>
           Navigator.of(context).pop((aura: <AuraType>[..._picked])),
       // Only once there is something to take back — a "clear" on a field that was never set says nothing.

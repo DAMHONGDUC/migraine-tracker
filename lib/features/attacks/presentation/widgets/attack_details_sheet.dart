@@ -49,9 +49,8 @@ class AttackDetailsSheet extends HookConsumerWidget {
     return SdSheetContentV2(
       title: l10n.detailsTitle,
       closeTooltip: l10n.commonClose,
-      confirmTooltip: l10n.commonDone,
-      // Overwrites an existing answer, not a first one — pencil, not tick.
-      action: SdSheetActionV2.edit,
+      // Overwrites an existing answer, not a first one — "Update", not "Save".
+      confirmLabel: l10n.commonUpdate,
       onConfirm: save,
       child: Column(
         mainAxisSize: MainAxisSize.min,

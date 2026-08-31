@@ -402,10 +402,6 @@
   "@exertionLevelSevere": {
     "description": "Exertion level option: severe/strenuous activity"
   },
-  "detailsSave": "Save",
-  "@detailsSave": {
-    "description": "Save button in the details sheet"
-  },
   "commonCancel": "Cancel",
   "@commonCancel": {
     "description": "Generic cancel button"
@@ -413,6 +409,14 @@
   "commonAdd": "Add",
   "@commonAdd": {
     "description": "Generic add/confirm button"
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Commit button of a sheet or dialog recording an answer for the first time"
+  },
+  "commonUpdate": "Update",
+  "@commonUpdate": {
+    "description": "Commit button of a sheet or dialog overwriting a value that already exists"
   },
   "commonClose": "Close",
   "@commonClose": {

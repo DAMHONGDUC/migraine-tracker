@@ -235,9 +235,9 @@ void main() {
         findsOneWidget,
         reason: '$row should open a sheet',
       );
-      // Every one of them offers both answers in its header. The commit is the pencil, not the tick: these overwrite a value the attack has.
+      // Leave in the header, commit along the bottom edge. "Update", not "Save": these overwrite a value the attack already has.
       expect(find.byIcon(Symbols.close_rounded), findsOneWidget);
-      expect(find.byIcon(Symbols.edit_rounded), findsOneWidget);
+      expect(find.widgetWithText(SdButtonV2, 'Update'), findsOneWidget);
 
       await closeSheet(tester);
     }

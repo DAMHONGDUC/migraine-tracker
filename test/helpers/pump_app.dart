@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -939,10 +938,11 @@ Future<void> openAddReminder(WidgetTester tester) async {
 
 /// Confirms the reminder time picker at whatever time it opened on.
 Future<void> confirmReminderTime(WidgetTester tester) async {
+  // The commit is the button pinned along the sheet's bottom edge, not an icon in its header.
   await tester.tap(
     find.descendant(
-      of: find.byType(SdSheetHeaderV2),
-      matching: find.byIcon(Symbols.check_rounded),
+      of: find.byType(SdSheetContentV2),
+      matching: find.byType(SdButtonV2),
     ),
   );
   await tester.pump();

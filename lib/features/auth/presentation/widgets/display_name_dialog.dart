@@ -60,7 +60,7 @@ class _DisplayNameDialogState extends State<DisplayNameDialog> {
         SdButtonV2(
           variant: SdButtonVariantV2.primary,
           onPressed: () => _submit(_controller.text),
-          label: l10n.detailsSave,
+          label: l10n.commonSave,
         ),
       ],
     );
