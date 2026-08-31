@@ -57,7 +57,10 @@ class InsightsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          Expanded(child: _TabBody(tabs: tabs, selected: selected)),
+          SizedBox(height: SdContentPaddingV2.listItemGap),
+          Expanded(
+            child: _TabBody(tabs: tabs, selected: selected),
+          ),
         ],
       ),
     );

@@ -74,7 +74,7 @@ class _TabCard extends ConsumerWidget {
         // The tab strip already took the app bar's gap, so this adds only the strip's own separation and the bottom clearance.
         padding: EdgeInsets.fromLTRB(
           SdContentPaddingV2.horizontal,
-          SdContentPaddingV2.listItemGap,
+          0,
           SdContentPaddingV2.horizontal,
           SdContentPaddingV2.bottom(context, floatingNav: true),
         ),
@@ -90,14 +90,15 @@ class _TabCard extends ConsumerWidget {
       // Nothing rather than a spinner: the engine resolves in a frame or two, and a placeholder that flashes is louder than a card arriving late.
       _ => const SizedBox.shrink(),
     },
-    InsightsTab.activity =>
-      switch (ref.watch(exertionCorrelationResultProvider)) {
-        AsyncData<ExertionCorrelationResult>(
-          value: final ExertionCorrelationResult value,
-        ) =>
-          ActivityCard(result: value),
-        _ => const SizedBox.shrink(),
-      },
+    InsightsTab.activity => switch (ref.watch(
+      exertionCorrelationResultProvider,
+    )) {
+      AsyncData<ExertionCorrelationResult>(
+        value: final ExertionCorrelationResult value,
+      ) =>
+        ActivityCard(result: value),
+      _ => const SizedBox.shrink(),
+    },
     InsightsTab.sleep => const SleepCard(),
   };
 }
