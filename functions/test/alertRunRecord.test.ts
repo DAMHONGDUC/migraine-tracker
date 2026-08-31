@@ -18,6 +18,7 @@ function result(overrides: Partial<AlertRunResult> = {}): AlertRunResult {
     cells: 2,
     failedCells: [],
     pushesSent: 1,
+    silentPushes: 0,
     cellDrops: {
       u1234: { currentHpa: 1015, dropHpa: 7, eventId: "2026-08-31T06" },
       gcpvj: { currentHpa: 1008, dropHpa: 1.5, eventId: "2026-08-31T09" },
@@ -41,6 +42,7 @@ describe("alertRunRecord", () => {
     expect(record.users).toBe(3);
     expect(record.cells).toBe(2);
     expect(record.pushesSent).toBe(1);
+    expect(record.silentPushes).toBe(0);
     expect(record.failedCells).toEqual([]);
     expect(record.failedCellCount).toBe(0);
     expect(record.maxDropHpa).toBe(7);
@@ -85,6 +87,7 @@ describe("alertRunRecord", () => {
     expect(record.users).toBe(0);
     expect(record.cells).toBe(0);
     expect(record.pushesSent).toBe(0);
+    expect(record.silentPushes).toBe(0);
     expect(record.maxDropHpa).toBeNull();
     expect(record.cellDropCount).toBe(0);
     expect(record.error).toContain("weatherkit 401");
@@ -143,6 +146,7 @@ describe("alertRunDocument", () => {
       "finished_at",
       "max_drop_hpa",
       "pushes_sent",
+      "silent_pushes",
       "started_at",
       "status",
       "users",
@@ -157,6 +161,19 @@ describe("alertRunDocument", () => {
     expect(doc.started_at).toBe(startedAt);
     expect(doc.finished_at).toBe(finishedAt);
     expect(doc.pushes_sent).toBe(1);
+  });
+
+  it("carries the silent count, so a quiet night reads as the run working", () => {
+    const doc = alertRunDocument(
+      alertRunRecord({
+        startedAt,
+        finishedAt,
+        result: result({ pushesSent: 3, silentPushes: 2 }),
+      }),
+    );
+
+    expect(doc.pushes_sent).toBe(3);
+    expect(doc.silent_pushes).toBe(2);
   });
 
   it("renames the cell readings too — a nested camelCase key is just as invisible", () => {

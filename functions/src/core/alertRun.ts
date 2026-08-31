@@ -1,6 +1,7 @@
 import { shouldAlert } from "./alerts";
 import { AlertUser, groupByGeohash } from "./grouping";
 import { DropForecast } from "./pressure";
+import { isQuietHour } from "./quietHours";
 
 /** The stale-token error code FCM returns once an app is uninstalled or its token rotates. */
 export const STALE_TOKEN_CODE = "messaging/registration-token-not-registered";
@@ -10,8 +11,12 @@ export interface AlertRunDeps {
   now: Date;
   /** The worst 24h pressure drop for a geohash cell, or null when nothing in the window crosses into a drop. */
   fetchCellDrop: (geohash5: string) => Promise<DropForecast | null>;
-  /** Sends the push. Throws on failure; `error.code` drives token cleanup. */
-  sendPush: (user: AlertUser, drop: DropForecast) => Promise<void>;
+  /** Sends the push. `silent` means it lands in the user's local night and must arrive without a sound. Throws on failure; `error.code` drives token cleanup. */
+  sendPush: (
+    user: AlertUser,
+    drop: DropForecast,
+    options: { silent: boolean },
+  ) => Promise<void>;
   /** Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa) after a push. */
   recordAlert: (uid: string, drop: DropForecast, now: Date) => Promise<void>;
   /** Removes a stale FCM token so the doc stops costing work. */
@@ -37,6 +42,8 @@ export interface AlertRunResult {
   cells: number;
   failedCells: string[];
   pushesSent: number;
+  /** Of {@link pushesSent}, how many went out silently — the number that says whether a quiet night was the run working or the offsets being wrong. */
+  silentPushes: number;
   /** Keyed by geohash5. A fetched cell is missing only when its forecast held no usable sample. */
   cellDrops: Record<string, CellDrop>;
 }
@@ -51,6 +58,7 @@ export async function runPressureAlerts(
   const failedCells: string[] = [];
   const cellDrops: Record<string, CellDrop> = {};
   let pushesSent = 0;
+  let silentPushes = 0;
 
   for (const [cell, cellUsers] of cells) {
     let drop: DropForecast | null;
@@ -84,10 +92,12 @@ export async function runPressureAlerts(
       ) {
         continue;
       }
+      const silent = isQuietHour(now, user.tzOffsetMinutes);
       try {
-        await deps.sendPush(user, drop);
+        await deps.sendPush(user, drop, { silent });
         await deps.recordAlert(user.uid, drop, now);
         pushesSent++;
+        if (silent) silentPushes++;
       } catch (error) {
         const code = (error as { code?: string }).code;
         if (code === STALE_TOKEN_CODE) {
@@ -108,6 +118,7 @@ export async function runPressureAlerts(
     cells: cells.size,
     failedCells,
     pushesSent,
+    silentPushes,
     cellDrops,
   };
 }

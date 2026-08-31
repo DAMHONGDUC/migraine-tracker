@@ -73,23 +73,29 @@ void main() {
   }
 
   group('register', () {
-    test('writes the four fields, merged, to the caller own users doc', () async {
+    test('writes the five fields, merged, to the caller own users doc', () async {
       final harnessed = harness();
 
       await harnessed.repository.register(thresholdHpa: 7.5);
 
       expect(harnessed.firestore.collectionPaths, <String>['users']);
       expect(harnessed.firestore.document.paths, <String?>['uid-1']);
-      // Hard rule 1: the doc holds these four and nothing else — no health data, and never `premium`, which is the webhook's to write.
+      // Hard rule 1: the doc holds these five and nothing else — no health data, and never `premium`, which is the webhook's to write.
       expect(harnessed.firestore.document.sets.single.keys, <String>[
         'geohash5',
         'fcmToken',
         'alertThreshold',
         'tz',
+        'tzOffsetMinutes',
       ]);
       expect(harnessed.firestore.document.sets.single['geohash5'], 'w7er8');
       expect(harnessed.firestore.document.sets.single['fcmToken'], 'token-1');
       expect(harnessed.firestore.document.sets.single['alertThreshold'], 7.5);
+      // The one field the cron can act on: `tz` beside it is an abbreviation the server cannot parse.
+      expect(
+        harnessed.firestore.document.sets.single['tzOffsetMinutes'],
+        DateTime.now().timeZoneOffset.inMinutes,
+      );
       // Merge, never a plain set: a plain one would take `premium` with it.
       expect(harnessed.firestore.document.setOptions.single?.merge, isTrue);
     });
@@ -262,7 +268,7 @@ void main() {
 
   group('forgetRegistration', () {
     /// The GDPR wipe: nothing may survive that could still reach the user or say where they were.
-    test('deletes the token, the geohash, the threshold and the zone', () async {
+    test('deletes the token, the geohash, the threshold and both zone fields', () async {
       final harnessed = harness();
 
       await harnessed.repository.forgetRegistration();
@@ -272,6 +278,7 @@ void main() {
         'geohash5',
         'alertThreshold',
         'tz',
+        'tzOffsetMinutes',
       ]);
     });
 

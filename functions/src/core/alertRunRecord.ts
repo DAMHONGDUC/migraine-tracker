@@ -21,6 +21,8 @@ export interface AlertRunRecord {
   /** Distinct geohash cells fetched, i.e. how many WeatherKit calls the run spent. */
   cells: number;
   pushesSent: number;
+  /** Of {@link pushesSent}, how many arrived without a sound because it was the user's night. */
+  silentPushes: number;
   /** Capped at {@link FAILED_CELL_LIMIT}; `failedCellCount` is always the true total. */
   failedCells: string[];
   failedCellCount: number;
@@ -70,6 +72,7 @@ export function alertRunRecord(input: {
     users: result?.users ?? 0,
     cells: result?.cells ?? 0,
     pushesSent: result?.pushesSent ?? 0,
+    silentPushes: result?.silentPushes ?? 0,
     failedCells: failed.slice(0, FAILED_CELL_LIMIT),
     failedCellCount: failed.length,
     // Read off the sorted list, so the cap never moves it.
@@ -99,6 +102,7 @@ export function alertRunDocument(record: AlertRunRecord): Record<string, unknown
     users: record.users,
     cells: record.cells,
     pushes_sent: record.pushesSent,
+    silent_pushes: record.silentPushes,
     failed_cells: record.failedCells,
     failed_cell_count: record.failedCellCount,
     max_drop_hpa: record.maxDropHpa,

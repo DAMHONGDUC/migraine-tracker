@@ -33,28 +33,42 @@ describe("shouldAlert", () => {
     ).toBe(false);
   });
 
-  it("suppresses a second push within 24h even for a new event", () => {
+  it("suppresses a second push within 12h even for a new event", () => {
     expect(
       shouldAlert({
         ...base,
         history: {
           lastEventId: "2026-07-08T03",
+          // 3h ago.
           lastAlertAt: new Date("2026-07-08T09:00:00Z"),
         },
       }),
     ).toBe(false);
   });
 
-  it("alerts for a new event once the 24h window has passed", () => {
+  it("alerts for a new event once 12h have passed — the second of the day", () => {
     expect(
       shouldAlert({
         ...base,
         history: {
-          lastEventId: "2026-07-07T03",
-          lastAlertAt: new Date("2026-07-07T11:00:00Z"),
+          lastEventId: "2026-07-08T03",
+          // Midnight to noon: exactly the gap, and the boundary counts as clear.
+          lastAlertAt: new Date("2026-07-08T00:00:00Z"),
         },
       }),
     ).toBe(true);
+  });
+
+  it("caps the day at two — a third event 11h after the second is still refused", () => {
+    expect(
+      shouldAlert({
+        ...base,
+        history: {
+          lastEventId: "2026-07-08T03",
+          lastAlertAt: new Date("2026-07-08T01:00:00Z"),
+        },
+      }),
+    ).toBe(false);
   });
 
   it("uses the per-user threshold", () => {

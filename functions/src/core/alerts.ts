@@ -3,9 +3,14 @@ export interface AlertHistory {
   lastEventId?: string;
 }
 
-const DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
+/**
+ * The gap a user is guaranteed between two pushes. 12h is what caps them at
+ * two a day: a front that arrives in the morning and a second one that evening
+ * are different warnings, and 24h silently threw the second away.
+ */
+const MIN_PUSH_GAP_MS = 12 * 60 * 60 * 1000;
 
-/** Hard rule 9 dedupe: max 1 push per user per 24h per pressure event — the same event never fires twice, and no user gets more than one push in any. */
+/** Dedupe: at most 2 pushes per user per day, {@link MIN_PUSH_GAP_MS} apart, and never twice for the same pressure event. */
 export function shouldAlert(args: {
   dropHpa: number;
   thresholdHpa: number;
@@ -18,7 +23,7 @@ export function shouldAlert(args: {
   if (history.lastEventId === eventId) return false;
   if (
     history.lastAlertAt !== undefined &&
-    now.getTime() - history.lastAlertAt.getTime() < DEDUPE_WINDOW_MS
+    now.getTime() - history.lastAlertAt.getTime() < MIN_PUSH_GAP_MS
   ) {
     return false;
   }

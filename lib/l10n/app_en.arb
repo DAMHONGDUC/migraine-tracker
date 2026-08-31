@@ -1680,9 +1680,13 @@
   "@alertsSheetRange": {
     "description": "Explains what the two ends of the 3-10 hPa slider mean"
   },
-  "alertsSheetLimit": "At most one alert a day, and never twice for the same drop.",
+  "alertsSheetLimit": "At most two alerts a day, 12 hours apart, and never twice for the same drop.",
   "@alertsSheetLimit": {
-    "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
+    "description": "Sheet: how often an alert can arrive — the two-a-day cap and the 12h gap the server enforces"
+  },
+  "alertsSheetQuietHours": "An alert between 10 pm and 7 am arrives without a sound.",
+  "@alertsSheetQuietHours": {
+    "description": "Sheet: an alert landing in the user's local night is delivered silently"
   },
   "alertsSheetExampleTitle": "For example",
   "@alertsSheetExampleTitle": {
@@ -1816,46 +1820,14 @@
       }
     }
   },
-  "syncScreenTitle": "Sync",
-  "@syncScreenTitle": {
-    "description": "App bar title of the sync detail screen, pushed from the Settings row"
-  },
-  "syncScreenBody": "Your attacks, medications and reminders are backed up to your account, encrypted, and kept in step across your devices. This happens on its own — the button is only here for when you want to be sure.",
-  "@syncScreenBody": {
-    "description": "Explains what syncs and that the manual button is never required. Says encrypted, never that only the user can read it — the key is server-held"
-  },
-  "syncScreenLastSynced": "Last synced",
-  "@syncScreenLastSynced": {
-    "description": "Row label on the sync screen, followed by when the last pass finished"
-  },
-  "syncScreenSyncing": "Syncing…",
-  "@syncScreenSyncing": {
-    "description": "Shown in place of the last-synced time while a pass is running"
-  },
-  "settingsSync": "Sync data to cloud",
-  "@settingsSync": {
-    "description": "Settings row that runs a sync by hand. Sync is automatic; this is only for a deliberate retry, and the row is absent without an account"
-  },
-  "settingsSyncFailed": "Sync didn't finish. It'll try again on its own.",
-  "@settingsSyncFailed": {
-    "description": "Error shown after a manual sync fails. Reassures rather than alarms, because nothing was lost and the next trigger retries"
-  },
-  "settingsSyncStatusNever": "Not synced yet",
-  "@settingsSyncStatusNever": {
-    "description": "End-of-row status on the sync row before the first sync of this session has finished"
-  },
   "commonProgressPercent": "{percent}%",
   "@commonProgressPercent": {
-    "description": "How far the sync in flight has got, shown at the end of the sync row beside the spinner. Counted against a fixed number of steps so it only ever climbs",
+    "description": "How far the job in flight has got, shown at the end of a Settings row beside its spinner",
     "placeholders": {
       "percent": {
         "type": "int"
       }
     }
-  },
-  "settingsSyncStatusFailed": "Didn't finish",
-  "@settingsSyncStatusFailed": {
-    "description": "End-of-row status on the sync row after a failed pass. Short by necessity — it shares the row with the title"
   },
   "settingsExport": "Export data",
   "@settingsExport": {
