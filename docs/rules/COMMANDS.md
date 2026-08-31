@@ -101,9 +101,9 @@ keys `env/` does, so it is gitignored and a clone never has it.
 ### The rest
 
 - `sh packages/system_design/tool/gen.sh` — after editing Drift tables, Riverpod
-  codegen or ARB files. It is also inside `set-up`, so a release never runs it
-  by hand. **The codegen half is skipped when `pubspec.yaml` declares no
-  `build_runner`** (`has_dep` in `_common.sh`): these scripts are shared with
+  codegen or ARB files. It is inside `set-up`, which a release no longer runs —
+  so generated code being current is on whoever releases. **The codegen half is
+  skipped when `pubspec.yaml` declares no `build_runner`** (`has_dep` in `_common.sh`): these scripts are shared with
   apps that generate nothing, and there `dart run build_runner` fails with
   "could not find package build_runner", which reads as a broken checkout
   rather than as a step that does not apply.
@@ -167,14 +167,13 @@ the environment passes straight to `flutter build ipa`.
 
 ### `melos run release-dev` / `release-prod`
 
-Four steps, in this order — `release.sh <flavor>`:
+Three steps, in this order — `release.sh <flavor>`:
 
 | # | Step | What it is |
 |---|---|---|
-| 1 | `set-up.sh` | wipe, submodules, deps, `gen-l10n`, `build_runner`, pods |
-| 2 | `prepare-env.sh <flavor>` | the flavor's real config into the tree |
-| 3 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
-| 4 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
+| 1 | `prepare-env.sh <flavor>` | the flavor's real config into the tree |
+| 2 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
+| 3 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
 
 - **`release.sh` names no app** (owner's rule): the flavour is an argument and
   every path in it is one that any app embedding this design system already
@@ -182,15 +181,16 @@ Four steps, in this order — `release.sh <flavor>`:
   entitlements, its store rules — lives in that app's fastlane lane, which is
   why the app-specific pre-build gate that briefly sat here is gone.
 
-- **The order is the whole reason it is one command.** `set-up` wipes and
-  regenerates, so it runs before the config it would otherwise build against;
-  the config has to be in the tree before the deploy reads `functions/.env` and
-  before the lane's `verify_flavor_config` compares `GoogleService-Info.plist`
-  against the flavor. Typed by hand in another order, the build ships against
-  the wrong Firebase project and nothing says so.
-- **`set-up` is inside the release** (owner's rule), so a release is never a
-  build of whatever half-generated state the tree was left in. It costs a cold
-  build every time; that is the price of the guarantee.
+- **The order is the whole reason it is one command.** The config has to be in
+  the tree before the deploy reads `functions/.env` and before the lane's
+  `verify_flavor_config` compares `GoogleService-Info.plist` against the flavor.
+  Typed by hand in another order, the build ships against the wrong Firebase
+  project and nothing says so.
+- **`set-up` is NOT inside the release** (owner's rule): a release builds the
+  tree as it stands. The wipe-and-regenerate cost a cold build on every release,
+  including the ones from a tree that was already good. Restoring a tree is its
+  own decision — `melos run set-up` first, then release. The consequence is
+  yours to carry: a release from a half-generated tree now builds that tree.
 - **One command per environment, like the deploys it wraps.** A prod release is
   typed, never a flag on a shared command.
 - **It runs start to finish unattended — nothing in the chain asks.** The
