@@ -3,73 +3,74 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
-import '../../../attacks/providers.dart';
 import '../../domain/enums/attack_filters.dart';
 import '../../domain/enums/history_period.dart';
 import '../../domain/services/attack_filterer.dart';
 
-/// Every axis the History list is narrowed by. One sheet writes the whole value, so this takes an [AttackFilters] rather than carrying a setter per axis.
+/// The thirteen axes the History list is narrowed by, one chip each. Mirrors `MedicationFiltersController`'s role, which has three of them.
 class AttackFiltersController extends Notifier<AttackFilters> {
   static const AttackFilterer _filterer = AttackFilterer();
 
   @override
   AttackFilters build() => const AttackFilters();
 
-  /// Applies what the sheet collected.
-  void apply(AttackFilters filters) {
-    SdLogger.action(
-      LogTagConstant.history,
-      'History filters',
-      _payload(filters),
-    );
-    state = filters;
-  }
+  void setPeriod(HistoryPeriod value) =>
+      _set('period', value, state.copyWith(period: value));
 
-  /// Back to showing everything, from the sheet's own Reset.
+  void setIntensity(IntensityFilter value) =>
+      _set('intensity', value, state.copyWith(intensity: value));
+
+  void setDuration(DurationFilter value) =>
+      _set('duration', value, state.copyWith(duration: value));
+
+  void setAura(AuraFilter value) =>
+      _set('aura', value, state.copyWith(aura: value));
+
+  void setArea(AreaFilter value) =>
+      _set('area', value, state.copyWith(area: value));
+
+  void setMedication(MedicationFilter value) =>
+      _set('medication', value, state.copyWith(medication: value));
+
+  void setMedicationName(String value) =>
+      _set('medicationName', value, state.copyWith(medicationName: value));
+
+  void setEffect(EffectFilter value) =>
+      _set('effect', value, state.copyWith(effect: value));
+
+  void setSymptom(String value) =>
+      _set('symptom', value, state.copyWith(symptom: value));
+
+  void setTrigger(String value) =>
+      _set('trigger', value, state.copyWith(trigger: value));
+
+  void setExertion(ExertionFilter value) =>
+      _set('exertion', value, state.copyWith(exertion: value));
+
+  void setNotes(NotesFilter value) =>
+      _set('notes', value, state.copyWith(notes: value));
+
+  void setPressure(PressureFilter value) =>
+      _set('pressure', value, state.copyWith(pressure: value));
+
+  /// Every axis back to "all", from the summary line's own action.
   void reset() {
-    SdLogger.action(LogTagConstant.history, 'History filters reset', _payload(state));
+    SdLogger.action(LogTagConstant.history, 'History filters reset', <String, Object>{
+      'was': state.activeCount,
+    });
     state = const AttackFilters();
   }
 
-  /// Attacks matching [filters] — the applied ones, or a [draft] the sheet is still collecting, which is how its button counts before anything is committed.
-  List<Attack> filter(List<Attack> attacks, {AttackFilters? draft}) =>
-      _filterer.apply(attacks, draft ?? state, now: DateTime.now());
+  /// Attacks matching every axis, newest first.
+  List<Attack> filter(List<Attack> attacks) =>
+      _filterer.apply(attacks, state, now: DateTime.now());
 
-  /// How many attacks a draft would leave, for the sheet's confirm button.
-  int matchCount(AttackFilters draft) => filter(
-    ref.read(attacksStreamProvider).value ?? const <Attack>[],
-    draft: draft,
-  ).length;
-
-  /// What a log line carries: the period, how many axes are on, and the values of only the axes that are — the full twelve would bury the two that changed.
-  Map<String, Object> _payload(AttackFilters filters) {
-    final Map<String, Object> data = <String, Object>{
-      'activeAxes': filters.activeCount,
-    };
-
-    if (filters.period != HistoryPeriod.all) data['period'] = filters.period.name;
-    _add(data, 'intensity', filters.intensity);
-    _add(data, 'duration', filters.duration);
-    _add(data, 'aura', filters.aura);
-    _add(data, 'regions', filters.regions);
-    _add(data, 'medication', filters.medication);
-    _add(data, 'medicationNames', filters.medicationNames);
-    _add(data, 'medicationEffects', filters.medicationEffects);
-    _add(data, 'symptoms', filters.symptoms);
-    _add(data, 'triggers', filters.triggers);
-    _add(data, 'exertion', filters.exertion);
-    _add(data, 'notes', filters.notes);
-    _add(data, 'pressure', filters.pressure);
-
-    return data;
-  }
-
-  /// Names one axis' picked values, enums by their `name` and free text as written, and says nothing at all when the axis is off.
-  void _add(Map<String, Object> data, String key, Set<Object> values) {
-    if (values.isEmpty) return;
-
-    data[key] = values
-        .map((Object value) => value is Enum ? value.name : value.toString())
-        .toList();
+  /// One line per pick, naming the axis and what was picked — thirteen chips write here, so a console without the axis could not say which one moved.
+  void _set(String axis, Object value, AttackFilters next) {
+    SdLogger.action(LogTagConstant.history, 'History filter', <String, Object>{
+      'axis': axis,
+      'value': value is Enum ? value.name : value,
+    });
+    state = next;
   }
 }

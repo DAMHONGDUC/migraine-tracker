@@ -27,6 +27,16 @@ class MedicationFiltersController extends Notifier<MedicationFilters> {
     state = state.copyWith(reminder: value);
   }
 
+  /// Every axis back to "all", from the summary line's own action.
+  void reset() {
+    SdLogger.action(
+      LogTagConstant.medicationFilters,
+      'Medication filters reset',
+      <String, Object>{'was': state.activeCount},
+    );
+    state = const MedicationFilters();
+  }
+
   void setUsage(MedicationUsageFilter value) {
     SdLogger.action(
       LogTagConstant.medicationFilters,

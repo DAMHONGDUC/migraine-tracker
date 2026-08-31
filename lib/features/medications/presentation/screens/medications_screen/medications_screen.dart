@@ -13,6 +13,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/active_filter_summary.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -162,8 +163,13 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final bool overusing =
         ref.watch(medicationOveruseProvider).risk !=
         MedicationOveruseRisk.none;
+    final int activeFilters = filters.activeCount;
     final double limitTop = overusing ? 0 : filterBarHeight;
-    final double contentTop = overusing || used != null ? 0 : filterBarHeight;
+    // The summary takes the strip's gap only when nothing above it already has.
+    final double summaryTop = overusing || used != null ? 0 : filterBarHeight;
+    final double contentTop = overusing || used != null || activeFilters > 0
+        ? 0
+        : filterBarHeight;
 
     return SdCollapsingFilterScaffoldV2(
       // - While searching: title slot is the search field, close button leads. - Otherwise: tab title with a search affordance right after it.
@@ -208,9 +214,9 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
               ),
               SizedBox(width: SdSpacingConstant.w12),
             ],
-      // - Chips sit under the app bar while reading, lift in once scrolled. - Except while searching: the bar is the search field's, stays put.
       filter: _filterRow(context, filters, filtersController),
-      collapsible: !_searching,
+      // Pinned under the app bar, never lifted into it (owner's call): the strip is where the filters are, and a bar that takes them over moves them mid-scroll.
+      collapsible: false,
       // No outer top padding: list scrolls behind the translucent app bar, like History.
       body: SdRefreshIndicatorV2(
         // Drop the spinner below the filter strip, not over its chips.
@@ -250,6 +256,22 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                     limit: PremiumLimitConstant.medications,
                     titleBuilder: (int left) =>
                         l10n.freeLimitMedications(left),
+                  ),
+                ),
+              ),
+            // Under the meter, above the first card: how much of the list is being hidden, and the one tap that gives it back.
+            if (activeFilters > 0)
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  SdContentPaddingV2.horizontal,
+                  summaryTop,
+                  SdContentPaddingV2.horizontal,
+                  SdContentPaddingV2.listItemGap,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: ActiveFilterSummary(
+                    count: activeFilters,
+                    onClear: filtersController.reset,
                   ),
                 ),
               ),
@@ -314,6 +336,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           optionLabelBuilder: (value) => _FilterLabels.date(context, value),
           onSelected: filtersController.setDate,
           sheetTitle: l10n.medicationsFilterDateTitle,
+          // Highlighted while it is narrowing the list, so a filter left on is visible without reading every chip's label.
+          active: filters.date != MedicationDateFilter.all,
         ),
         SizedBox(width: SdSpacingConstant.w8),
         SdFilterChipV2<MedicationReminderFilter>(
@@ -325,6 +349,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           optionLabelBuilder: (value) => _FilterLabels.reminder(context, value),
           onSelected: filtersController.setReminder,
           sheetTitle: l10n.medicationsFilterReminderTitle,
+          active: filters.reminder != MedicationReminderFilter.all,
         ),
         SizedBox(width: SdSpacingConstant.w8),
         SdFilterChipV2<MedicationUsageFilter>(
@@ -336,6 +361,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
           optionLabelBuilder: (value) => _FilterLabels.usage(context, value),
           onSelected: filtersController.setUsage,
           sheetTitle: l10n.medicationsFilterUsageTitle,
+          active: filters.usage != MedicationUsageFilter.all,
         ),
       ],
     );

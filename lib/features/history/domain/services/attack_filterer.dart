@@ -1,12 +1,14 @@
 import '../../../../core/constants/home_widget_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/aura_type.dart';
+import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_region.dart';
+import '../../../attacks/domain/enums/medication_effect.dart';
 import '../enums/attack_filters.dart';
 import 'attack_period_filter.dart';
 import 'chart_analytics.dart';
 
-/// Applies the History sheet's [AttackFilters] to a list of attacks. Pure Dart, so every band and every edge is a unit test rather than a screen to drive.
+/// Applies the History chip row's [AttackFilters] to a list of attacks. Pure Dart, so every band and every edge is a unit test rather than a screen to drive.
 class AttackFilterer {
   const AttackFilterer();
 
@@ -20,7 +22,7 @@ class AttackFilterer {
   /// Bottom of that band.
   static const Duration _shortAttack = Duration(hours: 4);
 
-  /// Attacks matching every axis of [filters]. Axes AND together; the values inside one axis OR, so an empty axis narrows nothing.
+  /// Attacks matching every axis of [filters] — the axes AND together, and an axis resting on its "all" narrows nothing.
   List<Attack> apply(
     List<Attack> attacks,
     AttackFilters filters, {
@@ -39,101 +41,98 @@ class AttackFilterer {
       _matchesIntensity(attack, filters) &&
       _matchesDuration(attack, filters) &&
       _matchesAura(attack, filters) &&
-      _matchesRegions(attack, filters) &&
+      _matchesArea(attack, filters) &&
       _matchesMedication(attack, filters) &&
       _matchesMedicationName(attack, filters) &&
-      _matchesMedicationEffect(attack, filters) &&
-      _matchesTexts(attack.symptoms, filters.symptoms) &&
-      _matchesTexts(attack.triggers, filters.triggers) &&
+      _matchesEffect(attack, filters) &&
+      _matchesText(attack.symptoms, filters.symptom) &&
+      _matchesText(attack.triggers, filters.trigger) &&
       _matchesExertion(attack, filters) &&
       _matchesNotes(attack, filters) &&
       _matchesPressure(attack, filters);
 
-  bool _matchesIntensity(Attack attack, AttackFilters filters) =>
-      filters.intensity.isEmpty ||
-      filters.intensity.contains(_severity.bandOf(attack.intensity));
+  bool _matchesIntensity(Attack attack, AttackFilters filters) {
+    final SeverityBand? band = filters.intensity.band;
+
+    return band == null || _severity.bandOf(attack.intensity) == band;
+  }
 
   bool _matchesDuration(Attack attack, AttackFilters filters) =>
-      filters.duration.isEmpty ||
-      filters.duration.contains(durationBandOf(attack.duration));
+      filters.duration == DurationFilter.all ||
+      durationBandOf(attack.duration) == filters.duration;
 
-  /// The band a duration falls in; a null one is [AttackDurationBand.unrecorded] rather than being dropped — an attack still running is a real answer.
-  AttackDurationBand durationBandOf(Duration? duration) {
-    if (duration == null) return AttackDurationBand.unrecorded;
-    if (duration < _shortAttack) return AttackDurationBand.under4h;
-    if (duration <= _longAttack) return AttackDurationBand.from4To72h;
+  /// The band a duration falls in; a null one is [DurationFilter.unrecorded] rather than being dropped — an attack still running is a real answer.
+  DurationFilter durationBandOf(Duration? duration) {
+    if (duration == null) return DurationFilter.unrecorded;
+    if (duration < _shortAttack) return DurationFilter.under4h;
+    if (duration <= _longAttack) return DurationFilter.from4To72h;
 
-    return AttackDurationBand.over72h;
+    return DurationFilter.over72h;
   }
 
   bool _matchesAura(Attack attack, AttackFilters filters) {
-    if (filters.aura.isEmpty) return true;
+    if (filters.aura == AuraFilter.all) return true;
 
     final List<AuraType> aura = attack.aura ?? const <AuraType>[];
+
     // "No aura" covers both answers that mean it: never asked, and asked and answered none.
-    if (aura.isEmpty) return filters.aura.contains(AuraFilterOption.none);
+    if (filters.aura == AuraFilter.none) return aura.isEmpty;
 
-    return filters.aura.any(
-      (AuraFilterOption option) =>
-          option.type != null && aura.contains(option.type),
-    );
+    return aura.contains(filters.aura.type);
   }
 
-  bool _matchesRegions(Attack attack, AttackFilters filters) =>
-      filters.regions.isEmpty ||
-      attack.regions.any((HeadRegion region) => filters.regions.contains(region));
+  bool _matchesArea(Attack attack, AttackFilters filters) {
+    if (filters.area == AreaFilter.all) return true;
 
-  bool _matchesMedication(Attack attack, AttackFilters filters) {
-    if (filters.medication.isEmpty) return true;
+    final List<HeadRegion> wanted = filters.area.regions;
 
-    final bool taken = _medicationName(attack) != null;
-
-    return filters.medication.contains(
-      taken ? MedicationTakenFilter.taken : MedicationTakenFilter.notTaken,
-    );
+    return attack.regions.any(wanted.contains);
   }
+
+  bool _matchesMedication(Attack attack, AttackFilters filters) =>
+      switch (filters.medication) {
+        MedicationFilter.all => true,
+        MedicationFilter.taken => _medicationName(attack) != null,
+        MedicationFilter.notTaken => _medicationName(attack) == null,
+      };
 
   bool _matchesMedicationName(Attack attack, AttackFilters filters) {
-    if (filters.medicationNames.isEmpty) return true;
+    if (filters.medicationName == AttackFilters.anyText) return true;
 
     final String? name = _medicationName(attack);
 
-    if (name == null) return false;
-
-    return filters.medicationNames.any(
-      (String picked) => _sameText(picked, name),
-    );
+    return name != null && _sameText(name, filters.medicationName);
   }
 
-  bool _matchesMedicationEffect(Attack attack, AttackFilters filters) =>
-      filters.medicationEffects.isEmpty ||
-      filters.medicationEffects.contains(attack.medicationEffect);
+  bool _matchesEffect(Attack attack, AttackFilters filters) {
+    final MedicationEffect? effect = filters.effect.effect;
 
-  /// One rule for both free-text axes: the attack matches when it carries any of the picked words, compared the way the option list deduped them.
-  bool _matchesTexts(List<String> values, Set<String> picked) =>
-      picked.isEmpty ||
-      values.any(
-        (String value) =>
-            picked.any((String choice) => _sameText(choice, value)),
-      );
+    return effect == null || attack.medicationEffect == effect;
+  }
 
-  bool _matchesExertion(Attack attack, AttackFilters filters) =>
-      filters.exertion.isEmpty ||
-      filters.exertion.contains(attack.exertionLevel);
+  /// One rule for both free-text axes: the attack matches when it carries the picked word, compared the way the option list deduped it.
+  bool _matchesText(List<String> values, String picked) =>
+      picked == AttackFilters.anyText ||
+      values.any((String value) => _sameText(value, picked));
+
+  bool _matchesExertion(Attack attack, AttackFilters filters) {
+    final ExertionLevel? level = filters.exertion.level;
+
+    return level == null || attack.exertionLevel == level;
+  }
 
   bool _matchesNotes(Attack attack, AttackFilters filters) {
-    if (filters.notes.isEmpty) return true;
+    if (filters.notes == NotesFilter.all) return true;
 
     final bool hasNotes = (attack.notes ?? '').trim().isNotEmpty;
 
-    return filters.notes.contains(
-      hasNotes ? NotesFilter.withNotes : NotesFilter.withoutNotes,
-    );
+    return filters.notes ==
+        (hasNotes ? NotesFilter.withNotes : NotesFilter.withoutNotes);
   }
 
   bool _matchesPressure(Attack attack, AttackFilters filters) =>
-      filters.pressure.isEmpty ||
-      filters.pressure.contains(pressureTrendOf(attack));
+      filters.pressure == PressureFilter.all ||
+      pressureTrendOf(attack) == filters.pressure;
 
   /// Which way pressure had moved over the 24h before the attack.
   ///
@@ -141,18 +140,18 @@ class AttackFilterer {
   /// already draws one line between "steady" and "a direction", and a second
   /// number here would let the home screen widget and this filter disagree
   /// about the same reading.
-  PressureTrendFilter pressureTrendOf(Attack attack) {
+  PressureFilter pressureTrendOf(Attack attack) {
     final double? delta = attack.weather?.pressureDelta24hHpa;
 
-    if (delta == null) return PressureTrendFilter.noData;
+    if (delta == null) return PressureFilter.noData;
     if (delta <= -HomeWidgetConstant.trendThresholdHpa) {
-      return PressureTrendFilter.falling;
+      return PressureFilter.falling;
     }
     if (delta >= HomeWidgetConstant.trendThresholdHpa) {
-      return PressureTrendFilter.rising;
+      return PressureFilter.rising;
     }
 
-    return PressureTrendFilter.steady;
+    return PressureFilter.steady;
   }
 
   /// The medication on an attack, or null when nothing was taken — an empty string is the same answer as none and must not read as a name.
@@ -166,7 +165,7 @@ class AttackFilterer {
   static bool _sameText(String a, String b) =>
       a.trim().toLowerCase() == b.trim().toLowerCase();
 
-  /// The distinct values behind a free-text axis, in the spelling they were first written, most-recent attack first — what the sheet offers as chips.
+  /// The distinct values behind a free-text axis, in the spelling they were first written, most-recent attack first — what the chip's sheet offers.
   List<String> textOptions(
     List<Attack> attacks,
     List<String> Function(Attack attack) pick,

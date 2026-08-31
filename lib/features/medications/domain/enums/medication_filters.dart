@@ -22,10 +22,14 @@ class MedicationFilters {
   final MedicationReminderFilter reminder;
   final MedicationUsageFilter usage;
 
-  bool get isDefault =>
-      date == MedicationDateFilter.all &&
-      reminder == MedicationReminderFilter.all &&
-      usage == MedicationUsageFilter.all;
+  /// How many axes are narrowing the list — what the summary line above it counts. Same getter, same wording, as `AttackFilters` on History.
+  int get activeCount => <bool>[
+    date != MedicationDateFilter.all,
+    reminder != MedicationReminderFilter.all,
+    usage != MedicationUsageFilter.all,
+  ].where((bool on) => on).length;
+
+  bool get isDefault => activeCount == 0;
 
   MedicationFilters copyWith({
     MedicationDateFilter? date,

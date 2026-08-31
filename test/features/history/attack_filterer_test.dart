@@ -7,7 +7,6 @@ import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect
 import 'package:migraine_tracker/features/history/domain/enums/attack_filters.dart';
 import 'package:migraine_tracker/features/history/domain/enums/history_period.dart';
 import 'package:migraine_tracker/features/history/domain/services/attack_filterer.dart';
-import 'package:migraine_tracker/features/history/domain/services/chart_analytics.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 /// Wednesday 2026-07-08, 15:00 local — the same clock the period test runs on.
@@ -66,12 +65,14 @@ void main() {
     final List<Attack> attacks = <Attack>[attack(id: 'a'), attack(id: 'b')];
 
     expect(ids(attacks, const AttackFilters()), <String>['a', 'b']);
+    expect(const AttackFilters().isDefault, isTrue);
   });
 
-  test('period narrows before every other axis', () {
+  test('the axes AND together, period included', () {
     final List<Attack> attacks = <Attack>[
-      attack(id: 'today', startedAt: DateTime(2026, 7, 8, 9), intensity: 2),
-      attack(id: 'old', startedAt: DateTime(2026, 6, 20), intensity: 2),
+      attack(id: 'both', startedAt: DateTime(2026, 7, 8, 9), intensity: 2),
+      attack(id: 'oldMild', startedAt: DateTime(2026, 6, 20), intensity: 2),
+      attack(id: 'todayHard', startedAt: DateTime(2026, 7, 8, 10), intensity: 9),
     ];
 
     expect(
@@ -79,47 +80,23 @@ void main() {
         attacks,
         const AttackFilters(
           period: HistoryPeriod.today,
-          intensity: <SeverityBand>{SeverityBand.mild},
-        ),
-      ),
-      <String>['today'],
-    );
-  });
-
-  test('values inside one axis OR together', () {
-    final List<Attack> attacks = <Attack>[
-      attack(id: 'mild', intensity: 2),
-      attack(id: 'moderate', intensity: 5),
-      attack(id: 'extreme', intensity: 10),
-    ];
-
-    expect(
-      ids(
-        attacks,
-        const AttackFilters(
-          intensity: <SeverityBand>{SeverityBand.mild, SeverityBand.extreme},
-        ),
-      ),
-      <String>['mild', 'extreme'],
-    );
-  });
-
-  test('axes AND together', () {
-    final List<Attack> attacks = <Attack>[
-      attack(id: 'both', intensity: 2, notes: 'woke me up'),
-      attack(id: 'mildOnly', intensity: 2),
-      attack(id: 'notesOnly', intensity: 9, notes: 'woke me up'),
-    ];
-
-    expect(
-      ids(
-        attacks,
-        const AttackFilters(
-          intensity: <SeverityBand>{SeverityBand.mild},
-          notes: <NotesFilter>{NotesFilter.withNotes},
+          intensity: IntensityFilter.mild,
         ),
       ),
       <String>['both'],
+    );
+  });
+
+  test('an intensity band matches only its own band', () {
+    final List<Attack> attacks = <Attack>[
+      attack(id: 'mild', intensity: 3),
+      attack(id: 'moderate', intensity: 4),
+      attack(id: 'extreme', intensity: 9),
+    ];
+
+    expect(
+      ids(attacks, const AttackFilters(intensity: IntensityFilter.moderate)),
+      <String>['moderate'],
     );
   });
 
@@ -127,19 +104,19 @@ void main() {
     test('bands split on the 4h and 72h edges the diagnosis uses', () {
       expect(
         filterer.durationBandOf(const Duration(hours: 3, minutes: 59)),
-        AttackDurationBand.under4h,
+        DurationFilter.under4h,
       );
       expect(
         filterer.durationBandOf(const Duration(hours: 4)),
-        AttackDurationBand.from4To72h,
+        DurationFilter.from4To72h,
       );
       expect(
         filterer.durationBandOf(const Duration(hours: 72)),
-        AttackDurationBand.from4To72h,
+        DurationFilter.from4To72h,
       );
       expect(
         filterer.durationBandOf(const Duration(hours: 72, minutes: 1)),
-        AttackDurationBand.over72h,
+        DurationFilter.over72h,
       );
     });
 
@@ -150,12 +127,7 @@ void main() {
       ];
 
       expect(
-        ids(
-          attacks,
-          const AttackFilters(
-            duration: <AttackDurationBand>{AttackDurationBand.unrecorded},
-          ),
-        ),
+        ids(attacks, const AttackFilters(duration: DurationFilter.unrecorded)),
         <String>['open'],
       );
     });
@@ -171,40 +143,35 @@ void main() {
 
     test('a kind matches the attacks reporting it', () {
       expect(
-        ids(
-          attacks,
-          const AttackFilters(aura: <AuraFilterOption>{AuraFilterOption.visual}),
-        ),
+        ids(attacks, const AttackFilters(aura: AuraFilter.visual)),
         <String>['visual'],
       );
     });
 
     test('"no aura" covers both ways of not having one', () {
       expect(
-        ids(
-          attacks,
-          const AttackFilters(aura: <AuraFilterOption>{AuraFilterOption.none}),
-        ),
+        ids(attacks, const AttackFilters(aura: AuraFilter.none)),
         <String>['answeredNone', 'neverAsked'],
       );
     });
   });
 
-  test('a region matches an attack that names it among others', () {
+  test('an area matches an attack naming any region on that side', () {
     final List<Attack> attacks = <Attack>[
       attack(
-        id: 'temples',
-        regions: const <HeadRegion>[HeadRegion.templeL, HeadRegion.templeR],
+        id: 'leftTemple',
+        regions: const <HeadRegion>[HeadRegion.templeL],
       ),
       attack(id: 'nape', regions: const <HeadRegion>[HeadRegion.nape]),
     ];
 
     expect(
-      ids(
-        attacks,
-        const AttackFilters(regions: <HeadRegion>{HeadRegion.templeR}),
-      ),
-      <String>['temples'],
+      ids(attacks, const AttackFilters(area: AreaFilter.left)),
+      <String>['leftTemple'],
+    );
+    expect(
+      ids(attacks, const AttackFilters(area: AreaFilter.back)),
+      <String>['nape'],
     );
   });
 
@@ -217,22 +184,14 @@ void main() {
 
     test('an empty name is the same answer as none', () {
       expect(
-        ids(
-          attacks,
-          const AttackFilters(
-            medication: <MedicationTakenFilter>{MedicationTakenFilter.notTaken},
-          ),
-        ),
+        ids(attacks, const AttackFilters(medication: MedicationFilter.notTaken)),
         <String>['blank', 'none'],
       );
     });
 
     test('a picked name matches whatever case it was written in', () {
       expect(
-        ids(
-          attacks,
-          const AttackFilters(medicationNames: <String>{'sumatriptan'}),
-        ),
+        ids(attacks, const AttackFilters(medicationName: 'sumatriptan')),
         <String>['sumatriptan'],
       );
     });
@@ -248,12 +207,7 @@ void main() {
       ];
 
       expect(
-        ids(
-          answered,
-          const AttackFilters(
-            medicationEffects: <MedicationEffect>{MedicationEffect.helped},
-          ),
-        ),
+        ids(answered, const AttackFilters(effect: EffectFilter.helped)),
         <String>['helped'],
       );
     });
@@ -266,7 +220,7 @@ void main() {
     ];
 
     expect(
-      ids(attacks, const AttackFilters(symptoms: <String>{' nausea '})),
+      ids(attacks, const AttackFilters(symptom: ' nausea ')),
       <String>['nausea'],
     );
   });
@@ -278,10 +232,7 @@ void main() {
     ];
 
     expect(
-      ids(
-        attacks,
-        const AttackFilters(exertion: <ExertionLevel>{ExertionLevel.severe}),
-      ),
+      ids(attacks, const AttackFilters(exertion: ExertionFilter.severe)),
       <String>['severe'],
     );
   });
@@ -293,7 +244,7 @@ void main() {
     ];
 
     expect(
-      ids(attacks, const AttackFilters(notes: <NotesFilter>{NotesFilter.withNotes})),
+      ids(attacks, const AttackFilters(notes: NotesFilter.withNotes)),
       <String>['written'],
     );
   });
@@ -302,15 +253,15 @@ void main() {
     test('the steady band is the ±1 hPa the widget already draws', () {
       expect(
         filterer.pressureTrendOf(attack(pressureDelta: -1)),
-        PressureTrendFilter.falling,
+        PressureFilter.falling,
       );
       expect(
         filterer.pressureTrendOf(attack(pressureDelta: -0.9)),
-        PressureTrendFilter.steady,
+        PressureFilter.steady,
       );
       expect(
         filterer.pressureTrendOf(attack(pressureDelta: 1)),
-        PressureTrendFilter.rising,
+        PressureFilter.rising,
       );
     });
 
@@ -321,12 +272,7 @@ void main() {
       ];
 
       expect(
-        ids(
-          attacks,
-          const AttackFilters(
-            pressure: <PressureTrendFilter>{PressureTrendFilter.noData},
-          ),
-        ),
+        ids(attacks, const AttackFilters(pressure: PressureFilter.noData)),
         <String>['offline'],
       );
     });
@@ -342,16 +288,5 @@ void main() {
       filterer.textOptions(attacks, (Attack attack) => attack.symptoms),
       <String>['Nausea', 'aura'],
     );
-  });
-
-  test('active axes are what the pill counts', () {
-    const AttackFilters filters = AttackFilters(
-      period: HistoryPeriod.week,
-      intensity: <SeverityBand>{SeverityBand.mild},
-      notes: <NotesFilter>{NotesFilter.withNotes},
-    );
-
-    expect(filters.activeCount, 3);
-    expect(const AttackFilters().isDefault, isTrue);
   });
 }

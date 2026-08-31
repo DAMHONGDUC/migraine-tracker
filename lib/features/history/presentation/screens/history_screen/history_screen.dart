@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/premium_limit_constant.dart';
+import '../../../../../core/extensions/attack_filter_labels.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/active_filter_summary.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/premium_gate.dart';
+import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/entities/attack.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../sync/providers.dart';
+import '../../../domain/entities/attack_filter_options.dart';
+import '../../../domain/enums/attack_filters.dart';
+import '../../../domain/enums/history_period.dart';
 import '../../../domain/enums/history_view_mode.dart';
 import '../../../domain/services/chart_analytics.dart';
 import '../../../domain/services/sample_chart_data.dart';
 import '../../../domain/services/weekly_buckets.dart';
 import '../../../providers.dart';
+import '../../controllers/attack_filters_controller.dart';
 import '../../widgets/attack_tile.dart';
 import '../../widgets/history_calendar_view.dart';
-import '../../widgets/history_filters_pill.dart';
 import '../../widgets/history_view_toggle.dart';
 import '../../widgets/intensity_trend_chart.dart';
 import '../../widgets/location_breakdown_chart.dart';
@@ -33,55 +38,50 @@ part 'history_screen_chart_view.dart';
 part 'history_screen_charts.dart';
 part 'history_screen_attack_list.dart';
 
-class HistoryScreen extends HookConsumerWidget {
+class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final allAttacks = ref.watch(attacksStreamProvider);
-    final filtered = ref.watch(filteredAttacksProvider);
-    final mode = ref.watch(historyViewModeProvider);
+    final AppLocalizations l10n = context.l10n;
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
+    final AsyncValue<List<Attack>> filtered = ref.watch(filteredAttacksProvider);
+    final HistoryViewMode mode = ref.watch(historyViewModeProvider);
     final syncStatus = ref.watch(syncControllerProvider);
-    final isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
+    final bool isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
+    // Nothing recorded yet is nothing to filter: no strip at all, and the content keeps the screen's own top gap instead of clearing one.
+    final bool hasAttacks = (allAttacks.value ?? const <Attack>[]).isNotEmpty;
+    // The calendar ignores the filters, so it does not carry them either: a strip that changes nothing on the screen it sits over is worse than none.
+    final bool showFilter =
+        hasAttacks && mode != HistoryViewMode.calendar;
+    // Fixed regardless of the strip's collapse state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
+    final double topInset = showFilter
+        ? SdContentPaddingV2.belowPinnedFilterBar(context)
+        : SdContentPaddingV2.top(context);
 
-    // Tracked per view: IndexedStack keeps both alive with their own scroll offsets.
-    final listPastFilter = useState(false);
-    final chartPastFilter = useState(false);
-    final pastFilter = switch (mode) {
-      HistoryViewMode.list => listPastFilter.value,
-      HistoryViewMode.chart => chartPastFilter.value,
-      HistoryViewMode.calendar => false,
-    };
-
-    return SdScaffoldV2(
-      // - at rest, the pill lives in the scroll content - once scrolled, it takes the title slot and the "History" heading hides
-      title: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        child: pastFilter
-            ? const Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: HistoryFiltersPill(),
-              )
-            : Text(l10n.historyTitle, style: AppTextStyle.titleLarge),
-      ),
-      actions: [
+    return SdCollapsingFilterScaffoldV2(
+      title: Text(l10n.historyTitle, style: AppTextStyle.titleLarge),
+      actions: <Widget>[
         HistoryViewToggle(
           mode: mode,
           onChanged: ref.read(historyViewModeProvider.notifier).select,
         ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
+      // - One chip per axis, like the medications tab (owner's call). - Pinned under the app bar and never lifted into it (owner's call): the strip is where the filters are, and a bar that takes them over moves them mid-scroll.
+      filter: showFilter ? const _FilterRow() : null,
+      collapsible: false,
       // No outer top padding: each view pads INSIDE its own scrollable, so content scrolls behind the app bar.
       body: SdRefreshIndicatorV2(
+        // Drop the spinner below the filter strip, not over its chips.
+        edgeOffset: showFilter ? topInset + SdSpacingConstant.h8 : 0,
         onRefresh: () => SdRefreshIndicatorV2.run(
           () => ref.invalidate(attacksStreamProvider),
         ),
         child: switch (allAttacks) {
           // Signed in on a new device: the list is empty because the history is still arriving, not because there is none.
-          AsyncData(value: final all) when all.isEmpty && isFirstSync =>
+          AsyncData(value: final List<Attack> all)
+              when all.isEmpty && isFirstSync =>
             SdScrollFillV2(
               topInset: SdContentPaddingV2.appBarInset(context),
               child: SdEmptyStateV2(
@@ -89,36 +89,36 @@ class HistoryScreen extends HookConsumerWidget {
                 message: l10n.historyFirstSyncLoading,
               ),
             ),
-          AsyncData(value: final all) when all.isEmpty => SdScrollFillV2(
-            topInset: SdContentPaddingV2.appBarInset(context),
-            child: SdEmptyStateV2(
-              icon: AppIconConstant.attackList,
-              message: l10n.historyEmpty,
+          AsyncData(value: final List<Attack> all) when all.isEmpty =>
+            SdScrollFillV2(
+              topInset: SdContentPaddingV2.appBarInset(context),
+              child: SdEmptyStateV2(
+                icon: AppIconConstant.attackList,
+                message: l10n.historyEmpty,
+              ),
             ),
-          ),
-          AsyncData(value: final all) => Builder(
-            builder: (context) {
-              final list = switch (filtered) {
-                AsyncData(value: final value) => value,
+          AsyncData(value: final List<Attack> all) => Builder(
+            builder: (BuildContext context) {
+              final List<Attack> list = switch (filtered) {
+                AsyncData(value: final List<Attack> value) => value,
                 _ => const <Attack>[],
               };
-          // One shared inset keeps all history views above the floating navigation.
-              final topInset = SdContentPaddingV2.top(context);
-              final bottomInset = SdContentPaddingV2.bottom(
+              // One shared inset keeps all history views above the floating navigation.
+              final double bottomInset = SdContentPaddingV2.bottom(
                 context,
                 floatingNav: true,
               );
+
               // IndexedStack keeps ALL views alive so switching modes preserves state (scroll position, selected day, layout).
               return IndexedStack(
                 index: HistoryViewMode.values.indexOf(mode),
-                children: [
+                children: <Widget>[
                   _AttackList(
                     attacks: list,
                     topInset: topInset,
                     bottomInset: bottomInset,
-                    onPastFilterChanged: (past) => listPastFilter.value = past,
                   ),
-                  // Calendar ignores the period filter by design.
+                  // Calendar ignores the filters by design.
                   HistoryCalendarView(
                     attacks: all,
                     topInset: topInset,
@@ -128,7 +128,6 @@ class HistoryScreen extends HookConsumerWidget {
                     attacks: list,
                     topInset: topInset,
                     bottomInset: bottomInset,
-                    onPastFilterChanged: (past) => chartPastFilter.value = past,
                   ),
                 ],
               );
