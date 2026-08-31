@@ -32,16 +32,32 @@ class InsightCard extends StatelessWidget {
 
   final VoidCallback? onTap;
 
-  /// The inset every card holds its content at. Public because
+  /// The horizontal inset every card holds its content at. Public because
   /// [InsightCardDivider] cancels exactly this and the two must not drift.
   static double get gutter => SdSpacingConstant.w20;
+
+  /// The vertical rhythm inside a card, and the one number every part of one
+  /// is separated by: the space above the first item, the space either side of
+  /// a divider, the space between the title and what it names.
+  ///
+  /// **Same 20 as [gutter] but on the vertical axis** — `EdgeInsets.all` used
+  /// to spend a `.w` on top and bottom, so a card's own top gap and the gaps
+  /// stacked under it were measured against different scales. And it is a
+  /// number rather than a habit because the gap above an item and the gap
+  /// below it are only even if one place decides both: they were 20 and 0
+  /// under the switch rows, which reads as the divider hanging off the row
+  /// above it.
+  static double get stackGap => SdSpacingConstant.h20;
 
   @override
   Widget build(BuildContext context) {
     return SdCardV2(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(gutter),
+        padding: EdgeInsets.symmetric(
+          horizontal: gutter,
+          vertical: stackGap,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -76,7 +92,7 @@ class InsightCard extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(height: SdSpacingConstant.h16),
+              SizedBox(height: stackGap),
             ],
             child,
           ],

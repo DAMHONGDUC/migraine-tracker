@@ -56,9 +56,9 @@ class PressureCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               const PressureForecastBody(),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
+              SizedBox(height: InsightCard.stackGap),
               const InsightCardDivider(),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
+              SizedBox(height: InsightCard.stackGap),
               // On the forecast's card, not the analysis': the alert fires on what the chart above it draws.
               const _AlertControls(),
             ],
@@ -80,9 +80,9 @@ class PressureCard extends ConsumerWidget {
             children: <Widget>[
               // The conclusion first, then the working: everything below this line is the evidence it was drawn from.
               const TriggerVerdictBody(),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
+              SizedBox(height: InsightCard.stackGap),
               CorrelationBody(result: result),
-              SizedBox(height: SdContentPaddingV2.sectionGap),
+              SizedBox(height: InsightCard.stackGap),
               // Directly under the sentence it draws: the share and the picture of the same month belong to one another.
               const PressureHistoryBody(),
             ],

@@ -23,8 +23,10 @@ class _NightsSection extends ConsumerWidget {
           icon: AppIconConstant.sleep,
           title: l10n.healthSleepTitle,
         ),
+        // One rhythm above and below: the row was 20 from the card's top edge and flush against the divider, which read as the line hanging off it.
+        SizedBox(height: InsightCard.stackGap),
         const InsightCardDivider(),
-        SizedBox(height: SdSpacingConstant.h16),
+        SizedBox(height: InsightCard.stackGap),
         if (connected) ...<Widget>[
           HealthRangeSelector(
             selected: range,
