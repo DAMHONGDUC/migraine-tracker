@@ -37,9 +37,10 @@ class _StepsSection extends ConsumerWidget {
             _StepDayChart(range: range),
         ] else
           // No connect button beside it any more: the switch above IS the button, and two ways to grant one permission is one too many.
-          Text(
-            l10n.insightsStepsNotConnected,
-            style: AppTextStyle.bodyMedium.secondary,
+          SdEmptyStateV2(
+            icon: AppIconConstant.steps,
+            message: l10n.insightsStepsNotConnected,
+            size: SdEmptyStateSizeV2.compact,
           ),
         SizedBox(height: SdSpacingConstant.h12),
         Text(

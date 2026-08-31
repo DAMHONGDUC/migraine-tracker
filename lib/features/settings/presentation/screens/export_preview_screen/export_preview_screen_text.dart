@@ -47,7 +47,36 @@ class _TextBody extends ConsumerWidget {
         icon: AppIconConstant.document,
         message: l10n.exportFileMissing,
       ),
-      _ => const Center(child: CircularProgressIndicator()),
+      // The shape is known — a page of lines — so it is drawn rather than spun for.
+      _ => const _TextSkeleton(),
     };
+  }
+}
+
+/// A page of lines, in place of the page that has not been read off disk yet.
+class _TextSkeleton extends StatelessWidget {
+  const _TextSkeleton();
+
+  /// Enough to fill the shortest screen this generation ships on.
+  static const int lines = 14;
+
+  /// Ragged like real text, and repeated rather than random so the placeholder
+  /// does not redraw differently on every rebuild.
+  static const List<double> fractions = <double>[1, 0.92, 0.68, 0.85];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: SdContentPaddingV2.screen(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < lines; i++) ...<Widget>[
+            if (i > 0) SizedBox(height: SdSkeletonV2.lineGap),
+            SdSkeletonV2.line(fraction: fractions[i % fractions.length]),
+          ],
+        ],
+      ),
+    );
   }
 }

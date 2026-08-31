@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/health_range.dart';
 import '../../domain/services/health_range_buckets.dart';
@@ -46,13 +46,13 @@ class HealthRangeChart extends StatelessWidget {
     final bool labelled = buckets.length <= _maxLabelledBars;
 
     if (buckets.isEmpty) {
+      // The plot's own height, so an empty window does not collapse the card and then push it open again when the bars arrive.
       return SizedBox(
         height: SdChartStyleV2.plotHeight,
-        child: Center(
-          child: Text(
-            l10n.healthRangeEmpty,
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        child: SdEmptyStateV2(
+          icon: AppIconConstant.barChart,
+          message: l10n.healthRangeEmpty,
+          size: SdEmptyStateSizeV2.compact,
         ),
       );
     }

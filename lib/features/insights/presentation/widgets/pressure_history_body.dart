@@ -6,6 +6,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/chart_axis_utils.dart';
 import '../../domain/entities/pressure_timeline.dart';
@@ -32,9 +33,10 @@ class PressureHistoryBody extends ConsumerWidget {
         ),
         SizedBox(height: SdSpacingConstant.h12),
         if (timeline.isEmpty)
-          Text(
-            l10n.insightsPressureHistoryEmpty,
-            style: AppTextStyle.bodySmall.secondary,
+          SdEmptyStateV2(
+            icon: AppIconConstant.pressure,
+            message: l10n.insightsPressureHistoryEmpty,
+            size: SdEmptyStateSizeV2.compact,
           )
         else ...<Widget>[
           _Chart(timeline: timeline),

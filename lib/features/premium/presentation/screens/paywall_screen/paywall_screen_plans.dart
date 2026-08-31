@@ -4,21 +4,48 @@ part of 'paywall_screen.dart';
 class _Plans extends StatelessWidget {
   const _Plans({
     required this.offers,
+    required this.isLoading,
     required this.selectedId,
     required this.onSelected,
   });
 
+  /// How tall a plan row comes out, so the placeholder reserves the same space
+  /// and the CTA under it does not jump when the store answers.
+  static double get rowHeight => SdSpacingConstant.h64;
+
+  /// What the store offers here, or two of them.
+  static const int placeholderRows = 2;
+
   final List<PremiumOffer> offers;
+
+  /// Whether the store has not answered yet. Empty *and* loading is a wait;
+  /// empty and settled is a store with nothing to sell, and those are not the
+  /// same screen.
+  final bool isLoading;
+
   final String? selectedId;
   final ValueChanged<PremiumOffer> onSelected;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < placeholderRows; i++) ...<Widget>[
+            if (i > 0) SizedBox(height: SdContentPaddingV2.listItemGap),
+            SdSkeletonV2(height: rowHeight),
+          ],
+        ],
+      );
+    }
+
     if (offers.isEmpty) {
-      return Text(
-        context.l10n.paywallNoPlans,
-        textAlign: TextAlign.center,
-        style: AppTextStyle.bodyMedium.secondary,
+      // An icon, not a line of prose where the plans should be: a bare sentence there reads as a failure rather than as a state.
+      return SdEmptyStateV2(
+        icon: AppIconConstant.premium,
+        message: context.l10n.paywallNoPlans,
+        size: SdEmptyStateSizeV2.compact,
       );
     }
 

@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../attacks/providers.dart';
@@ -76,9 +77,10 @@ class DashboardSeverityCard extends ConsumerWidget {
                   SdDonutLegendV2(slices: slices),
                   if (!hasAttacks) ...<Widget>[
                     SizedBox(height: SdSpacingConstant.h8),
-                    Text(
-                      l10n.dashboardSeverityEmpty,
-                      style: AppTextStyle.bodySmall.secondary,
+                    SdEmptyStateV2(
+                      icon: AppIconConstant.analysis,
+                      message: l10n.dashboardSeverityEmpty,
+                      size: SdEmptyStateSizeV2.compact,
                     ),
                   ],
                 ],

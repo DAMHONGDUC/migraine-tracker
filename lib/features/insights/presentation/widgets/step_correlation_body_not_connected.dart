@@ -6,9 +6,10 @@ class _StepNotConnected extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      context.l10n.insightsStepsNotConnected,
-      style: AppTextStyle.bodyMedium,
+    return SdEmptyStateV2(
+      icon: AppIconConstant.steps,
+      message: context.l10n.insightsStepsNotConnected,
+      size: SdEmptyStateSizeV2.compact,
     );
   }
 }

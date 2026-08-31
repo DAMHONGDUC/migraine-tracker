@@ -44,9 +44,10 @@ class _NightsSection extends ConsumerWidget {
             semanticsLabel: l10n.a11ySleepSummaryChart(buckets.length),
           ),
         ] else
-          Text(
-            l10n.insightsSleepNotConnected,
-            style: AppTextStyle.bodyMedium.secondary,
+          SdEmptyStateV2(
+            icon: AppIconConstant.sleep,
+            message: l10n.insightsSleepNotConnected,
+            size: SdEmptyStateSizeV2.compact,
           ),
         SizedBox(height: SdSpacingConstant.h12),
         Text(
@@ -71,9 +72,10 @@ class _Headline extends StatelessWidget {
     final bool isAverage = range != HealthRange.day;
 
     if (nights.isEmpty) {
-      return Text(
-        l10n.sleepSummaryEmpty,
-        style: AppTextStyle.bodyMedium.secondary,
+      return SdEmptyStateV2(
+        icon: AppIconConstant.sleep,
+        message: l10n.sleepSummaryEmpty,
+        size: SdEmptyStateSizeV2.compact,
       );
     }
 

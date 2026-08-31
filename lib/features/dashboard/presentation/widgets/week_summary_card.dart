@@ -57,9 +57,10 @@ class WeekSummaryCard extends ConsumerWidget {
             if (hasData)
               _TrendRow(summary: summary)
             else
-              Text(
-                l10n.dashboardWeekEmpty,
-                style: AppTextStyle.bodySmall.secondary,
+              SdEmptyStateV2(
+                icon: AppIconConstant.history,
+                message: l10n.dashboardWeekEmpty,
+                size: SdEmptyStateSizeV2.compact,
               ),
             if (summary.averageIntensity != null) ...[
               SizedBox(height: SdSpacingConstant.h16),
