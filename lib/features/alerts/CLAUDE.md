@@ -49,12 +49,19 @@ Logging retention window may have closed over the run that should have sent it.
 | `status` | `ok`, `partial` (finished with cells it could not fetch), `failed` (threw) |
 | `users` / `cells` / `pushes_sent` | Users considered, WeatherKit calls spent, pushes actually sent |
 | `failed_cells` / `failed_cell_count` | A sample capped at 50; the count is always the true total |
+| `max_drop_hpa` | The worst drop seen anywhere that run; null when no cell returned a reading |
+| `cell_drops` / `cell_drop_count` | Per cell: `current_hpa`, `drop_hpa`, `event_id`. Biggest drops first, capped at 50 |
 | `started_at` / `finished_at` / `duration_ms` | Where the 540s timeout is going |
 | `error` | Null on any run that finished, whatever its status |
 
 Fields are snake_case (`docs/rules/DATA_AND_SYNC.md`) and TypeScript is not, so
 `alertRunDocument` does the rename in one place and a test pins the key set.
 
+- **The readings are kept, not just the counts.** `pushes_sent: 0` is the
+  ordinary result, and without the pressure behind it the document cannot say
+  whether that was a flat forecast, a drop under everyone's threshold or dedupe.
+  A cell missing from `cell_drops` was either in `failed_cells` or came back with
+  no sample near the run's own hour.
 - **The write sits outside the try/catch that guards the run.** A run that threw
   is the one the history most needs to hold, so `runAlertPass` is a separate
   function and the record is built from whatever came back — result or throw.
