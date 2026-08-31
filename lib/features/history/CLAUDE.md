@@ -12,33 +12,42 @@
     labelled text in content, where the label already says which is which; this
     one is icon-only chrome.
 
-## The filter sheet
+## The filter strip
 
-**One bottom sheet holds every filter, and the screen carries one pill**
-(owner's call, 2026-08-31). The list can be narrowed twelve ways — period,
-intensity, duration, aura, head area, medication, which medication, whether it
-helped, symptoms, triggers, exertion, notes, pressure trend — and a chip per
-axis on the screen would be a strip that scrolls sideways, which hides exactly
-the filters nobody remembers leaving on.
+**One chip per axis, pinned under the app bar** — the same shape as the
+medications tab (owner's call, 2026-08-31, reversing a single sheet that held
+all of them). Thirteen axes: period, intensity, medication, which medication,
+whether it helped, aura, area, duration, symptom, trigger, exertion, notes,
+pressure trend.
 
-- **Every axis is a `Set`, empty means off, values OR inside an axis and the
-  axes AND across.** One shape for twelve axes is what lets `_ChipWrap` draw
-  them all and `AttackFilterer` read them in one pass; the alternative was a
-  tri-state enum per axis, reading differently in every one. **`period` is the
-  exception** and stays a single choice — a window is one window, and "today OR
-  this year" is just "this year". It moved out of `HistoryController`, which is
-  the view toggle alone now.
-- **The pill counts axes, not results.** How many attacks matched is what the
-  list shows; what a pill has to say is that something is being hidden at all.
-- **Nothing applies until the sheet's button**, which counts what the draft
-  would leave ("Show 12 attacks") — a filter that empties the list says so
-  before it is committed. **Reset clears the draft in place** rather than
-  closing, so the button below it stays the only thing that writes.
-- **The free-text sections offer the user's own words** — medication names,
-  symptoms, triggers, deduped case-insensitively by `AttackFilterer.textOptions`
-  and matched the same way, since "Nausea" and "nausea" were one symptom. A
-  section with nothing behind it is not drawn: a heading over no chips reads as
-  a screen that failed to load.
+- **Each axis is ONE choice with its own "All" first**, and `_AxisChip` reads
+  that first option as "not filtered" — so a chip is told neither which value
+  means all nor whether it is on. `AttackFilters` is thirteen plain values, no
+  sets: a chip says which one value is being asked for.
+- **A chip shows its axis name while it rests, the picked value once there is
+  one, and is highlighted the whole time it is on** (`SdFilterPillV2.active`).
+  Thirteen chips all resting would otherwise read "All" thirteen times, and a
+  strip where two are narrowing the list has to look different from one where
+  none are.
+- **The strip never lifts into the app bar** (owner's call):
+  `collapsible: false` on `SdCollapsingFilterScaffoldV2`. The strip is where
+  the filters are; a bar that takes them over moves them mid-scroll, in the
+  middle of reading.
+- **`ActiveFilterSummary` (`core/widgets/`) says how many are on, and clears
+  them.** A highlighted chip says which axis; only the line says how many, and
+  the strip scrolls sideways so the two that are on can both be off screen.
+  It sits above the list and above the charts, under the free-plan meter where
+  there is one. The medications tab draws the same widget.
+- **The three free-text axes offer the user's own words** — medication names,
+  symptoms, triggers, deduped case-insensitively by
+  `AttackFilterer.textOptions` and matched the same way, since "Nausea" and
+  "nausea" were one symptom. A chip whose sheet would hold only "All" is not
+  drawn at all.
+- **Area is coarse — left / right / front / back, not the fifteen
+  `HeadRegion`s.** A single-choice sheet of fifteen areas is a list to scroll
+  rather than a filter to read, and the question people ask their record is
+  "is it always the left side?". The region lists come from `HeadLocation`, so
+  the two cannot drift.
 - **The bands are borrowed, never invented.** Intensity is `SeverityBand`, the
   same four the severity donut splits on. Duration splits on 4h and 72h, the
   band ICHD-3 defines a migraine by. The pressure steady band is
@@ -46,7 +55,8 @@ the filters nobody remembers leaving on.
   between "steady" and "a direction", and a second number here would let the
   home screen widget and this filter disagree about the same reading.
 - **"No aura", "not taken", "not recorded" and "no reading" are answers, not
-  gaps.** Every axis that can be absent offers its absence as a chip, because an
-  attack logged offline with no weather is exactly what someone filters for.
-- **The calendar still ignores all of it** — it is a month, and a filtered month
+  gaps.** Every axis that can be absent offers its absence, because an attack
+  logged offline with no weather is exactly what someone filters for.
+- **No strip at all until there is something to filter**, and the calendar
+  ignores the filters whatever they are — it is a month, and a filtered month
   with holes in it says nothing.
