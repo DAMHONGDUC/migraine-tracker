@@ -62,6 +62,10 @@ order, and the third is the one that matters:
 - **`InsightCard.title` is nullable** for exactly this: a card the tab strip
   above already names skips the heading row entirely rather than opening on 16pt
   of empty.
+- **Dividers inside these cards are `InsightCardDivider`, not `SdDividerV2`** —
+  they cancel `InsightCard.gutter` and run to the card's own edges. A rule that
+  stops 20pt short reads as a line under one column instead of the break between
+  two sections.
 
 ## One card for everything pressure
 

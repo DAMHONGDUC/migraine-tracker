@@ -109,6 +109,12 @@ is composed, what a chart should say. Take that; leave the tokens.
   whatever they hold, and `onTap` clips its own ink to the radius.
   `SdChartCardV2` and `SdBannerV2` compose it; `ThemeData.cardTheme` is a
   backstop for any `Card` Flutter builds internally, same colour, zero margin.
+- **A divider inside a card runs edge to edge, never inset by the card's
+  gutter** (owner's rule). Inset, it reads as a line under the column above it;
+  full width, it reads as the break between two sections, which is what every
+  divider in a card is for. Insights' cards use `InsightCardDivider`, which
+  cancels `InsightCard.gutter` — a negative padding cannot do it, because
+  `Padding` and `Container.margin` both assert their insets are non-negative.
 
 ## Type
 
