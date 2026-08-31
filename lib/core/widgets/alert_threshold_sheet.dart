@@ -34,6 +34,12 @@ class AlertThresholdSheet extends StatefulWidget {
   /// slider that stops on 6.5 invites a confidence the data cannot pay.
   static int get divisions => (maxHpa - minHpa).round();
 
+  /// The pressure the worked example starts from — 1013 hPa, the standard
+  /// atmosphere. A round, textbook number on purpose: an invented reading
+  /// close to a real one would be taken for the user's own, and this one is
+  /// recognisable as the figure every barometer is calibrated against.
+  static const int exampleHpa = 1013;
+
   @override
   State<AlertThresholdSheet> createState() => _AlertThresholdSheetState();
 }
@@ -93,11 +99,97 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           SizedBox(height: SdSpacingConstant.h8),
           // The number means nothing without what it is measured against: a threshold is a delta over 24h, not the pressure itself.
           Text(l10n.alertsSheetFormula, style: AppTextStyle.bodySmall.secondary),
-          SizedBox(height: SdSpacingConstant.h8),
+          SizedBox(height: SdSpacingConstant.h12),
+          // The sentence above states the rule; this states one case of it, in numbers that move with the slider — drag it and the arrival pressure changes, which is the whole lesson in one gesture.
+          _Example(l10n: l10n, thresholdHpa: _value.round()),
+          SizedBox(height: SdSpacingConstant.h12),
           // Says the quiet part the server enforces, so dragging to 3 does not read as asking to be woken hourly.
           Text(l10n.alertsSheetLimit, style: AppTextStyle.bodySmall.secondary),
         ],
       ),
+    );
+  }
+}
+
+/// The rule as one worked case: the pressure now, the drop the user asked to
+/// hear about, and the number the forecast has to reach.
+class _Example extends StatelessWidget {
+  const _Example({required this.l10n, required this.thresholdHpa});
+
+  final AppLocalizations l10n;
+
+  /// Already rounded — the slider only stops on whole numbers.
+  final int thresholdHpa;
+
+  @override
+  Widget build(BuildContext context) {
+    final int alertAt = AlertThresholdSheet.exampleHpa - thresholdHpa;
+
+    return Container(
+      padding: EdgeInsets.all(SdSpacingConstant.w12),
+      decoration: BoxDecoration(
+        // Elevated, not the sheet's own colour: a worked example is a thing sitting ON the sheet, and on `surfaceModal` it would disappear into it.
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(SdSpacingConstant.r12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(
+            l10n.alertsSheetExampleTitle,
+            style: AppTextStyle.labelSmall.secondary,
+          ),
+          SizedBox(height: SdSpacingConstant.h8),
+          _Row(
+            label: l10n.alertsSheetExampleNow,
+            value: l10n.onboardingThresholdValue(
+              AlertThresholdSheet.exampleHpa,
+            ),
+          ),
+          SizedBox(height: SdSpacingConstant.h4),
+          _Row(
+            label: l10n.alertsSheetExampleThreshold,
+            value: l10n.onboardingThresholdValue(thresholdHpa),
+            // The one number on this block the user controls, in the colour the slider above already gave it.
+            valueColor: AppColors.intensity(thresholdHpa),
+          ),
+          SizedBox(height: SdSpacingConstant.h8),
+          const SdDividerV2(),
+          SizedBox(height: SdSpacingConstant.h8),
+          Text(
+            l10n.alertsSheetExampleResult(
+              l10n.onboardingThresholdValue(alertAt),
+            ),
+            style: AppTextStyle.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One line of the example: what it is on the left, what it reads on the right.
+class _Row extends StatelessWidget {
+  const _Row({required this.label, required this.value, this.valueColor});
+
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Text(label, style: AppTextStyle.bodySmall.secondary),
+        ),
+        Text(
+          value,
+          style: valueColor == null
+              ? AppTextStyle.bodySmall.w600
+              : AppTextStyle.bodySmall.w600.copyWith(color: valueColor),
+        ),
+      ],
     );
   }
 }

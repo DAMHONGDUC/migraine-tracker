@@ -1664,6 +1664,27 @@
   "@alertsSheetLimit": {
     "description": "Explains the dedupe the server applies, so a low threshold does not read as spam"
   },
+  "alertsSheetExampleTitle": "For example",
+  "@alertsSheetExampleTitle": {
+    "description": "Heading of the worked example in the alert threshold sheet"
+  },
+  "alertsSheetExampleNow": "Pressure now",
+  "@alertsSheetExampleNow": {
+    "description": "Example row label: the pressure the example starts from"
+  },
+  "alertsSheetExampleThreshold": "Your threshold",
+  "@alertsSheetExampleThreshold": {
+    "description": "Example row label: the drop the user picked on the slider"
+  },
+  "alertsSheetExampleResult": "You are notified as soon as the next 24 hours are forecast to reach {value} or lower.",
+  "@alertsSheetExampleResult": {
+    "description": "Example conclusion; {value} is the example pressure minus the threshold, already formatted",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "alertsErrorAccount": "Sign in and unlock Premium to get pressure alerts.",
   "@alertsErrorAccount": {
     "description": "Shown when alerts are enabled without a signed-in account. Alerts need premium and premium needs an account, so both are named"
