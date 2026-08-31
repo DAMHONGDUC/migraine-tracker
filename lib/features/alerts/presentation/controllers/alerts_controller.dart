@@ -5,6 +5,7 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/constants/prefs_key_constant.dart';
 import '../../../../core/storage/secure_store.dart';
+import '../../domain/entities/alert_threshold_range.dart';
 import '../../domain/entities/alerts_settings.dart';
 import '../../providers.dart';
 
@@ -15,7 +16,9 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
     final prefs = ref.watch(secureStoreProvider);
     return AlertsSettings(
       enabled: prefs.getBool(PrefsKeyConstant.alertsEnabled) ?? false,
-      thresholdHpa: prefs.getDouble(PrefsKeyConstant.alertThreshold) ?? 5,
+      thresholdHpa:
+          prefs.getDouble(PrefsKeyConstant.alertThreshold) ??
+          AlertThresholdRange.initial,
     );
   }
 

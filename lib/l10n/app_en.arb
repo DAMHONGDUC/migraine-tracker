@@ -1639,6 +1639,22 @@
   "@alertsThresholdTitle": {
     "description": "Settings tile that opens the threshold slider dialog"
   },
+  "commonHpaUnit": "hPa",
+  "@commonHpaUnit": {
+    "description": "The pressure unit on its own, as the suffix inside the threshold field"
+  },
+  "alertsThresholdInvalid": "Enter a whole number from {min} to {max} hPa.",
+  "@alertsThresholdInvalid": {
+    "description": "Error under the threshold field; {min} and {max} come from AlertThresholdRange",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "alertsSummaryOn": "On · {value}",
   "@alertsSummaryOn": {
     "description": "Alerts row value when alerts are on: the state and the threshold together",
@@ -1656,7 +1672,7 @@
   "@alertsSheetFormula": {
     "description": "Explains what the threshold is measured against — the drop from now to the 24h forecast low"
   },
-  "alertsSheetRange": "3 hPa catches ordinary weather fronts; 10 hPa only the strongest. Most people start at 5.",
+  "alertsSheetRange": "2 hPa catches almost every front; 20 hPa only a deep storm. Most people start at 5.",
   "@alertsSheetRange": {
     "description": "Explains what the two ends of the 3-10 hPa slider mean"
   },

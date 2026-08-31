@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:system_design/index.dart';
 
+import '../../features/alerts/domain/entities/alert_threshold_range.dart';
 import '../../features/alerts/domain/entities/alerts_settings.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../theme/app_colors.dart';
@@ -26,14 +28,6 @@ class AlertThresholdSheet extends StatefulWidget {
   final AlertsSettings initial;
   final AppLocalizations l10n;
 
-  /// The tunable range, hard rule 7's "threshold is user-tunable" in numbers.
-  static const double minHpa = 3;
-  static const double maxHpa = 10;
-
-  /// Whole hPa only: the forecast is not precise enough for halves, and a
-  /// slider that stops on 6.5 invites a confidence the data cannot pay.
-  static int get divisions => (maxHpa - minHpa).round();
-
   /// The pressure the worked example starts from — 1013 hPa, the standard
   /// atmosphere. A round, textbook number on purpose: an invented reading
   /// close to a real one would be taken for the user's own, and this one is
@@ -46,7 +40,47 @@ class AlertThresholdSheet extends StatefulWidget {
 
 class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
   late bool _enabled = widget.initial.enabled;
-  late double _value = widget.initial.thresholdHpa;
+
+  /// Clamped: a threshold stored under a different range would be handed to
+  /// the slider outside its bounds, which throws rather than degrading.
+  late double _value = AlertThresholdRange.clamp(widget.initial.thresholdHpa);
+
+  late final TextEditingController _field = TextEditingController(
+    text: '${_value.round()}',
+  );
+
+  /// True while the field holds something the range refuses. The slider keeps
+  /// the last good value, so there is always something to go back to.
+  bool _invalid = false;
+
+  @override
+  void dispose() {
+    _field.dispose();
+    super.dispose();
+  }
+
+  /// Typed. The slider follows valid input and ignores the rest.
+  void _onTyped(String text) {
+    final double? parsed = AlertThresholdRange.parse(text);
+
+    setState(() {
+      _invalid = parsed == null;
+      if (parsed != null) _value = parsed;
+    });
+  }
+
+  /// Dragged. The field follows, cursor at the end so a keyboard left open
+  /// does not park it mid-number.
+  void _onDragged(double value) {
+    setState(() {
+      _value = value;
+      _invalid = false;
+      _field.value = TextEditingValue(
+        text: '${value.round()}',
+        selection: TextSelection.collapsed(offset: '${value.round()}'.length),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +92,12 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
       closeTooltip: l10n.commonClose,
       // Both fields already have a value, even a fresh install's default.
       confirmLabel: l10n.commonUpdate,
-      onConfirm: () => Navigator.of(context).pop(
-        AlertsSettings(enabled: _enabled, thresholdHpa: _value),
-      ),
+      // Null while the field is refused: SdSheetContentV2 disables the button rather than hiding it, so nothing moves and the error under the field is what explains it.
+      onConfirm: _invalid
+          ? null
+          : () => Navigator.of(context).pop(
+              AlertsSettings(enabled: _enabled, thresholdHpa: _value),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -74,7 +111,7 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
             ),
             title: Text(l10n.alertsToggleTitle, style: AppTextStyle.bodyLarge),
             value: _enabled,
-            // Local until the tick: the sheet's own header is what commits, and a switch that registered the device on the way past would make the X a lie.
+            // Local until the button at the bottom: a switch that registered the device on the way past would make the X a lie.
             onChanged: (bool value) => setState(() => _enabled = value),
           ),
           const SdDividerV2(),
@@ -84,12 +121,36 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           SdValueSliderV2(
             label: reading,
             value: _value,
-            min: AlertThresholdSheet.minHpa,
-            max: AlertThresholdSheet.maxHpa,
-            divisions: AlertThresholdSheet.divisions,
+            min: AlertThresholdRange.min,
+            max: AlertThresholdRange.max,
+            divisions: AlertThresholdRange.divisions,
             // A bigger drop is worth warning more, so it reads redder as it climbs — the same ramp the onboarding page sets it on.
             accent: AppColors.intensity(_value.round()),
-            onChanged: (double value) => setState(() => _value = value),
+            onChanged: _onDragged,
+            // Typed as well as dragged: 19 stops is a lot to hit with a thumb, and a field is the only way in for someone who cannot drag at all.
+            readout: SizedBox(
+              width: SdSpacingConstant.w160,
+              child: SdTextFieldV2(
+                controller: _field,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                // Digits only, so a decimal point cannot be typed at all — the range refuses halves and an error is a worse way to say so than a key that does nothing.
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                suffix: Text(
+                  l10n.commonHpaUnit,
+                  style: AppTextStyle.bodyMedium.secondary,
+                ),
+                errorText: _invalid
+                    ? l10n.alertsThresholdInvalid(
+                        AlertThresholdRange.min.round(),
+                        AlertThresholdRange.max.round(),
+                      )
+                    : null,
+                onChanged: _onTyped,
+              ),
+            ),
           ),
           Text(l10n.alertsSheetRange, style: AppTextStyle.bodySmall.secondary),
           SizedBox(height: SdSpacingConstant.h16),
