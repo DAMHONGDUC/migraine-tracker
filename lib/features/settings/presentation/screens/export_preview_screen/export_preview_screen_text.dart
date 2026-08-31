@@ -18,7 +18,7 @@ class _TextBody extends ConsumerWidget {
       AsyncData<ExportPreview>(value: final ExportPreview value) => ListView(
         padding: SdContentPaddingV2.screen(context),
         children: <Widget>[
-          Text(filename, style: AppTextStyle.bodyMedium.secondary),
+          _FileName(filename: filename),
           SizedBox(height: SdContentPaddingV2.listItemGap),
           SdCardV2(
             child: Padding(

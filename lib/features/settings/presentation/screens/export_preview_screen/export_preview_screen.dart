@@ -42,7 +42,7 @@ class ExportPreviewScreen extends ConsumerWidget {
     return SdScaffoldV2(
       title: Text(l10n.exportPreviewTitle, style: AppTextStyle.titleLarge),
       body: record.kind == ExportKind.pdf
-          ? _PdfBody(exportId: exportId)
+          ? _PdfBody(exportId: exportId, filename: record.filename)
           : _TextBody(exportId: exportId, filename: record.filename),
     );
   }
