@@ -526,6 +526,7 @@
   "loginErrorGeneric": "サインインできませんでした。もう一度お試しください。",
   "settingsAccountSignIn": "サインイン",
   "settingsAccountSignedIn": "サインイン済み",
+  "settingsAccountSignedOut": "未サインイン",
   "settingsSignOut": "サインアウト",
   "settingsSignOutConfirmTitle": "サインアウトしますか？",
   "settingsSignOutConfirmBody": "発作の記録はこの端末に残ります。プレミアム機能は、次にサインインするまで使えなくなります。",

@@ -526,6 +526,7 @@
   "loginErrorGeneric": "登录没有成功，请重试。",
   "settingsAccountSignIn": "登录",
   "settingsAccountSignedIn": "已登录",
+  "settingsAccountSignedOut": "未登录",
   "settingsSignOut": "退出登录",
   "settingsSignOutConfirmTitle": "退出登录？",
   "settingsSignOutConfirmBody": "你的发作记录会留在这台设备上。高级功能会锁定，直到你再次登录。",

@@ -2598,6 +2598,10 @@
   "@settingsAccountSignedIn": {
     "description": "Account row title when the provider gave us no email or name"
   },
+  "settingsAccountSignedOut": "Not signed in",
+  "@settingsAccountSignedOut": {
+    "description": "Tag on the Settings account row while the session is anonymous"
+  },
   "settingsSignOut": "Sign out",
   "@settingsSignOut": {
     "description": "Sign-out action on the account row"

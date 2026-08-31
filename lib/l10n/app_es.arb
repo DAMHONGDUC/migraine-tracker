@@ -526,6 +526,7 @@
   "loginErrorGeneric": "El inicio de sesión no funcionó. Inténtalo de nuevo.",
   "settingsAccountSignIn": "Iniciar sesión",
   "settingsAccountSignedIn": "Sesión iniciada",
+  "settingsAccountSignedOut": "Sin iniciar sesión",
   "settingsSignOut": "Cerrar sesión",
   "settingsSignOutConfirmTitle": "¿Cerrar sesión?",
   "settingsSignOutConfirmBody": "Tus crisis se quedan en este dispositivo. Las funciones Premium se bloquean hasta que vuelvas a iniciar sesión.",

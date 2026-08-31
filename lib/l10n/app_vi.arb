@@ -526,6 +526,7 @@
   "loginErrorGeneric": "Đăng nhập không thành công. Vui lòng thử lại.",
   "settingsAccountSignIn": "Đăng nhập",
   "settingsAccountSignedIn": "Đã đăng nhập",
+  "settingsAccountSignedOut": "Chưa đăng nhập",
   "settingsSignOut": "Đăng xuất",
   "settingsSignOutConfirmTitle": "Đăng xuất?",
   "settingsSignOutConfirmBody": "Dữ liệu cơn đau vẫn nằm trên máy này. Các tính năng Premium sẽ khoá lại cho tới khi bạn đăng nhập lại.",

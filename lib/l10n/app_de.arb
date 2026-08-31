@@ -526,6 +526,7 @@
   "loginErrorGeneric": "Die Anmeldung hat nicht geklappt. Bitte versuche es erneut.",
   "settingsAccountSignIn": "Anmelden",
   "settingsAccountSignedIn": "Angemeldet",
+  "settingsAccountSignedOut": "Nicht angemeldet",
   "settingsSignOut": "Abmelden",
   "settingsSignOutConfirmTitle": "Abmelden?",
   "settingsSignOutConfirmBody": "Deine Attacken bleiben auf diesem Gerät. Premium-Funktionen sind gesperrt, bis du dich wieder anmeldest.",

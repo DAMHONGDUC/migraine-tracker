@@ -526,6 +526,7 @@
   "loginErrorGeneric": "La connexion n'a pas fonctionné. Réessayez.",
   "settingsAccountSignIn": "Se connecter",
   "settingsAccountSignedIn": "Connecté",
+  "settingsAccountSignedOut": "Non connecté",
   "settingsSignOut": "Se déconnecter",
   "settingsSignOutConfirmTitle": "Se déconnecter ?",
   "settingsSignOutConfirmBody": "Vos crises restent sur cet appareil. Les fonctions Premium se verrouillent jusqu'à votre prochaine connexion.",
