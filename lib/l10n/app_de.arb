@@ -490,6 +490,7 @@
   "a11yViewChart": "Diagrammansicht",
   "navDashboard": "Start",
   "dashboardGreeting": "Hallo",
+  "dashboardGreetingNamed": "Hallo, {name}",
   "dashboardSignIn": "Anmelden",
   "dashboardLogButton": "Attacke erfassen",
   "dashboardThisWeek": "Diese Woche",

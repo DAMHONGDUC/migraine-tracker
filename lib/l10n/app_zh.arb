@@ -490,6 +490,7 @@
   "a11yViewChart": "图表视图",
   "navDashboard": "首页",
   "dashboardGreeting": "你好",
+  "dashboardGreetingNamed": "你好，{name}",
   "dashboardSignIn": "登录",
   "dashboardLogButton": "记录一次发作",
   "dashboardThisWeek": "本周",

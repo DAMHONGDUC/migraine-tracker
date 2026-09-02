@@ -490,6 +490,7 @@
   "a11yViewChart": "グラフ表示",
   "navDashboard": "ホーム",
   "dashboardGreeting": "こんにちは",
+  "dashboardGreetingNamed": "こんにちは、{name}さん",
   "dashboardSignIn": "サインイン",
   "dashboardLogButton": "発作を記録",
   "dashboardThisWeek": "今週",

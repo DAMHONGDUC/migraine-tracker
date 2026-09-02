@@ -2398,6 +2398,15 @@
   "@dashboardGreeting": {
     "description": "Dashboard app bar greeting shown when the user is not signed in"
   },
+  "dashboardGreetingNamed": "Hi, {name}",
+  "@dashboardGreetingNamed": {
+    "description": "Dashboard app bar greeting once the user is signed in and the account has a name. {name} is the first name only",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardSignIn": "Sign in",
   "@dashboardSignIn": {
     "description": "Dashboard app bar button that leads to sign-in (in Settings)"

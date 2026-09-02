@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/providers.dart';
+import '../../../../auth/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
@@ -30,6 +31,8 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // Null until there is an account with a name on it, which is also every anonymous session.
+    final String? firstName = ref.watch(firstNameProvider);
     final nextReminder = ref.watch(nextReminderProvider);
     // Null unless the free plan's log limit is close (see attacksLeftProvider).
     final int? logsLeft = ref.watch(attacksLeftProvider);
@@ -55,7 +58,13 @@ class DashboardScreen extends ConsumerWidget {
     ];
 
     return SdScaffoldV2(
-      title: Text(l10n.dashboardGreeting, style: AppTextStyle.titleLarge),
+      title: Text(
+        // The first name alone: "Hi, Dam Hong Duc" is a form field read aloud, and the app bar has one line to give it.
+        firstName == null
+            ? l10n.dashboardGreeting
+            : l10n.dashboardGreetingNamed(firstName),
+        style: AppTextStyle.titleLarge,
+      ),
       actions: <Widget>[
         // The number, not a dot: how many are waiting is what decides whether the user opens the list now or later.
         SdBadgeV2(

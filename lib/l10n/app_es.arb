@@ -490,6 +490,7 @@
   "a11yViewChart": "Vista de gráfico",
   "navDashboard": "Inicio",
   "dashboardGreeting": "Hola",
+  "dashboardGreetingNamed": "Hola, {name}",
   "dashboardSignIn": "Iniciar sesión",
   "dashboardLogButton": "Registrar una crisis",
   "dashboardThisWeek": "Esta semana",

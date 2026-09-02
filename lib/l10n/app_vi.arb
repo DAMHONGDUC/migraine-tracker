@@ -490,6 +490,7 @@
   "a11yViewChart": "Xem biểu đồ",
   "navDashboard": "Trang chính",
   "dashboardGreeting": "Xin chào",
+  "dashboardGreetingNamed": "Xin chào, {name}",
   "dashboardSignIn": "Đăng nhập",
   "dashboardLogButton": "Ghi cơn đau mới",
   "dashboardThisWeek": "Tuần này",
