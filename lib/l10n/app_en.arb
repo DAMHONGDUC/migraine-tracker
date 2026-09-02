@@ -2870,10 +2870,6 @@
   "@premiumScreenTitle": {
     "description": "App bar title of the subscription detail screen"
   },
-  "premiumScreenIncluded": "What premium includes",
-  "@premiumScreenIncluded": {
-    "description": "Heading above the list of premium features on the subscription screen"
-  },
   "premiumScreenManage": "Manage subscription",
   "@premiumScreenManage": {
     "description": "Button on the subscription screen that opens the store's own subscription page"
