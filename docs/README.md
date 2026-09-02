@@ -11,6 +11,7 @@ routing rules.
 | [`../PLAN.md`](../PLAN.md) | Product scope and architecture |
 | [`DONE_WORK.md`](DONE_WORK.md) | Implemented work |
 | [`REMAINING_WORK.md`](REMAINING_WORK.md) | Release blockers |
+| [`ROADMAP.md`](ROADMAP.md) | What is built after v1.0, and in which order |
 | [`PREMIUM_RULES.md`](PREMIUM_RULES.md) | Prices, limits and premium gates |
 
 ## Folders
