@@ -331,7 +331,9 @@ class FakeUserProfileRepository implements UserProfileRepository {
   }
 
   @override
-  Future<void> upsertFromAccount(AuthUser user) async {
+  Future<bool> upsertFromAccount(AuthUser user) async {
+    final bool created = profile == null;
+
     synced.add(user);
     profile ??= UserProfile(
       uid: user.uid,
@@ -339,6 +341,8 @@ class FakeUserProfileRepository implements UserProfileRepository {
       email: user.email,
     );
     _controller.add(profile);
+
+    return created;
   }
 
   @override

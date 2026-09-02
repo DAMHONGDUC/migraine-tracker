@@ -4,6 +4,7 @@ import 'package:system_design/common.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/logging/crash_reporter.dart';
+import '../../../medications/providers.dart';
 import '../../../settings/providers.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
@@ -109,13 +110,28 @@ class AccountController {
     }
   }
 
-  /// Pushes what the auth provider knows into `users/{uid}`.
+  /// Pushes what the auth provider knows into `users/{uid}`, and seeds what a
+  /// brand-new account starts with.
+  ///
+  /// The write is what knows the account is new — it is the one read that can
+  /// tell "signed in for the first time ever" from "signed in again on this
+  /// device" — so the first-run seeding hangs off it rather than off a second
+  /// flag the app would have to keep in step.
   Future<void> syncProfile(AuthUser user) async {
     if (!user.isSignedIn) return;
 
     try {
-      await _ref.read(userProfileRepositoryProvider).upsertFromAccount(user);
-      SdLogger.info(LogTagConstant.profile, 'Profile synced', user.uid);
+      final bool created = await _ref
+          .read(userProfileRepositoryProvider)
+          .upsertFromAccount(user);
+
+      SdLogger.info(LogTagConstant.profile, 'Profile synced', <String, Object?>{
+        'uid': user.uid,
+        'created': created,
+      });
+      if (created) {
+        await _ref.read(defaultMedicationSeederProvider).seedIfEmpty();
+      }
     } catch (error, stackTrace) {
       SdLogger.warning(LogTagConstant.profile, 'Profile sync failed', error);
       CrashReporter.recordError(
