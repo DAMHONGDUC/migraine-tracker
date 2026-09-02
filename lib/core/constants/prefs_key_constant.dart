@@ -8,6 +8,12 @@ final class PrefsKeyConstant {
 
   static const String alertsEnabled = 'alerts_enabled';
 
+  /// Whether the app has already switched pressure alerts on by itself, once,
+  /// for an account that qualified. Present means "asked" — including an
+  /// attempt that failed — so the OS notification prompt is never raised twice
+  /// by a decision the user did not make. See `AlertsController.autoEnableOnce`.
+  static const String alertsAutoEnabled = 'alerts_auto_enabled';
+
   /// The single flag both health sources shared before they were split.
   static const String healthConnected = 'health_connected';
 

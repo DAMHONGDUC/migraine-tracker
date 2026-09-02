@@ -19,6 +19,13 @@ final class AlertThresholdRange {
   /// for a user whose doc carries no threshold.
   static const double initial = 5;
 
+  /// What the app switches an account on at, by itself, the first time it
+  /// qualifies (see `AlertsController.autoEnableOnce`). One under [initial] on
+  /// purpose: a default nobody chose should catch the front slightly earlier
+  /// than one the user dragged to, because the user who never opens the sheet
+  /// is the one this exists for.
+  static const double autoEnable = 4;
+
   /// Whole hPa only: the forecast is not precise enough for halves, and a
   /// slider that stops on 6.5 invites a confidence the data cannot pay.
   static int get divisions => (max - min).round();
