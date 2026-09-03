@@ -52,8 +52,9 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Weather snapshot on an attack | Yes | Yes |
 | Current weather except pressure | Yes | Yes |
 | Plain pressure reading in weather details | Yes | Yes |
-| 48h pressure forecast | No | Yes |
+| 7-day pressure forecast, with 5 days of history behind it | No | Yes |
 | Pressure correlation and drop alerts | No | Yes |
+| Second alert as the drop begins | No | Yes |
 | Medications | Up to 5 | Unlimited |
 | Medication effectiveness | Yes | Yes |
 | Medication-overuse warning | Yes | Yes |
@@ -64,8 +65,13 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Sleep and step readings | Yes | Yes |
 | Sleep, step and exertion correlations | No | Yes |
 | Daily check-in | Yes | Yes |
+| Menstrual cycle read from Apple Health | Yes | Yes |
+| Attack-in-progress screen and Live Activity | Yes | Yes |
+| Time to relief on an attack | Yes | Yes |
+| Siri shortcuts | Yes | Yes |
 | Trigger / protector map | No | Yes |
 | 7-day risk score | No | Yes |
+| Humidity and temperature-swing factors | No | Yes |
 | MIDAS questionnaire and its score | No | Yes |
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
