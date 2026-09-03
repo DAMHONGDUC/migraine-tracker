@@ -24,6 +24,11 @@ class _Chart extends StatelessWidget {
       if (x >= 0) future.add(spot);
     }
 
+    // A label a day fits about eight days at the design width; past that they run together, so wider windows label every other day.
+    final double spanDays =
+        (PressureForecast.contextHours + PressureForecast.forecastDays * 24) /
+        24;
+    final double dayInterval = spanDays > 8 ? 48 : 24;
     final pressures = forecast.points.map((p) => p.pressureHpa);
     final minY = ChartAxisUtils.minBound(pressures);
     final maxY = ChartAxisUtils.maxBound(pressures);
@@ -71,7 +76,7 @@ class _Chart extends StatelessWidget {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 24,
+                    interval: dayInterval,
                     reservedSize: SdSpacingConstant.h24,
                     getTitlesWidget: (value, meta) => Padding(
                       padding: EdgeInsets.only(top: SdSpacingConstant.h6),

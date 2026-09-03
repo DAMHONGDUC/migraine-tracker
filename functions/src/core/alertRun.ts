@@ -1,4 +1,4 @@
-import { shouldAlert } from "./alerts";
+import { AlertStage, alertStage, stageEventId } from "./alerts";
 import { AlertUser, groupByGeohash } from "./grouping";
 import { DropForecast } from "./pressure";
 import { isQuietHour } from "./quietHours";
@@ -15,10 +15,15 @@ export interface AlertRunDeps {
   sendPush: (
     user: AlertUser,
     drop: DropForecast,
-    options: { silent: boolean },
+    options: { silent: boolean; stage: AlertStage },
   ) => Promise<void>;
-  /** Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa) after a push. */
-  recordAlert: (uid: string, drop: DropForecast, now: Date) => Promise<void>;
+  /** Persists dedupe state (lastAlertAt/lastAlertEventId/lastAlertDropHpa) after a push. The id is the STAGE's, so the onset push is not read back as a repeat of the heads-up. */
+  recordAlert: (
+    uid: string,
+    drop: DropForecast,
+    now: Date,
+    eventId: string,
+  ) => Promise<void>;
   /** Removes a stale FCM token so the doc stops costing work. */
   removeToken: (uid: string) => Promise<void>;
   logError?: (message: string, data: Record<string, unknown>) => void;
@@ -44,6 +49,8 @@ export interface AlertRunResult {
   pushesSent: number;
   /** Of {@link pushesSent}, how many went out silently — the number that says whether a quiet night was the run working or the offsets being wrong. */
   silentPushes: number;
+  /** Of {@link pushesSent}, how many were the second push, sent as the fall began. */
+  onsetPushes: number;
   /** Keyed by geohash5. A fetched cell is missing only when its forecast held no usable sample. */
   cellDrops: Record<string, CellDrop>;
 }
@@ -59,6 +66,7 @@ export async function runPressureAlerts(
   const cellDrops: Record<string, CellDrop> = {};
   let pushesSent = 0;
   let silentPushes = 0;
+  let onsetPushes = 0;
 
   for (const [cell, cellUsers] of cells) {
     let drop: DropForecast | null;
@@ -81,23 +89,29 @@ export async function runPressureAlerts(
     };
 
     for (const user of cellUsers) {
-      if (
-        !shouldAlert({
-          dropHpa: drop.dropHpa,
-          thresholdHpa: user.thresholdHpa,
-          eventId: drop.eventId,
-          history: user.history,
-          now,
-        })
-      ) {
-        continue;
-      }
+      const stage = alertStage({
+        dropHpa: drop.dropHpa,
+        thresholdHpa: user.thresholdHpa,
+        eventId: drop.eventId,
+        startsAt: drop.startsAt,
+        history: user.history,
+        now,
+      });
+
+      if (stage === null) continue;
+
       const silent = isQuietHour(now, user.tzOffsetMinutes);
       try {
-        await deps.sendPush(user, drop, { silent });
-        await deps.recordAlert(user.uid, drop, now);
+        await deps.sendPush(user, drop, { silent, stage });
+        await deps.recordAlert(
+          user.uid,
+          drop,
+          now,
+          stageEventId(drop.eventId, stage),
+        );
         pushesSent++;
         if (silent) silentPushes++;
+        if (stage === "onset") onsetPushes++;
       } catch (error) {
         const code = (error as { code?: string }).code;
         if (code === STALE_TOKEN_CODE) {
@@ -119,6 +133,7 @@ export async function runPressureAlerts(
     failedCells,
     pushesSent,
     silentPushes,
+    onsetPushes,
     cellDrops,
   };
 }

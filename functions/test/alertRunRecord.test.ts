@@ -145,6 +145,7 @@ describe("alertRunDocument", () => {
       "failed_cells",
       "finished_at",
       "max_drop_hpa",
+      "onset_pushes",
       "pushes_sent",
       "silent_pushes",
       "started_at",

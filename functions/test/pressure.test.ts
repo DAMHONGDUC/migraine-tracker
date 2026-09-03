@@ -48,4 +48,29 @@ describe("maxDrop24h", () => {
     const f = forecast(now, [1010]);
     expect(maxDrop24h(f, now)).toBeNull();
   });
+
+  // Telling someone at 09:00 that a 15:00 front is arriving "now" is the fastest way to have the alert switched off.
+  it("starts the fall at the crest, not at now", () => {
+    const times = [0, 1, 2, 3, 4, 5, 6].map(
+      (h) => new Date(`2026-07-09T0${h}:00:00Z`),
+    );
+    // Still climbing for three hours, then falling hard.
+    const drop = maxDrop24h(
+      { times, pressuresHpa: [1010, 1012, 1014, 1016, 1010, 1005, 1004] },
+      new Date("2026-07-09T00:00:00Z"),
+    );
+
+    expect(drop).not.toBeNull();
+    expect(drop!.startsAt).toEqual(new Date("2026-07-09T03:00:00Z"));
+  });
+
+  it("starts the fall at now when the pressure only ever falls", () => {
+    const times = [0, 1, 2, 3].map((h) => new Date(`2026-07-09T0${h}:00:00Z`));
+    const drop = maxDrop24h(
+      { times, pressuresHpa: [1015, 1012, 1009, 1005] },
+      new Date("2026-07-09T00:00:00Z"),
+    );
+
+    expect(drop!.startsAt).toEqual(new Date("2026-07-09T00:00:00Z"));
+  });
 });

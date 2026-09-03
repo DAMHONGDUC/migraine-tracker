@@ -116,6 +116,7 @@ export const pressureAlertJob = onSchedule(
       failedCells: record.failedCellCount,
       pushesSent: record.pushesSent,
       silentPushes: record.silentPushes,
+      onsetPushes: record.onsetPushes,
       // The one number that says whether a zero-push run was quiet weather or a broken run.
       maxDropHpa: record.maxDropHpa,
     });
@@ -219,19 +220,25 @@ async function runAlertPass(
       const forecast = await fetchHourlyPressure(lat, lon);
       return maxDrop24h(forecast, now);
     },
-    sendPush: async (user, drop, { silent }) => {
+    sendPush: async (user, drop, { silent, stage }) => {
+      const onset = stage === "onset";
+
       await getMessaging().send({
         token: user.fcmToken,
         notification: {
-          title: "Pressure drop ahead",
-          body:
-            `Barometric pressure is forecast to fall ` +
-            `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
+          // Two pushes for one front, and the wording is the whole difference: one is a plan, the other is a dose.
+          title: onset ? "Pressure is dropping now" : "Pressure drop ahead",
+          body: onset
+            ? `Barometric pressure is starting to fall ` +
+              `${drop.dropHpa.toFixed(1)} hPa. Take what you take early.`
+            : `Barometric pressure is forecast to fall ` +
+              `${drop.dropHpa.toFixed(1)} hPa within 24 hours.`,
         },
         // - The app renders the row from its own ARB: the strings above are English whatever language the user picked, so only numbers travel.
         data: {
           type: "pressureAlert",
           eventId: drop.eventId,
+          stage,
           dropHpa: String(drop.dropHpa),
           at: now.toISOString(),
         },
@@ -248,10 +255,11 @@ async function runAlertPass(
       });
     },
     // lastAlertDropHpa is written for the client, not for dedupe.
-    recordAlert: async (uid, drop, at) => {
+    recordAlert: async (uid, drop, at, eventId) => {
       await db.collection("users").doc(uid).update({
         lastAlertAt: Timestamp.fromDate(at),
-        lastAlertEventId: drop.eventId,
+        // The STAGE's id, so the onset push is not read back as a repeat of the heads-up that preceded it.
+        lastAlertEventId: eventId,
         lastAlertDropHpa: drop.dropHpa,
       });
     },
