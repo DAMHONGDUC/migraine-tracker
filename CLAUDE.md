@@ -73,9 +73,9 @@ Read the file whose trigger matches the work. Do not read them all.
 | adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
-`lib/features/<feature>/CLAUDE.md` — access, attacks, alerts, dashboard, health,
-history, home_widget, insights, medications, notifications, premium, review,
-settings, sync.
+`lib/features/<feature>/CLAUDE.md` — access, attacks, alerts, daily_log,
+dashboard, health, history, home_widget, insights, medications, notifications,
+premium, review, settings, sync.
 
 ## Always — these apply to every change
 
@@ -177,7 +177,9 @@ packages/
 ```
 
 Features: `access` (the owner's `app_access` allow-list), `app_update`
-(force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather` (WeatherSnapshot + API clients), `history`,
+(force-update gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
+one row a day that gives every analysis its days without an attack),
+`medications`, `weather` (WeatherSnapshot + API clients), `history`,
 `insights` (correlation engine), `alerts`, `auth` (Google/Apple +
 `linkWithCredential`, account screen, `users/{uid}` profile doc), `sync`,
 `paywall`, `settings`, `health` (HealthKit sleep, read-only), `notifications`

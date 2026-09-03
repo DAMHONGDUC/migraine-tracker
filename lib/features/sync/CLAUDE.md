@@ -20,10 +20,12 @@ and its `SyncScreen` are deleted, `/sync` is not a route, and the eight
 who cannot make sync happen also cannot be asked to; the app is either signed in,
 in which case it is saving, or it is not.
 
-**Four kinds of record sync, in this order**: medications, then their reminders
+**Five kinds of record sync, in this order**: medications, then their reminders
 (a reminder points at a medication, so the other order hits a foreign key that is
-not there yet), then attacks, then notifications (one names the reminder and
-medication it came from). **Exports deliberately do not sync** — `filePath`
+not there yet), then attacks, then daily check-ins, then notifications (one names
+the reminder and medication it came from). The check-ins sit where they do only
+for tidiness — a daily log points at nothing and nothing points at it, and its id
+is the day itself, so two devices' Tuesday converge on one row. **Exports deliberately do not sync** — `filePath`
 is local to one device, and uploading them would multiply the copies hard rule 8
 has to chase.
 
