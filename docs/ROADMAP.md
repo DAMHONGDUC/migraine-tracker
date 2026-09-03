@@ -55,6 +55,18 @@ Wave 1 is complete in code. Wave 2's risk score can read the cycle through
 `todayCycleDayProvider` as it stands, and the trigger map has
 `answeredDailyLogCountProvider` for its own gate.
 
+## Wave v1.3 status, 2026-09-03
+
+| # | Feature | State |
+|---:|---|---|
+| 9 | Longer pressure window | **Shipped** — the forecast already reached 7 days; `contextHours` went 12 → 120, so the chart now carries five days of lived pressure hour by hour |
+| 10 | Onset alert | **Shipped (half)** — a second push as the fall begins, deduped under its own event id and deliberately not held by the 8h gap. **The morning digest was not built**: a fourth daily push contradicts the owner's "3 alerts a day" rule, so it is an owner call rather than a technical one |
+| 11 | More weather triggers | **Shipped** — the day's humidity and temperature are recorded (schema v20) and join the factor map as two more factors |
+| 12 | Siri shortcuts | **Shipped** — two `AppIntent`s opening the log flow and the check-in. **No widget nudge**: hard rule 18 fixes the widget at three things |
+
+Two things need the owner: `firebase deploy --only functions` before the onset
+push reaches anyone, and a real device to confirm both Siri phrases list.
+
 ## Wave v1.1 — record more than the attack
 
 | # | Feature | Free | Premium |
