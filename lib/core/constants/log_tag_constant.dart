@@ -42,6 +42,9 @@ final class LogTagConstant {
   /// The `app_access` allow-list — what the owner has granted this address, read once per session and re-read when it changes.
   static const String access = 'Access';
 
+  /// The daily check-in — the one row a day that gives every analysis its days without an attack.
+  static const String dailyLog = 'Daily Log';
+
   static const String health = 'Health';
   static const String history = 'History';
   static const String homeWidget = 'Home Widget';

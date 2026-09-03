@@ -3422,5 +3422,129 @@
   "dashboardAboutBody": "What BaroEase tracks, what the free plan includes, and how to reach us.",
   "@dashboardAboutBody": {
     "description": "Subtitle of the About explore card"
+  },
+  "dailyLogTitle": "Daily check-in",
+  "@dailyLogTitle": {
+    "description": "App bar title of the daily check-in screen."
+  },
+  "dailyLogWhy": "Recording a quiet day is what lets the app tell a trigger from a coincidence.",
+  "@dailyLogWhy": {
+    "description": "One line under the title saying why a day without an attack is worth recording."
+  },
+  "dailyLogSleepQuestion": "How did you sleep?",
+  "@dailyLogSleepQuestion": {
+    "description": "Question above the 1-5 sleep quality rating."
+  },
+  "dailyLogStressQuestion": "How stressed were you?",
+  "@dailyLogStressQuestion": {
+    "description": "Question above the 1-5 stress rating."
+  },
+  "dailyLogFactorsQuestion": "Anything else about today?",
+  "@dailyLogFactorsQuestion": {
+    "description": "Question above the grid of day factors."
+  },
+  "dailyLogSleep1": "Awful",
+  "@dailyLogSleep1": {
+    "description": "Sleep quality rating 1 of 5, the worst."
+  },
+  "dailyLogSleep2": "Poor",
+  "@dailyLogSleep2": {
+    "description": "Sleep quality rating 2 of 5."
+  },
+  "dailyLogSleep3": "Okay",
+  "@dailyLogSleep3": {
+    "description": "Sleep quality rating 3 of 5."
+  },
+  "dailyLogSleep4": "Good",
+  "@dailyLogSleep4": {
+    "description": "Sleep quality rating 4 of 5."
+  },
+  "dailyLogSleep5": "Great",
+  "@dailyLogSleep5": {
+    "description": "Sleep quality rating 5 of 5, the best."
+  },
+  "dailyLogStress1": "Calm",
+  "@dailyLogStress1": {
+    "description": "Stress rating 1 of 5, the calmest."
+  },
+  "dailyLogStress2": "Settled",
+  "@dailyLogStress2": {
+    "description": "Stress rating 2 of 5."
+  },
+  "dailyLogStress3": "Busy",
+  "@dailyLogStress3": {
+    "description": "Stress rating 3 of 5."
+  },
+  "dailyLogStress4": "Tense",
+  "@dailyLogStress4": {
+    "description": "Stress rating 4 of 5."
+  },
+  "dailyLogStress5": "Overwhelmed",
+  "@dailyLogStress5": {
+    "description": "Stress rating 5 of 5, the worst."
+  },
+  "dailyLogFactorSkippedMeal": "Skipped a meal",
+  "@dailyLogFactorSkippedMeal": {
+    "description": "Day factor: the user missed a meal."
+  },
+  "dailyLogFactorDehydration": "Not enough water",
+  "@dailyLogFactorDehydration": {
+    "description": "Day factor: the user drank too little water."
+  },
+  "dailyLogFactorCaffeine": "Caffeine",
+  "@dailyLogFactorCaffeine": {
+    "description": "Day factor: the user had caffeine."
+  },
+  "dailyLogFactorAlcohol": "Alcohol",
+  "@dailyLogFactorAlcohol": {
+    "description": "Day factor: the user had alcohol."
+  },
+  "dailyLogFactorScreenTime": "Long screen time",
+  "@dailyLogFactorScreenTime": {
+    "description": "Day factor: a long time in front of a screen."
+  },
+  "dailyLogFactorIntenseExercise": "Hard exercise",
+  "@dailyLogFactorIntenseExercise": {
+    "description": "Day factor: hard physical exercise."
+  },
+  "dailyLogFactorTravel": "Travel",
+  "@dailyLogFactorTravel": {
+    "description": "Day factor: the user travelled."
+  },
+  "dailyLogFactorStrongSmell": "Strong smell",
+  "@dailyLogFactorStrongSmell": {
+    "description": "Day factor: exposure to a strong smell."
+  },
+  "dailyLogSave": "Save today",
+  "@dailyLogSave": {
+    "description": "Primary button that writes the day's check-in."
+  },
+  "dailyLogSaved": "Today is recorded",
+  "@dailyLogSaved": {
+    "description": "Snackbar after the check-in is written."
+  },
+  "dailyLogSaveFailed": "Could not save today. Try again.",
+  "@dailyLogSaveFailed": {
+    "description": "Snackbar when writing the check-in failed."
+  },
+  "dailyLogCardPrompt": "How was today?",
+  "@dailyLogCardPrompt": {
+    "description": "Dashboard card title while today has not been checked in."
+  },
+  "dailyLogCardPromptBody": "Thirty seconds, attack or not.",
+  "@dailyLogCardPromptBody": {
+    "description": "Dashboard card body while today has not been checked in."
+  },
+  "dailyLogCardDone": "Today is recorded",
+  "@dailyLogCardDone": {
+    "description": "Dashboard card title once today is recorded."
+  },
+  "dailyLogCardDoneBody": "Tap to change your answers.",
+  "@dailyLogCardDoneBody": {
+    "description": "Dashboard card body once today is recorded."
+  },
+  "dailyLogA11yOpen": "Open the daily check-in",
+  "@dailyLogA11yOpen": {
+    "description": "VoiceOver label of the dashboard check-in card."
   }
 }

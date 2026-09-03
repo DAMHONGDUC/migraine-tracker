@@ -4049,6 +4049,552 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
   }
 }
 
+class $DailyLogsTable extends DailyLogs
+    with TableInfo<$DailyLogsTable, DailyLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sleepQualityMeta = const VerificationMeta(
+    'sleepQuality',
+  );
+  @override
+  late final GeneratedColumn<int> sleepQuality = GeneratedColumn<int>(
+    'sleep_quality',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stressLevelMeta = const VerificationMeta(
+    'stressLevel',
+  );
+  @override
+  late final GeneratedColumn<int> stressLevel = GeneratedColumn<int>(
+    'stress_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<List<DailyFactor>, String>
+  factors = GeneratedColumn<String>(
+    'factors',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<DailyFactor>>($DailyLogsTable.$converterfactors);
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+    'steps',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncedRevisionMeta = const VerificationMeta(
+    'syncedRevision',
+  );
+  @override
+  late final GeneratedColumn<int> syncedRevision = GeneratedColumn<int>(
+    'synced_revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sleepQuality,
+    stressLevel,
+    factors,
+    steps,
+    updatedAt,
+    revision,
+    syncedRevision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('sleep_quality')) {
+      context.handle(
+        _sleepQualityMeta,
+        sleepQuality.isAcceptableOrUnknown(
+          data['sleep_quality']!,
+          _sleepQualityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stress_level')) {
+      context.handle(
+        _stressLevelMeta,
+        stressLevel.isAcceptableOrUnknown(
+          data['stress_level']!,
+          _stressLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('steps')) {
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('synced_revision')) {
+      context.handle(
+        _syncedRevisionMeta,
+        syncedRevision.isAcceptableOrUnknown(
+          data['synced_revision']!,
+          _syncedRevisionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DailyLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyLogRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sleepQuality: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sleep_quality'],
+      ),
+      stressLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stress_level'],
+      ),
+      factors: $DailyLogsTable.$converterfactors.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}factors'],
+        )!,
+      ),
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_revision'],
+      ),
+    );
+  }
+
+  @override
+  $DailyLogsTable createAlias(String alias) {
+    return $DailyLogsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<List<DailyFactor>, String> $converterfactors =
+      const DailyFactorListConverter();
+}
+
+class DailyLogRow extends DataClass implements Insertable<DailyLogRow> {
+  /// The local day as `yyyy-MM-dd` — see `DateTimeUtils.dayKey`.
+  final String id;
+
+  /// 1 (worst) to 5 (best), or null when the user did not answer.
+  final int? sleepQuality;
+
+  /// 1 (calm) to 5 (worst), or null when the user did not answer.
+  final int? stressLevel;
+
+  /// The day's factors, JSON-encoded.
+  final List<DailyFactor> factors;
+
+  /// Steps that day, from Apple Health. Sleep deliberately has no column beside it: HealthKit is already on-device storage and sleep never leaves it (see `features/health/CLAUDE.md`).
+  final int? steps;
+
+  /// Wall clock of the last local mutation, used only to settle which of two devices' versions wins.
+  final DateTime? updatedAt;
+
+  /// Bumped on every local mutation.
+  final int revision;
+
+  /// The [revision] the server confirmed.
+  final int? syncedRevision;
+  const DailyLogRow({
+    required this.id,
+    this.sleepQuality,
+    this.stressLevel,
+    required this.factors,
+    this.steps,
+    this.updatedAt,
+    required this.revision,
+    this.syncedRevision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || sleepQuality != null) {
+      map['sleep_quality'] = Variable<int>(sleepQuality);
+    }
+    if (!nullToAbsent || stressLevel != null) {
+      map['stress_level'] = Variable<int>(stressLevel);
+    }
+    {
+      map['factors'] = Variable<String>(
+        $DailyLogsTable.$converterfactors.toSql(factors),
+      );
+    }
+    if (!nullToAbsent || steps != null) {
+      map['steps'] = Variable<int>(steps);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || syncedRevision != null) {
+      map['synced_revision'] = Variable<int>(syncedRevision);
+    }
+    return map;
+  }
+
+  DailyLogsCompanion toCompanion(bool nullToAbsent) {
+    return DailyLogsCompanion(
+      id: Value(id),
+      sleepQuality: sleepQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sleepQuality),
+      stressLevel: stressLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stressLevel),
+      factors: Value(factors),
+      steps: steps == null && nullToAbsent
+          ? const Value.absent()
+          : Value(steps),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      revision: Value(revision),
+      syncedRevision: syncedRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedRevision),
+    );
+  }
+
+  factory DailyLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyLogRow(
+      id: serializer.fromJson<String>(json['id']),
+      sleepQuality: serializer.fromJson<int?>(json['sleepQuality']),
+      stressLevel: serializer.fromJson<int?>(json['stressLevel']),
+      factors: serializer.fromJson<List<DailyFactor>>(json['factors']),
+      steps: serializer.fromJson<int?>(json['steps']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sleepQuality': serializer.toJson<int?>(sleepQuality),
+      'stressLevel': serializer.toJson<int?>(stressLevel),
+      'factors': serializer.toJson<List<DailyFactor>>(factors),
+      'steps': serializer.toJson<int?>(steps),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+      'syncedRevision': serializer.toJson<int?>(syncedRevision),
+    };
+  }
+
+  DailyLogRow copyWith({
+    String? id,
+    Value<int?> sleepQuality = const Value.absent(),
+    Value<int?> stressLevel = const Value.absent(),
+    List<DailyFactor>? factors,
+    Value<int?> steps = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+    int? revision,
+    Value<int?> syncedRevision = const Value.absent(),
+  }) => DailyLogRow(
+    id: id ?? this.id,
+    sleepQuality: sleepQuality.present ? sleepQuality.value : this.sleepQuality,
+    stressLevel: stressLevel.present ? stressLevel.value : this.stressLevel,
+    factors: factors ?? this.factors,
+    steps: steps.present ? steps.value : this.steps,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    revision: revision ?? this.revision,
+    syncedRevision: syncedRevision.present
+        ? syncedRevision.value
+        : this.syncedRevision,
+  );
+  DailyLogRow copyWithCompanion(DailyLogsCompanion data) {
+    return DailyLogRow(
+      id: data.id.present ? data.id.value : this.id,
+      sleepQuality: data.sleepQuality.present
+          ? data.sleepQuality.value
+          : this.sleepQuality,
+      stressLevel: data.stressLevel.present
+          ? data.stressLevel.value
+          : this.stressLevel,
+      factors: data.factors.present ? data.factors.value : this.factors,
+      steps: data.steps.present ? data.steps.value : this.steps,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedRevision: data.syncedRevision.present
+          ? data.syncedRevision.value
+          : this.syncedRevision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyLogRow(')
+          ..write('id: $id, ')
+          ..write('sleepQuality: $sleepQuality, ')
+          ..write('stressLevel: $stressLevel, ')
+          ..write('factors: $factors, ')
+          ..write('steps: $steps, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sleepQuality,
+    stressLevel,
+    factors,
+    steps,
+    updatedAt,
+    revision,
+    syncedRevision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyLogRow &&
+          other.id == this.id &&
+          other.sleepQuality == this.sleepQuality &&
+          other.stressLevel == this.stressLevel &&
+          other.factors == this.factors &&
+          other.steps == this.steps &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision &&
+          other.syncedRevision == this.syncedRevision);
+}
+
+class DailyLogsCompanion extends UpdateCompanion<DailyLogRow> {
+  final Value<String> id;
+  final Value<int?> sleepQuality;
+  final Value<int?> stressLevel;
+  final Value<List<DailyFactor>> factors;
+  final Value<int?> steps;
+  final Value<DateTime?> updatedAt;
+  final Value<int> revision;
+  final Value<int?> syncedRevision;
+  final Value<int> rowid;
+  const DailyLogsCompanion({
+    this.id = const Value.absent(),
+    this.sleepQuality = const Value.absent(),
+    this.stressLevel = const Value.absent(),
+    this.factors = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyLogsCompanion.insert({
+    required String id,
+    this.sleepQuality = const Value.absent(),
+    this.stressLevel = const Value.absent(),
+    this.factors = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<DailyLogRow> custom({
+    Expression<String>? id,
+    Expression<int>? sleepQuality,
+    Expression<int>? stressLevel,
+    Expression<String>? factors,
+    Expression<int>? steps,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? syncedRevision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sleepQuality != null) 'sleep_quality': sleepQuality,
+      if (stressLevel != null) 'stress_level': stressLevel,
+      if (factors != null) 'factors': factors,
+      if (steps != null) 'steps': steps,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (syncedRevision != null) 'synced_revision': syncedRevision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyLogsCompanion copyWith({
+    Value<String>? id,
+    Value<int?>? sleepQuality,
+    Value<int?>? stressLevel,
+    Value<List<DailyFactor>>? factors,
+    Value<int?>? steps,
+    Value<DateTime?>? updatedAt,
+    Value<int>? revision,
+    Value<int?>? syncedRevision,
+    Value<int>? rowid,
+  }) {
+    return DailyLogsCompanion(
+      id: id ?? this.id,
+      sleepQuality: sleepQuality ?? this.sleepQuality,
+      stressLevel: stressLevel ?? this.stressLevel,
+      factors: factors ?? this.factors,
+      steps: steps ?? this.steps,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      syncedRevision: syncedRevision ?? this.syncedRevision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sleepQuality.present) {
+      map['sleep_quality'] = Variable<int>(sleepQuality.value);
+    }
+    if (stressLevel.present) {
+      map['stress_level'] = Variable<int>(stressLevel.value);
+    }
+    if (factors.present) {
+      map['factors'] = Variable<String>(
+        $DailyLogsTable.$converterfactors.toSql(factors.value),
+      );
+    }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedRevision.present) {
+      map['synced_revision'] = Variable<int>(syncedRevision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('sleepQuality: $sleepQuality, ')
+          ..write('stressLevel: $stressLevel, ')
+          ..write('factors: $factors, ')
+          ..write('steps: $steps, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4065,6 +4611,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ExportRecordsTable exportRecords = $ExportRecordsTable(this);
   late final $SyncTombstonesTable syncTombstones = $SyncTombstonesTable(this);
   late final $DailyWeatherTable dailyWeather = $DailyWeatherTable(this);
+  late final $DailyLogsTable dailyLogs = $DailyLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4078,6 +4625,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     exportRecords,
     syncTombstones,
     dailyWeather,
+    dailyLogs,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -6611,6 +7159,270 @@ typedef $$DailyWeatherTableProcessedTableManager =
       DailyWeatherRow,
       PrefetchHooks Function()
     >;
+typedef $$DailyLogsTableCreateCompanionBuilder =
+    DailyLogsCompanion Function({
+      required String id,
+      Value<int?> sleepQuality,
+      Value<int?> stressLevel,
+      Value<List<DailyFactor>> factors,
+      Value<int?> steps,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+typedef $$DailyLogsTableUpdateCompanionBuilder =
+    DailyLogsCompanion Function({
+      Value<String> id,
+      Value<int?> sleepQuality,
+      Value<int?> stressLevel,
+      Value<List<DailyFactor>> factors,
+      Value<int?> steps,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+
+class $$DailyLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<List<DailyFactor>, List<DailyFactor>, String>
+  get factors => $composableBuilder(
+    column: $table.factors,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get factors => $composableBuilder(
+    column: $table.factors,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<List<DailyFactor>, String> get factors =>
+      $composableBuilder(column: $table.factors, builder: (column) => column);
+
+  GeneratedColumn<int> get steps =>
+      $composableBuilder(column: $table.steps, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyLogsTable,
+          DailyLogRow,
+          $$DailyLogsTableFilterComposer,
+          $$DailyLogsTableOrderingComposer,
+          $$DailyLogsTableAnnotationComposer,
+          $$DailyLogsTableCreateCompanionBuilder,
+          $$DailyLogsTableUpdateCompanionBuilder,
+          (
+            DailyLogRow,
+            BaseReferences<_$AppDatabase, $DailyLogsTable, DailyLogRow>,
+          ),
+          DailyLogRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyLogsTableTableManager(_$AppDatabase db, $DailyLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int?> sleepQuality = const Value.absent(),
+                Value<int?> stressLevel = const Value.absent(),
+                Value<List<DailyFactor>> factors = const Value.absent(),
+                Value<int?> steps = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyLogsCompanion(
+                id: id,
+                sleepQuality: sleepQuality,
+                stressLevel: stressLevel,
+                factors: factors,
+                steps: steps,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<int?> sleepQuality = const Value.absent(),
+                Value<int?> stressLevel = const Value.absent(),
+                Value<List<DailyFactor>> factors = const Value.absent(),
+                Value<int?> steps = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyLogsCompanion.insert(
+                id: id,
+                sleepQuality: sleepQuality,
+                stressLevel: stressLevel,
+                factors: factors,
+                steps: steps,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyLogsTable,
+      DailyLogRow,
+      $$DailyLogsTableFilterComposer,
+      $$DailyLogsTableOrderingComposer,
+      $$DailyLogsTableAnnotationComposer,
+      $$DailyLogsTableCreateCompanionBuilder,
+      $$DailyLogsTableUpdateCompanionBuilder,
+      (
+        DailyLogRow,
+        BaseReferences<_$AppDatabase, $DailyLogsTable, DailyLogRow>,
+      ),
+      DailyLogRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6631,4 +7443,6 @@ class $AppDatabaseManager {
       $$SyncTombstonesTableTableManager(_db, _db.syncTombstones);
   $$DailyWeatherTableTableManager get dailyWeather =>
       $$DailyWeatherTableTableManager(_db, _db.dailyWeather);
+  $$DailyLogsTableTableManager get dailyLogs =>
+      $$DailyLogsTableTableManager(_db, _db.dailyLogs);
 }

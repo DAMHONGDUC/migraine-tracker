@@ -12,6 +12,21 @@ final class DateTimeUtils {
         '${_two(left.inSeconds % 60)}';
   }
 
+  /// The local day as `yyyy-MM-dd` — how a daily check-in is keyed, and why its rows sort in date order.
+  static String dayKey(DateTime date) {
+    final DateTime local = date.toLocal();
+
+    return '${local.year.toString().padLeft(4, '0')}-'
+        '${_two(local.month)}-${_two(local.day)}';
+  }
+
+  /// The local midnight [dayKey] came from. Throws [FormatException] on anything else, so a malformed key fails where it is read rather than as a wrong day later.
+  static DateTime dayFromKey(String key) {
+    final DateTime parsed = DateTime.parse(key);
+
+    return DateTime(parsed.year, parsed.month, parsed.day);
+  }
+
   /// Whether two instants land on the same local calendar day.
   static bool isSameDay(DateTime first, DateTime second) {
     final DateTime a = first.toLocal();

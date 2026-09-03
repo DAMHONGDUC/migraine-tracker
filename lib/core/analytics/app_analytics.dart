@@ -26,6 +26,7 @@ abstract final class AppAnalytics {
   static const String _alertsToggled = 'alerts_toggled';
   static const String _alertThresholdSet = 'alert_threshold_set';
   static const String _healthConnectionToggled = 'health_connection_toggled';
+  static const String _dailyCheckInSaved = 'daily_check_in_saved';
   static const String _signOut = 'sign_out';
   static const String _profileNameUpdated = 'profile_name_updated';
   static const String _signInFailed = 'sign_in_failed';
@@ -178,6 +179,11 @@ abstract final class AppAnalytics {
 
   static void logAlertThresholdSet(double thresholdHpa) =>
       _log(_alertThresholdSet, <String, Object>{_pThresholdHpa: thresholdHpa});
+
+  // --- Daily check-in ----------------------------------------------------- That one happened, and nothing about it.
+
+  /// No parameters at all: how the user slept, how stressed they were and which factors they ticked are health data (hard rule 1).
+  static void logDailyCheckInSaved() => _log(_dailyCheckInSaved);
 
   // --- Apple Health ------------------------------------------------------- Only whether the source is connected.
 

@@ -7,6 +7,8 @@ import '../../features/attacks/domain/enums/exertion_level.dart';
 import '../../features/attacks/domain/enums/head_location.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
+import '../../features/daily_log/data/tables/daily_log_tables.dart';
+import '../../features/daily_log/domain/enums/daily_factor.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
 import '../../features/notifications/domain/enums/notification_type.dart';
@@ -16,6 +18,7 @@ import '../../features/weather/data/tables/daily_weather_tables.dart';
 import 'converters.dart';
 
 export '../../features/attacks/data/tables/attack_tables.dart';
+export '../../features/daily_log/data/tables/daily_log_tables.dart';
 export '../../features/medications/data/tables/medication_tables.dart';
 export '../../features/notifications/data/tables/notification_tables.dart';
 export '../../features/settings/data/tables/export_tables.dart';
@@ -35,6 +38,7 @@ part 'app_database.g.dart';
     ExportRecords,
     SyncTombstones,
     DailyWeather,
+    DailyLogs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -45,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -157,6 +161,11 @@ class AppDatabase extends _$AppDatabase {
       // - v15: the aura kinds reported for an attack, recorded after the fact.
       if (from >= 13 && from < 15) {
         await m.addColumn(attacks, attacks.aura);
+      }
+      // - v16 is deliberately empty: an unshipped v16 ran on a dev device with a different meaning, and a device that took it would skip a step numbered the same.
+      // - v17: the daily check-in, which gives every analysis the days without an attack to compare against.
+      if (from < 17) {
+        await m.createTable(dailyLogs);
       }
     },
     beforeOpen: (details) async {

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 
 import '../../features/attacks/domain/enums/aura_type.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
+import '../../features/daily_log/domain/enums/daily_factor.dart';
 
 /// Stores a list of strings (symptoms, triggers) as a JSON array column.
 class StringListConverter extends TypeConverter<List<String>, String> {
@@ -53,4 +54,26 @@ class HeadRegionListConverter extends TypeConverter<List<HeadRegion>, String> {
   @override
   String toSql(List<HeadRegion> value) =>
       jsonEncode(<String>[for (final HeadRegion r in value) r.name]);
+}
+
+/// Stores a day's factors as a JSON array of [DailyFactor] names.
+class DailyFactorListConverter
+    extends TypeConverter<List<DailyFactor>, String> {
+  const DailyFactorListConverter();
+
+  @override
+  List<DailyFactor> fromSql(String fromDb) {
+    final List<dynamic> names = jsonDecode(fromDb) as List<dynamic>;
+
+    return <DailyFactor>[
+      for (final dynamic name in names)
+        // A factor this build has never heard of is dropped rather than guessed at — a newer device may have written one.
+        if (DailyFactor.values.asNameMap()[name] case final DailyFactor factor)
+          factor,
+    ];
+  }
+
+  @override
+  String toSql(List<DailyFactor> value) =>
+      jsonEncode(<String>[for (final DailyFactor f in value) f.name]);
 }

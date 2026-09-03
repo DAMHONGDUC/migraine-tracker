@@ -8,6 +8,7 @@ import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 import '../../features/auth/providers.dart';
+import '../../features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
@@ -51,6 +52,9 @@ final class AppRoutes {
     name: 'medications',
     path: '/medications',
   );
+
+  /// The 30-second daily check-in, pushed from the dashboard card. Always writes today — see [DailyLogScreen].
+  static const dailyLog = AppRoute(name: 'dailyLog', path: '/check-in');
 
   /// The notification list, pushed from the dashboard's app bar.
   static const notifications = AppRoute(
@@ -175,6 +179,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MedicationDetailScreen(
           medicationId: state.pathParameters[AppRoutes.medicationIdParam]!,
         ),
+      ),
+      // Pushed from the dashboard card, so it covers the tab bar and returns to where it opened from.
+      GoRoute(
+        name: AppRoutes.dailyLog.name,
+        path: AppRoutes.dailyLog.path,
+        builder: (context, state) => const DailyLogScreen(),
       ),
       // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
       GoRoute(

@@ -3,6 +3,8 @@ enum SyncCollection {
   medications('medications'),
   medicationReminders('medication_reminders'),
   attacks('attacks'),
+  // Free of the ordering above: a daily log points at nothing, and nothing points at it.
+  dailyLogs('daily_logs'),
   // Last: a notification points at the reminder and medication it came from, so both have to be here before it arrives.
   notifications('notifications');
 

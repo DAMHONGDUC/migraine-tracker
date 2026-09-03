@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
+import 'package:migraine_tracker/features/daily_log/data/repositories/drift_daily_log_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -80,8 +81,9 @@ void main() {
         syncServiceOver(db),
         RecordingAlertRegistration(),
         DriftDailyPressureRepository(db),
+        DriftDailyLogRepository(db),
         RecordingShareFileStore(),
-      RecordingHomeWidgetRepository(),
+        RecordingHomeWidgetRepository(),
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
@@ -91,6 +93,7 @@ void main() {
       DriftExportRecordRepository(db),
       DriftNotificationRepository(db),
       DriftDailyPressureRepository(db),
+      DriftDailyLogRepository(db),
     );
   });
 

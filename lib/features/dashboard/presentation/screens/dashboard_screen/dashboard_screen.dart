@@ -10,6 +10,7 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../auth/providers.dart';
+import '../../../../daily_log/presentation/widgets/daily_check_in_card.dart';
 import '../../../../medications/providers.dart';
 import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
@@ -45,6 +46,8 @@ class DashboardScreen extends ConsumerWidget {
       const DashboardLogButton(),
       // Directly under the button it warns about, and only in the last few logs — the wall itself lands mid-attack, so it must not be news.
       if (logsLeft != null) const AttackLimitBanner(),
+      // Under the log button and above the shortcuts: the one thing the app asks for on a day that did not hurt.
+      const DailyCheckInCard(),
       const QuickAccessSection(),
       // Under the shortcuts, owner's call: the top of the screen is the call to action, and the readings start here.
       const CurrentWeatherCard(),

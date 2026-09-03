@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,10 +14,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 15', () {
+  test('database is at schema version 17', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 15);
+    expect(db.schemaVersion, 17);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
@@ -403,5 +404,39 @@ void main() {
     expect(stored.aura, isNull);
     // v13 widened the coarse `location` into a set of regions; the aura step must not have disturbed that backfill on the way past.
     expect(stored.regions, isNotEmpty);
+  });
+
+  test('migrates from v15 to v17 (adds the daily check-in)', () async {
+    final connection = await verifier.startAt(15);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // The day is the primary key, so the same Tuesday written twice is one row rather than two — which is what makes two devices converge.
+  test('a daily log is keyed by its day', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db
+        .into(db.dailyLogs)
+        .insertOnConflictUpdate(
+          DailyLogsCompanion.insert(
+            id: '2026-09-14',
+            sleepQuality: const Value(2),
+          ),
+        );
+    await db
+        .into(db.dailyLogs)
+        .insertOnConflictUpdate(
+          DailyLogsCompanion.insert(
+            id: '2026-09-14',
+            sleepQuality: const Value(4),
+          ),
+        );
+    final List<DailyLogRow> rows = await db.select(db.dailyLogs).get();
+
+    expect(rows.single.sleepQuality, 4);
   });
 }
