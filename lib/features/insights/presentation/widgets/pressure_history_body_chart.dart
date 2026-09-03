@@ -1,6 +1,10 @@
 part of 'pressure_history_body.dart';
 
-/// The pressure line with a dot on every day that ended in an attack.
+/// The pressure line, with every attack sitting at the hour it started.
+///
+/// An attack that carries its own snapshot is drawn at that hour and at the
+/// pressure it was taken at — the day's dot only stands in for the ones logged
+/// before snapshots existed, or offline where the backfill never landed.
 class _Chart extends StatelessWidget {
   const _Chart({required this.timeline});
 
@@ -17,11 +21,20 @@ class _Chart extends StatelessWidget {
       fontSize: SdSpacingConstant.sp10,
     );
     final DateFormat dayFormat = DateFormat.Md(l10n.localeName);
+    // Date and hour together: an attack's mark is only meaningful beside the day it fell on.
+    final DateFormat hourFormat = DateFormat.Md(
+      l10n.localeName,
+    ).addPattern(DateFormat.HOUR_MINUTE, ' ');
     final List<PressureTimelineDay> days = timeline.days;
     final List<FlSpot> spots = <FlSpot>[
       for (final (int i, PressureTimelineDay day) in days.indexed)
         FlSpot(i.toDouble(), day.pressureHpa),
     ];
+    final List<PressureTimelineMoment> moments = timeline.moments;
+    // Days whose attacks are all placed by the hour keep no dot of their own — two marks for one attack reads as two attacks.
+    final Set<int> hourlyDays = <int>{
+      for (final PressureTimelineMoment moment in moments) moment.x.floor(),
+    };
     final double minY = ChartAxisUtils.minBound(
       days.map((PressureTimelineDay d) => d.pressureHpa),
     );
@@ -96,7 +109,8 @@ class _Chart extends StatelessWidget {
                     for (final LineBarSpot spot in touched)
                       LineTooltipItem(
                         '${l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'
-                        '${dayFormat.format(days[spot.x.round()].day)}',
+                        // An hourly mark names its hour; the day line names its day. Rounding a fractional x onto the day list would name the wrong day either side of midday.
+                        '${spot.barIndex == 1 && spot.spotIndex < moments.length ? hourFormat.format(moments[spot.spotIndex].at) : dayFormat.format(days[spot.x.round().clamp(0, days.length - 1)].day)}',
                         AppTextStyle.bodySmall.copyWith(
                           color: AppColors.textPrimary,
                         ),
@@ -117,7 +131,8 @@ class _Chart extends StatelessWidget {
                   ),
                   dotData: FlDotData(
                     checkToShowDot: (FlSpot spot, _) =>
-                        days[spot.x.round()].hasAttack,
+                        days[spot.x.round()].hasAttack &&
+                        !hourlyDays.contains(spot.x.round()),
                     getDotPainter: (FlSpot spot, _, _, _) {
                       final PressureTimelineDay day = days[spot.x.round()];
 
@@ -130,6 +145,26 @@ class _Chart extends StatelessWidget {
                     },
                   ),
                 ),
+                // The hourly marks: dots only, no line. `show: false` keeps fl_chart from joining one attack to the next as if they were a series.
+                if (moments.isNotEmpty)
+                  LineChartBarData(
+                    show: false,
+                    spots: <FlSpot>[
+                      for (final PressureTimelineMoment moment in moments)
+                        FlSpot(moment.x, moment.pressureHpa),
+                    ],
+                    dotData: FlDotData(
+                      getDotPainter: (FlSpot spot, _, _, int index) =>
+                          FlDotCirclePainter(
+                            radius: dotRadius,
+                            color: AppColors.intensity(
+                              moments[index].intensity,
+                            ),
+                            strokeWidth: 1,
+                            strokeColor: AppColors.surface,
+                          ),
+                    ),
+                  ),
               ],
             ),
           ),
