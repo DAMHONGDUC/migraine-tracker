@@ -4,6 +4,7 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/daily_log/data/repositories/drift_daily_log_repository.dart';
+import 'package:migraine_tracker/features/insights/data/repositories/drift_midas_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -82,6 +83,7 @@ void main() {
         RecordingAlertRegistration(),
         DriftDailyPressureRepository(db),
         DriftDailyLogRepository(db),
+        DriftMidasRepository(db),
         RecordingShareFileStore(),
         RecordingHomeWidgetRepository(),
         RecordingLiveActivity(),

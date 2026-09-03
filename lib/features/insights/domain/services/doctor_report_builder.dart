@@ -12,6 +12,7 @@ import '../../../attacks/domain/enums/medication_effect.dart';
 import '../entities/correlation_result.dart';
 import '../entities/medication_effectiveness_result.dart';
 import '../entities/medication_overuse_result.dart';
+import '../entities/midas_score.dart';
 import '../entities/migraine_days_summary.dart';
 import 'medication_effectiveness_engine.dart';
 import 'medication_overuse_engine.dart';
@@ -29,6 +30,8 @@ class DoctorReportStrings {
     required this.commonLocation,
     required this.typicalDuration,
     required this.monthlyDays,
+    required this.midas,
+    required this.midasGrades,
     required this.aura,
     required this.auraLabels,
     required this.medicationDays,
@@ -56,6 +59,10 @@ class DoctorReportStrings {
   final String avgIntensity;
   final String commonLocation;
   final String typicalDuration;
+
+  /// Label for the MIDAS row, and the four grade names it prints.
+  final String midas;
+  final Map<MidasGrade, String> midasGrades;
 
   /// Label for the migraine-days-per-month row — the figure a headache clinic opens with and every preventive is judged on.
   final String monthlyDays;
@@ -98,6 +105,7 @@ class DoctorReportBuilder {
   Future<Uint8List> build({
     required List<Attack> attacks,
     required CorrelationResult correlation,
+    required MidasEntry? midas,
     required DoctorReportStrings strings,
     required DateTime now,
     required pw.Font regularFont,
@@ -136,7 +144,7 @@ class DoctorReportBuilder {
             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 8),
-          _summaryTable(recent, correlation, strings, now),
+          _summaryTable(recent, correlation, midas, strings, now),
           pw.SizedBox(height: 16),
           pw.Text(
             strings.tableTitle,
@@ -153,11 +161,18 @@ class DoctorReportBuilder {
   pw.Widget _summaryTable(
     List<Attack> attacks,
     CorrelationResult correlation,
+    MidasEntry? midas,
     DoctorReportStrings strings,
     DateTime now,
   ) {
     final rows = <List<String>>[
       [strings.totalAttacks, '${attacks.length}'],
+      // The one figure here the user supplied rather than the app derived, and the one a headache clinic opens with after the day count.
+      if (midas case final MidasEntry entry)
+        [
+          strings.midas,
+          '${entry.score} (${strings.midasGrades[entry.grade]})',
+        ],
       if (attacks.isNotEmpty)
         [
           strings.avgIntensity,

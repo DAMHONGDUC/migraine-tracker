@@ -9,6 +9,8 @@ import '../attacks/data/repositories/drift_attack_sync_store.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../daily_log/data/repositories/drift_daily_log_sync_store.dart';
 import '../daily_log/domain/entities/daily_log.dart';
+import '../insights/data/repositories/drift_midas_sync_store.dart';
+import '../insights/domain/entities/midas_score.dart';
 import '../medications/data/repositories/drift_medication_reminder_sync_store.dart';
 import '../medications/data/repositories/drift_medication_sync_store.dart';
 import '../medications/domain/entities/medication.dart';
@@ -31,6 +33,7 @@ import 'domain/services/attack_payload_codec.dart';
 import 'domain/services/daily_log_payload_codec.dart';
 import 'domain/services/medication_payload_codec.dart';
 import 'domain/services/medication_reminder_payload_codec.dart';
+import 'domain/services/midas_payload_codec.dart';
 import 'domain/services/sync_service.dart';
 import 'presentation/controllers/sync_controller.dart';
 
@@ -71,6 +74,10 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       SyncBinding<DailyLog>(
         DriftDailyLogSyncStore(db),
         const DailyLogPayloadCodec(),
+      ),
+      SyncBinding<MidasEntry>(
+        DriftMidasSyncStore(db),
+        const MidasPayloadCodec(),
       ),
       // Last: a notification names the reminder and medication it came from, so both are already here by the time the list renders it.
       SyncBinding<AppNotification>(

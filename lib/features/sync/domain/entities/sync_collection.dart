@@ -5,6 +5,8 @@ enum SyncCollection {
   attacks('attacks'),
   // Free of the ordering above: a daily log points at nothing, and nothing points at it.
   dailyLogs('daily_logs'),
+  // Also order-free: a MIDAS answer points at nothing.
+  midas('midas'),
   // Last: a notification points at the reminder and medication it came from, so both have to be here before it arrives.
   notifications('notifications');
 

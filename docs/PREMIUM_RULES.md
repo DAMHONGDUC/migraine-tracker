@@ -66,6 +66,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Daily check-in | Yes | Yes |
 | Trigger / protector map | No | Yes |
 | 7-day risk score | No | Yes |
+| MIDAS questionnaire and its score | No | Yes |
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
 | Export history and preview | No | Yes |

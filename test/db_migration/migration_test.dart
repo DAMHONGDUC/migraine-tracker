@@ -14,10 +14,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 18', () {
+  test('database is at schema version 19', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 18);
+    expect(db.schemaVersion, 19);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
@@ -464,5 +464,13 @@ void main() {
 
     expect(stored.medicationTakenAt, null);
     expect(stored.reliefAt, null);
+  });
+
+  test('migrates from v18 to v19 (adds the MIDAS questionnaire)', () async {
+    final connection = await verifier.startAt(18);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
   });
 }

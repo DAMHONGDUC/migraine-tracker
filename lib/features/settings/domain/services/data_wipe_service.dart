@@ -6,6 +6,7 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../daily_log/domain/repositories/daily_log_repository.dart';
 import '../../../home_widget/domain/repositories/home_widget_repository.dart';
+import '../../../insights/domain/repositories/midas_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
 import '../../../notifications/domain/repositories/notification_repository.dart';
@@ -31,6 +32,7 @@ class DataWipeService {
     this._alerts,
     this._dailyPressure,
     this._dailyLogs,
+    this._midas,
     this._shareFiles,
     this._homeWidget,
     this._liveActivity,
@@ -52,6 +54,9 @@ class DataWipeService {
   /// The daily check-ins. Synced like an attack, so the remote half above takes the server's copy and this takes the device's.
   final DailyLogRepository _dailyLogs;
 
+  /// The MIDAS answers. Synced like the rest, so the remote half above takes the server's copy and this takes the device's.
+  final MidasRepository _midas;
+
   /// The share images. Not a database and not listed anywhere in the app, but a copy of the user's health data on disk all the same.
   final AttackShareFileStore _shareFiles;
 
@@ -62,7 +67,7 @@ class DataWipeService {
   final AttackLiveActivity _liveActivity;
 
   /// How many awaits [wipeAll] reports against.
-  static const int steps = 13;
+  static const int steps = 14;
 
   /// [onProgress] fires after each step with how many are done out of [steps].
   Future<void> wipeAll({WipeProgressCallback? onProgress}) async {
@@ -99,6 +104,9 @@ class DataWipeService {
     step();
     // How the user slept and how stressed they were, on every day they answered.
     await _dailyLogs.deleteAll();
+    step();
+    // How many days migraine cost them, in their own words.
+    await _midas.deleteAll();
     step();
     // A shared attack is written to temporary storage for the share sheet to read.
     await _shareFiles.deleteAll();

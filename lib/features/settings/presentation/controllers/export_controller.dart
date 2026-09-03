@@ -12,6 +12,7 @@ import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/providers.dart';
+import '../../../insights/domain/entities/midas_score.dart';
 import '../../../insights/domain/services/doctor_report_builder.dart';
 import '../../../insights/providers.dart';
 import '../../../medications/domain/entities/medication.dart';
@@ -209,10 +210,13 @@ class ExportController {
     }
     final correlation = _ref.read(correlationEngineProvider).analyze(attacks);
     final (pw.Font regular, pw.Font bold) = await _reportFonts();
+    // Null until the questionnaire has been answered once; the row is simply absent from the report until then.
+    final MidasEntry? midas = await _ref.read(midasRepositoryProvider).latest();
 
     return const DoctorReportBuilder().build(
       attacks: attacks,
       correlation: correlation,
+      midas: midas,
       strings: strings,
       now: now,
       regularFont: regular,

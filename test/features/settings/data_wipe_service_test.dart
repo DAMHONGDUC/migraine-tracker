@@ -7,6 +7,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/daily_log/data/repositories/drift_daily_log_repository.dart';
+import 'package:migraine_tracker/features/insights/data/repositories/drift_midas_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -106,6 +107,7 @@ void main() {
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
       DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       shareFiles,
       homeWidget,
       RecordingLiveActivity(),
@@ -156,6 +158,7 @@ void main() {
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
       DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),
@@ -182,6 +185,7 @@ void main() {
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
       DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),
@@ -218,6 +222,7 @@ void main() {
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
       DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),
@@ -278,6 +283,7 @@ void main() {
         alerts,
         DriftDailyPressureRepository(db),
         DriftDailyLogRepository(db),
+        DriftMidasRepository(db),
         RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),

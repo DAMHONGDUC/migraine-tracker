@@ -29,6 +29,7 @@ class SyncWriteThroughService {
         _db.medicationReminders,
         _db.attacks,
         _db.dailyLogs,
+        _db.midasEntries,
         _db.appNotifications,
         _db.syncTombstones,
       ];

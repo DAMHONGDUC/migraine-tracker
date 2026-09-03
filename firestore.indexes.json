@@ -69,6 +69,20 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "midas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [
@@ -144,6 +158,21 @@
     },
     {
       "collectionGroup": "daily_logs",
+      "fieldPath": "mac",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
+      "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
+      "fieldPath": "nonce",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
       "fieldPath": "mac",
       "indexes": []
     }

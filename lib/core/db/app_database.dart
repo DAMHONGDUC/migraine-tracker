@@ -9,6 +9,7 @@ import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
 import '../../features/daily_log/data/tables/daily_log_tables.dart';
 import '../../features/daily_log/domain/enums/daily_factor.dart';
+import '../../features/insights/data/tables/midas_tables.dart';
 import '../../features/medications/data/tables/medication_tables.dart';
 import '../../features/notifications/data/tables/notification_tables.dart';
 import '../../features/notifications/domain/enums/notification_type.dart';
@@ -19,6 +20,7 @@ import 'converters.dart';
 
 export '../../features/attacks/data/tables/attack_tables.dart';
 export '../../features/daily_log/data/tables/daily_log_tables.dart';
+export '../../features/insights/data/tables/midas_tables.dart';
 export '../../features/medications/data/tables/medication_tables.dart';
 export '../../features/notifications/data/tables/notification_tables.dart';
 export '../../features/settings/data/tables/export_tables.dart';
@@ -39,6 +41,7 @@ part 'app_database.g.dart';
     SyncTombstones,
     DailyWeather,
     DailyLogs,
+    MidasEntries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -49,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -173,6 +176,10 @@ class AppDatabase extends _$AppDatabase {
       if (from >= 13 && from < 18) {
         await m.addColumn(attacks, attacks.medicationTakenAt);
         await m.addColumn(attacks, attacks.reliefAt);
+      }
+      // - v19: the MIDAS questionnaire, whose score the doctor report carries.
+      if (from < 19) {
+        await m.createTable(midasEntries);
       }
     },
     beforeOpen: (details) async {

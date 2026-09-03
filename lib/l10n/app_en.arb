@@ -3835,5 +3835,99 @@
   "riskPending": "Two weeks of logging and the score starts.",
   "@riskPending": {
     "description": "Shown while there is not yet enough history to score against."
+  },
+  "midasTitle": "Disability score",
+  "@midasTitle": {
+    "description": "App bar title of the MIDAS questionnaire screen."
+  },
+  "midasIntro": "Five questions about the last three months. Your neurologist reads the total.",
+  "@midasIntro": {
+    "description": "One line under the title explaining what the questionnaire is for."
+  },
+  "midasQ1": "Days of work or school missed entirely",
+  "@midasQ1": {
+    "description": "MIDAS question 1."
+  },
+  "midasQ2": "Days at work or school with productivity halved",
+  "@midasQ2": {
+    "description": "MIDAS question 2."
+  },
+  "midasQ3": "Days no household work was done",
+  "@midasQ3": {
+    "description": "MIDAS question 3."
+  },
+  "midasQ4": "Days of household work halved",
+  "@midasQ4": {
+    "description": "MIDAS question 4."
+  },
+  "midasQ5": "Days of family, social or leisure activity missed",
+  "@midasQ5": {
+    "description": "MIDAS question 5."
+  },
+  "midasQ2Note": "Not counting the days above.",
+  "@midasQ2Note": {
+    "description": "Instruction under question 2, as the questionnaire words it."
+  },
+  "midasQ4Note": "Not counting the days above.",
+  "@midasQ4Note": {
+    "description": "Instruction under question 4, as the questionnaire words it."
+  },
+  "midasSave": "Save",
+  "@midasSave": {
+    "description": "Primary button of the questionnaire."
+  },
+  "midasSaved": "Disability score recorded",
+  "@midasSaved": {
+    "description": "Snackbar after the questionnaire is saved."
+  },
+  "midasSaveFailed": "Could not save the questionnaire. Try again.",
+  "@midasSaveFailed": {
+    "description": "Snackbar when saving the questionnaire failed."
+  },
+  "midasScore": "MIDAS {score}",
+  "@midasScore": {
+    "description": "The total, shown with the questionnaire's name.",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "midasGradeLittleOrNone": "Grade I — little or no disability",
+  "@midasGradeLittleOrNone": {
+    "description": "MIDAS grade I, score 0-5."
+  },
+  "midasGradeMild": "Grade II — mild disability",
+  "@midasGradeMild": {
+    "description": "MIDAS grade II, score 6-10."
+  },
+  "midasGradeModerate": "Grade III — moderate disability",
+  "@midasGradeModerate": {
+    "description": "MIDAS grade III, score 11-20."
+  },
+  "midasGradeSevere": "Grade IV — severe disability",
+  "@midasGradeSevere": {
+    "description": "MIDAS grade IV, score 21 and above."
+  },
+  "midasNever": "Not answered yet",
+  "@midasNever": {
+    "description": "Value of the export row before the questionnaire has been answered."
+  },
+  "midasTakenOn": "Answered {date}",
+  "@midasTakenOn": {
+    "description": "When the most recent questionnaire was answered.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "midasRowTitle": "Disability score (MIDAS)",
+  "@midasRowTitle": {
+    "description": "Export screen row leading to the questionnaire."
+  },
+  "midasReportRow": "Disability (MIDAS)",
+  "@midasReportRow": {
+    "description": "Label of the MIDAS row in the doctor report."
   }
 }

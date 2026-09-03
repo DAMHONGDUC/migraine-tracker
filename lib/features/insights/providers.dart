@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/db/database_provider.dart';
 import '../alerts/providers.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
@@ -12,11 +13,13 @@ import '../health/domain/entities/step_hour.dart';
 import '../health/providers.dart';
 import '../weather/domain/entities/daily_pressure.dart';
 import '../weather/providers.dart';
+import 'data/repositories/drift_midas_repository.dart';
 import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
 import 'domain/entities/factor_association.dart';
 import 'domain/entities/medication_effectiveness_result.dart';
 import 'domain/entities/medication_overuse_result.dart';
+import 'domain/entities/midas_score.dart';
 import 'domain/entities/migraine_days_summary.dart';
 import 'domain/entities/pressure_timeline.dart';
 import 'domain/entities/risk_score.dart';
@@ -25,6 +28,7 @@ import 'domain/entities/step_correlation_result.dart';
 import 'domain/entities/trigger_verdict.dart';
 import 'domain/enums/health_range.dart';
 import 'domain/enums/insights_tab.dart';
+import 'domain/repositories/midas_repository.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
 import 'domain/services/factor_map_engine.dart';
@@ -38,6 +42,7 @@ import 'domain/services/step_correlation_engine.dart';
 import 'domain/services/trigger_verdict_engine.dart';
 import 'presentation/controllers/health_range_controller.dart';
 import 'presentation/controllers/insights_tab_controller.dart';
+import 'presentation/controllers/midas_controller.dart';
 
 /// Default engine (15-attack minimum, 5 hPa threshold). The threshold becomes user-tunable in the alerts phase.
 final correlationEngineProvider = Provider<CorrelationEngine>(
@@ -57,6 +62,29 @@ final correlationResultProvider = Provider<AsyncValue<CorrelationResult>>((
     (List<Attack> list) => engine.analyze(list, days: days),
   );
 });
+
+final midasRepositoryProvider = Provider<MidasRepository>(
+  (ref) => DriftMidasRepository(ref.watch(databaseProvider)),
+);
+
+/// Every completed questionnaire, newest first.
+final midasEntriesProvider = StreamProvider<List<MidasEntry>>(
+  (ref) => ref.watch(midasRepositoryProvider).watchAll(),
+);
+
+/// The score the doctor report carries, or null while the questionnaire has never been answered.
+final latestMidasProvider = FutureProvider<MidasEntry?>(
+  (ref) async {
+    // Watched rather than read once: answering the questionnaire must refresh what the report would print.
+    await ref.watch(midasEntriesProvider.future);
+    return ref.watch(midasRepositoryProvider).latest();
+  },
+);
+
+/// Owns the questionnaire while it is open (see [MidasController]).
+final midasControllerProvider = NotifierProvider<MidasController, MidasDraft>(
+  MidasController.new,
+);
 
 final riskScoreEngineProvider = Provider<RiskScoreEngine>(
   (ref) => const RiskScoreEngine(),
