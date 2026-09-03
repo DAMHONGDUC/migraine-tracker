@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "Trente secondes, crise ou non.",
   "dailyLogCardDone": "Journée enregistrée",
   "dailyLogCardDoneBody": "Touche pour modifier tes réponses.",
-  "dailyLogA11yOpen": "Ouvrir le point du jour"
+  "dailyLogA11yOpen": "Ouvrir le point du jour",
+  "attackDetailMedicationTiming": "Délai de soulagement",
+  "medicationTimingNotRecorded": "Non renseigné",
+  "medicationTimingSheetTitle": "Combien de temps pour agir ?",
+  "medicationTimingTakenQuestion": "Quand l'as-tu pris ?",
+  "medicationTimingReliefQuestion": "Quand la douleur a-t-elle cédé ?",
+  "medicationTimingAtOnset": "Dès le début",
+  "medicationTimingAfterStart": "Après {duration}",
+  "medicationTimingTakenOnly": "Pris après {duration}",
+  "medicationTimingSave": "Enregistrer"
 }

@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "Ba mươi giây, dù có cơn đau hay không.",
   "dailyLogCardDone": "Đã ghi lại hôm nay",
   "dailyLogCardDoneBody": "Chạm để đổi câu trả lời.",
-  "dailyLogA11yOpen": "Mở ghi chú hằng ngày"
+  "dailyLogA11yOpen": "Mở ghi chú hằng ngày",
+  "attackDetailMedicationTiming": "Thời gian đến khi đỡ",
+  "medicationTimingNotRecorded": "Chưa ghi",
+  "medicationTimingSheetTitle": "Thuốc mất bao lâu mới có tác dụng?",
+  "medicationTimingTakenQuestion": "Bạn uống lúc nào?",
+  "medicationTimingReliefQuestion": "Cơn đau dịu lúc nào?",
+  "medicationTimingAtOnset": "Ngay khi bắt đầu",
+  "medicationTimingAfterStart": "Sau {duration}",
+  "medicationTimingTakenOnly": "Uống sau {duration}",
+  "medicationTimingSave": "Lưu"
 }

@@ -39,6 +39,9 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       'notes': attack.notes,
       'exertionLevel': attack.exertionLevel?.name,
       'endedAt': attack.endedAt?.toUtc().toIso8601String(),
+      // Optional and additive, like endedAt above: schemaVersion stays 1.
+      'medicationTakenAt': attack.medicationTakenAt?.toUtc().toIso8601String(),
+      'reliefAt': attack.reliefAt?.toUtc().toIso8601String(),
       'medicationEffect': attack.medicationEffect?.name,
       'weather': weather == null
           ? null
@@ -91,6 +94,8 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
             ),
       // Optional and additive, so schemaVersion stays 1: a build that predates this reads the payload and simply drops the field.
       endedAt: _dateOrNull(decoded['endedAt']),
+      medicationTakenAt: _dateOrNull(decoded['medicationTakenAt']),
+      reliefAt: _dateOrNull(decoded['reliefAt']),
       steps: _intOrNull(decoded['steps']),
       medicationEffect: decoded['medicationEffect'] == null
           ? null

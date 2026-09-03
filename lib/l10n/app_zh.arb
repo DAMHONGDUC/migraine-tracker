@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "三十秒，无论有没有发作。",
   "dailyLogCardDone": "今天已记录",
   "dailyLogCardDoneBody": "点按可修改答案。",
-  "dailyLogA11yOpen": "打开每日记录"
+  "dailyLogA11yOpen": "打开每日记录",
+  "attackDetailMedicationTiming": "起效时间",
+  "medicationTimingNotRecorded": "未记录",
+  "medicationTimingSheetTitle": "多久才起效？",
+  "medicationTimingTakenQuestion": "你什么时候吃的？",
+  "medicationTimingReliefQuestion": "疼痛什么时候缓解？",
+  "medicationTimingAtOnset": "刚开始时",
+  "medicationTimingAfterStart": "{duration}后",
+  "medicationTimingTakenOnly": "{duration}后服用",
+  "medicationTimingSave": "保存"
 }

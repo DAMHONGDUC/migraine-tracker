@@ -14,10 +14,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 17', () {
+  test('database is at schema version 18', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 17);
+    expect(db.schemaVersion, 18);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
@@ -438,5 +438,31 @@ void main() {
     final List<DailyLogRow> rows = await db.select(db.dailyLogs).get();
 
     expect(rows.single.sleepQuality, 4);
+  });
+
+  test('migrates from v17 to v18 (adds the medication timing)', () async {
+    final connection = await verifier.startAt(17);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // v13 rebuilds the attacks table from TODAY's definition, so a database coming from v12 must arrive with the v18 columns already on it.
+  test('v12 attacks survive v18 with no medication timing', () async {
+    final schema = await verifier.schemaAt(12);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location, '
+      "medication_name) VALUES ('a1', 1750000000, 7, 'front', 'Sumatriptan')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final AttackRow stored = (await db.select(db.attacks).get()).single;
+
+    expect(stored.medicationTakenAt, null);
+    expect(stored.reliefAt, null);
   });
 }

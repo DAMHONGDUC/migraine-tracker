@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "30秒、発作の有無にかかわらず。",
   "dailyLogCardDone": "今日を記録しました",
   "dailyLogCardDoneBody": "タップして回答を変更できます。",
-  "dailyLogA11yOpen": "今日の記録を開く"
+  "dailyLogA11yOpen": "今日の記録を開く",
+  "attackDetailMedicationTiming": "効くまでの時間",
+  "medicationTimingNotRecorded": "未記録",
+  "medicationTimingSheetTitle": "効くまでどのくらいかかりましたか？",
+  "medicationTimingTakenQuestion": "いつ服用しましたか？",
+  "medicationTimingReliefQuestion": "痛みはいつ和らぎましたか？",
+  "medicationTimingAtOnset": "発作直後",
+  "medicationTimingAfterStart": "{duration}後",
+  "medicationTimingTakenOnly": "{duration}後に服用",
+  "medicationTimingSave": "保存"
 }

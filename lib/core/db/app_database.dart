@@ -49,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -150,6 +150,8 @@ class AppDatabase extends _$AppDatabase {
             newColumns: <GeneratedColumn<Object>>[
               attacks.steps,
               attacks.aura,
+              attacks.medicationTakenAt,
+              attacks.reliefAt,
             ],
           ),
         );
@@ -166,6 +168,11 @@ class AppDatabase extends _$AppDatabase {
       // - v17: the daily check-in, which gives every analysis the days without an attack to compare against.
       if (from < 17) {
         await m.createTable(dailyLogs);
+      }
+      // - v18: when the medication was taken and when the pain eased, so "did it help" can become "in how long". Only a database already at 13 or later needs these: v13's rebuild creates them from today's definition.
+      if (from >= 13 && from < 18) {
+        await m.addColumn(attacks, attacks.medicationTakenAt);
+        await m.addColumn(attacks, attacks.reliefAt);
       }
     },
     beforeOpen: (details) async {

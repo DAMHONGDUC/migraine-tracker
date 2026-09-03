@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "Dreißig Sekunden, mit oder ohne Attacke.",
   "dailyLogCardDone": "Heute ist erfasst",
   "dailyLogCardDoneBody": "Tippen, um Antworten zu ändern.",
-  "dailyLogA11yOpen": "Tages-Check-in öffnen"
+  "dailyLogA11yOpen": "Tages-Check-in öffnen",
+  "attackDetailMedicationTiming": "Zeit bis zur Linderung",
+  "medicationTimingNotRecorded": "Nicht erfasst",
+  "medicationTimingSheetTitle": "Wie lange hat es gewirkt?",
+  "medicationTimingTakenQuestion": "Wann hast du es genommen?",
+  "medicationTimingReliefQuestion": "Wann ließ der Schmerz nach?",
+  "medicationTimingAtOnset": "Gleich zu Beginn",
+  "medicationTimingAfterStart": "Nach {duration}",
+  "medicationTimingTakenOnly": "Nach {duration} genommen",
+  "medicationTimingSave": "Speichern"
 }

@@ -37,6 +37,13 @@ class _Attacks implements AttackRepository {
   Future<void> attachWeather(String attackId, WeatherSnapshot weather) async {}
 
   @override
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  }) async {}
+
+  @override
   Future<List<Attack>> attacksMissingWeather() async => const <Attack>[];
 
   @override

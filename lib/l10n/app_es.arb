@@ -726,5 +726,14 @@
   "dailyLogCardPromptBody": "Treinta segundos, haya crisis o no.",
   "dailyLogCardDone": "Hoy queda registrado",
   "dailyLogCardDoneBody": "Toca para cambiar tus respuestas.",
-  "dailyLogA11yOpen": "Abrir el registro diario"
+  "dailyLogA11yOpen": "Abrir el registro diario",
+  "attackDetailMedicationTiming": "Tiempo hasta el alivio",
+  "medicationTimingNotRecorded": "Sin registrar",
+  "medicationTimingSheetTitle": "¿Cuánto tardó en hacer efecto?",
+  "medicationTimingTakenQuestion": "¿Cuándo lo tomaste?",
+  "medicationTimingReliefQuestion": "¿Cuándo cedió el dolor?",
+  "medicationTimingAtOnset": "Al empezar",
+  "medicationTimingAfterStart": "A los {duration}",
+  "medicationTimingTakenOnly": "Tomado a los {duration}",
+  "medicationTimingSave": "Guardar"
 }

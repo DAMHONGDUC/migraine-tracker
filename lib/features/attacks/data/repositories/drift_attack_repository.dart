@@ -193,6 +193,24 @@ class DriftAttackRepository implements AttackRepository {
   }
 
   @override
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  }) {
+    return _db.transaction(() async {
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          medicationTakenAt: Value(takenAt?.toUtc()),
+          reliefAt: Value(reliefAt?.toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  @override
   Future<void> updateCore(
     String id, {
     required int intensity,

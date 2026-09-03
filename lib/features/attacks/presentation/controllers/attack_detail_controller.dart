@@ -81,6 +81,38 @@ class AttackDetailController {
     }
   }
 
+  /// Records (or takes back) when the dose was taken and when the pain eased. Both together, because relief without a dose measures nothing.
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  }) async {
+    SdLogger.action(
+      LogTagConstant.attackDetail,
+      'Update medication timing',
+      <String, Object?>{
+        'id': id,
+        'takenAt': takenAt?.toIso8601String(),
+        'reliefAt': reliefAt?.toIso8601String(),
+      },
+    );
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateMedicationTiming(id, takenAt: takenAt, reliefAt: reliefAt);
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.attackDetail,
+        'Update medication timing failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'id': id},
+      );
+      rethrow;
+    }
+  }
+
   /// Records (or takes back) when the attack stopped.
   Future<void> updateEndedAt(String id, DateTime? endedAt) async {
     SdLogger.action(LogTagConstant.attackDetail, 'Edit attack end', id);

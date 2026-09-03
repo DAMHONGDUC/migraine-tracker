@@ -3546,5 +3546,51 @@
   "dailyLogA11yOpen": "Open the daily check-in",
   "@dailyLogA11yOpen": {
     "description": "VoiceOver label of the dashboard check-in card."
+  },
+  "attackDetailMedicationTiming": "Time to relief",
+  "@attackDetailMedicationTiming": {
+    "description": "Attack detail row label for how long the medication took to work."
+  },
+  "medicationTimingNotRecorded": "Not recorded",
+  "@medicationTimingNotRecorded": {
+    "description": "Value of that row while neither half is answered, and the button that clears it."
+  },
+  "medicationTimingSheetTitle": "How long did it take to work?",
+  "@medicationTimingSheetTitle": {
+    "description": "Title of the sheet that records the dose and relief times."
+  },
+  "medicationTimingTakenQuestion": "When did you take it?",
+  "@medicationTimingTakenQuestion": {
+    "description": "Question above the grid of times the dose was taken."
+  },
+  "medicationTimingReliefQuestion": "When did the pain ease?",
+  "@medicationTimingReliefQuestion": {
+    "description": "Question above the grid of times the pain eased."
+  },
+  "medicationTimingAtOnset": "As it started",
+  "@medicationTimingAtOnset": {
+    "description": "Option meaning the dose was taken the moment the attack started."
+  },
+  "medicationTimingAfterStart": "{duration} in",
+  "@medicationTimingAfterStart": {
+    "description": "Option meaning the dose was taken this long after the attack started.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationTimingTakenOnly": "Taken {duration} in",
+  "@medicationTimingTakenOnly": {
+    "description": "Row value when the dose time is recorded but relief is not.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationTimingSave": "Save",
+  "@medicationTimingSave": {
+    "description": "Primary button of the medication timing sheet."
   }
 }

@@ -116,6 +116,29 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<List<AuraType>?>($AttacksTable.$converterauran);
+  static const VerificationMeta _medicationTakenAtMeta = const VerificationMeta(
+    'medicationTakenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> medicationTakenAt =
+      GeneratedColumn<DateTime>(
+        'medication_taken_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _reliefAtMeta = const VerificationMeta(
+    'reliefAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reliefAt = GeneratedColumn<DateTime>(
+    'relief_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _endedAtMeta = const VerificationMeta(
     'endedAt',
   );
@@ -183,6 +206,8 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     exertionLevel,
     medicationEffect,
     aura,
+    medicationTakenAt,
+    reliefAt,
     endedAt,
     steps,
     updatedAt,
@@ -235,6 +260,21 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('medication_taken_at')) {
+      context.handle(
+        _medicationTakenAtMeta,
+        medicationTakenAt.isAcceptableOrUnknown(
+          data['medication_taken_at']!,
+          _medicationTakenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('relief_at')) {
+      context.handle(
+        _reliefAtMeta,
+        reliefAt.isAcceptableOrUnknown(data['relief_at']!, _reliefAtMeta),
       );
     }
     if (data.containsKey('ended_at')) {
@@ -335,6 +375,14 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}aura'],
         ),
       ),
+      medicationTakenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}medication_taken_at'],
+      ),
+      reliefAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}relief_at'],
+      ),
       endedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}ended_at'],
@@ -412,6 +460,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   /// Aura kinds reported for this attack, JSON-encoded.
   final List<AuraType>? aura;
 
+  /// When the medication was taken, UTC. Null is "never said" — the same state as an attack where nothing was taken.
+  final DateTime? medicationTakenAt;
+
+  /// When the pain eased, UTC. Its own column rather than a duration, because a duration cannot say WHEN without a second field anyway.
+  final DateTime? reliefAt;
+
   /// When the attack stopped, UTC. Null is "still going, or never said" — one state on purpose, since nothing here can tell those apart.
   final DateTime? endedAt;
 
@@ -438,6 +492,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     this.exertionLevel,
     this.medicationEffect,
     this.aura,
+    this.medicationTakenAt,
+    this.reliefAt,
     this.endedAt,
     this.steps,
     this.updatedAt,
@@ -484,6 +540,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     if (!nullToAbsent || aura != null) {
       map['aura'] = Variable<String>($AttacksTable.$converterauran.toSql(aura));
     }
+    if (!nullToAbsent || medicationTakenAt != null) {
+      map['medication_taken_at'] = Variable<DateTime>(medicationTakenAt);
+    }
+    if (!nullToAbsent || reliefAt != null) {
+      map['relief_at'] = Variable<DateTime>(reliefAt);
+    }
     if (!nullToAbsent || endedAt != null) {
       map['ended_at'] = Variable<DateTime>(endedAt);
     }
@@ -521,6 +583,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ? const Value.absent()
           : Value(medicationEffect),
       aura: aura == null && nullToAbsent ? const Value.absent() : Value(aura),
+      medicationTakenAt: medicationTakenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicationTakenAt),
+      reliefAt: reliefAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reliefAt),
       endedAt: endedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(endedAt),
@@ -558,6 +626,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         serializer.fromJson<String?>(json['medicationEffect']),
       ),
       aura: serializer.fromJson<List<AuraType>?>(json['aura']),
+      medicationTakenAt: serializer.fromJson<DateTime?>(
+        json['medicationTakenAt'],
+      ),
+      reliefAt: serializer.fromJson<DateTime?>(json['reliefAt']),
       endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
       steps: serializer.fromJson<int?>(json['steps']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -584,6 +656,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$convertermedicationEffectn.toJson(medicationEffect),
       ),
       'aura': serializer.toJson<List<AuraType>?>(aura),
+      'medicationTakenAt': serializer.toJson<DateTime?>(medicationTakenAt),
+      'reliefAt': serializer.toJson<DateTime?>(reliefAt),
       'endedAt': serializer.toJson<DateTime?>(endedAt),
       'steps': serializer.toJson<int?>(steps),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -604,6 +678,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
     Value<MedicationEffect?> medicationEffect = const Value.absent(),
     Value<List<AuraType>?> aura = const Value.absent(),
+    Value<DateTime?> medicationTakenAt = const Value.absent(),
+    Value<DateTime?> reliefAt = const Value.absent(),
     Value<DateTime?> endedAt = const Value.absent(),
     Value<int?> steps = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -627,6 +703,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         ? medicationEffect.value
         : this.medicationEffect,
     aura: aura.present ? aura.value : this.aura,
+    medicationTakenAt: medicationTakenAt.present
+        ? medicationTakenAt.value
+        : this.medicationTakenAt,
+    reliefAt: reliefAt.present ? reliefAt.value : this.reliefAt,
     endedAt: endedAt.present ? endedAt.value : this.endedAt,
     steps: steps.present ? steps.value : this.steps,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -654,6 +734,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ? data.medicationEffect.value
           : this.medicationEffect,
       aura: data.aura.present ? data.aura.value : this.aura,
+      medicationTakenAt: data.medicationTakenAt.present
+          ? data.medicationTakenAt.value
+          : this.medicationTakenAt,
+      reliefAt: data.reliefAt.present ? data.reliefAt.value : this.reliefAt,
       endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       steps: data.steps.present ? data.steps.value : this.steps,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -678,6 +762,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('exertionLevel: $exertionLevel, ')
           ..write('medicationEffect: $medicationEffect, ')
           ..write('aura: $aura, ')
+          ..write('medicationTakenAt: $medicationTakenAt, ')
+          ..write('reliefAt: $reliefAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('steps: $steps, ')
           ..write('updatedAt: $updatedAt, ')
@@ -700,6 +786,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel,
     medicationEffect,
     aura,
+    medicationTakenAt,
+    reliefAt,
     endedAt,
     steps,
     updatedAt,
@@ -721,6 +809,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.exertionLevel == this.exertionLevel &&
           other.medicationEffect == this.medicationEffect &&
           other.aura == this.aura &&
+          other.medicationTakenAt == this.medicationTakenAt &&
+          other.reliefAt == this.reliefAt &&
           other.endedAt == this.endedAt &&
           other.steps == this.steps &&
           other.updatedAt == this.updatedAt &&
@@ -740,6 +830,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<ExertionLevel?> exertionLevel;
   final Value<MedicationEffect?> medicationEffect;
   final Value<List<AuraType>?> aura;
+  final Value<DateTime?> medicationTakenAt;
+  final Value<DateTime?> reliefAt;
   final Value<DateTime?> endedAt;
   final Value<int?> steps;
   final Value<DateTime?> updatedAt;
@@ -758,6 +850,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.exertionLevel = const Value.absent(),
     this.medicationEffect = const Value.absent(),
     this.aura = const Value.absent(),
+    this.medicationTakenAt = const Value.absent(),
+    this.reliefAt = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.steps = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -777,6 +871,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.exertionLevel = const Value.absent(),
     this.medicationEffect = const Value.absent(),
     this.aura = const Value.absent(),
+    this.medicationTakenAt = const Value.absent(),
+    this.reliefAt = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.steps = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -798,6 +894,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? exertionLevel,
     Expression<String>? medicationEffect,
     Expression<String>? aura,
+    Expression<DateTime>? medicationTakenAt,
+    Expression<DateTime>? reliefAt,
     Expression<DateTime>? endedAt,
     Expression<int>? steps,
     Expression<DateTime>? updatedAt,
@@ -817,6 +915,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (exertionLevel != null) 'exertion_level': exertionLevel,
       if (medicationEffect != null) 'medication_effect': medicationEffect,
       if (aura != null) 'aura': aura,
+      if (medicationTakenAt != null) 'medication_taken_at': medicationTakenAt,
+      if (reliefAt != null) 'relief_at': reliefAt,
       if (endedAt != null) 'ended_at': endedAt,
       if (steps != null) 'steps': steps,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -838,6 +938,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<ExertionLevel?>? exertionLevel,
     Value<MedicationEffect?>? medicationEffect,
     Value<List<AuraType>?>? aura,
+    Value<DateTime?>? medicationTakenAt,
+    Value<DateTime?>? reliefAt,
     Value<DateTime?>? endedAt,
     Value<int?>? steps,
     Value<DateTime?>? updatedAt,
@@ -857,6 +959,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       exertionLevel: exertionLevel ?? this.exertionLevel,
       medicationEffect: medicationEffect ?? this.medicationEffect,
       aura: aura ?? this.aura,
+      medicationTakenAt: medicationTakenAt ?? this.medicationTakenAt,
+      reliefAt: reliefAt ?? this.reliefAt,
       endedAt: endedAt ?? this.endedAt,
       steps: steps ?? this.steps,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -914,6 +1018,12 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterauran.toSql(aura.value),
       );
     }
+    if (medicationTakenAt.present) {
+      map['medication_taken_at'] = Variable<DateTime>(medicationTakenAt.value);
+    }
+    if (reliefAt.present) {
+      map['relief_at'] = Variable<DateTime>(reliefAt.value);
+    }
     if (endedAt.present) {
       map['ended_at'] = Variable<DateTime>(endedAt.value);
     }
@@ -949,6 +1059,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('exertionLevel: $exertionLevel, ')
           ..write('medicationEffect: $medicationEffect, ')
           ..write('aura: $aura, ')
+          ..write('medicationTakenAt: $medicationTakenAt, ')
+          ..write('reliefAt: $reliefAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('steps: $steps, ')
           ..write('updatedAt: $updatedAt, ')
@@ -4659,6 +4771,8 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<ExertionLevel?> exertionLevel,
       Value<MedicationEffect?> medicationEffect,
       Value<List<AuraType>?> aura,
+      Value<DateTime?> medicationTakenAt,
+      Value<DateTime?> reliefAt,
       Value<DateTime?> endedAt,
       Value<int?> steps,
       Value<DateTime?> updatedAt,
@@ -4679,6 +4793,8 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<ExertionLevel?> exertionLevel,
       Value<MedicationEffect?> medicationEffect,
       Value<List<AuraType>?> aura,
+      Value<DateTime?> medicationTakenAt,
+      Value<DateTime?> reliefAt,
       Value<DateTime?> endedAt,
       Value<int?> steps,
       Value<DateTime?> updatedAt,
@@ -4780,6 +4896,16 @@ class $$AttacksTableFilterComposer
   get aura => $composableBuilder(
     column: $table.aura,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reliefAt => $composableBuilder(
+    column: $table.reliefAt,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get endedAt => $composableBuilder(
@@ -4897,6 +5023,16 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reliefAt => $composableBuilder(
+    column: $table.reliefAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get endedAt => $composableBuilder(
     column: $table.endedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4972,6 +5108,14 @@ class $$AttacksTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<List<AuraType>?, String> get aura =>
       $composableBuilder(column: $table.aura, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reliefAt =>
+      $composableBuilder(column: $table.reliefAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get endedAt =>
       $composableBuilder(column: $table.endedAt, builder: (column) => column);
@@ -5056,6 +5200,8 @@ class $$AttacksTableTableManager
                 Value<MedicationEffect?> medicationEffect =
                     const Value.absent(),
                 Value<List<AuraType>?> aura = const Value.absent(),
+                Value<DateTime?> medicationTakenAt = const Value.absent(),
+                Value<DateTime?> reliefAt = const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<int?> steps = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -5074,6 +5220,8 @@ class $$AttacksTableTableManager
                 exertionLevel: exertionLevel,
                 medicationEffect: medicationEffect,
                 aura: aura,
+                medicationTakenAt: medicationTakenAt,
+                reliefAt: reliefAt,
                 endedAt: endedAt,
                 steps: steps,
                 updatedAt: updatedAt,
@@ -5095,6 +5243,8 @@ class $$AttacksTableTableManager
                 Value<MedicationEffect?> medicationEffect =
                     const Value.absent(),
                 Value<List<AuraType>?> aura = const Value.absent(),
+                Value<DateTime?> medicationTakenAt = const Value.absent(),
+                Value<DateTime?> reliefAt = const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<int?> steps = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -5113,6 +5263,8 @@ class $$AttacksTableTableManager
                 exertionLevel: exertionLevel,
                 medicationEffect: medicationEffect,
                 aura: aura,
+                medicationTakenAt: medicationTakenAt,
+                reliefAt: reliefAt,
                 endedAt: endedAt,
                 steps: steps,
                 updatedAt: updatedAt,
