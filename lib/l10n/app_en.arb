@@ -3667,5 +3667,93 @@
   "dailyLogCycleNone": "Nothing recorded in Apple Health for today",
   "@dailyLogCycleNone": {
     "description": "Apple Health returned no cycle data covering today."
+  },
+  "factorsCardTitle": "Factors",
+  "@factorsCardTitle": {
+    "description": "Name of the Insights tab and card holding the trigger/protector map."
+  },
+  "factorsTriggers": "More attacks",
+  "@factorsTriggers": {
+    "description": "Heading of the group of factors attacks follow more often."
+  },
+  "factorsProtectors": "Fewer attacks",
+  "@factorsProtectors": {
+    "description": "Heading of the group of factors attacks follow less often."
+  },
+  "factorsNotAssociated": "No difference",
+  "@factorsNotAssociated": {
+    "description": "Heading of the group where both groups of days behave the same."
+  },
+  "factorsInsufficient": "Not enough days yet",
+  "@factorsInsufficient": {
+    "description": "Heading of the group with too few days on one side to grade."
+  },
+  "factorsRow": "{withRate}% of {withDays} days, against {withoutRate}% of {withoutDays}",
+  "@factorsRow": {
+    "description": "Under a factor: the attack rate of the days that carried it against the days that did not.",
+    "placeholders": {
+      "withRate": {
+        "type": "int"
+      },
+      "withDays": {
+        "type": "int"
+      },
+      "withoutRate": {
+        "type": "int"
+      },
+      "withoutDays": {
+        "type": "int"
+      }
+    }
+  },
+  "factorsPending": "{days} of {required} days recorded, {attacks} of {requiredAttacks} attacks",
+  "@factorsPending": {
+    "description": "How far along the map's two requirements are.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      },
+      "attacks": {
+        "type": "int"
+      },
+      "requiredAttacks": {
+        "type": "int"
+      }
+    }
+  },
+  "factorsPendingBody": "The map compares the days that carried a factor with the days that did not, so it needs both.",
+  "@factorsPendingBody": {
+    "description": "Why the map needs days without an attack as well as days with one."
+  },
+  "factorsEmpty": "Nothing has separated yet. Keep checking in.",
+  "@factorsEmpty": {
+    "description": "Enough data, but no factor separated from the rest."
+  },
+  "factorPoorSleep": "Poor sleep",
+  "@factorPoorSleep": {
+    "description": "Map factor derived from a sleep rating of 1 or 2 out of 5."
+  },
+  "factorHighStress": "High stress",
+  "@factorHighStress": {
+    "description": "Map factor derived from a stress rating of 4 or 5 out of 5."
+  },
+  "factorsExplain1": "For every factor, this compares how often an attack followed the days you recorded it against the days you did not.",
+  "@factorsExplain1": {
+    "description": "Info sheet, first paragraph: what the card compares."
+  },
+  "factorsExplain2": "It reads your daily check-ins, so it needs four weeks of them and fifteen attacks before it will draw. A factor with fewer than five days on either side is left ungraded.",
+  "@factorsExplain2": {
+    "description": "Info sheet, second paragraph: where the data comes from and what it waits for."
+  },
+  "factorsExplain3": "A difference is not a cause. A factor can sit on the same days as the real trigger, and something you do to feel better can end up looking like a protector.",
+  "@factorsExplain3": {
+    "description": "Info sheet, third paragraph: what the card cannot claim."
+  },
+  "premiumLockedFactors": "Unlock to see which of your days bring attacks on, and which keep them away.",
+  "@premiumLockedFactors": {
+    "description": "Locked-state pitch on the Factors tab."
   }
 }

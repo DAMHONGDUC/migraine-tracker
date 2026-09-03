@@ -750,5 +750,20 @@
   "dailyLogCycleStart": "Kỳ kinh bắt đầu hôm nay",
   "dailyLogCycleDay": "Ngày thứ {day} của kỳ kinh",
   "dailyLogCycleOutside": "Ngoài khoảng thời gian cơn đau hay dồn vào",
-  "dailyLogCycleNone": "Apple Health chưa có dữ liệu cho hôm nay"
+  "dailyLogCycleNone": "Apple Health chưa có dữ liệu cho hôm nay",
+  "factorsCardTitle": "Yếu tố",
+  "factorsTriggers": "Nhiều cơn hơn",
+  "factorsProtectors": "Ít cơn hơn",
+  "factorsNotAssociated": "Không khác biệt",
+  "factorsInsufficient": "Chưa đủ ngày",
+  "factorsRow": "{withRate}% của {withDays} ngày, so với {withoutRate}% của {withoutDays}",
+  "factorsPending": "Đã ghi {days}/{required} ngày, {attacks}/{requiredAttacks} cơn",
+  "factorsPendingBody": "Bản đồ so sánh ngày có yếu tố với ngày không có, nên cần cả hai.",
+  "factorsEmpty": "Chưa có gì tách bạch. Cứ tiếp tục ghi mỗi ngày.",
+  "factorPoorSleep": "Ngủ kém",
+  "factorHighStress": "Căng thẳng cao",
+  "factorsExplain1": "Với mỗi yếu tố, phần này so sánh tần suất cơn đau xảy ra sau những ngày bạn ghi nhận nó với những ngày không có.",
+  "factorsExplain2": "Nó đọc ghi chú hằng ngày, nên cần bốn tuần dữ liệu và mười lăm cơn mới vẽ. Yếu tố có dưới năm ngày ở một phía sẽ không được chấm.",
+  "factorsExplain3": "Khác biệt không phải là nguyên nhân. Một yếu tố có thể trùng ngày với tác nhân thật, và việc bạn làm để dễ chịu hơn có thể trông giống yếu tố bảo vệ.",
+  "premiumLockedFactors": "Mở khoá để xem ngày nào kéo cơn đau đến, và ngày nào giữ nó tránh xa."
 }

@@ -13,6 +13,7 @@ import '../../../domain/entities/exertion_correlation_result.dart';
 import '../../../domain/enums/insights_tab.dart';
 import '../../../providers.dart';
 import '../../widgets/activity_card.dart';
+import '../../widgets/factors_card.dart';
 import '../../widgets/pressure_card.dart';
 import '../../widgets/sleep_card.dart';
 
@@ -30,6 +31,8 @@ class InsightsScreen extends ConsumerWidget {
       InsightsTab.activity,
       // iOS only: off HealthKit there is no sleep source at all.
       if (ref.watch(healthAvailableProvider)) InsightsTab.sleep,
+      // Last: it reads the daily check-in rather than a sensor, so it is the one tab that says nothing on a fresh install.
+      InsightsTab.factors,
     ];
     // Fall back rather than trust the stored tab: Sleep leaves the list off iOS, and indexing a shorter strip with it would throw.
     final InsightsTab watched = ref.watch(insightsTabProvider);
@@ -71,5 +74,6 @@ class InsightsScreen extends ConsumerWidget {
     InsightsTab.pressure => l10n.insightsPressureTitle,
     InsightsTab.activity => l10n.activityCardTitle,
     InsightsTab.sleep => l10n.sleepCardTitle,
+    InsightsTab.factors => l10n.factorsCardTitle,
   };
 }

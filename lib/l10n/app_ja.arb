@@ -750,5 +750,20 @@
   "dailyLogCycleStart": "今日から生理が始まりました",
   "dailyLogCycleDay": "生理{day}日目",
   "dailyLogCycleOutside": "発作が集中する時期の外です",
-  "dailyLogCycleNone": "今日のデータはApple Healthにありません"
+  "dailyLogCycleNone": "今日のデータはApple Healthにありません",
+  "factorsCardTitle": "要因",
+  "factorsTriggers": "発作が増える",
+  "factorsProtectors": "発作が減る",
+  "factorsNotAssociated": "差がない",
+  "factorsInsufficient": "日数がまだ足りません",
+  "factorsRow": "{withDays}日中{withRate}%、記録のない日は{withoutDays}日中{withoutRate}%",
+  "factorsPending": "記録は{required}日中{days}日、発作は{requiredAttacks}回中{attacks}回",
+  "factorsPendingBody": "要因のあった日となかった日を比べるため、両方が必要です。",
+  "factorsEmpty": "まだ差は出ていません。記録を続けてください。",
+  "factorPoorSleep": "睡眠不足",
+  "factorHighStress": "強いストレス",
+  "factorsExplain1": "要因ごとに、それを記録した日と記録しなかった日で発作の起きた割合を比べています。",
+  "factorsExplain2": "毎日の記録を読むため、4週間分と15回の発作がそろってから表示されます。どちらかが5日未満の要因は評価しません。",
+  "factorsExplain3": "差は原因ではありません。本当の誘因と同じ日に重なる要因もあれば、楽になるための行動が予防要因のように見えることもあります。",
+  "premiumLockedFactors": "どんな日が発作を招き、どんな日が遠ざけるのかを見るにはロックを解除してください。"
 }

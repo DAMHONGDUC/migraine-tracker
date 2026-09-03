@@ -750,5 +750,20 @@
   "dailyLogCycleStart": "今天经期开始了",
   "dailyLogCycleDay": "经期第 {day} 天",
   "dailyLogCycleOutside": "不在发作集中的时段内",
-  "dailyLogCycleNone": "Apple 健康没有今天的数据"
+  "dailyLogCycleNone": "Apple 健康没有今天的数据",
+  "factorsCardTitle": "因素",
+  "factorsTriggers": "发作更多",
+  "factorsProtectors": "发作更少",
+  "factorsNotAssociated": "没有差别",
+  "factorsInsufficient": "天数还不够",
+  "factorsRow": "{withDays} 天中的 {withRate}%，对比 {withoutDays} 天中的 {withoutRate}%",
+  "factorsPending": "已记录 {days}/{required} 天，{attacks}/{requiredAttacks} 次发作",
+  "factorsPendingBody": "这张图比较有该因素的日子和没有的日子，两边都需要。",
+  "factorsEmpty": "还看不出差别，请继续每天记录。",
+  "factorPoorSleep": "睡眠不佳",
+  "factorHighStress": "压力很大",
+  "factorsExplain1": "对每个因素，比较你记录它的日子与没有记录的日子里发作的频率。",
+  "factorsExplain2": "它读取你的每日记录，需要四周的数据和十五次发作才会绘制。某一侧不足五天的因素不予评级。",
+  "factorsExplain3": "有差别不等于是原因。某个因素可能与真正的诱因出现在同一天，而你为了舒服一点所做的事，也可能看起来像保护因素。",
+  "premiumLockedFactors": "解锁后即可看出哪些日子会招来发作，哪些日子能挡住它。"
 }

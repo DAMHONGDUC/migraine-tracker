@@ -26,6 +26,15 @@ final isTodayCheckedInProvider = Provider<bool>(
   (ref) => ref.watch(todayDailyLogProvider).value?.isAnswered ?? false,
 );
 
+/// Every check-in of the last year, oldest first — what the trigger/protector map and the risk score read.
+final recentDailyLogsProvider = FutureProvider<List<DailyLog>>((ref) {
+  final DateTime now = DateTime.now();
+
+  return ref
+      .watch(dailyLogRepositoryProvider)
+      .range(now.subtract(const Duration(days: 365)), now);
+});
+
 /// How many days the user has actually answered — what the trigger map counts before it will render.
 final answeredDailyLogCountProvider = FutureProvider<int>(
   (ref) => ref.watch(dailyLogRepositoryProvider).answeredCount(),

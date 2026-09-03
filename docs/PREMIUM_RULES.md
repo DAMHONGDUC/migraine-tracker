@@ -1,6 +1,6 @@
 # Premium rules
 
-Authority for prices, free limits and feature gates. Last updated: 2026-08-30.
+Authority for prices, free limits and feature gates. Last updated: 2026-09-03.
 
 ## Offer
 
@@ -62,6 +62,8 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Migraine days this month | Yes | Yes |
 | Sleep and step readings | Yes | Yes |
 | Sleep, step and exertion correlations | No | Yes |
+| Daily check-in | Yes | Yes |
+| Trigger / protector map | No | Yes |
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
 | Export history and preview | No | Yes |

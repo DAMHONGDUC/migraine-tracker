@@ -2,6 +2,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
+import '../daily_log/domain/entities/daily_log.dart';
+import '../daily_log/providers.dart';
 import '../health/domain/entities/sleep_night.dart';
 import '../health/domain/entities/step_day.dart';
 import '../health/domain/entities/step_hour.dart';
@@ -10,6 +12,7 @@ import '../weather/domain/entities/daily_pressure.dart';
 import '../weather/providers.dart';
 import 'domain/entities/correlation_result.dart';
 import 'domain/entities/exertion_correlation_result.dart';
+import 'domain/entities/factor_association.dart';
 import 'domain/entities/medication_effectiveness_result.dart';
 import 'domain/entities/medication_overuse_result.dart';
 import 'domain/entities/migraine_days_summary.dart';
@@ -21,6 +24,7 @@ import 'domain/enums/health_range.dart';
 import 'domain/enums/insights_tab.dart';
 import 'domain/services/correlation_engine.dart';
 import 'domain/services/exertion_correlation_engine.dart';
+import 'domain/services/factor_map_engine.dart';
 import 'domain/services/medication_effectiveness_engine.dart';
 import 'domain/services/medication_overuse_engine.dart';
 import 'domain/services/migraine_days_engine.dart';
@@ -48,6 +52,20 @@ final correlationResultProvider = Provider<AsyncValue<CorrelationResult>>((
   return attacks.whenData(
     (List<Attack> list) => engine.analyze(list, days: days),
   );
+});
+
+final factorMapEngineProvider = Provider<FactorMapEngine>(
+  (ref) => const FactorMapEngine(),
+);
+
+/// The trigger/protector map. Waits on the check-ins, which is the whole point of it — see [FactorMapEngine].
+final factorMapProvider = FutureProvider<FactorMap>((ref) async {
+  final List<DailyLog> logs = await ref.watch(recentDailyLogsProvider.future);
+  final List<Attack> attacks = await ref.watch(attacksStreamProvider.future);
+
+  return ref
+      .watch(factorMapEngineProvider)
+      .analyze(logs: logs, attacks: attacks);
 });
 
 final exertionCorrelationEngineProvider = Provider<ExertionCorrelationEngine>(

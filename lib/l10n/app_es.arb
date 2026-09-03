@@ -750,5 +750,20 @@
   "dailyLogCycleStart": "Tu regla ha empezado hoy",
   "dailyLogCycleDay": "Día {day} de la regla",
   "dailyLogCycleOutside": "Fuera del periodo en que se acumulan las crisis",
-  "dailyLogCycleNone": "Apple Salud no tiene nada de hoy"
+  "dailyLogCycleNone": "Apple Salud no tiene nada de hoy",
+  "factorsCardTitle": "Factores",
+  "factorsTriggers": "Más crisis",
+  "factorsProtectors": "Menos crisis",
+  "factorsNotAssociated": "Sin diferencia",
+  "factorsInsufficient": "Aún faltan días",
+  "factorsRow": "{withRate}% de {withDays} días, frente al {withoutRate}% de {withoutDays}",
+  "factorsPending": "{days} de {required} días registrados, {attacks} de {requiredAttacks} crisis",
+  "factorsPendingBody": "El mapa compara los días con un factor y los días sin él, así que necesita ambos.",
+  "factorsEmpty": "Todavía no se separa nada. Sigue registrando.",
+  "factorPoorSleep": "Dormir mal",
+  "factorHighStress": "Mucho estrés",
+  "factorsExplain1": "Para cada factor, compara con qué frecuencia hubo crisis en los días en que lo registraste frente a los días en que no.",
+  "factorsExplain2": "Lee tus registros diarios, así que necesita cuatro semanas y quince crisis para dibujarse. Un factor con menos de cinco días en un lado queda sin calificar.",
+  "factorsExplain3": "Una diferencia no es una causa. Un factor puede coincidir con el desencadenante real, y lo que haces para encontrarte mejor puede parecer protector.",
+  "premiumLockedFactors": "Desbloquea para ver qué días traen crisis y cuáles las mantienen lejos."
 }

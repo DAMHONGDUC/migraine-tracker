@@ -750,5 +750,20 @@
   "dailyLogCycleStart": "Deine Periode hat heute begonnen",
   "dailyLogCycleDay": "Tag {day} deiner Periode",
   "dailyLogCycleOutside": "Außerhalb des Zeitraums, in dem sich Attacken häufen",
-  "dailyLogCycleNone": "Für heute steht nichts in Apple Health"
+  "dailyLogCycleNone": "Für heute steht nichts in Apple Health",
+  "factorsCardTitle": "Faktoren",
+  "factorsTriggers": "Mehr Attacken",
+  "factorsProtectors": "Weniger Attacken",
+  "factorsNotAssociated": "Kein Unterschied",
+  "factorsInsufficient": "Noch zu wenige Tage",
+  "factorsRow": "{withRate}% von {withDays} Tagen, gegen {withoutRate}% von {withoutDays}",
+  "factorsPending": "{days} von {required} Tagen erfasst, {attacks} von {requiredAttacks} Attacken",
+  "factorsPendingBody": "Die Karte vergleicht Tage mit einem Faktor mit Tagen ohne ihn und braucht daher beide.",
+  "factorsEmpty": "Noch trennt sich nichts. Trag weiter täglich ein.",
+  "factorPoorSleep": "Schlechter Schlaf",
+  "factorHighStress": "Hoher Stress",
+  "factorsExplain1": "Für jeden Faktor wird verglichen, wie oft an Tagen mit ihm eine Attacke folgte — gegen die Tage ohne ihn.",
+  "factorsExplain2": "Grundlage sind deine Tages-Check-ins: vier Wochen davon und fünfzehn Attacken. Ein Faktor mit weniger als fünf Tagen auf einer Seite bleibt unbewertet.",
+  "factorsExplain3": "Ein Unterschied ist keine Ursache. Ein Faktor kann auf denselben Tagen liegen wie der echte Auslöser, und was du tust, um dich besser zu fühlen, kann wie ein Schutzfaktor aussehen.",
+  "premiumLockedFactors": "Freischalten, um zu sehen, welche Tage Attacken bringen und welche sie fernhalten."
 }
