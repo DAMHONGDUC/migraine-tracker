@@ -1032,6 +1032,18 @@ Future<void> openSleepInsight(WidgetTester tester) async {
   await pumpCountUp(tester);
 }
 
+/// Insights, standing on its Factors tab — the trigger/protector map.
+Future<void> openFactorsInsight(WidgetTester tester) async {
+  await openInsights(tester);
+  await tester.tap(
+    find.descendant(
+      of: find.byType(SdSegmentedTabsV2),
+      matching: find.text('Factors'),
+    ),
+  );
+  await pumpCountUp(tester);
+}
+
 /// Insights, standing on its Activity tab — same reason as [openSleepInsight].
 Future<void> openActivityInsight(WidgetTester tester) async {
   await openInsights(tester);
