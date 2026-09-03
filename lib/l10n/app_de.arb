@@ -765,5 +765,20 @@
   "factorsExplain1": "Für jeden Faktor wird verglichen, wie oft an Tagen mit ihm eine Attacke folgte — gegen die Tage ohne ihn.",
   "factorsExplain2": "Grundlage sind deine Tages-Check-ins: vier Wochen davon und fünfzehn Attacken. Ein Faktor mit weniger als fünf Tagen auf einer Seite bleibt unbewertet.",
   "factorsExplain3": "Ein Unterschied ist keine Ursache. Ein Faktor kann auf denselben Tagen liegen wie der echte Auslöser, und was du tust, um dich besser zu fühlen, kann wie ein Schutzfaktor aussehen.",
-  "premiumLockedFactors": "Freischalten, um zu sehen, welche Tage Attacken bringen und welche sie fernhalten."
+  "premiumLockedFactors": "Freischalten, um zu sehen, welche Tage Attacken bringen und welche sie fernhalten.",
+  "riskCardTitle": "Nächste 7 Tage",
+  "riskBandLow": "Niedrig",
+  "riskBandModerate": "Mittel",
+  "riskBandHigh": "Hoch",
+  "riskToday": "Heute",
+  "riskSignalPressure": "Druck fällt um {drop} hPa",
+  "riskSignalCycle": "In deinem perimenstruellen Fenster",
+  "riskSignalSleep": "{minutes} Min weniger Schlaf als sonst",
+  "riskSignalFrequency": "{count} Attacken in den letzten 7 Tagen",
+  "riskMissing": "Nicht gezählt: {signals}",
+  "riskMissingPressure": "Druckvorhersage",
+  "riskMissingCycle": "Zyklus",
+  "riskMissingSleep": "Schlaf",
+  "riskMissingFrequency": "jüngste Attacken",
+  "riskPending": "Nach zwei Wochen Erfassung startet der Wert."
 }

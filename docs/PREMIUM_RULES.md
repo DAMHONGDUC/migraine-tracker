@@ -42,6 +42,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Medication limit in attack flow | Block adding a new medication, never the attack log |
 | Reminder limit | Check before requesting OS notification permission |
 | Locked surface already labeled Premium | Open the paywall directly |
+| Dashboard risk card without premium | Absent, never locked — the banner is that screen's one premium door |
 
 ## Access matrix
 
@@ -64,6 +65,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Sleep, step and exertion correlations | No | Yes |
 | Daily check-in | Yes | Yes |
 | Trigger / protector map | No | Yes |
+| 7-day risk score | No | Yes |
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
 | Export history and preview | No | Yes |

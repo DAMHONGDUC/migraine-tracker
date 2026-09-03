@@ -765,5 +765,20 @@
   "factorsExplain1": "要因ごとに、それを記録した日と記録しなかった日で発作の起きた割合を比べています。",
   "factorsExplain2": "毎日の記録を読むため、4週間分と15回の発作がそろってから表示されます。どちらかが5日未満の要因は評価しません。",
   "factorsExplain3": "差は原因ではありません。本当の誘因と同じ日に重なる要因もあれば、楽になるための行動が予防要因のように見えることもあります。",
-  "premiumLockedFactors": "どんな日が発作を招き、どんな日が遠ざけるのかを見るにはロックを解除してください。"
+  "premiumLockedFactors": "どんな日が発作を招き、どんな日が遠ざけるのかを見るにはロックを解除してください。",
+  "riskCardTitle": "今後7日間",
+  "riskBandLow": "低",
+  "riskBandModerate": "中",
+  "riskBandHigh": "高",
+  "riskToday": "今日",
+  "riskSignalPressure": "気圧が{drop} hPa低下",
+  "riskSignalCycle": "月経前後の時期です",
+  "riskSignalSleep": "いつもより{minutes}分短い睡眠",
+  "riskSignalFrequency": "過去7日間に{count}回の発作",
+  "riskMissing": "未算入：{signals}",
+  "riskMissingPressure": "気圧予報",
+  "riskMissingCycle": "生理周期",
+  "riskMissingSleep": "睡眠",
+  "riskMissingFrequency": "最近の発作",
+  "riskPending": "2週間記録するとスコアが始まります。"
 }

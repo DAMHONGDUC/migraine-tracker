@@ -765,5 +765,20 @@
   "factorsExplain1": "对每个因素，比较你记录它的日子与没有记录的日子里发作的频率。",
   "factorsExplain2": "它读取你的每日记录，需要四周的数据和十五次发作才会绘制。某一侧不足五天的因素不予评级。",
   "factorsExplain3": "有差别不等于是原因。某个因素可能与真正的诱因出现在同一天，而你为了舒服一点所做的事，也可能看起来像保护因素。",
-  "premiumLockedFactors": "解锁后即可看出哪些日子会招来发作，哪些日子能挡住它。"
+  "premiumLockedFactors": "解锁后即可看出哪些日子会招来发作，哪些日子能挡住它。",
+  "riskCardTitle": "未来 7 天",
+  "riskBandLow": "低",
+  "riskBandModerate": "中",
+  "riskBandHigh": "高",
+  "riskToday": "今天",
+  "riskSignalPressure": "气压下降 {drop} hPa",
+  "riskSignalCycle": "处于经期前后的时段",
+  "riskSignalSleep": "比平时少睡 {minutes} 分钟",
+  "riskSignalFrequency": "过去 7 天有 {count} 次发作",
+  "riskMissing": "未计入：{signals}",
+  "riskMissingPressure": "气压预报",
+  "riskMissingCycle": "生理周期",
+  "riskMissingSleep": "睡眠",
+  "riskMissingFrequency": "近期发作",
+  "riskPending": "记录满两周后就会开始评分。"
 }

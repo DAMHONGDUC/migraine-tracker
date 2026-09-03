@@ -3755,5 +3755,85 @@
   "premiumLockedFactors": "Unlock to see which of your days bring attacks on, and which keep them away.",
   "@premiumLockedFactors": {
     "description": "Locked-state pitch on the Factors tab."
+  },
+  "riskCardTitle": "Next 7 days",
+  "@riskCardTitle": {
+    "description": "Title of the dashboard card scoring the week ahead."
+  },
+  "riskBandLow": "Low",
+  "@riskBandLow": {
+    "description": "Risk band 0-29."
+  },
+  "riskBandModerate": "Moderate",
+  "@riskBandModerate": {
+    "description": "Risk band 30-59."
+  },
+  "riskBandHigh": "High",
+  "@riskBandHigh": {
+    "description": "Risk band 60-100."
+  },
+  "riskToday": "Today",
+  "@riskToday": {
+    "description": "Label of the first bar in the seven-day strip."
+  },
+  "riskSignalPressure": "Pressure falling {drop} hPa",
+  "@riskSignalPressure": {
+    "description": "Why today scored: the forecast fall in hPa.",
+    "placeholders": {
+      "drop": {
+        "type": "String"
+      }
+    }
+  },
+  "riskSignalCycle": "In your perimenstrual window",
+  "@riskSignalCycle": {
+    "description": "Why today scored: it falls in the perimenstrual window."
+  },
+  "riskSignalSleep": "{minutes} min less sleep than usual",
+  "@riskSignalSleep": {
+    "description": "Why today scored: minutes short of the personal median.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "riskSignalFrequency": "{count} attacks in the last 7 days",
+  "@riskSignalFrequency": {
+    "description": "Why today scored: attacks in the last seven days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "riskMissing": "Not counted: {signals}",
+  "@riskMissing": {
+    "description": "Signals the app could not read today, listed so a gap is never mistaken for a quiet day.",
+    "placeholders": {
+      "signals": {
+        "type": "String"
+      }
+    }
+  },
+  "riskMissingPressure": "pressure forecast",
+  "@riskMissingPressure": {
+    "description": "Name of the pressure signal inside riskMissing."
+  },
+  "riskMissingCycle": "cycle",
+  "@riskMissingCycle": {
+    "description": "Name of the cycle signal inside riskMissing."
+  },
+  "riskMissingSleep": "sleep",
+  "@riskMissingSleep": {
+    "description": "Name of the sleep signal inside riskMissing."
+  },
+  "riskMissingFrequency": "recent attacks",
+  "@riskMissingFrequency": {
+    "description": "Name of the recent-attacks signal inside riskMissing."
+  },
+  "riskPending": "Two weeks of logging and the score starts.",
+  "@riskPending": {
+    "description": "Shown while there is not yet enough history to score against."
   }
 }

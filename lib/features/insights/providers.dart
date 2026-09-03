@@ -1,9 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../alerts/providers.dart';
 import '../attacks/domain/entities/attack.dart';
 import '../attacks/providers.dart';
 import '../daily_log/domain/entities/daily_log.dart';
 import '../daily_log/providers.dart';
+import '../health/domain/entities/health_connections.dart';
 import '../health/domain/entities/sleep_night.dart';
 import '../health/domain/entities/step_day.dart';
 import '../health/domain/entities/step_hour.dart';
@@ -17,6 +19,7 @@ import 'domain/entities/medication_effectiveness_result.dart';
 import 'domain/entities/medication_overuse_result.dart';
 import 'domain/entities/migraine_days_summary.dart';
 import 'domain/entities/pressure_timeline.dart';
+import 'domain/entities/risk_score.dart';
 import 'domain/entities/sleep_correlation_result.dart';
 import 'domain/entities/step_correlation_result.dart';
 import 'domain/entities/trigger_verdict.dart';
@@ -29,6 +32,7 @@ import 'domain/services/medication_effectiveness_engine.dart';
 import 'domain/services/medication_overuse_engine.dart';
 import 'domain/services/migraine_days_engine.dart';
 import 'domain/services/pressure_timeline_builder.dart';
+import 'domain/services/risk_score_engine.dart';
 import 'domain/services/sleep_correlation_engine.dart';
 import 'domain/services/step_correlation_engine.dart';
 import 'domain/services/trigger_verdict_engine.dart';
@@ -52,6 +56,39 @@ final correlationResultProvider = Provider<AsyncValue<CorrelationResult>>((
   return attacks.whenData(
     (List<Attack> list) => engine.analyze(list, days: days),
   );
+});
+
+final riskScoreEngineProvider = Provider<RiskScoreEngine>(
+  (ref) => const RiskScoreEngine(),
+);
+
+/// The week ahead, scored. Every input is optional — a signal the app cannot read is named on the card rather than counted as a quiet day (see [RiskScoreEngine]).
+final riskForecastProvider = FutureProvider<RiskForecast>((ref) async {
+  final List<Attack> attacks = await ref.watch(attacksStreamProvider.future);
+  final DateTime now = DateTime.now();
+  final HealthConnections health = ref.watch(healthControllerProvider);
+  final List<SleepNight> nights = health.sleep
+      ? await ref
+            .watch(healthRepositoryProvider)
+            .sleepNights(
+              from: now.subtract(
+                const Duration(days: RiskScoreEngine.sleepBaselineNights),
+              ),
+              to: now,
+            )
+      : const <SleepNight>[];
+
+  return ref
+      .watch(riskScoreEngineProvider)
+      .forecast(
+        now: now,
+        weather: ref.watch(weatherReportProvider).value,
+        thresholdHpa:
+            ref.watch(alertsControllerProvider).value?.thresholdHpa ?? 0,
+        cycleDays: await ref.watch(cycleDaysProvider.future),
+        nights: nights,
+        attacks: attacks,
+      );
 });
 
 final factorMapEngineProvider = Provider<FactorMapEngine>(

@@ -765,5 +765,20 @@
   "factorsExplain1": "Para cada factor, compara con qué frecuencia hubo crisis en los días en que lo registraste frente a los días en que no.",
   "factorsExplain2": "Lee tus registros diarios, así que necesita cuatro semanas y quince crisis para dibujarse. Un factor con menos de cinco días en un lado queda sin calificar.",
   "factorsExplain3": "Una diferencia no es una causa. Un factor puede coincidir con el desencadenante real, y lo que haces para encontrarte mejor puede parecer protector.",
-  "premiumLockedFactors": "Desbloquea para ver qué días traen crisis y cuáles las mantienen lejos."
+  "premiumLockedFactors": "Desbloquea para ver qué días traen crisis y cuáles las mantienen lejos.",
+  "riskCardTitle": "Próximos 7 días",
+  "riskBandLow": "Bajo",
+  "riskBandModerate": "Medio",
+  "riskBandHigh": "Alto",
+  "riskToday": "Hoy",
+  "riskSignalPressure": "La presión baja {drop} hPa",
+  "riskSignalCycle": "En tu ventana perimenstrual",
+  "riskSignalSleep": "{minutes} min menos de sueño de lo habitual",
+  "riskSignalFrequency": "{count} crisis en los últimos 7 días",
+  "riskMissing": "Sin contar: {signals}",
+  "riskMissingPressure": "previsión de presión",
+  "riskMissingCycle": "ciclo",
+  "riskMissingSleep": "sueño",
+  "riskMissingFrequency": "crisis recientes",
+  "riskPending": "Con dos semanas de registro empieza la puntuación."
 }

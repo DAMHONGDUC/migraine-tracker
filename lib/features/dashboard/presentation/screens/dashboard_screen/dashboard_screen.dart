@@ -25,6 +25,7 @@ import '../../widgets/dashboard_today_section.dart';
 import '../../widgets/next_reminder_banner.dart';
 import '../../widgets/premium_banner.dart';
 import '../../widgets/quick_access_section.dart';
+import '../../widgets/risk_score_card.dart';
 
 /// The app's home tab (replaces the old Log tab).
 class DashboardScreen extends ConsumerWidget {
@@ -55,6 +56,8 @@ class DashboardScreen extends ConsumerWidget {
       const QuickAccessSection(),
       // Under the shortcuts, owner's call: the top of the screen is the call to action, and the readings start here.
       const CurrentWeatherCard(),
+      // Directly under the weather it is built on. Premium only, and absent rather than locked — the banner is this screen's one premium door.
+      const RiskScoreCard(),
       // Directly under the weather (owner's call).
       if (nextReminder != null) const NextReminderBanner(),
       // Asked here rather than left to the widget: a section that hid itself would leave the gap the list inserts before it (see the loop below).

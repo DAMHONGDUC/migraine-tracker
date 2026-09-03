@@ -765,5 +765,20 @@
   "factorsExplain1": "Với mỗi yếu tố, phần này so sánh tần suất cơn đau xảy ra sau những ngày bạn ghi nhận nó với những ngày không có.",
   "factorsExplain2": "Nó đọc ghi chú hằng ngày, nên cần bốn tuần dữ liệu và mười lăm cơn mới vẽ. Yếu tố có dưới năm ngày ở một phía sẽ không được chấm.",
   "factorsExplain3": "Khác biệt không phải là nguyên nhân. Một yếu tố có thể trùng ngày với tác nhân thật, và việc bạn làm để dễ chịu hơn có thể trông giống yếu tố bảo vệ.",
-  "premiumLockedFactors": "Mở khoá để xem ngày nào kéo cơn đau đến, và ngày nào giữ nó tránh xa."
+  "premiumLockedFactors": "Mở khoá để xem ngày nào kéo cơn đau đến, và ngày nào giữ nó tránh xa.",
+  "riskCardTitle": "7 ngày tới",
+  "riskBandLow": "Thấp",
+  "riskBandModerate": "Trung bình",
+  "riskBandHigh": "Cao",
+  "riskToday": "Hôm nay",
+  "riskSignalPressure": "Áp suất giảm {drop} hPa",
+  "riskSignalCycle": "Đang trong cửa sổ quanh kỳ kinh",
+  "riskSignalSleep": "Ngủ ít hơn thường lệ {minutes} phút",
+  "riskSignalFrequency": "{count} cơn trong 7 ngày qua",
+  "riskMissing": "Chưa tính: {signals}",
+  "riskMissingPressure": "dự báo áp suất",
+  "riskMissingCycle": "chu kỳ",
+  "riskMissingSleep": "giấc ngủ",
+  "riskMissingFrequency": "cơn gần đây",
+  "riskPending": "Ghi đủ hai tuần là điểm rủi ro bắt đầu chạy."
 }
