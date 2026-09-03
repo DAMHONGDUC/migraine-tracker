@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
+import '../../features/attacks/presentation/screens/attack_now_screen/attack_now_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
@@ -52,6 +53,9 @@ final class AppRoutes {
     name: 'medications',
     path: '/medications',
   );
+
+  /// The screen an attack that is happening now gets: a clock and two answers. Pushed from the dashboard card.
+  static const attackNow = AppRoute(name: 'attackNow', path: '/attack-now');
 
   /// The 30-second daily check-in, pushed from the dashboard card. Always writes today — see [DailyLogScreen].
   static const dailyLog = AppRoute(name: 'dailyLog', path: '/check-in');
@@ -179,6 +183,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MedicationDetailScreen(
           medicationId: state.pathParameters[AppRoutes.medicationIdParam]!,
         ),
+      ),
+      GoRoute(
+        name: AppRoutes.attackNow.name,
+        path: AppRoutes.attackNow.path,
+        builder: (context, state) => const AttackNowScreen(),
       ),
       // Pushed from the dashboard card, so it covers the tab bar and returns to where it opened from.
       GoRoute(

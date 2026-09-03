@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "刚开始时",
   "medicationTimingAfterStart": "{duration}后",
   "medicationTimingTakenOnly": "{duration}后服用",
-  "medicationTimingSave": "保存"
+  "medicationTimingSave": "保存",
+  "attackNowTitle": "发作进行中",
+  "attackNowSince": "自 {time}",
+  "attackNowTookMedication": "我吃过药了",
+  "attackNowEnded": "已经缓解",
+  "attackNowRest": "放下手机休息，计时会继续。",
+  "attackNowCardTitle": "有一次发作正在进行",
+  "attackNowCardBody": "缓解时点一下，时长才准确。",
+  "attackNowEndedToast": "已记录为刚刚结束"
 }

@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../../../core/constants/attack_progress_constant.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../enums/aura_type.dart';
 import '../enums/exertion_level.dart';
@@ -83,6 +84,19 @@ class Attack {
 
   /// How long the attack lasted, or null while [endedAt] is unset.
   Duration? get duration => endedAt?.difference(startedAt);
+
+  /// Whether this attack is still happening at [now]: no end recorded, and started inside `AttackProgressConstant.window`.
+  ///
+  /// The window is what keeps "still going" from swallowing "never said" — the
+  /// column collapses both into one null, so time is the only thing that can
+  /// tell them apart.
+  bool isRunningAt(DateTime now) {
+    final Duration since = now.toUtc().difference(startedAt);
+
+    return endedAt == null &&
+        !since.isNegative &&
+        since <= AttackProgressConstant.window;
+  }
 
   /// How long the medication took to work, or null until both halves are answered. Negative is impossible — the sheet will not offer it.
   Duration? get timeToRelief =>

@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "Dès le début",
   "medicationTimingAfterStart": "Après {duration}",
   "medicationTimingTakenOnly": "Pris après {duration}",
-  "medicationTimingSave": "Enregistrer"
+  "medicationTimingSave": "Enregistrer",
+  "attackNowTitle": "Crise en cours",
+  "attackNowSince": "Depuis {time}",
+  "attackNowTookMedication": "J'ai pris un médicament",
+  "attackNowEnded": "C'est fini",
+  "attackNowRest": "Pose ton téléphone. Le compteur continue.",
+  "attackNowCardTitle": "Une crise est en cours",
+  "attackNowCardBody": "Touche quand c'est fini, la durée sera juste.",
+  "attackNowEndedToast": "Enregistrée comme terminée à l'instant"
 }

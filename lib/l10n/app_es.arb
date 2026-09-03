@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "Al empezar",
   "medicationTimingAfterStart": "A los {duration}",
   "medicationTimingTakenOnly": "Tomado a los {duration}",
-  "medicationTimingSave": "Guardar"
+  "medicationTimingSave": "Guardar",
+  "attackNowTitle": "Crisis en curso",
+  "attackNowSince": "Desde las {time}",
+  "attackNowTookMedication": "He tomado medicación",
+  "attackNowEnded": "Ya ha pasado",
+  "attackNowRest": "Deja el móvil. Sigue contando.",
+  "attackNowCardTitle": "Hay una crisis en curso",
+  "attackNowCardBody": "Toca cuando pase, así la duración será correcta.",
+  "attackNowEndedToast": "Registrada como terminada ahora mismo"
 }

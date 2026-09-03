@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "Ngay khi bắt đầu",
   "medicationTimingAfterStart": "Sau {duration}",
   "medicationTimingTakenOnly": "Uống sau {duration}",
-  "medicationTimingSave": "Lưu"
+  "medicationTimingSave": "Lưu",
+  "attackNowTitle": "Cơn đau đang diễn ra",
+  "attackNowSince": "Từ {time}",
+  "attackNowTookMedication": "Tôi đã uống thuốc",
+  "attackNowEnded": "Đã hết đau",
+  "attackNowRest": "Cứ đặt điện thoại xuống. Đồng hồ vẫn chạy.",
+  "attackNowCardTitle": "Một cơn đau đang diễn ra",
+  "attackNowCardBody": "Chạm khi hết đau để ghi đúng thời lượng.",
+  "attackNowEndedToast": "Đã ghi là vừa kết thúc"
 }

@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/constants/attack_progress_constant.dart';
 import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
 import '../health/providers.dart';
@@ -51,6 +52,26 @@ final stepAttachServiceProvider = Provider<StepAttachService>(
   (ref) => StepAttachService(
     ref.watch(attackRepositoryProvider),
     ref.watch(healthRepositoryProvider),
+  ),
+);
+
+/// The attack that is happening right now, or null. The newest one wins: two unfinished attacks means the second is the one the user is in.
+final attackInProgressProvider = Provider<Attack?>((ref) {
+  final List<Attack> attacks =
+      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+  final DateTime now = DateTime.now().toUtc();
+
+  for (final Attack attack in attacks) {
+    if (attack.isRunningAt(now)) return attack;
+  }
+  return null;
+});
+
+/// Redraws the running timer once a second. `autoDispose` so the ticker dies with the screen — a timer outliving the tree is a leak a widget test reports as a hang.
+final attackElapsedProvider = StreamProvider.autoDispose.family<Duration, DateTime>(
+  (ref, startedAt) => Stream<Duration>.periodic(
+    AttackProgressConstant.tick,
+    (_) => DateTime.now().toUtc().difference(startedAt.toUtc()),
   ),
 );
 

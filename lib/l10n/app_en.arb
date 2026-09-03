@@ -3592,5 +3592,42 @@
   "medicationTimingSave": "Save",
   "@medicationTimingSave": {
     "description": "Primary button of the medication timing sheet."
+  },
+  "attackNowTitle": "Attack in progress",
+  "@attackNowTitle": {
+    "description": "App bar title of the screen shown while an attack is running."
+  },
+  "attackNowSince": "Since {time}",
+  "@attackNowSince": {
+    "description": "Under the running timer: the clock time the attack started.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attackNowTookMedication": "I took medication",
+  "@attackNowTookMedication": {
+    "description": "Button that opens the medication picker from the in-progress screen."
+  },
+  "attackNowEnded": "It has stopped",
+  "@attackNowEnded": {
+    "description": "Button that records the attack as having ended now."
+  },
+  "attackNowRest": "Put the phone down. It keeps counting.",
+  "@attackNowRest": {
+    "description": "One line telling the user they do not have to keep the screen open."
+  },
+  "attackNowCardTitle": "An attack is running",
+  "@attackNowCardTitle": {
+    "description": "Dashboard card title while an attack is running."
+  },
+  "attackNowCardBody": "Tap when it stops, so the length is right.",
+  "@attackNowCardBody": {
+    "description": "Dashboard card body while an attack is running."
+  },
+  "attackNowEndedToast": "Recorded as ended just now",
+  "@attackNowEndedToast": {
+    "description": "Snackbar after the attack is recorded as ended."
   }
 }

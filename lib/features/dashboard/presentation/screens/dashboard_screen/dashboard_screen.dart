@@ -8,6 +8,7 @@ import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
+import '../../../../attacks/presentation/widgets/attack_in_progress_card.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../daily_log/presentation/widgets/daily_check_in_card.dart';
@@ -40,6 +41,9 @@ class DashboardScreen extends ConsumerWidget {
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
+      // Above the premium banner and the log button both: while an attack is running it is the only thing on this screen that is urgent.
+      if (ref.watch(attackInProgressProvider) != null)
+        const AttackInProgressCard(),
       // Top of the screen, owner's call.
       if (!ref.watch(hasPremiumProvider) && logsLeft == null)
         const PremiumBanner(),

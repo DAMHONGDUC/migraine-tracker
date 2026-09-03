@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "発作直後",
   "medicationTimingAfterStart": "{duration}後",
   "medicationTimingTakenOnly": "{duration}後に服用",
-  "medicationTimingSave": "保存"
+  "medicationTimingSave": "保存",
+  "attackNowTitle": "発作が進行中",
+  "attackNowSince": "{time}から",
+  "attackNowTookMedication": "薬を飲みました",
+  "attackNowEnded": "おさまりました",
+  "attackNowRest": "スマホを置いて休んでください。計測は続きます。",
+  "attackNowCardTitle": "発作が進行中です",
+  "attackNowCardBody": "おさまったら軽くタップすると、長さが正確になります。",
+  "attackNowEndedToast": "たった今おさまったと記録しました"
 }

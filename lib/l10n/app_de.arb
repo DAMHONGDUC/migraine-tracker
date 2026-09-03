@@ -735,5 +735,13 @@
   "medicationTimingAtOnset": "Gleich zu Beginn",
   "medicationTimingAfterStart": "Nach {duration}",
   "medicationTimingTakenOnly": "Nach {duration} genommen",
-  "medicationTimingSave": "Speichern"
+  "medicationTimingSave": "Speichern",
+  "attackNowTitle": "Attacke läuft",
+  "attackNowSince": "Seit {time}",
+  "attackNowTookMedication": "Ich habe etwas genommen",
+  "attackNowEnded": "Es ist vorbei",
+  "attackNowRest": "Leg das Handy weg. Es zählt weiter.",
+  "attackNowCardTitle": "Eine Attacke läuft",
+  "attackNowCardBody": "Tippe, wenn sie vorbei ist – dann stimmt die Dauer.",
+  "attackNowEndedToast": "Als soeben beendet erfasst"
 }

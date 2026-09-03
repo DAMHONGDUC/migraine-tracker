@@ -27,6 +27,11 @@ final class DateTimeUtils {
     return DateTime(parsed.year, parsed.month, parsed.day);
   }
 
+  /// "01:23:45" — a running attack's elapsed time, hours never wrapping to a second day.
+  static String elapsed(Duration since) =>
+      '${_two(since.inHours)}:${_two(since.inMinutes % 60)}:'
+      '${_two(since.inSeconds % 60)}';
+
   /// Whether two instants land on the same local calendar day.
   static bool isSameDay(DateTime first, DateTime second) {
     final DateTime a = first.toLocal();
