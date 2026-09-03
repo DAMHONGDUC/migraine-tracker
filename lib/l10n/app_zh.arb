@@ -801,5 +801,7 @@
   "midasNever": "尚未填写",
   "midasTakenOn": "填写于 {date}",
   "midasRowTitle": "失能评分（MIDAS）",
-  "midasReportRow": "失能程度（MIDAS）"
+  "midasReportRow": "失能程度（MIDAS）",
+  "factorHighHumidity": "闷热的一天",
+  "factorTempSwing": "气温骤变"
 }

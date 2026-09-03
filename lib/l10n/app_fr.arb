@@ -801,5 +801,7 @@
   "midasNever": "Pas encore répondu",
   "midasTakenOn": "Répondu le {date}",
   "midasRowTitle": "Retentissement (MIDAS)",
-  "midasReportRow": "Retentissement (MIDAS)"
+  "midasReportRow": "Retentissement (MIDAS)",
+  "factorHighHumidity": "Journée lourde",
+  "factorTempSwing": "Écart de température"
 }

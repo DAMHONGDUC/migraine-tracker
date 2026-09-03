@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'baroease'));
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -180,6 +180,11 @@ class AppDatabase extends _$AppDatabase {
       // - v19: the MIDAS questionnaire, whose score the doctor report carries.
       if (from < 19) {
         await m.createTable(midasEntries);
+      }
+      // - v20: the day's humidity and temperature beside its pressure, so the factor map can weigh more of the weather than the one reading.
+      if (from >= 12 && from < 20) {
+        await m.addColumn(dailyWeather, dailyWeather.humidityPercent);
+        await m.addColumn(dailyWeather, dailyWeather.temperatureCelsius);
       }
     },
     beforeOpen: (details) async {

@@ -130,7 +130,13 @@ final factorMapProvider = FutureProvider<FactorMap>((ref) async {
 
   return ref
       .watch(factorMapEngineProvider)
-      .analyze(logs: logs, attacks: attacks);
+      .analyze(
+        logs: logs,
+        attacks: attacks,
+        weather:
+            ref.watch(dailyPressureHistoryProvider).value ??
+            const <DailyPressure>[],
+      );
 });
 
 final exertionCorrelationEngineProvider = Provider<ExertionCorrelationEngine>(

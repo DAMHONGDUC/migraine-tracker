@@ -801,5 +801,7 @@
   "midasNever": "Chưa trả lời",
   "midasTakenOn": "Trả lời ngày {date}",
   "midasRowTitle": "Điểm ảnh hưởng (MIDAS)",
-  "midasReportRow": "Mức ảnh hưởng (MIDAS)"
+  "midasReportRow": "Mức ảnh hưởng (MIDAS)",
+  "factorHighHumidity": "Ngày oi ẩm",
+  "factorTempSwing": "Nhiệt độ đổi đột ngột"
 }

@@ -6,6 +6,7 @@ import 'package:migraine_tracker/features/daily_log/domain/enums/daily_factor.da
 import 'package:migraine_tracker/features/insights/domain/entities/factor_association.dart';
 import 'package:migraine_tracker/features/insights/domain/enums/map_factor.dart';
 import 'package:migraine_tracker/features/insights/domain/services/factor_map_engine.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
 
 void main() {
   const FactorMapEngine engine = FactorMapEngine();
@@ -211,5 +212,88 @@ void main() {
     );
 
     expect(map.associations.first.factor, MapFactor.alcohol);
+  });
+
+  group('the weather factors', () {
+    DailyPressure day(
+      int offset, {
+      double? humidity,
+      double? temperature,
+    }) => DailyPressure(
+      day: start.add(Duration(days: offset)),
+      pressureHpa: 1013,
+      pressureDelta24hHpa: -1,
+      humidityPercent: humidity,
+      temperatureCelsius: temperature,
+    );
+
+    test('a muggy day is weighed like any other factor', () {
+      final FactorMap map = engine.analyze(
+        logs: <DailyLog>[for (int i = 0; i < 30; i++) logOn(i)],
+        attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
+        weather: <DailyPressure>[
+          for (int i = 0; i < 16; i++) day(i, humidity: 88),
+          for (int i = 16; i < 30; i++) day(i, humidity: 50),
+        ],
+      );
+      final FactorAssociation humid =
+          associationOf(map, MapFactor.highHumidity);
+
+      expect(humid.daysWith, 16);
+      expect(humid.daysWithout, 14);
+      expect(humid.verdict, FactorVerdict.trigger);
+    });
+
+    // A swing is against YESTERDAY: what a body notices is the change.
+    test('a temperature swing is measured against the day before', () {
+      final FactorMap map = engine.analyze(
+        logs: <DailyLog>[for (int i = 0; i < 30; i++) logOn(i)],
+        attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
+        weather: <DailyPressure>[
+          // Alternating 18 and 26 degrees: every day but the first is a swing.
+          for (int i = 0; i < 30; i++)
+            day(i, temperature: i.isEven ? 18 : 26),
+        ],
+      );
+      final FactorAssociation swing = associationOf(map, MapFactor.tempSwing);
+
+      expect(swing.daysWith, 29);
+      // The first day has no yesterday, so it belongs to neither group.
+      expect(swing.daysWithout, 0);
+    });
+
+    // A day with no reading is not "no humidity"; it is a day nothing was recorded.
+    test('a day with no reading joins neither group', () {
+      final FactorMap map = engine.analyze(
+        logs: <DailyLog>[for (int i = 0; i < 30; i++) logOn(i)],
+        attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
+        weather: <DailyPressure>[
+          for (int i = 0; i < 10; i++) day(i, humidity: 88),
+        ],
+      );
+      final FactorAssociation humid =
+          associationOf(map, MapFactor.highHumidity);
+
+      expect(humid.daysWith, 10);
+      expect(humid.daysWithout, 0);
+      // Nothing on the other side, so it cannot be graded.
+      expect(humid.verdict, FactorVerdict.insufficient);
+    });
+
+    test('no weather at all leaves both weather factors ungraded', () {
+      final FactorMap map = engine.analyze(
+        logs: <DailyLog>[for (int i = 0; i < 30; i++) logOn(i)],
+        attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
+      );
+
+      expect(
+        associationOf(map, MapFactor.highHumidity).verdict,
+        FactorVerdict.insufficient,
+      );
+      expect(
+        associationOf(map, MapFactor.tempSwing).verdict,
+        FactorVerdict.insufficient,
+      );
+    });
   });
 }

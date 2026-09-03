@@ -1,6 +1,7 @@
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../daily_log/domain/entities/daily_log.dart';
 import '../../../daily_log/domain/enums/daily_factor.dart';
+import '../../../weather/domain/entities/daily_pressure.dart';
 import '../entities/factor_association.dart';
 import '../enums/map_factor.dart';
 
@@ -30,6 +31,12 @@ class FactorMapEngine {
   /// The same baseline every other analysis in the app waits for.
   static const int defaultRequiredAttacks = 15;
 
+  /// Where a day counts as muggy. 80% is the bar humid weather is usually described at, and it is a fact about the day rather than about the user.
+  static const double humidPercent = 80;
+
+  /// How far the temperature has to move from yesterday to count as a swing.
+  static const double tempSwingCelsius = 5;
+
   final double meaningfulEffect;
   final int minDaysEitherSide;
   final int requiredDays;
@@ -38,6 +45,7 @@ class FactorMapEngine {
   FactorMap analyze({
     required List<DailyLog> logs,
     required List<Attack> attacks,
+    List<DailyPressure> weather = const <DailyPressure>[],
   }) {
     // Only answered days: a row Apple Health filled in with a step count says nothing about the day and would dilute both groups.
     final List<DailyLog> answered = logs
@@ -46,9 +54,10 @@ class FactorMapEngine {
     final Set<DateTime> attackDays = <DateTime>{
       for (final Attack attack in attacks) _dayOf(attack.startedAt.toLocal()),
     };
+    final _WeatherDays weatherDays = _WeatherDays.of(weather);
     final List<FactorAssociation> associations = <FactorAssociation>[
       for (final MapFactor factor in MapFactor.values)
-        _associate(factor, answered, attackDays),
+        _associate(factor, answered, attackDays, weatherDays),
     ]..sort(_widestGapFirst);
 
     return FactorMap(
@@ -73,6 +82,7 @@ class FactorMapEngine {
     MapFactor factor,
     List<DailyLog> answered,
     Set<DateTime> attackDays,
+    _WeatherDays weather,
   ) {
     int daysWith = 0;
     int daysWithout = 0;
@@ -81,8 +91,12 @@ class FactorMapEngine {
 
     for (final DailyLog log in answered) {
       final bool hurt = attackDays.contains(log.day);
+      final bool? carries = _carries(factor, log, weather);
 
-      if (_carries(factor, log)) {
+      // A weather factor on a day with no reading belongs in NEITHER group: it is not "no humidity", it is a day nothing was recorded.
+      if (carries == null) continue;
+
+      if (carries) {
         daysWith++;
         if (hurt) attacksWith++;
       } else {
@@ -129,8 +143,8 @@ class FactorMapEngine {
         : FactorVerdict.protector;
   }
 
-  /// Whether the day carries the factor. The two derived ones read a rating; the rest read a tick.
-  bool _carries(MapFactor factor, DailyLog log) {
+  /// Whether the day carries the factor, or null when nothing can be said — a weather factor on a day with no reading.
+  bool? _carries(MapFactor factor, DailyLog log, _WeatherDays weather) {
     final DailyFactor? daily = factor.daily;
 
     if (daily != null) return log.factors.contains(daily);
@@ -138,9 +152,44 @@ class FactorMapEngine {
       // Unanswered is not "good sleep": a rating nobody gave cannot put the day in either group, so it goes with the majority one and dilutes nothing.
       MapFactor.poorSleep => (log.sleepQuality ?? 5) <= 2,
       MapFactor.highStress => (log.stressLevel ?? 1) >= 4,
+      MapFactor.highHumidity => weather.isHumid(log.day, humidPercent),
+      MapFactor.tempSwing => weather.hasSwing(log.day, tempSwingCelsius),
       _ => false,
     };
   }
 
   DateTime _dayOf(DateTime date) => DateTime(date.year, date.month, date.day);
+}
+
+/// The daily weather readings, by day, and the two questions the map asks of them.
+class _WeatherDays {
+  const _WeatherDays(this._byDay);
+
+  factory _WeatherDays.of(List<DailyPressure> readings) => _WeatherDays(
+    <DateTime, DailyPressure>{
+      for (final DailyPressure reading in readings) reading.day: reading,
+    },
+  );
+
+  final Map<DateTime, DailyPressure> _byDay;
+
+  /// Null where the day has no reading, or the reading predates the columns.
+  bool? isHumid(DateTime day, double threshold) {
+    final double? humidity = _byDay[day]?.humidityPercent;
+
+    return humidity == null ? null : humidity >= threshold;
+  }
+
+  /// Against YESTERDAY, not against a season's average: what a body notices is the change, and a 30°C day in a hot month is not a swing.
+  bool? hasSwing(DateTime day, double threshold) {
+    final double? today = _byDay[day]?.temperatureCelsius;
+    final double? yesterday = _byDay[DateTime(
+      day.year,
+      day.month,
+      day.day - 1,
+    )]?.temperatureCelsius;
+
+    if (today == null || yesterday == null) return null;
+    return (today - yesterday).abs() >= threshold;
+  }
 }

@@ -801,5 +801,7 @@
   "midasNever": "Sin responder",
   "midasTakenOn": "Respondido el {date}",
   "midasRowTitle": "Grado de discapacidad (MIDAS)",
-  "midasReportRow": "Discapacidad (MIDAS)"
+  "midasReportRow": "Discapacidad (MIDAS)",
+  "factorHighHumidity": "Día bochornoso",
+  "factorTempSwing": "Cambio de temperatura"
 }

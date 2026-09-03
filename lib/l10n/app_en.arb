@@ -3929,5 +3929,13 @@
   "midasReportRow": "Disability (MIDAS)",
   "@midasReportRow": {
     "description": "Label of the MIDAS row in the doctor report."
+  },
+  "factorHighHumidity": "Muggy day",
+  "@factorHighHumidity": {
+    "description": "Map factor: the day's humidity was at or above 80%."
+  },
+  "factorTempSwing": "Temperature swing",
+  "@factorTempSwing": {
+    "description": "Map factor: the day's temperature was at least 5C away from the day before."
   }
 }

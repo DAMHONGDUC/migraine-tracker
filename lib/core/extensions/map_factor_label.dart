@@ -9,6 +9,8 @@ extension MapFactorLabel on MapFactor {
       switch (this) {
         MapFactor.poorSleep => l10n.factorPoorSleep,
         MapFactor.highStress => l10n.factorHighStress,
+        MapFactor.highHumidity => l10n.factorHighHumidity,
+        MapFactor.tempSwing => l10n.factorTempSwing,
         _ => '',
       };
 }

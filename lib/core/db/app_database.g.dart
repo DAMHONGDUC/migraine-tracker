@@ -3872,12 +3872,36 @@ class $DailyWeatherTable extends DailyWeather
         type: DriftSqlType.double,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _humidityPercentMeta = const VerificationMeta(
+    'humidityPercent',
+  );
+  @override
+  late final GeneratedColumn<double> humidityPercent = GeneratedColumn<double>(
+    'humidity_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _temperatureCelsiusMeta =
+      const VerificationMeta('temperatureCelsius');
+  @override
+  late final GeneratedColumn<double> temperatureCelsius =
+      GeneratedColumn<double>(
+        'temperature_celsius',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     day,
     capturedAt,
     pressureHpa,
     pressureDelta24hHpa,
+    humidityPercent,
+    temperatureCelsius,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3929,6 +3953,24 @@ class $DailyWeatherTable extends DailyWeather
     } else if (isInserting) {
       context.missing(_pressureDelta24hHpaMeta);
     }
+    if (data.containsKey('humidity_percent')) {
+      context.handle(
+        _humidityPercentMeta,
+        humidityPercent.isAcceptableOrUnknown(
+          data['humidity_percent']!,
+          _humidityPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('temperature_celsius')) {
+      context.handle(
+        _temperatureCelsiusMeta,
+        temperatureCelsius.isAcceptableOrUnknown(
+          data['temperature_celsius']!,
+          _temperatureCelsiusMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3954,6 +3996,14 @@ class $DailyWeatherTable extends DailyWeather
         DriftSqlType.double,
         data['${effectivePrefix}pressure_delta24h_hpa'],
       )!,
+      humidityPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}humidity_percent'],
+      ),
+      temperatureCelsius: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}temperature_celsius'],
+      ),
     );
   }
 
@@ -3969,11 +4019,17 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
   final DateTime capturedAt;
   final double pressureHpa;
   final double pressureDelta24hHpa;
+
+  /// The day's humidity and temperature, so the factor map can weigh a muggy day and a temperature swing against the days without one. Null on every row written before v20.
+  final double? humidityPercent;
+  final double? temperatureCelsius;
   const DailyWeatherRow({
     required this.day,
     required this.capturedAt,
     required this.pressureHpa,
     required this.pressureDelta24hHpa,
+    this.humidityPercent,
+    this.temperatureCelsius,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3982,6 +4038,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
     map['captured_at'] = Variable<DateTime>(capturedAt);
     map['pressure_hpa'] = Variable<double>(pressureHpa);
     map['pressure_delta24h_hpa'] = Variable<double>(pressureDelta24hHpa);
+    if (!nullToAbsent || humidityPercent != null) {
+      map['humidity_percent'] = Variable<double>(humidityPercent);
+    }
+    if (!nullToAbsent || temperatureCelsius != null) {
+      map['temperature_celsius'] = Variable<double>(temperatureCelsius);
+    }
     return map;
   }
 
@@ -3991,6 +4053,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       capturedAt: Value(capturedAt),
       pressureHpa: Value(pressureHpa),
       pressureDelta24hHpa: Value(pressureDelta24hHpa),
+      humidityPercent: humidityPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(humidityPercent),
+      temperatureCelsius: temperatureCelsius == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureCelsius),
     );
   }
 
@@ -4006,6 +4074,10 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       pressureDelta24hHpa: serializer.fromJson<double>(
         json['pressureDelta24hHpa'],
       ),
+      humidityPercent: serializer.fromJson<double?>(json['humidityPercent']),
+      temperatureCelsius: serializer.fromJson<double?>(
+        json['temperatureCelsius'],
+      ),
     );
   }
   @override
@@ -4016,6 +4088,8 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       'capturedAt': serializer.toJson<DateTime>(capturedAt),
       'pressureHpa': serializer.toJson<double>(pressureHpa),
       'pressureDelta24hHpa': serializer.toJson<double>(pressureDelta24hHpa),
+      'humidityPercent': serializer.toJson<double?>(humidityPercent),
+      'temperatureCelsius': serializer.toJson<double?>(temperatureCelsius),
     };
   }
 
@@ -4024,11 +4098,19 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
     DateTime? capturedAt,
     double? pressureHpa,
     double? pressureDelta24hHpa,
+    Value<double?> humidityPercent = const Value.absent(),
+    Value<double?> temperatureCelsius = const Value.absent(),
   }) => DailyWeatherRow(
     day: day ?? this.day,
     capturedAt: capturedAt ?? this.capturedAt,
     pressureHpa: pressureHpa ?? this.pressureHpa,
     pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+    humidityPercent: humidityPercent.present
+        ? humidityPercent.value
+        : this.humidityPercent,
+    temperatureCelsius: temperatureCelsius.present
+        ? temperatureCelsius.value
+        : this.temperatureCelsius,
   );
   DailyWeatherRow copyWithCompanion(DailyWeatherCompanion data) {
     return DailyWeatherRow(
@@ -4042,6 +4124,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       pressureDelta24hHpa: data.pressureDelta24hHpa.present
           ? data.pressureDelta24hHpa.value
           : this.pressureDelta24hHpa,
+      humidityPercent: data.humidityPercent.present
+          ? data.humidityPercent.value
+          : this.humidityPercent,
+      temperatureCelsius: data.temperatureCelsius.present
+          ? data.temperatureCelsius.value
+          : this.temperatureCelsius,
     );
   }
 
@@ -4051,14 +4139,22 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
           ..write('day: $day, ')
           ..write('capturedAt: $capturedAt, ')
           ..write('pressureHpa: $pressureHpa, ')
-          ..write('pressureDelta24hHpa: $pressureDelta24hHpa')
+          ..write('pressureDelta24hHpa: $pressureDelta24hHpa, ')
+          ..write('humidityPercent: $humidityPercent, ')
+          ..write('temperatureCelsius: $temperatureCelsius')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(day, capturedAt, pressureHpa, pressureDelta24hHpa);
+  int get hashCode => Object.hash(
+    day,
+    capturedAt,
+    pressureHpa,
+    pressureDelta24hHpa,
+    humidityPercent,
+    temperatureCelsius,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4066,7 +4162,9 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
           other.day == this.day &&
           other.capturedAt == this.capturedAt &&
           other.pressureHpa == this.pressureHpa &&
-          other.pressureDelta24hHpa == this.pressureDelta24hHpa);
+          other.pressureDelta24hHpa == this.pressureDelta24hHpa &&
+          other.humidityPercent == this.humidityPercent &&
+          other.temperatureCelsius == this.temperatureCelsius);
 }
 
 class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
@@ -4074,12 +4172,16 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
   final Value<DateTime> capturedAt;
   final Value<double> pressureHpa;
   final Value<double> pressureDelta24hHpa;
+  final Value<double?> humidityPercent;
+  final Value<double?> temperatureCelsius;
   final Value<int> rowid;
   const DailyWeatherCompanion({
     this.day = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.pressureHpa = const Value.absent(),
     this.pressureDelta24hHpa = const Value.absent(),
+    this.humidityPercent = const Value.absent(),
+    this.temperatureCelsius = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DailyWeatherCompanion.insert({
@@ -4087,6 +4189,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     required DateTime capturedAt,
     required double pressureHpa,
     required double pressureDelta24hHpa,
+    this.humidityPercent = const Value.absent(),
+    this.temperatureCelsius = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : day = Value(day),
        capturedAt = Value(capturedAt),
@@ -4097,6 +4201,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     Expression<DateTime>? capturedAt,
     Expression<double>? pressureHpa,
     Expression<double>? pressureDelta24hHpa,
+    Expression<double>? humidityPercent,
+    Expression<double>? temperatureCelsius,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4105,6 +4211,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
       if (pressureHpa != null) 'pressure_hpa': pressureHpa,
       if (pressureDelta24hHpa != null)
         'pressure_delta24h_hpa': pressureDelta24hHpa,
+      if (humidityPercent != null) 'humidity_percent': humidityPercent,
+      if (temperatureCelsius != null) 'temperature_celsius': temperatureCelsius,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4114,6 +4222,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     Value<DateTime>? capturedAt,
     Value<double>? pressureHpa,
     Value<double>? pressureDelta24hHpa,
+    Value<double?>? humidityPercent,
+    Value<double?>? temperatureCelsius,
     Value<int>? rowid,
   }) {
     return DailyWeatherCompanion(
@@ -4121,6 +4231,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
       capturedAt: capturedAt ?? this.capturedAt,
       pressureHpa: pressureHpa ?? this.pressureHpa,
       pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+      humidityPercent: humidityPercent ?? this.humidityPercent,
+      temperatureCelsius: temperatureCelsius ?? this.temperatureCelsius,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4142,6 +4254,12 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
         pressureDelta24hHpa.value,
       );
     }
+    if (humidityPercent.present) {
+      map['humidity_percent'] = Variable<double>(humidityPercent.value);
+    }
+    if (temperatureCelsius.present) {
+      map['temperature_celsius'] = Variable<double>(temperatureCelsius.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4155,6 +4273,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
           ..write('capturedAt: $capturedAt, ')
           ..write('pressureHpa: $pressureHpa, ')
           ..write('pressureDelta24hHpa: $pressureDelta24hHpa, ')
+          ..write('humidityPercent: $humidityPercent, ')
+          ..write('temperatureCelsius: $temperatureCelsius, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7784,6 +7904,8 @@ typedef $$DailyWeatherTableCreateCompanionBuilder =
       required DateTime capturedAt,
       required double pressureHpa,
       required double pressureDelta24hHpa,
+      Value<double?> humidityPercent,
+      Value<double?> temperatureCelsius,
       Value<int> rowid,
     });
 typedef $$DailyWeatherTableUpdateCompanionBuilder =
@@ -7792,6 +7914,8 @@ typedef $$DailyWeatherTableUpdateCompanionBuilder =
       Value<DateTime> capturedAt,
       Value<double> pressureHpa,
       Value<double> pressureDelta24hHpa,
+      Value<double?> humidityPercent,
+      Value<double?> temperatureCelsius,
       Value<int> rowid,
     });
 
@@ -7821,6 +7945,16 @@ class $$DailyWeatherTableFilterComposer
 
   ColumnFilters<double> get pressureDelta24hHpa => $composableBuilder(
     column: $table.pressureDelta24hHpa,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7853,6 +7987,16 @@ class $$DailyWeatherTableOrderingComposer
     column: $table.pressureDelta24hHpa,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DailyWeatherTableAnnotationComposer
@@ -7879,6 +8023,16 @@ class $$DailyWeatherTableAnnotationComposer
 
   GeneratedColumn<double> get pressureDelta24hHpa => $composableBuilder(
     column: $table.pressureDelta24hHpa,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
     builder: (column) => column,
   );
 }
@@ -7918,12 +8072,16 @@ class $$DailyWeatherTableTableManager
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<double> pressureHpa = const Value.absent(),
                 Value<double> pressureDelta24hHpa = const Value.absent(),
+                Value<double?> humidityPercent = const Value.absent(),
+                Value<double?> temperatureCelsius = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyWeatherCompanion(
                 day: day,
                 capturedAt: capturedAt,
                 pressureHpa: pressureHpa,
                 pressureDelta24hHpa: pressureDelta24hHpa,
+                humidityPercent: humidityPercent,
+                temperatureCelsius: temperatureCelsius,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7932,12 +8090,16 @@ class $$DailyWeatherTableTableManager
                 required DateTime capturedAt,
                 required double pressureHpa,
                 required double pressureDelta24hHpa,
+                Value<double?> humidityPercent = const Value.absent(),
+                Value<double?> temperatureCelsius = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyWeatherCompanion.insert(
                 day: day,
                 capturedAt: capturedAt,
                 pressureHpa: pressureHpa,
                 pressureDelta24hHpa: pressureDelta24hHpa,
+                humidityPercent: humidityPercent,
+                temperatureCelsius: temperatureCelsius,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

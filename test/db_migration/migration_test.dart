@@ -14,10 +14,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 19', () {
+  test('database is at schema version 20', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 19);
+    expect(db.schemaVersion, 20);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
@@ -472,5 +472,34 @@ void main() {
     addTearDown(db.close);
 
     await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  test('migrates from v19 to v20 (adds the day humidity and temperature)',
+      () async {
+    final connection = await verifier.startAt(19);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // Absent, never zero: a reading taken before the columns existed did not record a desert.
+  test('a v19 daily reading survives v20 with no humidity', () async {
+    final schema = await verifier.schemaAt(19);
+    schema.rawDatabase.execute(
+      'INSERT INTO daily_weather (day, captured_at, pressure_hpa, '
+      'pressure_delta24h_hpa) VALUES (1750000000, 1750000000, 1013.2, -4.0)',
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final DailyWeatherRow stored =
+        (await db.select(db.dailyWeather).get()).single;
+
+    expect(stored.pressureHpa, 1013.2);
+    expect(stored.humidityPercent, isNull);
+    expect(stored.temperatureCelsius, isNull);
   });
 }

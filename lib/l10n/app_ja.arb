@@ -801,5 +801,7 @@
   "midasNever": "未回答",
   "midasTakenOn": "{date}に回答",
   "midasRowTitle": "生活支障度（MIDAS）",
-  "midasReportRow": "生活支障度（MIDAS）"
+  "midasReportRow": "生活支障度（MIDAS）",
+  "factorHighHumidity": "蒸し暑い日",
+  "factorTempSwing": "気温の急変"
 }

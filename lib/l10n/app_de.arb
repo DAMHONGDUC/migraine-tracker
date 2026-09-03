@@ -801,5 +801,7 @@
   "midasNever": "Noch nicht beantwortet",
   "midasTakenOn": "Beantwortet am {date}",
   "midasRowTitle": "Beeinträchtigung (MIDAS)",
-  "midasReportRow": "Beeinträchtigung (MIDAS)"
+  "midasReportRow": "Beeinträchtigung (MIDAS)",
+  "factorHighHumidity": "Schwüler Tag",
+  "factorTempSwing": "Temperatursprung"
 }
