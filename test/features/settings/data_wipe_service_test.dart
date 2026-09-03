@@ -108,6 +108,7 @@ void main() {
       DriftDailyLogRepository(db),
       shareFiles,
       homeWidget,
+      RecordingLiveActivity(),
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -157,6 +158,7 @@ void main() {
       DriftDailyLogRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
@@ -182,6 +184,7 @@ void main() {
       DriftDailyLogRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     ).wipeAll(onProgress: (done, steps) {
       expect(steps, DataWipeService.steps);
       reported.add(done);
@@ -217,6 +220,7 @@ void main() {
       DriftDailyLogRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -276,6 +280,7 @@ void main() {
         DriftDailyLogRepository(db),
         RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after they deleted everything.

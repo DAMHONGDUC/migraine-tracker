@@ -20,6 +20,9 @@ final class PrefsKeyConstant {
   static const String healthSleep = 'health_sleep_connected';
   static const String healthSteps = 'health_steps_connected';
 
+  /// The Live Activity currently on the Lock Screen, by attack id. Stored rather than held in memory because the card outlives the process.
+  static const String liveActivityId = 'live_activity_id';
+
   /// The cycle switch. Its own key, and deliberately NOT covered by the legacy `healthConnected` fallback: nobody consented to a reproductive-health read under a switch that predates it.
   static const String healthCycle = 'health_cycle_connected';
 

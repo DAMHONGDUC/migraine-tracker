@@ -19,6 +19,7 @@
 		7B4100000000000000000014 /* BaroEaseWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4100000000000000000004 /* BaroEaseWidgetEntry.swift */; };
 		7B4100000000000000000015 /* BaroEaseWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4100000000000000000005 /* BaroEaseWidgetStore.swift */; };
 		7B4100000000000000000016 /* BaroEaseWidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4100000000000000000006 /* BaroEaseWidgetPalette.swift */; };
+		7B4100000000000000000017 /* BaroEaseAttackActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4100000000000000000009 /* BaroEaseAttackActivity.swift */; };
 		7B4100000000000000000020 /* BaroEaseWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7B4100000000000000000001 /* BaroEaseWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		862C5CDFC62FC6C67465F477 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 525EE3D65336FD9DF7B7CED4 /* Pods_RunnerTests.framework */; };
 		903FB841B2CBE66030C66A63 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0E667AC5E088885619938880 /* GoogleService-Info.plist */; };
@@ -96,6 +97,7 @@
 		7B4100000000000000000006 /* BaroEaseWidgetPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaroEaseWidgetPalette.swift; sourceTree = "<group>"; };
 		7B4100000000000000000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B4100000000000000000008 /* BaroEaseWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BaroEaseWidget.entitlements; sourceTree = "<group>"; };
+		7B4100000000000000000009 /* BaroEaseAttackActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaroEaseAttackActivity.swift; sourceTree = "<group>"; };
 		829C36F04A96484DD4543630 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				7B4100000000000000000004 /* BaroEaseWidgetEntry.swift */,
 				7B4100000000000000000005 /* BaroEaseWidgetStore.swift */,
 				7B4100000000000000000006 /* BaroEaseWidgetPalette.swift */,
+				7B4100000000000000000009 /* BaroEaseAttackActivity.swift */,
 				7B4100000000000000000007 /* Info.plist */,
 				7B4100000000000000000008 /* BaroEaseWidget.entitlements */,
 			);
@@ -509,6 +512,7 @@
 				7B4100000000000000000014 /* BaroEaseWidgetEntry.swift in Sources */,
 				7B4100000000000000000015 /* BaroEaseWidgetStore.swift in Sources */,
 				7B4100000000000000000016 /* BaroEaseWidgetPalette.swift in Sources */,
+				7B4100000000000000000017 /* BaroEaseAttackActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

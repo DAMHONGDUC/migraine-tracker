@@ -84,6 +84,7 @@ void main() {
         DriftDailyLogRepository(db),
         RecordingShareFileStore(),
         RecordingHomeWidgetRepository(),
+        RecordingLiveActivity(),
       ),
       DriftAttackRepository(db),
       DriftMedicationRepository(db),

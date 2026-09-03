@@ -1,15 +1,20 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:live_activities/live_activities.dart';
 
 import '../../core/constants/attack_progress_constant.dart';
+import '../../core/constants/home_widget_constant.dart';
 import '../../core/constants/premium_limit_constant.dart';
 import '../../core/db/database_provider.dart';
+import '../../core/storage/secure_store.dart';
 import '../health/providers.dart';
 import '../premium/providers.dart';
 import '../weather/providers.dart';
 import 'data/repositories/drift_attack_repository.dart';
+import 'data/services/plugin_attack_live_activity.dart';
 import 'data/temporary_share_file_store.dart';
 import 'domain/entities/attack.dart';
 import 'domain/repositories/attack_repository.dart';
+import 'domain/services/attack_live_activity.dart';
 import 'domain/services/attack_share_file_store.dart';
 import 'domain/services/step_attach_service.dart';
 import 'domain/services/weather_attach_service.dart';
@@ -52,6 +57,15 @@ final stepAttachServiceProvider = Provider<StepAttachService>(
   (ref) => StepAttachService(
     ref.watch(attackRepositoryProvider),
     ref.watch(healthRepositoryProvider),
+  ),
+);
+
+/// The Lock Screen card for a running attack. iOS 16.1+ only; a no-op everywhere else (see [AttackLiveActivity]).
+final attackLiveActivityProvider = Provider<AttackLiveActivity>(
+  (ref) => PluginAttackLiveActivity(
+    LiveActivities(),
+    ref.watch(secureStoreProvider),
+    HomeWidgetConstant.appGroupId,
   ),
 );
 

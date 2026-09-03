@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
@@ -119,6 +121,10 @@ class AttackDetailController {
     AppAnalytics.logAttackEdited();
     try {
       await _ref.read(attackRepositoryProvider).updateEndedAt(id, endedAt);
+      // The card stands for an attack that is still running, so recording an end takes it down. Unawaited: ActivityKit is another process and the answer is already saved.
+      if (endedAt != null) {
+        unawaited(_ref.read(attackLiveActivityProvider).end());
+      }
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.attackDetail,
@@ -161,6 +167,8 @@ class AttackDetailController {
     AppAnalytics.logAttackDeleted();
     try {
       await _ref.read(attackRepositoryProvider).deleteById(id);
+      // A card for an attack that no longer exists is the one state it must never be left in.
+      unawaited(_ref.read(attackLiveActivityProvider).end());
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.attackDetail,

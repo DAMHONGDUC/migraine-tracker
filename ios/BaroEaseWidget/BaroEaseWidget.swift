@@ -24,7 +24,13 @@ struct BaroEaseProvider: TimelineProvider {
 
 @main
 struct BaroEaseWidgetBundle: WidgetBundle {
-  var body: some Widget { BaroEaseWidget() }
+  /// `if #available` is `buildLimitedAvailability`, which the bundle builder does support — unlike the two-different-concrete-types case in `docs/rules/DECISIONS.md`. The activity needs 16.1 and the app deploys to 15.
+  var body: some Widget {
+    BaroEaseWidget()
+    if #available(iOS 16.1, *) {
+      BaroEaseAttackActivity()
+    }
+  }
 }
 
 struct BaroEaseWidget: Widget {

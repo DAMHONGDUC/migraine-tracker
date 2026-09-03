@@ -138,6 +138,7 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(dailyLogRepositoryProvider),
     ref.watch(attackShareFileStoreProvider),
     ref.watch(homeWidgetRepositoryProvider),
+    ref.watch(attackLiveActivityProvider),
   ),
 );
 

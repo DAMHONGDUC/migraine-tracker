@@ -1,5 +1,6 @@
 import '../../../alerts/domain/repositories/alert_registration_repository.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
+import '../../../attacks/domain/services/attack_live_activity.dart';
 import '../../../attacks/domain/services/attack_share_file_store.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -32,6 +33,7 @@ class DataWipeService {
     this._dailyLogs,
     this._shareFiles,
     this._homeWidget,
+    this._liveActivity,
   );
 
   final AttackRepository _attacks;
@@ -56,8 +58,11 @@ class DataWipeService {
   /// The App Group the home-screen widget reads.
   final HomeWidgetRepository _homeWidget;
 
+  /// The Lock Screen card. Not a database and not on disk, but the user's health data on a screen anyone can see (hard rule 8).
+  final AttackLiveActivity _liveActivity;
+
   /// How many awaits [wipeAll] reports against.
-  static const int steps = 12;
+  static const int steps = 13;
 
   /// [onProgress] fires after each step with how many are done out of [steps].
   Future<void> wipeAll({WipeProgressCallback? onProgress}) async {
@@ -97,6 +102,9 @@ class DataWipeService {
     step();
     // A shared attack is written to temporary storage for the share sheet to read.
     await _shareFiles.deleteAll();
+    step();
+    // Before the widget, because both draw from what is now gone.
+    await _liveActivity.end();
     step();
     // Last, because it is derived from everything above: emptied any earlier and the next redraw would put the old numbers straight back.
     await _homeWidget.clear();

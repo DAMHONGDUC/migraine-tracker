@@ -81,6 +81,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>BaroEase reads your sleep, step count and — only if you switch it on — your menstrual cycle from Apple Health, to show whether short nights, low activity or the days around your period line up with your migraine attacks. It only reads. Your sleep and your cycle stay on this device and are never uploaded. When you log an attack, the steps you had taken that day are saved with it, so they travel with that attack into your export and, if you sign in, your encrypted sync.</string>
 	<key>NSHealthUpdateUsageDescription</key>
