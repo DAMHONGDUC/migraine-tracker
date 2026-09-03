@@ -34,7 +34,7 @@ forever.
   once — if it grows a fifth node, check the label `maxWidth` against the 393pt
   design width before anything else.
 
-**Two more fields are recorded after the fact, and neither is a step**:
+**Four more fields are recorded after the fact, and none is a step**:
 `Attack.endedAt` (how long it lasted) and `Attack.medicationEffect` (whether the
 medication helped). Both are answered from the detail screen, because at the
 moment an attack is logged nobody knows how long it will run and the drug has not
@@ -44,6 +44,18 @@ reason `updateExertion` does. `endedAt` null means "still going, or never said" 
 one state on purpose, since nothing can tell them apart — and
 `medicationEffect` null means "never answered", which also covers every attack
 where nothing was taken.
+
+**`medicationTakenAt` and `reliefAt` are the third and fourth**, written
+together by `updateMedicationTiming` — a relief time without the dose it
+followed measures nothing, so neither may outlive the other. `timeToRelief` is
+the gap between them, and it is measured from the DOSE rather than from the
+attack: "how long did it take to work" is the question the medication is judged
+on. `MedicationTimingSheet` asks in offsets, not clocks — nobody remembers
+swallowing something at 09:20 and everybody remembers it was about half an hour
+in — and both rows appear only where a medication was actually named, exactly as
+the effect row does. The relief options stop at 4h because a triptan that has
+not worked in four hours has not worked, and the app must not invite a guess
+past that.
 
 ## The option grids
 
