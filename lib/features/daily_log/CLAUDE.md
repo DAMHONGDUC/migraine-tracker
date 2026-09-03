@@ -36,6 +36,10 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
 - **A factor this build has never heard of is dropped, never guessed at** — in
   the converter and in the codec both, so a day written by a newer device still
   opens here.
+- **The cycle section asks nothing.** It is a connect switch and a line of
+  status read from Apple Health, because the cycle is already recorded there and
+  asking the user to type it again is asking twice for something the phone
+  knows. Nothing it reads is stored — `features/health/CLAUDE.md` is the rule.
 - **The card stays on the dashboard once answered**, saying so. A card that
   vanished on save reads as the app forgetting what it was just told.
 

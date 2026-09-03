@@ -47,13 +47,12 @@ flowchart LR
 | # | Feature | State |
 |---:|---|---|
 | 1 | Daily check-in | **Shipped** — `lib/features/daily_log/`, schema v17, fifth synced collection |
-| 2 | Menstrual cycle | **Blocked**: `health` is pinned at 3.0.6, which has no menstruation type at all. Reading it needs the 13.x upgrade (`HealthFactory` → `Health()`), which touches the sleep and step sources and the one CocoaPods pod in the build — the owner's call |
-| 3 | Attack in progress | **Shipped in-app** — `AttackNowScreen`, the dashboard card, `Attack.isRunningAt`. The iOS **Live Activity is not done**: it needs the `live_activities` package or hand-written ActivityKit behind a method channel, and `home_widget`'s App Group bridge does not cover it — the owner's call |
+| 2 | Menstrual cycle | **Shipped** — owner approved the `health` 3.0.6 → 13.3.1 upgrade. Read-only, on-device, its own switch on the check-in, window -2..+3 around HealthKit's own period-start marker |
+| 3 | Attack in progress | **Shipped in-app** — `AttackNowScreen`, the dashboard card, `Attack.isRunningAt`. Live Activity: owner chose the `live_activities` package; in progress |
 | 4 | Time to relief | **Shipped** — `medicationTakenAt` + `reliefAt`, schema v18, `MedicationTimingSheet` |
 
-Both blocked halves are dependency decisions, not design ones. Nothing else in
-the wave waits on them, and Wave 2's risk score can read cycle data the moment
-item 2 lands.
+Wave 2's risk score can read the cycle through `todayCycleDayProvider` as it
+stands.
 
 ## Wave v1.1 — record more than the attack
 

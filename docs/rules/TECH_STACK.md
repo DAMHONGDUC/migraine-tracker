@@ -73,7 +73,23 @@ need: `pod deintegrate`, delete the `Podfile`, drop the `#include?` lines from
   `ios/Runner.xcodeproj/…` and `ios/Runner.xcworkspace/…` — and Xcode reads the
   workspace one; fixing only the project copy leaves the mismatch one launch
   away from returning.
-- **`health: ^3.0.6` is the exception: it pins an unmaintained `device_info`**
+- **`health` is now at `^13.3.1`, and the pin that blocked it is gone.** The old
+  rule below said not to bump it because every version through 13.3.1 capped
+  `device_info_plus` under `win32 ^6`, against `share_plus`'s `win32 ^6.0.1`.
+  That stopped being true: `health 13.3.2` resolves `device_info_plus 13.2.0` on
+  `win32 6.3.0` beside `share_plus 13.2.0` and `package_info_plus 10.2.1`, which
+  is exactly the "revisit" condition the old rule named. The bump was made for
+  menstrual-cycle data — `health 3.0.6` has no `MENSTRUATION_FLOW` type at all.
+  - **The API changed with it**: `HealthFactory()` → `Health()`, and
+    `getHealthDataFromTypes` takes named `types`/`startTime`/`endTime`. A step
+    sample's value is a typed `NumericHealthValue` now, not a bare number.
+  - **Both `health` 13.3.2 and `device_info_plus` 13.2.0 ship a `Package.swift`**,
+    so the CocoaPods exception below may no longer be needed at all. Nobody has
+    verified that with a real iOS build yet — check it on the next one before
+    deleting the Podfile, and follow the deintegration steps at the top of this
+    section if it holds.
+- **The historical exception, kept until that build confirms otherwise:
+  `health: ^3.0.6` pinned an unmaintained `device_info`**
   (last published 2021, no SPM support and none coming). So `pod install` stays
   required for `health` + `device_info`, and `ios/Podfile` plus its `#include?`
   lines in `Debug`/`Release`/`Profile.xcconfig` are intentional, not leftovers.
