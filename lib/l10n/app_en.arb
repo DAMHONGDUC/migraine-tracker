@@ -3629,5 +3629,43 @@
   "attackNowEndedToast": "Recorded as ended just now",
   "@attackNowEndedToast": {
     "description": "Snackbar after the attack is recorded as ended."
+  },
+  "healthCycleTitle": "Apple Health cycle",
+  "@healthCycleTitle": {
+    "description": "Title of the Apple Health connect switch for menstrual cycle data."
+  },
+  "dailyLogCycleSection": "Cycle",
+  "@dailyLogCycleSection": {
+    "description": "Heading of the cycle section on the daily check-in screen."
+  },
+  "dailyLogCycleBefore": "{days} days before your period",
+  "@dailyLogCycleBefore": {
+    "description": "Today is this many days before the recorded period start.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCycleStart": "Your period started today",
+  "@dailyLogCycleStart": {
+    "description": "Today is the day the period started."
+  },
+  "dailyLogCycleDay": "Day {day} of your period",
+  "@dailyLogCycleDay": {
+    "description": "Today is this numbered day of the period, the first day being 1.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCycleOutside": "Outside the window attacks cluster in",
+  "@dailyLogCycleOutside": {
+    "description": "Today has cycle data but falls outside the perimenstrual window."
+  },
+  "dailyLogCycleNone": "Nothing recorded in Apple Health for today",
+  "@dailyLogCycleNone": {
+    "description": "Apple Health returned no cycle data covering today."
   }
 }

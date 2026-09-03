@@ -743,5 +743,12 @@
   "attackNowRest": "Deja el móvil. Sigue contando.",
   "attackNowCardTitle": "Hay una crisis en curso",
   "attackNowCardBody": "Toca cuando pase, así la duración será correcta.",
-  "attackNowEndedToast": "Registrada como terminada ahora mismo"
+  "attackNowEndedToast": "Registrada como terminada ahora mismo",
+  "healthCycleTitle": "Ciclo de Apple Salud",
+  "dailyLogCycleSection": "Ciclo",
+  "dailyLogCycleBefore": "Faltan {days} días para la regla",
+  "dailyLogCycleStart": "Tu regla ha empezado hoy",
+  "dailyLogCycleDay": "Día {day} de la regla",
+  "dailyLogCycleOutside": "Fuera del periodo en que se acumulan las crisis",
+  "dailyLogCycleNone": "Apple Salud no tiene nada de hoy"
 }

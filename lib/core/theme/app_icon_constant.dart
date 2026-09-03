@@ -242,6 +242,9 @@ final class AppIconConstant {
   /// Apple Health itself, where the app asks to connect.
   static const IconData health = Symbols.favorite_rounded;
 
+  /// The menstrual cycle, read from Apple Health and never stored.
+  static const IconData cycle = Symbols.calendar_month_rounded;
+
   /// Sleep — last night, and the sleep correlation.
   static const IconData sleep = Symbols.bedtime_rounded;
 

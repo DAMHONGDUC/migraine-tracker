@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/theme/app_icon_size.dart';
-import '../../../../core/theme/app_text_style.dart';
-import '../../../health/domain/enums/health_data_kind.dart';
-import '../../../health/providers.dart';
+import '../../features/health/domain/enums/health_data_kind.dart';
+import '../../features/health/providers.dart';
+import '../extensions/context_extensions.dart';
+import '../theme/app_icon_size.dart';
+import '../theme/app_text_style.dart';
 
 /// One Apple Health source's connect switch, at the top of the card that draws
-/// what it reads — sleep on the sleep tab, steps on the activity one.
+/// what it reads — sleep on the sleep tab, steps on the activity one, the cycle
+/// on the daily check-in.
+///
+/// It lives in `core/widgets/` because three features draw it now and none of
+/// them may import another's `presentation/`.
 ///
 /// **It used to be a Settings row** (owner's call to move it). A switch two
 /// screens away from the empty chart it fills is a switch nobody connects: the

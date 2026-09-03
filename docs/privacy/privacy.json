@@ -21,7 +21,7 @@
   "summary": [
     "Your attacks, medications and notes are stored on your device. Without an account, we never receive them.",
     "Signing in is optional and turns on encrypted cross-device sync. The key is held by our backend, so this is not end-to-end encryption.",
-    "Apple Health sleep is read on-device only and is never uploaded. Your step count is read the same way, but the figure for the day of an attack is saved with that attack, and syncs with it if you are signed in.",
+    "Apple Health sleep and your menstrual cycle are read on-device only and are never uploaded. Your step count is read the same way, but the figure for the day of an attack is saved with that attack, and syncs with it if you are signed in.",
     "Location is only requested While Using the app and at reduced accuracy, stored as a ~5 km area, never as coordinates.",
     "We do not track you. No ad network, no attribution SDK, no advertising identifier, nothing shared with a data broker."
   ],
@@ -102,7 +102,7 @@
   ],
   "notCollected": [
     "Precise location or GPS coordinates",
-    "Apple Health sleep — read on-device and never uploaded or stored by us",
+    "Apple Health sleep and menstrual cycle — read on-device and never uploaded or stored by us",
     "Contacts",
     "Photos or media from your device",
     "Payment card details",
@@ -127,7 +127,12 @@
     {
       "name": "Apple Health — Steps",
       "required": false,
-      "reason": "Read your step count, on-device only, to look for a correlation with your attacks. A separate permission from sleep."
+      "reason": "Read your step count, on-device only, to look for a correlation with your attacks. A separate permission from sleep and from your cycle."
+    },
+    {
+      "name": "Apple Health — Menstrual cycle",
+      "required": false,
+      "reason": "Read your cycle, on-device only, to show whether your attacks cluster around your period. It is never uploaded, exported or synced, and the switch starts off."
     }
   ],
   "thirdParties": [
@@ -185,7 +190,7 @@
       "id": "health-data",
       "title": "Apple Health",
       "body": [
-        "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only, to look for a correlation with your attacks. These are two separate permissions with two separate switches — allowing one does not allow the other.",
+        "If you grant permission, {{app}} reads your sleep, your step count and your menstrual cycle from Apple Health, read-only, to look for a correlation with your attacks. These are three separate permissions with three separate switches — allowing one does not allow the others.",
         "The analysis runs on your device and we never write to Apple Health. **Sleep never leaves your device.** Your **step count** does, in one narrow way: when you log an attack, {{app}} records how many steps you had taken that day up to that moment and saves the number with the attack, because how active you were before an attack is part of the record a doctor reads. It travels with that attack — into your export, your doctor report, and your encrypted sync if you are signed in. Nothing else from Apple Health is stored or uploaded, and you can revoke access at any time in the iOS Health settings."
       ]
     },

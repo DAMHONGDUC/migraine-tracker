@@ -11,6 +11,7 @@ import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/daily_log.dart';
 import '../../../providers.dart';
 import '../../controllers/daily_log_controller.dart';
+import '../../widgets/daily_cycle_section.dart';
 import '../../widgets/daily_factor_picker.dart';
 import '../../widgets/daily_rating_row.dart';
 
@@ -100,6 +101,9 @@ class DailyLogScreen extends HookConsumerWidget {
                 .read(dailyLogControllerProvider.notifier)
                 .toggleFactor,
           ),
+          SizedBox(height: SdContentPaddingV2.sectionGap),
+          // Last, and below the Save button's business: it asks nothing, so it must not stand between the questions and the answer button.
+          const DailyCycleSection(),
           SizedBox(height: SdContentPaddingV2.sectionGap),
           SdButtonV2(
             label: l10n.dailyLogSave,

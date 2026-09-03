@@ -140,13 +140,17 @@ If you grant permission, BaroEase reads from Apple Health **read-only**:
 
 - **Sleep**, to look for a correlation with your attacks.
 - **Step count**, to look for a correlation with your attacks.
+- **Menstrual cycle**, to show whether your attacks cluster around your period.
 
-These are **two separate permissions with two separate switches** — allowing
-one does not allow the other. The analysis runs **on your device** and we
+These are **three separate permissions with three separate switches** —
+allowing one does not allow the others, and the cycle switch starts off for
+everyone, including anyone who had already allowed sleep or steps. The analysis runs **on your device** and we
 never write to Apple Health.
 
-**Sleep never leaves your device.** Your **step count** does, in one narrow
-way: when you log an attack, BaroEase records how many steps you had taken
+**Sleep and your cycle never leave your device.** Neither is written to our
+database, sent to our backend, put in an export, or included in a sync; the
+cycle is read when a screen shows it and forgotten again. Your **step count**
+does leave, in one narrow way: when you log an attack, BaroEase records how many steps you had taken
 that day up to that moment and saves the number with the attack, because how
 active you were before an attack is part of the record a doctor reads. It
 travels with that attack — into your export, your doctor report, and your
@@ -182,7 +186,8 @@ there is nothing to ask permission for.
 | Crash data | App Functionality | Yes | **No** | Crashes and non-fatal errors |
 | Fitness | App Functionality | Yes | **No** | The step count saved with an attack |
 
-Your sleep is not declared at all, because it never leaves your device (§5).
+Your sleep and your menstrual cycle are not declared at all, because neither
+ever leaves your device (§5).
 Fitness **is** declared, because the step count for the day of an attack is
 saved with that attack. Health **is** declared, because your attack log syncs
 to our backend once you sign in (§4).

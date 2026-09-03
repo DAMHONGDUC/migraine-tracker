@@ -743,5 +743,12 @@
   "attackNowRest": "Cứ đặt điện thoại xuống. Đồng hồ vẫn chạy.",
   "attackNowCardTitle": "Một cơn đau đang diễn ra",
   "attackNowCardBody": "Chạm khi hết đau để ghi đúng thời lượng.",
-  "attackNowEndedToast": "Đã ghi là vừa kết thúc"
+  "attackNowEndedToast": "Đã ghi là vừa kết thúc",
+  "healthCycleTitle": "Chu kỳ từ Apple Health",
+  "dailyLogCycleSection": "Chu kỳ",
+  "dailyLogCycleBefore": "Còn {days} ngày nữa đến kỳ kinh",
+  "dailyLogCycleStart": "Kỳ kinh bắt đầu hôm nay",
+  "dailyLogCycleDay": "Ngày thứ {day} của kỳ kinh",
+  "dailyLogCycleOutside": "Ngoài khoảng thời gian cơn đau hay dồn vào",
+  "dailyLogCycleNone": "Apple Health chưa có dữ liệu cho hôm nay"
 }

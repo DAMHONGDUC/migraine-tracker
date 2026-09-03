@@ -743,5 +743,12 @@
   "attackNowRest": "Leg das Handy weg. Es zählt weiter.",
   "attackNowCardTitle": "Eine Attacke läuft",
   "attackNowCardBody": "Tippe, wenn sie vorbei ist – dann stimmt die Dauer.",
-  "attackNowEndedToast": "Als soeben beendet erfasst"
+  "attackNowEndedToast": "Als soeben beendet erfasst",
+  "healthCycleTitle": "Zyklus aus Apple Health",
+  "dailyLogCycleSection": "Zyklus",
+  "dailyLogCycleBefore": "Noch {days} Tage bis zur Periode",
+  "dailyLogCycleStart": "Deine Periode hat heute begonnen",
+  "dailyLogCycleDay": "Tag {day} deiner Periode",
+  "dailyLogCycleOutside": "Außerhalb des Zeitraums, in dem sich Attacken häufen",
+  "dailyLogCycleNone": "Für heute steht nichts in Apple Health"
 }

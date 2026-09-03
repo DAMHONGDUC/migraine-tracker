@@ -743,5 +743,12 @@
   "attackNowRest": "スマホを置いて休んでください。計測は続きます。",
   "attackNowCardTitle": "発作が進行中です",
   "attackNowCardBody": "おさまったら軽くタップすると、長さが正確になります。",
-  "attackNowEndedToast": "たった今おさまったと記録しました"
+  "attackNowEndedToast": "たった今おさまったと記録しました",
+  "healthCycleTitle": "Apple Healthの生理周期",
+  "dailyLogCycleSection": "生理周期",
+  "dailyLogCycleBefore": "生理まであと{days}日",
+  "dailyLogCycleStart": "今日から生理が始まりました",
+  "dailyLogCycleDay": "生理{day}日目",
+  "dailyLogCycleOutside": "発作が集中する時期の外です",
+  "dailyLogCycleNone": "今日のデータはApple Healthにありません"
 }

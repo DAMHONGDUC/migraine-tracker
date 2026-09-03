@@ -28,6 +28,7 @@ import 'package:migraine_tracker/features/auth/domain/enums/auth_provider_kind.d
 import 'package:migraine_tracker/features/auth/domain/repositories/auth_repository.dart';
 import 'package:migraine_tracker/features/auth/domain/repositories/user_profile_repository.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
+import 'package:migraine_tracker/features/health/domain/entities/cycle_day.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_hour.dart';
@@ -526,6 +527,12 @@ class FakeHealthRepository implements HealthRepository {
     sleepReads++;
     return nights;
   }
+
+  @override
+  Future<List<CycleDay>> cycleDays({
+    required DateTime from,
+    required DateTime to,
+  }) async => const <CycleDay>[];
 
   @override
   Future<List<StepDay>> stepDays({

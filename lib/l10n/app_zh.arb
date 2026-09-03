@@ -743,5 +743,12 @@
   "attackNowRest": "放下手机休息，计时会继续。",
   "attackNowCardTitle": "有一次发作正在进行",
   "attackNowCardBody": "缓解时点一下，时长才准确。",
-  "attackNowEndedToast": "已记录为刚刚结束"
+  "attackNowEndedToast": "已记录为刚刚结束",
+  "healthCycleTitle": "Apple 健康的月经周期",
+  "dailyLogCycleSection": "生理周期",
+  "dailyLogCycleBefore": "距离经期还有 {days} 天",
+  "dailyLogCycleStart": "今天经期开始了",
+  "dailyLogCycleDay": "经期第 {day} 天",
+  "dailyLogCycleOutside": "不在发作集中的时段内",
+  "dailyLogCycleNone": "Apple 健康没有今天的数据"
 }

@@ -23,7 +23,7 @@ class HealthKitSleepSampleSource implements SleepSampleSource {
     HealthDataType.SLEEP_IN_BED,
   ];
 
-  final HealthFactory _health = HealthFactory();
+  final Health _health = Health();
 
   @override
   bool get isAvailable => Platform.isIOS;
@@ -36,9 +36,9 @@ class HealthKitSleepSampleSource implements SleepSampleSource {
     if (!isAvailable) return const <SleepInterval>[];
 
     final List<HealthDataPoint> points = await _health.getHealthDataFromTypes(
-      from,
-      to,
-      types,
+      types: types,
+      startTime: from,
+      endTime: to,
     );
 
     return <SleepInterval>[

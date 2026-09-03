@@ -743,5 +743,12 @@
   "attackNowRest": "Pose ton téléphone. Le compteur continue.",
   "attackNowCardTitle": "Une crise est en cours",
   "attackNowCardBody": "Touche quand c'est fini, la durée sera juste.",
-  "attackNowEndedToast": "Enregistrée comme terminée à l'instant"
+  "attackNowEndedToast": "Enregistrée comme terminée à l'instant",
+  "healthCycleTitle": "Cycle depuis Apple Santé",
+  "dailyLogCycleSection": "Cycle",
+  "dailyLogCycleBefore": "Encore {days} jours avant tes règles",
+  "dailyLogCycleStart": "Tes règles ont commencé aujourd'hui",
+  "dailyLogCycleDay": "Jour {day} de tes règles",
+  "dailyLogCycleOutside": "Hors de la période où les crises se concentrent",
+  "dailyLogCycleNone": "Rien pour aujourd'hui dans Apple Santé"
 }

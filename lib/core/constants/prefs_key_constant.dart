@@ -20,6 +20,9 @@ final class PrefsKeyConstant {
   static const String healthSleep = 'health_sleep_connected';
   static const String healthSteps = 'health_steps_connected';
 
+  /// The cycle switch. Its own key, and deliberately NOT covered by the legacy `healthConnected` fallback: nobody consented to a reproductive-health read under a switch that predates it.
+  static const String healthCycle = 'health_cycle_connected';
+
   /// A `DevLocation` name, pinning weather reads to a fixed city instead of the device position. Absent = off. Dev builds only — the controller
   /// ignores it outright in a prod flavour.
   static const String devFakeLocation = 'dev_fake_location';
