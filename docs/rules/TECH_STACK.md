@@ -83,13 +83,17 @@ need: `pod deintegrate`, delete the `Podfile`, drop the `#include?` lines from
   - **The API changed with it**: `HealthFactory()` → `Health()`, and
     `getHealthDataFromTypes` takes named `types`/`startTime`/`endTime`. A step
     sample's value is a typed `NumericHealthValue` now, not a bare number.
-  - **Both `health` 13.3.2 and `device_info_plus` 13.2.0 ship a `Package.swift`**,
-    so the CocoaPods exception below may no longer be needed at all. Nobody has
-    verified that with a real iOS build yet — check it on the next one before
-    deleting the Podfile, and follow the deintegration steps at the top of this
-    section if it holds.
-- **The historical exception, kept until that build confirms otherwise:
-  `health: ^3.0.6` pinned an unmaintained `device_info`**
+  - **Both `health` 13.3.2 and `device_info_plus` 13.2.0 ship a `Package.swift`,
+    and a real build has now confirmed it** (2026-09-03,
+    `flutter build ios --no-codesign --debug`, exit 0). `ios/Podfile.lock` came
+    back holding **Flutter and nothing else** — the `health` and `device_info`
+    pods are both gone. **The exception below is therefore historical**: nothing
+    in the app needs CocoaPods any more.
+  - **The Podfile has NOT been deleted, deliberately.** Deintegrating is a
+    separate change with its own build to prove it — the steps are at the top of
+    this section, and the lock file already shows what the result will be.
+- **The historical exception, now spent: `health: ^3.0.6` pinned an
+  unmaintained `device_info`**
   (last published 2021, no SPM support and none coming). So `pod install` stays
   required for `health` + `device_info`, and `ios/Podfile` plus its `#include?`
   lines in `Debug`/`Release`/`Profile.xcconfig` are intentional, not leftovers.
