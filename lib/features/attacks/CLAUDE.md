@@ -347,3 +347,32 @@ boundary** and hands the PNG to the share sheet.
 - `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
   `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.
 
+## The attack that is happening now
+
+**An attack with no end recorded, started inside `AttackProgressConstant.window`
+(72h), is "running"** — `Attack.isRunningAt`. The window exists because the
+`endedAt` column collapses "still going" and "never said" into one null, so time
+is the only thing that can tell them apart; 72h is the top of the 4–72h band a
+migraine is defined by, and past it a blank end is an unanswered question rather
+than an attack in progress.
+
+- **The dashboard card sits above everything, premium banner and log button
+  included.** While it is true it is the only urgent thing on that screen. It
+  carries the running clock, because a card that only said "an attack is
+  running" would be telling the user what they already know.
+- **`AttackNowScreen` is deliberately the emptiest screen in the app**: the
+  clock, one line, and two full-width targets. The person reading it is in pain
+  and photophobic (hard rule 3) — no cards, no readings, nothing to scroll past.
+- **"I took medication" writes the dose TIME as well as the name.** Now is the
+  only moment that time is known without guessing, which is the whole reason the
+  question is asked here rather than on the detail screen.
+- **It is offered only while nothing has been taken.** A second dose is a
+  decision the app must not nudge, and medication-overuse is a warning this app
+  already carries.
+- **The ticker is `attackElapsedProvider`, `autoDispose` and family-keyed on the
+  start time**, so it dies with the screen. A periodic timer outliving the tree
+  is a leak a widget test reports as a hang rather than as a failure.
+- **What is NOT here yet: the iOS Live Activity.** It needs either the
+  `live_activities` package or hand-written ActivityKit behind a method channel,
+  and both are the owner's call — `home_widget`'s App Group bridge does not
+  cover Live Activities. `docs/ROADMAP.md` holds the item.
