@@ -1,6 +1,6 @@
 # Insights
 
-The three tabs, the two cards each one carries, and the doors that reach them.
+The four tabs, the cards each one carries, and the doors that reach them.
 
 **Weather is not here any more.** The live conditions moved to the dashboard as
 `CurrentWeatherCard` (owner's call) — see `lib/features/dashboard/CLAUDE.md`.
@@ -23,6 +23,7 @@ of "one subject", so the two get one each, separated by
 | Pressure | `PressureForecastBody` + `_AlertControls` | "Analysis": `TriggerVerdictBody`, `CorrelationBody`, `PressureHistoryBody` |
 | Activity | `_StepsSection` | "Physical exertion", then "Steps & attacks" — **one card each** |
 | Sleep | `_NightsSection` | "Sleep & attacks" |
+| Factors | — | `FactorsCard` alone |
 
 **Exertion and steps are two cards, not two sections of one** (owner's call).
 They were under a single "Analysis" heading, which put a self-reported share
@@ -369,6 +370,16 @@ section with `PressureHistoryBody`: the answer first, then the working.
   know why the two disagree.
 - **Dots only on attack days**, coloured by that day's worst intensity. A dot
   on every point is a dotted line.
+- **An attack that carries its own snapshot is drawn at the HOUR it started**,
+  at the pressure that snapshot recorded — `PressureTimeline.moments`, a second
+  `LineChartBarData` with `show: false` so fl_chart draws the dots without
+  joining one attack to the next as a series. The day's own dot is suppressed
+  for those days: two marks for one attack reads as two attacks. The day dot
+  survives only for attacks logged before snapshots existed, or offline where
+  the backfill never landed.
+  - **The x is computed AFTER the days are sorted**, because it is a position on
+    the drawn line rather than a date: computing it during the walk breaks the
+    moment readings arrive out of order, and a test pins that.
 
 ## The forecast reaches a week
 
@@ -386,3 +397,77 @@ reads both rather than the bare `48` and `12` it used to carry.
 - Every string that said "48h" says a week now, in all seven ARB files —
   including the paywall's, which was selling the old number.
 
+## The factors tab
+
+**`FactorsCard` is the whole tab — one card, no reading above it.** The other
+three tabs are a measurement over an analysis; here the measurement is the daily
+check-in, which lives on its own screen (`lib/features/daily_log/CLAUDE.md`).
+
+- **`FactorMapEngine` compares each factor's attack rate against its own
+  absence.** That second group is the entire point: v1.0 recorded only days that
+  hurt, so it could count what an attack followed and never what a quiet day
+  followed too.
+- **Four groups, and the ungraded one is shown too**: more attacks, fewer
+  attacks, no difference, not enough days. Hiding the last would leave a user
+  wondering why a factor they tick every week is missing.
+- **A factor needs five days on BOTH sides before it is graded**
+  (`minDaysEitherSide`). Four days against twenty-six is a coincidence with a
+  percentage sign on it — and such a factor can still show an effect of 1.0,
+  which is why `_widestGapFirst` sinks every ungraded factor below every graded
+  one whatever its effect.
+- **The map waits for 28 answered days and 15 attacks**, and says how far along
+  both are. Two numbers, not one: a user with four weeks of days and three
+  attacks is waiting on a different thing from one with two attacks a week and
+  no check-ins.
+- **Every row prints its two groups** — "80% of 10 days, against 40% of 20". A
+  verdict without its working is the app asking to be believed.
+- **`meaningfulEffect` is 0.2, the same bar `TriggerVerdictEngine` uses.** One
+  idea of "meaningful" across the app, or two screens grade the same gap
+  differently.
+
+## The risk score
+
+**`RiskScoreEngine` scores the next seven days out of deterministic weights —
+pressure 40, cycle 25, sleep 20, recent frequency 15 — and never a model**
+(`docs/rules/DECISIONS.md`). `RiskScoreCard` draws it on the dashboard, not
+here, because a forward-looking number is what a glance is for; this tab is
+where the forecast it is built on is drawn in full, and the card opens it.
+
+- **The score is a share of what could be READ, not of a fixed 100.** A day
+  missing its sleep reading would otherwise score low for the reason that
+  nothing was known about it, which is the one thing a risk score must never do.
+  `availablePoints` is the denominator and the card names every signal it could
+  not read.
+- **An unavailable signal and a zero one are different states.** No forecast is
+  not a calm day; knowing the cycle and being outside the window is a real zero.
+- **Sleep is today's signal alone.** Carrying last night forward would score
+  Friday on how Monday slept, so every day but the first reports it unavailable.
+- **Every threshold is the user's own**: the pressure share is measured against
+  their alert threshold, the sleep debt against their own median night, the
+  week's attacks against their own median week. A number the app picked would
+  score a calm sufferer in a stormy climate as high risk forever.
+- **It is premium and ABSENT rather than locked**, because the dashboard has one
+  premium door — the banner — and a second locked card is two pitches for one
+  purchase.
+
+## MIDAS
+
+**The questionnaire lives beside the export, not on a tab.** It is not an
+analysis the app performs; it is an answer the user gives, and the only place it
+is read is the doctor report the export screen produces.
+
+- **MIDAS alone, never HIT-6.** HIT-6 is copyrighted by QualityMetric and needs
+  a paid licence; MIDAS is free to reproduce. Detail in
+  `docs/rules/DECISIONS.md`.
+- **The two unscored MIDAS questions are not asked.** The app already counts
+  headache days, and asking for a number it holds invites a worse one.
+- **Every save is a new entry, never an edit of the last.** The score reads a
+  three-month window, and two windows are two readings — which is what makes a
+  run of them worth showing a neurologist.
+- **The answers are steppers, not text fields.** Every answer is a small number
+  of days, and a numeric keyboard mid-migraine covers the question it is asking
+  about. The cap is 92, the most days a three-month window can hold: past that
+  the answer is a typo, not a worse migraine.
+- **The report row is absent until the questionnaire has been answered once** —
+  `midas: null` prints nothing rather than a zero, which a clinician would read
+  as "no disability".
