@@ -131,3 +131,15 @@ Kept on-device, unlike attacks and medications. The sync key is server-held
 could decrypt, and it buys the user only a second device. HealthKit already
 carries the data across the user's own devices. The analyses read it locally and
 sync nothing but their own conclusions.
+
+## `if #available` in the widget bundle, a second time
+
+The entry above says `@WidgetBundleBuilder` rejected the control flow, and that
+stands for what it was about: two branches returning *different concrete types*,
+because `contentMarginsDisabled()` changes the type and `some
+WidgetConfiguration` admits only one. A bare `if #available(iOS 16.1, *)` around
+ONE widget is a different thing — `buildLimitedAvailability`, which the builder
+does implement, and Apple's own Live Activity samples are written that way. The
+attack Live Activity needs it: `ActivityConfiguration` is 16.1 and the app
+deploys to 15. If it does turn out not to compile, the fallback is raising the
+extension's own deployment target rather than dropping the home screen widget.

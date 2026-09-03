@@ -48,11 +48,12 @@ flowchart LR
 |---:|---|---|
 | 1 | Daily check-in | **Shipped** — `lib/features/daily_log/`, schema v17, fifth synced collection |
 | 2 | Menstrual cycle | **Shipped** — owner approved the `health` 3.0.6 → 13.3.1 upgrade. Read-only, on-device, its own switch on the check-in, window -2..+3 around HealthKit's own period-start marker |
-| 3 | Attack in progress | **Shipped in-app** — `AttackNowScreen`, the dashboard card, `Attack.isRunningAt`. Live Activity: owner chose the `live_activities` package; in progress |
+| 3 | Attack in progress | **Shipped** — `AttackNowScreen`, the dashboard card, `Attack.isRunningAt`, and the Live Activity through the `live_activities` package. The native half is **unbuilt and unverified** — `docs/rules/PENDING_SETUP.md` lists what to check on the first real device |
 | 4 | Time to relief | **Shipped** — `medicationTakenAt` + `reliefAt`, schema v18, `MedicationTimingSheet` |
 
-Wave 2's risk score can read the cycle through `todayCycleDayProvider` as it
-stands.
+Wave 1 is complete in code. Wave 2's risk score can read the cycle through
+`todayCycleDayProvider` as it stands, and the trigger map has
+`answeredDailyLogCountProvider` for its own gate.
 
 ## Wave v1.1 — record more than the attack
 

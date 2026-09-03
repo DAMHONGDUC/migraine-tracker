@@ -372,7 +372,26 @@ than an attack in progress.
 - **The ticker is `attackElapsedProvider`, `autoDispose` and family-keyed on the
   start time**, so it dies with the screen. A periodic timer outliving the tree
   is a leak a widget test reports as a hang rather than as a failure.
-- **What is NOT here yet: the iOS Live Activity.** It needs either the
-  `live_activities` package or hand-written ActivityKit behind a method channel,
-  and both are the owner's call — `home_widget`'s App Group bridge does not
-  cover Live Activities. `docs/ROADMAP.md` holds the item.
+- **The Lock Screen card is a Live Activity, through the `live_activities`
+  package** (owner's choice over hand-written ActivityKit).
+  `AttackLiveActivity` is the interface, `PluginAttackLiveActivity` the iOS
+  implementation, and everywhere else it is a no-op — the caller must not have
+  to know which.
+  - **The clock is `Text(timerInterval:)`, ticked by iOS.** Pushing an update a
+    second would spend the activity's whole update budget on a number the
+    system can count on its own, so the app writes the start instant once and
+    never touches it again.
+  - **Every word on the card is written by the app, already localized**, exactly
+    as the home screen widget's are — the extension has no `AppLocalizations`.
+    The controller resolves the locale through `LocaleUtils.resolve`, the way
+    the reminders and the widget do, because there is no `BuildContext` there.
+  - **The `ActivityAttributes` struct MUST be called
+    `LiveActivitiesAppAttributes`.** The plugin looks it up by that name;
+    rename it and the activity is created but never appears.
+  - **The activity id is the attack's own id, kept in `SecureStore`.** The card
+    outlives the process, so a relaunch has to be able to take down the one the
+    last run started, and reusing the attack's id means a second start
+    refreshes the card rather than stacking a second one.
+  - **Three things take it down**: recording an end, deleting the attack, and
+    the GDPR wipe (step 12 of 13) — a card for an attack that no longer exists
+    is the one state it must never be left in.
