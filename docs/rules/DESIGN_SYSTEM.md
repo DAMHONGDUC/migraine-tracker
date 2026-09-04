@@ -421,42 +421,6 @@ intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
   (they are not screens). Floating chrome is exempt and each has its own line
   above.
 
-## Chrome gets out of the way while the list moves — owner's rule
-
-**On every tab screen, scrolling takes the app bar off the top and the nav pill
-off the bottom; stopping brings both straight back.** The list is the screen
-while it is being read, and the two bars are there for the moment you look up
-from it.
-
-| Piece | Where the rule lives | What it does |
-|---|---|---|
-| The one decision | `SdScrollChromeV2`, wrapping the shell's whole `Scaffold` | Listens once, publishes one `ValueListenable<bool>` |
-| The app bar | `SdAppBarV2` | Slides a full height up, keeps its layout slot |
-| The pinned filter strip | `SdCollapsingFilterScaffoldV2` | Leaves with the bar — the two are one strip of chrome |
-| The nav pill | `SdBottomNavigationV2` | Slides a full height down, offset included |
-
-- **One listener, not one per bar.** The scope wraps the whole scaffold rather
-  than its body, because the pill sits in the bottom slot outside the body's
-  subtree and has to hear the same answer the tab's app bar does. It publishes a
-  listenable rather than calling `setState`: the only widgets that care are the
-  two bars, and rebuilding the subtree on every scroll frame would rebuild every
-  list in the shell.
-- **Stopped means stopped, whichever way it happened**: the finger lifts, a
-  fling settles, or a drag simply pauses with the finger still down — the last
-  one reports nothing, so a 250ms idle timer covers it.
-- **Direction is deliberately not part of it.** Up and down hide the chrome
-  alike, so a small correcting drag cannot flicker the bar back mid-read.
-- **It moves paint, never layout.** Both bars keep their slots, and the body
-  already passes behind them (`extendBodyBehindAppBar` / `extendBody`), so
-  nothing reflows twice per gesture and no content jumps. This is also why the
-  app bar only does it where glass is supported: without the body behind it,
-  a bar that leaves reveals a strip of empty background.
-- **Pushed routes keep their chrome.** They sit above the shell, find no scope,
-  and their bar holds still — a detail screen's back button is its only way out.
-- **`pinnedChrome: true` opts one screen out**, for a bar the user is working
-  *in*: the medications tab passes it while its search field owns the app bar,
-  because scrolling the results must not take the field being typed in away.
-
 ## Layout scaffolds
 
 - **A filter over a scrolling list: `SdCollapsingFilterScaffoldV2`**, in place of
