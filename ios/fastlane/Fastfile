@@ -378,9 +378,8 @@ end
 # The encoding is stated, never inherited. pubspec.yaml holds em dashes, and
 # Ruby with no UTF-8 locale reads it as US-ASCII — then the first regex against
 # it dies with "invalid byte sequence in US-ASCII", a failure that names the
-# encoding and not the missing LANG. Same trap CocoaPods falls into in
-# tool/set-up.sh, and a runner is exactly the stripped environment that has no
-# locale set.
+# encoding and not the missing LANG, and a runner is exactly the stripped
+# environment that has no locale set.
 def read_pubspec(root)
   File.read("#{root}/pubspec.yaml", encoding: "UTF-8")
 end
