@@ -103,6 +103,10 @@ thirteen follow, because both strips are read the same way (owner's call,
   hand itself to the bar once scrolled; the filters now stay where they were
   put. The flag is still what the search field needs, so it is passed as a
   constant rather than removed.
+- **The bar and the strip do step aside while the list scrolls**, like every
+  other tab — except while searching: `pinnedChrome: _searching` holds them, or
+  scrolling the results would take the field being typed in off the screen. The
+  behaviour itself is `SdScrollChromeV2`, in `docs/rules/DESIGN_SYSTEM.md`.
 - **`ActiveFilterSummary` (`core/widgets/`) sits above the first card**, under
   the overuse banner and the free-plan meter, saying how many axes are on and
   clearing all three in one tap (`MedicationFiltersController.reset`). Whichever
