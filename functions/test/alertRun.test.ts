@@ -32,6 +32,8 @@ function drop(overrides: Partial<DropForecast> = {}): DropForecast {
     dropHpa: 7,
     currentHpa: 1015,
     minAt: new Date("2026-07-09T06:00:00Z"),
+    // Hours off by default, so a fixture asks the heads-up question unless a test deliberately brings the fall forward.
+    startsAt: new Date("2026-07-09T03:00:00Z"),
     eventId: "2026-07-09T06",
     ...overrides,
   };
@@ -75,7 +77,8 @@ describe("runPressureAlerts", () => {
     expect(deps.sendPush).toHaveBeenCalledTimes(1);
     // The whole forecast, not just its id: the client's launch reconcile
     // rebuilds the notification row from the recorded drop.
-    expect(recordAlert).toHaveBeenCalledWith("a", forecast, now);
+    // The fourth argument is the stage's own event id, which is what the next run reads back.
+    expect(recordAlert).toHaveBeenCalledWith("a", forecast, now, "E1");
     expect(result.pushesSent).toBe(1);
     expect(result.silentPushes).toBe(0);
   });
@@ -91,7 +94,7 @@ describe("runPressureAlerts", () => {
     expect(deps.sendPush).toHaveBeenCalledWith(
       expect.objectContaining({ uid: "a" }),
       expect.anything(),
-      { silent: true },
+      { silent: true, stage: "ahead" },
     );
     expect(result.pushesSent).toBe(1);
     expect(result.silentPushes).toBe(1);
@@ -264,5 +267,61 @@ describe("runPressureAlerts", () => {
     expect(deps.fetchCellDrop).toHaveBeenCalledTimes(1);
     expect(deps.sendPush).toHaveBeenCalledTimes(2);
     expect(result.pushesSent).toBe(2);
+  });
+
+  // The second push for one front: the heads-up is a plan, this is a dose.
+  it("sends the onset push as the fall begins, gap or no gap", async () => {
+    const now = new Date("2026-07-09T00:00:00Z");
+    const { deps, recordAlert } = harness(
+      async () =>
+        drop({
+          eventId: "E1",
+          // Half an hour away: inside the onset window.
+          startsAt: new Date("2026-07-09T00:30:00Z"),
+        }),
+    );
+
+    const result = await runPressureAlerts(
+      [
+        user("u1", "u1234", {
+          history: {
+            // Warned two hours ago, which the 8h gap would otherwise hold this back behind.
+            lastAlertAt: new Date("2026-07-08T22:00:00Z"),
+            lastEventId: "E1",
+          },
+        }),
+      ],
+      { ...deps, now },
+    );
+
+    expect(result.pushesSent).toBe(1);
+    expect(result.onsetPushes).toBe(1);
+    expect(
+      (deps.sendPush as unknown as { mock: { calls: unknown[][] } }).mock
+        .calls[0][2],
+    ).toMatchObject({ stage: "onset" });
+    // Recorded under the stage's own id, or the next run reads it as the heads-up and sends the onset push again.
+    expect(recordAlert.mock.calls[0][3]).toBe("E1:onset");
+  });
+
+  it("sends the onset push only once for one front", async () => {
+    const now = new Date("2026-07-09T00:00:00Z");
+    const { deps } = harness(async () =>
+      drop({ eventId: "E1", startsAt: new Date("2026-07-09T00:30:00Z") }),
+    );
+
+    const result = await runPressureAlerts(
+      [
+        user("u1", "u1234", {
+          history: {
+            lastAlertAt: new Date("2026-07-08T23:30:00Z"),
+            lastEventId: "E1:onset",
+          },
+        }),
+      ],
+      { ...deps, now },
+    );
+
+    expect(result.pushesSent).toBe(0);
   });
 });

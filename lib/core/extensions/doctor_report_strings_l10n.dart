@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../features/attacks/domain/enums/aura_type.dart';
 import '../../features/attacks/domain/enums/head_region.dart';
 import '../../features/attacks/domain/enums/medication_effect.dart';
+import '../../features/insights/domain/entities/midas_score.dart';
 import '../../features/insights/domain/services/doctor_report_builder.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../l10n/gen/app_localizations_en.dart';
@@ -20,6 +21,13 @@ extension DoctorReportStringsL10n on AppLocalizations {
 
   DoctorReportStrings _reportStrings(DateTime now) => DoctorReportStrings(
     title: reportTitle,
+    midas: midasReportRow,
+    midasGrades: <MidasGrade, String>{
+      MidasGrade.littleOrNone: midasGradeLittleOrNone,
+      MidasGrade.mild: midasGradeMild,
+      MidasGrade.moderate: midasGradeModerate,
+      MidasGrade.severe: midasGradeSevere,
+    },
     generated: reportGenerated(DateFormat('yyyy-MM-dd').format(now)),
     period: reportPeriod,
     summaryTitle: reportSummaryTitle,

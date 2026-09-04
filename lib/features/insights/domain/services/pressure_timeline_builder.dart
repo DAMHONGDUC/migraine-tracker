@@ -1,5 +1,6 @@
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../weather/domain/entities/daily_pressure.dart';
+import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../entities/pressure_timeline.dart';
 
 /// Joins the daily pressure readings to the attacks that fell on them.
@@ -36,6 +37,8 @@ class PressureTimelineBuilder {
 
     final List<PressureTimelineDay> days = <PressureTimelineDay>[];
     final Set<DateTime> plotted = <DateTime>{};
+    // Filled as the days are walked, so a moment's x is the day's own index on the line rather than a date the chart would have to look up.
+    final List<PressureTimelineMoment> moments = <PressureTimelineMoment>[];
 
     for (final DailyPressure reading in readings) {
       if (reading.day.isBefore(firstDay)) continue;
@@ -61,6 +64,24 @@ class PressureTimelineBuilder {
     days.sort(
       (PressureTimelineDay a, PressureTimelineDay b) => a.day.compareTo(b.day),
     );
+    // After the sort, never during it: a moment's x is a position on the drawn line, and the line is only in date order once this has run.
+    for (final (int index, PressureTimelineDay day) in days.indexed) {
+      for (final Attack attack in attacksByDay[day.day] ?? const <Attack>[]) {
+        // Only an attack that recorded the pressure at its own hour can be placed at that hour; the rest stay the day's own dot.
+        if (attack.weather case final WeatherSnapshot snapshot) {
+          final DateTime local = attack.startedAt.toLocal();
+
+          moments.add(
+            PressureTimelineMoment(
+              at: local,
+              x: index + (local.hour + local.minute / 60) / 24,
+              pressureHpa: snapshot.pressureHpa,
+              intensity: attack.intensity,
+            ),
+          );
+        }
+      }
+    }
 
     int stranded = 0;
 
@@ -68,6 +89,10 @@ class PressureTimelineBuilder {
       if (!plotted.contains(entry.key)) stranded += entry.value.length;
     }
 
-    return PressureTimeline(days: days, attacksWithoutReading: stranded);
+    return PressureTimeline(
+      days: days,
+      attacksWithoutReading: stranded,
+      moments: moments,
+    );
   }
 }

@@ -34,6 +34,12 @@ class Attacks extends Table {
   TextColumn get aura =>
       text().map(const AuraTypeListConverter()).nullable()();
 
+  /// When the medication was taken, UTC. Null is "never said" — the same state as an attack where nothing was taken.
+  DateTimeColumn get medicationTakenAt => dateTime().nullable()();
+
+  /// When the pain eased, UTC. Its own column rather than a duration, because a duration cannot say WHEN without a second field anyway.
+  DateTimeColumn get reliefAt => dateTime().nullable()();
+
   /// When the attack stopped, UTC. Null is "still going, or never said" — one state on purpose, since nothing here can tell those apart.
   DateTimeColumn get endedAt => dateTime().nullable()();
 

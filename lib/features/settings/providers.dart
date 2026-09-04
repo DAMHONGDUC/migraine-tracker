@@ -6,7 +6,9 @@ import '../../core/db/database_provider.dart';
 import '../alerts/providers.dart';
 import '../attacks/providers.dart';
 import '../auth/providers.dart';
+import '../daily_log/providers.dart';
 import '../home_widget/providers.dart';
+import '../insights/providers.dart';
 import '../medications/providers.dart';
 import '../notifications/providers.dart';
 import '../sync/providers.dart';
@@ -134,8 +136,11 @@ final dataWipeServiceProvider = Provider<DataWipeService>(
     ref.watch(syncServiceProvider),
     ref.watch(alertRegistrationRepositoryProvider),
     ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(dailyLogRepositoryProvider),
+    ref.watch(midasRepositoryProvider),
     ref.watch(attackShareFileStoreProvider),
     ref.watch(homeWidgetRepositoryProvider),
+    ref.watch(attackLiveActivityProvider),
   ),
 );
 
@@ -151,6 +156,7 @@ final devSeedServiceProvider = Provider<DevSeedService>(
     ref.watch(exportRecordRepositoryProvider),
     ref.watch(notificationRepositoryProvider),
     ref.watch(dailyPressureRepositoryProvider),
+    ref.watch(dailyLogRepositoryProvider),
   ),
 );
 

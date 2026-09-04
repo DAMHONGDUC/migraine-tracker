@@ -14,6 +14,8 @@ class DriftDailyPressureRepository implements DailyPressureRepository {
     day: row.day,
     pressureHpa: row.pressureHpa,
     pressureDelta24hHpa: row.pressureDelta24hHpa,
+    humidityPercent: row.humidityPercent,
+    temperatureCelsius: row.temperatureCelsius,
   );
 
   @override
@@ -57,6 +59,8 @@ class DriftDailyPressureRepository implements DailyPressureRepository {
           capturedAt: DateTime.now().toUtc(),
           pressureHpa: reading.pressureHpa,
           pressureDelta24hHpa: reading.pressureDelta24hHpa,
+          humidityPercent: Value(reading.humidityPercent),
+          temperatureCelsius: Value(reading.temperatureCelsius),
         ),
       );
 

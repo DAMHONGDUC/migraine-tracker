@@ -4,15 +4,24 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 import 'package:migraine_tracker/features/insights/domain/entities/pressure_timeline.dart';
 import 'package:migraine_tracker/features/insights/domain/services/pressure_timeline_builder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/daily_pressure.dart';
+import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 
 int _nextId = 0;
 
-Attack attackAt(DateTime at, {int intensity = 5}) => Attack(
-  id: 'a${_nextId++}',
-  startedAt: at,
-  intensity: intensity,
-  regions: const <HeadRegion>[HeadRegion.templeL],
-);
+Attack attackAt(DateTime at, {int intensity = 5, double? snapshotHpa}) =>
+    Attack(
+      id: 'a${_nextId++}',
+      startedAt: at,
+      intensity: intensity,
+      regions: const <HeadRegion>[HeadRegion.templeL],
+      weather: snapshotHpa == null
+          ? null
+          : WeatherSnapshot(
+              capturedAt: at,
+              pressureHpa: snapshotHpa,
+              pressureDelta24hHpa: -3,
+            ),
+    );
 
 DailyPressure reading(DateTime day, {double hpa = 1010, double delta = 0}) =>
     DailyPressure(day: day, pressureHpa: hpa, pressureDelta24hHpa: delta);
@@ -229,5 +238,57 @@ void main() {
       expect(timeline.strandedOutweighsPlotted, isFalse);
     });
   });
-}
 
+  group('the hourly marks', () {
+    final DateTime now = DateTime(2026, 9, 10, 12);
+
+    test('an attack with a snapshot is placed at its own hour', () {
+      final PressureTimeline timeline = const PressureTimelineBuilder().build(
+        attacks: <Attack>[
+          attackAt(DateTime(2026, 9, 9, 18), snapshotHpa: 1004.5),
+        ],
+        readings: <DailyPressure>[
+          reading(DateTime(2026, 9, 9), hpa: 1009),
+          reading(DateTime(2026, 9, 10), hpa: 1011),
+        ],
+        now: now,
+      );
+
+      expect(timeline.moments, hasLength(1));
+      // Day 0 of the drawn line, three quarters of the way through it.
+      expect(timeline.moments.single.x, closeTo(0.75, 0.001));
+      // The pressure AT the attack, not the day's own reading.
+      expect(timeline.moments.single.pressureHpa, 1004.5);
+    });
+
+    // An attack logged before snapshots existed, or offline where the backfill never landed, keeps the day's dot and nothing more.
+    test('an attack with no snapshot leaves no hourly mark', () {
+      final PressureTimeline timeline = const PressureTimelineBuilder().build(
+        attacks: <Attack>[attackAt(DateTime(2026, 9, 9, 18))],
+        readings: <DailyPressure>[reading(DateTime(2026, 9, 9))],
+        now: now,
+      );
+
+      expect(timeline.moments, isEmpty);
+      expect(timeline.days.single.hasAttack, isTrue);
+    });
+
+    // The x is a position on the DRAWN line, so it has to survive readings arriving in any order.
+    test('the position follows the sorted line, not the input order', () {
+      final PressureTimeline timeline = const PressureTimelineBuilder().build(
+        attacks: <Attack>[
+          attackAt(DateTime(2026, 9, 10, 0), snapshotHpa: 1000),
+        ],
+        readings: <DailyPressure>[
+          reading(DateTime(2026, 9, 10)),
+          reading(DateTime(2026, 9, 9)),
+          reading(DateTime(2026, 9, 8)),
+        ],
+        now: now,
+      );
+
+      expect(timeline.days.first.day, DateTime(2026, 9, 8));
+      expect(timeline.moments.single.x, closeTo(2, 0.001));
+    });
+  });
+}

@@ -7,7 +7,11 @@ abstract interface class UserProfileRepository {
   Stream<UserProfile?> watch(String uid);
 
   /// Creates or refreshes the record from what the auth provider gave us.
-  Future<void> upsertFromAccount(AuthUser user);
+  ///
+  /// True only when this call is what brought the document into existence —
+  /// the app's one definition of "this account has just been created", which
+  /// the first-run seeding reads (see `AccountController.syncProfile`).
+  Future<bool> upsertFromAccount(AuthUser user);
 
   Future<void> updateDisplayName({
     required String uid,

@@ -55,6 +55,34 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "daily_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "midas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [
@@ -115,6 +143,36 @@
     },
     {
       "collectionGroup": "notifications",
+      "fieldPath": "mac",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "daily_logs",
+      "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "daily_logs",
+      "fieldPath": "nonce",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "daily_logs",
+      "fieldPath": "mac",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
+      "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
+      "fieldPath": "nonce",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "midas",
       "fieldPath": "mac",
       "indexes": []
     }

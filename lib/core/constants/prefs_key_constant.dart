@@ -8,11 +8,23 @@ final class PrefsKeyConstant {
 
   static const String alertsEnabled = 'alerts_enabled';
 
+  /// Whether the app has already switched pressure alerts on by itself, once,
+  /// for an account that qualified. Present means "asked" — including an
+  /// attempt that failed — so the OS notification prompt is never raised twice
+  /// by a decision the user did not make. See `AlertsController.autoEnableOnce`.
+  static const String alertsAutoEnabled = 'alerts_auto_enabled';
+
   /// The single flag both health sources shared before they were split.
   static const String healthConnected = 'health_connected';
 
   static const String healthSleep = 'health_sleep_connected';
   static const String healthSteps = 'health_steps_connected';
+
+  /// The Live Activity currently on the Lock Screen, by attack id. Stored rather than held in memory because the card outlives the process.
+  static const String liveActivityId = 'live_activity_id';
+
+  /// The cycle switch. Its own key, and deliberately NOT covered by the legacy `healthConnected` fallback: nobody consented to a reproductive-health read under a switch that predates it.
+  static const String healthCycle = 'health_cycle_connected';
 
   /// A `DevLocation` name, pinning weather reads to a fixed city instead of the device position. Absent = off. Dev builds only — the controller
   /// ignores it outright in a prod flavour.

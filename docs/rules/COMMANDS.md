@@ -36,9 +36,11 @@ costs of the workspace-based versions.
 
 Everything a clone needs, in order: submodules, `pub get` for both packages,
 `gen-l10n`, `build_runner`, `env/*.json` from the templates, `npm ci` in
-`functions/`, `pod install` on macOS. Idempotent.
+`functions/`. Idempotent — iOS needs no install step, Xcode resolves the Swift
+packages on the first build.
 
-- **It always wipes first** (`_clean.sh`: `flutter clean`, gradle, pods).
+- **It always wipes first** (`_clean.sh`: `flutter clean`, gradle, the iOS
+  ephemeral dirs).
   Unconditional on purpose: setup is the one answer to "it built yesterday and
   not today". Don't reach for it when `gen.sh` would do.
 - **It puts each submodule on the branch named in `.gitmodules` (`main`) and

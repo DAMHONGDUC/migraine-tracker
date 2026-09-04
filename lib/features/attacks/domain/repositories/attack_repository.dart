@@ -48,6 +48,13 @@ abstract interface class AttackRepository {
   /// Records the aura kinds for an attack, after the fact.
   Future<void> updateAura(String id, List<AuraType>? aura);
 
+  /// Both halves of "how long did it take to work", written together: a relief time without the dose it followed measures nothing.
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  });
+
   /// Corrects the core fields of an already-logged attack (detail screen). The weather snapshot is untouched — it belongs to [startedAt].
   Future<void> updateCore(
     String id, {

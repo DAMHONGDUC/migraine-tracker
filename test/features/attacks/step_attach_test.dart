@@ -6,6 +6,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/attacks/domain/repositories/attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/services/step_attach_service.dart';
+import 'package:migraine_tracker/features/health/domain/entities/cycle_day.dart';
 import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_hour.dart';
@@ -35,6 +36,13 @@ class _Attacks implements AttackRepository {
 
   @override
   Future<void> attachWeather(String attackId, WeatherSnapshot weather) async {}
+
+  @override
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  }) async {}
 
   @override
   Future<List<Attack>> attacksMissingWeather() async => const <Attack>[];
@@ -92,6 +100,12 @@ class _Health implements HealthRepository {
 
   @override
   bool get isAvailable => available;
+
+  @override
+  Future<List<CycleDay>> cycleDays({
+    required DateTime from,
+    required DateTime to,
+  }) async => const <CycleDay>[];
 
   @override
   Future<List<StepDay>> stepDays({

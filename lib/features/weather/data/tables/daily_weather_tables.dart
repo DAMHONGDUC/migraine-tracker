@@ -10,6 +10,10 @@ class DailyWeather extends Table {
   RealColumn get pressureHpa => real()();
   RealColumn get pressureDelta24hHpa => real()();
 
+  /// The day's humidity and temperature, so the factor map can weigh a muggy day and a temperature swing against the days without one. Null on every row written before v20.
+  RealColumn get humidityPercent => real().nullable()();
+  RealColumn get temperatureCelsius => real().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {day};
 }

@@ -6,6 +6,8 @@ import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/features/alerts/domain/entities/alerts_settings.dart';
 import 'package:migraine_tracker/features/alerts/domain/enums/alert_registration_error.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
+import 'package:migraine_tracker/features/auth/providers.dart';
+import 'package:migraine_tracker/features/premium/providers.dart';
 
 import '../../helpers/alert_fakes.dart';
 
@@ -16,6 +18,8 @@ void main() {
   Future<ProviderContainer> containerWith({
     Map<String, Object> stored = const <String, Object>{},
     RecordingAlertRegistration? registration,
+    bool signedIn = false,
+    bool premium = false,
   }) async {
     FlutterSecureStorage.setMockInitialValues(<String, String>{
       for (final MapEntry<String, Object> entry in stored.entries)
@@ -28,6 +32,9 @@ void main() {
         alertRegistrationRepositoryProvider.overrideWithValue(
           registration ?? RecordingAlertRegistration(),
         ),
+        // Both gate `autoEnableOnce`, and both reach Firebase/RevenueCat unless they are stated here.
+        isSignedInProvider.overrideWithValue(signedIn),
+        hasPremiumProvider.overrideWithValue(premium),
       ],
     );
 
@@ -181,6 +188,85 @@ void main() {
         container.read(alertsControllerProvider.notifier).setThreshold(9),
         throwsA(isA<AlertRegistrationException>()),
       );
+    });
+  });
+
+  group('autoEnableOnce', () {
+    test('switches a signed-in subscriber on at 4 hPa, once', () async {
+      final RecordingAlertRegistration registration =
+          RecordingAlertRegistration();
+      final ProviderContainer container = await containerWith(
+        registration: registration,
+        signedIn: true,
+        premium: true,
+      );
+      final SecureStore store = container.read(secureStoreProvider);
+
+      await container.read(alertsControllerProvider.notifier).autoEnableOnce();
+
+      expect(registration.registeredThresholds, <double>[4]);
+      expect(store.getBool(PrefsKeyConstant.alertsEnabled), isTrue);
+      expect(store.getDouble(PrefsKeyConstant.alertThreshold), 4);
+      expect(store.getBool(PrefsKeyConstant.alertsAutoEnabled), isTrue);
+
+      // The second launch: the flag is the whole reason the OS prompt is not raised again.
+      await container.read(alertsControllerProvider.notifier).autoEnableOnce();
+
+      expect(registration.registeredThresholds, <double>[4]);
+    });
+
+    test('leaves a free account alone', () async {
+      final RecordingAlertRegistration registration =
+          RecordingAlertRegistration();
+      final ProviderContainer container = await containerWith(
+        registration: registration,
+        signedIn: true,
+      );
+      final SecureStore store = container.read(secureStoreProvider);
+
+      await container.read(alertsControllerProvider.notifier).autoEnableOnce();
+
+      expect(registration.registeredThresholds, isEmpty);
+      // Unflagged too, so the purchase that arrives later still gets its one shot.
+      expect(store.getBool(PrefsKeyConstant.alertsAutoEnabled), isNull);
+    });
+
+    test('never overwrites a threshold the user already chose', () async {
+      final RecordingAlertRegistration registration =
+          RecordingAlertRegistration();
+      final ProviderContainer container = await containerWith(
+        stored: <String, Object>{
+          PrefsKeyConstant.alertsEnabled: true,
+          PrefsKeyConstant.alertThreshold: 9.0,
+        },
+        registration: registration,
+        signedIn: true,
+        premium: true,
+      );
+      final SecureStore store = container.read(secureStoreProvider);
+
+      await container.read(alertsControllerProvider.notifier).autoEnableOnce();
+
+      expect(registration.registeredThresholds, isEmpty);
+      expect(registration.updatedThresholds, isEmpty);
+      expect(store.getDouble(PrefsKeyConstant.alertThreshold), 9);
+      expect(store.getBool(PrefsKeyConstant.alertsAutoEnabled), isTrue);
+    });
+
+    test('a refused registration still spends the one attempt', () async {
+      final ProviderContainer container = await containerWith(
+        registration: RecordingAlertRegistration(
+          failWith: AlertRegistrationError.notificationsDenied,
+        ),
+        signedIn: true,
+        premium: true,
+      );
+      final SecureStore store = container.read(secureStoreProvider);
+
+      await container.read(alertsControllerProvider.notifier).autoEnableOnce();
+
+      expect(store.getBool(PrefsKeyConstant.alertsEnabled), isNull);
+      expect(store.getBool(PrefsKeyConstant.alertsAutoEnabled), isTrue);
     });
   });
 }

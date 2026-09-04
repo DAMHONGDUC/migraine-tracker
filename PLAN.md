@@ -55,8 +55,13 @@ Release blockers are tracked only in
 | Later | Not planned |
 |---|---|
 | Android polish and release | Community/forum |
-| Apple Watch app | AI attack prediction |
+| Apple Watch app | Machine-learned attack prediction |
 | More weather triggers | Coaching plans |
+
+Work queued behind v1.0 — daily logging, cycle, trigger/protector maps, a
+rule-based risk score and richer pressure warnings — lives in
+[`docs/ROADMAP.md`](docs/ROADMAP.md). The risk score there is deterministic
+weights the user can read, which is why it is not the row above.
 
 ## Architecture
 

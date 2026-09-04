@@ -62,7 +62,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
-| WeatherKit, iOS build/SPM/CocoaPods | `docs/rules/TECH_STACK.md` |
+| WeatherKit, iOS build/SPM | `docs/rules/TECH_STACK.md` |
 | the app icon, the launch screen, regenerating either | `docs/setup/APP_ICON.md` |
 | a second Firebase project, or standing prod up on its own | `docs/setup/FIREBASE_PROJECT.md` |
 | tests | `docs/rules/TESTING.md` |
@@ -73,9 +73,9 @@ Read the file whose trigger matches the work. Do not read them all.
 | adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
-`lib/features/<feature>/CLAUDE.md` — access, attacks, alerts, dashboard, health,
-history, home_widget, insights, medications, notifications, premium, review,
-settings, sync.
+`lib/features/<feature>/CLAUDE.md` — access, attacks, alerts, daily_log,
+dashboard, health, history, home_widget, insights, medications, notifications,
+premium, review, settings, sync.
 
 ## Always — these apply to every change
 
@@ -177,7 +177,9 @@ packages/
 ```
 
 Features: `access` (the owner's `app_access` allow-list), `app_update`
-(force-update gate), `attacks` (Attack entity + 3-tap log), `medications`, `weather` (WeatherSnapshot + API clients), `history`,
+(force-update gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
+one row a day that gives every analysis its days without an attack),
+`medications`, `weather` (WeatherSnapshot + API clients), `history`,
 `insights` (correlation engine), `alerts`, `auth` (Google/Apple +
 `linkWithCredential`, account screen, `users/{uid}` profile doc), `sync`,
 `paywall`, `settings`, `health` (HealthKit sleep, read-only), `notifications`
@@ -230,8 +232,9 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
   iOS first, and a resolution hack to satisfy a preference is the
   clever-over-boring trade this file warns against. Revisit when `file_picker`
   ships stable on `win32 ^6`.
-- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`.
-  Detail, and why the reverse was tried and reverted: `docs/rules/TECH_STACK.md`.
+- **iOS builds on Swift Package Manager. There is no CocoaPods** — no
+  `Podfile`, no `Pods`. Detail, and why the reverse was tried and reverted:
+  `docs/rules/TECH_STACK.md`.
 
 ## When unsure
 

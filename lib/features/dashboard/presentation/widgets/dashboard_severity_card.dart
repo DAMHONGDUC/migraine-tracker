@@ -8,11 +8,11 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/charts/severity_breakdown_chart.dart';
+import '../../../../core/widgets/dashboard_chevron.dart';
 import '../../../attacks/providers.dart';
 import '../../../history/domain/enums/history_view_mode.dart';
 import '../../../history/domain/services/chart_analytics.dart';
 import '../../../history/providers.dart';
-import 'dashboard_chevron.dart';
 
 /// Dashboard preview of the severity mix.
 class DashboardSeverityCard extends ConsumerWidget {

@@ -100,5 +100,6 @@ class _TabCard extends ConsumerWidget {
       _ => const SizedBox.shrink(),
     },
     InsightsTab.sleep => const SleepCard(),
+    InsightsTab.factors => const FactorsCard(),
   };
 }

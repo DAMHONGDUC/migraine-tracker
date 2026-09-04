@@ -13,7 +13,8 @@ void main() {
     await tapVisible(tester, find.byType(PremiumSettingsTile));
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('What premium includes'), findsOneWidget);
+    // The screen lists BOTH halves of the offer now, not just what Premium adds.
+    expect(find.text('Free forever'), findsOneWidget);
     expect(find.text('Free plan'), findsWidgets);
     expect(find.text('Unlock'), findsOneWidget);
     await finishTest(tester);

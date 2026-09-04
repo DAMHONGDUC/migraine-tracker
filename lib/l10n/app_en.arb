@@ -2398,6 +2398,15 @@
   "@dashboardGreeting": {
     "description": "Dashboard app bar greeting shown when the user is not signed in"
   },
+  "dashboardGreetingNamed": "Hi, {name}",
+  "@dashboardGreetingNamed": {
+    "description": "Dashboard app bar greeting once the user is signed in and the account has a name. {name} is the first name only",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardSignIn": "Sign in",
   "@dashboardSignIn": {
     "description": "Dashboard app bar button that leads to sign-in (in Settings)"
@@ -2860,10 +2869,6 @@
   "premiumScreenTitle": "Subscriptions",
   "@premiumScreenTitle": {
     "description": "App bar title of the subscription detail screen"
-  },
-  "premiumScreenIncluded": "What premium includes",
-  "@premiumScreenIncluded": {
-    "description": "Heading above the list of premium features on the subscription screen"
   },
   "premiumScreenManage": "Manage subscription",
   "@premiumScreenManage": {
@@ -3417,5 +3422,553 @@
   "dashboardAboutBody": "What BaroEase tracks, what the free plan includes, and how to reach us.",
   "@dashboardAboutBody": {
     "description": "Subtitle of the About explore card"
+  },
+  "dailyLogTitle": "Daily check-in",
+  "@dailyLogTitle": {
+    "description": "App bar title of the daily check-in screen."
+  },
+  "dailyLogWhy": "Recording a quiet day is what lets the app tell a trigger from a coincidence.",
+  "@dailyLogWhy": {
+    "description": "One line under the title saying why a day without an attack is worth recording."
+  },
+  "dailyLogSleepQuestion": "How did you sleep?",
+  "@dailyLogSleepQuestion": {
+    "description": "Question above the 1-5 sleep quality rating."
+  },
+  "dailyLogStressQuestion": "How stressed were you?",
+  "@dailyLogStressQuestion": {
+    "description": "Question above the 1-5 stress rating."
+  },
+  "dailyLogFactorsQuestion": "Anything else about today?",
+  "@dailyLogFactorsQuestion": {
+    "description": "Question above the grid of day factors."
+  },
+  "dailyLogSleep1": "Awful",
+  "@dailyLogSleep1": {
+    "description": "Sleep quality rating 1 of 5, the worst."
+  },
+  "dailyLogSleep2": "Poor",
+  "@dailyLogSleep2": {
+    "description": "Sleep quality rating 2 of 5."
+  },
+  "dailyLogSleep3": "Okay",
+  "@dailyLogSleep3": {
+    "description": "Sleep quality rating 3 of 5."
+  },
+  "dailyLogSleep4": "Good",
+  "@dailyLogSleep4": {
+    "description": "Sleep quality rating 4 of 5."
+  },
+  "dailyLogSleep5": "Great",
+  "@dailyLogSleep5": {
+    "description": "Sleep quality rating 5 of 5, the best."
+  },
+  "dailyLogStress1": "Calm",
+  "@dailyLogStress1": {
+    "description": "Stress rating 1 of 5, the calmest."
+  },
+  "dailyLogStress2": "Settled",
+  "@dailyLogStress2": {
+    "description": "Stress rating 2 of 5."
+  },
+  "dailyLogStress3": "Busy",
+  "@dailyLogStress3": {
+    "description": "Stress rating 3 of 5."
+  },
+  "dailyLogStress4": "Tense",
+  "@dailyLogStress4": {
+    "description": "Stress rating 4 of 5."
+  },
+  "dailyLogStress5": "Overwhelmed",
+  "@dailyLogStress5": {
+    "description": "Stress rating 5 of 5, the worst."
+  },
+  "dailyLogFactorSkippedMeal": "Skipped a meal",
+  "@dailyLogFactorSkippedMeal": {
+    "description": "Day factor: the user missed a meal."
+  },
+  "dailyLogFactorDehydration": "Not enough water",
+  "@dailyLogFactorDehydration": {
+    "description": "Day factor: the user drank too little water."
+  },
+  "dailyLogFactorCaffeine": "Caffeine",
+  "@dailyLogFactorCaffeine": {
+    "description": "Day factor: the user had caffeine."
+  },
+  "dailyLogFactorAlcohol": "Alcohol",
+  "@dailyLogFactorAlcohol": {
+    "description": "Day factor: the user had alcohol."
+  },
+  "dailyLogFactorScreenTime": "Long screen time",
+  "@dailyLogFactorScreenTime": {
+    "description": "Day factor: a long time in front of a screen."
+  },
+  "dailyLogFactorIntenseExercise": "Hard exercise",
+  "@dailyLogFactorIntenseExercise": {
+    "description": "Day factor: hard physical exercise."
+  },
+  "dailyLogFactorTravel": "Travel",
+  "@dailyLogFactorTravel": {
+    "description": "Day factor: the user travelled."
+  },
+  "dailyLogFactorStrongSmell": "Strong smell",
+  "@dailyLogFactorStrongSmell": {
+    "description": "Day factor: exposure to a strong smell."
+  },
+  "dailyLogSave": "Save today",
+  "@dailyLogSave": {
+    "description": "Primary button that writes the day's check-in."
+  },
+  "dailyLogSaved": "Today is recorded",
+  "@dailyLogSaved": {
+    "description": "Snackbar after the check-in is written."
+  },
+  "dailyLogSaveFailed": "Could not save today. Try again.",
+  "@dailyLogSaveFailed": {
+    "description": "Snackbar when writing the check-in failed."
+  },
+  "dailyLogCardPrompt": "How was today?",
+  "@dailyLogCardPrompt": {
+    "description": "Dashboard card title while today has not been checked in."
+  },
+  "dailyLogCardPromptBody": "Thirty seconds, attack or not.",
+  "@dailyLogCardPromptBody": {
+    "description": "Dashboard card body while today has not been checked in."
+  },
+  "dailyLogCardDone": "Today is recorded",
+  "@dailyLogCardDone": {
+    "description": "Dashboard card title once today is recorded."
+  },
+  "dailyLogCardDoneBody": "Tap to change your answers.",
+  "@dailyLogCardDoneBody": {
+    "description": "Dashboard card body once today is recorded."
+  },
+  "dailyLogA11yOpen": "Open the daily check-in",
+  "@dailyLogA11yOpen": {
+    "description": "VoiceOver label of the dashboard check-in card."
+  },
+  "attackDetailMedicationTiming": "Time to relief",
+  "@attackDetailMedicationTiming": {
+    "description": "Attack detail row label for how long the medication took to work."
+  },
+  "medicationTimingNotRecorded": "Not recorded",
+  "@medicationTimingNotRecorded": {
+    "description": "Value of that row while neither half is answered, and the button that clears it."
+  },
+  "medicationTimingSheetTitle": "How long did it take to work?",
+  "@medicationTimingSheetTitle": {
+    "description": "Title of the sheet that records the dose and relief times."
+  },
+  "medicationTimingTakenQuestion": "When did you take it?",
+  "@medicationTimingTakenQuestion": {
+    "description": "Question above the grid of times the dose was taken."
+  },
+  "medicationTimingReliefQuestion": "When did the pain ease?",
+  "@medicationTimingReliefQuestion": {
+    "description": "Question above the grid of times the pain eased."
+  },
+  "medicationTimingAtOnset": "As it started",
+  "@medicationTimingAtOnset": {
+    "description": "Option meaning the dose was taken the moment the attack started."
+  },
+  "medicationTimingAfterStart": "{duration} in",
+  "@medicationTimingAfterStart": {
+    "description": "Option meaning the dose was taken this long after the attack started.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationTimingTakenOnly": "Taken {duration} in",
+  "@medicationTimingTakenOnly": {
+    "description": "Row value when the dose time is recorded but relief is not.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationTimingSave": "Save",
+  "@medicationTimingSave": {
+    "description": "Primary button of the medication timing sheet."
+  },
+  "attackNowTitle": "Attack in progress",
+  "@attackNowTitle": {
+    "description": "App bar title of the screen shown while an attack is running."
+  },
+  "attackNowSince": "Since {time}",
+  "@attackNowSince": {
+    "description": "Under the running timer: the clock time the attack started.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "attackNowTookMedication": "I took medication",
+  "@attackNowTookMedication": {
+    "description": "Button that opens the medication picker from the in-progress screen."
+  },
+  "attackNowEnded": "It has stopped",
+  "@attackNowEnded": {
+    "description": "Button that records the attack as having ended now."
+  },
+  "attackNowRest": "Put the phone down. It keeps counting.",
+  "@attackNowRest": {
+    "description": "One line telling the user they do not have to keep the screen open."
+  },
+  "attackNowCardTitle": "An attack is running",
+  "@attackNowCardTitle": {
+    "description": "Dashboard card title while an attack is running."
+  },
+  "attackNowCardBody": "Tap when it stops, so the length is right.",
+  "@attackNowCardBody": {
+    "description": "Dashboard card body while an attack is running."
+  },
+  "attackNowEndedToast": "Recorded as ended just now",
+  "@attackNowEndedToast": {
+    "description": "Snackbar after the attack is recorded as ended."
+  },
+  "healthCycleTitle": "Apple Health cycle",
+  "@healthCycleTitle": {
+    "description": "Title of the Apple Health connect switch for menstrual cycle data."
+  },
+  "dailyLogCycleSection": "Cycle",
+  "@dailyLogCycleSection": {
+    "description": "Heading of the cycle section on the daily check-in screen."
+  },
+  "dailyLogCycleBefore": "{days} days before your period",
+  "@dailyLogCycleBefore": {
+    "description": "Today is this many days before the recorded period start.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCycleStart": "Your period started today",
+  "@dailyLogCycleStart": {
+    "description": "Today is the day the period started."
+  },
+  "dailyLogCycleDay": "Day {day} of your period",
+  "@dailyLogCycleDay": {
+    "description": "Today is this numbered day of the period, the first day being 1.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCycleOutside": "Outside the window attacks cluster in",
+  "@dailyLogCycleOutside": {
+    "description": "Today has cycle data but falls outside the perimenstrual window."
+  },
+  "dailyLogCycleNone": "Nothing recorded in Apple Health for today",
+  "@dailyLogCycleNone": {
+    "description": "Apple Health returned no cycle data covering today."
+  },
+  "factorsCardTitle": "Factors",
+  "@factorsCardTitle": {
+    "description": "Name of the Insights tab and card holding the trigger/protector map."
+  },
+  "factorsTriggers": "More attacks",
+  "@factorsTriggers": {
+    "description": "Heading of the group of factors attacks follow more often."
+  },
+  "factorsProtectors": "Fewer attacks",
+  "@factorsProtectors": {
+    "description": "Heading of the group of factors attacks follow less often."
+  },
+  "factorsNotAssociated": "No difference",
+  "@factorsNotAssociated": {
+    "description": "Heading of the group where both groups of days behave the same."
+  },
+  "factorsInsufficient": "Not enough days yet",
+  "@factorsInsufficient": {
+    "description": "Heading of the group with too few days on one side to grade."
+  },
+  "factorsRow": "{withRate}% of {withDays} days, against {withoutRate}% of {withoutDays}",
+  "@factorsRow": {
+    "description": "Under a factor: the attack rate of the days that carried it against the days that did not.",
+    "placeholders": {
+      "withRate": {
+        "type": "int"
+      },
+      "withDays": {
+        "type": "int"
+      },
+      "withoutRate": {
+        "type": "int"
+      },
+      "withoutDays": {
+        "type": "int"
+      }
+    }
+  },
+  "factorsPending": "{days} of {required} days recorded, {attacks} of {requiredAttacks} attacks",
+  "@factorsPending": {
+    "description": "How far along the map's two requirements are.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      },
+      "attacks": {
+        "type": "int"
+      },
+      "requiredAttacks": {
+        "type": "int"
+      }
+    }
+  },
+  "factorsPendingBody": "The map compares the days that carried a factor with the days that did not, so it needs both.",
+  "@factorsPendingBody": {
+    "description": "Why the map needs days without an attack as well as days with one."
+  },
+  "factorsEmpty": "Nothing has separated yet. Keep checking in.",
+  "@factorsEmpty": {
+    "description": "Enough data, but no factor separated from the rest."
+  },
+  "factorPoorSleep": "Poor sleep",
+  "@factorPoorSleep": {
+    "description": "Map factor derived from a sleep rating of 1 or 2 out of 5."
+  },
+  "factorHighStress": "High stress",
+  "@factorHighStress": {
+    "description": "Map factor derived from a stress rating of 4 or 5 out of 5."
+  },
+  "factorsExplain1": "For every factor, this compares how often an attack followed the days you recorded it against the days you did not.",
+  "@factorsExplain1": {
+    "description": "Info sheet, first paragraph: what the card compares."
+  },
+  "factorsExplain2": "It reads your daily check-ins, so it needs four weeks of them and fifteen attacks before it will draw. A factor with fewer than five days on either side is left ungraded.",
+  "@factorsExplain2": {
+    "description": "Info sheet, second paragraph: where the data comes from and what it waits for."
+  },
+  "factorsExplain3": "A difference is not a cause. A factor can sit on the same days as the real trigger, and something you do to feel better can end up looking like a protector.",
+  "@factorsExplain3": {
+    "description": "Info sheet, third paragraph: what the card cannot claim."
+  },
+  "premiumLockedFactors": "Unlock to see which of your days bring attacks on, and which keep them away.",
+  "@premiumLockedFactors": {
+    "description": "Locked-state pitch on the Factors tab."
+  },
+  "riskCardTitle": "Attack risk forecast",
+  "@riskCardTitle": {
+    "description": "Title of the dashboard card scoring the week ahead. Says outright that it is a forecast."
+  },
+  "riskCardSubtitle": "Next 7 days · a prediction",
+  "@riskCardSubtitle": {
+    "description": "Line under the risk card title: the window it covers, and that the number is predicted rather than measured."
+  },
+  "riskInfoTitle": "How this forecast works",
+  "@riskInfoTitle": {
+    "description": "Title of the sheet the risk card's info glyph opens."
+  },
+  "riskInfoWhat": "Each percentage is how likely that day is to bring an attack, worked out from your own logs. It is a prediction, not a diagnosis and not a promise — a high day can pass quietly, and a low one can still hurt.",
+  "@riskInfoWhat": {
+    "description": "Risk info sheet, first paragraph: what the number is."
+  },
+  "riskInfoHow": "Four signals score every day: a falling pressure forecast (40%), your perimenstrual window (25%), how far last night sits below your usual sleep (20%), and how many attacks the last seven days held (15%).",
+  "@riskInfoHow": {
+    "description": "Risk info sheet, second paragraph: the four signals and their weights."
+  },
+  "riskInfoMissing": "A signal the app cannot read is named under the score and left out of the sum — never counted as a calm day. The percentage is a share of what could actually be read, so a day with no sleep data is not a low day.",
+  "@riskInfoMissing": {
+    "description": "Risk info sheet, third paragraph: why an unreadable signal is named rather than scored zero."
+  },
+  "riskInfoThresholds": "Every threshold is yours: the pressure is measured against the alert threshold you set, the sleep against your own median night, the week against your own median week.",
+  "@riskInfoThresholds": {
+    "description": "Risk info sheet, fourth paragraph: the score is measured against the user's own baselines."
+  },
+  "riskBandLow": "Low",
+  "@riskBandLow": {
+    "description": "Risk band 0-29."
+  },
+  "riskBandModerate": "Moderate",
+  "@riskBandModerate": {
+    "description": "Risk band 30-59."
+  },
+  "riskBandHigh": "High",
+  "@riskBandHigh": {
+    "description": "Risk band 60-100."
+  },
+  "riskToday": "Today",
+  "@riskToday": {
+    "description": "Label of the first bar in the seven-day strip."
+  },
+  "riskPercent": "{score}%",
+  "@riskPercent": {
+    "description": "A risk score written as a percentage — the card's headline and every row of the week chart.",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "riskSignalPressure": "Pressure falling {drop} hPa",
+  "@riskSignalPressure": {
+    "description": "Why today scored: the forecast fall in hPa.",
+    "placeholders": {
+      "drop": {
+        "type": "String"
+      }
+    }
+  },
+  "riskSignalCycle": "In your perimenstrual window",
+  "@riskSignalCycle": {
+    "description": "Why today scored: it falls in the perimenstrual window."
+  },
+  "riskSignalSleep": "{minutes} min less sleep than usual",
+  "@riskSignalSleep": {
+    "description": "Why today scored: minutes short of the personal median.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "riskSignalFrequency": "{count} attacks in the last 7 days",
+  "@riskSignalFrequency": {
+    "description": "Why today scored: attacks in the last seven days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "riskMissing": "Not counted: {signals}",
+  "@riskMissing": {
+    "description": "Signals the app could not read today, listed so a gap is never mistaken for a quiet day.",
+    "placeholders": {
+      "signals": {
+        "type": "String"
+      }
+    }
+  },
+  "riskMissingPressure": "pressure forecast",
+  "@riskMissingPressure": {
+    "description": "Name of the pressure signal inside riskMissing."
+  },
+  "riskMissingCycle": "cycle",
+  "@riskMissingCycle": {
+    "description": "Name of the cycle signal inside riskMissing."
+  },
+  "riskMissingSleep": "sleep",
+  "@riskMissingSleep": {
+    "description": "Name of the sleep signal inside riskMissing."
+  },
+  "riskMissingFrequency": "recent attacks",
+  "@riskMissingFrequency": {
+    "description": "Name of the recent-attacks signal inside riskMissing."
+  },
+  "riskPending": "Two weeks of logging and the score starts.",
+  "@riskPending": {
+    "description": "Shown while there is not yet enough history to score against."
+  },
+  "midasTitle": "Disability score",
+  "@midasTitle": {
+    "description": "App bar title of the MIDAS questionnaire screen."
+  },
+  "midasIntro": "Five questions about the last three months. Your neurologist reads the total.",
+  "@midasIntro": {
+    "description": "One line under the title explaining what the questionnaire is for."
+  },
+  "midasQ1": "Days of work or school missed entirely",
+  "@midasQ1": {
+    "description": "MIDAS question 1."
+  },
+  "midasQ2": "Days at work or school with productivity halved",
+  "@midasQ2": {
+    "description": "MIDAS question 2."
+  },
+  "midasQ3": "Days no household work was done",
+  "@midasQ3": {
+    "description": "MIDAS question 3."
+  },
+  "midasQ4": "Days of household work halved",
+  "@midasQ4": {
+    "description": "MIDAS question 4."
+  },
+  "midasQ5": "Days of family, social or leisure activity missed",
+  "@midasQ5": {
+    "description": "MIDAS question 5."
+  },
+  "midasQ2Note": "Not counting the days above.",
+  "@midasQ2Note": {
+    "description": "Instruction under question 2, as the questionnaire words it."
+  },
+  "midasQ4Note": "Not counting the days above.",
+  "@midasQ4Note": {
+    "description": "Instruction under question 4, as the questionnaire words it."
+  },
+  "midasSave": "Save",
+  "@midasSave": {
+    "description": "Primary button of the questionnaire."
+  },
+  "midasSaved": "Disability score recorded",
+  "@midasSaved": {
+    "description": "Snackbar after the questionnaire is saved."
+  },
+  "midasSaveFailed": "Could not save the questionnaire. Try again.",
+  "@midasSaveFailed": {
+    "description": "Snackbar when saving the questionnaire failed."
+  },
+  "midasScore": "MIDAS {score}",
+  "@midasScore": {
+    "description": "The total, shown with the questionnaire's name.",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "midasGradeLittleOrNone": "Grade I — little or no disability",
+  "@midasGradeLittleOrNone": {
+    "description": "MIDAS grade I, score 0-5."
+  },
+  "midasGradeMild": "Grade II — mild disability",
+  "@midasGradeMild": {
+    "description": "MIDAS grade II, score 6-10."
+  },
+  "midasGradeModerate": "Grade III — moderate disability",
+  "@midasGradeModerate": {
+    "description": "MIDAS grade III, score 11-20."
+  },
+  "midasGradeSevere": "Grade IV — severe disability",
+  "@midasGradeSevere": {
+    "description": "MIDAS grade IV, score 21 and above."
+  },
+  "midasNever": "Not answered yet",
+  "@midasNever": {
+    "description": "Value of the export row before the questionnaire has been answered."
+  },
+  "midasTakenOn": "Answered {date}",
+  "@midasTakenOn": {
+    "description": "When the most recent questionnaire was answered.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "midasRowTitle": "Disability score (MIDAS)",
+  "@midasRowTitle": {
+    "description": "Export screen row leading to the questionnaire."
+  },
+  "midasReportRow": "Disability (MIDAS)",
+  "@midasReportRow": {
+    "description": "Label of the MIDAS row in the doctor report."
+  },
+  "factorHighHumidity": "Muggy day",
+  "@factorHighHumidity": {
+    "description": "Map factor: the day's humidity was at or above 80%."
+  },
+  "factorTempSwing": "Temperature swing",
+  "@factorTempSwing": {
+    "description": "Map factor: the day's temperature was at least 5C away from the day before."
   }
 }

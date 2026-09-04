@@ -39,6 +39,20 @@ Hard rule 18.
 - **The whole widget is one link to `/log`, through `NavigationUtils.toLog`** —
   the same gate and flow reset as the dashboard button. A second entry point
   skipping the free-plan check would be a wall the user could walk past.
+- **Siri arrives down the same URL, and `HomeWidgetLink` is where both land.**
+  `ios/Runner/BaroEaseShortcuts.swift` declares two `AppIntent`s — log an attack,
+  check in for today — and each does nothing but open
+  `baroease://<host>?homeWidget=true`. An intent that did the work itself would
+  need the database, the free-plan gate and the log flow's state machine in
+  Swift; opening the app keeps one contract and one resolver.
+  - **`AppIntents` is iOS 16 and the app's floor is 15**, so every symbol in that
+    file sits behind `@available(iOS 16.0, *)` and simply does not exist below it.
+  - **The check-in is reachable by Siri but NOT from the widget.** Hard rule 18
+    fixes the widget at three things; a fourth is the owner's call, not a
+    feature's. The shortcut costs the widget nothing.
+  - **It is registered in `Runner.xcodeproj` by hand**, the same way
+    `BaroEaseAttackActivity.swift` is, and **a real device is what proves it** —
+    the Shortcuts app has to list both phrases.
 - **The App Group is a copy of the user's data and the GDPR wipe clears it**
   (hard rule 8), last in `DataWipeService` so the redraw that follows cannot put
   the old numbers back. Turning the switch off empties it too, rather than

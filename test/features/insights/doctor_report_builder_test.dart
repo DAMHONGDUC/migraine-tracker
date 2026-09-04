@@ -4,12 +4,20 @@ import 'package:migraine_tracker/features/attacks/domain/enums/aura_type.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/medication_effect.dart';
 import 'package:migraine_tracker/features/insights/domain/entities/correlation_result.dart';
+import 'package:migraine_tracker/features/insights/domain/entities/midas_score.dart';
 import 'package:migraine_tracker/features/insights/domain/services/doctor_report_builder.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 DoctorReportStrings strings() => DoctorReportStrings(
   title: 'BaroEase - Migraine report',
+  midas: 'Disability (MIDAS)',
+  midasGrades: <MidasGrade, String>{
+    MidasGrade.littleOrNone: 'Grade I',
+    MidasGrade.mild: 'Grade II',
+    MidasGrade.moderate: 'Grade III',
+    MidasGrade.severe: 'Grade IV',
+  },
   generated: 'Generated 2026-07-13',
   period: 'Covering the last 90 days',
   summaryTitle: 'Summary',
@@ -64,6 +72,7 @@ void main() {
     'builds a non-empty PDF with data, insight, and offline attacks',
     () async {
       final bytes = await const DoctorReportBuilder().build(
+        midas: null,
         attacks: [
           attack(1, delta: -7),
           attack(10, delta: 2),
@@ -90,6 +99,7 @@ void main() {
 
   test('handles an empty history without throwing', () async {
     final bytes = await const DoctorReportBuilder().build(
+      midas: null,
       attacks: [],
       correlation: const CorrelationInsufficientData(
         attacksAnalyzed: 0,
@@ -117,6 +127,7 @@ void main() {
 
     Future<int> report(List<Attack> attacks) async {
       final bytes = await const DoctorReportBuilder().build(
+        midas: null,
         attacks: attacks,
         correlation: const CorrelationInsufficientData(
           attacksAnalyzed: 0,

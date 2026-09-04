@@ -4,13 +4,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
+import '../../features/attacks/presentation/screens/attack_now_screen/attack_now_screen.dart';
 import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 import '../../features/auth/providers.dart';
+import '../../features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
+import '../../features/insights/presentation/screens/midas_screen/midas_screen.dart';
 import '../../features/medications/presentation/screens/medication_detail_screen/medication_detail_screen.dart';
 import '../../features/medications/presentation/screens/medications_screen/medications_screen.dart';
 import '../../features/notifications/presentation/screens/notification_detail_screen/notification_detail_screen.dart';
@@ -51,6 +54,15 @@ final class AppRoutes {
     name: 'medications',
     path: '/medications',
   );
+
+  /// The screen an attack that is happening now gets: a clock and two answers. Pushed from the dashboard card.
+  static const attackNow = AppRoute(name: 'attackNow', path: '/attack-now');
+
+  /// The MIDAS questionnaire, pushed from the export screen — the score rides in the doctor report that screen produces.
+  static const midas = AppRoute(name: 'midas', path: '/midas');
+
+  /// The 30-second daily check-in, pushed from the dashboard card. Always writes today — see [DailyLogScreen].
+  static const dailyLog = AppRoute(name: 'dailyLog', path: '/check-in');
 
   /// The notification list, pushed from the dashboard's app bar.
   static const notifications = AppRoute(
@@ -175,6 +187,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MedicationDetailScreen(
           medicationId: state.pathParameters[AppRoutes.medicationIdParam]!,
         ),
+      ),
+      GoRoute(
+        name: AppRoutes.attackNow.name,
+        path: AppRoutes.attackNow.path,
+        builder: (context, state) => const AttackNowScreen(),
+      ),
+      GoRoute(
+        name: AppRoutes.midas.name,
+        path: AppRoutes.midas.path,
+        builder: (context, state) => const MidasScreen(),
+      ),
+      // Pushed from the dashboard card, so it covers the tab bar and returns to where it opened from.
+      GoRoute(
+        name: AppRoutes.dailyLog.name,
+        path: AppRoutes.dailyLog.path,
+        builder: (context, state) => const DailyLogScreen(),
       ),
       // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
       GoRoute(

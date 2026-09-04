@@ -5,6 +5,8 @@ import 'package:migraine_tracker/core/theme/app_colors.dart';
 import 'package:migraine_tracker/features/settings/presentation/widgets/date_range_calendar.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
+import '../../helpers/settle_frames.dart';
+
 void main() {
   /// Pumps the calendar alone, pinned to the 393×852 design size that screenutil's `.r`/`.sp` assume (see `pumpApp`'s note).
   Future<void> pumpCalendar(
@@ -39,7 +41,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
   }
 
   /// The disc drawn behind a day number.

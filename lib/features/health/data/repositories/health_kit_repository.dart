@@ -1,5 +1,7 @@
 import 'package:health/health.dart';
 
+import '../../domain/entities/cycle_day.dart';
+import '../../domain/entities/cycle_sample.dart';
 import '../../domain/entities/sleep_interval.dart';
 import '../../domain/entities/sleep_night.dart';
 import '../../domain/entities/step_day.dart';
@@ -7,9 +9,11 @@ import '../../domain/entities/step_hour.dart';
 import '../../domain/entities/step_sample.dart';
 import '../../domain/enums/health_data_kind.dart';
 import '../../domain/repositories/health_repository.dart';
+import '../../domain/services/cycle_day_aggregator.dart';
 import '../../domain/services/sleep_night_aggregator.dart';
 import '../../domain/services/step_day_aggregator.dart';
 import '../../domain/services/step_hour_aggregator.dart';
+import '../datasources/cycle_sample_source.dart';
 import '../datasources/sleep_sample_source.dart';
 import '../datasources/step_sample_source.dart';
 
@@ -21,6 +25,8 @@ class HealthKitRepository implements HealthRepository {
     this._stepSource,
     this._stepAggregator,
     this._stepHourAggregator,
+    this._cycleSource,
+    this._cycleAggregator,
   );
 
   final SleepSampleSource _sleepSource;
@@ -28,8 +34,10 @@ class HealthKitRepository implements HealthRepository {
   final StepSampleSource _stepSource;
   final StepDayAggregator _stepAggregator;
   final StepHourAggregator _stepHourAggregator;
+  final CycleSampleSource _cycleSource;
+  final CycleDayAggregator _cycleAggregator;
 
-  final HealthFactory _health = HealthFactory();
+  final Health _health = Health();
 
   @override
   bool get isAvailable => _sleepSource.isAvailable;
@@ -41,6 +49,7 @@ class HealthKitRepository implements HealthRepository {
     return _health.requestAuthorization(switch (kind) {
       HealthDataKind.sleep => HealthKitSleepSampleSource.types,
       HealthDataKind.steps => HealthKitStepSampleSource.types,
+      HealthDataKind.cycle => HealthKitCycleSampleSource.types,
     });
   }
 
@@ -55,6 +64,19 @@ class HealthKitRepository implements HealthRepository {
     );
 
     return _sleepAggregator.aggregate(samples);
+  }
+
+  @override
+  Future<List<CycleDay>> cycleDays({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final List<CycleSample> samples = await _cycleSource.cycleSamples(
+      from: from,
+      to: to,
+    );
+
+    return _cycleAggregator.aggregate(samples);
   }
 
   @override

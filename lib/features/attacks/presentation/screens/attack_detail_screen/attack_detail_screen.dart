@@ -17,6 +17,7 @@ import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/weather/weather_card.dart';
+import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/attack.dart';
 import '../../../domain/enums/aura_type.dart';
 import '../../../domain/enums/exertion_level.dart';
@@ -34,6 +35,7 @@ import '../../widgets/intensity_sheet.dart';
 import '../../widgets/location_picker_sheet.dart';
 import '../../widgets/medication_effect_sheet.dart';
 import '../../widgets/medication_picker_sheet.dart';
+import '../../widgets/medication_timing_sheet.dart';
 
 part 'attack_detail_screen_details_section.dart';
 part 'attack_detail_screen_editable_row.dart';
@@ -156,6 +158,41 @@ class AttackDetailScreen extends HookConsumerWidget {
     await ref
         .read(attackDetailControllerProvider)
         .updateMedicationEffect(attack.id, picked.effect);
+  }
+
+  /// Three states, and the row has to tell them apart: nothing said, a dose with no relief yet, and the answer the row exists for.
+  String _timingLabel(Attack attack, AppLocalizations l10n) {
+    final Duration? relief = attack.timeToRelief;
+    final DateTime? takenAt = attack.medicationTakenAt;
+
+    if (relief != null) return relief.label(l10n);
+    if (takenAt == null) return l10n.medicationTimingNotRecorded;
+    return l10n.medicationTimingTakenOnly(
+      takenAt.difference(attack.startedAt).label(l10n),
+    );
+  }
+
+  Future<void> _editMedicationTiming(
+    BuildContext context,
+    WidgetRef ref,
+    Attack attack,
+  ) async {
+    // Wrapped so clearing both answers is distinguishable from dismissing.
+    final ({DateTime? takenAt, DateTime? reliefAt})? picked =
+        await MedicationTimingSheet(
+          startedAt: attack.startedAt,
+          takenAt: attack.medicationTakenAt,
+          reliefAt: attack.reliefAt,
+        ).show(context);
+
+    if (picked == null) return;
+    await ref
+        .read(attackDetailControllerProvider)
+        .updateMedicationTiming(
+          attack.id,
+          takenAt: picked.takenAt,
+          reliefAt: picked.reliefAt,
+        );
   }
 
   Future<void> _editAura(
@@ -284,6 +321,13 @@ class AttackDetailScreen extends HookConsumerWidget {
                         a.medicationEffect?.label(l10n) ??
                         l10n.medicationEffectNotRecorded,
                     onTap: () => _editMedicationEffect(context, ref, a),
+                  ),
+                // Beside the effect row and for the same reason: with nothing taken there is no dose to time.
+                if (a.medicationName != null)
+                  _EditableRow(
+                    label: l10n.attackDetailMedicationTiming,
+                    value: _timingLabel(a, l10n),
+                    onTap: () => _editMedicationTiming(context, ref, a),
                   ),
                 // Above duration, because aura runs BEFORE the pain and the rows read in the order the attack happened.
                 _EditableRow(

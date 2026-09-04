@@ -13,6 +13,7 @@ import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
+import '../../../../insights/presentation/widgets/midas_row.dart';
 import '../../../domain/entities/export_date_filter.dart';
 import '../../../domain/entities/export_record.dart';
 import '../../../domain/enums/export_action.dart';
@@ -152,6 +153,9 @@ class ExportScreen extends ConsumerWidget {
           bottom: SdContentPaddingV2.bottom(context),
         ),
         children: <Widget>[
+          // Above the history: the score is an input to the next report, not one of the files already made.
+          const MidasRow(),
+          SizedBox(height: SdContentPaddingV2.sectionGap),
           _History(
             onRecordTap: (ExportRecord record) =>
                 _openActions(context, ref, record),

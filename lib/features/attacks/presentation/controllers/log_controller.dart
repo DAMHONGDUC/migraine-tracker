@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
@@ -7,6 +8,9 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/utils/locale_utils.dart';
+import '../../../../l10n/gen/app_localizations.dart';
 import '../../../review/providers.dart';
 import '../../domain/entities/attack.dart';
 import '../../domain/enums/exertion_level.dart';
@@ -104,6 +108,25 @@ class LogController extends Notifier<LogFlowState> {
     }
   }
 
+  /// Hands the Live Activity its already-worded strings. There is no `BuildContext` in a controller, so the locale is resolved the way the reminders and the home widget resolve theirs.
+  Future<void> _startLiveActivity(Attack attack) {
+    final AppLocalizations l10n = lookupAppLocalizations(
+      LocaleUtils.resolve(
+        chosen: ref.read(localeControllerProvider),
+        platform: PlatformDispatcher.instance.locale,
+        supported: AppLocalizations.supportedLocales,
+      ),
+    );
+
+    return ref
+        .read(attackLiveActivityProvider)
+        .start(
+          attack,
+          title: l10n.attackNowCardTitle,
+          body: l10n.attackNowCardBody,
+        );
+  }
+
   /// Persists the attack and moves to the saved confirmation. Weather is attached best-effort; logging never waits for the network.
   Future<void> _save(
     String? medicationName,
@@ -131,6 +154,8 @@ class LogController extends Notifier<LogFlowState> {
       unawaited(ref.read(weatherAttachServiceProvider).onAttackLogged(attack));
       // Local read, but still unawaited: HealthKit is another process, and nothing in the log flow waits (hard rule 4).
       unawaited(ref.read(stepAttachServiceProvider).onAttackLogged(attack));
+      // The card the attack gets on the Lock Screen. Unawaited like the two above: it talks to ActivityKit, and nothing in the log flow waits (hard rule 4).
+      unawaited(_startLiveActivity(attack));
       // Only a moment when a pressure alert came first — the controller decides that.
       unawaited(
         ref

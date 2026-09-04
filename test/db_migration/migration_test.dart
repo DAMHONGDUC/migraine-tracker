@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,10 +14,10 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  test('database is at schema version 15', () {
+  test('database is at schema version 20', () {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 15);
+    expect(db.schemaVersion, 20);
   });
 
   // Always migrates to AppDatabase.schemaVersion, so every starting point is validated against the current head, not the head at write time.
@@ -403,5 +404,102 @@ void main() {
     expect(stored.aura, isNull);
     // v13 widened the coarse `location` into a set of regions; the aura step must not have disturbed that backfill on the way past.
     expect(stored.regions, isNotEmpty);
+  });
+
+  test('migrates from v15 to v17 (adds the daily check-in)', () async {
+    final connection = await verifier.startAt(15);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // The day is the primary key, so the same Tuesday written twice is one row rather than two — which is what makes two devices converge.
+  test('a daily log is keyed by its day', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db
+        .into(db.dailyLogs)
+        .insertOnConflictUpdate(
+          DailyLogsCompanion.insert(
+            id: '2026-09-14',
+            sleepQuality: const Value(2),
+          ),
+        );
+    await db
+        .into(db.dailyLogs)
+        .insertOnConflictUpdate(
+          DailyLogsCompanion.insert(
+            id: '2026-09-14',
+            sleepQuality: const Value(4),
+          ),
+        );
+    final List<DailyLogRow> rows = await db.select(db.dailyLogs).get();
+
+    expect(rows.single.sleepQuality, 4);
+  });
+
+  test('migrates from v17 to v18 (adds the medication timing)', () async {
+    final connection = await verifier.startAt(17);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // v13 rebuilds the attacks table from TODAY's definition, so a database coming from v12 must arrive with the v18 columns already on it.
+  test('v12 attacks survive v18 with no medication timing', () async {
+    final schema = await verifier.schemaAt(12);
+    schema.rawDatabase.execute(
+      'INSERT INTO attacks (id, started_at, intensity, location, '
+      "medication_name) VALUES ('a1', 1750000000, 7, 'front', 'Sumatriptan')",
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final AttackRow stored = (await db.select(db.attacks).get()).single;
+
+    expect(stored.medicationTakenAt, null);
+    expect(stored.reliefAt, null);
+  });
+
+  test('migrates from v18 to v19 (adds the MIDAS questionnaire)', () async {
+    final connection = await verifier.startAt(18);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  test('migrates from v19 to v20 (adds the day humidity and temperature)',
+      () async {
+    final connection = await verifier.startAt(19);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+  });
+
+  // Absent, never zero: a reading taken before the columns existed did not record a desert.
+  test('a v19 daily reading survives v20 with no humidity', () async {
+    final schema = await verifier.schemaAt(19);
+    schema.rawDatabase.execute(
+      'INSERT INTO daily_weather (day, captured_at, pressure_hpa, '
+      'pressure_delta24h_hpa) VALUES (1750000000, 1750000000, 1013.2, -4.0)',
+    );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    final DailyWeatherRow stored =
+        (await db.select(db.dailyWeather).get()).single;
+
+    expect(stored.pressureHpa, 1013.2);
+    expect(stored.humidityPercent, isNull);
+    expect(stored.temperatureCelsius, isNull);
   });
 }

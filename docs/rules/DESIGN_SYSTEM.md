@@ -473,10 +473,13 @@ intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
   started (a delete, a seed, an export) and a viewer that draws its own
   placeholder. Picking by "is there a spinner already" rather than by "do I know
   the shape" is what gives one app two answers to the same wait.
-  - **It does not animate, and that is a rule rather than an omission.** No
-    shimmer, and no slow breathing fade either: hard rule 3 covers a placeholder
-    looping for as long as the network takes, which is a moving light source in a
-    photophobic user's periphery. Long version in `WIDGET_RULES.md` § 6.
+  - **It shimmers, and that is the one loop the system allows** (owner's call,
+    2026-09-04 — it was a still block before, on the reading that hard rule 3
+    covers a placeholder looping for as long as the network takes). What keeps
+    it inside the rule: one band, 1400ms a pass, 8% lighter than
+    `surfaceElevated`, one direction, off both edges — grey over grey, no
+    white and no opacity flash — and iOS Reduce Motion puts the still block
+    back. Nothing else may loop. Long version in `WIDGET_RULES.md` § 6.
   - **Every skeleton is a rectangle at `SdSkeletonV2.radius` (8)** — owner's
     rule, no prop to override it. One shape means a screen's placeholders read as
     one loading state, and it deliberately does not copy what is underneath: a

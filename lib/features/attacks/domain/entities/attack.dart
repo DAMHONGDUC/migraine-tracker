@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../../../core/constants/attack_progress_constant.dart';
 import '../../../weather/domain/entities/weather_snapshot.dart';
 import '../enums/aura_type.dart';
 import '../enums/exertion_level.dart';
@@ -21,10 +22,14 @@ class Attack {
     this.notes,
     this.exertionLevel,
     this.medicationEffect,
+    DateTime? medicationTakenAt,
+    DateTime? reliefAt,
     DateTime? endedAt,
     this.weather,
     this.steps,
   }) : startedAt = startedAt.toUtc(),
+       medicationTakenAt = medicationTakenAt?.toUtc(),
+       reliefAt = reliefAt?.toUtc(),
        endedAt = endedAt?.toUtc(),
        assert(
          intensity >= 1 && intensity <= 10,
@@ -63,6 +68,12 @@ class Attack {
   /// Whether [medicationName] helped, once the user has said.
   final MedicationEffect? medicationEffect;
 
+  /// When the medication was swallowed, UTC. Null is "never said", which also covers every attack where nothing was taken.
+  final DateTime? medicationTakenAt;
+
+  /// When the pain eased, UTC. Recorded on its own because relief and the attack ending are different moments — the pain can fade hours before the day does.
+  final DateTime? reliefAt;
+
   /// When the attack stopped, in UTC.
   final DateTime? endedAt;
 
@@ -73,6 +84,25 @@ class Attack {
 
   /// How long the attack lasted, or null while [endedAt] is unset.
   Duration? get duration => endedAt?.difference(startedAt);
+
+  /// Whether this attack is still happening at [now]: no end recorded, and started inside `AttackProgressConstant.window`.
+  ///
+  /// The window is what keeps "still going" from swallowing "never said" — the
+  /// column collapses both into one null, so time is the only thing that can
+  /// tell them apart.
+  bool isRunningAt(DateTime now) {
+    final Duration since = now.toUtc().difference(startedAt);
+
+    return endedAt == null &&
+        !since.isNegative &&
+        since <= AttackProgressConstant.window;
+  }
+
+  /// How long the medication took to work, or null until both halves are answered. Negative is impossible — the sheet will not offer it.
+  Duration? get timeToRelief =>
+      medicationTakenAt == null || reliefAt == null
+      ? null
+      : reliefAt!.difference(medicationTakenAt!);
 
   Attack copyWith({WeatherSnapshot? weather, int? steps}) => Attack(
     id: id,
@@ -86,6 +116,8 @@ class Attack {
     notes: notes,
     exertionLevel: exertionLevel,
     medicationEffect: medicationEffect,
+    medicationTakenAt: medicationTakenAt,
+    reliefAt: reliefAt,
     endedAt: endedAt,
     weather: weather ?? this.weather,
     steps: steps ?? this.steps,

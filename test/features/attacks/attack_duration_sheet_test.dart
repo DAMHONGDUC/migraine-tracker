@@ -6,6 +6,8 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/attack_du
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 import 'package:system_design/index.dart';
 
+import '../../helpers/settle_frames.dart';
+
 /// The sheet's options are all the same kind of answer, so they are all the same kind of target.
 void main() {
   Future<void> pumpSheet(WidgetTester tester) async {
@@ -34,7 +36,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
   }
 
   testWidgets('"it just ended" is as tall as every other option', (

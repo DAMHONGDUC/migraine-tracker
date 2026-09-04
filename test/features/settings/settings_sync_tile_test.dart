@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
@@ -20,11 +19,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await openSettings(tester);
 
-    await tester.dragUntilVisible(
-      find.text('Sync data to cloud'),
-      find.byType(Scrollable).first,
-      const Offset(0, -200),
-    );
+    await scrollIntoView(tester, find.text('Sync data to cloud'));
 
     // Alongside export and delete: sync is one more thing that happens to the user's data, not a section of its own.
     expect(find.text('Export data'), findsOneWidget);

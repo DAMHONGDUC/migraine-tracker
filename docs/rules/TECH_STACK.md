@@ -47,14 +47,24 @@ Owner's call: one source for the whole app, no second provider anywhere.
   through it, because "a 401 resets the token before retrying" is exactly the
   rule that gets fixed in one copy and not the other.
 
-## iOS builds on Swift Package Manager, not CocoaPods — except `health`
+## iOS builds on Swift Package Manager. There is no CocoaPods
 
-Every other plugin resolves as a Swift Package (`flutter_file_dialog` included;
-Flutter adapts podspec-only plugins). **If an `ios/Podfile` reappears for any
-other reason**, something added CocoaPods scaffolding this project does not
-need: `pod deintegrate`, delete the `Podfile`, drop the `#include?` lines from
-`ios/Flutter/{Debug,Release}.xcconfig`.
+Every plugin resolves as a Swift Package — `flutter_file_dialog` included,
+because Flutter adapts podspec-only plugins. `ios/Podfile`, `Podfile.lock` and
+the `Pods` project are **deleted**, and the `#include?` lines are gone from all
+three `ios/Flutter/*.xcconfig`. **If any of them reappears**, something added
+scaffolding this project does not need: `pod deintegrate`, delete the files
+again, drop the includes.
 
+- **Proven by a build, not by inference** (2026-09-04, `flutter build ios
+  --no-codesign --debug`, exit 0, no Podfile in the tree). The step before it
+  was the `health` 13 upgrade, after which `Podfile.lock` held **Flutter and
+  nothing else** — the last pod was Flutter's own, which the SPM integration
+  supplies anyway.
+- **What went with it**: the `cocoapods` gem in `ios/Gemfile`, the *Pods* step
+  in `.github/workflows/release-ios.yml`, the `pod install` block in
+  `tool/set-up.sh`, and `ios/Pods` from `tool/_clean.sh`. The Ruby pin and the
+  UTF-8 `LANG` stay — fastlane is Ruby and reads `pubspec.yaml`.
 - **The reverse was tried and reverted — do not re-litigate without new facts.**
   The whole app was moved to CocoaPods (`flutter: config:
   enable-swift-package-manager: false`) to escape the `exact:` pin conflicts
@@ -73,24 +83,16 @@ need: `pod deintegrate`, delete the `Podfile`, drop the `#include?` lines from
   `ios/Runner.xcodeproj/…` and `ios/Runner.xcworkspace/…` — and Xcode reads the
   workspace one; fixing only the project copy leaves the mismatch one launch
   away from returning.
-- **`health: ^3.0.6` is the exception: it pins an unmaintained `device_info`**
-  (last published 2021, no SPM support and none coming). So `pod install` stays
-  required for `health` + `device_info`, and `ios/Podfile` plus its `#include?`
-  lines in `Debug`/`Release`/`Profile.xcconfig` are intentional, not leftovers.
-  - **All three configs exist and each points at its own Pods xcconfig.**
-    Flutter's template ships two and maps Profile onto `Release.xcconfig`, which
-    makes `pod install` warn it never set the base configuration and leaves
-    Profile builds on *release* pod settings.
-  - The Podfile declares `platform :ios, '15.0'` to match
-    `IPHONEOS_DEPLOYMENT_TARGET`; without it CocoaPods picks its own default and
-    says so every run.
-  - The build prints `"The following plugins do not support Swift Package
-    Manager for ios: device_info, health"`. Expected and non-fatal.
-  - **Do not "fix" that warning by bumping `health`.** Every version through
-    13.3.1 caps `device_info_plus` below `win32 ^6`, which conflicts with
-    `package_info_plus`/`share_plus`'s `win32 ^6.0.1` — and don't override
-    `win32` to force it. Revisit if `health` widens to `device_info_plus
-    ^13.0.0`+ or drops it.
-  - If `ios/Podfile` is missing (a clean checkout), `pod install` fails at the
-    post-install hook with `Flutter.xcframework must exist`. Run `flutter
-    precache --ios` first.
+- **`health` is at `^13.3.1`, and the pin that blocked it is gone.** The bump
+  was made for menstrual-cycle data — `health 3.0.6` has no `MENSTRUATION_FLOW`
+  type at all — and it is what removed the last podspec-only plugins:
+  `health 13.3.2` resolves `device_info_plus 13.2.0` on `win32 6.3.0` beside
+  `share_plus 13.2.0` and `package_info_plus 10.2.1`, and both ship a
+  `Package.swift`.
+  - **The API changed with it**: `HealthFactory()` → `Health()`, and
+    `getHealthDataFromTypes` takes named `types`/`startTime`/`endTime`. A step
+    sample's value is a typed `NumericHealthValue` now, not a bare number.
+- **`Runner.xcworkspace` stays, holding `Runner.xcodeproj` alone.** Flutter
+  builds the workspace when one exists, and Xcode reads its `Package.resolved`
+  — deleting it would move SPM resolution to the project copy and lose the
+  scheme settings with it.

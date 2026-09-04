@@ -116,6 +116,29 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<List<AuraType>?>($AttacksTable.$converterauran);
+  static const VerificationMeta _medicationTakenAtMeta = const VerificationMeta(
+    'medicationTakenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> medicationTakenAt =
+      GeneratedColumn<DateTime>(
+        'medication_taken_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _reliefAtMeta = const VerificationMeta(
+    'reliefAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reliefAt = GeneratedColumn<DateTime>(
+    'relief_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _endedAtMeta = const VerificationMeta(
     'endedAt',
   );
@@ -183,6 +206,8 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
     exertionLevel,
     medicationEffect,
     aura,
+    medicationTakenAt,
+    reliefAt,
     endedAt,
     steps,
     updatedAt,
@@ -235,6 +260,21 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('medication_taken_at')) {
+      context.handle(
+        _medicationTakenAtMeta,
+        medicationTakenAt.isAcceptableOrUnknown(
+          data['medication_taken_at']!,
+          _medicationTakenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('relief_at')) {
+      context.handle(
+        _reliefAtMeta,
+        reliefAt.isAcceptableOrUnknown(data['relief_at']!, _reliefAtMeta),
       );
     }
     if (data.containsKey('ended_at')) {
@@ -335,6 +375,14 @@ class $AttacksTable extends Attacks with TableInfo<$AttacksTable, AttackRow> {
           data['${effectivePrefix}aura'],
         ),
       ),
+      medicationTakenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}medication_taken_at'],
+      ),
+      reliefAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}relief_at'],
+      ),
       endedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}ended_at'],
@@ -412,6 +460,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
   /// Aura kinds reported for this attack, JSON-encoded.
   final List<AuraType>? aura;
 
+  /// When the medication was taken, UTC. Null is "never said" — the same state as an attack where nothing was taken.
+  final DateTime? medicationTakenAt;
+
+  /// When the pain eased, UTC. Its own column rather than a duration, because a duration cannot say WHEN without a second field anyway.
+  final DateTime? reliefAt;
+
   /// When the attack stopped, UTC. Null is "still going, or never said" — one state on purpose, since nothing here can tell those apart.
   final DateTime? endedAt;
 
@@ -438,6 +492,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     this.exertionLevel,
     this.medicationEffect,
     this.aura,
+    this.medicationTakenAt,
+    this.reliefAt,
     this.endedAt,
     this.steps,
     this.updatedAt,
@@ -484,6 +540,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     if (!nullToAbsent || aura != null) {
       map['aura'] = Variable<String>($AttacksTable.$converterauran.toSql(aura));
     }
+    if (!nullToAbsent || medicationTakenAt != null) {
+      map['medication_taken_at'] = Variable<DateTime>(medicationTakenAt);
+    }
+    if (!nullToAbsent || reliefAt != null) {
+      map['relief_at'] = Variable<DateTime>(reliefAt);
+    }
     if (!nullToAbsent || endedAt != null) {
       map['ended_at'] = Variable<DateTime>(endedAt);
     }
@@ -521,6 +583,12 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ? const Value.absent()
           : Value(medicationEffect),
       aura: aura == null && nullToAbsent ? const Value.absent() : Value(aura),
+      medicationTakenAt: medicationTakenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicationTakenAt),
+      reliefAt: reliefAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reliefAt),
       endedAt: endedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(endedAt),
@@ -558,6 +626,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         serializer.fromJson<String?>(json['medicationEffect']),
       ),
       aura: serializer.fromJson<List<AuraType>?>(json['aura']),
+      medicationTakenAt: serializer.fromJson<DateTime?>(
+        json['medicationTakenAt'],
+      ),
+      reliefAt: serializer.fromJson<DateTime?>(json['reliefAt']),
       endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
       steps: serializer.fromJson<int?>(json['steps']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -584,6 +656,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         $AttacksTable.$convertermedicationEffectn.toJson(medicationEffect),
       ),
       'aura': serializer.toJson<List<AuraType>?>(aura),
+      'medicationTakenAt': serializer.toJson<DateTime?>(medicationTakenAt),
+      'reliefAt': serializer.toJson<DateTime?>(reliefAt),
       'endedAt': serializer.toJson<DateTime?>(endedAt),
       'steps': serializer.toJson<int?>(steps),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -604,6 +678,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     Value<ExertionLevel?> exertionLevel = const Value.absent(),
     Value<MedicationEffect?> medicationEffect = const Value.absent(),
     Value<List<AuraType>?> aura = const Value.absent(),
+    Value<DateTime?> medicationTakenAt = const Value.absent(),
+    Value<DateTime?> reliefAt = const Value.absent(),
     Value<DateTime?> endedAt = const Value.absent(),
     Value<int?> steps = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -627,6 +703,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
         ? medicationEffect.value
         : this.medicationEffect,
     aura: aura.present ? aura.value : this.aura,
+    medicationTakenAt: medicationTakenAt.present
+        ? medicationTakenAt.value
+        : this.medicationTakenAt,
+    reliefAt: reliefAt.present ? reliefAt.value : this.reliefAt,
     endedAt: endedAt.present ? endedAt.value : this.endedAt,
     steps: steps.present ? steps.value : this.steps,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -654,6 +734,10 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ? data.medicationEffect.value
           : this.medicationEffect,
       aura: data.aura.present ? data.aura.value : this.aura,
+      medicationTakenAt: data.medicationTakenAt.present
+          ? data.medicationTakenAt.value
+          : this.medicationTakenAt,
+      reliefAt: data.reliefAt.present ? data.reliefAt.value : this.reliefAt,
       endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       steps: data.steps.present ? data.steps.value : this.steps,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -678,6 +762,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           ..write('exertionLevel: $exertionLevel, ')
           ..write('medicationEffect: $medicationEffect, ')
           ..write('aura: $aura, ')
+          ..write('medicationTakenAt: $medicationTakenAt, ')
+          ..write('reliefAt: $reliefAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('steps: $steps, ')
           ..write('updatedAt: $updatedAt, ')
@@ -700,6 +786,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
     exertionLevel,
     medicationEffect,
     aura,
+    medicationTakenAt,
+    reliefAt,
     endedAt,
     steps,
     updatedAt,
@@ -721,6 +809,8 @@ class AttackRow extends DataClass implements Insertable<AttackRow> {
           other.exertionLevel == this.exertionLevel &&
           other.medicationEffect == this.medicationEffect &&
           other.aura == this.aura &&
+          other.medicationTakenAt == this.medicationTakenAt &&
+          other.reliefAt == this.reliefAt &&
           other.endedAt == this.endedAt &&
           other.steps == this.steps &&
           other.updatedAt == this.updatedAt &&
@@ -740,6 +830,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
   final Value<ExertionLevel?> exertionLevel;
   final Value<MedicationEffect?> medicationEffect;
   final Value<List<AuraType>?> aura;
+  final Value<DateTime?> medicationTakenAt;
+  final Value<DateTime?> reliefAt;
   final Value<DateTime?> endedAt;
   final Value<int?> steps;
   final Value<DateTime?> updatedAt;
@@ -758,6 +850,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.exertionLevel = const Value.absent(),
     this.medicationEffect = const Value.absent(),
     this.aura = const Value.absent(),
+    this.medicationTakenAt = const Value.absent(),
+    this.reliefAt = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.steps = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -777,6 +871,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     this.exertionLevel = const Value.absent(),
     this.medicationEffect = const Value.absent(),
     this.aura = const Value.absent(),
+    this.medicationTakenAt = const Value.absent(),
+    this.reliefAt = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.steps = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -798,6 +894,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Expression<String>? exertionLevel,
     Expression<String>? medicationEffect,
     Expression<String>? aura,
+    Expression<DateTime>? medicationTakenAt,
+    Expression<DateTime>? reliefAt,
     Expression<DateTime>? endedAt,
     Expression<int>? steps,
     Expression<DateTime>? updatedAt,
@@ -817,6 +915,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       if (exertionLevel != null) 'exertion_level': exertionLevel,
       if (medicationEffect != null) 'medication_effect': medicationEffect,
       if (aura != null) 'aura': aura,
+      if (medicationTakenAt != null) 'medication_taken_at': medicationTakenAt,
+      if (reliefAt != null) 'relief_at': reliefAt,
       if (endedAt != null) 'ended_at': endedAt,
       if (steps != null) 'steps': steps,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -838,6 +938,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
     Value<ExertionLevel?>? exertionLevel,
     Value<MedicationEffect?>? medicationEffect,
     Value<List<AuraType>?>? aura,
+    Value<DateTime?>? medicationTakenAt,
+    Value<DateTime?>? reliefAt,
     Value<DateTime?>? endedAt,
     Value<int?>? steps,
     Value<DateTime?>? updatedAt,
@@ -857,6 +959,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
       exertionLevel: exertionLevel ?? this.exertionLevel,
       medicationEffect: medicationEffect ?? this.medicationEffect,
       aura: aura ?? this.aura,
+      medicationTakenAt: medicationTakenAt ?? this.medicationTakenAt,
+      reliefAt: reliefAt ?? this.reliefAt,
       endedAt: endedAt ?? this.endedAt,
       steps: steps ?? this.steps,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -914,6 +1018,12 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
         $AttacksTable.$converterauran.toSql(aura.value),
       );
     }
+    if (medicationTakenAt.present) {
+      map['medication_taken_at'] = Variable<DateTime>(medicationTakenAt.value);
+    }
+    if (reliefAt.present) {
+      map['relief_at'] = Variable<DateTime>(reliefAt.value);
+    }
     if (endedAt.present) {
       map['ended_at'] = Variable<DateTime>(endedAt.value);
     }
@@ -949,6 +1059,8 @@ class AttacksCompanion extends UpdateCompanion<AttackRow> {
           ..write('exertionLevel: $exertionLevel, ')
           ..write('medicationEffect: $medicationEffect, ')
           ..write('aura: $aura, ')
+          ..write('medicationTakenAt: $medicationTakenAt, ')
+          ..write('reliefAt: $reliefAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('steps: $steps, ')
           ..write('updatedAt: $updatedAt, ')
@@ -3760,12 +3872,36 @@ class $DailyWeatherTable extends DailyWeather
         type: DriftSqlType.double,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _humidityPercentMeta = const VerificationMeta(
+    'humidityPercent',
+  );
+  @override
+  late final GeneratedColumn<double> humidityPercent = GeneratedColumn<double>(
+    'humidity_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _temperatureCelsiusMeta =
+      const VerificationMeta('temperatureCelsius');
+  @override
+  late final GeneratedColumn<double> temperatureCelsius =
+      GeneratedColumn<double>(
+        'temperature_celsius',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     day,
     capturedAt,
     pressureHpa,
     pressureDelta24hHpa,
+    humidityPercent,
+    temperatureCelsius,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3817,6 +3953,24 @@ class $DailyWeatherTable extends DailyWeather
     } else if (isInserting) {
       context.missing(_pressureDelta24hHpaMeta);
     }
+    if (data.containsKey('humidity_percent')) {
+      context.handle(
+        _humidityPercentMeta,
+        humidityPercent.isAcceptableOrUnknown(
+          data['humidity_percent']!,
+          _humidityPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('temperature_celsius')) {
+      context.handle(
+        _temperatureCelsiusMeta,
+        temperatureCelsius.isAcceptableOrUnknown(
+          data['temperature_celsius']!,
+          _temperatureCelsiusMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3842,6 +3996,14 @@ class $DailyWeatherTable extends DailyWeather
         DriftSqlType.double,
         data['${effectivePrefix}pressure_delta24h_hpa'],
       )!,
+      humidityPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}humidity_percent'],
+      ),
+      temperatureCelsius: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}temperature_celsius'],
+      ),
     );
   }
 
@@ -3857,11 +4019,17 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
   final DateTime capturedAt;
   final double pressureHpa;
   final double pressureDelta24hHpa;
+
+  /// The day's humidity and temperature, so the factor map can weigh a muggy day and a temperature swing against the days without one. Null on every row written before v20.
+  final double? humidityPercent;
+  final double? temperatureCelsius;
   const DailyWeatherRow({
     required this.day,
     required this.capturedAt,
     required this.pressureHpa,
     required this.pressureDelta24hHpa,
+    this.humidityPercent,
+    this.temperatureCelsius,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3870,6 +4038,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
     map['captured_at'] = Variable<DateTime>(capturedAt);
     map['pressure_hpa'] = Variable<double>(pressureHpa);
     map['pressure_delta24h_hpa'] = Variable<double>(pressureDelta24hHpa);
+    if (!nullToAbsent || humidityPercent != null) {
+      map['humidity_percent'] = Variable<double>(humidityPercent);
+    }
+    if (!nullToAbsent || temperatureCelsius != null) {
+      map['temperature_celsius'] = Variable<double>(temperatureCelsius);
+    }
     return map;
   }
 
@@ -3879,6 +4053,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       capturedAt: Value(capturedAt),
       pressureHpa: Value(pressureHpa),
       pressureDelta24hHpa: Value(pressureDelta24hHpa),
+      humidityPercent: humidityPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(humidityPercent),
+      temperatureCelsius: temperatureCelsius == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureCelsius),
     );
   }
 
@@ -3894,6 +4074,10 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       pressureDelta24hHpa: serializer.fromJson<double>(
         json['pressureDelta24hHpa'],
       ),
+      humidityPercent: serializer.fromJson<double?>(json['humidityPercent']),
+      temperatureCelsius: serializer.fromJson<double?>(
+        json['temperatureCelsius'],
+      ),
     );
   }
   @override
@@ -3904,6 +4088,8 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       'capturedAt': serializer.toJson<DateTime>(capturedAt),
       'pressureHpa': serializer.toJson<double>(pressureHpa),
       'pressureDelta24hHpa': serializer.toJson<double>(pressureDelta24hHpa),
+      'humidityPercent': serializer.toJson<double?>(humidityPercent),
+      'temperatureCelsius': serializer.toJson<double?>(temperatureCelsius),
     };
   }
 
@@ -3912,11 +4098,19 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
     DateTime? capturedAt,
     double? pressureHpa,
     double? pressureDelta24hHpa,
+    Value<double?> humidityPercent = const Value.absent(),
+    Value<double?> temperatureCelsius = const Value.absent(),
   }) => DailyWeatherRow(
     day: day ?? this.day,
     capturedAt: capturedAt ?? this.capturedAt,
     pressureHpa: pressureHpa ?? this.pressureHpa,
     pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+    humidityPercent: humidityPercent.present
+        ? humidityPercent.value
+        : this.humidityPercent,
+    temperatureCelsius: temperatureCelsius.present
+        ? temperatureCelsius.value
+        : this.temperatureCelsius,
   );
   DailyWeatherRow copyWithCompanion(DailyWeatherCompanion data) {
     return DailyWeatherRow(
@@ -3930,6 +4124,12 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
       pressureDelta24hHpa: data.pressureDelta24hHpa.present
           ? data.pressureDelta24hHpa.value
           : this.pressureDelta24hHpa,
+      humidityPercent: data.humidityPercent.present
+          ? data.humidityPercent.value
+          : this.humidityPercent,
+      temperatureCelsius: data.temperatureCelsius.present
+          ? data.temperatureCelsius.value
+          : this.temperatureCelsius,
     );
   }
 
@@ -3939,14 +4139,22 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
           ..write('day: $day, ')
           ..write('capturedAt: $capturedAt, ')
           ..write('pressureHpa: $pressureHpa, ')
-          ..write('pressureDelta24hHpa: $pressureDelta24hHpa')
+          ..write('pressureDelta24hHpa: $pressureDelta24hHpa, ')
+          ..write('humidityPercent: $humidityPercent, ')
+          ..write('temperatureCelsius: $temperatureCelsius')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(day, capturedAt, pressureHpa, pressureDelta24hHpa);
+  int get hashCode => Object.hash(
+    day,
+    capturedAt,
+    pressureHpa,
+    pressureDelta24hHpa,
+    humidityPercent,
+    temperatureCelsius,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3954,7 +4162,9 @@ class DailyWeatherRow extends DataClass implements Insertable<DailyWeatherRow> {
           other.day == this.day &&
           other.capturedAt == this.capturedAt &&
           other.pressureHpa == this.pressureHpa &&
-          other.pressureDelta24hHpa == this.pressureDelta24hHpa);
+          other.pressureDelta24hHpa == this.pressureDelta24hHpa &&
+          other.humidityPercent == this.humidityPercent &&
+          other.temperatureCelsius == this.temperatureCelsius);
 }
 
 class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
@@ -3962,12 +4172,16 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
   final Value<DateTime> capturedAt;
   final Value<double> pressureHpa;
   final Value<double> pressureDelta24hHpa;
+  final Value<double?> humidityPercent;
+  final Value<double?> temperatureCelsius;
   final Value<int> rowid;
   const DailyWeatherCompanion({
     this.day = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.pressureHpa = const Value.absent(),
     this.pressureDelta24hHpa = const Value.absent(),
+    this.humidityPercent = const Value.absent(),
+    this.temperatureCelsius = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DailyWeatherCompanion.insert({
@@ -3975,6 +4189,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     required DateTime capturedAt,
     required double pressureHpa,
     required double pressureDelta24hHpa,
+    this.humidityPercent = const Value.absent(),
+    this.temperatureCelsius = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : day = Value(day),
        capturedAt = Value(capturedAt),
@@ -3985,6 +4201,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     Expression<DateTime>? capturedAt,
     Expression<double>? pressureHpa,
     Expression<double>? pressureDelta24hHpa,
+    Expression<double>? humidityPercent,
+    Expression<double>? temperatureCelsius,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3993,6 +4211,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
       if (pressureHpa != null) 'pressure_hpa': pressureHpa,
       if (pressureDelta24hHpa != null)
         'pressure_delta24h_hpa': pressureDelta24hHpa,
+      if (humidityPercent != null) 'humidity_percent': humidityPercent,
+      if (temperatureCelsius != null) 'temperature_celsius': temperatureCelsius,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4002,6 +4222,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
     Value<DateTime>? capturedAt,
     Value<double>? pressureHpa,
     Value<double>? pressureDelta24hHpa,
+    Value<double?>? humidityPercent,
+    Value<double?>? temperatureCelsius,
     Value<int>? rowid,
   }) {
     return DailyWeatherCompanion(
@@ -4009,6 +4231,8 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
       capturedAt: capturedAt ?? this.capturedAt,
       pressureHpa: pressureHpa ?? this.pressureHpa,
       pressureDelta24hHpa: pressureDelta24hHpa ?? this.pressureDelta24hHpa,
+      humidityPercent: humidityPercent ?? this.humidityPercent,
+      temperatureCelsius: temperatureCelsius ?? this.temperatureCelsius,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4030,6 +4254,12 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
         pressureDelta24hHpa.value,
       );
     }
+    if (humidityPercent.present) {
+      map['humidity_percent'] = Variable<double>(humidityPercent.value);
+    }
+    if (temperatureCelsius.present) {
+      map['temperature_celsius'] = Variable<double>(temperatureCelsius.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4043,6 +4273,1206 @@ class DailyWeatherCompanion extends UpdateCompanion<DailyWeatherRow> {
           ..write('capturedAt: $capturedAt, ')
           ..write('pressureHpa: $pressureHpa, ')
           ..write('pressureDelta24hHpa: $pressureDelta24hHpa, ')
+          ..write('humidityPercent: $humidityPercent, ')
+          ..write('temperatureCelsius: $temperatureCelsius, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyLogsTable extends DailyLogs
+    with TableInfo<$DailyLogsTable, DailyLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sleepQualityMeta = const VerificationMeta(
+    'sleepQuality',
+  );
+  @override
+  late final GeneratedColumn<int> sleepQuality = GeneratedColumn<int>(
+    'sleep_quality',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stressLevelMeta = const VerificationMeta(
+    'stressLevel',
+  );
+  @override
+  late final GeneratedColumn<int> stressLevel = GeneratedColumn<int>(
+    'stress_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<List<DailyFactor>, String>
+  factors = GeneratedColumn<String>(
+    'factors',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<DailyFactor>>($DailyLogsTable.$converterfactors);
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+    'steps',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncedRevisionMeta = const VerificationMeta(
+    'syncedRevision',
+  );
+  @override
+  late final GeneratedColumn<int> syncedRevision = GeneratedColumn<int>(
+    'synced_revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sleepQuality,
+    stressLevel,
+    factors,
+    steps,
+    updatedAt,
+    revision,
+    syncedRevision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('sleep_quality')) {
+      context.handle(
+        _sleepQualityMeta,
+        sleepQuality.isAcceptableOrUnknown(
+          data['sleep_quality']!,
+          _sleepQualityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stress_level')) {
+      context.handle(
+        _stressLevelMeta,
+        stressLevel.isAcceptableOrUnknown(
+          data['stress_level']!,
+          _stressLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('steps')) {
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('synced_revision')) {
+      context.handle(
+        _syncedRevisionMeta,
+        syncedRevision.isAcceptableOrUnknown(
+          data['synced_revision']!,
+          _syncedRevisionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DailyLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyLogRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sleepQuality: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sleep_quality'],
+      ),
+      stressLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stress_level'],
+      ),
+      factors: $DailyLogsTable.$converterfactors.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}factors'],
+        )!,
+      ),
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_revision'],
+      ),
+    );
+  }
+
+  @override
+  $DailyLogsTable createAlias(String alias) {
+    return $DailyLogsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<List<DailyFactor>, String> $converterfactors =
+      const DailyFactorListConverter();
+}
+
+class DailyLogRow extends DataClass implements Insertable<DailyLogRow> {
+  /// The local day as `yyyy-MM-dd` — see `DateTimeUtils.dayKey`.
+  final String id;
+
+  /// 1 (worst) to 5 (best), or null when the user did not answer.
+  final int? sleepQuality;
+
+  /// 1 (calm) to 5 (worst), or null when the user did not answer.
+  final int? stressLevel;
+
+  /// The day's factors, JSON-encoded.
+  final List<DailyFactor> factors;
+
+  /// Steps that day, from Apple Health. Sleep deliberately has no column beside it: HealthKit is already on-device storage and sleep never leaves it (see `features/health/CLAUDE.md`).
+  final int? steps;
+
+  /// Wall clock of the last local mutation, used only to settle which of two devices' versions wins.
+  final DateTime? updatedAt;
+
+  /// Bumped on every local mutation.
+  final int revision;
+
+  /// The [revision] the server confirmed.
+  final int? syncedRevision;
+  const DailyLogRow({
+    required this.id,
+    this.sleepQuality,
+    this.stressLevel,
+    required this.factors,
+    this.steps,
+    this.updatedAt,
+    required this.revision,
+    this.syncedRevision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || sleepQuality != null) {
+      map['sleep_quality'] = Variable<int>(sleepQuality);
+    }
+    if (!nullToAbsent || stressLevel != null) {
+      map['stress_level'] = Variable<int>(stressLevel);
+    }
+    {
+      map['factors'] = Variable<String>(
+        $DailyLogsTable.$converterfactors.toSql(factors),
+      );
+    }
+    if (!nullToAbsent || steps != null) {
+      map['steps'] = Variable<int>(steps);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || syncedRevision != null) {
+      map['synced_revision'] = Variable<int>(syncedRevision);
+    }
+    return map;
+  }
+
+  DailyLogsCompanion toCompanion(bool nullToAbsent) {
+    return DailyLogsCompanion(
+      id: Value(id),
+      sleepQuality: sleepQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sleepQuality),
+      stressLevel: stressLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stressLevel),
+      factors: Value(factors),
+      steps: steps == null && nullToAbsent
+          ? const Value.absent()
+          : Value(steps),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      revision: Value(revision),
+      syncedRevision: syncedRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedRevision),
+    );
+  }
+
+  factory DailyLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyLogRow(
+      id: serializer.fromJson<String>(json['id']),
+      sleepQuality: serializer.fromJson<int?>(json['sleepQuality']),
+      stressLevel: serializer.fromJson<int?>(json['stressLevel']),
+      factors: serializer.fromJson<List<DailyFactor>>(json['factors']),
+      steps: serializer.fromJson<int?>(json['steps']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sleepQuality': serializer.toJson<int?>(sleepQuality),
+      'stressLevel': serializer.toJson<int?>(stressLevel),
+      'factors': serializer.toJson<List<DailyFactor>>(factors),
+      'steps': serializer.toJson<int?>(steps),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+      'syncedRevision': serializer.toJson<int?>(syncedRevision),
+    };
+  }
+
+  DailyLogRow copyWith({
+    String? id,
+    Value<int?> sleepQuality = const Value.absent(),
+    Value<int?> stressLevel = const Value.absent(),
+    List<DailyFactor>? factors,
+    Value<int?> steps = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+    int? revision,
+    Value<int?> syncedRevision = const Value.absent(),
+  }) => DailyLogRow(
+    id: id ?? this.id,
+    sleepQuality: sleepQuality.present ? sleepQuality.value : this.sleepQuality,
+    stressLevel: stressLevel.present ? stressLevel.value : this.stressLevel,
+    factors: factors ?? this.factors,
+    steps: steps.present ? steps.value : this.steps,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    revision: revision ?? this.revision,
+    syncedRevision: syncedRevision.present
+        ? syncedRevision.value
+        : this.syncedRevision,
+  );
+  DailyLogRow copyWithCompanion(DailyLogsCompanion data) {
+    return DailyLogRow(
+      id: data.id.present ? data.id.value : this.id,
+      sleepQuality: data.sleepQuality.present
+          ? data.sleepQuality.value
+          : this.sleepQuality,
+      stressLevel: data.stressLevel.present
+          ? data.stressLevel.value
+          : this.stressLevel,
+      factors: data.factors.present ? data.factors.value : this.factors,
+      steps: data.steps.present ? data.steps.value : this.steps,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedRevision: data.syncedRevision.present
+          ? data.syncedRevision.value
+          : this.syncedRevision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyLogRow(')
+          ..write('id: $id, ')
+          ..write('sleepQuality: $sleepQuality, ')
+          ..write('stressLevel: $stressLevel, ')
+          ..write('factors: $factors, ')
+          ..write('steps: $steps, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sleepQuality,
+    stressLevel,
+    factors,
+    steps,
+    updatedAt,
+    revision,
+    syncedRevision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyLogRow &&
+          other.id == this.id &&
+          other.sleepQuality == this.sleepQuality &&
+          other.stressLevel == this.stressLevel &&
+          other.factors == this.factors &&
+          other.steps == this.steps &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision &&
+          other.syncedRevision == this.syncedRevision);
+}
+
+class DailyLogsCompanion extends UpdateCompanion<DailyLogRow> {
+  final Value<String> id;
+  final Value<int?> sleepQuality;
+  final Value<int?> stressLevel;
+  final Value<List<DailyFactor>> factors;
+  final Value<int?> steps;
+  final Value<DateTime?> updatedAt;
+  final Value<int> revision;
+  final Value<int?> syncedRevision;
+  final Value<int> rowid;
+  const DailyLogsCompanion({
+    this.id = const Value.absent(),
+    this.sleepQuality = const Value.absent(),
+    this.stressLevel = const Value.absent(),
+    this.factors = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyLogsCompanion.insert({
+    required String id,
+    this.sleepQuality = const Value.absent(),
+    this.stressLevel = const Value.absent(),
+    this.factors = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<DailyLogRow> custom({
+    Expression<String>? id,
+    Expression<int>? sleepQuality,
+    Expression<int>? stressLevel,
+    Expression<String>? factors,
+    Expression<int>? steps,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? syncedRevision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sleepQuality != null) 'sleep_quality': sleepQuality,
+      if (stressLevel != null) 'stress_level': stressLevel,
+      if (factors != null) 'factors': factors,
+      if (steps != null) 'steps': steps,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (syncedRevision != null) 'synced_revision': syncedRevision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyLogsCompanion copyWith({
+    Value<String>? id,
+    Value<int?>? sleepQuality,
+    Value<int?>? stressLevel,
+    Value<List<DailyFactor>>? factors,
+    Value<int?>? steps,
+    Value<DateTime?>? updatedAt,
+    Value<int>? revision,
+    Value<int?>? syncedRevision,
+    Value<int>? rowid,
+  }) {
+    return DailyLogsCompanion(
+      id: id ?? this.id,
+      sleepQuality: sleepQuality ?? this.sleepQuality,
+      stressLevel: stressLevel ?? this.stressLevel,
+      factors: factors ?? this.factors,
+      steps: steps ?? this.steps,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      syncedRevision: syncedRevision ?? this.syncedRevision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sleepQuality.present) {
+      map['sleep_quality'] = Variable<int>(sleepQuality.value);
+    }
+    if (stressLevel.present) {
+      map['stress_level'] = Variable<int>(stressLevel.value);
+    }
+    if (factors.present) {
+      map['factors'] = Variable<String>(
+        $DailyLogsTable.$converterfactors.toSql(factors.value),
+      );
+    }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedRevision.present) {
+      map['synced_revision'] = Variable<int>(syncedRevision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('sleepQuality: $sleepQuality, ')
+          ..write('stressLevel: $stressLevel, ')
+          ..write('factors: $factors, ')
+          ..write('steps: $steps, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MidasEntriesTable extends MidasEntries
+    with TableInfo<$MidasEntriesTable, MidasRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MidasEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _takenAtMeta = const VerificationMeta(
+    'takenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> takenAt = GeneratedColumn<DateTime>(
+    'taken_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _missedWorkDaysMeta = const VerificationMeta(
+    'missedWorkDays',
+  );
+  @override
+  late final GeneratedColumn<int> missedWorkDays = GeneratedColumn<int>(
+    'missed_work_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reducedWorkDaysMeta = const VerificationMeta(
+    'reducedWorkDays',
+  );
+  @override
+  late final GeneratedColumn<int> reducedWorkDays = GeneratedColumn<int>(
+    'reduced_work_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _missedHouseholdDaysMeta =
+      const VerificationMeta('missedHouseholdDays');
+  @override
+  late final GeneratedColumn<int> missedHouseholdDays = GeneratedColumn<int>(
+    'missed_household_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reducedHouseholdDaysMeta =
+      const VerificationMeta('reducedHouseholdDays');
+  @override
+  late final GeneratedColumn<int> reducedHouseholdDays = GeneratedColumn<int>(
+    'reduced_household_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _missedSocialDaysMeta = const VerificationMeta(
+    'missedSocialDays',
+  );
+  @override
+  late final GeneratedColumn<int> missedSocialDays = GeneratedColumn<int>(
+    'missed_social_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncedRevisionMeta = const VerificationMeta(
+    'syncedRevision',
+  );
+  @override
+  late final GeneratedColumn<int> syncedRevision = GeneratedColumn<int>(
+    'synced_revision',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    takenAt,
+    missedWorkDays,
+    reducedWorkDays,
+    missedHouseholdDays,
+    reducedHouseholdDays,
+    missedSocialDays,
+    updatedAt,
+    revision,
+    syncedRevision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'midas_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MidasRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('taken_at')) {
+      context.handle(
+        _takenAtMeta,
+        takenAt.isAcceptableOrUnknown(data['taken_at']!, _takenAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_takenAtMeta);
+    }
+    if (data.containsKey('missed_work_days')) {
+      context.handle(
+        _missedWorkDaysMeta,
+        missedWorkDays.isAcceptableOrUnknown(
+          data['missed_work_days']!,
+          _missedWorkDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_missedWorkDaysMeta);
+    }
+    if (data.containsKey('reduced_work_days')) {
+      context.handle(
+        _reducedWorkDaysMeta,
+        reducedWorkDays.isAcceptableOrUnknown(
+          data['reduced_work_days']!,
+          _reducedWorkDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reducedWorkDaysMeta);
+    }
+    if (data.containsKey('missed_household_days')) {
+      context.handle(
+        _missedHouseholdDaysMeta,
+        missedHouseholdDays.isAcceptableOrUnknown(
+          data['missed_household_days']!,
+          _missedHouseholdDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_missedHouseholdDaysMeta);
+    }
+    if (data.containsKey('reduced_household_days')) {
+      context.handle(
+        _reducedHouseholdDaysMeta,
+        reducedHouseholdDays.isAcceptableOrUnknown(
+          data['reduced_household_days']!,
+          _reducedHouseholdDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reducedHouseholdDaysMeta);
+    }
+    if (data.containsKey('missed_social_days')) {
+      context.handle(
+        _missedSocialDaysMeta,
+        missedSocialDays.isAcceptableOrUnknown(
+          data['missed_social_days']!,
+          _missedSocialDaysMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_missedSocialDaysMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('synced_revision')) {
+      context.handle(
+        _syncedRevisionMeta,
+        syncedRevision.isAcceptableOrUnknown(
+          data['synced_revision']!,
+          _syncedRevisionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MidasRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MidasRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      takenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}taken_at'],
+      )!,
+      missedWorkDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}missed_work_days'],
+      )!,
+      reducedWorkDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reduced_work_days'],
+      )!,
+      missedHouseholdDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}missed_household_days'],
+      )!,
+      reducedHouseholdDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reduced_household_days'],
+      )!,
+      missedSocialDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}missed_social_days'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedRevision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_revision'],
+      ),
+    );
+  }
+
+  @override
+  $MidasEntriesTable createAlias(String alias) {
+    return $MidasEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class MidasRow extends DataClass implements Insertable<MidasRow> {
+  final String id;
+
+  /// When the questionnaire was answered, UTC. The answers are about the three months before it.
+  final DateTime takenAt;
+  final int missedWorkDays;
+  final int reducedWorkDays;
+  final int missedHouseholdDays;
+  final int reducedHouseholdDays;
+  final int missedSocialDays;
+
+  /// Wall clock of the last local mutation, used only to settle which of two devices' versions wins.
+  final DateTime? updatedAt;
+
+  /// Bumped on every local mutation.
+  final int revision;
+
+  /// The [revision] the server confirmed.
+  final int? syncedRevision;
+  const MidasRow({
+    required this.id,
+    required this.takenAt,
+    required this.missedWorkDays,
+    required this.reducedWorkDays,
+    required this.missedHouseholdDays,
+    required this.reducedHouseholdDays,
+    required this.missedSocialDays,
+    this.updatedAt,
+    required this.revision,
+    this.syncedRevision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['taken_at'] = Variable<DateTime>(takenAt);
+    map['missed_work_days'] = Variable<int>(missedWorkDays);
+    map['reduced_work_days'] = Variable<int>(reducedWorkDays);
+    map['missed_household_days'] = Variable<int>(missedHouseholdDays);
+    map['reduced_household_days'] = Variable<int>(reducedHouseholdDays);
+    map['missed_social_days'] = Variable<int>(missedSocialDays);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['revision'] = Variable<int>(revision);
+    if (!nullToAbsent || syncedRevision != null) {
+      map['synced_revision'] = Variable<int>(syncedRevision);
+    }
+    return map;
+  }
+
+  MidasEntriesCompanion toCompanion(bool nullToAbsent) {
+    return MidasEntriesCompanion(
+      id: Value(id),
+      takenAt: Value(takenAt),
+      missedWorkDays: Value(missedWorkDays),
+      reducedWorkDays: Value(reducedWorkDays),
+      missedHouseholdDays: Value(missedHouseholdDays),
+      reducedHouseholdDays: Value(reducedHouseholdDays),
+      missedSocialDays: Value(missedSocialDays),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      revision: Value(revision),
+      syncedRevision: syncedRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedRevision),
+    );
+  }
+
+  factory MidasRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MidasRow(
+      id: serializer.fromJson<String>(json['id']),
+      takenAt: serializer.fromJson<DateTime>(json['takenAt']),
+      missedWorkDays: serializer.fromJson<int>(json['missedWorkDays']),
+      reducedWorkDays: serializer.fromJson<int>(json['reducedWorkDays']),
+      missedHouseholdDays: serializer.fromJson<int>(
+        json['missedHouseholdDays'],
+      ),
+      reducedHouseholdDays: serializer.fromJson<int>(
+        json['reducedHouseholdDays'],
+      ),
+      missedSocialDays: serializer.fromJson<int>(json['missedSocialDays']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedRevision: serializer.fromJson<int?>(json['syncedRevision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'takenAt': serializer.toJson<DateTime>(takenAt),
+      'missedWorkDays': serializer.toJson<int>(missedWorkDays),
+      'reducedWorkDays': serializer.toJson<int>(reducedWorkDays),
+      'missedHouseholdDays': serializer.toJson<int>(missedHouseholdDays),
+      'reducedHouseholdDays': serializer.toJson<int>(reducedHouseholdDays),
+      'missedSocialDays': serializer.toJson<int>(missedSocialDays),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+      'syncedRevision': serializer.toJson<int?>(syncedRevision),
+    };
+  }
+
+  MidasRow copyWith({
+    String? id,
+    DateTime? takenAt,
+    int? missedWorkDays,
+    int? reducedWorkDays,
+    int? missedHouseholdDays,
+    int? reducedHouseholdDays,
+    int? missedSocialDays,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    int? revision,
+    Value<int?> syncedRevision = const Value.absent(),
+  }) => MidasRow(
+    id: id ?? this.id,
+    takenAt: takenAt ?? this.takenAt,
+    missedWorkDays: missedWorkDays ?? this.missedWorkDays,
+    reducedWorkDays: reducedWorkDays ?? this.reducedWorkDays,
+    missedHouseholdDays: missedHouseholdDays ?? this.missedHouseholdDays,
+    reducedHouseholdDays: reducedHouseholdDays ?? this.reducedHouseholdDays,
+    missedSocialDays: missedSocialDays ?? this.missedSocialDays,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    revision: revision ?? this.revision,
+    syncedRevision: syncedRevision.present
+        ? syncedRevision.value
+        : this.syncedRevision,
+  );
+  MidasRow copyWithCompanion(MidasEntriesCompanion data) {
+    return MidasRow(
+      id: data.id.present ? data.id.value : this.id,
+      takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
+      missedWorkDays: data.missedWorkDays.present
+          ? data.missedWorkDays.value
+          : this.missedWorkDays,
+      reducedWorkDays: data.reducedWorkDays.present
+          ? data.reducedWorkDays.value
+          : this.reducedWorkDays,
+      missedHouseholdDays: data.missedHouseholdDays.present
+          ? data.missedHouseholdDays.value
+          : this.missedHouseholdDays,
+      reducedHouseholdDays: data.reducedHouseholdDays.present
+          ? data.reducedHouseholdDays.value
+          : this.reducedHouseholdDays,
+      missedSocialDays: data.missedSocialDays.present
+          ? data.missedSocialDays.value
+          : this.missedSocialDays,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedRevision: data.syncedRevision.present
+          ? data.syncedRevision.value
+          : this.syncedRevision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MidasRow(')
+          ..write('id: $id, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('missedWorkDays: $missedWorkDays, ')
+          ..write('reducedWorkDays: $reducedWorkDays, ')
+          ..write('missedHouseholdDays: $missedHouseholdDays, ')
+          ..write('reducedHouseholdDays: $reducedHouseholdDays, ')
+          ..write('missedSocialDays: $missedSocialDays, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    takenAt,
+    missedWorkDays,
+    reducedWorkDays,
+    missedHouseholdDays,
+    reducedHouseholdDays,
+    missedSocialDays,
+    updatedAt,
+    revision,
+    syncedRevision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MidasRow &&
+          other.id == this.id &&
+          other.takenAt == this.takenAt &&
+          other.missedWorkDays == this.missedWorkDays &&
+          other.reducedWorkDays == this.reducedWorkDays &&
+          other.missedHouseholdDays == this.missedHouseholdDays &&
+          other.reducedHouseholdDays == this.reducedHouseholdDays &&
+          other.missedSocialDays == this.missedSocialDays &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision &&
+          other.syncedRevision == this.syncedRevision);
+}
+
+class MidasEntriesCompanion extends UpdateCompanion<MidasRow> {
+  final Value<String> id;
+  final Value<DateTime> takenAt;
+  final Value<int> missedWorkDays;
+  final Value<int> reducedWorkDays;
+  final Value<int> missedHouseholdDays;
+  final Value<int> reducedHouseholdDays;
+  final Value<int> missedSocialDays;
+  final Value<DateTime?> updatedAt;
+  final Value<int> revision;
+  final Value<int?> syncedRevision;
+  final Value<int> rowid;
+  const MidasEntriesCompanion({
+    this.id = const Value.absent(),
+    this.takenAt = const Value.absent(),
+    this.missedWorkDays = const Value.absent(),
+    this.reducedWorkDays = const Value.absent(),
+    this.missedHouseholdDays = const Value.absent(),
+    this.reducedHouseholdDays = const Value.absent(),
+    this.missedSocialDays = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MidasEntriesCompanion.insert({
+    required String id,
+    required DateTime takenAt,
+    required int missedWorkDays,
+    required int reducedWorkDays,
+    required int missedHouseholdDays,
+    required int reducedHouseholdDays,
+    required int missedSocialDays,
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedRevision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       takenAt = Value(takenAt),
+       missedWorkDays = Value(missedWorkDays),
+       reducedWorkDays = Value(reducedWorkDays),
+       missedHouseholdDays = Value(missedHouseholdDays),
+       reducedHouseholdDays = Value(reducedHouseholdDays),
+       missedSocialDays = Value(missedSocialDays);
+  static Insertable<MidasRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? takenAt,
+    Expression<int>? missedWorkDays,
+    Expression<int>? reducedWorkDays,
+    Expression<int>? missedHouseholdDays,
+    Expression<int>? reducedHouseholdDays,
+    Expression<int>? missedSocialDays,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? syncedRevision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (takenAt != null) 'taken_at': takenAt,
+      if (missedWorkDays != null) 'missed_work_days': missedWorkDays,
+      if (reducedWorkDays != null) 'reduced_work_days': reducedWorkDays,
+      if (missedHouseholdDays != null)
+        'missed_household_days': missedHouseholdDays,
+      if (reducedHouseholdDays != null)
+        'reduced_household_days': reducedHouseholdDays,
+      if (missedSocialDays != null) 'missed_social_days': missedSocialDays,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (syncedRevision != null) 'synced_revision': syncedRevision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MidasEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? takenAt,
+    Value<int>? missedWorkDays,
+    Value<int>? reducedWorkDays,
+    Value<int>? missedHouseholdDays,
+    Value<int>? reducedHouseholdDays,
+    Value<int>? missedSocialDays,
+    Value<DateTime?>? updatedAt,
+    Value<int>? revision,
+    Value<int?>? syncedRevision,
+    Value<int>? rowid,
+  }) {
+    return MidasEntriesCompanion(
+      id: id ?? this.id,
+      takenAt: takenAt ?? this.takenAt,
+      missedWorkDays: missedWorkDays ?? this.missedWorkDays,
+      reducedWorkDays: reducedWorkDays ?? this.reducedWorkDays,
+      missedHouseholdDays: missedHouseholdDays ?? this.missedHouseholdDays,
+      reducedHouseholdDays: reducedHouseholdDays ?? this.reducedHouseholdDays,
+      missedSocialDays: missedSocialDays ?? this.missedSocialDays,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      syncedRevision: syncedRevision ?? this.syncedRevision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (takenAt.present) {
+      map['taken_at'] = Variable<DateTime>(takenAt.value);
+    }
+    if (missedWorkDays.present) {
+      map['missed_work_days'] = Variable<int>(missedWorkDays.value);
+    }
+    if (reducedWorkDays.present) {
+      map['reduced_work_days'] = Variable<int>(reducedWorkDays.value);
+    }
+    if (missedHouseholdDays.present) {
+      map['missed_household_days'] = Variable<int>(missedHouseholdDays.value);
+    }
+    if (reducedHouseholdDays.present) {
+      map['reduced_household_days'] = Variable<int>(reducedHouseholdDays.value);
+    }
+    if (missedSocialDays.present) {
+      map['missed_social_days'] = Variable<int>(missedSocialDays.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedRevision.present) {
+      map['synced_revision'] = Variable<int>(syncedRevision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MidasEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('missedWorkDays: $missedWorkDays, ')
+          ..write('reducedWorkDays: $reducedWorkDays, ')
+          ..write('missedHouseholdDays: $missedHouseholdDays, ')
+          ..write('reducedHouseholdDays: $reducedHouseholdDays, ')
+          ..write('missedSocialDays: $missedSocialDays, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('syncedRevision: $syncedRevision, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4065,6 +5495,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ExportRecordsTable exportRecords = $ExportRecordsTable(this);
   late final $SyncTombstonesTable syncTombstones = $SyncTombstonesTable(this);
   late final $DailyWeatherTable dailyWeather = $DailyWeatherTable(this);
+  late final $DailyLogsTable dailyLogs = $DailyLogsTable(this);
+  late final $MidasEntriesTable midasEntries = $MidasEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4078,6 +5510,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     exportRecords,
     syncTombstones,
     dailyWeather,
+    dailyLogs,
+    midasEntries,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4111,6 +5545,8 @@ typedef $$AttacksTableCreateCompanionBuilder =
       Value<ExertionLevel?> exertionLevel,
       Value<MedicationEffect?> medicationEffect,
       Value<List<AuraType>?> aura,
+      Value<DateTime?> medicationTakenAt,
+      Value<DateTime?> reliefAt,
       Value<DateTime?> endedAt,
       Value<int?> steps,
       Value<DateTime?> updatedAt,
@@ -4131,6 +5567,8 @@ typedef $$AttacksTableUpdateCompanionBuilder =
       Value<ExertionLevel?> exertionLevel,
       Value<MedicationEffect?> medicationEffect,
       Value<List<AuraType>?> aura,
+      Value<DateTime?> medicationTakenAt,
+      Value<DateTime?> reliefAt,
       Value<DateTime?> endedAt,
       Value<int?> steps,
       Value<DateTime?> updatedAt,
@@ -4232,6 +5670,16 @@ class $$AttacksTableFilterComposer
   get aura => $composableBuilder(
     column: $table.aura,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reliefAt => $composableBuilder(
+    column: $table.reliefAt,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get endedAt => $composableBuilder(
@@ -4349,6 +5797,16 @@ class $$AttacksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reliefAt => $composableBuilder(
+    column: $table.reliefAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get endedAt => $composableBuilder(
     column: $table.endedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4424,6 +5882,14 @@ class $$AttacksTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<List<AuraType>?, String> get aura =>
       $composableBuilder(column: $table.aura, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get medicationTakenAt => $composableBuilder(
+    column: $table.medicationTakenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reliefAt =>
+      $composableBuilder(column: $table.reliefAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get endedAt =>
       $composableBuilder(column: $table.endedAt, builder: (column) => column);
@@ -4508,6 +5974,8 @@ class $$AttacksTableTableManager
                 Value<MedicationEffect?> medicationEffect =
                     const Value.absent(),
                 Value<List<AuraType>?> aura = const Value.absent(),
+                Value<DateTime?> medicationTakenAt = const Value.absent(),
+                Value<DateTime?> reliefAt = const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<int?> steps = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -4526,6 +5994,8 @@ class $$AttacksTableTableManager
                 exertionLevel: exertionLevel,
                 medicationEffect: medicationEffect,
                 aura: aura,
+                medicationTakenAt: medicationTakenAt,
+                reliefAt: reliefAt,
                 endedAt: endedAt,
                 steps: steps,
                 updatedAt: updatedAt,
@@ -4547,6 +6017,8 @@ class $$AttacksTableTableManager
                 Value<MedicationEffect?> medicationEffect =
                     const Value.absent(),
                 Value<List<AuraType>?> aura = const Value.absent(),
+                Value<DateTime?> medicationTakenAt = const Value.absent(),
+                Value<DateTime?> reliefAt = const Value.absent(),
                 Value<DateTime?> endedAt = const Value.absent(),
                 Value<int?> steps = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -4565,6 +6037,8 @@ class $$AttacksTableTableManager
                 exertionLevel: exertionLevel,
                 medicationEffect: medicationEffect,
                 aura: aura,
+                medicationTakenAt: medicationTakenAt,
+                reliefAt: reliefAt,
                 endedAt: endedAt,
                 steps: steps,
                 updatedAt: updatedAt,
@@ -6430,6 +7904,8 @@ typedef $$DailyWeatherTableCreateCompanionBuilder =
       required DateTime capturedAt,
       required double pressureHpa,
       required double pressureDelta24hHpa,
+      Value<double?> humidityPercent,
+      Value<double?> temperatureCelsius,
       Value<int> rowid,
     });
 typedef $$DailyWeatherTableUpdateCompanionBuilder =
@@ -6438,6 +7914,8 @@ typedef $$DailyWeatherTableUpdateCompanionBuilder =
       Value<DateTime> capturedAt,
       Value<double> pressureHpa,
       Value<double> pressureDelta24hHpa,
+      Value<double?> humidityPercent,
+      Value<double?> temperatureCelsius,
       Value<int> rowid,
     });
 
@@ -6467,6 +7945,16 @@ class $$DailyWeatherTableFilterComposer
 
   ColumnFilters<double> get pressureDelta24hHpa => $composableBuilder(
     column: $table.pressureDelta24hHpa,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -6499,6 +7987,16 @@ class $$DailyWeatherTableOrderingComposer
     column: $table.pressureDelta24hHpa,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DailyWeatherTableAnnotationComposer
@@ -6525,6 +8023,16 @@ class $$DailyWeatherTableAnnotationComposer
 
   GeneratedColumn<double> get pressureDelta24hHpa => $composableBuilder(
     column: $table.pressureDelta24hHpa,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get humidityPercent => $composableBuilder(
+    column: $table.humidityPercent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get temperatureCelsius => $composableBuilder(
+    column: $table.temperatureCelsius,
     builder: (column) => column,
   );
 }
@@ -6564,12 +8072,16 @@ class $$DailyWeatherTableTableManager
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<double> pressureHpa = const Value.absent(),
                 Value<double> pressureDelta24hHpa = const Value.absent(),
+                Value<double?> humidityPercent = const Value.absent(),
+                Value<double?> temperatureCelsius = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyWeatherCompanion(
                 day: day,
                 capturedAt: capturedAt,
                 pressureHpa: pressureHpa,
                 pressureDelta24hHpa: pressureDelta24hHpa,
+                humidityPercent: humidityPercent,
+                temperatureCelsius: temperatureCelsius,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -6578,12 +8090,16 @@ class $$DailyWeatherTableTableManager
                 required DateTime capturedAt,
                 required double pressureHpa,
                 required double pressureDelta24hHpa,
+                Value<double?> humidityPercent = const Value.absent(),
+                Value<double?> temperatureCelsius = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyWeatherCompanion.insert(
                 day: day,
                 capturedAt: capturedAt,
                 pressureHpa: pressureHpa,
                 pressureDelta24hHpa: pressureDelta24hHpa,
+                humidityPercent: humidityPercent,
+                temperatureCelsius: temperatureCelsius,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -6611,6 +8127,574 @@ typedef $$DailyWeatherTableProcessedTableManager =
       DailyWeatherRow,
       PrefetchHooks Function()
     >;
+typedef $$DailyLogsTableCreateCompanionBuilder =
+    DailyLogsCompanion Function({
+      required String id,
+      Value<int?> sleepQuality,
+      Value<int?> stressLevel,
+      Value<List<DailyFactor>> factors,
+      Value<int?> steps,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+typedef $$DailyLogsTableUpdateCompanionBuilder =
+    DailyLogsCompanion Function({
+      Value<String> id,
+      Value<int?> sleepQuality,
+      Value<int?> stressLevel,
+      Value<List<DailyFactor>> factors,
+      Value<int?> steps,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+
+class $$DailyLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<List<DailyFactor>, List<DailyFactor>, String>
+  get factors => $composableBuilder(
+    column: $table.factors,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get factors => $composableBuilder(
+    column: $table.factors,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get steps => $composableBuilder(
+    column: $table.steps,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyLogsTable> {
+  $$DailyLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get sleepQuality => $composableBuilder(
+    column: $table.sleepQuality,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stressLevel => $composableBuilder(
+    column: $table.stressLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<List<DailyFactor>, String> get factors =>
+      $composableBuilder(column: $table.factors, builder: (column) => column);
+
+  GeneratedColumn<int> get steps =>
+      $composableBuilder(column: $table.steps, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyLogsTable,
+          DailyLogRow,
+          $$DailyLogsTableFilterComposer,
+          $$DailyLogsTableOrderingComposer,
+          $$DailyLogsTableAnnotationComposer,
+          $$DailyLogsTableCreateCompanionBuilder,
+          $$DailyLogsTableUpdateCompanionBuilder,
+          (
+            DailyLogRow,
+            BaseReferences<_$AppDatabase, $DailyLogsTable, DailyLogRow>,
+          ),
+          DailyLogRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyLogsTableTableManager(_$AppDatabase db, $DailyLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int?> sleepQuality = const Value.absent(),
+                Value<int?> stressLevel = const Value.absent(),
+                Value<List<DailyFactor>> factors = const Value.absent(),
+                Value<int?> steps = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyLogsCompanion(
+                id: id,
+                sleepQuality: sleepQuality,
+                stressLevel: stressLevel,
+                factors: factors,
+                steps: steps,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<int?> sleepQuality = const Value.absent(),
+                Value<int?> stressLevel = const Value.absent(),
+                Value<List<DailyFactor>> factors = const Value.absent(),
+                Value<int?> steps = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyLogsCompanion.insert(
+                id: id,
+                sleepQuality: sleepQuality,
+                stressLevel: stressLevel,
+                factors: factors,
+                steps: steps,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyLogsTable,
+      DailyLogRow,
+      $$DailyLogsTableFilterComposer,
+      $$DailyLogsTableOrderingComposer,
+      $$DailyLogsTableAnnotationComposer,
+      $$DailyLogsTableCreateCompanionBuilder,
+      $$DailyLogsTableUpdateCompanionBuilder,
+      (
+        DailyLogRow,
+        BaseReferences<_$AppDatabase, $DailyLogsTable, DailyLogRow>,
+      ),
+      DailyLogRow,
+      PrefetchHooks Function()
+    >;
+typedef $$MidasEntriesTableCreateCompanionBuilder =
+    MidasEntriesCompanion Function({
+      required String id,
+      required DateTime takenAt,
+      required int missedWorkDays,
+      required int reducedWorkDays,
+      required int missedHouseholdDays,
+      required int reducedHouseholdDays,
+      required int missedSocialDays,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+typedef $$MidasEntriesTableUpdateCompanionBuilder =
+    MidasEntriesCompanion Function({
+      Value<String> id,
+      Value<DateTime> takenAt,
+      Value<int> missedWorkDays,
+      Value<int> reducedWorkDays,
+      Value<int> missedHouseholdDays,
+      Value<int> reducedHouseholdDays,
+      Value<int> missedSocialDays,
+      Value<DateTime?> updatedAt,
+      Value<int> revision,
+      Value<int?> syncedRevision,
+      Value<int> rowid,
+    });
+
+class $$MidasEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $MidasEntriesTable> {
+  $$MidasEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get takenAt => $composableBuilder(
+    column: $table.takenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get missedWorkDays => $composableBuilder(
+    column: $table.missedWorkDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reducedWorkDays => $composableBuilder(
+    column: $table.reducedWorkDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get missedHouseholdDays => $composableBuilder(
+    column: $table.missedHouseholdDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reducedHouseholdDays => $composableBuilder(
+    column: $table.reducedHouseholdDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get missedSocialDays => $composableBuilder(
+    column: $table.missedSocialDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MidasEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MidasEntriesTable> {
+  $$MidasEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get takenAt => $composableBuilder(
+    column: $table.takenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get missedWorkDays => $composableBuilder(
+    column: $table.missedWorkDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reducedWorkDays => $composableBuilder(
+    column: $table.reducedWorkDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get missedHouseholdDays => $composableBuilder(
+    column: $table.missedHouseholdDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reducedHouseholdDays => $composableBuilder(
+    column: $table.reducedHouseholdDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get missedSocialDays => $composableBuilder(
+    column: $table.missedSocialDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MidasEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MidasEntriesTable> {
+  $$MidasEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get takenAt =>
+      $composableBuilder(column: $table.takenAt, builder: (column) => column);
+
+  GeneratedColumn<int> get missedWorkDays => $composableBuilder(
+    column: $table.missedWorkDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reducedWorkDays => $composableBuilder(
+    column: $table.reducedWorkDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get missedHouseholdDays => $composableBuilder(
+    column: $table.missedHouseholdDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reducedHouseholdDays => $composableBuilder(
+    column: $table.reducedHouseholdDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get missedSocialDays => $composableBuilder(
+    column: $table.missedSocialDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedRevision => $composableBuilder(
+    column: $table.syncedRevision,
+    builder: (column) => column,
+  );
+}
+
+class $$MidasEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MidasEntriesTable,
+          MidasRow,
+          $$MidasEntriesTableFilterComposer,
+          $$MidasEntriesTableOrderingComposer,
+          $$MidasEntriesTableAnnotationComposer,
+          $$MidasEntriesTableCreateCompanionBuilder,
+          $$MidasEntriesTableUpdateCompanionBuilder,
+          (
+            MidasRow,
+            BaseReferences<_$AppDatabase, $MidasEntriesTable, MidasRow>,
+          ),
+          MidasRow,
+          PrefetchHooks Function()
+        > {
+  $$MidasEntriesTableTableManager(_$AppDatabase db, $MidasEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MidasEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MidasEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MidasEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> takenAt = const Value.absent(),
+                Value<int> missedWorkDays = const Value.absent(),
+                Value<int> reducedWorkDays = const Value.absent(),
+                Value<int> missedHouseholdDays = const Value.absent(),
+                Value<int> reducedHouseholdDays = const Value.absent(),
+                Value<int> missedSocialDays = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MidasEntriesCompanion(
+                id: id,
+                takenAt: takenAt,
+                missedWorkDays: missedWorkDays,
+                reducedWorkDays: reducedWorkDays,
+                missedHouseholdDays: missedHouseholdDays,
+                reducedHouseholdDays: reducedHouseholdDays,
+                missedSocialDays: missedSocialDays,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime takenAt,
+                required int missedWorkDays,
+                required int reducedWorkDays,
+                required int missedHouseholdDays,
+                required int reducedHouseholdDays,
+                required int missedSocialDays,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int?> syncedRevision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MidasEntriesCompanion.insert(
+                id: id,
+                takenAt: takenAt,
+                missedWorkDays: missedWorkDays,
+                reducedWorkDays: reducedWorkDays,
+                missedHouseholdDays: missedHouseholdDays,
+                reducedHouseholdDays: reducedHouseholdDays,
+                missedSocialDays: missedSocialDays,
+                updatedAt: updatedAt,
+                revision: revision,
+                syncedRevision: syncedRevision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MidasEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MidasEntriesTable,
+      MidasRow,
+      $$MidasEntriesTableFilterComposer,
+      $$MidasEntriesTableOrderingComposer,
+      $$MidasEntriesTableAnnotationComposer,
+      $$MidasEntriesTableCreateCompanionBuilder,
+      $$MidasEntriesTableUpdateCompanionBuilder,
+      (MidasRow, BaseReferences<_$AppDatabase, $MidasEntriesTable, MidasRow>),
+      MidasRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6631,4 +8715,8 @@ class $AppDatabaseManager {
       $$SyncTombstonesTableTableManager(_db, _db.syncTombstones);
   $$DailyWeatherTableTableManager get dailyWeather =>
       $$DailyWeatherTableTableManager(_db, _db.dailyWeather);
+  $$DailyLogsTableTableManager get dailyLogs =>
+      $$DailyLogsTableTableManager(_db, _db.dailyLogs);
+  $$MidasEntriesTableTableManager get midasEntries =>
+      $$MidasEntriesTableTableManager(_db, _db.midasEntries);
 }

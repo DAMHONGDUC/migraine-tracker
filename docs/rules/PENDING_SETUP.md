@@ -322,3 +322,17 @@ Only `PackageType.monthly` / `annual` are rendered; anything else the dashboard
 adds — a leftover `lifetime` included — is skipped rather than drawn blind.
 Purchases are bound to the Firebase UID via `PurchaseIdentity`, so an
 entitlement follows the person, not the install.
+
+## The attack Live Activity
+
+Written, wired and committed, but **never built or run** — this machine has no
+iOS build in the loop, so everything below is unverified.
+
+| Check | Why it matters |
+|---|---|
+| It compiles | `BaroEaseAttackActivity.swift` was added to the extension target by hand-editing `project.pbxproj` (file ref `7B41…0009`, build file `7B41…0017`), following the numbering already there. Open the target in Xcode once and confirm the file is a member. |
+| The bundle takes two widgets | `if #available(iOS 16.1, *)` inside `@WidgetBundleBuilder` — see `DECISIONS.md` for why this one is expected to work where an earlier one did not. |
+| The card appears | Log an attack on a real iOS 16.1+ device. A wrong `ActivityAttributes` name creates the activity and shows nothing, which looks identical to a failure to start. |
+| It ends | Record the attack as ended, then delete one, then run the GDPR wipe. All three must clear the card. |
+| The App Group matches | `HomeWidgetConstant.appGroupId`, `BaroEaseWidgetStore.appGroupId` and both `.entitlements` files. The plugin reads its values from that suite. |
+| `permission_handler` | Arrived as a transitive dependency of `live_activities` and asks for the Android notification permission at init. Harmless on iOS; check it does not add an unexpected Android prompt if Android is ever polished. |

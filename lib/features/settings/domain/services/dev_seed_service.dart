@@ -8,6 +8,9 @@ import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_region.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
+import '../../../daily_log/domain/entities/daily_log.dart';
+import '../../../daily_log/domain/enums/daily_factor.dart';
+import '../../../daily_log/domain/repositories/daily_log_repository.dart';
 import '../../../medications/domain/entities/medication.dart';
 import '../../../medications/domain/entities/medication_reminder.dart';
 import '../../../medications/domain/repositories/medication_reminder_repository.dart';
@@ -37,6 +40,7 @@ class DevSeedService {
     this._exportRecords,
     this._notifications,
     this._dailyPressure,
+    this._dailyLogs,
   );
 
   final DataWipeService _wipe;
@@ -48,6 +52,7 @@ class DevSeedService {
   final ExportRecordRepository _exportRecords;
   final NotificationRepository _notifications;
   final DailyPressureRepository _dailyPressure;
+  final DailyLogRepository _dailyLogs;
 
   /// How many rows each list is left holding. Owner's numbers.
   static const int attackCount = 5;
@@ -69,6 +74,9 @@ class DevSeedService {
   /// What is actually written, surplus included — the lists keep the counts above once [_seedTombstones] has taken the rest.
   static const int _attacksToWrite = attackCount + _tombstoneAttacks;
   static const int _medicationsToWrite = medicationCount + _tombstoneMedications;
+
+  /// Days of check-ins, back from today. Four weeks is what the trigger map asks for before it will render, so the fixture clears that bar by a day.
+  static const int dailyLogDays = 29;
 
   /// How far back rows are scattered, in hours.
   static const int _windowHours = 2200;
@@ -158,6 +166,7 @@ class DevSeedService {
 
     await _seedExports(random, attacks, medications, now);
     await _seedDailyPressure(random, attacks, now);
+    await _seedDailyLogs(random, attacks, now);
     await _seedNotifications(random, reminders, now);
     // Last: it deletes some of what the steps above wrote.
     await _seedTombstones(attacks, medications);
@@ -190,6 +199,36 @@ class DevSeedService {
           day: day,
           pressureHpa: 1013 + random.nextDouble() * 16 - 8,
           pressureDelta24hHpa: delta,
+        ),
+      );
+    }
+  }
+
+  /// One check-in per day, worse sleep and more factors on the days an attack landed — the fixture has to carry a signal, or every analysis built on it reads as broken.
+  Future<void> _seedDailyLogs(
+    Random random,
+    List<Attack> attacks,
+    DateTime now,
+  ) async {
+    final Set<DateTime> attackDays = <DateTime>{
+      for (final Attack attack in attacks) _dayOf(attack.startedAt.toLocal()),
+    };
+
+    for (int back = 0; back < dailyLogDays; back++) {
+      final DateTime day = _dayOf(now.toLocal().subtract(Duration(days: back)));
+      final bool hurt = attackDays.contains(day);
+      final List<DailyFactor> factors = <DailyFactor>[
+        for (final DailyFactor factor in DailyFactor.values)
+          if (random.nextInt(100) < (hurt ? 40 : 15)) factor,
+      ];
+
+      await _dailyLogs.save(
+        DailyLog(
+          day: day,
+          // Worse nights before the days that hurt: 1-3 against 3-5.
+          sleepQuality: hurt ? 1 + random.nextInt(3) : 3 + random.nextInt(3),
+          stressLevel: hurt ? 3 + random.nextInt(3) : 1 + random.nextInt(3),
+          factors: factors,
         ),
       );
     }

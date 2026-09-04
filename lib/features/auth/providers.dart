@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/firebase_constants.dart';
+import '../../core/utils/string_utils.dart';
 
 import 'data/repositories/firebase_auth_repository.dart';
 import 'data/repositories/firestore_user_profile_repository.dart';
@@ -45,6 +46,29 @@ final userProfileProvider = StreamProvider<UserProfile?>((ref) {
 
   if (user == null || !user.isSignedIn) return Stream<UserProfile?>.value(null);
   return ref.watch(userProfileRepositoryProvider).watch(user.uid);
+});
+
+/// The signed-in account's first name, or null when there is no account or no name on it.
+///
+/// The profile document wins over the provider: it is the one the user can
+/// edit, so a name typed in the account screen must be the name the app greets
+/// them by. The email is deliberately not a fallback — a local part is an
+/// address, and "Hi, ducdam.dev" reads as a mail merge.
+final firstNameProvider = Provider<String?>((ref) {
+  final AuthUser? user = switch (ref.watch(authUserProvider)) {
+    AsyncData(value: final AuthUser? value) => value,
+    _ => null,
+  };
+
+  if (user == null || !user.isSignedIn) return null;
+
+  final UserProfile? profile = switch (ref.watch(userProfileProvider)) {
+    AsyncData(value: final UserProfile? value) => value,
+    _ => null,
+  };
+
+  return StringUtils.firstName(profile?.displayName) ??
+      StringUtils.firstName(user.displayName);
 });
 
 /// Every "needs an account" decision reads this. Falls back to the repository while loading, so Settings never flashes "Sign in".

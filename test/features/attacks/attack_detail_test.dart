@@ -79,11 +79,10 @@ void main() {
     expect(find.text('71%'), findsOneWidget);
 
     // The details section sits below the fold — scroll like a user would.
-    await tester.dragUntilVisible(
-      find.text('bad one'),
-      find.byType(ListView).last,
-      const Offset(0, -120),
-    );
+    for (int i = 0; i < 12 && find.text('bad one').evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(ListView).last, const Offset(0, -120));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     await tester.pump();
     expect(find.text('aura'), findsOneWidget);
     expect(find.text('bad one'), findsOneWidget);

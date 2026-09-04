@@ -220,10 +220,30 @@ final class AppIconConstant {
   /// History's list view.
   static const IconData listView = Symbols.list_alt_rounded;
 
+  // --- The daily check-in ------------------------------------------------
+
+  /// The check-in itself: the dashboard card and the screen it opens.
+  static const IconData dailyLog = Symbols.event_available_rounded;
+
+  /// Stress, on the check-in's second question.
+  static const IconData stress = Symbols.mood_bad_rounded;
+
+  static const IconData factorSkippedMeal = Symbols.no_meals_rounded;
+  static const IconData factorDehydration = Symbols.water_drop_rounded;
+  static const IconData factorCaffeine = Symbols.local_cafe_rounded;
+  static const IconData factorAlcohol = Symbols.wine_bar_rounded;
+  static const IconData factorScreenTime = Symbols.devices_rounded;
+  static const IconData factorIntenseExercise = Symbols.fitness_center_rounded;
+  static const IconData factorTravel = Symbols.flight_rounded;
+  static const IconData factorStrongSmell = Symbols.air_rounded;
+
   // --- Apple Health ------------------------------------------------------
 
   /// Apple Health itself, where the app asks to connect.
   static const IconData health = Symbols.favorite_rounded;
+
+  /// The menstrual cycle, read from Apple Health and never stored.
+  static const IconData cycle = Symbols.calendar_month_rounded;
 
   /// Sleep — last night, and the sleep correlation.
   static const IconData sleep = Symbols.bedtime_rounded;

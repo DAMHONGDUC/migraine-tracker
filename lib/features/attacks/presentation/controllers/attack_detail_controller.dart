@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
@@ -81,12 +83,48 @@ class AttackDetailController {
     }
   }
 
+  /// Records (or takes back) when the dose was taken and when the pain eased. Both together, because relief without a dose measures nothing.
+  Future<void> updateMedicationTiming(
+    String id, {
+    required DateTime? takenAt,
+    required DateTime? reliefAt,
+  }) async {
+    SdLogger.action(
+      LogTagConstant.attackDetail,
+      'Update medication timing',
+      <String, Object?>{
+        'id': id,
+        'takenAt': takenAt?.toIso8601String(),
+        'reliefAt': reliefAt?.toIso8601String(),
+      },
+    );
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref
+          .read(attackRepositoryProvider)
+          .updateMedicationTiming(id, takenAt: takenAt, reliefAt: reliefAt);
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.attackDetail,
+        'Update medication timing failed',
+        error: error,
+        stackTrace: stackTrace,
+        data: <String, Object?>{'id': id},
+      );
+      rethrow;
+    }
+  }
+
   /// Records (or takes back) when the attack stopped.
   Future<void> updateEndedAt(String id, DateTime? endedAt) async {
     SdLogger.action(LogTagConstant.attackDetail, 'Edit attack end', id);
     AppAnalytics.logAttackEdited();
     try {
       await _ref.read(attackRepositoryProvider).updateEndedAt(id, endedAt);
+      // The card stands for an attack that is still running, so recording an end takes it down. Unawaited: ActivityKit is another process and the answer is already saved.
+      if (endedAt != null) {
+        unawaited(_ref.read(attackLiveActivityProvider).end());
+      }
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.attackDetail,
@@ -129,6 +167,8 @@ class AttackDetailController {
     AppAnalytics.logAttackDeleted();
     try {
       await _ref.read(attackRepositoryProvider).deleteById(id);
+      // A card for an attack that no longer exists is the one state it must never be left in.
+      unawaited(_ref.read(attackLiveActivityProvider).end());
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.attackDetail,

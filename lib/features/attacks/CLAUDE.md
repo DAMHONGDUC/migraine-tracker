@@ -34,7 +34,7 @@ forever.
   once — if it grows a fifth node, check the label `maxWidth` against the 393pt
   design width before anything else.
 
-**Two more fields are recorded after the fact, and neither is a step**:
+**Four more fields are recorded after the fact, and none is a step**:
 `Attack.endedAt` (how long it lasted) and `Attack.medicationEffect` (whether the
 medication helped). Both are answered from the detail screen, because at the
 moment an attack is logged nobody knows how long it will run and the drug has not
@@ -44,6 +44,18 @@ reason `updateExertion` does. `endedAt` null means "still going, or never said" 
 one state on purpose, since nothing can tell them apart — and
 `medicationEffect` null means "never answered", which also covers every attack
 where nothing was taken.
+
+**`medicationTakenAt` and `reliefAt` are the third and fourth**, written
+together by `updateMedicationTiming` — a relief time without the dose it
+followed measures nothing, so neither may outlive the other. `timeToRelief` is
+the gap between them, and it is measured from the DOSE rather than from the
+attack: "how long did it take to work" is the question the medication is judged
+on. `MedicationTimingSheet` asks in offsets, not clocks — nobody remembers
+swallowing something at 09:20 and everybody remembers it was about half an hour
+in — and both rows appear only where a medication was actually named, exactly as
+the effect row does. The relief options stop at 4h because a triptan that has
+not worked in four hours has not worked, and the app must not invite a guess
+past that.
 
 ## The option grids
 
@@ -335,3 +347,51 @@ boundary** and hands the PNG to the share sheet.
 - `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
   `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.
 
+## The attack that is happening now
+
+**An attack with no end recorded, started inside `AttackProgressConstant.window`
+(72h), is "running"** — `Attack.isRunningAt`. The window exists because the
+`endedAt` column collapses "still going" and "never said" into one null, so time
+is the only thing that can tell them apart; 72h is the top of the 4–72h band a
+migraine is defined by, and past it a blank end is an unanswered question rather
+than an attack in progress.
+
+- **The dashboard card sits above everything, premium banner and log button
+  included.** While it is true it is the only urgent thing on that screen. It
+  carries the running clock, because a card that only said "an attack is
+  running" would be telling the user what they already know.
+- **`AttackNowScreen` is deliberately the emptiest screen in the app**: the
+  clock, one line, and two full-width targets. The person reading it is in pain
+  and photophobic (hard rule 3) — no cards, no readings, nothing to scroll past.
+- **"I took medication" writes the dose TIME as well as the name.** Now is the
+  only moment that time is known without guessing, which is the whole reason the
+  question is asked here rather than on the detail screen.
+- **It is offered only while nothing has been taken.** A second dose is a
+  decision the app must not nudge, and medication-overuse is a warning this app
+  already carries.
+- **The ticker is `attackElapsedProvider`, `autoDispose` and family-keyed on the
+  start time**, so it dies with the screen. A periodic timer outliving the tree
+  is a leak a widget test reports as a hang rather than as a failure.
+- **The Lock Screen card is a Live Activity, through the `live_activities`
+  package** (owner's choice over hand-written ActivityKit).
+  `AttackLiveActivity` is the interface, `PluginAttackLiveActivity` the iOS
+  implementation, and everywhere else it is a no-op — the caller must not have
+  to know which.
+  - **The clock is `Text(timerInterval:)`, ticked by iOS.** Pushing an update a
+    second would spend the activity's whole update budget on a number the
+    system can count on its own, so the app writes the start instant once and
+    never touches it again.
+  - **Every word on the card is written by the app, already localized**, exactly
+    as the home screen widget's are — the extension has no `AppLocalizations`.
+    The controller resolves the locale through `LocaleUtils.resolve`, the way
+    the reminders and the widget do, because there is no `BuildContext` there.
+  - **The `ActivityAttributes` struct MUST be called
+    `LiveActivitiesAppAttributes`.** The plugin looks it up by that name;
+    rename it and the activity is created but never appears.
+  - **The activity id is the attack's own id, kept in `SecureStore`.** The card
+    outlives the process, so a relaunch has to be able to take down the one the
+    last run started, and reusing the attack's id means a second start
+    refreshes the card rather than stacking a second one.
+  - **Three things take it down**: recording an end, deleting the attack, and
+    the GDPR wipe (step 12 of 13) — a card for an attack that no longer exists
+    is the one state it must never be left in.

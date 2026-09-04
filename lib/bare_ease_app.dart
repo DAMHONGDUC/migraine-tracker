@@ -13,6 +13,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
+import 'features/alerts/providers.dart';
 import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
@@ -152,10 +153,18 @@ class BaroEaseApp extends HookConsumerWidget {
             .read(purchaseIdentityProvider)
             .sync(user?.isSignedIn == true ? user!.uid : null),
       );
+      // - Signing in is one of the two moments an account can start qualifying for alerts; the controller answers for the rest (see `autoEnableOnce`).
+      unawaited(
+        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
+      );
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
       AppAnalytics.setPremium(next);
       CrashReporter.setCustomKey('is_premium', next);
+      // - The other moment: the purchase landing on an account that was already signed in.
+      unawaited(
+        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
+      );
     });
 
     return ScreenUtilInit(

@@ -22,7 +22,7 @@ class HealthKitStepSampleSource implements StepSampleSource {
     HealthDataType.STEPS,
   ];
 
-  final HealthFactory _health = HealthFactory();
+  final Health _health = Health();
 
   @override
   bool get isAvailable => Platform.isIOS;
@@ -35,9 +35,9 @@ class HealthKitStepSampleSource implements StepSampleSource {
     if (!isAvailable) return const <StepSample>[];
 
     final List<HealthDataPoint> points = await _health.getHealthDataFromTypes(
-      from,
-      to,
-      types,
+      types: types,
+      startTime: from,
+      endTime: to,
     );
 
     return <StepSample>[
@@ -45,7 +45,10 @@ class HealthKitStepSampleSource implements StepSampleSource {
         StepSample(
           start: point.dateFrom,
           end: point.dateTo,
-          count: point.value.round(),
+          // The plugin hands every reading over as a typed value now; a step count is always numeric, and anything else is a sample this app did not ask for.
+          count: point.value is NumericHealthValue
+              ? (point.value as NumericHealthValue).numericValue.round()
+              : 0,
         ),
     ];
   }

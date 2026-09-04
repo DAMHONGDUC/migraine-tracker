@@ -135,7 +135,7 @@ template and says loudly which files it created.
 |---|---|
 | `ios/fastlane/Appfile` | Bundle id, team id. No `apple_id` — every lane authenticates with an App Store Connect API key, so no 2FA prompt a runner cannot answer. |
 | `ios/fastlane/Matchfile` | The private certificates repo, `type("appstore")`, and **every** bundle id: app *and* app extensions. |
-| `ios/Gemfile` | `fastlane`, plus `cocoapods` pinned to the version in `Podfile.lock` if any plugin still needs pods. |
+| `ios/Gemfile` | `fastlane`, and nothing else — every iOS plugin is a Swift Package, so no pods gem. |
 | `ios/fastlane/.env` | The six local credentials, gitignored. |
 | `ios/fastlane/Fastfile` | The three lanes below. |
 | `packages/system_design/tool/build-ipa.sh` | The build, and only the build. |
@@ -240,8 +240,8 @@ flavor:dev|prod   bump:true|false   notes:"one line for testers"
 Manual `workflow_dispatch` only (inputs: flavor, bump, notes) — a release is an
 act, not a side effect of a push. `runs-on: macos-15`, `permissions: contents:
 write` for the bump commit, `timeout-minutes: 60` set against the **bill**
-(macOS bills at 10x), `LANG: en_US.UTF-8` for the whole job or Ruby reads the
-Podfile as ASCII-8BIT and dies inside its own error reporter.
+(macOS bills at 10x), `LANG: en_US.UTF-8` for the whole job or Ruby reads
+`pubspec.yaml`'s em dashes as US-ASCII and dies inside its own error reporter.
 
 Steps, in the order that matters:
 
@@ -259,11 +259,9 @@ Steps, in the order that matters:
    carried as a third secret — two copies of derived data is what causes the
    drift in the first place.
 7. Bootstrap, generate.
-8. **Pin Ruby, then `bundle install`, then pods — in that order.** A gem binary
-   only runs under the Ruby it was installed for; the image's CocoaPods under a
-   pinned Ruby finds none of its gems, and Flutter reports that as *"CocoaPods
-   is installed but broken. Skipping pod install."* and archives an app missing
-   that plugin's pods.
+8. **Pin Ruby, then `bundle install`.** The image ships its own fastlane at
+   whatever version it happens to carry; installing from the Gemfile under a
+   pinned Ruby means an image update cannot silently re-tool a release.
 9. Run the lane. Free-text notes travel as an **env var**, never as a lane
    argument: spaces would split into extra fastlane arguments and a backtick
    would run.

@@ -23,6 +23,9 @@ export interface AlertRunRecord {
   pushesSent: number;
   /** Of {@link pushesSent}, how many arrived without a sound because it was the user's night. */
   silentPushes: number;
+
+  /** Of {@link pushesSent}, how many were the second one — the front actually starting. */
+  onsetPushes: number;
   /** Capped at {@link FAILED_CELL_LIMIT}; `failedCellCount` is always the true total. */
   failedCells: string[];
   failedCellCount: number;
@@ -73,6 +76,7 @@ export function alertRunRecord(input: {
     cells: result?.cells ?? 0,
     pushesSent: result?.pushesSent ?? 0,
     silentPushes: result?.silentPushes ?? 0,
+    onsetPushes: result?.onsetPushes ?? 0,
     failedCells: failed.slice(0, FAILED_CELL_LIMIT),
     failedCellCount: failed.length,
     // Read off the sorted list, so the cap never moves it.
@@ -103,6 +107,7 @@ export function alertRunDocument(record: AlertRunRecord): Record<string, unknown
     cells: record.cells,
     pushes_sent: record.pushesSent,
     silent_pushes: record.silentPushes,
+    onset_pushes: record.onsetPushes,
     failed_cells: record.failedCells,
     failed_cell_count: record.failedCellCount,
     max_drop_hpa: record.maxDropHpa,

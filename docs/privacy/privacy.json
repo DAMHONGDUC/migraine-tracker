@@ -1,7 +1,7 @@
 {
   "name": "BaroEase",
   "tagline": "Migraine tracker with barometric pressure alerts. Your health data lives on your device; an account is optional.",
-  "icon": "🌧️",
+  "icon": "/app-icons/baro-ease.png",
   "accent": "#A594F9",
   "platforms": [
     "iOS"
@@ -9,9 +9,9 @@
   "effectiveDate": "2026-08-07",
   "lastUpdated": "2026-08-26",
   "contactEmail": "ducdam.dev@gmail.com",
-  "controller": "Dam Hong Duc, Ho Chi Minh City, Viet Nam",
-  "url": "https://damhongduc.github.io/personal_work_space",
-  "storeLinks": {},
+  "storeLinks": {
+    "appStore": "https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362"
+  },
   "overview": [
     "This Privacy Policy describes how {{app}} handles information when you use the app. It applies to every version of {{app}} distributed by {{publisher}} on the app stores listed above.",
     "{{app}} is a migraine tracker for people whose attacks may be linked to barometric-pressure changes. It is built local-first: your health data is stored on your device, an account is optional, and logging an attack works with no network at all. The sections below set out exactly what is handled, why it is needed, and how you can have it removed.",
@@ -21,7 +21,7 @@
   "summary": [
     "Your attacks, medications and notes are stored on your device. Without an account, we never receive them.",
     "Signing in is optional and turns on encrypted cross-device sync. The key is held by our backend, so this is not end-to-end encryption.",
-    "Apple Health sleep is read on-device only and is never uploaded. Your step count is read the same way, but the figure for the day of an attack is saved with that attack, and syncs with it if you are signed in.",
+    "Apple Health sleep and your menstrual cycle are read on-device only and are never uploaded. Your step count is read the same way, but the figure for the day of an attack is saved with that attack, and syncs with it if you are signed in.",
     "Location is only requested While Using the app and at reduced accuracy, stored as a ~5 km area, never as coordinates.",
     "We do not track you. No ad network, no attribution SDK, no advertising identifier, nothing shared with a data broker."
   ],
@@ -102,7 +102,7 @@
   ],
   "notCollected": [
     "Precise location or GPS coordinates",
-    "Apple Health sleep — read on-device and never uploaded or stored by us",
+    "Apple Health sleep and menstrual cycle — read on-device and never uploaded or stored by us",
     "Contacts",
     "Photos or media from your device",
     "Payment card details",
@@ -127,7 +127,12 @@
     {
       "name": "Apple Health — Steps",
       "required": false,
-      "reason": "Read your step count, on-device only, to look for a correlation with your attacks. A separate permission from sleep."
+      "reason": "Read your step count, on-device only, to look for a correlation with your attacks. A separate permission from sleep and from your cycle."
+    },
+    {
+      "name": "Apple Health — Menstrual cycle",
+      "required": false,
+      "reason": "Read your cycle, on-device only, to show whether your attacks cluster around your period. It is never uploaded, exported or synced, and the switch starts off."
     }
   ],
   "thirdParties": [
@@ -185,16 +190,16 @@
       "id": "health-data",
       "title": "Apple Health",
       "body": [
-        "If you grant permission, {{app}} reads your sleep and your step count from Apple Health, read-only, to look for a correlation with your attacks. These are two separate permissions with two separate switches — allowing one does not allow the other.",
-        "The analysis runs on your device and we never write to Apple Health. **Sleep never leaves your device.** Your **step count** does, in one narrow way: when you log an attack, {{app}} records how many steps you had taken that day up to that moment and saves the number with the attack, because how active you were before an attack is part of the record a doctor reads. It travels with that attack — into your export, your doctor report, and your encrypted sync if you are signed in. Nothing else from Apple Health is stored or uploaded, and you can revoke access at any time in the iOS Health settings."
+        "If you grant permission, {{app}} reads your sleep, your step count and your menstrual cycle from Apple Health, read-only, to look for a correlation with your attacks. These are three separate permissions with three separate switches — allowing one does not allow the others.",
+        "The analysis runs on your device and we never write to Apple Health. Sleep never leaves your device. Your step count does, in one narrow way: when you log an attack, {{app}} records how many steps you had taken that day up to that moment and saves the number with the attack, because how active you were before an attack is part of the record a doctor reads. It travels with that attack — into your export, your doctor report, and your encrypted sync if you are signed in. Nothing else from Apple Health is stored or uploaded, and you can revoke access at any time in the iOS Health settings."
       ]
     },
     {
       "id": "weather",
       "title": "How weather reaches you",
       "body": [
-        "Weather comes from **Apple WeatherKit**, and {{app}} never calls it directly: the app asks our backend, and our backend asks Apple.",
-        "The app sends its reduced-accuracy position to our weather function, which **rounds it to a ~11 km cell** before anything else happens. What reaches Apple is the centre of that cell, never where you are, and the forecast is cached against that cell for an hour so everyone in it shares one lookup. That cache holds weather, not people — no account identifier, no device identifier, no health data.",
+        "Weather comes from Apple WeatherKit, and {{app}} never calls it directly: the app asks our backend, and our backend asks Apple.",
+        "The app sends its reduced-accuracy position to our weather function, which rounds it to a ~11 km cell before anything else happens. What reaches Apple is the centre of that cell, never where you are, and the forecast is cached against that cell for an hour so everyone in it shares one lookup. That cache holds weather, not people — no account identifier, no device identifier, no health data.",
         "The place name on the weather card is resolved by your device's own geocoder (Apple on iOS) from the same reduced-accuracy position. That lookup goes from your phone to the platform and never through us."
       ]
     },
@@ -203,7 +208,7 @@
       "title": "What our App Store privacy labels say",
       "body": [
         "Apple asks every developer to declare, on the App Store product page, what an app collects, whether it is linked to your identity, and whether it is used to track you. Below is exactly what {{app}} declares, so you can hold the labels and this policy against each other and see that they agree.",
-        "“Tracking” has a specific meaning in Apple's rules: linking data from this app with third-party data for advertising or advertising measurement, or sharing it with a data broker. {{app}} does none of that — there is no ad network, no attribution SDK, no advertising identifier is read, and nothing is sold or handed to a data broker. **Every item below is declared as not used for tracking**, and the app contains no App Tracking Transparency prompt because there is nothing to ask permission for.",
+        "“Tracking” has a specific meaning in Apple's rules: linking data from this app with third-party data for advertising or advertising measurement, or sharing it with a data broker. {{app}} does none of that — there is no ad network, no attribution SDK, no advertising identifier is read, and nothing is sold or handed to a data broker. Every item below is declared as not used for tracking, and the app contains no App Tracking Transparency prompt because there is nothing to ask permission for.",
         "Your sleep is not declared at all, because it never leaves your device. Fitness is declared, because the step count for the day of an attack is saved with that attack. Health is declared, because your attack log syncs to our backend once you sign in."
       ],
       "list": [

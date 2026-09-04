@@ -7,6 +7,10 @@ import '../../core/db/database_provider.dart';
 import '../../core/storage/secure_store.dart';
 import '../attacks/data/repositories/drift_attack_sync_store.dart';
 import '../attacks/domain/entities/attack.dart';
+import '../daily_log/data/repositories/drift_daily_log_sync_store.dart';
+import '../daily_log/domain/entities/daily_log.dart';
+import '../insights/data/repositories/drift_midas_sync_store.dart';
+import '../insights/domain/entities/midas_score.dart';
 import '../medications/data/repositories/drift_medication_reminder_sync_store.dart';
 import '../medications/data/repositories/drift_medication_sync_store.dart';
 import '../medications/domain/entities/medication.dart';
@@ -26,8 +30,10 @@ import 'domain/repositories/sync_key_repository.dart';
 import 'domain/services/app_notification_payload_codec.dart';
 import 'domain/services/attack_cipher.dart';
 import 'domain/services/attack_payload_codec.dart';
+import 'domain/services/daily_log_payload_codec.dart';
 import 'domain/services/medication_payload_codec.dart';
 import 'domain/services/medication_reminder_payload_codec.dart';
+import 'domain/services/midas_payload_codec.dart';
 import 'domain/services/sync_service.dart';
 import 'presentation/controllers/sync_controller.dart';
 
@@ -64,6 +70,15 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         const MedicationReminderPayloadCodec(),
       ),
       SyncBinding<Attack>(DriftAttackSyncStore(db), const AttackPayloadCodec()),
+      // Order-free: a daily log references nothing, and its id is the day itself, so two devices' Tuesday converge on one row.
+      SyncBinding<DailyLog>(
+        DriftDailyLogSyncStore(db),
+        const DailyLogPayloadCodec(),
+      ),
+      SyncBinding<MidasEntry>(
+        DriftMidasSyncStore(db),
+        const MidasPayloadCodec(),
+      ),
       // Last: a notification names the reminder and medication it came from, so both are already here by the time the list renders it.
       SyncBinding<AppNotification>(
         DriftAppNotificationSyncStore(db),

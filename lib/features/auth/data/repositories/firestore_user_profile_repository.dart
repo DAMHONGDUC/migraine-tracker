@@ -29,7 +29,7 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
 
   /// One read before the write, to answer two questions the write itself cannot.
   @override
-  Future<void> upsertFromAccount(AuthUser user) async {
+  Future<bool> upsertFromAccount(AuthUser user) async {
     final DocumentSnapshot<Map<String, dynamic>> existing = await _doc(
       user.uid,
     ).get();
@@ -61,6 +61,8 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
     try {
       await _doc(user.uid).set(write, SetOptions(merge: true));
       SdLogger.info(LogTagConstant.profile, 'Profile written', what);
+
+      return !existing.exists;
     } on FirebaseException catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.profile,

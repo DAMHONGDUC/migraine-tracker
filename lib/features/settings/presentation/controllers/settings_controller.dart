@@ -3,8 +3,10 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../../daily_log/providers.dart';
 import '../../../health/providers.dart';
 import '../../../onboarding/providers.dart';
+import '../../../weather/providers.dart';
 import '../../domain/entities/wipe_status.dart';
 import '../../domain/services/dev_seed_service.dart';
 import '../../providers.dart';
@@ -37,6 +39,7 @@ class SettingsController extends Notifier<WipeStatus> {
           );
       // - nothing from Apple Health is stored, so there is nothing to delete - but leaving it connected keeps the app reading sleep after the wipe
       await ref.read(healthControllerProvider.notifier).disconnectAll();
+      _refreshStoredData();
       state = const WipeStatus(isRunning: true, progress: 1);
     } catch (error, stackTrace) {
       SdLogger.error(
@@ -73,6 +76,7 @@ class SettingsController extends Notifier<WipeStatus> {
     SdLogger.action(LogTagConstant.settings, 'Seed dev data');
     try {
       await ref.read(devSeedServiceProvider).seed();
+      _refreshStoredData();
       SdLogger.info(
         LogTagConstant.settings,
         'Seed dev data done',
@@ -94,4 +98,16 @@ class SettingsController extends Notifier<WipeStatus> {
     }
   }
 
+  /// Re-reads the stored data that nothing else will re-read on its own, after a wipe or a seed has replaced all of it.
+  ///
+  /// Every other list on the screen hangs off a Drift `watch`, which emits on the write itself. These three are one-shot reads, so a
+  /// wipe or a seed leaves them holding rows that no longer exist until the next launch — which is what "I have to restart to see the
+  /// sample data" was. The insights built on them (`factorMapProvider`, `riskForecastProvider`) recompute on their own once these do.
+  void _refreshStoredData() {
+    SdLogger.info(LogTagConstant.settings, 'Refresh stored-data providers');
+    ref
+      ..invalidate(recentDailyLogsProvider)
+      ..invalidate(answeredDailyLogCountProvider)
+      ..invalidate(dailyPressureHistoryProvider);
+  }
 }

@@ -16,6 +16,7 @@ class HealthController extends Notifier<HealthConnections> {
   static String keyOf(HealthDataKind kind) => switch (kind) {
     HealthDataKind.sleep => PrefsKeyConstant.healthSleep,
     HealthDataKind.steps => PrefsKeyConstant.healthSteps,
+    HealthDataKind.cycle => PrefsKeyConstant.healthCycle,
   };
 
   @override
@@ -28,6 +29,8 @@ class HealthController extends Notifier<HealthConnections> {
     return HealthConnections(
       sleep: prefs.getBool(PrefsKeyConstant.healthSleep) ?? legacy,
       steps: prefs.getBool(PrefsKeyConstant.healthSteps) ?? legacy,
+      // No legacy fallback: the old single switch never asked about reproductive health, so it cannot answer for it.
+      cycle: prefs.getBool(PrefsKeyConstant.healthCycle) ?? false,
     );
   }
 

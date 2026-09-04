@@ -1,2 +1,2 @@
 /// Which Apple Health source a connection covers.
-enum HealthDataKind { sleep, steps }
+enum HealthDataKind { sleep, steps, cycle }

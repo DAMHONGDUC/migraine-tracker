@@ -6,6 +6,8 @@ import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
+import 'package:migraine_tracker/features/daily_log/data/repositories/drift_daily_log_repository.dart';
+import 'package:migraine_tracker/features/insights/data/repositories/drift_midas_repository.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
@@ -104,8 +106,11 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       shareFiles,
       homeWidget,
+      RecordingLiveActivity(),
     ).wipeAll();
 
     expect(notifications.cancelAllCalls, 1);
@@ -152,8 +157,11 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     ).wipeAll();
 
     expect(await exportRecords.getAll(), isEmpty);
@@ -176,8 +184,11 @@ void main() {
       syncServiceOver(db),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     ).wipeAll(onProgress: (done, steps) {
       expect(steps, DataWipeService.steps);
       reported.add(done);
@@ -210,8 +221,11 @@ void main() {
       syncServiceOver(db, remote: remote),
       RecordingAlertRegistration(),
       DriftDailyPressureRepository(db),
+      DriftDailyLogRepository(db),
+      DriftMidasRepository(db),
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -268,8 +282,11 @@ void main() {
         syncServiceOver(db),
         alerts,
         DriftDailyPressureRepository(db),
+        DriftDailyLogRepository(db),
+        DriftMidasRepository(db),
         RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
+      RecordingLiveActivity(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after they deleted everything.

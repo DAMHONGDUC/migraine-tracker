@@ -11,6 +11,7 @@ import '../../../../../core/services/link_launcher_provider.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/app_feature_list.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../providers.dart';
@@ -30,41 +31,16 @@ class SubscriptionScreen extends ConsumerWidget {
     return SdScaffoldV2(
       title: Text(l10n.premiumScreenTitle, style: AppTextStyle.titleLarge),
       body: SdActionViewV2(
+        // Pinned, not scrolling: the list below is every feature the app has, so an action travelling with it is one the user has to go looking for.
+        placement: SdActionsPlacementV2.pinned,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _StatusCard(premium: premium),
             SizedBox(height: SdSpacingConstant.h24),
-            Text(
-              l10n.premiumScreenIncluded,
-              style: AppTextStyle.titleMedium.w600,
-            ),
-            SizedBox(height: SdSpacingConstant.h12),
-            SdBenefitRowV2(
-              icon: AppIconConstant.reminderActive,
-              title: l10n.paywallBenefitAlerts,
-              body: l10n.paywallBenefitAlertsBody,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.lineChart,
-              title: l10n.paywallBenefitForecast,
-              body: l10n.paywallBenefitForecastBody,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.insights,
-              title: l10n.paywallBenefitInsights,
-              body: l10n.paywallBenefitInsightsBody,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.exportPdf,
-              title: l10n.paywallBenefitReport,
-              body: l10n.paywallBenefitReportBody,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.sleep,
-              title: l10n.paywallBenefitSleep,
-              body: l10n.paywallBenefitSleepBody,
-            ),
+            // The same list About and onboarding draw. It was five hand-picked paywall benefits, which said what Premium adds and never what the free
+            // plan already covers — the one question someone on this screen is asking. One widget, so the three surfaces cannot drift apart.
+            const AppFeatureList(),
           ],
         ),
         actions: <Widget>[

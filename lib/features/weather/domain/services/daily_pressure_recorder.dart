@@ -34,6 +34,9 @@ class DailyPressureRecorder {
           day: today,
           pressureHpa: snapshot.pressureHpa,
           pressureDelta24hHpa: snapshot.pressureDelta24hHpa,
+          // Free: the snapshot the pressure came from already carried both.
+          humidityPercent: snapshot.humidityPercent,
+          temperatureCelsius: snapshot.temperatureCelsius,
         ),
       );
       SdLogger.debug(

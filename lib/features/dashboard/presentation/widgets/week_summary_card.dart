@@ -11,9 +11,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/dashboard_chevron.dart';
 import '../../domain/entities/week_summary.dart';
 import '../../providers.dart';
-import 'dashboard_chevron.dart';
 
 /// "This week" glance card: attack count, trend vs last week, and average intensity.
 class WeekSummaryCard extends ConsumerWidget {

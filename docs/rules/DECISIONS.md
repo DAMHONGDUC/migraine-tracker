@@ -96,3 +96,50 @@ avoid the bare constructor here.
 
 Owner: skip it for now. It conflicted with pushing a freshly logged attack,
 which exists so an attack is not lost with the phone.
+
+## An ML model behind the 7-day risk score
+
+`PLAN.md` rules out attack prediction, and the roadmap still carries a risk
+score. Both hold, because the score is deterministic weights over signals the
+app already stores — pressure drop against the user's own threshold, cycle
+window, sleep debt, recent frequency — and every card shows the numbers that
+produced it (6.8 hPa of an 8.0 threshold → 34 of 40). A model would score the
+same day 89 and be unable to say why, which is the thing a health app cannot
+afford: the user must be able to disagree with it. No training data leaves the
+device because there is no training. Detail in `docs/ROADMAP.md`.
+
+## HIT-6 beside MIDAS in the doctor report
+
+Rejected before it was built. Both measure headache disability and the pair is
+what neurologists see, but HIT-6 is copyrighted by QualityMetric and shipping it
+needs a paid licence, while MIDAS is free to reproduce. One score that ships is
+worth more than two that block review. Revisit only if a clinic partnership pays
+for the licence.
+
+## User-defined check-in factors, the way Bearable does it
+
+Rejected. Custom factors read as generosity and cost the analysis: the
+trigger/protector map compares a factor's attack rate against its own absence,
+so a factor one user invented in week three has too few days behind it to grade,
+and no two users' maps mean the same thing. The check-in ships a fixed list;
+adding to that list is a release decision, not a user setting.
+
+## Menstrual cycle data in the sync payload
+
+Kept on-device, unlike attacks and medications. The sync key is server-held
+(hard rule 12), so a synced cycle row is a reproductive-health record the backend
+could decrypt, and it buys the user only a second device. HealthKit already
+carries the data across the user's own devices. The analyses read it locally and
+sync nothing but their own conclusions.
+
+## `if #available` in the widget bundle, a second time
+
+The entry above says `@WidgetBundleBuilder` rejected the control flow, and that
+stands for what it was about: two branches returning *different concrete types*,
+because `contentMarginsDisabled()` changes the type and `some
+WidgetConfiguration` admits only one. A bare `if #available(iOS 16.1, *)` around
+ONE widget is a different thing — `buildLimitedAvailability`, which the builder
+does implement, and Apple's own Live Activity samples are written that way. The
+attack Live Activity needs it: `ActivityConfiguration` is 16.1 and the app
+deploys to 15. If it does turn out not to compile, the fallback is raising the
+extension's own deployment target rather than dropping the home screen widget.

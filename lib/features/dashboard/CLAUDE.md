@@ -352,6 +352,36 @@ than a word there.
   low where the report carried a forecast but no current conditions, so a card with
   a week behind it never comes up blank at the top.
 
+## The risk card
+
+**`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
+from `RiskScoreEngine` (weights, thresholds and the score's own rules:
+`lib/features/insights/CLAUDE.md`). What this file owns is how it reads.
+
+- **The title says it is a forecast, and the line under it says it is a
+  prediction** (owner's rule). It used to be titled "Next 7 days", which names a
+  window and leaves the number to be read as a measurement of something. A
+  percentage on a health screen is taken for a fact unless the card says
+  otherwise, so it says otherwise twice: `riskCardTitle` = "Attack risk
+  forecast", `riskCardSubtitle` = "Next 7 days · a prediction".
+- **Every number carries its percent sign** (`riskPercent`). "62" beside a word
+  reads as a rating out of ten as easily as a probability.
+- **The week is seven labelled `SdProgressRowV2` rows, not seven bars**
+  (owner's call). The column of bars could be compared with itself and nothing
+  else: the value each bar stood for appeared nowhere, so "how likely is
+  Thursday" had no answer on the card. A progress row names the day, shows the
+  share and writes the percentage at the end — which is what the design system
+  built it for.
+- **It carries the same info glyph as every analysis card**, opening
+  `AnalysisInfoSheet` with four paragraphs: what the number is, the four signals
+  and their weights, why an unreadable signal is named rather than scored zero,
+  and that every threshold is the user's own. The card states a probability
+  about the user's health; the sheet is where "not a diagnosis" is allowed the
+  room to be said.
+- **The card still opens the Pressure tab**, where the forecast it is built on
+  is drawn in full — the glyph and the card body are two different destinations
+  on purpose, so reading the explanation does not cost the reader their place.
+
 ## The summary group
 
 **`DashboardSummaryGroup` shows on every launch, empty or not.** Owner's rule. It
@@ -387,8 +417,12 @@ mark tells the user a card is also a door.
 - **The two grids are exempt** — quick access and explore are already, visibly,
   lists of links, and a chevron in a half-screen cell would cost the label the
   room it needs.
+- **It lives in `core/widgets/`, not in this feature.** `DailyCheckInCard` is
+  owned by `daily_log` but drawn on this screen, and a feature may not import
+  another feature's `presentation/` — so the shared mark sits in core and the
+  name keeps saying which surface it belongs to.
 - **One widget, not the recipe typed per card.** The three that already had a
-  chevron had drifted — the next-reminder banner was on `AppColors.textSecondary`
+  chevron had drifted — the next-reminder row was on `AppColors.textSecondary`
   where the others were on `colorScheme.onSurfaceVariant`. `SdBannerV2` draws its
   own to the same spec, so a banner adds nothing.
 - **No chevron where the tap is gone.** The severity card drops both together
@@ -399,11 +433,14 @@ mark tells the user a card is also a door.
   text beside them nothing to wrap into. Same for `DashboardLogButton`, which is a
   button, not a card.
 
-## The next-reminder banner
+## The next reminder
 
-- **It sits directly under the weather card** (owner's call). Both answer "what is
-  happening now", so the next dose belongs beside the sky rather than below a
-  block of readings the user may not have scrolled as far as.
+- **It is a row inside `DailyCheckInCard`, not a card of its own** (owner's call,
+  2026-09-04). It used to be `NextReminderBanner`, sitting directly under the
+  weather; that widget is gone and `features/daily_log/CLAUDE.md` holds the rule
+  now. The two were the same kind of row — a one-line prompt that opens one
+  screen — drawn identically and placed half a screen apart, which is what made
+  them read as two kinds of thing.
 - **Two lines: the medication name, then when.** It was one sentence with the name
   picked out in the accent colour, which left the name competing with the time
   beside it for the same glance. The name is what the user is looking for, so it

@@ -1,3 +1,4 @@
+import '../entities/cycle_day.dart';
 import '../entities/sleep_night.dart';
 import '../entities/step_day.dart';
 import '../entities/step_hour.dart';
@@ -19,6 +20,12 @@ abstract interface class HealthRepository {
 
   /// Steps between [from] and [to] (local time), grouped into one entry per day, oldest first.
   Future<List<StepDay>> stepDays({required DateTime from, required DateTime to});
+
+  /// Menstruation between [from] and [to] (local time), one entry per day, oldest first. Never stored — it is read where it is shown and nowhere else.
+  Future<List<CycleDay>> cycleDays({
+    required DateTime from,
+    required DateTime to,
+  });
 
   /// Steps between [from] and [to] (local time), grouped into one entry per hour, oldest first.
   Future<List<StepHour>> stepHours({

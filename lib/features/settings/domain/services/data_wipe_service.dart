@@ -1,9 +1,12 @@
 import '../../../alerts/domain/repositories/alert_registration_repository.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
+import '../../../attacks/domain/services/attack_live_activity.dart';
 import '../../../attacks/domain/services/attack_share_file_store.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../daily_log/domain/repositories/daily_log_repository.dart';
 import '../../../home_widget/domain/repositories/home_widget_repository.dart';
+import '../../../insights/domain/repositories/midas_repository.dart';
 import '../../../medications/domain/repositories/medication_repository.dart';
 import '../../../medications/domain/services/notification_scheduler.dart';
 import '../../../notifications/domain/repositories/notification_repository.dart';
@@ -28,8 +31,11 @@ class DataWipeService {
     this._sync,
     this._alerts,
     this._dailyPressure,
+    this._dailyLogs,
+    this._midas,
     this._shareFiles,
     this._homeWidget,
+    this._liveActivity,
   );
 
   final AttackRepository _attacks;
@@ -45,14 +51,23 @@ class DataWipeService {
   final AlertRegistrationRepository _alerts;
   final DailyPressureRepository _dailyPressure;
 
+  /// The daily check-ins. Synced like an attack, so the remote half above takes the server's copy and this takes the device's.
+  final DailyLogRepository _dailyLogs;
+
+  /// The MIDAS answers. Synced like the rest, so the remote half above takes the server's copy and this takes the device's.
+  final MidasRepository _midas;
+
   /// The share images. Not a database and not listed anywhere in the app, but a copy of the user's health data on disk all the same.
   final AttackShareFileStore _shareFiles;
 
   /// The App Group the home-screen widget reads.
   final HomeWidgetRepository _homeWidget;
 
+  /// The Lock Screen card. Not a database and not on disk, but the user's health data on a screen anyone can see (hard rule 8).
+  final AttackLiveActivity _liveActivity;
+
   /// How many awaits [wipeAll] reports against.
-  static const int steps = 11;
+  static const int steps = 14;
 
   /// [onProgress] fires after each step with how many are done out of [steps].
   Future<void> wipeAll({WipeProgressCallback? onProgress}) async {
@@ -87,8 +102,17 @@ class DataWipeService {
     // Never synced, but still the user's.
     await _dailyPressure.deleteAll();
     step();
+    // How the user slept and how stressed they were, on every day they answered.
+    await _dailyLogs.deleteAll();
+    step();
+    // How many days migraine cost them, in their own words.
+    await _midas.deleteAll();
+    step();
     // A shared attack is written to temporary storage for the share sheet to read.
     await _shareFiles.deleteAll();
+    step();
+    // Before the widget, because both draw from what is now gone.
+    await _liveActivity.end();
     step();
     // Last, because it is derived from everything above: emptied any earlier and the next redraw would put the old numbers straight back.
     await _homeWidget.clear();
