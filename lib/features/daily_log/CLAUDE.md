@@ -42,6 +42,15 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
   knows. Nothing it reads is stored — `features/health/CLAUDE.md` is the rule.
 - **The card stays on the dashboard once answered**, saying so. A card that
   vanished on save reads as the app forgetting what it was just told.
+- **It is drawn as `NextReminderBanner` is** (owner's call): tinted
+  `SdIconBadgeV2`, an accent-coloured prompt over a muted line, both capped at
+  one line, and `DashboardChevron` at the trailing edge. The two are the same
+  kind of row — a one-line prompt on the dashboard that opens one screen — and
+  they were drawn differently, a bare glyph and a title here against a badge and
+  a chevron there. Colour is what still tells them apart: `AppColors.primary`
+  for the day's own ask, `AppColors.secondary` for a medication. The glyph
+  carries the answered state (`AppIconConstant.saved`); the badge tint does not
+  change with it, or the row would shift weight on save.
 
 ## Where it is wired
 

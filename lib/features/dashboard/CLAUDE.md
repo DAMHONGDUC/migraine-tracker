@@ -417,6 +417,10 @@ mark tells the user a card is also a door.
 - **The two grids are exempt** — quick access and explore are already, visibly,
   lists of links, and a chevron in a half-screen cell would cost the label the
   room it needs.
+- **It lives in `core/widgets/`, not in this feature.** `DailyCheckInCard` is
+  owned by `daily_log` but drawn on this screen, and a feature may not import
+  another feature's `presentation/` — so the shared mark sits in core and the
+  name keeps saying which surface it belongs to.
 - **One widget, not the recipe typed per card.** The three that already had a
   chevron had drifted — the next-reminder banner was on `AppColors.textSecondary`
   where the others were on `colorScheme.onSurfaceVariant`. `SdBannerV2` draws its
