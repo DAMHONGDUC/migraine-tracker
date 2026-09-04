@@ -48,8 +48,8 @@ Three shapes recur, and they are the pattern to copy:
 Ordered, and the order is the contract:
 
 1. **Wipe, unconditionally** (`_clean.sh`): `flutter clean`, gradle dirs, iOS
-   `Pods`/`Podfile.lock`/`.symlinks`/`ephemeral`. Unconditional is the whole
-   point — a clean that has to be *decided* is one nobody runs.
+   `.symlinks`/`ephemeral`. Unconditional is the whole point — a clean that has
+   to be *decided* is one nobody runs.
 2. **Submodules onto their branch**, not the pinned commit: read
    `submodule.<name>.branch` from `.gitmodules`, checkout, `pull --ff-only`,
    and report per submodule when either step fails instead of dying.
@@ -58,16 +58,12 @@ Ordered, and the order is the contract:
 5. **Env templates**: copy `env/<flavor>.example.json` → `env/<flavor>.json`
    for each missing one, collect the names, and warn loudly at the end.
 6. Backend dependencies (`npm ci`) when that folder exists.
-7. Pods, on macOS only, when a `Podfile` exists.
 
-Two details that are not cosmetic:
+There is no iOS step: every plugin is a Swift Package and Xcode resolves them
+on the first build. One detail that is not cosmetic:
 
-- **Force a UTF-8 `LANG` before running CocoaPods.** Ruby without one reads the
-  Podfile as ASCII-8BIT and dies inside its own error reporter, on a trace that
-  names the encoding and never the missing locale. Force it, do not default it:
-  `LANG=C` breaks identically and only an *unset* one gets caught by a default.
-- **Fold pod's stderr into stdout** (`pod install 2>&1`). Melos labels every
-  stderr line `ERROR:`, so an otherwise clean run reads as a failed one.
+- **Fold a tool's stderr into stdout** when one is added back here. Melos labels
+  every stderr line `ERROR:`, so an otherwise clean run reads as a failed one.
   `set -e` still stops on a real failure.
 
 The submodule choice has a price, so state it where people read it: after this,

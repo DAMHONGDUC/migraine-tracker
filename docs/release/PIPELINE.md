@@ -68,11 +68,10 @@ commit is the thing the rule exists to prevent.
 checkout is thrown away, so the edit never reaches git and a developer's Mac
 keeps automatic signing.
 
-**Ruby is pinned before anything runs `pod`.** CocoaPods is a gem, and a gem
-binary only runs under the Ruby it was installed for. Pods installed with the
-image's Ruby and a job pinned to another one leave `pod` unable to load itself
-— which Flutter reports as a skipped step, not as a failure, and the archive
-then goes missing the `health` plugin's pods.
+**Ruby is pinned before `bundle install`.** fastlane is a gem, and a gem
+binary only runs under the Ruby it was installed for. The pin plus the Gemfile
+is what keeps a runner-image update from re-tooling a release without anyone
+choosing it.
 
 **The "What to Test" note is passed twice, as `changelog` AND as
 `localized_build_info`.** `skip_waiting_for_build_processing: true` keeps the

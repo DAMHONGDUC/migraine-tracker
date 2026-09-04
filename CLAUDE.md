@@ -62,7 +62,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
-| WeatherKit, iOS build/SPM/CocoaPods | `docs/rules/TECH_STACK.md` |
+| WeatherKit, iOS build/SPM | `docs/rules/TECH_STACK.md` |
 | the app icon, the launch screen, regenerating either | `docs/setup/APP_ICON.md` |
 | a second Firebase project, or standing prod up on its own | `docs/setup/FIREBASE_PROJECT.md` |
 | tests | `docs/rules/TESTING.md` |
@@ -232,8 +232,9 @@ never its `data/` or `presentation/`. Drift tables live with their feature;
   iOS first, and a resolution hack to satisfy a preference is the
   clever-over-boring trade this file warns against. Revisit when `file_picker`
   ships stable on `win32 ^6`.
-- **iOS builds on Swift Package Manager, not CocoaPods** — except `health`.
-  Detail, and why the reverse was tried and reverted: `docs/rules/TECH_STACK.md`.
+- **iOS builds on Swift Package Manager. There is no CocoaPods** — no
+  `Podfile`, no `Pods`. Detail, and why the reverse was tried and reverted:
+  `docs/rules/TECH_STACK.md`.
 
 ## When unsure
 
