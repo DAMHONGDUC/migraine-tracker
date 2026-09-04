@@ -10,11 +10,11 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/analysis_info_sheet.dart';
+import '../../../../core/widgets/dashboard_chevron.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../insights/domain/entities/risk_score.dart';
 import '../../../insights/providers.dart';
 import '../../../premium/providers.dart';
-import 'dashboard_chevron.dart';
 
 part 'risk_score_card_strip.dart';
 

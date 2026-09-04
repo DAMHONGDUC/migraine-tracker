@@ -11,9 +11,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../core/widgets/dashboard_chevron.dart';
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
-import 'dashboard_chevron.dart';
 
 /// Banner for the soonest upcoming medication reminder (picked relative to the current time), tapping through to that medication's detail screen.
 class NextReminderBanner extends ConsumerStatefulWidget {

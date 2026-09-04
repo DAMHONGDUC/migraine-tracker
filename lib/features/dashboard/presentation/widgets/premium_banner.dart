@@ -7,7 +7,7 @@ import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
-import 'dashboard_chevron.dart';
+import '../../../../core/widgets/dashboard_chevron.dart';
 
 /// One short row at the top of the dashboard offering premium, for free users only.
 class PremiumBanner extends ConsumerWidget {
