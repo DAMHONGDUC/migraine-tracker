@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
@@ -10,11 +9,7 @@ void main() {
     await pumpApp(tester);
 
     await openSettings(tester);
-    await tester.dragUntilVisible(
-      find.text('About BaroEase'),
-      find.byType(Scrollable).first,
-      const Offset(0, -200),
-    );
+    await scrollIntoView(tester, find.text('About BaroEase'));
 
     // The version row is gone: the About row carries the same diagnostic string as its value, so a bug report still names its build.
     expect(find.text('About BaroEase'), findsOneWidget);

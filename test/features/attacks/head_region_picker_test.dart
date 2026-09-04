@@ -10,6 +10,8 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_regi
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
+import '../../helpers/settle_frames.dart';
+
 /// The location step's two doors onto one answer, and the one-screen rule it has to keep: the head, the named tiles under it, and no scrolling anywhere.
 void main() {
   late List<HeadRegion> selected;
@@ -108,7 +110,7 @@ void main() {
     final Rect front = tester.getRect(find.byType(HeadDiagram));
 
     await tester.tap(find.text('Back'));
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
 
     // The back view has four tiles to the front's eleven.
     expect(tester.getRect(find.byType(HeadDiagram)), front);

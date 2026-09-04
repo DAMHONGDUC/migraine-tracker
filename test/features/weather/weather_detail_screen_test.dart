@@ -6,6 +6,8 @@ import 'package:migraine_tracker/core/widgets/weather/weather_card.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_report.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 
+import '../../helpers/settle_frames.dart';
+
 /// The detail is a screen, and the owner's rule for it is that the page never moves: the readings stay put and only the ten days scroll.
 void main() {
   WeatherReport report({int days = WeatherReport.forecastDayCount}) {
@@ -84,7 +86,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
   }
 
   testWidgets('only the day list scrolls, never the page', (tester) async {
@@ -115,7 +117,7 @@ void main() {
     );
 
     list.position.jumpTo(list.position.maxScrollExtent);
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
 
     expect(find.text('Sunset'), findsOneWidget, reason: 'the readings moved');
     // 18 Aug 2026 is a Tuesday, so the tenth day is the Thursday after next.
@@ -130,7 +132,7 @@ void main() {
 
     // 18 Aug 2026 is a Tuesday, so the row under today is Wednesday — the FIRST one, because ten days come round to a second of most weekdays.
     await tester.tap(find.text('Wednesday').first);
-    await tester.pumpAndSettle();
+    await settleFrames(tester);
 
     // A day that has not happened has no "now", so the headline falls back to that day's low and high.
     expect(find.text('28°'), findsNothing);

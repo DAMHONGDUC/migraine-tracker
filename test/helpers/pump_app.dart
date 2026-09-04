@@ -64,6 +64,8 @@ import 'notification_fakes.dart';
 import 'review_fakes.dart';
 import 'sync_fakes.dart';
 
+export 'settle_frames.dart';
+
 /// Stands in for geolocator, which a widget test has no platform channel for — the real source's `requestPermission` never completes there, so a screen.
 class RecordingLocationSource implements LocationSource {
   RecordingLocationSource({this.granted = true});
@@ -802,6 +804,8 @@ Finder findLabelledField(String label) => find.descendant(
 );
 
 /// Scrolls until [finder] has been built, and does nothing when it already has been.
+///
+/// Bounded drags rather than `dragUntilVisible`, which settles between drags — see [settleFrames].
 Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isNotEmpty) return;
 
@@ -809,11 +813,12 @@ Future<void> scrollIntoView(WidgetTester tester, Finder finder) async {
 
   if (scrollable.evaluate().isEmpty) return;
 
-  await tester.dragUntilVisible(
-    finder,
-    scrollable.first,
-    const Offset(0, -200),
-  );
+  // 40 rather than a dozen: `dragUntilVisible` kept going until it found the target, and the settings list is long enough
+  // that a short bound stops above the row and fails as "not found" rather than as "not reachable".
+  for (int i = 0; i < 40 && finder.evaluate().isEmpty; i++) {
+    await tester.drag(scrollable.first, const Offset(0, -200));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
   await tester.pump();
 }
 
