@@ -37,7 +37,8 @@ void main() {
 
     expect(find.byType(RiskScoreCard), findsOneWidget);
     // The widget is placed but renders nothing — no title, no band, no number.
-    expect(find.text('Next 7 days'), findsNothing);
+    expect(find.text('Attack risk forecast'), findsNothing);
+    expect(find.text('Next 7 days · a prediction'), findsNothing);
     expect(find.text('Low'), findsNothing);
     expect(find.text('Moderate'), findsNothing);
     expect(find.text('High'), findsNothing);
@@ -52,7 +53,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('Next 7 days'), findsOneWidget);
+    expect(find.text('Attack risk forecast'), findsOneWidget);
     await finishTest(tester);
   });
 
@@ -64,7 +65,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('Next 7 days'), findsOneWidget);
+    expect(find.text('Attack risk forecast'), findsOneWidget);
     expect(
       find.text('Two weeks of logging and the score starts.'),
       findsOneWidget,

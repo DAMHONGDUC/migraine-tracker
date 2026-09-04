@@ -6,7 +6,10 @@ import 'package:system_design/index.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/navigation_utils.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icon_constant.dart';
+import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/analysis_info_sheet.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../insights/domain/entities/risk_score.dart';
 import '../../../insights/providers.dart';
@@ -53,8 +56,33 @@ class RiskScoreCard extends ConsumerWidget {
                     style: AppTextStyle.titleSmall,
                   ),
                 ),
+                // The same glyph, tooltip and sheet every analysis card on Insights carries — this one is an analysis too, it just lives on the dashboard.
+                SdIconButtonV2(
+                  icon: SdIconV2(
+                    icon: AppIconConstant.info,
+                    size: AppIconSize.small,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                  tooltip: l10n.insightsExplainTooltip,
+                  onPressed: () => AnalysisInfoSheet(
+                    title: l10n.riskInfoTitle,
+                    paragraphs: <String>[
+                      l10n.riskInfoWhat,
+                      l10n.riskInfoHow,
+                      l10n.riskInfoMissing,
+                      l10n.riskInfoThresholds,
+                    ],
+                  ).show(context),
+                ),
                 const DashboardChevron(),
               ],
+            ),
+            // Under the title rather than beside it: the window and the word "prediction" are what stop a percentage being read as a measurement.
+            Text(
+              l10n.riskCardSubtitle,
+              style: AppTextStyle.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
             SizedBox(height: SdSpacingConstant.h12),
             if (!forecast.isReady)
@@ -67,7 +95,7 @@ class RiskScoreCard extends ConsumerWidget {
             else ...<Widget>[
               _TodayScore(today: today),
               SizedBox(height: SdSpacingConstant.h12),
-              _WeekStrip(days: forecast.days),
+              _WeekChart(days: forecast.days),
               SizedBox(height: SdSpacingConstant.h12),
               _Reasons(today: today),
             ],

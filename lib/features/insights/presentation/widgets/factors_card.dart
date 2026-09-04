@@ -6,13 +6,13 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/map_factor_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/analysis_info_sheet.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/factor_association.dart';
 import '../../providers.dart';
 import 'insight_card.dart';
-import 'insight_info_sheet.dart';
 
 part 'factors_card_groups.dart';
 
@@ -36,7 +36,7 @@ class FactorsCard extends ConsumerWidget {
     }
 
     return InsightCard(
-      onInfo: () => InsightInfoSheet(
+      onInfo: () => AnalysisInfoSheet(
         title: l10n.factorsCardTitle,
         paragraphs: <String>[
           l10n.factorsExplain1,

@@ -7,6 +7,7 @@ import '../../../../core/extensions/duration_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../../../core/widgets/analysis_info_sheet.dart';
 import '../../../../core/widgets/health_connection_tile.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -20,7 +21,6 @@ import '../../providers.dart';
 import 'health_range_chart.dart';
 import 'health_range_selector.dart';
 import 'insight_card.dart';
-import 'insight_info_sheet.dart';
 import 'sleep_correlation_body.dart';
 
 part 'sleep_card_analysis.dart';

@@ -8,6 +8,7 @@ import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/alert_summary_tag.dart';
 import '../../../../core/widgets/alert_threshold_sheet.dart';
+import '../../../../core/widgets/analysis_info_sheet.dart';
 import '../../../../core/widgets/premium_gate.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/domain/entities/alerts_settings.dart';
@@ -17,7 +18,6 @@ import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';
 import 'insight_card.dart';
-import 'insight_info_sheet.dart';
 import 'pressure_forecast_body.dart';
 import 'pressure_history_body.dart';
 import 'trigger_verdict_body.dart';
@@ -67,7 +67,7 @@ class PressureCard extends ConsumerWidget {
         SizedBox(height: SdContentPaddingV2.sectionGap),
         InsightCard(
           title: context.l10n.insightsAnalysisTitle,
-          onInfo: () => InsightInfoSheet(
+          onInfo: () => AnalysisInfoSheet(
             title: context.l10n.insightsCorrelationTitle,
             paragraphs: <String>[
               context.l10n.insightsExplainPressure1,

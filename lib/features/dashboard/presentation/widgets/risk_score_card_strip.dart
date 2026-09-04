@@ -28,8 +28,9 @@ class _TodayScore extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: <Widget>[
+        // The percent sign is the point: a bare "62" beside a word reads as a rating out of ten as easily as a probability.
         Text(
-          '${today.score}',
+          l10n.riskPercent(today.score),
           style: AppTextStyle.displaySmall.copyWith(color: color),
         ),
         SizedBox(width: SdSpacingConstant.w8),
@@ -42,14 +43,16 @@ class _TodayScore extends StatelessWidget {
   }
 }
 
-/// Seven bars, today first. A bar rather than a number each: what a glance is for is which day stands out.
-class _WeekStrip extends StatelessWidget {
-  const _WeekStrip({required this.days});
+/// The seven days as labelled percentage rows, today first.
+///
+/// **Rows rather than the column of bars this used to be** (owner's call). Seven 40pt columns could be compared to each
+/// other but never read: the number they stood for was nowhere on the card, so "how likely is Thursday" had no answer.
+/// `SdProgressRowV2` is the design system's own answer to a small labelled series — the weekday names it, the track
+/// shows the share, and the percentage is written at the end of every row.
+class _WeekChart extends StatelessWidget {
+  const _WeekChart({required this.days});
 
   final List<DailyRisk> days;
-
-  /// The tallest a bar gets. Its own intrinsic size, not configuration about it.
-  static const double barHeight = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -58,45 +61,18 @@ class _WeekStrip extends StatelessWidget {
       Localizations.localeOf(context).toLanguageTag(),
     );
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
       children: <Widget>[
         for (final (int index, DailyRisk day) in days.indexed) ...<Widget>[
-          if (index > 0) SizedBox(width: SdSpacingConstant.w8),
-          Expanded(
-            child: Semantics(
-              label: '${_bandLabel(day.band, l10n)} ${day.score}',
-              excludeSemantics: true,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  SizedBox(
-                    height: barHeight,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        // A floor of a tenth, so a zero day still draws a bar rather than a gap the eye reads as missing data.
-                        height: barHeight * (day.score.clamp(10, 100) / 100),
-                        decoration: BoxDecoration(
-                          color: _bandColor(day.band),
-                          borderRadius: BorderRadius.circular(
-                            SdSpacingConstant.r4,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: SdSpacingConstant.h4),
-                  Text(
-                    index == 0 ? l10n.riskToday : weekday.format(day.day),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.labelSmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+          if (index > 0) SizedBox(height: SdSpacingConstant.h8),
+          Semantics(
+            label: '${_bandLabel(day.band, l10n)} ${day.score}',
+            excludeSemantics: true,
+            child: SdProgressRowV2(
+              label: index == 0 ? l10n.riskToday : weekday.format(day.day),
+              value: l10n.riskPercent(day.score),
+              fraction: day.score / 100,
+              color: _bandColor(day.band),
             ),
           ),
         ],

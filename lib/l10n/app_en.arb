@@ -3756,9 +3756,33 @@
   "@premiumLockedFactors": {
     "description": "Locked-state pitch on the Factors tab."
   },
-  "riskCardTitle": "Next 7 days",
+  "riskCardTitle": "Attack risk forecast",
   "@riskCardTitle": {
-    "description": "Title of the dashboard card scoring the week ahead."
+    "description": "Title of the dashboard card scoring the week ahead. Says outright that it is a forecast."
+  },
+  "riskCardSubtitle": "Next 7 days · a prediction",
+  "@riskCardSubtitle": {
+    "description": "Line under the risk card title: the window it covers, and that the number is predicted rather than measured."
+  },
+  "riskInfoTitle": "How this forecast works",
+  "@riskInfoTitle": {
+    "description": "Title of the sheet the risk card's info glyph opens."
+  },
+  "riskInfoWhat": "Each percentage is how likely that day is to bring an attack, worked out from your own logs. It is a prediction, not a diagnosis and not a promise — a high day can pass quietly, and a low one can still hurt.",
+  "@riskInfoWhat": {
+    "description": "Risk info sheet, first paragraph: what the number is."
+  },
+  "riskInfoHow": "Four signals score every day: a falling pressure forecast (40%), your perimenstrual window (25%), how far last night sits below your usual sleep (20%), and how many attacks the last seven days held (15%).",
+  "@riskInfoHow": {
+    "description": "Risk info sheet, second paragraph: the four signals and their weights."
+  },
+  "riskInfoMissing": "A signal the app cannot read is named under the score and left out of the sum — never counted as a calm day. The percentage is a share of what could actually be read, so a day with no sleep data is not a low day.",
+  "@riskInfoMissing": {
+    "description": "Risk info sheet, third paragraph: why an unreadable signal is named rather than scored zero."
+  },
+  "riskInfoThresholds": "Every threshold is yours: the pressure is measured against the alert threshold you set, the sleep against your own median night, the week against your own median week.",
+  "@riskInfoThresholds": {
+    "description": "Risk info sheet, fourth paragraph: the score is measured against the user's own baselines."
   },
   "riskBandLow": "Low",
   "@riskBandLow": {
@@ -3775,6 +3799,15 @@
   "riskToday": "Today",
   "@riskToday": {
     "description": "Label of the first bar in the seven-day strip."
+  },
+  "riskPercent": "{score}%",
+  "@riskPercent": {
+    "description": "A risk score written as a percentage — the card's headline and every row of the week chart.",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
   },
   "riskSignalPressure": "Pressure falling {drop} hPa",
   "@riskSignalPressure": {

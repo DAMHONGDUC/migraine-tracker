@@ -13,8 +13,8 @@ import '../../../../core/theme/app_text_style.dart';
 ///
 /// It carries no commit: there is nothing here to save, so the header's X is
 /// the only way out and `SdSheetContentV2` draws no button.
-class InsightInfoSheet extends StatelessWidget {
-  const InsightInfoSheet({
+class AnalysisInfoSheet extends StatelessWidget {
+  const AnalysisInfoSheet({
     required this.title,
     required this.paragraphs,
     super.key,
@@ -51,7 +51,7 @@ class InsightInfoSheet extends StatelessWidget {
 }
 
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
-extension InsightInfoSheetExt on InsightInfoSheet {
+extension AnalysisInfoSheetExt on AnalysisInfoSheet {
   Future<void> show(BuildContext context) => showSdBottomSheetV2<void>(
     context,
     // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.

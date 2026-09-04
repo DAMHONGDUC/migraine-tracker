@@ -18,7 +18,7 @@ class _Analysis extends ConsumerWidget {
 
     return InsightCard(
       title: l10n.insightsSleepTitle,
-      onInfo: () => InsightInfoSheet(
+      onInfo: () => AnalysisInfoSheet(
         title: l10n.insightsSleepTitle,
         paragraphs: <String>[
           l10n.insightsExplainSleep1,

@@ -34,7 +34,7 @@ class _Analysis extends ConsumerWidget {
       children: <Widget>[
         InsightCard(
           title: l10n.insightsExertionTitle,
-          onInfo: () => InsightInfoSheet(
+          onInfo: () => AnalysisInfoSheet(
             title: l10n.insightsExertionTitle,
             paragraphs: <String>[
               l10n.insightsExplainExertion1,
@@ -48,7 +48,7 @@ class _Analysis extends ConsumerWidget {
           SizedBox(height: SdContentPaddingV2.sectionGap),
           InsightCard(
             title: l10n.insightsStepsTitle,
-            onInfo: () => InsightInfoSheet(
+            onInfo: () => AnalysisInfoSheet(
               title: l10n.insightsStepsTitle,
               paragraphs: <String>[
                 l10n.insightsExplainSteps1,
