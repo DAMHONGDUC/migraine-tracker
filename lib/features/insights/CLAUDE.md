@@ -32,8 +32,10 @@ question. They do not: one has no baseline of days without an attack and the
 other has two groups of days, and the explanation behind each says something
 different.
 
-**Every analysis card carries an info glyph that opens `InsightInfoSheet`**
-(owner's rule). A correlation states a relationship in one sentence, and the
+**Every analysis card carries an info glyph that opens `AnalysisInfoSheet`**
+(owner's rule). It lives in `core/widgets/` rather than here, because the
+dashboard's risk card is an analysis too and a feature may not import another
+feature's `presentation/`. A correlation states a relationship in one sentence, and the
 sentence alone never says what was compared against what, how the number was
 arrived at, or why the card is still empty. Three paragraphs each, in this
 order, and the third is the one that matters:

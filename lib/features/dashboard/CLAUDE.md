@@ -352,6 +352,36 @@ than a word there.
   low where the report carried a forecast but no current conditions, so a card with
   a week behind it never comes up blank at the top.
 
+## The risk card
+
+**`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
+from `RiskScoreEngine` (weights, thresholds and the score's own rules:
+`lib/features/insights/CLAUDE.md`). What this file owns is how it reads.
+
+- **The title says it is a forecast, and the line under it says it is a
+  prediction** (owner's rule). It used to be titled "Next 7 days", which names a
+  window and leaves the number to be read as a measurement of something. A
+  percentage on a health screen is taken for a fact unless the card says
+  otherwise, so it says otherwise twice: `riskCardTitle` = "Attack risk
+  forecast", `riskCardSubtitle` = "Next 7 days · a prediction".
+- **Every number carries its percent sign** (`riskPercent`). "62" beside a word
+  reads as a rating out of ten as easily as a probability.
+- **The week is seven labelled `SdProgressRowV2` rows, not seven bars**
+  (owner's call). The column of bars could be compared with itself and nothing
+  else: the value each bar stood for appeared nowhere, so "how likely is
+  Thursday" had no answer on the card. A progress row names the day, shows the
+  share and writes the percentage at the end — which is what the design system
+  built it for.
+- **It carries the same info glyph as every analysis card**, opening
+  `AnalysisInfoSheet` with four paragraphs: what the number is, the four signals
+  and their weights, why an unreadable signal is named rather than scored zero,
+  and that every threshold is the user's own. The card states a probability
+  about the user's health; the sheet is where "not a diagnosis" is allowed the
+  room to be said.
+- **The card still opens the Pressure tab**, where the forecast it is built on
+  is drawn in full — the glyph and the card body are two different destinations
+  on purpose, so reading the explanation does not cost the reader their place.
+
 ## The summary group
 
 **`DashboardSummaryGroup` shows on every launch, empty or not.** Owner's rule. It
