@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
+import 'package:migraine_tracker/features/daily_log/presentation/widgets/daily_check_in_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
-import 'package:migraine_tracker/features/dashboard/presentation/widgets/next_reminder_banner.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/premium_banner.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
@@ -95,17 +95,17 @@ void main() {
     await _settle(tester);
 
     // Two lines, name over time — there is no "Next reminder" title any more.
-    expect(find.byType(NextReminderBanner), findsOneWidget);
+    expect(find.byType(DailyCheckInCard), findsOneWidget);
     expect(
       find.descendant(
-        of: find.byType(NextReminderBanner),
+        of: find.byType(DailyCheckInCard),
         matching: find.text('Ibuprofen'),
       ),
       findsOneWidget,
     );
     expect(
       find.descendant(
-        of: find.byType(NextReminderBanner),
+        of: find.byType(DailyCheckInCard),
         matching: find.textContaining('at 09:00'),
       ),
       findsOneWidget,
@@ -130,7 +130,7 @@ void main() {
     );
     await _settle(tester);
 
-    await tapVisible(tester, find.byType(NextReminderBanner));
+    await tapVisible(tester, find.text('Ibuprofen'));
     await _settle(tester);
 
     // Landed on that medication's own screen, with the reminder on it — not the Medications tab it used to scroll and flash.

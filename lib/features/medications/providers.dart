@@ -12,14 +12,12 @@ import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
 import 'data/services/local_notification_scheduler.dart';
 import 'domain/entities/medication.dart';
-import 'domain/entities/next_reminder.dart';
 import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
 import 'domain/repositories/medication_repository.dart';
 import 'domain/services/default_medication_seeder.dart';
 import 'domain/services/medication_filterer.dart';
 import 'domain/services/medication_ranking.dart';
-import 'domain/services/next_reminder_calculator.dart';
 import 'domain/services/notification_scheduler.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
@@ -217,11 +215,3 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
 final remindersControllerProvider = Provider<RemindersController>(
   RemindersController.new,
 );
-
-/// The soonest upcoming enabled reminder relative to now, for the dashboard's next-reminder banner; null when nothing is scheduled.
-final nextReminderProvider = Provider<NextReminder?>((ref) {
-  final views =
-      ref.watch(medicationRemindersStreamProvider).value ??
-      const <MedicationReminderView>[];
-  return const NextReminderCalculator().compute(views, now: DateTime.now());
-});
