@@ -217,6 +217,8 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       filter: _filterRow(context, filters, filtersController),
       // Pinned under the app bar, never lifted into it (owner's call): the strip is where the filters are, and a bar that takes them over moves them mid-scroll.
       collapsible: false,
+      // The bar and strip step aside while the list scrolls, like every other list — except while the search field is in the bar: scrolling the results must not take the field being typed in off screen.
+      pinnedChrome: _searching,
       // No outer top padding: list scrolls behind the translucent app bar, like History.
       body: SdRefreshIndicatorV2(
         // Drop the spinner below the filter strip, not over its chips.
