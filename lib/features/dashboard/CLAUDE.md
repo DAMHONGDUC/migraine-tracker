@@ -422,7 +422,7 @@ mark tells the user a card is also a door.
   another feature's `presentation/` — so the shared mark sits in core and the
   name keeps saying which surface it belongs to.
 - **One widget, not the recipe typed per card.** The three that already had a
-  chevron had drifted — the next-reminder banner was on `AppColors.textSecondary`
+  chevron had drifted — the next-reminder row was on `AppColors.textSecondary`
   where the others were on `colorScheme.onSurfaceVariant`. `SdBannerV2` draws its
   own to the same spec, so a banner adds nothing.
 - **No chevron where the tap is gone.** The severity card drops both together
@@ -433,11 +433,14 @@ mark tells the user a card is also a door.
   text beside them nothing to wrap into. Same for `DashboardLogButton`, which is a
   button, not a card.
 
-## The next-reminder banner
+## The next reminder
 
-- **It sits directly under the weather card** (owner's call). Both answer "what is
-  happening now", so the next dose belongs beside the sky rather than below a
-  block of readings the user may not have scrolled as far as.
+- **It is a row inside `DailyCheckInCard`, not a card of its own** (owner's call,
+  2026-09-04). It used to be `NextReminderBanner`, sitting directly under the
+  weather; that widget is gone and `features/daily_log/CLAUDE.md` holds the rule
+  now. The two were the same kind of row — a one-line prompt that opens one
+  screen — drawn identically and placed half a screen apart, which is what made
+  them read as two kinds of thing.
 - **Two lines: the medication name, then when.** It was one sentence with the name
   picked out in the accent colour, which left the name competing with the time
   beside it for the same glance. The name is what the user is looking for, so it

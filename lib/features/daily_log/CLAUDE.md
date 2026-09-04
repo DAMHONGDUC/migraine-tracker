@@ -42,15 +42,27 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
   knows. Nothing it reads is stored — `features/health/CLAUDE.md` is the rule.
 - **The card stays on the dashboard once answered**, saying so. A card that
   vanished on save reads as the app forgetting what it was just told.
-- **It is drawn as `NextReminderBanner` is** (owner's call): tinted
-  `SdIconBadgeV2`, an accent-coloured prompt over a muted line, both capped at
-  one line, and `DashboardChevron` at the trailing edge. The two are the same
-  kind of row — a one-line prompt on the dashboard that opens one screen — and
-  they were drawn differently, a bare glyph and a title here against a badge and
-  a chevron there. Colour is what still tells them apart: `AppColors.primary`
-  for the day's own ask, `AppColors.secondary` for a medication. The glyph
-  carries the answered state (`AppIconConstant.saved`); the badge tint does not
-  change with it, or the row would shift weight on save.
+- **It holds the next medication reminder as a second row** (owner's call,
+  2026-09-04). `NextReminderBanner` is gone: the two were the same kind of row —
+  a one-line prompt on the dashboard that opens one screen — drawn the same way
+  and placed half a screen apart, so the same thing read as two things. Both
+  rows are `_PromptRow`: tinted `SdIconBadgeV2`, an accent prompt over a muted
+  line, both capped at one line, `DashboardChevron` at the trailing edge. Colour
+  is what tells them apart — `AppColors.primary` for the day's own ask,
+  `AppColors.secondary` for a medication. The glyph carries the answered state
+  (`AppIconConstant.saved`); the badge tint does not change with it, or the row
+  would shift weight on save.
+- **The card is not tappable; each row is.** They open different screens
+  (the check-in, that medication's detail), so one `onTap` over both would have
+  to guess. `SdCardV2` supplies the `Material`, so a row's ink is clipped to the
+  card's radius without a surface of its own.
+- **The card sits on the base surface**, so the `SdDividerV2` between the rows
+  is visible: the divider is drawn in `surfaceElevated`, which is exactly the
+  colour an elevated card is, and on one it disappears.
+- **The reminder row owns a 30-second ticker**, because "in 2h 15m" goes stale
+  where a `Provider` computed once would not notice. It is why this widget is
+  stateful, and why it computes `NextReminderCalculator` itself instead of
+  reading a provider that fixed its "now" at its last build.
 
 ## Where it is wired
 
