@@ -124,8 +124,9 @@ class _DailyCheckInCardState extends ConsumerState<DailyCheckInCard> {
     final int minutes = until.inMinutes % 60;
 
     if (until.inMinutes < 1) return l10n.dashboardRemainingSoon;
-    if (hours > 0 && minutes > 0)
+    if (hours > 0 && minutes > 0) {
       return l10n.dashboardRemainingHm(hours, minutes);
+    }
     if (hours > 0) return l10n.dashboardRemainingH(hours);
     return l10n.dashboardRemainingM(minutes);
   }
