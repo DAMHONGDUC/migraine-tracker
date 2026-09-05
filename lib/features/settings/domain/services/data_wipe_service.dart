@@ -19,6 +19,8 @@ import 'export_file_store.dart';
 typedef WipeProgressCallback = void Function(int done, int steps);
 
 /// GDPR "delete everything" (hard rule 8): the on-device database, past exports, the share images, and the account's synced copy.
+///
+/// Reached by account deletion and the two dev tiles — the Settings row that used to call it was removed (owner's call, 2026-09-05).
 class DataWipeService {
   const DataWipeService(
     this._attacks,
