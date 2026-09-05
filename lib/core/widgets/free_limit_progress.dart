@@ -4,9 +4,10 @@ import 'package:system_design/index.dart';
 
 import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
-import '../theme/app_text_style.dart';
 
-/// How much of a free record limit is spent: one line that says it, and a hairline bar that shows it.
+/// How much of a free record limit is spent. The look is [SdFreeLimitProgressV2];
+/// this holds the two things the design system may not know — the localized
+/// strings and the paywall the meter taps through to.
 class FreeLimitProgress extends ConsumerWidget {
   const FreeLimitProgress({
     required this.titleBuilder,
@@ -21,60 +22,16 @@ class FreeLimitProgress extends ConsumerWidget {
   final int used;
   final int limit;
 
-  /// Thin on purpose: this is a readout, not the progress of something the user is waiting on.
-  static double get barHeight => SdSpacingConstant.h4;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int left = (limit - used).clamp(0, limit);
-    final double progress = limit <= 0 ? 1 : (used / limit).clamp(0, 1);
-    // Spent, so the bar stops reading as neutral progress and starts reading as a wall. The only colour change in the widget.
-    final Color tint = left == 0
-        ? context.colorScheme.error
-        : context.colorScheme.primary;
 
-    return SdPressableScaleV2(
-      pressedScale: 0.99,
+    return SdFreeLimitProgressV2(
+      title: titleBuilder(left),
+      countLabel: context.l10n.freeLimitUsed(used, limit),
+      used: used,
+      limit: limit,
       onTap: () => NavigationUtils.toPaywall(context, ref),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    titleBuilder(left),
-                    style: AppTextStyle.bodySmall.secondary,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                SizedBox(width: SdSpacingConstant.w8),
-                // The counts, not a percentage: "38/40" says how many are left at a glance, where "95%" has to be worked out.
-                Text(
-                  context.l10n.freeLimitUsed(used, limit),
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: tint,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: SdSpacingConstant.h6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(barHeight / 2),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: barHeight,
-                backgroundColor: context.sdTheme.surfaceElevated,
-                valueColor: AlwaysStoppedAnimation<Color>(tint),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
