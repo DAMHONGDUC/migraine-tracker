@@ -119,16 +119,21 @@ Never request Always.
   widens from `subLocality` outwards. Never sharpen the accuracy request to
   make the label finer.
 
-## 8. GDPR: two destructive actions, deliberately separate
+## 8. GDPR: one destructive action
 
-**"Delete all data"** (Settings) clears the records — device, account copy,
-past exports — and gives up the FCM token, geohash and threshold, but keeps the
-account: someone clearing their history usually wants to carry on, and losing
-the account would unbind their subscription with it.
+**"Delete all data" is gone from Settings** (owner's call, 2026-09-05). The row,
+its confirm dialog, its progress indicator and the `AppFeature.wipe` marketing
+line are deleted; `DataWipeService` stays, because account deletion and the two
+dev tiles still call it. **Do not put the row back without the owner asking** — and note
+what went with it: a signed-out user has no in-app way to clear the backend
+alert record beyond giving up the token (`unregister`), so the privacy policy
+answers that by email instead. Moving `unregister` to `forgetRegistration` would
+close it in code, and is the owner's call to make.
 
-**"Delete account"** (Account screen) is the whole teardown: local wipe,
-Firestore doc, synced records, FCM token revoke, then Firebase Auth. App Store
-5.1.1(v) requires it in-app now that accounts exist.
+**"Delete account"** (Account screen) is now the only teardown: `wipeAll` for the
+device and the account copy, Firestore doc, synced records, FCM token revoke,
+then Firebase Auth. App Store 5.1.1(v) requires it in-app now that accounts
+exist.
 
 - **Its server half is the `deleteAccount` callable of necessity.**
   `firestore.rules` denies a client deleting `users/{uid}` (its write rule reads
@@ -156,29 +161,25 @@ Firestore doc, synced records, FCM token revoke, then Firebase Auth. App Store
   otherwise keeps being charged.
 - **Exports are health data on disk.** Each export is written to the app's
   documents directory and recorded so it can be re-shared later, so the wipe
-  must delete the files and their rows too, or "delete everything" leaves
+  must delete the files and their rows too, or deleting the account leaves
   copies in `Documents/exports/`. Anything new that persists health data
   inherits this.
 - **The in-app export is Premium in full** (owner's call, 2026-08-19) — JSON and
-  CSV as well as the PDF. The wipe is what stays free: deleting your own
-  records is a right; selling the file that carries them out is not the same
-  question. Portability is met by the support route the privacy policy names,
-  which answers an export request by email at no cost — move both together if
-  that route changes.
-- **The wipe shows spinner and percentage.** It reaches the network, the OS
-  scheduler and several tables, so it can run long enough that a row which only
-  spins cannot tell slow from stuck (`SettingsRowProgress`, `core/widgets/`,
-  reading `commonProgressPercent`) — the only row in Settings that shows one,
-  now that sync has no row at all (hard rule 12).
-  `SettingsController` is a `Notifier<WipeStatus>`, so the indicator survives a
-  rebuild and the dev reset gets it free.
-  - **Progress counts `DataWipeService.steps`, never records.** Counting rows
-    means discovering more work mid-wipe, and a bar that jumps backwards reads
-    as a bug. A step added to `wipeAll` moves that constant in the same change;
-    `data_wipe_service_test.dart` asserts 0..steps with nothing skipped.
-  - The controller divides by `steps + 1`: the Apple Health disconnect after the
-    service returns is one more step, and without it the bar sits at 100% while
-    work continues.
+  CSV as well as the PDF. Portability is met by the support route the privacy
+  policy names, which answers an export request by email at no cost — move both
+  together if that route changes. Account deletion is free and always will be.
+- **`DataWipeService` has three callers, all of them still real**: account
+  deletion (`AccountController.deleteAccount`), the dev reset and the dev seed.
+  Its progress callback lost its only display when the Settings row went —
+  `SettingsRowProgress`, `WipeStatus` and `commonProgressPercent` are deleted
+  with it — but `onProgress` stays, because the step count is what
+  `data_wipe_service_test.dart` asserts against.
+  - **`DataWipeService.steps` counts awaits, never records.** A step added to
+    `wipeAll` moves that constant in the same change; the test asserts 0..steps
+    with nothing skipped.
+  - **The Apple Health disconnect is the controller's, not the service's.**
+    Nothing from HealthKit is stored, so there is nothing to delete — but
+    leaving it connected keeps the app reading sleep after the wipe.
 
 ## 11. Medical disclaimer
 
@@ -252,7 +253,8 @@ the same change, effective/last-updated dates included.
   collections with their plaintext `userId`/`updatedAt`, the two HealthKit
   permissions that never leave the device, export files kept on disk, the home
   screen widget's App Group (this week's attack count and latest pressure, on
-  device, cleared by the wipe), and the two destructive actions being different.
+  device, cleared by the wipe), and what a signed-out user can and cannot have
+  deleted without an account.
 - **A new data flow means editing both files before the feature is done.**
   Nothing enforces this, which is why it is written here.
 - `[ADDRESS/COUNTRY]` in the markdown is the owner's to fill. The support

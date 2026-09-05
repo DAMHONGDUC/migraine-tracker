@@ -135,10 +135,11 @@ advertising data, contacts, financial info (payments handled by Apple).
 
 ## Review notes (for App Review)
 - The app is fully functional without an account; a reviewer can log attacks,
-  view history, and export/delete data with no sign-in.
+  view history, and export data with no sign-in.
 - Sign in with Apple is offered alongside Google (4.8) and upgrades the
   anonymous account via linkWithCredential.
-- In-app account deletion is in Settings → Delete all data (5.1.1(v)).
+- In-app account deletion is on the Account screen → Delete account (5.1.1(v)).
+  It deletes the account, its synced records and this device's copy.
 - Location is requested While-Using at reduced accuracy only, solely to enable
   optional pressure alerts. Denying it leaves the rest of the app usable.
 - Health (sleep) access is optional and read-only; the app functions without it.

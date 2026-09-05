@@ -230,20 +230,20 @@
       "body": [
         "From an attack's detail screen you can share it as an image — to a partner, a family member, or anyone else you choose. It carries when the attack started, how intense it was, how long it lasted, and where on your head it hurt.",
         "It never carries your notes, your symptoms, your triggers, the medication you took, or your location. You see the exact image before you send it, because what gets shared is the preview you are looking at.",
-        "The image goes only where you send it: it is handed to the iOS share sheet and reaches the app you pick. It is never uploaded to us, we never see it, and it never reaches our backend. The file is written to the app's temporary storage so the share sheet can read it, and “Delete all data” clears it along with everything else."
+        "The image goes only where you send it: it is handed to the iOS share sheet and reaches the app you pick. It is never uploaded to us, we never see it, and it never reaches our backend. The file is written to the app's temporary storage so the share sheet can read it, and deleting your account clears it along with everything else; without an account, deleting the app does."
       ]
     },
     {
       "id": "deleting",
       "title": "Exporting and deleting your data",
       "body": [
-        "{{app}} gives you two destructive actions, deliberately kept separate."
+        "{{app}} keeps your records on your device, and gives you one destructive action for what leaves it."
       ],
       "list": [
         "Export everything — Settings → Export data, as JSON, CSV or a PDF doctor report. The in-app export is a Premium feature; without Premium, write to us and we will send you your data free of charge. Past exports are kept in the app so you can re-share them, and are full copies of your data.",
-        "Delete all data — Settings → Delete all data. Wipes the local database, those export files, any shared attack image and the home screen widget's shared container, deletes your synced records and backend alert record, and gives up your push token, coarse location and threshold. Your account stays, so your subscription binding survives.",
-        "Delete your account — Account screen → Delete account. The whole teardown: synced records, account record, encryption key, then the login itself.",
-        "Neither action cancels your subscription. That lives in the App Store and only you can cancel it there."
+        "Delete your account — Account screen → Delete account. The whole teardown: the local database, those export files, any shared attack image and the home screen widget's shared container, your synced records and backend alert record — push token, coarse location and threshold — your account record, your encryption key, then the login itself.",
+        "Without an account — everything the app holds is on your device, so deleting the app deletes it. Turning pressure alerts off gives up your push token; to have the coarse location and threshold removed as well, write to us and we will delete them.",
+        "Deleting your account does not cancel your subscription. That lives in the App Store and only you can cancel it there."
       ]
     },
     {

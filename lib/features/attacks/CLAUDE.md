@@ -340,9 +340,10 @@ boundary** and hands the PNG to the share sheet.
   whole directory, and pointing that at the temp root would take plugin
   caches with it.
   - **Adding a step means moving `DataWipeService.steps` with it** — its own
-    comment says so, and the progress bar counts against that number.
+    comment says so, and `data_wipe_service_test.dart` counts against that
+    number.
   - The privacy policy names this file in two places (§7b and the
-    "Delete all data" bullet), in `PRIVACY_POLICY.md` *and* `privacy.json`.
+    "Delete your account" bullet), in `PRIVACY_POLICY.md` *and* `privacy.json`.
     Change what the wipe reaches and all four move together.
 - `WidgetCaptureUtils` lives in `core/utils/` and NOT in any `domain/` —
   `domain/` is pure Dart by rule and cannot import `flutter/rendering.dart`.

@@ -48,7 +48,7 @@ where a user goes to find out what the free plan holds, and it said nothing
 about the limits at all. The onboarding sheet's `appFeaturesBody` summary still
 names all three, which is fine now that both read the same constants.
 
-## Export and the wipe
+## Export, and the wipe that is gone
 
 **The export screen is premium in full, and the gate is on the door rather than
 inside it.** JSON, CSV and the PDF report all sit behind it (owner's call,
@@ -57,9 +57,15 @@ buys). Both entrances — the Settings row and the dashboard's explore card — 
 a `PremiumBadge` and go through `NavigationUtils.toExport`, so `ExportKindSheet`
 has no per-row gate any more.
 
-**The wipe next to it stays free** and must: hard rule 8 makes deleting your own
-records a promise, and a paywall in front of it would be the one gate the app
-cannot defend.
+**The "Delete all data" row next to it is removed** (owner's call, 2026-09-05),
+along with its dialog, its progress indicator and the `AppFeature.wipe` row in
+`AppFeatureList`. "Delete account" is the only teardown the app offers now;
+`DataWipeService` is still what performs it. Detail and what the removal costs a
+signed-out user: hard rule 8 in `docs/rules/PRIVACY_AND_SECURITY.md`.
+
+**`SettingsController` is a plain `Provider`, not a `Notifier`** — the wipe
+progress was the only state it ever held. It keeps the two dev actions, and both
+dev tiles carry their own `_running` flag.
 
 - **A test that opens the export screen must `pumpApp(premium: true)`** —
   `openExportScreen` taps a row that answers a free user with the paywall, and
