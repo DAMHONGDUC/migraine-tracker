@@ -76,7 +76,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
 | Export history and preview | No | Yes |
-| Delete all data | Yes | Yes |
+| Delete your account, and everything it holds | Yes | Yes |
 
 ## Gate rules
 
@@ -89,7 +89,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Export entrance is gated | The whole export surface is Premium |
 
 A lapsed subscriber cannot open previous exports through the app, but the files
-remain on-device and the free data wipe still deletes them. Free data-access
+remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
 
 ## Named implementations
