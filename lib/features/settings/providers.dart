@@ -21,7 +21,6 @@ import 'data/share_plus_export_sharer.dart';
 import 'domain/entities/export_date_filter.dart';
 import 'domain/entities/export_preview.dart';
 import 'domain/entities/export_record.dart';
-import 'domain/entities/wipe_status.dart';
 import 'domain/repositories/export_record_repository.dart';
 import 'domain/services/data_export_service.dart';
 import 'domain/services/data_wipe_service.dart';
@@ -160,9 +159,10 @@ final devSeedServiceProvider = Provider<DevSeedService>(
   ),
 );
 
-/// Orchestrates what is left of the settings actions — the GDPR wipe (see [SettingsController]). Everything export-shaped moved to [ExportController].
-final settingsControllerProvider =
-    NotifierProvider<SettingsController, WipeStatus>(SettingsController.new);
+/// Orchestrates what is left of the settings actions — the dev reset and the dev seed (see [SettingsController]). Everything export-shaped moved to [ExportController].
+final settingsControllerProvider = Provider<SettingsController>(
+  SettingsController.new,
+);
 
 final mailLauncherProvider = Provider<MailLauncher>(
   (ref) => const UrlMailLauncher(),

@@ -44,8 +44,6 @@ enum AppFeature {
   widget(AppIconConstant.homeWidget),
   notifications(AppIconConstant.inbox),
   sync(AppIconConstant.synced),
-  // Free because hard rule 8 makes it a promise: export moved behind the paywall, the wipe never can.
-  wipe(AppIconConstant.delete),
   calm(AppIconConstant.darkMode),
   export(AppIconConstant.export, premium: true),
   alerts(AppIconConstant.notifications, premium: true),
@@ -93,7 +91,6 @@ enum AppFeature {
       l10n.appFeatureNotificationsBody,
     ),
     AppFeature.sync => (l10n.appFeatureSyncTitle, l10n.appFeatureSyncBody),
-    AppFeature.wipe => (l10n.appFeatureWipeTitle, l10n.appFeatureWipeBody),
     AppFeature.calm => (l10n.appFeatureCalmTitle, l10n.appFeatureCalmBody),
     AppFeature.export => (
       l10n.appFeatureExportTitle,

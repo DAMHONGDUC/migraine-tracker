@@ -42,7 +42,6 @@ abstract final class AppAnalytics {
   static const String _exportShared = 'export_shared';
   static const String _exportSavedToDevice = 'export_saved_to_device';
   static const String _exportDeleted = 'export_deleted';
-  static const String _dataWiped = 'data_wiped';
   static const String _accountDeleted = 'account_deleted';
   static const String _attacksSynced = 'attacks_synced';
   static const String _reviewPromptRequested = 'review_prompt_requested';
@@ -269,8 +268,6 @@ abstract final class AppAnalytics {
       _log(_exportSavedToDevice, <String, Object>{_pFormat: format});
 
   static void logExportDeleted() => _log(_exportDeleted);
-
-  static void logDataWiped() => _log(_dataWiped);
 
   // --- Plumbing ----------------------------------------------------------
 

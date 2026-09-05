@@ -52,7 +52,7 @@ void main() {
     expect(await container.read(answeredDailyLogCountProvider.future), 0);
     expect(await container.read(dailyPressureHistoryProvider.future), isEmpty);
 
-    await container.read(settingsControllerProvider.notifier).seedDevData();
+    await container.read(settingsControllerProvider).seedDevData();
 
     expect(await container.read(recentDailyLogsProvider.future), hasLength(1));
     expect(await container.read(answeredDailyLogCountProvider.future), 1);
