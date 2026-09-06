@@ -65,7 +65,7 @@ flat shape reads like SQL and browses in the console, and costs the following.
 ## Firestore field names are snake_case
 
 **Every field written to Firestore is `snake_case`** (owner's rule):
-`dev_settings`, `pushes_sent`, `failed_cell_count`. Dart and TypeScript stay
+`dev_mode_emails`, `pushes_sent`, `failed_cell_count`. Dart and TypeScript stay
 camelCase on their own side — the rename happens at the mapper, which is where
 `AlertRunRecord` → `alertRunDocument` and `AppConfigSchema`'s
 `*Field` constants already sit. **A field name is a string the console shows
@@ -74,7 +74,7 @@ same idea cannot be read at a glance or filtered without guessing which one a
 given document used.
 
 - **Name the field once, as a constant beside the mapper**, never inline at the
-  call site. `dev_settings` typed by hand in three places is three chances for
+  call site. `dev_mode_emails` typed by hand in three places is three chances for
   one of them to be `devSettings`, and the read simply returns nothing —
   no error, no log, just a grant that never applies.
 - **Pin the names in a test.** `alertRunDocument` asserts the exact key set and

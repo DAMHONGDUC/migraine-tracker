@@ -175,7 +175,7 @@
     "app_config": [
       {
         "__id__": "app",
-        "enable_premium": true,
+        "premium_enabled": true,
         "force_update": {
           "ios": {
             "store_link": "https://apps.apple.com/app/id0000000000",
@@ -189,20 +189,17 @@
             "build_number": 41,
             "enable_force_update": false
           }
-        }
-      },
-      {
-        "__id__": "review@baroease.app",
-        "premium": true,
-        "dev_settings": true
-      },
-      {
-        "__id__": "tester@baroease.app",
-        "dev_settings": true
-      },
-      {
-        "__id__": "abuser@example.com",
-        "blocked": true
+        },
+        "premium_emails": [
+          "review@baroease.app",
+          "owner@baroease.app"
+        ],
+        "dev_mode_emails": [
+          "owner@baroease.app"
+        ],
+        "blocked_emails": [
+          "banned@example.com"
+        ]
       }
     ]
   }

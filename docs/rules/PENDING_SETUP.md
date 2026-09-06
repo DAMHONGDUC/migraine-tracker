@@ -2,83 +2,71 @@
 
 None of this is in the repo, and none of it can be assumed to exist.
 
-## The `app_config` collection
+## The `app_config/app` document
 
-**Nothing is configured until the owner creates a document.** The collection
-replaces the `PREMIUM_EMAIL` and `SHOW_DEV_SETTINGS` build flags *and* the
-`app_updates` collection, and an empty collection is the normal state — premium
-stays on, nobody is blocked, nobody is force-updated, and the cron fetches no
-extra accounts. Shape and reasoning: `lib/features/app_config/CLAUDE.md`.
+**Nothing is configured until the owner creates it.** One document holds every
+switch, and its absence is the normal state — premium stays on, nobody is
+blocked, nobody is force-updated, and the cron fetches no extra accounts. Shape
+and reasoning: `lib/features/app_config/CLAUDE.md`.
 
-1. **`firestore.rules` must be deployed** for the app to read anything at all.
-   Until `firebase deploy --only firestore:rules` runs, every read is
+1. **`firestore.rules` must be deployed** for the app to read it at all. Until
+   `firebase deploy --only firestore:rules` runs, every read is
    `permission-denied`, which the app logs and treats as "nothing configured".
-2. **`app_config/app` — the one document that applies to everybody.** Id is
-   literally `app`. Every field optional:
-   - **`enable_premium`** (boolean). Only an actual `false` turns premium off,
-     app-wide, for bought and allow-listed accounts alike. Absent means on.
-   - **`force_update`** (map) with an `ios` and/or `android` section, each
-     `store_link` / `build_name` / `build_number` / `enable_force_update`. See
-     the sample below. Nobody is blocked until `enable_force_update` is `true`
-     AND the installed build is older, so flip it only once that build is
-     actually live on both stores.
-   - **No caching, deliberately.** Every entry into the app — cold start and
-     each resume — is one read of this document. That is what makes an
-     emergency un-block take effect immediately rather than after a reinstall.
-   - **Never put an email address on this document.** It is world-readable —
-     that is what makes the update check work before sign-in — so an array of
-     addresses here is the owner's list of real people, published.
-3. **One document per address, id = the address lower-cased** —
-   `review@baroease.app`, never `Review@BaroEase.app`. The rule matches
-   `request.auth.token.email.lower()` against the id, so a capital letter in the
-   id means the row can never be read by the person it is for. Fields, all
-   optional booleans, all granted only by an actual `true`: **`premium`**
-   (premium in the app and an alert target), **`dev_settings`** (the Dev group
-   in Settings), **`blocked`** (the address gets the lock-out screen and
-   nothing else; signing out clears it). snake_case, like every Firestore field
-   — `devSettings` is read as absent, silently.
-4. **The address must be one Google or Apple sign-in actually produces.** An
-   anonymous session carries no address and matches nothing. For the cron, the
-   account also has to have signed in at least once — it resolves the address
-   through Firebase Auth, and logs `allow-listed address has no account` when it
-   cannot.
-5. **`PREMIUM_EMAIL` may still be sitting in `functions/.env` and in
+2. **Create one document, id `app`, in `app_config`.** Every field is optional:
+
+   | Field | Type | Notes |
+   |---|---|---|
+   | `premium_enabled` | boolean | Only an actual `false` turns premium off, app-wide, for bought and listed accounts alike. Absent means on. |
+   | `force_update` | map | An `ios` and/or `android` section, each `store_link` / `build_name` / `build_number` / `enable_force_update`. |
+   | `premium_emails` | array of strings | Premium in the app and alert targets. |
+   | `dev_mode_emails` | array of strings | The Dev group in Settings on a prod build. |
+   | `blocked_emails` | array of strings | The lock-out screen; signing out clears it. |
+
+3. **The document is world-readable, so the three lists are public.** The
+   force-update check runs before sign-in and rules cannot hide a field. Do not
+   put anything on it that is worse to publish than an address already is.
+4. **Addresses are matched trimmed and lower-cased on both sides**, so
+   `Review@BaroEase.app` in the console still matches. They must be addresses
+   Google or Apple sign-in actually produces — an anonymous session carries none
+   and is on no list. For the cron, the account also has to have signed in at
+   least once: it resolves the address through Firebase Auth, and logs
+   `allow-listed address has no account` when it cannot.
+5. **Force update blocks nobody until `enable_force_update` is `true` AND the
+   installed build is older**, so flip it only once that build is actually live
+   on both stores.
+6. **No caching, deliberately.** Every entry into the app — cold start and each
+   resume — is one read of this document. That is what makes an emergency
+   un-block take effect immediately rather than after a reinstall.
+7. **`PREMIUM_EMAIL` may still be sitting in `functions/.env` and in
    `env_assets/<flavor>-function.env`.** Nothing reads it any more; remove it
    the next time those files are touched.
 
-### The whole collection, as JSON
+### The document, as JSON
 
 ```json
 {
-  "app_config": {
-    "app": {
-      "enable_premium": true,
-      "force_update": {
-        "ios": {
-          "store_link": "https://apps.apple.com/app/id0000000000",
-          "build_name": "1.4.0",
-          "build_number": 41,
-          "enable_force_update": false
-        },
-        "android": {
-          "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
-          "build_name": "1.4.0",
-          "build_number": 41,
-          "enable_force_update": false
-        }
-      }
+  "premium_enabled": true,
+  "force_update": {
+    "ios": {
+      "store_link": "https://apps.apple.com/app/id0000000000",
+      "build_name": "1.4.0",
+      "build_number": 41,
+      "enable_force_update": false
     },
-    "review@baroease.app": { "premium": true, "dev_settings": true },
-    "tester@baroease.app": { "dev_settings": true },
-    "abuser@example.com": { "blocked": true }
-  }
+    "android": {
+      "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
+      "build_name": "1.4.0",
+      "build_number": 41,
+      "enable_force_update": false
+    }
+  },
+  "premium_emails": ["review@baroease.app", "owner@baroease.app"],
+  "dev_mode_emails": ["owner@baroease.app"],
+  "blocked_emails": ["banned@example.com"]
 }
 ```
 
-The outer keys are document ids, not fields: `app_config/app` is one document,
-`app_config/review@baroease.app` is another. Nothing above is required — a
-missing document, a missing field and a denied read all mean the same thing
-(see the defaults table in `lib/features/app_config/CLAUDE.md`).
+Also checked in at `sample_json/firebase/app_config.json`.
 
 ## HealthKit — code and Xcode project done, portal side not
 

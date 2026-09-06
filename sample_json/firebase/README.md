@@ -11,7 +11,7 @@ form** of a health record, plus one configuration document per user.
 | `medication_reminders.json` | `medication_reminders/{docId}` | filtered by `userId` |
 | `notifications.json` | `notifications/{docId}` | filtered by `userId` |
 | `sync_keys.json` | `sync_keys/{uid}` | **no client at all** — only the `getSyncKey` callable, through the Admin SDK |
-| `app_config.json` | `app_config/app` and `app_config/{email}` | `app` readable by anyone; a row only by the address it names; neither writable by any client |
+| `app_config.json` | `app_config/app` | readable by anyone, writable by no one |
 
 Two files here are not collections:
 
@@ -30,11 +30,16 @@ above.
 - **`__id__` is the document id, not a field.** In Firestore it is the
   document's name; it has to sit inside the object here to be readable at all.
 - **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s.
-- **`app_config` holds two shapes in one collection.** `app_config/app` is the
-  one document that applies to every install; every other id is an email
-  address, lower-cased, and applies only to that person. Nothing in `app` may
-  name a person — it is world-readable, because the force-update check runs
-  before any sign-in.
+- **`app_config.json` is the document itself, with no `__id__`.** There is
+  only one document in that collection and its id is always `app`, so there is
+  nothing to disambiguate. (It carries an `__id__` inside
+  `all_collections.json`, where it sits alongside collections that do have
+  many.)
+- **Its address lists are public.** The document is world-readable, because the
+  force-update check runs before any sign-in, and Firestore rules cannot hide a
+  field — so `premium_emails`, `dev_mode_emails` and `blocked_emails` are
+  readable by anyone who installs the app. That is a trade the owner chose:
+  one document to edit, in exchange for the lists not being private.
 - **Flat, not subcollections.** `attacks/{docId}`, not
   `users/{uid}/attacks/{docId}`, which makes `userId` the **entire boundary**
   between two users' data: the rules check it on every operation, and **every
@@ -65,13 +70,13 @@ above.
   `local/attacks.json` have `syncedRevision: null` and so are absent here; the
   5th attack here is the `revision 4` copy, older than the `revision 5` on the
   device.
-- `app_config/app` — premium on, and a published build with
+- `app_config` — premium on, and a published build with
   `enable_force_update: false`, which is the shape that blocks nobody. A
-  release edits this one document; there is no history to keep.
-- `app_config` rows — one address granted premium *and* the Dev group (the App
-  Review account), one granted only the Dev group (a TestFlight tester), and
-  one `blocked`. Every field is absent unless granted: three rows is the whole
-  collection, not a sample of a longer list.
+  release edits this one document; there is no history to keep. The lists show
+  all three kinds at once: an address on `premium_emails` only (the App Review
+  account), one on both `premium_emails` and `dev_mode_emails` (the owner), and
+  one blocked. Every list is absent-means-empty, so this is the whole
+  collection rather than a sample of a longer one.
 
 ## Warning
 
