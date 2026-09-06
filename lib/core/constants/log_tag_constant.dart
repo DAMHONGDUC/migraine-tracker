@@ -9,6 +9,11 @@ final class LogTagConstant {
   /// `SecureStore` and the first-launch guard over it — the Keychain, not a user flow.
   static const String storage = 'Storage';
 
+  /// The flavour-change wipe over that store — dev data found under a prod
+  /// binary, or the reverse. Matches the tag `SdFreshInstallGuard` prints for
+  /// its own half of the same launch.
+  static const String freshInstall = 'Fresh Install';
+
   /// `AppAnalytics` reporting on itself — an event sent, or one that threw.
   static const String analytics = 'Analytics';
 

@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:system_design/index.dart';
 
 import 'core/analytics/app_analytics.dart';
+import 'core/env/app_env.dart';
+import 'core/env/app_fresh_install.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
@@ -15,7 +18,9 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
 import 'features/alerts/providers.dart';
 import 'features/app_config/presentation/widgets/blocked_account_gate.dart';
+import 'features/app_update/domain/entities/installed_app_version.dart';
 import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
+import 'features/app_update/providers.dart';
 import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
@@ -30,8 +35,44 @@ import 'features/sync/providers.dart';
 import 'features/weather/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
-class BaroEaseApp extends HookConsumerWidget {
+/// The build tag, the flavour-change wipe, and the app under both.
+///
+/// Split from [_BaroEaseAppView] rather than wrapped inside it because the
+/// guard's whole promise is that nothing reads the old environment's data
+/// until the wipe has finished — and the effects below fire a Firestore read,
+/// a sync and a weather write on their widget's first frame. Kept in one
+/// widget they would run against the session being signed out.
+class BaroEaseApp extends ConsumerWidget {
   const BaroEaseApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final InstalledAppVersion? version =
+        switch (ref.watch(installedAppVersionProvider)) {
+          AsyncData(value: final InstalledAppVersion value) => value,
+          _ => null,
+        };
+
+    return SdDevWrapper(
+      envName: AppEnv.flavor,
+      // Empty until the platform channel answers, and 0 is what the provider
+      // reports for a build number it could not parse — the tag leaves out
+      // what nobody can vouch for rather than drawing `(0)`.
+      buildName: version?.buildName ?? '',
+      buildNumber: version == null || version.buildNumber == 0
+          ? ''
+          : '${version.buildNumber}',
+      // The flavour, never `kDebugMode`: a TestFlight build of the dev flavour
+      // is a release binary and is the one nobody can otherwise identify.
+      visible: !AppEnv.isProd,
+      freshInstall: ref.watch(appFreshInstallPolicyProvider),
+      child: const _BaroEaseAppView(),
+    );
+  }
+}
+
+class _BaroEaseAppView extends HookConsumerWidget {
+  const _BaroEaseAppView();
 
   /// Today's pressure reading, then the home-screen widget that shows it.
   Future<void> _recordPressureThenRedraw(WidgetRef ref) async {
