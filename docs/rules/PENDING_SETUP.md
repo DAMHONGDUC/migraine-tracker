@@ -2,62 +2,71 @@
 
 None of this is in the repo, and none of it can be assumed to exist.
 
-## The `app_access` allow-list
+## The `app_config/app` document
 
-**Nothing is granted until the owner creates a row.** The collection replaces
-the `PREMIUM_EMAIL` and `SHOW_DEV_SETTINGS` build flags, and an empty collection
-is the normal state — the app simply grants nothing and the cron fetches no
-extra accounts. Shape and reasoning: `lib/features/access/CLAUDE.md`.
+**Nothing is configured until the owner creates it.** One document holds every
+switch, and its absence is the normal state — premium stays on, nobody is
+blocked, nobody is force-updated, and the cron fetches no extra accounts. Shape
+and reasoning: `lib/features/app_config/CLAUDE.md`.
 
-1. **`firestore.rules` must be deployed** for the app to read its own row at
-   all. Until `firebase deploy --only firestore:rules` runs, every read is
-   `permission-denied`, which the app logs and treats as "nothing granted".
-2. **Create one document per address, in `app_access`.**
-   - **The document id IS the address, lower-cased** — `review@baroease.app`,
-     never `Review@BaroEase.app`. The rule matches
-     `request.auth.token.email.lower()` against the id, so a capital letter in
-     the id means the row can never be read by the person it is for.
-   - Fields, both optional booleans, and both granted only by an actual
-     `true`: **`premium`** (premium in the app and an alert target) and
-     **`dev_settings`** (the Dev group in Settings). snake_case, like every
-     Firestore field — `devSettings` is read as absent, silently.
-3. **The address must be one Google or Apple sign-in actually produces.** An
-   anonymous session carries no address and matches nothing. For the cron, the
-   account also has to have signed in at least once — it resolves the address
-   through Firebase Auth, and logs `allow-listed address has no account` when it
-   cannot.
-4. **`PREMIUM_EMAIL` may still be sitting in `functions/.env` and in
+1. **`firestore.rules` must be deployed** for the app to read it at all. Until
+   `firebase deploy --only firestore:rules` runs, every read is
+   `permission-denied`, which the app logs and treats as "nothing configured".
+2. **Create one document, id `app`, in `app_config`.** Every field is optional:
+
+   | Field | Type | Notes |
+   |---|---|---|
+   | `premium_enabled` | boolean | Only an actual `false` turns premium off, app-wide, for bought and listed accounts alike. Absent means on. |
+   | `force_update` | map | An `ios` and/or `android` section, each `store_link` / `build_name` / `build_number` / `enable_force_update`. |
+   | `premium_emails` | array of strings | Premium in the app and alert targets. |
+   | `dev_mode_emails` | array of strings | The Dev group in Settings on a prod build. |
+   | `blocked_emails` | array of strings | The lock-out screen; signing out clears it. |
+
+3. **The document is world-readable, so the three lists are public.** The
+   force-update check runs before sign-in and rules cannot hide a field. Do not
+   put anything on it that is worse to publish than an address already is.
+4. **Addresses are matched trimmed and lower-cased on both sides**, so
+   `Review@BaroEase.app` in the console still matches. They must be addresses
+   Google or Apple sign-in actually produces — an anonymous session carries none
+   and is on no list. For the cron, the account also has to have signed in at
+   least once: it resolves the address through Firebase Auth, and logs
+   `allow-listed address has no account` when it cannot.
+5. **Force update blocks nobody until `enable_force_update` is `true` AND the
+   installed build is older**, so flip it only once that build is actually live
+   on both stores.
+6. **No caching, deliberately.** Every entry into the app — cold start and each
+   resume — is one read of this document. That is what makes an emergency
+   un-block take effect immediately rather than after a reinstall.
+7. **`PREMIUM_EMAIL` may still be sitting in `functions/.env` and in
    `env_assets/<flavor>-function.env`.** Nothing reads it any more; remove it
    the next time those files are touched.
 
-## Force update
+### The document, as JSON
 
-`app_update` is coded and tested; nothing on the Firebase side is done. Until all
-three land the launch check reads nothing and fails open — the safe state, and a
-silent one, so don't read "no sheet appeared" as "it works".
+```json
+{
+  "premium_enabled": true,
+  "force_update": {
+    "ios": {
+      "store_link": "https://apps.apple.com/app/id0000000000",
+      "build_name": "1.4.0",
+      "build_number": 41,
+      "enable_force_update": false
+    },
+    "android": {
+      "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
+      "build_name": "1.4.0",
+      "build_number": 41,
+      "enable_force_update": false
+    }
+  },
+  "premium_emails": ["review@baroease.app", "owner@baroease.app"],
+  "dev_mode_emails": ["owner@baroease.app"],
+  "blocked_emails": ["banned@example.com"]
+}
+```
 
-1. **`firestore.rules` is not deployed.** The `app_updates` block exists in the
-   repo only; until `firebase deploy --only firestore:rules` runs, the client
-   read returns `permission-denied`.
-2. **The `app_updates` collection does not exist.** Records are published by hand
-   from the console; schema and field types are documented on `AppUpdateMapper`.
-   **`create_date` MUST be a Firestore `timestamp`** — Firestore orders mixed
-   types by type, so one record saved as a string sorts below every timestamp and
-   `orderBy(create_date, desc).limit(1)` never sees it. Publish a NEW document
-   per release, never edit the previous one, and flip `enable_force_update` only
-   once that build is live on both stores.
-3. **No caching — deliberately.** Every entry into the app (cold start and each
-   resume) is one document read. That is what makes an emergency un-block take
-   effect on the next app open, unlike Remote Config's 12h cache. If read volume
-   ever matters, cache in memory and refetch after N minutes — pick N against how
-   fast an un-block must reach users, and never cache the "blocked" verdict
-   longer than the "not blocked" one.
-
-`env/dev.json` and `env/prod.json` point at two projects now
-(`migraine-tracker-9f7b2` and `migraine-tracker-prd`, per `.firebaserc`), so a
-blocking record written while testing stays off real users — as long as the
-checkout really is the dev one. `fastlane beta` verifies that before it builds;
-`sh packages/system_design/tool/prepare-env.sh dev` is what puts it right.
+Also checked in at `sample_json/firebase/app_config.json`.
 
 ## HealthKit — code and Xcode project done, portal side not
 

@@ -48,7 +48,7 @@ where a user goes to find out what the free plan holds, and it said nothing
 about the limits at all. The onboarding sheet's `appFeaturesBody` summary still
 names all three, which is fine now that both read the same constants.
 
-## Export and the wipe
+## Export, and the wipe that is gone
 
 **The export screen is premium in full, and the gate is on the door rather than
 inside it.** JSON, CSV and the PDF report all sit behind it (owner's call,
@@ -57,9 +57,17 @@ buys). Both entrances — the Settings row and the dashboard's explore card — 
 a `PremiumBadge` and go through `NavigationUtils.toExport`, so `ExportKindSheet`
 has no per-row gate any more.
 
-**The wipe next to it stays free** and must: hard rule 8 makes deleting your own
-records a promise, and a paywall in front of it would be the one gate the app
-cannot defend.
+**The "Delete all data" row next to it is removed** (owner's call, 2026-09-05),
+along with its dialog, its progress indicator and the `AppFeature.wipe` row in
+`AppFeatureList`. "Delete account" is the only teardown the app offers *users*
+now; `DataWipeService` is still what performs it. Detail and what the removal
+costs a signed-out user: hard rule 8 in `docs/rules/PRIVACY_AND_SECURITY.md`.
+The row came back in the Dev group and nowhere else (below) — the removal was
+about what a user is offered, not about the wipe existing.
+
+**`SettingsController` is a plain `Provider`, not a `Notifier`** — the wipe
+progress was the only state it ever held. It keeps the three dev actions, and
+every dev tile carries its own `_running` flag.
 
 - **A test that opens the export screen must `pumpApp(premium: true)`** —
   `openExportScreen` taps a row that answers a free user with the paywall, and
@@ -127,11 +135,11 @@ past the whole app to reach the tools that build the state being tested.
 - **`showDevSettingsProvider` decides, not the flavour alone.** It is
   `!AppEnv.isProd || grants.devSettings`: a dev flavour shows the group with no
   grant at all — exactly what the screen did before any of this existed — and a
-  `dev_settings: true` row in `app_access` is how a TestFlight tester reaches the
+  address on `dev_mode_emails` in `app_config/app` is how a TestFlight tester reaches the
   fixtures against real Firebase, which a dev flavour cannot give them. It was
   the `SHOW_DEV_SETTINGS` build flag, and moved to Firestore so that granting a
   tester the group no longer needs a new binary
-  (`lib/features/access/CLAUDE.md`).
+  (`lib/features/app_config/CLAUDE.md`).
   - **Two rows stay on `!AppEnv.isProd` regardless**: `_DevPremiumTile` and
     `_DevLocationTile`. `hasPremiumProvider` ignores `DevPremiumOverride` in
     prod and `DevLocationController` returns `off` there, so under the flag they
@@ -140,6 +148,23 @@ past the whole app to reach the tools that build the state being tested.
   whenever it is shown, General is `first: !showDev`. The flag is
   the screen's own top gap, so two headings claiming it would double the gap and
   neither claiming it would lose it.
+- **`_DevDeleteDataTile` and `_DevResetTile` are two teardowns, not one**, and
+  sit in that order — the gentler first. `deleteAllData` empties the device and
+  the account's synced copy and leaves the user on Settings, so every screen can
+  be looked at in its empty state without a reinstall; `resetToOnboarding` is
+  that plus the onboarding flags, and navigates. Before the pair existed, seeing
+  an empty state meant a reset and then walking back through onboarding, which
+  is why the wipe alone earns its own row.
+  - **The delete row does not navigate, and must not start.** The screen it was
+    tapped from is the point: a redirect would put the developer somewhere they
+    then have to come back from. It is `_DevResetTile` that has to `goNamed`,
+    because the router only redirects to onboarding on a route change.
+  - **`settings_gdpr_test.dart` asserts the row sits above the General
+    heading**, not that it is absent. Tests run the dev flavour, so the group is
+    always on screen there; a bare `findsNothing` would fail the moment the row
+    came back, and a bare `findsOneWidget` would pass if it were moved into "Your
+    data". Position is what says "developer-only" in a test that cannot turn the
+    group off.
 - **`_DevLocalNotificationTile` is the local half of the delivery path and needs
   no account.** It sits beside `_DevPushTile` but outside that pair's
   `isSignedInProvider` gate — a local notification is scheduled by the OS on the

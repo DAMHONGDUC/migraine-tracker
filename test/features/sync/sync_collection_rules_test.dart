@@ -94,7 +94,7 @@ void main() {
   });
 
   test('the rules do not hand out every collection at once', () {
-    // At the root a bare `{collection}` would match sync_keys and app_updates too, not just the synced ones.
+    // At the root a bare `{collection}` would match sync_keys and app_config too, not just the synced ones.
     expect(rules, contains('collection in ['));
   });
 }

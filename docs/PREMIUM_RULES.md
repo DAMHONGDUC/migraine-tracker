@@ -1,6 +1,6 @@
 # Premium rules
 
-Authority for prices, free limits and feature gates. Last updated: 2026-09-03.
+Authority for prices, free limits and feature gates. Last updated: 2026-09-06.
 
 ## Offer
 
@@ -15,7 +15,7 @@ product: app costs such as WeatherKit, alerts and Firestore recur.
 | Rule | Requirement |
 |---|---|
 | Price display | Use the store-provided `PremiumOffer.priceLabel` |
-| Entitlement source | RevenueCat only |
+| Entitlement source | RevenueCat only, and only while `premium_enabled` is on |
 | Account | Not required to buy, restore or use Premium |
 | Existing lifetime buyer | Keep the entitlement; do not show a lifetime offer |
 
@@ -76,7 +76,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Other charts | No | Yes |
 | JSON, CSV and PDF export screen | No | Yes |
 | Export history and preview | No | Yes |
-| Delete all data | Yes | Yes |
+| Delete your account, and everything it holds | Yes | Yes |
 
 ## Gate rules
 
@@ -89,8 +89,25 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Export entrance is gated | The whole export surface is Premium |
 
 A lapsed subscriber cannot open previous exports through the app, but the files
-remain on-device and the free data wipe still deletes them. Free data-access
+remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
+
+## The app-wide off switch
+
+`app_config/app.premium_enabled: false` makes `hasPremiumProvider` answer false
+for **everyone at once** — bought, listed, and forced by the Dev group
+alike — and ends the pressure-alert cron pass before it pushes anything. It is
+checked ahead of every other branch, because the address list and the Dev
+override both return early and a switch below either is one they could talk
+their way past.
+
+| State | Premium |
+|---|---|
+| `premium_enabled: false` | Off, for everybody |
+| Field absent, document absent, read denied, read in flight | **On** — a failed read must not take away what someone paid for |
+| Anything that is not literally `false` (including `"false"`) | On |
+
+Shape and rules: [`../lib/features/app_config/CLAUDE.md`](../lib/features/app_config/CLAUDE.md).
 
 ## Named implementations
 

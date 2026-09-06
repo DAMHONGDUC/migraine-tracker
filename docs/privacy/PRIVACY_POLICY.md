@@ -223,10 +223,11 @@ partner, a family member, or anyone else you choose.
   share sheet and goes to the app you pick. It is never uploaded to us, we
   never see it, and it never reaches our backend.
 - **The file:** written to the app's temporary storage so the share sheet can
-  read it. **"Delete all data" clears it** along with the database, your past
-  exports, the daily pressure readings and the widget's container — iOS would
-  reclaim that storage eventually, but "eventually" is not a deletion you
-  asked for.
+  read it. **Deleting your account clears it** along with the database, your
+  past exports, the daily pressure readings and the widget's container — iOS
+  would reclaim that storage eventually, but "eventually" is not a deletion you
+  asked for. Without an account, deleting the app removes it with everything
+  else on the device.
 
 ## 8. Your rights and controls (GDPR)
 
@@ -236,16 +237,17 @@ partner, a family member, or anyone else you choose.
   of charge, as below. Past exports are kept in the app so you can re-share
   them; they are full copies of your data and are deleted along with
   everything else below.
-- **Delete all data:** Settings → Delete all data. Wipes the local database,
-  past export files, any shared attack image and the home screen widget's
-  shared container, deletes
-  your synced records and your backend alert record, and gives up your push
-  token, geohash and threshold. **Your account stays**, so your subscription
-  binding survives.
 - **Delete your account:** Account screen → Delete account. The whole
-  teardown: synced records, your account record, your encryption key, then
-  the login itself. This does **not** cancel your subscription — that lives
-  in the App Store and only you can cancel it there.
+  teardown: the local database, past export files, any shared attack image and
+  the widget's shared container, your synced records, your backend alert record
+  — push token, geohash and threshold — your account record, your encryption
+  key, then the login itself. This does **not** cancel your subscription — that
+  lives in the App Store and only you can cancel it there.
+- **Without an account:** everything the app holds is on your device, so
+  deleting the app deletes it. Turning pressure alerts off gives up your push
+  token, so nothing can be sent to you; to have the rest of the alert record
+  removed as well — the coarse location and the threshold — write to
+  ducdam.dev@gmail.com and we will delete it.
 - You may also request access, correction, export, deletion, or object to or
   restrict processing, by writing to ducdam.dev@gmail.com. We respond within
   30 days.

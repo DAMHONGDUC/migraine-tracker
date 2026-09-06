@@ -11,7 +11,7 @@ form** of a health record, plus one configuration document per user.
 | `medication_reminders.json` | `medication_reminders/{docId}` | filtered by `userId` |
 | `notifications.json` | `notifications/{docId}` | filtered by `userId` |
 | `sync_keys.json` | `sync_keys/{uid}` | **no client at all** — only the `getSyncKey` callable, through the Admin SDK |
-| `app_updates.json` | `app_updates/{autoId}` | readable by anyone, writable by no one |
+| `app_config.json` | `app_config/app` | readable by anyone, writable by no one |
 
 Two files here are not collections:
 
@@ -27,13 +27,24 @@ above.
 
 ## Conventions
 
-- **`__id__` is the document id, not a field.** In Firestore it is the
-  document's name; it has to sit inside the object here to be readable at all.
-- **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s — and
-  `app_updates.create_date` **must** be a `timestamp`, never a string:
-  Firestore orders mixed types by type, so a record saved as a string sorts
-  below every timestamp and `orderBy(create_date, desc).limit(1)` will never
-  see it.
+- **Every object here is a document, field for field — copy it and edit it.**
+  No file carries a marker of its own. A document id is never a field in
+  Firestore (it is the document's name in the path), so it is never a field
+  here either: a sample you have to strip a key out of before pasting is a
+  sample that will one day get pasted unstripped.
+- **A collection file is `{"<document id>": {…}}`.** The key is the path
+  segment, the value is the document. `payload_plaintext.json` keys the same
+  way, by `<collection>/<docId>`, so the two files line up.
+- **`app_config.json` is the document itself, not a map.** There is only one
+  document in that collection and its id is always `app`, so there is no key
+  worth writing. (It appears under that key inside `all_collections.json`,
+  where it sits alongside collections that do have many.)
+- **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s.
+- **`app_config`'s address lists are public.** The document is world-readable,
+  because the force-update check runs before any sign-in, and rules cannot hide a
+  field — so `premium_emails`, `dev_mode_emails` and `blocked_emails` are
+  readable by anyone who installs the app. That is a trade the owner chose:
+  one document to edit, in exchange for the lists not being private.
 - **Flat, not subcollections.** `attacks/{docId}`, not
   `users/{uid}/attacks/{docId}`, which makes `userId` the **entire boundary**
   between two users' data: the rules check it on every operation, and **every
@@ -64,9 +75,13 @@ above.
   `local/attacks.json` have `syncedRevision: null` and so are absent here; the
   5th attack here is the `revision 4` copy, older than the `revision 5` on the
   device.
-- `app_updates` — one current record (`enable_force_update: false`) and one old
-  one. Every release **creates a new document**; the previous one is never
-  edited.
+- `app_config` — premium on, and a published build with
+  `enable_force_update: false`, which is the shape that blocks nobody. A
+  release edits this one document; there is no history to keep. The lists show
+  all three kinds at once: an address on `premium_emails` only (the App Review
+  account), one on both `premium_emails` and `dev_mode_emails` (the owner), and
+  one blocked. Every list is absent-means-empty, so this is the whole
+  collection rather than a sample of a longer one.
 
 ## Warning
 

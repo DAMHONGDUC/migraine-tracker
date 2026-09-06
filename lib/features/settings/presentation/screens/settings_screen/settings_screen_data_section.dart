@@ -1,6 +1,6 @@
 part of 'settings_screen.dart';
 
-/// Get the data out, or destroy it.
+/// Get the data out.
 class _DataSection extends ConsumerWidget {
   const _DataSection();
 
@@ -19,7 +19,6 @@ class _DataSection extends ConsumerWidget {
             onTap: () => NavigationUtils.toExport(context, ref),
           ),
         ),
-        const _DeleteAllTile(),
       ],
     );
   }

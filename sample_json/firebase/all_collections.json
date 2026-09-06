@@ -1,9 +1,8 @@
 {
   "projectRegion": "europe-west1",
   "collections": {
-    "users": [
-      {
-        "__id__": "uid_7Xq2mKp9ZbR4tLwE",
+    "users": {
+      "uid_7Xq2mKp9ZbR4tLwE": {
         "displayName": "Dam Hong Duc",
         "email": "ducdam.dev@gmail.com",
         "photoUrl": "https://lh3.googleusercontent.com/a/SAMPLE_AVATAR=s96-c",
@@ -17,23 +16,20 @@
         "lastAlertAt": "2026-08-08T03:12:00.000Z",
         "lastAlertEventId": "evt_2026_08_08_0312_ew1"
       },
-      {
-        "__id__": "uid_anon_4Vd8sNc1QyH6bJmT",
+      "uid_anon_4Vd8sNc1QyH6bJmT": {
         "geohash5": "u2j0k",
         "fcmToken": "fSAMPLE_TOKEN_0001:APA91bF_sample_registration_token_value",
         "alertThreshold": 7.5,
         "tz": "CEST",
         "premium": false
       },
-      {
-        "__id__": "uid_anon_9Kf3wTz5RmA2pQxL",
+      "uid_anon_9Kf3wTz5RmA2pQxL": {
         "alertThreshold": 5.0,
         "premium": false
       }
-    ],
-    "attacks": [
-      {
-        "__id__": "a1000000-0000-4000-8000-000000000001",
+    },
+    "attacks": {
+      "a1000000-0000-4000-8000-000000000001": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-07T09:10:00.000Z",
         "deleted": false,
@@ -41,8 +37,7 @@
         "nonce": "nnV1hymEFGkmQDtl",
         "mac": "6ilQ4I7Ooc3gk8j1EEG/aA=="
       },
-      {
-        "__id__": "a1000000-0000-4000-8000-000000000003",
+      "a1000000-0000-4000-8000-000000000003": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-07-28T21:05:00.000Z",
         "deleted": false,
@@ -50,8 +45,7 @@
         "nonce": "StZn7ePnJB1hEagk",
         "mac": "ptQSyIcnATPpJosrZ7HgYQ=="
       },
-      {
-        "__id__": "a1000000-0000-4000-8000-000000000005",
+      "a1000000-0000-4000-8000-000000000005": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-06T08:12:00.000Z",
         "deleted": false,
@@ -59,8 +53,7 @@
         "nonce": "5/IwH01Tmig6+uPN",
         "mac": "f0qZ4M4st0YOQKE1daXinw=="
       },
-      {
-        "__id__": "a1000000-0000-4000-8000-000000000099",
+      "a1000000-0000-4000-8000-000000000099": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-06T10:02:00.000Z",
         "deleted": true,
@@ -68,10 +61,9 @@
         "nonce": null,
         "mac": null
       }
-    ],
-    "medications": [
-      {
-        "__id__": "b1000000-0000-4000-8000-000000000001",
+    },
+    "medications": {
+      "b1000000-0000-4000-8000-000000000001": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-01T07:20:00.000Z",
         "deleted": false,
@@ -79,8 +71,7 @@
         "nonce": "2cKQ0Jp96voqUvY8",
         "mac": "P09paRSsBgFc9Yq9Ek2xgw=="
       },
-      {
-        "__id__": "b1000000-0000-4000-8000-000000000002",
+      "b1000000-0000-4000-8000-000000000002": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-06T19:02:00.000Z",
         "deleted": false,
@@ -88,8 +79,7 @@
         "nonce": "lWX2Tmey4UELSgQS",
         "mac": "1drcjWxNZqegDwovrBDjQQ=="
       },
-      {
-        "__id__": "b1000000-0000-4000-8000-000000000099",
+      "b1000000-0000-4000-8000-000000000099": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-04T15:31:00.000Z",
         "deleted": true,
@@ -97,10 +87,9 @@
         "nonce": null,
         "mac": null
       }
-    ],
-    "medication_reminders": [
-      {
-        "__id__": "c1000000-0000-4000-8000-000000000001",
+    },
+    "medication_reminders": {
+      "c1000000-0000-4000-8000-000000000001": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-05-02T09:15:00.000Z",
         "deleted": false,
@@ -108,8 +97,7 @@
         "nonce": "Wa7Tr2O1LCdm4tAO",
         "mac": "Ol5rHfx6PskjyKM91sMheg=="
       },
-      {
-        "__id__": "c1000000-0000-4000-8000-000000000002",
+      "c1000000-0000-4000-8000-000000000002": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-06T19:02:00.000Z",
         "deleted": false,
@@ -117,8 +105,7 @@
         "nonce": "Jc6ePtnKmGA5+xOD",
         "mac": "SQMQskhHZ0N0lJKugdofpA=="
       },
-      {
-        "__id__": "c1000000-0000-4000-8000-000000000099",
+      "c1000000-0000-4000-8000-000000000099": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-04T15:31:00.000Z",
         "deleted": true,
@@ -126,10 +113,9 @@
         "nonce": null,
         "mac": null
       }
-    ],
-    "notifications": [
-      {
-        "__id__": "rem:c1000000-0000-4000-8000-000000000001:29768160",
+    },
+    "notifications": {
+      "rem:c1000000-0000-4000-8000-000000000001:29768160": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-07T08:04:00.000Z",
         "deleted": false,
@@ -137,8 +123,7 @@
         "nonce": "udBMpCnj6KpvlrB3",
         "mac": "c3+1NG/DPlMeKHx4fTqNsw=="
       },
-      {
-        "__id__": "rem:c1000000-0000-4000-8000-000000000002:29767530",
+      "rem:c1000000-0000-4000-8000-000000000002:29767530": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-06T21:30:00.000Z",
         "deleted": false,
@@ -146,8 +131,7 @@
         "nonce": "QQCfig9mlI/te2Mb",
         "mac": "Scvd30pMolMWeSt/+JVxbw=="
       },
-      {
-        "__id__": "pa:evt_2026_08_01_1800_ew1",
+      "pa:evt_2026_08_01_1800_ew1": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-08-01T18:22:00.000Z",
         "deleted": false,
@@ -155,8 +139,7 @@
         "nonce": "uX2Dr9UFSJsqvueL",
         "mac": "/cpAnk0TFO0GR69lWsGPgQ=="
       },
-      {
-        "__id__": "pa:evt_2026_07_02_0900_ew1",
+      "pa:evt_2026_07_02_0900_ew1": {
         "userId": "uid_7Xq2mKp9ZbR4tLwE",
         "updatedAt": "2026-07-20T08:00:00.000Z",
         "deleted": true,
@@ -164,47 +147,41 @@
         "nonce": null,
         "mac": null
       }
-    ],
-    "sync_keys": [
-      {
-        "__id__": "uid_7Xq2mKp9ZbR4tLwE",
+    },
+    "sync_keys": {
+      "uid_7Xq2mKp9ZbR4tLwE": {
         "key": "PLACEHOLDER_NOT_A_REAL_KEY_32B_base64_AAAAAAAAAAAAAAA=",
         "createdAt": "2026-05-02T09:10:04.000Z"
       }
-    ],
-    "app_updates": [
-      {
-        "__id__": "auto_id_2026_08_05_release",
-        "create_date": "2026-08-05T02:00:00.000Z",
-        "ios": {
-          "store_link": "https://apps.apple.com/app/id0000000000",
-          "build_name": "1.4.0",
-          "build_number": 41,
-          "enable_force_update": false
+    },
+    "app_config": {
+      "app": {
+        "premium_enabled": true,
+        "force_update": {
+          "ios": {
+            "store_link": "https://apps.apple.com/app/id0000000000",
+            "build_name": "1.4.0",
+            "build_number": 41,
+            "enable_force_update": false
+          },
+          "android": {
+            "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
+            "build_name": "1.4.0",
+            "build_number": 41,
+            "enable_force_update": false
+          }
         },
-        "android": {
-          "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
-          "build_name": "1.4.0",
-          "build_number": 41,
-          "enable_force_update": false
-        }
-      },
-      {
-        "__id__": "auto_id_2026_06_20_release",
-        "create_date": "2026-06-20T02:00:00.000Z",
-        "ios": {
-          "store_link": "https://apps.apple.com/app/id0000000000",
-          "build_name": "1.3.2",
-          "build_number": 37,
-          "enable_force_update": true
-        },
-        "android": {
-          "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
-          "build_name": "1.3.2",
-          "build_number": 37,
-          "enable_force_update": true
-        }
+        "premium_emails": [
+          "review@baroease.app",
+          "owner@baroease.app"
+        ],
+        "dev_mode_emails": [
+          "owner@baroease.app"
+        ],
+        "blocked_emails": [
+          "banned@example.com"
+        ]
       }
-    ]
+    }
   }
 }

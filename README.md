@@ -222,10 +222,11 @@ RevenueCat's project-level **Restore Behavior** setting, not by this app:
 *Transfer to new App User ID* moves premium and strips it from the first
 account, *Keep with original* fails as `PurchaseError.alreadyOwned`.
 
-Two things sit outside the chain: an address in the `app_access` collection is
-premium ahead of any entitlement (the App Review account, the owner's own), and
-no account is ever required to buy, restore or use premium (App Store
-5.1.1(v)).
+Three things sit outside the chain: an address on `app_config/app`'s
+`premium_emails` is premium ahead of any entitlement (the App Review account,
+the owner's own); `premium_enabled: false` on that same document turns premium
+off for everybody at once, ahead of all of it; and no account is ever required
+to buy, restore or use premium (App Store 5.1.1(v)).
 
 Numbers and gates: [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md). Surface
 behavior: [`lib/features/premium/CLAUDE.md`](lib/features/premium/CLAUDE.md).
@@ -239,7 +240,7 @@ crossed, and writes down what it did.
 
 ```mermaid
 flowchart TD
-  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_access where premium == true<br/>→ Auth getUserByEmail → uid<br/><small>review@baroease.app → uid 7Qk2…</small>"]
+  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_config/app premium_emails<br/>→ Auth getUserByEmail → uid<br/><small>[review@baroease.app] → uid 7Qk2…</small>"]
   A --> C["users where premium == true<br/><small>1 842 docs, written by the RevenueCat webhook</small>"]
   B --> D["Merge, dedupe by uid<br/><small>1 843 → 1 843, one overlap dropped</small>"]
   C --> D
@@ -264,7 +265,7 @@ flowchart TD
 
 | Step | What it does | Where |
 |---|---|---|
-| Audience | Premium subscribers plus the `app_access` allow-list, deduped by uid | `index.ts` `runAlertPass` |
+| Audience | Premium subscribers plus the `app_config` allow-list, deduped by uid (nobody at all while `premium_enabled` is false) | `index.ts` `runAlertPass` |
 | Eligibility | Needs an `fcmToken` and a 5-character `geohash5`; threshold is `alertThreshold`, default 5 hPa | `index.ts` `runAlertPass` |
 | Grouping | One forecast call per cell, never per user (hard rule 10) | `core/grouping.ts` |
 | Forecast | Hourly pressure at the cell centre, from WeatherKit | `weather/weatherKit.ts` |

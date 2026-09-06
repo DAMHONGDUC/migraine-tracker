@@ -9,19 +9,21 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
 - **The server never pushes to an anonymous session, and that is a chain, not a
   check.** Owner's rule. Premium requires an account (`PurchaseIdentity` binds a
   purchase only when `isSignedIn`), and alerts require premium (the cron reads
-  `users` where `premium == true`, plus the allow-listed accounts below, which
+  `users` where `premium == true`, plus the listed accounts below, which
   only Google or Apple sign-in can produce), so an anonymous user cannot reach
   the push path at all. Anything that pushes — the cron, `sendTestPush` — may
   assume an account, and anything that appears to serve an anonymous device a
   notification is a bug.
-- **The cron targets the `app_access` allow-list as well.** `premium` is written
-  only by the RevenueCat webhook, so an allow-listed account never carries it —
+- **The cron targets `app_config`'s `premium_emails` as well.** `premium` is
+  written only by the RevenueCat webhook, so a listed account never carries it —
   and a reviewer the app grants premium would pass every gate and still never
   get an alert, which is the one surface disagreeing with the rest.
   `pressureAlertJob` adds those accounts and dedupes by uid.
-  - The addresses come from `app_access` where `premium == true`, the same
-    documents the app reads (`lib/features/access/CLAUDE.md`). Empty, nothing
-    extra is fetched.
+  - The addresses come from `premium_emails` on `app_config/app`, the same
+    document the app reads (`lib/features/app_config/CLAUDE.md`) — one read
+    that also carries `premium_enabled`, so the cron and the app can never
+    disagree about whether premium exists. An empty list fetches nothing extra;
+    the switch off ends the pass before any push.
   - **Resolved through Auth, not through a `users.email` query.** Auth
     normalises an address to lower case and Firestore `==` does not, so a doc
     written `Review@BaroEase.app` is invisible to the only query the list can

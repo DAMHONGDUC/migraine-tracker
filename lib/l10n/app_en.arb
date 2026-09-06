@@ -103,14 +103,6 @@
   "@appFeatureExportBody": {
     "description": "Premium feature: data export, detail"
   },
-  "appFeatureWipeTitle": "Delete everything",
-  "@appFeatureWipeTitle": {
-    "description": "Free feature: the GDPR wipe"
-  },
-  "appFeatureWipeBody": "Erase every record from this phone and from the cloud in one tap.",
-  "@appFeatureWipeBody": {
-    "description": "Free feature: the GDPR wipe, detail"
-  },
   "appFeatureAlertsTitle": "Pressure-drop alerts",
   "@appFeatureAlertsTitle": {
     "description": "Premium feature: pressure alerts"
@@ -1901,15 +1893,6 @@
       }
     }
   },
-  "commonProgressPercent": "{percent}%",
-  "@commonProgressPercent": {
-    "description": "How far the job in flight has got, shown at the end of a Settings row beside its spinner",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "settingsExport": "Export data",
   "@settingsExport": {
     "description": "Settings tile that opens the export screen"
@@ -2148,41 +2131,13 @@
   "@reportColPressureDelta": {
     "description": "PDF table column: 24h pressure delta"
   },
-  "settingsDelete": "Delete all data",
-  "settingsDeleteLocal": "Delete all local data",
-  "@settingsDeleteLocal": {
-    "description": "Settings row title when there is no account, so nothing was ever synced. Says local because that is all there is to delete"
-  },
-  "settingsDeleteLocalConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports from this device, and turns off pressure alerts. This cannot be undone.",
-  "@settingsDeleteLocalConfirmBody": {
-    "description": "Confirm body for the signed-out wipe. No mention of an account copy, because there is none — but alerts still stop, since even a signed-out device is registered for them"
-  },
   "commonDeleting": "Deleting…",
   "@commonDeleting": {
     "description": "Button label while a destructive action is running, replacing the verb so the action reads as underway and cannot be tapped twice"
   },
-  "@settingsDelete": {
-    "description": "Settings tile that starts the GDPR delete flow"
-  },
-  "settingsDeleteConfirmTitle": "Delete everything?",
-  "@settingsDeleteConfirmTitle": {
-    "description": "Title of the destructive-delete confirmation dialog"
-  },
-  "settingsDeleteConfirmBody": "This permanently deletes your attacks, medications, reminders and past exports — on this device and in your account — and turns off pressure alerts. Your account itself stays. This cannot be undone.",
-  "@settingsDeleteConfirmBody": {
-    "description": "Body of the destructive-delete confirmation dialog"
-  },
   "settingsDeleteConfirmAction": "Delete",
   "@settingsDeleteConfirmAction": {
     "description": "Confirm button of the delete dialog"
-  },
-  "settingsDeleteDone": "All data deleted.",
-  "settingsDeleteFailed": "Couldn't delete everything. Nothing was removed — please try again.",
-  "@settingsDeleteFailed": {
-    "description": "Shown when the wipe fails. Says nothing was removed because the wipe stops at the first failure rather than half-running, so retrying is safe"
-  },
-  "@settingsDeleteDone": {
-    "description": "Snackbar shown after a successful wipe"
   },
   "settingsSectionDev": "Developer",
   "@settingsSectionDev": {
@@ -2227,6 +2182,30 @@
   "settingsDevSeedFailed": "Seeding sample data failed.",
   "@settingsDevSeedFailed": {
     "description": "Snackbar shown when the dev-only seed throws"
+  },
+  "settingsDevDeleteData": "Delete all data",
+  "@settingsDevDeleteData": {
+    "description": "Dev-only tile: wipe every record and stay in the app"
+  },
+  "settingsDevDeleteDataConfirmTitle": "Delete all data?",
+  "@settingsDevDeleteDataConfirmTitle": {
+    "description": "Dev-only delete-all tile, confirm dialog title"
+  },
+  "settingsDevDeleteDataConfirmBody": "Everything on this device goes, and the account's synced copy with it. You stay in the app, with every screen empty. This cannot be undone.",
+  "@settingsDevDeleteDataConfirmBody": {
+    "description": "Dev-only delete-all tile, confirm dialog body"
+  },
+  "settingsDevDeleteDataConfirmAction": "Delete",
+  "@settingsDevDeleteDataConfirmAction": {
+    "description": "Dev-only delete-all tile, confirm button"
+  },
+  "settingsDevDeleteDataDone": "All data deleted.",
+  "@settingsDevDeleteDataDone": {
+    "description": "Snackbar shown after the dev-only delete-all finishes"
+  },
+  "settingsDevDeleteDataFailed": "Couldn't delete the data.",
+  "@settingsDevDeleteDataFailed": {
+    "description": "Snackbar shown when the dev-only delete-all throws"
   },
   "settingsDevReset": "Reset the app",
   "@settingsDevReset": {
@@ -3970,5 +3949,25 @@
   "factorTempSwing": "Temperature swing",
   "@factorTempSwing": {
     "description": "Map factor: the day's temperature was at least 5C away from the day before."
+  },
+  "blockedAccountTitle": "Account locked",
+  "@blockedAccountTitle": {
+    "description": "Title of the screen shown when the signed-in address is blocked."
+  },
+  "blockedAccountBody": "This account has been locked. Everything you've logged stays on this device — sign out to keep using BaroEase.",
+  "@blockedAccountBody": {
+    "description": "Explains the lock-out and that local data is untouched."
+  },
+  "blockedAccountSignOut": "Sign out",
+  "@blockedAccountSignOut": {
+    "description": "Primary button on the blocked screen — signing out clears the block."
+  },
+  "blockedAccountContact": "Contact support",
+  "@blockedAccountContact": {
+    "description": "Secondary button on the blocked screen, opens the support inbox."
+  },
+  "blockedAccountSignOutFailed": "Couldn't sign out. Please try again.",
+  "@blockedAccountSignOutFailed": {
+    "description": "Snackbar when signing out from the blocked screen failed."
   }
 }

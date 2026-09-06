@@ -14,6 +14,7 @@ import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
 import 'features/alerts/providers.dart';
+import 'features/app_config/presentation/widgets/blocked_account_gate.dart';
 import 'features/app_update/presentation/widgets/force_update_wrapper.dart';
 import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
@@ -186,7 +187,12 @@ class BaroEaseApp extends HookConsumerWidget {
           child: NotificationTapListener(
             child: HomeWidgetTapListener(
               child: ForceUpdateWrapper(
-                child: child ?? const SizedBox.shrink(),
+                // Inside force update, so a blocked user on an unsupported
+                // build is told to update first: one of the two has to win,
+                // and the store link is the one that helps either way.
+                child: BlockedAccountGate(
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           ),

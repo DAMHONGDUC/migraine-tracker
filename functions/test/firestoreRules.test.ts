@@ -176,66 +176,46 @@ describe.skipIf(!available)("firestore.rules", () => {
     });
   }
 
-  describe("app_access", () => {
-    /** A row the owner typed in the console; the id IS the address. */
-    async function grant(email: string, fields: Record<string, boolean>) {
+  describe("app_config", () => {
+    /** The one document, as the owner saves it in the console. */
+    async function config(fields: Record<string, unknown>) {
       await env.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection("app_access").doc(email).set(fields);
+        await context.firestore().collection("app_config").doc("app").set(fields);
       });
     }
 
-    it("lets a signed-in user read the row for their own address", async () => {
-      await grant("alice@baroease.app", { premium: true, dev_settings: false });
-      const db = env
-        .authenticatedContext("alice", { email: "alice@baroease.app" })
-        .firestore();
+    it("lets any client read it, with no session at all", async () => {
+      // The force-update check runs before sign-in and the app is fully usable
+      // anonymously, so a document only signed-in installs could read would
+      // miss almost every user it exists for.
+      await config({ premium_enabled: false });
 
       await assertSucceeds(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        env
+          .unauthenticatedContext()
+          .firestore()
+          .collection("app_config")
+          .doc("app")
+          .get(),
       );
-    });
-
-    it("matches the address case-insensitively, as the app does", async () => {
-      await grant("alice@baroease.app", { premium: true });
-      const db = env
-        .authenticatedContext("alice", { email: "Alice@BaroEase.app" })
-        .firestore();
-
       await assertSucceeds(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        env
+          .authenticatedContext("anon")
+          .firestore()
+          .collection("app_config")
+          .doc("app")
+          .get(),
       );
     });
 
-    it("refuses reading someone else's row", async () => {
-      await grant("alice@baroease.app", { premium: true });
-      const db = env
-        .authenticatedContext("mallory", { email: "mallory@example.com" })
-        .firestore();
-
-      await assertFails(
-        db.collection("app_access").doc("alice@baroease.app").get(),
-      );
-    });
-
-    it("refuses listing the collection — the whole list is real addresses", async () => {
-      await grant("alice@baroease.app", { premium: true });
-      const db = env
-        .authenticatedContext("alice", { email: "alice@baroease.app" })
-        .firestore();
-
-      await assertFails(db.collection("app_access").get());
-      await assertFails(
-        db.collection("app_access").where("premium", "==", true).get(),
-      );
-    });
-
-    it("refuses a session with no address at all", async () => {
-      await grant("alice@baroease.app", { premium: true });
+    it("refuses listing the collection — only the one document is reachable", async () => {
+      await config({ premium_enabled: true });
       const db = env.authenticatedContext("anon").firestore();
 
-      await assertFails(
-        db.collection("app_access").doc("alice@baroease.app").get(),
-      );
+      // No rule matches the collection, so the path cannot be walked for
+      // anything the owner adds to it later.
+      await assertFails(db.collection("app_config").get());
+      await assertFails(db.collection("app_config").doc("other").get());
     });
 
     it("refuses a client granting itself premium", async () => {
@@ -247,9 +227,27 @@ describe.skipIf(!available)("firestore.rules", () => {
       // project forbids.
       await assertFails(
         db
-          .collection("app_access")
-          .doc("mallory@example.com")
-          .set({ premium: true }),
+          .collection("app_config")
+          .doc("app")
+          .set({ premium_emails: ["mallory@example.com"] }),
+      );
+    });
+
+    it("refuses a client throwing the switch, or forging a force update", async () => {
+      await config({ premium_enabled: true });
+      const db = env
+        .authenticatedContext("mallory", { email: "mallory@example.com" })
+        .firestore();
+
+      await assertFails(
+        db.collection("app_config").doc("app").set({ premium_enabled: false }),
+      );
+      // A forged record would lock every user out of the app.
+      await assertFails(
+        db
+          .collection("app_config")
+          .doc("app")
+          .update({ force_update: { ios: { enable_force_update: true } } }),
       );
     });
   });

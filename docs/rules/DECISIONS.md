@@ -12,6 +12,18 @@ Reverted: a cold build went from ~80s to ~390s, and Firebase is dropping
 CocoaPods (no new versions after October 2026), which would have frozen the SDK
 with no security fixes. Detail in `TECH_STACK.md`.
 
+## "Delete all data" in Settings
+
+Shipped as the free half of hard rule 8 — a row that wiped the device, the
+account copy, past exports and the backend alert record, with a percentage while
+it ran. Removed 2026-09-05 (owner's call). "Delete account" already performs the
+same wipe as its first step, so what the row added was a second destructive
+control one tap from the export row, on a screen users open to change a setting.
+The cost it left behind: a signed-out user can no longer clear the backend alert
+record in-app past giving up the token, which the privacy policy now answers by
+email. `DataWipeService` was kept whole — account deletion and the two dev tiles
+call it. **Do not restore the row without the owner asking.**
+
 ## The premium boundary, which has moved three times
 
 Forecast premium → free ("seeing the pressure you live in is the app's own

@@ -1,63 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
-import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 
 import '../../helpers/export_fakes.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('delete everything wipes attacks, weather, and medications', (
-    tester,
-  ) async {
-    final app = await pumpApp(tester);
-
-    await logAttack(tester); // seeds one attack through the real flow
-    await DriftMedicationRepository(
-      app.db,
-    ).upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
-
-    await openSettings(tester);
-    // Signed out, so "local" is the honest label — nothing was ever synced.
-    await tapVisible(tester, find.text('Delete all local data'));
-
-    expect(find.text('Delete everything?'), findsOneWidget);
-    await tester.tap(find.text('Delete'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(find.text('All data deleted.'), findsOneWidget);
-    expect(await app.db.select(app.db.attacks).get(), isEmpty);
-    expect(await app.db.select(app.db.weatherSnapshots).get(), isEmpty);
-    expect(await app.db.select(app.db.medications).get(), isEmpty);
-
-    await finishTest(tester);
-  });
-
-  testWidgets('cancelling the confirm dialog deletes nothing', (tester) async {
-    final app = await pumpApp(tester);
-    await logAttack(tester);
-
-    await openSettings(tester);
-    await tapVisible(tester, find.text('Delete all local data'));
-    await tester.tap(find.text('Cancel'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(await app.db.select(app.db.attacks).get(), hasLength(1));
-
-    await finishTest(tester);
-  });
-
-  testWidgets('with an account the row stops saying local', (tester) async {
+  testWidgets('the delete-all row is developer-only', (tester) async {
     await pumpApp(tester, signedIn: true);
     await openSettings(tester);
 
-    // Scrolled to first: the row sits below the built range now that the dev group leads the screen, and an unbuilt row fails a finder that the screen.
-    await scrollIntoView(tester, find.text('Delete all data'));
-
-    // There is an account copy to delete now, so the promise widens with it.
-    expect(find.text('Delete all data'), findsOneWidget);
+    // The user-facing row is gone (owner's call): "Delete account" on the account screen is the only teardown the app offers.
     expect(find.text('Delete all local data'), findsNothing);
+    // The one that is left is a fixture tool. Tests run the dev flavour, so it is on screen — above General is what says it is in the Dev group.
+    expect(
+      tester.getRect(find.text('Delete all data')).top,
+      lessThan(tester.getRect(find.text('General')).top),
+    );
 
     await finishTest(tester);
   });

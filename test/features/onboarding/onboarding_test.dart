@@ -41,13 +41,14 @@ void main() {
       expect(find.text('Three-tap attack log'), findsNothing);
       await tapButton(tester, 'See all app features');
 
-      // Free — none of these wears a badge. The wipe is here and stays here: hard rule 8 makes deleting your own records a promise, not an offer.
+      // Free — none of these wears a badge.
       expect(find.text('Three-tap attack log'), findsOneWidget);
       expect(find.text('History and charts'), findsOneWidget);
       expect(find.text('Medication reminders'), findsOneWidget);
-      expect(find.text('Delete everything'), findsOneWidget);
+      // The wipe row went with the Settings feature (owner's call): the list may not offer what the app no longer does.
+      expect(find.text('Delete everything'), findsNothing);
 
-      // Premium — one badge each, and the group heading is the eighth. Export moved over here whole: the file is premium, the wipe is not.
+      // Premium — one badge each, and the group heading is the eighth.
       expect(find.text('Export your data'), findsOneWidget);
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.text('7-day pressure forecast'), findsOneWidget);

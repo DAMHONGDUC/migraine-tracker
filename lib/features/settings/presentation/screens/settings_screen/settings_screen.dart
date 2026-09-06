@@ -20,11 +20,10 @@ import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';
 import '../../../../../core/widgets/sections/premium_settings_tile.dart';
-import '../../../../../core/widgets/settings_row_progress.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
-import '../../../../access/providers.dart';
 import '../../../../alerts/providers.dart';
+import '../../../../app_config/providers.dart';
 import '../../../../app_update/domain/entities/installed_app_version.dart';
 import '../../../../app_update/providers.dart';
 import '../../../../auth/providers.dart';
@@ -32,14 +31,13 @@ import '../../../../medications/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../weather/domain/enums/dev_location.dart';
 import '../../../../weather/providers.dart';
-import '../../../domain/entities/wipe_status.dart';
 import '../../../domain/enums/app_language.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../providers.dart';
 
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
-part 'settings_screen_delete_all_tile.dart';
+part 'settings_screen_dev_delete_data_tile.dart';
 part 'settings_screen_dev_local_notification_tile.dart';
 part 'settings_screen_dev_location_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
@@ -83,6 +81,8 @@ class SettingsScreen extends ConsumerWidget {
               // Same reason as the premium row: `DevLocationController` returns `off` in prod.
               if (!AppEnv.isProd) const _DevLocationTile(),
               const _DevSeedTile(),
+              // The two teardowns, gentlest first: this one empties the app and leaves you on it, the next one sends you back to onboarding.
+              const _DevDeleteDataTile(),
               const _DevResetTile(),
             ],
             // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.

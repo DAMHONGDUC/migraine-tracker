@@ -1,6 +1,5 @@
-[
-  {
-    "__id__": "a1000000-0000-4000-8000-000000000001",
+{
+  "a1000000-0000-4000-8000-000000000001": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-07T09:10:00.000Z",
     "deleted": false,
@@ -8,8 +7,7 @@
     "nonce": "nnV1hymEFGkmQDtl",
     "mac": "6ilQ4I7Ooc3gk8j1EEG/aA=="
   },
-  {
-    "__id__": "a1000000-0000-4000-8000-000000000003",
+  "a1000000-0000-4000-8000-000000000003": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-07-28T21:05:00.000Z",
     "deleted": false,
@@ -17,8 +15,7 @@
     "nonce": "StZn7ePnJB1hEagk",
     "mac": "ptQSyIcnATPpJosrZ7HgYQ=="
   },
-  {
-    "__id__": "a1000000-0000-4000-8000-000000000005",
+  "a1000000-0000-4000-8000-000000000005": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-06T08:12:00.000Z",
     "deleted": false,
@@ -26,8 +23,7 @@
     "nonce": "5/IwH01Tmig6+uPN",
     "mac": "f0qZ4M4st0YOQKE1daXinw=="
   },
-  {
-    "__id__": "a1000000-0000-4000-8000-000000000099",
+  "a1000000-0000-4000-8000-000000000099": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-06T10:02:00.000Z",
     "deleted": true,
@@ -35,4 +31,4 @@
     "nonce": null,
     "mac": null
   }
-]
+}

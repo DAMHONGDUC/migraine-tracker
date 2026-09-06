@@ -158,7 +158,7 @@ stop two builds in the wild reading each other.
 - **Adding to `SyncCollection` means editing `firestore.rules` in the same change
   and deploying it.** The root-level allowlist must name every value of the enum,
   and `firestore.indexes.json` must carry its composite index. A bare wildcard is
-  deliberately not used: at the root it would match `sync_keys` and `app_updates`
+  deliberately not used: at the root it would match `sync_keys` and `app_config`
   too. `sync_collection_rules_test.dart` fails when the two drift — they drifted
   once, when medications and reminders were added while the rules named only
   `attacks`, and every sync died on its first query with `permission-denied`, the

@@ -15,10 +15,12 @@ import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
 import {
-  ACCESS_COLLECTION,
-  PREMIUM_FIELD,
+  APP_CONFIG_COLLECTION,
+  APP_CONFIG_DOCUMENT,
+  PREMIUM_EMAILS_FIELD,
   premiumEmailsFrom,
-} from "./core/accessAllowlist";
+  premiumEnabledFrom,
+} from "./core/appConfig";
 import { AlertRunResult, runPressureAlerts } from "./core/alertRun";
 import {
   ALERT_RUN_COLLECTION,
@@ -138,13 +140,33 @@ async function runAlertPass(
   db: FirebaseFirestore.Firestore,
   now: Date,
 ): Promise<AlertRunResult> {
-  const rows = await db
-    .collection(ACCESS_COLLECTION)
-    .where(PREMIUM_FIELD, "==", true)
+  // One read for both: the kill switch and the allow-list live on the same
+  // document, so the cron sees exactly what the app sees.
+  const configDoc = await db
+    .collection(APP_CONFIG_COLLECTION)
+    .doc(APP_CONFIG_DOCUMENT)
     .get();
-  const emails = premiumEmailsFrom(
-    rows.docs.map((doc) => ({ id: doc.id, premium: doc.get(PREMIUM_FIELD) })),
-  );
+  const config = configDoc.data();
+
+  // The switch is checked first. Pressure alerts ARE a premium feature, so a
+  // pass that pushed while the app hides that feature would be the one surface
+  // `premium_enabled: false` does not reach — and unlike a hidden screen, a
+  // push cannot be taken back once it lands.
+  if (!premiumEnabledFrom(config)) {
+    logger.info("premium is switched off app-wide; no alerts this pass");
+
+    return {
+      users: 0,
+      cells: 0,
+      failedCells: [],
+      pushesSent: 0,
+      silentPushes: 0,
+      onsetPushes: 0,
+      cellDrops: {},
+    };
+  }
+
+  const emails = premiumEmailsFrom(config?.[PREMIUM_EMAILS_FIELD]);
 
   // The webhook is the only writer of `premium`, so an allow-listed account never carries it — without this the cron is the one surface that disagrees with the app.
   //
