@@ -69,7 +69,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | anything that seems unconfigured (keys, App IDs, products) | `docs/rules/PENDING_SETUP.md` |
 | why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
 | premium gates, prices, free limits | `docs/PREMIUM_RULES.md` |
-| granting an address premium or the Dev group | `lib/features/access/CLAUDE.md` |
+| premium/dev/blocked by address, the premium kill switch, force update | `lib/features/app_config/CLAUDE.md` |
 | adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
@@ -176,7 +176,9 @@ packages/
   system_design/         # the design system, its own git repo (submodule)
 ```
 
-Features: `access` (the owner's `app_access` allow-list), `app_update`
+Features: `app_config` (the owner's `app_config` collection — premium, Dev
+group and block by address, the app-wide premium switch, and force update),
+`app_update`
 (force-update gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
 one row a day that gives every analysis its days without an attack),
 `medications`, `weather` (WeatherSnapshot + API clients), `history`,

@@ -112,19 +112,19 @@ place. The ARB keys keep their `premium*` names — the whole namespace is
 
 ## The owner's premium account
 
-**An address the owner puts in `app_access` is premium in every flavour**
+**An address the owner puts in `app_config` is premium in every flavour**
 (owner's rule). For the App Review account and the owner's device: a reviewer
 has to reach every gated screen, and a build cannot hand them a real
-subscription. `hasPremiumProvider` reads `hasAccessPremiumProvider` ahead of
+subscription. `hasPremiumProvider` reads `hasGrantedPremiumProvider` ahead of
 everything else.
 
 It was `PREMIUM_EMAIL`, a `--dart-define` in `env/<flavor>.json`, and moved to
 Firestore so that granting a reviewer premium no longer means a new binary
 through review. The full shape, the rules that keep the list unreadable, and
-what the cron does with it: `lib/features/access/CLAUDE.md`.
+what the cron does with it: `lib/features/app_config/CLAUDE.md`.
 
 - **It is not the client-side premium flag this repo forbids.** That rule is
-  about state the running app can *write*. `app_access` is `allow write: if
+  about state the running app can *write*. `app_config` is `allow write: if
   false` for every client, and is matched against an address only Google or
   Apple sign-in can put on the session — so an anonymous session never matches
   and nothing on device can change the answer.

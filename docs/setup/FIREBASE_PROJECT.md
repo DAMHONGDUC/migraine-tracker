@@ -108,7 +108,7 @@ build.
 What lands: the four synced collections (`attacks`, `medications`,
 `medication_reminders`, `notifications`) with their `userId` + `updatedAt`
 indexes and the three opaque fields exempted, plus `users`, `sync_keys` and the
-public read-only `app_updates`.
+public read-only `app_config/app`.
 
 ### 7. Functions: params, secrets, then deploy
 
@@ -169,11 +169,13 @@ sh packages/system_design/tool/prepare-env.sh prod
 **Do not open `env/*.json` to check the values** (hard rule 13). If a build
 comes up misconfigured, `AppEnv.missingConfigKeys` names the empty keys for you.
 
-### 11. `app_updates` in the new project
+### 11. `app_config` in the new project
 
-The force-update collection is created by hand, one document per release
-(`docs/rules/PENDING_SETUP.md` has the schema and the `create_date` timestamp
-trap). It does not travel between projects.
+Created by hand: `app_config/app` for the app-wide switches and the
+force-update record, plus one document per allow-listed address
+(`docs/rules/PENDING_SETUP.md` has the schema and a full sample). It does not
+travel between projects — a new project starts with premium on, nobody blocked
+and nobody force-updated, which is the safe state.
 
 ### 12. CI
 

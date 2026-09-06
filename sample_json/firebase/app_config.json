@@ -1,0 +1,33 @@
+[
+  {
+    "__id__": "app",
+    "enable_premium": true,
+    "force_update": {
+      "ios": {
+        "store_link": "https://apps.apple.com/app/id0000000000",
+        "build_name": "1.4.0",
+        "build_number": 41,
+        "enable_force_update": false
+      },
+      "android": {
+        "store_link": "https://play.google.com/store/apps/details?id=app.dd.migraine.tracker",
+        "build_name": "1.4.0",
+        "build_number": 41,
+        "enable_force_update": false
+      }
+    }
+  },
+  {
+    "__id__": "review@baroease.app",
+    "premium": true,
+    "dev_settings": true
+  },
+  {
+    "__id__": "tester@baroease.app",
+    "dev_settings": true
+  },
+  {
+    "__id__": "abuser@example.com",
+    "blocked": true
+  }
+]

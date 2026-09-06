@@ -95,7 +95,7 @@ Three properties worth copying verbatim:
 - **A grant per address does not belong here at all.** `PREMIUM_EMAIL` and
   `SHOW_DEV_SETTINGS` used to live in these files, and each grant then cost a
   new binary — for `PREMIUM_EMAIL`, one through App Review. Both moved to the
-  `app_access` Firestore collection (`lib/features/access/CLAUDE.md`). What
+  `app_config` Firestore collection (`lib/features/app_config/CLAUDE.md`). What
   stays a `--dart-define` is what the *build* is, never who is privileged in it.
 
 ### A4. The gitignore contract

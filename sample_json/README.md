@@ -23,7 +23,7 @@ two folders:
   `sync_tombstones` never leave the device, and any row with
   `syncedRevision: null` has not been pushed yet either.
 - **The device does not have everything the server has.** `users/{uid}`,
-  `sync_keys/{uid}` and `app_updates` exist only in Firestore.
+  `sync_keys/{uid}` and `app_config` exist only in Firestore.
 - **Deletion looks completely different on each side.** On the device the row
   is really gone, leaving a tombstone that holds nothing but an id; on the
   server the document remains with `deleted: true` and its ciphertext blanked.

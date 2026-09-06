@@ -11,7 +11,7 @@ form** of a health record, plus one configuration document per user.
 | `medication_reminders.json` | `medication_reminders/{docId}` | filtered by `userId` |
 | `notifications.json` | `notifications/{docId}` | filtered by `userId` |
 | `sync_keys.json` | `sync_keys/{uid}` | **no client at all** — only the `getSyncKey` callable, through the Admin SDK |
-| `app_updates.json` | `app_updates/{autoId}` | readable by anyone, writable by no one |
+| `app_config.json` | `app_config/app` and `app_config/{email}` | `app` readable by anyone; a row only by the address it names; neither writable by any client |
 
 Two files here are not collections:
 
@@ -29,11 +29,12 @@ above.
 
 - **`__id__` is the document id, not a field.** In Firestore it is the
   document's name; it has to sit inside the object here to be readable at all.
-- **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s — and
-  `app_updates.create_date` **must** be a `timestamp`, never a string:
-  Firestore orders mixed types by type, so a record saved as a string sorts
-  below every timestamp and `orderBy(create_date, desc).limit(1)` will never
-  see it.
+- **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s.
+- **`app_config` holds two shapes in one collection.** `app_config/app` is the
+  one document that applies to every install; every other id is an email
+  address, lower-cased, and applies only to that person. Nothing in `app` may
+  name a person — it is world-readable, because the force-update check runs
+  before any sign-in.
 - **Flat, not subcollections.** `attacks/{docId}`, not
   `users/{uid}/attacks/{docId}`, which makes `userId` the **entire boundary**
   between two users' data: the rules check it on every operation, and **every
@@ -64,9 +65,13 @@ above.
   `local/attacks.json` have `syncedRevision: null` and so are absent here; the
   5th attack here is the `revision 4` copy, older than the `revision 5` on the
   device.
-- `app_updates` — one current record (`enable_force_update: false`) and one old
-  one. Every release **creates a new document**; the previous one is never
-  edited.
+- `app_config/app` — premium on, and a published build with
+  `enable_force_update: false`, which is the shape that blocks nobody. A
+  release edits this one document; there is no history to keep.
+- `app_config` rows — one address granted premium *and* the Dev group (the App
+  Review account), one granted only the Dev group (a TestFlight tester), and
+  one `blocked`. Every field is absent unless granted: three rows is the whole
+  collection, not a sample of a longer list.
 
 ## Warning
 
