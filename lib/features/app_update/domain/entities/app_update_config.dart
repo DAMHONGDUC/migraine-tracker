@@ -15,10 +15,10 @@ class PlatformUpdateConfig {
   /// Where "Update now" sends the user — the App Store / Play listing.
   final String storeLink;
 
-  /// Marketing version of the published build (`1.4.0`). Display only.
+  /// Marketing version of the published build (`1.4.0`). **Compared first**, and it settles the decision in both directions when both sides parse — see `ForceUpdateChecker`. Shown on the sheet as well.
   final String buildName;
 
-  /// The gate. Both stores require it to increase with every upload, so it is the one value worth comparing — no semver parsing, no ambiguity.
+  /// The fallback comparison: same name on both sides, or a name neither side can parse. Both stores require it to increase with every upload.
   final int buildNumber;
 
   /// Off means "a new build exists, but don't block anyone".
