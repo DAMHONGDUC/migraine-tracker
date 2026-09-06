@@ -3,65 +3,62 @@ import { describe, expect, it } from "vitest";
 import { premiumEmailsFrom, premiumEnabledFrom } from "../src/core/appConfig";
 
 describe("premiumEmailsFrom", () => {
-  it("returns nothing for an empty list", () => {
+  it("returns nothing for an absent or empty list", () => {
+    expect(premiumEmailsFrom(undefined)).toEqual([]);
     expect(premiumEmailsFrom([])).toEqual([]);
   });
 
-  it("keeps only rows where premium is exactly true", () => {
-    expect(
-      premiumEmailsFrom([
-        { id: "yes@baroease.app", premium: true },
-        { id: "no@baroease.app", premium: false },
-        { id: "missing@baroease.app", premium: undefined },
-        // A row whose flag was typed as a string is not a grant.
-        { id: "stringy@baroease.app", premium: "true" },
-      ]),
-    ).toEqual(["yes@baroease.app"]);
+  it("returns nothing for a field that is not an array", () => {
+    // Typed by hand in the console: a malformed field must send no pushes
+    // rather than throw the whole run.
+    expect(premiumEmailsFrom("owner@example.com")).toEqual([]);
+    expect(premiumEmailsFrom({ 0: "owner@example.com" })).toEqual([]);
   });
 
-  it("normalises the spelling the console produced", () => {
-    expect(
-      premiumEmailsFrom([{ id: "  Review@BaroEase.app  ", premium: true }]),
-    ).toEqual(["review@baroease.app"]);
+  it("trims and lower-cases, because a copy-paste does neither", () => {
+    // Firebase Auth stores addresses lower-cased, so this is the spelling
+    // getUserByEmail will match.
+    expect(premiumEmailsFrom(["  Review@BaroEase.app  "])).toEqual([
+      "review@baroease.app",
+    ]);
   });
 
-  it("de-duplicates rows that normalise to the same address", () => {
+  it("de-duplicates two spellings of one address", () => {
     expect(
-      premiumEmailsFrom([
-        { id: "Review@BaroEase.app", premium: true },
-        { id: "review@baroease.app", premium: true },
-      ]),
-    ).toEqual(["review@baroease.app"]);
+      premiumEmailsFrom(["owner@example.com", "Owner@Example.com"]),
+    ).toEqual(["owner@example.com"]);
   });
 
-  it("drops a row whose id is blank", () => {
-    expect(premiumEmailsFrom([{ id: "   ", premium: true }])).toEqual([]);
+  it("drops blanks and non-strings, keeping the rest", () => {
+    expect(
+      premiumEmailsFrom(["   ", 42, null, "owner@example.com"]),
+    ).toEqual(["owner@example.com"]);
   });
 });
 
 describe("premiumEnabledFrom", () => {
-  it("is on when the flags document does not exist at all", () => {
+  it("is on when the document does not exist at all", () => {
     // The normal state of a project nobody has touched: the switch has never
     // been thrown, so premium behaves as it did before the switch existed.
     expect(premiumEnabledFrom(undefined)).toBe(true);
   });
 
   it("is on when the document exists without the field", () => {
-    expect(premiumEnabledFrom({ something_else: true })).toBe(true);
+    expect(premiumEnabledFrom({ premium_emails: [] })).toBe(true);
   });
 
   it("is off only for a real false", () => {
-    expect(premiumEnabledFrom({ enable_premium: false })).toBe(false);
+    expect(premiumEnabledFrom({ premium_enabled: false })).toBe(false);
   });
 
   it("ignores a string typed into the console", () => {
-    // Same trap as the grant fields, in the opposite direction: "false" typed
+    // Same trap as the address lists, in the opposite direction: "false" typed
     // as text would read as "switched off" to a truthiness check and quietly
     // stop every alert.
-    expect(premiumEnabledFrom({ enable_premium: "false" })).toBe(true);
+    expect(premiumEnabledFrom({ premium_enabled: "false" })).toBe(true);
   });
 
   it("is on for an explicit true", () => {
-    expect(premiumEnabledFrom({ enable_premium: true })).toBe(true);
+    expect(premiumEnabledFrom({ premium_enabled: true })).toBe(true);
   });
 });

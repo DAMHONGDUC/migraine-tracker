@@ -16,8 +16,8 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 
 import {
   APP_CONFIG_COLLECTION,
-  FLAGS_DOCUMENT_ID,
-  PREMIUM_FIELD,
+  APP_CONFIG_DOCUMENT,
+  PREMIUM_EMAILS_FIELD,
   premiumEmailsFrom,
   premiumEnabledFrom,
 } from "./core/appConfig";
@@ -140,15 +140,19 @@ async function runAlertPass(
   db: FirebaseFirestore.Firestore,
   now: Date,
 ): Promise<AlertRunResult> {
-  // The app-wide kill switch, ahead of every other read. Pressure alerts ARE a
-  // premium feature, so a pass that pushed while the app hides that feature
-  // would be the one surface `enable_premium: false` does not reach — and
-  // unlike a hidden screen, a push cannot be taken back once it lands.
-  const flags = await db
+  // One read for both: the kill switch and the allow-list live on the same
+  // document, so the cron sees exactly what the app sees.
+  const configDoc = await db
     .collection(APP_CONFIG_COLLECTION)
-    .doc(FLAGS_DOCUMENT_ID)
+    .doc(APP_CONFIG_DOCUMENT)
     .get();
-  if (!premiumEnabledFrom(flags.data())) {
+  const config = configDoc.data();
+
+  // The switch is checked first. Pressure alerts ARE a premium feature, so a
+  // pass that pushed while the app hides that feature would be the one surface
+  // `premium_enabled: false` does not reach — and unlike a hidden screen, a
+  // push cannot be taken back once it lands.
+  if (!premiumEnabledFrom(config)) {
     logger.info("premium is switched off app-wide; no alerts this pass");
 
     return {
@@ -162,13 +166,7 @@ async function runAlertPass(
     };
   }
 
-  const rows = await db
-    .collection(APP_CONFIG_COLLECTION)
-    .where(PREMIUM_FIELD, "==", true)
-    .get();
-  const emails = premiumEmailsFrom(
-    rows.docs.map((doc) => ({ id: doc.id, premium: doc.get(PREMIUM_FIELD) })),
-  );
+  const emails = premiumEmailsFrom(config?.[PREMIUM_EMAILS_FIELD]);
 
   // The webhook is the only writer of `premium`, so an allow-listed account never carries it — without this the cron is the one surface that disagrees with the app.
   //

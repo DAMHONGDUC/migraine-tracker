@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/features/app_config/domain/entities/app_config_grants.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_config.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -17,11 +17,11 @@ void main() {
   });
 
   testWidgets('an anonymous session is never blocked', (tester) async {
-    // The row is keyed on the address, so a session that carries none matches
-    // nothing — even with a blocked row sitting in the collection.
+    // Membership is by address, so a session that carries none matches
+    // nothing — even with the list naming somebody.
     await pumpApp(
       tester,
-      appConfigGrants: const AppConfigGrants(blocked: true),
+      appConfig: AppConfig(blockedEmails: <String>{'tester@example.com'}),
     );
 
     expect(find.text('Account locked'), findsNothing);
@@ -35,7 +35,7 @@ void main() {
     await pumpApp(
       tester,
       signedIn: true,
-      appConfigGrants: const AppConfigGrants(blocked: true),
+      appConfig: AppConfig(blockedEmails: <String>{'tester@example.com'}),
     );
 
     expect(find.text('Account locked'), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
     final PumpedApp app = await pumpApp(
       tester,
       signedIn: true,
-      appConfigGrants: const AppConfigGrants(blocked: true),
+      appConfig: AppConfig(blockedEmails: <String>{'tester@example.com'}),
     );
 
     await tapVisible(tester, find.text('Sign out'));
@@ -65,12 +65,12 @@ void main() {
     final PumpedApp app = await pumpApp(
       tester,
       signedIn: true,
-      appConfigGrants: const AppConfigGrants(blocked: true),
+      appConfig: AppConfig(blockedEmails: <String>{'tester@example.com'}),
     );
 
     expect(find.text('Account locked'), findsOneWidget);
 
-    app.appConfig.emitGrants(AppConfigGrants.none);
+    app.appConfig.emit(AppConfig.empty);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
