@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/env/app_env.dart';
-import '../access/providers.dart';
+import '../app_config/providers.dart';
 import 'data/datasources/revenue_cat_client.dart';
 import 'data/repositories/revenue_cat_premium_repository.dart';
 import 'data/repositories/revenue_cat_purchase_repository.dart';
@@ -58,8 +58,15 @@ final devPremiumOverrideProvider = NotifierProvider<DevPremiumOverride, bool?>(
 
 /// What every gate reads.
 final hasPremiumProvider = Provider<bool>((ref) {
-  // The owner's allow-list, ahead of everything: a reviewer signed in as that address is premium in a prod flavour too, which is the whole point.
-  if (ref.watch(hasAccessPremiumProvider)) return true;
+  // The kill switch, ahead of everything including the allow-list and the Dev
+  // override: `enable_premium: false` means premium does not exist in this
+  // build, and a switch a single surface could talk its way past would not be
+  // one. Nothing else here can turn premium off for a user who has it, which
+  // is why this is the only branch placed above the grant.
+  if (!ref.watch(premiumEnabledProvider)) return false;
+
+  // The owner's allow-list, ahead of everything else: a reviewer signed in as that address is premium in a prod flavour too, which is the whole point.
+  if (ref.watch(hasGrantedPremiumProvider)) return true;
 
   // Never true in a prod flavour — see DevPremiumOverride.
   if (!AppEnv.isProd) {

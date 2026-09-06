@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../domain/entities/app_update_config.dart';
 
-/// The Firestore document schema, in one place.
+/// The `force_update` section of `app_config/app`, in one place. The collection and document names belong to `AppConfigSchema` — one owner for a path two features read.
 abstract final class AppUpdateMapper {
-  static const String createDateField = 'create_date';
   static const String androidField = 'android';
   static const String iosField = 'ios';
   static const String storeLinkField = 'store_link';
@@ -12,16 +9,14 @@ abstract final class AppUpdateMapper {
   static const String buildNumberField = 'build_number';
   static const String enableForceUpdateField = 'enable_force_update';
 
-  /// Null when the record has no usable `create_date`.
+  /// Null when neither platform has a usable section — there is nothing to compare against, so nothing can be blocked.
   static AppUpdateConfig? fromMap(Map<String, Object?> data) {
-    final DateTime? createdAt = _dateFrom(data[createDateField]);
+    final PlatformUpdateConfig? android = _platformFrom(data[androidField]);
+    final PlatformUpdateConfig? ios = _platformFrom(data[iosField]);
 
-    if (createdAt == null) return null;
-    return AppUpdateConfig(
-      createdAt: createdAt,
-      android: _platformFrom(data[androidField]),
-      ios: _platformFrom(data[iosField]),
-    );
+    if (android == null && ios == null) return null;
+
+    return AppUpdateConfig(android: android, ios: ios);
   }
 
   /// Null unless the section carries both a store link and a build number — without either there is nothing to block on.
@@ -42,14 +37,6 @@ abstract final class AppUpdateMapper {
       forceUpdateEnabled: _boolFrom(value[enableForceUpdateField]),
     );
   }
-
-  /// Always UTC, like every other date in the app.
-  static DateTime? _dateFrom(Object? value) => switch (value) {
-    final Timestamp timestamp => timestamp.toDate().toUtc(),
-    final DateTime date => date.toUtc(),
-    final String text => DateTime.tryParse(text),
-    _ => null,
-  };
 
   static int? _intFrom(Object? value) => switch (value) {
     final int number => number,

@@ -800,5 +800,10 @@
   "midasRowTitle": "Điểm ảnh hưởng (MIDAS)",
   "midasReportRow": "Mức ảnh hưởng (MIDAS)",
   "factorHighHumidity": "Ngày oi ẩm",
-  "factorTempSwing": "Nhiệt độ đổi đột ngột"
+  "factorTempSwing": "Nhiệt độ đổi đột ngột",
+  "blockedAccountTitle": "Tài khoản đã bị khoá",
+  "blockedAccountBody": "Tài khoản này đã bị khoá. Mọi dữ liệu bạn đã ghi vẫn nằm trên máy — hãy đăng xuất để tiếp tục dùng BaroEase.",
+  "blockedAccountSignOut": "Đăng xuất",
+  "blockedAccountContact": "Liên hệ hỗ trợ",
+  "blockedAccountSignOutFailed": "Không đăng xuất được. Bạn hãy thử lại."
 }

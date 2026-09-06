@@ -3925,5 +3925,25 @@
   "factorTempSwing": "Temperature swing",
   "@factorTempSwing": {
     "description": "Map factor: the day's temperature was at least 5C away from the day before."
+  },
+  "blockedAccountTitle": "Account locked",
+  "@blockedAccountTitle": {
+    "description": "Title of the screen shown when the signed-in address is blocked."
+  },
+  "blockedAccountBody": "This account has been locked. Everything you've logged stays on this device — sign out to keep using BaroEase.",
+  "@blockedAccountBody": {
+    "description": "Explains the lock-out and that local data is untouched."
+  },
+  "blockedAccountSignOut": "Sign out",
+  "@blockedAccountSignOut": {
+    "description": "Primary button on the blocked screen — signing out clears the block."
+  },
+  "blockedAccountContact": "Contact support",
+  "@blockedAccountContact": {
+    "description": "Secondary button on the blocked screen, opens the support inbox."
+  },
+  "blockedAccountSignOutFailed": "Couldn't sign out. Please try again.",
+  "@blockedAccountSignOutFailed": {
+    "description": "Snackbar when signing out from the blocked screen failed."
   }
 }
