@@ -98,7 +98,7 @@ class SecureStore implements SdDeviceScopedStore {
     }
   }
 
-  /// Everything, in one call — what [SdFreshInstallGuard] uses to make a reinstall look like a first install.
+  /// Everything, in one call — what [SdReinstallGuard] uses to make a reinstall look like a first install.
   @override
   Future<void> deleteAll() async {
     try {

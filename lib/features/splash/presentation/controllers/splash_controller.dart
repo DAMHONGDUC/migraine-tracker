@@ -19,7 +19,7 @@ class SplashController {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      await SdFreshInstallGuard.run(
+      await SdReinstallGuard.run(
         logTag: LogTagConstant.storage,
         installScoped: PrefsInstallStore(prefs),
         deviceScoped: _ref.read(secureStoreProvider),

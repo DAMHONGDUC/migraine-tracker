@@ -36,7 +36,7 @@ void main() {
     SharedPreferences prefs,
     SecureStore store,
     RecordingSignOut signOut,
-  ) => SdFreshInstallGuard.run(
+  ) => SdReinstallGuard.run(
     logTag: LogTagConstant.storage,
     installScoped: PrefsInstallStore(prefs),
     deviceScoped: store,
@@ -54,7 +54,7 @@ void main() {
 
       expect(store.getString('app_locale'), isNull);
       expect(signOut.calls, 1);
-      expect(prefs.getBool(SdFreshInstallGuard.isInstalledKey), isTrue);
+      expect(prefs.getBool(SdReinstallGuard.isInstalledKey), isTrue);
     });
 
     /// The whole reason the guard exists: install, sign in, delete, install again. Only the Keychain survives that, and it must not be what carries the session back.
@@ -97,7 +97,7 @@ void main() {
 
         expect(signOut.calls, 1);
         expect(store.getKeys(), isEmpty);
-        expect(prefs.getBool(SdFreshInstallGuard.isInstalledKey), isTrue);
+        expect(prefs.getBool(SdReinstallGuard.isInstalledKey), isTrue);
       },
     );
   });
@@ -123,14 +123,14 @@ void main() {
       // Nothing was deleted on an update, so there is nothing to make fresh.
       expect(signOut.calls, isZero);
       // One owner per value: the copies left in shared_preferences go once they are carried.
-      expect(prefs.getKeys(), <String>{SdFreshInstallGuard.isInstalledKey});
+      expect(prefs.getKeys(), <String>{SdReinstallGuard.isInstalledKey});
     });
   });
 
   group('same install', () {
     test('a later launch touches nothing', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{SdFreshInstallGuard.isInstalledKey: true},
+        prefs: <String, Object>{SdReinstallGuard.isInstalledKey: true},
         keychain: <String, String>{'app_locale': 'vi'},
       );
       final RecordingSignOut signOut = RecordingSignOut();
@@ -144,7 +144,7 @@ void main() {
     /// The marker is written by the guard itself, so counting it as a legacy value would make every first launch look like an update.
     test('the marker alone is not read as an update', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{SdFreshInstallGuard.isInstalledKey: false},
+        prefs: <String, Object>{SdReinstallGuard.isInstalledKey: false},
       );
       final RecordingSignOut signOut = RecordingSignOut();
 
