@@ -154,9 +154,9 @@ line in with what was sent, a line out with what came back.
   its own failure would report as started.
 - **No step can refuse to start the app, and nothing slow belongs in one.** Every
   step runs before the first frame, where the only thing drawn is the platform
-  launch image. The one long step that has to be there is the device check
-  (`AppFreshInstall`), because `clearPersistence` cannot run once anything has
-  opened a Firestore stream.
+  launch image, so work a user could be shown a spinner for goes behind the
+  splash instead — that is where the device check and the anonymous session
+  are.
 
 ## Extraction and constants
 

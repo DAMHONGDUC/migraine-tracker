@@ -93,9 +93,10 @@ supplies: `PrefsInstallStore` (`SdInstallScopedStore`, deleted with the app),
   clear `shared_preferences`.** Each step is guarded on its own; only the
   Keychain clear halts the rest, because on a reinstall it is the only thing
   there is to remove.
-- **It runs in `main`, before `runApp`.** `clearPersistence` throws
-  `failed-precondition` once anything has opened a Firestore stream, and
-  `ForceUpdateWrapper` opens one on the first frame — splash route included.
+- **It runs behind `FreshInstallGate`, above the whole app.**
+  `clearPersistence` throws `failed-precondition` once anything has opened a
+  Firestore stream, and `_BaroEaseAppView`'s first frame opens several — so the
+  gate holds that widget back and shows the splash dots meanwhile.
 - **The stamp is written last**, after the wipe cleared the store it lives in,
   so a wipe that halted is repeated on the next launch rather than recorded as
   done.

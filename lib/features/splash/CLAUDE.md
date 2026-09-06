@@ -6,14 +6,21 @@ dashboard.
 - **It is the app's first route** (`initialLocation`), and it leaves for the
   dashboard when `SplashController.run` returns. No timer: it lasts exactly what
   the work lasts.
-- **It does NOT carry the device check.** `SdFreshInstall` runs in `main`,
-  ahead of `runApp`: its wipe drops the Firestore cache, and `clearPersistence`
-  throws `failed-precondition` once anything has opened a stream —
-  `ForceUpdateWrapper` opens one on this route's own first frame. It was here
-  while the wipe was only a sign-out; a cache step cannot be.
-- **`AppBootstrap.ensureAnonymousSession` is called again here.** The bootstrap
-  step already tried it after the wipe; this is the retry for a launch that had
-  no network, and `getWeather` will not serve a caller it cannot name.
+- **The device check runs under the same dots, but ABOVE this route, not in
+  it.** `FreshInstallGate` (`presentation/widgets/`) watches
+  `freshInstallProvider` and holds `_BaroEaseAppView` back until it resolves.
+  It cannot live on this route: the wipe drops the Firestore cache, and
+  `clearPersistence` throws `failed-precondition` once anything has opened a
+  stream — `_BaroEaseAppView`'s first frame starts the sync, records pressure
+  and reads `app_config`, and this route only exists inside it.
+- **Both draw `SplashDots`, so the hand-off has no seam.** The gate draws it
+  above `MaterialApp`, where there is no theme, no `MediaQuery` and no
+  `Material` — hence its own `Directionality`, the raw colour, and
+  `SplashConstant.dotsSize` being a plain `40` rather than `40.r`
+  (`ScreenUtilInit` is below the gate).
+- **`AppBootstrap.ensureAnonymousSession` is called here and nowhere else.**
+  It has to come after the wipe — that signs the old session out — and
+  `getWeather` will not serve a caller it cannot name.
 - **The splash is exempt from the router's `redirect`.** A wiped or first
   install has no `onboarding_completed`, so every rule below would send frame
   one to `/onboarding` and the work this screen exists to hold would never run.

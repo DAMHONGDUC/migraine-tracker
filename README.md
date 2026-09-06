@@ -170,7 +170,7 @@ the two stores and the two vendor calls — `PrefsInstallStore`,
 
 ```mermaid
 flowchart TD
-  A["main, before runApp"] --> B{"last_env in<br/>shared_preferences?"}
+  A["FreshInstallGate, above the app<br/><small>splash dots on screen</small>"] --> B{"last_env in<br/>shared_preferences?"}
   B -- "same as this build<br/><small>last_env = dev, FLAVOR = dev</small>" --> C["Normal launch — nothing to do,<br/>and nothing rewritten"]
   B -- "another flavour<br/><small>last_env = prod, FLAVOR = dev</small>" --> W["Wipe"]
   B -- "absent" --> D{"Anything else<br/>on the device?"}
@@ -193,9 +193,10 @@ flowchart TD
 - **Signed-in data comes back on its own.** The local database is gone after a
   delete, but the first sync after signing in pulls the account's attacks down
   again; that is the sync working, not the delete failing.
-- **It never throws, and it runs before the first frame.** A cleanup that fails
-  must not take the launch with it — every branch logs under the
-  `Fresh Install` tag.
+- **It never throws, and nothing reads a backend until it is done.**
+  `FreshInstallGate` holds the app back under the splash dots while it runs; a
+  cleanup that fails must not take the launch with it, so every branch logs
+  under the `Fresh Install` tag and the app starts either way.
 
 ## Premium identity
 
