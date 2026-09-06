@@ -2183,6 +2183,30 @@
   "@settingsDevSeedFailed": {
     "description": "Snackbar shown when the dev-only seed throws"
   },
+  "settingsDevDeleteData": "Delete all data",
+  "@settingsDevDeleteData": {
+    "description": "Dev-only tile: wipe every record and stay in the app"
+  },
+  "settingsDevDeleteDataConfirmTitle": "Delete all data?",
+  "@settingsDevDeleteDataConfirmTitle": {
+    "description": "Dev-only delete-all tile, confirm dialog title"
+  },
+  "settingsDevDeleteDataConfirmBody": "Everything on this device goes, and the account's synced copy with it. You stay in the app, with every screen empty. This cannot be undone.",
+  "@settingsDevDeleteDataConfirmBody": {
+    "description": "Dev-only delete-all tile, confirm dialog body"
+  },
+  "settingsDevDeleteDataConfirmAction": "Delete",
+  "@settingsDevDeleteDataConfirmAction": {
+    "description": "Dev-only delete-all tile, confirm button"
+  },
+  "settingsDevDeleteDataDone": "All data deleted.",
+  "@settingsDevDeleteDataDone": {
+    "description": "Snackbar shown after the dev-only delete-all finishes"
+  },
+  "settingsDevDeleteDataFailed": "Couldn't delete the data.",
+  "@settingsDevDeleteDataFailed": {
+    "description": "Snackbar shown when the dev-only delete-all throws"
+  },
   "settingsDevReset": "Reset the app",
   "@settingsDevReset": {
     "description": "Dev-only tile: wipe everything and start over at onboarding"

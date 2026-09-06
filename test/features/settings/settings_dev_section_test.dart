@@ -37,4 +37,25 @@ void main() {
 
     await finishTest(tester);
   });
+
+  testWidgets('the dev delete-all row empties the database and stays put', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+
+    await logAttack(tester);
+    expect(await app.db.select(app.db.attacks).get(), hasLength(1));
+
+    await openSettings(tester);
+    await tapVisible(tester, find.text('Delete all data'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+
+    expect(await app.db.select(app.db.attacks).get(), isEmpty);
+    // Unlike "Reset the app", onboarding is not replayed: the row is for looking at empty states, so the screen it was tapped from is still there.
+    expect(find.text('Developer'), findsOneWidget);
+
+    await finishTest(tester);
+  });
 }
