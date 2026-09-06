@@ -1,6 +1,5 @@
-[
-  {
-    "__id__": "rem:c1000000-0000-4000-8000-000000000001:29768160",
+{
+  "rem:c1000000-0000-4000-8000-000000000001:29768160": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-07T08:04:00.000Z",
     "deleted": false,
@@ -8,8 +7,7 @@
     "nonce": "udBMpCnj6KpvlrB3",
     "mac": "c3+1NG/DPlMeKHx4fTqNsw=="
   },
-  {
-    "__id__": "rem:c1000000-0000-4000-8000-000000000002:29767530",
+  "rem:c1000000-0000-4000-8000-000000000002:29767530": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-06T21:30:00.000Z",
     "deleted": false,
@@ -17,8 +15,7 @@
     "nonce": "QQCfig9mlI/te2Mb",
     "mac": "Scvd30pMolMWeSt/+JVxbw=="
   },
-  {
-    "__id__": "pa:evt_2026_08_01_1800_ew1",
+  "pa:evt_2026_08_01_1800_ew1": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-08-01T18:22:00.000Z",
     "deleted": false,
@@ -26,8 +23,7 @@
     "nonce": "uX2Dr9UFSJsqvueL",
     "mac": "/cpAnk0TFO0GR69lWsGPgQ=="
   },
-  {
-    "__id__": "pa:evt_2026_07_02_0900_ew1",
+  "pa:evt_2026_07_02_0900_ew1": {
     "userId": "uid_7Xq2mKp9ZbR4tLwE",
     "updatedAt": "2026-07-20T08:00:00.000Z",
     "deleted": true,
@@ -35,4 +31,4 @@
     "nonce": null,
     "mac": null
   }
-]
+}

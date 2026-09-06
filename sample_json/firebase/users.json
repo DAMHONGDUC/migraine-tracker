@@ -1,6 +1,5 @@
-[
-  {
-    "__id__": "uid_7Xq2mKp9ZbR4tLwE",
+{
+  "uid_7Xq2mKp9ZbR4tLwE": {
     "displayName": "Dam Hong Duc",
     "email": "ducdam.dev@gmail.com",
     "photoUrl": "https://lh3.googleusercontent.com/a/SAMPLE_AVATAR=s96-c",
@@ -14,17 +13,15 @@
     "lastAlertAt": "2026-08-08T03:12:00.000Z",
     "lastAlertEventId": "evt_2026_08_08_0312_ew1"
   },
-  {
-    "__id__": "uid_anon_4Vd8sNc1QyH6bJmT",
+  "uid_anon_4Vd8sNc1QyH6bJmT": {
     "geohash5": "u2j0k",
     "fcmToken": "fSAMPLE_TOKEN_0001:APA91bF_sample_registration_token_value",
     "alertThreshold": 7.5,
     "tz": "CEST",
     "premium": false
   },
-  {
-    "__id__": "uid_anon_9Kf3wTz5RmA2pQxL",
+  "uid_anon_9Kf3wTz5RmA2pQxL": {
     "alertThreshold": 5.0,
     "premium": false
   }
-]
+}

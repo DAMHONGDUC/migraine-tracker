@@ -27,16 +27,21 @@ above.
 
 ## Conventions
 
-- **`__id__` is the document id, not a field.** In Firestore it is the
-  document's name; it has to sit inside the object here to be readable at all.
+- **Every object here is a document, field for field — copy it and edit it.**
+  No file carries a marker of its own. A document id is never a field in
+  Firestore (it is the document's name in the path), so it is never a field
+  here either: a sample you have to strip a key out of before pasting is a
+  sample that will one day get pasted unstripped.
+- **A collection file is `{"<document id>": {…}}`.** The key is the path
+  segment, the value is the document. `payload_plaintext.json` keys the same
+  way, by `<collection>/<docId>`, so the two files line up.
+- **`app_config.json` is the document itself, not a map.** There is only one
+  document in that collection and its id is always `app`, so there is no key
+  worth writing. (It appears under that key inside `all_collections.json`,
+  where it sits alongside collections that do have many.)
 - **Dates are ISO-8601 UTC.** In Firestore they are `Timestamp`s.
-- **`app_config.json` is the document itself, with no `__id__`.** There is
-  only one document in that collection and its id is always `app`, so there is
-  nothing to disambiguate. (It carries an `__id__` inside
-  `all_collections.json`, where it sits alongside collections that do have
-  many.)
-- **Its address lists are public.** The document is world-readable, because the
-  force-update check runs before any sign-in, and Firestore rules cannot hide a
+- **`app_config`'s address lists are public.** The document is world-readable,
+  because the force-update check runs before any sign-in, and rules cannot hide a
   field — so `premium_emails`, `dev_mode_emails` and `blocked_emails` are
   readable by anyone who installs the app. That is a trade the owner chose:
   one document to edit, in exchange for the lists not being private.
