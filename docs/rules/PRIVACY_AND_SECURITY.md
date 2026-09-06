@@ -59,13 +59,13 @@ first and update the snapshot after.
 | Where | What | Why there |
 |---|---|---|
 | Keychain (`SecureStore`) | Every setting and cursor | Encrypted at rest, `first_unlock_this_device` so it is readable in the background and never restored onto a second device |
-| `shared_preferences` | `SdFreshInstallGuard.isInstalledKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
+| `shared_preferences` | `SdReinstallGuard.isInstalledKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
 | Drift | The records themselves | The source of truth, and far too big for a Keychain item |
 
 **Deleting the app and installing it again must look like a first install**
 (owner's rule). iOS keeps the Keychain across a delete, so the Firebase session
 came back and the user was still signed in on what they thought was a clean
-install. `SdFreshInstallGuard.run` closes that — it lives in `system_design`
+install. `SdReinstallGuard.run` closes that — it lives in `system_design`
 (`core/common/`), over two interfaces the app implements: `PrefsInstallStore`
 (`SdInstallScopedStore`, deleted with the app) and `SecureStore`
 (`SdDeviceScopedStore`, survives it):
