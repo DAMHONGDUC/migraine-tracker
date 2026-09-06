@@ -22,7 +22,7 @@ Every feature except sync and alerts must work without an account.
     `pressureForecastProvider`, so the locked branch costs nothing against the
     500k monthly quota. `WeatherCard`'s own fetch is separate and free.
 - **The app signs in anonymously at launch**
-  (`AppBootstrap._ensureAnonymousSession`): `getWeather` spends our WeatherKit
+  (`AppBootstrap.ensureAnonymousSession`): `getWeather` spends our WeatherKit
   key and will not serve a caller it cannot name. The user is never asked for
   anything. **Anonymous must be enabled in the Firebase console** — without it
   the call throws `admin-restricted-operation`, the guard swallows it, and
@@ -59,29 +59,50 @@ first and update the snapshot after.
 | Where | What | Why there |
 |---|---|---|
 | Keychain (`SecureStore`) | Every setting and cursor | Encrypted at rest, `first_unlock_this_device` so it is readable in the background and never restored onto a second device |
-| `shared_preferences` | `SdReinstallGuard.isInstalledKey`, and nothing else | iOS deletes it with the app — the only signal that says "this install is new" |
+| `shared_preferences` | `PrefsKeyConstant.lastEnv`, and nothing else | iOS deletes it with the app, so the value names the environment AND its absence says this install is new |
 | Drift | The records themselves | The source of truth, and far too big for a Keychain item |
 
 **Deleting the app and installing it again must look like a first install**
-(owner's rule). iOS keeps the Keychain across a delete, so the Firebase session
-came back and the user was still signed in on what they thought was a clean
-install. `SdReinstallGuard.run` closes that — it lives in `system_design`
-(`core/common/`), over two interfaces the app implements: `PrefsInstallStore`
-(`SdInstallScopedStore`, deleted with the app) and `SecureStore`
-(`SdDeviceScopedStore`, survives it):
+(owner's rule), **and so must a build that talks to another environment.** iOS
+keeps the Keychain across a delete, so the Firebase session came back and the
+user was still signed in on what they thought was a clean install; dev and prod
+share one bundle id, so installing either over the other leaves the new binary
+reading the old one's session and cached documents. `SdFreshInstall.run` answers
+both — it lives in `system_design` (`core/common/`), over three things this app
+supplies: `PrefsInstallStore` (`SdInstallScopedStore`, deleted with the app),
+`SecureDeviceStore` (`SdDeviceScopedStore`, survives it) and `AppFreshInstall`
+(`SdFreshInstallHost` — the sign-out and the Firestore cache clear).
 
-- **The marker is absent and `shared_preferences` is empty → a reinstall.** The
-  Keychain is cleared and the session signed out, before
-  `_ensureAnonymousSession` can sign anyone back in.
-- **The marker is absent but old keys are there → an update, not a reinstall.**
-  Those values are carried into the Keychain and then dropped, so one owner
-  keeps each. **An update keeps its settings and its session** (owner's rule):
-  nothing was deleted, so there is nothing to make fresh — and wiping here would
-  sign out every existing user on the update that ships this.
-- **The marker is written last**, so a crash mid-way is retried on the next
-  launch rather than skipped, and the adopt step is idempotent for that reason.
-- **It never throws**: a cleanup that fails must not take the launch with it.
-  Every branch logs what it decided under `LogTagConstant.storage`.
+**One stamp, one comparison.** The stamp is the flavour name in
+`shared_preferences`, and what it says decides the launch:
+
+| On the device | What it is | What runs |
+|---|---|---|
+| Stamp equals this build | Normal launch | Nothing |
+| Stamp is another flavour | Environment changed | Wipe |
+| No stamp, other prefs keys | Update from a build that predates it | Keys carried into the Keychain, session kept |
+| No stamp, Keychain not empty | Reinstall | Wipe |
+| No stamp, nothing anywhere | First install | Nothing |
+
+- **The update row is checked before the reinstall row.** An update leaves both
+  stores full and only the install-scoped keys tell them apart. **An update
+  keeps its settings and its session** (owner's rule): nothing was deleted, so
+  there is nothing to make fresh — and wiping there would sign out every
+  existing user on the update that ships this.
+- **The wipe is sign out → clear the Firestore cache → clear the Keychain →
+  clear `shared_preferences`.** Each step is guarded on its own; only the
+  Keychain clear halts the rest, because on a reinstall it is the only thing
+  there is to remove.
+- **It runs in `main`, before `runApp`.** `clearPersistence` throws
+  `failed-precondition` once anything has opened a Firestore stream, and
+  `ForceUpdateWrapper` opens one on the first frame — splash route included.
+- **The stamp is written last**, after the wipe cleared the store it lives in,
+  so a wipe that halted is repeated on the next launch rather than recorded as
+  done.
+- **It never throws**: before the first frame an uncaught throw is not an error
+  screen but an app that does not start. Every branch logs what it decided
+  under `LogTagConstant.freshInstall`.
+- **The `baroease` database is never wiped.** `DECISIONS.md` has the reason.
 - **RevenueCat needs nothing here** — its anonymous id lives in
   `NSUserDefaults`, which iOS already deletes with the app. A premium user who
   reinstalls signed-in gets the entitlement back automatically; one who bought
