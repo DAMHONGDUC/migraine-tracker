@@ -20,5 +20,13 @@
             "args": ["--dart-define-from-file=env/prod.json"],
             "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
+        {
+            "name": "dev-17-pro",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": ["--dart-define-from-file=env/dev.json"],
+            "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
+        },
     ]
 }
