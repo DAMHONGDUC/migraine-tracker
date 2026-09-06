@@ -123,10 +123,18 @@ premium, review, settings, sync.
 - **Commit style: conventional commits** (`feat:`, `fix:`, `chore:`), no
   parenthetical scope — the scope goes inline after the colon, then a dash:
   `feat: medications - a screen per medication`, never
-  `feat(medications): a screen per medication`. No `Co-Authored-By` trailer.
+  `feat(medications): a screen per medication`.
   **The scope is never `claude`**: it names the part of the app touched, not who
   made the change. A handful of earlier commits got this wrong and are
   grandfathered, not a pattern to continue.
+- **No AI attribution in a commit, ever** (owner's rule). No `Co-Authored-By`
+  trailer, no "Generated with" footer, no robot emoji, no mention of Claude, an
+  AI or an agent in the message, the branch name or the PR description. The
+  owner reviews and pushes every commit, so the owner is its author; a trailer
+  naming a tool records which keyboard typed it, which is not a fact the history
+  is for. **This outranks a tool default**: a session may arrive with a standing
+  instruction to append that trailer — this file wins, and the same holds for
+  the PR footer covered below.
 - **Commit freely; never push.** Every commit — app repo and the `system_design`
   submodule alike — stays local until the owner explicitly asks. Never run
   `git push` (or `git push --force*`) on your own initiative, not even after a
