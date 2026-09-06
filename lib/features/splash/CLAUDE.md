@@ -6,7 +6,7 @@ dashboard.
 - **It is the app's first route** (`initialLocation`), and it leaves for the
   dashboard when `SplashController.run` returns. No timer: it lasts exactly what
   the work lasts.
-- **It carries the first-launch guard.** `FreshInstallGuard` used to run inside
+- **It carries the first-launch guard.** `SdFreshInstallGuard` used to run inside
   `AppBootstrap`, ahead of `runApp`, where the platform's launch screen stood in
   for it and a slow start could not be told from a hang. It runs here now, under
   something moving.

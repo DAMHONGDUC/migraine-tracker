@@ -156,8 +156,9 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 ## First launch, reinstall, and what a delete takes with it
 
 iOS deletes the app's container when the app is deleted, but not its Keychain.
-`FreshInstallGuard` (`core/storage/`) is what makes a reinstall look like a
-first install anyway.
+`SdFreshInstallGuard` (`system_design`, `core/common/`) is what makes a
+reinstall look like a first install anyway; the app supplies the two stores it
+works over — `PrefsInstallStore` and `SecureStore`, both in `core/storage/`.
 
 | Deleted with the app | Survives the delete |
 |---|---|
