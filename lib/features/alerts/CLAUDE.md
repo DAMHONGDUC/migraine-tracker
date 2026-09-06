@@ -14,13 +14,13 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
   the push path at all. Anything that pushes — the cron, `sendTestPush` — may
   assume an account, and anything that appears to serve an anonymous device a
   notification is a bug.
-- **The cron targets the `app_access` allow-list as well.** `premium` is written
+- **The cron targets the `app_config` allow-list as well.** `premium` is written
   only by the RevenueCat webhook, so an allow-listed account never carries it —
   and a reviewer the app grants premium would pass every gate and still never
   get an alert, which is the one surface disagreeing with the rest.
   `pressureAlertJob` adds those accounts and dedupes by uid.
-  - The addresses come from `app_access` where `premium == true`, the same
-    documents the app reads (`lib/features/access/CLAUDE.md`). Empty, nothing
+  - The addresses come from `app_config` where `premium == true`, the same
+    documents the app reads (`lib/features/app_config/CLAUDE.md`). Empty, nothing
     extra is fetched.
   - **Resolved through Auth, not through a `users.email` query.** Auth
     normalises an address to lower case and Firestore `==` does not, so a doc
