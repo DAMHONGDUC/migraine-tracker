@@ -44,28 +44,26 @@ import 'app_env.dart';
 /// environment change and delete health data that has no copy. Losing a
 /// session to that mistake is recoverable; losing the record is not.
 final class AppFreshInstall implements SdFreshInstallHost {
-  const AppFreshInstall(this._container);
+  const AppFreshInstall(this._ref);
 
   /// Read lazily, and only by [signOut]: building the auth repository reaches
   /// for `FirebaseAuth.instance`, which throws in a build that never
   /// initialised Firebase — the same build [isBackendReady] answers false for.
-  final ProviderContainer _container;
+  final Ref _ref;
 
   /// Check this device, wipe it if it is not this build's, and stamp it.
   ///
-  /// **It runs before `runApp` and the caller awaits it**, because
-  /// `clearPersistence` throws `failed-precondition` once anything has opened
-  /// a Firestore stream — and `ForceUpdateWrapper` opens one on the app's
-  /// first frame, splash route included.
-  static Future<SdFreshInstallOutcome> run(
-    ProviderContainer container,
-    SharedPreferences prefs,
-  ) => SdFreshInstall.run(
+  /// **Nothing may have opened a Firestore stream before this finishes**:
+  /// `clearPersistence` throws `failed-precondition` once the client is
+  /// running. `FreshInstallGate` is what holds those back — it sits above
+  /// `_BaroEaseAppView`, whose first frame fires a sync, a weather write and a
+  /// force-update read.
+  static Future<SdFreshInstallOutcome> run(Ref ref) async => SdFreshInstall.run(
     logTag: LogTagConstant.freshInstall,
     buildStamp: AppEnv.flavor,
-    installScoped: PrefsInstallStore(prefs),
-    deviceScoped: SecureDeviceStore(container.read(secureStoreProvider)),
-    host: AppFreshInstall(container),
+    installScoped: PrefsInstallStore(await SharedPreferences.getInstance()),
+    deviceScoped: SecureDeviceStore(ref.read(secureStoreProvider)),
+    host: AppFreshInstall(ref),
     // The flavour record the app already had a name for. An install that
     // predates the stamp has no value under it — it kept the flavour in the
     // Keychain — so it lands in the update row, which keeps the session.
@@ -84,7 +82,7 @@ final class AppFreshInstall implements SdFreshInstallHost {
   /// next sign-in skips the picker and lands back in the account the wipe just
   /// left.
   @override
-  Future<void> signOut() => _container.read(authRepositoryProvider).signOut();
+  Future<void> signOut() => _ref.read(authRepositoryProvider).signOut();
 
   /// Drop every document Firestore cached for the other environment.
   ///

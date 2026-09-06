@@ -2,9 +2,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
-import 'package:migraine_tracker/core/env/app_fresh_install.dart';
 import 'package:migraine_tracker/core/storage/prefs_install_store.dart';
 import 'package:migraine_tracker/core/storage/secure_store.dart';
+import 'package:migraine_tracker/features/splash/providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
@@ -15,10 +15,14 @@ const String _legacyMarker = 'is_installed';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  /// Driven through `freshInstallProvider`, so what is under test is the
+  /// wiring the app actually runs — the two adapters, the stamp key and the
+  /// host — rather than a second copy of it.
+  ///
   /// A test build has no Firebase config, so `isBackendReady` is false and
   /// both vendor steps skip themselves. What is left to assert is the store
-  /// half — which is the half this app gets to decide. `AppEnv.flavor` is
-  /// `dev` here, so that is the stamp every run below writes.
+  /// half, which is the half this app gets to decide. `AppEnv.flavor` is `dev`
+  /// here, so that is the stamp every run below writes.
   Future<(ProviderContainer, SharedPreferences, SecureStore)> setUpDevice({
     Map<String, Object> prefs = const <String, Object>{},
     Map<String, String> keychain = const <String, String>{},
@@ -36,7 +40,7 @@ void main() {
     return (container, await SharedPreferences.getInstance(), store);
   }
 
-  group('AppFreshInstall', () {
+  group('freshInstallProvider', () {
     /// The row that costs real users if it is wrong: everyone already on the
     /// app carries the old marker and no stamp, and a wipe here would sign
     /// every one of them out on the update that ships this.
@@ -53,7 +57,10 @@ void main() {
         },
       );
 
-      expect(await AppFreshInstall.run(container, prefs), SdFreshInstallOutcome.update);
+      expect(
+        await container.read(freshInstallProvider.future),
+        SdFreshInstallOutcome.update,
+      );
 
       expect(store.getBool(PrefsKeyConstant.onboardingCompleted), isTrue);
       expect(store.getDouble(PrefsKeyConstant.alertThreshold), 7);
@@ -74,7 +81,7 @@ void main() {
       );
 
       expect(
-        await AppFreshInstall.run(container, prefs),
+        await container.read(freshInstallProvider.future),
         SdFreshInstallOutcome.normalLaunch,
       );
 
@@ -96,7 +103,7 @@ void main() {
       );
 
       expect(
-        await AppFreshInstall.run(container, prefs),
+        await container.read(freshInstallProvider.future),
         SdFreshInstallOutcome.reinstall,
       );
 
@@ -115,7 +122,7 @@ void main() {
       );
 
       expect(
-        await AppFreshInstall.run(container, prefs),
+        await container.read(freshInstallProvider.future),
         SdFreshInstallOutcome.environmentChanged,
       );
 
@@ -133,7 +140,7 @@ void main() {
       ) = await setUpDevice();
 
       expect(
-        await AppFreshInstall.run(container, prefs),
+        await container.read(freshInstallProvider.future),
         SdFreshInstallOutcome.firstInstall,
       );
 

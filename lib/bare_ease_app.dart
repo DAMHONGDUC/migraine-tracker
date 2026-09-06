@@ -29,16 +29,19 @@ import 'features/home_widget/providers.dart';
 import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
 import 'features/notifications/providers.dart';
 import 'features/premium/providers.dart';
+import 'features/splash/presentation/widgets/fresh_install_gate.dart';
 import 'features/sync/data/services/sync_write_through_service.dart';
 import 'features/sync/providers.dart';
 import 'features/weather/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
-/// The build tag, and the app under it.
+/// The build tag, the device check, and the app under both.
 ///
-/// Split from [_BaroEaseAppView] because the tag reads the installed version
-/// and nothing else: kept in one widget, every effect below would rebuild each
-/// time the platform channel answered.
+/// Split from [_BaroEaseAppView] rather than wrapped inside it because the
+/// gate's whole promise is that nothing reads the old environment's data until
+/// the wipe has finished — and the effects below fire a Firestore read, a sync
+/// and a weather write on their widget's first frame. Kept in one widget they
+/// would run against the session being signed out.
 class BaroEaseApp extends ConsumerWidget {
   const BaroEaseApp({super.key});
 
@@ -62,7 +65,9 @@ class BaroEaseApp extends ConsumerWidget {
       // The flavour, never `kDebugMode`: a TestFlight build of the dev flavour
       // is a release binary and is the one nobody can otherwise identify.
       visible: !AppEnv.isProd,
-      child: const _BaroEaseAppView(),
+      // Inside the tag, so a build that is held at the dots still says which
+      // build it is.
+      child: const FreshInstallGate(child: _BaroEaseAppView()),
     );
   }
 }

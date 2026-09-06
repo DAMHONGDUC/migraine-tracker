@@ -58,10 +58,11 @@ final class AppBootstrap {
   /// "Anonymous by default": the app is fully usable without an account, but
   /// the callables behind it still need a caller.
   ///
-  /// **After the device check, never before it.** A wipe signs the old session
-  /// out, and one opened ahead of it would be the session it deleted.
-  /// `SplashController` calls this again as the retry for a launch that had no
-  /// network — `getWeather` will not serve a caller it cannot name.
+  /// **Called from `SplashController`, and after the device check** — a wipe
+  /// signs the old session out, so one opened ahead of it would be the session
+  /// it deleted. Not a bootstrap step for the same reason: `getWeather` will
+  /// not serve a caller it cannot name, and that call belongs under the dots
+  /// rather than under the launch image.
   static Future<void> ensureAnonymousSession() async {
     if (FirebaseAuth.instance.currentUser != null) return;
 

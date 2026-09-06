@@ -50,6 +50,7 @@ import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/review/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/splash/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/data/datasources/location_source.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/geo_point.dart';
@@ -764,6 +765,11 @@ Future<PumpedApp> pumpApp(
         // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
         initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
         secureStoreProvider.overrideWithValue(prefs),
+        // No other build shares a test process's sandbox, and a pending check
+        // holds the whole tree at the splash dots.
+        freshInstallProvider.overrideWith(
+          (ref) async => SdFreshInstallOutcome.normalLaunch,
+        ),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
