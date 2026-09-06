@@ -2,49 +2,56 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../../app_config/domain/entities/app_config_schema.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/repositories/app_update_repository.dart';
 import 'app_update_mapper.dart';
 
-/// Reads the published-build record from Firestore.
+/// Reads the published-build record out of the `force_update` field of `app_config/app`.
+///
+/// One document rather than the collection of dated records this used to be: a
+/// release is announced by editing the one place the owner already edits, and
+/// "which record is current" stops being a question an `orderBy` has to answer.
 class FirestoreAppUpdateRepository implements AppUpdateRepository {
   const FirestoreAppUpdateRepository(this._firestore);
 
-  static const String collectionPath = 'app_updates';
-
   final FirebaseFirestore _firestore;
 
-  /// Newest `create_date` first, one document — a new release is published by adding a record, so history stays in the collection.
   @override
   Future<AppUpdateConfig?> latest() async {
-    SdLogger.action(LogTagConstant.appUpdate, 'Read $collectionPath');
+    final String path =
+        '${AppConfigSchema.collectionPath}/${AppConfigSchema.globalDocumentId}';
+
+    SdLogger.action(LogTagConstant.appUpdate, 'Read $path');
     try {
-      final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-          .collection(collectionPath)
-          .orderBy(AppUpdateMapper.createDateField, descending: true)
-          .limit(1)
+      final DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection(AppConfigSchema.collectionPath)
+          .doc(AppConfigSchema.globalDocumentId)
           .get();
 
-      if (snapshot.docs.isEmpty) {
+      final Map<String, dynamic>? data = snapshot.data();
+      final Object? section = data?[AppConfigSchema.forceUpdateField];
+
+      if (section is! Map) {
         // Not an error: hard rule 9 fails open, and "no record published" is the normal state before the first release is announced.
-        SdLogger.info(LogTagConstant.appUpdate, '$collectionPath is empty');
+        SdLogger.info(LogTagConstant.appUpdate, '$path has no force update');
 
         return null;
       }
 
-      final Map<String, dynamic> raw = snapshot.docs.first.data();
+      final Map<String, Object?> raw = Map<String, Object?>.from(section);
 
-      SdLogger.info(LogTagConstant.appUpdate, '$collectionPath read', raw);
+      SdLogger.info(LogTagConstant.appUpdate, '$path read', raw);
 
       return AppUpdateMapper.fromMap(raw);
     } catch (error, stackTrace) {
       // The launch check swallows this and lets the user in (hard rule 9), so this line is the only place the reason is ever stated.
       SdLogger.error(
         LogTagConstant.appUpdate,
-        'Read $collectionPath failed',
+        'Read $path failed',
         error: error,
         stackTrace: stackTrace,
-        data: <String, Object?>{'collection': collectionPath},
+        data: <String, Object?>{'document': path},
       );
       rethrow;
     }

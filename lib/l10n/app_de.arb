@@ -800,5 +800,10 @@
   "midasRowTitle": "Beeinträchtigung (MIDAS)",
   "midasReportRow": "Beeinträchtigung (MIDAS)",
   "factorHighHumidity": "Schwüler Tag",
-  "factorTempSwing": "Temperatursprung"
+  "factorTempSwing": "Temperatursprung",
+  "blockedAccountTitle": "Konto gesperrt",
+  "blockedAccountBody": "Dieses Konto wurde gesperrt. Alle erfassten Daten bleiben auf diesem Gerät – melde dich ab, um BaroEase weiter zu nutzen.",
+  "blockedAccountSignOut": "Abmelden",
+  "blockedAccountContact": "Support kontaktieren",
+  "blockedAccountSignOutFailed": "Abmelden nicht möglich. Bitte versuche es erneut."
 }

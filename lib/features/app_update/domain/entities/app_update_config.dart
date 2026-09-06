@@ -25,13 +25,10 @@ class PlatformUpdateConfig {
   final bool forceUpdateEnabled;
 }
 
-/// One record of the public `app_updates` collection: the currently published build per platform, plus when the record was created.
+/// The `force_update` section of `app_config/app`: the currently published build per platform.
 @immutable
 class AppUpdateConfig {
-  const AppUpdateConfig({required this.createdAt, this.android, this.ios});
-
-  /// `create_date` — what "the latest record" is ordered by.
-  final DateTime createdAt;
+  const AppUpdateConfig({this.android, this.ios});
 
   /// Null when the record has no section for that platform (or it was malformed): nothing to compare against, so nothing gets blocked.
   final PlatformUpdateConfig? android;

@@ -7,7 +7,6 @@ import '../../helpers/pump_app.dart';
 void main() {
   AppUpdateConfig record({bool enabled = true, int buildNumber = 50}) =>
       AppUpdateConfig(
-        createdAt: DateTime.utc(2026, 7, 20),
         android: PlatformUpdateConfig(
           storeLink: 'https://play.google.com/store/apps/details?id=x',
           buildName: '1.4.0',

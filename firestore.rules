@@ -29,13 +29,27 @@ service cloud.firestore {
                             'daily_logs', 'midas', 'notifications'];
     }
 
-    // Release metadata the app reads on every launch to decide whether the
-    // installed build is still allowed (see FirestoreAppUpdateRepository).
-    // World-readable on purpose: the check runs before any sign-in, and the
-    // record holds nothing but store links and build numbers. Records are
-    // published from the console/CI (Admin SDK bypasses rules), so clients
-    // can never write one — a forged record would lock users out.
-    match /app_updates/{recordId} {
+    // Everything that applies to every install at once: `enable_premium` (the
+    // app-wide premium kill switch) and `force_update` (the published build
+    // per platform, read on every launch by FirestoreAppUpdateRepository — it
+    // replaced the `app_updates` collection, so a release is announced by
+    // editing the one document the owner already edits).
+    //
+    // One fixed document id, `app`, which no sign-in can produce as an
+    // address, so it can never collide with an allow-list row below.
+    //
+    // World-readable on purpose, and it is what decides the split: the update
+    // check runs before any sign-in, the app is fully usable anonymously, and
+    // this document holds nothing but booleans, build numbers and store
+    // links. **No email ever goes on it** — a per-address grant lives in its
+    // own row below precisely because rules cannot hide a field, and an array
+    // of addresses here would be the owner's list of real people, readable by
+    // anyone who installs the app.
+    //
+    // Written only from the console. A client that could flip these is a
+    // client deciding its own premium state, and a forged force-update record
+    // would lock users out.
+    match /app_config/app {
       allow read: if true;
       allow write: if false;
     }
@@ -43,8 +57,9 @@ service cloud.firestore {
     // The owner's allow-list: one document per address, id = the address
     // lower-cased. `premium` grants premium in the app and makes the account a
     // target of the pressure-alert cron; `dev_settings` shows the Dev group in
-    // Settings. Replaces the PREMIUM_EMAIL / SHOW_DEV_SETTINGS build flags,
-    // which could only be changed by shipping a new binary.
+    // Settings; `blocked` locks the address out of the app. Replaces the
+    // PREMIUM_EMAIL / SHOW_DEV_SETTINGS build flags, which could only be
+    // changed by shipping a new binary.
     //
     // A client may read ONE document — its own — and never list the
     // collection. That is the whole reason the address is the document id
@@ -53,9 +68,14 @@ service cloud.firestore {
     // people's email addresses. The cron reads it through the Admin SDK,
     // which bypasses rules.
     //
+    // The block above grants the one non-address document its own read; this
+    // rule denying that id changes nothing, because rules are OR-ed. What
+    // neither block allows is a LIST: a query has no single document to
+    // evaluate, so `app_config` as a whole stays unreadable.
+    //
     // Written only from the console. A client that could grant itself premium
     // is exactly the client-side premium flag this project forbids.
-    match /app_access/{email} {
+    match /app_config/{email} {
       allow read: if request.auth != null
         && request.auth.token.email is string
         && request.auth.token.email.lower() == email;
@@ -103,15 +123,15 @@ service cloud.firestore {
     // The list is an allowlist, not a bare `{collection}`, and must be kept in
     // step with the `SyncCollection` enum. At the root a bare wildcard would
     // be far worse than it was under users/: it would match `sync_keys` and
-    // `app_updates` too, and any collection added later.
+    // `app_config` too, and any collection added later.
     // `sync_collection_rules_test.dart` fails the build when the enum and this
     // list drift apart — which is how medications and reminders once shipped
     // denied, breaking sync AND the dev seed on their first query.
     //
-    // `weather_cache`, `app_access` and `pressure_alert_runs` rely on this
+    // `weather_cache`, `app_config` and `pressure_alert_runs` rely on this
     // being an allowlist: each is written only by the Admin SDK and must stay
     // unreachable from a client here, so all three are deliberately absent
-    // rather than overlooked. (`app_access` grants a one-document read of its
+    // rather than overlooked. (`app_config` grants a one-document read of its
     // own above; this wildcard must not widen that to a query.)
     //
     // Note what these rules can NOT do: a query over one of these collections

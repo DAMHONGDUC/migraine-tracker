@@ -39,8 +39,8 @@ final class LogTagConstant {
   /// The `users/{uid}` document and the display name on the auth record.
   static const String profile = 'Profile';
 
-  /// The `app_access` allow-list — what the owner has granted this address, read once per session and re-read when it changes.
-  static const String access = 'Access';
+  /// The `app_config` collection — what the owner has granted this address, and the switches that apply to every install. Read once per session and re-read when either changes.
+  static const String appConfig = 'App Config';
 
   /// The daily check-in — the one row a day that gives every analysis its days without an attack.
   static const String dailyLog = 'Daily Log';

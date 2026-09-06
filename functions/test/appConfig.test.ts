@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { premiumEmailsFrom } from "../src/core/accessAllowlist";
+import { premiumEmailsFrom, premiumEnabledFrom } from "../src/core/appConfig";
 
 describe("premiumEmailsFrom", () => {
   it("returns nothing for an empty list", () => {
@@ -36,5 +36,32 @@ describe("premiumEmailsFrom", () => {
 
   it("drops a row whose id is blank", () => {
     expect(premiumEmailsFrom([{ id: "   ", premium: true }])).toEqual([]);
+  });
+});
+
+describe("premiumEnabledFrom", () => {
+  it("is on when the flags document does not exist at all", () => {
+    // The normal state of a project nobody has touched: the switch has never
+    // been thrown, so premium behaves as it did before the switch existed.
+    expect(premiumEnabledFrom(undefined)).toBe(true);
+  });
+
+  it("is on when the document exists without the field", () => {
+    expect(premiumEnabledFrom({ something_else: true })).toBe(true);
+  });
+
+  it("is off only for a real false", () => {
+    expect(premiumEnabledFrom({ enable_premium: false })).toBe(false);
+  });
+
+  it("ignores a string typed into the console", () => {
+    // Same trap as the grant fields, in the opposite direction: "false" typed
+    // as text would read as "switched off" to a truthiness check and quietly
+    // stop every alert.
+    expect(premiumEnabledFrom({ enable_premium: "false" })).toBe(true);
+  });
+
+  it("is on for an explicit true", () => {
+    expect(premiumEnabledFrom({ enable_premium: true })).toBe(true);
   });
 });

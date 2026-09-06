@@ -800,5 +800,10 @@
   "midasRowTitle": "Retentissement (MIDAS)",
   "midasReportRow": "Retentissement (MIDAS)",
   "factorHighHumidity": "Journée lourde",
-  "factorTempSwing": "Écart de température"
+  "factorTempSwing": "Écart de température",
+  "blockedAccountTitle": "Compte verrouillé",
+  "blockedAccountBody": "Ce compte a été verrouillé. Tout ce que vous avez enregistré reste sur cet appareil — déconnectez-vous pour continuer à utiliser BaroEase.",
+  "blockedAccountSignOut": "Se déconnecter",
+  "blockedAccountContact": "Contacter le support",
+  "blockedAccountSignOutFailed": "Déconnexion impossible. Veuillez réessayer."
 }

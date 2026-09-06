@@ -15,10 +15,12 @@ import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
 import {
-  ACCESS_COLLECTION,
+  APP_CONFIG_COLLECTION,
+  FLAGS_DOCUMENT_ID,
   PREMIUM_FIELD,
   premiumEmailsFrom,
-} from "./core/accessAllowlist";
+  premiumEnabledFrom,
+} from "./core/appConfig";
 import { AlertRunResult, runPressureAlerts } from "./core/alertRun";
 import {
   ALERT_RUN_COLLECTION,
@@ -138,8 +140,30 @@ async function runAlertPass(
   db: FirebaseFirestore.Firestore,
   now: Date,
 ): Promise<AlertRunResult> {
+  // The app-wide kill switch, ahead of every other read. Pressure alerts ARE a
+  // premium feature, so a pass that pushed while the app hides that feature
+  // would be the one surface `enable_premium: false` does not reach — and
+  // unlike a hidden screen, a push cannot be taken back once it lands.
+  const flags = await db
+    .collection(APP_CONFIG_COLLECTION)
+    .doc(FLAGS_DOCUMENT_ID)
+    .get();
+  if (!premiumEnabledFrom(flags.data())) {
+    logger.info("premium is switched off app-wide; no alerts this pass");
+
+    return {
+      users: 0,
+      cells: 0,
+      failedCells: [],
+      pushesSent: 0,
+      silentPushes: 0,
+      onsetPushes: 0,
+      cellDrops: {},
+    };
+  }
+
   const rows = await db
-    .collection(ACCESS_COLLECTION)
+    .collection(APP_CONFIG_COLLECTION)
     .where(PREMIUM_FIELD, "==", true)
     .get();
   const emails = premiumEmailsFrom(

@@ -176,11 +176,11 @@ describe.skipIf(!available)("firestore.rules", () => {
     });
   }
 
-  describe("app_access", () => {
+  describe("app_config", () => {
     /** A row the owner typed in the console; the id IS the address. */
     async function grant(email: string, fields: Record<string, boolean>) {
       await env.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection("app_access").doc(email).set(fields);
+        await context.firestore().collection("app_config").doc(email).set(fields);
       });
     }
 
@@ -191,7 +191,7 @@ describe.skipIf(!available)("firestore.rules", () => {
         .firestore();
 
       await assertSucceeds(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        db.collection("app_config").doc("alice@baroease.app").get(),
       );
     });
 
@@ -202,7 +202,7 @@ describe.skipIf(!available)("firestore.rules", () => {
         .firestore();
 
       await assertSucceeds(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        db.collection("app_config").doc("alice@baroease.app").get(),
       );
     });
 
@@ -213,7 +213,7 @@ describe.skipIf(!available)("firestore.rules", () => {
         .firestore();
 
       await assertFails(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        db.collection("app_config").doc("alice@baroease.app").get(),
       );
     });
 
@@ -223,9 +223,9 @@ describe.skipIf(!available)("firestore.rules", () => {
         .authenticatedContext("alice", { email: "alice@baroease.app" })
         .firestore();
 
-      await assertFails(db.collection("app_access").get());
+      await assertFails(db.collection("app_config").get());
       await assertFails(
-        db.collection("app_access").where("premium", "==", true).get(),
+        db.collection("app_config").where("premium", "==", true).get(),
       );
     });
 
@@ -234,7 +234,7 @@ describe.skipIf(!available)("firestore.rules", () => {
       const db = env.authenticatedContext("anon").firestore();
 
       await assertFails(
-        db.collection("app_access").doc("alice@baroease.app").get(),
+        db.collection("app_config").doc("alice@baroease.app").get(),
       );
     });
 
@@ -247,9 +247,36 @@ describe.skipIf(!available)("firestore.rules", () => {
       // project forbids.
       await assertFails(
         db
-          .collection("app_access")
+          .collection("app_config")
           .doc("mallory@example.com")
           .set({ premium: true }),
+      );
+    });
+
+    it("lets any client read the app-wide document, signed in or not", async () => {
+      // Force update is read before any sign-in, and the premium kill switch
+      // has to reach anonymous installs — which is almost all of them.
+      await grant("app", { enable_premium: false });
+
+      // The app is fully usable anonymously, so a kill switch only signed-in
+      // installs could read would miss almost every user it is meant to reach.
+      await assertSucceeds(
+        env.unauthenticatedContext().firestore()
+          .collection("app_config").doc("app").get(),
+      );
+      await assertSucceeds(
+        env.authenticatedContext("anon").firestore()
+          .collection("app_config").doc("app").get(),
+      );
+    });
+
+    it("refuses a client throwing the switch itself", async () => {
+      const db = env
+        .authenticatedContext("mallory", { email: "mallory@example.com" })
+        .firestore();
+
+      await assertFails(
+        db.collection("app_config").doc("app").set({ enable_premium: true }),
       );
     });
   });

@@ -800,5 +800,10 @@
   "midasRowTitle": "Grado de discapacidad (MIDAS)",
   "midasReportRow": "Discapacidad (MIDAS)",
   "factorHighHumidity": "Día bochornoso",
-  "factorTempSwing": "Cambio de temperatura"
+  "factorTempSwing": "Cambio de temperatura",
+  "blockedAccountTitle": "Cuenta bloqueada",
+  "blockedAccountBody": "Esta cuenta ha sido bloqueada. Todo lo que has registrado sigue en este dispositivo: cierra sesión para seguir usando BaroEase.",
+  "blockedAccountSignOut": "Cerrar sesión",
+  "blockedAccountContact": "Contactar con soporte",
+  "blockedAccountSignOutFailed": "No se pudo cerrar sesión. Inténtalo de nuevo."
 }
