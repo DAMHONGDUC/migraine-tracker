@@ -1,8 +1,10 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/core/storage/fresh_install_guard.dart';
+import 'package:migraine_tracker/core/constants/log_tag_constant.dart';
+import 'package:migraine_tracker/core/storage/prefs_install_store.dart';
 import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_design/common.dart';
 
 /// Stands in for `FirebaseAuth.instance.signOut`, and records the order it was called in relative to the marker.
 class RecordingSignOut {
@@ -29,6 +31,18 @@ void main() {
     return (await SharedPreferences.getInstance(), await SecureStore.open());
   }
 
+  /// The app's two adapters, wired the way `SplashController` wires them — the guard itself now lives in `system_design`, so this is what stays app-side to get wrong.
+  Future<void> runGuard(
+    SharedPreferences prefs,
+    SecureStore store,
+    RecordingSignOut signOut,
+  ) => SdFreshInstallGuard.run(
+    logTag: LogTagConstant.storage,
+    installScoped: PrefsInstallStore(prefs),
+    deviceScoped: store,
+    signOut: signOut.call,
+  );
+
   group('reinstall', () {
     test('clears the Keychain and signs the old session out', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
@@ -36,11 +50,11 @@ void main() {
       );
       final RecordingSignOut signOut = RecordingSignOut();
 
-      await FreshInstallGuard.run(prefs, store, signOut.call);
+      await runGuard(prefs, store, signOut);
 
       expect(store.getString('app_locale'), isNull);
       expect(signOut.calls, 1);
-      expect(prefs.getBool(FreshInstallGuard.isInstalledKey), isTrue);
+      expect(prefs.getBool(SdFreshInstallGuard.isInstalledKey), isTrue);
     });
 
     /// The whole reason the guard exists: install, sign in, delete, install again. Only the Keychain survives that, and it must not be what carries the session back.
@@ -50,7 +64,7 @@ void main() {
       final RecordingSignOut signOut = RecordingSignOut();
 
       // First install, then the user signs in and the app writes settings.
-      await FreshInstallGuard.run(first, firstStore, signOut.call);
+      await runGuard(first, firstStore, signOut);
       await firstStore.setBool('onboarding_completed', true);
 
       // The delete takes shared_preferences and the database; the Keychain stays.
@@ -65,7 +79,7 @@ void main() {
         reason: 'the Keychain is expected to survive — that is the problem',
       );
 
-      await FreshInstallGuard.run(second, secondStore, signOut.call);
+      await runGuard(second, secondStore, signOut);
 
       expect(signOut.calls, 2);
       expect(secondStore.getKeys(), isEmpty);
@@ -79,11 +93,11 @@ void main() {
         );
         final RecordingSignOut signOut = RecordingSignOut()..fails = true;
 
-        await FreshInstallGuard.run(prefs, store, signOut.call);
+        await runGuard(prefs, store, signOut);
 
         expect(signOut.calls, 1);
         expect(store.getKeys(), isEmpty);
-        expect(prefs.getBool(FreshInstallGuard.isInstalledKey), isTrue);
+        expect(prefs.getBool(SdFreshInstallGuard.isInstalledKey), isTrue);
       },
     );
   });
@@ -100,7 +114,7 @@ void main() {
       );
       final RecordingSignOut signOut = RecordingSignOut();
 
-      await FreshInstallGuard.run(prefs, store, signOut.call);
+      await runGuard(prefs, store, signOut);
 
       expect(store.getBool('onboarding_completed'), isTrue);
       expect(store.getDouble('alert_threshold'), 7);
@@ -109,19 +123,19 @@ void main() {
       // Nothing was deleted on an update, so there is nothing to make fresh.
       expect(signOut.calls, isZero);
       // One owner per value: the copies left in shared_preferences go once they are carried.
-      expect(prefs.getKeys(), <String>{FreshInstallGuard.isInstalledKey});
+      expect(prefs.getKeys(), <String>{SdFreshInstallGuard.isInstalledKey});
     });
   });
 
   group('same install', () {
     test('a later launch touches nothing', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{FreshInstallGuard.isInstalledKey: true},
+        prefs: <String, Object>{SdFreshInstallGuard.isInstalledKey: true},
         keychain: <String, String>{'app_locale': 'vi'},
       );
       final RecordingSignOut signOut = RecordingSignOut();
 
-      await FreshInstallGuard.run(prefs, store, signOut.call);
+      await runGuard(prefs, store, signOut);
 
       expect(store.getString('app_locale'), 'vi');
       expect(signOut.calls, isZero);
@@ -130,11 +144,11 @@ void main() {
     /// The marker is written by the guard itself, so counting it as a legacy value would make every first launch look like an update.
     test('the marker alone is not read as an update', () async {
       final (SharedPreferences prefs, SecureStore store) = await setUpStorage(
-        prefs: <String, Object>{FreshInstallGuard.isInstalledKey: false},
+        prefs: <String, Object>{SdFreshInstallGuard.isInstalledKey: false},
       );
       final RecordingSignOut signOut = RecordingSignOut();
 
-      await FreshInstallGuard.run(prefs, store, signOut.call);
+      await runGuard(prefs, store, signOut);
 
       expect(signOut.calls, 1);
     });

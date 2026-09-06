@@ -4,7 +4,7 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/bootstrap/app_bootstrap.dart';
 import '../../../../core/constants/log_tag_constant.dart';
-import '../../../../core/storage/fresh_install_guard.dart';
+import '../../../../core/storage/prefs_install_store.dart';
 import '../../../../core/storage/secure_store.dart';
 import '../../../auth/providers.dart';
 
@@ -19,10 +19,11 @@ class SplashController {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      await FreshInstallGuard.run(
-        prefs,
-        _ref.read(secureStoreProvider),
-        _ref.read(authRepositoryProvider).signOut,
+      await SdFreshInstallGuard.run(
+        logTag: LogTagConstant.storage,
+        installScoped: PrefsInstallStore(prefs),
+        deviceScoped: _ref.read(secureStoreProvider),
+        signOut: _ref.read(authRepositoryProvider).signOut,
       );
       // After the guard, always: a reinstall purge signs the old session out and leaves no caller at all, and `getWeather` will not serve one it cannot name.
       await AppBootstrap.ensureAnonymousSession();
