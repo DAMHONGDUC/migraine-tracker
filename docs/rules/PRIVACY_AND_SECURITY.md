@@ -121,11 +121,14 @@ Never request Always.
 
 ## 8. GDPR: one destructive action
 
-**"Delete all data" is gone from Settings** (owner's call, 2026-09-05). The row,
-its confirm dialog, its progress indicator and the `AppFeature.wipe` marketing
-line are deleted; `DataWipeService` stays, because account deletion and the two
-dev tiles still call it. **Do not put the row back without the owner asking** — and note
-what went with it: a signed-out user has no in-app way to clear the backend
+**"Delete all data" is gone from Settings for users** (owner's call,
+2026-09-05). The row, its confirm dialog, its progress indicator and the
+`AppFeature.wipe` marketing line are deleted; `DataWipeService` stays, because
+account deletion and the three dev tiles still call it. **Do not put the row
+back for users without the owner asking** — it is back in the Dev group only
+(owner's call, 2026-09-06), behind `showDevSettingsProvider`, which no
+production user reaches unless the owner puts their address on
+`dev_mode_emails`. Note what went with the user-facing row: a signed-out user has no in-app way to clear the backend
 alert record beyond giving up the token (`unregister`), so the privacy policy
 answers that by email instead. Moving `unregister` to `forgetRegistration` would
 close it in code, and is the owner's call to make.
@@ -168,8 +171,9 @@ exist.
   CSV as well as the PDF. Portability is met by the support route the privacy
   policy names, which answers an export request by email at no cost — move both
   together if that route changes. Account deletion is free and always will be.
-- **`DataWipeService` has three callers, all of them still real**: account
-  deletion (`AccountController.deleteAccount`), the dev reset and the dev seed.
+- **`DataWipeService` has four callers, all of them still real**: account
+  deletion (`AccountController.deleteAccount`), the dev delete-all, the dev
+  reset and the dev seed.
   Its progress callback lost its only display when the Settings row went —
   `SettingsRowProgress`, `WipeStatus` and `commonProgressPercent` are deleted
   with it — but `onProgress` stays, because the step count is what

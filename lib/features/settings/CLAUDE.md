@@ -59,13 +59,15 @@ has no per-row gate any more.
 
 **The "Delete all data" row next to it is removed** (owner's call, 2026-09-05),
 along with its dialog, its progress indicator and the `AppFeature.wipe` row in
-`AppFeatureList`. "Delete account" is the only teardown the app offers now;
-`DataWipeService` is still what performs it. Detail and what the removal costs a
-signed-out user: hard rule 8 in `docs/rules/PRIVACY_AND_SECURITY.md`.
+`AppFeatureList`. "Delete account" is the only teardown the app offers *users*
+now; `DataWipeService` is still what performs it. Detail and what the removal
+costs a signed-out user: hard rule 8 in `docs/rules/PRIVACY_AND_SECURITY.md`.
+The row came back in the Dev group and nowhere else (below) — the removal was
+about what a user is offered, not about the wipe existing.
 
 **`SettingsController` is a plain `Provider`, not a `Notifier`** — the wipe
-progress was the only state it ever held. It keeps the two dev actions, and both
-dev tiles carry their own `_running` flag.
+progress was the only state it ever held. It keeps the three dev actions, and
+every dev tile carries its own `_running` flag.
 
 - **A test that opens the export screen must `pumpApp(premium: true)`** —
   `openExportScreen` taps a row that answers a free user with the paywall, and
@@ -146,6 +148,23 @@ past the whole app to reach the tools that build the state being tested.
   whenever it is shown, General is `first: !showDev`. The flag is
   the screen's own top gap, so two headings claiming it would double the gap and
   neither claiming it would lose it.
+- **`_DevDeleteDataTile` and `_DevResetTile` are two teardowns, not one**, and
+  sit in that order — the gentler first. `deleteAllData` empties the device and
+  the account's synced copy and leaves the user on Settings, so every screen can
+  be looked at in its empty state without a reinstall; `resetToOnboarding` is
+  that plus the onboarding flags, and navigates. Before the pair existed, seeing
+  an empty state meant a reset and then walking back through onboarding, which
+  is why the wipe alone earns its own row.
+  - **The delete row does not navigate, and must not start.** The screen it was
+    tapped from is the point: a redirect would put the developer somewhere they
+    then have to come back from. It is `_DevResetTile` that has to `goNamed`,
+    because the router only redirects to onboarding on a route change.
+  - **`settings_gdpr_test.dart` asserts the row sits above the General
+    heading**, not that it is absent. Tests run the dev flavour, so the group is
+    always on screen there; a bare `findsNothing` would fail the moment the row
+    came back, and a bare `findsOneWidget` would pass if it were moved into "Your
+    data". Position is what says "developer-only" in a test that cannot turn the
+    group off.
 - **`_DevLocalNotificationTile` is the local half of the delivery path and needs
   no account.** It sits beside `_DevPushTile` but outside that pair's
   `isSignedInProvider` gate — a local notification is scheduled by the OS on the
