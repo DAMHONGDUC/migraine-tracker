@@ -15,8 +15,7 @@ import 'package:migraine_tracker/core/router/app_router.dart';
 import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
-import 'package:migraine_tracker/features/app_config/domain/entities/app_config_flags.dart';
-import 'package:migraine_tracker/features/app_config/domain/entities/app_config_grants.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_config.dart';
 import 'package:migraine_tracker/features/app_config/domain/repositories/app_config_repository.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
 import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
@@ -166,49 +165,32 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
-/// Stands in for the `app_config` collection. Defaults: nothing granted to any address, every app-wide switch on — the state of a project whose collection is empty, which is how the app ships.
+/// Stands in for the `app_config/app` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
 class FakeAppConfigRepository implements AppConfigRepository {
-  FakeAppConfigRepository({
-    this.grants = AppConfigGrants.none,
-    this.flags = AppConfigFlags.allOn,
-  });
+  FakeAppConfigRepository({AppConfig? config})
+    : config = config ?? AppConfig.empty;
 
-  AppConfigGrants grants;
-  AppConfigFlags flags;
+  AppConfig config;
 
-  /// Addresses [watchGrants] was called with, in order. Empty means Firestore was never touched.
-  final List<String> watched = <String>[];
+  /// How many times the document was subscribed to. One per app, or the read is being reopened on every rebuild.
+  int watchCalls = 0;
 
   /// Not broadcast, and not an `async*` generator: both drop an event pushed
   /// before the subscription is live, which is exactly the race a test that
   /// emits right after the first value would lose.
-  StreamController<AppConfigGrants> _grantsController =
-      StreamController<AppConfigGrants>();
-  StreamController<AppConfigFlags> _flagsController =
-      StreamController<AppConfigFlags>();
+  StreamController<AppConfig> _controller = StreamController<AppConfig>();
 
   @override
-  Stream<AppConfigGrants> watchGrants(String email) {
-    watched.add(email);
-    _grantsController = StreamController<AppConfigGrants>();
-    _grantsController.add(grants);
+  Stream<AppConfig> watch() {
+    watchCalls++;
+    _controller = StreamController<AppConfig>();
+    _controller.add(config);
 
-    return _grantsController.stream;
+    return _controller.stream;
   }
 
-  @override
-  Stream<AppConfigFlags> watchFlags() {
-    _flagsController = StreamController<AppConfigFlags>();
-    _flagsController.add(flags);
-
-    return _flagsController.stream;
-  }
-
-  /// Pushes a revocation (or a grant) the way the owner editing the console does.
-  void emitGrants(AppConfigGrants next) => _grantsController.add(next);
-
-  /// Throws the app-wide switch the way the owner editing the console does.
-  void emitFlags(AppConfigFlags next) => _flagsController.add(next);
+  /// Pushes an edit the way the owner saving the console document does.
+  void emit(AppConfig next) => _controller.add(next);
 }
 
 /// Serves whatever update record a test asks for. Default: no record at all, so the force-update wrapper never blocks the app under test.
@@ -702,8 +684,8 @@ Future<PumpedApp> pumpApp(
   /// The account document the account tab reads. Null = not written yet, which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
 
-  /// What `app_config/{email}` grants the signed-in address. Default: nothing, which is every address the owner has not typed into the console.
-  AppConfigGrants appConfigGrants = AppConfigGrants.none,
+  /// The `app_config/app` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
+  AppConfig? appConfig,
 
   /// The record the force-update check reads. Null (default) = no record, so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
@@ -751,8 +733,8 @@ Future<PumpedApp> pumpApp(
   final RecordingShareFileStore shareFiles = RecordingShareFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn);
   addTearDown(auth.dispose);
-  final FakeAppConfigRepository appConfig = FakeAppConfigRepository(
-    grants: appConfigGrants,
+  final FakeAppConfigRepository appConfigRepository = FakeAppConfigRepository(
+    config: appConfig,
   );
   final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
     config: appUpdate,
@@ -819,7 +801,7 @@ Future<PumpedApp> pumpApp(
           FakeLastAlertRepository(),
         ),
         // Always overridden as well: the app-wide switches have no signed-in branch to short-circuit on, so every tree that gates on premium would open a real Firestore listener.
-        appConfigRepositoryProvider.overrideWithValue(appConfig),
+        appConfigRepositoryProvider.overrideWithValue(appConfigRepository),
         // Every saved attack and every shared report reaches the review prompt, and the real one is a platform channel.
         reviewPrompterProvider.overrideWithValue(RecordingReviewPrompter()),
         if (exportSharer != null)
@@ -840,7 +822,7 @@ Future<PumpedApp> pumpApp(
     permissions: permissions,
     location: location,
     auth: auth,
-    appConfig: appConfig,
+    appConfig: appConfigRepository,
     appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
     mailLauncher: mailLauncher,

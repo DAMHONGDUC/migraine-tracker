@@ -20,13 +20,13 @@ class FirestoreAppUpdateRepository implements AppUpdateRepository {
   @override
   Future<AppUpdateConfig?> latest() async {
     final String path =
-        '${AppConfigSchema.collectionPath}/${AppConfigSchema.globalDocumentId}';
+        '${AppConfigSchema.collectionPath}/${AppConfigSchema.documentId}';
 
     SdLogger.action(LogTagConstant.appUpdate, 'Read $path');
     try {
       final DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore
           .collection(AppConfigSchema.collectionPath)
-          .doc(AppConfigSchema.globalDocumentId)
+          .doc(AppConfigSchema.documentId)
           .get();
 
       final Map<String, dynamic>? data = snapshot.data();
