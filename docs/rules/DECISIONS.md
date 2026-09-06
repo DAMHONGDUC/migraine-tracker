@@ -155,3 +155,25 @@ does implement, and Apple's own Live Activity samples are written that way. The
 attack Live Activity needs it: `ActivityConfiguration` is 16.1 and the app
 deploys to 15. If it does turn out not to compile, the fallback is raising the
 extension's own deployment target rather than dropping the home screen widget.
+
+## The flavour record in `shared_preferences`
+
+The first draft of `AppFreshInstall` kept the last-launch flavour there and
+cleared the whole store as its wipe. Rejected before it shipped, for two
+reasons that pull the same way. Almost nothing the app writes is in prefs — the
+Keychain is (`PRIVACY_AND_SECURITY.md`), so the "wipe" would have left
+`onboarding_completed` and `alert_threshold: 7.0` exactly where they were. And
+the one prefs key that does exist, `SdReinstallGuard.isInstalledKey`, is read by
+a guard that calls *any* other key an upgrade: a `last_env` beside it would turn
+the next delete-and-reinstall into an update and leave the old session signed
+in — the opposite of the owner's rule that guard exists for. The record lives in
+`SecureStore` instead, via `SecureFreshInstallStore`.
+
+## Wiping the `baroease` database on a flavour change
+
+Considered as a third wipe step, so a prod binary could not open a dev install's
+seeded attacks. Left out. `AppEnv.flavor` falls back to `dev` when a build
+forgets `--dart-define-from-file`, and the assert that catches that runs in
+debug only — so one release built wrong would read as an environment change and
+delete migraine history that has no second copy. The three steps that did ship
+cost a sign-in, a cache and an onboarding run, all of which come back.
