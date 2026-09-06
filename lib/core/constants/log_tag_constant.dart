@@ -6,12 +6,11 @@ final class LogTagConstant {
   /// `AppBootstrap` and the global error handlers it installs.
   static const String bootstrap = 'Bootstrap';
 
-  /// `SecureStore` and the first-launch guard over it — the Keychain, not a user flow.
+  /// `SecureStore` itself — the Keychain, not a user flow.
   static const String storage = 'Storage';
 
-  /// The flavour-change wipe over that store — dev data found under a prod
-  /// binary, or the reverse. Matches the tag `SdFreshInstallGuard` prints for
-  /// its own half of the same launch.
+  /// `SdFreshInstall`: what this launch turned out to be, and the wipe when it
+  /// is a reinstall or a build pointed at another environment.
   static const String freshInstall = 'Fresh Install';
 
   /// `AppAnalytics` reporting on itself — an event sent, or one that threw.

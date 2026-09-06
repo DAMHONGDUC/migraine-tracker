@@ -1,35 +1,29 @@
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/bootstrap/app_bootstrap.dart';
 import '../../../../core/constants/log_tag_constant.dart';
-import '../../../../core/storage/prefs_install_store.dart';
-import '../../../../core/storage/secure_store.dart';
-import '../../../auth/providers.dart';
 
-/// What the splash is waiting for: the first-launch guard, and a caller for the callables after it.
+/// What the splash is waiting for: a caller for the callables behind the
+/// dashboard.
+///
+/// The device check is not here — it wipes a Firestore cache, which only works
+/// before anything has read one, and `ForceUpdateWrapper` reads on the first
+/// frame of this very route. It runs in `main`, ahead of `runApp`
+/// (`AppFreshInstall`).
 class SplashController {
-  const SplashController(this._ref);
+  const SplashController();
 
-  final Ref _ref;
-
-  /// Never throws — the splash leaves either way, because an app that cannot get past its own loading screen is worse than one that starts signed in.
+  /// Never throws — the splash leaves either way, because an app that cannot
+  /// get past its own loading screen is worse than one that starts signed out.
+  ///
+  /// The bootstrap step already tried this; the retry is for the launch that
+  /// had no network for it, where a second attempt costs one call.
   Future<void> run() async {
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      await SdReinstallGuard.run(
-        logTag: LogTagConstant.storage,
-        installScoped: PrefsInstallStore(prefs),
-        deviceScoped: _ref.read(secureStoreProvider),
-        signOut: _ref.read(authRepositoryProvider).signOut,
-      );
-      // After the guard, always: a reinstall purge signs the old session out and leaves no caller at all, and `getWeather` will not serve one it cannot name.
       await AppBootstrap.ensureAnonymousSession();
     } catch (error, stackTrace) {
       SdLogger.error(
-        LogTagConstant.storage,
+        LogTagConstant.bootstrap,
         'Splash startup work failed',
         error: error,
         stackTrace: stackTrace,

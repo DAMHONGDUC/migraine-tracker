@@ -9,7 +9,6 @@ import 'package:system_design/index.dart';
 
 import 'core/analytics/app_analytics.dart';
 import 'core/env/app_env.dart';
-import 'core/env/app_fresh_install.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/logging/crash_reporter.dart';
 import 'core/router/app_router.dart';
@@ -35,13 +34,11 @@ import 'features/sync/providers.dart';
 import 'features/weather/providers.dart';
 import 'l10n/gen/app_localizations.dart';
 
-/// The build tag, the flavour-change wipe, and the app under both.
+/// The build tag, and the app under it.
 ///
-/// Split from [_BaroEaseAppView] rather than wrapped inside it because the
-/// guard's whole promise is that nothing reads the old environment's data
-/// until the wipe has finished — and the effects below fire a Firestore read,
-/// a sync and a weather write on their widget's first frame. Kept in one
-/// widget they would run against the session being signed out.
+/// Split from [_BaroEaseAppView] because the tag reads the installed version
+/// and nothing else: kept in one widget, every effect below would rebuild each
+/// time the platform channel answered.
 class BaroEaseApp extends ConsumerWidget {
   const BaroEaseApp({super.key});
 
@@ -65,7 +62,6 @@ class BaroEaseApp extends ConsumerWidget {
       // The flavour, never `kDebugMode`: a TestFlight build of the dev flavour
       // is a release binary and is the one nobody can otherwise identify.
       visible: !AppEnv.isProd,
-      freshInstall: ref.watch(appFreshInstallPolicyProvider),
       child: const _BaroEaseAppView(),
     );
   }

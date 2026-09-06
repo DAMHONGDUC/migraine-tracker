@@ -9,7 +9,6 @@ import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
-import 'package:migraine_tracker/core/env/app_fresh_install.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
 import 'package:migraine_tracker/core/permissions/app_permission_gateway.dart';
 import 'package:migraine_tracker/core/router/app_router.dart';
@@ -765,10 +764,6 @@ Future<PumpedApp> pumpApp(
         // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
         initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
         secureStoreProvider.overrideWithValue(prefs),
-        // No other build shares this sandbox, and the guard behind the
-        // policy holds the first frame back until it has read the store — a
-        // wait every tree pumped here would have to sit through.
-        appFreshInstallPolicyProvider.overrideWithValue(null),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),

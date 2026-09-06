@@ -1,43 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_design/common.dart';
 
 import '../../features/auth/providers.dart';
 import '../constants/log_tag_constant.dart';
 import '../constants/prefs_key_constant.dart';
-import '../storage/secure_fresh_install_store.dart';
+import '../storage/prefs_install_store.dart';
+import '../storage/secure_device_store.dart';
 import '../storage/secure_store.dart';
 import 'app_env.dart';
 
-/// The policy `SdDevWrapper` runs the flavour check with, or null where there
-/// is nothing to check.
-///
-/// Widget tests override it with null: a test process shares its sandbox with
-/// no other build, and a guard that holds the first frame back would hold back
-/// every tree they pump.
-final appFreshInstallPolicyProvider = Provider<SdFreshInstallPolicy?>(
-  (ref) => AppFreshInstall.policy(ref),
-);
-
-/// What "a fresh install" means on this device.
+/// What "a fresh install" means on this device, and the two vendor calls that
+/// take it back to one.
 ///
 /// Dev and prod ship under one bundle id (`app.dd.migraine.tracker`), so they
 /// share a sandbox: installing one over the other leaves the new binary
 /// reading the old one's signed-in session, its Keychain and its cached
-/// documents — a dev account pointed at the real project, or the reverse.
-/// `SdFreshInstallGuard` makes the comparison and `SdFreshInstall` runs the
+/// documents — a dev account pointed at the real project, or the reverse. A
+/// delete and reinstall is the same problem from the other side: iOS keeps the
+/// Keychain, so the session comes back on what the user thinks is a clean
+/// install. [SdFreshInstall] decides which of those a launch is and runs the
 /// wipe; what is left here is the only part that is this app's — which SDKs
-/// have something to drop, and the store behind them.
+/// have something to drop.
 ///
 /// ```text
-/// last_env: dev            binary: FLAVOR=prod
+/// stamp: dev (shared_preferences)   binary: FLAVOR=prod
 ///        ▼
 /// 1 Sign out               google.signOut + auth.signOut, uid AbC123… → none
 /// 2 Clear Firestore cache  app_config/config, users/AbC123 → dropped
 /// 3 Clear the Keychain     onboarding_completed, alert_threshold: 7.0 → gone
+/// 4 Clear shared_preferences        last_env: dev → gone, then rewritten
 ///        ▼
-/// last_env: prod           onboarding again, anonymous session again
+/// stamp: prod              onboarding again, anonymous session again
 /// ```
 ///
 /// **The on-device database is not wiped, on purpose.** The steps above cost a
@@ -47,50 +43,56 @@ final appFreshInstallPolicyProvider = Provider<SdFreshInstallPolicy?>(
 /// catches that is debug-only — so a release built wrong would read as an
 /// environment change and delete health data that has no copy. Losing a
 /// session to that mistake is recoverable; losing the record is not.
-final class AppFreshInstall {
-  const AppFreshInstall._();
+final class AppFreshInstall implements SdFreshInstallHost {
+  const AppFreshInstall(this._container);
 
-  /// Order matters: sign out first so nothing is still writing, then drop the
-  /// documents that session cached. The Keychain goes last and
-  /// `SdFreshInstall` does that itself, after every step — it holds the
-  /// environment record, so clearing it early would leave a half-wiped device
-  /// claiming an environment it no longer has.
-  static SdFreshInstallPolicy policy(Ref ref) => SdFreshInstall.policy(
-    logTag: LogTagConstant.freshInstall,
-    envKey: PrefsKeyConstant.lastEnv,
-    store: SecureFreshInstallStore(ref.read(secureStoreProvider)),
-    steps: <SdFreshInstallStep>[
-      SdFreshInstallStep(
-        name: 'Sign out',
-        when: _hasFirebase,
-        // The repository's own, which also signs out of Google — without that
-        // the next sign-in skips the picker and lands back in the account the
-        // wipe just left.
-        run: () => ref.read(authRepositoryProvider).signOut(),
-      ),
-      SdFreshInstallStep(
-        name: 'Clear Firestore cache',
-        when: _hasFirebase,
-        run: _clearFirestoreCache,
-      ),
-    ],
-  );
+  /// Read lazily, and only by [signOut]: building the auth repository reaches
+  /// for `FirebaseAuth.instance`, which throws in a build that never
+  /// initialised Firebase — the same build [isBackendReady] answers false for.
+  final ProviderContainer _container;
 
-  /// Drop every document Firestore cached for the other environment.
+  /// Check this device, wipe it if it is not this build's, and stamp it.
   ///
-  /// **`terminate` first, and this only works before anything reads.**
-  /// `clearPersistence` throws `failed-precondition` while the client is
-  /// running, which is why the guard holds the app's first frame back rather
-  /// than wiping alongside it.
-  static Future<void> _clearFirestoreCache() async {
-    await FirebaseFirestore.instance.terminate();
-    await FirebaseFirestore.instance.clearPersistence();
-  }
+  /// **It runs before `runApp` and the caller awaits it**, because
+  /// `clearPersistence` throws `failed-precondition` once anything has opened
+  /// a Firestore stream — and `ForceUpdateWrapper` opens one on the app's
+  /// first frame, splash route included.
+  static Future<SdFreshInstallOutcome> run(
+    ProviderContainer container,
+    SharedPreferences prefs,
+  ) => SdFreshInstall.run(
+    logTag: LogTagConstant.freshInstall,
+    buildStamp: AppEnv.flavor,
+    installScoped: PrefsInstallStore(prefs),
+    deviceScoped: SecureDeviceStore(container.read(secureStoreProvider)),
+    host: AppFreshInstall(container),
+    // The flavour record the app already had a name for. An install that
+    // predates the stamp has no value under it — it kept the flavour in the
+    // Keychain — so it lands in the update row, which keeps the session.
+    stampKey: PrefsKeyConstant.lastEnv,
+  );
 
   /// Whether there is a Firebase app to sign out of at all.
   ///
   /// A build with no config never called `initializeApp`, and reaching for
   /// `FirebaseAuth.instance` there throws `[core/no-app]`.
-  static bool _hasFirebase() =>
+  @override
+  bool get isBackendReady =>
       AppEnv.hasFirebaseConfig && Firebase.apps.isNotEmpty;
+
+  /// The repository's own, which also signs out of Google — without that the
+  /// next sign-in skips the picker and lands back in the account the wipe just
+  /// left.
+  @override
+  Future<void> signOut() => _container.read(authRepositoryProvider).signOut();
+
+  /// Drop every document Firestore cached for the other environment.
+  ///
+  /// `terminate` first: `clearPersistence` refuses while the client is
+  /// running.
+  @override
+  Future<void> clearCache() async {
+    await FirebaseFirestore.instance.terminate();
+    await FirebaseFirestore.instance.clearPersistence();
+  }
 }
