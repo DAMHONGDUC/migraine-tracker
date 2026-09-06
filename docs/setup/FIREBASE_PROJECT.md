@@ -171,8 +171,8 @@ comes up misconfigured, `AppEnv.missingConfigKeys` names the empty keys for you.
 
 ### 11. `app_config` in the new project
 
-Created by hand: `app_config/app` for the app-wide switches and the
-force-update record, plus one document per allow-listed address
+Created by hand: the one `app_config/app` document, holding the app-wide
+switches, the force-update record and the three address lists
 (`docs/rules/PENDING_SETUP.md` has the schema and a full sample). It does not
 travel between projects — a new project starts with premium on, nobody blocked
 and nobody force-updated, which is the safe state.
