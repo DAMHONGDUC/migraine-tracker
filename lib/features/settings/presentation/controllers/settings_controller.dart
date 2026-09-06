@@ -19,7 +19,7 @@ class SettingsController {
   Future<void> resetToOnboarding() async {
     SdLogger.action(LogTagConstant.settings, 'Reset to onboarding (dev)');
     try {
-      await _deleteAll();
+      await deleteAllData();
       await _ref.read(onboardingControllerProvider).reset();
     } catch (error, stackTrace) {
       SdLogger.error(
@@ -59,8 +59,10 @@ class SettingsController {
     }
   }
 
-  /// Everything on the device, gone. Dev-only since the Settings row was removed — the user-facing teardown is "Delete account" (`AccountController`).
-  Future<void> _deleteAll() async {
+  /// Everything on the device and the account's synced copy, gone — without touching onboarding, so the app stays where it is and comes back empty.
+  ///
+  /// Dev-only: the user-facing teardown is "Delete account" (`AccountController`). [resetToOnboarding] is this plus the onboarding flags.
+  Future<void> deleteAllData() async {
     SdLogger.action(LogTagConstant.settings, 'Delete all data (dev)');
     try {
       await _ref.read(dataWipeServiceProvider).wipeAll();

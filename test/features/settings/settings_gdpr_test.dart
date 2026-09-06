@@ -4,13 +4,17 @@ import '../../helpers/export_fakes.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('Settings no longer offers a delete-all row', (tester) async {
+  testWidgets('the delete-all row is developer-only', (tester) async {
     await pumpApp(tester, signedIn: true);
     await openSettings(tester);
 
-    // Removed with the feature (owner's call). "Delete account" on the account screen is the only teardown left.
-    expect(find.text('Delete all data'), findsNothing);
+    // The user-facing row is gone (owner's call): "Delete account" on the account screen is the only teardown the app offers.
     expect(find.text('Delete all local data'), findsNothing);
+    // The one that is left is a fixture tool. Tests run the dev flavour, so it is on screen — above General is what says it is in the Dev group.
+    expect(
+      tester.getRect(find.text('Delete all data')).top,
+      lessThan(tester.getRect(find.text('General')).top),
+    );
 
     await finishTest(tester);
   });

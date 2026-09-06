@@ -37,6 +37,7 @@ import '../../../providers.dart';
 
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
+part 'settings_screen_dev_delete_data_tile.dart';
 part 'settings_screen_dev_local_notification_tile.dart';
 part 'settings_screen_dev_location_tile.dart';
 part 'settings_screen_dev_premium_tile.dart';
@@ -80,6 +81,8 @@ class SettingsScreen extends ConsumerWidget {
               // Same reason as the premium row: `DevLocationController` returns `off` in prod.
               if (!AppEnv.isProd) const _DevLocationTile(),
               const _DevSeedTile(),
+              // The two teardowns, gentlest first: this one empties the app and leaves you on it, the next one sends you back to onboarding.
+              const _DevDeleteDataTile(),
               const _DevResetTile(),
             ],
             // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.
