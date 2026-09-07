@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_update_config.dart';
 
 import '../../helpers/pump_app.dart';
 

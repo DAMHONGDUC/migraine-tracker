@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
-import '../../../app_config/domain/entities/app_config_schema.dart';
+import '../../domain/entities/app_config_schema.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/repositories/app_update_repository.dart';
 import 'app_update_mapper.dart';

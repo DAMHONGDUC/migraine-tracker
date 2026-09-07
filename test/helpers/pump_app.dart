@@ -16,13 +16,12 @@ import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_config/domain/entities/app_config.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_update_config.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_config/domain/repositories/app_config_repository.dart';
+import 'package:migraine_tracker/features/app_config/domain/repositories/app_update_repository.dart';
+import 'package:migraine_tracker/features/app_config/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
-import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
-import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
-import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
-import 'package:migraine_tracker/features/app_update/domain/services/store_launcher.dart';
-import 'package:migraine_tracker/features/app_update/providers.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
@@ -765,10 +764,13 @@ Future<PumpedApp> pumpApp(
         // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
         initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
         secureStoreProvider.overrideWithValue(prefs),
-        // No other build shares a test process's sandbox, and a pending check
-        // holds the whole tree at the splash dots.
+        // No other build shares a test process's sandbox. Resolved
+        // SYNCHRONOUSLY — a `FutureOr` override lands as data on the first
+        // frame, where an `async` one would leave `FreshInstallGate` showing
+        // the splash dots for a frame and every tree here pumping against a
+        // half-built app.
         freshInstallProvider.overrideWith(
-          (ref) async => SdFreshInstallOutcome.normalLaunch,
+          (ref) => SdFreshInstallOutcome.normalLaunch,
         ),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),

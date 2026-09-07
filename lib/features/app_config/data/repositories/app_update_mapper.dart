@@ -1,6 +1,6 @@
 import '../../domain/entities/app_update_config.dart';
 
-/// The `force_update` section of `app_config/current`, in one place. The collection and document names belong to `AppConfigSchema` — one owner for a path two features read.
+/// The `force_update` section of `app_config/current`, in one place. The collection and document names belong to `AppConfigSchema`, which owns every name on the document.
 abstract final class AppUpdateMapper {
   static const String androidField = 'android';
   static const String iosField = 'ios';

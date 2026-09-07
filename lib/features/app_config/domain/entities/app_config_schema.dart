@@ -1,11 +1,12 @@
 /// Every name in the `app_config/current` document, in one place.
 ///
-/// It lives in `domain/` rather than beside a repository because **two features
-/// read this document**: `app_config` takes the switches and the address lists,
-/// `app_update` takes [forceUpdateField]. Cross-feature imports may only reach
-/// `domain/`, and a Firestore field name that two features spell separately is
-/// a field one of them will one day spell wrong — silently, since an unknown
-/// key reads as absent rather than as an error.
+/// It lives in `domain/` rather than beside a repository because **two
+/// repositories read this document**: `FirestoreAppConfigRepository` takes the
+/// switches and the address lists, `FirestoreAppUpdateRepository` takes
+/// [forceUpdateField]. They were two features until the force-update half moved
+/// in here — a Firestore field name spelled in two places is a field one of
+/// them will one day spell wrong, silently, since an unknown key reads as
+/// absent rather than as an error.
 abstract final class AppConfigSchema {
   static const String collectionPath = 'app_config';
 
