@@ -208,28 +208,20 @@ class PaywallScreen extends HookConsumerWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Keep plans and the purchase action visible while the pitch scrolls.
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: <Widget>[
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              l10n.paywallHeadline,
-                              textAlign: TextAlign.center,
-                              style: AppTextStyle.titleLarge.w600,
-                            ),
-                            SizedBox(height: SdSpacingConstant.h20),
-                            const _Benefits(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      l10n.paywallHeadline,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.titleLarge.w600,
+                    ),
+                    SizedBox(height: SdSpacingConstant.h20),
+                    const _Benefits(),
+                  ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
