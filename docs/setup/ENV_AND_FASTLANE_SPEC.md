@@ -131,14 +131,38 @@ template and says loudly which files it created.
 
 ### B1. Files and what each one owns
 
+**Every lane is shared.** `beta`, `upload`, `preflight` and `certificates` live
+in the design system, and an app's own Fastfile is an `import` plus one
+`sd_ios_app(...)` call — the team, and an ordered list of targets with their
+bundle ids and entitlements. The first target is the app; the rest are
+extensions. Four apps, four of those calls, one pipeline:
+
+```ruby
+import "../../packages/system_design/tool/fastlane/Fastfile"
+
+sd_ios_app(
+  team_id: "WNG5UWNJ6H",
+  targets: [
+    { name: "Runner", bundle_id: "app.dd.migraine.tracker",
+      entitlements: "Runner/Runner.entitlements" },
+    { name: "BaroEaseWidgetExtension", bundle_id: "app.dd.migraine.tracker.BaroEaseWidgetExtension",
+      entitlements: "BaroEaseWidget/BaroEaseWidget.entitlements" },
+  ],
+)
+```
+
+A lane defined below that import overrides the shared one of the same name —
+the escape hatch for the app that needs it, and the reason none of the four had
+to be forked to get here.
+
 | File | Owns |
 |---|---|
 | `ios/fastlane/Appfile` | Bundle id, team id. No `apple_id` — every lane authenticates with an App Store Connect API key, so no 2FA prompt a runner cannot answer. |
 | `ios/fastlane/Matchfile` | The private certificates repo, `type("appstore")`, and **every** bundle id: app *and* app extensions. |
 | `ios/Gemfile` | `fastlane`, and nothing else — every iOS plugin is a Swift Package, so no pods gem. |
 | `ios/fastlane/.env` | The six local credentials, gitignored. |
-| `ios/fastlane/Fastfile` | The three lanes below, and everything that knows what the app is. |
-| `packages/system_design/tool/fastlane/Fastfile` | The TestFlight upload and its note — `dev - 1.0.0 (1)`. Imported, never copied; it knows nothing about any one app. |
+| `ios/fastlane/Fastfile` | One `import`, one `sd_ios_app(...)` — the team, the targets, their bundle ids and entitlements. No lane, no logic. |
+| `packages/system_design/tool/fastlane/Fastfile` | Every lane below and everything they need. Imported, never copied; it knows nothing about any one app. |
 | `packages/system_design/tool/build-ipa.sh` | The build, and only the build. |
 
 `ios/fastlane/.env`, six keys, values never printed — check its shape with
@@ -175,7 +199,7 @@ and prints the version from the version file rather than accepting a
 flavor:dev|prod   bump:true|false   notes:"one line for testers"
 ```
 
-1. **`verify_flavor_config`** — read the project id out of the installed
+1. **`sd_verify_flavor_config`** — read the project id out of the installed
    `GoogleService-Info.plist` and refuse unless it matches what `.firebaserc`
    gives for this flavor. Also checks the sign-in URL scheme and the
    Crashlytics app id. This is the last place the A1 hazard can be caught.
@@ -189,10 +213,11 @@ flavor:dev|prod   bump:true|false   notes:"one line for testers"
    flip the project to manual signing for this checkout → write an
    ExportOptions.plist naming **every** target's profile.
 4. **Build** via `build-ipa.sh`, passing that plist.
-5. **Upload** with `skip_waiting_for_build_processing: true` — nothing in the
-   lane reads the result and macOS minutes bill at 10x. A changelog still
-   costs a couple of minutes because the note is the only thing on the build
-   that says dev or prod.
+5. **Upload** with the note as `localized_build_info`, which needs
+   `skip_waiting_for_build_processing: false`. Waiting bills macOS minutes at
+   10x and is paid on purpose: the note is the only thing on the build that
+   says dev or prod, and `changelog` on a just-uploaded build is dropped
+   silently because it patches localizations that do not exist yet.
 6. **dSYMs, best effort** — the build is already up; a symbol failure must not
    take the build-number commit down with it.
 7. **Commit the build number, after the upload.** A bump commit with no build
@@ -216,7 +241,7 @@ flavor:dev|prod   bump:true|false   notes:"one line for testers"
 
 ### B5. Three subtleties that cost real time
 
-1. **`runner?` is not `is_ci`.** `is_ci` is true on a Mac rehearsing with
+1. **`sd_runner?` is not `is_ci`.** `is_ci` is true on a Mac rehearsing with
    `CI=true` — the very thing the docs tell people to run — and `setup_ci`
    there creates a throwaway keychain, adds it to the search list, and never
    removes it. The shared certificate then lives in two keychains and codesign
@@ -298,7 +323,8 @@ writes, so a token that can write grants an ability nothing uses.
    written into the commands doc the same day.
 4. App Store Connect API key (App Manager role, **downloadable once**), the
    private certificates repo, the fine-grained PAT.
-5. `Appfile` / `Matchfile` / `Gemfile` / `.env`, then
+5. `Appfile` / `Matchfile` / `Gemfile` / `.env`, and a `Fastfile` that is the
+   import and the `sd_ios_app(...)` call from B1 — no lane of your own. Then
    `bundle exec fastlane certificates` **once, from a Mac**.
 6. `bundle exec fastlane preflight`, then `CI=true bundle exec fastlane
    preflight` — the second one is the half most likely to break.

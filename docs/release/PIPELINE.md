@@ -22,7 +22,7 @@ flowchart TD
     certs["Install the signing identity<br/><small>match appstore, then installs</small>"]
     sign["Switch to manual signing<br/><small>Runner + BaroEaseWidgetExtension</small>"]
     build["build-ipa.sh makes the IPA<br/><small>flutter build ipa --dart-define-from-file=env/prod.json</small>"]
-    upload["Upload to TestFlight<br/><small>build 1.1.0 (35), does not wait for processing</small>"]
+    upload["Upload to TestFlight<br/><small>build 1.1.0 (35), waits for processing to attach the note</small>"]
     dsym["Upload dSYMs to Crashlytics<br/><small>best effort, never blocks</small>"]
     commit["Commit the build number<br/><small>pubspec version: 1.1.0+35</small>"]
 
@@ -52,8 +52,8 @@ is why a fresh clone alone can never produce a release.
 | Piece | File |
 |---|---|
 | Trigger, environment, secrets | `.github/workflows/release-ios.yml` |
-| Build number, signing, export | `ios/fastlane/Fastfile` |
-| The upload, and the note every build carries | `packages/system_design/tool/fastlane/Fastfile` |
+| Bundle ids, targets, entitlements — what the app *is* | `ios/fastlane/Fastfile` |
+| Build number, signing, export, upload, the note | `packages/system_design/tool/fastlane/Fastfile` |
 | Which certificate and profiles | `ios/fastlane/Matchfile` |
 | The build itself | `packages/system_design/tool/build-ipa.sh` |
 
@@ -74,22 +74,21 @@ binary only runs under the Ruby it was installed for. The pin plus the Gemfile
 is what keeps a runner-image update from re-tooling a release without anyone
 choosing it.
 
-**The "What to Test" note is passed twice, as `changelog` AND as
-`localized_build_info`.** `skip_waiting_for_build_processing: true` keeps the
-lane off a 10–20 minute macOS bill, and pilot reads `changelog` — that key
-specifically — to decide whether to wait for the build to appear at all. But
-`changelog` alone then lands in a code path that writes the note into the beta
-localizations the build ALREADY has, and a build fetched the instant it
-appears has none: App Store Connect creates them during processing. The loop
-runs zero times, raises nothing, and pilot still logs "Successfully set the
-changelog for build" — so every build shipped with an empty note and a green
-lane. `localized_build_info` names the locale outright, which is what makes
-pilot create the localization instead of needing one to exist. Neither key
-alone works; drop either and the note silently disappears again.
+**The "What to Test" note travels as `localized_build_info`, never as
+`changelog`.** Both reach the same field, but `changelog` only PATCHES the beta
+localizations a build ALREADY has — and a build just uploaded has none, since
+App Store Connect creates them during processing. The loop runs zero times,
+raises nothing, and pilot still logs "Successfully set the changelog for
+build": every build shipped with an empty note and a green lane. Naming the
+locale outright is what makes pilot create the localization instead of needing
+one to exist. Waiting for processing (`skip_waiting_for_build_processing:
+false`) is the price of that, and it is why the note costs macOS minutes.
 
 ## What runs where
 
-The lane runs the same `packages/system_design/tool/build-ipa.sh` a developer
-runs by hand. Fastlane adds signing, the export options and the upload around
-it — it never archives
+The lane itself is shared — it lives in the design system and every app
+embedding it runs the same four lanes, told what the app is by one
+`sd_ios_app(...)` call in `ios/fastlane/Fastfile`. It runs the same
+`packages/system_design/tool/build-ipa.sh` a developer runs by hand. Fastlane
+adds signing, the export options and the upload around it — it never archives
 anything itself, and `docs/rules/COMMANDS.md` says why that is not negotiable.

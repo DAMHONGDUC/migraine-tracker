@@ -45,7 +45,7 @@ Everything a release depends on except the build. flavor:dev|prod also checks th
 [bundle exec] fastlane ios certificates
 ```
 
-Create or renew the distribution certificate and both profiles. Local only. force:true regenerates them.
+Create or renew the distribution certificate and every profile. Local only. force:true regenerates them.
 
 ----
 

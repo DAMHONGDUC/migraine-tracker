@@ -177,11 +177,13 @@ Three steps, in this order — `release.sh <flavor>`:
 | 2 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
 | 3 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
 
-- **`release.sh` names no app** (owner's rule): the flavour is an argument and
-  every path in it is one that any app embedding this design system already
-  has. Anything that has to know what the app *is* — its bundle ids, its
-  entitlements, its store rules — lives in that app's fastlane lane, which is
-  why the app-specific pre-build gate that briefly sat here is gone.
+- **Nothing in the release pipeline names an app** (owner's rule) — not
+  `release.sh`, and since the lanes moved into the design system, not the
+  Fastfile either. The flavour is an argument and every path is one any app
+  embedding this design system already has. What the app *is* — its team, its
+  targets, their bundle ids and entitlements — arrives through the single
+  `sd_ios_app(...)` call in `ios/fastlane/Fastfile`, and that file holds nothing
+  else.
 
 - **The order is the whole reason it is one command.** The config has to be in
   the tree before the deploy reads `functions/.env` and before the lane's
@@ -222,7 +224,7 @@ leave the one on disk still unuploaded.
   carries — `beta` writes it there before the build. The lane refuses when
   TestFlight already has that number, because then the IPA either went up
   already or needs rebuilding.
-- **The flavor is still checked against the tree** (`verify_flavor_config`), so
+- **The flavor is still checked against the tree** (`sd_verify_flavor_config`), so
   an upload cannot label a prod binary `dev` after a `prepare-env` switch.
 
 ### The lane itself
@@ -273,7 +275,7 @@ archive without it is the crash above. Do not "simplify" the lane into
   opens `env/` (hard rule 13). Run it alone with `fastlane preflight
   flavor:dev|prod`.
 - **Entitlements are checked against the installed profiles before the build**
-  (`verify_profile_entitlements`). Xcode enforces the same rule but only once the
+  (`sd_verify_profile_entitlements`). Xcode enforces the same rule but only once the
   target has compiled, so a profile minted before a capability existed costs
   three and a half minutes to say so. Key presence only, never values —
   `aps-environment` is `development` in the entitlements file and `production` in
