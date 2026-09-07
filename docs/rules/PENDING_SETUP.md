@@ -2,7 +2,7 @@
 
 None of this is in the repo, and none of it can be assumed to exist.
 
-## The `app_config/app` document
+## The `app_config/current` document
 
 **Nothing is configured until the owner creates it.** One document holds every
 switch, and its absence is the normal state — premium stays on, nobody is

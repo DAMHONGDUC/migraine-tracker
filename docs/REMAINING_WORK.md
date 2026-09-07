@@ -12,7 +12,7 @@ state before acting because this list includes consoles and legal work.
 | 3 | Attach both products to the RevenueCat offering | RevenueCat | Paywall has no plans |
 | 4 | Install real dev/prod RevenueCat keys | Local secret files | Purchases cannot initialize |
 | 5 | Complete App Privacy labels | App Store Connect | Submission is incomplete |
-| 6 | Create `app_config/app` with its `force_update` field | Firestore | Force update always fails open |
+| 6 | Create `app_config/current` with its `force_update` field | Firestore | Force update always fails open |
 | 7 | Create an App Store Connect API key with App Manager role | App Store Connect | CI cannot upload |
 | 8 | Create a private `match` repository | Git provider | CI has no signing store |
 | 9 | Run `fastlane certificates` once on a Mac | Local Mac | CI cannot bootstrap certificates |
@@ -47,7 +47,7 @@ Never place secret values in documentation or command output.
 
 | Check | Required detail |
 |---|---|
-| Firestore `app_config/app` | One fixed document id, `app`; never put an address on it — it is world-readable |
+| Firestore `app_config/current` | One fixed document id, `current`; never put an address on it — it is world-readable |
 | App Privacy | Synced health/fitness and signed-in analytics are linked to identity |
 | RevenueCat keys | Empty is safe; plausible test placeholders can crash native setup |
 | Provisioning | Profiles must include app, widget, push, HealthKit and App Group capabilities |

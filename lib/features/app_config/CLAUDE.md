@@ -1,6 +1,6 @@
 # App config — the owner's Firestore control panel
 
-**One document, `app_config/app`, holds every switch the owner controls.**
+**One document, `app_config/current`, holds every switch the owner controls.**
 
 | Field | Type | What it does |
 |---|---|---|

@@ -94,7 +94,7 @@ requests remain available through the support route in the privacy policy.
 
 ## The app-wide off switch
 
-`app_config/app.premium_enabled: false` makes `hasPremiumProvider` answer false
+`app_config/current.premium_enabled: false` makes `hasPremiumProvider` answer false
 for **everyone at once** — bought, listed, and forced by the Dev group
 alike — and ends the pressure-alert cron pass before it pushes anything. It is
 checked ahead of every other branch, because the address list and the Dev
