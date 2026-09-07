@@ -137,7 +137,8 @@ template and says loudly which files it created.
 | `ios/fastlane/Matchfile` | The private certificates repo, `type("appstore")`, and **every** bundle id: app *and* app extensions. |
 | `ios/Gemfile` | `fastlane`, and nothing else — every iOS plugin is a Swift Package, so no pods gem. |
 | `ios/fastlane/.env` | The six local credentials, gitignored. |
-| `ios/fastlane/Fastfile` | The three lanes below. |
+| `ios/fastlane/Fastfile` | The three lanes below, and everything that knows what the app is. |
+| `packages/system_design/tool/fastlane/Fastfile` | The TestFlight upload and its note — `dev - 1.0.0 (1)`. Imported, never copied; it knows nothing about any one app. |
 | `packages/system_design/tool/build-ipa.sh` | The build, and only the build. |
 
 `ios/fastlane/.env`, six keys, values never printed — check its shape with

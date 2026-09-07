@@ -15,6 +15,11 @@ require "json"
 require "tmpdir"
 require "shellwords"
 
+# The TestFlight note, and only that. It is shared because every app embedding
+# the design system has the same problem — one bundle id, two flavours, and a
+# build list that shows neither — and none of it needs to know what this app is.
+import "../../packages/system_design/tool/fastlane/Fastfile"
+
 default_platform(:ios)
 
 APP_ID = "app.dd.migraine.tracker".freeze
@@ -142,42 +147,17 @@ platform :ios do
     ipa = Dir["#{root}/build/ios/ipa/*.ipa"].first
     UI.user_error!("No IPA under build/ios/ipa — the build produced nothing.") if ipa.nil?
 
-    # Not waiting for processing: App Store Connect takes 10–20 minutes to
-    # finish, a macOS runner bills at ten times a Linux one, and nothing in
-    # this lane reads the result. TestFlight emails when the build is ready.
-    #
-    # A `changelog` softens that flag rather than cancelling it: pilot then
-    # waits for the build to APPEAR in App Store Connect — a couple of
-    # minutes, not the full processing — writes the note, and skips the rest.
-    # Worth those minutes because the note is the only thing on the build
-    # that says dev or prod; see `testflight_changelog`.
-    note = testflight_changelog(flavor, version, build, notes)
-
-    # BOTH, and neither one alone works.
-    #
-    # `changelog` is the flag pilot reads to decide whether to wait at all
-    # (`build_manager.rb`: `return if config[:changelog].nil?`), so dropping
-    # it makes the lane return before the build appears and write nothing.
-    #
-    # But `changelog` alone writes nothing either. It ends up in
-    # `update_localized_build_review(build, {}, default_info: …)`, which
-    # builds its list of locales from the localizations the build ALREADY
-    # has — and a build fetched the moment it appears has none, because App
-    # Store Connect creates them during processing. The loop then iterates an
-    # empty list, raises nothing, and pilot still logs "Successfully set the
-    # changelog for build". That is the whole bug: every build shipped with
-    # an empty "What to Test" and a green lane.
-    #
-    # `localized_build_info` is checked first and names the locale outright,
-    # so the same code path takes its `post_beta_build_localizations` branch
-    # and CREATES the localization instead of needing one to exist.
-    upload_to_testflight(
+    # The note is the only thing on a TestFlight build that says dev or prod —
+    # one bundle id serves both — so the shared helper composes one whenever
+    # the run did not supply its own, and no build goes up blank.
+    note = sd_upload_to_testflight(
       api_key: key,
-      ipa: ipa,
       app_identifier: APP_ID,
-      changelog: note,
-      localized_build_info: { "en-US" => { whats_new: note } },
-      skip_waiting_for_build_processing: true,
+      ipa: ipa,
+      flavor: flavor,
+      version: version,
+      build_number: build,
+      notes: notes,
     )
 
     # Crashlytics cannot symbolicate a crash without the dSYMs, and with bitcode
@@ -229,14 +209,14 @@ platform :ios do
       )
     end
 
-    note = testflight_changelog(flavor, version, build, notes)
-    upload_to_testflight(
+    sd_upload_to_testflight(
       api_key: asc_api_key,
-      ipa: ipa,
       app_identifier: APP_ID,
-      changelog: note,
-      localized_build_info: { "en-US" => { whats_new: note } },
-      skip_waiting_for_build_processing: true,
+      ipa: ipa,
+      flavor: flavor,
+      version: version,
+      build_number: build,
+      notes: notes,
     )
 
     upload_dsyms(root)
@@ -495,20 +475,6 @@ def commit_build_number(root, version_name, build)
     sh("git", "commit", "-m", message)
     sh("git", "push", "origin", "HEAD:refs/heads/#{branch}")
   end
-end
-
-# The build's "What to Test" note in TestFlight: `dev - 1.0.0 (2)`.
-#
-# One bundle id serves both flavors (see Appfile), so a dev build and a prod
-# build sit in the same TestFlight list with only the number between them —
-# and a tester who installs the wrong one reports bugs against the wrong
-# Firebase project. That is the whole job of this line, so it says the flavor
-# and the version and nothing else. `notes` is whoever triggered the run
-# asking for something specific to be looked at; it is empty most of the time
-# and adds a second line when it is not.
-def testflight_changelog(flavor, version, build, notes)
-  line = "#{flavor} - #{version} (#{build})"
-  notes.empty? ? line : "#{line}\n\n#{notes}"
 end
 
 # The design system's HEAD as `<short sha> <subject>`, or nil if the submodule

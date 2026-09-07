@@ -52,7 +52,8 @@ is why a fresh clone alone can never produce a release.
 | Piece | File |
 |---|---|
 | Trigger, environment, secrets | `.github/workflows/release-ios.yml` |
-| Build number, signing, export, upload | `ios/fastlane/Fastfile` |
+| Build number, signing, export | `ios/fastlane/Fastfile` |
+| The upload, and the note every build carries | `packages/system_design/tool/fastlane/Fastfile` |
 | Which certificate and profiles | `ios/fastlane/Matchfile` |
 | The build itself | `packages/system_design/tool/build-ipa.sh` |
 
