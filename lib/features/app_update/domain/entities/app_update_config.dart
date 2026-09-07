@@ -25,7 +25,7 @@ class PlatformUpdateConfig {
   final bool forceUpdateEnabled;
 }
 
-/// The `force_update` section of `app_config/app`: the currently published build per platform.
+/// The `force_update` section of `app_config/current`: the currently published build per platform.
 @immutable
 class AppUpdateConfig {
   const AppUpdateConfig({this.android, this.ios});

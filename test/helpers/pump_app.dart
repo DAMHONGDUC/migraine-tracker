@@ -166,7 +166,7 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
-/// Stands in for the `app_config/app` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
+/// Stands in for the `app_config/current` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
 class FakeAppConfigRepository implements AppConfigRepository {
   FakeAppConfigRepository({AppConfig? config})
     : config = config ?? AppConfig.empty;
@@ -685,7 +685,7 @@ Future<PumpedApp> pumpApp(
   /// The account document the account tab reads. Null = not written yet, which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
 
-  /// The `app_config/app` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
+  /// The `app_config/current` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
   AppConfig? appConfig,
 
   /// The record the force-update check reads. Null (default) = no record, so the blocking sheet never appears.

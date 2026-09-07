@@ -29,7 +29,7 @@ import 'app_env.dart';
 /// stamp: dev (shared_preferences)   binary: FLAVOR=prod
 ///        ▼
 /// 1 Sign out               google.signOut + auth.signOut, uid AbC123… → none
-/// 2 Clear Firestore cache  app_config/app, users/AbC123 → dropped
+/// 2 Clear Firestore cache  app_config/current, users/AbC123 → dropped
 /// 3 Clear the Keychain     onboarding_completed, alert_threshold: 7.0 → gone
 /// 4 Clear shared_preferences        last_env: dev → gone, then rewritten
 ///        ▼

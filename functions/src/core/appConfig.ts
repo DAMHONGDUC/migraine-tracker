@@ -1,5 +1,5 @@
 /**
- * The owner-managed `app_config/app` document in Firestore — one document
+ * The owner-managed `app_config/current` document in Firestore — one document
  * holding every switch: the premium kill switch, the force-update record, and
  * the three address lists. It replaced the PREMIUM_EMAIL build flag, which took
  * a redeploy of both the app and the functions to change.
@@ -10,7 +10,7 @@
 export const APP_CONFIG_COLLECTION = "app_config";
 
 /** The only document in the collection. */
-export const APP_CONFIG_DOCUMENT = "app";
+export const APP_CONFIG_DOCUMENT = "current";
 
 /** The app-wide premium kill switch. */
 export const PREMIUM_ENABLED_FIELD = "premium_enabled";

@@ -7,7 +7,7 @@ import '../../domain/entities/app_update_config.dart';
 import '../../domain/repositories/app_update_repository.dart';
 import 'app_update_mapper.dart';
 
-/// Reads the published-build record out of the `force_update` field of `app_config/app`.
+/// Reads the published-build record out of the `force_update` field of `app_config/current`.
 ///
 /// One document rather than the collection of dated records this used to be: a
 /// release is announced by editing the one place the owner already edits, and

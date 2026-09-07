@@ -6,7 +6,7 @@ import '../../domain/entities/app_config.dart';
 import '../../domain/entities/app_config_schema.dart';
 import '../../domain/repositories/app_config_repository.dart';
 
-/// Reads the one `app_config/app` document.
+/// Reads the one `app_config/current` document.
 ///
 /// Everything the owner controls is on it, so this is a single listener rather
 /// than a query: no `where`, no `orderBy`, and nothing about which document is

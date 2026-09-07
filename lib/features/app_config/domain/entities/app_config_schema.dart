@@ -1,4 +1,4 @@
-/// Every name in the `app_config/app` document, in one place.
+/// Every name in the `app_config/current` document, in one place.
 ///
 /// It lives in `domain/` rather than beside a repository because **two features
 /// read this document**: `app_config` takes the switches and the address lists,
@@ -10,7 +10,7 @@ abstract final class AppConfigSchema {
   static const String collectionPath = 'app_config';
 
   /// The only document in the collection. A fixed id, so every reader asks for the same one and no `orderBy` decides which config is current.
-  static const String documentId = 'app';
+  static const String documentId = 'current';
 
   /// The app-wide premium kill switch.
   static const String premiumEnabledField = 'premium_enabled';

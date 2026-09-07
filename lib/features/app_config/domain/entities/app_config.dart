@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// The whole `app_config/app` document: the switches that apply to everybody,
+/// The whole `app_config/current` document: the switches that apply to everybody,
 /// and the three address lists the owner maintains by hand.
 ///
 /// **Every list is lower-cased on the way in.** Firebase Auth stores an address
