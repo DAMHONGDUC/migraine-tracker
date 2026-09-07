@@ -23,7 +23,6 @@ import '../../../../../core/widgets/sections/premium_settings_tile.dart';
 import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../alerts/providers.dart';
-import '../../../../app_config/domain/entities/installed_app_version.dart';
 import '../../../../app_config/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../medications/providers.dart';
@@ -31,7 +30,6 @@ import '../../../../premium/providers.dart';
 import '../../../../weather/domain/enums/dev_location.dart';
 import '../../../../weather/providers.dart';
 import '../../../domain/enums/app_language.dart';
-import '../../../domain/services/app_version_label.dart';
 import '../../../providers.dart';
 
 part 'settings_screen_about_section.dart';
