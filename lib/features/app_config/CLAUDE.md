@@ -17,16 +17,23 @@ account premium meant a new binary through review, and the app's copy and the
 cron's copy of the same address were two files that could disagree.
 
 Field names are snake_case per `docs/rules/DATA_AND_SYNC.md`; the Dart entity is
-not. **Every name lives once, in `AppConfigSchema`** — two repositories read
-this document, and a field spelled in two places is a field one of them will one
-day spell wrong, silently, because an unknown key reads as absent rather than as
-an error.
+not. **Every name lives once, in `AppConfigSchema`**, and a field spelled in two
+places is a field one of them will one day spell wrong, silently, because an
+unknown key reads as absent rather than as an error.
 
-**Force update lives here too**, in `data/repositories/app_update_mapper.dart`
-and the widgets beside `BlockedAccountGate`. It was its own `app_update` feature
-while it read its own collection; reading one field of this document does not
-make it a second feature, and the split had the schema being imported across a
-feature boundary to keep one field name honest.
+**One document, one listener, one entity.** `FirestoreAppConfigRepository` is
+the app's only read of it: it parses `force_update` through `AppUpdateMapper`
+and hands it back on `AppConfig.forceUpdate`, so every switch on this page
+arrives on the same snapshot. Force update used to be its own feature over its
+own collection, then its own repository doing a second `get` of this same
+document on every launch and every resume — which was a second reader to keep
+pointing at the right document id, a second thing to be denied on its own, and a
+second read to pay for.
+
+**A failed read emits `AppConfig.empty` rather than nothing.** The stream logs
+the error and pushes the fallback (`StreamTransformer`, not `handleError`),
+because `ForceUpdateController.check` awaits the first value — a stream that
+logs and ends would leave a cold start waiting for good.
 
 ## The shape
 
@@ -104,13 +111,19 @@ granting nothing and looking like a typo nobody made.
 | App gates | `hasGrantedPremiumProvider` → `hasPremiumProvider` | Premium ahead of the entitlement |
 | App root | `isAccountBlockedProvider` → `BlockedAccountGate` | Replaces the whole app |
 | Settings | `showDevSettingsProvider` | The Dev group on a **prod** build |
-| Launch check | `FirestoreAppUpdateRepository.latest()` | Reads `force_update`; hard rule 9 fails open |
+| Launch check | `forceUpdateControllerProvider` → `ForceUpdateWrapper` | Reads `AppConfig.forceUpdate` off the same stream; hard rule 9 fails open |
 | `pressureAlertJob` | `premiumEnabledFrom` | An off switch ends the pass before any push |
 | `pressureAlertJob` | `premiumEmailsFrom` + `getUserByEmail` | The accounts pushed to |
 
-- **One listener, not one per gate.** Every provider above reads the same
-  `appConfigProvider` stream; `app_config_test.dart` asserts `watchCalls == 1`
-  after all four gates have been read.
+- **One listener, not one per gate — force update included.** Every reader
+  above comes off the same `appConfigProvider` stream; `app_config_test.dart`
+  asserts `watchCalls == 1` after all four gates have been read, and
+  `force_update_test.dart` asserts the same after a launch that ran the update
+  check.
+- **The check awaits the first snapshot, it does not read the current one.** On
+  a cold start the document has usually not landed by the time
+  `ForceUpdateWrapper` mounts, and reading there would answer `AppConfig.empty`
+  and wave an unsupported build straight through.
 - **The kill switch sits above the list in `hasPremiumProvider`, not below
   it.** The list returns `true` early, and the Dev override returns before the
   entitlement — a switch placed anywhere else would be one two surfaces could
