@@ -1,49 +1,45 @@
 part of 'paywall_screen.dart';
 
 /// What the subscription buys, framed as one block.
+///
+/// **Compact, because it shares the screen.** The plans and the CTA are pinned
+/// under it and must stay visible while this scrolls; six comfortable rows
+/// pushed the pitch off a small phone before the first plan was reached.
 class _Benefits extends StatelessWidget {
   const _Benefits();
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    // A table rather than six near-identical blocks: what this card says is
+    // the list, and the list is the part that changes.
+    final List<(IconData, String)> benefits = <(IconData, String)>[
+      (AppIconConstant.unlimited, l10n.paywallBenefitUnlimited),
+      (AppIconConstant.reminderActive, l10n.paywallBenefitAlerts),
+      (AppIconConstant.lineChart, l10n.paywallBenefitForecast),
+      (AppIconConstant.insights, l10n.paywallBenefitInsights),
+      (AppIconConstant.exportPdf, l10n.paywallBenefitReport),
+      (AppIconConstant.sleep, l10n.paywallBenefitSleep),
+    ];
 
     return SdCardV2(
       surface: SdCardSurfaceV2.elevated,
       child: Padding(
-        // Bottom is h4, not h16: every SdBenefitRowV2 already carries h12 under it, so the last row would otherwise sit 12 low inside the card.
+        // Bottom is h4, not h12: a compact SdBenefitRowV2 already carries h8 under it, so the last row would otherwise sit 8 low inside the card. h4 + h8 = the h12 above it.
         padding: EdgeInsets.fromLTRB(
           SdSpacingConstant.w16,
-          SdSpacingConstant.h16,
+          SdSpacingConstant.h12,
           SdSpacingConstant.w16,
           SdSpacingConstant.h4,
         ),
         child: Column(
           children: <Widget>[
-            SdBenefitRowV2(
-              icon: AppIconConstant.unlimited,
-              title: l10n.paywallBenefitUnlimited,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.reminderActive,
-              title: l10n.paywallBenefitAlerts,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.lineChart,
-              title: l10n.paywallBenefitForecast,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.insights,
-              title: l10n.paywallBenefitInsights,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.exportPdf,
-              title: l10n.paywallBenefitReport,
-            ),
-            SdBenefitRowV2(
-              icon: AppIconConstant.sleep,
-              title: l10n.paywallBenefitSleep,
-            ),
+            for (final (IconData icon, String title) in benefits)
+              SdBenefitRowV2(
+                icon: icon,
+                title: title,
+                density: SdBenefitDensityV2.compact,
+              ),
           ],
         ),
       ),
