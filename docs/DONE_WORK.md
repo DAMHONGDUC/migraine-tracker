@@ -23,7 +23,7 @@ The v1.0 MVP is implemented. `PLAN.md` is the scope authority.
 | `settings` | Export history, JSON/CSV/PDF, wipe, contact and about |
 | `dashboard` | Today summary, quick access and explore grid |
 | `onboarding` | Threshold, coarse location and privacy explanation |
-| `app_update` | Fail-open force-update gate |
+| `app_config` | Owner switches, address lists and the fail-open force-update gate |
 | `home_widget` | App Group bridge and SwiftUI WidgetKit extension |
 | `review` | Value-moment prompt with frequency caps |
 

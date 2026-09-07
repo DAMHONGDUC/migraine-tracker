@@ -17,10 +17,16 @@ account premium meant a new binary through review, and the app's copy and the
 cron's copy of the same address were two files that could disagree.
 
 Field names are snake_case per `docs/rules/DATA_AND_SYNC.md`; the Dart entity is
-not. **Every name lives once, in `AppConfigSchema`** — `app_update` reads
-`force_update` off the same document, and a field two features spell separately
-is a field one of them will one day spell wrong, silently, because an unknown
-key reads as absent rather than as an error.
+not. **Every name lives once, in `AppConfigSchema`** — two repositories read
+this document, and a field spelled in two places is a field one of them will one
+day spell wrong, silently, because an unknown key reads as absent rather than as
+an error.
+
+**Force update lives here too**, in `data/repositories/app_update_mapper.dart`
+and the widgets beside `BlockedAccountGate`. It was its own `app_update` feature
+while it read its own collection; reading one field of this document does not
+make it a second feature, and the split had the schema being imported across a
+feature boundary to keep one field name honest.
 
 ## The shape
 
@@ -56,9 +62,11 @@ own row and nothing else. **Do not put anything on this document that is worse
 to publish than an address already is**, and if the lists ever have to become
 private, that is the shape to go back to.
 
-`app` is the only document, and the rules match only it: a `list` over the
+`current` is the only document, and the rules match only it: a `list` over the
 collection has no rule at all, so the path cannot be walked for anything added
-later.
+later. **The id lives in three places** — `AppConfigSchema.documentId`,
+`APP_CONFIG_DOCUMENT` in `functions/`, and the `match` in `firestore.rules` —
+and all three move together or the read is denied.
 
 - **Written only from the Firebase console.** `allow write: if false`, for
   everyone. A client that could write this document could grant itself premium
