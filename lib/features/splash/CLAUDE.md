@@ -6,28 +6,36 @@ dashboard.
 - **It is the app's first route** (`initialLocation`), and it leaves for the
   dashboard when `SplashController.run` returns. No timer: it lasts exactly what
   the work lasts.
-- **It carries the first-launch guard.** `SdReinstallGuard` used to run inside
-  `AppBootstrap`, ahead of `runApp`, where the platform's launch screen stood in
-  for it and a slow start could not be told from a hang. It runs here now, under
-  something moving.
-- **`AppBootstrap.ensureAnonymousSession` is called again after the guard, and
-  must be.** A reinstall purge signs the old session out and leaves no caller at
-  all; `getWeather` will not serve one it cannot name.
-- **The splash is exempt from the router's `redirect`.** The guard it runs can
-  WIPE the store those rules read — including `onboarding_completed` — so a
-  redirect firing mid-purge would decide on values that are about to be gone. On
-  the way out, the dashboard hits every rule as usual, which is what sends a
-  purged install to onboarding.
+- **The device check runs under the same dots, but ABOVE this route, not in
+  it.** `FreshInstallGate` (`presentation/widgets/`) watches
+  `freshInstallProvider` and holds `_BaroEaseAppView` back until it resolves.
+  It cannot live on this route: the wipe drops the Firestore cache, and
+  `clearPersistence` throws `failed-precondition` once anything has opened a
+  stream — `_BaroEaseAppView`'s first frame starts the sync, records pressure
+  and reads `app_config`, and this route only exists inside it.
+- **Both draw `SplashDots`, so the hand-off has no seam.** The gate draws it
+  above `MaterialApp`, where there is no theme, no `MediaQuery` and no
+  `Material` — hence its own `Directionality`, the raw colour, and
+  `SplashConstant.dotsSize` being a plain `40` rather than `40.r`
+  (`ScreenUtilInit` is below the gate).
+- **`AppBootstrap.ensureAnonymousSession` is called here and nowhere else.**
+  It has to come after the wipe — that signs the old session out — and
+  `getWeather` will not serve a caller it cannot name.
+- **The splash is exempt from the router's `redirect`.** A wiped or first
+  install has no `onboarding_completed`, so every rule below would send frame
+  one to `/onboarding` and the work this screen exists to hold would never run.
+  It leaves for the dashboard itself, where the rules apply as usual — that is
+  what sends a wiped install to onboarding.
 - **`SplashController.run` never throws.** An app that cannot get past its own
-  loading screen is worse than one that starts signed in.
+  loading screen is worse than one that starts signed out.
 - **`initialLocationProvider` exists for the tests.** `pumpApp` overrides it to
   the dashboard: the dots animation never ends, so a `pumpAndSettle` on the
   splash waits out its whole timeout instead of settling.
 - **Nothing on it but the dots** (owner's call), at a raw pixel size — the first
   frame gains nothing from the design-size scale.
 - **The native launch screen before it carries the app icon**
-  (`LaunchImage.imageset`, `docs/setup/APP_ICON.md`), because `AppBootstrap.init`
-  runs before any Dart and a bare colour field for that whole wait reads as a
-  black screen. The icon goes away when this screen takes over; putting it here
+  (`LaunchImage.imageset`, `docs/setup/APP_ICON.md`), because the bootstrap
+  steps run before any Dart draws and a bare colour field for that whole wait
+  reads as a black screen. The icon goes away when this screen takes over; putting it here
   too is the one-line fix if that ever reads worse than the black did.
 - **No ARB strings.** Nothing on the screen is a word.

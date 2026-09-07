@@ -19,7 +19,7 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
   and a reviewer the app grants premium would pass every gate and still never
   get an alert, which is the one surface disagreeing with the rest.
   `pressureAlertJob` adds those accounts and dedupes by uid.
-  - The addresses come from `premium_emails` on `app_config/app`, the same
+  - The addresses come from `premium_emails` on `app_config/current`, the same
     document the app reads (`lib/features/app_config/CLAUDE.md`) — one read
     that also carries `premium_enabled`, so the cron and the app can never
     disagree about whether premium exists. An empty list fetches nothing extra;

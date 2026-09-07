@@ -7,9 +7,6 @@ class _AboutSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final InstalledAppVersion? version = ref
-        .watch(installedAppVersionProvider)
-        .value;
 
     return Column(
       children: [
@@ -21,7 +18,6 @@ class _AboutSection extends ConsumerWidget {
         SettingsTile(
           icon: AppIconConstant.info,
           title: l10n.aboutTitle,
-          value: AppVersionLabel.build(version),
           onTap: () => context.pushNamed(AppRoutes.about.name),
         ),
       ],

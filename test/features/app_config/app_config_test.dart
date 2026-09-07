@@ -238,7 +238,7 @@ void main() {
     // (docs/rules/DATA_AND_SYNC.md), so a rename on one side silently stops
     // matching the other: an unknown key reads as absent, not as an error.
     expect(AppConfigSchema.collectionPath, 'app_config');
-    expect(AppConfigSchema.documentId, 'app');
+    expect(AppConfigSchema.documentId, 'current');
     expect(AppConfigSchema.premiumEnabledField, 'premium_enabled');
     expect(AppConfigSchema.forceUpdateField, 'force_update');
     expect(AppConfigSchema.premiumEmailsField, 'premium_emails');

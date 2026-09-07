@@ -16,13 +16,11 @@ import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/alerts/providers.dart';
 import 'package:migraine_tracker/features/app_config/domain/entities/app_config.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/app_update_config.dart';
+import 'package:migraine_tracker/features/app_config/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_config/domain/repositories/app_config_repository.dart';
+import 'package:migraine_tracker/features/app_config/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
-import 'package:migraine_tracker/features/app_update/domain/entities/app_update_config.dart';
-import 'package:migraine_tracker/features/app_update/domain/entities/installed_app_version.dart';
-import 'package:migraine_tracker/features/app_update/domain/repositories/app_update_repository.dart';
-import 'package:migraine_tracker/features/app_update/domain/services/store_launcher.dart';
-import 'package:migraine_tracker/features/app_update/providers.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
@@ -50,6 +48,7 @@ import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/review/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/splash/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/data/datasources/location_source.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/geo_point.dart';
@@ -165,7 +164,7 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }
 }
 
-/// Stands in for the `app_config/app` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
+/// Stands in for the `app_config/current` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
 class FakeAppConfigRepository implements AppConfigRepository {
   FakeAppConfigRepository({AppConfig? config})
     : config = config ?? AppConfig.empty;
@@ -191,22 +190,6 @@ class FakeAppConfigRepository implements AppConfigRepository {
 
   /// Pushes an edit the way the owner saving the console document does.
   void emit(AppConfig next) => _controller.add(next);
-}
-
-/// Serves whatever update record a test asks for. Default: no record at all, so the force-update wrapper never blocks the app under test.
-class FakeAppUpdateRepository implements AppUpdateRepository {
-  FakeAppUpdateRepository({this.config});
-
-  AppUpdateConfig? config;
-
-  /// How many times the wrapper asked — one per entry into the app.
-  int calls = 0;
-
-  @override
-  Future<AppUpdateConfig?> latest() async {
-    calls++;
-    return config;
-  }
 }
 
 /// Records the store link instead of leaving the test to url_launcher.
@@ -613,7 +596,6 @@ class PumpedApp {
     required this.location,
     required this.auth,
     required this.appConfig,
-    required this.appUpdate,
     required this.storeLauncher,
     required this.mailLauncher,
     required this.profiles,
@@ -636,7 +618,6 @@ class PumpedApp {
 
   /// The `app_config` stand-in, so a test can revoke or block mid-run the way the owner editing the console does.
   final FakeAppConfigRepository appConfig;
-  final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
   final FakeMailLauncher mailLauncher;
   final FakeUserProfileRepository profiles;
@@ -684,10 +665,12 @@ Future<PumpedApp> pumpApp(
   /// The account document the account tab reads. Null = not written yet, which is what a brand-new sign-in looks like.
   UserProfile? userProfile,
 
-  /// The `app_config/app` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
+  /// The `app_config/current` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
   AppConfig? appConfig,
 
-  /// The record the force-update check reads. Null (default) = no record, so the blocking sheet never appears.
+  /// The `force_update` section of the document above, hoisted out as its own
+  /// argument because most tests set one or the other. Null (default) = no
+  /// record, so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
 
   /// Whether this fake device has HealthKit. False by default — the Apple Health row and the sleep card are iOS-only surfaces.
@@ -733,11 +716,17 @@ Future<PumpedApp> pumpApp(
   final RecordingShareFileStore shareFiles = RecordingShareFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn);
   addTearDown(auth.dispose);
+  final AppConfig baseConfig = appConfig ?? AppConfig.empty;
   final FakeAppConfigRepository appConfigRepository = FakeAppConfigRepository(
-    config: appConfig,
-  );
-  final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
-    config: appUpdate,
+    // One document, so the two arguments land on one object. `appUpdate` wins
+    // when both name a record; neither being set leaves the field null.
+    config: AppConfig(
+      premiumEnabled: baseConfig.premiumEnabled,
+      premiumEmails: baseConfig.premiumEmails,
+      devModeEmails: baseConfig.devModeEmails,
+      blockedEmails: baseConfig.blockedEmails,
+      forceUpdate: appUpdate ?? baseConfig.forceUpdate,
+    ),
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
   final FakeMailLauncher mailLauncher = FakeMailLauncher();
@@ -764,6 +753,14 @@ Future<PumpedApp> pumpApp(
         // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
         initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
         secureStoreProvider.overrideWithValue(prefs),
+        // No other build shares a test process's sandbox. Resolved
+        // SYNCHRONOUSLY — a `FutureOr` override lands as data on the first
+        // frame, where an `async` one would leave `FreshInstallGate` showing
+        // the splash dots for a frame and every tree here pumping against a
+        // half-built app.
+        freshInstallProvider.overrideWith(
+          (ref) => SdFreshInstallOutcome.normalLaunch,
+        ),
         weatherRepositoryProvider.overrideWithValue(weather),
         notificationSchedulerProvider.overrideWithValue(scheduler),
         appPermissionGatewayProvider.overrideWithValue(permissions),
@@ -773,7 +770,6 @@ Future<PumpedApp> pumpApp(
         premiumRepositoryProvider.overrideWithValue(premiumRepository),
         purchaseRepositoryProvider.overrideWithValue(purchases),
         userProfileRepositoryProvider.overrideWithValue(profiles),
-        appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
         mailLauncherProvider.overrideWithValue(mailLauncher),
         installedAppVersionProvider.overrideWith(
@@ -823,7 +819,6 @@ Future<PumpedApp> pumpApp(
     location: location,
     auth: auth,
     appConfig: appConfigRepository,
-    appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
     mailLauncher: mailLauncher,
     profiles: profiles,

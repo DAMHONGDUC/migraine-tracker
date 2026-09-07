@@ -153,40 +153,50 @@ The iOS and Android identifiers intentionally differ. Do not normalize them.
 | Premium | RevenueCat entitlement is the only access source |
 | Theme | Dark mode is the default; no pure-white or flashing UI |
 
-## First launch, reinstall, and what a delete takes with it
+## First launch, reinstall, flavour change — what each one keeps
 
-iOS deletes the app's container when the app is deleted, but not its Keychain.
-`SdReinstallGuard` (`system_design`, `core/common/`) is what makes a
-reinstall look like a first install anyway; the app supplies the two stores it
-works over — `PrefsInstallStore` and `SecureStore`, both in `core/storage/`.
+iOS deletes the app's container when the app is deleted, but not its Keychain —
+and dev and prod share one bundle id, so either can be installed over the other.
+`SdFreshInstall` (`system_design`, `core/common/`) tells those launches apart
+and takes the device back to a fresh install when it has to; the app supplies
+the two stores and the two vendor calls — `PrefsInstallStore`,
+`SecureDeviceStore` (`core/storage/`) and `AppFreshInstall` (`core/env/`).
 
 | Deleted with the app | Survives the delete |
 |---|---|
 | The Drift database — attacks, medications, reminders | The Firebase session (Keychain) |
-| `shared_preferences`, which is why the `is_installed` flag lives there | Every `SecureStore` value (Keychain) |
+| `shared_preferences`, which is why the flavour stamp lives there | Every `SecureStore` value (Keychain) |
 | RevenueCat's anonymous id (`NSUserDefaults`) | The App Store subscription itself, on the Apple ID |
 
 ```mermaid
 flowchart TD
-  A["App launch"] --> B{"is_installed set in<br/>shared_preferences?"}
-  B -- "yes" --> C["Same install — nothing to do<br/><small>is_installed = true</small>"]
-  B -- "no" --> D{"Old shared_preferences<br/>keys present?"}
-  D -- "no → reinstall<br/><small>getKeys is empty</small>" --> E["Keychain cleared, session signed out<br/><small>SecureStore.deleteAll, uid 7Qk2… gone</small>"]
-  D -- "yes → update<br/><small>getKeys = alerts_enabled,<br/>alert_threshold</small>" --> F["Settings carried into the Keychain,<br/>the old copies dropped<br/><small>alert_threshold 5.0 → SecureStore</small>"]
-  E --> H
-  F --> H["is_installed written last,<br/>so a crash retries<br/><small>setBool is_installed true</small>"]
+  A["FreshInstallGate, above the app<br/><small>splash dots on screen</small>"] --> B{"last_env in<br/>shared_preferences?"}
+  B -- "same as this build<br/><small>last_env = dev, FLAVOR = dev</small>" --> C["Normal launch — nothing to do,<br/>and nothing rewritten"]
+  B -- "another flavour<br/><small>last_env = prod, FLAVOR = dev</small>" --> W["Wipe"]
+  B -- "absent" --> D{"Anything else<br/>on the device?"}
+  D -- "other prefs keys → update<br/><small>is_installed = true</small>" --> F["Keys carried into the Keychain,<br/>session kept<br/><small>is_installed → SecureStore</small>"]
+  D -- "only the Keychain → reinstall<br/><small>getKeys = onboarding_completed</small>" --> W
+  D -- "nothing → first install<br/><small>both stores empty</small>" --> G["Nothing on the device<br/>to be wrong"]
+  W["Sign out → clear the Firestore cache →<br/>clear the Keychain → clear prefs<br/><small>uid 7Qk2… gone, alert_threshold 7.0 gone</small>"] --> H
+  G --> H
+  C --> I
+  F --> H["last_env written last,<br/>so a halted wipe retries<br/><small>setString last_env dev</small>"]
   H --> I["Anonymous session ensured<br/><small>signInAnonymously → uid c9Xf…</small>"]
 ```
 
-- **Only a reinstall signs out.** An update deleted nothing, so it keeps both
-  its session and its settings — the settings just move into the Keychain.
+- **Only a reinstall and a flavour change wipe.** An update deleted nothing, so
+  it keeps both its session and its settings.
 - **The sign-out is the point of the reinstall branch**: the Firebase session is
   the one thing the Keychain carries across a delete.
-- **Signed-in data comes back on its own.** The local database is gone, but the
-  first sync after signing in pulls the account's attacks down again; that is
-  the sync working, not the delete failing.
-- **The guard never throws.** A cleanup that fails must not take the launch with
-  it — every branch logs under the `Storage` tag.
+- **The `baroease` database is never wiped**, on either branch — see
+  `docs/rules/DECISIONS.md`.
+- **Signed-in data comes back on its own.** The local database is gone after a
+  delete, but the first sync after signing in pulls the account's attacks down
+  again; that is the sync working, not the delete failing.
+- **It never throws, and nothing reads a backend until it is done.**
+  `FreshInstallGate` holds the app back under the splash dots while it runs; a
+  cleanup that fails must not take the launch with it, so every branch logs
+  under the `Fresh Install` tag and the app starts either way.
 
 ## Premium identity
 
@@ -223,7 +233,7 @@ RevenueCat's project-level **Restore Behavior** setting, not by this app:
 *Transfer to new App User ID* moves premium and strips it from the first
 account, *Keep with original* fails as `PurchaseError.alreadyOwned`.
 
-Three things sit outside the chain: an address on `app_config/app`'s
+Three things sit outside the chain: an address on `app_config/current`'s
 `premium_emails` is premium ahead of any entitlement (the App Review account,
 the owner's own); `premium_enabled: false` on that same document turns premium
 off for everybody at once, ahead of all of it; and no account is ever required
@@ -241,7 +251,7 @@ crossed, and writes down what it did.
 
 ```mermaid
 flowchart TD
-  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_config/app premium_emails<br/>→ Auth getUserByEmail → uid<br/><small>[review@baroease.app] → uid 7Qk2…</small>"]
+  A["Cloud Scheduler<br/>every 3h, UTC<br/><small>run at 2026-08-31T18:00Z</small>"] --> B["app_config/current premium_emails<br/>→ Auth getUserByEmail → uid<br/><small>[review@baroease.app] → uid 7Qk2…</small>"]
   A --> C["users where premium == true<br/><small>1 842 docs, written by the RevenueCat webhook</small>"]
   B --> D["Merge, dedupe by uid<br/><small>1 843 → 1 843, one overlap dropped</small>"]
   C --> D

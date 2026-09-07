@@ -180,7 +180,11 @@ describe.skipIf(!available)("firestore.rules", () => {
     /** The one document, as the owner saves it in the console. */
     async function config(fields: Record<string, unknown>) {
       await env.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection("app_config").doc("app").set(fields);
+        await context
+          .firestore()
+          .collection("app_config")
+          .doc("current")
+          .set(fields);
       });
     }
 
@@ -195,7 +199,7 @@ describe.skipIf(!available)("firestore.rules", () => {
           .unauthenticatedContext()
           .firestore()
           .collection("app_config")
-          .doc("app")
+          .doc("current")
           .get(),
       );
       await assertSucceeds(
@@ -203,7 +207,7 @@ describe.skipIf(!available)("firestore.rules", () => {
           .authenticatedContext("anon")
           .firestore()
           .collection("app_config")
-          .doc("app")
+          .doc("current")
           .get(),
       );
     });
@@ -228,7 +232,7 @@ describe.skipIf(!available)("firestore.rules", () => {
       await assertFails(
         db
           .collection("app_config")
-          .doc("app")
+          .doc("current")
           .set({ premium_emails: ["mallory@example.com"] }),
       );
     });
@@ -240,13 +244,13 @@ describe.skipIf(!available)("firestore.rules", () => {
         .firestore();
 
       await assertFails(
-        db.collection("app_config").doc("app").set({ premium_enabled: false }),
+        db.collection("app_config").doc("current").set({ premium_enabled: false }),
       );
       // A forged record would lock every user out of the app.
       await assertFails(
         db
           .collection("app_config")
-          .doc("app")
+          .doc("current")
           .update({ force_update: { ios: { enable_force_update: true } } }),
       );
     });

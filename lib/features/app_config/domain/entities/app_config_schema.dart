@@ -1,16 +1,17 @@
-/// Every name in the `app_config/app` document, in one place.
+/// Every name in the `app_config/current` document, in one place.
 ///
-/// It lives in `domain/` rather than beside a repository because **two features
-/// read this document**: `app_config` takes the switches and the address lists,
-/// `app_update` takes [forceUpdateField]. Cross-feature imports may only reach
-/// `domain/`, and a Firestore field name that two features spell separately is
-/// a field one of them will one day spell wrong — silently, since an unknown
-/// key reads as absent rather than as an error.
+/// **One reader now**: `FirestoreAppConfigRepository` takes every field below,
+/// [forceUpdateField] included, and hands back one `AppConfig`. It was two
+/// features and then two repositories, each spelling this path for itself —
+/// and a Firestore name spelled in two places is a name one of them will one
+/// day spell wrong, silently, since an unknown key reads as absent rather than
+/// as an error. It stays in `domain/` because the mapper and the entity both
+/// reach it from layers that may not import `data/`.
 abstract final class AppConfigSchema {
   static const String collectionPath = 'app_config';
 
   /// The only document in the collection. A fixed id, so every reader asks for the same one and no `orderBy` decides which config is current.
-  static const String documentId = 'app';
+  static const String documentId = 'current';
 
   /// The app-wide premium kill switch.
   static const String premiumEnabledField = 'premium_enabled';

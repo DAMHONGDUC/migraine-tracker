@@ -108,7 +108,7 @@ build.
 What lands: the four synced collections (`attacks`, `medications`,
 `medication_reminders`, `notifications`) with their `userId` + `updatedAt`
 indexes and the three opaque fields exempted, plus `users`, `sync_keys` and the
-public read-only `app_config/app`.
+public read-only `app_config/current`.
 
 ### 7. Functions: params, secrets, then deploy
 
@@ -171,7 +171,7 @@ comes up misconfigured, `AppEnv.missingConfigKeys` names the empty keys for you.
 
 ### 11. `app_config` in the new project
 
-Created by hand: the one `app_config/app` document, holding the app-wide
+Created by hand: the one `app_config/current` document, holding the app-wide
 switches, the force-update record and the three address lists
 (`docs/rules/PENDING_SETUP.md` has the schema and a full sample). It does not
 travel between projects — a new project starts with premium on, nobody blocked

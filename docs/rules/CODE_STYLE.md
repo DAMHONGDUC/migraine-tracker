@@ -141,16 +141,22 @@ line in with what was sent, a line out with what came back.
   Never call `FirebaseAnalytics` directly, never type an event name at a call
   site. Events sit next to the matching `SdLogger.action` in a controller, never
   in a widget's build. Health data never becomes a parameter (hard rule 1).
-- **`main.dart` holds `main()` and nothing else.** Startup work lives in
-  `AppBootstrap` (`core/bootstrap/app_bootstrap.dart`), so the entry point reads
-  as a list of what happens rather than how.
-- **`AppBootstrap.init` guards each step separately, never the whole function.**
-  One `try` around all of them lets the first failure skip everything after it,
-  including the crash reporting that would have named it. **Firebase goes first**
-  so Crashlytics is up before anything else can fail — it used to run last, which
-  left a timezone failure reported nowhere. Anything added here runs *before*
-  `runApp`, where an unhandled throw stops the app from starting at all, so it
-  needs its own `try`/`catch` and a fallback that leaves the app usable.
+- **`main.dart` holds `main()` and nothing else.** It is a list of
+  `SdBootstrapStep`s; the work itself lives in `AppBootstrap`
+  (`core/bootstrap/app_bootstrap.dart`), so the entry point reads as *what*
+  happens rather than how.
+- **A bootstrap step writes no `try` of its own.** `SdBootstrap` guards and logs
+  each one separately — one `try` around all of them lets the first failure skip
+  everything after it, including the crash reporting that would have named it —
+  and it installs the three error hooks and calls `runApp`. **Firebase goes
+  first** so Crashlytics is up before anything else can fail; it used to run
+  last, which left a timezone failure reported nowhere. A step that swallowed
+  its own failure would report as started.
+- **No step can refuse to start the app, and nothing slow belongs in one.** Every
+  step runs before the first frame, where the only thing drawn is the platform
+  launch image, so work a user could be shown a spinner for goes behind the
+  splash instead — that is where the device check and the anonymous session
+  are.
 
 ## Extraction and constants
 

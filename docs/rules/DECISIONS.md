@@ -155,3 +155,35 @@ does implement, and Apple's own Live Activity samples are written that way. The
 attack Live Activity needs it: `ActivityConfiguration` is 16.1 and the app
 deploys to 15. If it does turn out not to compile, the fallback is raising the
 extension's own deployment target rather than dropping the home screen widget.
+
+## The flavour record in the Keychain, then back out of it
+
+**Reversed.** The record started in `shared_preferences`, moved to the Keychain,
+and is now back in `shared_preferences` as `SdFreshInstall`'s stamp — the middle
+step is worth keeping because the objection that caused it was real at the time.
+
+Two guards used to read those stores. `SdReinstallGuard` owned one prefs key,
+`is_installed`, and called *any* other prefs key an upgrade; a `last_env` beside
+it would therefore have turned the next delete-and-reinstall into an update and
+left the old session signed in. So the flavour record went into `SecureStore`,
+away from a guard that would misread it.
+
+`SdFreshInstall` merged the two guards, and the objection went with them: there
+is one key now, and it is both answers at once — its *value* is the environment
+the last launch ran as, its *absence* is "this install has not run before".
+Nothing else can be mistaken for it because nothing else is there. It has to be
+the store iOS deletes with the app, or the absence means nothing.
+
+The other half of the old entry still stands and is why the wipe has four steps
+rather than one: almost nothing this app writes is in prefs — the Keychain is
+(`PRIVACY_AND_SECURITY.md`) — so clearing prefs alone would leave
+`onboarding_completed` and `alert_threshold: 7.0` exactly where they were.
+
+## Wiping the `baroease` database on a flavour change
+
+Considered as one more wipe step, so a prod binary could not open a dev
+install's seeded attacks. Left out. `AppEnv.flavor` falls back to `dev` when a build
+forgets `--dart-define-from-file`, and the assert that catches that runs in
+debug only — so one release built wrong would read as an environment change and
+delete migraine history that has no second copy. The four steps that did ship
+cost a sign-in, a cache and an onboarding run, all of which come back.

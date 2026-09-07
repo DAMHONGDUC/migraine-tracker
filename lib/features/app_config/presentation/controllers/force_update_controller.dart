@@ -5,6 +5,7 @@ import 'package:system_design/common.dart';
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/logging/crash_reporter.dart';
+import '../../domain/entities/app_config.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/entities/installed_app_version.dart';
 import '../../domain/enums/app_platform.dart';
@@ -21,6 +22,11 @@ class ForceUpdateState {
 }
 
 /// Owns the force-update decision. The wrapper widget only calls [check] and renders what this exposes.
+///
+/// **The record comes off `appConfigProvider`, not a read of its own.** It is
+/// one field of the one document the app already listens to; a second `get`
+/// was a second reader to keep pointing at the right document id and a second
+/// thing to be denied on its own.
 class ForceUpdateController extends Notifier<ForceUpdateState> {
   @override
   ForceUpdateState build() => const ForceUpdateState();
@@ -37,13 +43,17 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
       final InstalledAppVersion installed = await ref.read(
         installedAppVersionProvider.future,
       );
-      final AppUpdateConfig? config = await ref
-          .read(appUpdateRepositoryProvider)
-          .latest();
+      // Awaited, not read: on a cold start the first snapshot has usually not
+      // landed yet, and reading the current value there would answer
+      // `AppConfig.empty` and let an unsupported build straight through. A
+      // failed read resolves to `AppConfig.empty` on its own (the repository
+      // emits it), so this cannot wait for good.
+      final AppConfig config = await ref.read(appConfigProvider.future);
+      final AppUpdateConfig? published = config.forceUpdate;
       final PlatformUpdateConfig? blocking = ref
           .read(forceUpdateCheckerProvider)
           .blockingUpdate(
-            published: config?.forPlatform(platform),
+            published: published?.forPlatform(platform),
             installed: installed,
           );
 

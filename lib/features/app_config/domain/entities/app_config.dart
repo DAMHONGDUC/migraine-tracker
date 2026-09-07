@@ -1,7 +1,10 @@
 import 'package:meta/meta.dart';
 
-/// The whole `app_config/app` document: the switches that apply to everybody,
-/// and the three address lists the owner maintains by hand.
+import 'app_update_config.dart';
+
+/// The whole `app_config/current` document: **every** switch the owner
+/// controls — the two that apply to everybody, the three address lists they
+/// maintain by hand, and the published-build record behind force update.
 ///
 /// **Every list is lower-cased on the way in.** Firebase Auth stores an address
 /// lower-cased and the owner types the list by hand, so `Review@BaroEase.app`
@@ -12,6 +15,7 @@ import 'package:meta/meta.dart';
 class AppConfig {
   AppConfig({
     this.premiumEnabled = true,
+    this.forceUpdate,
     Set<String> premiumEmails = const <String>{},
     Set<String> devModeEmails = const <String>{},
     Set<String> blockedEmails = const <String>{},
@@ -32,6 +36,16 @@ class AppConfig {
 
   /// Whether premium exists in this build at all. False makes `hasPremiumProvider` answer false for everyone: bought, listed, or forced by the Dev group alike.
   final bool premiumEnabled;
+
+  /// The published build per platform, or null when the document carries no
+  /// usable `force_update` section — nothing to compare against, so nothing is
+  /// blocked.
+  ///
+  /// **It rides here rather than on a read of its own.** One document, one
+  /// listener: force update used to `get` the same document a second time on
+  /// every launch and every resume, which is a second thing to keep pointing at
+  /// the right id and a second thing to get denied on its own.
+  final AppUpdateConfig? forceUpdate;
 
   /// Premium in the app whatever RevenueCat says, and a target of the pressure-alert cron.
   final Set<String> premiumEmails;
@@ -67,6 +81,7 @@ class AppConfig {
       identical(this, other) ||
       other is AppConfig &&
           other.premiumEnabled == premiumEnabled &&
+          other.forceUpdate == forceUpdate &&
           _same(other.premiumEmails, premiumEmails) &&
           _same(other.devModeEmails, devModeEmails) &&
           _same(other.blockedEmails, blockedEmails);
@@ -74,6 +89,7 @@ class AppConfig {
   @override
   int get hashCode => Object.hash(
     premiumEnabled,
+    forceUpdate,
     Object.hashAllUnordered(premiumEmails),
     Object.hashAllUnordered(devModeEmails),
     Object.hashAllUnordered(blockedEmails),

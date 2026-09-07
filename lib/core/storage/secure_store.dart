@@ -14,7 +14,7 @@ final secureStoreProvider = Provider<SecureStore>(
 /// Every local key-value the app keeps, in the Keychain rather than in `shared_preferences` (owner's rule) — see `docs/rules/PRIVACY_AND_SECURITY.md`.
 ///
 /// Reads are synchronous off a snapshot taken once at startup, because controllers read them inside `build`; a write goes to the Keychain first and updates the snapshot after, so a failed write never leaves the app showing a value it did not keep.
-class SecureStore implements SdDeviceScopedStore {
+class SecureStore {
   SecureStore(this._storage, this._values);
 
   /// `first_unlock_this_device`: readable by anything running after the first unlock of the day, and never restored onto a second device from an iCloud backup — this is health-adjacent state, not something to hand to another handset.
@@ -67,19 +67,14 @@ class SecureStore implements SdDeviceScopedStore {
   double? getDouble(String key) => double.tryParse(_values[key] ?? '');
 
   /// A copy: the sync cursor store walks this while removing from it.
-  @override
   Iterable<String> getKeys() => _values.keys.toList();
 
-  @override
   Future<void> setString(String key, String value) => _write(key, value);
 
-  @override
   Future<void> setBool(String key, bool value) => _write(key, '$value');
 
-  @override
   Future<void> setInt(String key, int value) => _write(key, '$value');
 
-  @override
   Future<void> setDouble(String key, double value) => _write(key, '$value');
 
   Future<void> remove(String key) async {
@@ -98,8 +93,7 @@ class SecureStore implements SdDeviceScopedStore {
     }
   }
 
-  /// Everything, in one call — what [SdReinstallGuard] uses to make a reinstall look like a first install.
-  @override
+  /// Everything, in one call — what the fresh-install wipe uses to make a reinstall look like a first install (see `SecureDeviceStore`).
   Future<void> deleteAll() async {
     try {
       await _storage.deleteAll();

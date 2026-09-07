@@ -8,8 +8,8 @@ import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
-import '../../../../app_update/domain/entities/installed_app_version.dart';
-import '../../../../app_update/providers.dart';
+import '../../../../app_config/domain/entities/installed_app_version.dart';
+import '../../../../app_config/providers.dart';
 import '../../../domain/services/app_version_label.dart';
 import '../../../providers.dart';
 

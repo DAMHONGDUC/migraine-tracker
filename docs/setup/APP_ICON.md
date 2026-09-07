@@ -120,7 +120,7 @@ mask, another collapsed into an unreadable smear.
 - **iOS**: `ios/Runner/Base.lproj/LaunchScreen.storyboard`, the `backgroundColor`
   on the root view — `#0C0C0E`. The three `LaunchImage.imageset/*.png` were the
   Flutter template's 1×1 transparent placeholders, so the colour was the only
-  thing on screen and everything `AppBootstrap.init` took read as a black
+  thing on screen and everything the bootstrap steps took read as a black
   screen. They carry the app icon now, 112/224/336px, `sips -Z`'d from
   `assets/images/final_app_icon.png`.
   - **The rounded corners are baked into the alpha**, because a storyboard image

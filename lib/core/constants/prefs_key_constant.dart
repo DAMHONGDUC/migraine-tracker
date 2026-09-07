@@ -1,5 +1,14 @@
-/// Every `SecureStore` key the app writes, in one place. The one `shared_preferences` key left is `SdReinstallGuard.isInstalledKey`, which lives there precisely because iOS deletes it with the app.
+/// Every `SecureStore` key the app writes, in one place. The one `shared_preferences` key is [lastEnv], which lives there precisely because iOS deletes it with the app.
 final class PrefsKeyConstant {
+  /// The flavour the last launch ran as — `dev`, `prod` — and the only key
+  /// this app keeps in `shared_preferences`.
+  ///
+  /// **There on purpose, and it is two answers in one.** iOS deletes that
+  /// store with the app, so a value that differs from this build means the
+  /// environment changed and an absent one means this install has not run
+  /// before. See `SdFreshInstall`, which owns both readings.
+  static const String lastEnv = 'last_env';
+
   /// Onboarding has been completed — the router's redirect reads this.
   static const String onboardingCompleted = 'onboarding_completed';
 

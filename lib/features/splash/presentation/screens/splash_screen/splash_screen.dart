@@ -1,19 +1,20 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../../../../../core/constants/splash_constant.dart';
 import '../../../../../core/router/app_router.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../providers.dart';
+import '../../widgets/splash_dots.dart';
 
-/// Where every launch lands: the loading indicator, over `SplashController.run`, then the app.
+/// Where every launch lands: the same dots `FreshInstallGate` was showing,
+/// over `SplashController.run`, then the app.
 ///
-/// The first-launch guard lives behind this rather than in `AppBootstrap` so its work happens under something moving — before, it ran ahead of `runApp`, where the platform's launch screen stood in for it and a slow start could not be told from a hang.
+/// The device check is not here — it has already finished by the time this
+/// route can mount, because the gate above the app is what let the tree build
+/// at all. What is left is the session the callables need.
 class SplashScreen extends HookConsumerWidget {
   const SplashScreen({super.key});
 
@@ -30,14 +31,6 @@ class SplashScreen extends HookConsumerWidget {
       return null;
     }, const <Object?>[]);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: LoadingAnimationWidget.staggeredDotsWave(
-          color: AppColors.primary,
-          size: SplashConstant.dotsSize,
-        ),
-      ),
-    );
+    return const SplashDots();
   }
 }

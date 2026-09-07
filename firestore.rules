@@ -53,7 +53,7 @@ service cloud.firestore {
     // Written only from the console. A client that could write this document
     // could grant itself premium — the client-side premium flag this project
     // forbids — or forge a force-update record and lock everybody out.
-    match /app_config/app {
+    match /app_config/current {
       allow read: if true;
       allow write: if false;
     }
@@ -107,7 +107,7 @@ service cloud.firestore {
     // `weather_cache`, `app_config` and `pressure_alert_runs` rely on this
     // being an allowlist: each is written only by the Admin SDK and must stay
     // unreachable from a client here, so all three are deliberately absent
-    // rather than overlooked. (`app_config/app` grants its own `get` above;
+    // rather than overlooked. (`app_config/current` grants its own `get` above;
     // this wildcard must not widen that to a query over the collection.)
     //
     // Note what these rules can NOT do: a query over one of these collections

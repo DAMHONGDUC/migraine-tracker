@@ -6,8 +6,8 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/app_feature_list.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
-import '../../../../app_update/domain/entities/installed_app_version.dart';
-import '../../../../app_update/providers.dart';
+import '../../../../app_config/domain/entities/installed_app_version.dart';
+import '../../../../app_config/providers.dart';
 import '../../../domain/services/app_version_label.dart';
 
 part 'about_screen_header.dart';

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:system_design/common.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
@@ -12,101 +11,61 @@ import '../../firebase_options.dart';
 import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
 import '../logging/crash_reporter.dart';
-import '../storage/secure_store.dart';
 
-/// One-time app initialization run before `runApp`.
+/// The work `main` hands to `SdBootstrap`, one method per step.
+///
+/// **Nothing here writes a `try` of its own.** Every step is guarded and
+/// logged by [SdBootstrap], and one of them failing must not take the launch
+/// with it — a step that swallowed its own failure would report as started.
 final class AppBootstrap {
   const AppBootstrap._();
 
-  /// Each step is guarded on its own, and deliberately NOT wrapped as a whole. Hands back the store `main` overrides the provider with.
-  static Future<SecureStore> init() async {
-    _installErrorLogging();
+  /// First, so Crashlytics is up before anything else can fail.
+  static Future<void> initFirebase() => Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-    final SecureStore store = await SecureStore.open();
-
-    // - Firebase first so Crashlytics is up before anything else can fail. - It used to run last, which left a timezone failure reported nowhere.
-    await _initFirebase();
-    await _initTimezone();
-
-    // One assert walking every required AppEnv value, so a missing --dart-define-from-file reports every gap at once.
-    assert(
-      AppEnv.missingConfigKeys.isEmpty,
-      'Missing required config: ${AppEnv.missingConfigKeys.join(', ')}. '
-      'Run with --dart-define-from-file=env/dev.json (or env/prod.json).',
-    );
-
-    return store;
+  /// Its own step, not part of [initFirebase]: the reporter is what names
+  /// every failure after it, so it must not be skipped by one before it.
+  static Future<void> initCrashReporting() async {
+    await CrashReporter.init();
+    // After init, so the first report SdLogger forwards has somewhere to go.
+    SdCrashReporter.attach(const FirebaseCrashReporter());
+    CrashReporter.setCustomKey('flavor', AppEnv.flavor);
   }
 
-  static Future<void> _initFirebase() async {
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
+  static Future<void> initAnalytics() => AppAnalytics.init();
+
+  /// iOS shows nothing for a push landing while the app is open unless it is told to — no banner, and no sound.
+  static Future<void> initPushPresentation() => FirebaseMessaging.instance
+      .setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
       );
 
-      await CrashReporter.init();
-      // After init, so the first report SdLogger forwards has somewhere to go.
-      SdCrashReporter.attach(const FirebaseCrashReporter());
-      CrashReporter.setCustomKey('flavor', AppEnv.flavor);
-      await AppAnalytics.init();
+  /// Timezone DB, so reminders fire at local wall time. A failure below leaves
+  /// `tz.local` at UTC, which is what reminders fall back to.
+  static Future<void> initTimezone() async {
+    tzdata.initializeTimeZones();
 
-      // iOS shows nothing for a push landing while the app is open unless it is told to — no banner, and no sound.
-      await FirebaseMessaging.instance
-          .setForegroundNotificationPresentationOptions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-      await ensureAnonymousSession();
-    } catch (err, stackTrace) {
-      SdLogger.error(
-        LogTagConstant.bootstrap,
-        'Firebase init failed',
-        error: err,
-        stackTrace: stackTrace,
-      );
-    }
+    final String localTz = (await FlutterTimezone.getLocalTimezone()).identifier;
+
+    tz.setLocalLocation(tz.getLocation(localTz));
+    SdLogger.info(LogTagConstant.bootstrap, 'Timezone set', {'tz': localTz});
   }
 
-  /// "Anonymous by default": the app is fully usable without an account, but the callables behind it still need a caller. Public because `SplashController` calls it again after a reinstall purge — the sign-out there leaves no caller at all.
+  /// "Anonymous by default": the app is fully usable without an account, but
+  /// the callables behind it still need a caller.
+  ///
+  /// **Called from `SplashController`, and after the device check** — a wipe
+  /// signs the old session out, so one opened ahead of it would be the session
+  /// it deleted. Not a bootstrap step for the same reason: `getWeather` will
+  /// not serve a caller it cannot name, and that call belongs under the dots
+  /// rather than under the launch image.
   static Future<void> ensureAnonymousSession() async {
     if (FirebaseAuth.instance.currentUser != null) return;
 
     await FirebaseAuth.instance.signInAnonymously();
-  }
-
-  /// Timezone DB, so reminders fire at local wall time.
-  static Future<void> _initTimezone() async {
-    tzdata.initializeTimeZones();
-
-    try {
-      final String localTz =
-          (await FlutterTimezone.getLocalTimezone()).identifier;
-
-      tz.setLocalLocation(tz.getLocation(localTz));
-      SdLogger.info(LogTagConstant.bootstrap, 'App started', {'tz': localTz});
-    } catch (err, stackTrace) {
-      SdLogger.error(
-        LogTagConstant.bootstrap,
-        'Timezone init failed, reminders fall back to UTC',
-        error: err,
-        stackTrace: stackTrace,
-      );
-    }
-  }
-
-  /// Console logging for framework errors, installed before anything else so a failed Firebase init still leaves a usable debug build.
-  static void _installErrorLogging() {
-    final FlutterExceptionHandler? previousOnError = FlutterError.onError;
-
-    FlutterError.onError = (FlutterErrorDetails details) {
-      previousOnError?.call(details);
-      SdLogger.error(
-        LogTagConstant.bootstrap,
-        'Flutter framework error',
-        error: details.exception,
-        stackTrace: details.stack,
-      );
-    };
   }
 }

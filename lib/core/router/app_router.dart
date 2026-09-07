@@ -139,7 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     observers: AppAnalytics.navigatorObservers,
     // First launch lands on onboarding until completed; afterwards /onboarding is never reachable again.
     redirect: (context, state) {
-      // The splash is exempt from every rule below: it holds the screen while the first-launch guard runs — which can WIPE the store these rules read — and then goes to the dashboard, where they apply as usual.
+      // The splash is exempt from every rule below: without this, a wiped or first install is redirected off it on frame one — `onboarding_completed` is gone — and the session work it holds the screen for never runs. It goes to the dashboard itself, where every rule applies as usual.
       if (state.matchedLocation == AppRoutes.splash.path) return null;
 
       final done =

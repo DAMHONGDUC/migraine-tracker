@@ -185,9 +185,8 @@ packages/
 ```
 
 Features: `app_config` (the owner's `app_config` collection — premium, Dev
-group and block by address, the app-wide premium switch, and force update),
-`app_update`
-(force-update gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
+group and block by address, the app-wide premium switch, and the force-update
+gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
 one row a day that gives every analysis its days without an attack),
 `medications`, `weather` (WeatherSnapshot + API clients), `history`,
 `insights` (correlation engine), `alerts`, `auth` (Google/Apple +
