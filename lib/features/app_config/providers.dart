@@ -7,13 +7,11 @@ import '../../core/env/app_env.dart';
 import '../auth/domain/entities/auth_user.dart';
 import '../auth/providers.dart';
 import 'data/repositories/firestore_app_config_repository.dart';
-import 'data/repositories/firestore_app_update_repository.dart';
 import 'data/services/url_store_launcher.dart';
 import 'domain/entities/app_config.dart';
 import 'domain/entities/installed_app_version.dart';
 import 'domain/enums/app_platform.dart';
 import 'domain/repositories/app_config_repository.dart';
-import 'domain/repositories/app_update_repository.dart';
 import 'domain/services/force_update_checker.dart';
 import 'domain/services/store_launcher.dart';
 import 'presentation/controllers/force_update_controller.dart';
@@ -81,14 +79,7 @@ final showDevSettingsProvider = Provider<bool>(
       ref.watch(_configProvider).hasDevMode(ref.watch(_configEmailProvider)),
 );
 
-// --- Force update: the `force_update` field of the same document. ---
-
-/// A one-shot `get` rather than a listener: the check runs on launch and on
-/// every resume, and a record that changes mid-session changes nothing the user
-/// can act on until they come back.
-final appUpdateRepositoryProvider = Provider<AppUpdateRepository>(
-  (ref) => FirestoreAppUpdateRepository(FirebaseFirestore.instance),
-);
+// --- Force update: one field of the document above, off the same listener. ---
 
 final forceUpdateCheckerProvider = Provider<ForceUpdateChecker>(
   (ref) => const ForceUpdateChecker(),

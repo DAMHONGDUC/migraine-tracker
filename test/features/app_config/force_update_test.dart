@@ -24,7 +24,9 @@ void main() {
   testWidgets('no record: the app opens normally', (tester) async {
     final PumpedApp app = await pumpApp(tester);
 
-    expect(app.appUpdate.calls, 1);
+    // One read for the whole document, force update included — the check has
+    // no listener of its own to open.
+    expect(app.appConfig.watchCalls, 1);
     expect(find.text('Update required'), findsNothing);
     expect(find.text('Log an attack'), findsOneWidget);
     await finishTest(tester);

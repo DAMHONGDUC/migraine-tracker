@@ -19,7 +19,6 @@ import 'package:migraine_tracker/features/app_config/domain/entities/app_config.
 import 'package:migraine_tracker/features/app_config/domain/entities/app_update_config.dart';
 import 'package:migraine_tracker/features/app_config/domain/entities/installed_app_version.dart';
 import 'package:migraine_tracker/features/app_config/domain/repositories/app_config_repository.dart';
-import 'package:migraine_tracker/features/app_config/domain/repositories/app_update_repository.dart';
 import 'package:migraine_tracker/features/app_config/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
@@ -191,22 +190,6 @@ class FakeAppConfigRepository implements AppConfigRepository {
 
   /// Pushes an edit the way the owner saving the console document does.
   void emit(AppConfig next) => _controller.add(next);
-}
-
-/// Serves whatever update record a test asks for. Default: no record at all, so the force-update wrapper never blocks the app under test.
-class FakeAppUpdateRepository implements AppUpdateRepository {
-  FakeAppUpdateRepository({this.config});
-
-  AppUpdateConfig? config;
-
-  /// How many times the wrapper asked — one per entry into the app.
-  int calls = 0;
-
-  @override
-  Future<AppUpdateConfig?> latest() async {
-    calls++;
-    return config;
-  }
 }
 
 /// Records the store link instead of leaving the test to url_launcher.
@@ -613,7 +596,6 @@ class PumpedApp {
     required this.location,
     required this.auth,
     required this.appConfig,
-    required this.appUpdate,
     required this.storeLauncher,
     required this.mailLauncher,
     required this.profiles,
@@ -636,7 +618,6 @@ class PumpedApp {
 
   /// The `app_config` stand-in, so a test can revoke or block mid-run the way the owner editing the console does.
   final FakeAppConfigRepository appConfig;
-  final FakeAppUpdateRepository appUpdate;
   final FakeStoreLauncher storeLauncher;
   final FakeMailLauncher mailLauncher;
   final FakeUserProfileRepository profiles;
@@ -687,7 +668,9 @@ Future<PumpedApp> pumpApp(
   /// The `app_config/current` document. Default: premium on and every list empty, which is every address the owner has not typed into the console.
   AppConfig? appConfig,
 
-  /// The record the force-update check reads. Null (default) = no record, so the blocking sheet never appears.
+  /// The `force_update` section of the document above, hoisted out as its own
+  /// argument because most tests set one or the other. Null (default) = no
+  /// record, so the blocking sheet never appears.
   AppUpdateConfig? appUpdate,
 
   /// Whether this fake device has HealthKit. False by default — the Apple Health row and the sleep card are iOS-only surfaces.
@@ -733,11 +716,17 @@ Future<PumpedApp> pumpApp(
   final RecordingShareFileStore shareFiles = RecordingShareFileStore();
   final auth = FakeAuthRepository(signedIn: signedIn);
   addTearDown(auth.dispose);
+  final AppConfig baseConfig = appConfig ?? AppConfig.empty;
   final FakeAppConfigRepository appConfigRepository = FakeAppConfigRepository(
-    config: appConfig,
-  );
-  final FakeAppUpdateRepository appUpdateRepository = FakeAppUpdateRepository(
-    config: appUpdate,
+    // One document, so the two arguments land on one object. `appUpdate` wins
+    // when both name a record; neither being set leaves the field null.
+    config: AppConfig(
+      premiumEnabled: baseConfig.premiumEnabled,
+      premiumEmails: baseConfig.premiumEmails,
+      devModeEmails: baseConfig.devModeEmails,
+      blockedEmails: baseConfig.blockedEmails,
+      forceUpdate: appUpdate ?? baseConfig.forceUpdate,
+    ),
   );
   final FakeStoreLauncher storeLauncher = FakeStoreLauncher();
   final FakeMailLauncher mailLauncher = FakeMailLauncher();
@@ -781,7 +770,6 @@ Future<PumpedApp> pumpApp(
         premiumRepositoryProvider.overrideWithValue(premiumRepository),
         purchaseRepositoryProvider.overrideWithValue(purchases),
         userProfileRepositoryProvider.overrideWithValue(profiles),
-        appUpdateRepositoryProvider.overrideWithValue(appUpdateRepository),
         storeLauncherProvider.overrideWithValue(storeLauncher),
         mailLauncherProvider.overrideWithValue(mailLauncher),
         installedAppVersionProvider.overrideWith(
@@ -831,7 +819,6 @@ Future<PumpedApp> pumpApp(
     location: location,
     auth: auth,
     appConfig: appConfigRepository,
-    appUpdate: appUpdateRepository,
     storeLauncher: storeLauncher,
     mailLauncher: mailLauncher,
     profiles: profiles,

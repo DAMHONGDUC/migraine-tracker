@@ -23,6 +23,21 @@ class PlatformUpdateConfig {
 
   /// Off means "a new build exists, but don't block anyone".
   final bool forceUpdateEnabled;
+
+  /// Value equality, for the same reason `AppConfig` has it: this now rides on
+  /// the config stream, which re-emits on metadata alone.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlatformUpdateConfig &&
+          other.storeLink == storeLink &&
+          other.buildName == buildName &&
+          other.buildNumber == buildNumber &&
+          other.forceUpdateEnabled == forceUpdateEnabled;
+
+  @override
+  int get hashCode =>
+      Object.hash(storeLink, buildName, buildNumber, forceUpdateEnabled);
 }
 
 /// The `force_update` section of `app_config/current`: the currently published build per platform.
@@ -38,4 +53,14 @@ class AppUpdateConfig {
     AppPlatform.android => android,
     AppPlatform.ios => ios,
   };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppUpdateConfig &&
+          other.android == android &&
+          other.ios == ios;
+
+  @override
+  int get hashCode => Object.hash(android, ios);
 }
