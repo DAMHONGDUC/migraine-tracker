@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/theme/app_colors.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
@@ -63,7 +62,8 @@ void main() {
     );
 
     await openHistory(tester);
-    await tester.tap(find.byIcon(Symbols.filter_list_rounded));
+    // The chip, not an app-bar button: the filter icon is the empty state's now and matches a dozen row glyphs besides, so tapping it is ambiguous. Tapping the axis chip is also what a user does.
+    await tester.tap(find.text('Period'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

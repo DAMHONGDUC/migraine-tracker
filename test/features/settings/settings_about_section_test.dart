@@ -3,16 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('About section shows the joined env/version/build string', (
+  testWidgets('About screen shows the joined env/version/build string', (
     tester,
   ) async {
     await pumpApp(tester);
 
     await openSettings(tester);
-    await scrollIntoView(tester, find.text('About BaroEase'));
 
-    // The version row is gone: the About row carries the same diagnostic string as its value, so a bug report still names its build.
-    expect(find.text('About BaroEase'), findsOneWidget);
+    // The Settings row is a title and nothing else now — the diagnostic string moved onto the screen behind it, where the About header prints it beside "Version". Asserting it on the row asks Settings for a value it stopped carrying.
+    await tapVisible(tester, find.text('About BaroEase'));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Still one tap from Settings, so a bug report can still name its build.
     expect(find.text('dev - 99.0.0 (9999)'), findsOneWidget);
 
     await finishTest(tester);

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
+import 'package:migraine_tracker/core/widgets/alert_summary_tag.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -155,8 +155,8 @@ void main() {
     // ONE card, not a forecast card beside a correlation card.
     expect(find.text('Pressure correlation'), findsNothing);
     expect(find.text('Pressure-drop alerts'), findsOneWidget);
-    // A bare Switch inside `_AlertRow`, never a SwitchListTile.
-    expect(find.byType(Switch), findsOneWidget);
+    // The row's own state tag, never a SwitchListTile. The switch and the threshold row were merged into one row that opens the editor, so a `Switch` finder here asserts a control the design deleted.
+    expect(find.byType(AlertSummaryTag), findsOneWidget);
 
     await finishTest(tester);
   });
@@ -172,7 +172,7 @@ void main() {
 
     // Owner's call, and it reversed the first version.
     expect(find.text('Pressure-drop alerts'), findsNothing);
-    expect(find.byType(Switch), findsNothing);
+    expect(find.byType(AlertSummaryTag), findsNothing);
 
     await finishTest(tester);
   });

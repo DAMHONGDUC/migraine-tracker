@@ -9,6 +9,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_regi
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_grid.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/settle_frames.dart';
 
@@ -142,20 +143,22 @@ void main() {
     expect(head.width, lessThanOrEqualTo(393));
   });
 
-  testWidgets('the head is sized from its width, 30 either side', (
+  testWidgets('the head is sized from its width, w24 either side', (
     tester,
   ) async {
     await pumpPicker(tester, height: 820);
 
     final Rect head = tester.getRect(find.byType(HeadDiagram));
     final Rect grid = tester.getRect(find.byType(HeadRegionGrid));
+    // The owner's number, read from the constant rather than copied: it has moved twice (40 → 30 → 24) and a literal here fails on the move rather than on the ring going uneven, which is what the test is for.
+    final double inset = SdSpacingConstant.w24;
 
     // Derive height from the width so the head stays aligned.
-    expect(head.left, 30);
-    expect(head.width, 393 - 60);
+    expect(head.left, inset);
+    expect(head.width, 393 - inset * 2);
     expect(head.height, closeTo(head.width / (200 / 248), 0.5));
-    // And 30 under it before the tiles start.
-    expect(grid.top - head.bottom, closeTo(30, 0.5));
+    // And the same ring under it before the tiles start — even on both axes is the point.
+    expect(grid.top - head.bottom, closeTo(inset, 0.5));
     expect(grid.height, greaterThan(HeadRegionGrid.reservedHeight));
   });
 

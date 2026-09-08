@@ -3,34 +3,31 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('the sync row is absent without an account', (tester) async {
-    await pumpApp(tester);
-    await openSettings(tester);
+  // Hard rule 12 reversed the manual control: sync is entirely automatic, and
+  // `SyncScreen`, the `/sync` route and the eight `syncScreen*` / `settingsSync*`
+  // ARB keys are deleted. This file used to assert the row into existence; it
+  // asserts its absence now, because a row is what would come back first.
+  for (final (String state, bool signedIn) in <(String, bool)>[
+    ('signed out', false),
+    ('signed in', true),
+  ]) {
+    testWidgets('$state, Settings offers no sync control at all', (
+      tester,
+    ) async {
+      await pumpApp(tester, signedIn: signedIn);
+      await openSettings(tester);
 
-    // There is nowhere to sync to, so offering it would be a dead end.
-    expect(find.text('Sync data to cloud'), findsNothing);
+      // Both halves of hard rule 12: nothing to tap, and nothing reporting on
+      // it either — an indicator is a control the user cannot use.
+      expect(find.text('Sync data to cloud'), findsNothing);
+      expect(find.text('Last synced'), findsNothing);
 
-    await finishTest(tester);
-  });
+      // The row that IS there, so a section emptied by mistake fails here
+      // rather than passing as "no sync row found".
+      await scrollIntoView(tester, find.text('Export data'));
+      expect(find.text('Export data'), findsOneWidget);
 
-  testWidgets('signed in, the row sits in "Your data" and leads to the screen', (
-    tester,
-  ) async {
-    await pumpApp(tester, signedIn: true);
-    await openSettings(tester);
-
-    await scrollIntoView(tester, find.text('Sync data to cloud'));
-
-    // Alongside export and delete: sync is one more thing that happens to the user's data, not a section of its own.
-    expect(find.text('Export data'), findsOneWidget);
-
-    await tapVisible(tester, find.text('Sync data to cloud'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    // The row is a plain chevron row now; everything about sync lives here.
-    expect(find.text('Last synced'), findsOneWidget);
-
-    await finishTest(tester);
-  });
+      await finishTest(tester);
+    });
+  }
 }
