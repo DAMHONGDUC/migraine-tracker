@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -208,8 +207,8 @@ void main() {
     await tester.enterText(findLabelledField('Symptoms'), 'aura, nausea');
     await tester.enterText(findLabelledField('Triggers'), 'stress');
     await tester.enterText(findLabelledField('Notes'), 'bad one');
-    // The details sheet commits from its header — a pencil, since it overwrites details the attack may already carry.
-    await tester.tap(find.byIcon(Symbols.edit_rounded));
+    // The sheet commits from a labelled button now, not a pencil in the header — "Update" rather than "Save", since it overwrites details the attack may already carry.
+    await tester.tap(find.text('Update'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

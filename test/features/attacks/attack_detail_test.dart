@@ -5,6 +5,7 @@ import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
+import 'package:migraine_tracker/features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
@@ -24,6 +25,19 @@ Attack attack({WeatherSnapshot? weather}) => Attack(
   weather: weather,
 );
 
+/// Drags the detail list until [finder] has been built.
+///
+/// The screen is a lazy `ListView` and the head diagram above the weather card
+/// is tall, so everything from the weather section down starts unbuilt — a
+/// `find.text` on it answers "not there" rather than "not reached".
+Future<void> scrollDetailTo(WidgetTester tester, Finder finder) async {
+  for (int i = 0; i < 12 && finder.evaluate().isEmpty; i++) {
+    await tester.drag(find.byType(ListView).last, const Offset(0, -120));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  await tester.pump();
+}
+
 /// History (list mode) → tap the attack tile → detail screen.
 Future<void> openDetail(WidgetTester tester) async {
   await openHistory(tester);
@@ -33,22 +47,35 @@ Future<void> openDetail(WidgetTester tester) async {
 }
 
 /// Opens one of the detail screen's edit sheets by its row label.
+///
+/// Scoped to the screen: History stays in the tree under the pushed route and
+/// carries labels of its own, so a bare `find.text('Medication')` matches two
+/// widgets on different screens and `tap()` refuses an ambiguous target.
 Future<void> openEditSheet(WidgetTester tester, String row) async {
-  await tester.tap(find.text(row));
+  await tester.tap(
+    find.descendant(
+      of: find.byType(AttackDetailScreen),
+      matching: find.text(row),
+    ),
+  );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// The commit button in the sheet header — a pick is only applied by this.
+/// The commit button at the foot of the sheet — a pick is only applied by this.
+///
+/// Every edit sheet the detail screen opens overwrites an answer the attack
+/// already carries, so they all label it `commonUpdate`; the pencil that used
+/// to sit in the header is gone.
 Future<void> confirmSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Symbols.edit_rounded));
+  await tester.tap(find.widgetWithText(SdButtonV2, 'Update'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
 
 /// The X in the sheet header — leaves without applying the pick.
 Future<void> closeSheet(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Symbols.close_rounded));
+  await tester.tap(find.byTooltip('Close'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -74,16 +101,15 @@ void main() {
 
     expect(find.text('Attack details'), findsOneWidget);
     expect(find.text('Sumatriptan'), findsOneWidget);
+
+    // The weather card sits under the head diagram — scroll like a user would.
+    await scrollDetailTo(tester, find.text('1004.2 hPa'));
     expect(find.text('1004.2 hPa'), findsOneWidget);
     expect(find.text('-7.5 hPa'), findsOneWidget); // the drop
     expect(find.text('71%'), findsOneWidget);
 
-    // The details section sits below the fold — scroll like a user would.
-    for (int i = 0; i < 12 && find.text('bad one').evaluate().isEmpty; i++) {
-      await tester.drag(find.byType(ListView).last, const Offset(0, -120));
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    await tester.pump();
+    // The details section sits below that again.
+    await scrollDetailTo(tester, find.text('bad one'));
     expect(find.text('aura'), findsOneWidget);
     expect(find.text('bad one'), findsOneWidget);
 
@@ -96,6 +122,7 @@ void main() {
 
     await openDetail(tester);
 
+    await scrollDetailTo(tester, find.text('No weather data attached yet.'));
     expect(find.text('No weather data attached yet.'), findsOneWidget);
 
     await finishTest(tester);

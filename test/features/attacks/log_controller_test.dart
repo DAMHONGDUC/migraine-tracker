@@ -1,8 +1,10 @@
 import 'package:drift/native.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
+import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
@@ -29,12 +31,18 @@ void main() {
   late AppDatabase db;
   late ProviderContainer container;
 
-  setUp(() {
+  setUp(() async {
+    // The save path reads the locale to word the Live Activity's strings, and the locale controller reads the secure store — which throws by design until something overrides it. Without this the failure is "secureStoreProvider must be overridden at app start" inside `_save`'s catch, which reports as "the attack was not persisted".
+    TestWidgetsFlutterBinding.ensureInitialized();
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
+    final SecureStore prefs = await SecureStore.open();
+
     db = AppDatabase(NativeDatabase.memory());
     container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
         weatherRepositoryProvider.overrideWithValue(_NoWeather()),
+        secureStoreProvider.overrideWithValue(prefs),
       ],
     );
   });
