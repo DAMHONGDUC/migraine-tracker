@@ -77,9 +77,13 @@ the medications tab the medication budget, each from that record's one
   sold reads as one block rather than loose rows. The headline and that card are
   centred together in what is left over the plans. **The hero storm icon is
   gone**: at `r64` it was the largest thing on the sheet and said nothing the
-  headline does not. The pitch scrolls (`SliverFillRemaining`,
-  `hasScrollBody: false`) so a long locale or large text outgrows it without
-  clipping, while the plans and CTA stay pinned.
+  headline does not. **The pitch scrolls and the plans and CTA stay pinned** —
+  `Expanded` + `SingleChildScrollView` around the headline and the benefits
+  card, so a long locale or large text outgrows it without clipping. This file
+  described that as `SliverFillRemaining`/`hasScrollBody: false` while the code
+  held a plain `Column` that could not scroll at all, and the sheet overflowed
+  by 49px at 393x852 — an iPhone 15, not an edge case. `screen_overflow_test.dart`
+  is what would have caught it; it now covers this screen.
 
 ## The subscription screen
 
