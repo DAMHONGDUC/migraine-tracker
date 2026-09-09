@@ -1,6 +1,6 @@
 # Testing
 
-What is tested, what is suspended, and what is still owed.
+What is tested, and what every change still owes.
 
 1. `domain/correlation` — unit tests, high coverage
 2. Drift migrations — a migration test per schema change
@@ -9,31 +9,14 @@ What is tested, what is suspended, and what is still owed.
 4. Paywall entitlement gating — widget tests that free users never see premium
    data paths
 
-## Tests are suspended for the UI redesign — owner's call, and it has an end
+## The suspension is over — the suite is green and it gates again
 
-While the redesign in `docs/archive/UI_SPEC.md` is in flight, a UI change ships
-without updating the widget tests it breaks, and `sh packages/system_design/tool/test.sh` gates none of
-that work. The reason is churn: the redesign moves layout, sizes and widget
-identity across ~22 screens plus the design system, so most of those tests fail
-on the change rather than on a bug, and fixing them screen by screen would be
-redone at the next iteration.
-
-What this does **not** suspend:
-
-- **`sh packages/system_design/tool/analyze.sh` still passes with zero findings.** It catches real
-  breakage, costs seconds, and does not care how a screen looks.
-- **Non-UI tests stay honest.** `domain/`, `data/`, the correlation engines,
-  migrations and the Cloud Functions are unaffected.
-- **The four priorities above still stand.** Deferred, not dropped.
-
-**The debt must be paid before release**, item 4 most of all — it is what proves
-a free user's tree holds no premium data. When the redesign settles, restore the
-suite and delete this section in the same change.
-
-**Item 4 is paid for the three surfaces added after v1.0**, and those tests are
-not suspended: `factors_gating_test.dart`, `risk_score_gating_test.dart` and
-`midas_gating_test.dart` each assert that a free user's tree holds none of the
-paid vocabulary — not blurred, not offscreen, not built and hidden.
+The redesign's churn is paid off. `flutter test` runs **1008 tests in under a
+minute**, and all four priorities above are back in force, item 4 included:
+`premium_gating_test.dart`, `record_limit_test.dart`, `factors_gating_test.dart`,
+`risk_score_gating_test.dart` and `midas_gating_test.dart` each assert that a free
+user's tree holds none of the paid vocabulary — not blurred, not offscreen, not
+built and hidden.
 
 - **The risk card is absent for a free user, not locked**, so its test asserts
   the widget renders nothing rather than asserting a pitch.
@@ -41,13 +24,30 @@ paid vocabulary — not blurred, not offscreen, not built and hidden.
   `NavigationUtils.toExport` paywalls. The test pins that, so adding a second
   door surfaces the decision instead of quietly giving it away.
 
-**Two known hangs, both timing out at ten minutes rather than failing.** A
-hanging widget test looks like a slow machine, so they are named here:
+**The two "known hangs" were not hangs.** They were failures. A widget test that
+fails leaves work pending and is killed by the ten-minute test timeout rather
+than ending at the failed expectation, so 48 failures cost 172 minutes and read
+as a slow machine. Fixing the assertions took the same run to 57 seconds. **Never
+diagnose a slow suite as a slow machine** — look for the first failure.
 
-| Test | State |
+## Every screen is asked whether it fits
+
+`test/core/screen_overflow_test.dart` pumps each surface — free and premium — and
+calls `tester.takeException()`.
+
+**A `RenderFlex` overflow is a `FlutterError` thrown during layout, not a failed
+expectation.** The binding records it and the run stays green unless a test asks.
+Nothing asked, and the paywall shipped 49px of striped bar across the bottom of
+the screen that sells the app; it was found because an unrelated premium test
+happened to pump it, not because anything was watching.
+
+| | |
 |---|---|
-| `health_sleep_test.dart` — two Insights-card tests | Pre-existing, confirmed by running the file at an earlier commit. Redesign churn, item of the suspension above |
-| The MIDAS questionnaire screen | Cause not found; the test was dropped and what it would have asserted is covered as pure Dart in `midas_test.dart` |
+| Size | `pumpApp`'s own 393x852 — the design size, so an overflow is unambiguous |
+| Asserts | only that the screen fits, never what it looks like |
+| Why that matters | it survives a redesign that moves everything |
+
+A new screen gets a case here in the same change that adds it.
 
 ## The ARB files are checked as data, not through the app
 
