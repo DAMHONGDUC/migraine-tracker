@@ -82,12 +82,13 @@ final attackInProgressProvider = Provider<Attack?>((ref) {
 });
 
 /// Redraws the running timer once a second. `autoDispose` so the ticker dies with the screen — a timer outliving the tree is a leak a widget test reports as a hang.
-final attackElapsedProvider = StreamProvider.autoDispose.family<Duration, DateTime>(
-  (ref, startedAt) => Stream<Duration>.periodic(
-    AttackProgressConstant.tick,
-    (_) => DateTime.now().toUtc().difference(startedAt.toUtc()),
-  ),
-);
+final attackElapsedProvider = StreamProvider.autoDispose
+    .family<Duration, DateTime>(
+      (ref, startedAt) => Stream<Duration>.periodic(
+        AttackProgressConstant.tick,
+        (_) => DateTime.now().toUtc().difference(startedAt.toUtc()),
+      ),
+    );
 
 /// Whether another attack may be logged.
 final canLogAttackProvider = Provider<bool>((ref) {

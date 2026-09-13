@@ -34,6 +34,7 @@ class LogFlowState {
 
   final LogStep step;
   final int? intensity;
+
   /// Every area confirmed on the location step.
   final List<HeadRegion>? regions;
 

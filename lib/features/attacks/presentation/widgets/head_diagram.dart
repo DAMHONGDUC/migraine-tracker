@@ -55,7 +55,7 @@ class HeadDiagram extends StatelessWidget {
                 child: CustomPaint(
                   // The key is on the SizedBox above: the switcher's direct child is what has to change identity to cross-fade.
                   painter: HeadRegionPainter(view: view, selected: selected),
-          // Fill keeps the artwork aligned with the painter's design box.
+                  // Fill keeps the artwork aligned with the painter's design box.
                   child: SvgPicture.asset(_assets[view]!, fit: BoxFit.fill),
                 ),
               ),

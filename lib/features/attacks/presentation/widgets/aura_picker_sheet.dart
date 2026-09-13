@@ -152,11 +152,12 @@ class _AuraTile extends StatelessWidget {
 
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension AuraPickerSheetExt on AuraPickerSheet {
-  Future<({List<AuraType>? aura})?> show(BuildContext context) =>
-      showSdBottomSheetV2<({List<AuraType>? aura})>(
-        context,
-        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
-        isScrollControlled: true,
-        builder: (_) => this,
-      );
+  Future<({List<AuraType>? aura})?> show(
+    BuildContext context,
+  ) => showSdBottomSheetV2<({List<AuraType>? aura})>(
+    context,
+    // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+    isScrollControlled: true,
+    builder: (_) => this,
+  );
 }

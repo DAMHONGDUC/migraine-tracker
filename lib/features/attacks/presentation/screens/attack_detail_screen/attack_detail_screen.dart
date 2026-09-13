@@ -27,6 +27,7 @@ import '../../../providers.dart';
 import '../../widgets/attack_details_sheet.dart';
 import '../../widgets/attack_duration_sheet.dart';
 import '../../widgets/attack_share_sheet.dart';
+import '../../widgets/attack_start_sheet.dart';
 import '../../widgets/aura_picker_sheet.dart';
 import '../../widgets/exertion_picker_sheet.dart';
 import '../../widgets/head_diagram.dart';
@@ -125,6 +126,23 @@ class AttackDetailScreen extends HookConsumerWidget {
     await ref
         .read(attackDetailControllerProvider)
         .updateExertion(attack.id, picked);
+  }
+
+  /// The one edit that also invalidates the weather: the snapshot belonged to the old instant.
+  Future<void> _editStartedAt(
+    BuildContext context,
+    WidgetRef ref,
+    Attack attack,
+  ) async {
+    final ({DateTime startedAt})? picked = await AttackStartSheet(
+      startedAt: attack.startedAt,
+      endedAt: attack.endedAt,
+    ).show(context);
+
+    if (picked == null) return;
+    await ref
+        .read(attackDetailControllerProvider)
+        .updateStartedAt(attack.id, picked.startedAt);
   }
 
   Future<void> _editDuration(
@@ -297,6 +315,14 @@ class AttackDetailScreen extends HookConsumerWidget {
             SizedBox(height: SdSpacingConstant.h16),
             _Section(
               children: [
+                // First, because every other reading on this screen hangs off it — the weather snapshot above all.
+                _EditableRow(
+                  label: l10n.attackDetailStartedAt,
+                  value: DateFormat.yMMMd(
+                    l10n.localeName,
+                  ).add_jm().format(a.startedAt.toLocal()),
+                  onTap: () => _editStartedAt(context, ref, a),
+                ),
                 _EditableRow(
                   label: l10n.attackDetailIntensity,
                   value: '${a.intensity}',

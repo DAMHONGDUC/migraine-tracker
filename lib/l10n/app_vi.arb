@@ -811,5 +811,10 @@
   "blockedAccountBody": "Tài khoản này đã bị khoá. Mọi dữ liệu bạn đã ghi vẫn nằm trên máy — hãy đăng xuất để tiếp tục dùng BaroEase.",
   "blockedAccountSignOut": "Đăng xuất",
   "blockedAccountContact": "Liên hệ hỗ trợ",
-  "blockedAccountSignOutFailed": "Không đăng xuất được. Bạn hãy thử lại."
+  "blockedAccountSignOutFailed": "Không đăng xuất được. Bạn hãy thử lại.",
+  "attackStartSheetTitle": "Cơn đau bắt đầu khi nào?",
+  "attackStartNow": "Vừa xong",
+  "attackStartAgo": "{duration} trước",
+  "attackStartEditLabel": "Sửa thời điểm bắt đầu",
+  "attackDetailStartedAt": "Bắt đầu"
 }

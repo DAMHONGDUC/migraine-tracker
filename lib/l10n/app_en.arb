@@ -3969,5 +3969,30 @@
   "blockedAccountSignOutFailed": "Couldn't sign out. Please try again.",
   "@blockedAccountSignOutFailed": {
     "description": "Snackbar when signing out from the blocked screen failed."
+  },
+  "attackStartSheetTitle": "When did it start?",
+  "@attackStartSheetTitle": {
+    "description": "Title of the sheet that corrects when an attack started"
+  },
+  "attackStartNow": "Just now",
+  "@attackStartNow": {
+    "description": "Option that starts the attack at the current time"
+  },
+  "attackStartAgo": "{duration} ago",
+  "@attackStartAgo": {
+    "description": "Option that starts the attack a given time before now",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "attackStartEditLabel": "Change when it started",
+  "@attackStartEditLabel": {
+    "description": "Accessibility label for the control that opens the start-time sheet"
+  },
+  "attackDetailStartedAt": "Started",
+  "@attackDetailStartedAt": {
+    "description": "Row label for when the attack began, on the attack detail screen"
   }
 }

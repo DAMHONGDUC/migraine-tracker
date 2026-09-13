@@ -811,5 +811,10 @@
   "blockedAccountBody": "此账号已被锁定。你记录的所有内容仍保存在本机——退出登录即可继续使用 BaroEase。",
   "blockedAccountSignOut": "退出登录",
   "blockedAccountContact": "联系支持",
-  "blockedAccountSignOutFailed": "退出登录失败，请重试。"
+  "blockedAccountSignOutFailed": "退出登录失败，请重试。",
+  "attackStartSheetTitle": "什么时候开始的？",
+  "attackStartNow": "刚刚",
+  "attackStartAgo": "{duration}前",
+  "attackStartEditLabel": "修改开始时间",
+  "attackDetailStartedAt": "开始时间"
 }

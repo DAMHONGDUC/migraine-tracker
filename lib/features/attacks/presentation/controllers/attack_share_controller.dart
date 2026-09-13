@@ -23,8 +23,11 @@ class AttackShareController {
     required GlobalKey boundaryKey,
     required String attackId,
   }) async {
-    SdLogger.action(LogTagConstant.attackShare, 'Share attack card', <String,
-        Object?>{'attackId': attackId});
+    SdLogger.action(
+      LogTagConstant.attackShare,
+      'Share attack card',
+      <String, Object?>{'attackId': attackId},
+    );
 
     final Uint8List? bytes = await WidgetCaptureUtils.toPng(
       boundaryKey,
@@ -42,8 +45,11 @@ class AttackShareController {
           .read(exportSharerProvider)
           .shareFile(path: path, mimeType: _mimeType);
       AppAnalytics.logAttackShared();
-      SdLogger.info(LogTagConstant.attackShare, 'Shared attack card', <String,
-          Object?>{'attackId': attackId, 'bytes': bytes.length});
+      SdLogger.info(
+        LogTagConstant.attackShare,
+        'Shared attack card',
+        <String, Object?>{'attackId': attackId, 'bytes': bytes.length},
+      );
 
       return true;
     } catch (error, stackTrace) {

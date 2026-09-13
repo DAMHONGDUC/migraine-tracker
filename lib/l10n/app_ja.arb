@@ -811,5 +811,10 @@
   "blockedAccountBody": "このアカウントはロックされました。記録したデータはすべてこの端末に残ります。サインアウトすると BaroEase を引き続き利用できます。",
   "blockedAccountSignOut": "サインアウト",
   "blockedAccountContact": "サポートに問い合わせる",
-  "blockedAccountSignOutFailed": "サインアウトできませんでした。もう一度お試しください。"
+  "blockedAccountSignOutFailed": "サインアウトできませんでした。もう一度お試しください。",
+  "attackStartSheetTitle": "いつ始まりましたか？",
+  "attackStartNow": "たった今",
+  "attackStartAgo": "{duration}前",
+  "attackStartEditLabel": "開始時刻を変更",
+  "attackDetailStartedAt": "開始"
 }

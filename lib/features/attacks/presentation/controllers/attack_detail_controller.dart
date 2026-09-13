@@ -46,6 +46,40 @@ class AttackDetailController {
     }
   }
 
+  /// Corrects when the attack started, for the one logged hours after it began.
+  ///
+  /// The repository drops the weather snapshot with the edit, so the re-fetch
+  /// is best-effort in the same way the log flow's own attach is (hard rule 4):
+  /// a miss leaves the attack in the backfill queue rather than on a reading
+  /// taken for an hour it did not happen in.
+  Future<void> updateStartedAt(String id, DateTime startedAt) async {
+    SdLogger.action(
+      LogTagConstant.attackDetail,
+      'Edit attack start',
+      <String, Object?>{
+        'id': id,
+        'startedAt': startedAt.toUtc().toIso8601String(),
+      },
+    );
+    AppAnalytics.logAttackEdited();
+    try {
+      await _ref.read(attackRepositoryProvider).updateStartedAt(id, startedAt);
+      unawaited(
+        _ref
+            .read(weatherAttachServiceProvider)
+            .onStartedAtChanged(id, startedAt),
+      );
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.attackDetail,
+        'Update attack start failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
   /// Corrects the exertion answer, which the log flow's fourth step set.
   Future<void> updateExertion(String id, ExertionLevel? exertionLevel) async {
     SdLogger.action(LogTagConstant.attackDetail, 'Edit attack exertion', id);
@@ -67,8 +101,14 @@ class AttackDetailController {
 
   /// Records (or takes back) which auras the attack came with.
   Future<void> updateAura(String id, List<AuraType>? aura) async {
-    SdLogger.action(LogTagConstant.attackDetail, 'Update aura', <String,
-        Object?>{'id': id, 'aura': aura?.map((AuraType a) => a.name).toList()});
+    SdLogger.action(
+      LogTagConstant.attackDetail,
+      'Update aura',
+      <String, Object?>{
+        'id': id,
+        'aura': aura?.map((AuraType a) => a.name).toList(),
+      },
+    );
     try {
       await _ref.read(attackRepositoryProvider).updateAura(id, aura);
     } catch (error, stackTrace) {

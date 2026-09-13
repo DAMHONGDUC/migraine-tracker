@@ -811,5 +811,10 @@
   "blockedAccountBody": "Esta cuenta ha sido bloqueada. Todo lo que has registrado sigue en este dispositivo: cierra sesión para seguir usando BaroEase.",
   "blockedAccountSignOut": "Cerrar sesión",
   "blockedAccountContact": "Contactar con soporte",
-  "blockedAccountSignOutFailed": "No se pudo cerrar sesión. Inténtalo de nuevo."
+  "blockedAccountSignOutFailed": "No se pudo cerrar sesión. Inténtalo de nuevo.",
+  "attackStartSheetTitle": "¿Cuándo empezó?",
+  "attackStartNow": "Ahora mismo",
+  "attackStartAgo": "hace {duration}",
+  "attackStartEditLabel": "Cambiar la hora de inicio",
+  "attackDetailStartedAt": "Inicio"
 }

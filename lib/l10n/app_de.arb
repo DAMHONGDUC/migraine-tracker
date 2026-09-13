@@ -811,5 +811,10 @@
   "blockedAccountBody": "Dieses Konto wurde gesperrt. Alle erfassten Daten bleiben auf diesem Gerät – melde dich ab, um BaroEase weiter zu nutzen.",
   "blockedAccountSignOut": "Abmelden",
   "blockedAccountContact": "Support kontaktieren",
-  "blockedAccountSignOutFailed": "Abmelden nicht möglich. Bitte versuche es erneut."
+  "blockedAccountSignOutFailed": "Abmelden nicht möglich. Bitte versuche es erneut.",
+  "attackStartSheetTitle": "Wann hat es begonnen?",
+  "attackStartNow": "Gerade eben",
+  "attackStartAgo": "vor {duration}",
+  "attackStartEditLabel": "Startzeit ändern",
+  "attackDetailStartedAt": "Begonnen"
 }

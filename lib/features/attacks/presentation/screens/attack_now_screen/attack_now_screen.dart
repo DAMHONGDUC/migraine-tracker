@@ -50,11 +50,7 @@ class AttackNowScreen extends ConsumerWidget {
         );
   }
 
-  Future<void> _end(
-    BuildContext context,
-    WidgetRef ref,
-    Attack attack,
-  ) async {
+  Future<void> _end(BuildContext context, WidgetRef ref, Attack attack) async {
     final AppLocalizations l10n = context.l10n;
 
     await ref

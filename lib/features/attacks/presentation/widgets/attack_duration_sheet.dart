@@ -5,8 +5,7 @@ import '../../../../core/constants/attack_duration_constant.dart';
 import '../../../../core/constants/log_flow_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/duration_label.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_style.dart';
+import 'attack_option_tile.dart';
 
 /// Records how long an attack lasted, after the fact.
 class AttackDurationSheet extends StatelessWidget {
@@ -40,8 +39,8 @@ class AttackDurationSheet extends StatelessWidget {
           if (!sinceStart.isNegative)
             SizedBox(
               // The same box the grid gives every other option: left to size itself it shrank to its line of text, a thin pill above ten chunky tiles.
-              height: _DurationTile.height,
-              child: _DurationTile(
+              height: AttackOptionTile.height,
+              child: AttackOptionTile(
                 label: l10n.attackDurationEndedNow,
                 detail: sinceStart.label(l10n),
                 selected: false,
@@ -58,13 +57,13 @@ class AttackDurationSheet extends StatelessWidget {
               crossAxisCount: LogFlowConstant.optionsPerRow,
               mainAxisSpacing: SdSpacingConstant.h8,
               crossAxisSpacing: SdSpacingConstant.w8,
-              mainAxisExtent: _DurationTile.height,
+              mainAxisExtent: AttackOptionTile.height,
             ),
             itemCount: AttackDurationConstant.options.length,
             itemBuilder: (BuildContext context, int index) {
               final Duration option = AttackDurationConstant.options[index];
 
-              return _DurationTile(
+              return AttackOptionTile(
                 label: option.label(l10n),
                 selected: _selected == option,
                 onTap: () => _pick(context, option),
@@ -80,74 +79,6 @@ class AttackDurationSheet extends StatelessWidget {
               label: l10n.attackDurationNotRecorded,
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _DurationTile extends StatelessWidget {
-  const _DurationTile({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.detail,
-  });
-
-  /// One owner for how tall an option is, used by the grid's `mainAxisExtent` and by the full-width tile above it.
-  static double get height => SdSpacingConstant.h64;
-
-  final String label;
-  final String? detail;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color color = selected ? AppColors.primary : AppColors.textPrimary;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: detail == null ? label : '$label, $detail',
-      excludeSemantics: true,
-      child: SdPressableScaleV2(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
-          decoration: BoxDecoration(
-            color: selected
-                ? AppColors.primary.withValues(alpha: 0.14)
-                // A step above the sheet, or the tile disappears into it.
-                : AppColors.surfaceElevated,
-            borderRadius: BorderRadius.circular(SdSpacingConstant.r16),
-            border: Border.all(
-              color: selected
-                  ? AppColors.primary
-                  : AppColors.textSecondary.withValues(alpha: 0.2),
-              width: selected ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.titleSmall.copyWith(color: color),
-                ),
-              ),
-              if (detail != null) ...<Widget>[
-                SizedBox(width: SdSpacingConstant.w8),
-                Text(detail!, style: AppTextStyle.bodyMedium.secondary),
-              ],
-            ],
-          ),
-        ),
       ),
     );
   }

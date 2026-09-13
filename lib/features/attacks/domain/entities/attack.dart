@@ -99,8 +99,7 @@ class Attack {
   }
 
   /// How long the medication took to work, or null until both halves are answered. Negative is impossible — the sheet will not offer it.
-  Duration? get timeToRelief =>
-      medicationTakenAt == null || reliefAt == null
+  Duration? get timeToRelief => medicationTakenAt == null || reliefAt == null
       ? null
       : reliefAt!.difference(medicationTakenAt!);
 

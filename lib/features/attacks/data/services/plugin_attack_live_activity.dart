@@ -36,7 +36,11 @@ class PluginAttackLiveActivity implements AttackLiveActivity {
         'Live Activities unavailable on this device',
         error,
       );
-      SdLogger.debug(LogTagConstant.attackLog, 'Live Activity stack', stackTrace);
+      SdLogger.debug(
+        LogTagConstant.attackLog,
+        'Live Activity stack',
+        stackTrace,
+      );
       return false;
     }
   }
@@ -49,8 +53,11 @@ class PluginAttackLiveActivity implements AttackLiveActivity {
   }) async {
     if (!await isAvailable) return;
 
-    SdLogger.action(LogTagConstant.attackLog, 'Start live activity', <String,
-        Object?>{'attack': attack.id});
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Start live activity',
+      <String, Object?>{'attack': attack.id},
+    );
     try {
       await _ensureInitialized();
       // The id is the attack's own, so a second start for the same attack refreshes the card instead of stacking a second one.
@@ -58,12 +65,15 @@ class PluginAttackLiveActivity implements AttackLiveActivity {
         'title': title,
         'body': body,
         // Seconds, as a string: the extension rebuilds the Date and lets iOS tick the clock, so nothing here has to push an update a second.
-        'startedAt':
-            (attack.startedAt.millisecondsSinceEpoch ~/ 1000).toString(),
+        'startedAt': (attack.startedAt.millisecondsSinceEpoch ~/ 1000)
+            .toString(),
       }, removeWhenAppIsKilled: false);
       await _store.setString(PrefsKeyConstant.liveActivityId, attack.id);
-      SdLogger.info(LogTagConstant.attackLog, 'Live activity started',
-          attack.id);
+      SdLogger.info(
+        LogTagConstant.attackLog,
+        'Live activity started',
+        attack.id,
+      );
     } catch (error, stackTrace) {
       // The attack is already saved; a card that would not open costs nothing else.
       SdLogger.error(

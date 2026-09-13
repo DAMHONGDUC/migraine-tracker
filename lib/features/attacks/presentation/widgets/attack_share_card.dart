@@ -32,7 +32,10 @@ class AttackShareCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(l10n.attackShareHeadline, style: AppTextStyle.labelSmall.secondary),
+          Text(
+            l10n.attackShareHeadline,
+            style: AppTextStyle.labelSmall.secondary,
+          ),
           SizedBox(height: SdSpacingConstant.h8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -49,9 +52,7 @@ class AttackShareCard extends StatelessWidget {
           SizedBox(height: SdSpacingConstant.h12),
           _CardRow(
             label: l10n.attackShareStarted,
-            value: DateFormat.yMMMd(
-              l10n.localeName,
-            ).add_Hm().format(startedAt),
+            value: DateFormat.yMMMd(l10n.localeName).add_Hm().format(startedAt),
           ),
           if (duration != null)
             _CardRow(
@@ -83,9 +84,7 @@ class _CardRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           // Flex prevents long localized values from crushing their labels.
-          Expanded(
-            child: Text(label, style: AppTextStyle.bodySmall.secondary),
-          ),
+          Expanded(child: Text(label, style: AppTextStyle.bodySmall.secondary)),
           Expanded(
             flex: 2,
             child: Text(

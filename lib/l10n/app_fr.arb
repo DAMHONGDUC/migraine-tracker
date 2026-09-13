@@ -811,5 +811,10 @@
   "blockedAccountBody": "Ce compte a été verrouillé. Tout ce que vous avez enregistré reste sur cet appareil — déconnectez-vous pour continuer à utiliser BaroEase.",
   "blockedAccountSignOut": "Se déconnecter",
   "blockedAccountContact": "Contacter le support",
-  "blockedAccountSignOutFailed": "Déconnexion impossible. Veuillez réessayer."
+  "blockedAccountSignOutFailed": "Déconnexion impossible. Veuillez réessayer.",
+  "attackStartSheetTitle": "Quand a-t-elle commencé ?",
+  "attackStartNow": "À l'instant",
+  "attackStartAgo": "il y a {duration}",
+  "attackStartEditLabel": "Modifier l'heure de début",
+  "attackDetailStartedAt": "Début"
 }
