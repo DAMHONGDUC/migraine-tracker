@@ -17,9 +17,12 @@ sample-data ones — no mixed-language paragraphs, no untranslated quotes. The
 app's user-facing strings are the exception and the opposite: those live in ARB
 files and ship in every locale.
 
-**Explaining a change means showing before and after.** The old code and the new
-one side by side, then what the difference does. A description of a diff is the
-reader taking your word for it; the diff is the reader checking.
+**Explaining a change means showing before and after, as a table.** Owner's
+rule. Columns `What / Before / After`, one row per thing that changes, and each
+half states the *behaviour* — the rule in force, the number on screen, the
+action refused — never the code. A patch answers "what did you type"; the reader
+is deciding "is the new behaviour right". Code appears only where the code is
+itself the subject: an API to call, a value to copy.
 
 **An explanation goes straight to the point — no rambling.** Owner's rule. Answer
 the question that was asked, then stop; length is not thoroughness. **The same
