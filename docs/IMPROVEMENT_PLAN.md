@@ -1,65 +1,209 @@
 # Improvement plan
 
-Written 2026-09-14, after a 30-day simulated run of the app as a chronic
-sufferer (11 attacks a month, Hanoi, free plan, signed out). Ordered by what
-makes the app *wrong* first, what makes it *lose the user* second.
+From a 30-day simulated run of the app as a chronic sufferer — 11 attacks a
+month, Hanoi, free plan, signed out. Ordered by what makes the app *wrong*
+first, what makes it *lose the user* second.
 
-`docs/REMAINING_WORK.md` stays the release checklist; this file is product work.
+Every item is one before/after table of behaviour. `docs/REMAINING_WORK.md`
+stays the release checklist; this file is product work.
 
-## Decisions taken
+| Status | Meaning |
+|---|---|
+| **Shipped** | Committed, analyzer clean, tests green |
+| **Waiting** | Written, in the working tree, not committed — needs a yes |
+| **Planned** | Not started |
 
-| # | Question | Decision | Why |
-|---:|---|---|---|
-| 1 | Auto-advance in the log flow (hard rule 5) | Auto-advance the two single-choice steps, and add a persistent **Save now** | 7 taps → 5, and 2 for the worst attack. Location still waits, because it is multi-pick |
-| 2 | Where trigger tags are analysed | Chips write `DailyFactor` names into the attack, and offer one tap to tick the same factor on today's check-in | A per-attack trigger has no denominator; a per-day factor has one, and `FactorMapEngine` already grades it |
-| 3 | The 40-attack lifetime cap | Logging is never capped. The free plan reads and analyses the last 90 days | Blocking a log blocks a health record the app calls the user's own. The paywall moves to long history, correlation, forecast and the doctor report |
+## Decisions the owner has to make
 
-## Wave 1 — correctness (the numbers the app sells)
+### D1 — Save now, mid-flow · Waiting
 
-| # | Change | Files | Done when |
-|---:|---|---|---|
-| 1.1 | `updateStartedAt` on the repository, revision bumped | `features/attacks/domain/repositories/attack_repository.dart`, `data/repositories/drift_attack_repository.dart` | An edited attack pushes as dirty |
-| 1.2 | Re-attach weather at the new instant; drop the snapshot when the new instant is older than the 7-day backfill window | `attacks/domain/services/weather_attach_service.dart` | A snapshot never belongs to an hour the attack did not happen in |
-| 1.3 | Preset sheet — "just now / 1h / 2h / 4h / last night / yesterday" — from the attack detail header and the saved screen | `attacks/presentation/widgets/attack_start_sheet.dart` | No date picker anywhere; no new required step |
-| 1.4 | Log an attack that already passed, from History | `features/history/presentation/…`, `core/router/navigation_utils.dart` | The flow opens on the start sheet, then runs unchanged |
-| 1.5 | Recover a dead session: verify the token, sign in anonymously again, invalidate weather and sync | `core/bootstrap/app_bootstrap.dart`, `features/weather/data/datasources/backend_weather_data_source.dart` | A deleted server-side user heals on the next launch instead of killing weather |
-| 1.6 | A retry control on the weather card's unavailable state | `core/widgets/weather/` | The card is never a dead end |
-| 1.7 | Trigger chips over the same `DailyFactor` vocabulary, free text kept beside them | `attacks/presentation/widgets/attack_details_sheet.dart` | No schema change: ids go into the existing `triggers` list |
-| 1.8 | One tap from an attack's trigger to today's check-in factors | `features/daily_log/…` | The map's denominator grows every time an attack is logged |
+| What | Before | After |
+|---|---|---|
+| Ways to save an attack | One: answer all four steps | Two: all four steps, or Save now from any step after the first |
+| A 9/10 attack costs | 7 taps, or the record is lost | 2 taps — intensity, Save now |
+| What an early save records | — | Intensity, plus whatever was answered; the rest editable on the detail screen |
+| Location left unanswered | Impossible — the step waits for a pick | Stored empty, which History already filters as "not recorded" |
+| Hard rule 5 | "Three taps, then one skippable step" | Same four steps; Save now is an exit, not a fifth step — the rule text has to say so |
 
-## Wave 2 — the 30-day retention cliff
+**Why it matters**: the person the app is for is, at that moment, trying to put
+the phone down.
 
-| # | Change | Files | Done when |
-|---:|---|---|---|
-| 2.1 | Move `NotificationScheduler` out of `medications/` so `daily_log` may use it | `features/notifications/` | No feature imports another feature's `data/` |
-| 2.2 | Evening check-in reminder, default 20:30, cancelled for a day already answered | `features/daily_log/`, `features/settings/` | It does not spend the free reminder budget, which is for medication |
-| 2.3 | Answer a missed check-in, up to 3 days back | `features/daily_log/presentation/…` | The screen takes a `dayKey`; older than 3 days stays closed |
-| 2.4 | Auto-advance + Save now (decision 1) | `attacks/presentation/controllers/log_controller.dart` | `log_flow_step` funnel is comparable before/after |
-| 2.5 | Alerts state their two preconditions before the tap | `insights/presentation/…`, `core/widgets/sections/` | Nobody meets `accountRequired` as a surprise |
-| 2.6 | Free window replaces the attack cap (decision 3) | `core/constants/premium_limit_constant.dart`, `attacks/providers.dart`, `core/router/navigation_utils.dart` | `canLogAttackProvider` is always true |
+### D2 — Where a trigger is analysed · Planned
+
+| What | Before | After |
+|---|---|---|
+| How a trigger is entered | Free text, comma-separated | Chips over the existing `DailyFactor` vocabulary, free text kept beside them |
+| What the app can do with it | Show it back, filter on the exact words | Count it, and — through the day's factors — grade it |
+| The denominator | None: an attack knows its triggers, a quiet day knows nothing | The check-in's factor list, which `FactorMapEngine` already compares both ways |
+| Ticking a trigger | Touches the attack only | Offers one tap to tick the same factor on today's check-in |
+| New factors beyond the 8 that exist | — | At most 4, each starting its own 28-day clock. **This half needs a yes** |
+
+**Why it matters**: "6 of 11 attacks followed wine" is not evidence until the
+app also knows how many quiet days followed wine.
+
+### D3 — The 40-attack lifetime cap · Planned
+
+| What | Before | After |
+|---|---|---|
+| Free attacks | 40, for life | Unlimited |
+| What the free plan buys | Everything, until the 41st attack | Everything, over the last 90 days |
+| A chronic user (15/month) | Cannot log from month 2.7 | Never blocked |
+| The dashboard banner | Counts down the last 5 logs | Says which date the readable history starts at |
+| What is sold | The right to record | Long history, correlation, forecast, doctor report |
+
+**Why it matters**: the record belongs to the user in every other sentence the
+app says; a wall in front of it contradicts that, and the user who hits it
+leaves rather than pays.
+
+## Wave 1 — correctness
+
+### 1.1 The start time is editable · Shipped
+
+| What | Before | After |
+|---|---|---|
+| An attack's start | Whatever moment Save happened | Editable from the detail screen |
+| A 3am attack logged at 9am | Recorded at 09:00 | Recorded at 03:00 |
+| Yesterday's attack | Cannot be recorded at all | Recorded at yesterday's hour |
+| How the time is entered | — | Presets: just now, 30m, 1h … 48h ago. No date picker |
+| A preset landing after the recorded end | — | Shown, and refused |
+
+### 1.2 The weather follows the start time · Shipped
+
+| What | Before | After |
+|---|---|---|
+| The snapshot after an edit | Kept — a 09:00 reading on a 03:00 attack | Dropped in the same transaction as the edit |
+| Re-fetch | — | The reading for the new instant, within the 7-day backfill window |
+| A failed re-fetch | — | The attack rejoins the backfill queue, with no reading rather than a wrong one |
+
+**Why it matters**: pressure at the wrong hour is the one error that corrupts
+the correlation the app sells.
+
+### 1.4 Logging an attack that already passed · Waiting
+
+| What | Before | After |
+|---|---|---|
+| Recording an earlier attack | Log it now, then correct it on the detail screen | Say when, on the first step, before answering anything |
+| Where the answer is shown | Nowhere | On the button that set it — "Started Sep 13, 03:00" |
+| Default | Now | Now, unchanged |
+
+### 1.5 A dead session heals itself · Waiting
+
+| What | Before | After |
+|---|---|---|
+| Proof of a session | A cached user object | A token the server still honours |
+| Server-side user deleted | Client reports signed in; every callable answers "unauthenticated" | Signed out and signed in again, anonymously |
+| The weather feature in that state | Dead until the app is reinstalled | Works on the next launch |
+| What the user sees | "Weather unavailable", no cause, no action | Weather |
+
+### 1.6 The weather card's dead end · Planned
+
+| What | Before | After |
+|---|---|---|
+| A failed weather read | One line, and a silent auto-retry timer | The same line plus a retry control |
+| A failure that is not transient | Waits forever | One tap re-runs it |
+
+### 1.7 Chips for symptoms and triggers · Planned
+
+| What | Before | After |
+|---|---|---|
+| Entry | Two free-text fields | Chips, plus a free-text field for anything else |
+| Typing during an attack | Required to record anything | Optional |
+| Storage | A list of whatever was typed | The same list; chips write canonical ids, so no schema change |
+| Filtering in History | Matches the exact words the user typed | Matches ids, and still offers the user's own words |
+
+### 1.8 A trigger feeds the day's factors · Planned
+
+| What | Before | After |
+|---|---|---|
+| Ticking "alcohol" on an attack | Recorded on the attack alone | Offers to tick the same factor on today's check-in |
+| The factor map's sample | Grows only on days the user opens the check-in | Grows every time an attack is logged |
+
+## Wave 2 — the 30-day cliff
+
+### 2.1 + 2.2 An evening check-in reminder · Planned
+
+| What | Before | After |
+|---|---|---|
+| What reminds the user to check in | Nothing — reminders exist for medication only | A daily local notification, 20:30 by default, switchable |
+| A day already answered | — | That day's reminder is cancelled, not fired |
+| The free reminder budget (2) | Medication reminders only | Unchanged — the check-in reminder does not spend it |
+| Where the scheduler lives | `medications/data/`, unreachable from `daily_log` | `notifications/`, shared by both |
+
+**Why it matters**: the factor map needs 28 answered days, and today nothing
+asks for them.
+
+### 2.3 Answering a missed check-in · Planned
+
+| What | Before | After |
+|---|---|---|
+| Which day the screen writes | Always today | Today, or a named day up to 3 days back |
+| A day spent lying down | A permanent hole in the control group | Answerable the next morning |
+| Older than 3 days | — | Still closed: that answer would be invention, not memory |
+
+### 2.4 Auto-advance on the single-choice steps · Waiting
+
+| What | Before | After |
+|---|---|---|
+| Medication step | Pick, then Next | The pick advances |
+| Exertion step | Pick, then Next | The pick advances |
+| Location step | Pick, then Next | Unchanged — it takes several areas |
+| A fully answered log | 7 taps | 5 taps |
+| Existing tests | Encode the old sequence | Two need rewriting to the new one |
+
+### 2.5 Alerts state their preconditions · Planned
+
+| What | Before | After |
+|---|---|---|
+| What the alert pitch says | What the alert does | What it does, and that it needs Premium and an account |
+| A Premium user with no account | Flips the switch, then meets an error | Is taken to sign-in |
+| When the user learns about the account | After paying, at the switch | Before tapping |
+
+### 2.6 The free window replaces the cap · Planned
+
+See D3. Nothing is built until that decision lands.
 
 ## Wave 3 — polish
 
-| # | Change | Files |
-|---:|---|---|
-| 3.1 | `CFBundleDisplayName` → BaroEase | `ios/Runner/Info.plist` |
-| 3.2 | Medication and exertion steps: content centred, primary action in the thumb zone | `attacks/presentation/widgets/` |
-| 3.3 | Every waiting analysis says how much is still missing, like the factor map does | `insights/presentation/…` |
-| 3.4 | Run the device checklist — HealthKit, push, widget, Live Activity, Siri | `docs/REMAINING_WORK.md` item 16 |
+### 3.1 One name · Planned
 
-## Rules this plan changes
-
-| Rule | Where it is written | What has to be rewritten with the code |
+| What | Before | After |
 |---|---|---|
-| Hard rule 5, the 3-tap flow | `lib/features/attacks/CLAUDE.md` | What "three taps" means once two steps commit on pick, and that Save now is not a fifth step |
-| The fixed factor list | `lib/features/daily_log/CLAUDE.md`, `docs/rules/DECISIONS.md` | That an attack's triggers and a day's factors share one vocabulary |
-| Free limits | `docs/PREMIUM_RULES.md`, `PremiumLimitConstant` | The attack cap becomes a history window; the access matrix row with it |
+| The name in the permission dialog | "Migraine Tracker" | "BaroEase" |
+| The name everywhere else | "BaroEase" | Unchanged |
 
-## Thresholds this plan does not move
+### 3.2 The two empty steps · Planned
+
+| What | Before | After |
+|---|---|---|
+| Medication and exertion steps on a 6.9" screen | Content at the top, ~60% of the screen empty | Content centred |
+| The primary action | In the app bar, the furthest point from the thumb | In the thumb zone, beside Save now |
+
+### 3.3 Waiting analyses say how far along they are · Planned
+
+| What | Before | After |
+|---|---|---|
+| A card with too little data | "Not enough data yet" | "4 more attacks", "9 more check-ins" — the shape the factor map already uses |
+| A free user's sense of progress | None until the card flips | Visible from the first record |
+
+### 3.4 The device checklist · Planned
+
+| What | Before | After |
+|---|---|---|
+| HealthKit, push, the widget, Live Activity, both Siri phrases | Never verified on hardware | Verified, per `docs/REMAINING_WORK.md` item 16 |
+
+## Rules these changes rewrite
+
+| Rule | Written in | What changes |
+|---|---|---|
+| Hard rule 5, the 3-tap flow | `lib/features/attacks/CLAUDE.md` | Two steps commit on pick; Save now is an exit, not a step |
+| The fixed factor list | `lib/features/daily_log/CLAUDE.md`, `docs/rules/DECISIONS.md` | An attack's triggers and a day's factors share one vocabulary |
+| Free limits | `docs/PREMIUM_RULES.md`, `PremiumLimitConstant` | The attack cap becomes a history window |
+
+## Thresholds nothing here moves
 
 | Number | Value | Why it stays |
 |---|---:|---|
-| `CorrelationEngine.defaultMinAttacks` | 15 | Below it a correlation makes claims a thin sample cannot support |
-| `defaultMinDaysPerSide` | 5 | One day's weather swings the rate 20 points below it |
-| `FactorMapEngine.defaultRequiredDays` | 28 | A month is the shortest honest window for a day-level comparison |
-| Alert dedupe | 3/day, 8h apart | Wave 2 gives the user more reasons to open the app, never more pushes |
+| `CorrelationEngine.defaultMinAttacks` | 15 | Below it a correlation claims what a thin sample cannot support |
+| `defaultMinDaysPerSide` | 5 | One day's weather swings the rate 20 points |
+| `FactorMapEngine.defaultRequiredDays` | 28 | A month is the shortest honest day-level window |
+| Alert dedupe | 3 a day, 8h apart | This plan gives more reasons to open the app, never more pushes |
