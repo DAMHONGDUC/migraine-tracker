@@ -6,9 +6,7 @@ import '../entities/home_widget_snapshot.dart';
 
 /// Turns the app's own data into what the home-screen widget shows. Pure Dart — the numbers are decided here, the wording elsewhere.
 class HomeWidgetSnapshotBuilder {
-  const HomeWidgetSnapshotBuilder({
-    this.weeks = const WeekSummaryCalculator(),
-  });
+  const HomeWidgetSnapshotBuilder({this.weeks = const WeekSummaryCalculator()});
 
   /// The dashboard's own calculator, so the widget's count and the card's can never disagree about where a week starts.
   final WeekSummaryCalculator weeks;

@@ -22,7 +22,10 @@ class DailyStepReader {
     final DateTime end = DateTime(day.year, day.month, day.day, 23, 59, 59);
 
     try {
-      final List<StepDay> days = await _health.stepDays(from: midnight, to: end);
+      final List<StepDay> days = await _health.stepDays(
+        from: midnight,
+        to: end,
+      );
 
       if (days.isEmpty) {
         SdLogger.info(LogTagConstant.dailyLog, 'No step data for this day', {
@@ -39,7 +42,11 @@ class DailyStepReader {
         'Reading the day\'s steps failed; the check-in keeps none',
         error,
       );
-      SdLogger.debug(LogTagConstant.dailyLog, 'Daily step read stack', stackTrace);
+      SdLogger.debug(
+        LogTagConstant.dailyLog,
+        'Daily step read stack',
+        stackTrace,
+      );
       return null;
     }
   }

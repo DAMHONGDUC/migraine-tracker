@@ -25,9 +25,10 @@ import 'domain/services/daily_pressure_recorder.dart';
 import 'presentation/controllers/dev_location_controller.dart';
 
 /// The dev-only faked position. [DevLocation.off] everywhere in a prod flavour, whatever is stored.
-final devLocationProvider = NotifierProvider<DevLocationController, DevLocation>(
-  DevLocationController.new,
-);
+final devLocationProvider =
+    NotifierProvider<DevLocationController, DevLocation>(
+      DevLocationController.new,
+    );
 
 /// The real device position, unless a dev build has pinned a city.
 final locationSourceProvider = Provider<LocationSource>((ref) {

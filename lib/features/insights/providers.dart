@@ -73,13 +73,11 @@ final midasEntriesProvider = StreamProvider<List<MidasEntry>>(
 );
 
 /// The score the doctor report carries, or null while the questionnaire has never been answered.
-final latestMidasProvider = FutureProvider<MidasEntry?>(
-  (ref) async {
-    // Watched rather than read once: answering the questionnaire must refresh what the report would print.
-    await ref.watch(midasEntriesProvider.future);
-    return ref.watch(midasRepositoryProvider).latest();
-  },
-);
+final latestMidasProvider = FutureProvider<MidasEntry?>((ref) async {
+  // Watched rather than read once: answering the questionnaire must refresh what the report would print.
+  await ref.watch(midasEntriesProvider.future);
+  return ref.watch(midasRepositoryProvider).latest();
+});
 
 /// Owns the questionnaire while it is open (see [MidasController]).
 final midasControllerProvider = NotifierProvider<MidasController, MidasDraft>(
@@ -162,7 +160,9 @@ final sleepCorrelationProvider = FutureProvider<SleepCorrelationResult>((
     return const SleepNotConnected();
   }
 
-  final SleepCorrelationEngine engine = ref.watch(sleepCorrelationEngineProvider);
+  final SleepCorrelationEngine engine = ref.watch(
+    sleepCorrelationEngineProvider,
+  );
   final List<Attack> attacks = await ref.watch(attacksStreamProvider.future);
   final DateTime now = DateTime.now();
   final DateTime from = DateTime(
@@ -240,7 +240,8 @@ final triggerVerdictProvider = Provider<TriggerVerdict>((ref) {
           attacksAnalyzed: 0,
           requiredAttacks: CorrelationEngine.defaultMinAttacks,
         ),
-    sleep: ref.watch(sleepCorrelationProvider).value ?? const SleepNotConnected(),
+    sleep:
+        ref.watch(sleepCorrelationProvider).value ?? const SleepNotConnected(),
     steps: ref.watch(stepCorrelationProvider).value ?? const StepNotConnected(),
   );
 });
@@ -360,9 +361,9 @@ final rangedSleepNightsProvider = FutureProvider<List<SleepNight>>((ref) async {
         to: now,
       );
 });
+
 /// Which of Insights' cards is showing. See [InsightsTabController].
 final insightsTabProvider =
     NotifierProvider<InsightsTabController, InsightsTab>(
       InsightsTabController.new,
     );
-

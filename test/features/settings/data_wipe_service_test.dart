@@ -189,10 +189,12 @@ void main() {
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),
-    ).wipeAll(onProgress: (done, steps) {
-      expect(steps, DataWipeService.steps);
-      reported.add(done);
-    });
+    ).wipeAll(
+      onProgress: (done, steps) {
+        expect(steps, DataWipeService.steps);
+        reported.add(done);
+      },
+    );
 
     // Starts at 0 so the row can show a bar before the first step lands, then climbs one at a time and stops on the last.
     expect(reported, <int>[for (int i = 0; i <= DataWipeService.steps; i++) i]);
@@ -285,8 +287,8 @@ void main() {
         DriftDailyLogRepository(db),
         DriftMidasRepository(db),
         RecordingShareFileStore(),
-      RecordingHomeWidgetRepository(),
-      RecordingLiveActivity(),
+        RecordingHomeWidgetRepository(),
+        RecordingLiveActivity(),
       ).wipeAll();
 
       // The FCM token is the one thing that can still reach someone after they deleted everything.

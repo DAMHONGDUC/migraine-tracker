@@ -59,12 +59,14 @@ final premiumEnabledProvider = Provider<bool>(
 
 /// Premium granted by the list rather than bought — the App Review account, and the owner's own (owner's rule). Read by `hasPremiumProvider`, ahead of the entitlement.
 final hasGrantedPremiumProvider = Provider<bool>(
-  (ref) => ref.watch(_configProvider).isPremium(ref.watch(_configEmailProvider)),
+  (ref) =>
+      ref.watch(_configProvider).isPremium(ref.watch(_configEmailProvider)),
 );
 
 /// Whether the signed-in address is locked out. False for an anonymous session, for a read still in flight, and for a read that failed — a list is something an address has to be put on, and a failed read must not lock somebody out of an app whose data is on their own device.
 final isAccountBlockedProvider = Provider<bool>(
-  (ref) => ref.watch(_configProvider).isBlocked(ref.watch(_configEmailProvider)),
+  (ref) =>
+      ref.watch(_configProvider).isBlocked(ref.watch(_configEmailProvider)),
 );
 
 /// Whether Settings shows its Dev group.

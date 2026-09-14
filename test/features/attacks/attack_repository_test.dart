@@ -147,17 +147,20 @@ void main() {
     expect(attack.exertionLevel, fullAttack().exertionLevel);
   });
 
-  test('updateExertion corrects the answer without touching the rest', () async {
-    await repository.insert(fullAttack());
+  test(
+    'updateExertion corrects the answer without touching the rest',
+    () async {
+      await repository.insert(fullAttack());
 
-    await repository.updateExertion('a1', ExertionLevel.none);
+      await repository.updateExertion('a1', ExertionLevel.none);
 
-    final attack = (await repository.watchAll().first).single;
-    expect(attack.exertionLevel, ExertionLevel.none);
-    expect(attack.symptoms, fullAttack().symptoms);
-    expect(attack.notes, fullAttack().notes);
-    expect(attack.intensity, fullAttack().intensity);
-  });
+      final attack = (await repository.watchAll().first).single;
+      expect(attack.exertionLevel, ExertionLevel.none);
+      expect(attack.symptoms, fullAttack().symptoms);
+      expect(attack.notes, fullAttack().notes);
+      expect(attack.intensity, fullAttack().intensity);
+    },
+  );
 
   group('detail screen support', () {
     test(

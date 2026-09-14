@@ -39,8 +39,10 @@ void main() {
 
     // Half an answer measures nothing, and must not be shown as if it did.
     test('a dose with no relief has no time to relief', () {
-      expect(attack(takenAt: DateTime.utc(2026, 7, 1, 8, 20)).timeToRelief,
-          isNull);
+      expect(
+        attack(takenAt: DateTime.utc(2026, 7, 1, 8, 20)).timeToRelief,
+        isNull,
+      );
     });
 
     test('neither half answered has no time to relief', () {
@@ -93,8 +95,10 @@ void main() {
         reliefAt: null,
       );
 
-      expect((await db.select(db.attacks).getSingle()).revision,
-          greaterThan(before));
+      expect(
+        (await db.select(db.attacks).getSingle()).revision,
+        greaterThan(before),
+      );
     });
   });
 

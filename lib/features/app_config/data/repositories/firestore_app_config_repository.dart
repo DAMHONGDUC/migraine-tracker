@@ -42,14 +42,11 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
             // owner never threw, and the document exists for whichever other
             // field they did write. Only a real `false` turns premium off, so
             // `"false"` typed into the console as a string does nothing.
-            premiumEnabled:
-                data[AppConfigSchema.premiumEnabledField] != false,
+            premiumEnabled: data[AppConfigSchema.premiumEnabledField] != false,
             premiumEmails: _emails(data[AppConfigSchema.premiumEmailsField]),
             devModeEmails: _emails(data[AppConfigSchema.devModeEmailsField]),
             blockedEmails: _emails(data[AppConfigSchema.blockedEmailsField]),
-            forceUpdate: _forceUpdate(
-              data[AppConfigSchema.forceUpdateField],
-            ),
+            forceUpdate: _forceUpdate(data[AppConfigSchema.forceUpdateField]),
           );
 
           // Counts, never the addresses: this line says how many people are

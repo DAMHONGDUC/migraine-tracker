@@ -27,10 +27,7 @@ class PressureHistoryBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          l10n.insightsPressureHistoryTitle,
-          style: AppTextStyle.titleSmall,
-        ),
+        Text(l10n.insightsPressureHistoryTitle, style: AppTextStyle.titleSmall),
         SizedBox(height: SdSpacingConstant.h12),
         if (timeline.isEmpty)
           SdEmptyStateV2(

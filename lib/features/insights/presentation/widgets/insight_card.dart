@@ -54,10 +54,7 @@ class InsightCard extends StatelessWidget {
     return SdCardV2(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: gutter,
-          vertical: stackGap,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: gutter, vertical: stackGap),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[

@@ -82,7 +82,8 @@ class _TileEnd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget? end = valueTag ??
+    final Widget? end =
+        valueTag ??
         (value == null
             ? null
             : Text(

@@ -117,14 +117,13 @@ class FirebaseAlertRegistrationRepository
   Future<void> unregister() => _clear(<String>['fcmToken']);
 
   @override
-  Future<void> forgetRegistration() =>
-      _clear(<String>[
-        'fcmToken',
-        'geohash5',
-        'alertThreshold',
-        'tz',
-        'tzOffsetMinutes',
-      ]);
+  Future<void> forgetRegistration() => _clear(<String>[
+    'fcmToken',
+    'geohash5',
+    'alertThreshold',
+    'tz',
+    'tzOffsetMinutes',
+  ]);
 
   @override
   Future<void> sendTestPush() async {

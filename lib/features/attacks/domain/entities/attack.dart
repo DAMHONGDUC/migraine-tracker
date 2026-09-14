@@ -35,11 +35,11 @@ class Attack {
          intensity >= 1 && intensity <= 10,
          'intensity must be within 1..10',
        ),
+
        // Empty is a real answer, not a skipped field: `LogController.saveNow`
        // exists for the attack too bad to finish answering, and "no area
        // recorded" beats no attack recorded. Everything that prints an area
        // reads `HeadRegionListLabel.label`, which says so in words.
-
        assert(
          endedAt == null || !endedAt.toUtc().isBefore(startedAt.toUtc()),
          'an attack cannot end before it started',

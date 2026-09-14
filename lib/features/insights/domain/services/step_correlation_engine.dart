@@ -62,7 +62,8 @@ class StepCorrelationEngine {
         restDays.length >= minDaysPerGroup;
 
     // "The same activity" is only a verdict at a real sample; below it the card shows the two averages, which need no spread to be true.
-    if (settled && (restAverage - attackAverage).abs() < variationEpsilonSteps) {
+    if (settled &&
+        (restAverage - attackAverage).abs() < variationEpsilonSteps) {
       return StepNoVariation(daysAnalyzed: days.length);
     }
 

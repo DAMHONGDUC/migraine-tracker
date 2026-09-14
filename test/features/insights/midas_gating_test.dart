@@ -9,8 +9,9 @@ import '../../helpers/pump_app.dart';
 /// gate of its own. That is a real product fact and this is what pins it: if a
 /// second door is ever added, this test is where the decision surfaces.
 void main() {
-  testWidgets('a free user is sent to the paywall instead of the export screen',
-      (tester) async {
+  testWidgets('a free user is sent to the paywall instead of the export screen', (
+    tester,
+  ) async {
     await pumpApp(tester);
     await openSettings(tester);
     await tapVisible(tester, find.text('Export data'));

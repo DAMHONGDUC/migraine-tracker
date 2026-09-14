@@ -121,6 +121,4 @@ final stepSummaryProvider = FutureProvider<StepSummary>((ref) async {
 
 /// Which Apple Health sources the user connected (see [HealthController]).
 final healthControllerProvider =
-    NotifierProvider<HealthController, HealthConnections>(
-      HealthController.new,
-    );
+    NotifierProvider<HealthController, HealthConnections>(HealthController.new);

@@ -33,7 +33,7 @@ class PressureForecastBody extends ConsumerWidget {
     final forecast = ref.watch(pressureForecastProvider);
 
     return switch (forecast) {
-          // Show attribution only with weather data.
+      // Show attribution only with weather data.
       AsyncData(value: final value) when value != null => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[

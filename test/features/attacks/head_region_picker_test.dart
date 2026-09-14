@@ -64,8 +64,9 @@ void main() {
     await pumpPicker(tester);
 
     // Every scrollable in the tree must refuse to scroll: the grid shrink wraps, and nothing above it may add one either.
-    for (final Scrollable scrollable
-        in tester.widgetList<Scrollable>(find.byType(Scrollable))) {
+    for (final Scrollable scrollable in tester.widgetList<Scrollable>(
+      find.byType(Scrollable),
+    )) {
       expect(scrollable.physics, isA<NeverScrollableScrollPhysics>());
     }
     expect(tester.takeException(), isNull);

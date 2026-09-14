@@ -63,8 +63,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(
-        find.text('${PremiumLimitConstant.attacksWarnAt} logs left on the '
-            'free plan'),
+        find.text(
+          '${PremiumLimitConstant.attacksWarnAt} logs left on the '
+          'free plan',
+        ),
         findsOneWidget,
       );
 

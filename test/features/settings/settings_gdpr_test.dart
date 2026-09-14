@@ -66,29 +66,30 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('sharing a history row hands the stored file to the share sheet', (
-    tester,
-  ) async {
-    final sharer = RecordingExportSharer();
-    final app = await pumpApp(tester, premium: true, exportSharer: sharer);
+  testWidgets(
+    'sharing a history row hands the stored file to the share sheet',
+    (tester) async {
+      final sharer = RecordingExportSharer();
+      final app = await pumpApp(tester, premium: true, exportSharer: sharer);
 
-    await logAttack(tester);
-    await openExportScreen(tester);
-    await tapVisible(tester, find.text('Export'));
-    await tester.tap(find.text('JSON'));
-    await settleExport(tester);
+      await logAttack(tester);
+      await openExportScreen(tester);
+      await tapVisible(tester, find.text('Export'));
+      await tester.tap(find.text('JSON'));
+      await settleExport(tester);
 
-    // Tap the history row, then Share in its actions sheet.
-    await tapVisible(tester, find.text('JSON'));
-    await tester.tap(find.text('Share'));
-    await settleExport(tester);
+      // Tap the history row, then Share in its actions sheet.
+      await tapVisible(tester, find.text('JSON'));
+      await tester.tap(find.text('Share'));
+      await settleExport(tester);
 
-    expect(sharer.shared, hasLength(1));
-    expect(sharer.shared.single.mimeType, 'application/json');
-    expect(sharer.shared.single.path, app.exportFiles.files.keys.single);
+      expect(sharer.shared, hasLength(1));
+      expect(sharer.shared.single.mimeType, 'application/json');
+      expect(sharer.shared.single.path, app.exportFiles.files.keys.single);
 
-    await finishTest(tester);
-  });
+      await finishTest(tester);
+    },
+  );
 
   testWidgets('save to device copies the stored export through the picker', (
     tester,

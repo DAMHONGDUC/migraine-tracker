@@ -13,7 +13,11 @@ class WeatherDetailScreen extends StatefulWidget {
 /// Everything the screen is opened with, in one object.
 @immutable
 class WeatherDetailArgs {
-  const WeatherDetailArgs({required this.title, required this.data, this.place});
+  const WeatherDetailArgs({
+    required this.title,
+    required this.data,
+    this.place,
+  });
 
   final String title;
   final WeatherCardData data;

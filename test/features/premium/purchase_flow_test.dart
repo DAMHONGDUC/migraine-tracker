@@ -251,7 +251,9 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('tapping restore twice runs one restore, not two', (tester) async {
+  testWidgets('tapping restore twice runs one restore, not two', (
+    tester,
+  ) async {
     // A store call takes seconds with nothing on screen to show for it, so an impatient second tap is the normal case. Two restores landing together popped twice, and the second pop took the screen under the paywall with it.
     final PumpedApp app = await pumpApp(tester, signedIn: true);
 

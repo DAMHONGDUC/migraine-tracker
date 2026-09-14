@@ -36,12 +36,19 @@ class IntensityTrendChart extends StatelessWidget {
           maxY: LogFlowConstant.intensityMax,
           minX: 0,
           maxX: (points.length - 1).toDouble(),
-          gridData: SdChartStyleV2.horizontalGrid(context, LogFlowConstant.intensityGridInterval),
+          gridData: SdChartStyleV2.horizontalGrid(
+            context,
+            LogFlowConstant.intensityGridInterval,
+          ),
           borderData: FlBorderData(show: false),
           titlesData: SdChartStyleV2.titles(
-            left: SdChartStyleV2.countLeftTitles(context, LogFlowConstant.intensityGridInterval),
+            left: SdChartStyleV2.countLeftTitles(
+              context,
+              LogFlowConstant.intensityGridInterval,
+            ),
             // Label every other week to avoid collisions.
-            bottom: SdChartStyleV2.categoryBottomTitles(context, 
+            bottom: SdChartStyleV2.categoryBottomTitles(
+              context,
               (int index) => index.isOdd || index >= points.length
                   ? null
                   : weekLabel.format(points[index].weekStart),

@@ -24,9 +24,9 @@ void main() {
   ) async {
     final PumpedApp app = await pumpApp(tester);
 
-    await DriftDailyLogRepository(app.db).save(
-      DailyLog(day: DateTime.now(), sleepQuality: 3, stressLevel: 2),
-    );
+    await DriftDailyLogRepository(
+      app.db,
+    ).save(DailyLog(day: DateTime.now(), sleepQuality: 3, stressLevel: 2));
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Today is recorded'), findsOneWidget);
@@ -40,9 +40,9 @@ void main() {
   ) async {
     final PumpedApp app = await pumpApp(tester);
 
-    await DriftDailyLogRepository(app.db).save(
-      DailyLog(day: DateTime.now(), steps: 4200),
-    );
+    await DriftDailyLogRepository(
+      app.db,
+    ).save(DailyLog(day: DateTime.now(), steps: 4200));
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('How was today?'), findsOneWidget);

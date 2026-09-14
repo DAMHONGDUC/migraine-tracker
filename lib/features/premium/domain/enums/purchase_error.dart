@@ -32,5 +32,6 @@ class PurchaseException implements Exception {
   final String? message;
 
   @override
-  String toString() => 'PurchaseException($error${message == null ? '' : ': $message'})';
+  String toString() =>
+      'PurchaseException($error${message == null ? '' : ': $message'})';
 }

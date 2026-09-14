@@ -35,7 +35,7 @@ class _Effectiveness extends ConsumerWidget {
             children: <Widget>[
               Text(row.reliefLabel(l10n), style: AppTextStyle.titleMedium),
               SizedBox(height: SdSpacingConstant.h8),
-        // The breakdown distinguishes partial relief from no relief.
+              // The breakdown distinguishes partial relief from no relief.
               Text(
                 <String>[
                   '${l10n.medicationEffectHelped}: ${row.helpedCount}',

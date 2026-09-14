@@ -19,8 +19,10 @@ class TriggerVerdictBody extends ConsumerWidget {
     final TriggerVerdict verdict = ref.watch(triggerVerdictProvider);
 
     return switch (verdict) {
-      TriggerVerdictPending(:final int attacksAnalyzed, :final int
-          requiredAttacks) =>
+      TriggerVerdictPending(
+        :final int attacksAnalyzed,
+        :final int requiredAttacks,
+      ) =>
         _Verdict(
           headline: l10n.insightsVerdictPending(
             attacksAnalyzed,
@@ -47,8 +49,9 @@ class TriggerVerdictBody extends ConsumerWidget {
   }
 
   String? _alternativeLine(AppLocalizations l10n, TriggerVerdict verdict) {
-    if (verdict case TriggerVerdictAnswer(alternative: final TriggerStrength
-        alternative)) {
+    if (verdict case TriggerVerdictAnswer(
+      alternative: final TriggerStrength alternative,
+    )) {
       return l10n.insightsVerdictAlternative(alternative.factor.label(l10n));
     }
 

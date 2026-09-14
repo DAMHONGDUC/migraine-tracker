@@ -60,9 +60,7 @@ class _AverageRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Expanded(
-          child: Text(label, style: AppTextStyle.bodyMedium.secondary),
-        ),
+        Expanded(child: Text(label, style: AppTextStyle.bodyMedium.secondary)),
         SizedBox(width: SdSpacingConstant.w12),
         Text(value, style: AppTextStyle.bodyMedium.w600),
       ],

@@ -17,7 +17,10 @@ final weekSummaryProvider = Provider<WeekSummary>((ref) {
 
 /// Whether the dashboard's "Today" section has anything to say.
 final hasTodayReadingsProvider = Provider<bool>((ref) {
-  final WeatherConditions? now = ref.watch(weatherReportProvider).value?.current;
+  final WeatherConditions? now = ref
+      .watch(weatherReportProvider)
+      .value
+      ?.current;
 
   return (ref.watch(hasPremiumProvider) && now?.pressureHpa != null) ||
       ref.watch(stepSummaryProvider).value?.latest != null ||

@@ -57,7 +57,10 @@ void main() {
       SdAppBarButtonV2.tapSize,
     );
     // The whole square is the target, so it dwarfs the mark drawn in it.
-    expect(SdAppBarButtonV2.tapSize, greaterThan(SdAppBarButtonV2.iconSize * 2));
+    expect(
+      SdAppBarButtonV2.tapSize,
+      greaterThan(SdAppBarButtonV2.iconSize * 2),
+    );
   });
 
   testWidgets('a tap in the corner of the square still counts', (tester) async {

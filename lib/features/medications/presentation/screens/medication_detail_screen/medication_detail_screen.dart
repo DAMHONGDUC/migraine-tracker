@@ -164,10 +164,7 @@ class MedicationDetailScreen extends ConsumerWidget {
           children: <Widget>[
             _Header(medication: medication),
             SizedBox(height: SdSpacingConstant.h24),
-            SdSectionHeaderV2(
-              l10n.medicationDetailEffectiveness,
-              first: true,
-            ),
+            SdSectionHeaderV2(l10n.medicationDetailEffectiveness, first: true),
             _Effectiveness(medicationName: medication.name),
             SizedBox(height: SdSpacingConstant.h24),
             SdSectionHeaderV2(l10n.medicationDetailReminders),

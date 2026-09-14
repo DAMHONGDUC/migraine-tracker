@@ -96,7 +96,9 @@ void main() {
     expect(find.byType(Scrollable), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
     expect(
-      tester.state<ScrollableState>(find.byType(Scrollable)).position
+      tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position
           .maxScrollExtent,
       greaterThan(0),
       reason: 'ten days in the window means there is something to scroll',

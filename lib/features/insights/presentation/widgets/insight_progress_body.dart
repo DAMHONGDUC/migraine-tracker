@@ -4,7 +4,6 @@ import 'package:system_design/index.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 
-
 /// An insight that cannot be computed yet, shown as the road to it rather than a locked door.
 class InsightProgressBody extends StatelessWidget {
   const InsightProgressBody({
@@ -39,9 +38,7 @@ class InsightProgressBody extends StatelessWidget {
               color: context.colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: SdSpacingConstant.w8),
-            Expanded(
-              child: Text(message, style: AppTextStyle.bodyMedium),
-            ),
+            Expanded(child: Text(message, style: AppTextStyle.bodyMedium)),
           ],
         ),
         SizedBox(height: SdSpacingConstant.h12),

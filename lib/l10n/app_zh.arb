@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "其他症状",
   "detailsTriggersOther": "其他诱因",
   "detailsAlsoOnCheckIn": "同时记入当天的签到",
-  "detailsAlsoOnCheckInBody": "只有和不痛的日子相比，诱因才有意义。"
+  "detailsAlsoOnCheckInBody": "只有和不痛的日子相比，诱因才有意义。",
+  "dailyLogCardMissed": "{count, plural, other{还有 {count} 天未填写}}",
+  "dailyLogCardMissedBody": "现在填写依然计入统计。"
 }

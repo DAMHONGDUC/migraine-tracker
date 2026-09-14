@@ -358,23 +358,24 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('below the data threshold it still sees the pitch, not progress', (
-      tester,
-    ) async {
-      await pumpApp(tester); // no attacks
-      await openPressureInsight(tester);
+    testWidgets(
+      'below the data threshold it still sees the pitch, not progress',
+      (tester) async {
+        await pumpApp(tester); // no attacks
+        await openPressureInsight(tester);
 
-      // The gate comes before the data now.
-      expect(find.text(lockedPressurePitch), findsOneWidget);
-      expect(
-        find.text(
-          'Log 15 more attacks with weather data to unlock this insight.',
-        ),
-        findsNothing,
-      );
+        // The gate comes before the data now.
+        expect(find.text(lockedPressurePitch), findsOneWidget);
+        expect(
+          find.text(
+            'Log 15 more attacks with weather data to unlock this insight.',
+          ),
+          findsNothing,
+        );
 
-      await finishTest(tester);
-    });
+        await finishTest(tester);
+      },
+    );
   });
 
   group('premium user', () {

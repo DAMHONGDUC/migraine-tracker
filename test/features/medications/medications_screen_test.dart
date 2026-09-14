@@ -37,7 +37,10 @@ void main() {
     final double rowBefore = tester.getTopLeft(firstRow).dy;
 
     // Drag a reminder row, so the gesture lands inside the list's scroll view.
-    await tester.drag(find.byIcon(AppIconConstant.reminder).first, const Offset(0, -300));
+    await tester.drag(
+      find.byIcon(AppIconConstant.reminder).first,
+      const Offset(0, -300),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

@@ -72,7 +72,11 @@ void main() {
     final List<Attack> attacks = <Attack>[
       attack(id: 'both', startedAt: DateTime(2026, 7, 8, 9), intensity: 2),
       attack(id: 'oldMild', startedAt: DateTime(2026, 6, 20), intensity: 2),
-      attack(id: 'todayHard', startedAt: DateTime(2026, 7, 8, 10), intensity: 9),
+      attack(
+        id: 'todayHard',
+        startedAt: DateTime(2026, 7, 8, 10),
+        intensity: 9,
+      ),
     ];
 
     expect(
@@ -149,30 +153,25 @@ void main() {
     });
 
     test('"no aura" covers both ways of not having one', () {
-      expect(
-        ids(attacks, const AttackFilters(aura: AuraFilter.none)),
-        <String>['answeredNone', 'neverAsked'],
-      );
+      expect(ids(attacks, const AttackFilters(aura: AuraFilter.none)), <String>[
+        'answeredNone',
+        'neverAsked',
+      ]);
     });
   });
 
   test('an area matches an attack naming any region on that side', () {
     final List<Attack> attacks = <Attack>[
-      attack(
-        id: 'leftTemple',
-        regions: const <HeadRegion>[HeadRegion.templeL],
-      ),
+      attack(id: 'leftTemple', regions: const <HeadRegion>[HeadRegion.templeL]),
       attack(id: 'nape', regions: const <HeadRegion>[HeadRegion.nape]),
     ];
 
-    expect(
-      ids(attacks, const AttackFilters(area: AreaFilter.left)),
-      <String>['leftTemple'],
-    );
-    expect(
-      ids(attacks, const AttackFilters(area: AreaFilter.back)),
-      <String>['nape'],
-    );
+    expect(ids(attacks, const AttackFilters(area: AreaFilter.left)), <String>[
+      'leftTemple',
+    ]);
+    expect(ids(attacks, const AttackFilters(area: AreaFilter.back)), <String>[
+      'nape',
+    ]);
   });
 
   group('medication', () {
@@ -184,7 +183,10 @@ void main() {
 
     test('an empty name is the same answer as none', () {
       expect(
-        ids(attacks, const AttackFilters(medication: MedicationFilter.notTaken)),
+        ids(
+          attacks,
+          const AttackFilters(medication: MedicationFilter.notTaken),
+        ),
         <String>['blank', 'none'],
       );
     });
@@ -219,10 +221,9 @@ void main() {
       attack(id: 'other', symptoms: const <String>['dizziness']),
     ];
 
-    expect(
-      ids(attacks, const AttackFilters(symptom: ' nausea ')),
-      <String>['nausea'],
-    );
+    expect(ids(attacks, const AttackFilters(symptom: ' nausea ')), <String>[
+      'nausea',
+    ]);
   });
 
   test('exertion matches the recorded level only', () {

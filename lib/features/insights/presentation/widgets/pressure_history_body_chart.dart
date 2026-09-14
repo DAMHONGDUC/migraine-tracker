@@ -103,9 +103,7 @@ class _Chart extends StatelessWidget {
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   getTooltipColor: (_) => AppColors.surfaceElevated,
-                  getTooltipItems: (List<LineBarSpot> touched) => <
-                    LineTooltipItem
-                  >[
+                  getTooltipItems: (List<LineBarSpot> touched) => <LineTooltipItem>[
                     for (final LineBarSpot spot in touched)
                       LineTooltipItem(
                         '${l10n.insightsPressureValue(spot.y.toStringAsFixed(1))}\n'

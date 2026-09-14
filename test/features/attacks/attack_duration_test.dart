@@ -53,9 +53,15 @@ void main() {
       );
     });
 
-    test('ending in the same instant it started is a zero duration, not an error', () {
-      expect(attack(endedAt: DateTime.utc(2026, 7, 1, 8)).duration, Duration.zero);
-    });
+    test(
+      'ending in the same instant it started is a zero duration, not an error',
+      () {
+        expect(
+          attack(endedAt: DateTime.utc(2026, 7, 1, 8)).duration,
+          Duration.zero,
+        );
+      },
+    );
   });
 
   group('the repository', () {

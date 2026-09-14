@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "Autres symptômes",
   "detailsTriggersOther": "Autres facteurs",
   "detailsAlsoOnCheckIn": "Enregistrer aussi dans le bilan de ce jour",
-  "detailsAlsoOnCheckInBody": "Un facteur ne se mesure que face aux jours sans douleur."
+  "detailsAlsoOnCheckInBody": "Un facteur ne se mesure que face aux jours sans douleur.",
+  "dailyLogCardMissed": "{count, plural, =1{1 jour sans réponse} other{{count} jours sans réponse}}",
+  "dailyLogCardMissedBody": "Répondez maintenant, cela compte toujours."
 }

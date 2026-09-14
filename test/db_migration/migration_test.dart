@@ -267,35 +267,32 @@ void main() {
     await verifier.migrateAndValidate(db, db.schemaVersion);
   });
 
-  test(
-    'v9 recreates the notifications table whatever v8 left behind',
-    () async {
-      final schema = await verifier.schemaAt(8);
-      // The shape the intermediate v8 actually had on a dev device: the type column under its old name.
-      schema.rawDatabase
-        ..execute('DROP TABLE IF EXISTS app_notifications')
-        ..execute(
-          'CREATE TABLE app_notifications (id TEXT NOT NULL PRIMARY KEY, '
-          'kind TEXT NOT NULL, occurred_at INTEGER NOT NULL)',
+  test('v9 recreates the notifications table whatever v8 left behind', () async {
+    final schema = await verifier.schemaAt(8);
+    // The shape the intermediate v8 actually had on a dev device: the type column under its old name.
+    schema.rawDatabase
+      ..execute('DROP TABLE IF EXISTS app_notifications')
+      ..execute(
+        'CREATE TABLE app_notifications (id TEXT NOT NULL PRIMARY KEY, '
+        'kind TEXT NOT NULL, occurred_at INTEGER NOT NULL)',
+      );
+
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, db.schemaVersion);
+
+    // Writable under today's definition — the failure this fixes was an insert against a table that had no `type` column.
+    await db
+        .into(db.appNotifications)
+        .insert(
+          AppNotificationsCompanion.insert(
+            id: 'rem:r1:1',
+            type: NotificationType.medicationReminder,
+            occurredAt: DateTime.now().toUtc(),
+          ),
         );
-
-      final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
-      await verifier.migrateAndValidate(db, db.schemaVersion);
-
-      // Writable under today's definition — the failure this fixes was an insert against a table that had no `type` column.
-      await db
-          .into(db.appNotifications)
-          .insert(
-            AppNotificationsCompanion.insert(
-              id: 'rem:r1:1',
-              type: NotificationType.medicationReminder,
-              occurredAt: DateTime.now().toUtc(),
-            ),
-          );
-      expect(await db.select(db.appNotifications).get(), hasLength(1));
-    },
-  );
+    expect(await db.select(db.appNotifications).get(), hasLength(1));
+  });
 
   test('reminders still cascade after v8', () async {
     final schema = await verifier.schemaAt(6);
@@ -474,14 +471,16 @@ void main() {
     await verifier.migrateAndValidate(db, db.schemaVersion);
   });
 
-  test('migrates from v19 to v20 (adds the day humidity and temperature)',
-      () async {
-    final connection = await verifier.startAt(19);
-    final db = AppDatabase(connection);
-    addTearDown(db.close);
+  test(
+    'migrates from v19 to v20 (adds the day humidity and temperature)',
+    () async {
+      final connection = await verifier.startAt(19);
+      final db = AppDatabase(connection);
+      addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, db.schemaVersion);
-  });
+      await verifier.migrateAndValidate(db, db.schemaVersion);
+    },
+  );
 
   // Absent, never zero: a reading taken before the columns existed did not record a desert.
   test('a v19 daily reading survives v20 with no humidity', () async {

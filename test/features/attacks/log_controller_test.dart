@@ -175,7 +175,9 @@ void main() {
     controller().back();
 
     expect(state().step, LogStep.location);
-    expect(state().regions, const <HeadRegion>[HeadRegion.templeL], reason: 'kept on record');
+    expect(state().regions, const <HeadRegion>[
+      HeadRegion.templeL,
+    ], reason: 'kept on record');
     expect(state().hasDraft, isTrue);
     expect(state().draft, const <HeadRegion>[HeadRegion.templeL]);
   });

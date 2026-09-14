@@ -20,11 +20,7 @@ void main() {
   final ExportRecord march10 = recordAt(DateTime(2026, 3, 10, 9));
   final ExportRecord march12Late = recordAt(DateTime(2026, 3, 12, 23, 59));
   final ExportRecord march20 = recordAt(DateTime(2026, 3, 20, 14));
-  final List<ExportRecord> all = <ExportRecord>[
-    march10,
-    march12Late,
-    march20,
-  ];
+  final List<ExportRecord> all = <ExportRecord>[march10, march12Late, march20];
 
   test('an inactive filter keeps every record', () {
     expect(filterer.apply(all, const ExportDateFilter()), all);

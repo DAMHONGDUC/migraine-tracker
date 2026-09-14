@@ -23,12 +23,11 @@ class GeocodingPlaceNameSource implements PlaceNameSource {
   }) async {
     try {
       // Per call, not on the instance: `Geocoding({locale})` drops the argument on the floor in 5.0.0, so a constructor locale is a no-op.
-      final List<Placemark> places = await Geocoding()
-          .placemarkFromCoordinates(
-            point.latitude,
-            point.longitude,
-            locale: Locale(localeIdentifier),
-          );
+      final List<Placemark> places = await Geocoding().placemarkFromCoordinates(
+        point.latitude,
+        point.longitude,
+        locale: Locale(localeIdentifier),
+      );
       final String? name = places.isEmpty ? null : _name(places.first);
 
       SdLogger.info(LogTagConstant.location, 'Reverse geocoded', name);

@@ -47,11 +47,12 @@ class BaroEaseApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final InstalledAppVersion? version =
-        switch (ref.watch(installedAppVersionProvider)) {
-          AsyncData(value: final InstalledAppVersion value) => value,
-          _ => null,
-        };
+    final InstalledAppVersion? version = switch (ref.watch(
+      installedAppVersionProvider,
+    )) {
+      AsyncData(value: final InstalledAppVersion value) => value,
+      _ => null,
+    };
 
     return SdDevWrapper(
       envName: AppEnv.flavor,
@@ -197,17 +198,13 @@ class _BaroEaseAppView extends HookConsumerWidget {
             .sync(user?.isSignedIn == true ? user!.uid : null),
       );
       // - Signing in is one of the two moments an account can start qualifying for alerts; the controller answers for the rest (see `autoEnableOnce`).
-      unawaited(
-        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
-      );
+      unawaited(ref.read(alertsControllerProvider.notifier).autoEnableOnce());
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
       AppAnalytics.setPremium(next);
       CrashReporter.setCustomKey('is_premium', next);
       // - The other moment: the purchase landing on an account that was already signed in.
-      unawaited(
-        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
-      );
+      unawaited(ref.read(alertsControllerProvider.notifier).autoEnableOnce());
     });
 
     return ScreenUtilInit(

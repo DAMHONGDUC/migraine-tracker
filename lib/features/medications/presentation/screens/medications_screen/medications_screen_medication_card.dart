@@ -31,8 +31,10 @@ class _MedicationCard extends ConsumerWidget {
             AppRoutes.medicationIdParam: medication.id,
           },
         ),
-        leading: SdIconV2(icon: AppIconConstant.medication,
-          size: AppIconSize.medium),
+        leading: SdIconV2(
+          icon: AppIconConstant.medication,
+          size: AppIconSize.medium,
+        ),
         title: Text(medication.name, style: AppTextStyle.titleMedium),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

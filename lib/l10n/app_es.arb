@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "Otros síntomas",
   "detailsTriggersOther": "Otros desencadenantes",
   "detailsAlsoOnCheckIn": "Registrarlos también en el check-in de ese día",
-  "detailsAlsoOnCheckInBody": "Un desencadenante solo se puede comparar con los días sin dolor."
+  "detailsAlsoOnCheckInBody": "Un desencadenante solo se puede comparar con los días sin dolor.",
+  "dailyLogCardMissed": "{count, plural, =1{1 día sin responder} other{{count} días sin responder}}",
+  "dailyLogCardMissedBody": "Respóndelo ahora: sigue contando."
 }

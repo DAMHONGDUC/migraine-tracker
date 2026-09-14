@@ -49,12 +49,10 @@ class TriggerVerdictEngine {
 
   /// Pressure counts only with a reliable baseline behind it.
   TriggerStrength? _pressure(CorrelationResult result) {
-    if (result
-        case CorrelationInsight(
-          isPreliminary: false,
-          baseline: final PressureBaseline baseline,
-        )
-        when baseline.isReliable) {
+    if (result case CorrelationInsight(
+      isPreliminary: false,
+      baseline: final PressureBaseline baseline,
+    ) when baseline.isReliable) {
       return _strength(
         TriggerFactor.pressure,
         baseline.dropDayAttackPercent,
@@ -66,8 +64,11 @@ class TriggerVerdictEngine {
   }
 
   TriggerStrength? _sleep(SleepCorrelationResult result) {
-    if (result case SleepInsight(isPreliminary: false, :final Duration
-        attackNightAverage, :final Duration restNightAverage)) {
+    if (result case SleepInsight(
+      isPreliminary: false,
+      :final Duration attackNightAverage,
+      :final Duration restNightAverage,
+    )) {
       return _strength(
         TriggerFactor.sleep,
         attackNightAverage.inMinutes.toDouble(),
@@ -79,13 +80,12 @@ class TriggerVerdictEngine {
   }
 
   TriggerStrength? _steps(StepCorrelationResult result) {
-    if (result case StepInsight(isPreliminary: false, :final double
-        attackDayAverage, :final double restDayAverage)) {
-      return _strength(
-        TriggerFactor.steps,
-        attackDayAverage,
-        restDayAverage,
-      );
+    if (result case StepInsight(
+      isPreliminary: false,
+      :final double attackDayAverage,
+      :final double restDayAverage,
+    )) {
+      return _strength(TriggerFactor.steps, attackDayAverage, restDayAverage);
     }
 
     return null;

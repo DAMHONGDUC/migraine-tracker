@@ -124,10 +124,8 @@ class AttackDetailsSheet extends HookConsumerWidget {
                   label: tag.label(l10n),
                   icon: _symptomIcons[tag]!,
                   selected: symptomTags.value.contains(tag),
-                  onToggled: () => symptomTags.value = _toggled(
-                    symptomTags.value,
-                    tag,
-                  ),
+                  onToggled: () =>
+                      symptomTags.value = _toggled(symptomTags.value, tag),
                 ),
             ],
           ),
@@ -189,17 +187,16 @@ class AttackDetailsSheet extends HookConsumerWidget {
     );
   }
 
-  static const Map<SymptomTag, IconData> _symptomIcons =
-      <SymptomTag, IconData>{
-        SymptomTag.nausea: AppIconConstant.symptomNausea,
-        SymptomTag.vomiting: AppIconConstant.symptomVomiting,
-        SymptomTag.lightSensitivity: AppIconConstant.symptomLightSensitivity,
-        SymptomTag.soundSensitivity: AppIconConstant.symptomSoundSensitivity,
-        SymptomTag.smellSensitivity: AppIconConstant.symptomSmellSensitivity,
-        SymptomTag.dizziness: AppIconConstant.symptomDizziness,
-        SymptomTag.neckPain: AppIconConstant.symptomNeckPain,
-        SymptomTag.blurredVision: AppIconConstant.symptomBlurredVision,
-      };
+  static const Map<SymptomTag, IconData> _symptomIcons = <SymptomTag, IconData>{
+    SymptomTag.nausea: AppIconConstant.symptomNausea,
+    SymptomTag.vomiting: AppIconConstant.symptomVomiting,
+    SymptomTag.lightSensitivity: AppIconConstant.symptomLightSensitivity,
+    SymptomTag.soundSensitivity: AppIconConstant.symptomSoundSensitivity,
+    SymptomTag.smellSensitivity: AppIconConstant.symptomSmellSensitivity,
+    SymptomTag.dizziness: AppIconConstant.symptomDizziness,
+    SymptomTag.neckPain: AppIconConstant.symptomNeckPain,
+    SymptomTag.blurredVision: AppIconConstant.symptomBlurredVision,
+  };
 
   static Set<T> _toggled<T>(Set<T> current, T value) => <T>{
     ...current.where((T v) => v != value),

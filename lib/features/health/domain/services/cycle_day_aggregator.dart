@@ -17,7 +17,8 @@ class CycleDayAggregator {
       byDay[day] = CycleDay(
         day: day,
         hasFlow: (existing?.hasFlow ?? false) || sample.hasFlow,
-        isPeriodStart: (existing?.isPeriodStart ?? false) || sample.isPeriodStart,
+        isPeriodStart:
+            (existing?.isPeriodStart ?? false) || sample.isPeriodStart,
       );
     }
     final List<CycleDay> days = byDay.values.toList()

@@ -269,7 +269,9 @@ void main() {
     expect(rows, isNotEmpty);
     // Both tabs of the list have something, and the bell has a count.
     expect(
-      rows.any((AppNotification n) => n.type == NotificationType.medicationReminder),
+      rows.any(
+        (AppNotification n) => n.type == NotificationType.medicationReminder,
+      ),
       isTrue,
     );
     expect(
@@ -287,6 +289,9 @@ void main() {
     );
 
     // Without it a reconciled row cannot say what the alert was about.
-    expect(alerts.every((AppNotification n) => n.pressureDropHpa != null), isTrue);
+    expect(
+      alerts.every((AppNotification n) => n.pressureDropHpa != null),
+      isTrue,
+    );
   });
 }

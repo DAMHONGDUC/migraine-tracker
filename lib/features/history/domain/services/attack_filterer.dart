@@ -34,7 +34,9 @@ class AttackFilterer {
       now,
     );
 
-    return byPeriod.where((Attack attack) => _matches(attack, filters)).toList();
+    return byPeriod
+        .where((Attack attack) => _matches(attack, filters))
+        .toList();
   }
 
   bool _matches(Attack attack, AttackFilters filters) =>

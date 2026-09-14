@@ -48,7 +48,8 @@ void main() {
     cycleDays: cycleDays,
     nights: nights,
     // Three weeks of history by default, so the frequency baseline is not what fails a test about something else.
-    attacks: attacks ??
+    attacks:
+        attacks ??
         <Attack>[
           attackAt(now.subtract(const Duration(days: 20))),
           attackAt(now.subtract(const Duration(days: 13))),
@@ -93,8 +94,10 @@ void main() {
     test('no forecast leaves the signal unavailable, not zero', () {
       final DailyRisk today = run().days.first;
 
-      expect(contributionOf(today, RiskSignal.pressureDrop).isAvailable,
-          isFalse);
+      expect(
+        contributionOf(today, RiskSignal.pressureDrop).isAvailable,
+        isFalse,
+      );
       expect(today.missing, contains(RiskSignal.pressureDrop));
       expect(
         today.availablePoints,
@@ -149,7 +152,10 @@ void main() {
           date: DateTime(2026, 8, 20 + (10 - i)),
           duration: const Duration(hours: 7, minutes: 10),
         ),
-      SleepNight(date: DateTime(2026, 9, 4), duration: Duration(hours: lastHours)),
+      SleepNight(
+        date: DateTime(2026, 9, 4),
+        duration: Duration(hours: lastHours),
+      ),
     ];
 
     test('two hours short of the personal median scores the whole weight', () {
@@ -164,8 +170,10 @@ void main() {
 
     test('a long night scores nothing rather than a negative', () {
       expect(
-        contributionOf(run(nights: nightsEndingWith(9)).days.first,
-            RiskSignal.sleepDebt).points,
+        contributionOf(
+          run(nights: nightsEndingWith(9)).days.first,
+          RiskSignal.sleepDebt,
+        ).points,
         0,
       );
     });

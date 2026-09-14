@@ -4083,5 +4083,18 @@
   "detailsAlsoOnCheckInBody": "A trigger can only be weighed against the days it did not hurt.",
   "@detailsAlsoOnCheckInBody": {
     "description": "One line explaining why the switch exists"
+  },
+  "dailyLogCardMissed": "{count, plural, =1{1 day still unanswered} other{{count} days still unanswered}}",
+  "@dailyLogCardMissed": {
+    "description": "Dashboard row offering to answer a check-in the user missed",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCardMissedBody": "Answer it now — it still counts.",
+  "@dailyLogCardMissedBody": {
+    "description": "Body of the missed check-in row"
   }
 }

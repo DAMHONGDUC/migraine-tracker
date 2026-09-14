@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "Triệu chứng khác",
   "detailsTriggersOther": "Yếu tố khác",
   "detailsAlsoOnCheckIn": "Ghi luôn vào check-in của ngày đó",
-  "detailsAlsoOnCheckInBody": "Một yếu tố chỉ có nghĩa khi so được với những ngày không đau."
+  "detailsAlsoOnCheckInBody": "Một yếu tố chỉ có nghĩa khi so được với những ngày không đau.",
+  "dailyLogCardMissed": "{count, plural, other{{count} ngày chưa trả lời}}",
+  "dailyLogCardMissedBody": "Trả lời bây giờ vẫn tính."
 }

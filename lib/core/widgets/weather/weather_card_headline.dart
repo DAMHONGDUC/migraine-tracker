@@ -37,7 +37,7 @@ class _Headline extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-        // Two lines keep long localized conditions readable.
+              // Two lines keep long localized conditions readable.
               if (caption != null)
                 Text(
                   caption,

@@ -193,7 +193,12 @@ void main() {
     final app = await pumpApp(tester);
 
     // Stay on the saved step so "Add details" is reachable.
-    await logAttack(tester, intensity: '6', location: 'Left forehead', finish: false);
+    await logAttack(
+      tester,
+      intensity: '6',
+      location: 'Left forehead',
+      finish: false,
+    );
 
     await tester.tap(find.text('Add details'));
     await tester.pump();

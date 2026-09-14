@@ -67,6 +67,15 @@ class _DailyCheckInCardState extends ConsumerState<DailyCheckInCard> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final bool done = ref.watch(isTodayCheckedInProvider);
+    // Yesterday and the day before, when they were never answered. A day lost to an attack is the one most worth having, and it used to be a permanent hole.
+    final List<DateTime> missed = <DateTime>[
+      ...?ref
+          .watch(unansweredDaysProvider)
+          .value
+          ?.where(
+            (DateTime day) => !DateTimeUtils.isSameDay(day, DateTime.now()),
+          ),
+    ];
     // Computed here rather than read off `nextReminderProvider`: that one takes
     // its "now" from whenever it last built, and this card owns a ticker that
     // says when now moved on.
@@ -94,6 +103,22 @@ class _DailyCheckInCardState extends ConsumerState<DailyCheckInCard> {
               onTap: () => context.pushNamed<void>(AppRoutes.dailyLog.name),
             ),
           ),
+          // Offered only once today is answered: two check-in prompts on one card is how both stop being read.
+          if (done && missed.isNotEmpty) ...<Widget>[
+            const SdDividerV2(),
+            _PromptRow(
+              icon: AppIconConstant.dailyLog,
+              accent: AppColors.primary,
+              title: l10n.dailyLogCardMissed(missed.length),
+              subtitle: l10n.dailyLogCardMissedBody,
+              onTap: () => context.pushNamed<void>(
+                AppRoutes.dailyLog.name,
+                queryParameters: <String, String>{
+                  'day': DateTimeUtils.dayKey(missed.first),
+                },
+              ),
+            ),
+          ],
           if (reminder != null) ...<Widget>[
             const SdDividerV2(),
             _PromptRow(

@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "Weitere Symptome",
   "detailsTriggersOther": "Weitere Auslöser",
   "detailsAlsoOnCheckIn": "Auch im Check-in dieses Tages erfassen",
-  "detailsAlsoOnCheckInBody": "Ein Auslöser lässt sich nur gegen die schmerzfreien Tage abwägen."
+  "detailsAlsoOnCheckInBody": "Ein Auslöser lässt sich nur gegen die schmerzfreien Tage abwägen.",
+  "dailyLogCardMissed": "{count, plural, =1{1 Tag noch offen} other{{count} Tage noch offen}}",
+  "dailyLogCardMissedBody": "Jetzt beantworten — es zählt weiterhin."
 }

@@ -56,11 +56,10 @@ class SavedStep extends StatelessWidget {
             SizedBox(height: SdSpacingConstant.h32),
             SdButtonV2(
               variant: SdButtonVariantV2.outlined,
-              onPressed: () =>
-                  AttackDetailsSheet(
-                    attackId: attackId,
-                    startedAt: startedAt,
-                  ).show(context),
+              onPressed: () => AttackDetailsSheet(
+                attackId: attackId,
+                startedAt: startedAt,
+              ).show(context),
               label: l10n.logAddDetails,
             ),
             SizedBox(height: SdSpacingConstant.h12),

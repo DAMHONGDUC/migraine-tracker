@@ -76,13 +76,18 @@ void main() {
     expect(config!.ios!.forceUpdateEnabled, isFalse);
   });
 
-  test('a section with neither platform usable is null, not an empty record', () {
-    // Nothing to compare an install against, so the checker must never be
-    // handed a record at all — `blockingUpdate` fails open on null.
-    expect(AppUpdateMapper.fromMap(<String, Object?>{}), isNull);
-    expect(
-      AppUpdateMapper.fromMap(<String, Object?>{'ios': platform(storeLink: null)}),
-      isNull,
-    );
-  });
+  test(
+    'a section with neither platform usable is null, not an empty record',
+    () {
+      // Nothing to compare an install against, so the checker must never be
+      // handed a record at all — `blockingUpdate` fails open on null.
+      expect(AppUpdateMapper.fromMap(<String, Object?>{}), isNull);
+      expect(
+        AppUpdateMapper.fromMap(<String, Object?>{
+          'ios': platform(storeLink: null),
+        }),
+        isNull,
+      );
+    },
+  );
 }

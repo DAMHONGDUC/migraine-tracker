@@ -837,5 +837,7 @@
   "detailsSymptomsOther": "その他の症状",
   "detailsTriggersOther": "その他の要因",
   "detailsAlsoOnCheckIn": "その日のチェックインにも記録する",
-  "detailsAlsoOnCheckInBody": "要因は痛くなかった日と比べて初めて意味を持ちます。"
+  "detailsAlsoOnCheckInBody": "要因は痛くなかった日と比べて初めて意味を持ちます。",
+  "dailyLogCardMissed": "{count, plural, other{未回答の日が{count}日}}",
+  "dailyLogCardMissedBody": "今答えても記録に入ります。"
 }

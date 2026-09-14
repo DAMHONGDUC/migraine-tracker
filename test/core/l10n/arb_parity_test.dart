@@ -26,13 +26,13 @@ void main() {
           as Map<String, dynamic>;
 
   /// Message keys only — the `@`-prefixed entries are metadata, and only the template carries them.
-  Set<String> messageKeys(Map<String, dynamic> file) => file.keys
-      .where((String key) => !key.startsWith('@'))
-      .toSet();
+  Set<String> messageKeys(Map<String, dynamic> file) =>
+      file.keys.where((String key) => !key.startsWith('@')).toSet();
 
-  final Map<String, Map<String, dynamic>> files = <String, Map<String, dynamic>>{
-    for (final String locale in locales) locale: arb(locale),
-  };
+  final Map<String, Map<String, dynamic>> files =
+      <String, Map<String, dynamic>>{
+        for (final String locale in locales) locale: arb(locale),
+      };
 
   test('every locale carries exactly the template\'s keys', () {
     final Set<String> template = messageKeys(files[templateLocale]!);
@@ -75,8 +75,9 @@ void main() {
   List<String> placeholdersOf(String message) {
     final List<String> found = <String>[];
 
-    for (final RegExpMatch match in RegExp(r'\{(\w+)\s*[,}]')
-        .allMatches(message)) {
+    for (final RegExpMatch match in RegExp(
+      r'\{(\w+)\s*[,}]',
+    ).allMatches(message)) {
       final String name = match.group(1)!;
 
       if (!found.contains(name)) found.add(name);

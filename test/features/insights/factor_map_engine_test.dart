@@ -101,10 +101,7 @@ void main() {
       final FactorMap map = engine.analyze(
         logs: <DailyLog>[
           for (int i = 0; i < 10; i++)
-            logOn(
-              i,
-              factors: const <DailyFactor>[DailyFactor.intenseExercise],
-            ),
+            logOn(i, factors: const <DailyFactor>[DailyFactor.intenseExercise]),
           for (int i = 10; i < 30; i++) logOn(i),
         ],
         attacks: <Attack>[
@@ -139,22 +136,24 @@ void main() {
     });
 
     // Four days against twenty-six is a coincidence with a percentage sign on it.
-    test('too few days on one side is graded insufficient, not not-associated',
-        () {
-      final FactorMap map = engine.analyze(
-        logs: <DailyLog>[
-          for (int i = 0; i < 4; i++)
-            logOn(i, factors: const <DailyFactor>[DailyFactor.travel]),
-          for (int i = 4; i < 30; i++) logOn(i),
-        ],
-        attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
-      );
+    test(
+      'too few days on one side is graded insufficient, not not-associated',
+      () {
+        final FactorMap map = engine.analyze(
+          logs: <DailyLog>[
+            for (int i = 0; i < 4; i++)
+              logOn(i, factors: const <DailyFactor>[DailyFactor.travel]),
+            for (int i = 4; i < 30; i++) logOn(i),
+          ],
+          attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
+        );
 
-      expect(
-        associationOf(map, MapFactor.travel).verdict,
-        FactorVerdict.insufficient,
-      );
-    });
+        expect(
+          associationOf(map, MapFactor.travel).verdict,
+          FactorVerdict.insufficient,
+        );
+      },
+    );
   });
 
   group('the derived factors', () {
@@ -166,8 +165,10 @@ void main() {
         ],
         attacks: <Attack>[for (int i = 0; i < 9; i++) attackOn(i)],
       );
-      final FactorAssociation poorSleep =
-          associationOf(map, MapFactor.poorSleep);
+      final FactorAssociation poorSleep = associationOf(
+        map,
+        MapFactor.poorSleep,
+      );
 
       expect(poorSleep.daysWith, 10);
       expect(poorSleep.verdict, FactorVerdict.trigger);
@@ -178,10 +179,7 @@ void main() {
       final FactorMap map = engine.analyze(
         logs: <DailyLog>[
           for (int i = 0; i < 30; i++)
-            DailyLog(
-              day: start.add(Duration(days: i)),
-              stressLevel: 3,
-            ),
+            DailyLog(day: start.add(Duration(days: i)), stressLevel: 3),
         ],
         attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
       );
@@ -215,17 +213,14 @@ void main() {
   });
 
   group('the weather factors', () {
-    DailyPressure day(
-      int offset, {
-      double? humidity,
-      double? temperature,
-    }) => DailyPressure(
-      day: start.add(Duration(days: offset)),
-      pressureHpa: 1013,
-      pressureDelta24hHpa: -1,
-      humidityPercent: humidity,
-      temperatureCelsius: temperature,
-    );
+    DailyPressure day(int offset, {double? humidity, double? temperature}) =>
+        DailyPressure(
+          day: start.add(Duration(days: offset)),
+          pressureHpa: 1013,
+          pressureDelta24hHpa: -1,
+          humidityPercent: humidity,
+          temperatureCelsius: temperature,
+        );
 
     test('a muggy day is weighed like any other factor', () {
       final FactorMap map = engine.analyze(
@@ -236,8 +231,10 @@ void main() {
           for (int i = 16; i < 30; i++) day(i, humidity: 50),
         ],
       );
-      final FactorAssociation humid =
-          associationOf(map, MapFactor.highHumidity);
+      final FactorAssociation humid = associationOf(
+        map,
+        MapFactor.highHumidity,
+      );
 
       expect(humid.daysWith, 16);
       expect(humid.daysWithout, 14);
@@ -251,8 +248,7 @@ void main() {
         attacks: <Attack>[for (int i = 0; i < 16; i++) attackOn(i)],
         weather: <DailyPressure>[
           // Alternating 18 and 26 degrees: every day but the first is a swing.
-          for (int i = 0; i < 30; i++)
-            day(i, temperature: i.isEven ? 18 : 26),
+          for (int i = 0; i < 30; i++) day(i, temperature: i.isEven ? 18 : 26),
         ],
       );
       final FactorAssociation swing = associationOf(map, MapFactor.tempSwing);
@@ -271,8 +267,10 @@ void main() {
           for (int i = 0; i < 10; i++) day(i, humidity: 88),
         ],
       );
-      final FactorAssociation humid =
-          associationOf(map, MapFactor.highHumidity);
+      final FactorAssociation humid = associationOf(
+        map,
+        MapFactor.highHumidity,
+      );
 
       expect(humid.daysWith, 10);
       expect(humid.daysWithout, 0);

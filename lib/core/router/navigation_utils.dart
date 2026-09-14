@@ -51,11 +51,7 @@ final class NavigationUtils {
   }
 
   /// Insights, showing [tab].
-  static void toInsights(
-    BuildContext context,
-    WidgetRef ref,
-    InsightsTab tab,
-  ) {
+  static void toInsights(BuildContext context, WidgetRef ref, InsightsTab tab) {
     ref.read(insightsTabProvider.notifier).set(tab);
     context.goNamed(AppRoutes.insights.name);
   }

@@ -38,10 +38,7 @@ void main() {
 
       // The activity card still stands — its exertion half is free and needs no HealthKit — but the step half is gone with the source.
       expect(find.text('Activity'), findsWidgets);
-      expect(
-        find.textContaining('Connect Apple Health steps'),
-        findsNothing,
-      );
+      expect(find.textContaining('Connect Apple Health steps'), findsNothing);
 
       await finishTest(tester);
     });

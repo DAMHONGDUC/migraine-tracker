@@ -62,10 +62,7 @@ void main() {
     await container.read(notificationsControllerProvider).reconcileLastAlert();
 
     expect(
-      await container
-          .read(notificationRepositoryProvider)
-          .watchAll()
-          .first,
+      await container.read(notificationRepositoryProvider).watchAll().first,
       isEmpty,
     );
   });
@@ -81,10 +78,7 @@ void main() {
     await container.read(notificationsControllerProvider).reconcileLastAlert();
 
     expect(
-      (await container
-              .read(notificationRepositoryProvider)
-              .watchAll()
-              .first)
+      (await container.read(notificationRepositoryProvider).watchAll().first)
           .length,
       1,
     );
@@ -119,10 +113,7 @@ void main() {
       completes,
     );
     expect(
-      await container
-          .read(notificationRepositoryProvider)
-          .watchAll()
-          .first,
+      await container.read(notificationRepositoryProvider).watchAll().first,
       isEmpty,
     );
   });

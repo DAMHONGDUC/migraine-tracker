@@ -45,16 +45,19 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
-    final AsyncValue<List<Attack>> filtered = ref.watch(filteredAttacksProvider);
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(
+      attacksStreamProvider,
+    );
+    final AsyncValue<List<Attack>> filtered = ref.watch(
+      filteredAttacksProvider,
+    );
     final HistoryViewMode mode = ref.watch(historyViewModeProvider);
     final syncStatus = ref.watch(syncControllerProvider);
     final bool isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
     // Nothing recorded yet is nothing to filter: no strip at all, and the content keeps the screen's own top gap instead of clearing one.
     final bool hasAttacks = (allAttacks.value ?? const <Attack>[]).isNotEmpty;
     // The calendar ignores the filters, so it does not carry them either: a strip that changes nothing on the screen it sits over is worse than none.
-    final bool showFilter =
-        hasAttacks && mode != HistoryViewMode.calendar;
+    final bool showFilter = hasAttacks && mode != HistoryViewMode.calendar;
     // Fixed regardless of the strip's collapse state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final double topInset = showFilter
         ? SdContentPaddingV2.belowPinnedFilterBar(context)

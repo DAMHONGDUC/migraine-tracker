@@ -68,7 +68,12 @@ class SyncService {
 
       pulled += pull.pulled;
       unreadable += pull.unreadable;
-      pushed += await _push(uid, binding, key, await binding.store.pendingChanges());
+      pushed += await _push(
+        uid,
+        binding,
+        key,
+        await binding.store.pendingChanges(),
+      );
       if (binding.collection == SyncCollection.medicationReminders &&
           pull.pulled > 0) {
         remindersArrived = true;
@@ -95,7 +100,12 @@ class SyncService {
           .pendingChanges();
 
       if (pending.isEmpty) continue;
-      pushed += await _push(uid, binding, key ??= await _keys.keyFor(uid), pending);
+      pushed += await _push(
+        uid,
+        binding,
+        key ??= await _keys.keyFor(uid),
+        pending,
+      );
     }
     return pushed;
   }

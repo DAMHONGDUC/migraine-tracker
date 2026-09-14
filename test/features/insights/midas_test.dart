@@ -118,10 +118,7 @@ void main() {
     });
 
     test('a newer payload version is refused', () {
-      expect(
-        () => codec.decode('{"v":99}', id: 'm1'),
-        throwsFormatException,
-      );
+      expect(() => codec.decode('{"v":99}', id: 'm1'), throwsFormatException);
     });
   });
 }

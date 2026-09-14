@@ -21,9 +21,8 @@ final class AppBootstrap {
   const AppBootstrap._();
 
   /// First, so Crashlytics is up before anything else can fail.
-  static Future<void> initFirebase() => Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  static Future<void> initFirebase() =>
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   /// Its own step, not part of [initFirebase]: the reporter is what names
   /// every failure after it, so it must not be skipped by one before it.
@@ -37,8 +36,8 @@ final class AppBootstrap {
   static Future<void> initAnalytics() => AppAnalytics.init();
 
   /// iOS shows nothing for a push landing while the app is open unless it is told to — no banner, and no sound.
-  static Future<void> initPushPresentation() => FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
+  static Future<void> initPushPresentation() =>
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
@@ -49,7 +48,8 @@ final class AppBootstrap {
   static Future<void> initTimezone() async {
     tzdata.initializeTimeZones();
 
-    final String localTz = (await FlutterTimezone.getLocalTimezone()).identifier;
+    final String localTz =
+        (await FlutterTimezone.getLocalTimezone()).identifier;
 
     tz.setLocalLocation(tz.getLocation(localTz));
     SdLogger.info(LogTagConstant.bootstrap, 'Timezone set', {'tz': localTz});

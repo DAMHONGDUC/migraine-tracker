@@ -105,10 +105,14 @@ class FactorMapEngine {
       }
     }
     final double rateWith = daysWith == 0 ? 0 : attacksWith / daysWith;
-    final double rateWithout = daysWithout == 0 ? 0 : attacksWithout / daysWithout;
+    final double rateWithout = daysWithout == 0
+        ? 0
+        : attacksWithout / daysWithout;
     final double larger = rateWith > rateWithout ? rateWith : rateWithout;
     // Both groups quiet is a real answer — nothing happened either way — and dividing by zero would make it a NaN instead.
-    final double effect = larger == 0 ? 0 : (rateWith - rateWithout).abs() / larger;
+    final double effect = larger == 0
+        ? 0
+        : (rateWith - rateWithout).abs() / larger;
 
     return FactorAssociation(
       factor: factor,
@@ -165,11 +169,10 @@ class FactorMapEngine {
 class _WeatherDays {
   const _WeatherDays(this._byDay);
 
-  factory _WeatherDays.of(List<DailyPressure> readings) => _WeatherDays(
-    <DateTime, DailyPressure>{
-      for (final DailyPressure reading in readings) reading.day: reading,
-    },
-  );
+  factory _WeatherDays.of(List<DailyPressure> readings) =>
+      _WeatherDays(<DateTime, DailyPressure>{
+        for (final DailyPressure reading in readings) reading.day: reading,
+      });
 
   final Map<DateTime, DailyPressure> _byDay;
 
@@ -183,11 +186,8 @@ class _WeatherDays {
   /// Against YESTERDAY, not against a season's average: what a body notices is the change, and a 30°C day in a hot month is not a swing.
   bool? hasSwing(DateTime day, double threshold) {
     final double? today = _byDay[day]?.temperatureCelsius;
-    final double? yesterday = _byDay[DateTime(
-      day.year,
-      day.month,
-      day.day - 1,
-    )]?.temperatureCelsius;
+    final double? yesterday =
+        _byDay[DateTime(day.year, day.month, day.day - 1)]?.temperatureCelsius;
 
     if (today == null || yesterday == null) return null;
     return (today - yesterday).abs() >= threshold;

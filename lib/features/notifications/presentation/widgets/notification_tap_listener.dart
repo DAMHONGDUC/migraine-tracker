@@ -53,8 +53,9 @@ class NotificationTapListener extends HookConsumerWidget {
       final StreamSubscription<RemoteMessage> alerts = FirebaseMessaging
           .onMessageOpenedApp
           .listen(
-            (RemoteMessage message) =>
-                unawaited(_open(ref, () => controller.pushTapTarget(message.data))),
+            (RemoteMessage message) => unawaited(
+              _open(ref, () => controller.pushTapTarget(message.data)),
+            ),
           );
 
       // The other half: whichever notification started the app, if any. Both are taken once — a second read would reopen the same screen on the next resume.

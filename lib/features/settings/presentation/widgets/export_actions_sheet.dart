@@ -93,11 +93,12 @@ class _ActionTile extends StatelessWidget {
 
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportActionsSheetExt on ExportActionsSheet {
-  Future<ExportAction?> show(BuildContext context) =>
-      showSdBottomSheetV2<ExportAction>(
-        context,
-        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
-        isScrollControlled: true,
-        builder: (_) => this,
-      );
+  Future<ExportAction?> show(
+    BuildContext context,
+  ) => showSdBottomSheetV2<ExportAction>(
+    context,
+    // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+    isScrollControlled: true,
+    builder: (_) => this,
+  );
 }

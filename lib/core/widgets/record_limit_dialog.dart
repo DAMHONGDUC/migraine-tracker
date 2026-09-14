@@ -6,11 +6,7 @@ import '../theme/app_text_style.dart';
 
 /// Says which free limit was just reached, before the paywall does any selling.
 class RecordLimitDialog extends StatelessWidget {
-  const RecordLimitDialog({
-    required this.title,
-    required this.body,
-    super.key,
-  });
+  const RecordLimitDialog({required this.title, required this.body, super.key});
 
   /// Already-localized: which limit, and what the free plan includes.
   final String title;

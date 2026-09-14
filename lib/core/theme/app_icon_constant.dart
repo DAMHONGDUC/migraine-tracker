@@ -300,7 +300,8 @@ final class AppIconConstant {
   static const IconData radioSelected = Symbols.radio_button_checked_rounded;
 
   /// A plan not selected.
-  static const IconData radioUnselected = Symbols.radio_button_unchecked_rounded;
+  static const IconData radioUnselected =
+      Symbols.radio_button_unchecked_rounded;
 
   // --- Account and sync --------------------------------------------------
 

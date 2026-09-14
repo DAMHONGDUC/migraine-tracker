@@ -41,11 +41,9 @@ class DriftDailyLogRepository implements DailyLogRepository {
   Stream<DailyLog?> watchDay(DateTime day) {
     final String key = DateTimeUtils.dayKey(day);
 
-    return (_db.select(
-      _db.dailyLogs,
-    )..where((l) => l.id.equals(key))).watchSingleOrNull().map(
-      (row) => row == null ? null : DailyLogMapper.toDomain(row),
-    );
+    return (_db.select(_db.dailyLogs)..where((l) => l.id.equals(key)))
+        .watchSingleOrNull()
+        .map((row) => row == null ? null : DailyLogMapper.toDomain(row));
   }
 
   @override
@@ -75,10 +73,7 @@ class DriftDailyLogRepository implements DailyLogRepository {
 
   /// Goes through [save], so the row keeps its sync revision and its tombstone is cleared the same way a check-in's is.
   @override
-  Future<void> addFactorsToDay(
-    DateTime day,
-    List<DailyFactor> factors,
-  ) async {
+  Future<void> addFactorsToDay(DateTime day, List<DailyFactor> factors) async {
     if (factors.isEmpty) return;
 
     final DailyLog? existing = await forDay(day);
@@ -90,9 +85,7 @@ class DriftDailyLogRepository implements DailyLogRepository {
       ),
     ];
 
-    await save(
-      (existing ?? DailyLog(day: day)).copyWith(factors: merged),
-    );
+    await save((existing ?? DailyLog(day: day)).copyWith(factors: merged));
   }
 
   // - Counts what the user answered, never what Health filled in on its own: a row of sleep minutes is not a check-in.

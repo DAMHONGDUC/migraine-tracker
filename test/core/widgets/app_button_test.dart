@@ -138,10 +138,7 @@ void main() {
       appleIconSize: SdSpacingConstant.r28,
     );
 
-    expect(
-      tester.getSize(find.byIcon(appleIcon)).width,
-      SdSpacingConstant.r28,
-    );
+    expect(tester.getSize(find.byIcon(appleIcon)).width, SdSpacingConstant.r28);
     expect(
       tester.getSize(find.byIcon(googleIcon)).width,
       SdButtonV2.defaultIconSize,
@@ -229,9 +226,9 @@ void main() {
 
     // Material's own 48-tall tap target can floor the rendered size at small — read the padding the style carries, not the final render box.
     double verticalPadding(WidgetTester tester) {
-      final ButtonStyle style = tester.widget<FilledButton>(
-        find.byType(FilledButton),
-      ).style!;
+      final ButtonStyle style = tester
+          .widget<FilledButton>(find.byType(FilledButton))
+          .style!;
 
       return style.padding!.resolve(<WidgetState>{})!.vertical;
     }

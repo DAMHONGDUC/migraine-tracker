@@ -23,9 +23,9 @@ class _OneRowSeeder implements DevSeedService {
     final DateTime today = DateTime.now();
     final DateTime day = DateTime(today.year, today.month, today.day);
 
-    await DriftDailyLogRepository(_db).save(
-      DailyLog(day: day, sleepQuality: 3, stressLevel: 2),
-    );
+    await DriftDailyLogRepository(
+      _db,
+    ).save(DailyLog(day: day, sleepQuality: 3, stressLevel: 2));
     await DriftDailyPressureRepository(_db).upsert(
       DailyPressure(day: day, pressureHpa: 1013, pressureDelta24hHpa: -6),
     );
