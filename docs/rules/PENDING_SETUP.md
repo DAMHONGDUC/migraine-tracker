@@ -348,10 +348,20 @@ iOS build in the loop, so everything below is unverified.
 
 ## The display name in `env_assets/`
 
-`ios/Runner/Info.plist` now says `BaroEase` where it used to say "Migraine
-Tracker" — the name iOS puts in every permission dialog and on the home screen.
-That file is one of the six `prepare-env` overwrites, so **the copy in
-`env_assets/` has to carry the same string** or the next
-`melos run prepare-env-<flavor>` puts the old name back. The repo copy is the
-one CI builds from; the `env_assets/` copy is the one a local release build
-does.
+`ios/Runner/Info.plist` now says `BaroEase: Migraine Tracker` — the same string
+as the store title, so the permission dialog and the search result agree
+(owner's call). `ios/BaroEaseWidget/Info.plist` keeps the short `BaroEase`: the
+widget gallery has one line and the extension is not the app.
+
+That file is one of the six `prepare-env` overwrites, so **both copies in
+`env_assets/` have to carry the same string** or the next
+`melos run prepare-env-<flavor>` puts the old name back:
+
+```
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName BaroEase: Migraine Tracker" env_assets/dev-Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName BaroEase: Migraine Tracker" env_assets/prod-Info.plist
+```
+
+The repo copy is the one CI builds from; the `env_assets/` copy is the one a
+local release build does. Android's `android:label` carries the same name and is
+committed, with nothing overwriting it.
