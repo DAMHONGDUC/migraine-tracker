@@ -20,8 +20,13 @@
 	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<!-- The name iOS shows: the home screen, the App Store, and every
+	     permission dialog. It said "Migraine Tracker" while every word inside
+	     the app said BaroEase, so the first two things a new user read gave two
+	     different names. `env_assets/`'s copy of this file carries the same
+	     string and has to be updated with it. -->
 	<key>CFBundleDisplayName</key>
-	<string>Migraine Tracker</string>
+	<string>BaroEase</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
