@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
@@ -11,15 +12,16 @@ import 'package:migraine_tracker/features/insights/data/repositories/drift_midas
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
-import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
 import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
+import 'package:migraine_tracker/features/notifications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/enums/export_kind.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_wipe_service.dart';
 import 'package:migraine_tracker/features/weather/data/repositories/drift_daily_pressure_repository.dart';
+
 import '../../helpers/alert_fakes.dart';
 import '../../helpers/attack_fakes.dart';
 import '../../helpers/export_fakes.dart';
@@ -28,6 +30,16 @@ import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
 class RecordingNotificationScheduler implements NotificationScheduler {
+  @override
+  Future<void> scheduleCheckIn({
+    required DateTime when,
+    required String title,
+    required String body,
+  }) async {}
+
+  @override
+  Future<void> cancelCheckIn() async {}
+
   int cancelAllCalls = 0;
 
   @override

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import '../../domain/entities/medication_reminder.dart';
+import '../../../medications/domain/entities/medication_reminder.dart';
 import '../../domain/services/notification_scheduler.dart';
 
 /// flutter_local_notifications implementation. Assumes timezone data has been initialized once at app start (see medications/providers.dart).
@@ -138,6 +138,31 @@ class LocalNotificationScheduler implements NotificationScheduler {
 
   /// Fixed id for the debug test notification, kept far from reminder ids (which are masked hashCodes) so it never clobbers a real reminder.
   static const _testNotificationId = 2147483646;
+
+  /// The check-in nudge's own fixed id, one below the test one and equally far from any reminder's.
+  static const _checkInNotificationId = 2147483645;
+
+  @override
+  Future<void> scheduleCheckIn({
+    required DateTime when,
+    required String title,
+    required String body,
+  }) async {
+    await cancelCheckIn();
+
+    await _plugin.zonedSchedule(
+      id: _checkInNotificationId,
+      title: title,
+      body: body,
+      scheduledDate: tz.TZDateTime.from(when, tz.local),
+      notificationDetails: _details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      // No matchDateTimeComponents: the app re-arms the next one itself, so a day already answered is never asked about.
+    );
+  }
+
+  @override
+  Future<void> cancelCheckIn() => _plugin.cancel(id: _checkInNotificationId);
 
   @override
   Future<void> scheduleTest({

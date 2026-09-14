@@ -8,6 +8,7 @@ import 'data/repositories/drift_daily_log_repository.dart';
 import 'domain/entities/daily_log.dart';
 import 'domain/repositories/daily_log_repository.dart';
 import 'domain/services/daily_step_reader.dart';
+import 'presentation/controllers/check_in_reminder_controller.dart';
 import 'presentation/controllers/daily_log_controller.dart';
 
 final dailyLogRepositoryProvider = Provider<DailyLogRepository>(
@@ -68,6 +69,12 @@ final recentDailyLogsProvider = FutureProvider<List<DailyLog>>((ref) {
 final answeredDailyLogCountProvider = FutureProvider<int>(
   (ref) => ref.watch(dailyLogRepositoryProvider).answeredCount(),
 );
+
+/// The evening nudge's settings, and the one armed notification behind them.
+final checkInReminderControllerProvider =
+    NotifierProvider<CheckInReminderController, CheckInReminderSettings>(
+      CheckInReminderController.new,
+    );
 
 final dailyLogControllerProvider =
     NotifierProvider<DailyLogController, DailyCheckInState>(

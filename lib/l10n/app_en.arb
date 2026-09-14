@@ -4096,5 +4096,25 @@
   "dailyLogCardMissedBody": "Answer it now — it still counts.",
   "@dailyLogCardMissedBody": {
     "description": "Body of the missed check-in row"
+  },
+  "checkInReminderTitle": "How was today?",
+  "@checkInReminderTitle": {
+    "description": "Title of the evening check-in notification"
+  },
+  "checkInReminderBody": "Thirty seconds, attack or not.",
+  "@checkInReminderBody": {
+    "description": "Body of the evening check-in notification"
+  },
+  "checkInReminderTile": "Evening check-in reminder",
+  "@checkInReminderTile": {
+    "description": "Settings row for the daily check-in nudge"
+  },
+  "checkInReminderTileBody": "A nudge at the time you choose, only on a day you have not answered.",
+  "@checkInReminderTileBody": {
+    "description": "Explains the check-in reminder row"
+  },
+  "checkInReminderDenied": "Notifications are off for BaroEase. Turn them on in Settings.",
+  "@checkInReminderDenied": {
+    "description": "Shown when the OS refuses the check-in reminder"
   }
 }

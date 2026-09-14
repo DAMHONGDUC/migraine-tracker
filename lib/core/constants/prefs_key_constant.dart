@@ -42,6 +42,13 @@ final class PrefsKeyConstant {
   /// Whether the home-screen widget is fed. Absent means on: a widget the user placed themselves and then found empty reads as broken.
   static const String homeWidgetEnabled = 'home_widget_enabled';
 
+  /// Whether the evening check-in nudge is on, and the local minute of day it fires at.
+  ///
+  /// Two keys rather than one encoded string: the switch is read on every
+  /// dashboard build and the time only when the sheet opens.
+  static const String checkInReminderEnabled = 'check_in_reminder_enabled';
+  static const String checkInReminderMinute = 'check_in_reminder_minute';
+
   /// How many times the store review prompt has been asked for, and when the last one was (ISO-8601, UTC). Absent = never asked.
   static const String reviewPromptCount = 'review_prompt_count';
   static const String reviewPromptLastAskedAt = 'review_prompt_last_asked_at';

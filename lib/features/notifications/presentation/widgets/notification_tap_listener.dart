@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
-import '../../../medications/providers.dart';
 import '../../providers.dart';
 import '../controllers/notifications_controller.dart';
 

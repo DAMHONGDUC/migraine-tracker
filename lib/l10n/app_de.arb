@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "Auch im Check-in dieses Tages erfassen",
   "detailsAlsoOnCheckInBody": "Ein Auslöser lässt sich nur gegen die schmerzfreien Tage abwägen.",
   "dailyLogCardMissed": "{count, plural, =1{1 Tag noch offen} other{{count} Tage noch offen}}",
-  "dailyLogCardMissedBody": "Jetzt beantworten — es zählt weiterhin."
+  "dailyLogCardMissedBody": "Jetzt beantworten — es zählt weiterhin.",
+  "checkInReminderTitle": "Wie war heute?",
+  "checkInReminderBody": "Dreißig Sekunden, mit oder ohne Attacke.",
+  "checkInReminderTile": "Erinnerung am Abend",
+  "checkInReminderTileBody": "Ein Hinweis zur gewählten Zeit, nur an einem Tag ohne Antwort.",
+  "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein."
 }

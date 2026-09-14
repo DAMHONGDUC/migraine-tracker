@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "Registrarlos también en el check-in de ese día",
   "detailsAlsoOnCheckInBody": "Un desencadenante solo se puede comparar con los días sin dolor.",
   "dailyLogCardMissed": "{count, plural, =1{1 día sin responder} other{{count} días sin responder}}",
-  "dailyLogCardMissedBody": "Respóndelo ahora: sigue contando."
+  "dailyLogCardMissedBody": "Respóndelo ahora: sigue contando.",
+  "checkInReminderTitle": "¿Cómo fue hoy?",
+  "checkInReminderBody": "Treinta segundos, con o sin ataque.",
+  "checkInReminderTile": "Recordatorio de la tarde",
+  "checkInReminderTileBody": "Un aviso a la hora que elijas, solo en un día sin responder.",
+  "checkInReminderDenied": "Las notificaciones de BaroEase están desactivadas. Actívalas en Ajustes."
 }

@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "その日のチェックインにも記録する",
   "detailsAlsoOnCheckInBody": "要因は痛くなかった日と比べて初めて意味を持ちます。",
   "dailyLogCardMissed": "{count, plural, other{未回答の日が{count}日}}",
-  "dailyLogCardMissedBody": "今答えても記録に入ります。"
+  "dailyLogCardMissedBody": "今答えても記録に入ります。",
+  "checkInReminderTitle": "今日はどうでしたか？",
+  "checkInReminderBody": "30秒、頭痛があってもなくても。",
+  "checkInReminderTile": "夜のチェックイン通知",
+  "checkInReminderTileBody": "指定した時刻に、未回答の日だけ通知します。",
+  "checkInReminderDenied": "BaroEase の通知がオフです。設定でオンにしてください。"
 }

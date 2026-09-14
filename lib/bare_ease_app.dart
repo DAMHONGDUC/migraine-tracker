@@ -24,6 +24,7 @@ import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
+import 'features/daily_log/providers.dart';
 import 'features/home_widget/presentation/widgets/home_widget_tap_listener.dart';
 import 'features/home_widget/providers.dart';
 import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
@@ -105,6 +106,14 @@ class _BaroEaseAppView extends HookConsumerWidget {
     // One pressure reading per day, attack or not — the denominator the correlation compares against. Fetches at most once per local day.
     useEffect(() {
       unawaited(_recordPressureThenRedraw(ref));
+      return null;
+    }, const []);
+
+    // The evening nudge holds ONE occurrence, so every launch re-arms it — a repeat would fire on a day already answered.
+    useEffect(() {
+      unawaited(
+        ref.read(checkInReminderControllerProvider.notifier).reschedule(),
+      );
       return null;
     }, const []);
 

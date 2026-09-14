@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "同时记入当天的签到",
   "detailsAlsoOnCheckInBody": "只有和不痛的日子相比，诱因才有意义。",
   "dailyLogCardMissed": "{count, plural, other{还有 {count} 天未填写}}",
-  "dailyLogCardMissedBody": "现在填写依然计入统计。"
+  "dailyLogCardMissedBody": "现在填写依然计入统计。",
+  "checkInReminderTitle": "今天怎么样？",
+  "checkInReminderBody": "三十秒，有没有发作都记一下。",
+  "checkInReminderTile": "晚间签到提醒",
+  "checkInReminderTileBody": "在你选择的时间提醒，只在当天还没填写时。",
+  "checkInReminderDenied": "BaroEase 的通知已关闭，请在系统设置中开启。"
 }

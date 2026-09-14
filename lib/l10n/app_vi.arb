@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "Ghi luôn vào check-in của ngày đó",
   "detailsAlsoOnCheckInBody": "Một yếu tố chỉ có nghĩa khi so được với những ngày không đau.",
   "dailyLogCardMissed": "{count, plural, other{{count} ngày chưa trả lời}}",
-  "dailyLogCardMissedBody": "Trả lời bây giờ vẫn tính."
+  "dailyLogCardMissedBody": "Trả lời bây giờ vẫn tính.",
+  "checkInReminderTitle": "Hôm nay thế nào?",
+  "checkInReminderBody": "Ba mươi giây, dù có cơn đau hay không.",
+  "checkInReminderTile": "Nhắc check-in buổi tối",
+  "checkInReminderTileBody": "Nhắc vào giờ bạn chọn, chỉ khi ngày đó chưa trả lời.",
+  "checkInReminderDenied": "Thông báo đang tắt cho BaroEase. Hãy bật trong Cài đặt."
 }

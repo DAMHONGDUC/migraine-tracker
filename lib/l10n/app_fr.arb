@@ -839,5 +839,10 @@
   "detailsAlsoOnCheckIn": "Enregistrer aussi dans le bilan de ce jour",
   "detailsAlsoOnCheckInBody": "Un facteur ne se mesure que face aux jours sans douleur.",
   "dailyLogCardMissed": "{count, plural, =1{1 jour sans réponse} other{{count} jours sans réponse}}",
-  "dailyLogCardMissedBody": "Répondez maintenant, cela compte toujours."
+  "dailyLogCardMissedBody": "Répondez maintenant, cela compte toujours.",
+  "checkInReminderTitle": "Comment s'est passée la journée ?",
+  "checkInReminderBody": "Trente secondes, avec ou sans crise.",
+  "checkInReminderTile": "Rappel du soir",
+  "checkInReminderTileBody": "Un rappel à l'heure choisie, uniquement les jours sans réponse.",
+  "checkInReminderDenied": "Les notifications de BaroEase sont désactivées. Activez-les dans Réglages."
 }
