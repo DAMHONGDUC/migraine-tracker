@@ -816,5 +816,9 @@
   "attackStartNow": "Vừa xong",
   "attackStartAgo": "{duration} trước",
   "attackStartEditLabel": "Sửa thời điểm bắt đầu",
-  "attackDetailStartedAt": "Bắt đầu"
+  "attackDetailStartedAt": "Bắt đầu",
+  "logSaveNow": "Lưu ngay",
+  "logStartEarlier": "Cơn đau bắt đầu sớm hơn",
+  "logStartedAt": "Bắt đầu {time}",
+  "regionNotRecorded": "Chưa ghi vị trí"
 }

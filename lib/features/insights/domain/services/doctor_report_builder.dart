@@ -363,10 +363,13 @@ class DoctorReportBuilder {
   }
 
   /// Every area of one attack, in one cell.
+  /// A dash where no area was recorded, like every other unanswered cell in this table.
   String _regionsLabel(List<HeadRegion> regions, DoctorReportStrings strings) =>
-      regions
-          .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)
-          .join(', ');
+      regions.isEmpty
+      ? '-'
+      : regions
+            .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)
+            .join(', ');
 
   pw.Widget _attackTable(List<Attack> attacks, DoctorReportStrings strings) {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');

@@ -64,8 +64,29 @@ final class AppBootstrap {
   /// not serve a caller it cannot name, and that call belongs under the dots
   /// rather than under the launch image.
   static Future<void> ensureAnonymousSession() async {
-    if (FirebaseAuth.instance.currentUser != null) return;
+    final User? user = FirebaseAuth.instance.currentUser;
 
-    await FirebaseAuth.instance.signInAnonymously();
+    if (user == null) {
+      await FirebaseAuth.instance.signInAnonymously();
+
+      return;
+    }
+
+    // A cached user is not a session: the account behind it can be gone —
+    // deleted from the console, or wiped with the project — and the client
+    // goes on reporting signed_in while every callable answers
+    // "unauthenticated". That state costs the user the whole weather feature
+    // and says nothing on screen, so the token is what decides, not the cache.
+    try {
+      await user.getIdToken(true);
+    } on FirebaseAuthException catch (error) {
+      SdLogger.warning(
+        LogTagConstant.bootstrap,
+        'Cached session is dead; signing in again',
+        <String, Object?>{'uid': user.uid, 'code': error.code},
+      );
+      await FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.signInAnonymously();
+    }
   }
 }

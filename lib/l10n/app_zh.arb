@@ -816,5 +816,9 @@
   "attackStartNow": "刚刚",
   "attackStartAgo": "{duration}前",
   "attackStartEditLabel": "修改开始时间",
-  "attackDetailStartedAt": "开始时间"
+  "attackDetailStartedAt": "开始时间",
+  "logSaveNow": "立即保存",
+  "logStartEarlier": "更早开始的",
+  "logStartedAt": "开始 {time}",
+  "regionNotRecorded": "未记录部位"
 }

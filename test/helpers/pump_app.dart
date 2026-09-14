@@ -1130,20 +1130,17 @@ Future<void> logAttack(
   await tester.pump(const Duration(milliseconds: 100));
 
   // Expanded and collapsed action rows both stay mounted (cross-fade on scroll), so the label matches twice — .first is the visible, tappable expanded one.
+  // The pick itself advances: medication is single-choice, so it commits on the tap and the Next it used to need is gone.
   await tester.tap(find.text(medication).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
-  await tester.tap(find.text('Next'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 100));
 
-  // Exertion: skippable, so Next alone passes it when no level is asked for.
+  // Exertion is the last step: a level saves on its own tap, and with none asked for Next saves on the default.
   if (exertion != null) {
     await tester.tap(find.text(exertion));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+  } else {
+    await tester.tap(find.text('Next'));
   }
-  await tester.tap(find.text('Next'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 

@@ -816,5 +816,9 @@
   "attackStartNow": "たった今",
   "attackStartAgo": "{duration}前",
   "attackStartEditLabel": "開始時刻を変更",
-  "attackDetailStartedAt": "開始"
+  "attackDetailStartedAt": "開始",
+  "logSaveNow": "今すぐ保存",
+  "logStartEarlier": "もっと前に始まった",
+  "logStartedAt": "開始 {time}",
+  "regionNotRecorded": "部位の記録なし"
 }

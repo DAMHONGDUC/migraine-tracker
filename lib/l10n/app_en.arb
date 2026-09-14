@@ -3994,5 +3994,26 @@
   "attackDetailStartedAt": "Started",
   "@attackDetailStartedAt": {
     "description": "Row label for when the attack began, on the attack detail screen"
+  },
+  "logSaveNow": "Save now",
+  "@logSaveNow": {
+    "description": "Button that saves the attack from the middle of the log flow, leaving the rest for later"
+  },
+  "logStartEarlier": "It started earlier",
+  "@logStartEarlier": {
+    "description": "Button on the first log step that records an attack which began before now"
+  },
+  "logStartedAt": "Started {time}",
+  "@logStartedAt": {
+    "description": "Button label once the user has said when the attack began",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "regionNotRecorded": "No area recorded",
+  "@regionNotRecorded": {
+    "description": "Value shown where an attack was saved without picking a head area"
   }
 }

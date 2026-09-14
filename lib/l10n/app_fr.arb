@@ -816,5 +816,9 @@
   "attackStartNow": "À l'instant",
   "attackStartAgo": "il y a {duration}",
   "attackStartEditLabel": "Modifier l'heure de début",
-  "attackDetailStartedAt": "Début"
+  "attackDetailStartedAt": "Début",
+  "logSaveNow": "Enregistrer",
+  "logStartEarlier": "A commencé plus tôt",
+  "logStartedAt": "Début {time}",
+  "regionNotRecorded": "Aucune zone enregistrée"
 }
