@@ -96,21 +96,29 @@ A lapsed subscriber cannot open previous exports through the app, but the files
 remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
 
-## Why the window is not a provider
+## Where the window is applied, and why the shape matters
 
-**No provider may filter the attack list by the entitlement.** The premium flag
-arrives asynchronously — RevenueCat in production, a stream in the tests — so a
-provider watching it is recomputed while the first frames are still laying out,
-and Riverpod reports that as "setState called during build" on whatever screen
-was mid-transition. Three shapes were tried and all three threw it: a
-`StreamProvider` that watched the flag, a sync provider over that stream, and a
-`FutureProvider` the engines awaited.
+| Surface | Reads | Sees |
+|---|---|---|
+| History — list, calendar, charts, filter chips | `visibleAttacksProvider` | The last 90 days, free; everything, premium |
+| The banner | `hasHiddenHistoryProvider` | Whether anything at all is behind the window |
+| Today / this week / this month, the overuse warning, the widget | `attacksStreamProvider` | Every attack — they cannot reach past the window anyway, and the overuse warning is free |
+| The Insights analyses | `attacksStreamProvider` | Every attack. Each paid one is behind `PremiumGate`, so a free user sees a lock, never a shortened answer |
 
-So the window lives in the widget layer: `HistoryScreen` watches
-`freeHistoryStartProvider` and runs its two lists through `AttackWindow.within`.
-The analyses are left reading the whole record — every one of them that is worth
-money is already behind `PremiumGate`, so a free user sees the lock rather than
-a short answer.
+**`freeHistoryStartProvider` is STATE, not a computation over the entitlement.**
+The premium flag arrives asynchronously — RevenueCat in production, a stream in
+the tests — so a provider that *watches* it is recomputed while frames are
+still laying out, and Riverpod reports that as "setState called during build" on
+whatever screen was mid-transition. `BaroEaseApp` listens for the flag and calls
+`FreeHistoryStart.refresh()` after the frame; providers then watch that state
+freely.
+
+**Two shapes were tried and both threw it**, so do not "tidy" them back:
+
+| Shape | What broke |
+|---|---|
+| A sync `Provider<AsyncValue<…>>` over the table's stream | Notified its watchers while a route was popping — `attack_detail_test`, deleting an attack |
+| The Insights analyses reading the windowed stream | Their chain of derived providers recomputes when that stream is rebuilt, mid-layout on the Insights tab — `premium_gating_test` |
 
 ## The app-wide off switch
 

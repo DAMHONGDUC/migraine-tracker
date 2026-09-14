@@ -166,14 +166,13 @@ layer, never in a provider.**
 
 | What | Before | After |
 |---|---|---|
-| Where a free user's history is trimmed | — | `HistoryScreen`, through `AttackWindow.within` |
-| Providers that know about the entitlement | `canLogAttackProvider`, `attacksLeftProvider`, `attacksUsedProvider` | `freeHistoryStartProvider` and `hasHiddenHistoryProvider` only, both sync |
+| Where a free user's history is trimmed | Nowhere — the cap refused the 41st log instead | `visibleAttacksProvider`, one provider, which History reads whole |
+| How the entitlement reaches it | — | As state: `BaroEaseApp` listens for the flag and refreshes `freeHistoryStartProvider` after the frame |
 | What the analyses read | Every attack | Every attack, unchanged — each paid one is already behind `PremiumGate` |
+| Shapes that do not work | — | A sync provider over the table's stream, and the Insights chain reading the windowed stream: both throw "setState during build" mid-transition |
 
-**Why**: the premium flag arrives asynchronously, so a provider that filters by
-it is recomputed while the first frames are still laying out — Riverpod reports
-that as "setState called during build". Three shapes were tried and all three
-threw it; `docs/PREMIUM_RULES.md` records the rule.
+`docs/PREMIUM_RULES.md` carries the table of what reads what, so the next
+refactor does not walk back into it.
 
 ## Wave 3 — polish
 
