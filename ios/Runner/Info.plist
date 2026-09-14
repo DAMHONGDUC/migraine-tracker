@@ -20,13 +20,21 @@
 	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<!-- The name iOS shows: the home screen, the App Store, and every
-	     permission dialog. It said "Migraine Tracker" while every word inside
-	     the app said BaroEase, so the first two things a new user read gave two
-	     different names. `env_assets/`'s copy of this file carries the same
-	     string and has to be updated with it. -->
+	<!-- The name iOS shows: the App Store listing, the Settings app, and
+	     every permission dialog. It said "Migraine Tracker" while every word
+	     inside the app said BaroEase, so the first two things a new user read
+	     gave two different names.
+	
+	     It matches the store title in `docs/release/APP_STORE_LISTING.md`
+	     exactly (26 of the 30 characters Apple allows) — owner's call, so the
+	     name in the dialog is the name in the search result. The home screen
+	     icon truncates it to about twelve characters ("BaroEase: M…"), which
+	     is the price of the pair agreeing.
+	
+	     `env_assets/<flavor>-Info.plist` carries the same string and has to be
+	     updated with it: `prepare-env` copies that file over this one. -->
 	<key>CFBundleDisplayName</key>
-	<string>BaroEase</string>
+	<string>BaroEase: Migraine Tracker</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
