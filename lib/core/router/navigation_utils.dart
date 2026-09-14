@@ -79,6 +79,15 @@ final class NavigationUtils {
 
     if (!ref.read(hasPremiumProvider) || !context.mounted) return;
 
+    // The server never pushes to an anonymous session, so registration throws
+    // `accountRequired` — and a paying user meeting that error after flipping
+    // the switch reads as a broken feature. Sign-in comes first instead.
+    if (!ref.read(isSignedInProvider)) {
+      final bool signedIn = await toLogin(context);
+
+      if (!signedIn || !context.mounted) return;
+    }
+
     await AlertThresholdEditor.open(context, ref);
   }
 

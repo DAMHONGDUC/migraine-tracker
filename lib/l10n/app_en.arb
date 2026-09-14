@@ -4116,5 +4116,9 @@
   "checkInReminderDenied": "Notifications are off for BaroEase. Turn them on in Settings.",
   "@checkInReminderDenied": {
     "description": "Shown when the OS refuses the check-in reminder"
+  },
+  "alertsNeedsSignIn": "Alerts also need a Google or Apple account — the push is sent to your account, not to this device.",
+  "@alertsNeedsSignIn": {
+    "description": "Line under the alert row saying an account is required before the switch is tapped"
   }
 }

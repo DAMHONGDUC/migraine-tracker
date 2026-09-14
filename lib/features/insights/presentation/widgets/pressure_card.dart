@@ -14,6 +14,7 @@ import '../../../../l10n/gen/app_localizations.dart';
 import '../../../alerts/domain/entities/alerts_settings.dart';
 import '../../../alerts/domain/enums/alert_registration_error.dart';
 import '../../../alerts/providers.dart';
+import '../../../auth/providers.dart';
 import '../../../premium/providers.dart';
 import '../../domain/entities/correlation_result.dart';
 import 'correlation_body.dart';

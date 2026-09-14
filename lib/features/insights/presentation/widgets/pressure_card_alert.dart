@@ -75,6 +75,16 @@ class _AlertControls extends ConsumerWidget {
               : l10n.weatherAlertLockedBody,
           style: AppTextStyle.bodySmall.secondary,
         ),
+        // Said before the tap, never as an error after it: the push path needs an account (see `lib/features/alerts/CLAUDE.md`), and meeting that on the way out of a switch reads as a bug.
+        if (!settings.enabled && !ref.watch(isSignedInProvider)) ...<Widget>[
+          SizedBox(height: SdSpacingConstant.h4),
+          Text(
+            l10n.alertsNeedsSignIn,
+            style: AppTextStyle.bodySmall.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -844,5 +844,6 @@
   "checkInReminderBody": "Dreißig Sekunden, mit oder ohne Attacke.",
   "checkInReminderTile": "Erinnerung am Abend",
   "checkInReminderTileBody": "Ein Hinweis zur gewählten Zeit, nur an einem Tag ohne Antwort.",
-  "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein."
+  "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein.",
+  "alertsNeedsSignIn": "Warnungen brauchen zusätzlich ein Google- oder Apple-Konto — die Mitteilung geht an das Konto, nicht an dieses Gerät."
 }

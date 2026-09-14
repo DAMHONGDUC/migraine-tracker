@@ -844,5 +844,6 @@
   "checkInReminderBody": "Treinta segundos, con o sin ataque.",
   "checkInReminderTile": "Recordatorio de la tarde",
   "checkInReminderTileBody": "Un aviso a la hora que elijas, solo en un día sin responder.",
-  "checkInReminderDenied": "Las notificaciones de BaroEase están desactivadas. Actívalas en Ajustes."
+  "checkInReminderDenied": "Las notificaciones de BaroEase están desactivadas. Actívalas en Ajustes.",
+  "alertsNeedsSignIn": "Los avisos también necesitan una cuenta de Google o Apple: el envío va a la cuenta, no a este dispositivo."
 }
