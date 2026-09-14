@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -96,6 +97,16 @@ class _BaroEaseAppView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeControllerProvider);
+
+    // The free plan's history window is state, not a computation over the
+    // entitlement: recomputing it the moment RevenueCat answers lands the
+    // change mid-layout, which Riverpod reports as "setState during build".
+    // After the frame, it is an ordinary rebuild.
+    ref.listen<bool>(hasPremiumProvider, (bool? previous, bool next) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        ref.read(freeHistoryStartProvider.notifier).refresh();
+      });
+    });
 
     // One backfill pass per app start: attacks logged offline get their weather snapshot once back online.
     useEffect(() {

@@ -13,7 +13,6 @@ import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/entities/attack.dart';
-import '../../../../attacks/domain/services/attack_window.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../sync/providers.dart';
@@ -45,17 +44,14 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    // The free plan's window is applied HERE, in the widget: the list, the
-    // calendar and the charts all hang off these two, and a provider that
-    // depends on the entitlement churns the graph when premium flips
-    // (`AttackWindow` says why).
-    final DateTime? from = ref.watch(freeHistoryStartProvider);
-    final AsyncValue<List<Attack>> allAttacks = ref
-        .watch(attacksStreamProvider)
-        .whenData((List<Attack> attacks) => AttackWindow.within(attacks, from));
-    final AsyncValue<List<Attack>> filtered = ref
-        .watch(filteredAttacksProvider)
-        .whenData((List<Attack> attacks) => AttackWindow.within(attacks, from));
+    // Both already carry the free plan's window: `visibleAttacksProvider` owns
+    // it, and the filtered list is built from that one.
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(
+      visibleAttacksProvider,
+    );
+    final AsyncValue<List<Attack>> filtered = ref.watch(
+      filteredAttacksProvider,
+    );
     final HistoryViewMode mode = ref.watch(historyViewModeProvider);
     final syncStatus = ref.watch(syncControllerProvider);
     final bool isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
