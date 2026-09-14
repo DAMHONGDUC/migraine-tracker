@@ -49,9 +49,20 @@
   "@appFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "appFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
+  "appFeaturesBody": "Log as many attacks as you like. The free plan reads the last {days} days of them, and keeps {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
   "@appFeaturesBody": {
-    "description": "Onboarding feature-list sheet body"
+    "description": "Summary of the free plan",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "medications": {
+        "type": "int"
+      },
+      "reminders": {
+        "type": "int"
+      }
+    }
   },
   "appFeaturesFree": "Free forever",
   "@appFeaturesFree": {
@@ -65,14 +76,9 @@
   "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal. Up to {count} attacks on the free plan.",
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal, and there is no limit on how many you log.",
   "@appFeatureLogBody": {
-    "description": "Free feature: attack logging, detail. The count is the free-plan attack limit and comes from PremiumLimitConstant, never typed into the string",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "What the log feature does, on the About screen"
   },
   "appFeatureHistoryTitle": "History and charts",
   "@appFeatureHistoryTitle": {
@@ -1381,37 +1387,6 @@
   "premiumLockedSteps": "Unlock to see whether your attacks follow your least active days.",
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
-  },
-  "attackLimitTitle": "{count, plural, other{{count} attacks on the free plan}}",
-  "@attackLimitTitle": {
-    "description": "Dialog title when a free user reaches the logged-attack limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBody": "{count, plural, other{The free plan holds {count} logged attacks, and yours are all still here.}} Unlock Premium to keep logging.",
-  "@attackLimitBody": {
-    "description": "Dialog body explaining the free plan's attack limit, and that nothing is deleted",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBannerTitle": "{count, plural, =1{1 log left on the free plan} other{{count} logs left on the free plan}}",
-  "@attackLimitBannerTitle": {
-    "description": "Dashboard banner counting down the last free attack logs",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBannerBody": "Unlock Premium to keep logging without a limit.",
-  "@attackLimitBannerBody": {
-    "description": "Supporting line under the free-log countdown banner"
   },
   "dashboardPremiumBannerTitle": "Unlock Premium",
   "@dashboardPremiumBannerTitle": {
@@ -3052,15 +3027,6 @@
       }
     }
   },
-  "freeLimitAttacks": "{count, plural, =0{No free logs left} =1{1 free log left} other{{count} free logs left}}",
-  "@freeLimitAttacks": {
-    "description": "Headline of the free-plan attack log usage indicator",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
   "freeLimitReminders": "{count, plural, =0{No free reminders left} =1{1 free reminder left} other{{count} free reminders left}}",
   "@freeLimitReminders": {
@@ -4120,5 +4086,18 @@
   "alertsNeedsSignIn": "Alerts also need a Google or Apple account — the push is sent to your account, not to this device.",
   "@alertsNeedsSignIn": {
     "description": "Line under the alert row saying an account is required before the switch is tapped"
+  },
+  "freeHistoryTitle": "History before {date} is Premium",
+  "@freeHistoryTitle": {
+    "description": "Banner naming the date the free plan's readable history starts at",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "freeHistoryBody": "Nothing is deleted — your whole record is on this phone, and Premium opens all of it.",
+  "@freeHistoryBody": {
+    "description": "Reassures the user that the hidden history still exists"
   }
 }

@@ -6,7 +6,6 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
-import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -26,6 +25,20 @@ Future<void> seedAttacks(PumpedApp app, int count) async {
   }
 }
 
+/// One attack from before the free plan's 90-day window — what the banner exists for.
+Future<void> seedOldAttack(PumpedApp app) async {
+  await DriftAttackRepository(app.db).insert(
+    Attack(
+      id: 'old',
+      startedAt: DateTime.now().toUtc().subtract(
+        PremiumLimitConstant.freeHistoryWindow + const Duration(days: 5),
+      ),
+      intensity: 7,
+      regions: const <HeadRegion>[HeadRegion.templeR],
+    ),
+  );
+}
+
 Future<void> seedMedications(PumpedApp app, int count) async {
   final DriftMedicationRepository repo = DriftMedicationRepository(app.db);
 
@@ -35,10 +48,11 @@ Future<void> seedMedications(PumpedApp app, int count) async {
 }
 
 void main() {
-  group('the attack limit', () {
-    testWidgets('lets a free user log while there is room', (tester) async {
+  group('the free history window', () {
+    testWidgets('a free user logs with no limit at all', (tester) async {
       final PumpedApp app = await pumpApp(tester);
-      await seedAttacks(app, PremiumLimitConstant.attacks - 1);
+      // Far past the old 40-attack cap: logging is never refused now.
+      await seedAttacks(app, 45);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -50,70 +64,45 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('counts down the last few logs on the dashboard', (
+    testWidgets('nothing is said while the window hides nothing', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(tester);
-      // The wall lands mid-attack, so it must never be the first the user hears of it.
-      await seedAttacks(
-        app,
-        PremiumLimitConstant.attacks - PremiumLimitConstant.attacksWarnAt,
-      );
+      await seedAttacks(app, 5);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(
-        find.text(
-          '${PremiumLimitConstant.attacksWarnAt} logs left on the '
-          'free plan',
-        ),
-        findsOneWidget,
-      );
+      expect(find.textContaining('is Premium'), findsNothing);
 
       await finishTest(tester);
     });
 
-    testWidgets('names the limit at the wall, and pitches only on request', (
+    testWidgets('an attack older than the window is hidden and named', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(tester);
-      await seedAttacks(app, PremiumLimitConstant.attacks);
+      await seedAttacks(app, 2);
+      await seedOldAttack(app);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      await openLog(tester);
-
-      expect(
-        find.text('${PremiumLimitConstant.attacks} attacks on the free plan'),
-        findsOneWidget,
-      );
-      expect(find.text('How intense is the pain?'), findsNothing);
-      expect(find.text('BaroEase Premium'), findsNothing);
-
-      // Scoped to the dialog: the dashboard's own countdown banner carries an "Unlock" button too, and it is still in the tree underneath.
-      await tester.tap(
-        find.descendant(
-          of: find.byType(SdDialogV2),
-          matching: find.text('Unlock'),
-        ),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('BaroEase Premium'), findsOneWidget);
+      // The banner says what Premium would open, and that nothing was deleted.
+      expect(find.textContaining('is Premium'), findsWidgets);
+      expect(find.textContaining('Nothing is deleted'), findsWidgets);
 
       await finishTest(tester);
     });
 
-    testWidgets('premium logs past the limit with no banner', (tester) async {
+    testWidgets('premium reads the old attack and shows no banner', (
+      tester,
+    ) async {
       final PumpedApp app = await pumpApp(tester, premium: true);
-      await seedAttacks(app, PremiumLimitConstant.attacks + 5);
+      await seedAttacks(app, 2);
+      await seedOldAttack(app);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.textContaining('logs left'), findsNothing);
-
-      await openLog(tester);
-      expect(find.text('How intense is the pain?'), findsOneWidget);
+      expect(find.textContaining('is Premium'), findsNothing);
 
       await finishTest(tester);
     });

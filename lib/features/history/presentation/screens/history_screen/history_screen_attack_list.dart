@@ -16,10 +16,10 @@ class _AttackList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Null while premium — no limit, so nothing to show.
-    final int? used = ref.watch(attacksUsedProvider);
+    // Only where the 90-day window actually hides something; premium hides nothing.
+    final bool hasHidden = ref.watch(hasHiddenHistoryProvider);
     final int active = ref.watch(attackFiltersProvider).activeCount;
-    final bool hasMeter = used != null;
+    final bool hasMeter = hasHidden;
     final bool hasSummary = active > 0;
 
     return CustomScrollView(
@@ -34,13 +34,7 @@ class _AttackList extends ConsumerWidget {
               SdContentPaddingV2.horizontal,
               SdContentPaddingV2.listItemGap,
             ),
-            sliver: SliverToBoxAdapter(
-              child: FreeLimitProgress(
-                used: used,
-                limit: PremiumLimitConstant.attacks,
-                titleBuilder: (int left) => context.l10n.freeLimitAttacks(left),
-              ),
-            ),
+            sliver: const SliverToBoxAdapter(child: FreeHistoryBanner()),
           ),
         if (hasSummary)
           SliverPadding(

@@ -23,7 +23,7 @@ class OnboardingFeaturesSheet extends StatelessWidget {
         children: <Widget>[
           Text(
             l10n.appFeaturesBody(
-              PremiumLimitConstant.attacks,
+              PremiumLimitConstant.freeHistoryWindow.inDays,
               PremiumLimitConstant.medications,
               PremiumLimitConstant.reminders,
             ),

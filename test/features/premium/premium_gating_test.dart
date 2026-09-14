@@ -230,8 +230,18 @@ void main() {
       // The Monitoring section sits below the fold, and a row a lazy list has not built yet is a row `find.text` cannot see — scroll first, or the assertion reads "the gate is gone" when the gate is merely further down.
       await scrollIntoView(tester, find.text('Pressure-drop alerts'));
 
-      // - locked rows replace the real controls.
-      expect(find.byType(SwitchListTile), findsNothing);
+      // - locked rows replace the real controls. Scoped to the alerts row: the
+      //   check-in nudge beside it is free and IS a switch.
+      expect(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text('Pressure-drop alerts'),
+            matching: find.byType(PremiumTileGate),
+          ),
+          matching: find.byType(SwitchListTile),
+        ),
+        findsNothing,
+      );
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
@@ -434,7 +444,10 @@ void main() {
     });
 
     testWidgets('gets the alerts toggle and the PDF report', (tester) async {
-      await pumpApp(tester, premium: true);
+      // Signed in as well as premium: the alerts row takes a paying user to
+      // sign-in first, since the server never pushes to an anonymous session
+      // (`lib/features/alerts/CLAUDE.md`).
+      await pumpApp(tester, premium: true, signedIn: true);
       await openSettings(tester);
 
       // The Settings row only reports On/Off — the control itself lives on Insights' pressure card, so the row carries no switch of its own.
