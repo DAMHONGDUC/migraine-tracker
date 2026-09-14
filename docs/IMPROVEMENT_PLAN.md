@@ -28,7 +28,7 @@ stays the release checklist; this file is product work.
 **Why it matters**: the person the app is for is, at that moment, trying to put
 the phone down.
 
-### D2 — Where a trigger is analysed · Planned
+### D2 — Where a trigger is analysed · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -36,7 +36,7 @@ the phone down.
 | What the app can do with it | Show it back, filter on the exact words | Count it, and — through the day's factors — grade it |
 | The denominator | None: an attack knows its triggers, a quiet day knows nothing | The check-in's factor list, which `FactorMapEngine` already compares both ways |
 | Ticking a trigger | Touches the attack only | Offers one tap to tick the same factor on today's check-in |
-| New factors beyond the 8 that exist | — | At most 4, each starting its own 28-day clock. **This half needs a yes** |
+| New factors beyond the 8 that exist | — | Four added: bright light, loud noise, neck tension, missed preventive |
 
 **Why it matters**: "6 of 11 attacks followed wine" is not evidence until the
 app also knows how many quiet days followed wine.
@@ -95,14 +95,14 @@ the correlation the app sells.
 | The weather feature in that state | Dead until the app is reinstalled | Works on the next launch |
 | What the user sees | "Weather unavailable", no cause, no action | Weather |
 
-### 1.6 The weather card's dead end · Planned
+### 1.6 The weather card's dead end · Shipped
 
 | What | Before | After |
 |---|---|---|
 | A failed weather read | One line, and a silent auto-retry timer | The same line plus a retry control |
 | A failure that is not transient | Waits forever | One tap re-runs it |
 
-### 1.7 Chips for symptoms and triggers · Planned
+### 1.7 Chips for symptoms and triggers · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -111,7 +111,7 @@ the correlation the app sells.
 | Storage | A list of whatever was typed | The same list; chips write canonical ids, so no schema change |
 | Filtering in History | Matches the exact words the user typed | Matches ids, and still offers the user's own words |
 
-### 1.8 A trigger feeds the day's factors · Planned
+### 1.8 A trigger feeds the day's factors · Shipped
 
 | What | Before | After |
 |---|---|---|
