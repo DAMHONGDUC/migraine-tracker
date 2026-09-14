@@ -15,7 +15,7 @@ stays the release checklist; this file is product work.
 
 ## Decisions the owner has to make
 
-### D1 — Save now, mid-flow · Waiting
+### D1 — Save now, mid-flow · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -78,7 +78,7 @@ leaves rather than pays.
 **Why it matters**: pressure at the wrong hour is the one error that corrupts
 the correlation the app sells.
 
-### 1.4 Logging an attack that already passed · Waiting
+### 1.4 Logging an attack that already passed · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -86,7 +86,7 @@ the correlation the app sells.
 | Where the answer is shown | Nowhere | On the button that set it — "Started Sep 13, 03:00" |
 | Default | Now | Now, unchanged |
 
-### 1.5 A dead session heals itself · Waiting
+### 1.5 A dead session heals itself · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -140,7 +140,7 @@ asks for them.
 | A day spent lying down | A permanent hole in the control group | Answerable the next morning |
 | Older than 3 days | — | Still closed: that answer would be invention, not memory |
 
-### 2.4 Auto-advance on the single-choice steps · Waiting
+### 2.4 Auto-advance on the single-choice steps · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -148,7 +148,7 @@ asks for them.
 | Exertion step | Pick, then Next | The pick advances |
 | Location step | Pick, then Next | Unchanged — it takes several areas |
 | A fully answered log | 7 taps | 5 taps |
-| Existing tests | Encode the old sequence | Two need rewriting to the new one |
+| Existing tests | Encode the old sequence | Rewritten: `logAttack` and the flow walk drop the medication Next |
 
 ### 2.5 Alerts state their preconditions · Planned
 

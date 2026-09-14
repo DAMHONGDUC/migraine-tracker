@@ -7,6 +7,27 @@ Hard rule 5 and the widgets that serve it.
    never grow — **any new REQUIRED field needs explicit approval**, and there is
    still only one optional step.
 
+**The two single-choice steps commit on the pick** (owner's call, 2026-09-14).
+Medication and exertion advance the moment a tile is tapped —
+`LogController.selectAndAdvance` — so a fully answered log costs five taps
+rather than seven. Location keeps `updateDraft` and its Next: it takes several
+areas, and advancing on the first would put the second out of reach.
+
+**`saveNow` is the way out, and it is not a fifth step.** A text button under
+the content on every step after the first saves the attack with whatever has
+been answered — two taps for the 9/10 attack, intensity then Save now. The rest
+is editable on the detail screen, which is why this is not data loss.
+
+- **An attack may carry NO area**, and `Attack`'s old `regions.isNotEmpty`
+  assert is gone with this. Empty is an answer — "not recorded" — and
+  `HeadRegionListLabel.label` says so in words wherever an area is printed, so
+  no screen renders a blank value. The doctor report prints `-`, like every
+  other unanswered cell.
+- **`LogFlowState.startedAt` is how an attack that already passed gets logged.**
+  The first step carries a button into `AttackStartSheet`; the label echoes the
+  chosen instant back, because a time nobody sees again is a time nobody trusts.
+  Null is the ordinary case and means "now", decided at save.
+
 ## Why exertion is in the flow, and how it cannot block
 
 Exertion earned its place because it is the only insight the app asks the user to
@@ -83,7 +104,10 @@ past that.
   `AttackDurationSheet`'s "It just ended" is the same kind of answer as the ten in
   the grid below it, so it is the same kind of target — but outside the grid it
   gets no `mainAxisExtent` and shrank to its line of text, 22pt against 64.
-  `_DurationTile.height` is the one owner and both read it.
+  `AttackOptionTile.height` is the one owner and both read it — the tile left
+  `AttackDurationSheet` when `AttackStartSheet` needed the same box, because two
+  copies of one decoration is how two sheets on the same screen come to look
+  like two different controls.
   `attack_duration_sheet_test.dart` compares the two heights, because a tile
   shrinking is invisible in a green run and obvious on a phone.
 
