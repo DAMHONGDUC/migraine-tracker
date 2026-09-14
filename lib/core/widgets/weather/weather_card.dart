@@ -34,6 +34,7 @@ class WeatherCard extends StatelessWidget {
     required this.emptyLabel,
     this.place,
     this.isLoading = false,
+    this.onRetry,
     super.key,
   });
 
@@ -51,6 +52,9 @@ class WeatherCard extends StatelessWidget {
 
   /// Only the live caller can be loading; a stored snapshot is already here or is not.
   final bool isLoading;
+
+  /// Runs the read again from the empty state. Null on a stored snapshot — there is nothing to re-fetch for an attack logged offline, the backfill owns that.
+  final VoidCallback? onRetry;
 
   /// A tint of the accent across the card, top-left to bottom-right.
   static LinearGradient gradient(BuildContext context) => LinearGradient(
@@ -95,7 +99,11 @@ class WeatherCard extends StatelessWidget {
           vertical: SdSpacingConstant.h12,
         ),
         child: weather == null
-            ? _Placeholder(label: emptyLabel, isLoading: isLoading)
+            ? _Placeholder(
+                label: emptyLabel,
+                isLoading: isLoading,
+                onRetry: onRetry,
+              )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -127,10 +135,15 @@ class WeatherCard extends StatelessWidget {
 
 /// What fills the card before there is a reading, or instead of one.
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({required this.label, required this.isLoading});
+  const _Placeholder({
+    required this.label,
+    required this.isLoading,
+    this.onRetry,
+  });
 
   final String label;
   final bool isLoading;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -138,9 +151,20 @@ class _Placeholder extends StatelessWidget {
       return SizedBox(
         height: SdSpacingConstant.h40,
         width: double.infinity,
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Text(label, style: AppTextStyle.bodyMedium.secondary),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(label, style: AppTextStyle.bodyMedium.secondary),
+            ),
+            // The auto-retry timer dies with the provider, so a miss that is not the network — a dead session, a backend with no credentials — waits forever without this.
+            if (onRetry case final VoidCallback retry)
+              SdButtonV2(
+                variant: SdButtonVariantV2.text,
+                size: SdButtonSizeV2.small,
+                onPressed: retry,
+                label: context.l10n.commonRetry,
+              ),
+          ],
         ),
       );
     }

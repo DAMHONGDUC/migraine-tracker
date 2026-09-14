@@ -820,5 +820,6 @@
   "logSaveNow": "立即保存",
   "logStartEarlier": "更早开始的",
   "logStartedAt": "开始 {time}",
-  "regionNotRecorded": "未记录部位"
+  "regionNotRecorded": "未记录部位",
+  "commonRetry": "重试"
 }

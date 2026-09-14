@@ -820,5 +820,6 @@
   "logSaveNow": "Lưu ngay",
   "logStartEarlier": "Cơn đau bắt đầu sớm hơn",
   "logStartedAt": "Bắt đầu {time}",
-  "regionNotRecorded": "Chưa ghi vị trí"
+  "regionNotRecorded": "Chưa ghi vị trí",
+  "commonRetry": "Thử lại"
 }

@@ -820,5 +820,6 @@
   "logSaveNow": "Jetzt speichern",
   "logStartEarlier": "Hat früher begonnen",
   "logStartedAt": "Begonnen {time}",
-  "regionNotRecorded": "Kein Bereich erfasst"
+  "regionNotRecorded": "Kein Bereich erfasst",
+  "commonRetry": "Erneut versuchen"
 }

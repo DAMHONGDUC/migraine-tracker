@@ -36,4 +36,30 @@ void main() {
 
     await finishTest(tester);
   });
+
+  testWidgets('the empty card offers a retry, and it re-reads', (tester) async {
+    final PumpedApp app = await pumpApp(tester);
+
+    expect(find.text(unavailable), findsOneWidget);
+    final int afterFirst = app.weather.reportCalls;
+
+    app.weather.weatherReport = WeatherReport(
+      current: WeatherConditions(
+        time: DateTime.now().toUtc(),
+        temperatureCelsius: 21,
+      ),
+      hours: const <WeatherHourly>[],
+      days: const <WeatherDaily>[],
+    );
+
+    // The tap, not the timer: a failure that is not the network waits forever otherwise.
+    await tester.tap(find.text('Retry'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(app.weather.reportCalls, greaterThan(afterFirst));
+    expect(find.text('21°'), findsWidgets);
+
+    await finishTest(tester);
+  });
 }

@@ -820,5 +820,6 @@
   "logSaveNow": "今すぐ保存",
   "logStartEarlier": "もっと前に始まった",
   "logStartedAt": "開始 {time}",
-  "regionNotRecorded": "部位の記録なし"
+  "regionNotRecorded": "部位の記録なし",
+  "commonRetry": "再試行"
 }

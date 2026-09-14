@@ -4015,5 +4015,9 @@
   "regionNotRecorded": "No area recorded",
   "@regionNotRecorded": {
     "description": "Value shown where an attack was saved without picking a head area"
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Button that runs a failed read again"
   }
 }
