@@ -821,5 +821,21 @@
   "logStartEarlier": "A commencé plus tôt",
   "logStartedAt": "Début {time}",
   "regionNotRecorded": "Aucune zone enregistrée",
-  "commonRetry": "Réessayer"
+  "commonRetry": "Réessayer",
+  "dailyLogFactorBrightLight": "Lumière vive",
+  "dailyLogFactorLoudNoise": "Bruit fort",
+  "dailyLogFactorNeckTension": "Tension dans la nuque",
+  "dailyLogFactorMissedMedication": "Traitement de fond oublié",
+  "symptomNausea": "Nausées",
+  "symptomVomiting": "Vomissements",
+  "symptomLightSensitivity": "La lumière gêne",
+  "symptomSoundSensitivity": "Le bruit gêne",
+  "symptomSmellSensitivity": "Les odeurs gênent",
+  "symptomDizziness": "Vertiges",
+  "symptomNeckPain": "Douleur au cou",
+  "symptomBlurredVision": "Vision floue",
+  "detailsSymptomsOther": "Autres symptômes",
+  "detailsTriggersOther": "Autres facteurs",
+  "detailsAlsoOnCheckIn": "Enregistrer aussi dans le bilan de ce jour",
+  "detailsAlsoOnCheckInBody": "Un facteur ne se mesure que face aux jours sans douleur."
 }

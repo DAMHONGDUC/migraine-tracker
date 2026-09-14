@@ -4019,5 +4019,69 @@
   "commonRetry": "Retry",
   "@commonRetry": {
     "description": "Button that runs a failed read again"
+  },
+  "dailyLogFactorBrightLight": "Bright light",
+  "@dailyLogFactorBrightLight": {
+    "description": "Daily check-in factor: bright or flickering light"
+  },
+  "dailyLogFactorLoudNoise": "Loud noise",
+  "@dailyLogFactorLoudNoise": {
+    "description": "Daily check-in factor: a noisy environment"
+  },
+  "dailyLogFactorNeckTension": "Neck tension",
+  "@dailyLogFactorNeckTension": {
+    "description": "Daily check-in factor: a stiff or tense neck"
+  },
+  "dailyLogFactorMissedMedication": "Missed a preventive",
+  "@dailyLogFactorMissedMedication": {
+    "description": "Daily check-in factor: a preventive medication was not taken"
+  },
+  "symptomNausea": "Nausea",
+  "@symptomNausea": {
+    "description": "Attack symptom chip: nausea"
+  },
+  "symptomVomiting": "Vomiting",
+  "@symptomVomiting": {
+    "description": "Attack symptom chip: vomiting"
+  },
+  "symptomLightSensitivity": "Light hurts",
+  "@symptomLightSensitivity": {
+    "description": "Attack symptom chip: photophobia"
+  },
+  "symptomSoundSensitivity": "Sound hurts",
+  "@symptomSoundSensitivity": {
+    "description": "Attack symptom chip: phonophobia"
+  },
+  "symptomSmellSensitivity": "Smells hurt",
+  "@symptomSmellSensitivity": {
+    "description": "Attack symptom chip: osmophobia"
+  },
+  "symptomDizziness": "Dizziness",
+  "@symptomDizziness": {
+    "description": "Attack symptom chip: dizziness or vertigo"
+  },
+  "symptomNeckPain": "Neck pain",
+  "@symptomNeckPain": {
+    "description": "Attack symptom chip: neck pain or stiffness"
+  },
+  "symptomBlurredVision": "Blurred vision",
+  "@symptomBlurredVision": {
+    "description": "Attack symptom chip: blurred vision"
+  },
+  "detailsSymptomsOther": "Other symptoms",
+  "@detailsSymptomsOther": {
+    "description": "Label of the free-text field beside the symptom chips"
+  },
+  "detailsTriggersOther": "Other triggers",
+  "@detailsTriggersOther": {
+    "description": "Label of the free-text field beside the trigger chips"
+  },
+  "detailsAlsoOnCheckIn": "Also record these on that day's check-in",
+  "@detailsAlsoOnCheckIn": {
+    "description": "Switch that copies the picked triggers onto the day's factors"
+  },
+  "detailsAlsoOnCheckInBody": "A trigger can only be weighed against the days it did not hurt.",
+  "@detailsAlsoOnCheckInBody": {
+    "description": "One line explaining why the switch exists"
   }
 }

@@ -821,5 +821,21 @@
   "logStartEarlier": "Hat früher begonnen",
   "logStartedAt": "Begonnen {time}",
   "regionNotRecorded": "Kein Bereich erfasst",
-  "commonRetry": "Erneut versuchen"
+  "commonRetry": "Erneut versuchen",
+  "dailyLogFactorBrightLight": "Helles Licht",
+  "dailyLogFactorLoudNoise": "Lärm",
+  "dailyLogFactorNeckTension": "Nackenverspannung",
+  "dailyLogFactorMissedMedication": "Prophylaxe vergessen",
+  "symptomNausea": "Übelkeit",
+  "symptomVomiting": "Erbrechen",
+  "symptomLightSensitivity": "Licht tut weh",
+  "symptomSoundSensitivity": "Geräusche tun weh",
+  "symptomSmellSensitivity": "Gerüche tun weh",
+  "symptomDizziness": "Schwindel",
+  "symptomNeckPain": "Nackenschmerzen",
+  "symptomBlurredVision": "Verschwommenes Sehen",
+  "detailsSymptomsOther": "Weitere Symptome",
+  "detailsTriggersOther": "Weitere Auslöser",
+  "detailsAlsoOnCheckIn": "Auch im Check-in dieses Tages erfassen",
+  "detailsAlsoOnCheckInBody": "Ein Auslöser lässt sich nur gegen die schmerzfreien Tage abwägen."
 }

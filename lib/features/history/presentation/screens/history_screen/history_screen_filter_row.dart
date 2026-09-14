@@ -70,6 +70,13 @@ class _FilterRow extends ConsumerWidget {
     // An empty value is the "All" row; the user's own words label themselves.
     String text(String value) =>
         value == AttackFilters.anyText ? l10n.historyFilterAll : value;
+    // A chip's value can be a tag id since the details sheet started writing them, and `nausea` is not a word this app shows anyone.
+    String symptomText(String value) => value == AttackFilters.anyText
+        ? l10n.historyFilterAll
+        : value.symptomLabel(l10n);
+    String triggerText(String value) => value == AttackFilters.anyText
+        ? l10n.historyFilterAll
+        : value.triggerLabel(l10n);
 
     return Row(
       children: <Widget>[
@@ -152,7 +159,7 @@ class _FilterRow extends ConsumerWidget {
             axisName: l10n.detailsSymptomsLabel,
             value: filters.symptom,
             options: _textOptions(options.symptoms),
-            labelBuilder: text,
+            labelBuilder: symptomText,
             onSelected: controller.setSymptom,
           ),
         ],
@@ -162,7 +169,7 @@ class _FilterRow extends ConsumerWidget {
             axisName: l10n.detailsTriggersLabel,
             value: filters.trigger,
             options: _textOptions(options.triggers),
-            labelBuilder: text,
+            labelBuilder: triggerText,
             onSelected: controller.setTrigger,
           ),
         ],

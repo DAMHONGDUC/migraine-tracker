@@ -134,6 +134,7 @@ class LogScreen extends ConsumerWidget {
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,
+                      startedAt: state.startedAt ?? DateTime.now().toUtc(),
                       onDone: closeFlow,
                     ),
                   },

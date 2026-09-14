@@ -199,8 +199,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.enterText(findLabelledField('Symptoms'), 'aura, nausea');
-    await tester.enterText(findLabelledField('Triggers'), 'stress');
+    // Chips first — the ids are what the analyses can count — then the free-text field for a word the list has no chip for.
+    await tester.tap(find.text('Nausea'));
+    await tester.pump();
+    await tester.tap(find.text('Alcohol'));
+    await tester.pump();
+    await tester.enterText(findLabelledField('Other symptoms'), 'ringing ears');
+    await tester.enterText(findLabelledField('Other triggers'), 'argument');
     await tester.enterText(findLabelledField('Notes'), 'bad one');
     // The sheet commits from a labelled button now, not a pencil in the header — "Update" rather than "Save", since it overwrites details the attack may already carry.
     await tester.tap(find.text('Update'));
@@ -208,9 +213,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     final row = (await app.db.select(app.db.attacks).get()).single;
-    expect(row.symptoms, ['aura', 'nausea']);
-    expect(row.triggers, ['stress']);
+    expect(row.symptoms, <String>['nausea', 'ringing ears']);
+    expect(row.triggers, <String>['alcohol', 'argument']);
     expect(row.notes, 'bad one');
+
+    // The half that makes a trigger gradeable: the same factor lands on the day.
+    final dayRow = (await app.db.select(app.db.dailyLogs).get()).single;
+    expect(dayRow.factors.map((f) => f.name), contains('alcohol'));
 
     await finishTest(tester);
   });

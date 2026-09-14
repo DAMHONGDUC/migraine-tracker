@@ -7,12 +7,12 @@ import 'package:system_design/index.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/daily_factor_picker.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/daily_log.dart';
 import '../../../providers.dart';
 import '../../controllers/daily_log_controller.dart';
 import '../../widgets/daily_cycle_section.dart';
-import '../../widgets/daily_factor_picker.dart';
 import '../../widgets/daily_rating_row.dart';
 
 /// The 30-second check-in: how the night was, how the day was, and what else the day carried.

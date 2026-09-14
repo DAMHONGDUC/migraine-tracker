@@ -821,5 +821,21 @@
   "logStartEarlier": "更早开始的",
   "logStartedAt": "开始 {time}",
   "regionNotRecorded": "未记录部位",
-  "commonRetry": "重试"
+  "commonRetry": "重试",
+  "dailyLogFactorBrightLight": "强光",
+  "dailyLogFactorLoudNoise": "噪音",
+  "dailyLogFactorNeckTension": "颈部紧张",
+  "dailyLogFactorMissedMedication": "漏服预防药",
+  "symptomNausea": "恶心",
+  "symptomVomiting": "呕吐",
+  "symptomLightSensitivity": "怕光",
+  "symptomSoundSensitivity": "怕声",
+  "symptomSmellSensitivity": "怕气味",
+  "symptomDizziness": "头晕",
+  "symptomNeckPain": "颈部疼痛",
+  "symptomBlurredVision": "视力模糊",
+  "detailsSymptomsOther": "其他症状",
+  "detailsTriggersOther": "其他诱因",
+  "detailsAlsoOnCheckIn": "同时记入当天的签到",
+  "detailsAlsoOnCheckInBody": "只有和不痛的日子相比，诱因才有意义。"
 }

@@ -821,5 +821,21 @@
   "logStartEarlier": "Empezó antes",
   "logStartedAt": "Inicio {time}",
   "regionNotRecorded": "Sin zona registrada",
-  "commonRetry": "Reintentar"
+  "commonRetry": "Reintentar",
+  "dailyLogFactorBrightLight": "Luz intensa",
+  "dailyLogFactorLoudNoise": "Ruido fuerte",
+  "dailyLogFactorNeckTension": "Tensión en el cuello",
+  "dailyLogFactorMissedMedication": "Olvidé el preventivo",
+  "symptomNausea": "Náuseas",
+  "symptomVomiting": "Vómitos",
+  "symptomLightSensitivity": "La luz molesta",
+  "symptomSoundSensitivity": "El ruido molesta",
+  "symptomSmellSensitivity": "Los olores molestan",
+  "symptomDizziness": "Mareo",
+  "symptomNeckPain": "Dolor de cuello",
+  "symptomBlurredVision": "Visión borrosa",
+  "detailsSymptomsOther": "Otros síntomas",
+  "detailsTriggersOther": "Otros desencadenantes",
+  "detailsAlsoOnCheckIn": "Registrarlos también en el check-in de ese día",
+  "detailsAlsoOnCheckInBody": "Un desencadenante solo se puede comparar con los días sin dolor."
 }

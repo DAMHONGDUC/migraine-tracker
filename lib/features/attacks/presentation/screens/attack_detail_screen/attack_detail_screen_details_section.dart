@@ -15,6 +15,7 @@ class _DetailsSection extends StatelessWidget {
 
     void edit() => AttackDetailsSheet(
       attackId: attack.id,
+      startedAt: attack.startedAt,
       initialSymptoms: attack.symptoms,
       initialTriggers: attack.triggers,
       initialNotes: attack.notes,
@@ -39,12 +40,12 @@ class _DetailsSection extends StatelessWidget {
           if (attack.symptoms.isNotEmpty)
             _ReadOnlyRow(
               label: l10n.detailsSymptomsLabel,
-              value: attack.symptoms.join(', '),
+              value: attack.symptoms.symptomsLabel(l10n),
             ),
           if (attack.triggers.isNotEmpty)
             _ReadOnlyRow(
               label: l10n.detailsTriggersLabel,
-              value: attack.triggers.join(', '),
+              value: attack.triggers.triggersLabel(l10n),
             ),
           if (attack.notes?.isNotEmpty ?? false)
             ListTile(

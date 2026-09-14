@@ -821,5 +821,21 @@
   "logStartEarlier": "Cơn đau bắt đầu sớm hơn",
   "logStartedAt": "Bắt đầu {time}",
   "regionNotRecorded": "Chưa ghi vị trí",
-  "commonRetry": "Thử lại"
+  "commonRetry": "Thử lại",
+  "dailyLogFactorBrightLight": "Ánh sáng gắt",
+  "dailyLogFactorLoudNoise": "Tiếng ồn lớn",
+  "dailyLogFactorNeckTension": "Căng cơ cổ",
+  "dailyLogFactorMissedMedication": "Quên thuốc phòng ngừa",
+  "symptomNausea": "Buồn nôn",
+  "symptomVomiting": "Nôn",
+  "symptomLightSensitivity": "Sợ ánh sáng",
+  "symptomSoundSensitivity": "Sợ tiếng ồn",
+  "symptomSmellSensitivity": "Sợ mùi",
+  "symptomDizziness": "Choáng, chóng mặt",
+  "symptomNeckPain": "Đau cổ",
+  "symptomBlurredVision": "Mờ mắt",
+  "detailsSymptomsOther": "Triệu chứng khác",
+  "detailsTriggersOther": "Yếu tố khác",
+  "detailsAlsoOnCheckIn": "Ghi luôn vào check-in của ngày đó",
+  "detailsAlsoOnCheckInBody": "Một yếu tố chỉ có nghĩa khi so được với những ngày không đau."
 }

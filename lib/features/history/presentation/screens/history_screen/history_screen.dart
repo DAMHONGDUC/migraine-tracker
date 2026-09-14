@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/attack_filter_labels.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/symptom_tag_label.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/active_filter_summary.dart';

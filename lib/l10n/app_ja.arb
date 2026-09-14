@@ -821,5 +821,21 @@
   "logStartEarlier": "もっと前に始まった",
   "logStartedAt": "開始 {time}",
   "regionNotRecorded": "部位の記録なし",
-  "commonRetry": "再試行"
+  "commonRetry": "再試行",
+  "dailyLogFactorBrightLight": "強い光",
+  "dailyLogFactorLoudNoise": "大きな騒音",
+  "dailyLogFactorNeckTension": "首のこり",
+  "dailyLogFactorMissedMedication": "予防薬の飲み忘れ",
+  "symptomNausea": "吐き気",
+  "symptomVomiting": "嘔吐",
+  "symptomLightSensitivity": "光がつらい",
+  "symptomSoundSensitivity": "音がつらい",
+  "symptomSmellSensitivity": "においがつらい",
+  "symptomDizziness": "めまい",
+  "symptomNeckPain": "首の痛み",
+  "symptomBlurredVision": "視界のぼやけ",
+  "detailsSymptomsOther": "その他の症状",
+  "detailsTriggersOther": "その他の要因",
+  "detailsAlsoOnCheckIn": "その日のチェックインにも記録する",
+  "detailsAlsoOnCheckInBody": "要因は痛くなかった日と比べて初めて意味を持ちます。"
 }

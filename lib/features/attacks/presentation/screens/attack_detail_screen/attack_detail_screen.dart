@@ -12,6 +12,7 @@ import '../../../../../core/extensions/duration_label.dart';
 import '../../../../../core/extensions/exertion_level_label.dart';
 import '../../../../../core/extensions/head_region_label.dart';
 import '../../../../../core/extensions/medication_effect_label.dart';
+import '../../../../../core/extensions/symptom_tag_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
