@@ -12,6 +12,7 @@ stays the release checklist; this file is product work.
 | **Shipped** | Committed, analyzer clean, tests green |
 | **Waiting** | Written, in the working tree, not committed — needs a yes |
 | **Planned** | Not started |
+| **Blocked / Not done** | Cannot be done here, or needs the owner — the reason is in the row |
 
 ## Decisions the owner has to make
 
@@ -41,12 +42,12 @@ the phone down.
 **Why it matters**: "6 of 11 attacks followed wine" is not evidence until the
 app also knows how many quiet days followed wine.
 
-### D3 — The 40-attack lifetime cap · Planned
+### D3 — The 40-attack lifetime cap · Shipped
 
 | What | Before | After |
 |---|---|---|
 | Free attacks | 40, for life | Unlimited |
-| What the free plan buys | Everything, until the 41st attack | Everything, over the last 90 days |
+| What the free plan buys | Everything, until the 41st attack | Everything, and History reads the last 90 days |
 | A chronic user (15/month) | Cannot log from month 2.7 | Never blocked |
 | The dashboard banner | Counts down the last 5 logs | Says which date the readable history starts at |
 | What is sold | The right to record | Long history, correlation, forecast, doctor report |
@@ -120,7 +121,7 @@ the correlation the app sells.
 
 ## Wave 2 — the 30-day cliff
 
-### 2.1 + 2.2 An evening check-in reminder · Planned
+### 2.1 + 2.2 An evening check-in reminder · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -132,7 +133,7 @@ the correlation the app sells.
 **Why it matters**: the factor map needs 28 answered days, and today nothing
 asks for them.
 
-### 2.3 Answering a missed check-in · Planned
+### 2.3 Answering a missed check-in · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -150,7 +151,7 @@ asks for them.
 | A fully answered log | 7 taps | 5 taps |
 | Existing tests | Encode the old sequence | Rewritten: `logAttack` and the flow walk drop the medication Next |
 
-### 2.5 Alerts state their preconditions · Planned
+### 2.5 Alerts state their preconditions · Shipped
 
 | What | Before | After |
 |---|---|---|
@@ -158,38 +159,54 @@ asks for them.
 | A Premium user with no account | Flips the switch, then meets an error | Is taken to sign-in |
 | When the user learns about the account | After paying, at the switch | Before tapping |
 
-### 2.6 The free window replaces the cap · Planned
+### 2.6 The free window replaces the cap · Shipped
 
-See D3. Nothing is built until that decision lands.
+See D3. One thing is worth writing down: **the window is applied in the widget
+layer, never in a provider.**
+
+| What | Before | After |
+|---|---|---|
+| Where a free user's history is trimmed | — | `HistoryScreen`, through `AttackWindow.within` |
+| Providers that know about the entitlement | `canLogAttackProvider`, `attacksLeftProvider`, `attacksUsedProvider` | `freeHistoryStartProvider` and `hasHiddenHistoryProvider` only, both sync |
+| What the analyses read | Every attack | Every attack, unchanged — each paid one is already behind `PremiumGate` |
+
+**Why**: the premium flag arrives asynchronously, so a provider that filters by
+it is recomputed while the first frames are still laying out — Riverpod reports
+that as "setState called during build". Three shapes were tried and all three
+threw it; `docs/PREMIUM_RULES.md` records the rule.
 
 ## Wave 3 — polish
 
-### 3.1 One name · Planned
+### 3.1 One name · Shipped
 
 | What | Before | After |
 |---|---|---|
 | The name in the permission dialog | "Migraine Tracker" | "BaroEase" |
 | The name everywhere else | "BaroEase" | Unchanged |
 
-### 3.2 The two empty steps · Planned
+### 3.2 The two empty steps · Partly shipped
 
 | What | Before | After |
 |---|---|---|
-| Medication and exertion steps on a 6.9" screen | Content at the top, ~60% of the screen empty | Content centred |
-| The primary action | In the app bar, the furthest point from the thumb | In the thumb zone, beside Save now |
+| The exertion step | Already centred | Unchanged — the 30-day run misread it |
+| The primary action | In the app bar alone | Save now sits under the content, in the thumb zone, and the two single-choice steps need no Next at all |
+| Centring the medication grid | Top-aligned | **Reverted.** `Center` inside its scroll view broke the grid-capacity test's no-scroll guarantee and the log flow's overflow test; the grid's fixed cells and the step's own insets are what that test pins |
 
-### 3.3 Waiting analyses say how far along they are · Planned
-
-| What | Before | After |
-|---|---|---|
-| A card with too little data | "Not enough data yet" | "4 more attacks", "9 more check-ins" — the shape the factor map already uses |
-| A free user's sense of progress | None until the card flips | Visible from the first record |
-
-### 3.4 The device checklist · Planned
+### 3.3 Waiting analyses say how far along they are · Not done, on purpose
 
 | What | Before | After |
 |---|---|---|
-| HealthKit, push, the widget, Live Activity, both Siri phrases | Never verified on hardware | Verified, per `docs/REMAINING_WORK.md` item 16 |
+| A PREMIUM user's waiting card | Already says how much is missing — `InsightProgressBody` on sleep, steps and exertion, `CorrelationBodyProgress` on pressure, two counters on the factor map | Unchanged; the 30-day run reported this wrongly |
+| A FREE user's locked card | One pitch, no numbers | Unchanged — showing progress inside a locked card contradicts "locked, a tab collapses to one card with one pitch" (`lib/features/insights/CLAUDE.md`) |
+
+**Needs the owner**, not a patch: it is a change to what a locked surface may
+say, and that rule was set deliberately.
+
+### 3.4 The device checklist · Blocked
+
+| What | Before | After |
+|---|---|---|
+| HealthKit, push, the widget, Live Activity, both Siri phrases | Never verified on hardware | Still never — it needs an iPhone, per `docs/REMAINING_WORK.md` item 16 |
 
 ## Rules these changes rewrite
 
