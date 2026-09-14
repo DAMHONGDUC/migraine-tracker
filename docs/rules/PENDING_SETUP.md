@@ -345,3 +345,13 @@ iOS build in the loop, so everything below is unverified.
 | It ends | Record the attack as ended, then delete one, then run the GDPR wipe. All three must clear the card. |
 | The App Group matches | `HomeWidgetConstant.appGroupId`, `BaroEaseWidgetStore.appGroupId` and both `.entitlements` files. The plugin reads its values from that suite. |
 | `permission_handler` | Arrived as a transitive dependency of `live_activities` and asks for the Android notification permission at init. Harmless on iOS; check it does not add an unexpected Android prompt if Android is ever polished. |
+
+## The display name in `env_assets/`
+
+`ios/Runner/Info.plist` now says `BaroEase` where it used to say "Migraine
+Tracker" — the name iOS puts in every permission dialog and on the home screen.
+That file is one of the six `prepare-env` overwrites, so **the copy in
+`env_assets/` has to carry the same string** or the next
+`melos run prepare-env-<flavor>` puts the old name back. The repo copy is the
+one CI builds from; the `env_assets/` copy is the one a local release build
+does.
