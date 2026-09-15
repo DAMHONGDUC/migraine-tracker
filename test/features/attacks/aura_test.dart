@@ -50,13 +50,16 @@ void main() {
       ]);
     });
 
-    test('an empty list is a recorded "no aura", not a cleared answer', () async {
-      await repository.insert(attack(aura: <AuraType>[AuraType.visual]));
+    test(
+      'an empty list is a recorded "no aura", not a cleared answer',
+      () async {
+        await repository.insert(attack(aura: <AuraType>[AuraType.visual]));
 
-      await repository.updateAura('a1', const <AuraType>[]);
+        await repository.updateAura('a1', const <AuraType>[]);
 
-      expect((await repository.getAll()).single.aura, isEmpty);
-    });
+        expect((await repository.getAll()).single.aura, isEmpty);
+      },
+    );
 
     test('null takes the answer back', () async {
       await repository.insert(attack(aura: const <AuraType>[]));
@@ -102,9 +105,7 @@ void main() {
 
     test('the kinds survive the round trip', () {
       final Attack decoded = codec.decode(
-        codec.encode(
-          attack(aura: <AuraType>[AuraType.visual, AuraType.motor]),
-        ),
+        codec.encode(attack(aura: <AuraType>[AuraType.visual, AuraType.motor])),
         id: 'a1',
       );
 

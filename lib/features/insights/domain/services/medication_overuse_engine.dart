@@ -57,8 +57,8 @@ class MedicationOveruseEngine {
     return MedicationOveruseResult(
       months: <MonthlyIntakeDays>[
         for (int i = 0; i < months; i++)
-          if (DateTime(firstMonth.year, firstMonth.month + i) case final DateTime
-              month)
+          if (DateTime(firstMonth.year, firstMonth.month + i)
+              case final DateTime month)
             MonthlyIntakeDays(
               month: month,
               days: daysByMonth[month]?.length ?? 0,

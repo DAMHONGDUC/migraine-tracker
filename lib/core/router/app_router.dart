@@ -61,7 +61,7 @@ final class AppRoutes {
   /// The MIDAS questionnaire, pushed from the export screen — the score rides in the doctor report that screen produces.
   static const midas = AppRoute(name: 'midas', path: '/midas');
 
-  /// The 30-second daily check-in, pushed from the dashboard card. Always writes today — see [DailyLogScreen].
+  /// The 30-second daily check-in, pushed from the dashboard card. Today by default; `?day=yyyy-MM-dd` answers one the user missed — see [DailyLogScreen].
   static const dailyLog = AppRoute(name: 'dailyLog', path: '/check-in');
 
   /// The notification list, pushed from the dashboard's app bar.
@@ -202,7 +202,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         name: AppRoutes.dailyLog.name,
         path: AppRoutes.dailyLog.path,
-        builder: (context, state) => const DailyLogScreen(),
+        // The day rides in the query rather than the path: the ordinary case has no day at all, and a path segment would need a placeholder for "today".
+        builder: (context, state) =>
+            DailyLogScreen(dayKey: state.uri.queryParameters['day']),
       ),
       // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
       GoRoute(

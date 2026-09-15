@@ -21,10 +21,7 @@ void main() {
   setUp(() => _nextId = 0);
 
   test('an empty history is six months of zero, not an empty list', () {
-    final MigraineDaysSummary summary = engine.analyze(
-      <Attack>[],
-      now: now,
-    );
+    final MigraineDaysSummary summary = engine.analyze(<Attack>[], now: now);
 
     expect(summary.months, hasLength(6));
     expect(summary.months.every((m) => m.days == 0), isTrue);

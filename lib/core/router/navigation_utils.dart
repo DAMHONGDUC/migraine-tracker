@@ -8,8 +8,6 @@ import '../../features/insights/domain/enums/insights_tab.dart';
 import '../../features/insights/providers.dart';
 import '../../features/premium/providers.dart';
 import '../analytics/app_analytics.dart';
-import '../constants/premium_limit_constant.dart';
-import '../extensions/context_extensions.dart';
 import '../widgets/alert_threshold_sheet.dart';
 import '../widgets/record_limit_dialog.dart';
 import 'app_router.dart';
@@ -23,18 +21,13 @@ final class NavigationUtils {
     return signedIn ?? false;
   }
 
-  /// The 3-tap log flow, with the two things that must happen before it.
+  /// The 3-tap log flow, with the one thing that must happen before it.
+  ///
+  /// There is no gate here any more: logging an attack is never refused
+  /// (`docs/PREMIUM_RULES.md`), and what the free plan limits is how far back
+  /// the record can be READ. The reset stays — a flow reopened on the last
+  /// attack's answers would record them again.
   static Future<void> toLog(BuildContext context, WidgetRef ref) async {
-    if (!ref.read(canLogAttackProvider)) {
-      await toPaywallFromLimit(
-        context,
-        ref,
-        title: context.l10n.attackLimitTitle(PremiumLimitConstant.attacks),
-        body: context.l10n.attackLimitBody(PremiumLimitConstant.attacks),
-      );
-      return;
-    }
-
     ref.read(logControllerProvider.notifier).reset();
     if (context.mounted) await context.pushNamed<void>(AppRoutes.log.name);
   }
@@ -51,11 +44,7 @@ final class NavigationUtils {
   }
 
   /// Insights, showing [tab].
-  static void toInsights(
-    BuildContext context,
-    WidgetRef ref,
-    InsightsTab tab,
-  ) {
+  static void toInsights(BuildContext context, WidgetRef ref, InsightsTab tab) {
     ref.read(insightsTabProvider.notifier).set(tab);
     context.goNamed(AppRoutes.insights.name);
   }
@@ -82,6 +71,15 @@ final class NavigationUtils {
     toPressure(context, ref);
 
     if (!ref.read(hasPremiumProvider) || !context.mounted) return;
+
+    // The server never pushes to an anonymous session, so registration throws
+    // `accountRequired` — and a paying user meeting that error after flipping
+    // the switch reads as a broken feature. Sign-in comes first instead.
+    if (!ref.read(isSignedInProvider)) {
+      final bool signedIn = await toLogin(context);
+
+      if (!signedIn || !context.mounted) return;
+    }
 
     await AlertThresholdEditor.open(context, ref);
   }

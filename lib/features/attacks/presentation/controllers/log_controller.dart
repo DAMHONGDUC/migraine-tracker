@@ -30,10 +30,12 @@ class LogFlowState {
     this.savedId,
     this.hasDraft = false,
     this.draft,
+    this.startedAt,
   });
 
   final LogStep step;
   final int? intensity;
+
   /// Every area confirmed on the location step.
   final List<HeadRegion>? regions;
 
@@ -47,6 +49,12 @@ class LogFlowState {
 
   /// The active step's picked-but-not-yet-confirmed value: an `int` (intensity), a `List<HeadRegion>`, a `String?` (medication name) or an [ExertionLevel].
   final Object? draft;
+
+  /// When the attack actually began, once the user has said it was earlier than now. Null is the ordinary case: an attack logged while it hurts.
+  ///
+  /// It is in the state rather than beside it because the first step shows the
+  /// answer back — a time chosen and never echoed is one nobody trusts.
+  final DateTime? startedAt;
 }
 
 /// Owns the flow's state machine and persistence. Widgets only render this state and call these methods — no business logic in the UI layer.
@@ -58,7 +66,11 @@ class LogController extends Notifier<LogFlowState> {
 
   /// First tap: intensity advances immediately, no confirm step — it's the fastest way into the flow, mid-attack.
   void selectIntensity(int value) {
-    state = LogFlowState(step: LogStep.location, intensity: value);
+    state = LogFlowState(
+      step: LogStep.location,
+      intensity: value,
+      startedAt: state.startedAt,
+    );
     // Funnel only — the step reached, never the value picked (health data).
     AppAnalytics.logLogFlowStep(LogStep.location.name);
   }
@@ -73,6 +85,40 @@ class LogController extends Notifier<LogFlowState> {
       savedId: state.savedId,
       hasDraft: true,
       draft: value,
+      startedAt: state.startedAt,
+    );
+  }
+
+  /// A single-choice step (medication, exertion): the pick IS the confirmation, so the Next tap it used to need is gone.
+  ///
+  /// Location keeps [updateDraft] — it takes several areas, and advancing on
+  /// the first would make a second one unreachable.
+  Future<void> selectAndAdvance(Object? value) async {
+    updateDraft(value);
+    await confirmStep();
+  }
+
+  /// Saves from wherever the flow has got to, with whatever has been answered.
+  ///
+  /// The 9/10 attack is the one this exists for: everything here is editable
+  /// afterwards on the detail screen, and a record with two answers beats the
+  /// one nobody stayed in the app long enough to finish.
+  Future<void> saveNow() async {
+    final Object? draft = state.hasDraft ? state.draft : null;
+
+    await _save(
+      switch (state.step) {
+        LogStep.medication => draft as String?,
+        _ => state.medicationName,
+      },
+      switch (state.step) {
+        LogStep.exertion => draft as ExertionLevel?,
+        _ => null,
+      },
+      regions: switch (state.step) {
+        LogStep.location => (draft as List<HeadRegion>?) ?? state.regions,
+        _ => state.regions,
+      },
     );
   }
 
@@ -86,6 +132,7 @@ class LogController extends Notifier<LogFlowState> {
           regions: state.draft! as List<HeadRegion>,
           // Defaults to "No medication": the common answer costs no tap, and Next is armed on arrival rather than after a pick.
           hasDraft: true,
+          startedAt: state.startedAt,
         );
         AppAnalytics.logLogFlowStep(LogStep.medication.name);
       case LogStep.medication:
@@ -97,6 +144,7 @@ class LogController extends Notifier<LogFlowState> {
           // Same idea: "None" is the common answer and the step's default.
           hasDraft: true,
           draft: ExertionLevel.none,
+          startedAt: state.startedAt,
         );
         AppAnalytics.logLogFlowStep(LogStep.exertion.name);
       case LogStep.exertion:
@@ -130,13 +178,15 @@ class LogController extends Notifier<LogFlowState> {
   /// Persists the attack and moves to the saved confirmation. Weather is attached best-effort; logging never waits for the network.
   Future<void> _save(
     String? medicationName,
-    ExertionLevel? exertionLevel,
-  ) async {
+    ExertionLevel? exertionLevel, {
+    List<HeadRegion>? regions,
+  }) async {
     final attack = Attack(
       id: _uuid.v4(),
-      startedAt: DateTime.now().toUtc(),
+      startedAt: state.startedAt ?? DateTime.now().toUtc(),
       intensity: state.intensity!,
-      regions: state.regions!,
+      // Empty is a real answer from [saveNow]: the areas were never picked, and an attack with no location is better than no attack.
+      regions: regions ?? state.regions ?? const <HeadRegion>[],
       medicationName: medicationName,
       exertionLevel: exertionLevel,
     );
@@ -182,6 +232,7 @@ class LogController extends Notifier<LogFlowState> {
         intensity: state.intensity,
         draft: state.intensity,
         hasDraft: state.intensity != null,
+        startedAt: state.startedAt,
       ),
       LogStep.medication => LogFlowState(
         step: LogStep.location,
@@ -189,6 +240,7 @@ class LogController extends Notifier<LogFlowState> {
         regions: state.regions,
         draft: state.regions,
         hasDraft: state.regions != null,
+        startedAt: state.startedAt,
       ),
       // Medication was confirmed to get here, and "No medication" is a valid confirmed pick — so Next is armed even though the draft is null.
       LogStep.exertion => LogFlowState(
@@ -198,9 +250,24 @@ class LogController extends Notifier<LogFlowState> {
         medicationName: state.medicationName,
         draft: state.medicationName,
         hasDraft: true,
+        startedAt: state.startedAt,
       ),
       _ => state,
     };
+  }
+
+  /// Records that the attack began before now. Null takes the answer back — "just now" is the default, not a stored value.
+  void setStartedAt(DateTime? startedAt) {
+    state = LogFlowState(
+      step: state.step,
+      intensity: state.intensity,
+      regions: state.regions,
+      medicationName: state.medicationName,
+      savedId: state.savedId,
+      hasDraft: state.hasDraft,
+      draft: state.draft,
+      startedAt: startedAt,
+    );
   }
 
   void reset() => state = const LogFlowState();

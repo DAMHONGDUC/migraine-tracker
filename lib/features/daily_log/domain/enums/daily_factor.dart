@@ -13,4 +13,24 @@ enum DailyFactor {
   intenseExercise,
   travel,
   strongSmell,
+  // Added 2026-09-14 with the attack's trigger chips: an attack names these
+  // often and the map had no day-level counterpart to grade them against.
+  // Each starts its own 28-day clock (`FactorMapEngine.defaultRequiredDays`).
+  brightLight,
+  loudNoise,
+  neckTension,
+  missedMedication;
+
+  /// A stored trigger string back to the factor it names, or null for a word the user typed themselves.
+  ///
+  /// An attack's triggers and a day's factors share this vocabulary, which is
+  /// what lets `FactorMapEngine` weigh a trigger against the days it did not
+  /// hurt — see `lib/features/daily_log/CLAUDE.md`.
+  static DailyFactor? tryParse(String value) {
+    for (final DailyFactor factor in DailyFactor.values) {
+      if (factor.name == value) return factor;
+    }
+
+    return null;
+  }
 }

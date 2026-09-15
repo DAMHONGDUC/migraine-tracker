@@ -10,10 +10,10 @@ import 'package:migraine_tracker/features/medications/data/repositories/drift_me
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication_reminder.dart';
 import 'package:migraine_tracker/features/medications/domain/repositories/medication_reminder_repository.dart';
-import 'package:migraine_tracker/features/medications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/notifications/data/repositories/drift_notification_repository.dart';
 import 'package:migraine_tracker/features/notifications/domain/entities/app_notification.dart';
 import 'package:migraine_tracker/features/notifications/domain/enums/notification_type.dart';
+import 'package:migraine_tracker/features/notifications/domain/services/notification_scheduler.dart';
 import 'package:migraine_tracker/features/settings/data/repositories/drift_export_record_repository.dart';
 import 'package:migraine_tracker/features/settings/domain/entities/export_record.dart';
 import 'package:migraine_tracker/features/settings/domain/services/data_export_service.dart';
@@ -30,6 +30,16 @@ import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
 class _SilentScheduler implements NotificationScheduler {
+  @override
+  Future<void> scheduleCheckIn({
+    required DateTime when,
+    required String title,
+    required String body,
+  }) async {}
+
+  @override
+  Future<void> cancelCheckIn() async {}
+
   @override
   Stream<String> get reminderTaps => const Stream<String>.empty();
 
@@ -269,7 +279,9 @@ void main() {
     expect(rows, isNotEmpty);
     // Both tabs of the list have something, and the bell has a count.
     expect(
-      rows.any((AppNotification n) => n.type == NotificationType.medicationReminder),
+      rows.any(
+        (AppNotification n) => n.type == NotificationType.medicationReminder,
+      ),
       isTrue,
     );
     expect(
@@ -287,6 +299,9 @@ void main() {
     );
 
     // Without it a reconciled row cannot say what the alert was about.
-    expect(alerts.every((AppNotification n) => n.pressureDropHpa != null), isTrue);
+    expect(
+      alerts.every((AppNotification n) => n.pressureDropHpa != null),
+      isTrue,
+    );
   });
 }

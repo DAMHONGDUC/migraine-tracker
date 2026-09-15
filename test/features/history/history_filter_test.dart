@@ -21,11 +21,7 @@ Attack at(String id, DateTime local, {String? notes}) => Attack(
 /// A chip is labelled by its axis while it rests on "All", and the strip
 /// scrolls sideways, so the chip is scrolled to first. The option is matched
 /// inside the sheet's own rows — the same word can sit on a tile behind it.
-Future<void> pickFilter(
-  WidgetTester tester,
-  String axis,
-  String option,
-) async {
+Future<void> pickFilter(WidgetTester tester, String axis, String option) async {
   await tester.ensureVisible(find.text(axis));
   await tester.pump();
   await tester.tap(find.text(axis));

@@ -19,7 +19,10 @@ abstract interface class HealthRepository {
   });
 
   /// Steps between [from] and [to] (local time), grouped into one entry per day, oldest first.
-  Future<List<StepDay>> stepDays({required DateTime from, required DateTime to});
+  Future<List<StepDay>> stepDays({
+    required DateTime from,
+    required DateTime to,
+  });
 
   /// Menstruation between [from] and [to] (local time), one entry per day, oldest first. Never stored — it is read where it is shown and nowhere else.
   Future<List<CycleDay>> cycleDays({

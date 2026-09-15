@@ -1,8 +1,10 @@
 import 'package:drift/native.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
+import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/controllers/log_controller.dart';
@@ -29,12 +31,18 @@ void main() {
   late AppDatabase db;
   late ProviderContainer container;
 
-  setUp(() {
+  setUp(() async {
+    // The save path reads the locale to word the Live Activity's strings, and the locale controller reads the secure store — which throws by design until something overrides it. Without this the failure is "secureStoreProvider must be overridden at app start" inside `_save`'s catch, which reports as "the attack was not persisted".
+    TestWidgetsFlutterBinding.ensureInitialized();
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
+    final SecureStore prefs = await SecureStore.open();
+
     db = AppDatabase(NativeDatabase.memory());
     container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
         weatherRepositoryProvider.overrideWithValue(_NoWeather()),
+        secureStoreProvider.overrideWithValue(prefs),
       ],
     );
   });
@@ -167,9 +175,83 @@ void main() {
     controller().back();
 
     expect(state().step, LogStep.location);
-    expect(state().regions, const <HeadRegion>[HeadRegion.templeL], reason: 'kept on record');
+    expect(state().regions, const <HeadRegion>[
+      HeadRegion.templeL,
+    ], reason: 'kept on record');
     expect(state().hasDraft, isTrue);
     expect(state().draft, const <HeadRegion>[HeadRegion.templeL]);
+  });
+
+  test('selectAndAdvance commits the medication pick in one tap', () async {
+    controller().selectIntensity(6);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
+    await controller().confirmStep();
+
+    await controller().selectAndAdvance('Ibuprofen');
+
+    expect(state().step, LogStep.exertion);
+    expect(state().medicationName, 'Ibuprofen');
+  });
+
+  test('selectAndAdvance on the exertion step saves the attack', () async {
+    controller().selectIntensity(6);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
+    await controller().confirmStep();
+    await controller().selectAndAdvance(null);
+
+    await controller().selectAndAdvance(ExertionLevel.light);
+
+    expect(state().step, LogStep.saved);
+    final rows = await db.select(db.attacks).get();
+    expect(rows.single.exertionLevel, ExertionLevel.light);
+  });
+
+  test('saveNow from the location step saves what little is known', () async {
+    controller().selectIntensity(9);
+
+    await controller().saveNow();
+
+    expect(state().step, LogStep.saved);
+    final rows = await db.select(db.attacks).get();
+    expect(rows.single.intensity, 9);
+    // Never picked is a real answer: empty, not a blocked save.
+    expect(rows.single.regions, isEmpty);
+    expect(rows.single.medicationName, isNull);
+    expect(rows.single.exertionLevel, isNull);
+  });
+
+  test('saveNow keeps the areas already confirmed', () async {
+    controller().selectIntensity(8);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.templeL]);
+    await controller().confirmStep();
+
+    await controller().saveNow();
+
+    final rows = await db.select(db.attacks).get();
+    expect(rows.single.regions, const <HeadRegion>[HeadRegion.templeL]);
+  });
+
+  test('a start time set on the first step is the one saved', () async {
+    final DateTime earlier = DateTime.utc(2026, 7, 1, 3);
+    controller().setStartedAt(earlier);
+    controller().selectIntensity(7);
+
+    await controller().saveNow();
+
+    final rows = await db.select(db.attacks).get();
+    // Drift hands the column back without the UTC flag; the instant is what is under test.
+    expect(rows.single.startedAt.toUtc(), earlier);
+  });
+
+  test('the start time survives every step and a step back', () async {
+    final DateTime earlier = DateTime.utc(2026, 7, 1, 3);
+    controller().setStartedAt(earlier);
+    controller().selectIntensity(7);
+    controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
+    await controller().confirmStep();
+    controller().back();
+
+    expect(state().startedAt, earlier);
   });
 
   test('reset clears everything back to the start', () async {
@@ -186,5 +268,6 @@ void main() {
     expect(state().regions, isNull);
     expect(state().savedId, isNull);
     expect(state().hasDraft, isFalse);
+    expect(state().startedAt, isNull);
   });
 }

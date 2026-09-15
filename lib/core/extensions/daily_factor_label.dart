@@ -12,5 +12,9 @@ extension DailyFactorLabel on DailyFactor {
     DailyFactor.intenseExercise => l10n.dailyLogFactorIntenseExercise,
     DailyFactor.travel => l10n.dailyLogFactorTravel,
     DailyFactor.strongSmell => l10n.dailyLogFactorStrongSmell,
+    DailyFactor.brightLight => l10n.dailyLogFactorBrightLight,
+    DailyFactor.loudNoise => l10n.dailyLogFactorLoudNoise,
+    DailyFactor.neckTension => l10n.dailyLogFactorNeckTension,
+    DailyFactor.missedMedication => l10n.dailyLogFactorMissedMedication,
   };
 }

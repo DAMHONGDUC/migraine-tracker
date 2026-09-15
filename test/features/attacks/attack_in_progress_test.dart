@@ -17,7 +17,9 @@ void main() {
 
   test('an unfinished attack that started an hour ago is running', () {
     expect(
-      attack(startedAt: now.subtract(const Duration(hours: 1))).isRunningAt(now),
+      attack(
+        startedAt: now.subtract(const Duration(hours: 1)),
+      ).isRunningAt(now),
       isTrue,
     );
   });
@@ -46,8 +48,9 @@ void main() {
 
   test('the window edge itself still counts as running', () {
     expect(
-      attack(startedAt: now.subtract(AttackProgressConstant.window))
-          .isRunningAt(now),
+      attack(
+        startedAt: now.subtract(AttackProgressConstant.window),
+      ).isRunningAt(now),
       isTrue,
     );
   });
@@ -63,9 +66,7 @@ void main() {
   group('the elapsed clock', () {
     test('pads every field to two digits', () {
       expect(
-        DateTimeUtils.elapsed(
-          const Duration(hours: 1, minutes: 2, seconds: 3),
-        ),
+        DateTimeUtils.elapsed(const Duration(hours: 1, minutes: 2, seconds: 3)),
         '01:02:03',
       );
     });

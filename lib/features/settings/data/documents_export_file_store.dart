@@ -61,7 +61,9 @@ class DocumentsExportFileStore implements ExportFileStore {
 
   Future<Directory> _exportsDir() async {
     final Directory documents = await getApplicationDocumentsDirectory();
-    final Directory dir = Directory('${documents.path}/${ExportConstant.folderName}');
+    final Directory dir = Directory(
+      '${documents.path}/${ExportConstant.folderName}',
+    );
 
     return dir.create(recursive: true);
   }

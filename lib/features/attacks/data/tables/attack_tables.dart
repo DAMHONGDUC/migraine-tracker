@@ -12,6 +12,7 @@ class Attacks extends Table {
   DateTimeColumn get startedAt => dateTime()();
 
   IntColumn get intensity => integer()();
+
   /// Every head area the user tapped, JSON-encoded.
   TextColumn get regions => text()
       .map(const HeadRegionListConverter())
@@ -27,12 +28,10 @@ class Attacks extends Table {
   TextColumn get exertionLevel => textEnum<ExertionLevel>().nullable()();
 
   /// Whether the medication helped. Null is "never answered", which also covers every attack where nothing was taken.
-  TextColumn get medicationEffect =>
-      textEnum<MedicationEffect>().nullable()();
+  TextColumn get medicationEffect => textEnum<MedicationEffect>().nullable()();
 
   /// Aura kinds reported for this attack, JSON-encoded.
-  TextColumn get aura =>
-      text().map(const AuraTypeListConverter()).nullable()();
+  TextColumn get aura => text().map(const AuraTypeListConverter()).nullable()();
 
   /// When the medication was taken, UTC. Null is "never said" — the same state as an attack where nothing was taken.
   DateTimeColumn get medicationTakenAt => dateTime().nullable()();

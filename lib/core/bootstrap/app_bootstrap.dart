@@ -21,9 +21,8 @@ final class AppBootstrap {
   const AppBootstrap._();
 
   /// First, so Crashlytics is up before anything else can fail.
-  static Future<void> initFirebase() => Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  static Future<void> initFirebase() =>
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   /// Its own step, not part of [initFirebase]: the reporter is what names
   /// every failure after it, so it must not be skipped by one before it.
@@ -37,8 +36,8 @@ final class AppBootstrap {
   static Future<void> initAnalytics() => AppAnalytics.init();
 
   /// iOS shows nothing for a push landing while the app is open unless it is told to — no banner, and no sound.
-  static Future<void> initPushPresentation() => FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
+  static Future<void> initPushPresentation() =>
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
@@ -49,7 +48,8 @@ final class AppBootstrap {
   static Future<void> initTimezone() async {
     tzdata.initializeTimeZones();
 
-    final String localTz = (await FlutterTimezone.getLocalTimezone()).identifier;
+    final String localTz =
+        (await FlutterTimezone.getLocalTimezone()).identifier;
 
     tz.setLocalLocation(tz.getLocation(localTz));
     SdLogger.info(LogTagConstant.bootstrap, 'Timezone set', {'tz': localTz});
@@ -64,8 +64,29 @@ final class AppBootstrap {
   /// not serve a caller it cannot name, and that call belongs under the dots
   /// rather than under the launch image.
   static Future<void> ensureAnonymousSession() async {
-    if (FirebaseAuth.instance.currentUser != null) return;
+    final User? user = FirebaseAuth.instance.currentUser;
 
-    await FirebaseAuth.instance.signInAnonymously();
+    if (user == null) {
+      await FirebaseAuth.instance.signInAnonymously();
+
+      return;
+    }
+
+    // A cached user is not a session: the account behind it can be gone —
+    // deleted from the console, or wiped with the project — and the client
+    // goes on reporting signed_in while every callable answers
+    // "unauthenticated". That state costs the user the whole weather feature
+    // and says nothing on screen, so the token is what decides, not the cache.
+    try {
+      await user.getIdToken(true);
+    } on FirebaseAuthException catch (error) {
+      SdLogger.warning(
+        LogTagConstant.bootstrap,
+        'Cached session is dead; signing in again',
+        <String, Object?>{'uid': user.uid, 'code': error.code},
+      );
+      await FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.signInAnonymously();
+    }
   }
 }

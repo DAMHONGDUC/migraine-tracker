@@ -4,10 +4,8 @@ import 'package:migraine_tracker/features/health/domain/entities/sleep_night.dar
 import 'package:migraine_tracker/features/health/domain/services/sleep_night_aggregator.dart';
 
 /// Local wall-clock, which is what HealthKit hands back.
-SleepInterval sample(
-  DateTime start,
-  Duration length,
-) => SleepInterval(start: start, end: start.add(length));
+SleepInterval sample(DateTime start, Duration length) =>
+    SleepInterval(start: start, end: start.add(length));
 
 void main() {
   const SleepNightAggregator aggregator = SleepNightAggregator();
@@ -114,10 +112,11 @@ void main() {
         sample(DateTime(2026, 1, 6, 23), const Duration(hours: 8)),
       ]);
 
-      expect(
-        nights.map((SleepNight n) => n.date).toList(),
-        <DateTime>[DateTime(2026, 1, 6), DateTime(2026, 1, 7), DateTime(2026, 1, 8)],
-      );
+      expect(nights.map((SleepNight n) => n.date).toList(), <DateTime>[
+        DateTime(2026, 1, 6),
+        DateTime(2026, 1, 7),
+        DateTime(2026, 1, 8),
+      ]);
     });
 
     test('a night with no samples is absent, not zero', () {
@@ -127,7 +126,10 @@ void main() {
       ]);
 
       expect(nights, hasLength(2));
-      expect(nights.map((SleepNight n) => n.date), isNot(contains(DateTime(2026, 1, 7))));
+      expect(
+        nights.map((SleepNight n) => n.date),
+        isNot(contains(DateTime(2026, 1, 7))),
+      );
     });
   });
 

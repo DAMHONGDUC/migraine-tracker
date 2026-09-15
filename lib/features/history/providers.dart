@@ -24,7 +24,8 @@ final historyViewModeProvider =
 /// Attacks after applying every filter, newest first.
 final filteredAttacksProvider = Provider<AsyncValue<List<Attack>>>((Ref ref) {
   ref.watch(attackFiltersProvider);
-  final AsyncValue<List<Attack>> attacks = ref.watch(attacksStreamProvider);
+  // Windowed already: a free user filters the ninety days they can read.
+  final AsyncValue<List<Attack>> attacks = ref.watch(visibleAttacksProvider);
   final AttackFiltersController controller = ref.read(
     attackFiltersProvider.notifier,
   );
@@ -32,11 +33,11 @@ final filteredAttacksProvider = Provider<AsyncValue<List<Attack>>>((Ref ref) {
   return attacks.whenData(controller.filter);
 });
 
-/// What the sheet's free-text sections offer, taken from every attack on record — NOT from the filtered list, or picking one value would hide the rest.
+/// What the sheet's free-text sections offer, taken from every READABLE attack — NOT from the filtered list, or picking one value would hide the rest, and not from behind the window either, or a chip would name a value with nothing under it.
 final attackFilterOptionsProvider = Provider<AttackFilterOptions>((Ref ref) {
   const AttackFilterer filterer = AttackFilterer();
   final List<Attack> attacks =
-      ref.watch(attacksStreamProvider).value ?? const <Attack>[];
+      ref.watch(visibleAttacksProvider).value ?? const <Attack>[];
 
   if (attacks.isEmpty) return AttackFilterOptions.empty;
 

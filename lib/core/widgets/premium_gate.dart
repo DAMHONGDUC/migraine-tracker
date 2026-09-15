@@ -209,5 +209,6 @@ class PremiumBadge extends StatelessWidget {
   @override
   // The pill is SdTagV2's, not this widget's: the alert row wears the same
   // shape, and two hand-rolled copies of one pill is two chances to drift.
-  Widget build(BuildContext context) => SdTagV2(label: context.l10n.premiumBadge);
+  Widget build(BuildContext context) =>
+      SdTagV2(label: context.l10n.premiumBadge);
 }

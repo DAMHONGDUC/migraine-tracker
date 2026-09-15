@@ -35,8 +35,8 @@ class MigraineDaysEngine {
     // Every month in the window gets a row, including the empty ones.
     final List<MonthlyMigraineDays> rows = <MonthlyMigraineDays>[
       for (int i = 0; i < months; i++)
-        if (DateTime(firstMonth.year, firstMonth.month + i) case final DateTime
-            month)
+        if (DateTime(firstMonth.year, firstMonth.month + i)
+            case final DateTime month)
           MonthlyMigraineDays(
             month: month,
             days: daysByMonth[month]?.length ?? 0,

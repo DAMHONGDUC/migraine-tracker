@@ -26,20 +26,23 @@ void main() {
     expect(SyncCollection.dailyLogs.name, 'daily_logs');
   });
 
-  test('a saved day is pending until the server confirms its revision', () async {
-    await repository.save(
-      DailyLog(day: DateTime(2026, 9, 14), sleepQuality: 3),
-    );
+  test(
+    'a saved day is pending until the server confirms its revision',
+    () async {
+      await repository.save(
+        DailyLog(day: DateTime(2026, 9, 14), sleepQuality: 3),
+      );
 
-    final List<SyncRecord<DailyLog>> pending = await store.pendingChanges();
+      final List<SyncRecord<DailyLog>> pending = await store.pendingChanges();
 
-    expect(pending, hasLength(1));
-    expect(pending.single.id, '2026-09-14');
+      expect(pending, hasLength(1));
+      expect(pending.single.id, '2026-09-14');
 
-    await store.markSynced(pending.single.id, pending.single.revision);
+      await store.markSynced(pending.single.id, pending.single.revision);
 
-    expect(await store.pendingChanges(), isEmpty);
-  });
+      expect(await store.pendingChanges(), isEmpty);
+    },
+  );
 
   // The day is the id, so the same Tuesday from another device edits this one's row instead of arriving as a second Tuesday.
   test('a remote day lands on the row the device already has', () async {
@@ -79,10 +82,7 @@ void main() {
     );
 
     expect(applied, isFalse);
-    expect(
-      (await repository.forDay(DateTime(2026, 9, 14)))!.sleepQuality,
-      1,
-    );
+    expect((await repository.forDay(DateTime(2026, 9, 14)))!.sleepQuality, 1);
   });
 
   // Marking a record synced writes to its own table, and that write must not read as a fresh local edit.

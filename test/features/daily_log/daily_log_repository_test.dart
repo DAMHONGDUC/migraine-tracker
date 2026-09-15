@@ -92,9 +92,7 @@ void main() {
         .watchDay(DateTime(2026, 9, 14))
         .firstWhere((DailyLog? log) => log != null);
 
-    await repository.save(
-      DailyLog(day: DateTime(2026, 9, 14), stressLevel: 4),
-    );
+    await repository.save(DailyLog(day: DateTime(2026, 9, 14), stressLevel: 4));
 
     expect((await answered)!.stressLevel, 4);
   });

@@ -1,6 +1,6 @@
 part of 'settings_screen.dart';
 
-/// The four rows that are about what the app watches and where it shows it: pressure, activity, sleep, and the home screen widget.
+/// The five rows about what the app watches, what it asks for, and where it shows it: pressure, activity, sleep, the evening check-in nudge, and the home screen widget.
 class _MonitoringSection extends StatelessWidget {
   const _MonitoringSection();
 
@@ -11,6 +11,8 @@ class _MonitoringSection extends StatelessWidget {
         AlertsSettingsTile(),
         ActivitySettingsTile(),
         SleepSettingsTile(),
+        // Above the widget row because it is the only one here that asks the user for something, rather than reading a source.
+        CheckInReminderTile(),
         HomeWidgetSettingsTile(),
       ],
     );

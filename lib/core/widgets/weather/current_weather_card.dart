@@ -44,6 +44,11 @@ class CurrentWeatherCard extends ConsumerWidget {
       // One state for offline, no permission and a backend with no WeatherKit credentials.
       emptyLabel: context.l10n.weatherUnavailable,
       isLoading: async.isLoading,
+      // Both, like the permission grant does: either may already hold a null from the failed read.
+      onRetry: () {
+        ref.invalidate(weatherReportProvider);
+        ref.invalidate(placeNameProvider(language));
+      },
     );
   }
 }

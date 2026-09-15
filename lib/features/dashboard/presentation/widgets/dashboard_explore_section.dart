@@ -70,7 +70,7 @@ class DashboardExploreSection extends ConsumerWidget {
               icon: AppIconConstant.export,
               title: l10n.dashboardExportTitle,
               content: DashboardExploreSubtitle(l10n.dashboardExportBody),
-        // Label export as Premium before its paywall opens.
+              // Label export as Premium before its paywall opens.
               trailing: ref.watch(hasPremiumProvider)
                   ? null
                   : const PremiumBadge(),

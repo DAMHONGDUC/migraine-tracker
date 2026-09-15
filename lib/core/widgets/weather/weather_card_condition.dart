@@ -8,9 +8,13 @@ final class WeatherConditionUtils {
 
     return switch (condition) {
       WeatherCondition.clear =>
-        night ? AppIconConstant.weatherClearNight : AppIconConstant.weatherClear,
+        night
+            ? AppIconConstant.weatherClearNight
+            : AppIconConstant.weatherClear,
       WeatherCondition.partlyCloudy =>
-        night ? AppIconConstant.weatherCloudyNight : AppIconConstant.weatherPartlyCloudy,
+        night
+            ? AppIconConstant.weatherCloudyNight
+            : AppIconConstant.weatherPartlyCloudy,
       WeatherCondition.cloudy => AppIconConstant.weatherCloudy,
       // A cloud shedding drops, not `water_drop_outlined` — a bare droplet is the humidity glyph, so a rainy hour read as a humidity readout.
       WeatherCondition.rain => AppIconConstant.weatherRain,

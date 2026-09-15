@@ -7,6 +7,7 @@ import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/weather/current_weather_card.dart';
 import '../../../../attacks/presentation/widgets/attack_in_progress_card.dart';
 import '../../../../attacks/providers.dart';
@@ -17,7 +18,6 @@ import '../../../../notifications/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../weather/providers.dart';
 import '../../../providers.dart';
-import '../../widgets/attack_limit_banner.dart';
 import '../../widgets/dashboard_explore_section.dart';
 import '../../widgets/dashboard_log_button.dart';
 import '../../widgets/dashboard_summary_group.dart';
@@ -35,8 +35,8 @@ class DashboardScreen extends ConsumerWidget {
     final l10n = context.l10n;
     // Null until there is an account with a name on it, which is also every anonymous session.
     final String? firstName = ref.watch(firstNameProvider);
-    // Null unless the free plan's log limit is close (see attacksLeftProvider).
-    final int? logsLeft = ref.watch(attacksLeftProvider);
+    // True only where the 90-day window actually hides something (see FreeHistoryBanner).
+    final bool hasHiddenHistory = ref.watch(hasHiddenHistoryProvider);
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
@@ -44,11 +44,12 @@ class DashboardScreen extends ConsumerWidget {
       if (ref.watch(attackInProgressProvider) != null)
         const AttackInProgressCard(),
       // Top of the screen, owner's call.
-      if (!ref.watch(hasPremiumProvider) && logsLeft == null)
+      // Never beside the history banner: that one is this same pitch with a reason attached, and two premium banners on one screen is how both stop being read.
+      if (!ref.watch(hasPremiumProvider) && !hasHiddenHistory)
         const PremiumBanner(),
       const DashboardLogButton(),
-      // Directly under the button it warns about, and only in the last few logs — the wall itself lands mid-attack, so it must not be news.
-      if (logsLeft != null) const AttackLimitBanner(),
+      // Directly under the log button, and only where the 90-day window hides something: it says what Premium would open, not what the free plan refuses.
+      if (hasHiddenHistory) const FreeHistoryBanner(),
       // Under the log button and above the shortcuts: the one thing the app asks for on a day that did not hurt.
       const DailyCheckInCard(),
       const QuickAccessSection(),

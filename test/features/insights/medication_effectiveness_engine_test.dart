@@ -12,7 +12,11 @@ Attack attack({
   int intensity = 5,
   Duration? lasted,
 }) {
-  final DateTime startedAt = DateTime.utc(2026, 1, 1).add(Duration(days: index));
+  final DateTime startedAt = DateTime.utc(
+    2026,
+    1,
+    1,
+  ).add(Duration(days: index));
 
   return Attack(
     id: 'attack-$index',
@@ -56,10 +60,7 @@ void main() {
       ]);
 
       expect(result, isA<MedicationEffectivenessInsufficientData>());
-      expect(
-        (result as MedicationEffectivenessInsufficientData).timesTaken,
-        0,
-      );
+      expect((result as MedicationEffectivenessInsufficientData).timesTaken, 0);
     });
 
     test('taken but never followed up separates from never taken', () {
@@ -267,11 +268,9 @@ void main() {
     test('a tie between two medications sorts by name', () {
       final MedicationEffectivenessResult result = engine.analyze(<Attack>[
         ...doses('Zolmitriptan', <MedicationEffect?>[MedicationEffect.helped]),
-        ...doses(
-          'Aspirin',
-          <MedicationEffect?>[MedicationEffect.helped],
-          startIndex: 1,
-        ),
+        ...doses('Aspirin', <MedicationEffect?>[
+          MedicationEffect.helped,
+        ], startIndex: 1),
       ]);
 
       final List<MedicationEffectiveness> rows =
@@ -283,17 +282,18 @@ void main() {
     test("another medication's outcomes never leak in", () {
       final MedicationEffectivenessResult result = engine.analyze(<Attack>[
         ...doses('Sumatriptan', <MedicationEffect?>[MedicationEffect.helped]),
-        ...doses(
-          'Ibuprofen',
-          <MedicationEffect?>[MedicationEffect.didNotHelp],
-          startIndex: 1,
-        ),
+        ...doses('Ibuprofen', <MedicationEffect?>[
+          MedicationEffect.didNotHelp,
+        ], startIndex: 1),
       ]);
 
       final List<MedicationEffectiveness> rows =
           (result as MedicationEffectivenessInsight).medications;
 
-      expect(rows.firstWhere((r) => r.name == 'Sumatriptan').didNotHelpCount, 0);
+      expect(
+        rows.firstWhere((r) => r.name == 'Sumatriptan').didNotHelpCount,
+        0,
+      );
       expect(rows.firstWhere((r) => r.name == 'Ibuprofen').helpedCount, 0);
     });
 
@@ -304,10 +304,10 @@ void main() {
         ...doses('Naproxen', <MedicationEffect?>[null], startIndex: 1),
       ]);
 
-      final MedicationEffectiveness row = (result
-              as MedicationEffectivenessInsight)
-          .medications
-          .firstWhere((r) => r.name == 'Naproxen');
+      final MedicationEffectiveness row =
+          (result as MedicationEffectivenessInsight).medications.firstWhere(
+            (r) => r.name == 'Naproxen',
+          );
 
       expect(row.answeredCount, 0);
       expect(row.unansweredCount, 1);

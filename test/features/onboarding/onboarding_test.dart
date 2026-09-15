@@ -27,40 +27,39 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets(
-    'the feature sheet names every feature and badges the paid ones',
-    (tester) async {
-      await pumpApp(
-        tester,
-        initialPrefs: <String, Object>{'onboarding_completed': false},
-      );
-      await nextPage(tester);
-      await nextPage(tester);
+  testWidgets('the feature sheet names every feature and badges the paid ones', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      initialPrefs: <String, Object>{'onboarding_completed': false},
+    );
+    await nextPage(tester);
+    await nextPage(tester);
 
-      // The list is behind a button on the last step, not a page of its own.
-      expect(find.text('Three-tap attack log'), findsNothing);
-      await tapButton(tester, 'See all app features');
+    // The list is behind a button on the last step, not a page of its own.
+    expect(find.text('Three-tap attack log'), findsNothing);
+    await tapButton(tester, 'See all app features');
 
-      // Free — none of these wears a badge.
-      expect(find.text('Three-tap attack log'), findsOneWidget);
-      expect(find.text('History and charts'), findsOneWidget);
-      expect(find.text('Medication reminders'), findsOneWidget);
-      // The wipe row went with the Settings feature (owner's call): the list may not offer what the app no longer does.
-      expect(find.text('Delete everything'), findsNothing);
+    // Free — none of these wears a badge.
+    expect(find.text('Three-tap attack log'), findsOneWidget);
+    expect(find.text('History and charts'), findsOneWidget);
+    expect(find.text('Medication reminders'), findsOneWidget);
+    // The wipe row went with the Settings feature (owner's call): the list may not offer what the app no longer does.
+    expect(find.text('Delete everything'), findsNothing);
 
-      // Premium — one badge each, and the group heading is the eighth.
-      expect(find.text('Export your data'), findsOneWidget);
-      expect(find.text('Pressure-drop alerts'), findsOneWidget);
-      expect(find.text('7-day pressure forecast'), findsOneWidget);
-      expect(find.text('Weather correlation'), findsOneWidget);
-      expect(find.text('Exertion and steps'), findsOneWidget);
-      expect(find.text('Sleep correlation'), findsOneWidget);
-      expect(find.text('Doctor report'), findsOneWidget);
-      expect(find.text('Premium'), findsNWidgets(8));
+    // Premium — one badge each, and the group heading is the eighth.
+    expect(find.text('Export your data'), findsOneWidget);
+    expect(find.text('Pressure-drop alerts'), findsOneWidget);
+    expect(find.text('7-day pressure forecast'), findsOneWidget);
+    expect(find.text('Weather correlation'), findsOneWidget);
+    expect(find.text('Exertion and steps'), findsOneWidget);
+    expect(find.text('Sleep correlation'), findsOneWidget);
+    expect(find.text('Doctor report'), findsOneWidget);
+    expect(find.text('Premium'), findsNWidgets(8));
 
-      await finishTest(tester);
-    },
-  );
+    await finishTest(tester);
+  });
 
   testWidgets('every page is reachable in order, ending on the threshold', (
     tester,

@@ -40,8 +40,11 @@ class _KindTile extends StatelessWidget {
     return ListTile(
       // The sheet already holds the gutter; ListTile's own 16 on top of it would inset these rows past everything else in the sheet.
       contentPadding: EdgeInsets.zero,
-      leading: SdIconV2(icon: kind.icon,
-                size: AppIconSize.medium, color: context.colorScheme.primary),
+      leading: SdIconV2(
+        icon: kind.icon,
+        size: AppIconSize.medium,
+        color: context.colorScheme.primary,
+      ),
       title: Text(kind.label(context.l10n), style: AppTextStyle.bodyLarge),
       onTap: () => Navigator.of(context).pop(kind),
     );
@@ -50,11 +53,12 @@ class _KindTile extends StatelessWidget {
 
 /// Sheets expose their opener as `.show(context)`, never a top-level `showX` (CLAUDE.md § Code style).
 extension ExportKindSheetExt on ExportKindSheet {
-  Future<ExportKind?> show(BuildContext context) =>
-      showSdBottomSheetV2<ExportKind>(
-        context,
-        // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
-        isScrollControlled: true,
-        builder: (_) => this,
-      );
+  Future<ExportKind?> show(
+    BuildContext context,
+  ) => showSdBottomSheetV2<ExportKind>(
+    context,
+    // Without it the route caps near half the screen and SdSheetContentV2's ceiling never applies.
+    isScrollControlled: true,
+    builder: (_) => this,
+  );
 }

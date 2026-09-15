@@ -55,9 +55,11 @@ class AttackFiltersController extends Notifier<AttackFilters> {
 
   /// Every axis back to "all", from the summary line's own action.
   void reset() {
-    SdLogger.action(LogTagConstant.history, 'History filters reset', <String, Object>{
-      'was': state.activeCount,
-    });
+    SdLogger.action(
+      LogTagConstant.history,
+      'History filters reset',
+      <String, Object>{'was': state.activeCount},
+    );
     state = const AttackFilters();
   }
 

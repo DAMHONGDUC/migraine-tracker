@@ -56,10 +56,8 @@ final class DateTimeUtils {
       from.add(Duration(minutes: (hours * 60).round()));
 
   /// Splits duration so callers can choose the matching localized format.
-  static (int hours, int minutes) splitHm(Duration duration) => (
-    duration.inHours,
-    duration.inMinutes % 60,
-  );
+  static (int hours, int minutes) splitHm(Duration duration) =>
+      (duration.inHours, duration.inMinutes % 60);
 
   /// The middle duration of [durations], or null when there are none.
   static Duration? median(List<Duration> durations) {

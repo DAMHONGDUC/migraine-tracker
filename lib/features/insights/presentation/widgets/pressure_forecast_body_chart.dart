@@ -35,8 +35,7 @@ class _Chart extends StatelessWidget {
     // One interval for the grid and the axis labels both — computing it twice is how the two drift apart.
     final gridInterval = ChartAxisUtils.interval(minY, maxY);
 
-    DateTime timeAt(double x) =>
-        DateTimeUtils.timeAt(forecast.generatedAt, x);
+    DateTime timeAt(double x) => DateTimeUtils.timeAt(forecast.generatedAt, x);
 
     // Chart pixels mean nothing to VoiceOver — describe the trend instead.
     final nowHpa = (past.isNotEmpty ? past.last.y : future.first.y);

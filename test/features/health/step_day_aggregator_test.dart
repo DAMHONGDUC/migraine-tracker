@@ -3,8 +3,11 @@ import 'package:migraine_tracker/features/health/domain/entities/step_day.dart';
 import 'package:migraine_tracker/features/health/domain/entities/step_sample.dart';
 import 'package:migraine_tracker/features/health/domain/services/step_day_aggregator.dart';
 
-StepSample sample(DateTime start, int count) =>
-    StepSample(start: start, end: start.add(const Duration(hours: 1)), count: count);
+StepSample sample(DateTime start, int count) => StepSample(
+  start: start,
+  end: start.add(const Duration(hours: 1)),
+  count: count,
+);
 
 void main() {
   const StepDayAggregator aggregator = StepDayAggregator();
@@ -45,10 +48,11 @@ void main() {
       sample(DateTime(2026, 1, 6), 1500),
     ]);
 
-    expect(
-      days.map((StepDay d) => d.date).toList(),
-      <DateTime>[DateTime(2026, 1, 5), DateTime(2026, 1, 6), DateTime(2026, 1, 7)],
-    );
+    expect(days.map((StepDay d) => d.date).toList(), <DateTime>[
+      DateTime(2026, 1, 5),
+      DateTime(2026, 1, 6),
+      DateTime(2026, 1, 7),
+    ]);
   });
 
   test('a day with no samples is absent, not zero', () {
@@ -58,7 +62,10 @@ void main() {
     ]);
 
     expect(days, hasLength(2));
-    expect(days.map((StepDay d) => d.date), isNot(contains(DateTime(2026, 1, 7))));
+    expect(
+      days.map((StepDay d) => d.date),
+      isNot(contains(DateTime(2026, 1, 7))),
+    );
   });
 
   test('samples arriving out of order still group correctly', () {

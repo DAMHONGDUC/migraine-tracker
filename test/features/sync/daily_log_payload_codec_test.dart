@@ -18,10 +18,7 @@ void main() {
       steps: 8421,
     );
 
-    final DailyLog back = codec.decode(
-      codec.encode(value),
-      id: '2026-09-14',
-    );
+    final DailyLog back = codec.decode(codec.encode(value), id: '2026-09-14');
 
     expect(back.day, DateTime(2026, 9, 14));
     expect(back.sleepQuality, 2);

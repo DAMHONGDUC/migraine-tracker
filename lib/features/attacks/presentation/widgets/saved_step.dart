@@ -9,9 +9,17 @@ import 'attack_details_sheet.dart';
 
 /// Confirmation after the attack is saved. Calm, static — no flashing.
 class SavedStep extends StatelessWidget {
-  const SavedStep({required this.attackId, required this.onDone, super.key});
+  const SavedStep({
+    required this.attackId,
+    required this.startedAt,
+    required this.onDone,
+    super.key,
+  });
 
   final String attackId;
+
+  /// The instant just saved, so the details sheet knows which day a trigger belongs to.
+  final DateTime startedAt;
   final VoidCallback onDone;
 
   @override
@@ -48,8 +56,10 @@ class SavedStep extends StatelessWidget {
             SizedBox(height: SdSpacingConstant.h32),
             SdButtonV2(
               variant: SdButtonVariantV2.outlined,
-              onPressed: () =>
-                  AttackDetailsSheet(attackId: attackId).show(context),
+              onPressed: () => AttackDetailsSheet(
+                attackId: attackId,
+                startedAt: startedAt,
+              ).show(context),
               label: l10n.logAddDetails,
             ),
             SizedBox(height: SdSpacingConstant.h12),

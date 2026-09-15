@@ -210,18 +210,22 @@ class PaywallScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Keep plans and the purchase action visible while the pitch scrolls.
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      l10n.paywallHeadline,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.titleLarge.w600,
+                // Keep plans and the purchase action visible while the pitch scrolls. The pitch is the only part that gives: headline + benefits are 49px taller than an iPhone 15 leaves for them, and a Column that cannot scroll answers that with the striped overflow bar rather than by hiding a benefit.
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          l10n.paywallHeadline,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.titleLarge.w600,
+                        ),
+                        SizedBox(height: SdSpacingConstant.h20),
+                        const _Benefits(),
+                      ],
                     ),
-                    SizedBox(height: SdSpacingConstant.h20),
-                    const _Benefits(),
-                  ],
+                  ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

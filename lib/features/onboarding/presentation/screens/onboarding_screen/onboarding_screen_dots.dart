@@ -15,9 +15,7 @@ class _Dots extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             margin: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w4),
-            width: i == current
-                ? SdSpacingConstant.w20
-                : SdSpacingConstant.w8,
+            width: i == current ? SdSpacingConstant.w20 : SdSpacingConstant.w8,
             height: SdSpacingConstant.h8,
             decoration: BoxDecoration(
               color: i == current

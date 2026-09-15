@@ -58,8 +58,10 @@ void main() {
     test('hours and times are inverses across the axis origin', () {
       final DateTime from = DateTime(2026, 8, 8, 12);
 
-      expect(DateTimeUtils.hoursBetween(from, DateTime(2026, 8, 8, 13, 30)),
-          1.5);
+      expect(
+        DateTimeUtils.hoursBetween(from, DateTime(2026, 8, 8, 13, 30)),
+        1.5,
+      );
       expect(DateTimeUtils.hoursBetween(from, DateTime(2026, 8, 8, 11)), -1);
       expect(DateTimeUtils.timeAt(from, 1.5), DateTime(2026, 8, 8, 13, 30));
     });
@@ -104,7 +106,10 @@ void main() {
 
   group('DateTimeUtils — calendar', () {
     test('a month is its first day', () {
-      expect(DateTimeUtils.monthOf(DateTime(2026, 8, 8, 23)), DateTime(2026, 8));
+      expect(
+        DateTimeUtils.monthOf(DateTime(2026, 8, 8, 23)),
+        DateTime(2026, 8),
+      );
     });
 
     test('selection runs to the end of next year, not to today', () {

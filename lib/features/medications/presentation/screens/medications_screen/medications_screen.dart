@@ -132,8 +132,12 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
       await NavigationUtils.toPaywallFromLimit(
         context,
         ref,
-        title: context.l10n.medicationLimitTitle(PremiumLimitConstant.medications),
-        body: context.l10n.medicationLimitBody(PremiumLimitConstant.medications),
+        title: context.l10n.medicationLimitTitle(
+          PremiumLimitConstant.medications,
+        ),
+        body: context.l10n.medicationLimitBody(
+          PremiumLimitConstant.medications,
+        ),
       );
       return;
     }
@@ -161,8 +165,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final int? used = ref.watch(medicationsUsedProvider);
     // A safety count outranks a plan meter, so it takes the top slot.
     final bool overusing =
-        ref.watch(medicationOveruseProvider).risk !=
-        MedicationOveruseRisk.none;
+        ref.watch(medicationOveruseProvider).risk != MedicationOveruseRisk.none;
     final int activeFilters = filters.activeCount;
     final double limitTop = overusing ? 0 : filterBarHeight;
     // The summary takes the strip's gap only when nothing above it already has.
@@ -254,8 +257,7 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
                   child: FreeLimitProgress(
                     used: used,
                     limit: PremiumLimitConstant.medications,
-                    titleBuilder: (int left) =>
-                        l10n.freeLimitMedications(left),
+                    titleBuilder: (int left) => l10n.freeLimitMedications(left),
                   ),
                 ),
               ),

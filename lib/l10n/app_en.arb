@@ -49,9 +49,20 @@
   "@appFeaturesTitle": {
     "description": "Onboarding feature-list sheet headline"
   },
-  "appFeaturesBody": "The free plan covers {attacks} logged attacks, {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
+  "appFeaturesBody": "Log as many attacks as you like. The free plan reads the last {days} days of them, and keeps {medications} medications and {reminders} reminders. The analysis that explains your attacks is Premium.",
   "@appFeaturesBody": {
-    "description": "Onboarding feature-list sheet body"
+    "description": "Summary of the free plan",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "medications": {
+        "type": "int"
+      },
+      "reminders": {
+        "type": "int"
+      }
+    }
   },
   "appFeaturesFree": "Free forever",
   "@appFeaturesFree": {
@@ -65,14 +76,9 @@
   "@appFeatureLogTitle": {
     "description": "Free feature: attack logging"
   },
-  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal. Up to {count} attacks on the free plan.",
+  "appFeatureLogBody": "Pain level, where it hurts, what you took. Works with no signal, and there is no limit on how many you log.",
   "@appFeatureLogBody": {
-    "description": "Free feature: attack logging, detail. The count is the free-plan attack limit and comes from PremiumLimitConstant, never typed into the string",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "description": "What the log feature does, on the About screen"
   },
   "appFeatureHistoryTitle": "History and charts",
   "@appFeatureHistoryTitle": {
@@ -1381,37 +1387,6 @@
   "premiumLockedSteps": "Unlock to see whether your attacks follow your least active days.",
   "@premiumLockedSteps": {
     "description": "Locked-state copy on the step correlation card"
-  },
-  "attackLimitTitle": "{count, plural, other{{count} attacks on the free plan}}",
-  "@attackLimitTitle": {
-    "description": "Dialog title when a free user reaches the logged-attack limit",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBody": "{count, plural, other{The free plan holds {count} logged attacks, and yours are all still here.}} Unlock Premium to keep logging.",
-  "@attackLimitBody": {
-    "description": "Dialog body explaining the free plan's attack limit, and that nothing is deleted",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBannerTitle": "{count, plural, =1{1 log left on the free plan} other{{count} logs left on the free plan}}",
-  "@attackLimitBannerTitle": {
-    "description": "Dashboard banner counting down the last free attack logs",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "attackLimitBannerBody": "Unlock Premium to keep logging without a limit.",
-  "@attackLimitBannerBody": {
-    "description": "Supporting line under the free-log countdown banner"
   },
   "dashboardPremiumBannerTitle": "Unlock Premium",
   "@dashboardPremiumBannerTitle": {
@@ -3052,15 +3027,6 @@
       }
     }
   },
-  "freeLimitAttacks": "{count, plural, =0{No free logs left} =1{1 free log left} other{{count} free logs left}}",
-  "@freeLimitAttacks": {
-    "description": "Headline of the free-plan attack log usage indicator",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "freeLimitMedications": "{count, plural, =0{No free medications left} =1{1 free medication left} other{{count} free medications left}}",
   "freeLimitReminders": "{count, plural, =0{No free reminders left} =1{1 free reminder left} other{{count} free reminders left}}",
   "@freeLimitReminders": {
@@ -3969,5 +3935,169 @@
   "blockedAccountSignOutFailed": "Couldn't sign out. Please try again.",
   "@blockedAccountSignOutFailed": {
     "description": "Snackbar when signing out from the blocked screen failed."
+  },
+  "attackStartSheetTitle": "When did it start?",
+  "@attackStartSheetTitle": {
+    "description": "Title of the sheet that corrects when an attack started"
+  },
+  "attackStartNow": "Just now",
+  "@attackStartNow": {
+    "description": "Option that starts the attack at the current time"
+  },
+  "attackStartAgo": "{duration} ago",
+  "@attackStartAgo": {
+    "description": "Option that starts the attack a given time before now",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "attackStartEditLabel": "Change when it started",
+  "@attackStartEditLabel": {
+    "description": "Accessibility label for the control that opens the start-time sheet"
+  },
+  "attackDetailStartedAt": "Started",
+  "@attackDetailStartedAt": {
+    "description": "Row label for when the attack began, on the attack detail screen"
+  },
+  "logSaveNow": "Save now",
+  "@logSaveNow": {
+    "description": "Button that saves the attack from the middle of the log flow, leaving the rest for later"
+  },
+  "logStartEarlier": "It started earlier",
+  "@logStartEarlier": {
+    "description": "Button on the first log step that records an attack which began before now"
+  },
+  "logStartedAt": "Started {time}",
+  "@logStartedAt": {
+    "description": "Button label once the user has said when the attack began",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "regionNotRecorded": "No area recorded",
+  "@regionNotRecorded": {
+    "description": "Value shown where an attack was saved without picking a head area"
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Button that runs a failed read again"
+  },
+  "dailyLogFactorBrightLight": "Bright light",
+  "@dailyLogFactorBrightLight": {
+    "description": "Daily check-in factor: bright or flickering light"
+  },
+  "dailyLogFactorLoudNoise": "Loud noise",
+  "@dailyLogFactorLoudNoise": {
+    "description": "Daily check-in factor: a noisy environment"
+  },
+  "dailyLogFactorNeckTension": "Neck tension",
+  "@dailyLogFactorNeckTension": {
+    "description": "Daily check-in factor: a stiff or tense neck"
+  },
+  "dailyLogFactorMissedMedication": "Missed a preventive",
+  "@dailyLogFactorMissedMedication": {
+    "description": "Daily check-in factor: a preventive medication was not taken"
+  },
+  "symptomNausea": "Nausea",
+  "@symptomNausea": {
+    "description": "Attack symptom chip: nausea"
+  },
+  "symptomVomiting": "Vomiting",
+  "@symptomVomiting": {
+    "description": "Attack symptom chip: vomiting"
+  },
+  "symptomLightSensitivity": "Light hurts",
+  "@symptomLightSensitivity": {
+    "description": "Attack symptom chip: photophobia"
+  },
+  "symptomSoundSensitivity": "Sound hurts",
+  "@symptomSoundSensitivity": {
+    "description": "Attack symptom chip: phonophobia"
+  },
+  "symptomSmellSensitivity": "Smells hurt",
+  "@symptomSmellSensitivity": {
+    "description": "Attack symptom chip: osmophobia"
+  },
+  "symptomDizziness": "Dizziness",
+  "@symptomDizziness": {
+    "description": "Attack symptom chip: dizziness or vertigo"
+  },
+  "symptomNeckPain": "Neck pain",
+  "@symptomNeckPain": {
+    "description": "Attack symptom chip: neck pain or stiffness"
+  },
+  "symptomBlurredVision": "Blurred vision",
+  "@symptomBlurredVision": {
+    "description": "Attack symptom chip: blurred vision"
+  },
+  "detailsSymptomsOther": "Other symptoms",
+  "@detailsSymptomsOther": {
+    "description": "Label of the free-text field beside the symptom chips"
+  },
+  "detailsTriggersOther": "Other triggers",
+  "@detailsTriggersOther": {
+    "description": "Label of the free-text field beside the trigger chips"
+  },
+  "detailsAlsoOnCheckIn": "Also record these on that day's check-in",
+  "@detailsAlsoOnCheckIn": {
+    "description": "Switch that copies the picked triggers onto the day's factors"
+  },
+  "detailsAlsoOnCheckInBody": "A trigger can only be weighed against the days it did not hurt.",
+  "@detailsAlsoOnCheckInBody": {
+    "description": "One line explaining why the switch exists"
+  },
+  "dailyLogCardMissed": "{count, plural, =1{1 day still unanswered} other{{count} days still unanswered}}",
+  "@dailyLogCardMissed": {
+    "description": "Dashboard row offering to answer a check-in the user missed",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyLogCardMissedBody": "Answer it now — it still counts.",
+  "@dailyLogCardMissedBody": {
+    "description": "Body of the missed check-in row"
+  },
+  "checkInReminderTitle": "How was today?",
+  "@checkInReminderTitle": {
+    "description": "Title of the evening check-in notification"
+  },
+  "checkInReminderBody": "Thirty seconds, attack or not.",
+  "@checkInReminderBody": {
+    "description": "Body of the evening check-in notification"
+  },
+  "checkInReminderTile": "Evening check-in reminder",
+  "@checkInReminderTile": {
+    "description": "Settings row for the daily check-in nudge"
+  },
+  "checkInReminderTileBody": "A nudge at the time you choose, only on a day you have not answered.",
+  "@checkInReminderTileBody": {
+    "description": "Explains the check-in reminder row"
+  },
+  "checkInReminderDenied": "Notifications are off for BaroEase. Turn them on in Settings.",
+  "@checkInReminderDenied": {
+    "description": "Shown when the OS refuses the check-in reminder"
+  },
+  "alertsNeedsSignIn": "Alerts also need a Google or Apple account — the push is sent to your account, not to this device.",
+  "@alertsNeedsSignIn": {
+    "description": "Line under the alert row saying an account is required before the switch is tapped"
+  },
+  "freeHistoryTitle": "History before {date} is Premium",
+  "@freeHistoryTitle": {
+    "description": "Banner naming the date the free plan's readable history starts at",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "freeHistoryBody": "Nothing is deleted — your whole record is on this phone, and Premium opens all of it.",
+  "@freeHistoryBody": {
+    "description": "Reassures the user that the hidden history still exists"
   }
 }

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../../notifications/providers.dart';
 import '../../domain/entities/medication.dart';
 import '../../providers.dart';
 

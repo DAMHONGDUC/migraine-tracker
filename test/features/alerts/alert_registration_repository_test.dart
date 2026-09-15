@@ -119,21 +119,24 @@ void main() {
     });
 
     /// Hard rule 7: premium needs an account, alerts need premium, so an anonymous session can never reach the push path.
-    test('refuses an anonymous session exactly like a signed-out one', () async {
-      final harnessed = harness(user: FakeUser(isAnonymous: true));
+    test(
+      'refuses an anonymous session exactly like a signed-out one',
+      () async {
+        final harnessed = harness(user: FakeUser(isAnonymous: true));
 
-      await expectLater(
-        harnessed.repository.register(thresholdHpa: 5),
-        throwsA(
-          isA<AlertRegistrationException>().having(
-            (e) => e.error,
-            'error',
-            AlertRegistrationError.accountRequired,
+        await expectLater(
+          harnessed.repository.register(thresholdHpa: 5),
+          throwsA(
+            isA<AlertRegistrationException>().having(
+              (e) => e.error,
+              'error',
+              AlertRegistrationError.accountRequired,
+            ),
           ),
-        ),
-      );
-      expect(harnessed.firestore.document.sets, isEmpty);
-    });
+        );
+        expect(harnessed.firestore.document.sets, isEmpty);
+      },
+    );
 
     test('maps a denied permission to notificationsDenied', () async {
       final harnessed = harness(status: AuthorizationStatus.denied);
@@ -242,10 +245,7 @@ void main() {
     /// An update, never a delete: the doc also carries `premium`, and a delete would take a paying subscriber's alerts with it.
     test('swallows not-found — there was nothing to forget', () async {
       final harnessed = harness(
-        updateThrows: FirebaseException(
-          plugin: 'firestore',
-          code: 'not-found',
-        ),
+        updateThrows: FirebaseException(plugin: 'firestore', code: 'not-found'),
       );
 
       await expectLater(harnessed.repository.unregister(), completes);
@@ -268,19 +268,22 @@ void main() {
 
   group('forgetRegistration', () {
     /// The GDPR wipe: nothing may survive that could still reach the user or say where they were.
-    test('deletes the token, the geohash, the threshold and both zone fields', () async {
-      final harnessed = harness();
+    test(
+      'deletes the token, the geohash, the threshold and both zone fields',
+      () async {
+        final harnessed = harness();
 
-      await harnessed.repository.forgetRegistration();
+        await harnessed.repository.forgetRegistration();
 
-      expect(harnessed.firestore.document.updates.single.keys, <Object>[
-        'fcmToken',
-        'geohash5',
-        'alertThreshold',
-        'tz',
-        'tzOffsetMinutes',
-      ]);
-    });
+        expect(harnessed.firestore.document.updates.single.keys, <Object>[
+          'fcmToken',
+          'geohash5',
+          'alertThreshold',
+          'tz',
+          'tzOffsetMinutes',
+        ]);
+      },
+    );
 
     test('does nothing at all without an account', () async {
       final harnessed = harness(user: null);
@@ -307,15 +310,18 @@ void main() {
       expect(harnessed.functions.callable.calls, 1);
     });
 
-    test('refuses an anonymous session and never reaches the callable', () async {
-      final harnessed = harness(user: FakeUser(isAnonymous: true));
+    test(
+      'refuses an anonymous session and never reaches the callable',
+      () async {
+        final harnessed = harness(user: FakeUser(isAnonymous: true));
 
-      await expectLater(
-        harnessed.repository.sendTestPush(),
-        throwsA(isA<AlertRegistrationException>()),
-      );
-      expect(harnessed.functions.callable.calls, isZero);
-    });
+        await expectLater(
+          harnessed.repository.sendTestPush(),
+          throwsA(isA<AlertRegistrationException>()),
+        );
+        expect(harnessed.functions.callable.calls, isZero);
+      },
+    );
 
     /// Unlike `register`, this one does NOT map its failures.
     test('lets the callable failure through unmapped', () async {

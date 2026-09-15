@@ -25,7 +25,8 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 
 | Record | Limit | Constant | Reason |
 |---|---:|---|---|
-| Attacks | 40 lifetime | `attacks` | Lets users pass the 15-attack insight baseline and see stable value |
+| Attacks | **None** | — | Logging one is recording a health event the app calls the user's own; a wall in front of it contradicts that, and the chronic sufferer who hit the old 40 in month three left rather than paid |
+| Readable history | 90 days | `freeHistoryWindow` | What is sold is reading the record back, not writing it. Applied in the widget layer (`AttackWindow`) — never in a provider, see below |
 | Medications | 5 | `medications` | Covers a typical acute + preventive regimen |
 | Reminders | 2 total | `reminders` | Covers morning/evening preventive use |
 | Attack warning | 5 remaining | `attacksWarnAt` | Avoids surprising a user during an attack |
@@ -34,9 +35,11 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 
 | Situation | Required behavior |
 |---|---|
+| Logging an attack | Never refused, never counted |
+| History older than the window | Hidden from History, named by `FreeHistoryBanner`, and still on the device |
 | Add beyond a limit | Explain the limit, then offer the paywall |
 | Existing records above a limit | Keep visible and editable; never hide or delete |
-| Attack limit approaching | Show `AttackLimitBanner` on the dashboard |
+| Anything behind the window | Show `FreeHistoryBanner` — dashboard and History — and only where something IS hidden |
 | Current usage | Show `FreeLimitProgress`; hide it for Premium users |
 | New month | Do not reset lifetime limits |
 | Medication limit in attack flow | Block adding a new medication, never the attack log |
@@ -48,7 +51,8 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 
 | Capability | Free | Premium |
 |---|:---:|:---:|
-| Offline attack log | Up to 40 | Unlimited |
+| Offline attack log | Unlimited | Unlimited |
+| Reading history back | Last 90 days | All of it |
 | Weather snapshot on an attack | Yes | Yes |
 | Current weather except pressure | Yes | Yes |
 | Plain pressure reading in weather details | Yes | Yes |
@@ -92,6 +96,30 @@ A lapsed subscriber cannot open previous exports through the app, but the files
 remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
 
+## Where the window is applied, and why the shape matters
+
+| Surface | Reads | Sees |
+|---|---|---|
+| History — list, calendar, charts, filter chips | `visibleAttacksProvider` | The last 90 days, free; everything, premium |
+| The banner | `hasHiddenHistoryProvider` | Whether anything at all is behind the window |
+| Today / this week / this month, the overuse warning, the widget | `attacksStreamProvider` | Every attack — they cannot reach past the window anyway, and the overuse warning is free |
+| The Insights analyses | `attacksStreamProvider` | Every attack. Each paid one is behind `PremiumGate`, so a free user sees a lock, never a shortened answer |
+
+**`freeHistoryStartProvider` is STATE, not a computation over the entitlement.**
+The premium flag arrives asynchronously — RevenueCat in production, a stream in
+the tests — so a provider that *watches* it is recomputed while frames are
+still laying out, and Riverpod reports that as "setState called during build" on
+whatever screen was mid-transition. `BaroEaseApp` listens for the flag and calls
+`FreeHistoryStart.refresh()` after the frame; providers then watch that state
+freely.
+
+**Two shapes were tried and both threw it**, so do not "tidy" them back:
+
+| Shape | What broke |
+|---|---|
+| A sync `Provider<AsyncValue<…>>` over the table's stream | Notified its watchers while a route was popping — `attack_detail_test`, deleting an attack |
+| The Insights analyses reading the windowed stream | Their chain of derived providers recomputes when that stream is rebuilt, mid-layout on the Insights tab — `premium_gating_test` |
+
 ## The app-wide off switch
 
 `app_config/current.premium_enabled: false` makes `hasPremiumProvider` answer false
@@ -115,7 +143,7 @@ Shape and rules: [`../lib/features/app_config/CLAUDE.md`](../lib/features/app_co
 |---|---|
 | Limit dialog → paywall | `NavigationUtils.toPaywallFromLimit` |
 | Free usage display | `FreeLimitProgress` |
-| Attack countdown | `AttackLimitBanner` |
+| The history window, and what it hides | `AttackWindow`, `freeHistoryStartProvider`, `FreeHistoryBanner` |
 | Locked content | `PremiumGate`, `PremiumChartLock` |
 | Safe preview data | `SampleChartData` |
 | Export gate | `NavigationUtils.toExport` |

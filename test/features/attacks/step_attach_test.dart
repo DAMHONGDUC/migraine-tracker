@@ -56,6 +56,9 @@ class _Attacks implements AttackRepository {
   }) async {}
 
   @override
+  Future<void> updateStartedAt(String id, DateTime startedAt) async {}
+
+  @override
   Future<void> updateExertion(String id, ExertionLevel? exertionLevel) async {}
 
   @override

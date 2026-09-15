@@ -52,8 +52,9 @@ class DriftDailyPressureRepository implements DailyPressureRepository {
   }
 
   @override
-  Future<void> upsert(DailyPressure reading) =>
-      _db.into(_db.dailyWeather).insertOnConflictUpdate(
+  Future<void> upsert(DailyPressure reading) => _db
+      .into(_db.dailyWeather)
+      .insertOnConflictUpdate(
         DailyWeatherCompanion.insert(
           day: reading.day,
           capturedAt: DateTime.now().toUtc(),

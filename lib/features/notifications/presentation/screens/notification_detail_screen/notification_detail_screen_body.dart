@@ -18,7 +18,9 @@ class _Body extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           SdIconBadgeV2(
-            icon: isAlert ? AppIconConstant.trendDown : AppIconConstant.reminder,
+            icon: isAlert
+                ? AppIconConstant.trendDown
+                : AppIconConstant.reminder,
             color: isAlert
                 ? context.colorScheme.secondary
                 : context.colorScheme.primary,

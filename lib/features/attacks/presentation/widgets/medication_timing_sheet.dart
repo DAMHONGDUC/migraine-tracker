@@ -68,8 +68,10 @@ class _MedicationTimingSheetState extends State<MedicationTimingSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(l10n.medicationTimingTakenQuestion,
-              style: AppTextStyle.titleSmall),
+          Text(
+            l10n.medicationTimingTakenQuestion,
+            style: AppTextStyle.titleSmall,
+          ),
           SizedBox(height: SdSpacingConstant.h8),
           _OffsetGrid(
             options: MedicationTimingConstant.takenOptions,
@@ -83,8 +85,10 @@ class _MedicationTimingSheetState extends State<MedicationTimingSheet> {
           SizedBox(height: SdSpacingConstant.h16),
           // The second question only exists once the first is answered: relief is measured from the dose.
           if (_taken != null) ...<Widget>[
-            Text(l10n.medicationTimingReliefQuestion,
-                style: AppTextStyle.titleSmall),
+            Text(
+              l10n.medicationTimingReliefQuestion,
+              style: AppTextStyle.titleSmall,
+            ),
             SizedBox(height: SdSpacingConstant.h8),
             _OffsetGrid(
               options: MedicationTimingConstant.reliefOptions,
@@ -104,9 +108,8 @@ class _MedicationTimingSheetState extends State<MedicationTimingSheet> {
             SdButtonV2(
               label: l10n.medicationTimingNotRecorded,
               variant: SdButtonVariantV2.text,
-              onPressed: () => Navigator.of(context).pop(
-                (takenAt: null, reliefAt: null),
-              ),
+              onPressed: () =>
+                  Navigator.of(context).pop((takenAt: null, reliefAt: null)),
             ),
         ],
       ),

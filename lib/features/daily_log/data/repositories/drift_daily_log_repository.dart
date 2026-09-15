@@ -5,6 +5,7 @@ import '../../../../core/utils/date_time_utils.dart';
 import '../../../sync/data/repositories/drift_sync_local_store.dart';
 import '../../../sync/domain/entities/sync_collection.dart';
 import '../../domain/entities/daily_log.dart';
+import '../../domain/enums/daily_factor.dart';
 import '../../domain/repositories/daily_log_repository.dart';
 import 'daily_log_mapper.dart';
 
@@ -40,11 +41,9 @@ class DriftDailyLogRepository implements DailyLogRepository {
   Stream<DailyLog?> watchDay(DateTime day) {
     final String key = DateTimeUtils.dayKey(day);
 
-    return (_db.select(
-      _db.dailyLogs,
-    )..where((l) => l.id.equals(key))).watchSingleOrNull().map(
-      (row) => row == null ? null : DailyLogMapper.toDomain(row),
-    );
+    return (_db.select(_db.dailyLogs)..where((l) => l.id.equals(key)))
+        .watchSingleOrNull()
+        .map((row) => row == null ? null : DailyLogMapper.toDomain(row));
   }
 
   @override
@@ -70,6 +69,23 @@ class DriftDailyLogRepository implements DailyLogRepository {
       // A day the user re-answers after deleting it would otherwise be deleted again by its own stale tombstone.
       await SyncTombstoneWriter.clear(_db, SyncCollection.dailyLogs, [key]);
     });
+  }
+
+  /// Goes through [save], so the row keeps its sync revision and its tombstone is cleared the same way a check-in's is.
+  @override
+  Future<void> addFactorsToDay(DateTime day, List<DailyFactor> factors) async {
+    if (factors.isEmpty) return;
+
+    final DailyLog? existing = await forDay(day);
+    final List<DailyFactor> merged = <DailyFactor>[
+      ...?existing?.factors,
+      // A factor is on the day or it is not; a second mention is not a second day.
+      ...factors.where(
+        (DailyFactor f) => !(existing?.factors.contains(f) ?? false),
+      ),
+    ];
+
+    await save((existing ?? DailyLog(day: day)).copyWith(factors: merged));
   }
 
   // - Counts what the user answered, never what Health filled in on its own: a row of sleep minutes is not a check-in.

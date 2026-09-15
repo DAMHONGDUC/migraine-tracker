@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/exertion_level.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -28,10 +27,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Did you take medication?'), findsOneWidget);
 
+    // The medication pick advances on its own — single choice, so the tap IS the confirmation.
     await tester.tap(find.text('No medication').first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Were you exerting yourself?'), findsOneWidget);
@@ -82,9 +79,6 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('No medication').first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Were you exerting yourself?'), findsOneWidget);
@@ -199,24 +193,38 @@ void main() {
     final app = await pumpApp(tester);
 
     // Stay on the saved step so "Add details" is reachable.
-    await logAttack(tester, intensity: '6', location: 'Left forehead', finish: false);
+    await logAttack(
+      tester,
+      intensity: '6',
+      location: 'Left forehead',
+      finish: false,
+    );
 
     await tester.tap(find.text('Add details'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.enterText(findLabelledField('Symptoms'), 'aura, nausea');
-    await tester.enterText(findLabelledField('Triggers'), 'stress');
+    // Chips first — the ids are what the analyses can count — then the free-text field for a word the list has no chip for.
+    await tester.tap(find.text('Nausea'));
+    await tester.pump();
+    await tester.tap(find.text('Alcohol'));
+    await tester.pump();
+    await tester.enterText(findLabelledField('Other symptoms'), 'ringing ears');
+    await tester.enterText(findLabelledField('Other triggers'), 'argument');
     await tester.enterText(findLabelledField('Notes'), 'bad one');
-    // The details sheet commits from its header — a pencil, since it overwrites details the attack may already carry.
-    await tester.tap(find.byIcon(Symbols.edit_rounded));
+    // The sheet commits from a labelled button now, not a pencil in the header — "Update" rather than "Save", since it overwrites details the attack may already carry.
+    await tester.tap(find.text('Update'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
     final row = (await app.db.select(app.db.attacks).get()).single;
-    expect(row.symptoms, ['aura', 'nausea']);
-    expect(row.triggers, ['stress']);
+    expect(row.symptoms, <String>['nausea', 'ringing ears']);
+    expect(row.triggers, <String>['alcohol', 'argument']);
     expect(row.notes, 'bad one');
+
+    // The half that makes a trigger gradeable: the same factor lands on the day.
+    final dayRow = (await app.db.select(app.db.dailyLogs).get()).single;
+    expect(dayRow.factors.map((f) => f.name), contains('alcohol'));
 
     await finishTest(tester);
   });

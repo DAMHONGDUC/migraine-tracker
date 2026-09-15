@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -24,6 +25,7 @@ import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
 import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/providers.dart';
+import 'features/daily_log/providers.dart';
 import 'features/home_widget/presentation/widgets/home_widget_tap_listener.dart';
 import 'features/home_widget/providers.dart';
 import 'features/notifications/presentation/widgets/notification_tap_listener.dart';
@@ -47,11 +49,12 @@ class BaroEaseApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final InstalledAppVersion? version =
-        switch (ref.watch(installedAppVersionProvider)) {
-          AsyncData(value: final InstalledAppVersion value) => value,
-          _ => null,
-        };
+    final InstalledAppVersion? version = switch (ref.watch(
+      installedAppVersionProvider,
+    )) {
+      AsyncData(value: final InstalledAppVersion value) => value,
+      _ => null,
+    };
 
     return SdDevWrapper(
       envName: AppEnv.flavor,
@@ -95,6 +98,16 @@ class _BaroEaseAppView extends HookConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final locale = ref.watch(localeControllerProvider);
 
+    // The free plan's history window is state, not a computation over the
+    // entitlement: recomputing it the moment RevenueCat answers lands the
+    // change mid-layout, which Riverpod reports as "setState during build".
+    // After the frame, it is an ordinary rebuild.
+    ref.listen<bool>(hasPremiumProvider, (bool? previous, bool next) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        ref.read(freeHistoryStartProvider.notifier).refresh();
+      });
+    });
+
     // One backfill pass per app start: attacks logged offline get their weather snapshot once back online.
     useEffect(() {
       unawaited(ref.read(weatherAttachServiceProvider).backfillMissing());
@@ -104,6 +117,14 @@ class _BaroEaseAppView extends HookConsumerWidget {
     // One pressure reading per day, attack or not — the denominator the correlation compares against. Fetches at most once per local day.
     useEffect(() {
       unawaited(_recordPressureThenRedraw(ref));
+      return null;
+    }, const []);
+
+    // The evening nudge holds ONE occurrence, so every launch re-arms it — a repeat would fire on a day already answered.
+    useEffect(() {
+      unawaited(
+        ref.read(checkInReminderControllerProvider.notifier).reschedule(),
+      );
       return null;
     }, const []);
 
@@ -197,17 +218,13 @@ class _BaroEaseAppView extends HookConsumerWidget {
             .sync(user?.isSignedIn == true ? user!.uid : null),
       );
       // - Signing in is one of the two moments an account can start qualifying for alerts; the controller answers for the rest (see `autoEnableOnce`).
-      unawaited(
-        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
-      );
+      unawaited(ref.read(alertsControllerProvider.notifier).autoEnableOnce());
     });
     ref.listen<bool>(hasPremiumProvider, (previous, next) {
       AppAnalytics.setPremium(next);
       CrashReporter.setCustomKey('is_premium', next);
       // - The other moment: the purchase landing on an account that was already signed in.
-      unawaited(
-        ref.read(alertsControllerProvider.notifier).autoEnableOnce(),
-      );
+      unawaited(ref.read(alertsControllerProvider.notifier).autoEnableOnce());
     });
 
     return ScreenUtilInit(

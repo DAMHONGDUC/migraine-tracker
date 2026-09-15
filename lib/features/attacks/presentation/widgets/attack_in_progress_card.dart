@@ -47,8 +47,7 @@ class AttackInProgressCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(l10n.attackNowCardTitle,
-                      style: AppTextStyle.titleSmall),
+                  Text(l10n.attackNowCardTitle, style: AppTextStyle.titleSmall),
                   SizedBox(height: SdSpacingConstant.h4),
                   Text(
                     l10n.attackNowCardBody,

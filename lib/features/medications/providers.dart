@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/premium_limit_constant.dart';
@@ -10,7 +7,6 @@ import '../attacks/providers.dart';
 import '../premium/providers.dart';
 import 'data/repositories/drift_medication_reminder_repository.dart';
 import 'data/repositories/drift_medication_repository.dart';
-import 'data/services/local_notification_scheduler.dart';
 import 'domain/entities/medication.dart';
 import 'domain/enums/medication_filters.dart';
 import 'domain/repositories/medication_reminder_repository.dart';
@@ -18,7 +14,6 @@ import 'domain/repositories/medication_repository.dart';
 import 'domain/services/default_medication_seeder.dart';
 import 'domain/services/medication_filterer.dart';
 import 'domain/services/medication_ranking.dart';
-import 'domain/services/notification_scheduler.dart';
 import 'presentation/controllers/medication_filters_controller.dart';
 import 'presentation/controllers/medications_controller.dart';
 import 'presentation/controllers/reminders_controller.dart';
@@ -196,19 +191,6 @@ final remindersUsedProvider = Provider<int?>((ref) {
   return (ref.watch(medicationRemindersStreamProvider).value ??
           const <MedicationReminderView>[])
       .length;
-});
-
-/// The flutter_local_notifications plugin, initialized once (timezone setup happens in main()). Override in tests with a fake NotificationScheduler.
-final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
-  final scheduler = LocalNotificationScheduler(
-    FlutterLocalNotificationsPlugin(),
-  );
-
-  // Unawaited like the plugin call it replaced: nothing here waits on the plugin being ready, and a scheduled reminder is queued behind it anyway.
-  unawaited(scheduler.initialize());
-  ref.onDispose(scheduler.dispose);
-
-  return scheduler;
 });
 
 /// Orchestrates reminders (see [RemindersController]).

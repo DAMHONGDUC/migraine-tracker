@@ -57,7 +57,7 @@ class DashboardExploreCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: SdSpacingConstant.h4),
-          // Expanded keeps every grid cell within its assigned square.
+            // Expanded keeps every grid cell within its assigned square.
             Expanded(child: content),
           ],
         ),

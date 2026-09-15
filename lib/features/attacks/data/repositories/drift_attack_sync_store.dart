@@ -19,15 +19,16 @@ class DriftAttackSyncStore extends DriftSyncLocalStore<Attack> {
 
   @override
   Future<List<SyncRecord<Attack>>> loadDirty() async {
-    final query = db.select(db.attacks).join([
-      leftOuterJoin(
-        db.weatherSnapshots,
-        db.weatherSnapshots.attackId.equalsExp(db.attacks.id),
-      ),
-    ])..where(
-      db.attacks.syncedRevision.isNull() |
-          db.attacks.syncedRevision.isNotExp(db.attacks.revision),
-    );
+    final query =
+        db.select(db.attacks).join([
+          leftOuterJoin(
+            db.weatherSnapshots,
+            db.weatherSnapshots.attackId.equalsExp(db.attacks.id),
+          ),
+        ])..where(
+          db.attacks.syncedRevision.isNull() |
+              db.attacks.syncedRevision.isNotExp(db.attacks.revision),
+        );
 
     final rows = await query.get();
     return rows.map((row) {
@@ -53,7 +54,8 @@ class DriftAttackSyncStore extends DriftSyncLocalStore<Attack> {
   }
 
   @override
-  Future<int> nextRevision(String id) async => ((await _row(id))?.revision ?? 0) + 1;
+  Future<int> nextRevision(String id) async =>
+      ((await _row(id))?.revision ?? 0) + 1;
 
   @override
   Future<bool> writeFromRemote(

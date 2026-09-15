@@ -25,22 +25,19 @@ void main() {
     );
   });
 
-  test(
-    'a null payload comes back null, keeping every later index put',
-    () async {
-      final List<EncryptedPayload?> payloads = <EncryptedPayload?>[
-        await sealed('one'),
-        null,
-        await sealed('three'),
-      ];
+  test('a null payload comes back null, keeping every later index put', () async {
+    final List<EncryptedPayload?> payloads = <EncryptedPayload?>[
+      await sealed('one'),
+      null,
+      await sealed('three'),
+    ];
 
-      // Alignment is the contract: the caller reads plaintexts[i] for changes[i], so a hole must stay a hole rather than shift the rest.
-      expect(
-        await cipher.decryptAll(payloads: payloads, base64Key: key),
-        <String?>['one', null, 'three'],
-      );
-    },
-  );
+    // Alignment is the contract: the caller reads plaintexts[i] for changes[i], so a hole must stay a hole rather than shift the rest.
+    expect(
+      await cipher.decryptAll(payloads: payloads, base64Key: key),
+      <String?>['one', null, 'three'],
+    );
+  });
 
   test('one unopenable record does not take the batch down with it', () async {
     final EncryptedPayload good = await sealed('readable');

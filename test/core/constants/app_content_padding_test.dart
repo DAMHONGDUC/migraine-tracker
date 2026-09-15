@@ -39,22 +39,21 @@ void main() {
   setUp(() => SdGlassV2.debugSupported = true);
   tearDown(() => SdGlassV2.debugSupported = null);
 
-  testWidgets(
-    'content clears the app bar by topGap and rests on the safe area',
-    (tester) async {
-      final EdgeInsets insets = await insetsOf(
-        tester,
-        (BuildContext context) => SdContentPaddingV2.screen(context),
-      );
+  testWidgets('content clears the app bar by topGap and rests on the safe area', (
+    tester,
+  ) async {
+    final EdgeInsets insets = await insetsOf(
+      tester,
+      (BuildContext context) => SdContentPaddingV2.screen(context),
+    );
 
-      // 47 status bar + 56 toolbar + topGap.
-      expect(insets.top, 47 + kToolbarHeight + 8);
-      // Nothing floats above this screen — 34 already clears the floor, so nothing stacks on top.
-      expect(insets.bottom, 34);
-      expect(insets.left, 16);
-      expect(insets.right, 16);
-    },
-  );
+    // 47 status bar + 56 toolbar + topGap.
+    expect(insets.top, 47 + kToolbarHeight + 8);
+    // Nothing floats above this screen — 34 already clears the floor, so nothing stacks on top.
+    expect(insets.bottom, 34);
+    expect(insets.left, 16);
+    expect(insets.right, 16);
+  });
 
   testWidgets('a tab screen also clears the floating nav pill', (tester) async {
     final EdgeInsets insets = await insetsOf(
@@ -199,7 +198,7 @@ void main() {
               title: const Text('Title'),
               body: Builder(
                 builder: (BuildContext inner) {
-    // Preserve the app-bar inset after Scaffold removes body padding.
+                  // Preserve the app-bar inset after Scaffold removes body padding.
                   below = SdContentPaddingV2.appBarInset(inner);
                   return const SizedBox();
                 },
@@ -229,46 +228,43 @@ void main() {
     expect(insets.bottom, 34);
   });
 
-  testWidgets(
-    'the bar inset survives Scaffold stripping the bottom padding, and the '
-    'two floating bars agree',
-    (tester) async {
-      tester.view.physicalSize = const Size(393 * 3, 852 * 3);
-      tester.view.devicePixelRatio = 3;
-      tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
-      tester.view.viewPadding = const FakeViewPadding(top: 141, bottom: 102);
-      addTearDown(tester.view.reset);
+  testWidgets('the bar inset survives Scaffold stripping the bottom padding, and the '
+      'two floating bars agree', (tester) async {
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
+    tester.view.viewPadding = const FakeViewPadding(top: 141, bottom: 102);
+    addTearDown(tester.view.reset);
 
-      late final double tabScreen;
-      late final double logFlow;
+    late final double tabScreen;
+    late final double logFlow;
 
-      await tester.pumpWidget(
-        ScreenUtilInit(
-          designSize: const Size(393, 852),
-          builder: (BuildContext _, Widget? _) => MaterialApp(
-            // The shape both floating bars come in: a bottom bar, and a body that reaches under it.
-            home: Scaffold(
-              extendBody: true,
-              bottomNavigationBar: const SizedBox(height: 56),
-              body: Builder(
-                builder: (BuildContext context) {
-                  // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar.
-                  tabScreen = SdContentPaddingV2.bottom(
-                    context,
-                    floatingNav: true,
-                  );
-                  logFlow = SdContentPaddingV2.bottomBar(context);
-                  return const SizedBox();
-                },
-              ),
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext _, Widget? _) => MaterialApp(
+          // The shape both floating bars come in: a bottom bar, and a body that reaches under it.
+          home: Scaffold(
+            extendBody: true,
+            bottomNavigationBar: const SizedBox(height: 56),
+            body: Builder(
+              builder: (BuildContext context) {
+                // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar.
+                tabScreen = SdContentPaddingV2.bottom(
+                  context,
+                  floatingNav: true,
+                );
+                logFlow = SdContentPaddingV2.bottomBar(context);
+                return const SizedBox();
+              },
             ),
           ),
         ),
-      );
+      ),
+    );
 
-      // - neither lost the home indicator, which is what this test is for - both floating bars agree: they read the same `navBarOffset`, clamping 34 down to 20
-      expect(tabScreen, 20 + 56 + 16);
-      expect(logFlow, 20 + 56 + 16);
-    },
-  );
+    // - neither lost the home indicator, which is what this test is for - both floating bars agree: they read the same `navBarOffset`, clamping 34 down to 20
+    expect(tabScreen, 20 + 56 + 16);
+    expect(logFlow, 20 + 56 + 16);
+  });
 }

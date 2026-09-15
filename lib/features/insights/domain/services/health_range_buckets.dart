@@ -41,9 +41,9 @@ final class HealthRangeBuckets {
     final Map<DateTime, List<double>> weeks = <DateTime, List<double>>{};
 
     for (final HealthBucket bucket in daily) {
-      weeks.putIfAbsent(_weekStart(bucket.start), () => <double>[]).add(
-        bucket.value,
-      );
+      weeks
+          .putIfAbsent(_weekStart(bucket.start), () => <double>[])
+          .add(bucket.value);
     }
 
     final List<DateTime> starts = weeks.keys.toList()..sort();

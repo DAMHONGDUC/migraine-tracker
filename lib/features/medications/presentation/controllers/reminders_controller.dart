@@ -9,9 +9,10 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/utils/locale_utils.dart';
 import '../../../../l10n/gen/app_localizations.dart';
+import '../../../notifications/domain/services/notification_scheduler.dart';
+import '../../../notifications/providers.dart';
 import '../../domain/entities/medication.dart';
 import '../../domain/entities/medication_reminder.dart';
-import '../../domain/services/notification_scheduler.dart';
 import '../../providers.dart';
 
 /// Orchestrates reminders: persists them AND (re)schedules the matching OS notifications.

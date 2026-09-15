@@ -11,10 +11,7 @@ class HealthConnections {
     required this.cycle,
   });
 
-  const HealthConnections.none()
-    : sleep = false,
-      steps = false,
-      cycle = false;
+  const HealthConnections.none() : sleep = false, steps = false, cycle = false;
 
   final bool sleep;
   final bool steps;

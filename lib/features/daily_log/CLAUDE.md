@@ -28,6 +28,23 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
   is already on-device storage and sleep never leaves it
   (`features/health/CLAUDE.md`, and `PLAN.md`'s privacy boundary). Steps are
   stored and do sync, exactly as they do on an attack.
+- **An attack's triggers and a day's factors are ONE vocabulary** (owner's
+  call, 2026-09-14). `AttackDetailsSheet` picks `DailyFactor` chips, stores
+  their names in the attack's `triggers` column, and offers one switch —
+  default on — to write the same factors onto that day's row through
+  `DailyLogRepository.addFactorsToDay`. A trigger recorded on an attack alone
+  can only ever be counted; the map needs the day to compare it against the
+  days it did not hurt.
+  - **Only within the check-in's own backfill window** (three days,
+    `AttackDetailsSheet.checkInBackfillDays`), so correcting a month-old attack
+    cannot rewrite a month-old day.
+  - **Four factors were added with it**: bright light, loud noise, neck tension
+    and a missed preventive — the ones an attack names often and the map had no
+    day-level counterpart for. Each starts its own 28-day clock, and shows as
+    ungraded until it has five days on both sides.
+  - **The column holds two kinds of value now**: a factor name, and whatever
+    the user typed into the "other" field. `StoredTagListLabel` is the one
+    owner of printing them, so no screen shows `missedMedication` to anyone.
 - **The factor list is fixed** (`DailyFactor`). Custom factors were rejected:
   the map compares a factor's attack rate against its own absence, so a factor
   invented in week three has too few days behind it to grade, and no two users'

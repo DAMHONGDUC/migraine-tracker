@@ -10,6 +10,8 @@ import '../../l10n/gen/app_localizations.dart';
 extension AlertsSettingsLabel on AlertsSettings {
   /// Off alone: a threshold nothing reads is not a state worth reporting.
   String summary(AppLocalizations l10n) => enabled
-      ? l10n.alertsSummaryOn(l10n.onboardingThresholdValue(thresholdHpa.round()))
+      ? l10n.alertsSummaryOn(
+          l10n.onboardingThresholdValue(thresholdHpa.round()),
+        )
       : l10n.alertsStatusOff;
 }

@@ -126,8 +126,7 @@ class FakeCollectionReference
 }
 
 // ignore: subtype_of_sealed_class
-class FakeDocumentReference
-    implements DocumentReference<Map<String, dynamic>> {
+class FakeDocumentReference implements DocumentReference<Map<String, dynamic>> {
   FakeDocumentReference({this.setThrows, this.updateThrows});
 
   /// Thrown by [set] / [update] — the offline and rules-refused paths.

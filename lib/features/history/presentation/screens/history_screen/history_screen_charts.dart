@@ -13,40 +13,40 @@ class _Charts extends ConsumerWidget {
     final List<Attack> gated = hasPremium
         ? attacks
         : SampleChartData.attacks(now: now);
-    final List<({Widget chart, bool locked})> cards =
-        <({Widget chart, bool locked})>[
-          (
-            chart: WeeklyFrequencyChart(
-              buckets: const WeeklyBucketsCalculator().compute(gated, now: now),
-            ),
-            locked: !hasPremium,
-          ),
-          (
-            chart: IntensityTrendChart(
-              points: const IntensityTrendCalculator().compute(gated, now: now),
-            ),
-            locked: !hasPremium,
-          ),
-          // Free at every tier: the same donut the dashboard shows, so locking it here would take back what the user already has.
-          (
-            chart: SeverityBreakdownChart(
-              counts: const SeverityBreakdownCalculator().compute(attacks),
-            ),
-            locked: false,
-          ),
-          (
-            chart: LocationBreakdownChart(
-              counts: const LocationBreakdownCalculator().compute(gated),
-            ),
-            locked: !hasPremium,
-          ),
-          (
-            chart: TimeOfDayChart(
-              counts: const TimeOfDayCalculator().compute(gated),
-            ),
-            locked: !hasPremium,
-          ),
-        ];
+    final List<({Widget chart, bool locked})>
+    cards = <({Widget chart, bool locked})>[
+      (
+        chart: WeeklyFrequencyChart(
+          buckets: const WeeklyBucketsCalculator().compute(gated, now: now),
+        ),
+        locked: !hasPremium,
+      ),
+      (
+        chart: IntensityTrendChart(
+          points: const IntensityTrendCalculator().compute(gated, now: now),
+        ),
+        locked: !hasPremium,
+      ),
+      // Free at every tier: the same donut the dashboard shows, so locking it here would take back what the user already has.
+      (
+        chart: SeverityBreakdownChart(
+          counts: const SeverityBreakdownCalculator().compute(attacks),
+        ),
+        locked: false,
+      ),
+      (
+        chart: LocationBreakdownChart(
+          counts: const LocationBreakdownCalculator().compute(gated),
+        ),
+        locked: !hasPremium,
+      ),
+      (
+        chart: TimeOfDayChart(
+          counts: const TimeOfDayCalculator().compute(gated),
+        ),
+        locked: !hasPremium,
+      ),
+    ];
 
     return Column(
       children: [

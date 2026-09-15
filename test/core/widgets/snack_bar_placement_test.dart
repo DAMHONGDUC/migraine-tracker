@@ -34,9 +34,7 @@ void main() {
         builder: (BuildContext context, Widget? child) => MaterialApp(
           theme: AppTheme.dark,
           home: Scaffold(
-            body: withFloatingBar
-                ? SdFloatingBarScopeV2(child: body)
-                : body,
+            body: withFloatingBar ? SdFloatingBarScopeV2(child: body) : body,
           ),
         ),
       ),

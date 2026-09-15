@@ -104,9 +104,9 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
       // Null while the box is refused: SdSheetContentV2 disables the button rather than hiding it, so nothing moves and the line under the box is what explains it.
       onConfirm: _error != null
           ? null
-          : () => Navigator.of(context).pop(
-              AlertsSettings(enabled: _enabled, thresholdHpa: _value),
-            ),
+          : () => Navigator.of(
+              context,
+            ).pop(AlertsSettings(enabled: _enabled, thresholdHpa: _value)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -177,7 +177,10 @@ class _AlertThresholdSheetState extends State<AlertThresholdSheet> {
           Text(l10n.alertsSheetHowTitle, style: AppTextStyle.bodyLarge),
           SizedBox(height: SdSpacingConstant.h8),
           // The number means nothing without what it is measured against: a threshold is a delta over 24h, not the pressure itself.
-          Text(l10n.alertsSheetFormula, style: AppTextStyle.bodySmall.secondary),
+          Text(
+            l10n.alertsSheetFormula,
+            style: AppTextStyle.bodySmall.secondary,
+          ),
           SizedBox(height: SdSpacingConstant.h12),
           // The sentence above states the rule; this states one case of it, in numbers that move with the slider — drag it and the arrival pressure changes, which is the whole lesson in one gesture.
           _Example(l10n: l10n, thresholdHpa: _value.round()),
@@ -291,9 +294,7 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Expanded(
-          child: Text(label, style: AppTextStyle.bodySmall.secondary),
-        ),
+        Expanded(child: Text(label, style: AppTextStyle.bodySmall.secondary)),
         Text(
           value,
           style: valueColor == null

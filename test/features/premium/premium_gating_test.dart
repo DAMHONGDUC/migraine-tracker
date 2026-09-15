@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
+import 'package:migraine_tracker/core/widgets/alert_summary_tag.dart';
 import 'package:migraine_tracker/core/widgets/premium_gate.dart';
 import 'package:migraine_tracker/core/widgets/sections/alerts_settings_tile.dart';
+import 'package:migraine_tracker/core/widgets/sections/premium_settings_tile.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
@@ -225,8 +227,21 @@ void main() {
       await pumpApp(tester);
       await openSettings(tester);
 
-      // - locked rows replace the real controls.
-      expect(find.byType(SwitchListTile), findsNothing);
+      // The Monitoring section sits below the fold, and a row a lazy list has not built yet is a row `find.text` cannot see — scroll first, or the assertion reads "the gate is gone" when the gate is merely further down.
+      await scrollIntoView(tester, find.text('Pressure-drop alerts'));
+
+      // - locked rows replace the real controls. Scoped to the alerts row: the
+      //   check-in nudge beside it is free and IS a switch.
+      expect(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text('Pressure-drop alerts'),
+            matching: find.byType(PremiumTileGate),
+          ),
+          matching: find.byType(SwitchListTile),
+        ),
+        findsNothing,
+      );
       expect(find.text('Pressure-drop alerts'), findsOneWidget);
       expect(find.byType(PremiumBadge), findsWidgets);
 
@@ -353,23 +368,24 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('below the data threshold it still sees the pitch, not progress', (
-      tester,
-    ) async {
-      await pumpApp(tester); // no attacks
-      await openPressureInsight(tester);
+    testWidgets(
+      'below the data threshold it still sees the pitch, not progress',
+      (tester) async {
+        await pumpApp(tester); // no attacks
+        await openPressureInsight(tester);
 
-      // The gate comes before the data now.
-      expect(find.text(lockedPressurePitch), findsOneWidget);
-      expect(
-        find.text(
-          'Log 15 more attacks with weather data to unlock this insight.',
-        ),
-        findsNothing,
-      );
+        // The gate comes before the data now.
+        expect(find.text(lockedPressurePitch), findsOneWidget);
+        expect(
+          find.text(
+            'Log 15 more attacks with weather data to unlock this insight.',
+          ),
+          findsNothing,
+        );
 
-      await finishTest(tester);
-    });
+        await finishTest(tester);
+      },
+    );
   });
 
   group('premium user', () {
@@ -428,7 +444,10 @@ void main() {
     });
 
     testWidgets('gets the alerts toggle and the PDF report', (tester) async {
-      await pumpApp(tester, premium: true);
+      // Signed in as well as premium: the alerts row takes a paying user to
+      // sign-in first, since the server never pushes to an anonymous session
+      // (`lib/features/alerts/CLAUDE.md`).
+      await pumpApp(tester, premium: true, signedIn: true);
       await openSettings(tester);
 
       // The Settings row only reports On/Off — the control itself lives on Insights' pressure card, so the row carries no switch of its own.
@@ -446,19 +465,31 @@ void main() {
       // Past `_AlertControls.highlightHold`, so its timer is not left pending.
       await tester.pump(const Duration(milliseconds: 600));
 
-      // Unlocked means the switch is built at all: a free user gets one pitch and no controls, which is what makes this the gating assertion.
+      // Unlocked means the alert row is built at all: a free user gets one pitch and no controls, which is what makes this the gating assertion.
+      // The tag is the marker rather than a `Switch` — the switch and the threshold row were merged into one row that opens the editor, so a `Switch` finder now reads "the gate closed" when the control merely changed shape.
       expect(
         find.descendant(
           of: find.byType(PressureCard),
-          matching: find.byType(Switch),
+          matching: find.byType(AlertSummaryTag),
         ),
         findsOneWidget,
       );
 
+      // The row opened the threshold sheet on the way in (`toPressureAlert` switches the tab AND opens the editor for a premium user), and its barrier swallows the nav-bar tap — so Settings is only reachable once the sheet is closed.
+      await tester.tap(find.byTooltip('Close'));
+      await settleFrames(tester);
+
       await openSettings(tester);
 
-      // No locked teaser left anywhere on the screen. (The Premium row is titled 'Premium' now, so the badge is what marks a gate.)
-      expect(find.byType(PremiumBadge), findsNothing);
+      // No locked teaser left anywhere on the screen. One badge survives and it is the subscription row's STATUS tag — `PremiumSettingsTile` wears the same pill to say premium is on — so the assertion is where the badge sits, not that none exists: a badge on any other row is a gate that did not open.
+      expect(
+        find.descendant(
+          of: find.byType(PremiumSettingsTile),
+          matching: find.byType(PremiumBadge),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(PremiumBadge), findsOneWidget);
 
       // The whole export screen is reachable, and the report is offered for real in its picker — no badge, no pitch, just the row that makes it.
       await tapVisible(tester, find.text('Export data'));

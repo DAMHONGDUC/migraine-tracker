@@ -24,6 +24,8 @@ extension HeadRegionLabel on HeadRegion {
 
 /// The one way an attack's areas are spelled out in a sentence — the detail screen, the history row and the PDF's table cell all read the same.
 extension HeadRegionListLabel on List<HeadRegion> {
-  String label(AppLocalizations l10n) =>
-      map((HeadRegion r) => r.label(l10n)).join(', ');
+  /// Empty says so in words rather than rendering a blank value: an attack saved early carries no area, and a row with nothing in it reads as a bug.
+  String label(AppLocalizations l10n) => isEmpty
+      ? l10n.regionNotRecorded
+      : map((HeadRegion r) => r.label(l10n)).join(', ');
 }

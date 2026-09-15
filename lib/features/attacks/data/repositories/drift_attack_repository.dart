@@ -28,9 +28,7 @@ class DriftAttackRepository implements AttackRepository {
       ),
     ])..orderBy([OrderingTerm.desc(_db.attacks.startedAt)]);
 
-    return query.watch().map(
-      (rows) => rows.map(_rowToDomain).toList(),
-    );
+    return query.watch().map((rows) => rows.map(_rowToDomain).toList());
   }
 
   @override
@@ -203,6 +201,23 @@ class DriftAttackRepository implements AttackRepository {
         AttacksCompanion(
           medicationTakenAt: Value(takenAt?.toUtc()),
           reliefAt: Value(reliefAt?.toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+          revision: Value(await _nextRevision(id)),
+        ),
+      );
+    });
+  }
+
+  /// Drops the weather row in the same transaction as the new start time, so a snapshot can never outlive the instant it was taken for.
+  @override
+  Future<void> updateStartedAt(String id, DateTime startedAt) {
+    return _db.transaction(() async {
+      await (_db.delete(
+        _db.weatherSnapshots,
+      )..where((t) => t.attackId.equals(id))).go();
+      await (_db.update(_db.attacks)..where((t) => t.id.equals(id))).write(
+        AttacksCompanion(
+          startedAt: Value(startedAt.toUtc()),
           updatedAt: Value(DateTime.now().toUtc()),
           revision: Value(await _nextRevision(id)),
         ),

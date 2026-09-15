@@ -22,8 +22,10 @@ class _PremiumSection extends ConsumerWidget {
         premium ? l10n.accountPremiumActiveBody : l10n.accountPremiumFreeBody,
         style: AppTextStyle.bodyMedium.secondary,
       ),
-      trailing: SdIconV2(icon: AppIconConstant.disclosure,
-        size: AppIconSize.small),
+      trailing: SdIconV2(
+        icon: AppIconConstant.disclosure,
+        size: AppIconSize.small,
+      ),
       onTap: () => context.pushNamed(AppRoutes.premium.name),
     );
   }

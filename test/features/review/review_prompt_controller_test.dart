@@ -45,8 +45,7 @@ class _FakeNotificationRepository implements NotificationRepository {
   Future<AppNotification?> latestPressureAlert() async => alert;
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {

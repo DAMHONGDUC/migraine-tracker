@@ -63,7 +63,8 @@ class AlertsController extends AsyncNotifier<AlertsSettings> {
   /// about.
   Future<void> autoEnableOnce() async {
     final SecureStore prefs = ref.read(secureStoreProvider);
-    final bool asked = prefs.getBool(PrefsKeyConstant.alertsAutoEnabled) ?? false;
+    final bool asked =
+        prefs.getBool(PrefsKeyConstant.alertsAutoEnabled) ?? false;
     final AlertsSettings current = state.requireValue;
 
     if (asked) return;

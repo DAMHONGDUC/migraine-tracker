@@ -75,7 +75,7 @@ class AttackPayloadCodec implements SyncPayloadCodec<Attack> {
       id: id,
       startedAt: _date(decoded['startedAt'], 'startedAt'),
       intensity: _int(decoded['intensity'], 'intensity'),
-    // Fall back to the legacy coarse location without guessing finer regions.
+      // Fall back to the legacy coarse location without guessing finer regions.
       regions: decoded['regions'] == null
           ? _enum(decoded['location'], HeadLocation.values, 'location').regions
           : _regions(decoded['regions']),

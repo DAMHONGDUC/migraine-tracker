@@ -1,6 +1,11 @@
-import '../entities/medication_reminder.dart';
+import '../../../medications/domain/entities/medication_reminder.dart';
 
-/// Schedules/cancels the OS-level daily notifications for reminders.
+/// Schedules/cancels the OS-level local notifications.
+///
+/// It lives in `notifications/` rather than in `medications/` because two
+/// features schedule now: a medication reminder, and the daily check-in
+/// (`lib/features/daily_log/CLAUDE.md`). `daily_log` may not reach into
+/// another feature's `data/`, which is what forced the move.
 abstract interface class NotificationScheduler {
   /// Requests permission and prepares channels. Returns false if the user denied notifications.
   Future<bool> ensurePermission();
@@ -22,6 +27,19 @@ abstract interface class NotificationScheduler {
   Future<void> cancel(String reminderId);
 
   Future<void> cancelAll();
+
+  /// Schedules the ONE next check-in nudge, at [when]. Never repeating, unlike a medication reminder.
+  ///
+  /// A repeat would fire on a day already answered; the app instead re-arms
+  /// this after every check-in and on every resume, so the nudge exists only
+  /// while the day it asks about is still unanswered.
+  Future<void> scheduleCheckIn({
+    required DateTime when,
+    required String title,
+    required String body,
+  });
+
+  Future<void> cancelCheckIn();
 
   /// Fires a single (non-repeating) notification after [delay].
   Future<void> scheduleTest({

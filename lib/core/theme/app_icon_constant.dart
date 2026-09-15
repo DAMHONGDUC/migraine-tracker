@@ -236,6 +236,20 @@ final class AppIconConstant {
   static const IconData factorIntenseExercise = Symbols.fitness_center_rounded;
   static const IconData factorTravel = Symbols.flight_rounded;
   static const IconData factorStrongSmell = Symbols.air_rounded;
+  static const IconData factorBrightLight = Symbols.brightness_high_rounded;
+  static const IconData factorLoudNoise = Symbols.volume_up_rounded;
+  static const IconData factorNeckTension = Symbols.accessibility_new_rounded;
+  static const IconData factorMissedMedication = Symbols.pill_off_rounded;
+
+  static const IconData symptomNausea = Symbols.sick_rounded;
+  static const IconData symptomVomiting =
+      Symbols.sentiment_very_dissatisfied_rounded;
+  static const IconData symptomLightSensitivity = Symbols.light_mode_rounded;
+  static const IconData symptomSoundSensitivity = Symbols.hearing_rounded;
+  static const IconData symptomSmellSensitivity = Symbols.masks_rounded;
+  static const IconData symptomDizziness = Symbols.rotate_right_rounded;
+  static const IconData symptomNeckPain = Symbols.self_improvement_rounded;
+  static const IconData symptomBlurredVision = Symbols.blur_on_rounded;
 
   // --- Apple Health ------------------------------------------------------
 
@@ -286,7 +300,8 @@ final class AppIconConstant {
   static const IconData radioSelected = Symbols.radio_button_checked_rounded;
 
   /// A plan not selected.
-  static const IconData radioUnselected = Symbols.radio_button_unchecked_rounded;
+  static const IconData radioUnselected =
+      Symbols.radio_button_unchecked_rounded;
 
   // --- Account and sync --------------------------------------------------
 

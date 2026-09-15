@@ -73,7 +73,8 @@ class DevSeedService {
 
   /// What is actually written, surplus included — the lists keep the counts above once [_seedTombstones] has taken the rest.
   static const int _attacksToWrite = attackCount + _tombstoneAttacks;
-  static const int _medicationsToWrite = medicationCount + _tombstoneMedications;
+  static const int _medicationsToWrite =
+      medicationCount + _tombstoneMedications;
 
   /// Days of check-ins, back from today. Four weeks is what the trigger map asks for before it will render, so the fixture clears that bar by a day.
   static const int dailyLogDays = 29;
@@ -184,12 +185,10 @@ class DevSeedService {
     final int days = (_windowHours / 24).ceil();
 
     for (int back = 0; back < days; back++) {
-      final DateTime day = _dayOf(
-        now.toLocal().subtract(Duration(days: back)),
-      );
+      final DateTime day = _dayOf(now.toLocal().subtract(Duration(days: back)));
       // A drop on ~65% of attack days against ~25% of the rest — a signal that is strong enough to read and weak enough to stay believable.
-      final bool drops = random.nextInt(100) <
-          (attackDays.contains(day) ? 65 : 25);
+      final bool drops =
+          random.nextInt(100) < (attackDays.contains(day) ? 65 : 25);
       final double delta = drops
           ? -5 - random.nextDouble() * 9
           : -3 + random.nextDouble() * 7;
@@ -297,8 +296,9 @@ class DevSeedService {
       await _attacks.deleteById(attack.id);
     }
     // Cascades its one reminder away too, which is the case the pull path has to handle and the one nothing else in the seed produces.
-    for (final Medication medication
-        in medications.reversed.take(_tombstoneMedications)) {
+    for (final Medication medication in medications.reversed.take(
+      _tombstoneMedications,
+    )) {
       await _medications.deleteById(medication.id);
     }
   }

@@ -16,6 +16,7 @@ import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
 import '../../../../../core/widgets/sections/alerts_settings_tile.dart';
+import '../../../../../core/widgets/sections/check_in_reminder_tile.dart';
 import '../../../../../core/widgets/sections/home_widget_settings_tile.dart';
 import '../../../../../core/widgets/sections/insight_settings_tiles.dart';
 import '../../../../../core/widgets/sections/notifications_settings_tile.dart';

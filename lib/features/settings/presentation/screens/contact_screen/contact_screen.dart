@@ -61,8 +61,10 @@ class ContactScreen extends ConsumerWidget {
                 padding: EdgeInsets.all(SdSpacingConstant.w16),
                 child: Row(
                   children: <Widget>[
-                    SdIconV2(icon: AppIconConstant.email,
-              size: AppIconSize.medium),
+                    SdIconV2(
+                      icon: AppIconConstant.email,
+                      size: AppIconSize.medium,
+                    ),
                     SizedBox(width: SdSpacingConstant.w12),
                     Expanded(
                       child: Text(

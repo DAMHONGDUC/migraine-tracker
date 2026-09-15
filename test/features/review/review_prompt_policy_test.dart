@@ -76,17 +76,20 @@ void main() {
       );
     });
 
-    test('drops an attack past the window — that is another day of weather', () {
-      expect(
-        policy.isAlertHit(
-          alertAt: now,
-          attackAt: now.add(
-            ReviewPromptConstant.alertHitWindow + const Duration(minutes: 1),
+    test(
+      'drops an attack past the window — that is another day of weather',
+      () {
+        expect(
+          policy.isAlertHit(
+            alertAt: now,
+            attackAt: now.add(
+              ReviewPromptConstant.alertHitWindow + const Duration(minutes: 1),
+            ),
           ),
-        ),
-        isFalse,
-      );
-    });
+          isFalse,
+        );
+      },
+    );
 
     test('never counts an attack the alert came after', () {
       expect(

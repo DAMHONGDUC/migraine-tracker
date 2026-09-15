@@ -55,6 +55,14 @@ abstract interface class AttackRepository {
     required DateTime? reliefAt,
   });
 
+  /// Corrects when the attack started, for the one logged hours after it began.
+  ///
+  /// The weather snapshot goes with it: the old one belongs to the old instant,
+  /// and a reading attached to an hour the attack did not happen in is the one
+  /// thing this app must not keep. [WeatherAttachService.onStartedAtChanged]
+  /// fetches the right one; a miss leaves the attack in the backfill queue.
+  Future<void> updateStartedAt(String id, DateTime startedAt);
+
   /// Corrects the core fields of an already-logged attack (detail screen). The weather snapshot is untouched — it belongs to [startedAt].
   Future<void> updateCore(
     String id, {

@@ -13,22 +13,32 @@ class WeatherAttachService {
   final WeatherRepository _weather;
 
   /// Called right after an attack is saved. On success also retries any older attacks still missing weather, since we clearly have network.
-  Future<void> onAttackLogged(Attack attack) async {
+  Future<void> onAttackLogged(Attack attack) =>
+      _attach(attack.id, attack.startedAt);
+
+  /// The start time was corrected, so the snapshot that belonged to the old instant is already gone (the repository drops it in the same transaction as the edit).
+  ///
+  /// Takes the id and the instant rather than an [Attack], because the caller
+  /// holds the new time before any stream has replayed it.
+  Future<void> onStartedAtChanged(String attackId, DateTime startedAt) =>
+      _attach(attackId, startedAt);
+
+  Future<void> _attach(String attackId, DateTime startedAt) async {
     try {
-      final snapshot = await _weather.snapshotAt(attack.startedAt);
+      final snapshot = await _weather.snapshotAt(startedAt);
       if (snapshot == null) {
         SdLogger.info(
           LogTagConstant.weatherAttach,
           'No weather snapshot yet; will backfill',
-          attack.id,
+          attackId,
         );
         return;
       }
-      await _attacks.attachWeather(attack.id, snapshot);
+      await _attacks.attachWeather(attackId, snapshot);
       SdLogger.info(
         LogTagConstant.weatherAttach,
         'Weather attached to attack',
-        attack.id,
+        attackId,
       );
       await backfillMissing();
     } on Exception catch (error, stackTrace) {

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
-import '../../../../../core/constants/premium_limit_constant.dart';
 import '../../../../../core/extensions/attack_filter_labels.dart';
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/symptom_tag_label.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/active_filter_summary.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
-import '../../../../../core/widgets/free_limit_progress.dart';
+import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/entities/attack.dart';
@@ -44,16 +44,21 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
-    final AsyncValue<List<Attack>> filtered = ref.watch(filteredAttacksProvider);
+    // Both already carry the free plan's window: `visibleAttacksProvider` owns
+    // it, and the filtered list is built from that one.
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(
+      visibleAttacksProvider,
+    );
+    final AsyncValue<List<Attack>> filtered = ref.watch(
+      filteredAttacksProvider,
+    );
     final HistoryViewMode mode = ref.watch(historyViewModeProvider);
     final syncStatus = ref.watch(syncControllerProvider);
     final bool isFirstSync = syncStatus.isSyncing && syncStatus.isFirstPull;
     // Nothing recorded yet is nothing to filter: no strip at all, and the content keeps the screen's own top gap instead of clearing one.
     final bool hasAttacks = (allAttacks.value ?? const <Attack>[]).isNotEmpty;
     // The calendar ignores the filters, so it does not carry them either: a strip that changes nothing on the screen it sits over is worse than none.
-    final bool showFilter =
-        hasAttacks && mode != HistoryViewMode.calendar;
+    final bool showFilter = hasAttacks && mode != HistoryViewMode.calendar;
     // Fixed regardless of the strip's collapse state, so the list never jumps mid-scroll (see SdCollapsingFilterScaffoldV2).
     final double topInset = showFilter
         ? SdContentPaddingV2.belowPinnedFilterBar(context)

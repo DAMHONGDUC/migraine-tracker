@@ -211,9 +211,7 @@ void main() {
       final StepCorrelationResult result = engine.analyze(
         attacks: <Attack>[
           ...data.attacks,
-          attackOn(
-            DateTime(firstDay.year, firstDay.month, firstDay.day, 16),
-          ),
+          attackOn(DateTime(firstDay.year, firstDay.month, firstDay.day, 16)),
         ],
         days: data.days,
       );

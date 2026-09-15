@@ -45,7 +45,9 @@ class DateRangeCalendar extends StatefulWidget {
 }
 
 class _DateRangeCalendarState extends State<DateRangeCalendar> {
-  late DateTime _month = DateTimeUtils.monthOf(widget.initialMonth ?? widget.lastDate);
+  late DateTime _month = DateTimeUtils.monthOf(
+    widget.initialMonth ?? widget.lastDate,
+  );
 
   void _showMonth(int delta) {
     setState(() {
@@ -105,7 +107,10 @@ class _MonthHeader extends StatelessWidget {
         IconButton(
           onPressed: onPrevious,
           tooltip: material.previousMonthTooltip,
-          icon: SdIconV2(icon: AppIconConstant.previous, size: AppIconSize.medium),
+          icon: SdIconV2(
+            icon: AppIconConstant.previous,
+            size: AppIconSize.medium,
+          ),
         ),
         Expanded(
           child: Text(

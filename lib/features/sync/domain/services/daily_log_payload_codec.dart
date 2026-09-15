@@ -41,7 +41,9 @@ class DailyLogPayloadCodec implements SyncPayloadCodec<DailyLog> {
       day: DateTimeUtils.dayFromKey(id),
       sleepQuality: _rating(decoded['sleepQuality']),
       stressLevel: _rating(decoded['stressLevel']),
-      factors: factors is List<dynamic> ? _factors(factors) : const <DailyFactor>[],
+      factors: factors is List<dynamic>
+          ? _factors(factors)
+          : const <DailyFactor>[],
       steps: decoded['steps'] is int ? decoded['steps'] as int : null,
     );
   }

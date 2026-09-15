@@ -95,10 +95,7 @@ void main() {
         isNull,
       );
       expect(
-        PressureAlertMapper.fromRecord(
-          eventId: 'evt-1',
-          occurredAt: null,
-        ),
+        PressureAlertMapper.fromRecord(eventId: 'evt-1', occurredAt: null),
         isNull,
       );
       expect(

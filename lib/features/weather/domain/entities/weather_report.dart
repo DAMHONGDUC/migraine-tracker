@@ -5,11 +5,7 @@ import '../../../../core/utils/date_time_utils.dart';
 /// Everything the weather card draws: conditions now, the hours ahead, and the days after that.
 @immutable
 class WeatherReport {
-  const WeatherReport({
-    required this.hours,
-    required this.days,
-    this.current,
-  });
+  const WeatherReport({required this.hours, required this.days, this.current});
 
   final WeatherConditions? current;
 
@@ -24,8 +20,7 @@ class WeatherReport {
   static const int forecastDayCount = 10;
 
   /// The days the sheet's rainfall forecast lists, today first.
-  List<WeatherDaily> get forecastDays =>
-      days.take(forecastDayCount).toList();
+  List<WeatherDaily> get forecastDays => days.take(forecastDayCount).toList();
 
   /// The hours falling on [day], by local calendar date.
   List<WeatherHourly> hoursOn(DateTime day) => hours

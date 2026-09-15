@@ -57,9 +57,7 @@ class AppUpdateConfig {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AppUpdateConfig &&
-          other.android == android &&
-          other.ios == ios;
+      other is AppUpdateConfig && other.android == android && other.ios == ios;
 
   @override
   int get hashCode => Object.hash(android, ios);

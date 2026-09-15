@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
@@ -9,6 +10,7 @@ import '../../../domain/enums/exertion_level.dart';
 import '../../../domain/enums/head_region.dart';
 import '../../../providers.dart';
 import '../../controllers/log_controller.dart' show LogStep;
+import '../../widgets/attack_start_sheet.dart';
 import '../../widgets/exertion_step.dart';
 import '../../widgets/intensity_step.dart';
 import '../../widgets/location_step.dart';
@@ -123,21 +125,57 @@ class LogScreen extends ConsumerWidget {
                     LogStep.medication => MedicationStep(
                       hasSelection: state.hasDraft,
                       selectedName: state.draft as String?,
-                      onSelected: controller.updateDraft,
+                      onSelected: controller.selectAndAdvance,
                       scrollBottomInset: bottomInset,
                     ),
                     LogStep.exertion => ExertionStep(
                       selected: state.draft as ExertionLevel?,
-                      onSelected: controller.updateDraft,
+                      onSelected: controller.selectAndAdvance,
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,
+                      startedAt: state.startedAt ?? DateTime.now().toUtc(),
                       onDone: closeFlow,
                     ),
                   },
                 ),
               ),
             ),
+            // One slot under the content, one button per step — the first step asks WHEN, every step after it offers the way out.
+            if (state.step == LogStep.intensity)
+              Padding(
+                padding: EdgeInsets.only(top: SdSpacingConstant.h8),
+                child: SdButtonV2(
+                  variant: SdButtonVariantV2.text,
+                  onPressed: () async {
+                    final ({DateTime startedAt})? picked =
+                        await AttackStartSheet(
+                          startedAt: state.startedAt ?? DateTime.now().toUtc(),
+                        ).show(context);
+
+                    if (picked != null) {
+                      controller.setStartedAt(picked.startedAt);
+                    }
+                  },
+                  label: state.startedAt == null
+                      ? l10n.logStartEarlier
+                      : l10n.logStartedAt(
+                          DateFormat.MMMd(
+                            l10n.localeName,
+                          ).add_jm().format(state.startedAt!.toLocal()),
+                        ),
+                ),
+              )
+            // The way out for the attack that is too bad to finish answering. Under the content rather than in the app bar: the bar already carries Next, and this one belongs where the thumb is.
+            else if (question != null)
+              Padding(
+                padding: EdgeInsets.only(top: SdSpacingConstant.h8),
+                child: SdButtonV2(
+                  variant: SdButtonVariantV2.text,
+                  onPressed: () => controller.saveNow(),
+                  label: l10n.logSaveNow,
+                ),
+              ),
           ],
         ),
       ),

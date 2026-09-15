@@ -80,8 +80,9 @@ class MidasScreen extends HookConsumerWidget {
                 _ => null,
               },
               days: draft.answers[index],
-              onChanged: (int days) =>
-                  ref.read(midasControllerProvider.notifier).answer(index, days),
+              onChanged: (int days) => ref
+                  .read(midasControllerProvider.notifier)
+                  .answer(index, days),
             ),
             SizedBox(height: SdContentPaddingV2.sectionGap),
           ],

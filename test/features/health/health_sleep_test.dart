@@ -58,6 +58,8 @@ void main() {
       await pumpApp(tester, healthAvailable: true);
       await openSettings(tester);
 
+      // Monitoring sits below the fold, and a lazy list has not built the row when the assertion runs — unscrolled, "not built" reads as "the row is gone".
+      await scrollIntoView(tester, find.text('Sleep'));
       expect(find.text('Sleep'), findsOneWidget);
       expect(
         find.ancestor(
@@ -191,8 +193,9 @@ void main() {
       await pumpApp(tester, premium: true, healthAvailable: true);
       await openSleepInsight(tester);
 
-      // The card carries no heading of its own any more — the tab above it is the heading, so what marks the section is the analysis title.
-      expect(find.text('Analysis'), findsOneWidget);
+      // "Analysis" is the LOCKED title: unlocked, the card names its subject instead (`insightsSleepTitle`), so asserting "Analysis" for a premium user asserts the gate is shut.
+      expect(find.text('Sleep & attacks'), findsOneWidget);
+      expect(find.text('Analysis'), findsNothing);
       // Twice over, and that is the card.
       expect(find.textContaining('Connect Apple Health sleep'), findsWidgets);
 

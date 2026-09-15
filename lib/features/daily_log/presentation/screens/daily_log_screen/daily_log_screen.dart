@@ -2,44 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/daily_log_backfill_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/utils/date_time_utils.dart';
+import '../../../../../core/widgets/daily_factor_picker.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../domain/entities/daily_log.dart';
 import '../../../providers.dart';
 import '../../controllers/daily_log_controller.dart';
 import '../../widgets/daily_cycle_section.dart';
-import '../../widgets/daily_factor_picker.dart';
 import '../../widgets/daily_rating_row.dart';
 
 /// The 30-second check-in: how the night was, how the day was, and what else the day carried.
 ///
-/// It always writes today. A day is answered where it is lived, and a screen
-/// that let the user pick any date would invite filling a week in from memory —
-/// which is the one thing that would make the control group worse than none.
+/// **Today, or a day the user missed inside
+/// [DailyLogBackfillConstant.days].** There is still no date picker: a screen
+/// offering any date invites filling a week in from memory, which would make
+/// the control group worse than none. What it answers instead is the ordinary
+/// failure — an attack bad enough to cost a day is exactly the day worth
+/// having, and it used to be a permanent hole.
 class DailyLogScreen extends HookConsumerWidget {
-  const DailyLogScreen({super.key});
+  const DailyLogScreen({this.dayKey, super.key});
+
+  /// `yyyy-MM-dd` of the day being answered; null is today.
+  final String? dayKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    final DailyLog? today = ref.watch(todayDailyLogProvider).value;
+    // Out of the window is not an error: it is today's check-in, which is what the button that got here was for.
+    final DateTime day = DailyLogBackfillConstant.resolve(dayKey);
+    final DailyLog? existing = ref.watch(dailyLogForDayProvider(day)).value;
     final DailyCheckInState state = ref.watch(dailyLogControllerProvider);
 
     // Once per mount: after that the screen owns the answers, and re-loading would undo what the user just tapped.
     useEffect(() {
-      ref.read(dailyLogControllerProvider.notifier).load(today);
+      ref.read(dailyLogControllerProvider.notifier).load(existing);
       return null;
     }, const <Object?>[]);
 
     Future<void> save() async {
       try {
-        await ref
-            .read(dailyLogControllerProvider.notifier)
-            .save(DateTime.now());
+        await ref.read(dailyLogControllerProvider.notifier).save(day);
         if (!context.mounted) return;
 
         SdSnackBarUtilsV2.success(context, l10n.dailyLogSaved);
@@ -56,6 +65,14 @@ class DailyLogScreen extends HookConsumerWidget {
       body: ListView(
         padding: SdContentPaddingV2.screen(context),
         children: <Widget>[
+          // Named only when it is not today: the ordinary check-in gains no chrome, and a backfilled one must not be mistaken for it.
+          if (!DateTimeUtils.isSameDay(day, DateTime.now())) ...<Widget>[
+            Text(
+              DateFormat.yMMMMEEEEd(l10n.localeName).format(day),
+              style: AppTextStyle.titleSmall,
+            ),
+            SizedBox(height: SdSpacingConstant.h8),
+          ],
           Text(
             l10n.dailyLogWhy,
             style: AppTextStyle.bodySmall.copyWith(

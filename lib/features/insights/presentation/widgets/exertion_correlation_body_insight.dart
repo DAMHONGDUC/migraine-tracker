@@ -22,8 +22,10 @@ class _Insight extends StatelessWidget {
             tween: Tween(begin: 0, end: result.moderateOrSeverePercent),
             duration: const Duration(milliseconds: 700),
             curve: Curves.easeOutCubic,
-            builder: (context, value, child) =>
-                Text('${value.round()}%', style: AppTextStyle.displaySmall.w600),
+            builder: (context, value, child) => Text(
+              '${value.round()}%',
+              style: AppTextStyle.displaySmall.w600,
+            ),
           ),
         SizedBox(height: SdSpacingConstant.h4),
         Text(l10n.insightsExertionSentence, style: AppTextStyle.bodyMedium),

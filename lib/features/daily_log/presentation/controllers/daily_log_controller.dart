@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
@@ -104,6 +106,10 @@ class DailyLogController extends Notifier<DailyCheckInState> {
             ),
           );
       AppAnalytics.logDailyCheckInSaved();
+      // The nudge asks about an open day, so answering one moves it to the next.
+      unawaited(
+        ref.read(checkInReminderControllerProvider.notifier).reschedule(),
+      );
       SdLogger.info(LogTagConstant.dailyLog, 'Daily check-in saved', {
         'day': day.toIso8601String(),
         'steps': steps,

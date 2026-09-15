@@ -183,11 +183,7 @@ class _Tile extends StatelessWidget {
           ),
           child: Row(
             children: <Widget>[
-              SdIconV2(
-                icon: icon,
-                color: foreground,
-                size: AppIconSize.medium,
-              ),
+              SdIconV2(icon: icon, color: foreground, size: AppIconSize.medium),
               SizedBox(width: SdSpacingConstant.w12),
               Expanded(
                 child: Text(

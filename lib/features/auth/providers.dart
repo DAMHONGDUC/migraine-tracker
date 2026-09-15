@@ -21,9 +21,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
     FirebaseAuth.instance,
     GoogleSignIn.instance,
     // Same region as the functions themselves; the default would miss them.
-    FirebaseFunctions.instanceFor(
-      region: FirebaseConstants.functionsRegion,
-    ),
+    FirebaseFunctions.instanceFor(region: FirebaseConstants.functionsRegion),
   ),
 );
 

@@ -66,10 +66,7 @@ enum AppFeature {
 
   /// Title and body together, so the pair can only ever come from one branch.
   (String, String) copy(AppLocalizations l10n) => switch (this) {
-    AppFeature.log => (
-      l10n.appFeatureLogTitle,
-      l10n.appFeatureLogBody(PremiumLimitConstant.attacks),
-    ),
+    AppFeature.log => (l10n.appFeatureLogTitle, l10n.appFeatureLogBody),
     AppFeature.history => (
       l10n.appFeatureHistoryTitle,
       l10n.appFeatureHistoryBody,

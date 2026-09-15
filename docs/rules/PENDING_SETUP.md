@@ -345,3 +345,23 @@ iOS build in the loop, so everything below is unverified.
 | It ends | Record the attack as ended, then delete one, then run the GDPR wipe. All three must clear the card. |
 | The App Group matches | `HomeWidgetConstant.appGroupId`, `BaroEaseWidgetStore.appGroupId` and both `.entitlements` files. The plugin reads its values from that suite. |
 | `permission_handler` | Arrived as a transitive dependency of `live_activities` and asks for the Android notification permission at init. Harmless on iOS; check it does not add an unexpected Android prompt if Android is ever polished. |
+
+## The display name in `env_assets/`
+
+`ios/Runner/Info.plist` now says `BaroEase: Migraine Tracker` — the same string
+as the store title, so the permission dialog and the search result agree
+(owner's call). `ios/BaroEaseWidget/Info.plist` keeps the short `BaroEase`: the
+widget gallery has one line and the extension is not the app.
+
+That file is one of the six `prepare-env` overwrites, so **both copies in
+`env_assets/` have to carry the same string** or the next
+`melos run prepare-env-<flavor>` puts the old name back:
+
+```
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName BaroEase: Migraine Tracker" env_assets/dev-Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName BaroEase: Migraine Tracker" env_assets/prod-Info.plist
+```
+
+The repo copy is the one CI builds from; the `env_assets/` copy is the one a
+local release build does. Android's `android:label` carries the same name and is
+committed, with nothing overwriting it.

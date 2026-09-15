@@ -8,10 +8,7 @@ class StepSummary {
   const StepSummary({required this.days, required this.average});
 
   /// Nothing read — either the source is disconnected, or it has no samples in the window.
-  static const StepSummary empty = StepSummary(
-    days: <StepDay>[],
-    average: 0,
-  );
+  static const StepSummary empty = StepSummary(days: <StepDay>[], average: 0);
 
   /// Oldest first, exactly as the repository serves them. Days with no samples are absent rather than zero, so a gap is a gap.
   final List<StepDay> days;

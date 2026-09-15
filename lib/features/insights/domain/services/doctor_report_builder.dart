@@ -169,10 +169,7 @@ class DoctorReportBuilder {
       [strings.totalAttacks, '${attacks.length}'],
       // The one figure here the user supplied rather than the app derived, and the one a headache clinic opens with after the day count.
       if (midas case final MidasEntry entry)
-        [
-          strings.midas,
-          '${entry.score} (${strings.midasGrades[entry.grade]})',
-        ],
+        [strings.midas, '${entry.score} (${strings.midasGrades[entry.grade]})'],
       if (attacks.isNotEmpty)
         [
           strings.avgIntensity,
@@ -224,10 +221,10 @@ class DoctorReportBuilder {
         ],
       // Only when a month is actually at or over it: absent is the good news and does not need a line in a document a doctor skims.
       if (_overuseLabel(
-        const MedicationOveruseEngine(
-          months: _periodMonths,
-        ).analyze(attacks, now: now),
-      )
+            const MedicationOveruseEngine(
+              months: _periodMonths,
+            ).analyze(attacks, now: now),
+          )
           case final String label)
         [strings.medicationOveruse, label],
       // Mature figures only: a share still settling has no business in a document a doctor reads as settled.
@@ -355,18 +352,23 @@ class DoctorReportBuilder {
     }
     if (counts.isEmpty) return '-';
     final HeadRegion modal = counts.entries
-        .reduce((MapEntry<HeadRegion, int> a, MapEntry<HeadRegion, int> b) =>
-            a.value >= b.value ? a : b)
+        .reduce(
+          (MapEntry<HeadRegion, int> a, MapEntry<HeadRegion, int> b) =>
+              a.value >= b.value ? a : b,
+        )
         .key;
 
     return strings.locationLabels[modal] ?? modal.name;
   }
 
   /// Every area of one attack, in one cell.
+  /// A dash where no area was recorded, like every other unanswered cell in this table.
   String _regionsLabel(List<HeadRegion> regions, DoctorReportStrings strings) =>
-      regions
-          .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)
-          .join(', ');
+      regions.isEmpty
+      ? '-'
+      : regions
+            .map((HeadRegion r) => strings.locationLabels[r] ?? r.name)
+            .join(', ');
 
   pw.Widget _attackTable(List<Attack> attacks, DoctorReportStrings strings) {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');

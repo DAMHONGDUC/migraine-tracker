@@ -101,7 +101,9 @@ class WeatherCardData {
 
     final WeatherDaily day = days[index];
     final List<WeatherHourly> onDay = hours
-        .where((WeatherHourly hour) => DateTimeUtils.isSameDay(hour.time, day.date))
+        .where(
+          (WeatherHourly hour) => DateTimeUtils.isSameDay(hour.time, day.date),
+        )
         .toList();
 
     return WeatherCardData(
@@ -109,16 +111,10 @@ class WeatherCardData {
       humidityPercent: _mean(
         onDay.map((WeatherHourly hour) => hour.humidityPercent),
       ),
-      windSpeedKph: _mean(
-        onDay.map((WeatherHourly hour) => hour.windSpeedKph),
-      ),
+      windSpeedKph: _mean(onDay.map((WeatherHourly hour) => hour.windSpeedKph)),
       uvIndex: day.uvIndexMax,
-      visibilityKm: _mean(
-        onDay.map((WeatherHourly hour) => hour.visibilityKm),
-      ),
-      pressureHpa: _mean(
-        onDay.map((WeatherHourly hour) => hour.pressureHpa),
-      ),
+      visibilityKm: _mean(onDay.map((WeatherHourly hour) => hour.visibilityKm)),
+      pressureHpa: _mean(onDay.map((WeatherHourly hour) => hour.pressureHpa)),
       // First hour to last, which for a whole day IS the 24-hour change.
       pressureDelta24hHpa: _pressureChange(onDay),
       precipitationChancePercent: day.precipitationChancePercent,

@@ -102,7 +102,8 @@ class RiskScoreEngine {
     double thresholdHpa,
   ) {
     final List<WeatherHourly> hours = <WeatherHourly>[
-      for (final WeatherHourly hour in weather?.hours ?? const <WeatherHourly>[])
+      for (final WeatherHourly hour
+          in weather?.hours ?? const <WeatherHourly>[])
         if (_dayOf(hour.time.toLocal()) == day) hour,
     ];
 
@@ -236,7 +237,8 @@ class RiskScoreEngine {
     if (nights.isEmpty) return null;
 
     final List<int> minutes = <int>[
-      for (final SleepNight night in nights.length > sleepBaselineNights
+      for (final SleepNight night
+          in nights.length > sleepBaselineNights
               ? nights.sublist(nights.length - sleepBaselineNights)
               : nights)
         night.duration.inMinutes,

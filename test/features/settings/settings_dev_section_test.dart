@@ -33,7 +33,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(app.scheduler.testScheduled, isTrue);
-    expect(find.textContaining('Local test notification in 10s'), findsOneWidget);
+    expect(
+      find.textContaining('Local test notification in 10s'),
+      findsOneWidget,
+    );
 
     await finishTest(tester);
   });

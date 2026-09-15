@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/navigation_utils.dart';
-import '../../../medications/providers.dart';
 import '../../providers.dart';
 import '../controllers/notifications_controller.dart';
 
@@ -53,8 +52,9 @@ class NotificationTapListener extends HookConsumerWidget {
       final StreamSubscription<RemoteMessage> alerts = FirebaseMessaging
           .onMessageOpenedApp
           .listen(
-            (RemoteMessage message) =>
-                unawaited(_open(ref, () => controller.pushTapTarget(message.data))),
+            (RemoteMessage message) => unawaited(
+              _open(ref, () => controller.pushTapTarget(message.data)),
+            ),
           );
 
       // The other half: whichever notification started the app, if any. Both are taken once — a second read would reopen the same screen on the next resume.

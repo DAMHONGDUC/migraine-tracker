@@ -17,7 +17,8 @@ Attack attack({required int index, ExertionLevel? exertionLevel}) {
 
 /// [levels] one exertion level per attack; null = not answered.
 List<Attack> attacksWithLevels(List<ExertionLevel?> levels) => [
-  for (final (i, level) in levels.indexed) attack(index: i, exertionLevel: level),
+  for (final (i, level) in levels.indexed)
+    attack(index: i, exertionLevel: level),
 ];
 
 void main() {
@@ -54,13 +55,16 @@ void main() {
       expect(result.isPreliminary, isTrue);
     });
 
-    test('one level everywhere is not judged while the sample is count-only', () {
-      final result = engine.analyze(
-        attacksWithLevels(List.filled(4, ExertionLevel.light)),
-      );
-      expect(result, isA<ExertionInsight>());
-      expect((result as ExertionInsight).isCountOnly, isTrue);
-    });
+    test(
+      'one level everywhere is not judged while the sample is count-only',
+      () {
+        final result = engine.analyze(
+          attacksWithLevels(List.filled(4, ExertionLevel.light)),
+        );
+        expect(result, isA<ExertionInsight>());
+        expect((result as ExertionInsight).isCountOnly, isTrue);
+      },
+    );
 
     test('the share appears from 5 attacks, still flagged preliminary', () {
       final levels = <ExertionLevel?>[
@@ -88,13 +92,16 @@ void main() {
   });
 
   group('no variation', () {
-    test('every answered attack reporting the same level carries no signal', () {
-      final result = engine.analyze(
-        attacksWithLevels(List.filled(20, ExertionLevel.moderate)),
-      );
-      expect(result, isA<ExertionNoVariation>());
-      expect((result as ExertionNoVariation).attacksAnalyzed, 20);
-    });
+    test(
+      'every answered attack reporting the same level carries no signal',
+      () {
+        final result = engine.analyze(
+          attacksWithLevels(List.filled(20, ExertionLevel.moderate)),
+        );
+        expect(result, isA<ExertionNoVariation>());
+        expect((result as ExertionNoVariation).attacksAnalyzed, 20);
+      },
+    );
   });
 
   group('insight', () {

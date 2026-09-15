@@ -77,7 +77,9 @@ void main() {
         SecureStore store,
       ) = await setUpDevice(
         prefs: <String, Object>{PrefsKeyConstant.lastEnv: 'dev'},
-        keychain: <String, String>{PrefsKeyConstant.onboardingCompleted: 'true'},
+        keychain: <String, String>{
+          PrefsKeyConstant.onboardingCompleted: 'true',
+        },
       );
 
       expect(
@@ -118,7 +120,9 @@ void main() {
         SecureStore store,
       ) = await setUpDevice(
         prefs: <String, Object>{PrefsKeyConstant.lastEnv: 'prod'},
-        keychain: <String, String>{PrefsKeyConstant.onboardingCompleted: 'true'},
+        keychain: <String, String>{
+          PrefsKeyConstant.onboardingCompleted: 'true',
+        },
       );
 
       expect(
@@ -132,21 +136,24 @@ void main() {
       expect(prefs.getString(PrefsKeyConstant.lastEnv), 'dev');
     });
 
-    test('nothing on the device is a first install, and wipes nothing', () async {
-      final (
-        ProviderContainer container,
-        SharedPreferences prefs,
-        SecureStore store,
-      ) = await setUpDevice();
+    test(
+      'nothing on the device is a first install, and wipes nothing',
+      () async {
+        final (
+          ProviderContainer container,
+          SharedPreferences prefs,
+          SecureStore store,
+        ) = await setUpDevice();
 
-      expect(
-        await container.read(freshInstallProvider.future),
-        SdFreshInstallOutcome.firstInstall,
-      );
+        expect(
+          await container.read(freshInstallProvider.future),
+          SdFreshInstallOutcome.firstInstall,
+        );
 
-      expect(store.getKeys(), isEmpty);
-      expect(prefs.getString(PrefsKeyConstant.lastEnv), 'dev');
-    });
+        expect(store.getKeys(), isEmpty);
+        expect(prefs.getString(PrefsKeyConstant.lastEnv), 'dev');
+      },
+    );
   });
 
   group('PrefsInstallStore', () {

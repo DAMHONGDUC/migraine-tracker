@@ -35,11 +35,11 @@ class Attack {
          intensity >= 1 && intensity <= 10,
          'intensity must be within 1..10',
        ),
-       assert(
-         regions.isNotEmpty,
-         'an attack must name at least one region — the location step is the '
-         'one step of the flow that waits for a pick',
-       ),
+
+       // Empty is a real answer, not a skipped field: `LogController.saveNow`
+       // exists for the attack too bad to finish answering, and "no area
+       // recorded" beats no attack recorded. Everything that prints an area
+       // reads `HeadRegionListLabel.label`, which says so in words.
        assert(
          endedAt == null || !endedAt.toUtc().isBefore(startedAt.toUtc()),
          'an attack cannot end before it started',
@@ -99,8 +99,7 @@ class Attack {
   }
 
   /// How long the medication took to work, or null until both halves are answered. Negative is impossible — the sheet will not offer it.
-  Duration? get timeToRelief =>
-      medicationTakenAt == null || reliefAt == null
+  Duration? get timeToRelief => medicationTakenAt == null || reliefAt == null
       ? null
       : reliefAt!.difference(medicationTakenAt!);
 
