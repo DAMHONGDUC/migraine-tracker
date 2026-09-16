@@ -20,6 +20,11 @@ import '../logging/crash_reporter.dart';
 final class AppBootstrap {
   const AppBootstrap._();
 
+  /// Names the Firebase step in the log and in `StartupErrorGate.fatalSteps`,
+  /// which is keyed on it — a string typed twice is a screen that silently
+  /// stops appearing when one of them is renamed.
+  static const String firebaseStep = 'Firebase';
+
   /// First, so Crashlytics is up before anything else can fail.
   static Future<void> initFirebase() =>
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

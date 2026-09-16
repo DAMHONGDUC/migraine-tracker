@@ -805,6 +805,8 @@
   "factorHighHumidity": "Día bochornoso",
   "factorTempSwing": "Cambio de temperatura",
   "blockedAccountTitle": "Cuenta bloqueada",
+  "startupErrorTitle": "BaroEase no pudo iniciarse",
+  "startupErrorBody": "Algo que la app necesita no arrancó. Ciérrala del todo y vuelve a abrirla; si sigue pasando, reinstálala o escríbenos.",
   "blockedAccountBody": "Esta cuenta ha sido bloqueada. Todo lo que has registrado sigue en este dispositivo: cierra sesión para seguir usando BaroEase.",
   "blockedAccountSignOut": "Cerrar sesión",
   "blockedAccountContact": "Contactar con soporte",

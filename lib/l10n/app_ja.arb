@@ -805,6 +805,8 @@
   "factorHighHumidity": "蒸し暑い日",
   "factorTempSwing": "気温の急変",
   "blockedAccountTitle": "アカウントがロックされています",
+  "startupErrorTitle": "BaroEase を起動できませんでした",
+  "startupErrorBody": "アプリに必要な処理が開始できませんでした。アプリを完全に終了してから開き直してください。繰り返す場合は再インストールするか、ご連絡ください。",
   "blockedAccountBody": "このアカウントはロックされました。記録したデータはすべてこの端末に残ります。サインアウトすると BaroEase を引き続き利用できます。",
   "blockedAccountSignOut": "サインアウト",
   "blockedAccountContact": "サポートに問い合わせる",

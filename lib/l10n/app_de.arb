@@ -805,6 +805,8 @@
   "factorHighHumidity": "Schwüler Tag",
   "factorTempSwing": "Temperatursprung",
   "blockedAccountTitle": "Konto gesperrt",
+  "startupErrorTitle": "BaroEase konnte nicht starten",
+  "startupErrorBody": "Etwas, das die App braucht, ist nicht hochgekommen. Schließ sie ganz und öffne sie erneut; wenn es weiter passiert, installier sie neu oder schreib uns.",
   "blockedAccountBody": "Dieses Konto wurde gesperrt. Alle erfassten Daten bleiben auf diesem Gerät – melde dich ab, um BaroEase weiter zu nutzen.",
   "blockedAccountSignOut": "Abmelden",
   "blockedAccountContact": "Support kontaktieren",

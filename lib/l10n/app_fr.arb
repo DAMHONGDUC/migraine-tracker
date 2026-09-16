@@ -805,6 +805,8 @@
   "factorHighHumidity": "Journée lourde",
   "factorTempSwing": "Écart de température",
   "blockedAccountTitle": "Compte verrouillé",
+  "startupErrorTitle": "BaroEase n'a pas pu démarrer",
+  "startupErrorBody": "Un élément nécessaire à l'app n'a pas démarré. Fermez-la complètement puis rouvrez-la ; si cela persiste, réinstallez-la ou écrivez-nous.",
   "blockedAccountBody": "Ce compte a été verrouillé. Tout ce que vous avez enregistré reste sur cet appareil — déconnectez-vous pour continuer à utiliser BaroEase.",
   "blockedAccountSignOut": "Se déconnecter",
   "blockedAccountContact": "Contacter le support",

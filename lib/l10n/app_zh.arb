@@ -805,6 +805,8 @@
   "factorHighHumidity": "闷热的一天",
   "factorTempSwing": "气温骤变",
   "blockedAccountTitle": "账号已被锁定",
+  "startupErrorTitle": "BaroEase 无法启动",
+  "startupErrorBody": "应用需要的某个部分没能启动。请完全关闭后重新打开；如果仍然如此，请重新安装或联系我们。",
   "blockedAccountBody": "此账号已被锁定。你记录的所有内容仍保存在本机——退出登录即可继续使用 BaroEase。",
   "blockedAccountSignOut": "退出登录",
   "blockedAccountContact": "联系支持",

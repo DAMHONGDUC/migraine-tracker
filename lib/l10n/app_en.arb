@@ -3925,6 +3925,14 @@
     "description": "Map factor: the day's temperature was at least 5C away from the day before."
   },
   "blockedAccountTitle": "Account locked",
+  "startupErrorTitle": "BaroEase couldn't start",
+  "@startupErrorTitle": {
+    "description": "Title of the screen shown when a required startup step failed"
+  },
+  "startupErrorBody": "Something this app needs failed to come up. Close it completely and open it again; if it keeps happening, reinstall or write to us.",
+  "@startupErrorBody": {
+    "description": "Body of the screen shown when a required startup step failed, telling the user what to try"
+  },
   "@blockedAccountTitle": {
     "description": "Title of the screen shown when the signed-in address is blocked."
   },

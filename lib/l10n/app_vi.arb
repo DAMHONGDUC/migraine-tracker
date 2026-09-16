@@ -805,6 +805,8 @@
   "factorHighHumidity": "Ngày oi ẩm",
   "factorTempSwing": "Nhiệt độ đổi đột ngột",
   "blockedAccountTitle": "Tài khoản đã bị khoá",
+  "startupErrorTitle": "BaroEase không khởi động được",
+  "startupErrorBody": "Một phần cần thiết của ứng dụng không chạy được. Hãy đóng hẳn ứng dụng rồi mở lại; nếu vẫn vậy, cài lại hoặc liên hệ với chúng tôi.",
   "blockedAccountBody": "Tài khoản này đã bị khoá. Mọi dữ liệu bạn đã ghi vẫn nằm trên máy — hãy đăng xuất để tiếp tục dùng BaroEase.",
   "blockedAccountSignOut": "Đăng xuất",
   "blockedAccountContact": "Liên hệ hỗ trợ",

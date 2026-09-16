@@ -3,6 +3,7 @@ import 'package:system_design/index.dart';
 
 import 'bare_ease_app.dart';
 import 'core/bootstrap/app_bootstrap.dart';
+import 'core/bootstrap/startup_failures_provider.dart';
 import 'core/constants/log_tag_constant.dart';
 import 'core/env/app_env.dart';
 import 'core/storage/secure_store.dart';
@@ -26,6 +27,11 @@ Future<void> main() async {
 
   late final SecureStore store;
 
+  // Filled by the handler below, read by `StartupErrorGate`: the steps run
+  // before there is a tree to put a failure in, so it is carried in and handed
+  // over as an override.
+  final Map<String, String> startupFailures = <String, String>{};
+
   await SdBootstrap.run(
     logTag: LogTagConstant.bootstrap,
     steps: <SdBootstrapStep>[
@@ -34,7 +40,10 @@ Future<void> main() async {
         name: 'Secure store',
         run: () async => store = await SecureStore.open(),
       ),
-      SdBootstrapStep(name: 'Firebase', run: AppBootstrap.initFirebase),
+      SdBootstrapStep(
+        name: AppBootstrap.firebaseStep,
+        run: AppBootstrap.initFirebase,
+      ),
       SdBootstrapStep(
         name: 'Crash reporting',
         run: AppBootstrap.initCrashReporting,
@@ -43,8 +52,15 @@ Future<void> main() async {
       SdBootstrapStep(name: 'Push', run: AppBootstrap.initPushPresentation),
       SdBootstrapStep(name: 'Timezone', run: AppBootstrap.initTimezone),
     ],
+    // Reporting, not refusing: the app still starts, and the gate inside it
+    // decides whether what failed is something it can run without.
+    onStepFailed: (SdBootstrapStep step, Object error) =>
+        startupFailures[step.name] = '$error',
     builder: () => ProviderScope(
-      overrides: [secureStoreProvider.overrideWithValue(store)],
+      overrides: [
+        secureStoreProvider.overrideWithValue(store),
+        startupFailuresProvider.overrideWithValue(startupFailures),
+      ],
       child: const BaroEaseApp(),
     ),
   );

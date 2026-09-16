@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
 import 'core/analytics/app_analytics.dart';
+import 'core/bootstrap/startup_error_gate.dart';
 import 'core/env/app_env.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/logging/crash_reporter.dart';
@@ -243,14 +244,18 @@ class _BaroEaseAppView extends HookConsumerWidget {
         routerConfig: router,
         // - Outermost, so a tap on nothing puts the keyboard away everywhere.
         builder: (context, child) => DismissKeyboardOnTap(
-          child: NotificationTapListener(
+          // Above every listener and gate below it: they all read Firestore or
+          // the session, which is exactly what is missing when this shows.
+          child: StartupErrorGate(
+            child: NotificationTapListener(
             child: HomeWidgetTapListener(
               child: ForceUpdateWrapper(
                 // Inside force update, so a blocked user on an unsupported
                 // build is told to update first: one of the two has to win,
                 // and the store link is the one that helps either way.
-                child: BlockedAccountGate(
-                  child: child ?? const SizedBox.shrink(),
+                  child: BlockedAccountGate(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

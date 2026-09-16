@@ -357,6 +357,9 @@ final class AppIconConstant {
   /// What this app is, and any explanatory note.
   static const IconData info = Symbols.info_rounded;
 
+  /// Something failed and the user is being told — the startup error screen.
+  static const IconData error = Symbols.error_rounded;
+
   /// The privacy policy and the terms.
   static const IconData document = Symbols.description_rounded;
 
