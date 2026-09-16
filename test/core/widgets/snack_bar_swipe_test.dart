@@ -5,7 +5,8 @@ import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:system_design/index.dart';
 
 /// A snackbar leaves on a swipe back towards the edge it came from — up for a
-/// top card, down for a bottom one — and stays put for a drag the other way.
+/// top card, down for a bottom one — or on a swipe sideways either way, and
+/// stays put for the one drag that has nowhere to go.
 void main() {
   /// Shows a snackbar at [placement], drags the card by [by], and answers
   /// whether it is still on screen once everything has settled.
@@ -71,6 +72,32 @@ void main() {
         tester,
         placement: SdSnackBarPlacementV2.bottom,
         by: const Offset(0, 60),
+      ),
+      isFalse,
+    );
+  });
+
+  testWidgets('a bottom card leaves when swiped right', (
+    WidgetTester tester,
+  ) async {
+    expect(
+      await survivesDrag(
+        tester,
+        placement: SdSnackBarPlacementV2.bottom,
+        by: const Offset(80, 0),
+      ),
+      isFalse,
+    );
+  });
+
+  testWidgets('a top card leaves when swiped left', (
+    WidgetTester tester,
+  ) async {
+    expect(
+      await survivesDrag(
+        tester,
+        placement: SdSnackBarPlacementV2.top,
+        by: const Offset(-80, 0),
       ),
       isFalse,
     );
