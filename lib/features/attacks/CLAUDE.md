@@ -7,11 +7,17 @@ Hard rule 5 and the widgets that serve it.
    never grow — **any new REQUIRED field needs explicit approval**, and there is
    still only one optional step.
 
-**The two single-choice steps commit on the pick** (owner's call, 2026-09-14).
-Medication and exertion advance the moment a tile is tapped —
-`LogController.selectAndAdvance` — so a fully answered log costs five taps
-rather than seven. Location keeps `updateDraft` and its Next: it takes several
-areas, and advancing on the first would put the second out of reach.
+**Every step waits for Next — no step advances on the pick** (owner's call,
+2026-09-16, reversing the 2026-09-14 call that had medication and exertion
+commit on the tap). All three of location, medication and exertion call
+`LogController.updateDraft`, which only arms the app bar's Next; `confirmStep`
+is the one thing that moves the flow. The pick and the commit being two taps is
+what lets a tile tapped by mistake be changed on the step it was made, instead
+of only by backing out of the next one.
+
+The three taps hard rule 5 protects are the *steps*, not the taps inside them:
+the flow is still intensity → location → medication → exertion, and `saveNow`
+still ends it from anywhere.
 
 **`saveNow` is the way out, and it is not a fifth step.** A text button under
 the content on every step after the first saves the attack with whatever has
