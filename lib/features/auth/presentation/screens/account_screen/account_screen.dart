@@ -24,11 +24,21 @@ part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
 
 /// The signed-in user's own record: who they are, what the subscription is, and the way out.
-class AccountScreen extends ConsumerWidget {
+class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends ConsumerState<AccountScreen> {
+  /// Owned here rather than inside the row that starts it, because what it
+  /// switches on covers the whole screen — app bar included. A flag living in
+  /// the row could only ever dim the list under it.
+  bool _deleting = false;
+
+  @override
+  Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final AuthUser? user = switch (ref.watch(authUserProvider)) {
       AsyncData(value: final AuthUser? value) => value,
@@ -39,24 +49,41 @@ class AccountScreen extends ConsumerWidget {
       _ => null,
     };
 
-    return SdScaffoldV2(
-      title: Text(l10n.accountTitle, style: AppTextStyle.titleLarge),
-      body: SdActionViewV2(
-        // Full-bleed: every row here is a ListTile, which insets itself.
-        contentPadding: EdgeInsets.zero,
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _AccountHeader(user: user, profile: profile),
-            SdSectionHeaderV2(l10n.accountSectionProfile),
-            _ProfileSection(user: user, profile: profile),
-            SdSectionHeaderV2(l10n.accountSectionSubscription),
-            const _PremiumSection(),
-            const _DeleteAccountTile(),
-            const _DataNote(),
-          ],
-        ),
-        actions: const <Widget>[_SignOutButton()],
+    // Deletion is a server call that ends with this route popping itself, so
+    // leaving early would land the user on Settings with the work still
+    // running and no way back to see how it went.
+    return PopScope(
+      canPop: !_deleting,
+      child: Stack(
+        children: <Widget>[
+          SdScaffoldV2(
+            title: Text(l10n.accountTitle, style: AppTextStyle.titleLarge),
+            body: SdActionViewV2(
+              // Full-bleed: every row here is a ListTile, which insets itself.
+              contentPadding: EdgeInsets.zero,
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _AccountHeader(user: user, profile: profile),
+                  SdSectionHeaderV2(l10n.accountSectionProfile),
+                  _ProfileSection(user: user, profile: profile),
+                  SdSectionHeaderV2(l10n.accountSectionSubscription),
+                  const _PremiumSection(),
+                  _DeleteAccountTile(
+                    deleting: _deleting,
+                    onDeletingChanged: (bool deleting) =>
+                        setState(() => _deleting = deleting),
+                  ),
+                  const _DataNote(),
+                ],
+              ),
+              actions: const <Widget>[_SignOutButton()],
+            ),
+          ),
+          // Over the scaffold, not inside it: the back arrow and Sign Out are
+          // exactly the taps that must not land while the account is going.
+          if (_deleting) const _DeletingOverlay(),
+        ],
       ),
     );
   }

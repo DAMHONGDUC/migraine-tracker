@@ -6,20 +6,20 @@ part of 'account_screen.dart';
 /// an account is taken once and hunted for deliberately, so it earns a line of
 /// the list rather than permanent residence under the thumb, where it sat next
 /// to Sign Out and the two read as a pair of equals.
-class _DeleteAccountTile extends ConsumerStatefulWidget {
-  const _DeleteAccountTile();
+class _DeleteAccountTile extends ConsumerWidget {
+  const _DeleteAccountTile({
+    required this.deleting,
+    required this.onDeletingChanged,
+  });
 
-  @override
-  ConsumerState<_DeleteAccountTile> createState() => _DeleteAccountTileState();
-}
+  /// The screen's flag, not this row's: it also raises [_DeletingOverlay].
+  final bool deleting;
+  final ValueChanged<bool> onDeletingChanged;
 
-class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
-  bool _deleting = false;
-
-  Future<void> _delete() async {
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l10n = context.l10n;
 
-    if (_deleting) return;
+    if (deleting) return;
 
     final bool? confirmed = await showSdDialogV2<bool>(
       context,
@@ -44,33 +44,36 @@ class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !context.mounted) return;
 
-    setState(() => _deleting = true);
+    onDeletingChanged(true);
     try {
       await ref.read(accountControllerProvider).deleteAccount();
 
       // This screen assumes an account; without one it would sit empty.
-      if (mounted) {
+      if (context.mounted) {
         context.pop();
         SdSnackBarUtilsV2.success(context, l10n.accountDeleteDone);
       }
     } on AuthException catch (e) {
       // Backing out of the Apple re-authorisation sheet is a change of mind, not a failure.
-      if (e.error != AuthError.cancelled && mounted) {
+      if (e.error != AuthError.cancelled && context.mounted) {
         SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
       }
     } catch (_) {
       // The account survives a failure, so retrying is the right advice.
-      if (mounted) SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
+      if (context.mounted) {
+        SdSnackBarUtilsV2.error(context, l10n.accountDeleteFailed);
+      }
     } finally {
-      // Skipped when it succeeded — the screen has popped by then.
-      if (mounted) setState(() => _deleting = false);
+      // The screen outlives this row's rebuild either way: on success it has
+      // popped and the flag goes with it, on failure the overlay has to lift.
+      if (context.mounted) onDeletingChanged(false);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
     // Red on the whole row, like Settings' destructive rows: the tint is the
@@ -78,8 +81,8 @@ class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
     return SettingsTile(
       icon: AppIconConstant.deleteForever,
       titleColor: context.colorScheme.error,
-      title: _deleting ? l10n.commonDeleting : l10n.accountDelete,
-      trailing: _deleting
+      title: deleting ? l10n.commonDeleting : l10n.accountDelete,
+      trailing: deleting
           ? SizedBox.square(
               dimension: SdSpacingConstant.r20,
               child: CircularProgressIndicator(
@@ -88,7 +91,43 @@ class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
               ),
             )
           : null,
-      onTap: _deleting ? null : _delete,
+      onTap: deleting ? null : () => _delete(context, ref),
+    );
+  }
+}
+
+/// The screen, out of reach, while the server works.
+///
+/// A scrim and a spinner rather than a disabled row: deleting an account is a
+/// Cloud Function round trip, and every control still live during it — Sign
+/// Out, edit name, the back arrow — acts on an account that may not exist by
+/// the time the tap lands.
+class _DeletingOverlay extends StatelessWidget {
+  const _DeletingOverlay();
+
+  /// Big enough to read as the screen's own wait, not a row's.
+  static double get spinnerSize => SdSpacingConstant.r28;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Stack(
+        children: <Widget>[
+          // The same barrier a dialog puts up, and for the same reason — this
+          // is one, with the card left off. It swallows the taps; the spinner
+          // beside it only says why.
+          ModalBarrier(color: context.sdTheme.barrier, dismissible: false),
+          Center(
+            child: SizedBox.square(
+              dimension: spinnerSize,
+              child: CircularProgressIndicator(
+                strokeWidth: SdSpacingConstant.w2,
+                color: context.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
