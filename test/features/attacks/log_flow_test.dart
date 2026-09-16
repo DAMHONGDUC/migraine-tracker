@@ -27,8 +27,14 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Did you take medication?'), findsOneWidget);
 
-    // The medication pick advances on its own — single choice, so the tap IS the confirmation.
+    // The pick only arms Next; the step is confirmed from the app bar, so a
+    // tile tapped by mistake can be changed where it was tapped.
     await tester.tap(find.text('No medication').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Did you take medication?'), findsOneWidget);
+
+    await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Were you exerting yourself?'), findsOneWidget);
@@ -79,6 +85,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('No medication').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Were you exerting yourself?'), findsOneWidget);

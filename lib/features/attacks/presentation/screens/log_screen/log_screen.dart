@@ -56,10 +56,22 @@ class LogScreen extends ConsumerWidget {
 
     return SdScaffoldV2(
       // The question IS the title: a headline in the body under a bar saying "Log" spent the top of every step twice.
+      //
+      // Sized against every other step's question, not against itself: fitted
+      // alone, "Where does it hurt?" came out at full size and "Were you
+      // exerting yourself?" a few points smaller, and the title jumping size
+      // step to step read as the bar moving rather than the question changing.
       title: SdFittedTextV2(
         question ?? l10n.logTitle,
         style: AppTextStyle.titleLarge,
         maxLines: 1,
+        peers: <String>[
+          l10n.logTitle,
+          l10n.logIntensityTitle,
+          l10n.logLocationTitle,
+          l10n.logMedicationTitle,
+          l10n.logExertionTitle,
+        ],
       ),
       // - First step: leading button cancels the whole flow (pops route).
       leading: switch (state.step) {
@@ -125,12 +137,12 @@ class LogScreen extends ConsumerWidget {
                     LogStep.medication => MedicationStep(
                       hasSelection: state.hasDraft,
                       selectedName: state.draft as String?,
-                      onSelected: controller.selectAndAdvance,
+                      onSelected: controller.updateDraft,
                       scrollBottomInset: bottomInset,
                     ),
                     LogStep.exertion => ExertionStep(
                       selected: state.draft as ExertionLevel?,
-                      onSelected: controller.selectAndAdvance,
+                      onSelected: controller.updateDraft,
                     ),
                     LogStep.saved => SavedStep(
                       attackId: state.savedId!,

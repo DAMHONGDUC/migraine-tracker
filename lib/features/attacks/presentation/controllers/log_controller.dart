@@ -89,15 +89,6 @@ class LogController extends Notifier<LogFlowState> {
     );
   }
 
-  /// A single-choice step (medication, exertion): the pick IS the confirmation, so the Next tap it used to need is gone.
-  ///
-  /// Location keeps [updateDraft] — it takes several areas, and advancing on
-  /// the first would make a second one unreachable.
-  Future<void> selectAndAdvance(Object? value) async {
-    updateDraft(value);
-    await confirmStep();
-  }
-
   /// Saves from wherever the flow has got to, with whatever has been answered.
   ///
   /// The 9/10 attack is the one this exists for: everything here is editable

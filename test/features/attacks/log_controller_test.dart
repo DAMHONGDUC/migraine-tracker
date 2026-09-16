@@ -182,24 +182,32 @@ void main() {
     expect(state().draft, const <HeadRegion>[HeadRegion.templeL]);
   });
 
-  test('selectAndAdvance commits the medication pick in one tap', () async {
+  test('a medication pick waits for Next, and can be changed first', () async {
     controller().selectIntensity(6);
     controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
     await controller().confirmStep();
 
-    await controller().selectAndAdvance('Ibuprofen');
+    controller().updateDraft('Ibuprofen');
+    expect(state().step, LogStep.medication, reason: 'the pick does not move');
+
+    controller().updateDraft('Sumatriptan');
+    await controller().confirmStep();
 
     expect(state().step, LogStep.exertion);
-    expect(state().medicationName, 'Ibuprofen');
+    expect(state().medicationName, 'Sumatriptan');
   });
 
-  test('selectAndAdvance on the exertion step saves the attack', () async {
+  test('an exertion pick waits for Next, which saves the attack', () async {
     controller().selectIntensity(6);
     controller().updateDraft(const <HeadRegion>[HeadRegion.crown]);
     await controller().confirmStep();
-    await controller().selectAndAdvance(null);
+    controller().updateDraft(null);
+    await controller().confirmStep();
 
-    await controller().selectAndAdvance(ExertionLevel.light);
+    controller().updateDraft(ExertionLevel.light);
+    expect(state().step, LogStep.exertion, reason: 'the pick does not save');
+
+    await controller().confirmStep();
 
     expect(state().step, LogStep.saved);
     final rows = await db.select(db.attacks).get();
