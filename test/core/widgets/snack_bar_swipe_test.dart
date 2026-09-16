@@ -38,7 +38,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    await tester.drag(find.byType(SdSnackBarCardV2), by);
+    // `dragFrom`, not `drag`: the card itself is an `IgnorePointer` so taps
+    // fall through to the screen under it, and only the detector around it
+    // takes the gesture — which is a miss as far as `drag`'s finder is
+    // concerned, however well the drag then works.
+    await tester.dragFrom(tester.getCenter(find.byType(SdSnackBarCardV2)), by);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -101,6 +105,52 @@ void main() {
       ),
       isFalse,
     );
+  });
+
+  testWidgets('a tap where the card sits still reaches what is under it', (
+    WidgetTester tester,
+  ) async {
+    late final BuildContext screen;
+    int taps = 0;
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext context, Widget? child) => MaterialApp(
+          theme: AppTheme.dark,
+          home: Scaffold(
+            body: Builder(
+              builder: (BuildContext context) {
+                screen = context;
+
+                // The bottom of the screen, which is where the card lands.
+                return GestureDetector(
+                  onTap: () => taps++,
+                  child: const ColoredBox(
+                    color: Colors.transparent,
+                    child: SizedBox.expand(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    SdSnackBarUtilsV2.info(screen, 'saved');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // `tapAt`, not `tap`: the card deliberately does not hit-test, which is
+    // the whole point — a message never costs the button it is sitting on.
+    await tester.tapAt(tester.getCenter(find.byType(SdSnackBarCardV2)));
+    await tester.pump();
+
+    expect(taps, 1);
+
+    await tester.pump(SdSnackBarUtilsV2.duration);
+    await tester.pump(const Duration(milliseconds: 300));
   });
 
   testWidgets('a drag away from its own edge keeps the card', (
