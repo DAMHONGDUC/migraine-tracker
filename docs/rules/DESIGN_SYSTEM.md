@@ -462,6 +462,14 @@ intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
     its own field rather than `bottomGap`: that one is the air *below* the last
     item, and pinning created a second edge on the side the content arrives from.
     Equal to it on purpose, so a pinned footer has the same air above and below.
+  - **`actions` holds what the screen is for, and nothing else** (owner's rule).
+    A destructive escape hatch — "Delete account" — is a red `SettingsTile` in
+    the list, not a second button under the thumb: side by side with Sign Out
+    the two read as a pair of equals, and the one that cannot be undone gets
+    the same reach as the one done every week. Account has one action now, Sign
+    Out; deletion is a row after the Subscription section, tinted
+    `colorScheme.error` like Settings' own destructive rows, with the dialog
+    behind the tap doing the actual confirming.
 
 ## Loading and separators
 
