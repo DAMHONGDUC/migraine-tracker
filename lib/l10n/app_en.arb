@@ -2993,6 +2993,14 @@
   "@settingsDevLocalNotification": {
     "description": "Dev-only Settings row that schedules a local notification ~10s out on the device"
   },
+  "settingsDevAlert": "Test in-app alert",
+  "@settingsDevAlert": {
+    "description": "Dev-only Settings row that fires the next in-app alert in the kind/placement cycle"
+  },
+  "settingsDevAlertMessage": "A test alert — swipe it back towards its edge to dismiss.",
+  "@settingsDevAlertMessage": {
+    "description": "Body of the alert the dev-only row fires, naming the gesture that dismisses it"
+  },
   "settingsDevPushSent": "Firebase push sent. It should arrive in a moment.",
   "@settingsDevPushSent": {
     "description": "Snackbar after the backend accepted the Firebase test push request"

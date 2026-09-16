@@ -97,4 +97,5 @@ final class LogTagConstant {
   /// Dev-only flows. They exist in dev builds alone, and a tag of their own keeps them out of a filter on the real flow they stand in for.
   static const String devPush = 'Dev Push';
   static const String devLocation = 'Dev Location';
+  static const String devAlert = 'Dev Alert';
 }

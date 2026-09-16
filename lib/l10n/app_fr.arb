@@ -616,6 +616,8 @@
   "homeWidgetFailed": "Impossible de mettre à jour le widget de l'écran d'accueil.",
   "settingsDevPush": "Tester la notification push (Firebase)",
   "settingsDevLocalNotification": "Tester la notification locale (appareil)",
+  "settingsDevAlert": "Tester l'alerte dans l'app",
+  "settingsDevAlertMessage": "Une alerte de test — balayez-la vers son bord pour la fermer.",
   "settingsDevPushSent": "Push Firebase envoyé. Il devrait arriver d'un instant à l'autre.",
   "settingsDevPushFailed": "Échec du push Firebase : {reason}",
   "settingsDevLocalNotificationFailed": "Échec de la notification locale : {reason}",

@@ -616,6 +616,8 @@
   "homeWidgetFailed": "Không cập nhật được widget màn hình chính.",
   "settingsDevPush": "Thử push notification (Firebase)",
   "settingsDevLocalNotification": "Thử thông báo cục bộ (máy)",
+  "settingsDevAlert": "Thử cảnh báo trong ứng dụng",
+  "settingsDevAlertMessage": "Cảnh báo thử — vuốt nó về phía cạnh của nó để tắt.",
   "settingsDevPushSent": "Đã gửi push Firebase. Nó sẽ tới trong giây lát.",
   "settingsDevPushFailed": "Gửi push Firebase thất bại: {reason}",
   "settingsDevLocalNotificationFailed": "Thông báo cục bộ thất bại: {reason}",

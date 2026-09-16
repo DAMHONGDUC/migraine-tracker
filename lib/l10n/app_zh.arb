@@ -616,6 +616,8 @@
   "homeWidgetFailed": "无法更新主屏幕小组件。",
   "settingsDevPush": "测试推送通知（Firebase）",
   "settingsDevLocalNotification": "测试本地通知（设备）",
+  "settingsDevAlert": "测试应用内提示",
+  "settingsDevAlertMessage": "这是一条测试提示，朝它出现的那一侧滑动即可关闭。",
   "settingsDevPushSent": "Firebase 推送已发送，稍等片刻就会收到。",
   "settingsDevPushFailed": "Firebase 推送失败：{reason}",
   "settingsDevLocalNotificationFailed": "本地通知失败：{reason}",

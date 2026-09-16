@@ -616,6 +616,8 @@
   "homeWidgetFailed": "No se pudo actualizar el widget de la pantalla de inicio.",
   "settingsDevPush": "Probar notificación push (Firebase)",
   "settingsDevLocalNotification": "Probar notificación local (dispositivo)",
+  "settingsDevAlert": "Probar aviso en la app",
+  "settingsDevAlertMessage": "Un aviso de prueba: deslízalo hacia su borde para descartarlo.",
   "settingsDevPushSent": "Push de Firebase enviado. Debería llegar enseguida.",
   "settingsDevPushFailed": "El push de Firebase falló: {reason}",
   "settingsDevLocalNotificationFailed": "La notificación local falló: {reason}",

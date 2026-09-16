@@ -616,6 +616,8 @@
   "homeWidgetFailed": "Das Home-Bildschirm-Widget ließ sich nicht aktualisieren.",
   "settingsDevPush": "Push-Mitteilung testen (Firebase)",
   "settingsDevLocalNotification": "Lokale Mitteilung testen (Gerät)",
+  "settingsDevAlert": "In-App-Hinweis testen",
+  "settingsDevAlertMessage": "Ein Testhinweis – wisch ihn zu seiner Kante zurück, um ihn zu schließen.",
   "settingsDevPushSent": "Firebase-Push gesendet. Er sollte gleich ankommen.",
   "settingsDevPushFailed": "Firebase-Push fehlgeschlagen: {reason}",
   "settingsDevLocalNotificationFailed": "Lokale Mitteilung fehlgeschlagen: {reason}",

@@ -616,6 +616,8 @@
   "homeWidgetFailed": "ホーム画面ウィジェットを更新できませんでした。",
   "settingsDevPush": "プッシュ通知をテスト（Firebase）",
   "settingsDevLocalNotification": "ローカル通知をテスト（端末）",
+  "settingsDevAlert": "アプリ内アラートをテスト",
+  "settingsDevAlertMessage": "テスト用のアラートです。出てきた端の方向にスワイプすると消えます。",
   "settingsDevPushSent": "Firebase プッシュを送信しました。まもなく届きます。",
   "settingsDevPushFailed": "Firebase プッシュに失敗しました：{reason}",
   "settingsDevLocalNotificationFailed": "ローカル通知に失敗しました：{reason}",

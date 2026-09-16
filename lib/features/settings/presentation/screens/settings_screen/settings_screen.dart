@@ -35,6 +35,7 @@ import '../../../providers.dart';
 
 part 'settings_screen_about_section.dart';
 part 'settings_screen_data_section.dart';
+part 'settings_screen_dev_alert_tile.dart';
 part 'settings_screen_dev_delete_data_tile.dart';
 part 'settings_screen_dev_local_notification_tile.dart';
 part 'settings_screen_dev_location_tile.dart';
@@ -75,6 +76,8 @@ class SettingsScreen extends ConsumerWidget {
               if (ref.watch(isSignedInProvider)) const _DevPushTile(),
               // Beside the push row but outside the account gate.
               const _DevLocalNotificationTile(),
+              // The in-app half of the same idea: no permission, no backend, just the card the app raises itself.
+              const _DevAlertTile(),
               // Location comes first because Simulator weather depends on it.
               // Same reason as the premium row: `DevLocationController` returns `off` in prod.
               if (!AppEnv.isProd) const _DevLocationTile(),
