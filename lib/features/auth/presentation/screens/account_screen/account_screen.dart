@@ -9,6 +9,7 @@ import '../../../../../core/router/app_router.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
+import '../../../../../core/widgets/settings_tile.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../premium/providers.dart';
 import '../../../domain/entities/auth_user.dart';
@@ -17,7 +18,7 @@ import '../../../domain/enums/auth_error.dart';
 import '../../../providers.dart';
 import '../../widgets/display_name_dialog.dart';
 
-part 'account_screen_delete_button.dart';
+part 'account_screen_delete_tile.dart';
 part 'account_screen_header.dart';
 part 'account_screen_premium_section.dart';
 part 'account_screen_profile_section.dart';
@@ -51,10 +52,11 @@ class AccountScreen extends ConsumerWidget {
             _ProfileSection(user: user, profile: profile),
             SdSectionHeaderV2(l10n.accountSectionSubscription),
             const _PremiumSection(),
+            const _DeleteAccountTile(),
             const _DataNote(),
           ],
         ),
-        actions: const <Widget>[_SignOutButton(), _DeleteAccountButton()],
+        actions: const <Widget>[_SignOutButton()],
       ),
     );
   }

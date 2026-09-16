@@ -1,15 +1,19 @@
 part of 'account_screen.dart';
 
 /// Deletes the account and everything in it (App Store 5.1.1(v)).
-class _DeleteAccountButton extends ConsumerStatefulWidget {
-  const _DeleteAccountButton();
+///
+/// A row among the other rows, not a button in the action bar: the way out of
+/// an account is taken once and hunted for deliberately, so it earns a line of
+/// the list rather than permanent residence under the thumb, where it sat next
+/// to Sign Out and the two read as a pair of equals.
+class _DeleteAccountTile extends ConsumerStatefulWidget {
+  const _DeleteAccountTile();
 
   @override
-  ConsumerState<_DeleteAccountButton> createState() =>
-      _DeleteAccountButtonState();
+  ConsumerState<_DeleteAccountTile> createState() => _DeleteAccountTileState();
 }
 
-class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
+class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
   bool _deleting = false;
 
   Future<void> _delete() async {
@@ -69,12 +73,22 @@ class _DeleteAccountButtonState extends ConsumerState<_DeleteAccountButton> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    // Outlined, not filled: this offers the deletion, the dialog confirms it.
-    return SdButtonV2(
-      variant: SdButtonVariantV2.outlinedDestructive,
-      onPressed: _deleting ? null : _delete,
-      label: _deleting ? l10n.commonDeleting : l10n.accountDelete,
+    // Red on the whole row, like Settings' destructive rows: the tint is the
+    // warning, and the dialog behind the tap is what actually confirms it.
+    return SettingsTile(
       icon: AppIconConstant.deleteForever,
+      titleColor: context.colorScheme.error,
+      title: _deleting ? l10n.commonDeleting : l10n.accountDelete,
+      trailing: _deleting
+          ? SizedBox.square(
+              dimension: SdSpacingConstant.r20,
+              child: CircularProgressIndicator(
+                strokeWidth: SdSpacingConstant.w2,
+                color: context.colorScheme.error,
+              ),
+            )
+          : null,
+      onTap: _deleting ? null : _delete,
     );
   }
 }
