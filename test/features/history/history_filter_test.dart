@@ -121,4 +121,26 @@ void main() {
 
     await finishTest(tester);
   });
+
+  testWidgets('leaving the tab and coming back lands on the list', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(
+      app.db,
+    ).insert(at('a', DateTime.now().subtract(const Duration(hours: 2))));
+
+    await openHistoryCharts(tester);
+    expect(find.text('Attacks per week'), findsOneWidget);
+
+    await openSettings(tester);
+    await openHistory(tester);
+
+    // The tab is an IndexedStack branch, so nothing here is rebuilt on the
+    // switch — the reset has to come from the shell, and this is what says so.
+    expect(find.byType(AttackTile), findsOneWidget);
+    expect(find.text('Attacks per week'), findsNothing);
+
+    await finishTest(tester);
+  });
 }

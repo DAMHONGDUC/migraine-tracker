@@ -18,4 +18,16 @@ class HistoryViewModeController extends Notifier<HistoryViewMode> {
     SdLogger.action(LogTagConstant.history, 'History view', mode.name);
     state = mode;
   }
+
+  /// Back to the list, for a fresh arrival on the tab (owner's rule).
+  ///
+  /// The tab is an `IndexedStack` branch, so nothing here is rebuilt on a
+  /// switch and the chart the user left three tabs ago is still what History
+  /// opens on. Silent, unlike [select]: nobody chose this, and a "History
+  /// view" line per tab switch would bury the ones somebody did choose.
+  void reset() {
+    if (state == HistoryViewMode.list) return;
+
+    state = HistoryViewMode.list;
+  }
 }

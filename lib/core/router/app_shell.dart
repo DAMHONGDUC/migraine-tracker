@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
 
+import '../../features/history/providers.dart';
 import '../analytics/app_analytics.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_icon_constant.dart';
@@ -47,6 +48,19 @@ class _AppShellState extends ConsumerState<AppShell> {
     _tabs[widget.navigationShell.currentIndex].name,
   );
 
+  /// What a tab drops on the way in, before its branch is shown.
+  ///
+  /// Here rather than in the screen because a branch of an `IndexedStack` is
+  /// never rebuilt on a switch — the screen has no arrival to notice. Done on
+  /// the tap and not a frame later, so the view it is leaving behind is gone
+  /// before the branch is on screen.
+  void _resetBranch(int index) {
+    if (_tabs[index] != AppRoutes.history) return;
+
+    // History always opens on the list (owner's rule).
+    ref.read(historyViewModeProvider.notifier).reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     final navigationShell = widget.navigationShell;
@@ -59,10 +73,13 @@ class _AppShellState extends ConsumerState<AppShell> {
     // tab nav (no step-progress morph mid-log).
     return SdBottomNavigationV2(
       selectedIndex: navigationShell.currentIndex,
-      onSelected: (int index) => navigationShell.goBranch(
-        index,
-        initialLocation: index == navigationShell.currentIndex,
-      ),
+      onSelected: (int index) {
+        _resetBranch(index);
+        navigationShell.goBranch(
+          index,
+          initialLocation: index == navigationShell.currentIndex,
+        );
+      },
       destinations: <SdNavDestinationV2>[
         SdNavDestinationV2(
           icon: AppIconConstant.home,
