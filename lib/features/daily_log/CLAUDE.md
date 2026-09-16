@@ -81,6 +81,22 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
   stateful, and why it computes `NextReminderCalculator` itself instead of
   reading a provider that fixed its "now" at its last build.
 
+## The evening nudge has a screen, not a row
+
+**`CheckInReminderScreen`, pushed from Settings** (owner's call, 2026-09-16).
+The switch and the time were both on the Settings row, and the time was edited
+by tapping the four characters of "20:30" in that row's subtitle — a target a
+fraction of a fingertip wide, with nothing about it saying it could be tapped,
+so the time read as fixed. `CheckInReminderTile` is a door now: it shows the
+armed time (or "Off") and opens the screen, exactly as the alerts row opens the
+pressure controls.
+
+- **The time is editable with the nudge off.** A time set before it is armed is
+  one less thing to come back for, and a row that only works half the time is
+  a row nobody trusts.
+- **`CheckInReminderController` is unchanged** and still owns both settings,
+  the one armed occurrence, and the rescheduling — the screen only calls it.
+
 ## Where it is wired
 
 | Concern | Owner |
