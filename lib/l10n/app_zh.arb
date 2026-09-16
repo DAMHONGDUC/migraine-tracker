@@ -840,6 +840,8 @@
   "checkInReminderTitle": "今天怎么样？",
   "checkInReminderBody": "三十秒，有没有发作都记一下。",
   "checkInReminderTile": "晚间签到提醒",
+  "checkInReminderSwitch": "晚间提醒",
+  "checkInReminderTime": "时间",
   "checkInReminderTileBody": "在你选择的时间提醒，只在当天还没填写时。",
   "checkInReminderDenied": "BaroEase 的通知已关闭，请在系统设置中开启。",
   "alertsNeedsSignIn": "提醒还需要 Google 或 Apple 账号——推送发送到账号，而不是这台设备。",

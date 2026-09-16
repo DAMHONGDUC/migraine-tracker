@@ -4080,6 +4080,14 @@
     "description": "Body of the evening check-in notification"
   },
   "checkInReminderTile": "Evening check-in reminder",
+  "checkInReminderSwitch": "Evening reminder",
+  "@checkInReminderSwitch": {
+    "description": "Label of the switch row on the evening check-in reminder screen"
+  },
+  "checkInReminderTime": "Time",
+  "@checkInReminderTime": {
+    "description": "Label of the time row on the evening check-in reminder screen"
+  },
   "@checkInReminderTile": {
     "description": "Settings row for the daily check-in nudge"
   },

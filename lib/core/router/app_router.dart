@@ -9,6 +9,7 @@ import '../../features/attacks/presentation/screens/log_screen/log_screen.dart';
 import '../../features/auth/presentation/screens/account_screen/account_screen.dart';
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 import '../../features/auth/providers.dart';
+import '../../features/daily_log/presentation/screens/check_in_reminder_screen/check_in_reminder_screen.dart';
 import '../../features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
@@ -63,6 +64,12 @@ final class AppRoutes {
 
   /// The 30-second daily check-in, pushed from the dashboard card. Today by default; `?day=yyyy-MM-dd` answers one the user missed — see [DailyLogScreen].
   static const dailyLog = AppRoute(name: 'dailyLog', path: '/check-in');
+
+  /// The evening check-in nudge's own screen — its switch and its time, pushed from Settings.
+  static const checkInReminder = AppRoute(
+    name: 'checkInReminder',
+    path: '/check-in-reminder',
+  );
 
   /// The notification list, pushed from the dashboard's app bar.
   static const notifications = AppRoute(
@@ -239,6 +246,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ExportPreviewScreen(
           exportId: state.pathParameters[AppRoutes.exportIdParam]!,
         ),
+      ),
+      GoRoute(
+        name: AppRoutes.checkInReminder.name,
+        path: AppRoutes.checkInReminder.path,
+        builder: (context, state) => const CheckInReminderScreen(),
       ),
       GoRoute(
         name: AppRoutes.notifications.name,

@@ -840,6 +840,8 @@
   "checkInReminderTitle": "Hôm nay thế nào?",
   "checkInReminderBody": "Ba mươi giây, dù có cơn đau hay không.",
   "checkInReminderTile": "Nhắc check-in buổi tối",
+  "checkInReminderSwitch": "Nhắc buổi tối",
+  "checkInReminderTime": "Giờ nhắc",
   "checkInReminderTileBody": "Nhắc vào giờ bạn chọn, chỉ khi ngày đó chưa trả lời.",
   "checkInReminderDenied": "Thông báo đang tắt cho BaroEase. Hãy bật trong Cài đặt.",
   "alertsNeedsSignIn": "Cảnh báo cần thêm tài khoản Google hoặc Apple — thông báo gửi tới tài khoản, không gửi tới máy này.",

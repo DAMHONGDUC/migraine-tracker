@@ -840,6 +840,8 @@
   "checkInReminderTitle": "今日はどうでしたか？",
   "checkInReminderBody": "30秒、頭痛があってもなくても。",
   "checkInReminderTile": "夜のチェックイン通知",
+  "checkInReminderSwitch": "夜のリマインダー",
+  "checkInReminderTime": "時刻",
   "checkInReminderTileBody": "指定した時刻に、未回答の日だけ通知します。",
   "checkInReminderDenied": "BaroEase の通知がオフです。設定でオンにしてください。",
   "alertsNeedsSignIn": "通知には Google または Apple アカウントも必要です。プッシュは端末ではなくアカウントに送られます。",

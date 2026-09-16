@@ -154,6 +154,18 @@ void main() {
         await finishTest(tester);
       });
 
+      testWidgets('the evening check-in reminder screen fits', (tester) async {
+        await pumpApp(tester, premium: premium);
+
+        await openSettings(tester);
+        await scrollIntoView(tester, find.text('Evening check-in reminder'));
+        await tapVisible(tester, find.text('Evening check-in reminder'));
+        await settleFrames(tester);
+        await expectNoOverflow(tester, 'Check-in reminder');
+
+        await finishTest(tester);
+      });
+
       testWidgets('the log flow fits at every step', (tester) async {
         await pumpApp(tester, premium: premium);
 
