@@ -12,6 +12,14 @@
     labelled text in content, where the label already says which is which; this
     one is icon-only chrome.
 
+**The tab always opens on the list** (owner's rule). `AppShell` calls
+`HistoryViewModeController.reset()` as the tab is tapped, before the branch is
+shown. It has to be done from out there: the tabs are branches of an
+`IndexedStack`, so `HistoryScreen` is never rebuilt on a switch and has no
+arrival of its own to notice. The filters are untouched — a filter is a
+question the user asked and is still asking; a view is where they happened to
+leave the screen.
+
 ## The filter strip
 
 **One chip per axis, pinned under the app bar** — the same shape as the
