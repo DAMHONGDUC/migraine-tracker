@@ -157,6 +157,22 @@ line in with what was sent, a line out with what came back.
   launch image, so work a user could be shown a spinner for goes behind the
   splash instead — that is where the device check and the anonymous session
   are.
+- **A step that failed says so on screen, from inside the app** (owner's rule,
+  2026-09-16). `SdBootstrap.onStepFailed` hands `main` each failure, `main`
+  carries them into the tree as `startupFailuresProvider`, and
+  `StartupErrorGate` — the outermost gate inside `MaterialApp.builder` — draws
+  `StartupErrorView` instead of the app when one of
+  `StartupErrorGate.fatalSteps` is among them. Telling is not refusing: the app
+  still starts, which is what keeps the rule above true.
+  - **`Firebase` is the only fatal step**, and the bar for a second one is that
+    the app is equally useless without it. `initializeApp` is local work — it
+    fails on a build whose options and bundled `GoogleService-Info.plist`
+    disagree (`[core/duplicate-app]`), not on a bad connection — so this screen
+    means "this build is broken", and offline attack logging (hard rule 4)
+    never reaches it.
+  - **Outside production the screen prints what was thrown.** The person who
+    can fix a mis-built flavour is the person who built it, and `duplicate-app`
+    on screen is the whole diagnosis.
 
 ## Extraction and constants
 
