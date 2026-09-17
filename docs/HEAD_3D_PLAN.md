@@ -185,12 +185,15 @@ user's left to the screen's right, which is verified, not assumed.
 | 0° (face) | Screen left — same as today |
 | 180° (back) | Screen **right** — the opposite of today's back view |
 
-Two ways out, and it is a product call, not an engineering one:
+**Decided: L and R swap sides with the yaw** (owner, 2026-09-17). Dropping them
+was the alternative — the tiles already say "Left temple" in words — and it was
+turned down: a label that is silently wrong is worse than a label that moves.
+The motion has to earn its place on a screen read by someone photophobic, so it
+crosses with the head rather than on its own, and it never fades or flashes.
+This rule moves into `attacks/CLAUDE.md` when the head does, at phase 7.
 
-| Option | Effect |
-|---|---|
-| Drop the gutter L/R | The tiles already say "Left temple" in words. One less thing on screen, and the head gets the gutter back |
-| Let L and R swap sides with the yaw | Keeps the labels true, but a label that moves while the head turns is motion on a screen read by someone photophobic |
+Phase 0 is passed (owner, 2026-09-17): the model above is the working head, to
+be refined rather than replaced.
 
 ## Files
 
