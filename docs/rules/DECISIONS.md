@@ -187,3 +187,36 @@ forgets `--dart-define-from-file`, and the assert that catches that runs in
 debug only — so one release built wrong would read as an environment change and
 delete migraine history that has no second copy. The four steps that did ship
 cost a sign-in, a cache and an onboarding run, all of which come back.
+
+## The ">1k likes" bar, waived once for `flutter_scene`
+
+The bar stands; this is the one package admitted under it, at 336 likes, and
+the reason is that no 3D package clears it and the shortlist is worse:
+`model_viewer_plus` is a WebView, which cannot sit inside the log flow at all,
+and `three_js` is a quarter as used, four months older, and drags ANGLE in
+beside Impeller.
+
+What decided it was not popularity but the one property the head diagram's own
+rule needs: `Scene.raycast` tests the very mesh it draws, and hands back the
+`Node` it hit. The pickable areas therefore follow the drawing *by
+construction*, exactly as `HeadRegionGeometry` made them in 2D — where a
+package that rendered a model but picked against a second collision shape would
+have reintroduced the drift the rule exists to prevent.
+
+The cost was real and paid up front: the SDK moved from 3.44.5 to 3.47.2 for
+Flutter GPU, and `env_assets/*-Info.plist` grew a key. Detail in
+`docs/HEAD_3D_PLAN.md`.
+
+## Deleting the flat head diagram once the model shipped
+
+Planned, and not done. `HeadRegionGeometry`, `HeadRegionPainter` and the two
+SVGs stay, and they stay **pickable** rather than becoming a picture: Flutter
+GPU is a build flag and a device capability, and a phone that cannot render a
+model is not a phone whose owner stops having migraines. Half a picker is worse
+than an older one.
+
+The plan had said the fallback would be display-only, to keep one owner of the
+geometry. That was the wrong trade twice over — it would also have meant every
+widget test exercised the fallback while the shipped path went untested. The
+drift it guards against is caught instead by `head_model_test.dart`, which
+compares the model's node names with `HeadRegion.values` in both directions.
