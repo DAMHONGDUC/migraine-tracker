@@ -28,7 +28,10 @@ class PluginAttackLiveActivity implements AttackLiveActivity {
     if (!Platform.isIOS) return false;
     try {
       await _ensureInitialized();
-      return _plugin.areActivitiesEnabled();
+      // Awaited, not returned bare: a Future handed out of the try block
+      // settles outside it, so a refusal below iOS 16.1 would escape the catch
+      // that exists to treat it as a device fact.
+      return await _plugin.areActivitiesEnabled();
     } catch (error, stackTrace) {
       // Below 16.1 the channel simply refuses; that is a device fact, not a failure worth reporting.
       SdLogger.warning(
