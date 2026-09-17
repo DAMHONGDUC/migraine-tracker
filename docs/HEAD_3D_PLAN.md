@@ -135,6 +135,63 @@ still, look at it.
    node is loaded into a Riverpod provider and kept; if the parse is measurable,
    the build-time `.fsceneb` conversion replaces it.
 
+## What phase 0 found
+
+Run it with `python3 tool/head_model.py`. It writes `assets/models/head.glb`
+and `build/head_preview.png` in under a second, and needs nothing installed.
+
+| | |
+|---|---|
+| Model | 13,440 triangles, 353 KB, 16 nodes, names equal to `HeadRegion.values` |
+| Generation | 0.9s, standard library only |
+
+Six things the script settled that the plan had only assumed:
+
+1. **The silhouette has to be the drawing's own.** A hand-written width profile
+   was tried first and produced a lemon — pointed at the crown and at the chin.
+   Sampling `_headPath`'s four cubics and revolving *that* gives a round skull
+   and a jaw, and it also removes a translation: a cut the drawing states as
+   `y = 62` is now literally `y = 62` on the model, not a latitude derived from
+   it.
+2. **A brow ridge, eye sockets, cheekbones, lips and a chin are what separate a
+   head from an egg**, and they are cheap: nine smooth bumps in a table. They
+   may cross a region boundary freely — only continuity matters, because the
+   grid is shared and both regions read the same point.
+3. **Ears are features, not regions.** `HeadRegion` has no word for an ear, and
+   a tap on one belongs to the temple or the occiput underneath. They go in the
+   non-raycastable `features` node — and without them the head reads as an egg
+   in profile.
+4. **The vertical cuts are constant longitudes, not the drawing's straight
+   vertical lines.** On a flat view those are the same thing; on a head they are
+   not, and a boundary that follows the side of the skull is the one a finger
+   expects. This is the only place the 3D areas leave the 2D drawing, and it is
+   deliberate.
+5. **Piecewise-linear profile tables crease the surface at every knot**, and the
+   creases show as horizontal bands across the back of the head. Smoothstep
+   between knots, not a linear ramp.
+6. **No neck in v0.** The 2D back view draws one and the front does not; on one
+   object that asymmetry has nowhere to live. The nape covers the lower back of
+   the skull instead.
+
+### The one thing that needs the owner
+
+**The L and R labels beside the head stop being true when it turns.** Today both
+flat views put the user's left on the screen's left — the front view is drawn
+mirrored to achieve it. One object cannot do that: rotating it 180° carries the
+user's left to the screen's right, which is verified, not assumed.
+
+| Yaw | Where the user's left lands |
+|---|---|
+| 0° (face) | Screen left — same as today |
+| 180° (back) | Screen **right** — the opposite of today's back view |
+
+Two ways out, and it is a product call, not an engineering one:
+
+| Option | Effect |
+|---|---|
+| Drop the gutter L/R | The tiles already say "Left temple" in words. One less thing on screen, and the head gets the gutter back |
+| Let L and R swap sides with the yaw | Keeps the labels true, but a label that moves while the head turns is motion on a screen read by someone photophobic |
+
 ## Files
 
 | File | Work |
