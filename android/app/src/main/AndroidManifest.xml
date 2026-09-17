@@ -6,6 +6,12 @@
         android:label="BaroEase: Migraine Tracker"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Flutter GPU, which flutter_scene renders the head diagram on. Off
+             by default; iOS turns it on through FLTEnableFlutterGPU in
+             Info.plist, which prepare-env writes from env_assets/. -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableFlutterGPU"
+            android:value="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
