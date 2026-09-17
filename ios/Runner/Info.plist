@@ -4,6 +4,14 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- Flutter GPU, which flutter_scene renders the head diagram on. Off by
+	     default in the engine, so without this the location step falls back to
+	     the flat SVG pair and the head does not turn.
+
+	     `env_assets/<flavor>-Info.plist` carries the same key and has to keep
+	     it: `prepare-env` copies that file over this one. -->
+	<key>FLTEnableFlutterGPU</key>
+	<true/>
 	<!-- Answers App Store Connect's export-compliance question at upload time
 	     instead of asking on every build. False = the app uses only exempt
 	     encryption.
