@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/head_region.dart';
 import 'head_diagram.dart';
+import 'head_pose.dart';
 import 'head_region_geometry.dart';
 import 'head_region_grid.dart';
 
@@ -40,6 +41,12 @@ import 'head_region_grid.dart';
 /// [onChanged] does. It opens on whichever side already holds more of
 /// [selected], so editing a back-of-head attack does not open on a blank
 /// face.
+///
+/// **The turn is what the tabs do now.** They used to cross-fade between two
+/// flat drawings; they animate a half turn of one solid, which is the thing
+/// the flat pair could never say — that the face and the nape are two sides of
+/// the same head. A drag turns it freely, and the tabs stay because they carry
+/// the per-side count and are the way in for anyone who does not drag.
 class HeadRegionPicker extends StatefulWidget {
   const HeadRegionPicker({
     required this.selected,
@@ -54,8 +61,25 @@ class HeadRegionPicker extends StatefulWidget {
   State<HeadRegionPicker> createState() => _HeadRegionPickerState();
 }
 
-class _HeadRegionPickerState extends State<HeadRegionPicker> {
-  late HeadView _view = HeadRegion.primaryView(widget.selected);
+class _HeadRegionPickerState extends State<HeadRegionPicker>
+    with SingleTickerProviderStateMixin {
+  /// The live angle. The tabs animate it and a drag sets it; nothing else may.
+  late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
+
+  late final AnimationController _turn = AnimationController(
+    vsync: this,
+    duration: _turnDuration,
+  )..addListener(_onTurn);
+
+  Animation<double>? _turning;
+
+  /// Long enough to read as one object turning rather than as a cut, short
+  /// enough not to be a wait. Calm curve, no overshoot (hard rule 3).
+  static const Duration _turnDuration = Duration(milliseconds: 380);
+
+  /// Which side is facing, derived rather than stored — a second copy of the
+  /// angle is a second thing that can disagree with it.
+  HeadView get _view => HeadPose.viewAt(_yaw);
 
   /// How far the head sits in from everything around it — the screen edge
   /// either side, the tabs above, the tiles below. Owner's number, and the
@@ -80,6 +104,39 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
       for (final HeadRegion candidate in HeadRegion.values)
         if (next.contains(candidate)) candidate,
     ]);
+  }
+
+  void _onTurn() {
+    final Animation<double>? turning = _turning;
+
+    if (turning == null) return;
+
+    setState(() => _yaw = turning.value);
+  }
+
+  /// Turns to face [view] the short way round, so the head never spins most of
+  /// a circle to travel a few degrees.
+  void _snapTo(HeadView view) {
+    _turning = Tween<double>(
+      begin: _yaw,
+      end: HeadPose.shortestTurn(_yaw, HeadPose.yawFor(view)),
+    ).animate(CurvedAnimation(parent: _turn, curve: Curves.easeInOutCubic));
+
+    _turn.forward(from: 0);
+  }
+
+  /// A drag owns the angle outright: an animation still running under it would
+  /// pull the head out from under the finger.
+  void _dragTo(double yaw) {
+    if (_turn.isAnimating) _turn.stop();
+
+    setState(() => _yaw = yaw);
+  }
+
+  @override
+  void dispose() {
+    _turn.dispose();
+    super.dispose();
   }
 
   int _countOn(HeadView view) =>
@@ -115,8 +172,7 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
               ),
             ],
             selectedIndex: HeadView.values.indexOf(_view),
-            onSelected: (int index) =>
-                setState(() => _view = HeadView.values[index]),
+            onSelected: (int index) => _snapTo(HeadView.values[index]),
           ),
         ),
         SdVerticalSpacingV2(height: _headInset),
@@ -151,10 +207,13 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
                       excludeSemantics: true,
                       child: _SideLabelled(
                         inset: _headInset,
+                        leftOnLeft: HeadPose.leftIsOnScreenLeft(_yaw),
                         child: HeadDiagram(
                           selected: widget.selected,
                           view: _view,
+                          yaw: _yaw,
                           onRegionTapped: _toggle,
+                          onYawChanged: _dragTo,
                         ),
                       ),
                     ),
@@ -192,15 +251,29 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
 /// took the whole width they had to sit over the drawing's corners instead;
 /// there is no reason to keep them there now.
 ///
+/// **They swap sides when the head turns past its silhouette** ([leftOnLeft]).
+/// Two flat drawings could keep the user's left on the screen's left on both
+/// views — the front one was mirrored for exactly that. One solid cannot, and
+/// a label that is silently wrong is worse than one that moves. The swap is a
+/// cut rather than a fade: it happens at the quarter turn, where the side it
+/// names is edge-on and nobody is reading it.
+///
 /// [child] stays a NON-positioned stack child so it keeps its own aspect
 /// ratio and the stack takes its size. `Positioned.fill` would force the
 /// box's ratio onto a 200x248 drawing and squash the head sideways, which is
 /// the one thing worse than a small one.
 class _SideLabelled extends StatelessWidget {
-  const _SideLabelled({required this.child, required this.inset});
+  const _SideLabelled({
+    required this.child,
+    required this.inset,
+    this.leftOnLeft = true,
+  });
 
   final Widget child;
   final double inset;
+
+  /// Whether the user's left is the one drawn on the screen's left.
+  final bool leftOnLeft;
 
   @override
   Widget build(BuildContext context) {
@@ -221,13 +294,21 @@ class _SideLabelled extends StatelessWidget {
           top: 0,
           left: 0,
           width: inset,
-          child: Text('L', textAlign: TextAlign.center, style: style),
+          child: Text(
+            leftOnLeft ? 'L' : 'R',
+            textAlign: TextAlign.center,
+            style: style,
+          ),
         ),
         Positioned(
           top: 0,
           right: 0,
           width: inset,
-          child: Text('R', textAlign: TextAlign.center, style: style),
+          child: Text(
+            leftOnLeft ? 'R' : 'L',
+            textAlign: TextAlign.center,
+            style: style,
+          ),
         ),
       ],
     );

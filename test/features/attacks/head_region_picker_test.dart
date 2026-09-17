@@ -99,7 +99,9 @@ void main() {
     expect(tile('Left cheek'), findsNothing);
 
     await tester.tap(find.text('Front'));
-    await tester.pump();
+    // Settled, not pumped: the tabs turn the head rather than cutting to it,
+    // and the tiles follow the side that ends up facing.
+    await tester.pumpAndSettle();
 
     expect(tile('Left cheek'), findsOneWidget);
     expect(tile('Nape'), findsNothing);

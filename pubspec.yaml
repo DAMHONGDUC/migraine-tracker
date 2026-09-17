@@ -28,6 +28,12 @@ dependencies:
   flutter_local_notifications: ^22.0.1
   flutter_localizations:
     sdk: flutter
+  # The 3D engine the location step's head renders on. Below this repo's
+  # ">1k likes" bar and taken deliberately: no 3D package clears it, and the
+  # alternatives are a WebView (model_viewer_plus) or an unmaintained GL stack.
+  # It is the only one whose raycast tests the very mesh it draws, which is
+  # what keeps the pickable areas exact. See docs/rules/DECISIONS.md.
+  flutter_scene: ^0.23.0
   flutter_screenutil: ^5.9.3
   flutter_secure_storage: ^11.0.0
   flutter_svg: ^2.3.0
@@ -67,6 +73,10 @@ dependencies:
   timezone: ^0.11.1
   url_launcher: ^6.3.2
   uuid: ^4.5.3
+  # Direct because head_scene.dart names its types: flutter_scene's camera and
+  # raycast speak vector_math's 32-bit Vector3/Matrix4, not the 64-bit pair
+  # Flutter re-exports.
+  vector_math: ^2.4.2
 
 dev_dependencies:
   build_runner: ^2.15.0
@@ -91,6 +101,7 @@ flutter:
     - assets/fonts/noto_sans/
     - assets/icons/
     - assets/images/
+    - assets/models/
 
 # Launcher icons. Regenerate with:
 #   dart run flutter_launcher_icons
