@@ -180,10 +180,20 @@ flat views put the user's left on the screen's left — the front view is drawn
 mirrored to achieve it. One object cannot do that: rotating it 180° carries the
 user's left to the screen's right, which is verified, not assumed.
 
+**Corrected at phase 4, and it was backwards here.** The table below was
+hand-derived and wrong in both rows; `head_pose_test.dart` now projects a point
+on the model's left through the very camera the widget uses, and this is what it
+measures:
+
 | Yaw | Where the user's left lands |
 |---|---|
-| 0° (face) | Screen left — same as today |
-| 180° (back) | Screen **right** — the opposite of today's back view |
+| 0° (face) | Screen **right** — the opposite of today's front view, which is drawn mirrored |
+| 180° (back) | Screen left — same as today's back view |
+
+The model is an ordinary head rather than a mirror image, so meeting its face
+puts its left where a real person's is when you stand facing them. The flat
+front view dodged that by being mirrored; one solid cannot be mirrored on one
+side and not the other.
 
 **Decided: L and R swap sides with the yaw** (owner, 2026-09-17). Dropping them
 was the alternative — the tiles already say "Left temple" in words — and it was
@@ -225,6 +235,38 @@ and `env_assets/prod-Info.plist`, then re-run `melos run prepare-env-<flavor>`:
 Android is already done, in `android/app/src/main/AndroidManifest.xml`. Until
 the iOS key is in, the head renders nothing on a device and the fallback is what
 shows.
+
+## What phases 2 to 7 found
+
+Shipped. `analyze.sh` clean, 149 tests green across `test/features/attacks/` and
+the overflow suite.
+
+| What | Detail |
+|---|---|
+| Every API held | `Node.getChildByName`, `Node.raycastable`, `Scene.raycast` → `hit.node`, `Camera.screenPointToRay`, `PerspectiveCamera.framing`. Nothing had to be worked around |
+| One thing was missing | `Camera.worldToScreen` — the pure-Dart projection that made the orientation testable without a GPU. It is why the L/R rule is measured rather than argued |
+| `vector_math` is now direct | `flutter_scene` speaks the 32-bit `Vector3`/`Matrix4`; `package:flutter/material.dart` re-exports the 64-bit pair under the same names. The import is prefixed `vm` for that reason |
+| Lighting | One `DirectionalLight` on the scene and `PhysicallyBasedMaterial` per region. No environment map, no specular highlight to flash as the head turns |
+
+Three corrections to this plan, made while building it:
+
+1. **The flat diagram stays pickable.** The plan said display-only, to keep one
+   owner of the geometry. That was wrong twice: a phone without Flutter GPU
+   would have got half a picker, and every widget test would have exercised the
+   fallback while the shipped path went untested. `head_model_test.dart` guards
+   the drift instead.
+2. **The L/R rule was backwards**, above.
+3. **Free drag shipped with the snap rather than behind a gate.** The gesture
+   arena settles tap against drag on its own, so the risk the gate existed for
+   never materialised. The iOS back-swipe worry stands and needs a device.
+
+### Still open
+
+- **`SceneView` renders every frame** (`autoTick`), including on the detail
+  screen where the head never moves. Bounded to one screen, but it is battery
+  spent on an unchanging picture.
+- **Nothing has run on a device yet.** fps, IPA size and the back-swipe overlap
+  are all unmeasured, and the iOS Flutter GPU key is still the owner's to add.
 
 ## Files
 
