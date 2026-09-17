@@ -145,20 +145,9 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
     names with `HeadRegion.values` **in both directions**. The nose once
     shipped unpickable and was filed as missing rather than as broken; a name
     that drifts is that same failure, caught in CI instead.
-- **The model is generated, not drawn**: `python3 tool/head_model.py` reads the
-  cuts out of `head_region_geometry.dart` and revolves `_headPath`'s own
-  outline, so the solid and the flat fallback come from one set of numbers. A
-  hand-written width profile was tried first and produced a lemon. It writes a
-  preview sheet next to it; look at that before shipping a shape change.
-  - **The vertical cuts became constant longitudes**, not the drawing's
-    straight vertical lines. On a flat view those are the same thing; on a head
-    they are not, and a boundary that follows the side of the skull is the one
-    a finger expects. It is the only place the 3D areas leave the drawing.
-  - **No neck.** The flat back view draws one and the front does not; on one
-    object that asymmetry has nowhere to live.
-- **The camera frames the model's bounding sphere once and never moves.** A
-  sphere is the same size from every angle, so the owner's rule that the head
-  never moves is kept by construction rather than by watching for it.
+- **The head is authored in Blender and exported as a bundled GLB.** Owner-approved direction, 2026-09-17: editable geometry gives the face and profile a recognizable shape. `tool/head_model/head.blend` owns the shape; its exporter preserves the 15 region names and shared seam normals. No second generator may overwrite the production asset. No neck.
+- **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
+- **Camera state is presentation state, never attack data.** Keep Front/Back and named region tiles as accessible alternatives; zoom controls have localized labels and reset restores a full-head view. The fallback remains pickable when 3D is unavailable.
 - **L and R travel with the head, and face on the user's left is on the
   RIGHT.** The model is an ordinary head, not a mirror image, so meeting its
   face puts its left where a real person's is when you face them. The old flat
