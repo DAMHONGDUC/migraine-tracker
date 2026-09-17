@@ -124,7 +124,63 @@ approximately, and not "close enough once it is clipped": a user who taps a chee
 and watches a strip of jaw light up stops trusting what the picker recorded, and
 the record is the whole point of the step.
 
-`HeadRegionGeometry` is the single owner that makes this structural — the SVGs
+**The head is one solid the user turns, and the flat pair is the fallback.**
+`HeadScene` renders `assets/models/head.glb` through `flutter_scene`;
+`HeadDiagram` chooses, and falls back to the SVG pair whenever
+`HeadSceneStore` comes back empty — Flutter GPU is a build flag and a device
+capability, and a widget test has no GPU at all. **The fallback stays fully
+pickable**, deliberately: see `docs/rules/DECISIONS.md`.
+
+- **One mesh node per region, named `region_<enum name>`, and that is what
+  keeps the rule above true in 3D.** `Scene.raycast` tests the very mesh it
+  draws and hands back the `Node` that was hit, so what is filled and what is
+  picked cannot drift — the same guarantee `HeadRegionGeometry` gives the flat
+  diagram, by the same means. A model with a triangle-to-region side table
+  would have been two owners again.
+  - **The face is one `features` node with `raycastable` off.** The enum has no
+    word for a brow or an ear, so a tap on one belongs to the region
+    underneath. Ears are features for that reason and not regions — and without
+    them the head reads as an egg in profile.
+  - `head_model_test.dart` parses the shipped `.glb` and compares its node
+    names with `HeadRegion.values` **in both directions**. The nose once
+    shipped unpickable and was filed as missing rather than as broken; a name
+    that drifts is that same failure, caught in CI instead.
+- **The model is generated, not drawn**: `python3 tool/head_model.py` reads the
+  cuts out of `head_region_geometry.dart` and revolves `_headPath`'s own
+  outline, so the solid and the flat fallback come from one set of numbers. A
+  hand-written width profile was tried first and produced a lemon. It writes a
+  preview sheet next to it; look at that before shipping a shape change.
+  - **The vertical cuts became constant longitudes**, not the drawing's
+    straight vertical lines. On a flat view those are the same thing; on a head
+    they are not, and a boundary that follows the side of the skull is the one
+    a finger expects. It is the only place the 3D areas leave the drawing.
+  - **No neck.** The flat back view draws one and the front does not; on one
+    object that asymmetry has nowhere to live.
+- **The camera frames the model's bounding sphere once and never moves.** A
+  sphere is the same size from every angle, so the owner's rule that the head
+  never moves is kept by construction rather than by watching for it.
+- **L and R travel with the head, and face on the user's left is on the
+  RIGHT.** The model is an ordinary head, not a mirror image, so meeting its
+  face puts its left where a real person's is when you face them. The old flat
+  front view was drawn mirrored to dodge exactly that, and one solid cannot be
+  mirrored on one side and not the other. **This is measured, not reasoned**:
+  `head_pose_test.dart` projects a point on the model's left through the very
+  camera the widget uses — the first version of this rule was written backwards
+  from a hand-derivation and the test is what caught it.
+- **The tabs turn the head rather than cutting to it** — 380ms, the short way
+  round, `HeadPose.shortestTurn`. They stay because they carry the per-side
+  count and are the way in for anyone who does not drag. A drag turns it freely
+  at `HeadPose.degreesPerPoint`, and takes the angle outright: an animation
+  still running under a finger pulls the head out from under it.
+- **The facing side is derived from the angle, never stored beside it**
+  (`HeadPose.viewAt`, the quarter turn). A second copy of the angle is a second
+  thing that can disagree with it, and `HeadRegionGrid` reads that one view.
+- **iOS needs `FLTEnableFlutterGPU` in `Info.plist`, which `prepare-env` writes
+  from `env_assets/<flavor>-Info.plist`** — putting it in the tracked file
+  alone means the next environment switch erases it and the head silently falls
+  back.
+
+`HeadRegionGeometry` is the single owner that makes the FLAT path structural — the SVGs
 carry line art only, and every fill, divider and hit test is built from the same
 cuts, so the three cannot drift. The cuts are curves, not straight rules, because
 the drawing's brow, cheek and jaw lines bow with the face; `HeadRegionGeometry._cut`
