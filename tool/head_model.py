@@ -175,6 +175,15 @@ DEPTH_BACK = [(8, 1.00), (62, 1.30), (102, 1.32), (144, 1.18),
 
 NOSE_HEIGHT = 21.0          # how far the nose stands off the face
 
+# How far a cut rides up at the face and drops at the back. The flat diagram
+# bowed every horizontal cut for this reason (`_sag`): a brow line, a cheek
+# line and a jaw line all follow the face round, and a ring at constant height
+# reads as a barcode printed on a head rather than as the head's own anatomy.
+#
+# It is applied to the PARAMETER, not to the region test: a row of the grid is
+# still one cut, so the areas stay exactly as exact as they were.
+SAG = 7.0
+
 # What turns a mannequin into a head: a brow that overhangs, sockets the eyes
 # sit inside, cheekbones, lips and a chin. Each is (y, longitude, y radius,
 # longitude radius, height) in drawing units, and each falls smoothly to zero
@@ -229,14 +238,15 @@ def _nose_bump(y, lon):
     return NOSE_HEIGHT * along * across
 
 
-def surface_point(y, lon):
+def surface_point(band_y, lon):
     rad = math.radians(lon)
     face = (math.cos(rad) + 1.0) / 2.0                 # 1 at the face, 0 behind
+    y = band_y - SAG * math.cos(rad)
     w = half_width(y)
     depth = w * (_profile(DEPTH_BACK, y)
                  + (_profile(DEPTH_FRONT, y) - _profile(DEPTH_BACK, y)) * face)
 
-    out = _sculpt(y, lon) + _nose_bump(y, lon)
+    out = _sculpt(y, lon) + _nose_bump(band_y, lon)
 
     return (w * math.sin(rad) + out * math.sin(rad), CENTRE_Y - y,
             depth * math.cos(rad) + out * math.cos(rad))
@@ -356,6 +366,84 @@ FEATURE_CURVES = [
 ]
 
 
+# Every boundary between two areas, as a line to draw. This is `dividers()`
+# from head_region_geometry.dart, in the same (band y, longitude) space: the
+# flat diagram stroked its cuts, and without them a head whose areas are all
+# one colour is a blank oval. They are features rather than geometry of their
+# own, so they are drawn and never picked, and they carry the same weight as
+# the brows and the lips — one thin hand across the whole head (owner's rule).
+#
+# Each entry is a polyline in (band y, longitude).
+def _seam_lines():
+    lines = []
+
+    def ring(y, lon_from, lon_to):
+        steps = max(2, int(abs(lon_to - lon_from) / 3))
+        lines.append([
+            (y, lon_from + (lon_to - lon_from) * i / steps)
+            for i in range(steps + 1)
+        ])
+
+    def meridian(lon, y_from, y_to):
+        steps = max(2, int(abs(y_to - y_from) / 3))
+        lines.append([
+            (y_from + (y_to - y_from) * i / steps, lon)
+            for i in range(steps + 1)
+        ])
+
+    # The hairline and the nape cut go all the way round: both separate areas
+    # on the front AND on the back.
+    ring(HAIRLINE, -180, 180)
+    ring(BACK_NECK, 90, 270)
+    # The face's own cuts stop at the silhouette, because behind it they would
+    # be a line drawn across the middle of one area.
+    for y in (BROW, UNDER_EYE, MOUTH):
+        ring(y, -90, 90)
+    meridian(0.0, HAIRLINE, CHIN_Y - 2)
+    meridian(180.0, HAIRLINE, BACK_NECK)
+    for edge in (-LON_TEMPLE, LON_TEMPLE):
+        meridian(edge, BROW, UNDER_EYE)
+
+    # And the nose, whose edge is a curve rather than a cut.
+    for side in (-1, 1):
+        steps = 26
+        lines.append([
+            (
+                NOSE_TOP + (NOSE_BOTTOM - NOSE_TOP) * i / steps,
+                side * nose_half_lon(
+                    NOSE_TOP + (NOSE_BOTTOM - NOSE_TOP) * i / steps
+                ),
+            )
+            for i in range(steps + 1)
+        ])
+
+    return lines
+
+
+SEAM_HALF = 0.9          # drawing units either side of the line
+SEAM_LIFT = 0.8          # how far it floats off the skin
+
+
+def _seam_ribbons(pos, nrm, tri):
+    for line in _seam_lines():
+        for step in range(len(line) - 1):
+            quad = []
+            for y, lon in (line[step], line[step + 1]):
+                rad = math.radians(lon)
+                normal = (math.sin(rad), 0.0, math.cos(rad))
+                for offset in (SEAM_HALF, -SEAM_HALF):
+                    p = surface_point(y + offset, lon)
+                    quad.append(
+                        tuple(p[i] + normal[i] * SEAM_LIFT for i in range(3))
+                    )
+            base = len(pos)
+            for p in quad:
+                pos.append(p)
+                rad = math.radians(line[step][1])
+                nrm.append((math.sin(rad), 0.0, math.cos(rad)))
+            tri += [base, base + 1, base + 2, base + 1, base + 3, base + 2]
+
+
 EARS = [(-88.0, 1), (88.0, -1)]          # longitude, and which way it juts
 EAR_Y, EAR_HALF_Y, EAR_HALF_LON = 132.0, 21.0, 6.5
 
@@ -380,7 +468,9 @@ def _ear_patch(pos, nrm, tri, lon_centre, sign):
             y = EAR_Y + math.sin(angle) * EAR_HALF_Y * t
             lon = lon_centre + math.cos(angle) * EAR_HALF_LON * t
             p = surface_point(y, lon)
-            height = lift * math.cos(0.5 * math.pi * t)
+            # Hollow in the middle and proud at the rim: the shape that reads
+            # as an ear from any angle. A dome reads as a button.
+            height = lift + 7.5 * math.sin(math.pi * min(1.0, t * 0.92)) ** 1.6
             n = (math.sin(math.radians(lon)), 0.0, math.cos(math.radians(lon)))
             pos.append(tuple(p[i] + n[i] * height for i in range(3)))
             nrm.append(n)
@@ -425,6 +515,8 @@ def build_features():
                 pos.append(p)
                 nrm.append(n)
             tri += [base, base + 1, base + 2, base + 1, base + 3, base + 2]
+
+    _seam_ribbons(pos, nrm, tri)
 
     for lon_centre, sign in EARS:
         _ear_patch(pos, nrm, tri, lon_centre, sign)
@@ -530,6 +622,19 @@ CAMERA_Z = 700.0
 FOCAL = 900.0
 
 
+SELECTED_MIX = 0.55
+
+
+def _selected_tint():
+    """What a picked area is painted: the accent mixed INTO the surface, not
+    laid over it. The flat diagram filled at 0.45 alpha for the same reason — a
+    solid accent block reads as a sticker stuck on a head."""
+    return tuple(
+        int(SURFACE[i] * (1 - SELECTED_MIX) + PRIMARY[i] * SELECTED_MIX)
+        for i in range(3)
+    )
+
+
 def _region_tint(name, index):
     """Every area its own shade, so the cuts can be read off the picture. Not
     what ships — the app tints the picked areas only."""
@@ -564,7 +669,9 @@ def render(triangles, yaw, tinted):
 
         def project(p):
             d = CAMERA_Z - p[2]
-            return (CELL_W / 2 + FOCAL * p[0] / d,
+            # Minus, because flutter_scene's camera puts +X on the screen's
+            # LEFT. A preview that disagrees is a preview of a different head.
+            return (CELL_W / 2 - FOCAL * p[0] / d,
                     CELL_H / 2 - FOCAL * p[1] / d, d)
 
         sa, sb, sc = project(pa), project(pb), project(pc)
@@ -619,26 +726,32 @@ def write_png(path, width, height, pixels):
 
 
 def preview(meshes, features, path):
-    plain, tinted = [], []
+    plain, shipped, tinted = [], [], []
 
-    def collect(pos, nrm, tri, colour_plain, colour_tint):
+    def collect(pos, nrm, tri, colour_plain, colour_ship, colour_tint):
         for t in range(0, len(tri), 3):
             a, b, c = (pos[tri[t]], pos[tri[t + 1]], pos[tri[t + 2]])
             n = (nrm[tri[t]], nrm[tri[t + 1]], nrm[tri[t + 2]])
             plain.append(((a, b, c), n, colour_plain))
+            shipped.append(((a, b, c), n, colour_ship))
             tinted.append(((a, b, c), n, colour_tint))
 
     for index, name in enumerate(REGIONS):
         mesh = meshes[name]
-        collect(mesh["pos"], mesh["nrm"], mesh["tri"], SKIN,
+        # Row 2 shows one picked area, because that is the state the screen is
+        # usually in and the one nobody has looked at yet.
+        shipped_colour = _selected_tint() if name == "templeL" else SURFACE
+        collect(mesh["pos"], mesh["nrm"], mesh["tri"], SKIN, shipped_colour,
                 _region_tint(name, index))
-    collect(features["pos"], features["nrm"], features["tri"], FEATURE, FEATURE)
+    collect(features["pos"], features["nrm"], features["tri"], FEATURE,
+            FEATURE, FEATURE)
 
     yaws = [0, 35, 90, 180]
-    width, height = CELL_W * len(yaws), CELL_H * 2
+    rows = (plain, shipped, tinted)
+    width, height = CELL_W * len(yaws), CELL_H * len(rows)
     sheet = bytearray(BACKGROUND * (width * height))
 
-    for row, triangles in enumerate((plain, tinted)):
+    for row, triangles in enumerate(rows):
         for column, yaw in enumerate(yaws):
             cell = render(triangles, yaw, row == 1)
             for y in range(CELL_H):

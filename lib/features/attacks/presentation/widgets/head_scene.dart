@@ -48,6 +48,13 @@ class HeadScene extends StatefulWidget {
   /// screen, where the head reports an answer rather than asking for one.
   final ValueChanged<double>? onYawChanged;
 
+  /// What a picked area is painted: the accent mixed INTO the surface rather
+  /// than laid over it. The flat diagram filled at 0.45 alpha for the same
+  /// reason — a solid accent block on a dark head reads as a sticker stuck on
+  /// it rather than as a part of it lighting up.
+  static Color get selectedTint =>
+      Color.lerp(AppColors.surfaceElevated, AppColors.primary, 0.55)!;
+
   /// How far from the head the camera sits, as a multiple of the radius it has
   /// to fit. Above 1 is padding; a portrait view needs some, because the
   /// framing fits the vertical field of view and ours is the narrow one.
@@ -143,7 +150,7 @@ class _HeadSceneState extends State<HeadScene> {
     for (final MapEntry<HeadRegion, List<PhysicallyBasedMaterial>> entry
         in _materials.entries) {
       final vm.Vector4 colour = widget.selected.contains(entry.key)
-          ? _factor(AppColors.primary)
+          ? _factor(HeadScene.selectedTint)
           : _factor(AppColors.surfaceElevated);
 
       for (final PhysicallyBasedMaterial material in entry.value) {
