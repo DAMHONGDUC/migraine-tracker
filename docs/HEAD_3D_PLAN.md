@@ -195,6 +195,37 @@ This rule moves into `attacks/CLAUDE.md` when the head does, at phase 7.
 Phase 0 is passed (owner, 2026-09-17): the model above is the working head, to
 be refined rather than replaced.
 
+## What phase 1 found
+
+Flutter 3.47.2 is in, `analyze.sh` is clean and the location step's tests pass.
+Four things came with it.
+
+| What | Detail |
+|---|---|
+| `intl` | Pinned at `0.20.2`; 3.47.2's `flutter_localizations` needs `^0.20.3`. Bumped — the exact pin only ever tracked what the SDK asked for |
+| `analysis_options.yaml` | The SDK rewrote it on `pub get`, excluding `android/`, `ios/`, `web/`, `windows/`, `macos/` and `linux/`. Kept |
+| `vector_math` | 2.2.0 → 2.4.2, already in the tree. It is the `Ray` and `Vector3` `Scene.raycast` speaks, so nothing new is pulled in for picking |
+| One new lint | `unawaited_return_in_try_block` caught a real bug, not a style point: `PluginAttackLiveActivity.isAvailable` returned a bare Future out of its `try`, so a refusal below iOS 16.1 settled outside the `catch` written to treat it as a device fact. Fixed in its own commit |
+
+### The one step the owner has to take
+
+**The iOS Flutter GPU key cannot be committed from here.** `prepare-env` copies
+`env_assets/<flavor>-Info.plist` over `ios/Runner/Info.plist`, so a key added to
+the tracked file is erased by the next environment switch. `env_assets/` holds
+the same live keys `env/` does and is never read from a session.
+
+Add this inside the top-level `<dict>` of **both** `env_assets/dev-Info.plist`
+and `env_assets/prod-Info.plist`, then re-run `melos run prepare-env-<flavor>`:
+
+```
+<key>FLTEnableFlutterGPU</key>
+<true/>
+```
+
+Android is already done, in `android/app/src/main/AndroidManifest.xml`. Until
+the iOS key is in, the head renders nothing on a device and the fallback is what
+shows.
+
 ## Files
 
 | File | Work |
