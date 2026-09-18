@@ -66,43 +66,54 @@ class _AppShellState extends ConsumerState<AppShell> {
     final navigationShell = widget.navigationShell;
     final l10n = context.l10n;
 
-    // The frame — glass pill, sliding thumb, behind-the-bar body and the
-    // adjacent-tab swipe — is SdBottomNavigationV2's. The shell keeps what is
-    // its own: which branches exist, what they are called, and the analytics.
-    // The log flow is a pushed route, not a tab, so the bar always shows the
-    // tab nav (no step-progress morph mid-log).
-    return SdBottomNavigationV2(
-      selectedIndex: navigationShell.currentIndex,
-      onSelected: (int index) {
-        _resetBranch(index);
-        navigationShell.goBranch(
-          index,
-          initialLocation: index == navigationShell.currentIndex,
-        );
-      },
-      destinations: <SdNavDestinationV2>[
-        SdNavDestinationV2(
-          icon: AppIconConstant.home,
-          label: l10n.navDashboard,
-        ),
-        SdNavDestinationV2(
-          icon: AppIconConstant.history,
-          label: l10n.navHistory,
-        ),
-        SdNavDestinationV2(
-          icon: AppIconConstant.medication,
-          label: l10n.navMedications,
-        ),
-        SdNavDestinationV2(
-          icon: AppIconConstant.insights,
-          label: l10n.navInsights,
-        ),
-        SdNavDestinationV2(
-          icon: AppIconConstant.settings,
-          label: l10n.navSettings,
-        ),
-      ],
-      body: navigationShell,
-    );
+    // The frame — glass pill or glass rail, the sliding thumb, the
+    // behind-the-chrome body — belongs to the design system. The shell keeps
+    // what is its own: which branches exist, what they are called, and the
+    // analytics. The log flow is a pushed route, not a tab, so the chrome
+    // always shows the tab nav (no step-progress morph mid-log).
+    final List<SdNavDestinationV2> destinations = <SdNavDestinationV2>[
+      SdNavDestinationV2(icon: AppIconConstant.home, label: l10n.navDashboard),
+      SdNavDestinationV2(icon: AppIconConstant.history, label: l10n.navHistory),
+      SdNavDestinationV2(
+        icon: AppIconConstant.medication,
+        label: l10n.navMedications,
+      ),
+      SdNavDestinationV2(
+        icon: AppIconConstant.insights,
+        label: l10n.navInsights,
+      ),
+      SdNavDestinationV2(
+        icon: AppIconConstant.settings,
+        label: l10n.navSettings,
+      ),
+    ];
+
+    void select(int index) {
+      _resetBranch(index);
+      navigationShell.goBranch(
+        index,
+        initialLocation: index == navigationShell.currentIndex,
+      );
+    }
+
+    // A tablet puts the five tabs down the leading edge instead of across the
+    // bottom: the bottom edge of a 1180-wide window is nowhere near a thumb,
+    // and a pill stretched across it stops reading as one control. Switched on
+    // the WINDOW, not the device — an iPad in Split View is a phone-shaped
+    // window and gets the phone's chrome back.
+    return switch (SdBreakpointV2.of(context)) {
+      SdWindowClassV2.compact => SdBottomNavigationV2(
+        selectedIndex: navigationShell.currentIndex,
+        onSelected: select,
+        destinations: destinations,
+        body: navigationShell,
+      ),
+      SdWindowClassV2.medium || SdWindowClassV2.expanded => SdNavigationRailV2(
+        selectedIndex: navigationShell.currentIndex,
+        onSelected: select,
+        destinations: destinations,
+        body: navigationShell,
+      ),
+    };
   }
 }

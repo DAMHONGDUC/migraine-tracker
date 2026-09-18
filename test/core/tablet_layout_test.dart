@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
+import 'package:migraine_tracker/features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import 'package:system_design/index.dart';
 
 import '../helpers/pump_app.dart';
@@ -49,10 +51,11 @@ void main() {
     testWidgets('stops at contentMaxWidth on a tablet', (tester) async {
       await pumpApp(tester, surfaceSize: landscape);
 
-      // The screen still fills the window; its scrollable is what is capped.
+      // The screen fills what the rail leaves; its scrollable is what is
+      // capped inside that.
       expect(
         tester.getSize(find.byType(DashboardScreen)).width,
-        closeTo(landscape.width, 0.5),
+        closeTo(landscape.width - SdContentPaddingV2.floatingRailWidth, 0.5),
       );
       expect(
         tester.getSize(find.byType(ListView).first).width,
@@ -70,6 +73,86 @@ void main() {
         tester.getSize(find.byType(ListView).first).width,
         closeTo(393, 0.5),
         reason: 'the cap engaged on a phone, where it must do nothing',
+      );
+
+      await finishTest(tester);
+    });
+  });
+
+  group('the shell chrome', () {
+    testWidgets('a phone keeps the bottom pill', (tester) async {
+      await pumpApp(tester);
+
+      expect(find.byType(SdBottomNavigationV2), findsOne);
+      expect(find.byType(SdNavigationRailV2), findsNothing);
+
+      await finishTest(tester);
+    });
+
+    for (final (String name, Size size) in <(String, Size)>[
+      ('portrait', portrait),
+      ('landscape', landscape),
+    ]) {
+      testWidgets('a tablet in $name puts the tabs down the side', (
+        tester,
+      ) async {
+        await pumpApp(tester, surfaceSize: size);
+
+        expect(find.byType(SdNavigationRailV2), findsOne);
+        expect(find.byType(SdBottomNavigationV2), findsNothing);
+
+        // Leading edge, and the body starts after it.
+        final Rect rail = tester.getRect(find.byType(SdNavigationRailV2));
+        final Rect column = tester.getRect(find.byType(ListView).first);
+
+        expect(rail.left, closeTo(0, 0.5));
+        expect(
+          column.left,
+          greaterThanOrEqualTo(SdContentPaddingV2.floatingRailWidth - 0.5),
+          reason: 'the content column started underneath the rail',
+        );
+
+        await finishTest(tester);
+      });
+    }
+
+    testWidgets('all five tabs still switch from the rail', (tester) async {
+      await pumpApp(tester, surfaceSize: portrait);
+
+      // Settings is the last destination — reaching it proves the rail's
+      // segments are hit-testable down their whole length.
+      await tester.tap(find.byIcon(AppIconConstant.settings));
+      await settleFrames(tester);
+
+      expect(find.byType(SettingsScreen), findsOne);
+
+      await finishTest(tester);
+    });
+
+    testWidgets('a tablet stops reserving the pill height', (tester) async {
+      await pumpApp(tester, surfaceSize: portrait);
+
+      // `floatingNav: true` means "I am a tab screen", and with the rail up
+      // there is nothing on the bottom edge to clear — the tab screens must
+      // fall back to the plain detail inset.
+      final BuildContext context = tester.element(find.byType(DashboardScreen));
+
+      expect(
+        SdContentPaddingV2.bottom(context, floatingNav: true),
+        closeTo(SdContentPaddingV2.detailBottom(context), 0.5),
+      );
+
+      await finishTest(tester);
+    });
+
+    testWidgets('a phone still reserves it', (tester) async {
+      await pumpApp(tester);
+
+      final BuildContext context = tester.element(find.byType(DashboardScreen));
+
+      expect(
+        SdContentPaddingV2.bottom(context, floatingNav: true),
+        greaterThan(SdContentPaddingV2.detailBottom(context)),
       );
 
       await finishTest(tester);
