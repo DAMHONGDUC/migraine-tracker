@@ -51,8 +51,7 @@ void main() {
     testWidgets('stops at contentMaxWidth on a tablet', (tester) async {
       await pumpApp(tester, surfaceSize: landscape);
 
-      // The screen fills what the rail leaves; its scrollable is what is
-      // capped inside that.
+      // The screen fills what the rail leaves; the capped column sits inside.
       expect(
         tester.getSize(find.byType(DashboardScreen)).width,
         closeTo(landscape.width - SdContentPaddingV2.floatingRailWidth, 0.5),
@@ -61,6 +60,23 @@ void main() {
         tester.getSize(find.byType(ListView).first).width,
         lessThanOrEqualTo(SdBreakpointV2.contentMaxWidth + 0.5),
         reason: 'the body column ran the full width of a landscape iPad',
+      );
+
+      // The header is inside the column, not spanning the screen: one
+      // leading edge for the title and the cards under it.
+      final Rect bar = tester.getRect(find.byType(SdAppBarV2));
+      final Rect column = tester.getRect(find.byType(ListView).first);
+
+      expect(
+        bar.width,
+        lessThanOrEqualTo(SdBreakpointV2.contentMaxWidth + 0.5),
+      );
+      expect(
+        bar.left,
+        closeTo(column.left, 0.5),
+        reason:
+            'the app bar and the content column disagreed on where the '
+            'screen starts',
       );
 
       await finishTest(tester);
@@ -115,6 +131,24 @@ void main() {
         await finishTest(tester);
       });
     }
+
+    testWidgets('the rail is longer than it is thick', (tester) async {
+      await pumpApp(tester, surfaceSize: portrait);
+
+      final Size rail = tester.getSize(
+        find.byKey(SdNavigationRailV2.railSurfaceKey),
+      );
+
+      expect(rail.width, closeTo(SdContentPaddingV2.floatingBarHeight, 0.5));
+      expect(
+        rail.height,
+        closeTo(SdContentPaddingV2.floatingRailCellHeight * 5, 0.5),
+        reason: 'five destinations, one cell each',
+      );
+      expect(rail.height, greaterThan(rail.width * 4));
+
+      await finishTest(tester);
+    });
 
     testWidgets('all five tabs still switch from the rail', (tester) async {
       await pumpApp(tester, surfaceSize: portrait);
