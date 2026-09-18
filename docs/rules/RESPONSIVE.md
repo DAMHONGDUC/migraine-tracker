@@ -31,25 +31,67 @@ moves by it and nothing else, so the rhythm they were drawn at survives.
 
 | Ceiling | Value | Applied by |
 |---|---|---|
-| `SdBreakpointV2.contentMaxWidth` | `w600` (690 on iPad) | `SdScaffoldV2`, `SdPageWidthV2`, the modal sheet, the paywall |
+| `SdBreakpointV2.contentMaxWidth` | `w800` (920 on iPad) | `SdScaffoldV2`, `SdPageWidthV2`, the modal sheet, the paywall |
 | `SdBreakpointV2.floatingBarMaxWidth` | `w480` (552 on iPad) | the shell's nav pill |
 | `SdBreakpointV2.dialogMaxWidth` | `w480` (552 on iPad) | `SdDialogV2` |
+
+**The app bar is inside the column.** `SdScaffoldV2` caps the whole `Scaffold`,
+not just its body, so a title and the cards under it share one leading edge — a
+header spanning the window over a narrower column reads as two screens stacked.
+A `ColoredBox` behind it paints the margin either side, because a pushed route
+has no surface of its own and would otherwise show black strips.
+
+That is also why `SdCollapsingFilterScaffoldV2` has nothing special to do any
+more: its pinned filter strip is positioned inside the capped screen, so it
+lines up under the app bar it continues.
 
 Three fields holding two numbers on purpose, the same way `topGap` and
 `bottomGap` are separate: a page, a bar of five glyphs and a one-question dialog
 are different things that measure alike today.
 
+## Rule 3 — the shell's nav moves to the leading edge
+
+| Window class | Width | Chrome | Bottom inset on a tab screen |
+|---|---|---|---|
+| `compact` | < 600 | `SdBottomNavigationV2` — floating pill, body scrolls behind it | pill footprint + 18 = ~100 |
+| `medium` / `expanded` | ≥ 600 | `SdNavigationRailV2` — pill stood on its end, leading edge | `detailBottom` = ~20 |
+
 ```text
-iPad 11" landscape, 1180 wide
-┌──────────────────────────────────────────────────────────┐
-│ app bar — chrome, spans the window                       │
-├──────────┬────────────────────────────────┬──────────────┤
-│  245     │  body, capped at 690           │     245      │
-│  margin  │  (cards, charts, lists)        │   margin     │
-├──────────┴───────┬───────────────┬────────┴──────────────┤
-│                  │  nav pill 552 │                       │
-└──────────────────┴───────────────┴───────────────────────┘
+iPad 11" landscape, 1180 x 820
+┌─────┬──────────┬──────────────────────────┬──────────────┐
+│     │          │ app bar, capped at 920   │              │
+│ ▓▓▓ │    75    ├──────────────────────────┤      75      │
+│ ▓▓▓ │  margin  │ body, capped at 920      │   margin     │
+│ 110 │          │ (cards, charts, lists)   │              │
+│     │          │                          │              │
+└─────┴──────────┴──────────────────────────┴──────────────┘
+  rail  64 thick + 23 air either side = a 110 column
+        5 cells of 110 = 552 long, centred vertically
+  body  1180 - 110 = 1070 available, column capped at 920
 ```
+
+An 11" **portrait** window is 820 wide, so the body gets 710 and the 920 cap
+never bites — the column is the window. The cap is a landscape rule, which is
+the one window with room to waste.
+
+**Same destinations, same cell, same thumb.** `SdNavSegmentV2` is one widget
+used by both chromes, and `SdNavDestinationV2` is one list built once in
+`AppShell` — a tab cannot look like one control on a phone and another on an
+iPad. Two things differ, and both follow from the axis:
+
+| What | Pill (phone) | Rail (tablet) |
+|---|---|---|
+| Layout | floats; body passes behind the glass | takes a real 110 column |
+| Cell per tab | 64 wide (`floatingBarHeight`) | 110 long (`floatingRailCellHeight`) |
+| Swipe between tabs | yes, 48pt drag | **no** — at this width a horizontal drag is a chart being panned |
+| `SdFloatingBarScopeV2` | wraps the body | absent: nothing is on the bottom edge |
+
+That last row is what reclaims the bottom inset. `floatingNav: true` means
+*"I am a tab screen"*, not *"there is a bar below me"*; `SdContentPaddingV2.bottom`
+asks the scope which chrome is actually up, so the five tab screens stop
+reserving a pill's height of nothing on a tablet. The scope is presence-only
+and imports nothing from `SdContentPaddingV2` — content padding is what asks
+the question, so the answer must not depend on it.
 
 **A screen built on `SdScaffoldV2` gets this for free.** Reach for
 `SdPageWidthV2` by hand only where a screen builds its own `Scaffold`
@@ -77,8 +119,12 @@ check. An iPad in Split View is a 507-wide window, and a layout that asked
 `pumpApp(tester, surfaceSize: ...)` sets the window; the default stays 393×852,
 so every existing test still measures the screen the app was drawn for.
 `test/core/tablet_layout_test.dart` is the only file that pumps anything wider —
-it asserts both ceilings hold at 820×1180 and 1180×820, **and that neither
-engages at 393**.
+it asserts all three rules hold at 820×1180 and 1180×820, **and that none of
+them engages at 393**: the scale ceiling, the column ceiling, which chrome the
+shell picks, that the app bar shares the content column's leading edge, that
+the column clears the rail, that the rail is longer than it is thick, that all
+five tabs still switch from it, and that the bottom inset is reclaimed on a
+tablet and kept on a phone.
 
 ## Not done yet — open decisions
 
@@ -86,4 +132,5 @@ engages at 393**.
 |---|---|
 | iPhone landscape | `Info.plist` allows it; a 390-tall log flow and paywall are unverified. Owner to decide portrait-only. |
 | Dashboard as two columns at ≥840 | Not built. `sections` is already a `List<Widget>`, so it is a split, not a rewrite. |
-| History master–detail, and a nav rail | Not built. Both need `app_router.dart` changes — the detail is a pushed route today. |
+| History master–detail | Not built. Needs `app_router.dart` — the detail is a pushed route today. |
+| Rail labels beside the glyphs at ≥840 | Not built, and deliberate: the rail is glyph-only like the pill, so both stay one control. |
