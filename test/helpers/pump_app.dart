@@ -693,9 +693,16 @@ Future<PumpedApp> pumpApp(
   /// The build this fake device is running. Both are high by default, so a test that passes [appUpdate] still has to opt into being out of date.
   String installedBuildName = '99.0.0',
   int installedBuildNumber = 9999,
+
+  /// The logical window the app is pumped into. Defaults to the 393×852
+  /// design size, so a test that says nothing measures the screen the app was
+  /// drawn for. Pass a tablet size to exercise the width caps
+  /// (`SdBreakpointV2`) and the scale ceiling (`SdScreenScale`), which are
+  /// no-ops at the default.
+  Size surfaceSize = const Size(393, 852),
 }) async {
-  // - pin the test view to the 393×852 design size (an iPhone-class screen, DPR 3 = 1179×2556 physical).
-  tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+  // - pin the test view to [surfaceSize] (default: an iPhone-class screen, DPR 3 = 1179×2556 physical).
+  tester.view.physicalSize = surfaceSize * 3;
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);

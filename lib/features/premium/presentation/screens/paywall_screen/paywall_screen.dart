@@ -293,12 +293,17 @@ class PaywallScreen extends HookConsumerWidget {
     );
 
     // ~90% tall, pinned to the bottom; the transparent 15% above shows the dimmed screen underneath.
+    // Capped like every other panel: spread across a landscape iPad this is a
+    // 1180-wide wall of glass with one column of plans down the middle of it.
     return Align(
       alignment: Alignment.bottomCenter,
-      child: FractionallySizedBox(
-        heightFactor: 0.9,
-        widthFactor: 1,
-        child: surface,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: SdBreakpointV2.contentMaxWidth),
+        child: FractionallySizedBox(
+          heightFactor: 0.9,
+          widthFactor: 1,
+          child: surface,
+        ),
       ),
     );
   }
