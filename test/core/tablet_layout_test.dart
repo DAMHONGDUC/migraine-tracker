@@ -76,16 +76,40 @@ void main() {
     });
   });
 
+  // The same question `screen_overflow_test.dart` asks at 393, asked at the
+  // two sizes the caps actually engage at. Landscape is the harder of the two:
+  // it is the only window in the app that is wider than it is tall.
   group('nothing overflows at tablet sizes', () {
     for (final (String name, Size size) in <(String, Size)>[
       ('portrait', portrait),
       ('landscape', landscape),
     ]) {
-      testWidgets('the dashboard fits in $name', (tester) async {
+      testWidgets('the tab screens fit in $name', (tester) async {
         final PumpedApp app = await pumpApp(tester, surfaceSize: size);
         await seedHistory(app);
 
         await expectNoOverflow(tester, 'Dashboard ($name)');
+
+        await openHistory(tester);
+        await expectNoOverflow(tester, 'History list ($name)');
+
+        await openHistoryCharts(tester);
+        await expectNoOverflow(tester, 'History charts ($name)');
+
+        await openInsights(tester);
+        await expectNoOverflow(tester, 'Insights ($name)');
+
+        await openSettings(tester);
+        await expectNoOverflow(tester, 'Settings ($name)');
+
+        await finishTest(tester);
+      });
+
+      testWidgets('the log flow fits in $name', (tester) async {
+        await pumpApp(tester, surfaceSize: size);
+
+        await openLog(tester);
+        await expectNoOverflow(tester, 'Log flow ($name)');
 
         await finishTest(tester);
       });
