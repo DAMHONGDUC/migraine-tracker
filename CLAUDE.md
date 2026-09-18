@@ -63,6 +63,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | any Dart file | `docs/rules/CODE_STYLE.md` |
 | anything with a look — widgets, spacing, colour, text | `docs/rules/DESIGN_SYSTEM.md` |
 | a tablet, a window size, landscape, iPad multitasking | `docs/rules/RESPONSIVE.md` |
+| porting the tablet rules to another app | `packages/system_design/RESPONSIVE_SPEC.md` |
 | Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
