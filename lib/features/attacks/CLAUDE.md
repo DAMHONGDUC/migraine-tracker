@@ -137,10 +137,7 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
   picked cannot drift — the same guarantee `HeadRegionGeometry` gives the flat
   diagram, by the same means. A model with a triangle-to-region side table
   would have been two owners again.
-  - **The face is one `features` node with `raycastable` off.** The enum has no
-    word for a brow or an ear, so a tap on one belongs to the region
-    underneath. Ears are features for that reason and not regions — and without
-    them the head reads as an egg in profile.
+  - **Facial landmarks and ears belong to their visible regional mesh.** A tap on an ear selects its region directly; there is no invisible proxy surface behind it. The optional `features` node is decorative and never raycastable.
   - `head_model_test.dart` parses the shipped `.glb` and compares its node
     names with `HeadRegion.values` **in both directions**. The nose once
     shipped unpickable and was filed as missing rather than as broken; a name
