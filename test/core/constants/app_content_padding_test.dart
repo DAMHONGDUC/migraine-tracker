@@ -7,10 +7,16 @@ import 'package:system_design/index.dart';
 /// The app's one spacing rule, pinned on a notched device: [topGap] below the bar, [bottomGap] above the home indicator, [horizontal] either side.
 void main() {
   /// Pumps [builder] on a 393×852 view (so screenutil scales 1:1) with a 47pt status bar and a 34pt home indicator.
+  ///
+  /// [floatingBar] puts an `SdFloatingBarScopeV2` above the reader, which is
+  /// what the shell does on a phone. `floatingNav: true` asks the scope where
+  /// the nav actually is — a tab screen under the tablet's rail clears nothing
+  /// on the bottom edge — so a test about the pill has to say the pill is there.
   Future<EdgeInsets> insetsOf(
     WidgetTester tester,
-    EdgeInsets Function(BuildContext context) read,
-  ) async {
+    EdgeInsets Function(BuildContext context) read, {
+    bool floatingBar = false,
+  }) async {
     tester.view.physicalSize = const Size(393 * 3, 852 * 3);
     tester.view.devicePixelRatio = 3;
     tester.view.padding = const FakeViewPadding(top: 141, bottom: 102);
@@ -24,11 +30,14 @@ void main() {
         designSize: const Size(393, 852),
         builder: (BuildContext context, Widget? child) => MaterialApp(
           theme: AppTheme.dark,
-          home: Builder(
-            builder: (BuildContext context) {
-              insets = read(context);
-              return const SizedBox();
-            },
+          home: _maybeBar(
+            floatingBar,
+            Builder(
+              builder: (BuildContext context) {
+                insets = read(context);
+                return const SizedBox();
+              },
+            ),
           ),
         ),
       ),
@@ -60,6 +69,7 @@ void main() {
       tester,
       (BuildContext context) =>
           SdContentPaddingV2.screen(context, floatingNav: true),
+      floatingBar: true,
     );
 
     // The 34 home indicator is deeper than the pill's ceiling, so the offset caps at 20: that + its 56 of height + bottomGap.
@@ -85,11 +95,14 @@ void main() {
         designSize: const Size(393, 852),
         builder: (BuildContext _, Widget? _) => MaterialApp(
           theme: AppTheme.dark,
-          home: Builder(
-            builder: (BuildContext context) {
-              bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
-              return const SizedBox();
-            },
+          home: _maybeBar(
+            true,
+            Builder(
+              builder: (BuildContext context) {
+                bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
+                return const SizedBox();
+              },
+            ),
           ),
         ),
       ),
@@ -145,11 +158,14 @@ void main() {
         designSize: const Size(393, 852),
         builder: (BuildContext _, Widget? _) => MaterialApp(
           theme: AppTheme.dark,
-          home: Builder(
-            builder: (BuildContext context) {
-              bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
-              return const SizedBox();
-            },
+          home: _maybeBar(
+            true,
+            Builder(
+              builder: (BuildContext context) {
+                bottom = SdContentPaddingV2.bottom(context, floatingNav: true);
+                return const SizedBox();
+              },
+            ),
           ),
         ),
       ),
@@ -247,16 +263,21 @@ void main() {
           home: Scaffold(
             extendBody: true,
             bottomNavigationBar: const SizedBox(height: 56),
-            body: Builder(
-              builder: (BuildContext context) {
-                // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar.
-                tabScreen = SdContentPaddingV2.bottom(
-                  context,
-                  floatingNav: true,
-                );
-                logFlow = SdContentPaddingV2.bottomBar(context);
-                return const SizedBox();
-              },
+            // The scope is part of that shape: the shell publishes it so a tab
+            // screen knows the pill is on the bottom edge rather than a rail
+            // down the side.
+            body: SdFloatingBarScopeV2(
+              child: Builder(
+                builder: (BuildContext context) {
+                  // - Scaffold subtracts padding.bottom from the body's viewPadding.bottom whenever there's a bottom bar.
+                  tabScreen = SdContentPaddingV2.bottom(
+                    context,
+                    floatingNav: true,
+                  );
+                  logFlow = SdContentPaddingV2.bottomBar(context);
+                  return const SizedBox();
+                },
+              ),
             ),
           ),
         ),
@@ -268,3 +289,7 @@ void main() {
     expect(logFlow, 20 + 56 + 16);
   });
 }
+
+/// The shell's bottom-bar scope, or nothing — see `insetsOf`.
+Widget _maybeBar(bool present, Widget child) =>
+    present ? SdFloatingBarScopeV2(child: child) : child;
