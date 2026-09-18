@@ -128,6 +128,28 @@ void main() {
           reason: 'the content column started underneath the rail',
         );
 
+        // The air the rail leaves toward the page is a sliver, not the full
+        // margin it keeps on the outer side — the content brings its own
+        // gutter, and stacking the two put 46 between rail and first card.
+        final Rect glass = tester.getRect(
+          find.byKey(SdNavigationRailV2.railSurfaceKey),
+        );
+
+        expect(
+          glass.left,
+          closeTo(SdContentPaddingV2.floatingBarHorizontal, 0.5),
+          reason: 'the rail lost its margin against the screen edge',
+        );
+        expect(
+          SdContentPaddingV2.floatingRailWidth - glass.right,
+          closeTo(SdContentPaddingV2.floatingRailInnerAir, 0.5),
+        );
+        expect(
+          SdContentPaddingV2.floatingRailInnerAir,
+          lessThan(SdContentPaddingV2.floatingBarHorizontal),
+          reason: 'the two sides of the rail went back to equal air',
+        );
+
         await finishTest(tester);
       });
     }
