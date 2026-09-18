@@ -132,23 +132,38 @@ void main() {
       });
     }
 
-    testWidgets('the rail is longer than it is thick', (tester) async {
-      await pumpApp(tester, surfaceSize: portrait);
+    for (final (String name, Size size) in <(String, Size)>[
+      ('portrait', portrait),
+      ('landscape', landscape),
+    ]) {
+      testWidgets('the rail is longer than it is thick in $name', (
+        tester,
+      ) async {
+        await pumpApp(tester, surfaceSize: size);
 
-      final Size rail = tester.getSize(
-        find.byKey(SdNavigationRailV2.railSurfaceKey),
-      );
+        final Size rail = tester.getSize(
+          find.byKey(SdNavigationRailV2.railSurfaceKey),
+        );
 
-      expect(rail.width, closeTo(SdContentPaddingV2.floatingBarHeight, 0.5));
-      expect(
-        rail.height,
-        closeTo(SdContentPaddingV2.floatingRailCellHeight * 5, 0.5),
-        reason: 'five destinations, one cell each',
-      );
-      expect(rail.height, greaterThan(rail.width * 4));
+        // Thickness comes off the WIDTH ladder, not the height: screenutil
+        // scales the two axes by different amounts, and a thickness taken
+        // vertically came out 54 in landscape against 64 in portrait — one
+        // control, two thicknesses, depending on how the iPad was held. This
+        // assertion is the same number in both runs of the loop.
+        expect(
+          rail.width,
+          closeTo(SdContentPaddingV2.floatingRailThickness, 0.5),
+        );
+        expect(
+          rail.height,
+          closeTo(SdContentPaddingV2.floatingRailCellHeight * 5, 0.5),
+          reason: 'five destinations, one cell each',
+        );
+        expect(rail.height, greaterThan(rail.width * 4));
 
-      await finishTest(tester);
-    });
+        await finishTest(tester);
+      });
+    }
 
     testWidgets('all five tabs still switch from the rail', (tester) async {
       await pumpApp(tester, surfaceSize: portrait);
