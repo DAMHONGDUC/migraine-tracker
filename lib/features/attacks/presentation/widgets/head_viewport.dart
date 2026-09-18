@@ -15,6 +15,19 @@ final class HeadViewportUtils {
   static const double minZoom = 1;
   static const double maxZoom = 2;
   static const double zoomStep = 0.25;
+
+  /// Where the head starts, and where Reset puts it back.
+  ///
+  /// **Not [minZoom]** (owner's rule): framed to fit, the head sits in the
+  /// middle of the viewport with air all round it, and the regions a user is
+  /// actually aiming at — temple, eye, jaw — are small targets a long way from
+  /// the thumb. Three steps in fills the frame with the head itself, so the
+  /// first tap lands without anyone having to zoom in first.
+  ///
+  /// On the [zoomStep] ladder on purpose (1 + 3 x 0.25), so the minus button
+  /// walks straight back down to [minZoom] and the readout never shows a level
+  /// the buttons cannot reach.
+  static const double defaultZoom = 1.75;
   static const double maxPitch = 85;
   static const double degreesPerPoint = HeadPose.degreesPerPoint;
   static const double fieldOfView = 45 * vm.degrees2Radians;

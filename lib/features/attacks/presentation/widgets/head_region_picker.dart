@@ -71,7 +71,7 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
     with SingleTickerProviderStateMixin {
   /// The live angle. The tabs animate it and a drag sets it; nothing else may.
   double _pitch = 0;
-  double _zoom = 1;
+  double _zoom = HeadViewportUtils.defaultZoom;
   bool _available = HeadSceneStore.template != null;
 
   late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
@@ -208,7 +208,11 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
       'Reset head view',
       <String, Object?>{'view': _view.name},
     );
-    _poseTo((yaw: HeadPose.yawFor(_view), pitch: 0, zoom: 1));
+    _poseTo((
+      yaw: HeadPose.yawFor(_view),
+      pitch: 0,
+      zoom: HeadViewportUtils.defaultZoom,
+    ));
     SdLogger.info(
       LogTagConstant.attackLog,
       'Head view reset',

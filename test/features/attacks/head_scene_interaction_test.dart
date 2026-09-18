@@ -72,6 +72,25 @@ void main() {
     }
   });
 
+  test('the head starts three zoom steps in, on the ladder', () {
+    // Owner's rule: framed to fit, the regions worth aiming at are small and
+    // far from the thumb, so the head opens filling the frame instead.
+    expect(
+      HeadViewportUtils.defaultZoom,
+      greaterThan(HeadViewportUtils.minZoom),
+    );
+    expect(
+      HeadViewportUtils.defaultZoom,
+      lessThanOrEqualTo(HeadViewportUtils.maxZoom),
+    );
+    // On the step ladder, so the minus button walks back to minZoom exactly
+    // and the readout never shows a level the buttons cannot reach.
+    final double steps =
+        (HeadViewportUtils.defaultZoom - HeadViewportUtils.minZoom) /
+        HeadViewportUtils.zoomStep;
+    expect(steps, closeTo(steps.roundToDouble(), 1e-9));
+  });
+
   test('pose bounds reject excessive magnification and pitch', () {
     expect(HeadViewportUtils.constrained((yaw: 400, pitch: 120, zoom: 3)), (
       yaw: 400.0,
