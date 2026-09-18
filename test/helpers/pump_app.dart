@@ -729,7 +729,6 @@ Future<PumpedApp> pumpApp(
     // One document, so the two arguments land on one object. `appUpdate` wins
     // when both name a record; neither being set leaves the field null.
     config: AppConfig(
-      premiumEnabled: baseConfig.premiumEnabled,
       premiumEmails: baseConfig.premiumEmails,
       devModeEmails: baseConfig.devModeEmails,
       blockedEmails: baseConfig.blockedEmails,

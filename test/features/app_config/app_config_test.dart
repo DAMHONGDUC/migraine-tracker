@@ -4,7 +4,6 @@ import 'package:migraine_tracker/features/app_config/domain/entities/app_config.
 import 'package:migraine_tracker/features/app_config/domain/entities/app_config_schema.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
-import 'package:migraine_tracker/features/premium/providers.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -15,7 +14,6 @@ const String kSignedIn = 'tester@example.com';
 ProviderContainer containerFor({
   required bool signedIn,
   required FakeAppConfigRepository config,
-  bool entitled = false,
 }) {
   final ProviderContainer container = ProviderContainer(
     overrides: [
@@ -23,9 +21,6 @@ ProviderContainer containerFor({
         FakeAuthRepository(signedIn: signedIn),
       ),
       appConfigRepositoryProvider.overrideWithValue(config),
-      premiumRepositoryProvider.overrideWithValue(
-        FakePremiumRepository(premium: entitled),
-      ),
     ],
   );
 
@@ -142,9 +137,8 @@ void main() {
       container.read(hasGrantedPremiumProvider);
       container.read(isAccountBlockedProvider);
       container.read(showDevSettingsProvider);
-      container.read(premiumEnabledProvider);
 
-      // Four gates, one listener: they all read the same document.
+      // Three gates, one listener: they all read the same document.
       expect(config.watchCalls, 1);
     });
 
@@ -163,83 +157,12 @@ void main() {
     });
   });
 
-  group('the app-wide premium switch', () {
-    test('is on while the read is in flight, and for a missing document', () {
-      final ProviderContainer container = containerFor(
-        signedIn: false,
-        config: FakeAppConfigRepository(),
-      );
-
-      // The opposite default to a list, and the reason for it: an offline
-      // launch or a denied read must not take premium away from someone who
-      // paid for it.
-      expect(container.read(premiumEnabledProvider), isTrue);
-    });
-
-    test('closes the gate on a paying subscriber', () async {
-      final ProviderContainer container = containerFor(
-        signedIn: false,
-        config: FakeAppConfigRepository(
-          config: AppConfig(premiumEnabled: false),
-        ),
-        entitled: true,
-      );
-
-      await container.read(appConfigProvider.future);
-
-      // Read straight off the repository rather than through the entitlement
-      // stream: that is the same synchronous fallback every gate uses on its
-      // first frame, and the frame the switch has to be right on.
-      expect(container.read(hasPremiumProvider), isFalse);
-    });
-
-    test('closes the gate on a listed address too', () async {
-      // The one branch that would otherwise talk its way past the switch: the
-      // list is checked ahead of the entitlement, so the switch has to sit
-      // ahead of the list.
-      final ProviderContainer container = containerFor(
-        signedIn: true,
-        config: FakeAppConfigRepository(
-          config: AppConfig(
-            premiumEnabled: false,
-            premiumEmails: <String>{kSignedIn},
-          ),
-        ),
-      );
-
-      await container.read(appConfigProvider.future);
-
-      expect(container.read(hasGrantedPremiumProvider), isTrue);
-      expect(container.read(hasPremiumProvider), isFalse);
-    });
-
-    test('throwing it back on reopens every gate', () async {
-      final FakeAppConfigRepository config = FakeAppConfigRepository(
-        config: AppConfig(premiumEnabled: false),
-      );
-      final ProviderContainer container = containerFor(
-        signedIn: false,
-        config: config,
-        entitled: true,
-      );
-
-      await container.read(appConfigProvider.future);
-      expect(container.read(hasPremiumProvider), isFalse);
-
-      config.emit(AppConfig.empty);
-      await pumpEventQueue();
-
-      expect(container.read(hasPremiumProvider), isTrue);
-    });
-  });
-
   test('the document is named the way the console writes it', () {
     // The Dart entity is camelCase and the document is snake_case
     // (docs/rules/DATA_AND_SYNC.md), so a rename on one side silently stops
     // matching the other: an unknown key reads as absent, not as an error.
     expect(AppConfigSchema.collectionPath, 'app_config');
     expect(AppConfigSchema.documentId, 'current');
-    expect(AppConfigSchema.premiumEnabledField, 'premium_enabled');
     expect(AppConfigSchema.forceUpdateField, 'force_update');
     expect(AppConfigSchema.premiumEmailsField, 'premium_emails');
     expect(AppConfigSchema.devModeEmailsField, 'dev_mode_emails');

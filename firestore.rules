@@ -29,11 +29,10 @@ service cloud.firestore {
                             'daily_logs', 'midas', 'notifications'];
     }
 
-    // The owner's whole control panel, in one document: `premium_enabled`
-    // (the app-wide premium kill switch), `force_update` (the published build
-    // per platform, read on every launch by FirestoreAppUpdateRepository), and
-    // the three address lists `premium_emails`, `dev_mode_emails` and
-    // `blocked_emails`. It replaced the app_access collection and the
+    // The owner's whole control panel, in one document: `force_update` (the
+    // published build per platform, read on every launch by
+    // FirestoreAppUpdateRepository), and the three address lists
+    // `premium_emails`, `dev_mode_emails` and `blocked_emails`. It replaced the app_access collection and the
     // app_updates one, so everything the owner turns on or off is edited in
     // the same place.
     //

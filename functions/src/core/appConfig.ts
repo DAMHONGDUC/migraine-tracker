@@ -1,8 +1,8 @@
 /**
  * The owner-managed `app_config/current` document in Firestore — one document
- * holding every switch: the premium kill switch, the force-update record, and
- * the three address lists. It replaced the PREMIUM_EMAIL build flag, which took
- * a redeploy of both the app and the functions to change.
+ * holding every switch: the force-update record and the three address lists.
+ * It replaced the PREMIUM_EMAIL build flag, which took a redeploy of both the
+ * app and the functions to change.
  *
  * See the `app_config` block in `firestore.rules` for why it is one
  * world-readable document rather than a row per address.
@@ -11,9 +11,6 @@ export const APP_CONFIG_COLLECTION = "app_config";
 
 /** The only document in the collection. */
 export const APP_CONFIG_DOCUMENT = "current";
-
-/** The app-wide premium kill switch. */
-export const PREMIUM_ENABLED_FIELD = "premium_enabled";
 
 /** Premium in the app whatever RevenueCat says, and targets of the pressure-alert cron. */
 export const PREMIUM_EMAILS_FIELD = "premium_emails";
@@ -49,21 +46,4 @@ export function premiumEmailsFrom(value: unknown): string[] {
   }
 
   return [...emails];
-}
-
-/**
- * Whether premium exists at all right now.
- *
- * Defaults to ON — an absent document, an absent field, and anything that is
- * not exactly `false` all mean "the owner never threw the switch". Same
- * direction as the app (`AppConfig.empty`), and for the same reason: a read
- * that goes wrong must not silently stop alerting people who pay for it. Only
- * a real `false` turns it off, so `"false"` typed into the console as a string
- * does nothing.
- */
-export function premiumEnabledFrom(config: unknown): boolean {
-  if (config === undefined || config === null) return true;
-  if (typeof config !== "object") return true;
-
-  return (config as Record<string, unknown>)[PREMIUM_ENABLED_FIELD] !== false;
 }
