@@ -145,7 +145,7 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
     names with `HeadRegion.values` **in both directions**. The nose once
     shipped unpickable and was filed as missing rather than as broken; a name
     that drifts is that same failure, caught in CI instead.
-- **The bundled GLB has a reproducible, editable source.** Owner accepted the Python fallback on 2026-09-17 after Blender downloads failed. `tool/head_model.py` and `tool/head_model/shape.json` own the geometry; export preserves the 15 region names and shared seam normals. No second generator may overwrite the production asset. No neck.
+- **The head must look anatomically natural.** Owner rejected the procedural face on 2026-09-18 because its appearance was poor. Use the licensed Lee Perry-Smith scan in `tool/head_model/source/`, trimmed to the head by `tool/head_model.py`; preserve its facial geometry and smooth normals. Keep source attribution in the bundle and About screen. Export preserves the 15 region names; no second generator may overwrite the production asset. No neck.
 - **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
 - **Camera state is presentation state, never attack data.** Keep Front/Back and named region tiles as accessible alternatives; zoom controls have localized labels and reset restores a full-head view. The fallback remains pickable when 3D is unavailable.
 - **L and R travel with the head, and face on the user's left is on the
