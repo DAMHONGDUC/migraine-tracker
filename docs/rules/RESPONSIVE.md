@@ -58,21 +58,38 @@ are different things that measure alike today.
 
 ```text
 iPad 11" landscape, 1180 x 820
-┌─────┬──────────┬──────────────────────────┬──────────────┐
-│     │          │ app bar, capped at 920   │              │
-│ ▓▓▓ │    75    ├──────────────────────────┤      75      │
-│ ▓▓▓ │  margin  │ body, capped at 920      │   margin     │
-│ 110 │          │ (cards, charts, lists)   │              │
-│     │          │                          │              │
-└─────┴──────────┴──────────────────────────┴──────────────┘
-  rail  64 thick + 23 air either side = a 110 column
-        5 cells of 110 = 552 long, centred vertically
-  body  1180 - 110 = 1070 available, column capped at 920
+┌──────┬─────────┬──────────────────────────┬──────────────┐
+│      │         │ app bar, capped at 920   │              │
+│ ▓▓▓▓ │   70    ├──────────────────────────┤      70      │
+│ ▓▓▓▓ │ margin  │ body, capped at 920      │   margin     │
+│ 120  │         │ (cards, charts, lists)   │              │
+│      │         │                          │              │
+└──────┴─────────┴──────────────────────────┴──────────────┘
+  rail  64 thick (w56) + 28 air either side (w24) = a 120 column
+        5 cells of 92 (h96) = 462 long, centred vertically
+  body  1180 - 120 = 1060 available, column capped at 920
 ```
 
-An 11" **portrait** window is 820 wide, so the body gets 710 and the 920 cap
-never bites — the column is the window. The cap is a landscape rule, which is
-the one window with room to waste.
+Measured, not calculated — these are the numbers the app renders at:
+
+| | Column | Rail column | Rail thick | Cell | Rail length | Gutter |
+|---|---|---|---|---|---|---|
+| phone 393×852 | 800¹ | — | — | — | — | 16 |
+| iPad portrait 820×1180 | 920¹ | 120 | 64 | 110 | 552 | 18 |
+| iPad landscape 1180×820 | 920 | 120 | 64 | 92 | 462 | 18 |
+
+¹ wider than the window has to give, so the column simply *is* the window. An
+11" portrait body is 700 wide once the rail takes its column, so the 920 cap
+only bites in landscape — the one window with room to waste.
+
+**The rail's thickness is a `.w`, never a `.h`.** screenutil scales the two
+axes by different amounts, and a landscape iPad's height ratio is 0.96 against
+a width ratio of 1.15 — taken off the vertical ladder, the rail came out 54
+thick in landscape and 64 in portrait, one control with two thicknesses
+depending on how the iPad was held. `floatingRailThickness` is the fix and
+`floatingRailCellHeight` is deliberately the other way round: cell *length*
+runs down the screen, so it is a `.h` and legitimately differs between the two
+orientations (110 against 92) — the short window gets the shorter rail.
 
 **Same destinations, same cell, same thumb.** `SdNavSegmentV2` is one widget
 used by both chromes, and `SdNavDestinationV2` is one list built once in
@@ -82,7 +99,7 @@ iPad. Two things differ, and both follow from the axis:
 | What | Pill (phone) | Rail (tablet) |
 |---|---|---|
 | Layout | floats; body passes behind the glass | takes a real 110 column |
-| Cell per tab | 64 wide (`floatingBarHeight`) | 110 long (`floatingRailCellHeight`) |
+| Cell per tab | 64 wide (`floatingBarHeight`) | 92–110 long (`floatingRailCellHeight`) |
 | Swipe between tabs | yes, 48pt drag | **no** — at this width a horizontal drag is a chart being panned |
 | `SdFloatingBarScopeV2` | wraps the body | absent: nothing is on the bottom edge |
 
