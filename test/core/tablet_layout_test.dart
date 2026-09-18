@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/theme/app_icon_constant.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
+import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
 import 'package:migraine_tracker/features/settings/presentation/screens/settings_screen/settings_screen.dart';
 import 'package:system_design/index.dart';
 
@@ -47,49 +49,106 @@ void main() {
     });
   });
 
-  group('the content column', () {
-    testWidgets('stops at contentMaxWidth on a tablet', (tester) async {
-      await pumpApp(tester, surfaceSize: landscape);
+  group('the three gaps', () {
+    // Owner's rule: screen edge -> rail, rail -> content, content -> far edge
+    // are one number, the same in either orientation.
+    for (final (String name, Size size) in <(String, Size)>[
+      ('portrait', portrait),
+      ('landscape', landscape),
+    ]) {
+      testWidgets('are equal and fixed in $name', (tester) async {
+        await pumpApp(tester, surfaceSize: size);
 
-      // The screen fills what the rail leaves; the capped column sits inside.
-      expect(
-        tester.getSize(find.byType(DashboardScreen)).width,
-        closeTo(landscape.width - SdContentPaddingV2.floatingRailWidth, 0.5),
-      );
-      expect(
-        tester.getSize(find.byType(ListView).first).width,
-        lessThanOrEqualTo(SdBreakpointV2.contentMaxWidth + 0.5),
-        reason: 'the body column ran the full width of a landscape iPad',
-      );
+        final Rect rail = tester.getRect(
+          find.byKey(SdNavigationRailV2.railSurfaceKey),
+        );
+        // The card, not the column box: the box carries the screen's own
+        // gutter inside it, and the gap the eye sees is to the card edge.
+        final Rect card = tester.getRect(find.byType(DashboardLogButton));
 
-      // The header is inside the column, not spanning the screen: one
-      // leading edge for the title and the cards under it.
-      final Rect bar = tester.getRect(find.byType(SdAppBarV2));
-      final Rect column = tester.getRect(find.byType(ListView).first);
+        final double edgeToRail = rail.left;
+        final double railToCard = card.left - rail.right;
+        final double cardToEdge = size.width - card.right;
+        final double expected = SdContentPaddingV2.tabletMargin;
 
+        expect(edgeToRail, closeTo(expected, 0.5), reason: 'edge -> rail');
+        expect(railToCard, closeTo(expected, 0.5), reason: 'rail -> content');
+        expect(cardToEdge, closeTo(expected, 0.5), reason: 'content -> edge');
+
+        await finishTest(tester);
+      });
+    }
+
+    testWidgets('a phone keeps its own gutter and adds nothing', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      final BuildContext context = tester.element(find.byType(DashboardScreen));
+
+      expect(SdContentPaddingV2.pageMargin(context), 0);
       expect(
-        bar.width,
-        lessThanOrEqualTo(SdBreakpointV2.contentMaxWidth + 0.5),
-      );
-      expect(
-        bar.left,
-        closeTo(column.left, 0.5),
-        reason:
-            'the app bar and the content column disagreed on where the '
-            'screen starts',
+        tester.getRect(find.byType(DashboardLogButton)).left,
+        closeTo(SdContentPaddingV2.horizontal, 0.5),
       );
 
       await finishTest(tester);
     });
 
-    testWidgets('is the whole window on a phone', (tester) async {
-      await pumpApp(tester);
+    // Owner's rule: a screen with no shell nav draws the SAME width, centred.
+    for (final (String name, Size size) in <(String, Size)>[
+      ('portrait', portrait),
+      ('landscape', landscape),
+    ]) {
+      testWidgets('a pushed screen is the same width, centred, in $name', (
+        tester,
+      ) async {
+        final PumpedApp app = await pumpApp(tester, surfaceSize: size);
+        await seedHistory(app);
+
+        final double tabCard = tester
+            .getSize(find.byType(DashboardLogButton))
+            .width;
+
+        // The attack detail is a sibling of the shell route, so it opens with
+        // no rail beside it at all.
+        await openHistory(tester);
+        await tester.tap(find.byType(AttackTile).first);
+        await settleFrames(tester);
+
+        expect(find.byType(SdNavigationRailV2), findsNothing);
+
+        final Rect pushed = tester.getRect(find.byType(ListView).first);
+        final double pushedCard =
+            pushed.width - SdContentPaddingV2.horizontal * 2;
+
+        expect(
+          pushedCard,
+          closeTo(tabCard, 0.5),
+          reason: 'the content jumped width on the way into a detail screen',
+        );
+        expect(
+          size.width - pushed.right,
+          closeTo(pushed.left, 0.5),
+          reason: 'a screen with no rail must be centred',
+        );
+
+        await finishTest(tester);
+      });
+    }
+
+    testWidgets('the app bar shares the content margin', (tester) async {
+      await pumpApp(tester, surfaceSize: landscape);
+
+      final Rect bar = tester.getRect(find.byType(SdAppBarV2));
+      final Rect body = tester.getRect(find.byType(ListView).first);
 
       expect(
-        tester.getSize(find.byType(ListView).first).width,
-        closeTo(393, 0.5),
-        reason: 'the cap engaged on a phone, where it must do nothing',
+        bar.left,
+        closeTo(body.left, 0.5),
+        reason: 'the app bar and the body disagreed on where the screen starts',
       );
+      expect(bar.right, closeTo(body.right, 0.5));
 
       await finishTest(tester);
     });
@@ -126,28 +185,6 @@ void main() {
           column.left,
           greaterThanOrEqualTo(SdContentPaddingV2.floatingRailWidth - 0.5),
           reason: 'the content column started underneath the rail',
-        );
-
-        // The air the rail leaves toward the page is a sliver, not the full
-        // margin it keeps on the outer side — the content brings its own
-        // gutter, and stacking the two put 46 between rail and first card.
-        final Rect glass = tester.getRect(
-          find.byKey(SdNavigationRailV2.railSurfaceKey),
-        );
-
-        expect(
-          glass.left,
-          closeTo(SdContentPaddingV2.floatingBarHorizontal, 0.5),
-          reason: 'the rail lost its margin against the screen edge',
-        );
-        expect(
-          SdContentPaddingV2.floatingRailWidth - glass.right,
-          closeTo(SdContentPaddingV2.floatingRailInnerAir, 0.5),
-        );
-        expect(
-          SdContentPaddingV2.floatingRailInnerAir,
-          lessThan(SdContentPaddingV2.floatingBarHorizontal),
-          reason: 'the two sides of the rail went back to equal air',
         );
 
         await finishTest(tester);
