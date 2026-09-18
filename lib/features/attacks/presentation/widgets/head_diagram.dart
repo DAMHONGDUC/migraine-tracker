@@ -25,6 +25,7 @@ class HeadDiagram extends StatefulWidget {
     this.yaw,
     this.pitch = 0,
     this.zoom = 1,
+    this.expandScene = false,
     this.onPoseChanged,
     this.onInteractionStart,
     this.onAvailabilityChanged,
@@ -44,6 +45,9 @@ class HeadDiagram extends StatefulWidget {
   final double? yaw;
   final double pitch;
   final double zoom;
+
+  /// Let the 3D picker use its whole slot; the SVG keeps its design ratio.
+  final bool expandScene;
   final ValueChanged<HeadViewport>? onPoseChanged;
   final VoidCallback? onInteractionStart;
   final ValueChanged<bool>? onAvailabilityChanged;
@@ -87,25 +91,30 @@ class _HeadDiagramState extends State<HeadDiagram> {
   Widget build(BuildContext context) {
     final Node? template = _template;
 
+    final Widget head = template == null
+        ? _FlatHead(
+            selected: widget.selected,
+            view: widget.view,
+            onRegionTapped: widget.onRegionTapped,
+          )
+        : HeadScene(
+            template: template,
+            pitch: widget.pitch,
+            zoom: widget.zoom,
+            onPoseChanged: widget.onPoseChanged,
+            onInteractionStart: widget.onInteractionStart,
+            selected: widget.selected,
+            yaw: widget.yaw ?? HeadPose.yawFor(widget.view),
+            onRegionTapped: widget.onRegionTapped,
+            onYawChanged: widget.onYawChanged,
+          );
+
+    if (template != null && widget.expandScene) {
+      return SizedBox.expand(child: head);
+    }
     return AspectRatio(
       aspectRatio: HeadRegionGeometry.aspectRatio,
-      child: template == null
-          ? _FlatHead(
-              selected: widget.selected,
-              view: widget.view,
-              onRegionTapped: widget.onRegionTapped,
-            )
-          : HeadScene(
-              template: template,
-              pitch: widget.pitch,
-              zoom: widget.zoom,
-              onPoseChanged: widget.onPoseChanged,
-              onInteractionStart: widget.onInteractionStart,
-              selected: widget.selected,
-              yaw: widget.yaw ?? HeadPose.yawFor(widget.view),
-              onRegionTapped: widget.onRegionTapped,
-              onYawChanged: widget.onYawChanged,
-            ),
+      child: head,
     );
   }
 }

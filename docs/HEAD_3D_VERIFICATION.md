@@ -46,3 +46,13 @@ Run the scoped files with `fvm flutter test`, the simulator harness with `fvm fl
 The regression test failed against the prior implementation for direction/accumulation and the pitch limit. Camera projection assertions verify screen movement, not just angle signs.
 
 Follow-up checks: 24 scoped tests and 2 iPhone simulator integration tests passed, including the ±85° poses. App and standalone design-system analyzers reported zero findings.
+
+## Full-width viewport follow-up — 2026-09-18
+
+| Before | After |
+|---|---|
+| `Padding(horizontal: inset)` reserves space beside L/R | Labels overlay the 3D viewport; fallback retains its inset |
+| `AspectRatio(aspectRatio: 200 / 248)` narrows the 3D surface in short slots | `SizedBox.expand(child: head)` fills the picker's width; read-only diagrams keep their previous layout |
+| Profile geometry disappears at the old side boundaries | Rendering and raycasting share the expanded surface, including taps beyond both old boundaries |
+
+25 scoped tests and 2 iPhone simulator integration tests passed. The GPU harness checks full width at normal height and in a 500pt picker, then taps newly visible geometry at yaw 90°/270° and zoom 200%. App and standalone design-system analyzers reported zero findings. Captures: `build/head_scene_review/head-full-width-90.png` and `head-full-width-270.png`.

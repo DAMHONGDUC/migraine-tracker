@@ -10,6 +10,7 @@ import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_gesture_surface.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_model_contract.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_geometry.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene_store.dart';
@@ -49,6 +50,8 @@ void main() {
     final Scene scene = Scene();
     const Size viewport = Size(320, 400);
     List<HeadRegion> selected = <HeadRegion>[HeadRegion.templeL];
+    double? pickerHeight;
+    late StateSetter resizePicker;
 
     expect(
       template,
@@ -108,12 +111,19 @@ void main() {
           home: Scaffold(
             body: SafeArea(
               child: StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) =>
-                    HeadRegionPicker(
-                      selected: selected,
-                      onChanged: (List<HeadRegion> value) =>
-                          setState(() => selected = value),
+                builder: (BuildContext context, StateSetter setState) {
+                  resizePicker = setState;
+                  return Align(
+                    child: SizedBox(
+                      height: pickerHeight,
+                      child: HeadRegionPicker(
+                        selected: selected,
+                        onChanged: (List<HeadRegion> value) =>
+                            setState(() => selected = value),
+                      ),
                     ),
+                  );
+                },
               ),
             ),
           ),
@@ -126,6 +136,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
     await capture('head-front');
     final Rect surfaceRect = tester.getRect(find.byType(HeadGestureSurface));
+    expect(
+      surfaceRect.width,
+      tester.getSize(find.byType(HeadRegionPicker)).width,
+      reason: 'The L/R labels must not narrow the 3D viewport.',
+    );
     final SceneView rendered = tester.widget<SceneView>(find.byType(SceneView));
     Offset? nosePoint;
     for (double y = 4; y < surfaceRect.height && nosePoint == null; y += 4) {
@@ -159,13 +174,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Zoom in'));
     await tester.pump();
-    expect(tester.widget<HeadScene>(find.byType(HeadScene)).zoom, 1.25);
-    await tester.tap(find.byTooltip('Zoom in'));
-    await tester.pump();
-    await tester.tap(find.byTooltip('Zoom in'));
-    await tester.pump();
-    await tester.tap(find.byTooltip('Zoom in'));
-    await tester.pump();
+    expect(tester.widget<HeadScene>(find.byType(HeadScene)).zoom, 2);
     await tester.pump(const Duration(milliseconds: 350));
     expect(tester.widget<HeadScene>(find.byType(HeadScene)).zoom, 2);
     await capture('head-zoom');
@@ -177,11 +186,60 @@ void main() {
     await capture('head-profile');
     await tester.tap(find.byTooltip('Reset view'));
     await tester.pump();
-    expect(tester.widget<HeadScene>(find.byType(HeadScene)).zoom, 1);
+    expect(
+      tester.widget<HeadScene>(find.byType(HeadScene)).zoom,
+      HeadViewportUtils.defaultZoom,
+    );
     await tester.tap(find.text('Back').first);
     await tester.pump(const Duration(milliseconds: 450));
     await tester.pump(const Duration(milliseconds: 350));
     await capture('head-back');
+
+    resizePicker(() => pickerHeight = 500);
+    await tester.pump();
+    for (final double yaw in <double>[90, 270]) {
+      tester.widget<HeadScene>(find.byType(HeadScene)).onPoseChanged!((
+        yaw: yaw,
+        pitch: 0,
+        zoom: 2,
+      ));
+      await tester.pump();
+      final Rect expanded = tester.getRect(find.byType(HeadGestureSurface));
+      final SceneView view = tester.widget<SceneView>(find.byType(SceneView));
+      final double oldHalfWidth =
+          expanded.height * HeadRegionGeometry.aspectRatio / 2;
+      Offset? edgePoint;
+      HeadRegion? edgeRegion;
+
+      expect(
+        expanded.width,
+        tester.getSize(find.byType(HeadRegionPicker)).width,
+      );
+      for (double y = 4; y < expanded.height && edgePoint == null; y += 4) {
+        for (double x = 4; x < expanded.width; x += 4) {
+          if ((x - expanded.width / 2).abs() <= oldHalfWidth + 4) continue;
+          final Offset point = Offset(x, y);
+          final SceneRaycastHit? hit = view.scene!.raycast(
+            view.camera!.screenPointToRay(point, expanded.size),
+          );
+          final HeadRegion? region = HeadModelContract.regionOf(hit?.node.name);
+          if (region == null) continue;
+          edgePoint = point;
+          edgeRegion = region;
+          break;
+        }
+      }
+      expect(
+        edgePoint,
+        isNotNull,
+        reason: 'Profile extends beyond the old clip.',
+      );
+      final bool wasSelected = selected.contains(edgeRegion);
+      await tester.tapAt(expanded.topLeft + edgePoint!);
+      await tester.pump();
+      expect(selected.contains(edgeRegion), !wasSelected);
+      await capture('head-full-width-${yaw.toInt()}');
+    }
     expect(tester.takeException(), isNull);
   });
   testWidgets('two read-only scenes isolate pose and selection materials', (

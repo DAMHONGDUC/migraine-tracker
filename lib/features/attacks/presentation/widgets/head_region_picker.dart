@@ -307,9 +307,11 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
                       excludeSemantics: true,
                       child: _SideLabelled(
                         inset: _headInset,
+                        overlay: _available,
                         leftOnLeft:
                             !_available || HeadPose.leftIsOnScreenLeft(_yaw),
                         child: HeadDiagram(
+                          expandScene: true,
                           selected: widget.selected,
                           view: _view,
                           yaw: _yaw,
@@ -352,10 +354,8 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
 /// is drawn mirrored: without them nobody can tell whose left is meant, and
 /// with them the answer has to be "yours" on both views (see [HeadRegion]).
 ///
-/// They live in the [inset] gutter, which costs the head nothing — the head
-/// is sized from the width inside that gutter either way. Back when the head
-/// took the whole width they had to sit over the drawing's corners instead;
-/// there is no reason to keep them there now.
+/// In 3D they overlay the full-width viewport. The flat fallback keeps its
+/// inset and aspect ratio so its artwork and hit targets stay aligned.
 ///
 /// **They swap sides when the head turns past its silhouette** ([leftOnLeft]).
 /// Two flat drawings could keep the user's left on the screen's left on both
@@ -372,11 +372,13 @@ class _SideLabelled extends StatelessWidget {
   const _SideLabelled({
     required this.child,
     required this.inset,
+    required this.overlay,
     this.leftOnLeft = true,
   });
 
   final Widget child;
   final double inset;
+  final bool overlay;
 
   /// Whether the user's left is the one drawn on the screen's left.
   final bool leftOnLeft;
@@ -390,10 +392,13 @@ class _SideLabelled extends StatelessWidget {
     return Stack(
       alignment: Alignment.topCenter,
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: inset),
-          child: child,
-        ),
+        if (overlay)
+          child
+        else
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: inset),
+            child: child,
+          ),
         // Centred in the gutter rather than jammed against the screen edge,
         // which is where left: 0 alone put them.
         Positioned(
