@@ -2,6 +2,7 @@ import 'package:system_design/common.dart';
 
 import '../../../../core/bootstrap/app_bootstrap.dart';
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../../../core/constants/splash_constant.dart';
 
 /// What the splash route is waiting for: a caller for the callables behind the
 /// dashboard.
@@ -17,7 +18,16 @@ class SplashController {
   /// get past its own loading screen is worse than one that starts signed out.
   ///
   /// The next feature needing a uid asks again.
+  ///
+  /// **Returns no sooner than `SplashConstant.minimumVisible`.** The timer
+  /// starts before the work and is awaited after it, so the two overlap: a
+  /// launch slower than the floor pays nothing for it, and a launch faster than
+  /// it still shows the dots instead of flashing past them.
   Future<void> run() async {
+    final Future<void> minimumVisible = Future<void>.delayed(
+      SplashConstant.minimumVisible,
+    );
+
     try {
       await AppBootstrap.ensureAnonymousSession();
     } catch (error, stackTrace) {
@@ -28,5 +38,7 @@ class SplashController {
         stackTrace: stackTrace,
       );
     }
+
+    await minimumVisible;
   }
 }
