@@ -131,6 +131,17 @@ the record is the whole point of the step.
 capability, and a widget test has no GPU at all. **The fallback stays fully
 pickable**, deliberately: see `docs/rules/DECISIONS.md`.
 
+- **While the model loads the head is a skeleton, never the flat drawing**
+  (owner's rule, 2026-09-18). The flat head used to fill that gap, so every
+  open blinked the old drawing past before the solid one replaced it, which
+  reads as a glitch rather than as a fallback. Three states, in this order:
+  loading → `SdSkeletonV2` at the head's own size; loaded → `HeadScene`;
+  load failed → the flat pair. `HeadSceneStore.unavailable` is what separates
+  the first from the last, so "not yet" and "never" cannot be confused.
+  - A widget test never resolves `Node.fromGlbAsset`, so a test that wants the
+    flat path calls `HeadSceneStore.markUnavailable()` — otherwise it waits on
+    the placeholder forever.
+
 - **One mesh node per region, named `region_<enum name>`, and that is what
   keeps the rule above true in 3D.** `Scene.raycast` tests the very mesh it
   draws and hands back the `Node` that was hit, so what is filled and what is
