@@ -4,8 +4,15 @@ The loading indicator, over the work a launch has to settle first, then the
 dashboard.
 
 - **It is the app's first route** (`initialLocation`), and it leaves for the
-  dashboard when `SplashController.run` returns. No timer: it lasts exactly what
-  the work lasts.
+  dashboard when `SplashController.run` returns — the startup work, or
+  `SplashConstant.minimumVisible` (2s), whichever is longer.
+- **The 2s floor is the owner's call: the dots must be seen.** The session work
+  usually settles in a fraction of a second, so without it a launch flickers
+  from the launch image to the dashboard and reads as a glitch rather than as a
+  loading screen. `SplashController.run` starts the timer *before* the work and
+  awaits it after, so the two overlap and a launch slower than 2s pays nothing
+  for the floor. `FreshInstallGate` above the app has no floor — the device
+  check it waits on is not a screen of its own.
 - **The device check runs under the same dots, but ABOVE this route, not in
   it.** `FreshInstallGate` (`presentation/widgets/`) watches
   `freshInstallProvider` and holds `_BaroEaseAppView` back until it resolves.
