@@ -848,5 +848,11 @@
   "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein.",
   "alertsNeedsSignIn": "Warnungen brauchen zusätzlich ein Google- oder Apple-Konto — die Mitteilung geht an das Konto, nicht an dieses Gerät.",
   "freeHistoryTitle": "Verlauf vor {date} ist Premium",
-  "freeHistoryBody": "Nichts wird gelöscht — dein ganzer Verlauf liegt auf diesem Telefon, und Premium öffnet ihn komplett."
+  "freeHistoryBody": "Nichts wird gelöscht — dein ganzer Verlauf liegt auf diesem Telefon, und Premium öffnet ihn komplett.",
+  "logHeadZoomOut": "Verkleinern",
+  "logHeadZoomIn": "Vergrößern",
+  "logHeadResetView": "Ansicht zurücksetzen",
+  "logHeadGestureHint": "Ziehen zum Drehen · Finger spreizen zum Zoomen",
+  "logHeadZoomLevel": "{percent} %",
+  "aboutHeadModelCredit": "3D-Kopf: „Infinite“ von Lee Perry-Smith / triplegangers.com, aus den three.js-Beispielen. Lizenz: CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Von BaroEase zugeschnitten, in Schmerzbereiche unterteilt und neu eingefärbt."
 }

@@ -2,6 +2,7 @@ import 'package:flutter_scene/scene.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
+import 'head_model_contract.dart';
 
 /// The head model, parsed once for the process and handed out as a template.
 ///
@@ -28,13 +29,16 @@ final class HeadSceneStore {
   static Future<Node?> load() => _pending ??= _load();
 
   static Future<Node?> _load() async {
-    SdLogger.action(LogTagConstant.attackLog, 'Load head model', <String, Object?>{
-      'asset': asset,
-    });
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Load head model',
+      <String, Object?>{'asset': asset},
+    );
 
     try {
       final Node node = await Node.fromGlbAsset(asset);
 
+      HeadModelContract.validate(node);
       _template = node;
       SdLogger.info(LogTagConstant.attackLog, 'Head model loaded');
 

@@ -1,0 +1,10 @@
+Infinite, 3D Head Scan by Lee Perry-Smith / Infinite Realities
+Based on a work at https://www.triplegangers.com/
+Source: https://github.com/mrdoob/three.js/tree/4500a366ccfd5a59aa2ed296c386fa42bb4edb8c/examples/models/gltf/LeePerrySmith
+
+Licensed under Creative Commons Attribution 3.0 Unported:
+https://creativecommons.org/licenses/by/3.0/
+
+Modified by BaroEase: cropped shoulders and neck, closed underside, divided the
+visible mesh into pain regions, normalized scale and center, replaced materials.
+No endorsement by the original creator is implied.

@@ -93,6 +93,8 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   # The task runner. Melos 6 on purpose — see melos.yaml for why.
   # Pinned exactly: the global install and this one must be the same version,
   # or melos launches one version's code against the other's asset templates

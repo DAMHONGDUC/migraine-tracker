@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,6 +15,10 @@ import 'head_diagram.dart';
 import 'head_pose.dart';
 import 'head_region_geometry.dart';
 import 'head_region_grid.dart';
+import 'head_scene_store.dart';
+import 'head_viewport.dart';
+
+part 'head_region_picker_controls.dart';
 
 /// Picking where it hurts: a Front/Back tab pair, the head itself, and the
 /// same areas as named tiles under it.
@@ -64,6 +70,10 @@ class HeadRegionPicker extends StatefulWidget {
 class _HeadRegionPickerState extends State<HeadRegionPicker>
     with SingleTickerProviderStateMixin {
   /// The live angle. The tabs animate it and a drag sets it; nothing else may.
+  double _pitch = 0;
+  double _zoom = 1;
+  bool _available = HeadSceneStore.template != null;
+
   late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
 
   late final AnimationController _turn = AnimationController(
@@ -98,12 +108,23 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
   void _toggle(HeadRegion region) {
     final Set<HeadRegion> next = widget.selected.toSet();
 
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Toggle head region',
+      <String, Object?>{'selectedCount': next.length},
+    );
+
     if (!next.remove(region)) next.add(region);
 
     widget.onChanged(<HeadRegion>[
       for (final HeadRegion candidate in HeadRegion.values)
         if (next.contains(candidate)) candidate,
     ]);
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head selection updated',
+      <String, Object?>{'selectedCount': next.length},
+    );
   }
 
   void _onTurn() {
@@ -117,12 +138,33 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
   /// Turns to face [view] the short way round, so the head never spins most of
   /// a circle to travel a few degrees.
   void _snapTo(HeadView view) {
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Snap head view',
+      <String, Object?>{'view': view.name},
+    );
+    _turn.stop();
+    _pitch = 0;
+    if (MediaQuery.disableAnimationsOf(context) || !_available) {
+      setState(() => _yaw = HeadPose.yawFor(view));
+      SdLogger.info(
+        LogTagConstant.attackLog,
+        'Head view snapped',
+        <String, Object?>{'yaw': _yaw},
+      );
+      return;
+    }
     _turning = Tween<double>(
       begin: _yaw,
       end: HeadPose.shortestTurn(_yaw, HeadPose.yawFor(view)),
     ).animate(CurvedAnimation(parent: _turn, curve: Curves.easeInOutCubic));
 
     _turn.forward(from: 0);
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head turn scheduled',
+      <String, Object?>{'yaw': HeadPose.yawFor(view)},
+    );
   }
 
   /// A drag owns the angle outright: an animation still running under it would
@@ -131,6 +173,51 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
     if (_turn.isAnimating) _turn.stop();
 
     setState(() => _yaw = yaw);
+  }
+
+  void _poseTo(HeadViewport pose) {
+    _turn.stop();
+    setState(() {
+      _yaw = pose.yaw;
+      _pitch = pose.pitch;
+      _zoom = pose.zoom;
+    });
+  }
+
+  void _setZoom(double zoom) {
+    final HeadViewport pose = HeadViewportUtils.constrained((
+      yaw: _yaw,
+      pitch: _pitch,
+      zoom: zoom,
+    ));
+
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Set head zoom',
+      <String, Object?>{'zoom': pose.zoom},
+    );
+    _poseTo(pose);
+    SdLogger.info(LogTagConstant.attackLog, 'Head zoom set', <String, Object?>{
+      'zoom': _zoom,
+    });
+  }
+
+  void _resetView() {
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Reset head view',
+      <String, Object?>{'view': _view.name},
+    );
+    _poseTo((yaw: HeadPose.yawFor(_view), pitch: 0, zoom: 1));
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head view reset',
+      <String, Object?>{'yaw': _yaw, 'zoom': _zoom},
+    );
+  }
+
+  void _availabilityChanged(bool available) {
+    if (_available != available) setState(() => _available = available);
   }
 
   @override
@@ -175,7 +262,16 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
             onSelected: (int index) => _snapTo(HeadView.values[index]),
           ),
         ),
-        SdVerticalSpacingV2(height: _headInset),
+        SizedBox(
+          height: SdSpacingConstant.h44,
+          child: _available
+              ? _HeadZoomControls(
+                  zoom: _zoom,
+                  onZoom: _setZoom,
+                  onReset: _resetView,
+                )
+              : null,
+        ),
         // The head is sized from its WIDTH, not from what is left over
         // (owner's rule); the `min` below only guards a short column. What it
         // does not use goes to the tiles, and the rest is margin either side.
@@ -207,11 +303,17 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
                       excludeSemantics: true,
                       child: _SideLabelled(
                         inset: _headInset,
-                        leftOnLeft: HeadPose.leftIsOnScreenLeft(_yaw),
+                        leftOnLeft:
+                            !_available || HeadPose.leftIsOnScreenLeft(_yaw),
                         child: HeadDiagram(
                           selected: widget.selected,
                           view: _view,
                           yaw: _yaw,
+                          pitch: _pitch,
+                          zoom: _zoom,
+                          onPoseChanged: _poseTo,
+                          onInteractionStart: _turn.stop,
+                          onAvailabilityChanged: _availabilityChanged,
                           onRegionTapped: _toggle,
                           onYawChanged: _dragTo,
                         ),

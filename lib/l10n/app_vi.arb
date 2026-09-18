@@ -848,5 +848,11 @@
   "checkInReminderDenied": "Thông báo đang tắt cho BaroEase. Hãy bật trong Cài đặt.",
   "alertsNeedsSignIn": "Cảnh báo cần thêm tài khoản Google hoặc Apple — thông báo gửi tới tài khoản, không gửi tới máy này.",
   "freeHistoryTitle": "Lịch sử trước {date} thuộc Premium",
-  "freeHistoryBody": "Không có gì bị xoá — toàn bộ dữ liệu vẫn nằm trên máy, Premium mở lại tất cả."
+  "freeHistoryBody": "Không có gì bị xoá — toàn bộ dữ liệu vẫn nằm trên máy, Premium mở lại tất cả.",
+  "logHeadZoomOut": "Thu nhỏ",
+  "logHeadZoomIn": "Phóng to",
+  "logHeadResetView": "Đặt lại góc nhìn",
+  "logHeadGestureHint": "Kéo để xoay · Chụm ngón để thu phóng",
+  "logHeadZoomLevel": "{percent}%",
+  "aboutHeadModelCredit": "Đầu 3D: “Infinite” của Lee Perry-Smith / triplegangers.com, từ các mẫu three.js. Giấy phép CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase đã cắt gọn, chia vùng đau và đổi màu."
 }

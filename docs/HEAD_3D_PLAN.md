@@ -1,5 +1,7 @@
 # The head diagram as one 3D block
 
+> Historical implementation notes. The current head uses the licensed Lee Perry-Smith scan and supports pitch/zoom; see [editable model](../tool/head_model/README.md) and [interaction upgrade plan](plans/2026-09-17-gitnexus-plan-head-model-interaction-upgrade.md). The original procedural face was rejected; Python now crops and partitions a preserved source scan.
+
 The location step's head stops being two flat SVG views and becomes a single
 model the user turns. Owner's call, 2026-09-17.
 

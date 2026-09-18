@@ -8,6 +8,7 @@ import 'head_region_geometry.dart';
 import 'head_region_painter.dart';
 import 'head_scene.dart';
 import 'head_scene_store.dart';
+import 'head_viewport.dart';
 
 /// The head the user points at — one turnable solid where the device can draw
 /// it, and the flat pair of drawings where it cannot.
@@ -22,6 +23,11 @@ class HeadDiagram extends StatefulWidget {
     required this.selected,
     required this.view,
     this.yaw,
+    this.pitch = 0,
+    this.zoom = 1,
+    this.onPoseChanged,
+    this.onInteractionStart,
+    this.onAvailabilityChanged,
     this.onRegionTapped,
     this.onYawChanged,
     super.key,
@@ -36,6 +42,11 @@ class HeadDiagram extends StatefulWidget {
   /// Degrees about the vertical axis, for callers that own the turn. Null
   /// rests at whatever [view] asks for.
   final double? yaw;
+  final double pitch;
+  final double zoom;
+  final ValueChanged<HeadViewport>? onPoseChanged;
+  final VoidCallback? onInteractionStart;
+  final ValueChanged<bool>? onAvailabilityChanged;
 
   final ValueChanged<HeadRegion>? onRegionTapped;
 
@@ -58,12 +69,17 @@ class _HeadDiagramState extends State<HeadDiagram> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) widget.onAvailabilityChanged?.call(_template != null);
+    });
     if (_template != null || HeadSceneStore.unavailable) return;
 
     // Unawaited by shape, not by accident: nothing on this screen waits for a
     // model, and the flat diagram is already on screen while it loads.
     HeadSceneStore.load().then((Node? node) {
-      if (mounted && node != null) setState(() => _template = node);
+      if (!mounted) return;
+      if (node != null) setState(() => _template = node);
+      widget.onAvailabilityChanged?.call(node != null);
     });
   }
 
@@ -81,6 +97,10 @@ class _HeadDiagramState extends State<HeadDiagram> {
             )
           : HeadScene(
               template: template,
+              pitch: widget.pitch,
+              zoom: widget.zoom,
+              onPoseChanged: widget.onPoseChanged,
+              onInteractionStart: widget.onInteractionStart,
               selected: widget.selected,
               yaw: widget.yaw ?? HeadPose.yawFor(widget.view),
               onRegionTapped: widget.onRegionTapped,

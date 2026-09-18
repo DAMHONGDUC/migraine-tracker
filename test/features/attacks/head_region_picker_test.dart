@@ -78,6 +78,37 @@ void main() {
     matching: find.text(label),
   );
 
+  testWidgets('fallback keeps anatomical labels and hides unsupported zoom', (
+    WidgetTester tester,
+  ) async {
+    await pumpPicker(tester);
+    await tester.pump();
+    expect(find.byTooltip('Zoom in'), findsNothing);
+    expect(
+      tester.getCenter(find.text('L')).dx,
+      lessThan(tester.getCenter(find.text('R')).dx),
+    );
+    await tester.tap(find.text('Back'));
+    await settleFrames(tester);
+    expect(
+      tester.getCenter(find.text('L')).dx,
+      lessThan(tester.getCenter(find.text('R')).dx),
+    );
+    await tester.tap(tile('Nape'));
+    await tester.pump();
+    expect(selected, <HeadRegion>[HeadRegion.nape]);
+  });
+
+  testWidgets('picker fits a short edit sheet', (WidgetTester tester) async {
+    await pumpPicker(tester, height: 500);
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(HeadDiagram)).height, greaterThan(0));
+    await tester.tap(find.text('Back'));
+    await settleFrames(tester);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('a tile and the head write the same answer', (tester) async {
     await pumpPicker(tester);
 

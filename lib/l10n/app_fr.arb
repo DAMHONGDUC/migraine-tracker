@@ -848,5 +848,11 @@
   "checkInReminderDenied": "Les notifications de BaroEase sont désactivées. Activez-les dans Réglages.",
   "alertsNeedsSignIn": "Les alertes exigent aussi un compte Google ou Apple : la notification part vers le compte, pas vers cet appareil.",
   "freeHistoryTitle": "L'historique avant le {date} est Premium",
-  "freeHistoryBody": "Rien n'est supprimé : tout votre historique est sur ce téléphone, et Premium l'ouvre entièrement."
+  "freeHistoryBody": "Rien n'est supprimé : tout votre historique est sur ce téléphone, et Premium l'ouvre entièrement.",
+  "logHeadZoomOut": "Dézoomer",
+  "logHeadZoomIn": "Zoomer",
+  "logHeadResetView": "Réinitialiser la vue",
+  "logHeadGestureHint": "Glissez pour tourner · Pincez pour zoomer",
+  "logHeadZoomLevel": "{percent} %",
+  "aboutHeadModelCredit": "Tête 3D : « Infinite » de Lee Perry-Smith / triplegangers.com, issue des exemples three.js. Licence CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase a recadré le modèle, délimité les zones douloureuses et modifié les couleurs."
 }
