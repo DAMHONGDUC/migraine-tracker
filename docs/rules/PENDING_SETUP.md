@@ -16,7 +16,6 @@ and reasoning: `lib/features/app_config/CLAUDE.md`.
 
    | Field | Type | Notes |
    |---|---|---|
-   | `premium_enabled` | boolean | Only an actual `false` turns premium off, app-wide, for bought and listed accounts alike. Absent means on. |
    | `force_update` | map | An `ios` and/or `android` section, each `store_link` / `build_name` / `build_number` / `enable_force_update`. |
    | `premium_emails` | array of strings | Premium in the app and alert targets. |
    | `dev_mode_emails` | array of strings | The Dev group in Settings on a prod build. |
@@ -45,7 +44,6 @@ and reasoning: `lib/features/app_config/CLAUDE.md`.
 
 ```json
 {
-  "premium_enabled": true,
   "force_update": {
     "ios": {
       "store_link": "https://apps.apple.com/app/id0000000000",

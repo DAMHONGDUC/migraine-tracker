@@ -15,7 +15,7 @@ product: app costs such as WeatherKit, alerts and Firestore recur.
 | Rule | Requirement |
 |---|---|
 | Price display | Use the store-provided `PremiumOffer.priceLabel` |
-| Entitlement source | RevenueCat only, and only while `premium_enabled` is on |
+| Entitlement source | RevenueCat only |
 | Account | Not required to buy, restore or use Premium |
 | Existing lifetime buyer | Keep the entitlement; do not show a lifetime offer |
 
@@ -119,23 +119,6 @@ freely.
 |---|---|
 | A sync `Provider<AsyncValue<…>>` over the table's stream | Notified its watchers while a route was popping — `attack_detail_test`, deleting an attack |
 | The Insights analyses reading the windowed stream | Their chain of derived providers recomputes when that stream is rebuilt, mid-layout on the Insights tab — `premium_gating_test` |
-
-## The app-wide off switch
-
-`app_config/current.premium_enabled: false` makes `hasPremiumProvider` answer false
-for **everyone at once** — bought, listed, and forced by the Dev group
-alike — and ends the pressure-alert cron pass before it pushes anything. It is
-checked ahead of every other branch, because the address list and the Dev
-override both return early and a switch below either is one they could talk
-their way past.
-
-| State | Premium |
-|---|---|
-| `premium_enabled: false` | Off, for everybody |
-| Field absent, document absent, read denied, read in flight | **On** — a failed read must not take away what someone paid for |
-| Anything that is not literally `false` (including `"false"`) | On |
-
-Shape and rules: [`../lib/features/app_config/CLAUDE.md`](../lib/features/app_config/CLAUDE.md).
 
 ## Named implementations
 

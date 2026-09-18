@@ -4,7 +4,6 @@
 
 | Field | Type | What it does |
 |---|---|---|
-| `premium_enabled` | bool | False turns premium off for **everybody at once** |
 | `force_update` | map | `ios` / `android` published build; read on every launch |
 | `premium_emails` | string[] | Premium in the app, and targets of the alert cron |
 | `dev_mode_emails` | string[] | Settings shows its Dev group on a **prod** build |
@@ -39,7 +38,6 @@ logs and ends would leave a cold start waiting for good.
 
 ```json
 {
-  "premium_enabled": true,
   "force_update": {
     "ios":     {"store_link": "https://apps.apple.com/app/id0000000000",
                 "build_name": "1.4.0", "build_number": 41,
@@ -80,22 +78,18 @@ and all three move together or the read is denied.
   — the client-side premium flag this project forbids — or forge a
   force-update record and lock everybody out.
 
-## The two halves default in opposite directions, on purpose
+## Absent, denied and still loading all grant and deny nothing
 
 | | Absent, denied, or still loading | Set by |
 |---|---|---|
 | Address lists | nobody listed, **nobody blocked** | the address being on the list |
-| `premium_enabled` | premium **on** | exactly `false` |
 | `force_update` | blocks nobody | `enable_force_update: true` |
 
-**A list is something an address has to be put on; a kill switch is something
-the owner has to actively throw.** Defaulting `premium_enabled` to false would
-mean an offline first launch, an install ahead of the document existing, or one
-denied read takes premium away from somebody who paid for it. `"false"` typed
-into the console as a string is not a throw.
-
-`blocked_emails` follows the *list* direction: a read that has not landed must
-never lock somebody out of an app whose data is on their own device.
+**Every field is something an address has to be put on, or a record the owner
+has to write.** An offline first launch, an install ahead of the document
+existing, or one denied read must leave the app exactly as it was — and
+`blocked_emails` most of all: a read that has not landed must never lock
+somebody out of an app whose data is on their own device.
 
 **Both sides of every comparison are trimmed and lower-cased** (`AppConfig`).
 Firebase Auth stores an address lower-cased and the owner types the list by
@@ -107,31 +101,27 @@ granting nothing and looking like a typo nobody made.
 
 | Reader | Provider / function | Effect |
 |---|---|---|
-| App gates | `premiumEnabledProvider` → `hasPremiumProvider` | **Closes every premium gate**, ahead of everything |
 | App gates | `hasGrantedPremiumProvider` → `hasPremiumProvider` | Premium ahead of the entitlement |
 | App root | `isAccountBlockedProvider` → `BlockedAccountGate` | Replaces the whole app |
 | Settings | `showDevSettingsProvider` | The Dev group on a **prod** build |
 | Launch check | `forceUpdateControllerProvider` → `ForceUpdateWrapper` | Reads `AppConfig.forceUpdate` off the same stream; hard rule 9 fails open |
-| `pressureAlertJob` | `premiumEnabledFrom` | An off switch ends the pass before any push |
 | `pressureAlertJob` | `premiumEmailsFrom` + `getUserByEmail` | The accounts pushed to |
 
 - **One listener, not one per gate — force update included.** Every reader
   above comes off the same `appConfigProvider` stream; `app_config_test.dart`
-  asserts `watchCalls == 1` after all four gates have been read, and
+  asserts `watchCalls == 1` after all three gates have been read, and
   `force_update_test.dart` asserts the same after a launch that ran the update
   check.
 - **The check awaits the first snapshot, it does not read the current one.** On
   a cold start the document has usually not landed by the time
   `ForceUpdateWrapper` mounts, and reading there would answer `AppConfig.empty`
   and wave an unsupported build straight through.
-- **The kill switch sits above the list in `hasPremiumProvider`, not below
-  it.** The list returns `true` early, and the Dev override returns before the
-  entitlement — a switch placed anywhere else would be one two surfaces could
-  talk their way past.
-- **The cron honours it too.** Pressure alerts *are* a premium feature, and
-  unlike a hidden screen a push cannot be taken back once it lands. It reads
-  the document once for both the switch and the list, so it sees exactly what
-  the app sees.
+- **The list sits above the entitlement in `hasPremiumProvider`.** It returns
+  `true` early, ahead of the Dev override and RevenueCat, so a reviewer signed
+  in as that address is premium in a prod flavour too.
+- **The cron reads the same list.** Pressure alerts *are* a premium feature, so
+  it takes `premium_emails` off this document rather than keeping a copy — the
+  app and the cron cannot disagree about who is premium by address.
 - **`BlockedAccountGate` is a layer in the tree, not a pushed route** — which is
   how force update does it. The block clears the moment the user signs out, and
   a plain `if` cannot get out of step with the flag the way a route that has to

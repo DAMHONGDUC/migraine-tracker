@@ -20,10 +20,9 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
   get an alert, which is the one surface disagreeing with the rest.
   `pressureAlertJob` adds those accounts and dedupes by uid.
   - The addresses come from `premium_emails` on `app_config/current`, the same
-    document the app reads (`lib/features/app_config/CLAUDE.md`) — one read
-    that also carries `premium_enabled`, so the cron and the app can never
-    disagree about whether premium exists. An empty list fetches nothing extra;
-    the switch off ends the pass before any push.
+    document the app reads (`lib/features/app_config/CLAUDE.md`), so the cron
+    and the app can never disagree about who is premium by address. An empty
+    list fetches nothing extra.
   - **Resolved through Auth, not through a `users.email` query.** Auth
     normalises an address to lower case and Firestore `==` does not, so a doc
     written `Review@BaroEase.app` is invisible to the only query the list can
