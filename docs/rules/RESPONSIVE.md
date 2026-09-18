@@ -65,18 +65,29 @@ iPad 11" landscape, 1180 x 820
 │ 120  │         │ (cards, charts, lists)   │              │
 │      │         │                          │              │
 └──────┴─────────┴──────────────────────────┴──────────────┘
-  rail  64 thick (w56) + 28 air either side (w24) = a 120 column
+  rail  64 thick (w56), 28 air outside (w24), 9 in (w8) = a 101 column
         5 cells of 92 (h96) = 462 long, centred vertically
-  body  1180 - 120 = 1060 available, column capped at 920
+  body  1180 - 101 = 1079 available, column capped at 920
 ```
 
 Measured, not calculated — these are the numbers the app renders at:
 
-| | Column | Rail column | Rail thick | Cell | Rail length | Gutter |
-|---|---|---|---|---|---|---|
-| phone 393×852 | 800¹ | — | — | — | — | 16 |
-| iPad portrait 820×1180 | 920¹ | 120 | 64 | 110 | 552 | 18 |
-| iPad landscape 1180×820 | 920 | 120 | 64 | 92 | 462 | 18 |
+| | Column | Rail column | Rail thick | Cell | Rail length | Gutter | Rail→card |
+|---|---|---|---|---|---|---|---|
+| phone 393×852 | 800¹ | — | — | — | — | 16 | — |
+| iPad portrait 820×1180 | 920¹ | 101 | 64 | 110 | 552 | 18 | 28 |
+| iPad landscape 1180×820 | 920 | 101 | 64 | 92 | 462 | 18 | 107² |
+
+**The rail's two sides take different air.** Outside it is the edge of the
+glass and keeps the pill's own `floatingBarHorizontal` (28); inside it is the
+edge of the page, where the content already brings its own 18 gutter, so it
+gets `floatingRailInnerAir` (9) and no more. Equal air stacked the two and put
+46 between the rail and the first card — wider than a phone has at the screen
+edge, for no reason but symmetry with the wrong side.
+
+² Landscape is **not** the rail's doing: the 920 column is centred in the 1079
+the rail leaves, so 79 of that 107 is page margin. Reducing it is a question
+about where the column sits, not about the rail — see the open decisions.
 
 ¹ wider than the window has to give, so the column simply *is* the window. An
 11" portrait body is 700 wide once the rail takes its column, so the 920 cap
@@ -151,3 +162,4 @@ tablet and kept on a phone.
 | Dashboard as two columns at ≥840 | Not built. `sections` is already a `List<Widget>`, so it is a split, not a rewrite. |
 | History master–detail | Not built. Needs `app_router.dart` — the detail is a pushed route today. |
 | Rail labels beside the glyphs at ≥840 | Not built, and deliberate: the rail is glyph-only like the pill, so both stay one control. |
+| Where the column sits in landscape | Centred in the body today, which leaves 79 either side and a 107 gap to the rail. Leading-aligned would make it 28 in both orientations and put all 159 on the right. Owner's call. |
