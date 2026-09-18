@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
+import 'head_pose.dart';
+
 /// Camera state stays separate from recorded pain locations.
 typedef HeadViewport = ({double yaw, double pitch, double zoom});
 
@@ -13,8 +15,8 @@ final class HeadViewportUtils {
   static const double minZoom = 1;
   static const double maxZoom = 2;
   static const double zoomStep = 0.25;
-  static const double maxPitch = 25;
-  static const double degreesPerPoint = 0.6;
+  static const double maxPitch = 85;
+  static const double degreesPerPoint = HeadPose.degreesPerPoint;
   static const double fieldOfView = 45 * vm.degrees2Radians;
   static const double framingMargin = 1.08;
 

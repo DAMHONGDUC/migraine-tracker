@@ -53,7 +53,7 @@ void main() {
       for (final double yaw in <double>[0, 45, 90, 180]) {
         final vm.Matrix4 transform = HeadViewportUtils.transform(bounds, (
           yaw: yaw,
-          pitch: 25,
+          pitch: 85,
           zoom: 1,
         ));
         for (final double x in <double>[-0.8, 0.8]) {
@@ -73,14 +73,14 @@ void main() {
   });
 
   test('pose bounds reject excessive magnification and pitch', () {
-    expect(HeadViewportUtils.constrained((yaw: 400, pitch: 80, zoom: 3)), (
+    expect(HeadViewportUtils.constrained((yaw: 400, pitch: 120, zoom: 3)), (
       yaw: 400.0,
-      pitch: 25.0,
+      pitch: 85.0,
       zoom: 2.0,
     ));
-    expect(HeadViewportUtils.constrained((yaw: -400, pitch: -80, zoom: 0.2)), (
+    expect(HeadViewportUtils.constrained((yaw: -400, pitch: -120, zoom: 0.2)), (
       yaw: -400.0,
-      pitch: -25.0,
+      pitch: -85.0,
       zoom: 1.0,
     ));
   });
@@ -173,5 +173,61 @@ void main() {
     await second.up();
     await first.up();
     expect(taps, 0);
+  });
+  testWidgets('drag follows the finger and retains updates between frames', (
+    WidgetTester tester,
+  ) async {
+    HeadViewport pose = (yaw: 0, pitch: 0, zoom: 1);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) =>
+              HeadGestureSurface(
+                pose: pose,
+                onChanged: (HeadViewport next) => setState(() => pose = next),
+                child: const SizedBox.expand(),
+              ),
+        ),
+      ),
+    );
+    final TestGesture drag = await tester.startGesture(const Offset(200, 200));
+    await drag.moveBy(const Offset(30, 0));
+    await tester.pump();
+    final double startYaw = pose.yaw;
+    for (int i = 0; i < 3; i++) {
+      await drag.moveBy(const Offset(20, 0));
+    }
+    expect(
+      pose.yaw,
+      closeTo(startYaw - 60 * HeadViewportUtils.degreesPerPoint, 0.001),
+    );
+    const Size size = Size(300, 420);
+    final Camera camera = HeadViewportUtils.camera(bounds, size, 1);
+    final vm.Vector3 front = vm.Vector3(0, 0, 0.9);
+    final Offset projected = camera.worldToScreen(
+      HeadViewportUtils.transform(bounds, pose).transformed3(front),
+      size,
+    )!;
+    expect(
+      projected.dx,
+      greaterThan(size.width / 2),
+      reason: 'Dragging right moves the front surface right on screen.',
+    );
+    await tester.pump();
+    await drag.up();
+
+    final TestGesture down = await tester.startGesture(const Offset(200, 200));
+    await down.moveBy(const Offset(0, 30));
+    await tester.pump();
+    await down.moveBy(const Offset(0, 60));
+    await down.moveBy(const Offset(0, 60));
+    expect(pose.pitch, 85);
+    final Offset lowered = camera.worldToScreen(
+      HeadViewportUtils.transform(bounds, pose).transformed3(front),
+      size,
+    )!;
+    expect(lowered.dy, greaterThan(size.height / 2));
+    await down.up();
+    await tester.pump();
   });
 }

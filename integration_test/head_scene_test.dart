@@ -66,7 +66,7 @@ void main() {
       final Camera camera = HeadViewportUtils.camera(bounds, viewport, zoom);
       final Set<HeadRegion> pickedAtZoom = <HeadRegion>{};
       for (final double yaw in <double>[0, 45, 90, 135, 180, 225, 270, 315]) {
-        for (final double pitch in <double>[-25, 0, 25]) {
+        for (final double pitch in <double>[-85, -25, 0, 25, 85]) {
           head.localTransform = HeadViewportUtils.transform(bounds, (
             yaw: yaw,
             pitch: pitch,

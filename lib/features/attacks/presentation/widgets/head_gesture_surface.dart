@@ -34,6 +34,7 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
   double _scale = 1;
   int _scalePointers = 0;
   Offset? _down;
+  late HeadViewport _gesturePose;
 
   void _pointerDown(PointerDownEvent event) {
     if (_pointers.isEmpty) {
@@ -47,6 +48,7 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
   }
 
   void _start(ScaleStartDetails details) {
+    _gesturePose = widget.pose;
     _zoom = widget.pose.zoom;
     _scale = 1;
     _scalePointers = details.pointerCount;
@@ -58,7 +60,8 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
   }
 
   void _update(ScaleUpdateDetails details) {
-    final HeadViewport pose = widget.pose;
+    // Pointer updates can arrive before the parent rebuilds with the last pose.
+    final HeadViewport pose = _gesturePose;
     final bool pinch = details.pointerCount > 1;
 
     if (_scalePointers != details.pointerCount) {
@@ -70,21 +73,18 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
     if (details.focalPointDelta != Offset.zero || details.scale != _scale) {
       _moved = true;
     }
-    widget.onChanged?.call(
-      HeadViewportUtils.constrained((
-        yaw: pinch
-            ? pose.yaw
-            : pose.yaw +
-                  details.focalPointDelta.dx *
-                      HeadViewportUtils.degreesPerPoint,
-        pitch: pinch
-            ? pose.pitch
-            : pose.pitch +
-                  details.focalPointDelta.dy *
-                      HeadViewportUtils.degreesPerPoint,
-        zoom: pinch ? _zoom * details.scale / _scale : pose.zoom,
-      )),
-    );
+    _gesturePose = HeadViewportUtils.constrained((
+      yaw: pinch
+          ? pose.yaw
+          : pose.yaw -
+                details.focalPointDelta.dx * HeadViewportUtils.degreesPerPoint,
+      pitch: pinch
+          ? pose.pitch
+          : pose.pitch +
+                details.focalPointDelta.dy * HeadViewportUtils.degreesPerPoint,
+      zoom: pinch ? _zoom * details.scale / _scale : pose.zoom,
+    ));
+    widget.onChanged?.call(_gesturePose);
   }
 
   void _tap(TapUpDetails details) {
@@ -117,9 +117,9 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
               LogTagConstant.attackLog,
               'Head gesture finished',
               <String, Object?>{
-                'yaw': widget.pose.yaw,
-                'pitch': widget.pose.pitch,
-                'zoom': widget.pose.zoom,
+                'yaw': _gesturePose.yaw,
+                'pitch': _gesturePose.pitch,
+                'zoom': _gesturePose.zoom,
               },
             ),
       child: widget.child,

@@ -7,7 +7,7 @@
 | Shape | Procedural face with floating eye/brow ribbons | Licensed Lee Perry-Smith scan, cropped and partitioned; facial landmarks stay in the visible surface |
 | Gesture | `onHorizontalDragUpdate: _handleDrag` | `HeadGestureSurface(pose: _pose, onChanged: _changePose)` handles rotation and pinch without false taps |
 | Camera | `PerspectiveCamera.framing(bounds, margin: 1.25)` | `HeadViewportUtils.camera(_bounds, _viewSize, widget.zoom)` shares the rendered viewport with raycasting |
-| Pose | Yaw only | Yaw, pitch ±25°, zoom 1–2×; state never enters the attack record |
+| Pose | Yaw only | Yaw, pitch ±85°, zoom 1–2×; state never enters the attack record |
 | Controls | Front/Back and region tiles | Same alternatives plus localized zoom out/in/reset controls in all seven locales |
 | Model contract | Named region lookup | Reject missing/duplicate regions and unbounded/empty models before publishing the template |
 
@@ -34,3 +34,15 @@
 | Blender master | Not supplied; Python exports the preserved licensed scan reproducibly |
 
 Run the scoped files with `fvm flutter test`, the simulator harness with `fvm flutter drive --driver test_driver/head_scene_driver.dart --target integration_test/head_scene_test.dart -d <device-id> --no-pub`, and `sh packages/system_design/tool/analyze.sh`. Do not substitute these results for physical-device performance acceptance.
+
+## Rotation follow-up — 2026-09-18
+
+| Before | After |
+|---|---|
+| `yaw + dx * 0.6` moved against the screen drag | `yaw - dx * 0.8` follows the finger |
+| Pitch limited to ±25° | ±85° exposes crown and underside without inversion; yaw remains unrestricted |
+| Every delta read `widget.pose`, potentially stale between frames | Gesture-local accumulation retains every delta and rebases on the next gesture |
+
+The regression test failed against the prior implementation for direction/accumulation and the pitch limit. Camera projection assertions verify screen movement, not just angle signs.
+
+Follow-up checks: 24 scoped tests and 2 iPhone simulator integration tests passed, including the ±85° poses. App and standalone design-system analyzers reported zero findings.
