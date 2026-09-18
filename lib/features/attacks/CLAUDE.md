@@ -156,6 +156,7 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
 - **The head must look anatomically natural.** Owner rejected the procedural face on 2026-09-18 because its appearance was poor. Use the licensed Lee Perry-Smith scan in `tool/head_model/source/`, trimmed to the head by `tool/head_model.py`; preserve its facial geometry and smooth normals. Keep source attribution in the bundle and About screen. Export preserves the 15 region names; no second generator may overwrite the production asset. No neck.
 - **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
 - **Dragging the head follows the finger on screen.** Owner reported reversed, overly restricted rotation on 2026-09-18. Keep yaw unrestricted, allow pitch up to ±85° to inspect crown and underside without flipping upside down, and accumulate every pointer update even between rendered frames.
+- **The 3D picker renders across the full available width.** Owner reported clipping beside L/R on 2026-09-18. Overlay the side labels instead of reserving gutters, and do not constrain the 3D viewport to the flat drawing's aspect ratio. Rendering and picking share the expanded viewport; the flat fallback keeps its aspect ratio and inset.
 - **Camera state is presentation state, never attack data.** Keep Front/Back and named region tiles as accessible alternatives; zoom controls have localized labels and reset restores a full-head view. The fallback remains pickable when 3D is unavailable.
 - **L and R travel with the head, and face on the user's left is on the
   RIGHT.** The model is an ordinary head, not a mirror image, so meeting its
@@ -269,7 +270,7 @@ the same curve its neighbour continues on.
   brow beside a 1.3 nostril read as a different drawing pasted on. The silhouette
   at 2.0 is the only heavy line left, which is what makes it the silhouette —
   and the gap between it and the face is now the whole point, not a side effect.
-- **The head is sized from its WIDTH, and sits 30pt in from everything around it**
+- **The flat fallback is sized from its WIDTH, and sits 30pt in from everything around it**
   (owner's rule, after 40 and 24): the screen edge either side, the tabs above, the
   tiles below. The height falls out of the drawing's ratio; height only overrides
   it where a short column would otherwise overflow, and the `min` in the picker is
