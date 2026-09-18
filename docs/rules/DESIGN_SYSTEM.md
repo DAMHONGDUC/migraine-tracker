@@ -81,6 +81,12 @@ Never up for negotiation, however good the mockup looks:
 What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a card
 is composed, what a chart should say. Take that; leave the tokens.
 
+## Width, on a screen wider than a phone
+
+Two ceilings — the screenutil scale (1.15) and the content column (`w600`) —
+and both do nothing on a phone. Full rule, with the numbers and what is
+deliberately NOT responsive: `docs/rules/RESPONSIVE.md`.
+
 ## Surfaces and colour
 
 - **One card colour: `AppColors.surface` (`#1C1C1E`)** — dashboard, insights,
