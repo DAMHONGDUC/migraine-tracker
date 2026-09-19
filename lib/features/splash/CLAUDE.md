@@ -25,6 +25,10 @@ dashboard.
   `Material` — hence its own `Directionality`, the raw colour, and
   `SplashConstant.dotsSize` being a plain `40` rather than `40.r`
   (`ScreenUtilInit` is below the gate).
+  - **The animation itself lives in `core/widgets/app_loading_dots.dart`**, not
+    here: the head picker waits on its model under the same dots, and two
+    copies of one wait are two things that can drift apart. `SplashDots` is
+    what wraps it in the launch's own background and text direction.
 - **`AppBootstrap.ensureAnonymousSession` is called here and nowhere else.**
   It has to come after the wipe — that signs the old session out — and
   `getWeather` will not serve a caller it cannot name.
