@@ -162,7 +162,37 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
 - **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
 - **Dragging the head follows the finger on screen.** Owner reported reversed, overly restricted rotation on 2026-09-18. Keep yaw unrestricted, allow pitch up to ±85° to inspect crown and underside without flipping upside down, and accumulate every pointer update even between rendered frames.
 - **The 3D picker renders across the full available width.** Owner reported clipping beside L/R on 2026-09-18. Overlay the side labels instead of reserving gutters, and do not constrain the 3D viewport to the flat drawing's aspect ratio. Rendering and picking share the expanded viewport; the flat fallback keeps its aspect ratio and inset.
-- **Camera state is presentation state, never attack data.** Keep Front/Back and named region tiles as accessible alternatives; zoom controls have localized labels and reset restores a full-head view. The fallback remains pickable when 3D is unavailable.
+- **The zoom controls float OVER the head, and the head is centred in what is
+  left** (owner's rule, 2026-09-19). As a row of its own the controls took 44pt
+  off the one screen this step may use, to carry four targets and a line of
+  hint text; overlaid they cost nothing and what they cover is the air above
+  the crown. The tiles are pinned to the bottom of the step, so a tall screen
+  gives the leftover to the head as air either side of it rather than as a hole
+  between head and tiles. `head_region_picker_test.dart` measures that the air
+  above equals the air below.
+- **The head opens at 150%** (`HeadViewportUtils.defaultZoom`, owner's call
+  2026-09-19, down from 175%). Two steps up the `zoomStep` ladder, so the minus
+  button still walks back to `minZoom` and the readout never shows a level the
+  buttons cannot reach.
+- **A drag can be slowed down, in three steps: 100% / 75% / 50%**
+  (`HeadRotationSpeed`, owner's rule 2026-09-19). One button in the controls
+  row, cycling DOWN and wrapping at the bottom — the ask was "make it less
+  sensitive", so a second button to undo it would have cost the row a target.
+  The glyph never changes, so the button is tinted while the turn is slowed:
+  a setting whose state lives only in a tooltip is one nobody can check. The
+  factor multiplies `HeadViewportUtils.degreesPerPoint` and reaches nothing
+  else — a pinch is measured against the fingers themselves, and slowing that
+  would make the head disagree with them.
+- **Camera state is presentation state, never attack data** — but it IS kept
+  between launches (`HeadControlsController`, owner's rule 2026-09-19). Zoom
+  and rotation speed go to `SecureStore` behind a 400ms debounce, because a
+  pinch sets a new zoom on every pointer frame; the provider flushes a pending
+  write on dispose, since Next is tapped a frame after the last pinch more
+  often than not. **The angle is deliberately not kept**: which way the head
+  faces is the Front/Back tab's answer, decided per attack by what is already
+  selected. Keep Front/Back and named region tiles as accessible alternatives;
+  zoom controls have localized labels and reset restores a full-head view. The
+  fallback remains pickable when 3D is unavailable.
 - **L and R travel with the head, and face on the user's left is on the
   RIGHT.** The model is an ordinary head, not a mirror image, so meeting its
   face puts its left where a real person's is when you face them. The old flat
