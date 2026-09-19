@@ -5,6 +5,36 @@ Read it before changing a rule that looks arbitrary: every entry WAS done the
 other way and cost something. The rule itself lives where `CLAUDE.md`'s routing
 table says; this file only says why it is what it is.
 
+## The tablet's glyph-only floating rail
+
+Shipped for the whole of the tablet work: the phone's glass pill stood on its
+end, 64 thick in a 110 column, glyph-only, with `tabletMargin` (46) of air on
+three sides. Replaced 2026-09-20 (owner's call) by `SdNavPanelV2` — a
+collapsible panel a fifth of the window wide, carrying each destination's label
+beside its glyph and joined to the content with no gap. Two rules went with it:
+
+- **"One gap, everywhere" (46) is gone.** It existed to stop a capped-and-centred
+  column producing three different gaps. A joined panel has one gap left to get
+  wrong — the screen's own 16 gutter — so `tabletMargin` went with the rail it
+  was measured against. `pageMargin` survives for the one case that still needs
+  it: a route pushed above the shell, which takes half a panel per side so its
+  card matches the tab screen it came from.
+- **"Glyph-only keeps the pill and the rail one control" is gone.** The cell is
+  still one widget (`SdNavSegmentV2`); what differs is a shape enum, because a
+  tablet has room for the word and a phone does not.
+
+What the change also fixed, which nothing had noticed: **the rail was invisible
+to VoiceOver.** A full-screen route's modal barrier blocks the semantics of
+everything painted before it, and the rail was painted before the body — so its
+five destinations were dropped from the semantics tree for the rail's whole
+life. The panel is painted after the content, over its own strip, and
+`tablet_layout_test.dart` now switches every tab through the semantics tree.
+
+**Do not put the reopen control in a strip above the content** — it was the
+obvious alternative and it is the one the spec this came from argues against at
+length: the strip belongs to no screen, pushes every one of them down, and takes
+a second claim on the top safe inset the screen's app bar already owns.
+
 ## The whole app on CocoaPods
 
 Tried, to escape the `exact:` pin conflicts in the Firebase plugin family.

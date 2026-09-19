@@ -4,7 +4,9 @@ iPad is a shipping target (`TARGETED_DEVICE_FAMILY = "1,2"`, reviewed on iPad
 Air 11" M3) and multitasking is on — there is no `UIRequiresFullScreen`, so
 Split View hands the app a phone-width window on an iPad.
 
-Three rules, and **every one of them is a no-op on a phone**.
+Three rules, and **every one of them is a no-op on a phone**. The phone build
+is asserted at 393 in the same file that asserts the tablet one, which is what
+lets any of this change without re-verifying it by hand.
 
 **Porting this to another app?** `packages/system_design/RESPONSIVE_SPEC.md` is
 the same three rules written portably — no BaroEase names, with the traps, the
@@ -33,56 +35,60 @@ screenshot blown up in one direction and shrunk in the other.
 1.15 is "the same app at arm's length": every number in `SdSpacingConstant`
 moves by it and nothing else, so the rhythm they were drawn at survives.
 
-## Rule 2 — one gap, everywhere
+## Rule 2 — the panel is joined, and the gutter is the only gap
 
-Owner's rule. **Screen edge → rail, rail → content, content → far edge are the
-same number**, and it does not change with the screen or the orientation:
-`SdContentPaddingV2.tabletMargin`, 40 design units = **46 rendered**.
+Owner's rule, 2026-09-20. The nav panel meets the content region **with no gap
+at all** — the joined sidebar/pane composition of iPad Settings, not a control
+floating in a margin — and inside the content region the screen keeps the same
+16 gutter it has on a phone. One gap, and it is a gutter the app already had.
 
 ```text
-iPad 11" landscape, 1180 x 820
-┌──────┬────┬──────────────────────────────────┬────┐
-│      │    │ app bar — same margins as below  │    │
-│ ▓▓▓▓ │ 46 ├──────────────────────────────────┤ 46 │
-│ ▓▓▓▓ │    │ card 978 — fills what is left    │    │
-│  64  │    │                                  │    │
-└──────┴────┴──────────────────────────────────┴────┘
- |<46>|                        rail column = 46 + 64 = 110
- 5 cells of 92 = a 462-long rail, centred vertically
+iPad 11" portrait, 820 x 1180
+┌───────────────┬────┬──────────────────────────────┬────┐
+│ panel 164     │ 16 │ app bar — same margins below │ 16 │
+│ (window / 5)  │    ├──────────────────────────────┤    │
+│ Home          │    │ card 624 — fills what is left│    │
+│ History  …    │    │                              │    │
+└───────────────┴────┴──────────────────────────────┴────┘
 ```
 
-It replaced a column capped at 920 and centred. A cap plus centring produced
-three *different* gaps — 46 at the edge, 107 to the rail in landscape, 79 at
-the far side — because two of them were leftover page margin and only one was a
-decision. One number is a decision.
+It replaced `tabletMargin`, a 46 margin applied on three sides of the old rail.
+That rule existed to stop a capped-and-centred column producing three different
+gaps; a joined panel has only one gap left to get wrong, so the constant went
+with the rail it was measured against. **`SdContentPaddingV2.pageMargin` is
+therefore 0 wherever the shell's navigation is** — on a phone, and on a tab
+screen at any tablet width, collapsed or not.
 
 Measured, not calculated — what the app renders at:
 
-| | Card | Rail column | Rail thick | Cell | Rail length | All three gaps |
-|---|---|---|---|---|---|---|
-| phone 393×852 | window − 32 | — | — | — | — | — (16 gutter) |
-| iPad portrait 820×1180 | 618 | 110 | 64 | 110 | 552 | **46** |
-| iPad landscape 1180×820 | 978 | 110 | 64 | 92 | 462 | **46** |
+| | Panel | Content region | Card | Gutter either side |
+|---|---|---|---|---|
+| phone 393×852 | — | 393 | 361 | 16 |
+| iPad portrait 820×1180 | 164 | 656 | 624 | 16 |
+| iPad landscape 1180×820 | 236 | 944 | 912 | 16 |
+| collapsed, portrait | 0 | 820 | 788 | 16 |
 
 ### A screen with no shell nav gets the same width, centred
 
-Owner's rule. Every detail screen is a route pushed **above** the shell —
-`app_router.dart` lists them as siblings of `StatefulShellRoute`, not inside its
-branches — so it has no rail beside it. A plain `tabletMargin` there would make
-it a rail's column wider than the tab screen it was opened from, and the content
-would jump outward on the way in and back on the way out. It takes half the
-rail's column extra on each side instead, which is the one inset that makes the
-two widths identical:
+Owner's rule, and the one case `pageMargin` still exists for. Every detail
+screen is a route pushed **above** the shell — `app_router.dart` lists them as
+siblings of `StatefulShellRoute`, not inside its branches — so it has no panel
+beside it and would otherwise be a whole panel wider than the tab screen it was
+opened from, the content jumping outward on the way in and back on the way out.
+It takes **half the panel** on each side instead, which is the one inset that
+makes the two widths identical:
 
 ```text
-iPad 11" portrait, 820 wide — both land on a 618 card
-tab screen     |46| rail 64 |46|      card 618      |46|
-pushed detail  |     101     |46|      card 618      |46|     101     |
+iPad 11" portrait, 820 wide — both land on a 624 card
+tab screen    | panel 164 |16|      card 624      |16|
+pushed detail |      98      |      card 624      |      98      |
 ```
 
-`SdContentPaddingV2.pageMargin` owns both cases and
-`SdFloatingBarScopeV2.edgeOf` is how it tells them apart: `leading` is the rail,
-`bottom` is the phone's pill, and **null is no shell nav at all**.
+Matched against the panel **expanded**, which is how the shell starts and what
+the user is looking at when they open a detail. Collapse the panel first and the
+detail comes out narrower than the tab screen behind it — the price of a chrome
+that can be a fifth of the window, and the one state a route above the shell
+cannot read.
 
 ### The app bar is inside the margin
 
@@ -91,9 +97,6 @@ cards under it share one leading edge — a header spanning the window over an
 inset body reads as two screens stacked. A `ColoredBox` behind it paints the
 margin, because a pushed route has no surface of its own and the strips either
 side would otherwise show black.
-
-The margin lives in `SdScaffoldV2` rather than in the shell for the reason
-above: the detail screens never see the shell.
 
 ### The ceilings that are still in force
 
@@ -108,40 +111,82 @@ stop growing. Only the page took the margin rule instead, and `SdPageWidthV2`
 is what applies a ceiling to the two screens that build their own `Scaffold`
 (onboarding, the paywall).
 
-## Rule 3 — the shell's nav moves to the leading edge
+## Rule 3 — the shell's nav is a collapsible panel on the leading edge
 
 | Window class | Width | Chrome | Bottom inset on a tab screen |
 |---|---|---|---|
-| `compact` | < 600 | `SdBottomNavigationV2` — floating pill, body scrolls behind it | pill footprint + 18 ≈ 100 |
-| `medium` / `expanded` | ≥ 600 | `SdNavigationRailV2` — the pill stood on its end | `detailBottom` ≈ 20 |
+| `compact` | < 600 | `SdBottomNavigationV2` — floating glass pill, body scrolls behind it | pill footprint + 18 ≈ 100 |
+| `medium` / `expanded` | ≥ 600 | `SdNavPanelV2` — a fifth of the window, glyph **and label** | `detailBottom` ≈ 20 |
 
-**Same destinations, same cell, same thumb.** `SdNavSegmentV2` is one widget
-used by both chromes and `SdNavDestinationV2` is one list built once in
-`AppShell`, so a tab cannot look like one control on a phone and another on an
-iPad. What differs follows from the axis:
+**Same destinations, same list, same order.** `SdNavSegmentV2` is one cell used
+by both chromes and `SdNavDestinationV2` is one list built once in `AppShell`,
+so the breakpoint chooses the frame and never the contents. A destination that
+existed only on a tablet is the bug that rule exists to stop.
 
-| What | Pill (phone) | Rail (tablet) |
+| What | Pill (phone) | Panel (tablet) |
 |---|---|---|
-| Layout | floats; body passes behind the glass | takes a real 110 column |
-| Thickness | `h56` — vertical, correctly | `w56` — thickness is horizontal on a standing rail |
-| Cell per tab | 64 wide (`floatingBarHeight`) | 92–110 long (`floatingRailCellHeight`) |
-| Inner margin | — | **none**; the gap to the content is the content's own `pageMargin` |
+| Layout | floats; body passes behind the glass | a real column, joined to the content |
+| Material | Liquid Glass | flat `colorScheme.surface` — nothing behind it to refract |
+| Cell | glyph only — no room for five words at 393 | `SdNavSegmentShapeV2.row`: glyph, 12, label |
+| Width | window − 48, capped at 552 | `window / 5`, proportional |
+| Collapses | no | yes, to **nothing at all** |
 | Swipe between tabs | yes, 48pt drag | **no** — at this width a horizontal drag is a chart being panned |
-| `SdFloatingBarScopeV2` | `edge: bottom` | `edge: leading` |
+| `SdFloatingBarScopeV2` | `edge: bottom` | `edge: leading`, open or collapsed |
 
 That last row reclaims the bottom inset. `floatingNav: true` means *"I am a tab
 screen"*, not *"there is a bar below me"*; `SdContentPaddingV2.bottom` asks the
 scope which chrome is up, so the five tab screens stop reserving a pill's height
-of nothing. The scope imports nothing from `SdContentPaddingV2` — content
-padding is what asks the question, so the answer must not depend on it.
+of nothing.
 
-**The rail's thickness is a `.w`, never a `.h`.** screenutil scales the two axes
-by different amounts, and a landscape iPad's height ratio is 0.96 against a
-width ratio of 1.15 — taken off the vertical ladder, the rail came out 54 thick
-in landscape against 64 in portrait: one control, two thicknesses, depending on
-how the iPad was held. `floatingRailCellHeight` is deliberately the other way
-round, because cell *length* runs down the screen — 110 portrait against 92
-landscape, so the short window gets the shorter rail.
+**The width is a raw fraction of the window, never a `.w`.** It is a slice of
+the window, which screenutil knows nothing about; scaling it would apply the
+design ratio on top of the proportion. The row *height* is on the vertical
+ladder, correctly — it is measured along the panel, not across it.
+
+### Collapsed, it draws nothing — and the reopen control lives in the app bar
+
+Not a narrow rail, not a strip of chrome above the content. `SdNavPanelV2`
+publishes `SdNavPanelScopeV2` over the content column, carrying `isExpanded`,
+the callback and the localized label — **state and a callback, never a
+widget**. `SdAppBarV2` asks `SdNavPanelToggleV2.collapsedOf` for its leading
+slot, and **no screen does**: a screen that could place the control is a screen
+that could forget to, and the one that forgets is the one a user gets stuck on.
+
+The alternative — a strip holding a menu icon above the content — was rejected:
+it belongs to no screen, pushes every one of them down, takes a second claim on
+the top safe inset the screen's app bar already owns, and leaves an empty band
+under the icon. With the control in the chrome, the inset has one owner in both
+states and collapsed content starts exactly where it would with no panel at all.
+
+Three rules keep it unambiguous:
+
+- **A back arrow outranks it.** A route with something to pop is a route the
+  panel is not beside, so it keeps its back button (the detail screens are
+  pushed above the shell and read no scope at all).
+- **A screen passing its own `leading` keeps it** — the medications tab owns
+  that slot while its search field is up, and gets the control back on close.
+- **The key `SdNavPanelToggleV2.toggleKey` is on exactly one control at a
+  time**, including mid-animation: the panel carries it only while expanded,
+  `collapsedOf` only while it is not.
+
+### It is painted after the content, and that is load-bearing
+
+`SdNavPanelV2` lays the two regions out in a `Row` and then draws the panel over
+its own strip from a `Stack`. **A full-screen route's modal barrier blocks the
+semantics of everything painted before it**, and the content column is a
+`Navigator` full of them — so a panel painted first is a panel VoiceOver cannot
+reach at all. The rail before it was exactly that, undetected for its whole
+life; `tablet_layout_test.dart` now switches every tab through the semantics
+tree, which is the assertion that would have caught it.
+
+### Motion
+
+250ms, `Curves.easeInOutCubic`, on the joined widths — the panel and the content
+move as one pair, because the transition is about where the working space goes
+and a cross-fade hides the one thing worth seeing. `MediaQuery.disableAnimationsOf`
+makes it a width change on the next frame instead. The panel's contents are laid
+out at full width the whole way and clipped by an `OverflowBox`, so reversing
+mid-collapse cannot reflow them into an overflow.
 
 ## The grids are unchanged — and that is now a choice, not a conclusion
 
@@ -151,18 +196,20 @@ landscape, so the short window gets the shorter rail.
 | Window | Card | 2-up cell | 3-up cell would be |
 |---|---|---|---|
 | phone 393 | 361 | 175 | 111 |
-| iPad portrait 820 | 618 | 302 | 197 |
-| iPad landscape 1180 | 978 | 482 | 320 |
+| iPad portrait 820, panel open | 624 | 304 | 199 |
+| iPad landscape 1180, panel open | 912 | 448 | 299 |
 
 While the card was capped at 690 a third column would have gone *below* the
-phone's cell width, which settled it. At 618–978 it no longer would, so this is
-an open question rather than a closed one — see the decisions below.
+phone's cell width, which settled it. At 624–912 it no longer would, so this is
+an open question rather than a closed one — see the decisions below. Note the
+card now has two widths per window, open and collapsed, so a column count
+chosen off one of them is a count that changes under the toggle.
 
 ## Measure the window, never the device
 
 `MediaQuery.sizeOf(context).width`, never `shortestSide` and never a platform
 check. An iPad in Split View is a 507-wide window, and chrome that asked "am I
-on an iPad" would put a navigation rail in it.
+on an iPad" would put a fifth of it behind a nav panel.
 
 ## Testing
 
@@ -171,15 +218,21 @@ so every existing test still measures the screen the app was drawn for.
 `test/core/tablet_layout_test.dart` is the only file that pumps anything wider.
 It asserts, at 820×1180 and 1180×820 **and that none of it engages at 393**:
 
-- the scale ceiling holds;
-- the three gaps are equal and equal to `tabletMargin`;
+- the scale ceiling holds, and does not engage at 393;
+- the panel is exactly a fifth of the window at 600, portrait and landscape,
+  and exactly 0 collapsed;
+- the content keeps one gutter either side in both states, and is wider than a
+  phone's in both orientations;
 - a pushed detail screen is the same card width, centred;
 - the app bar shares the content's margins;
-- which chrome the shell picks, and that the content clears the rail;
-- the rail is longer than it is thick, and one thickness in both orientations;
-- all five tabs still switch from the rail;
+- the reopen control is in the panel while open and inside the `SdAppBarV2`
+  while collapsed, **never both**, including mid-animation in either direction;
+- reduced motion moves the width on the next frame, and motion on does not;
+- the toggle's target clears 48;
+- all five tabs still switch **through the semantics tree**, by label — the
+  assertion that catches a chrome a screen reader cannot reach;
 - the bottom inset is reclaimed on a tablet and kept on a phone;
-- no tab screen and no log-flow step overflows.
+- no tab screen and no log-flow step overflows, open or collapsed.
 
 ## Not done yet — open decisions
 
@@ -188,5 +241,6 @@ It asserts, at 820×1180 and 1180×820 **and that none of it engages at 393**:
 | iPhone landscape | `Info.plist` allows it; a 390-tall log flow and paywall are unverified. Owner to decide portrait-only. |
 | Dashboard as two columns at ≥840 | Not built. `sections` is already a `List<Widget>`, so it is a split, not a rewrite. |
 | History master–detail | Not built. Needs `app_router.dart` — the detail is a pushed route today. |
-| Rail labels beside the glyphs at ≥840 | Not built, and deliberate: the rail is glyph-only like the pill, so both stay one control. |
+| The panel at exactly 600 | Shipped, and tight: a fifth of 600 is a 120 column, and `SdFittedTextV2` shrinks the five labels to fit it. Reached only by an iPad split at exactly half; owner to decide whether the panel should stay glyph-only below 840. |
+| Persisting the collapse across launches | Not built, deliberately. The panel is what names the five destinations for a user arriving on an iPad, and a remembered collapse hides that on the one launch it matters. |
 | A third grid column on a tablet | Not built. Now viable (197–320 cells against a phone's 175) since the card stopped being capped at 690. Owner's call. |
