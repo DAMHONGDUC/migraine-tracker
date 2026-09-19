@@ -12,8 +12,13 @@ final class DailyLogBackfillConstant {
   ///
   /// One owner, because three callers resolve it: the route, the dashboard's
   /// prompt and the reminder's payload.
+  ///
+  /// Always local midnight, never the instant it was called at: the day is what
+  /// the check-in's row is looked up by, and a value carrying the microsecond it
+  /// was built at is a different lookup on every rebuild.
   static DateTime resolve(String? dayKey) {
-    final DateTime today = DateTime.now();
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
 
     if (dayKey == null) return today;
 
@@ -24,9 +29,7 @@ final class DailyLogBackfillConstant {
       return today;
     }
 
-    final int back = DateTimeUtils.dayFromKey(
-      DateTimeUtils.dayKey(today),
-    ).difference(day).inDays;
+    final int back = today.difference(day).inDays;
 
     return back >= 0 && back < days ? day : today;
   }

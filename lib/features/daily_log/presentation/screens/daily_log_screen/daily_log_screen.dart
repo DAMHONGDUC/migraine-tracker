@@ -37,14 +37,33 @@ class DailyLogScreen extends HookConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     // Out of the window is not an error: it is today's check-in, which is what the button that got here was for.
     final DateTime day = DailyLogBackfillConstant.resolve(dayKey);
-    final DailyLog? existing = ref.watch(dailyLogForDayProvider(day)).value;
+    final AsyncValue<DailyLog?> existing = ref.watch(
+      dailyLogForDayProvider(day),
+    );
     final DailyCheckInState state = ref.watch(dailyLogControllerProvider);
+    final ObjectRef<bool> filled = useRef(false);
 
-    // Once per mount: after that the screen owns the answers, and re-loading would undo what the user just tapped.
+    // Once per mount, and not before the day's row has arrived: the stream
+    // answers a frame after the screen opens, and filling from that empty first
+    // frame would show an already-answered day as blank. After the fill the
+    // screen owns the answers, so a later emission must not undo a tap.
+    //
+    // The fill itself is deferred, because a provider may not be written to
+    // while the tree is building — and `useEffect` runs inside the build.
     useEffect(() {
-      ref.read(dailyLogControllerProvider.notifier).load(existing);
+      if (filled.value || existing.isLoading) return null;
+
+      filled.value = true;
+      final DailyLog? row = existing.value;
+
+      Future<void>.microtask(() {
+        if (!context.mounted) return;
+
+        ref.read(dailyLogControllerProvider.notifier).load(row);
+      });
+
       return null;
-    }, const <Object?>[]);
+    }, <Object?>[existing]);
 
     Future<void> save() async {
       try {
