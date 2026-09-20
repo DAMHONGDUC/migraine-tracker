@@ -30,6 +30,9 @@ exists because of this one gap.
 URL scheme — the reversed client id of one Firebase project. Wrong flavor: the
 Google sheet opens and the callback never arrives.
 
+A6 is the guard that closes the gap at runtime; B's `sd_verify_flavor_config`
+closes it before a build exists. Neither replaces the other.
+
 ### A2. `env_assets/` — the local source of truth
 
 A gitignored folder holding your own copies, one set per flavor:
@@ -124,6 +127,43 @@ the native build cache, which costs a cold build, hence separate). Setup
 **wipes first, unconditionally**: it is the one answer to "it built yesterday
 and not today". Its env step copies each missing `env/<flavor>.json` from its
 template and says loudly which files it created.
+
+### A6. The runtime flavour check
+
+One comparison, in `AppBootstrap.initFirebase`, at the one moment both halves
+of the config exist in the same process:
+
+```dart
+final String nativeProjectId = Firebase.app().options.projectId;
+if (nativeProjectId != AppEnv.firebaseProjectId) throw FlavorConfigMismatch(...);
+```
+
+| Rule | Why |
+|---|---|
+| Compare the **project id**, never the flavour name | The flavour string lives in the same file as everything else on the Dart side, so comparing it to itself proves nothing. `Firebase.app().options` is the native half reporting what it independently loaded. |
+| At **runtime**, not off the files | A file check answers "what is on disk". A plist cached in DerivedData, a stale incremental build, a hot restart after switching flavours — each passes a file check and fails this one. |
+| Inside the Firebase step, not a step of its own | `Firebase.app()` throws `[core/no-app]` when the step above it skipped initialization, so a separate step would re-derive whether it applies — a second copy of the same condition. |
+| Before the crash reporter step | A build pointed at the wrong project must not also send its crashes there. |
+
+**Three states, and only one is the bug:**
+
+| Both halves | How it looks | What happens |
+|---|---|---|
+| empty | no backend configured | runs — a warning line, an offline app |
+| Dart filled, native missing | `initializeApp` throws | runs — the user is somewhere with no signal |
+| filled, and different | everything works | refused — `StartupErrorGate` takes the app over |
+
+**Refuse a mismatch, never an absence.** A guard that fires on a missing half
+turns "the backend is not set up yet" into a broken app on day one of a fresh
+clone, and whoever hits it deletes the guard rather than the cause. That is
+what `StartupErrorGate.isFatal` is: `error is FlavorConfigMismatch`, and
+nothing wider — not "the Firebase step failed", which also catches both rows
+above it.
+
+What the user sees is the existing "the app could not start" screen — one more
+fatal startup state, not a screen of its own. The detail row names both
+projects and the command (`melos run prepare-env-<flavour>`), behind
+`AppEnv.isProd` as a `const`, so the release binary does not carry it.
 
 ---
 
