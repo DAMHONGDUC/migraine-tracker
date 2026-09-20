@@ -53,6 +53,17 @@ final class PrefsKeyConstant {
   static const String reviewPromptCount = 'review_prompt_count';
   static const String reviewPromptLastAskedAt = 'review_prompt_last_asked_at';
 
+  /// How the user left the head picker's camera controls: the magnification,
+  /// and the rotation speed as a whole percent.
+  ///
+  /// **Camera state, never attack data** (`lib/features/attacks/CLAUDE.md`) —
+  /// these describe how the picker is driven, not where anybody hurts, so
+  /// nothing here is synced or exported. Kept because someone who slowed the
+  /// turn down did it once and should not have to do it again on the next
+  /// attack.
+  static const String headZoom = 'head_zoom';
+  static const String headRotationSpeed = 'head_rotation_speed';
+
   /// Prefixes, not keys: the uid and the collection are appended (see `PrefsSyncCursorStore`).
   static const String syncCursorPrefix = 'sync_last_pulled_at_';
   static const String syncLastSyncedAtPrefix = 'sync_last_synced_at_';

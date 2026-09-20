@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/features/attacks/domain/enums/head_rotation_speed.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_gesture_surface.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_model_contract.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_viewport.dart';
@@ -193,6 +194,38 @@ void main() {
     await first.up();
     expect(taps, 0);
   });
+  testWidgets('a reduced rotation speed turns the head less far', (
+    WidgetTester tester,
+  ) async {
+    HeadViewport pose = (yaw: 0, pitch: 0, zoom: 1);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) =>
+              HeadGestureSurface(
+                pose: pose,
+                rotationSpeed: HeadRotationSpeed.slow,
+                onChanged: (HeadViewport next) => setState(() => pose = next),
+                child: const SizedBox.expand(),
+              ),
+        ),
+      ),
+    );
+
+    final TestGesture drag = await tester.startGesture(const Offset(200, 200));
+
+    await drag.moveBy(const Offset(40, 0));
+    await tester.pump();
+    // The same 40 points of drag, half the turn — the setting is spent on the
+    // rotation and on nothing else.
+    expect(
+      pose.yaw,
+      closeTo(-40 * HeadViewportUtils.degreesPerPoint * 0.5, 0.001),
+    );
+    await drag.up();
+  });
+
   testWidgets('drag follows the finger and retains updates between frames', (
     WidgetTester tester,
   ) async {

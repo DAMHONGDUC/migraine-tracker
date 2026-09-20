@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
+import '../../domain/enums/head_rotation_speed.dart';
 import 'head_pose.dart';
 
 /// Camera state stays separate from recorded pain locations.
@@ -16,20 +17,34 @@ final class HeadViewportUtils {
   static const double maxZoom = 2;
   static const double zoomStep = 0.25;
 
-  /// Where the head starts, and where Reset puts it back.
+  /// Where the head starts, and where Reset puts it back — for anyone who has
+  /// not set their own (see `HeadControlsController`).
   ///
   /// **Not [minZoom]** (owner's rule): framed to fit, the head sits in the
   /// middle of the viewport with air all round it, and the regions a user is
   /// actually aiming at — temple, eye, jaw — are small targets a long way from
-  /// the thumb. Three steps in fills the frame with the head itself, so the
+  /// the thumb. Two steps in fills the frame with the head itself, so the
   /// first tap lands without anyone having to zoom in first.
   ///
-  /// On the [zoomStep] ladder on purpose (1 + 3 x 0.25), so the minus button
+  /// **150%, down from 175%** (owner's call, 2026-09-19, once the controls
+  /// stopped taking a row of their own): the head now gets that height back,
+  /// so the same head fills the frame at a lower level, and a lower one leaves
+  /// more of the crown and jaw inside the viewport to aim at.
+  ///
+  /// On the [zoomStep] ladder on purpose (1 + 2 x 0.25), so the minus button
   /// walks straight back down to [minZoom] and the readout never shows a level
   /// the buttons cannot reach.
-  static const double defaultZoom = 1.75;
+  static const double defaultZoom = 1.5;
   static const double maxPitch = 85;
+
+  /// How far a drag turns the head, before the user's own rotation speed is
+  /// applied to it.
   static const double degreesPerPoint = HeadPose.degreesPerPoint;
+
+  /// [degreesPerPoint] as [speed] leaves it — the one place the setting is
+  /// spent, so nothing else has to remember to apply it.
+  static double degreesPerPointAt(HeadRotationSpeed speed) =>
+      degreesPerPoint * speed.factor;
   static const double fieldOfView = 45 * vm.degrees2Radians;
   static const double framingMargin = 1.08;
 

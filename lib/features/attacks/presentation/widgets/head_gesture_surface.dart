@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:system_design/common.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
+import '../../domain/enums/head_rotation_speed.dart';
 import 'head_viewport.dart';
 
 /// The GPU-independent gesture boundary is testable with the same recognizers the scene uses.
@@ -10,6 +11,7 @@ class HeadGestureSurface extends StatefulWidget {
   const HeadGestureSurface({
     required this.pose,
     required this.child,
+    this.rotationSpeed = HeadRotationSpeed.initial,
     this.onChanged,
     this.onStart,
     this.onTap,
@@ -17,6 +19,11 @@ class HeadGestureSurface extends StatefulWidget {
   });
 
   final HeadViewport pose;
+
+  /// How far a drag turns the head. Only rotation is scaled: a pinch is
+  /// measured against the fingers themselves, and slowing that down would
+  /// make the head disagree with them.
+  final HeadRotationSpeed rotationSpeed;
   final Widget child;
   final ValueChanged<HeadViewport>? onChanged;
   final VoidCallback? onStart;
@@ -73,15 +80,16 @@ class _HeadGestureSurfaceState extends State<HeadGestureSurface> {
     if (details.focalPointDelta != Offset.zero || details.scale != _scale) {
       _moved = true;
     }
+
+    final double perPoint = HeadViewportUtils.degreesPerPointAt(
+      widget.rotationSpeed,
+    );
+
     _gesturePose = HeadViewportUtils.constrained((
-      yaw: pinch
-          ? pose.yaw
-          : pose.yaw -
-                details.focalPointDelta.dx * HeadViewportUtils.degreesPerPoint,
+      yaw: pinch ? pose.yaw : pose.yaw - details.focalPointDelta.dx * perPoint,
       pitch: pinch
           ? pose.pitch
-          : pose.pitch +
-                details.focalPointDelta.dy * HeadViewportUtils.degreesPerPoint,
+          : pose.pitch + details.focalPointDelta.dy * perPoint,
       zoom: pinch ? _zoom * details.scale / _scale : pose.zoom,
     ));
     widget.onChanged?.call(_gesturePose);

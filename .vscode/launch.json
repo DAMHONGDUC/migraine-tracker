@@ -28,5 +28,13 @@
             "args": ["--dart-define-from-file=env/dev.json"],
             "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
+         {
+            "name": "dev-ipad-13-pro",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": ["--dart-define-from-file=env/dev.json"],
+            "deviceId": "0EE13131-255E-481E-BA82-3F5FCBE292E2"
+        },
     ]
 }

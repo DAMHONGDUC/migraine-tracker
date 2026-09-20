@@ -21,6 +21,7 @@ import 'domain/services/step_attach_service.dart';
 import 'domain/services/weather_attach_service.dart';
 import 'presentation/controllers/attack_detail_controller.dart';
 import 'presentation/controllers/attack_share_controller.dart';
+import 'presentation/controllers/head_controls_controller.dart';
 import 'presentation/controllers/log_controller.dart';
 
 final attackRepositoryProvider = Provider<AttackRepository>(
@@ -191,3 +192,11 @@ final logControllerProvider = NotifierProvider<LogController, LogFlowState>(
 final attackDetailControllerProvider = Provider<AttackDetailController>(
   AttackDetailController.new,
 );
+
+/// How the head picker is driven, kept between launches (see
+/// [HeadControlsController]). App-scoped rather than `autoDispose`, so the log
+/// flow and the detail screen's edit sheet drive the head the same way.
+final headControlsProvider =
+    NotifierProvider<HeadControlsController, HeadControls>(
+      HeadControlsController.new,
+    );

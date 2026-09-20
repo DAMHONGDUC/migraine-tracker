@@ -6,6 +6,7 @@ import 'package:vector_math/vector_math.dart' as vm;
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/enums/head_region.dart';
+import '../../domain/enums/head_rotation_speed.dart';
 import 'head_gesture_surface.dart';
 import 'head_model_contract.dart';
 import 'head_viewport.dart';
@@ -18,6 +19,7 @@ class HeadScene extends StatefulWidget {
     required this.yaw,
     this.pitch = 0,
     this.zoom = 1,
+    this.rotationSpeed = HeadRotationSpeed.initial,
     this.onRegionTapped,
     this.onYawChanged,
     this.onPoseChanged,
@@ -30,6 +32,9 @@ class HeadScene extends StatefulWidget {
   final double yaw;
   final double pitch;
   final double zoom;
+
+  /// The user's own rotation speed, spent by [HeadGestureSurface].
+  final HeadRotationSpeed rotationSpeed;
   final ValueChanged<HeadRegion>? onRegionTapped;
   final ValueChanged<double>? onYawChanged;
   final ValueChanged<HeadViewport>? onPoseChanged;
@@ -177,6 +182,7 @@ class _HeadSceneState extends State<HeadScene> {
       return ClipRect(
         child: HeadGestureSurface(
           pose: _pose,
+          rotationSpeed: widget.rotationSpeed,
           onChanged: widget.onPoseChanged == null && widget.onYawChanged == null
               ? null
               : _changePose,

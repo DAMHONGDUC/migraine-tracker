@@ -56,6 +56,18 @@ final class HeadSceneStore {
     }
   }
 
+  /// Test seam: answers the way a device with no Flutter GPU does, without
+  /// running the load.
+  ///
+  /// A widget test never resolves `Node.fromGlbAsset` — there is no GPU to
+  /// resolve it against — so a test of the flat fallback has to be able to say
+  /// "not here" outright, or it waits on a model that can never arrive.
+  static void markUnavailable() {
+    _pending = Future<Node?>.value();
+    _template = null;
+    _unavailable = true;
+  }
+
   /// Test seam: forgets what was loaded so the next call tries again.
   static void reset() {
     _pending = null;

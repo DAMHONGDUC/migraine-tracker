@@ -854,6 +854,7 @@
   "logHeadResetView": "Ansicht zurücksetzen",
   "logHeadGestureHint": "Ziehen zum Drehen · Finger spreizen zum Zoomen",
   "logHeadZoomLevel": "{percent} %",
+  "logHeadRotationSpeed": "Drehgeschwindigkeit {percent} %",
   "aboutHeadModelCredit": "3D-Kopf: „Infinite“ von Lee Perry-Smith / triplegangers.com, aus den three.js-Beispielen. Lizenz: CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Von BaroEase zugeschnitten, in Schmerzbereiche unterteilt und neu eingefärbt.",
   "navPanelExpand": "Navigation einblenden",
   "navPanelCollapse": "Navigation ausblenden"

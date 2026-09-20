@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:system_design/index.dart';
 
@@ -11,6 +12,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/head_region.dart';
+import '../../domain/enums/head_rotation_speed.dart';
+import '../../providers.dart';
+import '../controllers/head_controls_controller.dart';
 import 'head_diagram.dart';
 import 'head_pose.dart';
 import 'head_region_geometry.dart';
@@ -53,7 +57,7 @@ part 'head_region_picker_controls.dart';
 /// the flat pair could never say — that the face and the nape are two sides of
 /// the same head. A drag turns it freely, and the tabs stay because they carry
 /// the per-side count and are the way in for anyone who does not drag.
-class HeadRegionPicker extends StatefulWidget {
+class HeadRegionPicker extends ConsumerStatefulWidget {
   const HeadRegionPicker({
     required this.selected,
     required this.onChanged,
@@ -64,15 +68,21 @@ class HeadRegionPicker extends StatefulWidget {
   final ValueChanged<List<HeadRegion>> onChanged;
 
   @override
-  State<HeadRegionPicker> createState() => _HeadRegionPickerState();
+  ConsumerState<HeadRegionPicker> createState() => _HeadRegionPickerState();
 }
 
-class _HeadRegionPickerState extends State<HeadRegionPicker>
+class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
     with SingleTickerProviderStateMixin {
   /// The live angle. The tabs animate it and a drag sets it; nothing else may.
   double _pitch = 0;
-  double _zoom = HeadViewportUtils.defaultZoom;
   bool _available = HeadSceneStore.template != null;
+
+  /// Zoom and rotation speed are the user's own settings and outlive the
+  /// screen, so they live in [HeadControlsController] rather than here — the
+  /// angle does not (see that controller).
+  HeadControls get _controls => ref.read(headControlsProvider);
+
+  double get _zoom => _controls.zoom;
 
   late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
 
@@ -180,8 +190,11 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
     setState(() {
       _yaw = pose.yaw;
       _pitch = pose.pitch;
-      _zoom = pose.zoom;
     });
+    // On screen this frame, in the Keychain once the fingers stop: the
+    // controller debounces the write, which is what makes a pinch — a new
+    // zoom per pointer frame — one save rather than fifty.
+    ref.read(headControlsProvider.notifier).setZoom(pose.zoom);
   }
 
   void _setZoom(double zoom) {
@@ -201,6 +214,9 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
       'zoom': _zoom,
     });
   }
+
+  void _reduceRotationSpeed() =>
+      ref.read(headControlsProvider.notifier).reduceRotationSpeed();
 
   void _resetView() {
     SdLogger.action(
@@ -244,6 +260,7 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final HeadControls controls = ref.watch(headControlsProvider);
 
     return Column(
       children: <Widget>[
@@ -266,19 +283,9 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
             onSelected: (int index) => _snapTo(HeadView.values[index]),
           ),
         ),
-        SizedBox(
-          height: SdSpacingConstant.h44,
-          child: _available
-              ? _HeadZoomControls(
-                  zoom: _zoom,
-                  onZoom: _setZoom,
-                  onReset: _resetView,
-                )
-              : null,
-        ),
         // The head is sized from its WIDTH, not from what is left over
         // (owner's rule); the `min` below only guards a short column. What it
-        // does not use goes to the tiles, and the rest is margin either side.
+        // does not use goes to the tiles, and the rest is air around the head.
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -296,34 +303,63 @@ class _HeadRegionPickerState extends State<HeadRegionPicker>
               );
 
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
-                    height: head,
-                    child: Semantics(
-                      label: widget.selected.isEmpty
-                          ? l10n.logLocationNone
-                          : widget.selected.label(l10n),
-                      excludeSemantics: true,
-                      child: _SideLabelled(
-                        inset: _headInset,
-                        overlay: _available,
-                        leftOnLeft:
-                            !_available || HeadPose.leftIsOnScreenLeft(_yaw),
-                        child: HeadDiagram(
-                          expandScene: true,
-                          selected: widget.selected,
-                          view: _view,
-                          yaw: _yaw,
-                          pitch: _pitch,
-                          zoom: _zoom,
-                          onPoseChanged: _poseTo,
-                          onInteractionStart: _turn.stop,
-                          onAvailabilityChanged: _availabilityChanged,
-                          onRegionTapped: _toggle,
-                          onYawChanged: _dragTo,
+                  // The controls float OVER the head rather than sitting in a
+                  // row of their own (owner's rule, 2026-09-19): that row cost
+                  // the head 44pt of the one screen this step may use, to
+                  // carry three buttons that are mostly air. Overlaid they
+                  // cost nothing, and the head is centred in everything the
+                  // tiles leave instead of being pushed down by them.
+                  Expanded(
+                    child: Stack(
+                      children: <Widget>[
+                        Align(
+                          child: SizedBox(
+                            height: head,
+                            width: double.infinity,
+                            child: Semantics(
+                              label: widget.selected.isEmpty
+                                  ? l10n.logLocationNone
+                                  : widget.selected.label(l10n),
+                              excludeSemantics: true,
+                              child: _SideLabelled(
+                                inset: _headInset,
+                                overlay: _available,
+                                leftOnLeft:
+                                    !_available ||
+                                    HeadPose.leftIsOnScreenLeft(_yaw),
+                                child: HeadDiagram(
+                                  expandScene: true,
+                                  selected: widget.selected,
+                                  view: _view,
+                                  yaw: _yaw,
+                                  pitch: _pitch,
+                                  zoom: controls.zoom,
+                                  onPoseChanged: _poseTo,
+                                  onInteractionStart: _turn.stop,
+                                  onAvailabilityChanged: _availabilityChanged,
+                                  onRegionTapped: _toggle,
+                                  onYawChanged: _dragTo,
+                                  rotationSpeed: controls.rotationSpeed,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (_available)
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: _HeadZoomControls(
+                              zoom: controls.zoom,
+                              rotationSpeed: controls.rotationSpeed,
+                              onZoom: _setZoom,
+                              onReduceRotationSpeed: _reduceRotationSpeed,
+                              onReset: _resetView,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   SizedBox(height: gap),

@@ -1,14 +1,24 @@
 part of 'head_region_picker.dart';
 
+/// The head's camera controls, floating over the head itself.
+///
+/// **Overlaid rather than stacked above it** (owner's rule, 2026-09-19): as a
+/// row of its own it took 44pt off the one screen this step is allowed, for
+/// four targets and a line of hint text. Over the head it costs nothing, and
+/// what it covers is the air above the crown.
 class _HeadZoomControls extends StatelessWidget {
   const _HeadZoomControls({
     required this.zoom,
+    required this.rotationSpeed,
     required this.onZoom,
+    required this.onReduceRotationSpeed,
     required this.onReset,
   });
 
   final double zoom;
+  final HeadRotationSpeed rotationSpeed;
   final ValueChanged<double> onZoom;
+  final VoidCallback onReduceRotationSpeed;
   final VoidCallback onReset;
 
   @override
@@ -27,6 +37,18 @@ class _HeadZoomControls extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
+          ),
+          // Tinted while the turn is slowed, because the setting is otherwise
+          // felt rather than seen: the button's own glyph never changes, and
+          // a control whose state only shows up in a tooltip is a control
+          // nobody can check.
+          _HeadZoomButton(
+            label: l10n.logHeadRotationSpeed(rotationSpeed.percent),
+            icon: Symbols.speed_rounded,
+            tint: rotationSpeed == HeadRotationSpeed.full
+                ? null
+                : AppColors.primary,
+            onPressed: onReduceRotationSpeed,
           ),
           _HeadZoomButton(
             label: l10n.logHeadZoomOut,
@@ -67,11 +89,15 @@ class _HeadZoomButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.tint,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
+
+  /// Overrides the resting colour, for a button that is also a readout.
+  final Color? tint;
 
   @override
   Widget build(BuildContext context) => IconButton(
@@ -84,7 +110,9 @@ class _HeadZoomButton extends StatelessWidget {
     icon: SdIconV2(
       icon: icon,
       size: SdSpacingConstant.r20,
-      color: onPressed == null ? AppColors.chartGrid : AppColors.textSecondary,
+      color: onPressed == null
+          ? AppColors.chartGrid
+          : tint ?? AppColors.textSecondary,
     ),
   );
 }

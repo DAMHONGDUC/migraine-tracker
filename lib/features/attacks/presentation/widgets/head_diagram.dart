@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart' show Node;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:system_design/index.dart';
 
+import '../../../../core/widgets/app_loading_dots.dart';
 import '../../domain/enums/head_region.dart';
+import '../../domain/enums/head_rotation_speed.dart';
 import 'head_pose.dart';
 import 'head_region_geometry.dart';
 import 'head_region_painter.dart';
@@ -18,6 +21,13 @@ import 'head_viewport.dart';
 /// is the answer whenever [HeadSceneStore] comes back empty. Both draw the same
 /// fifteen areas and both pick them: a phone that cannot render a model still
 /// has to be able to record where it hurts.
+///
+/// **While the model is still loading it draws a placeholder, never the flat
+/// head** (owner's rule, 2026-09-18). The flat head used to fill that gap and
+/// the user saw it blink past on every open — a drawing that appears and is
+/// replaced a moment later reads as a glitch, not as a fallback. The flat pair
+/// is now what a device answers with once loading has actually failed, and the
+/// wait says "waiting" the way every other known-size wait in the app does.
 class HeadDiagram extends StatefulWidget {
   const HeadDiagram({
     required this.selected,
@@ -25,6 +35,7 @@ class HeadDiagram extends StatefulWidget {
     this.yaw,
     this.pitch = 0,
     this.zoom = 1,
+    this.rotationSpeed = HeadRotationSpeed.initial,
     this.expandScene = false,
     this.onPoseChanged,
     this.onInteractionStart,
@@ -45,6 +56,10 @@ class HeadDiagram extends StatefulWidget {
   final double? yaw;
   final double pitch;
   final double zoom;
+
+  /// The user's own rotation speed. It reaches the gesture surface and nothing
+  /// else — the flat fallback has no turn to slow down.
+  final HeadRotationSpeed rotationSpeed;
 
   /// Let the 3D picker use its whole slot; the SVG keeps its design ratio.
   final bool expandScene;
@@ -69,6 +84,11 @@ class HeadDiagram extends StatefulWidget {
 class _HeadDiagramState extends State<HeadDiagram> {
   Node? _template = HeadSceneStore.template;
 
+  /// Whether the model has been tried and cannot be drawn here. Separate from
+  /// a null template, because "not yet" and "never" are the two waits this
+  /// widget answers differently.
+  bool _unavailable = HeadSceneStore.unavailable;
+
   @override
   void initState() {
     super.initState();
@@ -76,13 +96,17 @@ class _HeadDiagramState extends State<HeadDiagram> {
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
       if (mounted) widget.onAvailabilityChanged?.call(_template != null);
     });
-    if (_template != null || HeadSceneStore.unavailable) return;
+    if (_template != null || _unavailable) return;
 
     // Unawaited by shape, not by accident: nothing on this screen waits for a
-    // model, and the flat diagram is already on screen while it loads.
+    // model, and the placeholder is already on screen while it loads.
     HeadSceneStore.load().then((Node? node) {
       if (!mounted) return;
-      if (node != null) setState(() => _template = node);
+
+      setState(() {
+        _template = node;
+        _unavailable = node == null;
+      });
       widget.onAvailabilityChanged?.call(node != null);
     });
   }
@@ -91,23 +115,26 @@ class _HeadDiagramState extends State<HeadDiagram> {
   Widget build(BuildContext context) {
     final Node? template = _template;
 
-    final Widget head = template == null
-        ? _FlatHead(
-            selected: widget.selected,
-            view: widget.view,
-            onRegionTapped: widget.onRegionTapped,
-          )
-        : HeadScene(
-            template: template,
-            pitch: widget.pitch,
-            zoom: widget.zoom,
-            onPoseChanged: widget.onPoseChanged,
-            onInteractionStart: widget.onInteractionStart,
-            selected: widget.selected,
-            yaw: widget.yaw ?? HeadPose.yawFor(widget.view),
-            onRegionTapped: widget.onRegionTapped,
-            onYawChanged: widget.onYawChanged,
-          );
+    final Widget head = switch ((template, _unavailable)) {
+      (final Node node, _) => HeadScene(
+        template: node,
+        pitch: widget.pitch,
+        zoom: widget.zoom,
+        rotationSpeed: widget.rotationSpeed,
+        onPoseChanged: widget.onPoseChanged,
+        onInteractionStart: widget.onInteractionStart,
+        selected: widget.selected,
+        yaw: widget.yaw ?? HeadPose.yawFor(widget.view),
+        onRegionTapped: widget.onRegionTapped,
+        onYawChanged: widget.onYawChanged,
+      ),
+      (null, false) => const _LoadingHead(),
+      (null, true) => _FlatHead(
+        selected: widget.selected,
+        view: widget.view,
+        onRegionTapped: widget.onRegionTapped,
+      ),
+    };
 
     if (template != null && widget.expandScene) {
       return SizedBox.expand(child: head);
@@ -117,6 +144,26 @@ class _HeadDiagramState extends State<HeadDiagram> {
       child: head,
     );
   }
+}
+
+/// The wait before the solid head arrives: the launch's own dots, centred in
+/// the box the head will fill.
+///
+/// **The same animation as the splash, on purpose** (owner's rule,
+/// 2026-09-19). Loading the model is the same kind of wait as launching — the
+/// app holding still for something it cannot hurry — and a skeleton block here
+/// said something different about it while also filling the picker with grey.
+/// [AppLoadingDots] is the one owner of that look.
+class _LoadingHead extends StatelessWidget {
+  const _LoadingHead();
+
+  /// The launch draws its dots at 40 raw pixels above `ScreenUtilInit`; this
+  /// one is inside the app tree, so it scales with the screen like everything
+  /// else on this step.
+  static double get _dotsSize => SdSpacingConstant.r32;
+
+  @override
+  Widget build(BuildContext context) => AppLoadingDots(size: _dotsSize);
 }
 
 /// The original pair of drawings: line art from an SVG over a painted fill.
