@@ -13,6 +13,13 @@
       "enable_force_update": false
     }
   },
+  "error_view": {
+    "enable": false,
+    "title": "BaroEase is having trouble",
+    "subtitle_1": "We are repairing the connection to our servers.",
+    "subtitle_2": "Everything you have logged is safe on this device.",
+    "type": "warning"
+  },
   "premium_emails": ["review@baroease.app", "owner@baroease.app"],
   "dev_mode_emails": ["owner@baroease.app"],
   "blocked_emails": ["banned@example.com"]

@@ -9,6 +9,7 @@ import '../auth/providers.dart';
 import 'data/repositories/firestore_app_config_repository.dart';
 import 'data/services/url_store_launcher.dart';
 import 'domain/entities/app_config.dart';
+import 'domain/entities/error_view_config.dart';
 import 'domain/entities/installed_app_version.dart';
 import 'domain/enums/app_platform.dart';
 import 'domain/repositories/app_config_repository.dart';
@@ -62,6 +63,17 @@ final hasGrantedPremiumProvider = Provider<bool>(
 final isAccountBlockedProvider = Provider<bool>(
   (ref) =>
       ref.watch(_configProvider).isBlocked(ref.watch(_configEmailProvider)),
+);
+
+/// The owner's notice, or null when there is none to show.
+///
+/// Not keyed on the address, unlike the gates above it: an outage is not
+/// something one account is on a list for, so this reads the same for an
+/// anonymous session as for a signed-in one. Null while the read is in flight
+/// and after it failed — a notice is a thing the owner has to write, and a read
+/// that has not landed must never replace a working app with a screen.
+final remoteErrorViewProvider = Provider<ErrorViewConfig?>(
+  (ref) => ref.watch(_configProvider).errorView,
 );
 
 /// Whether Settings shows its Dev group.

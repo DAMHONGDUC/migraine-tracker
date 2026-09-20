@@ -1,10 +1,12 @@
 import 'package:meta/meta.dart';
 
 import 'app_update_config.dart';
+import 'error_view_config.dart';
 
 /// The whole `app_config/current` document: **every** switch the owner
-/// controls — the three address lists they maintain by hand, and the
-/// published-build record behind force update.
+/// controls — the three address lists they maintain by hand, the
+/// published-build record behind force update, and the notice they can put in
+/// front of the whole app.
 ///
 /// **Every list is lower-cased on the way in.** Firebase Auth stores an address
 /// lower-cased and the owner types the list by hand, so `Review@BaroEase.app`
@@ -15,6 +17,7 @@ import 'app_update_config.dart';
 class AppConfig {
   AppConfig({
     this.forceUpdate,
+    this.errorView,
     Set<String> premiumEmails = const <String>{},
     Set<String> devModeEmails = const <String>{},
     Set<String> blockedEmails = const <String>{},
@@ -40,6 +43,12 @@ class AppConfig {
   /// every launch and every resume, which is a second thing to keep pointing at
   /// the right id and a second thing to get denied on its own.
   final AppUpdateConfig? forceUpdate;
+
+  /// The owner's notice to put in front of the whole app, or null when there
+  /// is none to show — switched off, absent, malformed, or with nothing to
+  /// say. Null is the normal state: this is a field the owner has to write,
+  /// like every other one on this document.
+  final ErrorViewConfig? errorView;
 
   /// Premium in the app whatever RevenueCat says, and a target of the pressure-alert cron.
   final Set<String> premiumEmails;
@@ -75,6 +84,7 @@ class AppConfig {
       identical(this, other) ||
       other is AppConfig &&
           other.forceUpdate == forceUpdate &&
+          other.errorView == errorView &&
           _same(other.premiumEmails, premiumEmails) &&
           _same(other.devModeEmails, devModeEmails) &&
           _same(other.blockedEmails, blockedEmails);
@@ -82,6 +92,7 @@ class AppConfig {
   @override
   int get hashCode => Object.hash(
     forceUpdate,
+    errorView,
     Object.hashAllUnordered(premiumEmails),
     Object.hashAllUnordered(devModeEmails),
     Object.hashAllUnordered(blockedEmails),

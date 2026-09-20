@@ -7,8 +7,10 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/app_config.dart';
 import '../../domain/entities/app_config_schema.dart';
 import '../../domain/entities/app_update_config.dart';
+import '../../domain/entities/error_view_config.dart';
 import '../../domain/repositories/app_config_repository.dart';
 import 'app_update_mapper.dart';
+import 'error_view_mapper.dart';
 
 /// Reads the one `app_config/current` document — **the app's only read of it**.
 ///
@@ -42,6 +44,7 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
             devModeEmails: _emails(data[AppConfigSchema.devModeEmailsField]),
             blockedEmails: _emails(data[AppConfigSchema.blockedEmailsField]),
             forceUpdate: _forceUpdate(data[AppConfigSchema.forceUpdateField]),
+            errorView: _errorView(data[AppConfigSchema.errorViewField]),
           );
 
           // Counts, never the addresses: this line says how many people are
@@ -54,6 +57,9 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
               'devModeEmails': config.devModeEmails.length,
               'blockedEmails': config.blockedEmails.length,
               'hasForceUpdate': config.forceUpdate != null,
+              // The copy itself is the owner's and can be long; what a console
+              // needs to answer is whether a notice is up and how loud it is.
+              'errorView': config.errorView?.type.name ?? 'none',
             },
           );
 
@@ -94,6 +100,11 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
   /// Anything that is not a map is no record at all — typed by hand like the rest, and a malformed one must block nobody rather than throw on launch.
   static AppUpdateConfig? _forceUpdate(Object? value) => value is Map
       ? AppUpdateMapper.fromMap(Map<String, Object?>.from(value))
+      : null;
+
+  /// Anything that is not a map is no notice at all — typed by hand like the rest, and a malformed one must leave the app alone rather than replace it.
+  static ErrorViewConfig? _errorView(Object? value) => value is Map
+      ? ErrorViewMapper.fromMap(Map<String, Object?>.from(value))
       : null;
 
   /// Anything that is not a list of strings is an empty list — the field is typed by hand in the console, and a malformed one must grant nothing rather than throw on launch.

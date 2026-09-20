@@ -24,6 +24,11 @@ final class AppColors {
   /// Desaturated red for errors — no harsh alarm tones.
   static const Color error = Color(0xFFE5766E);
 
+  /// One step below [error]: something is wrong but the user is not being
+  /// stopped by it. The amber of the `intensity` scale's "moderate" band, so
+  /// the app has one idea of "caution" rather than two that nearly match.
+  static const Color warning = Color(0xFFD9C24E);
+
   /// Chart series color — one step darker than [primary] so it sits inside the dark-mode lightness band (validated: contrast ≥3:1 on [surface]).
   static const Color chartSeries = Color(0xFF9182EC);
 

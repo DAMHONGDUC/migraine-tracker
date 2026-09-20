@@ -360,6 +360,12 @@ final class AppIconConstant {
   /// Something failed and the user is being told — the startup error screen.
   static const IconData error = Symbols.error_rounded;
 
+  /// Something is wrong but nothing is broken — the owner's `warning` notice.
+  /// A different glyph from [error] and not just a different colour, so the
+  /// severity survives being read by someone who cannot tell the two apart
+  /// (hard rule 3).
+  static const IconData warning = Symbols.warning_rounded;
+
   /// The privacy policy and the terms.
   static const IconData document = Symbols.description_rounded;
 

@@ -21,6 +21,7 @@ import 'features/alerts/providers.dart';
 import 'features/app_config/domain/entities/installed_app_version.dart';
 import 'features/app_config/presentation/widgets/blocked_account_gate.dart';
 import 'features/app_config/presentation/widgets/force_update_wrapper.dart';
+import 'features/app_config/presentation/widgets/remote_error_gate.dart';
 import 'features/app_config/providers.dart';
 import 'features/attacks/domain/entities/attack.dart';
 import 'features/attacks/providers.dart';
@@ -262,11 +263,17 @@ class _BaroEaseAppView extends HookConsumerWidget {
             child: NotificationTapListener(
               child: HomeWidgetTapListener(
                 child: ForceUpdateWrapper(
-                  // Inside force update, so a blocked user on an unsupported
-                  // build is told to update first: one of the two has to win,
-                  // and the store link is the one that helps either way.
-                  child: BlockedAccountGate(
-                    child: child ?? const SizedBox.shrink(),
+                  // Inside force update, so a user on an unsupported build is
+                  // told to update first: one of these has to win, and the
+                  // store link is the one that helps either way.
+                  child: RemoteErrorGate(
+                    // Outside the block, because the owner's notice is
+                    // addressed to everybody and the block to one account —
+                    // "the backend is down" is the more useful of the two
+                    // sentences to show a blocked user.
+                    child: BlockedAccountGate(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),

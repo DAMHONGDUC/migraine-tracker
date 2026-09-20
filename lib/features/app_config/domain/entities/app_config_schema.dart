@@ -24,4 +24,7 @@ abstract final class AppConfigSchema {
 
   /// Addresses locked out of the app.
   static const String blockedEmailsField = 'blocked_emails';
+
+  /// The owner's notice in front of the whole app: `{enable, title, subtitle_1, subtitle_2, type}`, read by `ErrorViewMapper`.
+  static const String errorViewField = 'error_view';
 }
