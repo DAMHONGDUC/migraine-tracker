@@ -69,11 +69,11 @@ floating in a margin — and inside the content region the screen keeps the same
 16 gutter it has on a phone. One gap, and it is a gutter the app already had.
 
 ```text
-iPad 11" portrait, 820 x 1180
+iPad 11" portrait, 820 x 1180 — rendered, at maxScale 1.25
 ┌───────────────┬────┬──────────────────────────────┬────┐
-│ panel 164     │ 16 │ app bar — same margins below │ 16 │
+│ panel 164     │ 20 │ app bar — same edges below   │ 20 │
 │ (window / 5)  │    ├──────────────────────────────┤    │
-│ Home          │    │ card 624 — fills what is left│    │
+│ Home          │    │ card 616 — fills what is left│    │
 │ History  …    │    │                              │    │
 └───────────────┴────┴──────────────────────────────┴────┘
 ```
@@ -91,10 +91,12 @@ Measured, not calculated — what the app renders at:
 | | Panel | Content region | Card | Gutter either side |
 |---|---|---|---|---|
 | phone 393×852 | — | 393 | 361 | 16 |
-| iPad portrait 820×1180 | 164 | 656 | 624 | 16 |
-| iPad landscape 1180×820 | 236 | 944 | 912 | 16 |
-| collapsed, portrait | 0 | 820 | 788 | 16 |
-| pushed detail, portrait | — | 820 | 788 | 16 |
+| iPad portrait 820×1180 | 164 | 656 | 616 | 20 |
+| iPad landscape 1180×820 | 236 | 944 | 904 | 20 |
+| collapsed, portrait | 0 | 820 | 780 | 20 |
+| collapsed, landscape | 0 | 1180 | 1140 | 20 |
+| pushed detail, portrait | — | 820 | 780 | 20 |
+| pushed detail, landscape | — | 1180 | 1140 | 20 |
 
 ### A screen with no shell nav fills the window
 
@@ -110,7 +112,7 @@ rail, where matching cost 55 per side and nobody saw it. Against a panel it
 costs `window / 10` — 82 in portrait, 118 in landscape — and it buys a detail
 screen a phantom margin the shape of a chrome that is not there. **A collapsible
 panel also has no single width to match**: collapse it and the tab screen is
-788 wide while the detail it opens would still be 624.
+780 wide while the detail it opens would still be 616.
 
 The cost, stated: pushing a detail from an expanded panel widens the content by
 a fifth of the window. The panel disappearing is the larger change on screen,
@@ -220,11 +222,11 @@ mid-collapse cannot reflow them into an overflow.
 | Window | Card | 2-up cell | 3-up cell would be |
 |---|---|---|---|
 | phone 393 | 361 | 175 | 111 |
-| iPad portrait 820, panel open | 624 | 304 | 199 |
-| iPad landscape 1180, panel open | 912 | 448 | 299 |
+| iPad portrait 820, panel open | 616 | 300 | 195 |
+| iPad landscape 1180, panel open | 904 | 444 | 291 |
 
 While the card was capped at 690 a third column would have gone *below* the
-phone's cell width, which settled it. At 624–912 it no longer would, so this is
+phone's cell width, which settled it. At 616–904 it no longer would, so this is
 an open question rather than a closed one — see the decisions below. Note the
 card now has two widths per window, open and collapsed, so a column count
 chosen off one of them is a count that changes under the toggle.
@@ -268,4 +270,4 @@ It asserts, at 820×1180 and 1180×820 **and that none of it engages at 393**:
 | History master–detail | Not built. Needs `app_router.dart` — the detail is a pushed route today. |
 | The panel at exactly 600 | Shipped, and tight: a fifth of 600 is a 120 column, and `SdFittedTextV2` shrinks the five labels to fit it. Reached only by an iPad split at exactly half; owner to decide whether the panel should stay glyph-only below 840. |
 | Persisting the collapse across launches | Not built, deliberately. The panel is what names the five destinations for a user arriving on an iPad, and a remembered collapse hides that on the one launch it matters. |
-| A third grid column on a tablet | Not built. Now viable (197–320 cells against a phone's 175) since the card stopped being capped at 690. Owner's call. |
+| A third grid column on a tablet | Not built. Now viable (195–291 cells against a phone's 175) since the card stopped being capped. Owner's call. |
