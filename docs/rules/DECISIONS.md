@@ -35,6 +35,30 @@ obvious alternative and it is the one the spec this came from argues against at
 length: the strip belongs to no screen, pushes every one of them down, and takes
 a second claim on the top safe inset the screen's app bar already owns.
 
+## "A screen with no shell nav gets the same width, centred"
+
+An owner's rule for the whole of the rail's life, and retired the day after the
+panel shipped (owner's call, 2026-09-20): a detail screen pushed above the shell
+took half a nav column per side so its card came out the width of the tab screen
+it was opened from, with no jump on the way in.
+
+It was measured against a **110 column**, where matching cost 55 a side and
+nobody saw it. Against a panel a fifth of the window wide it costs `window / 10`
+— 82 in portrait, 118 in landscape — and what it buys is a phantom margin the
+shape of a chrome that is not beside the screen at all. **A collapsible panel
+also has no single width to match:** collapsed, a tab screen is 788 wide on an
+820 window while the detail it opens would still have been 624.
+
+So `SdContentPaddingV2.pageMargin` is gone, and with it the `Padding` and the
+`ColoredBox` that `SdScaffoldV2` wrapped every screen in — it is a plain
+`Scaffold` now. **The cost is real and was accepted:** pushing a detail from an
+expanded panel widens the content by a fifth of the window. The panel
+disappearing is the larger change on screen anyway.
+
+The cheaper-looking fix — keep the match and read the live panel state — does not
+exist: a route pushed above the shell reads no scope, which is the same fact
+that makes it lose the panel.
+
 ## The whole app on CocoaPods
 
 Tried, to escape the `exact:` pin conflicts in the Firebase plugin family.

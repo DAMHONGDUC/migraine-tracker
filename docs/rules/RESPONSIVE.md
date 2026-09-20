@@ -55,9 +55,10 @@ iPad 11" portrait, 820 x 1180
 It replaced `tabletMargin`, a 46 margin applied on three sides of the old rail.
 That rule existed to stop a capped-and-centred column producing three different
 gaps; a joined panel has only one gap left to get wrong, so the constant went
-with the rail it was measured against. **`SdContentPaddingV2.pageMargin` is
-therefore 0 wherever the shell's navigation is** — on a phone, and on a tab
-screen at any tablet width, collapsed or not.
+with the rail it was measured against — and with it `pageMargin`, which had no
+case left to answer. **No screen in the app adds a horizontal margin any
+more**: `SdScaffoldV2` is a plain `Scaffold` and the gutter inside each
+screen's own scrollable is the whole of it.
 
 Measured, not calculated — what the app renders at:
 
@@ -67,36 +68,33 @@ Measured, not calculated — what the app renders at:
 | iPad portrait 820×1180 | 164 | 656 | 624 | 16 |
 | iPad landscape 1180×820 | 236 | 944 | 912 | 16 |
 | collapsed, portrait | 0 | 820 | 788 | 16 |
+| pushed detail, portrait | — | 820 | 788 | 16 |
 
-### A screen with no shell nav gets the same width, centred
+### A screen with no shell nav fills the window
 
-Owner's rule, and the one case `pageMargin` still exists for. Every detail
-screen is a route pushed **above** the shell — `app_router.dart` lists them as
-siblings of `StatefulShellRoute`, not inside its branches — so it has no panel
-beside it and would otherwise be a whole panel wider than the tab screen it was
-opened from, the content jumping outward on the way in and back on the way out.
-It takes **half the panel** on each side instead, which is the one inset that
-makes the two widths identical:
+Owner's call, 2026-09-20. Every detail screen is a route pushed **above** the
+shell — `app_router.dart` lists them as siblings of `StatefulShellRoute`, not
+inside its branches — so it has no panel beside it, and **nothing to leave room
+for**. It runs the full width of the window with its own gutter and nothing
+else.
 
-```text
-iPad 11" portrait, 820 wide — both land on a 624 card
-tab screen    | panel 164 |16|      card 624      |16|
-pushed detail |      98      |      card 624      |      98      |
-```
+It was the other way first: half a panel per side, so the card came out the same
+width as the tab screen it was opened from. That rule was written against the
+rail, where matching cost 55 per side and nobody saw it. Against a panel it
+costs `window / 10` — 82 in portrait, 118 in landscape — and it buys a detail
+screen a phantom margin the shape of a chrome that is not there. **A collapsible
+panel also has no single width to match**: collapse it and the tab screen is
+788 wide while the detail it opens would still be 624.
 
-Matched against the panel **expanded**, which is how the shell starts and what
-the user is looking at when they open a detail. Collapse the panel first and the
-detail comes out narrower than the tab screen behind it — the price of a chrome
-that can be a fifth of the window, and the one state a route above the shell
-cannot read.
+The cost, stated: pushing a detail from an expanded panel widens the content by
+a fifth of the window. The panel disappearing is the larger change on screen,
+and it is the one the transition is about.
 
-### The app bar is inside the margin
+### The app bar spans the window with the body
 
-`SdScaffoldV2` pads the whole `Scaffold`, not just its body, so a title and the
-cards under it share one leading edge — a header spanning the window over an
-inset body reads as two screens stacked. A `ColoredBox` behind it paints the
-margin, because a pushed route has no surface of its own and the strips either
-side would otherwise show black.
+`SdScaffoldV2` is a plain `Scaffold`: the bar and the body share one leading
+edge because neither is inset. What lines the title up with the cards under it
+is the screen's own gutter, applied inside its scrollable.
 
 ### The ceilings that are still in force
 
@@ -107,9 +105,9 @@ side would otherwise show black.
 | `SdBreakpointV2.floatingBarMaxWidth` | `w480` (552 on iPad) | the phone's nav pill |
 
 Those are **panels, not pages**: a sheet floating over a screen still wants to
-stop growing. Only the page took the margin rule instead, and `SdPageWidthV2`
-is what applies a ceiling to the two screens that build their own `Scaffold`
-(onboarding, the paywall).
+stop growing. A page takes no ceiling and no margin at all, and `SdPageWidthV2`
+is what applies one to the two screens that are panels wearing their own
+`Scaffold` (onboarding, the paywall).
 
 ## Rule 3 — the shell's nav is a collapsible panel on the leading edge
 
@@ -223,8 +221,8 @@ It asserts, at 820×1180 and 1180×820 **and that none of it engages at 393**:
   and exactly 0 collapsed;
 - the content keeps one gutter either side in both states, and is wider than a
   phone's in both orientations;
-- a pushed detail screen is the same card width, centred;
-- the app bar shares the content's margins;
+- a pushed detail screen fills the window it is given;
+- the app bar shares the content's edges;
 - the reopen control is in the panel while open and inside the `SdAppBarV2`
   while collapsed, **never both**, including mid-animation in either direction;
 - reduced motion moves the width on the next frame, and motion on does not;
