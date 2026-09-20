@@ -13,27 +13,53 @@ the same three rules written portably — no BaroEase names, with the traps, the
 code to copy, a test spec and a step order. This file is what *this* app does;
 that one is what any app should do.
 
-## Rule 1 — the scale has a ceiling
+## Rule 1 — one scale, with a ceiling
 
 screenutil multiplies every `.w` / `.h` / `.r` / `.sp` by `window / designSize`,
-and that ratio had no upper bound. `SdScreenScale.designSize` grows the design
+and that ratio has no upper bound. `SdScreenScale.designSize` grows the design
 to match the window instead, so the ratio can never pass
-`SdScreenScale.maxScale` (1.15).
+`SdScreenScale.maxScale` — **1.25** (raised from 1.15, owner's call
+2026-09-20: at 1.15 an iPad read as a phone layout with a lot of empty page
+around it).
 
-| Window | Design handed to screenutil | Scale | A 16 gutter paints at |
-|---|---|---|---|
-| 393×852 — iPhone 15 | 393×852 | 1.00 | 16 |
-| 440×956 — iPhone 16 Pro Max | 393×852 | 1.12 | 18 |
-| 820×1180 — iPad 11" portrait | 713×1026 | 1.15 | 18 |
-| 1180×820 — iPad 11" landscape | 1026×852 | 1.15 / 0.96 | 18 |
+**Four ladders, four of screenutil's ratios, and they must not disagree.**
 
-Before the ceiling, the last two rows were **2.09** and **3.00** — a 16 gutter
-at 33 and 48, while `minTextAdapt` (which takes the *smaller* of the two ratios
-for text) made landscape type *smaller* than an iPhone's. The app was a
-screenshot blown up in one direction and shrunk in the other.
+| Token | Used for | screenutil ratio |
+|---|---|---|
+| `w*` | horizontal spacing | width |
+| `sp*` | type | width — `ScreenUtilInit`'s default `fontSizeResolver` is `FontSizeResolvers.width`, which is what actually decides type here. `minTextAdapt: true` sits beside it, inert. |
+| `h*` | vertical spacing | height |
+| `r*` | **icons, radii, square tap targets** | the **smaller** of the two |
 
-1.15 is "the same app at arm's length": every number in `SdSpacingConstant`
-moves by it and nothing else, so the rhythm they were drawn at survives.
+That last row is why the design's *height* follows the same ceiling as its width
+once the clamp engages, instead of never dropping below the phone design. A
+landscape iPad is 820 tall against an 852 design, so the height ratio came out
+0.96 — and `.r` takes the minimum:
+
+| | Gutter | V gap | Body | Title | Icon | Tap target | App bar |
+|---|---|---|---|---|---|---|---|
+| phone 393×852 | 16 | 16 | 14 | 22 | 24 | 44 | 56 |
+| iPad portrait, at 1.15 | 18.4 | 18.4 | 16.1 | 25.3 | 27.6 | 50.6 | **56** |
+| iPad landscape, at 1.15 | 18.4 | **15.4** | 16.1 | 25.3 | **23.1** | **42.3** | **56** |
+| iPad, either orientation, now | 20 | 20 | 17.5 | 27.5 | 30 | 55 | 70 |
+
+Turning the iPad used to shrink every glyph below its phone size and every tap
+target **under Apple's 44 minimum**, beside gutters and type that had grown. Both
+orientations now render one number, and the phone column is byte-identical to
+what it has always been — the clamp cannot engage below `393 × 1.25` = 491, and
+the widest iPhone is 440.
+
+**The app bar grows with them.** `kToolbarHeight` is a raw 56 the framework never
+scales, so at 1.25 its leading button is 55 and its title 27 inside it.
+`SdAppBarV2.toolbarHeight` is `h56` instead, and
+`SdContentPaddingV2.appBarInset` and the nav panel's own header read that one
+number so the three cannot drift.
+
+"The same app at arm's length" is the whole of the reasoning: every number in
+`SdSpacingConstant` moves by one factor and nothing else, so the rhythm they were
+drawn at survives. Past ~1.4 that stops being true and an iPad is a phone
+screenshot blown up — which is the bug this rule exists to close, in the other
+direction.
 
 ## Rule 2 — the panel is joined, and the gutter is the only gap
 
@@ -216,7 +242,8 @@ so every existing test still measures the screen the app was drawn for.
 `test/core/tablet_layout_test.dart` is the only file that pumps anything wider.
 It asserts, at 820×1180 and 1180×820 **and that none of it engages at 393**:
 
-- the scale ceiling holds, and does not engage at 393;
+- the scale ceiling holds on all four ladders, the same in both orientations,
+  and does not engage at 393;
 - the panel is exactly a fifth of the window at 600, portrait and landscape,
   and exactly 0 collapsed;
 - the content keeps one gutter either side in both states, and is wider than a

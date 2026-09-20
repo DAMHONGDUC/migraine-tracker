@@ -83,7 +83,8 @@ is composed, what a chart should say. Take that; leave the tokens.
 
 ## Width, on a screen wider than a phone
 
-One ceiling on the scale (1.15) and one chrome that changes — the phone's
+One ceiling on the scale (1.25, the same on every ladder and in both
+orientations) and one chrome that changes — the phone's
 floating pill becomes `SdNavPanelV2`, a collapsible panel a fifth of the window
 wide, joined to the content. Both do nothing on a phone. Full rule, with the
 numbers and what is deliberately NOT responsive: `docs/rules/RESPONSIVE.md`.

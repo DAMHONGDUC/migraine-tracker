@@ -35,6 +35,29 @@ obvious alternative and it is the one the spec this came from argues against at
 length: the strip belongs to no screen, pushes every one of them down, and takes
 a second claim on the top safe inset the screen's app bar already owns.
 
+## Flooring the design height at the phone's, on a tablet
+
+`SdScreenScale.designSize` used to floor both axes at the phone design, so the
+design never shrank below 393×852. Correct for the width; wrong for the height,
+and invisible for months.
+
+A landscape iPad is **820 tall against an 852 design**, so the height ratio came
+out 0.96 while the width ratio sat at its ceiling. screenutil gives `.h` the
+height ratio and **`.r` the smaller of the two** — and `.r` is every icon, every
+radius and every square tap target. So turning the iPad drew 23-wide icons and
+**42-wide tap targets, under Apple's 44 minimum**, beside gutters and type that
+had grown to 18 and 16. The app got smaller the more screen it was given.
+
+The height follows the same ceiling as the width now, once the clamp engages:
+past that point the window is a tablet and a tablet renders one scale. It costs
+vertical spacing — landscape rhythm went from 0.96 to 1.25 in the app's shortest
+window — and nothing overflows at either tablet size, free or premium, panel open
+or collapsed.
+
+**Do not put the floor back to "protect" vertical space.** The overflow tests are
+what protect it, and they are cheaper than a chrome that shrinks when the device
+is turned.
+
 ## "A screen with no shell nav gets the same width, centred"
 
 An owner's rule for the whole of the rail's life, and retired the day after the
