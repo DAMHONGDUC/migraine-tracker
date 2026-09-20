@@ -4151,5 +4151,9 @@
     }
   },
   "aboutHeadModelCredit": "3D head: “Infinite” by Lee Perry-Smith / triplegangers.com, from the three.js examples. Licensed under CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Adapted by BaroEase: cropped, divided into pain regions, and recolored.",
-  "@aboutHeadModelCredit": {"description": "Required attribution and modification notice for the bundled CC BY 3.0 head scan."}
+  "@aboutHeadModelCredit": {"description": "Required attribution and modification notice for the bundled CC BY 3.0 head scan."},
+  "navPanelExpand": "Expand navigation",
+  "@navPanelExpand": {"description": "Tooltip on the control that reopens the tablet navigation panel, shown in the app bar while it is collapsed"},
+  "navPanelCollapse": "Collapse navigation",
+  "@navPanelCollapse": {"description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"}
 }

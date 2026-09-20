@@ -854,5 +854,7 @@
   "logHeadResetView": "表示をリセット",
   "logHeadGestureHint": "ドラッグで回転・ピンチで拡大縮小",
   "logHeadZoomLevel": "{percent}%",
-  "aboutHeadModelCredit": "3D頭部：「Infinite」、Lee Perry-Smith / triplegangers.com制作、three.jsサンプルより。CC BY 3.0ライセンス（creativecommons.org/licenses/by/3.0/）。BaroEaseがトリミング、痛みの部位への分割、配色の変更を行いました。"
+  "aboutHeadModelCredit": "3D頭部：「Infinite」、Lee Perry-Smith / triplegangers.com制作、three.jsサンプルより。CC BY 3.0ライセンス（creativecommons.org/licenses/by/3.0/）。BaroEaseがトリミング、痛みの部位への分割、配色の変更を行いました。",
+  "navPanelExpand": "ナビゲーションを開く",
+  "navPanelCollapse": "ナビゲーションを閉じる"
 }

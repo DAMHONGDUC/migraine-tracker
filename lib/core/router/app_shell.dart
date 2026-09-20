@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../features/history/providers.dart';
 import '../analytics/app_analytics.dart';
+import '../constants/log_tag_constant.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_icon_constant.dart';
 import 'app_router.dart';
@@ -27,6 +28,11 @@ class _AppShellState extends ConsumerState<AppShell> {
     AppRoutes.insights,
     AppRoutes.settings,
   ];
+
+  /// Whether the tablet's nav panel is open. The shell owns it, so switching tab keeps it and the branch's own navigation state is untouched.
+  ///
+  /// Open on every cold start, and deliberately not persisted: the panel is what tells a user arriving on an iPad what the five destinations are called, and a remembered collapse would hide that from the one launch it matters on.
+  bool _navPanelExpanded = true;
 
   @override
   void initState() {
@@ -61,12 +67,20 @@ class _AppShellState extends ConsumerState<AppShell> {
     ref.read(historyViewModeProvider.notifier).reset();
   }
 
+  /// Logs the value, not just that something changed — "toggled" is not a state anything can be read back out of.
+  void _setNavPanelExpanded(bool expanded) {
+    SdLogger.action(LogTagConstant.shell, 'Nav panel toggled', <String, Object>{
+      'expanded': expanded,
+    });
+    setState(() => _navPanelExpanded = expanded);
+  }
+
   @override
   Widget build(BuildContext context) {
     final navigationShell = widget.navigationShell;
     final l10n = context.l10n;
 
-    // The frame — glass pill or glass rail, the sliding thumb, the
+    // The frame — the glass pill or the side panel, the sliding capsule, the
     // behind-the-chrome body — belongs to the design system. The shell keeps
     // what is its own: which branches exist, what they are called, and the
     // analytics. The log flow is a pushed route, not a tab, so the chrome
@@ -101,6 +115,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     // and a pill stretched across it stops reading as one control. Switched on
     // the WINDOW, not the device — an iPad in Split View is a phone-shaped
     // window and gets the phone's chrome back.
+    //
+    // Same list, same order, both ways: the breakpoint chooses the frame and
+    // never the contents.
     return switch (SdBreakpointV2.of(context)) {
       SdWindowClassV2.compact => SdBottomNavigationV2(
         selectedIndex: navigationShell.currentIndex,
@@ -108,11 +125,15 @@ class _AppShellState extends ConsumerState<AppShell> {
         destinations: destinations,
         body: navigationShell,
       ),
-      SdWindowClassV2.medium || SdWindowClassV2.expanded => SdNavigationRailV2(
+      SdWindowClassV2.medium || SdWindowClassV2.expanded => SdNavPanelV2(
         selectedIndex: navigationShell.currentIndex,
         onSelected: select,
         destinations: destinations,
         body: navigationShell,
+        isExpanded: _navPanelExpanded,
+        onExpansionChanged: _setNavPanelExpanded,
+        expandLabel: l10n.navPanelExpand,
+        collapseLabel: l10n.navPanelCollapse,
       ),
     };
   }
