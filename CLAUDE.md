@@ -62,6 +62,8 @@ Read the file whose trigger matches the work. Do not read them all.
 | running, building, seeding, deploying | `docs/rules/COMMANDS.md` |
 | any Dart file | `docs/rules/CODE_STYLE.md` |
 | anything with a look — widgets, spacing, colour, text | `docs/rules/DESIGN_SYSTEM.md` |
+| a tablet, a window size, landscape, iPad multitasking | `docs/rules/RESPONSIVE.md` |
+| porting the tablet rules to another app | `packages/system_design/RESPONSIVE_SPEC.md` |
 | Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
@@ -72,7 +74,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | anything that seems unconfigured (keys, App IDs, products) | `docs/rules/PENDING_SETUP.md` |
 | why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
 | premium gates, prices, free limits | `docs/PREMIUM_RULES.md` |
-| premium/dev/blocked by address, the premium kill switch, force update | `lib/features/app_config/CLAUDE.md` |
+| premium/dev/blocked by address, force update | `lib/features/app_config/CLAUDE.md` |
 | adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
@@ -188,8 +190,7 @@ packages/
 ```
 
 Features: `app_config` (the owner's `app_config` collection — premium, Dev
-group and block by address, the app-wide premium switch, and the force-update
-gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
+group and block by address, and the force-update gate), `attacks` (Attack entity + 3-tap log), `daily_log` (the
 one row a day that gives every analysis its days without an attack),
 `medications`, `weather` (WeatherSnapshot + API clients), `history`,
 `insights` (correlation engine), `alerts`, `auth` (Google/Apple +

@@ -2,12 +2,25 @@
   "permissions": {
     "deny": [
       "Read(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env/**)",
+      "Read(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env_assets/**)",
+      "Edit(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env/**)",
+      "Edit(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env_assets/**)",
+      "Write(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env/**)",
+      "Write(//Users/ducdamdeveloper/Documents/GitHub/migraine_tracker/env_assets/**)",
       "Bash(cat ./env/*)",
       "Bash(head ./env/*)",
       "Bash(tail ./env/*)",
       "Bash(less ./env/*)",
       "Bash(grep * ./env/*)",
-      "Bash(rg * ./env/*)"
+      "Bash(rg * ./env/*)",
+      "Bash(cat ./env_assets/*)",
+      "Bash(head ./env_assets/*)",
+      "Bash(tail ./env_assets/*)",
+      "Bash(less ./env_assets/*)",
+      "Bash(grep * ./env_assets/*)",
+      "Bash(rg * ./env_assets/*)",
+      "Bash(plutil * ./env_assets/*)",
+      "Bash(plutil * ./env/*)"
     ]
   }
 }

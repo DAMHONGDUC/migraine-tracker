@@ -34,6 +34,11 @@ class AboutScreen extends ConsumerWidget {
             l10n.onboardingDisclaimer,
             style: AppTextStyle.bodySmall.secondary,
           ),
+          SizedBox(height: SdContentPaddingV2.sectionGap),
+          Text(
+            l10n.aboutHeadModelCredit,
+            style: AppTextStyle.bodySmall.secondary,
+          ),
         ],
       ),
     );

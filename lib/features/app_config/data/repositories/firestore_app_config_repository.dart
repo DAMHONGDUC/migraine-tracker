@@ -38,11 +38,6 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
           if (!snap.exists || data == null) return AppConfig.empty;
 
           final AppConfig config = AppConfig(
-            // `!= false` rather than `== true`: an absent field is a switch the
-            // owner never threw, and the document exists for whichever other
-            // field they did write. Only a real `false` turns premium off, so
-            // `"false"` typed into the console as a string does nothing.
-            premiumEnabled: data[AppConfigSchema.premiumEnabledField] != false,
             premiumEmails: _emails(data[AppConfigSchema.premiumEmailsField]),
             devModeEmails: _emails(data[AppConfigSchema.devModeEmailsField]),
             blockedEmails: _emails(data[AppConfigSchema.blockedEmailsField]),
@@ -55,7 +50,6 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
             LogTagConstant.appConfig,
             'App config read',
             <String, Object?>{
-              'premiumEnabled': config.premiumEnabled,
               'premiumEmails': config.premiumEmails.length,
               'devModeEmails': config.devModeEmails.length,
               'blockedEmails': config.blockedEmails.length,
@@ -65,10 +59,9 @@ class FirestoreAppConfigRepository implements AppConfigRepository {
 
           return config;
         })
-        // Offline, denied, or never created: premium stays on, no list holds
-        // anybody and nothing is blocked. Taking premium away from a paying
-        // user because a read failed is the one outcome this must never
-        // produce.
+        // Offline, denied, or never created: no list holds anybody, nothing is
+        // blocked and no build is out of date. A read that failed must leave
+        // the app exactly as it was rather than take something away.
         //
         // **The fallback is EMITTED, not swallowed.** A `handleError` that only
         // logs ends the stream without a value, and every reader awaiting the

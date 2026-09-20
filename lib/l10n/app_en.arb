@@ -4123,5 +4123,52 @@
   "freeHistoryBody": "Nothing is deleted — your whole record is on this phone, and Premium opens all of it.",
   "@freeHistoryBody": {
     "description": "Reassures the user that the hidden history still exists"
-  }
+  },
+  "logHeadZoomOut": "Zoom out",
+  "@logHeadZoomOut": {
+    "description": "Decrease head model magnification."
+  },
+  "logHeadZoomIn": "Zoom in",
+  "@logHeadZoomIn": {
+    "description": "Increase head model magnification."
+  },
+  "logHeadResetView": "Reset view",
+  "@logHeadResetView": {
+    "description": "Restore the current side to the default head pose."
+  },
+  "logHeadGestureHint": "Drag to rotate · Pinch to zoom",
+  "@logHeadGestureHint": {
+    "description": "Gesture instructions for the interactive head model."
+  },
+  "logHeadZoomLevel": "{percent}%",
+  "@logHeadZoomLevel": {
+    "description": "Current head model magnification as a percentage.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "150"
+      }
+    }
+  },
+  "logHeadRotationSpeedValue": "{percent}%",
+  "@logHeadRotationSpeedValue": {
+    "description": "Visible percentage under the head rotation speed icon.",
+    "placeholders": {"percent": {"type": "int", "example": "75"}}
+  },
+  "logHeadRotationSpeed": "Rotation speed {percent}%",
+  "@logHeadRotationSpeed": {
+    "description": "Tooltip on the button that steps the head's drag-to-rotate speed down; also the current speed.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "aboutHeadModelCredit": "3D head: “Infinite” by Lee Perry-Smith / triplegangers.com, from the three.js examples. Licensed under CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Adapted by BaroEase: cropped, divided into pain regions, and recolored.",
+  "@aboutHeadModelCredit": {"description": "Required attribution and modification notice for the bundled CC BY 3.0 head scan."},
+  "navPanelExpand": "Expand navigation",
+  "@navPanelExpand": {"description": "Tooltip on the control that reopens the tablet navigation panel, shown in the app bar while it is collapsed"},
+  "navPanelCollapse": "Collapse navigation",
+  "@navPanelCollapse": {"description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"}
 }

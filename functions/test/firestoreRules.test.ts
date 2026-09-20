@@ -192,7 +192,7 @@ describe.skipIf(!available)("firestore.rules", () => {
       // The force-update check runs before sign-in and the app is fully usable
       // anonymously, so a document only signed-in installs could read would
       // miss almost every user it exists for.
-      await config({ premium_enabled: false });
+      await config({ premium_emails: ["owner@baroease.app"] });
 
       await assertSucceeds(
         env
@@ -213,7 +213,7 @@ describe.skipIf(!available)("firestore.rules", () => {
     });
 
     it("refuses listing the collection — only the one document is reachable", async () => {
-      await config({ premium_enabled: true });
+      await config({ premium_emails: [] });
       const db = env.authenticatedContext("anon").firestore();
 
       // No rule matches the collection, so the path cannot be walked for
@@ -237,15 +237,12 @@ describe.skipIf(!available)("firestore.rules", () => {
       );
     });
 
-    it("refuses a client throwing the switch, or forging a force update", async () => {
-      await config({ premium_enabled: true });
+    it("refuses a client forging a force update", async () => {
+      await config({ premium_emails: [] });
       const db = env
         .authenticatedContext("mallory", { email: "mallory@example.com" })
         .firestore();
 
-      await assertFails(
-        db.collection("app_config").doc("current").set({ premium_enabled: false }),
-      );
       // A forged record would lock every user out of the app.
       await assertFails(
         db

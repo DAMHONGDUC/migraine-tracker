@@ -44,17 +44,12 @@ final appConfigProvider = StreamProvider<AppConfig>(
   (ref) => ref.watch(appConfigRepositoryProvider).watch(),
 );
 
-/// The document as a plain value. [AppConfig.empty] while the read is in flight or after it failed — premium on, nobody listed. See [AppConfig.empty] for why those two defaults point in opposite directions.
+/// The document as a plain value. [AppConfig.empty] while the read is in flight or after it failed — nobody listed, nobody blocked.
 final _configProvider = Provider<AppConfig>(
   (ref) => switch (ref.watch(appConfigProvider)) {
     AsyncData(value: final AppConfig value) => value,
     _ => AppConfig.empty,
   },
-);
-
-/// The app-wide premium kill switch. False makes `hasPremiumProvider` answer false for everyone at once — bought, listed, or forced by the Dev group.
-final premiumEnabledProvider = Provider<bool>(
-  (ref) => ref.watch(_configProvider).premiumEnabled,
 );
 
 /// Premium granted by the list rather than bought — the App Review account, and the owner's own (owner's rule). Read by `hasPremiumProvider`, ahead of the entitlement.

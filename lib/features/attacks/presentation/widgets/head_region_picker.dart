@@ -1,17 +1,28 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../../domain/enums/head_region.dart';
+import '../../domain/enums/head_rotation_speed.dart';
+import '../../providers.dart';
+import '../controllers/head_controls_controller.dart';
 import 'head_diagram.dart';
+import 'head_pose.dart';
 import 'head_region_geometry.dart';
 import 'head_region_grid.dart';
+import 'head_scene_store.dart';
+import 'head_viewport.dart';
+
+part 'head_region_picker_controls.dart';
 
 /// Picking where it hurts: a Front/Back tab pair, the head itself, and the
 /// same areas as named tiles under it.
@@ -40,7 +51,13 @@ import 'head_region_grid.dart';
 /// [onChanged] does. It opens on whichever side already holds more of
 /// [selected], so editing a back-of-head attack does not open on a blank
 /// face.
-class HeadRegionPicker extends StatefulWidget {
+///
+/// **The turn is what the tabs do now.** They used to cross-fade between two
+/// flat drawings; they animate a half turn of one solid, which is the thing
+/// the flat pair could never say — that the face and the nape are two sides of
+/// the same head. A drag turns it freely, and the tabs stay because they carry
+/// the per-side count and are the way in for anyone who does not drag.
+class HeadRegionPicker extends ConsumerStatefulWidget {
   const HeadRegionPicker({
     required this.selected,
     required this.onChanged,
@@ -51,11 +68,38 @@ class HeadRegionPicker extends StatefulWidget {
   final ValueChanged<List<HeadRegion>> onChanged;
 
   @override
-  State<HeadRegionPicker> createState() => _HeadRegionPickerState();
+  ConsumerState<HeadRegionPicker> createState() => _HeadRegionPickerState();
 }
 
-class _HeadRegionPickerState extends State<HeadRegionPicker> {
-  late HeadView _view = HeadRegion.primaryView(widget.selected);
+class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
+    with SingleTickerProviderStateMixin {
+  /// The live angle. The tabs animate it and a drag sets it; nothing else may.
+  double _pitch = 0;
+  bool _available = HeadSceneStore.template != null;
+
+  /// Zoom and rotation speed are the user's own settings and outlive the
+  /// screen, so they live in [HeadControlsController] rather than here — the
+  /// angle does not (see that controller).
+  HeadControls get _controls => ref.read(headControlsProvider);
+
+  double get _zoom => _controls.zoom;
+
+  late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
+
+  late final AnimationController _turn = AnimationController(
+    vsync: this,
+    duration: _turnDuration,
+  )..addListener(_onTurn);
+
+  Animation<double>? _turning;
+
+  /// Long enough to read as one object turning rather than as a cut, short
+  /// enough not to be a wait. Calm curve, no overshoot (hard rule 3).
+  static const Duration _turnDuration = Duration(milliseconds: 380);
+
+  /// Which side is facing, derived rather than stored — a second copy of the
+  /// angle is a second thing that can disagree with it.
+  HeadView get _view => HeadPose.viewAt(_yaw);
 
   /// How far the head sits in from everything around it — the screen edge
   /// either side, the tabs above, the tiles below. Owner's number, and the
@@ -74,12 +118,132 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
   void _toggle(HeadRegion region) {
     final Set<HeadRegion> next = widget.selected.toSet();
 
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Toggle head region',
+      <String, Object?>{'selectedCount': next.length},
+    );
+
     if (!next.remove(region)) next.add(region);
 
     widget.onChanged(<HeadRegion>[
       for (final HeadRegion candidate in HeadRegion.values)
         if (next.contains(candidate)) candidate,
     ]);
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head selection updated',
+      <String, Object?>{'selectedCount': next.length},
+    );
+  }
+
+  void _onTurn() {
+    final Animation<double>? turning = _turning;
+
+    if (turning == null) return;
+
+    setState(() => _yaw = turning.value);
+  }
+
+  /// Turns to face [view] the short way round, so the head never spins most of
+  /// a circle to travel a few degrees.
+  void _snapTo(HeadView view) {
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Snap head view',
+      <String, Object?>{'view': view.name},
+    );
+    _turn.stop();
+    _pitch = 0;
+    if (MediaQuery.disableAnimationsOf(context) || !_available) {
+      setState(() => _yaw = HeadPose.yawFor(view));
+      SdLogger.info(
+        LogTagConstant.attackLog,
+        'Head view snapped',
+        <String, Object?>{'yaw': _yaw},
+      );
+      return;
+    }
+    _turning = Tween<double>(
+      begin: _yaw,
+      end: HeadPose.shortestTurn(_yaw, HeadPose.yawFor(view)),
+    ).animate(CurvedAnimation(parent: _turn, curve: Curves.easeInOutCubic));
+
+    _turn.forward(from: 0);
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head turn scheduled',
+      <String, Object?>{'yaw': HeadPose.yawFor(view)},
+    );
+  }
+
+  /// A drag owns the angle outright: an animation still running under it would
+  /// pull the head out from under the finger.
+  void _dragTo(double yaw) {
+    if (_turn.isAnimating) _turn.stop();
+
+    setState(() => _yaw = yaw);
+  }
+
+  void _poseTo(HeadViewport pose) {
+    _turn.stop();
+    setState(() {
+      _yaw = pose.yaw;
+      _pitch = pose.pitch;
+    });
+    // On screen this frame, in the Keychain once the fingers stop: the
+    // controller debounces the write, which is what makes a pinch — a new
+    // zoom per pointer frame — one save rather than fifty.
+    ref.read(headControlsProvider.notifier).setZoom(pose.zoom);
+  }
+
+  void _setZoom(double zoom) {
+    final HeadViewport pose = HeadViewportUtils.constrained((
+      yaw: _yaw,
+      pitch: _pitch,
+      zoom: zoom,
+    ));
+
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Set head zoom',
+      <String, Object?>{'zoom': pose.zoom},
+    );
+    _poseTo(pose);
+    SdLogger.info(LogTagConstant.attackLog, 'Head zoom set', <String, Object?>{
+      'zoom': _zoom,
+    });
+  }
+
+  void _reduceRotationSpeed() =>
+      ref.read(headControlsProvider.notifier).reduceRotationSpeed();
+
+  void _resetView() {
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Reset head view',
+      <String, Object?>{'view': _view.name},
+    );
+    _poseTo((
+      yaw: HeadPose.yawFor(_view),
+      pitch: 0,
+      zoom: HeadViewportUtils.defaultZoom,
+    ));
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head view reset',
+      <String, Object?>{'yaw': _yaw, 'zoom': _zoom},
+    );
+  }
+
+  void _availabilityChanged(bool available) {
+    if (_available != available) setState(() => _available = available);
+  }
+
+  @override
+  void dispose() {
+    _turn.dispose();
+    super.dispose();
   }
 
   int _countOn(HeadView view) =>
@@ -96,6 +260,7 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final HeadControls controls = ref.watch(headControlsProvider);
 
     return Column(
       children: <Widget>[
@@ -115,14 +280,12 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
               ),
             ],
             selectedIndex: HeadView.values.indexOf(_view),
-            onSelected: (int index) =>
-                setState(() => _view = HeadView.values[index]),
+            onSelected: (int index) => _snapTo(HeadView.values[index]),
           ),
         ),
-        SdVerticalSpacingV2(height: _headInset),
         // The head is sized from its WIDTH, not from what is left over
         // (owner's rule); the `min` below only guards a short column. What it
-        // does not use goes to the tiles, and the rest is margin either side.
+        // does not use goes to the tiles, and the rest is air around the head.
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -140,23 +303,63 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
               );
 
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
-                    height: head,
-                    child: Semantics(
-                      label: widget.selected.isEmpty
-                          ? l10n.logLocationNone
-                          : widget.selected.label(l10n),
-                      excludeSemantics: true,
-                      child: _SideLabelled(
-                        inset: _headInset,
-                        child: HeadDiagram(
-                          selected: widget.selected,
-                          view: _view,
-                          onRegionTapped: _toggle,
+                  // The controls float OVER the head rather than sitting in a
+                  // row of their own (owner's rule, 2026-09-19): that row cost
+                  // the head 44pt of the one screen this step may use, to
+                  // carry three buttons that are mostly air. Overlaid they
+                  // cost nothing, and the head is centred in everything the
+                  // tiles leave instead of being pushed down by them.
+                  Expanded(
+                    child: Stack(
+                      children: <Widget>[
+                        Align(
+                          child: SizedBox(
+                            height: head,
+                            width: double.infinity,
+                            child: Semantics(
+                              label: widget.selected.isEmpty
+                                  ? l10n.logLocationNone
+                                  : widget.selected.label(l10n),
+                              excludeSemantics: true,
+                              child: _SideLabelled(
+                                inset: _headInset,
+                                overlay: _available,
+                                leftOnLeft:
+                                    !_available ||
+                                    HeadPose.leftIsOnScreenLeft(_yaw),
+                                child: HeadDiagram(
+                                  expandScene: true,
+                                  selected: widget.selected,
+                                  view: _view,
+                                  yaw: _yaw,
+                                  pitch: _pitch,
+                                  zoom: controls.zoom,
+                                  onPoseChanged: _poseTo,
+                                  onInteractionStart: _turn.stop,
+                                  onAvailabilityChanged: _availabilityChanged,
+                                  onRegionTapped: _toggle,
+                                  onYawChanged: _dragTo,
+                                  rotationSpeed: controls.rotationSpeed,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (_available)
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: _HeadZoomControls(
+                              zoom: controls.zoom,
+                              rotationSpeed: controls.rotationSpeed,
+                              onZoom: _setZoom,
+                              onReduceRotationSpeed: _reduceRotationSpeed,
+                              onReset: _resetView,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   SizedBox(height: gap),
@@ -187,20 +390,34 @@ class _HeadRegionPickerState extends State<HeadRegionPicker> {
 /// is drawn mirrored: without them nobody can tell whose left is meant, and
 /// with them the answer has to be "yours" on both views (see [HeadRegion]).
 ///
-/// They live in the [inset] gutter, which costs the head nothing — the head
-/// is sized from the width inside that gutter either way. Back when the head
-/// took the whole width they had to sit over the drawing's corners instead;
-/// there is no reason to keep them there now.
+/// In 3D they overlay the full-width viewport. The flat fallback keeps its
+/// inset and aspect ratio so its artwork and hit targets stay aligned.
+///
+/// **They swap sides when the head turns past its silhouette** ([leftOnLeft]).
+/// Two flat drawings could keep the user's left on the screen's left on both
+/// views — the front one was mirrored for exactly that. One solid cannot, and
+/// a label that is silently wrong is worse than one that moves. The swap is a
+/// cut rather than a fade: it happens at the quarter turn, where the side it
+/// names is edge-on and nobody is reading it.
 ///
 /// [child] stays a NON-positioned stack child so it keeps its own aspect
 /// ratio and the stack takes its size. `Positioned.fill` would force the
 /// box's ratio onto a 200x248 drawing and squash the head sideways, which is
 /// the one thing worse than a small one.
 class _SideLabelled extends StatelessWidget {
-  const _SideLabelled({required this.child, required this.inset});
+  const _SideLabelled({
+    required this.child,
+    required this.inset,
+    required this.overlay,
+    this.leftOnLeft = true,
+  });
 
   final Widget child;
   final double inset;
+  final bool overlay;
+
+  /// Whether the user's left is the one drawn on the screen's left.
+  final bool leftOnLeft;
 
   @override
   Widget build(BuildContext context) {
@@ -211,23 +428,34 @@ class _SideLabelled extends StatelessWidget {
     return Stack(
       alignment: Alignment.topCenter,
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: inset),
-          child: child,
-        ),
+        if (overlay)
+          child
+        else
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: inset),
+            child: child,
+          ),
         // Centred in the gutter rather than jammed against the screen edge,
         // which is where left: 0 alone put them.
         Positioned(
           top: 0,
           left: 0,
           width: inset,
-          child: Text('L', textAlign: TextAlign.center, style: style),
+          child: Text(
+            leftOnLeft ? 'L' : 'R',
+            textAlign: TextAlign.center,
+            style: style,
+          ),
         ),
         Positioned(
           top: 0,
           right: 0,
           width: inset,
-          child: Text('R', textAlign: TextAlign.center, style: style),
+          child: Text(
+            leftOnLeft ? 'R' : 'L',
+            textAlign: TextAlign.center,
+            style: style,
+          ),
         ),
       ],
     );

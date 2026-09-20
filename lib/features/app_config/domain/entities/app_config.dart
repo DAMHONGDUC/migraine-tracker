@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import 'app_update_config.dart';
 
 /// The whole `app_config/current` document: **every** switch the owner
-/// controls — the two that apply to everybody, the three address lists they
-/// maintain by hand, and the published-build record behind force update.
+/// controls — the three address lists they maintain by hand, and the
+/// published-build record behind force update.
 ///
 /// **Every list is lower-cased on the way in.** Firebase Auth stores an address
 /// lower-cased and the owner types the list by hand, so `Review@BaroEase.app`
@@ -14,7 +14,6 @@ import 'app_update_config.dart';
 @immutable
 class AppConfig {
   AppConfig({
-    this.premiumEnabled = true,
     this.forceUpdate,
     Set<String> premiumEmails = const <String>{},
     Set<String> devModeEmails = const <String>{},
@@ -24,18 +23,13 @@ class AppConfig {
        blockedEmails = normalise(blockedEmails);
 
   /// What a missing document, a denied read and a read still in flight all
-  /// produce: **premium on, nobody listed**.
+  /// produce: **nobody listed, nobody blocked, nothing to update to**.
   ///
-  /// The two halves default in opposite directions on purpose. A list is
-  /// something an address has to be put on, so absent means nothing; a kill
-  /// switch is something the owner has to actively throw, so absent means the
-  /// app behaves as it always did. Defaulting [premiumEnabled] to false would
-  /// mean an offline first launch or one denied read takes premium away from
-  /// somebody who paid for it.
+  /// Every field defaults to granting and denying nothing, because each one is
+  /// something an address has to be put on or a record the owner has to write:
+  /// an offline first launch, an install ahead of the document existing, or one
+  /// denied read must leave the app exactly as it was.
   static final AppConfig empty = AppConfig();
-
-  /// Whether premium exists in this build at all. False makes `hasPremiumProvider` answer false for everyone: bought, listed, or forced by the Dev group alike.
-  final bool premiumEnabled;
 
   /// The published build per platform, or null when the document carries no
   /// usable `force_update` section — nothing to compare against, so nothing is
@@ -80,7 +74,6 @@ class AppConfig {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AppConfig &&
-          other.premiumEnabled == premiumEnabled &&
           other.forceUpdate == forceUpdate &&
           _same(other.premiumEmails, premiumEmails) &&
           _same(other.devModeEmails, devModeEmails) &&
@@ -88,7 +81,6 @@ class AppConfig {
 
   @override
   int get hashCode => Object.hash(
-    premiumEnabled,
     forceUpdate,
     Object.hashAllUnordered(premiumEmails),
     Object.hashAllUnordered(devModeEmails),

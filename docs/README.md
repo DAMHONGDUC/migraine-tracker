@@ -12,6 +12,7 @@ routing rules.
 | [`DONE_WORK.md`](DONE_WORK.md) | Implemented work |
 | [`REMAINING_WORK.md`](REMAINING_WORK.md) | Release blockers |
 | [`ROADMAP.md`](ROADMAP.md) | What is built after v1.0, and in which order |
+| [`HEAD_3D_PLAN.md`](HEAD_3D_PLAN.md) | Turning the location step's head into one 3D block |
 | [`PREMIUM_RULES.md`](PREMIUM_RULES.md) | Prices, limits and premium gates |
 
 ## Folders

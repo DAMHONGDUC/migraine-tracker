@@ -848,5 +848,15 @@
   "checkInReminderDenied": "BaroEase 的通知已关闭，请在系统设置中开启。",
   "alertsNeedsSignIn": "提醒还需要 Google 或 Apple 账号——推送发送到账号，而不是这台设备。",
   "freeHistoryTitle": "{date} 之前的历史属于 Premium",
-  "freeHistoryBody": "没有任何数据被删除——完整记录都在这台手机上，Premium 会全部打开。"
+  "freeHistoryBody": "没有任何数据被删除——完整记录都在这台手机上，Premium 会全部打开。",
+  "logHeadZoomOut": "缩小",
+  "logHeadZoomIn": "放大",
+  "logHeadResetView": "重置视角",
+  "logHeadGestureHint": "拖动旋转 · 双指缩放",
+  "logHeadZoomLevel": "{percent}%",
+  "logHeadRotationSpeedValue": "{percent}%",
+  "logHeadRotationSpeed": "旋转速度 {percent}%",
+  "aboutHeadModelCredit": "3D头部模型：“Infinite”，由Lee Perry-Smith / triplegangers.com创作，来自three.js示例。采用CC BY 3.0许可（creativecommons.org/licenses/by/3.0/）。BaroEase对模型进行了裁剪、疼痛区域划分和配色调整。",
+  "navPanelExpand": "展开导航",
+  "navPanelCollapse": "收起导航"
 }

@@ -124,7 +124,97 @@ approximately, and not "close enough once it is clipped": a user who taps a chee
 and watches a strip of jaw light up stops trusting what the picker recorded, and
 the record is the whole point of the step.
 
-`HeadRegionGeometry` is the single owner that makes this structural — the SVGs
+**The head is one solid the user turns, and the flat pair is the fallback.**
+`HeadScene` renders `assets/models/head.glb` through `flutter_scene`;
+`HeadDiagram` chooses, and falls back to the SVG pair whenever
+`HeadSceneStore` comes back empty — Flutter GPU is a build flag and a device
+capability, and a widget test has no GPU at all. **The fallback stays fully
+pickable**, deliberately: see `docs/rules/DECISIONS.md`.
+
+- **While the model loads the head shows the launch's dots, never the flat
+  drawing** (owner's rule, 2026-09-18, animation settled 2026-09-19). The flat
+  head used to fill that gap, so every open blinked the old drawing past before
+  the solid one replaced it, which reads as a glitch rather than as a fallback.
+  Three states, in this order: loading → `AppLoadingDots`; loaded →
+  `HeadScene`; load failed → the flat pair. `HeadSceneStore.unavailable` is
+  what separates the first from the last, so "not yet" and "never" cannot be
+  confused.
+  - **The dots, not an `SdSkeletonV2`** — owner's call. Waiting on the model is
+    the same wait as launching, and the one animation the app already uses for
+    it is the splash's; a grey block also filled the picker with a placeholder
+    the size of a head, which is the loudest thing on the step.
+  - A widget test never resolves `Node.fromGlbAsset`, so a test that wants the
+    flat path calls `HeadSceneStore.markUnavailable()` — otherwise it waits on
+    the dots forever, and any `pumpAndSettle` under them times out.
+
+- **One mesh node per region, named `region_<enum name>`, and that is what
+  keeps the rule above true in 3D.** `Scene.raycast` tests the very mesh it
+  draws and hands back the `Node` that was hit, so what is filled and what is
+  picked cannot drift — the same guarantee `HeadRegionGeometry` gives the flat
+  diagram, by the same means. A model with a triangle-to-region side table
+  would have been two owners again.
+  - **Facial landmarks and ears belong to their visible regional mesh.** A tap on an ear selects its region directly; there is no invisible proxy surface behind it. The optional `features` node is decorative and never raycastable.
+  - `head_model_test.dart` parses the shipped `.glb` and compares its node
+    names with `HeadRegion.values` **in both directions**. The nose once
+    shipped unpickable and was filed as missing rather than as broken; a name
+    that drifts is that same failure, caught in CI instead.
+- **The head must look anatomically natural.** Owner rejected the procedural face on 2026-09-18 because its appearance was poor. Use the licensed Lee Perry-Smith scan in `tool/head_model/source/`, trimmed to the head by `tool/head_model.py`; preserve its facial geometry and smooth normals. Keep source attribution in the bundle and About screen. Export preserves the 15 region names; no second generator may overwrite the production asset. No neck.
+- **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
+- **Dragging the head follows the finger on screen.** Owner reported reversed, overly restricted rotation on 2026-09-18. Keep yaw unrestricted, allow pitch up to ±85° to inspect crown and underside without flipping upside down, and accumulate every pointer update even between rendered frames.
+- **The 3D picker renders across the full available width.** Owner reported clipping beside L/R on 2026-09-18. Overlay the side labels instead of reserving gutters, and do not constrain the 3D viewport to the flat drawing's aspect ratio. Rendering and picking share the expanded viewport; the flat fallback keeps its aspect ratio and inset.
+- **The zoom controls float OVER the head, and the head is centred in what is
+  left** (owner's rule, 2026-09-19). As a row of its own the controls took 44pt
+  off the one screen this step may use, to carry four targets and a line of
+  hint text; overlaid they cost nothing and what they cover is the air above
+  the crown. The tiles are pinned to the bottom of the step, so a tall screen
+  gives the leftover to the head as air either side of it rather than as a hole
+  between head and tiles. `head_region_picker_test.dart` measures that the air
+  above equals the air below.
+- **The head opens at 150%** (`HeadViewportUtils.defaultZoom`, owner's call
+  2026-09-19, down from 175%). Two steps up the `zoomStep` ladder, so the minus
+  button still walks back to `minZoom` and the readout never shows a level the
+  buttons cannot reach.
+- **A drag can be slowed down, in three steps: 100% / 75% / 50%**
+  (`HeadRotationSpeed`, owner's rule 2026-09-19). One button in the controls
+  row, cycling DOWN and wrapping at the bottom — the ask was "make it less
+  sensitive", so a second button to undo it would have cost the row a target.
+  The glyph never changes, so the button is tinted while the turn is slowed:
+  a setting whose state lives only in a tooltip is one nobody can check. The
+  factor multiplies `HeadViewportUtils.degreesPerPoint` and reaches nothing
+  else — a pinch is measured against the fingers themselves, and slowing that
+  would make the head disagree with them.
+- **Camera state is presentation state, never attack data** — but it IS kept
+  between launches (`HeadControlsController`, owner's rule 2026-09-19). Zoom
+  and rotation speed go to `SecureStore` behind a 400ms debounce, because a
+  pinch sets a new zoom on every pointer frame; the provider flushes a pending
+  write on dispose, since Next is tapped a frame after the last pinch more
+  often than not. **The angle is deliberately not kept**: which way the head
+  faces is the Front/Back tab's answer, decided per attack by what is already
+  selected. Keep Front/Back and named region tiles as accessible alternatives;
+  zoom controls have localized labels and reset restores a full-head view. The
+  fallback remains pickable when 3D is unavailable.
+- **L and R travel with the head, and face on the user's left is on the
+  RIGHT.** The model is an ordinary head, not a mirror image, so meeting its
+  face puts its left where a real person's is when you face them. The old flat
+  front view was drawn mirrored to dodge exactly that, and one solid cannot be
+  mirrored on one side and not the other. **This is measured, not reasoned**:
+  `head_pose_test.dart` projects a point on the model's left through the very
+  camera the widget uses — the first version of this rule was written backwards
+  from a hand-derivation and the test is what caught it.
+- **The tabs turn the head rather than cutting to it** — 380ms, the short way
+  round, `HeadPose.shortestTurn`. They stay because they carry the per-side
+  count and are the way in for anyone who does not drag. A drag turns it freely
+  at `HeadPose.degreesPerPoint`, and takes the angle outright: an animation
+  still running under a finger pulls the head out from under it.
+- **The facing side is derived from the angle, never stored beside it**
+  (`HeadPose.viewAt`, the quarter turn). A second copy of the angle is a second
+  thing that can disagree with it, and `HeadRegionGrid` reads that one view.
+- **iOS needs `FLTEnableFlutterGPU` in `Info.plist`, which `prepare-env` writes
+  from `env_assets/<flavor>-Info.plist`** — putting it in the tracked file
+  alone means the next environment switch erases it and the head silently falls
+  back.
+
+`HeadRegionGeometry` is the single owner that makes the FLAT path structural — the SVGs
 carry line art only, and every fill, divider and hit test is built from the same
 cuts, so the three cannot drift. The cuts are curves, not straight rules, because
 the drawing's brow, cheek and jaw lines bow with the face; `HeadRegionGeometry._cut`
@@ -215,7 +305,7 @@ the same curve its neighbour continues on.
   brow beside a 1.3 nostril read as a different drawing pasted on. The silhouette
   at 2.0 is the only heavy line left, which is what makes it the silhouette —
   and the gap between it and the face is now the whole point, not a side effect.
-- **The head is sized from its WIDTH, and sits 30pt in from everything around it**
+- **The flat fallback is sized from its WIDTH, and sits 30pt in from everything around it**
   (owner's rule, after 40 and 24): the screen edge either side, the tabs above, the
   tiles below. The height falls out of the drawing's ratio; height only overrides
   it where a short column would otherwise overflow, and the `min` in the picker is

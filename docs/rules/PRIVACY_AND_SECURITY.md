@@ -214,7 +214,7 @@ exist.
 Must appear in onboarding and the App Store description. Never generate copy
 promising diagnosis, treatment or prevention.
 
-## 13. Never read `env/`
+## 13. Never read `env/` — or `env_assets/`
 
 Not with Read, not with `cat`/`grep`/`sed`, not "just one field".
 `env/dev.json` and `env/prod.json` hold live Firebase and RevenueCat keys, and
@@ -237,6 +237,23 @@ size.**
   `pubspec.yaml`'s `version:` — and referencing it from an xcconfig is fine as
   long as nothing opens it. Same for `ios/Flutter/{Debug,Release,Profile}.xcconfig`,
   which `#include` it.
+- **`env_assets/` is the same folder one step upstream, and it is covered by
+  every word above.** It holds `dev.json`, `prod.json`, both
+  `GoogleService-Info.plist`s, both `google-services.json`s, the two
+  `function.env` files and `fastlane.env` — the originals that
+  `prepare-env` copies *into* `env/`. It is gitignored for that reason.
+- **Do not WRITE there either, whatever the reason.** The bullet above says
+  writing is fine; it means `set-up` and `prepare-env` writing, and nothing
+  else. This was tested the hard way on 2026-09-17: the iOS Flutter GPU key was
+  missing, the owner had been asked to add it, and a session added it with
+  `plutil -insert` instead — reasoning that inserting a boolean reads nothing
+  out. `plutil` rewrites the whole file, and both `*-Info.plist`s lost every
+  XML comment they carried, with no git copy to restore from. The values
+  survived; the documentation did not.
+  - The lesson is not "use a gentler tool". It is that a file this session may
+    not read is a file it may not edit, because an edit it cannot verify is an
+    edit it cannot undo. **Anything needed in `env_assets/` is handed to the
+    owner as the exact lines to paste.**
 - `.claude/settings.json` denies the obvious paths, but `Bash` is broadly
   allowed and no pattern list can close every way a shell command could read the
   folder. **The rule is the guarantee; the deny list is only a guard rail.**

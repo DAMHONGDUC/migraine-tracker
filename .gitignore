@@ -90,3 +90,5 @@ lib/l10n/gen/
 # Written by `melos bootstrap` to point path dependencies at the local
 # checkout. Machine state, regenerated on every bootstrap.
 pubspec_overrides.yaml
+# Widget Preview related
+.widget_preview/

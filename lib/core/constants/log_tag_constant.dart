@@ -3,6 +3,9 @@ final class LogTagConstant {
   /// App-wide wiring: the root widget's listeners, not a user flow.
   static const String app = 'App';
 
+  /// The app shell's own chrome — today, whether the tablet's nav panel is open. Not a feature flow: nothing here is about what the user came to do.
+  static const String shell = 'Shell';
+
   /// `AppBootstrap` and the global error handlers it installs.
   static const String bootstrap = 'Bootstrap';
 

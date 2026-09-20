@@ -4,35 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<!-- Answers App Store Connect's export-compliance question at upload time
-	     instead of asking on every build. False = the app uses only exempt
-	     encryption.
-
-	     That is accurate today: the one cryptographic call in the app is a
-	     SHA-256 of the Sign in with Apple nonce, which is a hash used for
-	     authentication, and everything else rides HTTPS through the OS.
-	     Both are exempt.
-
-	     REVISIT when the encrypted attack sync in hard rule 1 actually
-	     ships. Standard algorithms are still exempt, but the answer stops
-	     being obvious and may need a self-classification report. -->
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<!-- The name iOS shows: the App Store listing, the Settings app, and
-	     every permission dialog. It said "Migraine Tracker" while every word
-	     inside the app said BaroEase, so the first two things a new user read
-	     gave two different names.
-	
-	     It matches the store title in `docs/release/APP_STORE_LISTING.md`
-	     exactly (26 of the 30 characters Apple allows) — owner's call, so the
-	     name in the dialog is the name in the search result. The home screen
-	     icon truncates it to about twelve characters ("BaroEase: M…"), which
-	     is the price of the pair agreeing.
-	
-	     `env_assets/<flavor>-Info.plist` carries the same string and has to be
-	     updated with it: `prepare-env` copies that file over this one. -->
 	<key>CFBundleDisplayName</key>
 	<string>BaroEase: Migraine Tracker</string>
 	<key>CFBundleExecutable</key>
@@ -41,11 +14,6 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<!-- The languages the App Store lists for this app, and the set iOS
-	     resolves the device locale against. A Flutter app ships its
-	     translations in ARB files rather than .lproj folders, so without this
-	     key the store advertises English alone. Keep it in step with the
-	     app_*.arb files. -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -75,11 +43,6 @@
 			</array>
 		</dict>
 		<dict>
-			<!-- The home screen widget's own link. WidgetKit routes a widget URL
-			     to its containing app without this, but registering it is what
-			     makes the path testable (`xcrun simctl openurl`) and what a
-			     future deep link would use. The only thing it can do is open the
-			     log flow. -->
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
@@ -92,6 +55,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FLTEnableFlutterGPU</key>
+	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>

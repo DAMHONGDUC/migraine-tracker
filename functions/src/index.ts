@@ -19,7 +19,6 @@ import {
   APP_CONFIG_DOCUMENT,
   PREMIUM_EMAILS_FIELD,
   premiumEmailsFrom,
-  premiumEnabledFrom,
 } from "./core/appConfig";
 import { AlertRunResult, runPressureAlerts } from "./core/alertRun";
 import {
@@ -140,31 +139,13 @@ async function runAlertPass(
   db: FirebaseFirestore.Firestore,
   now: Date,
 ): Promise<AlertRunResult> {
-  // One read for both: the kill switch and the allow-list live on the same
-  // document, so the cron sees exactly what the app sees.
+  // The allow-list lives on the same document the app reads, so the cron
+  // pushes to exactly the accounts the app treats as premium.
   const configDoc = await db
     .collection(APP_CONFIG_COLLECTION)
     .doc(APP_CONFIG_DOCUMENT)
     .get();
   const config = configDoc.data();
-
-  // The switch is checked first. Pressure alerts ARE a premium feature, so a
-  // pass that pushed while the app hides that feature would be the one surface
-  // `premium_enabled: false` does not reach — and unlike a hidden screen, a
-  // push cannot be taken back once it lands.
-  if (!premiumEnabledFrom(config)) {
-    logger.info("premium is switched off app-wide; no alerts this pass");
-
-    return {
-      users: 0,
-      cells: 0,
-      failedCells: [],
-      pushesSent: 0,
-      silentPushes: 0,
-      onsetPushes: 0,
-      cellDrops: {},
-    };
-  }
 
   const emails = premiumEmailsFrom(config?.[PREMIUM_EMAILS_FIELD]);
 

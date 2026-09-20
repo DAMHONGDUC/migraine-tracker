@@ -5,6 +5,83 @@ Read it before changing a rule that looks arbitrary: every entry WAS done the
 other way and cost something. The rule itself lives where `CLAUDE.md`'s routing
 table says; this file only says why it is what it is.
 
+## The tablet's glyph-only floating rail
+
+Shipped for the whole of the tablet work: the phone's glass pill stood on its
+end, 64 thick in a 110 column, glyph-only, with `tabletMargin` (46) of air on
+three sides. Replaced 2026-09-20 (owner's call) by `SdNavPanelV2` — a
+collapsible panel a fifth of the window wide, carrying each destination's label
+beside its glyph and joined to the content with no gap. Two rules went with it:
+
+- **"One gap, everywhere" (46) is gone.** It existed to stop a capped-and-centred
+  column producing three different gaps. A joined panel has one gap left to get
+  wrong — the screen's own 16 gutter — so `tabletMargin` went with the rail it
+  was measured against. `pageMargin` survives for the one case that still needs
+  it: a route pushed above the shell, which takes half a panel per side so its
+  card matches the tab screen it came from.
+- **"Glyph-only keeps the pill and the rail one control" is gone.** The cell is
+  still one widget (`SdNavSegmentV2`); what differs is a shape enum, because a
+  tablet has room for the word and a phone does not.
+
+What the change also fixed, which nothing had noticed: **the rail was invisible
+to VoiceOver.** A full-screen route's modal barrier blocks the semantics of
+everything painted before it, and the rail was painted before the body — so its
+five destinations were dropped from the semantics tree for the rail's whole
+life. The panel is painted after the content, over its own strip, and
+`tablet_layout_test.dart` now switches every tab through the semantics tree.
+
+**Do not put the reopen control in a strip above the content** — it was the
+obvious alternative and it is the one the spec this came from argues against at
+length: the strip belongs to no screen, pushes every one of them down, and takes
+a second claim on the top safe inset the screen's app bar already owns.
+
+## Flooring the design height at the phone's, on a tablet
+
+`SdScreenScale.designSize` used to floor both axes at the phone design, so the
+design never shrank below 393×852. Correct for the width; wrong for the height,
+and invisible for months.
+
+A landscape iPad is **820 tall against an 852 design**, so the height ratio came
+out 0.96 while the width ratio sat at its ceiling. screenutil gives `.h` the
+height ratio and **`.r` the smaller of the two** — and `.r` is every icon, every
+radius and every square tap target. So turning the iPad drew 23-wide icons and
+**42-wide tap targets, under Apple's 44 minimum**, beside gutters and type that
+had grown to 18 and 16. The app got smaller the more screen it was given.
+
+The height follows the same ceiling as the width now, once the clamp engages:
+past that point the window is a tablet and a tablet renders one scale. It costs
+vertical spacing — landscape rhythm went from 0.96 to 1.25 in the app's shortest
+window — and nothing overflows at either tablet size, free or premium, panel open
+or collapsed.
+
+**Do not put the floor back to "protect" vertical space.** The overflow tests are
+what protect it, and they are cheaper than a chrome that shrinks when the device
+is turned.
+
+## "A screen with no shell nav gets the same width, centred"
+
+An owner's rule for the whole of the rail's life, and retired the day after the
+panel shipped (owner's call, 2026-09-20): a detail screen pushed above the shell
+took half a nav column per side so its card came out the width of the tab screen
+it was opened from, with no jump on the way in.
+
+It was measured against a **110 column**, where matching cost 55 a side and
+nobody saw it. Against a panel a fifth of the window wide it costs `window / 10`
+— 82 in portrait, 118 in landscape — and what it buys is a phantom margin the
+shape of a chrome that is not beside the screen at all. **A collapsible panel
+also has no single width to match:** collapsed, a tab screen is 788 wide on an
+820 window while the detail it opens would still have been 624.
+
+So `SdContentPaddingV2.pageMargin` is gone, and with it the `Padding` and the
+`ColoredBox` that `SdScaffoldV2` wrapped every screen in — it is a plain
+`Scaffold` now. **The cost is real and was accepted:** pushing a detail from an
+expanded panel widens the content by a fifth of the window. The panel
+disappearing is the larger change on screen anyway.
+
+The cheaper-looking fix — keep the match and read the live panel state — does not
+exist: a route pushed above the shell reads no scope, which is the same fact
+that makes it lose the panel.
+
 ## The whole app on CocoaPods
 
 Tried, to escape the `exact:` pin conflicts in the Firebase plugin family.
@@ -187,3 +264,36 @@ forgets `--dart-define-from-file`, and the assert that catches that runs in
 debug only — so one release built wrong would read as an environment change and
 delete migraine history that has no second copy. The four steps that did ship
 cost a sign-in, a cache and an onboarding run, all of which come back.
+
+## The ">1k likes" bar, waived once for `flutter_scene`
+
+The bar stands; this is the one package admitted under it, at 336 likes, and
+the reason is that no 3D package clears it and the shortlist is worse:
+`model_viewer_plus` is a WebView, which cannot sit inside the log flow at all,
+and `three_js` is a quarter as used, four months older, and drags ANGLE in
+beside Impeller.
+
+What decided it was not popularity but the one property the head diagram's own
+rule needs: `Scene.raycast` tests the very mesh it draws, and hands back the
+`Node` it hit. The pickable areas therefore follow the drawing *by
+construction*, exactly as `HeadRegionGeometry` made them in 2D — where a
+package that rendered a model but picked against a second collision shape would
+have reintroduced the drift the rule exists to prevent.
+
+The cost was real and paid up front: the SDK moved from 3.44.5 to 3.47.2 for
+Flutter GPU, and `env_assets/*-Info.plist` grew a key. Detail in
+`docs/HEAD_3D_PLAN.md`.
+
+## Deleting the flat head diagram once the model shipped
+
+Planned, and not done. `HeadRegionGeometry`, `HeadRegionPainter` and the two
+SVGs stay, and they stay **pickable** rather than becoming a picture: Flutter
+GPU is a build flag and a device capability, and a phone that cannot render a
+model is not a phone whose owner stops having migraines. Half a picker is worse
+than an older one.
+
+The plan had said the fallback would be display-only, to keep one owner of the
+geometry. That was the wrong trade twice over — it would also have meant every
+widget test exercised the fallback while the shipped path went untested. The
+drift it guards against is caught instead by `head_model_test.dart`, which
+compares the model's node names with `HeadRegion.values` in both directions.

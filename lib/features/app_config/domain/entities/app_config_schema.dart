@@ -13,9 +13,6 @@ abstract final class AppConfigSchema {
   /// The only document in the collection. A fixed id, so every reader asks for the same one and no `orderBy` decides which config is current.
   static const String documentId = 'current';
 
-  /// The app-wide premium kill switch.
-  static const String premiumEnabledField = 'premium_enabled';
-
   /// The force-update record: `{ios: {...}, android: {...}}`, read by `AppUpdateMapper`.
   static const String forceUpdateField = 'force_update';
 

@@ -50,72 +50,78 @@ class OnboardingScreen extends HookConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (value) => page.value = value,
-                children: [
-                  _WelcomePage(l10n: l10n),
-                  _LocationPage(l10n: l10n),
-                  _ThresholdPage(l10n: l10n, threshold: threshold),
-                ],
-              ),
-            ),
-            _Dots(current: page.value),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                SdContentPaddingV2.horizontal,
-                SdSpacingConstant.h16,
-                SdContentPaddingV2.horizontal,
-                // SafeArea already clears the home indicator; this is the gap.
-                SdSpacingConstant.h16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: switch (page.value) {
-                  // Welcome just moves on.
-                  0 => [
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.primary,
-                      onPressed: next,
-                      label: l10n.onboardingContinue,
-                    ),
+        // Onboarding builds its own Scaffold (it has no app bar and no tabs),
+        // so the cap `SdScaffoldV2` applies everywhere else is applied here by
+        // hand — three pages of copy across a full iPad is a line the eye
+        // loses its place in.
+        child: SdPageWidthV2(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (value) => page.value = value,
+                  children: [
+                    _WelcomePage(l10n: l10n),
+                    _LocationPage(l10n: l10n),
+                    _ThresholdPage(l10n: l10n, threshold: threshold),
                   ],
-                  // One button, reading "Continue", and the OS prompt always follows it.
-                  1 => [
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.primary,
-                      onPressed: () async {
-                        try {
-                          await controller.requestLocation();
-                        } catch (_) {
-                          // Logged by the controller.
-                        }
-                        await next();
-                      },
-                      label: l10n.onboardingContinue,
-                    ),
-                  ],
-                  _ => [
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.primary,
-                      onPressed: finish,
-                      label: l10n.onboardingStart,
-                    ),
-                    SizedBox(height: SdSpacingConstant.h8),
-                    SdButtonV2(
-                      variant: SdButtonVariantV2.outlined,
-                      onPressed: () =>
-                          const OnboardingFeaturesSheet().show(context),
-                      label: l10n.onboardingFeaturesAction,
-                    ),
-                  ],
-                },
+                ),
               ),
-            ),
-          ],
+              _Dots(current: page.value),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  SdContentPaddingV2.horizontal,
+                  SdSpacingConstant.h16,
+                  SdContentPaddingV2.horizontal,
+                  // SafeArea already clears the home indicator; this is the gap.
+                  SdSpacingConstant.h16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: switch (page.value) {
+                    // Welcome just moves on.
+                    0 => [
+                      SdButtonV2(
+                        variant: SdButtonVariantV2.primary,
+                        onPressed: next,
+                        label: l10n.onboardingContinue,
+                      ),
+                    ],
+                    // One button, reading "Continue", and the OS prompt always follows it.
+                    1 => [
+                      SdButtonV2(
+                        variant: SdButtonVariantV2.primary,
+                        onPressed: () async {
+                          try {
+                            await controller.requestLocation();
+                          } catch (_) {
+                            // Logged by the controller.
+                          }
+                          await next();
+                        },
+                        label: l10n.onboardingContinue,
+                      ),
+                    ],
+                    _ => [
+                      SdButtonV2(
+                        variant: SdButtonVariantV2.primary,
+                        onPressed: finish,
+                        label: l10n.onboardingStart,
+                      ),
+                      SizedBox(height: SdSpacingConstant.h8),
+                      SdButtonV2(
+                        variant: SdButtonVariantV2.outlined,
+                        onPressed: () =>
+                            const OnboardingFeaturesSheet().show(context),
+                        label: l10n.onboardingFeaturesAction,
+                      ),
+                    ],
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

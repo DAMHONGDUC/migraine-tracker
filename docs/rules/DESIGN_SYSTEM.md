@@ -81,6 +81,14 @@ Never up for negotiation, however good the mockup looks:
 What a mockup IS for: hierarchy, rhythm, density, where the eye lands, how a card
 is composed, what a chart should say. Take that; leave the tokens.
 
+## Width, on a screen wider than a phone
+
+One ceiling on the scale (1.25, the same on every ladder and in both
+orientations) and one chrome that changes — the phone's
+floating pill becomes `SdNavPanelV2`, a collapsible panel a fifth of the window
+wide, joined to the content. Both do nothing on a phone. Full rule, with the
+numbers and what is deliberately NOT responsive: `docs/rules/RESPONSIVE.md`.
+
 ## Surfaces and colour
 
 - **One card colour: `AppColors.surface` (`#1C1C1E`)** — dashboard, insights,
@@ -101,6 +109,13 @@ is composed, what a chart should say. Take that; leave the tokens.
 - **Liquid Glass is for chrome** — app bar, the shell's nav pill, the log flow's
   step bar, a sheet header's two `SdAppBarButtonV2`s — plus one deliberate
   surface: the **paywall** panel. Every other sheet is flat and opaque.
+  - **The tablet's nav panel is the one piece of chrome that is not glass.** It
+    is a full-height column joined to the content with nothing behind it to
+    refract, so it takes `colorScheme.surface` — the card colour — the way iPad
+    Settings' sidebar sits against its pane. Its toggle is still an
+    `SdAppBarButtonV2` in its glass circle, in the panel and in the app bar
+    alike, so the control that closes it and the one that reopens it are one
+    control.
 - **Every card is an `SdCardV2`**, never a raw Material `Card`. It is the card
   colour and `SdCardV2.radius` and nothing else: **no padding and no margin**,
   because Material's `Card` carries an invisible `EdgeInsets.all(4)` that made a

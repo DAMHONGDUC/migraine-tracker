@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/storage/secure_store.dart';
 import 'package:migraine_tracker/core/theme/app_theme.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_geometry.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_grid.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene_store.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 import 'package:system_design/index.dart';
 
@@ -29,26 +33,39 @@ void main() {
     tester.view.physicalSize = screen * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+    // The flat pair is what a test draws, and it has to say so: a widget test
+    // never resolves the model load, so the picker would otherwise sit on the
+    // loading placeholder for the whole test.
+    HeadSceneStore.markUnavailable();
+    addTearDown(HeadSceneStore.reset);
     selected = initial;
+    // The picker reads the saved zoom and rotation speed off `SecureStore`, so
+    // a test needs one — an empty Keychain, which is what a first open sees.
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
+
+    final SecureStore prefs = await SecureStore.open();
 
     await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: const Size(393, 852),
-        builder: (BuildContext context, Widget? child) => MaterialApp(
-          theme: AppTheme.dark,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: Center(
-              child: SizedBox(
-                height: height,
-                child: StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) =>
-                      HeadRegionPicker(
-                        selected: selected,
-                        onChanged: (List<HeadRegion> regions) =>
-                            setState(() => selected = regions),
-                      ),
+      ProviderScope(
+        overrides: [secureStoreProvider.overrideWithValue(prefs)],
+        child: ScreenUtilInit(
+          designSize: const Size(393, 852),
+          builder: (BuildContext context, Widget? child) => MaterialApp(
+            theme: AppTheme.dark,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  height: height,
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) =>
+                        HeadRegionPicker(
+                          selected: selected,
+                          onChanged: (List<HeadRegion> regions) =>
+                              setState(() => selected = regions),
+                        ),
+                  ),
                 ),
               ),
             ),
@@ -78,6 +95,37 @@ void main() {
     matching: find.text(label),
   );
 
+  testWidgets('fallback keeps anatomical labels and hides unsupported zoom', (
+    WidgetTester tester,
+  ) async {
+    await pumpPicker(tester);
+    await tester.pump();
+    expect(find.byTooltip('Zoom in'), findsNothing);
+    expect(
+      tester.getCenter(find.text('L')).dx,
+      lessThan(tester.getCenter(find.text('R')).dx),
+    );
+    await tester.tap(find.text('Back'));
+    await settleFrames(tester);
+    expect(
+      tester.getCenter(find.text('L')).dx,
+      lessThan(tester.getCenter(find.text('R')).dx),
+    );
+    await tester.tap(tile('Nape'));
+    await tester.pump();
+    expect(selected, <HeadRegion>[HeadRegion.nape]);
+  });
+
+  testWidgets('picker fits a short edit sheet', (WidgetTester tester) async {
+    await pumpPicker(tester, height: 500);
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(HeadDiagram)).height, greaterThan(0));
+    await tester.tap(find.text('Back'));
+    await settleFrames(tester);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('a tile and the head write the same answer', (tester) async {
     await pumpPicker(tester);
 
@@ -99,7 +147,9 @@ void main() {
     expect(tile('Left cheek'), findsNothing);
 
     await tester.tap(find.text('Front'));
-    await tester.pump();
+    // Settled, not pumped: the tabs turn the head rather than cutting to it,
+    // and the tiles follow the side that ends up facing.
+    await tester.pumpAndSettle();
 
     expect(tile('Left cheek'), findsOneWidget);
     expect(tile('Nape'), findsNothing);
@@ -158,9 +208,20 @@ void main() {
     expect(head.left, inset);
     expect(head.width, 393 - inset * 2);
     expect(head.height, closeTo(head.width / (200 / 248), 0.5));
-    // And the same ring under it before the tiles start — even on both axes is the point.
-    expect(grid.top - head.bottom, closeTo(inset, 0.5));
+    // Never closer to the tiles than the ring either side of it.
+    expect(grid.top - head.bottom, greaterThanOrEqualTo(inset - 0.5));
     expect(grid.height, greaterThan(HeadRegionGrid.reservedHeight));
+
+    // And centred in what the tabs and the tiles leave (owner's rule,
+    // 2026-09-19): the air above the head is the air below it, the gap before
+    // the tiles aside. The tiles are pinned to the bottom of the step, so a
+    // tall screen gives the difference to the head rather than to a hole.
+    final Rect tabs = tester.getRect(find.byType(SdSegmentedTabsV2));
+
+    expect(
+      head.top - tabs.bottom,
+      closeTo(grid.top - inset - head.bottom, 0.5),
+    );
   });
 
   testWidgets('the nose is its own area, and the cheek stops at it', (

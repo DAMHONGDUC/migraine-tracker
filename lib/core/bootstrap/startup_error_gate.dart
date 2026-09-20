@@ -6,8 +6,6 @@ import '../../l10n/gen/app_localizations.dart';
 import '../env/app_env.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_icon_constant.dart';
-import '../theme/app_icon_size.dart';
-import '../theme/app_text_style.dart';
 import 'app_bootstrap.dart';
 import 'startup_failures_provider.dart';
 
@@ -47,61 +45,29 @@ class StartupErrorGate extends ConsumerWidget {
   }
 }
 
-/// The screen itself: what happened, and the one thing worth trying.
+/// The screen itself, in the app's words.
+///
+/// The look is [SdErrorViewV2]'s, so a second app of ours gets the same screen
+/// without copying it. What stays here is what that package may not know: the
+/// strings, the app's error glyph, and that a raw failure is for a tester
+/// rather than for someone who downloaded this from the App Store.
 class StartupErrorView extends StatelessWidget {
   const StartupErrorView({required this.detail, super.key});
 
-  /// What the step threw. Shown outside production only — it names the bug for
-  /// whoever can fix it, and reads as noise to everyone else.
+  /// What the step threw.
   final String detail;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return Material(
-      color: context.colorScheme.surface,
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: SdContentPaddingV2.horizontal,
-            vertical: SdSpacingConstant.h24,
-          ),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                SdIconV2(
-                  icon: AppIconConstant.error,
-                  size: AppIconSize.xLarge,
-                  color: context.colorScheme.error,
-                ),
-                SizedBox(height: SdSpacingConstant.h16),
-                Text(
-                  l10n.startupErrorTitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.titleLarge.w600,
-                ),
-                SizedBox(height: SdSpacingConstant.h8),
-                Text(
-                  l10n.startupErrorBody,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.bodyMedium.secondary,
-                ),
-                if (!AppEnv.isProd) ...<Widget>[
-                  SizedBox(height: SdSpacingConstant.h24),
-                  Text(
-                    detail,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.bodySmall.secondary,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+    return SdErrorViewV2(
+      icon: AppIconConstant.error,
+      title: l10n.startupErrorTitle,
+      message: l10n.startupErrorBody,
+      // Outside production only: it names the bug for whoever can fix it, and
+      // reads as noise to everyone else.
+      detail: AppEnv.isProd ? null : detail,
     );
   }
 }

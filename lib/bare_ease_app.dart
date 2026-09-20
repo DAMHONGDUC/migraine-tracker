@@ -79,6 +79,11 @@ class BaroEaseApp extends ConsumerWidget {
 class _BaroEaseAppView extends HookConsumerWidget {
   const _BaroEaseAppView();
 
+  /// The size every screen in this app was drawn at — an iPhone 14/15/16.
+  /// What a window wider than this does with the extra room is
+  /// `SdScreenScale`'s answer, not a second design.
+  static const Size _designSize = Size(393, 852);
+
   /// Today's pressure reading, then the home-screen widget that shows it.
   Future<void> _recordPressureThenRedraw(WidgetRef ref) async {
     await ref.read(dailyPressureRecorderProvider).recordToday();
@@ -229,8 +234,15 @@ class _BaroEaseAppView extends HookConsumerWidget {
     });
 
     return ScreenUtilInit(
-      // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this.
-      designSize: const Size(393, 852),
+      // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this — but only up to `SdScreenScale.maxScale`.
+      // Handed the design straight, screenutil would scale an 820-wide iPad by 2.09 and a landscape one's gutters by 3.0.
+      // `SdScreenScale.designSize` grows the design instead, so the ratio caps out on BOTH axes: every iPhone is below the cap and gets the same numbers it does today.
+      // Read through `MediaQuery`, not the view, so a rotation or a Split View resize rebuilds this and re-measures.
+      // `minTextAdapt` is inert here and kept as a fallback: `ScreenUtilInit`'s default `fontSizeResolver` is `FontSizeResolvers.width`, and that is what type actually scales by.
+      designSize: SdScreenScale.designSize(
+        MediaQuery.sizeOf(context),
+        _designSize,
+      ),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp.router(
@@ -248,11 +260,11 @@ class _BaroEaseAppView extends HookConsumerWidget {
           // the session, which is exactly what is missing when this shows.
           child: StartupErrorGate(
             child: NotificationTapListener(
-            child: HomeWidgetTapListener(
-              child: ForceUpdateWrapper(
-                // Inside force update, so a blocked user on an unsupported
-                // build is told to update first: one of the two has to win,
-                // and the store link is the one that helps either way.
+              child: HomeWidgetTapListener(
+                child: ForceUpdateWrapper(
+                  // Inside force update, so a blocked user on an unsupported
+                  // build is told to update first: one of the two has to win,
+                  // and the store link is the one that helps either way.
                   child: BlockedAccountGate(
                     child: child ?? const SizedBox.shrink(),
                   ),

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../core/constants/splash_constant.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_loading_dots.dart';
 
 /// The one loading look a launch has, drawn twice: by `FreshInstallGate` above
 /// the app, and by `SplashScreen` as the first route under it.
@@ -19,12 +19,7 @@ class SplashDots extends StatelessWidget {
     textDirection: TextDirection.ltr,
     child: ColoredBox(
       color: AppColors.background,
-      child: Center(
-        child: LoadingAnimationWidget.staggeredDotsWave(
-          color: AppColors.primary,
-          size: SplashConstant.dotsSize,
-        ),
-      ),
+      child: AppLoadingDots(size: SplashConstant.dotsSize),
     ),
   );
 }
