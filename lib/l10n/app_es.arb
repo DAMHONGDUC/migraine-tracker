@@ -854,6 +854,7 @@
   "logHeadResetView": "Restablecer vista",
   "logHeadGestureHint": "Arrastra para girar · Pellizca para ampliar",
   "logHeadZoomLevel": "{percent} %",
+  "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Velocidad de giro {percent} %",
   "aboutHeadModelCredit": "Cabeza 3D: «Infinite», de Lee Perry-Smith / triplegangers.com, de los ejemplos de three.js. Licencia CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase recortó el modelo, lo dividió en zonas de dolor y cambió los colores.",
   "navPanelExpand": "Mostrar navegación",

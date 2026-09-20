@@ -38,13 +38,11 @@ class _HeadZoomControls extends StatelessWidget {
               ),
             ),
           ),
-          // Tinted while the turn is slowed, because the setting is otherwise
-          // felt rather than seen: the button's own glyph never changes, and
-          // a control whose state only shows up in a tooltip is a control
-          // nobody can check.
+          // Keep the speed readable without opening its tooltip.
           _HeadZoomButton(
             label: l10n.logHeadRotationSpeed(rotationSpeed.percent),
             icon: Symbols.speed_rounded,
+            readout: l10n.logHeadRotationSpeedValue(rotationSpeed.percent),
             tint: rotationSpeed == HeadRotationSpeed.full
                 ? null
                 : AppColors.primary,
@@ -90,9 +88,11 @@ class _HeadZoomButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.tint,
+    this.readout,
   });
 
   final String label;
+  final String? readout;
   final IconData icon;
   final VoidCallback? onPressed;
 
@@ -107,12 +107,24 @@ class _HeadZoomButton extends StatelessWidget {
       minWidth: SdSpacingConstant.r44,
       minHeight: SdSpacingConstant.r44,
     ),
-    icon: SdIconV2(
-      icon: icon,
-      size: SdSpacingConstant.r20,
-      color: onPressed == null
-          ? AppColors.chartGrid
-          : tint ?? AppColors.textSecondary,
+    icon: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        SdIconV2(
+          icon: icon,
+          size: readout == null ? SdSpacingConstant.r20 : SdSpacingConstant.r16,
+          color: onPressed == null
+              ? AppColors.chartGrid
+              : tint ?? AppColors.textSecondary,
+        ),
+        if (readout != null)
+          Text(
+            readout!,
+            style: AppTextStyle.labelTiny.copyWith(
+              color: tint ?? AppColors.textSecondary,
+            ),
+          ),
+      ],
     ),
   );
 }

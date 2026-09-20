@@ -854,6 +854,7 @@
   "logHeadResetView": "Đặt lại góc nhìn",
   "logHeadGestureHint": "Kéo để xoay · Chụm ngón để thu phóng",
   "logHeadZoomLevel": "{percent}%",
+  "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Tốc độ xoay {percent}%",
   "aboutHeadModelCredit": "Đầu 3D: “Infinite” của Lee Perry-Smith / triplegangers.com, từ các mẫu three.js. Giấy phép CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase đã cắt gọn, chia vùng đau và đổi màu.",
   "navPanelExpand": "Mở thanh điều hướng",

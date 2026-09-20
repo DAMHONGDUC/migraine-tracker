@@ -4150,6 +4150,11 @@
       }
     }
   },
+  "logHeadRotationSpeedValue": "{percent}%",
+  "@logHeadRotationSpeedValue": {
+    "description": "Visible percentage under the head rotation speed icon.",
+    "placeholders": {"percent": {"type": "int", "example": "75"}}
+  },
   "logHeadRotationSpeed": "Rotation speed {percent}%",
   "@logHeadRotationSpeed": {
     "description": "Tooltip on the button that steps the head's drag-to-rotate speed down; also the current speed.",
