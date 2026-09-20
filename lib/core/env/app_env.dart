@@ -11,7 +11,10 @@ final class AppEnv {
     defaultValue: 'dev',
   );
 
-  static bool get isProd => flavor == 'prod';
+  /// A `const` rather than a getter: it gates debug-only UI, and a const the
+  /// compiler folds is one the release binary does not carry the other branch
+  /// of. It is also what lets it be a default parameter value.
+  static const bool isProd = flavor == 'prod';
 
   // --- Firebase (non-secret identifiers; access control is Firestore rules). ---
   static const String firebaseApiKeyAndroid = String.fromEnvironment(

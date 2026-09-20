@@ -4,9 +4,9 @@ import 'package:system_design/index.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../env/app_env.dart';
+import '../env/flavor_config_mismatch.dart';
 import '../extensions/context_extensions.dart';
 import '../theme/app_icon_constant.dart';
-import 'app_bootstrap.dart';
 import 'startup_failures_provider.dart';
 
 /// Replaces the whole app when a startup step it cannot work without failed.
@@ -17,31 +17,36 @@ import 'startup_failures_provider.dart';
 /// which read Firestore — asking a broken build to update is asking it to do
 /// the thing that just failed.
 ///
-/// **Only a genuinely broken build gets here.** `Firebase.initializeApp` is
-/// local work: it does not fail on a bad connection, it fails when the build's
-/// options and the bundled `GoogleService-Info.plist` disagree
-/// (`[core/duplicate-app]`) or when there are no options at all. Logging an
-/// attack offline, which hard rule 4 protects, never reaches this screen.
+/// **Only a genuinely broken build gets here**, and the failure's *type* is
+/// what says so — not which step it came from. See [isFatal].
 class StartupErrorGate extends ConsumerWidget {
   const StartupErrorGate({required this.child, super.key});
 
-  /// The steps whose failure stops the app. One entry today; a second belongs
-  /// here only if the app is equally useless without it.
-  static const List<String> fatalSteps = <String>[AppBootstrap.firebaseStep];
+  /// Whether a startup failure is one the app must refuse to run past.
+  ///
+  /// **A mismatch, never an absence.** The rule used to be "the Firebase step
+  /// failed", which caught the wrong three quarters of the cases: that step
+  /// also fails with `[core/no-app]` on a build carrying no config at all and
+  /// with `[core/duplicate-app]` on a hot restart, and neither is a reason to
+  /// take the app away from its user. Data here is local-first, so an app
+  /// whose backend never came up still logs an attack — hard rule 4 — and a
+  /// fresh clone with nothing configured yet must still run.
+  ///
+  /// What cannot be allowed to continue is a build writing into the *other*
+  /// environment's project, because that one works perfectly: nothing is
+  /// broken on screen, and the damage is real rows in the wrong database.
+  static bool isFatal(Object error) => error is FlavorConfigMismatch;
 
   final Widget child;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, String> failures = ref.watch(startupFailuresProvider);
-    final String? detail = fatalSteps
-        .map((String step) => failures[step])
-        .nonNulls
-        .firstOrNull;
+    final Map<String, Object> failures = ref.watch(startupFailuresProvider);
+    final Object? fatal = failures.values.where(isFatal).firstOrNull;
 
-    if (detail == null) return child;
+    if (fatal == null) return child;
 
-    return StartupErrorView(detail: detail);
+    return StartupErrorView(detail: '$fatal');
   }
 }
 
@@ -52,10 +57,19 @@ class StartupErrorGate extends ConsumerWidget {
 /// strings, the app's error glyph, and that a raw failure is for a tester
 /// rather than for someone who downloaded this from the App Store.
 class StartupErrorView extends StatelessWidget {
-  const StartupErrorView({required this.detail, super.key});
+  const StartupErrorView({
+    required this.detail,
+    this.showDetail = !AppEnv.isProd,
+    super.key,
+  });
 
   /// What the step threw.
   final String detail;
+
+  /// Whether [detail] is on screen. A const by default, so the release binary
+  /// does not carry the raw failure at all; a parameter so the release
+  /// behaviour is testable from a dev test run.
+  final bool showDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +81,7 @@ class StartupErrorView extends StatelessWidget {
       message: l10n.startupErrorBody,
       // Outside production only: it names the bug for whoever can fix it, and
       // reads as noise to everyone else.
-      detail: AppEnv.isProd ? null : detail,
+      detail: showDetail ? detail : null,
     );
   }
 }

@@ -10,6 +10,7 @@ import '../../core/constants/log_tag_constant.dart';
 import '../../firebase_options.dart';
 import '../analytics/app_analytics.dart';
 import '../env/app_env.dart';
+import '../env/flavor_config_mismatch.dart';
 import '../logging/crash_reporter.dart';
 
 /// The work `main` hands to `SdBootstrap`, one method per step.
@@ -20,14 +21,51 @@ import '../logging/crash_reporter.dart';
 final class AppBootstrap {
   const AppBootstrap._();
 
-  /// Names the Firebase step in the log and in `StartupErrorGate.fatalSteps`,
-  /// which is keyed on it — a string typed twice is a screen that silently
-  /// stops appearing when one of them is renamed.
-  static const String firebaseStep = 'Firebase';
-
   /// First, so Crashlytics is up before anything else can fail.
-  static Future<void> initFirebase() =>
-      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  ///
+  /// Also the one moment both halves of the build's config exist in the same
+  /// process, so it is where they are compared — see [FlavorConfigMismatch]
+  /// for the trap. Inside this step rather than a step of its own:
+  /// `Firebase.app()` throws `[core/no-app]` when the line above it did not
+  /// run, so a separate step would have to re-derive whether it applies, which
+  /// is a second copy of the same condition.
+  static Future<void> initFirebase() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // The native half reporting what it actually loaded. Compared at runtime
+    // rather than off the files: a file check answers "what is on disk", and a
+    // plist cached in DerivedData or a hot restart after switching flavours
+    // passes that one and fails this one.
+    final String nativeProjectId = Firebase.app().options.projectId;
+
+    // **A mismatch is refused; an absence never is.** A build with no Dart
+    // config is an app whose backend is not set up yet, and a guard that fires
+    // there breaks day one of a fresh clone — whoever hits it deletes the
+    // guard rather than the cause.
+    if (!AppEnv.hasFirebaseConfig) {
+      SdLogger.warning(
+        LogTagConstant.bootstrap,
+        'No Firebase config in this build; skipping the flavour check',
+        <String, String>{'nativeProjectId': nativeProjectId},
+      );
+
+      return;
+    }
+
+    if (nativeProjectId != AppEnv.firebaseProjectId) {
+      // Thrown, not logged here: `SdBootstrap` logs every step that throws
+      // with the error itself, and `toString` carries both ids and the
+      // command — a line beside it would file the same failure twice. It
+      // lands before the crash reporter step, so a build pointed at the wrong
+      // project does not also send its crashes there.
+      throw FlavorConfigMismatch(
+        expected: AppEnv.firebaseProjectId,
+        actual: nativeProjectId,
+      );
+    }
+  }
 
   /// Its own step, not part of [initFirebase]: the reporter is what names
   /// every failure after it, so it must not be skipped by one before it.

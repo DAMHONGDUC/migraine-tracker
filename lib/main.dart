@@ -30,7 +30,7 @@ Future<void> main() async {
   // Filled by the handler below, read by `StartupErrorGate`: the steps run
   // before there is a tree to put a failure in, so it is carried in and handed
   // over as an override.
-  final Map<String, String> startupFailures = <String, String>{};
+  final Map<String, Object> startupFailures = <String, Object>{};
 
   await SdBootstrap.run(
     logTag: LogTagConstant.bootstrap,
@@ -40,10 +40,7 @@ Future<void> main() async {
         name: 'Secure store',
         run: () async => store = await SecureStore.open(),
       ),
-      SdBootstrapStep(
-        name: AppBootstrap.firebaseStep,
-        run: AppBootstrap.initFirebase,
-      ),
+      SdBootstrapStep(name: 'Firebase', run: AppBootstrap.initFirebase),
       SdBootstrapStep(
         name: 'Crash reporting',
         run: AppBootstrap.initCrashReporting,
@@ -55,7 +52,7 @@ Future<void> main() async {
     // Reporting, not refusing: the app still starts, and the gate inside it
     // decides whether what failed is something it can run without.
     onStepFailed: (SdBootstrapStep step, Object error) =>
-        startupFailures[step.name] = '$error',
+        startupFailures[step.name] = error,
     builder: () => ProviderScope(
       overrides: [
         secureStoreProvider.overrideWithValue(store),
