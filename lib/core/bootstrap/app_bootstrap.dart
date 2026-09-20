@@ -15,56 +15,91 @@ import '../logging/crash_reporter.dart';
 
 /// The work `main` hands to `SdBootstrap`, one method per step.
 ///
-/// **Nothing here writes a `try` of its own.** Every step is guarded and
-/// logged by [SdBootstrap], and one of them failing must not take the launch
-/// with it — a step that swallowed its own failure would report as started.
+/// **Nothing here writes a `try` of its own**, with one stated exception.
+/// Every step is guarded and logged by [SdBootstrap], and one of them failing
+/// must not take the launch with it — a step that swallowed its own failure
+/// would report as started. [initFirebase] catches, and only to *widen* what
+/// is reported: `duplicate-app` is the shape a flavour mismatch arrives in, so
+/// letting it escape would end the step before the check that names it.
 final class AppBootstrap {
   const AppBootstrap._();
 
   /// First, so Crashlytics is up before anything else can fail.
   ///
-  /// Also the one moment both halves of the build's config exist in the same
-  /// process, so it is where they are compared — see [FlavorConfigMismatch]
-  /// for the trap. Inside this step rather than a step of its own:
-  /// `Firebase.app()` throws `[core/no-app]` when the line above it did not
-  /// run, so a separate step would have to re-derive whether it applies, which
-  /// is a second copy of the same condition.
+  /// Also where the build's two halves of config are compared — see
+  /// [FlavorConfigMismatch] for the trap. Inside this step rather than a step
+  /// of its own: `Firebase.app()` throws `[core/no-app]` when the line above
+  /// it did not run, so a separate step would have to re-derive whether it
+  /// applies, which is a second copy of the same condition.
   static Future<void> initFirebase() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    // The native half reporting what it actually loaded. Compared at runtime
-    // rather than off the files: a file check answers "what is on disk", and a
-    // plist cached in DerivedData or a hot restart after switching flavours
-    // passes that one and fails this one.
-    final String nativeProjectId = Firebase.app().options.projectId;
-
-    // **A mismatch is refused; an absence never is.** A build with no Dart
-    // config is an app whose backend is not set up yet, and a guard that fires
-    // there breaks day one of a fresh clone — whoever hits it deletes the
-    // guard rather than the cause.
-    if (!AppEnv.hasFirebaseConfig) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } on FirebaseException catch (error) {
       SdLogger.warning(
         LogTagConstant.bootstrap,
-        'No Firebase config in this build; skipping the flavour check',
-        <String, String>{'nativeProjectId': nativeProjectId},
+        'Firebase.initializeApp refused the options this build passed',
+        <String, String>{'code': error.code},
       );
 
+      // **`duplicate-app` is what a flavour mismatch actually looks like**, so
+      // it must not escape before the comparison below runs.
+      //
+      // The native default app is already up by the time Dart asks for one —
+      // `FLTFirebaseCorePlugin` configures it from `GoogleService-Info.plist`,
+      // Android's `FirebaseInitProvider` from `google-services.json` — and
+      // firebase_core answers our options by soft-comparing apiKey,
+      // databaseURL and storageBucket against that app, never projectId. Two
+      // different projects differ on apiKey, so a mismatch lands here rather
+      // than on the check. A hot restart lands here too, with the same project
+      // on both sides, which is why the code decides nothing and the ids do.
+      if (error.code != 'duplicate-app') rethrow;
+    }
+
+    _guardFlavorAgainstNativeConfig();
+  }
+
+  /// Compares the build's two halves of config, at the one moment both exist
+  /// in the same process.
+  ///
+  /// **`Firebase.app().options` is the native half, not an echo of ours.**
+  /// When a plist or a `google-services.json` is bundled, firebase_core keeps
+  /// the app the platform already created from that file and discards the
+  /// options we passed — so on a mismatch the app does not run against the
+  /// project its dart-defines name, it runs against the file's, which is the
+  /// whole reason this is worth refusing.
+  ///
+  /// Compared at runtime rather than off the files: a file check answers "what
+  /// is on disk", and a plist cached in DerivedData or a hot restart after
+  /// switching flavours passes that one and fails this one. The lane's own
+  /// file check (`sd_verify_flavor_config`) is the other half and neither
+  /// replaces the other.
+  static void _guardFlavorAgainstNativeConfig() {
+    final String nativeProjectId = Firebase.apps.isEmpty
+        ? ''
+        : Firebase.app().options.projectId;
+
+    // **A mismatch is refused; an absence never is.** A build with no config
+    // on one side is an app whose backend is not set up yet, and a guard that
+    // fires there breaks day one of a fresh clone — whoever hits it deletes
+    // the guard rather than the cause.
+    if (!FlavorConfigMismatch.disagree(
+      AppEnv.firebaseProjectId,
+      nativeProjectId,
+    )) {
       return;
     }
 
-    if (nativeProjectId != AppEnv.firebaseProjectId) {
-      // Thrown, not logged here: `SdBootstrap` logs every step that throws
-      // with the error itself, and `toString` carries both ids and the
-      // command — a line beside it would file the same failure twice. It
-      // lands before the crash reporter step, so a build pointed at the wrong
-      // project does not also send its crashes there.
-      throw FlavorConfigMismatch(
-        expected: AppEnv.firebaseProjectId,
-        actual: nativeProjectId,
-      );
-    }
+    // Thrown, not logged here: `SdBootstrap` logs every step that throws with
+    // the error itself, and `toString` carries both ids and the command — a
+    // line beside it would file the same failure twice. It lands before the
+    // crash reporter step, so a build pointed at the wrong project does not
+    // also send its crashes there.
+    throw FlavorConfigMismatch(
+      expected: AppEnv.firebaseProjectId,
+      actual: nativeProjectId,
+    );
   }
 
   /// Its own step, not part of [initFirebase]: the reporter is what names

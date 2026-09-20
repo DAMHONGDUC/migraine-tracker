@@ -25,6 +25,14 @@ final class FlavorConfigMismatch implements Exception {
   /// The project the native SDK actually came up on — what it writes to.
   final String actual;
 
+  /// Whether two project ids are a *mismatch* rather than an *absence*.
+  ///
+  /// An empty half means "not configured yet", never "disagrees": a guard that
+  /// fired there would turn a fresh clone with no backend into a broken app on
+  /// day one, and whoever hit it would delete the guard rather than the cause.
+  static bool disagree(String dart, String native) =>
+      dart.isNotEmpty && native.isNotEmpty && dart != native;
+
   /// Names both projects and the command that fixes it.
   ///
   /// This can only happen on a developer's machine, so that sentence is the
