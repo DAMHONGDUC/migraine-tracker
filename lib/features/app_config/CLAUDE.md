@@ -8,6 +8,7 @@
 | `premium_emails` | string[] | Premium in the app, and targets of the alert cron |
 | `dev_mode_emails` | string[] | Settings shows its Dev group on a **prod** build |
 | `blocked_emails` | string[] | Locked out: the block screen and nothing else |
+| `error_view` | map | The owner's notice in front of the whole app |
 
 It replaced `PREMIUM_EMAIL` and `SHOW_DEV_SETTINGS` (two `--dart-define` keys in
 `env/<flavor>.json` and `functions/.env`), the `app_access` collection, and the
@@ -22,8 +23,8 @@ unknown key reads as absent rather than as an error.
 
 **One document, one listener, one entity.** `FirestoreAppConfigRepository` is
 the app's only read of it: it parses `force_update` through `AppUpdateMapper`
-and hands it back on `AppConfig.forceUpdate`, so every switch on this page
-arrives on the same snapshot. Force update used to be its own feature over its
+and `error_view` through `ErrorViewMapper`, handing each back on its own
+`AppConfig` field, so every switch on this page arrives on the same snapshot. Force update used to be its own feature over its
 own collection, then its own repository doing a second `get` of this same
 document on every launch and every resume — which was a second reader to keep
 pointing at the right document id, a second thing to be denied on its own, and a
@@ -46,6 +47,11 @@ logs and ends would leave a cold start waiting for good.
                 "build_name": "1.4.0", "build_number": 41,
                 "enable_force_update": false}
   },
+  "error_view": {"enable": false,
+                 "title": "BaroEase is having trouble",
+                 "subtitle_1": "We are repairing the connection to our servers.",
+                 "subtitle_2": "Everything you have logged is safe on this device.",
+                 "type": "warning"},
   "premium_emails":  ["review@baroease.app", "owner@baroease.app"],
   "dev_mode_emails": ["owner@baroease.app"],
   "blocked_emails":  ["banned@example.com"]
@@ -84,6 +90,7 @@ and all three move together or the read is denied.
 |---|---|---|
 | Address lists | nobody listed, **nobody blocked** | the address being on the list |
 | `force_update` | blocks nobody | `enable_force_update: true` |
+| `error_view` | shows nothing | `enable: true` **and** a non-empty `title` |
 
 **Every field is something an address has to be put on, or a record the owner
 has to write.** An offline first launch, an install ahead of the document
@@ -103,6 +110,7 @@ granting nothing and looking like a typo nobody made.
 |---|---|---|
 | App gates | `hasGrantedPremiumProvider` → `hasPremiumProvider` | Premium ahead of the entitlement |
 | App root | `isAccountBlockedProvider` → `BlockedAccountGate` | Replaces the whole app |
+| App root | `remoteErrorViewProvider` → `RemoteErrorGate` | Replaces the whole app |
 | Settings | `showDevSettingsProvider` | The Dev group on a **prod** build |
 | Launch check | `forceUpdateControllerProvider` → `ForceUpdateWrapper` | Reads `AppConfig.forceUpdate` off the same stream; hard rule 9 fails open |
 | `pressureAlertJob` | `premiumEmailsFrom` + `getUserByEmail` | The accounts pushed to |
@@ -152,6 +160,49 @@ granting nothing and looking like a typo nobody made.
 - **A malformed field grants nothing rather than throwing.** The lists are typed
   by hand: anything that is not an array of strings reads as empty, and a
   non-string entry is dropped.
+
+## `error_view` — the owner's notice
+
+One map, parsed by `ErrorViewMapper`, that replaces the whole app with a screen
+in the owner's words. For an outage, a migration, an incident: the things that
+are true for everybody and that no build can fix from the store.
+
+| Field | Type | Note |
+|---|---|---|
+| `enable` | bool | **Explicit `true` only.** `"true"`, `1` and absent are all off |
+| `title` | string | The headline. Empty means the notice is dropped |
+| `subtitle_1` / `subtitle_2` | string | Optional body lines; only the ones with text are drawn |
+| `type` | string | `warning` or `error` — the glyph and its colour, nothing else |
+
+- **Two independent refusals, and both matter.** A notice that could be
+  switched on by a typo takes the app away by typo, so `enable` must be
+  literally `true`; and a notice with a blank headline replaces a working app
+  with a screen that says nothing, which is strictly worse than not showing it.
+- **The entity existing *is* the switch.** `AppConfig.errorView` is null for
+  off, absent, malformed and empty alike — the shape `forceUpdate` already
+  uses, so "should this show" is never asked in two places that could disagree.
+- **`type` is the one field where an unreadable value reads loud, not quiet.**
+  Everywhere else on this document a malformed field grants nothing, because
+  every other field hands out a privilege or takes the app away. Here the
+  notice is already being shown on purpose, so a typo must not silently
+  downgrade an outage to a warning: anything unrecognised is `error`.
+- **The copy is not localized, and cannot be.** Every other string in the app
+  goes through the ARB files; these three are typed into the console mid-incident
+  in whatever language the owner writes, and there is no key to translate ahead
+  of an incident nobody has had yet.
+- **`RemoteErrorGate` sits inside `ForceUpdateWrapper` and outside
+  `BlockedAccountGate`.** Inside force update for the reason the block is
+  inside it: one of them has to win and the store link helps either way.
+  Outside the block because a notice is addressed to everybody and the block to
+  one account — telling a blocked user the backend is down is the more useful
+  of the two sentences.
+- **It is not keyed on an address**, unlike every other gate here, so it reads
+  the same for an anonymous session. An outage is not a list somebody is on.
+- **`RemoteErrorView` is not `SdErrorViewV2`.** That widget draws one body line
+  plus a `detail` row meant for a raw failure outside production; this one
+  draws two body lines the owner wrote for the user, and colours its glyph by
+  severity. Bending `detail` into a second subtitle would leave the next reader
+  of either file believing something untrue about the other.
 
 ## Not the client-side premium flag the repo forbids
 
