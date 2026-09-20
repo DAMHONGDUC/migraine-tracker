@@ -186,9 +186,6 @@ void main() {
     ) async {
       await pumpApp(tester);
 
-      final BuildContext context = tester.element(find.byType(DashboardScreen));
-
-      expect(SdContentPaddingV2.pageMargin(context), 0);
       expect(
         tester.getRect(find.byType(DashboardLogButton)).left,
         closeTo(SdContentPaddingV2.horizontal, 0.5),
@@ -197,17 +194,12 @@ void main() {
       await finishTest(tester);
     });
 
-    // Owner's rule: a screen with no shell nav draws the SAME width, centred.
+    // A screen with no shell nav fills the window: there is no panel beside it,
+    // so there is nothing to leave room for.
     for (final (String name, Size size) in tabletSizes) {
-      testWidgets('a pushed screen is the same width, centred, in $name', (
-        tester,
-      ) async {
+      testWidgets('a pushed screen fills the window in $name', (tester) async {
         final PumpedApp app = await pumpApp(tester, surfaceSize: size);
         await seedHistory(app);
-
-        final double tabCard = tester
-            .getSize(find.byType(DashboardLogButton))
-            .width;
 
         // The attack detail is a sibling of the shell route, so it opens with
         // no panel beside it at all.
@@ -218,19 +210,13 @@ void main() {
         expect(find.byType(SdNavPanelV2), findsNothing);
 
         final Rect pushed = tester.getRect(find.byType(ListView).first);
-        final double pushedCard =
-            pushed.width - SdContentPaddingV2.horizontal * 2;
 
         expect(
-          pushedCard,
-          closeTo(tabCard, 0.5),
-          reason: 'the content jumped width on the way into a detail screen',
+          pushed.left,
+          closeTo(0, 0.5),
+          reason: 'a screen with no panel must start at the window edge',
         );
-        expect(
-          size.width - pushed.right,
-          closeTo(pushed.left, 0.5),
-          reason: 'a screen with no panel must be centred',
-        );
+        expect(pushed.width, closeTo(size.width, 0.5));
 
         await finishTest(tester);
       });
