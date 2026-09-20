@@ -12,9 +12,16 @@ void main() {
       actual: 'acme-prod',
     );
 
-    expect('$mismatch', contains('acme-dev'));
-    expect('$mismatch', contains('acme-prod'));
-    expect('$mismatch', contains('melos run prepare-env-${AppEnv.flavor}'));
+    final List<String> lines = '$mismatch'.split('\n');
+
+    // One labelled fact per line: what this is, what each half says, and the
+    // command. Read in a console and on the error screen, both of which
+    // punish a single long sentence.
+    expect(lines, hasLength(4));
+    expect(lines[0], contains('wrong Firebase project'));
+    expect(lines[1], 'env/${AppEnv.flavor}.json expects: acme-dev');
+    expect(lines[2], 'native config is: acme-prod');
+    expect(lines[3], 'Fix: melos run prepare-env-${AppEnv.flavor}');
   });
 
   group('disagree', () {

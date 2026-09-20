@@ -33,14 +33,20 @@ final class FlavorConfigMismatch implements Exception {
   static bool disagree(String dart, String native) =>
       dart.isNotEmpty && native.isNotEmpty && dart != native;
 
-  /// Names both projects and the command that fixes it.
+  /// Names both projects and the command that fixes it, one labelled line
+  /// each.
   ///
-  /// This can only happen on a developer's machine, so that sentence is the
-  /// whole value of the guard: a bare "config mismatch" leaves the reader to
-  /// work out which half is wrong and which script rewrites it.
+  /// This can only happen on a developer's machine, so these four lines are
+  /// the whole value of the guard: a bare "config mismatch" leaves the reader
+  /// to work out which half is wrong and which script rewrites it. Broken
+  /// across lines rather than run into a sentence because it is read in two
+  /// places that both punish a long one — a console, and the error screen's
+  /// detail row, which centres its text and caps it at six lines.
   @override
   String toString() =>
-      'FlavorConfigMismatch: env/${AppEnv.flavor}.json is $expected, but the '
-      'native config is $actual. '
-      'Run `melos run prepare-env-${AppEnv.flavor}`.';
+      'Flavour config mismatch: this build is pointed at the wrong Firebase '
+      'project.\n'
+      'env/${AppEnv.flavor}.json expects: $expected\n'
+      'native config is: $actual\n'
+      'Fix: melos run prepare-env-${AppEnv.flavor}';
 }

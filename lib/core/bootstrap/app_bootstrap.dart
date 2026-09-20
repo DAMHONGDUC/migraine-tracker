@@ -91,15 +91,35 @@ final class AppBootstrap {
       return;
     }
 
-    // Thrown, not logged here: `SdBootstrap` logs every step that throws with
-    // the error itself, and `toString` carries both ids and the command — a
-    // line beside it would file the same failure twice. It lands before the
-    // crash reporter step, so a build pointed at the wrong project does not
-    // also send its crashes there.
-    throw FlavorConfigMismatch(
+    final FlavorConfigMismatch mismatch = FlavorConfigMismatch(
       expected: AppEnv.firebaseProjectId,
       actual: nativeProjectId,
     );
+
+    // **Logged here as well as thrown**, which is the one place in this file
+    // worth spending a second line on. `SdBootstrap` logs every step that
+    // throws, but that line says "Firebase failed to start" — it names the
+    // step, not the two projects, and someone scrolling a console is looking
+    // for the ids and the command. They go in as `data` so a structured log
+    // can be filtered on them rather than grepped out of a sentence.
+    //
+    // It does not double-report: `SdCrashReporter` is attached by the *next*
+    // step, so nothing here reaches Crashlytics — which is the point, because
+    // a build pointed at the wrong project must not file its crashes there
+    // either.
+    SdLogger.error(
+      LogTagConstant.bootstrap,
+      'Checking the build flavour against the native Firebase config',
+      error: mismatch,
+      data: <String, String>{
+        'flavor': AppEnv.flavor,
+        'dartProjectId': AppEnv.firebaseProjectId,
+        'nativeProjectId': nativeProjectId,
+        'fix': 'melos run prepare-env-${AppEnv.flavor}',
+      },
+    );
+
+    throw mismatch;
   }
 
   /// Its own step, not part of [initFirebase]: the reporter is what names
