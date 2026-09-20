@@ -44,30 +44,54 @@ void main() {
   );
 
   group('the scale ceiling', () {
-    testWidgets('a tablet renders ~1.15x the design, not 2.1x', (tester) async {
-      await pumpApp(tester, surfaceSize: portrait);
-
-      // Handed the design straight, screenutil would scale this by 820/393 =
-      // 2.09 and paint the app's 16 gutter at 33.
+    /// Every ladder, at its own base: `.w` horizontal, `.h` vertical, `.r`
+    /// squares (icons, radii, tap targets) and `.sp` type.
+    void expectEveryLadderAt(double scale) {
       expect(
         SdSpacingConstant.w16,
-        closeTo(16 * SdScreenScale.maxScale, 0.5),
-        reason: 'the horizontal scale escaped its ceiling',
+        closeTo(16 * scale, 0.5),
+        reason: 'horizontal spacing',
       );
       expect(
         SdSpacingConstant.h16,
-        closeTo(16 * SdScreenScale.maxScale, 0.5),
-        reason: 'the vertical scale escaped its ceiling',
+        closeTo(16 * scale, 0.5),
+        reason: 'vertical spacing',
       );
+      expect(
+        SdSpacingConstant.r24,
+        closeTo(24 * scale, 0.5),
+        reason: 'icons, radii and square tap targets',
+      );
+      expect(
+        SdSpacingConstant.sp14,
+        closeTo(14 * scale, 0.5),
+        reason: 'type',
+      );
+    }
 
-      await finishTest(tester);
-    });
+    // ONE scale, all four ladders, and the same one in both orientations.
+    // screenutil gives `.r` the SMALLER of the two ratios, so a design height
+    // floored at a phone's while the width grew drew 23-wide icons and 42-wide
+    // tap targets on a landscape iPad — under Apple's 44 — beside 18 gutters
+    // and 16 type. Handed the design straight it is worse the other way: 820 /
+    // 393 = 2.09, a 16 gutter at 33.
+    for (final (String name, Size size) in tabletSizes) {
+      testWidgets('a tablet in $name renders one scale, the ceiling', (
+        tester,
+      ) async {
+        await pumpApp(tester, surfaceSize: size);
+
+        expectEveryLadderAt(SdScreenScale.maxScale);
+
+        await finishTest(tester);
+      });
+    }
 
     testWidgets('a phone is untouched by the ceiling', (tester) async {
       await pumpApp(tester);
 
-      // 393 wide IS the design, so nothing scales and nothing may.
-      expect(SdSpacingConstant.w16, closeTo(16, 0.01));
+      // 393x852 IS the design, so nothing scales and nothing may.
+      expectEveryLadderAt(1);
 
       await finishTest(tester);
     });
@@ -381,18 +405,24 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('the tap target clears the platform minimum', (tester) async {
-      await pumpApp(tester, surfaceSize: portrait);
+    // In BOTH orientations: the target is an `.r` square, and `.r` took the
+    // smaller of the two scale ratios — 42 in landscape, under Apple's 44.
+    for (final (String name, Size size) in tabletSizes) {
+      testWidgets('the tap target clears the platform minimum in $name', (
+        tester,
+      ) async {
+        await pumpApp(tester, surfaceSize: size);
 
-      // A fixed square around a glyph, so this is the size at every text
-      // scale — there is no text in it to grow.
-      final Size target = tester.getSize(toggle());
+        // A fixed square around a glyph, so this is the size at every text
+        // scale — there is no text in it to grow.
+        final Size target = tester.getSize(toggle());
 
-      expect(target.width, greaterThanOrEqualTo(48));
-      expect(target.height, greaterThanOrEqualTo(48));
+        expect(target.width, greaterThanOrEqualTo(48));
+        expect(target.height, greaterThanOrEqualTo(48));
 
-      await finishTest(tester);
-    });
+        await finishTest(tester);
+      });
+    }
 
     testWidgets('a phone never has one', (tester) async {
       await pumpApp(tester);

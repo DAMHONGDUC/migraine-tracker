@@ -234,14 +234,11 @@ class _BaroEaseAppView extends HookConsumerWidget {
     });
 
     return ScreenUtilInit(
-      // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this —
-      // but only up to `SdScreenScale.maxScale`. Handed the design straight,
-      // screenutil would scale an 820-wide iPad by 2.09 and a landscape one's
-      // gutters by 3.0 while `minTextAdapt` made the type SMALLER than an
-      // iPhone's. `SdScreenScale.designSize` grows the design instead, so the
-      // ratio caps out; every iPhone is below the cap and gets the same
-      // numbers it does today. Read through `MediaQuery`, not the view, so a
-      // rotation or a Split View resize rebuilds this and re-measures.
+      // iPhone 14/15/16-class logical size; .w/.h/.sp/.r scale from this — but only up to `SdScreenScale.maxScale`.
+      // Handed the design straight, screenutil would scale an 820-wide iPad by 2.09 and a landscape one's gutters by 3.0.
+      // `SdScreenScale.designSize` grows the design instead, so the ratio caps out on BOTH axes: every iPhone is below the cap and gets the same numbers it does today.
+      // Read through `MediaQuery`, not the view, so a rotation or a Split View resize rebuilds this and re-measures.
+      // `minTextAdapt` is inert here and kept as a fallback: `ScreenUtilInit`'s default `fontSizeResolver` is `FontSizeResolvers.width`, and that is what type actually scales by.
       designSize: SdScreenScale.designSize(
         MediaQuery.sizeOf(context),
         _designSize,
