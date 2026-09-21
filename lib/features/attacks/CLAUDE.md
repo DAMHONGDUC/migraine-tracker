@@ -379,6 +379,21 @@ the same curve its neighbour continues on.
   handed over; the sheet still owns the bottom inset, which clears the keyboard
   and the home indicator. `head_region_picker_test.dart` pumps the step and the
   sheet in the same tree and compares the grid's rect.
+  - **The sheet cannot be dragged away, and nothing in it scrolls** (owner's
+    rule, 2026-09-21). A drag on the head turns it, and both the sheet route
+    and the sheet's own scroll view read that same drag: the sheet slid down
+    under the finger and the content rubber-banded with it. So `.show` passes
+    `draggable: false` to `showSdBottomSheetV2` — which keeps the barrier, so
+    tapping outside still closes it, and drops the drag handle that promised
+    the swipe — and `SdSheetContentV2` gets `scrollable: false`, which takes
+    the competing scroll view out entirely. **Not `dismissible: false`**: the
+    user is not being made to act, only stopped from dismissing by a gesture
+    the content already owns.
+  - The picker's one-screen rule is what makes `scrollable: false` safe — the
+    sheet sizes itself from the screen with a ceiling, so there is nothing to
+    scroll. `head_region_picker_test.dart` walks every `Scrollable` in the
+    sheet and requires `NeverScrollableScrollPhysics`, and
+    `attack_detail_test.dart` drags the sheet down and requires it to stay.
 
 ## The rest of the flow
 
@@ -410,15 +425,33 @@ the same curve its neighbour continues on.
 
 ## The detail screen
 
-- **Its rows put the value in the TITLE beside the label, both halves
-  `Expanded`.** A `ListTile` lays `trailing` out at its intrinsic width first and
-  tightens the title to what is left, so once `location` became a set of areas —
-  "Right forehead, Back left, Back right" is one ordinary answer — a value in
-  `trailing` squeezed "Location" into a column of single letters. Moving it into
-  the title fixes that and reintroduces the opposite failure, a 7.5px overflow on a
-  narrow tile, unless *both* sides carry a flex: a `Row` whose every text child is
-  `Expanded` cannot overflow whatever either side is handed. `_EditableRow` and
-  `_ReadOnlyRow` are the two shapes and must stay the same shape.
+- **Its rows put the value in the TITLE beside the label**, through one shared
+  `_LabelledValue`. A `ListTile` lays `trailing` out at its intrinsic width
+  first and tightens the title to what is left, so once `location` became a set
+  of areas — "Right forehead, Back left, Back right" is one ordinary answer — a
+  value in `trailing` squeezed "Location" into a column of single letters.
+  Moving it into the title fixes that and reintroduces the opposite failure, a
+  7.5px overflow on a narrow tile, unless the value is bounded.
+  - **The value is measured first and the label takes the rest** (owner's rule,
+    2026-09-21). Two `Expanded` halves were the previous shape and they split
+    the line exactly 50/50 whatever was in them — 138.5pt a side on a 393
+    screen, where "Intensity" wants 148.5 — so a one-word label wrapped onto
+    two lines while the value beside it was the single character `7`.
+    **`Flexible` does not fix this**: a flex child's share comes from the free
+    space BEFORE its siblings are measured, so the slack a short value leaves
+    never reaches the label. The value is therefore a non-flex child, which
+    `Row` lays out before it divides what is left, and the label is `Expanded`
+    over the remainder.
+  - **`_LabelledValue.valueMaxFraction` is a half**, which is exactly what the
+    two `Expanded` halves gave it. That is what makes the change strictly an
+    improvement rather than a trade: a value needing its whole half still gets
+    it and the row looks as it always did, a value needing less hands the
+    difference to the label, and the cap is still what stops the overflow. A
+    bigger fraction buys the long-value case by wrapping labels that used not
+    to — measured, and rejected.
+  - **`_EditableRow` and `_ReadOnlyRow` differ by a chevron and a tap, never by
+    how the line divides**, which is why the line is one widget rather than the
+    same `Row` written twice.
 - **The read-only head fills the band it is given** (owner's rule, 2026-09-21).
   Its 160pt band is unchanged; what changed is that the head reaches the top and
   bottom of it instead of floating in the middle. **`zoom` is null on
