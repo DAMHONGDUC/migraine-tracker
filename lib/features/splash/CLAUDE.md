@@ -39,6 +39,32 @@ dashboard.
   what sends a wiped install to onboarding.
 - **`SplashController.run` never throws.** An app that cannot get past its own
   loading screen is worse than one that starts signed out.
+- **The hand-over is a `go`, so it REPLACES the stack — and it must not run
+  when something else has already moved off this route.** A reminder tapped
+  while the app was killed pushed its detail on top of the splash, and this
+  `go` threw it away a second later: the user watched the notification open and
+  the dashboard take its place. Two halves, and both are needed:
+  - **Every deep link waits for the hand-over** —
+    `NavigationUtils.whenPastSplash`, awaited by `NotificationTapListener` and
+    `HomeWidgetTapListener` before either touches the navigator. That is what
+    puts the dashboard *underneath* the pushed screen, so backing out of it
+    lands where it would from anywhere else rather than on a spent splash.
+  - **This route checks it is still the current location before it goes.** The
+    backstop for a tap that arrives DURING the splash rather than before it:
+    `context.mounted` stays true for a route that is merely covered, so it
+    cannot answer this on its own.
+  - **`whenPastSplash` asks the router, never a flag this screen sets.** A
+    launch that skips the splash — `pumpApp` overrides
+    `initialLocationProvider` — is already past it, and a signal nobody sends
+    would hold every deep link forever. `test/core/router/navigation_utils_test.dart`
+    covers all three states.
+- **`pumpApp(startAtSplash: true)` is how a test launches the way a device
+  does**, and it swaps in `FakeSplashController`: the real `run` calls
+  `AppBootstrap.ensureAnonymousSession`, and a widget test has no Firebase for
+  it to reach — the call never returns and the test times out rather than
+  failing. The 2s floor is kept, because that is the wait such a test is about.
+  Drive it with bounded `pump(Duration)`; `pumpAndSettle` never settles under
+  the dots.
 - **`initialLocationProvider` exists for the tests.** `pumpApp` overrides it to
   the dashboard: the dots animation never ends, so a `pumpAndSettle` on the
   splash waits out its whole timeout instead of settling.
