@@ -16,31 +16,26 @@ class _AttackList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only where the 90-day window actually hides something; premium hides nothing.
-    final bool hasHidden = ref.watch(hasHiddenHistoryProvider);
     final int active = ref.watch(attackFiltersProvider).activeCount;
-    final bool hasMeter = hasHidden;
     final bool hasSummary = active > 0;
+    // Where the free plan stops reading: the first row behind the window, or
+    // -1 when none of them is. The list is newest-first and the window cuts on
+    // time, so every locked row is contiguous from here to the end — which is
+    // what makes one index enough to place the banner.
+    final DateTime? from = ref.watch(freeHistoryStartProvider);
+    final int firstLocked = attacks.indexWhere(
+      (Attack attack) => AttackWindow.locks(attack, from),
+    );
+    final bool hasBanner = firstLocked >= 0;
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: <Widget>[
-        // Ahead of the first card: how many the free plan holds is worth saying before any of them.
-        if (hasMeter)
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              SdContentPaddingV2.horizontal,
-              topInset,
-              SdContentPaddingV2.horizontal,
-              SdContentPaddingV2.listItemGap,
-            ),
-            sliver: const SliverToBoxAdapter(child: FreeHistoryBanner()),
-          ),
         if (hasSummary)
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,
-              hasMeter ? 0 : topInset,
+              topInset,
               SdContentPaddingV2.horizontal,
               SdContentPaddingV2.listItemGap,
             ),
@@ -56,9 +51,7 @@ class _AttackList extends ConsumerWidget {
             hasScrollBody: false,
             child: Padding(
               // Already cleared by whatever sits above, when anything does.
-              padding: EdgeInsets.only(
-                top: hasMeter || hasSummary ? 0 : topInset,
-              ),
+              padding: EdgeInsets.only(top: hasSummary ? 0 : topInset),
               child: SdEmptyStateV2(
                 icon: AppIconConstant.filter,
                 message: context.l10n.historyEmptyFiltered,
@@ -69,16 +62,29 @@ class _AttackList extends ConsumerWidget {
           SliverPadding(
             padding: EdgeInsets.fromLTRB(
               SdContentPaddingV2.horizontal,
-              hasMeter || hasSummary ? 0 : topInset,
+              hasSummary ? 0 : topInset,
               SdContentPaddingV2.horizontal,
               bottomInset,
             ),
+            // One list with the banner as an item, not three slivers with
+            // hand-padded seams: the separator then spaces the banner from the
+            // rows either side of it exactly as it spaces two rows.
             sliver: SliverList.separated(
-              itemCount: attacks.length,
+              itemCount: attacks.length + (hasBanner ? 1 : 0),
               separatorBuilder: (_, _) =>
                   SizedBox(height: SdContentPaddingV2.listItemGap),
-              itemBuilder: (BuildContext context, int index) =>
-                  AttackTile(attack: attacks[index]),
+              itemBuilder: (BuildContext context, int index) {
+                if (hasBanner && index == firstLocked) {
+                  return const FreeHistoryBanner();
+                }
+
+                return AttackTile(
+                  attack:
+                      attacks[hasBanner && index > firstLocked
+                          ? index - 1
+                          : index],
+                );
+              },
             ),
           ),
       ],

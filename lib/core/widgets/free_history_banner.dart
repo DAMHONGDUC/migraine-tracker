@@ -17,8 +17,19 @@ import '../theme/app_icon_constant.dart';
 /// is what opens the part of it the window hides.
 ///
 /// **It lives in `core/widgets/` because two features draw it** — the
-/// dashboard, above the log button, and History, above its first card — and
+/// dashboard, above the log button, and History, at its window boundary — and
 /// neither may import the other's `presentation/`.
+///
+/// **On History it sits where the locked rows START, not at the top of the
+/// list** (owner's rule, 2026-09-21). Its sentence names a date and says
+/// everything before it is Premium, which is a statement about a *boundary* —
+/// read at the top of the list it was a notice to scroll past, and read at the
+/// boundary it labels the blurred rows underneath it. The dashboard has no
+/// list to sit inside, so there it stays where it was.
+///
+/// **Outlined, because it is the one banner in its stack to be seen first.**
+/// `SdBannerV2.borderColor` is the design system's own lever for that, so the
+/// prominence costs no new look.
 ///
 /// **Absent until something is actually hidden.** A banner offering to reveal
 /// nothing is the free plan's own limit advertised as a loss.
@@ -35,6 +46,7 @@ class FreeHistoryBanner extends ConsumerWidget {
     return SdBannerV2(
       icon: AppIconConstant.history,
       color: AppColors.primary,
+      borderColor: AppColors.primary,
       title: context.l10n.freeHistoryTitle(
         DateFormat.yMMMd(context.l10n.localeName).format(start),
       ),

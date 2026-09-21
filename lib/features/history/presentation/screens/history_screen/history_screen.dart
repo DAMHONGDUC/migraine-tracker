@@ -13,6 +13,7 @@ import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
 import '../../../../attacks/domain/entities/attack.dart';
+import '../../../../attacks/domain/services/attack_window.dart';
 import '../../../../attacks/providers.dart';
 import '../../../../premium/providers.dart';
 import '../../../../sync/providers.dart';

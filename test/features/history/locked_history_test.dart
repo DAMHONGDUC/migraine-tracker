@@ -6,6 +6,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
+import 'package:migraine_tracker/core/widgets/free_history_banner.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
 import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
@@ -64,6 +65,33 @@ void main() {
     // Two rows where the window used to leave one.
     expect(find.byType(AttackTile), findsNWidgets(2));
     expect(find.text('Premium required'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  // "History before <date> is Premium" is a statement about a boundary, so it
+  // sits AT the boundary: under the last readable row, over the first blurred
+  // one. At the top of the list it was a notice to scroll past.
+  testWidgets('the banner sits between the readable and the locked rows', (
+    tester,
+  ) async {
+    await openSeededHistory(tester);
+
+    final double banner = tester.getRect(find.byType(FreeHistoryBanner)).top;
+    final double readable = tester.getRect(find.text('Left temple')).top;
+    final double locked = tester.getRect(find.text('Premium required')).top;
+
+    expect(banner, greaterThan(readable), reason: 'below the readable row');
+    expect(banner, lessThan(locked), reason: 'above the locked row');
+
+    await finishTest(tester);
+  });
+
+  // Nothing behind the window is nothing to label.
+  testWidgets('premium gets no banner in the list at all', (tester) async {
+    await openSeededHistory(tester, premium: true);
+
+    expect(find.byType(FreeHistoryBanner), findsNothing);
 
     await finishTest(tester);
   });
