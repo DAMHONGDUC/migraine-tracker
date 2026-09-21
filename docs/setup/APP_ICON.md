@@ -68,3 +68,15 @@ sh packages/system_design/tool/analyze.sh
 Native launch backgrounds stay `#0C0C0E`. The generator rounds only the launch
 image copies, using `round_icon_corners.dart`; launcher sources remain square.
 Never resize the original in place: always provide a separate output path.
+
+Every launch screen shows the icon the last run produced — three different
+mechanisms, one regenerate command:
+
+| Platform | What draws the icon | Where it comes from |
+|---|---|---|
+| iOS | `LaunchScreen.storyboard`'s image view | `LaunchImage.imageset`, 112/224/336px |
+| Android ≤ 12 (API 30) | `launch_background.xml`, a bitmap layer over the colour — both the `drawable/` and the `drawable-v21/` copy, kept identical | `drawable-<density>/launch_image.png` |
+| Android 12+ (API 31) | The OS's own splash, which ignores `windowBackground` entirely | The launcher mipmaps, masked into the system's circle |
+
+The corners are baked into the alpha of every launch image: neither a storyboard
+image view nor an Android bitmap layer can clip its own source.
