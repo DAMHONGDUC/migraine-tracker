@@ -14,6 +14,19 @@ Hard rule 12.
     `bare_ease_app.dart` fires the pass, and the cooldown stamp is per uid and
     dropped on sign-out, so a fresh account is never held back.
 
+    **Signing out is what moves it back down.** The device's copy belongs to
+    the account that is signed in, so `AccountController.signOut` pushes
+    whatever is still owed, wipes the device (`DataWipeService.wipeLocal`,
+    never `wipeAll` — the server's copy is what the user is getting back),
+    drops the cursors and only then signs out. **A push that fails cancels the
+    whole sign-out**: every other push in the app is fire-and-forget because a
+    later one retries it, and this is the only one that has no later. The
+    records left on the device are then the only copy in existence, so the
+    session stays and the user is told to get online. Before this, signing out
+    left everything in place, and the next account inherited a stranger's
+    history — rows already pushed are clean, so they would never reach the new
+    account either.
+
 **Do not add a sync screen, row, button or indicator back.** The manual control
 and its `SyncScreen` are deleted, `/sync` is not a route, and the eight
 `syncScreen*` / `settingsSync*` ARB keys are gone from all seven locales. A user
