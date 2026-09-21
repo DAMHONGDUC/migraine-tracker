@@ -19,7 +19,6 @@ class _EditableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: _LabelledValue.tilePadding,
       title: _LabelledValue(
         label: label,
         // The dot travels WITH the value, so the cap covers both.

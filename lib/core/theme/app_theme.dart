@@ -82,6 +82,20 @@ final class AppTheme {
           ),
         ),
       ),
+      // **Every row in the app is inset the same from both edges.** Material
+      // 3's own default is `start: 16, end: 24` — asymmetric in the spec, and
+      // on a card it reads plainly as a row whose two sides do not match: the
+      // owner reported it on the attack detail, where the label sat 16pt from
+      // the card's left edge and the chevron 24pt from its right. Set here
+      // rather than at seventeen call sites, so a new row cannot be the one
+      // that forgets; a row wanting something else still passes its own
+      // `contentPadding`, and the handful that pass `EdgeInsets.zero` are
+      // untouched.
+      listTileTheme: ListTileThemeData(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: SdContentPaddingV2.horizontal,
+        ),
+      ),
       // - Backstop only: every card in the app is an SdCardV2, which reads colorScheme.surface itself.
       cardTheme: const CardThemeData(
         color: AppColors.surface,

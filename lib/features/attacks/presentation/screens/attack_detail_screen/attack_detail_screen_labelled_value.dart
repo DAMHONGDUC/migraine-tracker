@@ -38,21 +38,6 @@ class _LabelledValue extends StatelessWidget {
   /// wrapping where it used not to.
   static const double valueMaxFraction = 0.5;
 
-  /// The insets both rows give their `ListTile`, and the reason they give it
-  /// one at all.
-  ///
-  /// **Material 3's default is `start: 16, end: 24`** — asymmetric on purpose
-  /// in the spec, and measured on this screen as 16pt from the card's left
-  /// edge to the label against 24pt from the chevron to its right edge. The
-  /// owner read that as the row not being spaced between its own edges, which
-  /// is exactly what it is. One gutter, the app's own, on both sides.
-  ///
-  /// Held here rather than typed into each row, because the two rows must
-  /// divide their line identically and that includes the edges they divide it
-  /// between.
-  static EdgeInsets get tilePadding =>
-      EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal);
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
