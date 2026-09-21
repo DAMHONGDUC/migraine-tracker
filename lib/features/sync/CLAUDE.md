@@ -35,7 +35,7 @@ has to chase.
 |---|---|---|
 | Does | pull, then push, per collection | push only |
 | Fired by | sign-in, launch, resume | every write to a synced table |
-| Held back by | the 6h cooldown | nothing |
+| Held back by | the 6h cooldown, pull half only | nothing |
 | Costs when idle | `getSyncKey` + a query per collection | four local queries, no network |
 
 **A local change never waits for a pass.** `SyncWriteThroughService`
@@ -56,15 +56,23 @@ tombstones, debounces `SyncConstant.writeThroughDebounce` (2s) and pushes.
   every single write.
 - **A push writes no state and stamps no cooldown** — nothing on screen shows
   one, and a push is not the pull the floor is about. A failed push waits for the
-  next write or the next pass; it is not retried on its own.
+  next write, or for the next launch or resume — a pass the cooldown holds back
+  still carries it up; it is not retried on its own.
 
 ## The cooldown
 
 **The pull has a floor between passes: `SyncConstant.automaticCooldown` (6h).**
 Launch and resume both fire it, so without one, ten app opens in ten minutes were
 ten whole passes — a `getSyncKey` callable plus a query and a push per collection
-each time, usually to find nothing had changed. It holds back only the pull;
-**what this device writes is already gone up by then**.
+each time, usually to find nothing had changed.
+
+**It holds back the pull half only — a cooled-down pass still pushes what the
+device owes.** A write-through push that failed, which offline is the whole
+point, has nothing else to retry it: the next pass can be six hours off, a user
+who logs nothing more never fires one, and no connectivity listener exists to
+notice the network coming back. The skipped pass therefore costs what
+`pushPending` costs — four local queries, and no network until something is
+actually pending.
 
 - **The stamp is written only after a pass that worked**, so a failure is retried
   by the next open rather than parked for six hours. It lives in `SyncCursorStore`
