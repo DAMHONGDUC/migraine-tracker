@@ -123,7 +123,30 @@ granting nothing and looking like a typo nobody made.
 - **The check awaits the first snapshot, it does not read the current one.** On
   a cold start the document has usually not landed by the time
   `ForceUpdateWrapper` mounts, and reading there would answer `AppConfig.empty`
-  and wave an unsupported build straight through.
+  and wave an unsupported build straight through. A later edit still arrives:
+  `.future` resolves with the provider's newest value, and `check` runs again on
+  every resume, so saving the console document and returning to the app is
+  enough — `force_update_test.dart` pumps that round trip.
+- **The check says why it decided, every time** (owner's report, 2026-09-21:
+  "force is true but no dialog"). Six of `ForceUpdateDecision`'s seven answers
+  are "carry on", the owner types the record by hand, and none of the six used
+  to write a line — so a flag at the wrong level, a section dropped for a
+  missing `store_link`, and a build that is simply not out of date were one
+  symptom: nothing happens. `ForceUpdateController.check` logs `decision`
+  beside every input that fed it, under `LogTagConstant.appUpdate`.
+
+  | `decision` | What to change in `app_config/current` |
+  |---|---|
+  | `noPublishedBuild` | `force_update.<platform>` is missing, or was dropped for having no `store_link` or no `build_number` |
+  | `notEnabled` | `enable_force_update` is not `true` **inside** `ios` / `android` — beside them it reads as absent |
+  | `noStoreLink` | `store_link` is empty |
+  | `installedIsNewer` | `build_name` is older than the installed one; the name settles it outright |
+  | `buildNumberUnknown` | `build_number` is 0 or unreadable on one side |
+  | `upToDate` | The record is fine — this build is not older than `build_name`/`build_number`. **The usual answer when testing the switch** |
+  | `blocked` | The sheet shows |
+
+  `enableForceUpdate: true` logged next to `publishedSection: none` is the
+  mistake the pair exists to catch: the flag parsed, the section did not.
 - **The list sits above the entitlement in `hasPremiumProvider`.** It returns
   `true` early, ahead of the Dev override and RevenueCat, so a reviewer signed
   in as that address is premium in a prod flavour too.
