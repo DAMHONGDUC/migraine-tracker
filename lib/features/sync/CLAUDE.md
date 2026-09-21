@@ -176,3 +176,14 @@ stop two builds in the wild reading each other.
   a failure there aborts the whole wipe. The other order leaves the cloud copy
   with nothing left to say it should go, and the next sync pulls every deleted
   record back down. What the wipe still misses is in `docs/REMAINING_WORK.md`.
+- **Neither half of the remote wipe may run unbounded, because both sit behind a
+  spinner with nothing else on screen.** `FirestoreSyncRepository` pages a
+  collection at most `_maxDeleteRounds` (40 × 500 documents) and then throws
+  naming the collection; `DataWipeService.remoteTimeout` (60s) caps each of the
+  two network steps. Both were bare `await`s and the delete loop was a bare
+  `while (true)` whose only exit was an empty page — so a Firestore write
+  waiting on a server ack that never came, or a write-through push refilling the
+  page that had just been emptied, left the three dev tiles spinning for as long
+  as the app ran, with no error and no way out. **Giving up is safe here and
+  only here**: both steps run before anything local is touched, so the abort
+  leaves the device's copy whole.
