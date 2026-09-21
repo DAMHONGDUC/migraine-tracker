@@ -852,7 +852,6 @@
   "logHeadZoomOut": "縮小",
   "logHeadZoomIn": "拡大",
   "logHeadResetView": "表示をリセット",
-  "logHeadGestureHint": "ドラッグで回転・ピンチで拡大縮小",
   "logHeadZoomLevel": "{percent}%",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "回転速度 {percent}%",

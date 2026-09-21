@@ -4136,10 +4136,6 @@
   "@logHeadResetView": {
     "description": "Restore the current side to the default head pose."
   },
-  "logHeadGestureHint": "Drag to rotate · Pinch to zoom",
-  "@logHeadGestureHint": {
-    "description": "Gesture instructions for the interactive head model."
-  },
   "logHeadZoomLevel": "{percent}%",
   "@logHeadZoomLevel": {
     "description": "Current head model magnification as a percentage.",

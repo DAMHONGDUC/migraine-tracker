@@ -852,7 +852,6 @@
   "logHeadZoomOut": "缩小",
   "logHeadZoomIn": "放大",
   "logHeadResetView": "重置视角",
-  "logHeadGestureHint": "拖动旋转 · 双指缩放",
   "logHeadZoomLevel": "{percent}%",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "旋转速度 {percent}%",

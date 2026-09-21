@@ -852,7 +852,6 @@
   "logHeadZoomOut": "Verkleinern",
   "logHeadZoomIn": "Vergrößern",
   "logHeadResetView": "Ansicht zurücksetzen",
-  "logHeadGestureHint": "Ziehen zum Drehen · Finger spreizen zum Zoomen",
   "logHeadZoomLevel": "{percent} %",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Drehgeschwindigkeit {percent} %",

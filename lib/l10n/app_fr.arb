@@ -852,7 +852,6 @@
   "logHeadZoomOut": "Dézoomer",
   "logHeadZoomIn": "Zoomer",
   "logHeadResetView": "Réinitialiser la vue",
-  "logHeadGestureHint": "Glissez pour tourner · Pincez pour zoomer",
   "logHeadZoomLevel": "{percent} %",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Vitesse de rotation {percent} %",

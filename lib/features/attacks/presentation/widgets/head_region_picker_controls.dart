@@ -1,11 +1,18 @@
 part of 'head_region_picker.dart';
 
-/// The head's camera controls, floating over the head itself.
+/// The head's camera controls, sharing the top row with the Front/Back tabs.
 ///
-/// **Overlaid rather than stacked above it** (owner's rule, 2026-09-19): as a
-/// row of its own it took 44pt off the one screen this step is allowed, for
-/// four targets and a line of hint text. Over the head it costs nothing, and
-/// what it covers is the air above the crown.
+/// **Up beside the tabs, not over the head** (owner's rule, 2026-09-21). They
+/// floated over the head from 2026-09-19, which cost nothing while the head
+/// was framed with air above the crown. Once it opens filling its box
+/// (`HeadViewportUtils.fitZoom`) that air is gone and the same overlay sits on
+/// the crown — a region the user has to be able to tap. The tabs had width
+/// they were not using, so the controls took it.
+///
+/// **It carries no hint line any more** (owner's call, 2026-09-21). "Drag to
+/// rotate · Pinch to zoom" was the widest thing in the row and there is no
+/// room for it beside the tabs; a line of its own would cost the head height,
+/// which is what moving up here was for.
 class _HeadZoomControls extends StatelessWidget {
   const _HeadZoomControls({
     required this.zoom,
@@ -14,6 +21,13 @@ class _HeadZoomControls extends StatelessWidget {
     required this.onReduceRotationSpeed,
     required this.onReset,
   });
+
+  /// The row's height, which the picker needs before it can size the head.
+  ///
+  /// The buttons' own tap target, which is the tallest thing in here — pinned
+  /// rather than measured, because an intrinsic height is only known once the
+  /// row has been laid out and the head's box is decided before that.
+  static double get height => SdSpacingConstant.r44;
 
   final double zoom;
   final HeadRotationSpeed rotationSpeed;
@@ -25,19 +39,12 @@ class _HeadZoomControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: SdContentPaddingV2.horizontal),
+    return SizedBox(
+      height: height,
+      // Only as wide as its five targets: the rest of the row is the tabs'.
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Expanded(
-            child: Text(
-              l10n.logHeadGestureHint,
-              maxLines: 2,
-              style: AppTextStyle.labelTiny.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
           // Keep the speed readable without opening its tooltip.
           _HeadZoomButton(
             label: l10n.logHeadRotationSpeed(rotationSpeed.percent),
@@ -103,6 +110,11 @@ class _HeadZoomButton extends StatelessWidget {
   Widget build(BuildContext context) => IconButton(
     tooltip: label,
     onPressed: onPressed,
+    // The 44pt target comes from the constraints, not from padding round a
+    // 20pt glyph: padded, the speed button's icon-over-readout column comes
+    // out TALLER than the row it now shares with the tabs, and wider than the
+    // width the tabs can spare it.
+    padding: EdgeInsets.zero,
     constraints: BoxConstraints(
       minWidth: SdSpacingConstant.r44,
       minHeight: SdSpacingConstant.r44,

@@ -852,7 +852,6 @@
   "logHeadZoomOut": "Thu nhỏ",
   "logHeadZoomIn": "Phóng to",
   "logHeadResetView": "Đặt lại góc nhìn",
-  "logHeadGestureHint": "Kéo để xoay · Chụm ngón để thu phóng",
   "logHeadZoomLevel": "{percent}%",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Tốc độ xoay {percent}%",

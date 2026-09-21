@@ -16,6 +16,7 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scen
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene_store.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_viewport.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
+import 'package:system_design/index.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 void main() {
@@ -141,6 +142,28 @@ void main() {
       tester.getSize(find.byType(HeadRegionPicker)).width,
       reason: 'The L/R labels must not narrow the 3D viewport.',
     );
+    // The camera controls live in the top row beside the tabs now, not over
+    // the head (owner's rule, 2026-09-21): the head opens filling its box, so
+    // an overlay there sits on the crown, which is a region to be tapped.
+    final Rect zoomIn = tester.getRect(find.byTooltip('Zoom in'));
+
+    expect(
+      zoomIn.bottom,
+      lessThanOrEqualTo(surfaceRect.top + 0.5),
+      reason: 'The controls must clear the head, not overlay it.',
+    );
+    expect(
+      zoomIn.center.dy,
+      closeTo(tester.getRect(find.byType(SdSegmentedTabsV2)).center.dy, 1),
+      reason: 'The controls share the tabs row.',
+    );
+    // And the tabs gave up the width they were not using rather than the
+    // controls being squeezed in on top of a full-width control.
+    expect(
+      tester.getRect(find.byType(SdSegmentedTabsV2)).right,
+      lessThan(tester.getRect(find.byTooltip('Rotation speed 100%')).left),
+    );
+
     final SceneView rendered = tester.widget<SceneView>(find.byType(SceneView));
     Offset? nosePoint;
     for (double y = 4; y < surfaceRect.height && nosePoint == null; y += 4) {

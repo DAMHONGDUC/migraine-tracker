@@ -216,12 +216,14 @@ void main() {
     // 2026-09-19): the air above the head is the air below it, the gap before
     // the tiles aside. The tiles are pinned to the bottom of the step, so a
     // tall screen gives the difference to the head rather than to a hole.
+    // Measured off the ROW, not off the tabs' own pill: the pill is 42 in a
+    // 44pt row and sits centred in it, so its bottom edge is 1pt short of
+    // where the head's air actually starts.
     final Rect tabs = tester.getRect(find.byType(SdSegmentedTabsV2));
+    final double rowBottom =
+        tabs.bottom + (HeadRegionPicker.topRowHeight - tabs.height) / 2;
 
-    expect(
-      head.top - tabs.bottom,
-      closeTo(grid.top - inset - head.bottom, 0.5),
-    );
+    expect(head.top - rowBottom, closeTo(grid.top - inset - head.bottom, 0.5));
   });
 
   testWidgets('the nose is its own area, and the cheek stops at it', (

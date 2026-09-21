@@ -68,6 +68,21 @@ class HeadRegionPicker extends ConsumerStatefulWidget {
   final List<HeadRegion> selected;
   final ValueChanged<List<HeadRegion>> onChanged;
 
+  /// The height of the row the Front/Back tabs and the camera controls share.
+  ///
+  /// Fixed rather than intrinsic, because the head's box is worked out from
+  /// what this row leaves and an intrinsic height is only known once the row
+  /// has already been laid out. It is the taller of the two things in it and
+  /// it does not change when the controls come and go — a head that resized
+  /// the moment the model finished loading would redraw itself under the
+  /// user's thumb.
+  ///
+  /// Public because `head_region_picker_test.dart` measures the air above the
+  /// head from this row, and the tabs' own pill is 2pt shorter and centred in
+  /// it — measuring off the pill reads that 1pt as the ring going uneven.
+  static double get topRowHeight =>
+      math.max(SdSegmentedTabsV2.height, _HeadZoomControls.height);
+
   @override
   ConsumerState<HeadRegionPicker> createState() => _HeadRegionPickerState();
 }
@@ -281,142 +296,150 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
     final AppLocalizations l10n = context.l10n;
     final HeadControls controls = ref.watch(headControlsProvider);
 
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: SdContentPaddingV2.horizontal,
-          ),
-          child: SdSegmentedTabsV2(
-            segments: <SdSegmentV2>[
-              SdSegmentV2(
-                label: l10n.logLocationViewFront,
-                count: _badgeFor(HeadView.front),
-              ),
-              SdSegmentV2(
-                label: l10n.logLocationViewBack,
-                count: _badgeFor(HeadView.back),
-              ),
-            ],
-            selectedIndex: HeadView.values.indexOf(_view),
-            onSelected: (int index) => _snapTo(HeadView.values[index]),
-          ),
-        ),
+    // ONE LayoutBuilder over the whole picker, not one over the head alone.
+    // The controls sit in the top row now, and the level they read out is
+    // measured off the head's box — so the box has to be worked out before the
+    // row is built, and a builder nested under the row is one frame too late.
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double gap = _headInset;
+        // What is left once the top row has taken its fixed slice.
+        final double body = constraints.maxHeight - HeadRegionPicker.topRowHeight;
         // The head is sized from its WIDTH, not from what is left over
-        // (owner's rule); the `min` below only guards a short column. What it
-        // does not use goes to the tiles, and the rest is air around the head.
-        Expanded(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              final double gap = _headInset;
-              final double byWidth =
-                  (constraints.maxWidth - _headInset * 2) /
-                  HeadRegionGeometry.aspectRatio;
-              final double head = math.min(
-                byWidth,
-                constraints.maxHeight - gap - HeadRegionGrid.reservedHeight,
+        // (owner's rule); the `min` only guards a short column. What it does
+        // not use goes to the tiles, and the rest is air around the head.
+        final double byWidth =
+            (constraints.maxWidth - _headInset * 2) /
+            HeadRegionGeometry.aspectRatio;
+        final double head = math.min(
+          byWidth,
+          body - gap - HeadRegionGrid.reservedHeight,
+        );
+        final double grid = (body - head - gap).clamp(
+          HeadRegionGrid.reservedHeight,
+          HeadRegionGrid.maxHeight,
+        );
+        // The scene gets the full width and `head` of height, and the level
+        // that fills THAT is a different number on a phone and on an iPad.
+        // The model's own bounds, not a stand-in — the fit is the head's
+        // corners against the frame's edges.
+        final vm.Aabb3? bounds = HeadSceneStore.template?.combinedWorldBounds;
+
+        _fit = bounds == null
+            ? HeadViewportUtils.minZoom
+            : HeadViewportUtils.fitZoom(
+                bounds,
+                Size(constraints.maxWidth, head),
               );
-              final double grid = (constraints.maxHeight - head - gap).clamp(
-                HeadRegionGrid.reservedHeight,
-                HeadRegionGrid.maxHeight,
-              );
-              // Measured here because here is where the box is known: the
-              // scene gets the full width and `head` of height, and the level
-              // that fills THAT is a different number on a phone and on an
-              // iPad. The model's own bounds, not a stand-in — the fit is the
-              // head's corners against the frame's edges.
-              final vm.Aabb3? bounds =
-                  HeadSceneStore.template?.combinedWorldBounds;
 
-              _fit = bounds == null
-                  ? HeadViewportUtils.minZoom
-                  : HeadViewportUtils.fitZoom(
-                      bounds,
-                      Size(constraints.maxWidth, head),
-                    );
+        final double zoom = controls.zoom ?? _fit;
 
-              final double zoom = controls.zoom ?? _fit;
-
-              return Column(
-                children: <Widget>[
-                  // The controls float OVER the head rather than sitting in a
-                  // row of their own (owner's rule, 2026-09-19): that row cost
-                  // the head 44pt of the one screen this step may use, to
-                  // carry three buttons that are mostly air. Overlaid they
-                  // cost nothing, and the head is centred in everything the
-                  // tiles leave instead of being pushed down by them.
-                  Expanded(
-                    child: Stack(
-                      children: <Widget>[
-                        Align(
-                          child: SizedBox(
-                            height: head,
-                            width: double.infinity,
-                            child: Semantics(
-                              label: widget.selected.isEmpty
-                                  ? l10n.logLocationNone
-                                  : widget.selected.label(l10n),
-                              excludeSemantics: true,
-                              child: _SideLabelled(
-                                inset: _headInset,
-                                overlay: _available,
-                                leftOnLeft:
-                                    !_available ||
-                                    HeadPose.leftIsOnScreenLeft(_yaw),
-                                child: HeadDiagram(
-                                  expandScene: true,
-                                  selected: widget.selected,
-                                  view: _view,
-                                  yaw: _yaw,
-                                  pitch: _pitch,
-                                  zoom: zoom,
-                                  onPoseChanged: _poseTo,
-                                  onInteractionStart: _turn.stop,
-                                  onAvailabilityChanged: _availabilityChanged,
-                                  onRegionTapped: _toggle,
-                                  onYawChanged: _dragTo,
-                                  rotationSpeed: controls.rotationSpeed,
-                                ),
-                              ),
-                            ),
+        return Column(
+          children: <Widget>[
+            // **The tabs and the camera controls share one row** (owner's
+            // rule, 2026-09-21). The controls used to float over the head, and
+            // that was fine while the head was framed with air above the
+            // crown — once it opens filling its box, the same overlay covers
+            // the crown, which is a region the user has to be able to tap. So
+            // the tabs give up the width they were not using and the controls
+            // move up into it, and the head gets its whole box back with
+            // nothing on top of it.
+            SizedBox(
+              height: HeadRegionPicker.topRowHeight,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SdContentPaddingV2.horizontal,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    // Whatever the controls leave. Two words and a count do
+                    // not need half a phone, and the segment labels ellipsize
+                    // where a locale spells them longer.
+                    Expanded(
+                      child: SdSegmentedTabsV2(
+                        segments: <SdSegmentV2>[
+                          SdSegmentV2(
+                            label: l10n.logLocationViewFront,
+                            count: _badgeFor(HeadView.front),
                           ),
-                        ),
-                        if (_available)
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: _HeadZoomControls(
-                              zoom: zoom,
-                              rotationSpeed: controls.rotationSpeed,
-                              onZoom: _setZoom,
-                              onReduceRotationSpeed: _reduceRotationSpeed,
-                              onReset: _resetView,
-                            ),
+                          SdSegmentV2(
+                            label: l10n.logLocationViewBack,
+                            count: _badgeFor(HeadView.back),
                           ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: gap),
-                  SizedBox(
-                    height: grid,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: SdContentPaddingV2.horizontal,
+                        ],
+                        selectedIndex: HeadView.values.indexOf(_view),
+                        onSelected: (int index) =>
+                            _snapTo(HeadView.values[index]),
                       ),
-                      child: HeadRegionGrid(
-                        view: _view,
+                    ),
+                    // Nothing to aim a camera at without a model, so the row
+                    // is the tabs alone — and it keeps its height either way,
+                    // so the head does not resize when the model arrives.
+                    if (_available) ...<Widget>[
+                      SizedBox(width: SdSpacingConstant.w8),
+                      _HeadZoomControls(
+                        zoom: zoom,
+                        rotationSpeed: controls.rotationSpeed,
+                        onZoom: _setZoom,
+                        onReduceRotationSpeed: _reduceRotationSpeed,
+                        onReset: _resetView,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                child: SizedBox(
+                  height: head,
+                  width: double.infinity,
+                  child: Semantics(
+                    label: widget.selected.isEmpty
+                        ? l10n.logLocationNone
+                        : widget.selected.label(l10n),
+                    excludeSemantics: true,
+                    child: _SideLabelled(
+                      inset: _headInset,
+                      overlay: _available,
+                      leftOnLeft:
+                          !_available || HeadPose.leftIsOnScreenLeft(_yaw),
+                      child: HeadDiagram(
+                        expandScene: true,
                         selected: widget.selected,
-                        onToggle: _toggle,
+                        view: _view,
+                        yaw: _yaw,
+                        pitch: _pitch,
+                        zoom: zoom,
+                        onPoseChanged: _poseTo,
+                        onInteractionStart: _turn.stop,
+                        onAvailabilityChanged: _availabilityChanged,
+                        onRegionTapped: _toggle,
+                        onYawChanged: _dragTo,
+                        rotationSpeed: controls.rotationSpeed,
                       ),
                     ),
                   ),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
+                ),
+              ),
+            ),
+            SizedBox(height: gap),
+            SizedBox(
+              height: grid,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SdContentPaddingV2.horizontal,
+                ),
+                child: HeadRegionGrid(
+                  view: _view,
+                  selected: widget.selected,
+                  onToggle: _toggle,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

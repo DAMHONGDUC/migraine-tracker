@@ -852,7 +852,6 @@
   "logHeadZoomOut": "Alejar",
   "logHeadZoomIn": "Acercar",
   "logHeadResetView": "Restablecer vista",
-  "logHeadGestureHint": "Arrastra para girar · Pellizca para ampliar",
   "logHeadZoomLevel": "{percent} %",
   "logHeadRotationSpeedValue": "{percent}%",
   "logHeadRotationSpeed": "Velocidad de giro {percent} %",
