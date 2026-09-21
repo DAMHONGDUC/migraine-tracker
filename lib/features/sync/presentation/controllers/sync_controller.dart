@@ -22,7 +22,7 @@ class SyncController extends Notifier<SyncStatus> {
   @override
   SyncStatus build() => const SyncStatus();
 
-  /// The whole pass — pull, then push — for the signed-in account, if there is one. Launch, resume and sign-in; held back by the cooldown.
+  /// The whole pass — pull, then push — for the signed-in account, if there is one. Launch, resume and sign-in; the cooldown holds back the pull half only.
   Future<void> sync() async {
     final AuthUser? user = _currentUser();
 
@@ -31,7 +31,12 @@ class SyncController extends Notifier<SyncStatus> {
     return _enqueue(() async {
       _passQueued = false;
       // Read here rather than before the queue: the pass in front may have just stamped it.
-      if (await _isCoolingDown(user.uid)) return;
+      if (await _isCoolingDown(user.uid)) {
+        // The floor is about the pull, and what this device owes must not wait behind it: a write-through push that failed offline has nothing else to retry it — the next pass can be six hours off, and a user who logs nothing more never fires another. Costs four local queries and no network when there is nothing pending.
+        await _push(user.uid);
+
+        return;
+      }
       await _run(user.uid);
     });
   }

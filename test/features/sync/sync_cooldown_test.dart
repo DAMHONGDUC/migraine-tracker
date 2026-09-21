@@ -75,12 +75,22 @@ void main() {
     expect(service.passes, 1);
   });
 
-  test('a second automatic pass inside the cooldown does nothing', () async {
+  test('a second automatic pass inside the cooldown pulls nothing', () async {
     await controller().sync();
     await controller().sync();
     await controller().sync();
 
     // Ten app opens in ten minutes are one pass, which is the whole point.
+    expect(service.passes, 1);
+  });
+
+  test('a pass inside the cooldown still sends what the device owes', () async {
+    await controller().sync();
+
+    await controller().sync();
+
+    // The write-through push is the only other thing that would send it, and a record written offline has already had its one try. Six hours is too long to sit on it.
+    expect(service.pushes, 1);
     expect(service.passes, 1);
   });
 
