@@ -462,12 +462,26 @@ few of the rows it just wrote — the only way a tombstone is ever made.
   user's first month look like", and made every screenshot unreadable. The
   crowded-reminder medications went with it — at two reminders there is nothing
   to crowd.
-- **Two shapes are forced rather than rolled**, because at five rows a
+- **Three shapes are forced rather than rolled**, because at five rows a
   per-row chance seeds nothing: exactly one attack is weatherless (the offline
-  case the backfill queue exists for), and the rows the tombstone step deletes
-  are written on top of the counts above, so no list is left short. What the seed
-  can no longer promise is a spread of every enum value — the tests assert what
-  holds at any size, not the RNG.
+  case the backfill queue exists for), exactly
+  `DevSeedService.lockedAttackCount` (2) land behind the free plan's 90-day
+  window so History always has its blurred rows on it, and the rows the
+  tombstone step deletes are written on top of the counts above, so no list is
+  left short. What the seed can no longer promise is a spread of every enum
+  value — the tests assert what holds at any size, not the RNG.
+  - **The locked two are a surplus like the tombstones', not a slice of the
+    five**: `seededAttackCount` is 7 on the device and the readable list still
+    holds the owner's five, which every other screen is sized against. They are
+    also kept out of `_seedTombstones`, which deletes the tail of the list it is
+    handed — a locked row deleted again is the one thing seeding it was for.
+  - **Two, not one.** One blurred row reads as a glitch on that row; two read
+    as a rule. They land on distinct days, `_lockedDaysPastWindow` (5) to 35
+    days past the window, and none of them is the weatherless one — that shape
+    belongs on a row a free user can actually read.
+  - **`DailyPressure` now reaches the oldest attack** rather than stopping at
+    the 2200h scatter window, so buying premium reveals an old attack with its
+    weather behind it instead of a gap.
 - **`DailyWeather` is what changes what you can see.** It is the correlation's
   denominator (hard rule `DailyPressure`), so without it the pressure card can only say "what share of my
   attacks fell during drops" and never "am I more likely to attack when it
