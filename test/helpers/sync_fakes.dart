@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_sync_store.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -73,6 +75,9 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
   bool failNextQuery = false;
   bool failNextDeleteAll = false;
 
+  /// Never answers, the way a Firestore write does while the backend is out of reach — its future waits on a server ack that never comes.
+  bool hangOnDeleteAll = false;
+
   /// Fails once this many puts have succeeded within a single sync.
   int? failPutAfter;
 
@@ -128,6 +133,7 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
 
   @override
   Future<void> deleteAll(String uid) async {
+    if (hangOnDeleteAll) await Completer<void>().future;
     if (failNextDeleteAll) {
       failNextDeleteAll = false;
       throw Exception('delete failed');

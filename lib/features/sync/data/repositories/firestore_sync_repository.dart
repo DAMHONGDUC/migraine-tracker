@@ -15,6 +15,15 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
   /// Firestore caps a batch at 500 writes.
   static const int _batchLimit = 500;
 
+  /// Pages of [_batchLimit] one collection may take before the wipe gives up —
+  /// 20 000 documents, far past any history this app can produce.
+  ///
+  /// The loop was a bare `while (true)` whose only exit was an empty page, and
+  /// the write-through uploads every local write: a push landing between the
+  /// read and the delete refilled the page that had just been emptied, and the
+  /// three dev tiles spun forever with no error and no way out.
+  static const int _maxDeleteRounds = 40;
+
   final FirebaseFirestore _firestore;
 
   @override
@@ -110,7 +119,7 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
     final OwnedCollection owned = _owned(uid, collection);
 
     // Deleted in pages: a long history would otherwise blow the batch limit, and a wipe that half-runs is exactly what hard rule 8 forbids.
-    while (true) {
+    for (int round = 0; round < _maxDeleteRounds; round++) {
       final QuerySnapshot<Map<String, dynamic>> page = await owned
           .owned()
           .limit(_batchLimit)
@@ -124,6 +133,14 @@ class FirestoreSyncRepository implements RemoteSyncRepository {
       }
       await batch.commit();
     }
+
+    // Documents are still arriving after the cap, so something is writing this
+    // collection as fast as the wipe empties it. Thrown rather than left: a
+    // wipe that stops half-way must not report success (hard rule 8).
+    throw StateError(
+      'Wiping ${collection.name} gave up after $_maxDeleteRounds rounds of '
+      '$_batchLimit documents',
+    );
   }
 
   OwnedCollection _owned(String uid, SyncCollection collection) =>

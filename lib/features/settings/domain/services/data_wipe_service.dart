@@ -1,3 +1,6 @@
+import 'package:system_design/common.dart';
+
+import '../../../../core/constants/log_tag_constant.dart';
 import '../../../alerts/domain/repositories/alert_registration_repository.dart';
 import '../../../attacks/domain/repositories/attack_repository.dart';
 import '../../../attacks/domain/services/attack_live_activity.dart';
@@ -37,8 +40,20 @@ class DataWipeService {
     this._midas,
     this._shareFiles,
     this._homeWidget,
-    this._liveActivity,
-  );
+    this._liveActivity, {
+    this.remoteTimeout = const Duration(seconds: 60),
+  });
+
+  /// How long each of the two network steps may take before the wipe gives up.
+  ///
+  /// A Firestore write's future settles only once the server acknowledges it,
+  /// so an unreachable backend leaves a bare `await` pending for as long as the
+  /// app runs — which is what left the three dev tiles spinning with no error
+  /// and no way out. Both network steps run before anything local is touched,
+  /// so giving up here aborts with the device's copy still whole (hard rule 8).
+  ///
+  /// A parameter only so a test need not wait out the real minute.
+  final Duration remoteTimeout;
 
   final AttackRepository _attacks;
   final MedicationRepository _medications;
@@ -72,53 +87,59 @@ class DataWipeService {
   static const int steps = 14;
 
   /// [onProgress] fires after each step with how many are done out of [steps].
+  ///
+  /// Every step also logs, because this runs behind a spinner with nothing else
+  /// on screen: without a line per step, a wipe that stalls names no suspect.
   Future<void> wipeAll({WipeProgressCallback? onProgress}) async {
     int done = 0;
 
-    void step() => onProgress?.call(++done, steps);
+    void step(String what) {
+      onProgress?.call(++done, steps);
+      SdLogger.info(LogTagConstant.settings, 'Wipe $done/$steps', what);
+    }
 
     onProgress?.call(0, steps);
     // The server copy goes FIRST, and a failure here aborts the whole wipe.
-    await _wipeRemote();
-    step();
+    await _wipeRemote().timeout(remoteTimeout);
+    step('synced records');
 
     // Before the local data, because this is the one thing that can still reach the user after the wipe: leave the FCM token behind and the cron keeps.
-    await _alerts.forgetRegistration();
-    step();
+    await _alerts.forgetRegistration().timeout(remoteTimeout);
+    step('alert registration');
 
     await _attacks.deleteAll();
-    step();
+    step('attacks');
     // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.
     await _notifications.cancelAll();
-    step();
+    step('scheduled notifications');
     await _medications.deleteAll();
-    step();
+    step('medications');
     // Derived from the reminders, but stored: leave them and the list still names medications the user just deleted.
     await _notificationList.deleteAll();
-    step();
+    step('notification list');
     // Past exports are full copies of the deleted data — leave them and the wipe is incomplete.
     await _exportFiles.deleteAll();
-    step();
+    step('export files');
     await _exportRecords.deleteAll();
-    step();
+    step('export records');
     // Never synced, but still the user's.
     await _dailyPressure.deleteAll();
-    step();
+    step('pressure readings');
     // How the user slept and how stressed they were, on every day they answered.
     await _dailyLogs.deleteAll();
-    step();
+    step('daily check-ins');
     // How many days migraine cost them, in their own words.
     await _midas.deleteAll();
-    step();
+    step('MIDAS answers');
     // A shared attack is written to temporary storage for the share sheet to read.
     await _shareFiles.deleteAll();
-    step();
+    step('share images');
     // Before the widget, because both draw from what is now gone.
     await _liveActivity.end();
-    step();
+    step('live activity');
     // Last, because it is derived from everything above: emptied any earlier and the next redraw would put the old numbers straight back.
     await _homeWidget.clear();
-    step();
+    step('home widget');
   }
 
   /// Nothing to do without an account: an anonymous session never uploaded anything, so there is no server copy to chase.

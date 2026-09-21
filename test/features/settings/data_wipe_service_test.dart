@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -224,6 +225,7 @@ void main() {
       AppDatabase db, {
       required FakeAuthRepository auth,
       required FakeRemoteSyncRepository remote,
+      Duration? remoteTimeout,
     }) => DataWipeService(
       DriftAttackRepository(db),
       DriftMedicationRepository(db),
@@ -240,6 +242,7 @@ void main() {
       RecordingShareFileStore(),
       RecordingHomeWidgetRepository(),
       RecordingLiveActivity(),
+      remoteTimeout: remoteTimeout ?? const Duration(seconds: 60),
     );
 
     test('is deleted too, or the wipe leaves the data online', () async {
@@ -277,6 +280,28 @@ void main() {
       );
 
       // Wiping the device first would leave the cloud copy with nothing left to say it should go, and the next sync would pull it all back down.
+      expect(await attacks.getAll(), hasLength(1));
+    });
+
+    test('a server that never answers ends the wipe, it does not hang', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final attacks = DriftAttackRepository(db);
+      final remote = FakeRemoteSyncRepository()..hangOnDeleteAll = true;
+
+      await attacks.insert(anAttack());
+
+      await expectLater(
+        wipeFor(
+          db,
+          auth: FakeAuthRepository(signedIn: true),
+          remote: remote,
+          remoteTimeout: const Duration(milliseconds: 20),
+        ).wipeAll(),
+        throwsA(isA<TimeoutException>()),
+      );
+
+      // A Firestore write settles only on a server ack, so without the timeout this await never returned and the dev tiles span forever with no error.
       expect(await attacks.getAll(), hasLength(1));
     });
 
