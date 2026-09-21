@@ -449,15 +449,14 @@ the same curve its neighbour continues on.
     difference to the label, and the cap is still what stops the overflow. A
     bigger fraction buys the long-value case by wrapping labels that used not
     to — measured, and rejected.
-  - **Both rows pass `contentPadding` themselves**
-    (`_LabelledValue.tilePadding`, owner's rule 2026-09-21). Material 3's
-    `ListTile` default is `start: 16, end: 24` — asymmetric in the spec, and
-    measured here as 16pt from the card's left edge to the label against 24pt
-    from the chevron to its right. On a card that reads as a row whose two
-    edges do not match. One gutter, the app's own, on both sides.
-    `attack_detail_test.dart` compares the two insets. Every other `ListTile`
-    in the app still carries the Material default — see
-    `docs/rules/DESIGN_SYSTEM.md`.
+  - **Neither row sets its own `contentPadding`; `AppTheme.dark` does, for
+    every row in the app** (owner's rule, 2026-09-21). Material 3's `ListTile`
+    default is `start: 16, end: 24` — asymmetric in the spec, and measured on
+    this screen as 16pt from the card's left edge to the label against 24pt
+    from the chevron to its right. The two rows here were what the owner
+    reported it on, and the fix went to the theme rather than to them: full
+    rule in `docs/rules/DESIGN_SYSTEM.md`. `attack_detail_test.dart` still
+    compares the two insets on this screen, because this is where it was seen.
   - **`_EditableRow` and `_ReadOnlyRow` differ by a chevron and a tap, never by
     how the line divides**, which is why the line is one widget rather than the
     same `Row` written twice — edges included.
