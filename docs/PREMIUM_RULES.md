@@ -36,11 +36,11 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Situation | Required behavior |
 |---|---|
 | Logging an attack | Never refused, never counted |
-| History older than the window | **Shown in History, blurred, tagged "Premium required"** — never hidden. Still on the device, and still named by `FreeHistoryBanner` above the list |
+| History older than the window | **Shown in History, blurred, tagged "Premium required"** — never hidden. Still on the device, and named by `FreeHistoryBanner` drawn AT the boundary, outlined |
 | Tap on a blurred history row | Open `LockedHistorySheet`, which explains the window and carries Unlock. The one exception to the row below |
 | Add beyond a limit | Explain the limit, then offer the paywall |
 | Existing records above a limit | Keep visible and editable; never hide or delete |
-| Anything behind the window | Show `FreeHistoryBanner` — dashboard and History — and only where something IS behind it |
+| Anything behind the window | Show `FreeHistoryBanner` — the dashboard at the top, History at the boundary — and only where something IS behind it |
 | Current usage | Show `FreeLimitProgress`; hide it for Premium users |
 | New month | Do not reset lifetime limits |
 | Medication limit in attack flow | Block adding a new medication, never the attack log |

@@ -54,8 +54,25 @@ that had never been written. Blurred, the row says something is there, the
   intensity and the medication are what the blur covers, so naming any of them
   in the explanation would hand back what the row withholds. It names the
   window instead.
-- **`FreeHistoryBanner` stays** (owner's call). Two doors onto the same offer:
-  the banner above the list, the blurred rows in it.
+- **`FreeHistoryBanner` stays, AT the boundary rather than above the list**
+  (owner's rule, 2026-09-21). Its sentence names a date and says everything
+  before it is Premium — that is a statement about a boundary, so it is drawn
+  where the boundary is: under the last readable row, over the first blurred
+  one. At the top of the list it was a notice to scroll past; there it labels
+  the rows beneath it. It is also **outlined** (`SdBannerV2.borderColor`),
+  which is the design system's own lever for the one banner in a stack to be
+  seen first, so the prominence the owner asked for costs no new look.
+  - **One `SliverList` with the banner as an item**, not three slivers with
+    hand-padded seams: the separator then spaces the banner from the rows
+    either side of it exactly as it spaces two rows.
+  - **`attacks.indexWhere(locks)` is enough to place it** because the list is
+    newest-first and the window cuts on time, so every locked row is
+    contiguous from that index to the end. A filter that reorders the list
+    would break this.
+  - **It is gated on THIS list, not on the whole record.** A filter that hides
+    every locked row takes the banner with it: a boundary marker with nothing
+    under it points at nothing. The dashboard's copy still reads
+    `hasHiddenHistoryProvider`, because it has no list to sit inside.
 
 ## The filter strip
 
