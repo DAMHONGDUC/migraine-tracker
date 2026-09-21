@@ -43,6 +43,11 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
           ? null
           : () => Navigator.of(context).pop(_selected),
       contentHorizontalPadding: 0,
+      // Nothing here scrolls, and that is not a preference: the picker's own
+      // rule is that the whole step renders on one screen, and on iOS a scroll
+      // view rubber-bands even when its content fits — so a drag that turns
+      // the head bounced the sheet's content on the same finger.
+      scrollable: false,
       child: SizedBox(
         height: _height(context),
         child: LocationStep(
@@ -61,6 +66,11 @@ extension LocationPickerSheetExt on LocationPickerSheet {
       showSdBottomSheetV2<List<HeadRegion>>(
         context,
         isScrollControlled: true,
+        // The head is dragged to turn it, and the sheet read the same drag as
+        // a dismissal — turning the head pulled the sheet down under the
+        // finger. Tapping outside and the header's X are the ways out; the
+        // drag handle goes with the swipe it promised.
+        draggable: false,
         builder: (_) => this,
       );
 }

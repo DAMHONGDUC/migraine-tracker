@@ -311,6 +311,31 @@ void main() {
     expect(stepGrid.left, SdContentPaddingV2.horizontal);
   });
 
+  // The picker's one-screen rule reaches the SHEET too, and there it is not a
+  // layout preference: on iOS a scroll view rubber-bands even when its content
+  // fits, and its vertical drag competes with the drag that turns the head —
+  // so turning the head bounced the sheet's content under the same finger.
+  testWidgets('the edit sheet has nothing that can scroll either', (
+    WidgetTester tester,
+  ) async {
+    await pumpHosted(
+      tester,
+      const LocationPickerSheet(selected: <HeadRegion>[]),
+    );
+
+    final Iterable<Scrollable> scrollables = tester.widgetList<Scrollable>(
+      find.descendant(
+        of: find.byType(LocationPickerSheet),
+        matching: find.byType(Scrollable),
+      ),
+    );
+
+    expect(scrollables, isNotEmpty, reason: 'the grid is one');
+    for (final Scrollable scrollable in scrollables) {
+      expect(scrollable.physics, isA<NeverScrollableScrollPhysics>());
+    }
+  });
+
   testWidgets('the head is still tappable beside the tiles', (tester) async {
     await pumpPicker(tester);
 
