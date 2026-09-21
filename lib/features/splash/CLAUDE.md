@@ -5,12 +5,12 @@ dashboard.
 
 - **It is the app's first route** (`initialLocation`), and it leaves for the
   dashboard when `SplashController.run` returns — the startup work, or
-  `SplashConstant.minimumVisible` (2s), whichever is longer.
-- **The 2s floor is the owner's call: the dots must be seen.** The session work
+  `SplashConstant.minimumVisible` (1s), whichever is longer.
+- **The 1s floor is the owner's call: the dots must be seen.** The session work
   usually settles in a fraction of a second, so without it a launch flickers
   from the launch image to the dashboard and reads as a glitch rather than as a
   loading screen. `SplashController.run` starts the timer *before* the work and
-  awaits it after, so the two overlap and a launch slower than 2s pays nothing
+  awaits it after, so the two overlap and a launch slower than 1s pays nothing
   for the floor. `FreshInstallGate` above the app has no floor — the device
   check it waits on is not a screen of its own.
 - **The device check runs under the same dots, but ABOVE this route, not in
@@ -62,7 +62,7 @@ dashboard.
   does**, and it swaps in `FakeSplashController`: the real `run` calls
   `AppBootstrap.ensureAnonymousSession`, and a widget test has no Firebase for
   it to reach — the call never returns and the test times out rather than
-  failing. The 2s floor is kept, because that is the wait such a test is about.
+  failing. The 1s floor is kept, because that is the wait such a test is about.
   Drive it with bounded `pump(Duration)`; `pumpAndSettle` never settles under
   the dots.
 - **`initialLocationProvider` exists for the tests.** `pumpApp` overrides it to
