@@ -9,32 +9,50 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "args": ["--dart-define-from-file=env/dev.json"],
+            "args": [
+                "--dart-define-from-file=env/dev.json"
+            ],
             "deviceId": "A1435826-B732-4BE8-A6BC-E360A720E0D5"
-        },
-         {
-            "name": "prod-17-pro",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "args": ["--dart-define-from-file=env/prod.json"],
-            "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
         {
             "name": "dev-17-pro",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "args": ["--dart-define-from-file=env/dev.json"],
+            "args": [
+                "--dart-define-from-file=env/dev.json"
+            ],
             "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
-         {
+        {
             "name": "dev-ipad-13-pro",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "args": ["--dart-define-from-file=env/dev.json"],
+            "args": [
+                "--dart-define-from-file=env/dev.json"
+            ],
             "deviceId": "0EE13131-255E-481E-BA82-3F5FCBE292E2"
+        },
+        {
+            "name": "prod-17-pro-max",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define-from-file=env/prod.json"
+            ],
+            "deviceId": "A1435826-B732-4BE8-A6BC-E360A720E0D5"
+        },
+        {
+            "name": "prod-17-pro",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define-from-file=env/prod.json"
+            ],
+            "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
     ]
 }
