@@ -312,7 +312,10 @@ class AttackDetailScreen extends HookConsumerWidget {
           children: [
             _Header(attack: a),
             SizedBox(height: SdSpacingConstant.h16),
-            _LocationDiagram(regions: a.regions),
+            _LocationDiagram(
+              regions: a.regions,
+              onTap: () => _editLocation(context, ref, a),
+            ),
             SizedBox(height: SdSpacingConstant.h16),
             _Section(
               children: [

@@ -228,6 +228,46 @@ void main() {
     await finishTest(tester);
   });
 
+  // The head is the shortcut onto the Location row's sheet — the same "two
+  // doors onto one answer" the picker itself is built on.
+  testWidgets('tapping the head opens the location sheet and saves', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    // Inside the band but off the head's own surface — here the model never
+    // resolves, so the band holds the loading dots and this point hit-tests
+    // nothing. The tap has to reach the band's own target.
+    final Rect band = tester.getRect(
+      find.descendant(
+        of: find.byType(AttackDetailScreen),
+        matching: find.byType(HeadDiagram),
+      ),
+    );
+
+    await tester.tapAt(Offset(band.left + 4, band.center.dy));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The sheet's own commit is what says it opened; the row's label is on the
+    // screen underneath either way.
+    expect(find.widgetWithText(SdButtonV2, 'Update'), findsOneWidget);
+
+    await tester.tap(find.text('Crown').last);
+    await tester.pump();
+    await confirmSheet(tester);
+
+    final rows = await app.db.select(app.db.attacks).get();
+    expect(rows.single.regions, const <HeadRegion>[
+      HeadRegion.crown,
+      HeadRegion.templeR,
+    ]);
+
+    await finishTest(tester);
+  });
+
   // The point of the tick: a tap inside the sheet is a highlight, not a decision, so leaving by the X must change nothing.
   testWidgets('a pick abandoned by the X changes nothing', (tester) async {
     final app = await pumpApp(tester);
