@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:system_design/index.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -82,7 +83,18 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
   /// angle does not (see that controller).
   HeadControls get _controls => ref.read(headControlsProvider);
 
-  double get _zoom => _controls.zoom;
+  /// The level the user set, or — while they have not set one — the level that
+  /// fills the viewport the head is drawn in.
+  double get _zoom => _controls.zoom ?? _fit;
+
+  /// What [HeadViewportUtils.fitZoom] answered for the box the layout last
+  /// handed the head.
+  ///
+  /// Assigned from inside `build`, which is where the box's size is known, and
+  /// the same way `HeadScene` keeps the viewport it renders at. Read after the
+  /// fact by Reset and by the +/- buttons, which have no constraints of their
+  /// own to ask.
+  double _fit = HeadViewportUtils.minZoom;
 
   late double _yaw = HeadPose.yawFor(HeadRegion.primaryView(widget.selected));
 
@@ -218,17 +230,24 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
   void _reduceRotationSpeed() =>
       ref.read(headControlsProvider.notifier).reduceRotationSpeed();
 
+  /// Face on, level, and back to whatever fills this screen.
+  ///
+  /// It FORGETS the user's level rather than setting one, which is the
+  /// difference between Reset and a zoom button: going back to a number would
+  /// pin the head to a size chosen for some other screen, and the size this
+  /// one can hold is the thing Reset is for.
   void _resetView() {
     SdLogger.action(
       LogTagConstant.attackLog,
       'Reset head view',
       <String, Object?>{'view': _view.name},
     );
-    _poseTo((
-      yaw: HeadPose.yawFor(_view),
-      pitch: 0,
-      zoom: HeadViewportUtils.defaultZoom,
-    ));
+    ref.read(headControlsProvider.notifier).clearZoom();
+    _turn.stop();
+    setState(() {
+      _yaw = HeadPose.yawFor(_view);
+      _pitch = 0;
+    });
     SdLogger.info(
       LogTagConstant.attackLog,
       'Head view reset',
@@ -301,6 +320,22 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
                 HeadRegionGrid.reservedHeight,
                 HeadRegionGrid.maxHeight,
               );
+              // Measured here because here is where the box is known: the
+              // scene gets the full width and `head` of height, and the level
+              // that fills THAT is a different number on a phone and on an
+              // iPad. The model's own bounds, not a stand-in — the fit is the
+              // head's corners against the frame's edges.
+              final vm.Aabb3? bounds =
+                  HeadSceneStore.template?.combinedWorldBounds;
+
+              _fit = bounds == null
+                  ? HeadViewportUtils.minZoom
+                  : HeadViewportUtils.fitZoom(
+                      bounds,
+                      Size(constraints.maxWidth, head),
+                    );
+
+              final double zoom = controls.zoom ?? _fit;
 
               return Column(
                 children: <Widget>[
@@ -334,7 +369,7 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
                                   view: _view,
                                   yaw: _yaw,
                                   pitch: _pitch,
-                                  zoom: controls.zoom,
+                                  zoom: zoom,
                                   onPoseChanged: _poseTo,
                                   onInteractionStart: _turn.stop,
                                   onAvailabilityChanged: _availabilityChanged,
@@ -352,7 +387,7 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
                             left: 0,
                             right: 0,
                             child: _HeadZoomControls(
-                              zoom: controls.zoom,
+                              zoom: zoom,
                               rotationSpeed: controls.rotationSpeed,
                               onZoom: _setZoom,
                               onReduceRotationSpeed: _reduceRotationSpeed,

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,23 +75,100 @@ void main() {
     }
   });
 
-  test('the head starts three zoom steps in, on the ladder', () {
-    // Owner's rule: framed to fit, the regions worth aiming at are small and
-    // far from the thumb, so the head opens filling the frame instead.
-    expect(
-      HeadViewportUtils.defaultZoom,
-      greaterThan(HeadViewportUtils.minZoom),
-    );
-    expect(
-      HeadViewportUtils.defaultZoom,
-      lessThanOrEqualTo(HeadViewportUtils.maxZoom),
-    );
-    // On the step ladder, so the minus button walks back to minZoom exactly
-    // and the readout never shows a level the buttons cannot reach.
-    final double steps =
-        (HeadViewportUtils.defaultZoom - HeadViewportUtils.minZoom) /
-        HeadViewportUtils.zoomStep;
-    expect(steps, closeTo(steps.roundToDouble(), 1e-9));
+  group('the level the head opens at', () {
+    /// The corners of [bounds] as the camera puts them on screen, at [yaw].
+    List<Offset> project(Size size, double zoom, double yaw) {
+      final PerspectiveCamera camera = HeadViewportUtils.camera(
+        bounds,
+        size,
+        zoom,
+      );
+      final vm.Matrix4 pose = HeadViewportUtils.transform(bounds, (
+        yaw: yaw,
+        pitch: 0,
+        zoom: zoom,
+      ));
+
+      return <Offset>[
+        for (final double x in <double>[bounds.min.x, bounds.max.x])
+          for (final double y in <double>[bounds.min.y, bounds.max.y])
+            for (final double z in <double>[bounds.min.z, bounds.max.z])
+              camera.worldToScreen(
+                pose.transformed3(vm.Vector3(x, y, z)),
+                size,
+              )!,
+      ];
+    }
+
+    // The whole point of measuring it: the head touches the frame, on BOTH
+    // rest angles, and goes over neither. A level that clips is a jaw the user
+    // cannot tap; a level that does not reach is the "still too small" the
+    // owner has reported three times.
+    test('fills the viewport and never spills out of it', () {
+      for (final Size size in <Size>[
+        const Size(393, 430),
+        const Size(393, 380),
+        const Size(834, 600),
+        const Size(1194, 500),
+      ]) {
+        final double zoom = HeadViewportUtils.fitZoom(bounds, size);
+        double reach = 0;
+
+        for (final double yaw in <double>[0, 180]) {
+          for (final Offset corner in project(size, zoom, yaw)) {
+            expect(corner.dx, inInclusiveRange(-0.5, size.width + 0.5));
+            expect(corner.dy, inInclusiveRange(-0.5, size.height + 0.5));
+            reach = math.max(
+              reach,
+              math.max(
+                (corner.dx - size.width / 2).abs() / (size.width / 2),
+                (corner.dy - size.height / 2).abs() / (size.height / 2),
+              ),
+            );
+          }
+        }
+
+        // Touching, not merely inside — otherwise "as large as it fits" is
+        // satisfied by any number at all.
+        expect(reach, closeTo(1, 0.001), reason: '$size');
+      }
+    });
+
+    // A tall frame holds a head at a higher magnification than a wide one,
+    // because 100% frames the head's SPHERE against the narrower axis. This
+    // is the whole reason the level cannot be one constant.
+    test('a phone and an iPad do not get the same level', () {
+      expect(
+        HeadViewportUtils.fitZoom(bounds, const Size(393, 430)),
+        greaterThan(HeadViewportUtils.fitZoom(bounds, const Size(834, 600))),
+      );
+    });
+
+    test('it stays inside the ladder the buttons walk', () {
+      for (final Size size in <Size>[
+        const Size(393, 430),
+        const Size(120, 900),
+        const Size(1194, 200),
+      ]) {
+        expect(
+          HeadViewportUtils.fitZoom(bounds, size),
+          inInclusiveRange(HeadViewportUtils.minZoom, HeadViewportUtils.maxZoom),
+        );
+      }
+    });
+
+    // Nothing to measure against is not a reason to draw nothing: a zero-sized
+    // or not-yet-laid-out box answers 100%, which is a whole head.
+    test('an empty box answers the resting level', () {
+      expect(
+        HeadViewportUtils.fitZoom(bounds, Size.zero),
+        HeadViewportUtils.minZoom,
+      );
+      expect(
+        HeadViewportUtils.fitZoom(bounds, const Size(393, double.infinity)),
+        HeadViewportUtils.minZoom,
+      );
+    });
   });
 
   test('pose bounds reject excessive magnification and pitch', () {

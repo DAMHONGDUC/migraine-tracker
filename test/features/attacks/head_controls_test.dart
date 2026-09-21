@@ -30,16 +30,61 @@ void main() {
     return container;
   }
 
+  // Null is not "no zoom" — it is "the user has not picked one", which is the
+  // picker's cue to measure its own viewport instead of opening at a level
+  // chosen for some other screen.
   test(
-    'a first open gets the default zoom and the full rotation speed',
+    'a first open has no zoom of its own and the full rotation speed',
     () async {
       final ProviderContainer ref = await container();
       final HeadControls controls = ref.read(headControlsProvider);
 
-      expect(controls.zoom, HeadViewportUtils.defaultZoom);
+      expect(controls.zoom, isNull);
       expect(controls.rotationSpeed, HeadRotationSpeed.full);
     },
   );
+
+  test('reset forgets the level, in the state and in the store', () async {
+    final ProviderContainer ref = await container(<String, String>{
+      PrefsKeyConstant.headZoom: '1.75',
+    });
+
+    expect(ref.read(headControlsProvider).zoom, 1.75);
+
+    ref.read(headControlsProvider.notifier).clearZoom();
+
+    expect(ref.read(headControlsProvider).zoom, isNull);
+
+    // The delete is fire-and-forget, like every other write here: the button
+    // must not wait on the Keychain to redraw the head.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+
+    // The key goes, rather than being rewritten with the fit: a fit belongs to
+    // one viewport, and storing it is what this replaced.
+    expect(
+      ref.read(secureStoreProvider).getDouble(PrefsKeyConstant.headZoom),
+      isNull,
+    );
+  });
+
+  // A speed change schedules the same write as a zoom change, and it must not
+  // invent a level for a user who never set one.
+  test('changing only the speed leaves the zoom key absent', () async {
+    final ProviderContainer ref = await container();
+
+    ref.read(headControlsProvider.notifier).reduceRotationSpeed();
+    await Future<void>.delayed(
+      HeadControlsController.settle + const Duration(milliseconds: 100),
+    );
+
+    final SecureStore prefs = ref.read(secureStoreProvider);
+
+    expect(prefs.getDouble(PrefsKeyConstant.headZoom), isNull);
+    expect(
+      prefs.getInt(PrefsKeyConstant.headRotationSpeed),
+      HeadRotationSpeed.reduced.percent,
+    );
+  });
 
   test('what the last session left is what the next one opens at', () async {
     final ProviderContainer ref = await container(<String, String>{

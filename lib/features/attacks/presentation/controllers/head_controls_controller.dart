@@ -11,7 +11,13 @@ import '../widgets/head_viewport.dart';
 
 /// How the head picker is driven: the magnification it opens at, and how far
 /// a drag turns it.
-typedef HeadControls = ({double zoom, HeadRotationSpeed rotationSpeed});
+///
+/// **A null [zoom] is "never chosen", not "zero"** — the picker then opens at
+/// whatever fills the viewport it was handed (`HeadViewportUtils.fitZoom`).
+/// A number here is one the user set themselves, and it outranks the fit,
+/// because someone who zoomed out to see the whole head did not mean it for
+/// one screen only.
+typedef HeadControls = ({double? zoom, HeadRotationSpeed rotationSpeed});
 
 /// The picker's camera controls, kept across launches (owner's rule,
 /// 2026-09-19).
@@ -68,11 +74,11 @@ class HeadControlsController extends Notifier<HeadControls> {
     return (
       // Clamped on the way in: the ladder's ends have moved before, and a
       // stored level outside them would open the picker at a magnification
-      // its own buttons cannot walk back from.
-      zoom:
-          (prefs.getDouble(PrefsKeyConstant.headZoom) ??
-                  HeadViewportUtils.defaultZoom)
-              .clamp(HeadViewportUtils.minZoom, HeadViewportUtils.maxZoom),
+      // its own buttons cannot walk back from. Null stays null — that is the
+      // picker's cue to measure the viewport instead.
+      zoom: prefs
+          .getDouble(PrefsKeyConstant.headZoom)
+          ?.clamp(HeadViewportUtils.minZoom, HeadViewportUtils.maxZoom),
       rotationSpeed: HeadRotationSpeed.fromPercent(
         prefs.getInt(PrefsKeyConstant.headRotationSpeed),
       ),
@@ -86,6 +92,35 @@ class HeadControlsController extends Notifier<HeadControls> {
 
     state = (zoom: zoom, rotationSpeed: state.rotationSpeed);
     _scheduleSave();
+  }
+
+  /// Forgets the user's level, so the picker goes back to measuring the
+  /// viewport — what Reset means.
+  ///
+  /// It deletes the key rather than storing the fit it is going back to: the
+  /// fit belongs to one viewport, and writing it would turn "open as large as
+  /// this screen allows" back into a number, which is the thing this replaced.
+  void clearZoom() {
+    if (state.zoom == null) return;
+
+    state = (zoom: null, rotationSpeed: state.rotationSpeed);
+    _pending?.cancel();
+    _unsaved = null;
+    unawaited(_forget(ref.read(secureStoreProvider)));
+  }
+
+  Future<void> _forget(SecureStore prefs) async {
+    try {
+      await prefs.remove(PrefsKeyConstant.headZoom);
+      SdLogger.info(LogTagConstant.attackLog, 'Head zoom forgotten');
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.attackLog,
+        'Head zoom forget failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   /// One step down the [HeadRotationSpeed] ladder, wrapping at the bottom.
@@ -122,8 +157,14 @@ class HeadControlsController extends Notifier<HeadControls> {
     final HeadControls controls = pending.controls;
     final SecureStore prefs = pending.prefs;
 
+    final double? zoom = controls.zoom;
+
     try {
-      await prefs.setDouble(PrefsKeyConstant.headZoom, controls.zoom);
+      // Null only when the rotation speed changed before anyone touched the
+      // zoom; the key stays absent rather than being written as a level.
+      if (zoom != null) {
+        await prefs.setDouble(PrefsKeyConstant.headZoom, zoom);
+      }
       await prefs.setInt(
         PrefsKeyConstant.headRotationSpeed,
         controls.rotationSpeed.percent,

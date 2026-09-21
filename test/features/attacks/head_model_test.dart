@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/head_viewport.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 /// The contract between `tool/head_model.py` and the picker: one mesh node per
 /// region, spelled exactly as the enum spells it.
@@ -54,6 +58,57 @@ void main() {
     for (final Object? node in gltf['nodes']! as List<Object?>)
       (node! as Map<String, Object?>)['name']! as String,
   ];
+
+  /// The shipped model's own box, from the accessors' declared extents.
+  vm.Aabb3 bounds() {
+    final List<Object?> accessors = gltf['accessors']! as List<Object?>;
+    final vm.Vector3 min = vm.Vector3.all(double.infinity);
+    final vm.Vector3 max = vm.Vector3.all(double.negativeInfinity);
+
+    for (final Object? mesh in gltf['meshes']! as List<Object?>) {
+      for (final Object? primitive
+          in (mesh! as Map<String, Object?>)['primitives']! as List<Object?>) {
+        final Map<String, Object?> attributes =
+            (primitive! as Map<String, Object?>)['attributes']!
+                as Map<String, Object?>;
+        final Map<String, Object?> position =
+            accessors[attributes['POSITION']! as int]! as Map<String, Object?>;
+
+        for (int axis = 0; axis < 3; axis++) {
+          min[axis] = math.min(
+            min[axis],
+            ((position['min']! as List<Object?>)[axis]! as num).toDouble(),
+          );
+          max[axis] = math.max(
+            max[axis],
+            ((position['max']! as List<Object?>)[axis]! as num).toDouble(),
+          );
+        }
+      }
+    }
+
+    return vm.Aabb3.minMax(min, max);
+  }
+
+  // The asset and the opening magnification are one answer: the level is
+  // measured off THESE proportions, so a re-export that changes them changes
+  // how big the head opens. The old flat 150% is the bar, because that is what
+  // this replaced and the owner has asked for bigger three times.
+  test('the shipped head opens larger on a phone than the 150% it replaced', () {
+    final vm.Aabb3 box = bounds();
+
+    expect(
+      HeadViewportUtils.fitZoom(box, const Size(393, 430)),
+      greaterThan(1.5),
+    );
+    expect(
+      HeadViewportUtils.fitZoom(box, const Size(393, 430)),
+      lessThanOrEqualTo(HeadViewportUtils.maxZoom),
+    );
+    // A head that is WIDER than it is tall would mean the model came back with
+    // a neck, or on its side — either way the picker is not drawing a face.
+    expect(box.max.y - box.min.y, greaterThan(box.max.x - box.min.x));
+  });
 
   test('every region is a node, and every node is a region', () {
     final Set<String> regions = nodeNames()

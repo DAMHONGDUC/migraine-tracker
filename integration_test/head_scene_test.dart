@@ -186,9 +186,11 @@ void main() {
     await capture('head-profile');
     await tester.tap(find.byTooltip('Reset view'));
     await tester.pump();
+    // Back to the level that fills THIS viewport, not back to a constant:
+    // Reset forgets the user's zoom and the picker measures the box again.
     expect(
       tester.widget<HeadScene>(find.byType(HeadScene)).zoom,
-      HeadViewportUtils.defaultZoom,
+      closeTo(HeadViewportUtils.fitZoom(bounds, surfaceRect.size), 0.001),
     );
     await tester.tap(find.text('Back').first);
     await tester.pump(const Duration(milliseconds: 450));
