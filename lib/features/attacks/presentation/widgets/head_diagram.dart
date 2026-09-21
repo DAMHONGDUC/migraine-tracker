@@ -34,7 +34,7 @@ class HeadDiagram extends StatefulWidget {
     required this.view,
     this.yaw,
     this.pitch = 0,
-    this.zoom = 1,
+    this.zoom,
     this.rotationSpeed = HeadRotationSpeed.initial,
     this.expandScene = false,
     this.onPoseChanged,
@@ -55,7 +55,11 @@ class HeadDiagram extends StatefulWidget {
   /// rests at whatever [view] asks for.
   final double? yaw;
   final double pitch;
-  final double zoom;
+
+  /// Null means **as large as the box allows** — see [HeadScene.zoom]. A
+  /// read-only head passes nothing and gets the biggest one its slot can hold;
+  /// the picker passes the level the user set.
+  final double? zoom;
 
   /// The user's own rotation speed. It reaches the gesture surface and nothing
   /// else — the flat fallback has no turn to slow down.

@@ -18,7 +18,7 @@ class HeadScene extends StatefulWidget {
     required this.selected,
     required this.yaw,
     this.pitch = 0,
-    this.zoom = 1,
+    this.zoom,
     this.rotationSpeed = HeadRotationSpeed.initial,
     this.onRegionTapped,
     this.onYawChanged,
@@ -31,7 +31,14 @@ class HeadScene extends StatefulWidget {
   final List<HeadRegion> selected;
   final double yaw;
   final double pitch;
-  final double zoom;
+
+  /// The level to render at, or **null for as large as the viewport holds it**
+  /// — [HeadViewportUtils.fitZoom] against the box the layout hands this
+  /// widget. Null is the same word it is on `HeadControls.zoom`: nobody chose
+  /// a level, so the box decides. At 1 the camera frames the head's bounding
+  /// SPHERE, which leaves a head-shaped thing sitting in a circle of air, so
+  /// 1 is a level to pass deliberately rather than a sensible default.
+  final double? zoom;
 
   /// The user's own rotation speed, spent by [HeadGestureSurface].
   final HeadRotationSpeed rotationSpeed;
@@ -56,8 +63,12 @@ class _HeadSceneState extends State<HeadScene> {
   Camera? _camera;
   Size _viewSize = Size.zero;
 
-  HeadViewport get _pose =>
-      (yaw: widget.yaw, pitch: widget.pitch, zoom: widget.zoom);
+  /// What [build] last rendered at — the caller's level, or the fit it
+  /// measured. Picking reads it, so the log line names the level the tap was
+  /// actually aimed through.
+  double _zoom = HeadViewportUtils.minZoom;
+
+  HeadViewport get _pose => (yaw: widget.yaw, pitch: widget.pitch, zoom: _zoom);
 
   @override
   void initState() {
@@ -145,7 +156,7 @@ class _HeadSceneState extends State<HeadScene> {
       <String, Object?>{
         'x': position.dx,
         'y': position.dy,
-        'zoom': widget.zoom,
+        'zoom': _zoom,
       },
     );
     final SceneRaycastHit? hit = _scene.raycast(
@@ -178,7 +189,8 @@ class _HeadSceneState extends State<HeadScene> {
           !_viewSize.height.isFinite) {
         return const SizedBox.shrink();
       }
-      _camera = HeadViewportUtils.camera(_bounds, _viewSize, widget.zoom);
+      _zoom = widget.zoom ?? HeadViewportUtils.fitZoom(_bounds, _viewSize);
+      _camera = HeadViewportUtils.camera(_bounds, _viewSize, _zoom);
       return ClipRect(
         child: HeadGestureSurface(
           pose: _pose,

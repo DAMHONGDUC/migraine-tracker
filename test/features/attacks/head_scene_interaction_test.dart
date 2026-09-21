@@ -157,6 +157,24 @@ void main() {
       }
     });
 
+    // The detail screen's read-only head passes no zoom and gets this level,
+    // the same way the log step does — and a short wide band is the least
+    // rewarding shape there is, because 100% already frames the sphere against
+    // the narrower axis. It still measures 1.39 against this box, so the head
+    // reaches the edges of a band where it used to float in the middle.
+    test('a short read-only band is worth measuring too', () {
+      // 393 wide minus the 16pt gutter either side, by the band's own 160.
+      const Size band = Size(361, 160);
+      final double zoom = HeadViewportUtils.fitZoom(bounds, band);
+
+      expect(zoom, greaterThan(1.3));
+      for (final double yaw in <double>[0, 180]) {
+        for (final Offset corner in project(band, zoom, yaw)) {
+          expect(corner.dy, inInclusiveRange(-0.5, band.height + 0.5));
+        }
+      }
+    });
+
     // Nothing to measure against is not a reason to draw nothing: a zero-sized
     // or not-yet-laid-out box answers 100%, which is a whole head.
     test('an empty box answers the resting level', () {
