@@ -19,39 +19,27 @@ class _EditableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.bodyLarge,
+      title: _LabelledValue(
+        label: label,
+        // The dot travels WITH the value, so the cap covers both.
+        value: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (swatch != null) ...<Widget>[
+              SdColorDotV2(color: swatch!),
+              SizedBox(width: SdSpacingConstant.w8),
+            ],
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.bodyLarge,
+              ),
             ),
-          ),
-          SizedBox(width: SdSpacingConstant.w8),
-          // The dot travels WITH the value, inside the same half.
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                if (swatch != null) ...<Widget>[
-                  SdColorDotV2(color: swatch!),
-                  SizedBox(width: SdSpacingConstant.w8),
-                ],
-                Flexible(
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.end,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bodyLarge,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       trailing: SdIconV2(
         icon: AppIconConstant.disclosure,

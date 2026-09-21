@@ -7,6 +7,7 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_diagram.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/location_picker_sheet.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_repository.dart';
 import 'package:migraine_tracker/features/medications/domain/entities/medication.dart';
 import 'package:migraine_tracker/features/weather/domain/entities/weather_snapshot.dart';
@@ -264,6 +265,69 @@ void main() {
       HeadRegion.crown,
       HeadRegion.templeR,
     ]);
+
+    await finishTest(tester);
+  });
+
+  // Two `Expanded` halves split every row exactly 50/50 whatever was in it, so
+  // a one-word label wrapped onto two lines while the value beside it was a
+  // single character. The value is measured first now and the label takes the
+  // rest.
+  testWidgets('a short value hands the rest of the row to its label', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+
+    final Finder label = find.descendant(
+      of: find.byType(AttackDetailScreen),
+      matching: find.text('Intensity'),
+    );
+    final Size labelSize = tester.getSize(label);
+    // The row's own box: `_LabelledValue` is private, but its `LayoutBuilder`
+    // — the thing that measures the line — is the nearest public ancestor.
+    final double rowWidth = tester
+        .getSize(
+          find.ancestor(of: label, matching: find.byType(LayoutBuilder)).first,
+        )
+        .width;
+
+    // Past half the row — the old shape could never give it more than that.
+    expect(labelSize.width, greaterThan(rowWidth / 2));
+    // And one line, which is the whole point: it used to wrap at 50%.
+    expect(labelSize.height, lessThan(40));
+
+    await finishTest(tester);
+  });
+
+  // A drag on the head turns it, and the sheet used to read the same drag as a
+  // dismissal — so turning the head pulled the sheet down under the finger.
+  testWidgets('the location sheet cannot be dragged away', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+    await openEditSheet(tester, 'Location');
+
+    expect(find.byType(LocationPickerSheet), findsOneWidget);
+
+    // Straight down, from the head itself and then from the sheet's own body.
+    for (final Finder from in <Finder>[
+      find.byType(HeadDiagram).last,
+      find.byType(LocationPickerSheet),
+    ]) {
+      await tester.drag(from, const Offset(0, 400));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byType(LocationPickerSheet), findsOneWidget);
+    }
+
+    // Still the X that closes it.
+    await closeSheet(tester);
+    expect(find.byType(LocationPickerSheet), findsNothing);
 
     await finishTest(tester);
   });

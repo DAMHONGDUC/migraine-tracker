@@ -40,6 +40,7 @@ import '../../widgets/medication_picker_sheet.dart';
 import '../../widgets/medication_timing_sheet.dart';
 
 part 'attack_detail_screen_details_section.dart';
+part 'attack_detail_screen_labelled_value.dart';
 part 'attack_detail_screen_editable_row.dart';
 part 'attack_detail_screen_header.dart';
 part 'attack_detail_screen_location_diagram.dart';
