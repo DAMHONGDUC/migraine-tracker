@@ -5,6 +5,10 @@ import '../../domain/enums/head_region.dart';
 import 'head_region_picker.dart';
 
 /// Second tap: where the pain is.
+///
+/// Also what `LocationPickerSheet` shows when an already-logged attack's
+/// areas are corrected, so the two read identically — the step owns the
+/// gutters and the air around the head, and the sheet only wraps it.
 class LocationStep extends StatelessWidget {
   const LocationStep({
     required this.selected,
@@ -17,7 +21,8 @@ class LocationStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Vertical only.
+    // Vertical only: [HeadRegionPicker] pads its own tabs and tiles, and
+    // insets the head further than the gutter, so the sides are its business.
     return Padding(
       padding: EdgeInsets.symmetric(vertical: SdSpacingConstant.h12),
       child: HeadRegionPicker(selected: selected, onChanged: onChanged),

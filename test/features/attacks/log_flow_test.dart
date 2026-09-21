@@ -55,6 +55,48 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('the question is the same size on every step', (tester) async {
+    await pumpApp(tester);
+    await openLog(tester);
+
+    /// The size the app bar actually rendered the question at.
+    double titleSize(String question) => tester
+        .widget<Text>(
+          find.descendant(of: find.byType(AppBar), matching: find.text(question)),
+        )
+        .style!
+        .fontSize!;
+
+    final double intensity = titleSize('How intense is the pain?');
+
+    await tester.tap(find.text('7'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Next appears on this step, and the app bar gives the title whatever the
+    // actions leave — so a Next that took its space only here shrank this
+    // question and not the one before it.
+    expect(titleSize('Where does it hurt?'), intensity);
+
+    await tester.tap(find.text('Right temple'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(titleSize('Did you take medication?'), intensity);
+
+    await tester.tap(find.text('No medication').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(titleSize('Were you exerting yourself?'), intensity);
+
+    await finishTest(tester);
+  });
+
   testWidgets('picking an exertion level stores it on the attack', (
     tester,
   ) async {

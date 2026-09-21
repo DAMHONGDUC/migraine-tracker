@@ -5,9 +5,16 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/head_region.dart';
-import 'head_region_picker.dart';
+import 'location_step.dart';
 
-/// Corrects a logged attack's head areas, with the same picker the log flow's second tap uses.
+/// Corrects a logged attack's head areas.
+///
+/// **It shows [LocationStep] itself, not another arrangement of the picker.**
+/// Correcting a location and picking one are the same job, so the only
+/// difference between the two is the sheet around it: the step keeps its own
+/// gutters and its own air above and below the head, and the sheet hands it
+/// the full width (`contentHorizontalPadding: 0`) instead of adding a second
+/// gutter on top of the step's.
 class LocationPickerSheet extends StatefulWidget {
   const LocationPickerSheet({required this.selected, super.key});
 
@@ -35,9 +42,10 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
       onConfirm: _selected.isEmpty
           ? null
           : () => Navigator.of(context).pop(_selected),
+      contentHorizontalPadding: 0,
       child: SizedBox(
         height: _height(context),
-        child: HeadRegionPicker(
+        child: LocationStep(
           selected: _selected,
           onChanged: (List<HeadRegion> regions) =>
               setState(() => _selected = regions),

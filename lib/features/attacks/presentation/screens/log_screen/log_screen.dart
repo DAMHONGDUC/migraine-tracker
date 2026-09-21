@@ -86,13 +86,23 @@ class LogScreen extends ConsumerWidget {
         ),
       },
       actions: [
-        if (showNext)
-          SdButtonV2(
+        // Next holds its slot on every step, shown or not. The app bar gives
+        // the title whatever the actions leave, so a Next that vanished on
+        // the intensity and saved steps handed those two a wider box — and
+        // [SdFittedTextV2] sized the shared question larger there, which is
+        // the very jump `peers` exists to prevent.
+        Visibility(
+          visible: showNext,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: SdButtonV2(
             variant: SdButtonVariantV2.primary,
             size: SdButtonSizeV2.small,
             onPressed: canAdvance ? () => controller.confirmStep() : null,
             label: l10n.logNext,
           ),
+        ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
       // Step progress lives in the bottom bar slot (same floating spot the shell's nav morphs into); hidden once saved, body uses a plain inset.

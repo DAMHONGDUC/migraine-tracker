@@ -12,6 +12,8 @@ import 'package:migraine_tracker/features/attacks/presentation/widgets/head_regi
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_grid.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_region_picker.dart';
 import 'package:migraine_tracker/features/attacks/presentation/widgets/head_scene_store.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/location_picker_sheet.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/location_step.dart';
 import 'package:migraine_tracker/l10n/gen/app_localizations.dart';
 import 'package:system_design/index.dart';
 
@@ -249,6 +251,64 @@ void main() {
         reason: 'design point $point should be the nose',
       );
     }
+  });
+
+  /// The same tree the step and the sheet are pumped in, so the only
+  /// difference between the two measurements is the widget under test.
+  Future<void> pumpHosted(WidgetTester tester, Widget child) async {
+    tester.view.physicalSize = const Size(393, 852) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    HeadSceneStore.markUnavailable();
+    addTearDown(HeadSceneStore.reset);
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
+
+    final SecureStore prefs = await SecureStore.open();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [secureStoreProvider.overrideWithValue(prefs)],
+        child: ScreenUtilInit(
+          designSize: const Size(393, 852),
+          builder: (BuildContext context, Widget? child) => MaterialApp(
+            theme: AppTheme.dark,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(body: Align(alignment: Alignment.bottomCenter, child: child)),
+          ),
+          child: child,
+        ),
+      ),
+    );
+    await tester.pump();
+  }
+
+  testWidgets('the edit sheet lays the picker out exactly as the step does', (
+    WidgetTester tester,
+  ) async {
+    // The sheet's own gutter would land on top of the picker's, so the tiles
+    // came out 16pt narrower there than in the flow — same widget, two
+    // paddings. It hands the step the full width instead.
+    await pumpHosted(
+      tester,
+      LocationStep(
+        selected: const <HeadRegion>[],
+        onChanged: (List<HeadRegion> regions) {},
+      ),
+    );
+
+    final Rect stepGrid = tester.getRect(find.byType(HeadRegionGrid));
+
+    await pumpHosted(
+      tester,
+      const LocationPickerSheet(selected: <HeadRegion>[]),
+    );
+
+    final Rect sheetGrid = tester.getRect(find.byType(HeadRegionGrid));
+
+    expect(sheetGrid.left, stepGrid.left);
+    expect(sheetGrid.width, stepGrid.width);
+    expect(stepGrid.left, SdContentPaddingV2.horizontal);
   });
 
   testWidgets('the head is still tappable beside the tiles', (tester) async {
