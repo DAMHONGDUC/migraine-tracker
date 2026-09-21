@@ -54,5 +54,15 @@
             ],
             "deviceId": "EA48B046-909E-4708-BAA2-9F5875EC8386"
         },
+        {
+            "name": "prod-ipad-13-pro",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define-from-file=env/prod.json"
+            ],
+            "deviceId": "0EE13131-255E-481E-BA82-3F5FCBE292E2"
+        },
     ]
 }
