@@ -419,6 +419,18 @@ the same curve its neighbour continues on.
   narrow tile, unless *both* sides carry a flex: a `Row` whose every text child is
   `Expanded` cannot overflow whatever either side is handed. `_EditableRow` and
   `_ReadOnlyRow` are the two shapes and must stay the same shape.
+- **The read-only head fills the band it is given** (owner's rule, 2026-09-21).
+  Its 160pt band is unchanged; what changed is that the head reaches the top and
+  bottom of it instead of floating in the middle. **`zoom` is null on
+  `HeadDiagram` and `HeadScene` now, and null means "as large as the box
+  holds"** — `fitZoom`, measured, the same answer the log step opens on. At 1
+  the camera frames the head's bounding SPHERE, so a taller-than-round thing
+  rendered at about 60% of its slot; 1 is a level to pass deliberately, never a
+  default. `expandScene: true` hands it the whole row to measure against
+  instead of the ratio-shaped column inside it — the fit takes the smaller
+  axis, so the shape survives and the extra width is air either side. The
+  `Center` stays for the flat fallback, which keeps its `AspectRatio`.
+  `head_scene_interaction_test.dart` measures the 361x160 band at 1.39.
 - **The weather section is the shared `WeatherCard`, the same widget the dashboard
   draws** (owner: "tôi muốn đồng nhất"). It was a list of `ListTile` rows here and
   a card there, so the reading a user checked one against the other was laid out
