@@ -1,7 +1,7 @@
 name: migraine_tracker
 description: "BaroEase — migraine tracker with barometric pressure alerts."
 publish_to: 'none'
-version: 1.2.0+49
+version: 1.2.0+52
 
 environment:
   sdk: ^3.12.2
@@ -131,7 +131,9 @@ flutter:
 # 57, 72). Both are ugly and both are harmless; do not hand-tidy them, because
 # the next run puts them straight back.
 flutter_launcher_icons:
-  image_path: "assets/images/final_app_icon.png"
+  # The artwork itself. Owner's rule: no generated intermediate
+  # between it and the icons — see packages/system_design/tool/gen-app-icon.sh.
+  image_path: "assets/images/app_icon.png"
 
   ios: true
   # MANDATORY, not a preference. App Store Connect rejects the 1024 marketing

@@ -86,10 +86,16 @@ scripts:
 
   gen-app-icon:
     description: >
-      One source PNG to every icon: the watermark stripped, every launcher
-      size generated, and the launch screen's rounded copies. Reads
-      assets/images/app_icon.png.
+      One source PNG to every icon: every launcher size, and the rounded
+      launch screen copies for iOS and Android. Reads
+      assets/images/app_icon.png and nothing else.
     run: sh packages/system_design/tool/gen-app-icon.sh
+
+  gen-app-icon-strip-marker:
+    description: >
+      Erase the image generator's watermark from assets/images/app_icon.png,
+      in place. Run once when new artwork arrives, then gen-app-icon.
+    run: sh packages/system_design/tool/gen-app-icon-strip-marker.sh
 
   upload-ipa-dev:
     description: >
