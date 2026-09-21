@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
 import '../../../attacks/domain/enums/exertion_level.dart';
 import '../../../attacks/domain/enums/head_region.dart';
@@ -66,6 +67,31 @@ class DevSeedService {
   /// Notifications of each kind. Alerts stay rarer than reminder firings, because the cron sends at most one a day per user.
   static const int notificationCount = 5;
   static const int pressureAlertCount = 1;
+
+  /// Attacks written deliberately BEHIND the free plan's readable window, so a
+  /// dev build always has History's blurred rows on it (owner's rule,
+  /// 2026-09-21).
+  ///
+  /// **Forced, not rolled, for the reason the weatherless attack is.** The
+  /// scatter window is 2200h — a hair over ninety days — so a run landed a
+  /// locked row perhaps one time in ten, and a state that appears one run in
+  /// ten is a state nobody reviews. Two rather than one: one blurred row reads
+  /// as a glitch on that row, two read as a rule.
+  ///
+  /// **On top of [attackCount], not carved out of it.** The readable list still
+  /// holds the owner's five, exactly as the tombstone surplus is written on top
+  /// rather than taken out — every other screen is sized against those five.
+  static const int lockedAttackCount = 2;
+
+  /// Attacks on the device once a seed has run: [attackCount] inside the window
+  /// and [lockedAttackCount] behind it. What a test counts.
+  static const int seededAttackCount = attackCount + lockedAttackCount;
+
+  /// How far behind the window a locked attack lands, in days. Far enough that
+  /// no rounding of a day or a timezone could put it back inside; near enough
+  /// that the row still reads as the recent past rather than as another year.
+  static const int _lockedDaysPastWindow = 5;
+  static const int _lockedSpreadDays = 30;
 
   /// Adds then deletes fixtures so tombstones exist without reducing visible counts.
   static const int _tombstoneAttacks = 1;
@@ -150,6 +176,11 @@ class DevSeedService {
     final DateTime now = DateTime.now().toUtc();
     final List<Medication> medications = _buildMedications(random, now);
     final List<Attack> attacks = _buildAttacks(random, now, medications);
+    // Kept apart from [attacks] for one reason: `_seedTombstones` deletes the
+    // tail of the list it is handed, and a locked row deleted again is the
+    // whole point of seeding it gone.
+    final List<Attack> locked = _buildLockedAttacks(random, now, medications);
+    final List<Attack> allAttacks = <Attack>[...attacks, ...locked];
 
     await _wipe.wipeAll();
     for (final Medication medication in medications) {
@@ -161,15 +192,18 @@ class DevSeedService {
       medications,
     );
 
-    for (final Attack attack in attacks) {
+    for (final Attack attack in allAttacks) {
       await _attacks.insert(attack);
     }
 
-    await _seedExports(random, attacks, medications, now);
-    await _seedDailyPressure(random, attacks, now);
-    await _seedDailyLogs(random, attacks, now);
+    // The whole record, locked rows included: an export IS the whole record,
+    // and the pressure readings have to reach the oldest attack so buying
+    // premium reveals an attack with its weather rather than a gap.
+    await _seedExports(random, allAttacks, medications, now);
+    await _seedDailyPressure(random, allAttacks, now);
+    await _seedDailyLogs(random, allAttacks, now);
     await _seedNotifications(random, reminders, now);
-    // Last: it deletes some of what the steps above wrote.
+    // Last, and only over [attacks]: it deletes the tail of what it is handed.
     await _seedTombstones(attacks, medications);
   }
 
@@ -182,7 +216,7 @@ class DevSeedService {
     final Set<DateTime> attackDays = <DateTime>{
       for (final Attack attack in attacks) _dayOf(attack.startedAt.toLocal()),
     };
-    final int days = (_windowHours / 24).ceil();
+    final int days = _dayReach(attacks, now);
 
     for (int back = 0; back < days; back++) {
       final DateTime day = _dayOf(now.toLocal().subtract(Duration(days: back)));
@@ -392,6 +426,53 @@ class DevSeedService {
           offline: i == weatherless,
         ),
     ];
+  }
+
+  /// The locked half: [lockedAttackCount] attacks behind the free plan's
+  /// window, on distinct days so two blurred rows never share one.
+  ///
+  /// None of them is the offline one — that shape belongs on a row a free user
+  /// can actually read, and a blurred row says nothing about its weather.
+  List<Attack> _buildLockedAttacks(
+    Random random,
+    DateTime now,
+    List<Medication> medications,
+  ) {
+    final int windowDays = PremiumLimitConstant.freeHistoryWindow.inDays;
+    final Set<int> daysBack = <int>{};
+
+    while (daysBack.length < lockedAttackCount) {
+      daysBack.add(
+        windowDays + _lockedDaysPastWindow + random.nextInt(_lockedSpreadDays),
+      );
+    }
+
+    return <Attack>[
+      for (final int back in daysBack)
+        _buildAttack(
+          random,
+          now.subtract(Duration(days: back, hours: random.nextInt(24))),
+          medications,
+          offline: false,
+        ),
+    ];
+  }
+
+  /// How many days of readings [_seedDailyPressure] writes: the scatter window,
+  /// or back to the oldest attack when a locked row reaches further.
+  int _dayReach(List<Attack> attacks, DateTime now) {
+    final int scatter = (_windowHours / 24).ceil();
+    final DateTime today = _dayOf(now.toLocal());
+    int oldest = 0;
+
+    for (final Attack attack in attacks) {
+      oldest = max(
+        oldest,
+        today.difference(_dayOf(attack.startedAt.toLocal())).inDays,
+      );
+    }
+
+    return max(scatter, oldest + 1);
   }
 
   /// [count] distinct hour offsets inside the window.

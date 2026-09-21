@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -126,10 +127,72 @@ void main() {
     await seeder.seed();
 
     // Exact, tombstones included: the surplus rows the seed deletes again are written ON TOP of these counts, so a list is never left a row short.
-    expect((await attacks()).length, DevSeedService.attackCount);
+    // Attacks carry a second surplus — the rows behind the free window — so
+    // the readable list still holds the owner's five.
+    expect((await attacks()).length, DevSeedService.seededAttackCount);
     expect((await medications()).length, DevSeedService.medicationCount);
     expect((await reminders()).length, DevSeedService.reminderCount);
     expect((await exports()).length, DevSeedService.exportCount);
+  });
+
+  // Forced rather than rolled, like the weatherless attack: the scatter window
+  // is a hair over ninety days, so leaving this to chance seeded a blurred row
+  // about one run in ten — and a state that rare is a state nobody reviews.
+  test('two attacks land behind the free history window', () async {
+    await seeder.seed();
+
+    final DateTime cutoff = DateTime.now().toUtc().subtract(
+      PremiumLimitConstant.freeHistoryWindow,
+    );
+    final List<Attack> all = await attacks();
+    final List<Attack> locked = all
+        .where((Attack a) => a.startedAt.isBefore(cutoff))
+        .toList();
+
+    expect(locked, hasLength(DevSeedService.lockedAttackCount));
+    // And the readable list is still the owner's five.
+    expect(
+      all.length - locked.length,
+      DevSeedService.attackCount,
+    );
+    // Distinct days, so two blurred rows never share one.
+    expect(
+      locked
+          .map((Attack a) => DateTime(
+                a.startedAt.toLocal().year,
+                a.startedAt.toLocal().month,
+                a.startedAt.toLocal().day,
+              ))
+          .toSet(),
+      hasLength(DevSeedService.lockedAttackCount),
+    );
+
+  });
+
+  // Buying premium must reveal an attack WITH its weather, not a gap.
+  test('the pressure readings reach the oldest locked attack', () async {
+    await seeder.seed();
+
+    final List<Attack> all = await attacks();
+    final DateTime oldest = all
+        .map((Attack a) => a.startedAt)
+        .reduce((DateTime a, DateTime b) => a.isBefore(b) ? a : b);
+    final List<DailyPressure> days = await DriftDailyPressureRepository(
+      db,
+    ).since(DateTime(2000));
+    final DateTime earliest = days
+        .map((DailyPressure d) => d.day)
+        .reduce((DateTime a, DateTime b) => a.isBefore(b) ? a : b);
+
+    expect(
+      earliest.isAfter(DateTime(
+        oldest.toLocal().year,
+        oldest.toLocal().month,
+        oldest.toLocal().day,
+      )),
+      isFalse,
+    );
+
   });
 
   test('medication names are drawn without replacement', () async {
@@ -217,7 +280,7 @@ void main() {
 
     // Equal, not doubled.
     expect((await attacks()).length, afterFirst);
-    expect(afterFirst, DevSeedService.attackCount);
+    expect(afterFirst, DevSeedService.seededAttackCount);
   });
 
   test('two runs produce different data', () async {
