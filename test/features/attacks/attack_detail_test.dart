@@ -269,6 +269,42 @@ void main() {
     await finishTest(tester);
   });
 
+  // Material 3's ListTile default is `start: 16, end: 24` — asymmetric in the
+  // spec, and on this screen it read as the row not being spaced between its
+  // own edges.
+  testWidgets('a row is inset the same from both card edges', (tester) async {
+    final app = await pumpApp(tester);
+    await DriftAttackRepository(app.db).insert(attack());
+
+    await openDetail(tester);
+
+    final Finder label = find.descendant(
+      of: find.byType(AttackDetailScreen),
+      matching: find.text('Intensity'),
+    );
+    final Finder tile = find
+        .ancestor(of: label, matching: find.byType(ListTile))
+        .first;
+    final Rect card = tester.getRect(
+      find.ancestor(of: tile, matching: find.byType(SdCardV2)).first,
+    );
+    final Rect chevron = tester.getRect(
+      find.descendant(
+        of: tile,
+        matching: find.byIcon(AppIconConstant.disclosure),
+      ),
+    );
+
+    // Measured to the UI either side, not to the tile: the chevron is the
+    // last thing on the right, the label the first on the left.
+    expect(
+      tester.getRect(label).left - card.left,
+      card.right - chevron.right,
+    );
+
+    await finishTest(tester);
+  });
+
   // Two `Expanded` halves split every row exactly 50/50 whatever was in it, so
   // a one-word label wrapped onto two lines while the value beside it was a
   // single character. The value is measured first now and the label takes the
