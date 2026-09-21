@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Launch splash background, API 21+. Was ?android:colorBackground, which
      resolves off the OS light/dark setting and so went white in light mode;
-     see values/colors.xml. -->
+     see values/colors.xml. Kept byte-identical to drawable/launch_background.xml
+     on purpose: two launch screens that differ is a bug nobody sees until a
+     user on the other API level reports it. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/launch_background" />
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/launch_image" />
+    </item>
 </layer-list>

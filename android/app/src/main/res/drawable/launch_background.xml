@@ -3,4 +3,15 @@
      Flutter template ships; see values/colors.xml for why it must not be. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/launch_background" />
+    <!-- The same icon iOS shows on its own launch screen, so the two platforms
+         wait on the same picture. The PNGs come from
+         `melos run gen-app-icon` (drawable-mdpi..xxxhdpi/launch_image.png) and
+         are already rounded in the alpha, because this bitmap cannot clip.
+         Android 12+ draws its own system splash from the manifest instead and
+         never reads this file — this layer is what API 30 and below get. -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/launch_image" />
+    </item>
 </layer-list>
