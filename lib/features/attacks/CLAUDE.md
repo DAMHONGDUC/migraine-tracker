@@ -170,10 +170,29 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
   gives the leftover to the head as air either side of it rather than as a hole
   between head and tiles. `head_region_picker_test.dart` measures that the air
   above equals the air below.
-- **The head opens at 150%** (`HeadViewportUtils.defaultZoom`, owner's call
-  2026-09-19, down from 175%). Two steps up the `zoomStep` ladder, so the minus
-  button still walks back to `minZoom` and the readout never shows a level the
-  buttons cannot reach.
+- **The head opens as large as its viewport can hold it, measured**
+  (`HeadViewportUtils.fitZoom`, owner's rule 2026-09-21). It was a flat 150%
+  picked against one phone, which is right on that phone and wrong on every
+  other screen — an iPad's box is a different shape as well as a bigger one.
+  `fitZoom` projects the model's own eight corners through the very camera the
+  scene renders with, at BOTH rest angles, and returns the level at which they
+  touch the frame. Measured today: **163% on a 393x428 phone box, 148% on an
+  iPad's**. The two differ because 100% frames the head's bounding *sphere*
+  against the narrower axis, so a tall box starts with more air to spend.
+  - **It is off the `zoomStep` ladder, and that is the trade.** The minus
+    button still reaches `minZoom` — the step subtracts and the clamp catches
+    the last one — but the readout opens on a number the +/- buttons cannot
+    land on again. Reset is what returns to it.
+  - **It fills the frame, controls included** (owner's call when asked,
+    2026-09-21). The zoom buttons float over the top of the viewport, so at
+    this level they cover the crown rather than air. Reserving that band for
+    them was the alternative and it costs too much: it would open the head at
+    130% on a phone, SMALLER than the 150% this replaces.
+  - **A level the user set outranks the fit.** `HeadControls.zoom` is nullable
+    and null means "never chosen"; a pinch or a +/- tap writes a number and
+    that number survives the screen it was set on. **Reset deletes the key**
+    rather than storing the fit — writing it back would turn "as large as this
+    screen allows" into a constant again, which is the thing this replaced.
 - **A drag can be slowed down, in three steps: 100% / 75% / 50%**
   (`HeadRotationSpeed`, owner's rule 2026-09-19). One button in the controls
   row, cycling DOWN and wrapping at the bottom — the ask was "make it less
@@ -184,8 +203,9 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
   else — a pinch is measured against the fingers themselves, and slowing that
   would make the head disagree with them.
 - **Camera state is presentation state, never attack data** — but it IS kept
-  between launches (`HeadControlsController`, owner's rule 2026-09-19). Zoom
-  and rotation speed go to `SecureStore` behind a 400ms debounce, because a
+  between launches (`HeadControlsController`, owner's rule 2026-09-19). A zoom
+  the user set and the rotation speed go to `SecureStore` behind a 400ms
+  debounce, because a
   pinch sets a new zoom on every pointer frame; the provider flushes a pending
   write on dispose, since Next is tapped a frame after the last pinch more
   often than not. **The angle is deliberately not kept**: which way the head
