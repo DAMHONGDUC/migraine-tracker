@@ -9,6 +9,7 @@ import '../../domain/entities/app_config.dart';
 import '../../domain/entities/app_update_config.dart';
 import '../../domain/entities/installed_app_version.dart';
 import '../../domain/enums/app_platform.dart';
+import '../../domain/enums/force_update_decision.dart';
 import '../../providers.dart';
 
 @immutable
@@ -50,19 +51,41 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
       // emits it), so this cannot wait for good.
       final AppConfig config = await ref.read(appConfigProvider.future);
       final AppUpdateConfig? published = config.forceUpdate;
-      final PlatformUpdateConfig? blocking = ref
+      final PlatformUpdateConfig? section = published?.forPlatform(platform);
+      final ForceUpdateDecision decision = ref
           .read(forceUpdateCheckerProvider)
-          .blockingUpdate(
-            published: published?.forPlatform(platform),
-            installed: installed,
-          );
+          .decide(published: section, installed: installed);
 
-      if (blocking == null) return;
+      // **The line that says why, and it is the whole point of this feature
+      // being debuggable.** Six of the seven decisions are "carry on" and the
+      // owner sets the switch by hand in the console, so without this a flag
+      // at the wrong level, a section dropped for a missing store link and a
+      // build that is simply not out of date all look identical: nothing
+      // happens. Every input that fed the decision goes in beside it.
+      SdLogger.info(LogTagConstant.appUpdate, 'Force update check', {
+        'decision': decision.name,
+        'platform': platform.name,
+        'installed': '${installed.buildName}+${installed.buildNumber}',
+        'publishedSection': section == null
+            ? 'none'
+            : '${section.buildName}+${section.buildNumber}',
+        // Named separately from the section: a `true` here with a section that
+        // is `none` means the flag was put beside `ios`/`android` rather than
+        // inside one, which is the mistake this field exists to catch.
+        'enableForceUpdate': section?.forceUpdateEnabled,
+        'hasStoreLink': section?.storeLink.isNotEmpty,
+        'platformsOnRecord': <String>[
+          if (published?.ios != null) 'ios',
+          if (published?.android != null) 'android',
+        ].join(','),
+      });
+
+      if (!decision.isBlocking || section == null) return;
       SdLogger.warning(LogTagConstant.appUpdate, 'Force update required', {
         'installed': '${installed.buildName}+${installed.buildNumber}',
-        'published': '${blocking.buildName}+${blocking.buildNumber}',
+        'published': '${section.buildName}+${section.buildNumber}',
       });
-      state = ForceUpdateState(blockingUpdate: blocking);
+      state = ForceUpdateState(blockingUpdate: section);
     } catch (error, stackTrace) {
       // Swallowed on purpose: see the fail-open note above.
       SdLogger.warning(
