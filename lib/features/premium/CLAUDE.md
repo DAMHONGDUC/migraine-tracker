@@ -28,6 +28,12 @@ the medications tab the medication budget, each from that record's one
   user a limit.
 - **It taps straight through to the paywall, with no `RecordLimitDialog`.** That
   dialog names the limit before the pitch; this surface has already named it.
+  - **A blurred history row is the one exception, and it opens
+    `LockedHistorySheet` first** (owner's rule, 2026-09-21). Every other locked
+    surface is a whole card stating what premium would show in it; that row
+    carries a pill, and a pill has no space to say why *this* attack is
+    unreadable when the ten above it are not. Rules for the row itself:
+    `lib/features/history/CLAUDE.md`.
 - **It is not `AttackLimitBanner` and does not replace it.** The banner is the
   near-the-end warning on the dashboard that hard rule 5's log button depends on;
   this is the always-on readout in the lists. Both stay.

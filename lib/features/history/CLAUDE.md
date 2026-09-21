@@ -20,6 +20,43 @@ arrival of its own to notice. The filters are untouched — a filter is a
 question the user asked and is still asking; a view is where they happened to
 leave the screen.
 
+## The rows the free plan cannot read
+
+**Every attack gets a row; the ones behind the 90-day window are blurred, not
+dropped** (owner's rule, 2026-09-21, reversing "hidden from History").
+An absence says nothing — a free user could not tell a plan limit from a record
+that had never been written. Blurred, the row says something is there, the
+`Premium required` tag says what it would take, and the tap says why.
+`docs/PREMIUM_RULES.md` is still the authority on the numbers.
+
+- **`AttackTile` decides, off `freeHistoryStartProvider`** — not off a flag its
+  callers pass. The list and the calendar both draw it, and a lock handed in
+  twice is two places that can disagree about one row.
+- **Three lists, and which one a view reads is the whole rule.**
+  `attacksStreamProvider` is the whole record (list and calendar rows);
+  `historyRowsProvider` is that under the filters (the list);
+  `filteredAttacksProvider` is the readable ninety days under the same filters
+  (the charts). **The charts stay on the readable window**: a chart averaging
+  numbers the user cannot see is a number they cannot check.
+- **A locked row is filtered like any other** — it is still a row — but
+  `attackFilterOptionsProvider` still reads only the readable set. A chip
+  naming a medication off a blurred row would print the very text the blur is
+  hiding.
+- **The blur and the veil are `PremiumChartLock`'s own numbers**
+  (`blurSigma`, `scrimOpacity`), so the app's two locked surfaces read as one
+  treatment. The row has no room for that card's centred unlock button — the
+  tag carries it, and the veil is only there to stop blurred text reading as a
+  render glitch.
+- **`ExcludeSemantics` over the blurred row is load bearing.** VoiceOver would
+  otherwise read out the intensity and the medication the blur is covering; the
+  row's only accessible name is the tag's.
+- **`LockedHistorySheet` says nothing about the attack.** The date, the
+  intensity and the medication are what the blur covers, so naming any of them
+  in the explanation would hand back what the row withholds. It names the
+  window instead.
+- **`FreeHistoryBanner` stays** (owner's call). Two doors onto the same offer:
+  the banner above the list, the blurred rows in it.
+
 ## The filter strip
 
 **One chip per axis, pinned under the app bar** — the same shape as the

@@ -1,6 +1,6 @@
 # Premium rules
 
-Authority for prices, free limits and feature gates. Last updated: 2026-09-06.
+Authority for prices, free limits and feature gates. Last updated: 2026-09-21.
 
 ## Offer
 
@@ -36,15 +36,16 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Situation | Required behavior |
 |---|---|
 | Logging an attack | Never refused, never counted |
-| History older than the window | Hidden from History, named by `FreeHistoryBanner`, and still on the device |
+| History older than the window | **Shown in History, blurred, tagged "Premium required"** — never hidden. Still on the device, and still named by `FreeHistoryBanner` above the list |
+| Tap on a blurred history row | Open `LockedHistorySheet`, which explains the window and carries Unlock. The one exception to the row below |
 | Add beyond a limit | Explain the limit, then offer the paywall |
 | Existing records above a limit | Keep visible and editable; never hide or delete |
-| Anything behind the window | Show `FreeHistoryBanner` — dashboard and History — and only where something IS hidden |
+| Anything behind the window | Show `FreeHistoryBanner` — dashboard and History — and only where something IS behind it |
 | Current usage | Show `FreeLimitProgress`; hide it for Premium users |
 | New month | Do not reset lifetime limits |
 | Medication limit in attack flow | Block adding a new medication, never the attack log |
 | Reminder limit | Check before requesting OS notification permission |
-| Locked surface already labeled Premium | Open the paywall directly |
+| Locked surface already labeled Premium | Open the paywall directly — except a blurred history row, whose pill has no room to say why *that* attack is unreadable |
 | Dashboard risk card without premium | Absent, never locked — the banner is that screen's one premium door |
 
 ## Access matrix
@@ -52,7 +53,7 @@ Code authority: `lib/core/constants/premium_limit_constant.dart`.
 | Capability | Free | Premium |
 |---|:---:|:---:|
 | Offline attack log | Unlimited | Unlimited |
-| Reading history back | Last 90 days | All of it |
+| Reading history back | Last 90 days, the rest blurred | All of it |
 | Weather snapshot on an attack | Yes | Yes |
 | Current weather except pressure | Yes | Yes |
 | Plain pressure reading in weather details | Yes | Yes |
