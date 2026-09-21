@@ -7,5 +7,5 @@ final class SplashConstant {
   /// usually settles in a fraction of a second, which reads as a flicker
   /// between the launch image and the dashboard rather than as a launch. The
   /// wait runs alongside the work, so a slow launch is never made slower.
-  static const Duration minimumVisible = Duration(seconds: 2);
+  static const Duration minimumVisible = Duration(seconds: 1);
 }
