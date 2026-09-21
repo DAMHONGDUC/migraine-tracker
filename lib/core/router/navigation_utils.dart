@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -82,6 +84,39 @@ final class NavigationUtils {
     }
 
     await AlertThresholdEditor.open(context, ref);
+  }
+
+  /// Resolves once the launch has left the splash.
+  ///
+  /// **Every deep link waits on this before it navigates** (see the two tap
+  /// listeners). The splash ends by *replacing* the stack with the dashboard,
+  /// and a link that pushed its screen while those dots were still up got
+  /// wiped a second later — the user watched their notification open and then
+  /// the dashboard take its place. Waiting also puts the dashboard underneath,
+  /// so backing out of the pushed screen lands where it would from anywhere
+  /// else instead of on a spent splash.
+  ///
+  /// It asks the ROUTER, not a flag the splash sets: a launch that skips the
+  /// splash — `pumpApp` overrides `initialLocationProvider`, and any future
+  /// route could — is already past it, and a signal nobody sends would hold
+  /// every deep link forever.
+  static Future<void> whenPastSplash(GoRouter router) {
+    bool past() => router.state.matchedLocation != AppRoutes.splash.path;
+
+    if (past()) return Future<void>.value();
+
+    final Completer<void> arrived = Completer<void>();
+    late final VoidCallback listener;
+
+    listener = () {
+      if (arrived.isCompleted || !past()) return;
+
+      router.routerDelegate.removeListener(listener);
+      arrived.complete();
+    };
+    router.routerDelegate.addListener(listener);
+
+    return arrived.future;
   }
 
   /// One notification in full. Both the list's rows and a tapped OS notification land here, so the route's path parameter is named once.

@@ -23,6 +23,12 @@ class NotificationTapListener extends HookConsumerWidget {
 
       if (notificationId == null) return;
 
+      // Before the navigator is touched, because the splash ends by replacing
+      // the stack: a detail pushed over those dots was wiped a second later
+      // and the user landed on the dashboard instead of the notification they
+      // tapped. `whenPastSplash` is already resolved on a warm tap.
+      await NavigationUtils.whenPastSplash(ref.read(appRouterProvider));
+
       final BuildContext? context = ref
           .read(rootNavigatorKeyProvider)
           .currentContext;

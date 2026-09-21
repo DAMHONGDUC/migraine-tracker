@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/bare_ease_app.dart';
 import 'package:migraine_tracker/core/constants/prefs_key_constant.dart';
+import 'package:migraine_tracker/core/constants/splash_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/core/db/database_provider.dart';
 import 'package:migraine_tracker/core/permissions/app_permission.dart';
@@ -47,6 +48,7 @@ import 'package:migraine_tracker/features/premium/providers.dart';
 import 'package:migraine_tracker/features/review/providers.dart';
 import 'package:migraine_tracker/features/settings/domain/services/mail_launcher.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
+import 'package:migraine_tracker/features/splash/presentation/controllers/splash_controller.dart';
 import 'package:migraine_tracker/features/splash/providers.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 import 'package:migraine_tracker/features/weather/data/datasources/location_source.dart';
@@ -170,6 +172,20 @@ class FakeNotificationScheduler implements NotificationScheduler {
   }) async {
     testScheduled = true;
   }
+}
+
+/// The splash's work without the Firebase in it.
+///
+/// The real `SplashController.run` calls
+/// `AppBootstrap.ensureAnonymousSession`, and a widget test has no Firebase
+/// for it to reach — the call never returns and the test times out rather than
+/// failing. The 2s floor is KEPT, because that is the wait a launch test is
+/// about; only the session work is gone.
+class FakeSplashController extends SplashController {
+  const FakeSplashController();
+
+  @override
+  Future<void> run() => Future<void>.delayed(SplashConstant.minimumVisible);
 }
 
 /// Stands in for the `app_config/current` document. Default: premium on and every list empty — the state of a project nobody has configured, which is how the app ships.
@@ -694,6 +710,15 @@ Future<PumpedApp> pumpApp(
   String installedBuildName = '99.0.0',
   int installedBuildNumber = 9999,
 
+  /// Starts the app on the splash, the way a real launch does.
+  ///
+  /// Off by default, and every other test wants it off: the dots never stop
+  /// animating, so `pumpAndSettle` waits out its whole timeout instead of
+  /// settling. Turn it on only to exercise something about the launch itself —
+  /// and drive it with bounded `pump(Duration)` calls, past
+  /// `SplashConstant.minimumVisible`.
+  bool startAtSplash = false,
+
   /// The logical window the app is pumped into. Defaults to the 393×852
   /// design size, so a test that says nothing measures the screen the app was
   /// drawn for. Pass a tablet size to exercise the width caps
@@ -766,7 +791,14 @@ Future<PumpedApp> pumpApp(
       overrides: [
         databaseProvider.overrideWithValue(db),
         // Straight past the splash: its dots never stop, so pumpAndSettle would wait out its whole timeout instead of settling.
-        initialLocationProvider.overrideWithValue(AppRoutes.dashboard.path),
+        initialLocationProvider.overrideWithValue(
+          startAtSplash ? AppRoutes.splash.path : AppRoutes.dashboard.path,
+        ),
+        // Only on the splash path, and only to take the Firebase out of it.
+        if (startAtSplash)
+          splashControllerProvider.overrideWithValue(
+            const FakeSplashController(),
+          ),
         secureStoreProvider.overrideWithValue(prefs),
         // No other build shares a test process's sandbox. Resolved
         // SYNCHRONOUSLY — a `FutureOr` override lands as data on the first

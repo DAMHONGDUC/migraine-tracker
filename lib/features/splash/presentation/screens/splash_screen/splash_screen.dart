@@ -24,7 +24,19 @@ class SplashScreen extends HookConsumerWidget {
       unawaited(
         ref.read(splashControllerProvider).run().then((_) {
           // The route can be gone by now — a deep link, or the app being killed mid-launch.
-          if (context.mounted) context.go(AppRoutes.dashboard.path);
+          if (!context.mounted) return;
+
+          // And it can still be mounted while no longer being what the user is
+          // looking at: a deep link pushed on top leaves this route in the
+          // stack underneath, and `go` from here would throw that screen away.
+          // Both tap listeners wait for this hand-over now, so this is the
+          // backstop for a tap that arrives DURING the splash rather than
+          // before it.
+          if (GoRouter.of(context).state.matchedLocation !=
+              AppRoutes.splash.path) {
+            return;
+          }
+          context.go(AppRoutes.dashboard.path);
         }),
       );
 

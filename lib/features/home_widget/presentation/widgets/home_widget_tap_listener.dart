@@ -23,6 +23,10 @@ class HomeWidgetTapListener extends HookConsumerWidget {
 
     if (destination == null) return;
 
+    // Same reason as the notification listener: a screen pushed while the
+    // splash is still up is wiped by the splash's own hand-over.
+    await NavigationUtils.whenPastSplash(ref.read(appRouterProvider));
+
     final BuildContext? context = ref
         .read(rootNavigatorKeyProvider)
         .currentContext;
