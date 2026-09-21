@@ -86,45 +86,20 @@ void main() {
     expect(find.byType(StartupErrorView), findsNothing);
   });
 
-  group('the detail row', () {
-    Future<void> pumpView(
-      WidgetTester tester, {
-      required bool showDetail,
-    }) async {
-      await tester.pumpWidget(
-        ScreenUtilInit(
-          designSize: const Size(393, 852),
-          builder: (BuildContext context, Widget? child) => MaterialApp(
-            theme: AppTheme.dark,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: StartupErrorView(
-              detail: '$mismatch',
-              showDetail: showDetail,
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-    }
+  // The screen says a build is broken; it never says *which* two projects
+  // disagree. That sentence names the owner's backend and the command that
+  // rewrites it, and the console is where a developer reads it.
+  testWidgets('the screen carries nothing from the failure', (
+    WidgetTester tester,
+  ) async {
+    await pumpGate(
+      tester,
+      failures: const <String, Object>{'Firebase': mismatch},
+    );
 
-    testWidgets('names both projects and the command outside release', (
-      WidgetTester tester,
-    ) async {
-      await pumpView(tester, showDetail: true);
-
-      expect(find.textContaining('migraine-tracker-9f7b2'), findsOneWidget);
-      expect(find.textContaining('migraine-tracker-prd'), findsOneWidget);
-      expect(find.textContaining('prepare-env-'), findsOneWidget);
-    });
-
-    // The raw failure is for whoever can fix it; in release it is noise, and
-    // shipping it is the mistake this assertion exists to catch.
-    testWidgets('is absent in release', (WidgetTester tester) async {
-      await pumpView(tester, showDetail: false);
-
-      expect(find.textContaining('migraine-tracker-9f7b2'), findsNothing);
-      expect(find.textContaining('prepare-env-'), findsNothing);
-    });
+    expect(find.textContaining('migraine-tracker-9f7b2'), findsNothing);
+    expect(find.textContaining('migraine-tracker-prd'), findsNothing);
+    expect(find.textContaining('prepare-env-'), findsNothing);
+    expect(find.textContaining('Flavour config mismatch'), findsNothing);
   });
 }
