@@ -37,6 +37,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   /// the row could only ever dim the list under it.
   bool _deleting = false;
 
+  /// The same, for the sign-out: it pushes what the device still owes before
+  /// wiping the device's copy, so it is a network round trip too.
+  bool _signingOut = false;
+
+  bool get _busy => _deleting || _signingOut;
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
@@ -53,7 +59,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     // leaving early would land the user on Settings with the work still
     // running and no way back to see how it went.
     return PopScope(
-      canPop: !_deleting,
+      canPop: !_busy,
       child: Stack(
         children: <Widget>[
           SdScaffoldV2(
@@ -77,12 +83,23 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   const _DataNote(),
                 ],
               ),
-              actions: const <Widget>[_SignOutButton()],
+              actions: <Widget>[
+                _SignOutButton(
+                  signingOut: _signingOut,
+                  onSigningOutChanged: (bool signingOut) =>
+                      setState(() => _signingOut = signingOut),
+                ),
+              ],
             ),
           ),
           // Over the scaffold, not inside it: the back arrow and Sign Out are
           // exactly the taps that must not land while the account is going.
-          if (_deleting) const _DeletingOverlay(),
+          if (_busy)
+            // A spinner alone would read as a stall here: signing out saves
+            // before it wipes, and the wait is the saving.
+            _BusyOverlay(
+              message: _signingOut ? l10n.accountSignOutSyncing : null,
+            ),
         ],
       ),
     );
@@ -124,11 +141,20 @@ class _DataNote extends StatelessWidget {
 }
 
 class _SignOutButton extends ConsumerWidget {
-  const _SignOutButton();
+  const _SignOutButton({
+    required this.signingOut,
+    required this.onSigningOutChanged,
+  });
 
-  /// The confirm is there to say nothing is lost, not to warn.
+  /// The screen's flag, not this button's: it also raises [_BusyOverlay].
+  final bool signingOut;
+  final ValueChanged<bool> onSigningOutChanged;
+
+  /// The confirm warns, because this device's copy goes with the sign-out.
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
     final AppLocalizations l10n = context.l10n;
+
+    if (signingOut) return;
     final bool? confirmed = await showSdDialogV2<bool>(
       context,
       builder: (BuildContext dialogContext) => SdDialogV2(
@@ -152,18 +178,38 @@ class _SignOutButton extends ConsumerWidget {
       ),
     );
 
-    if (confirmed != true) return;
-    await ref.read(accountControllerProvider).signOut();
-    // This screen assumes an account — without one it goes back to Settings rather than sitting empty.
-    if (context.mounted) context.pop();
+    if (confirmed != true || !context.mounted) return;
+
+    onSigningOutChanged(true);
+    try {
+      // False is the device still owing the server, which is the one case where the account keeps this session: wiping now would take records nothing else holds.
+      if (!await ref.read(accountControllerProvider).signOut()) {
+        if (context.mounted) {
+          SdSnackBarUtilsV2.error(context, l10n.accountSignOutBlocked);
+        }
+
+        return;
+      }
+      // This screen assumes an account — without one it goes back to Settings rather than sitting empty.
+      if (context.mounted) context.pop();
+    } catch (_) {
+      // Logged where it happened; the session survives, so retrying is the advice.
+      if (context.mounted) {
+        SdSnackBarUtilsV2.error(context, l10n.accountSignOutBlocked);
+      }
+    } finally {
+      if (context.mounted) onSigningOutChanged(false);
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SdButtonV2(
       variant: SdButtonVariantV2.primary,
-      onPressed: () => _signOut(context, ref),
-      label: context.l10n.settingsSignOut,
+      onPressed: signingOut ? null : () => _signOut(context, ref),
+      label: signingOut
+          ? context.l10n.accountSignOutSyncing
+          : context.l10n.settingsSignOut,
       icon: AppIconConstant.signOut,
     );
   }

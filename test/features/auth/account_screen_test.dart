@@ -105,11 +105,12 @@ void main() {
     await tapVisible(tester, find.text('Sign out'));
     await tester.pump(const Duration(milliseconds: 400));
 
-    // The confirm explains that nothing on-device is lost (hard rule 1).
+    // The confirm says the records leave this device, because they do: sign-out pushes them up and wipes the copy here.
     expect(
       find.text(
-        'Your attacks stay on this device. Premium features lock until you '
-        'sign in again.',
+        'Your attacks go up to your account and come off this device. Premium '
+        'features lock until you sign in again, and signing in brings '
+        'everything back.',
       ),
       findsOneWidget,
     );
@@ -139,7 +140,10 @@ void main() {
     // The dialog's confirm, over the button that opened it.
     await tester.tap(find.text('Sign out').last);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    // Three, not one: signing out pushes what is still owed and then wipes a dozen local stores before it reaches the sign-out itself.
+    for (int i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 400));
+    }
 
     expect(app.auth.signOutCalls, 1);
     expect(find.text('Sign in'), findsOneWidget);

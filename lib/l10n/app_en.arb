@@ -2630,9 +2630,17 @@
   "@settingsSignOutConfirmTitle": {
     "description": "Title of the sign-out confirmation dialog"
   },
-  "settingsSignOutConfirmBody": "Your attacks stay on this device. Premium features lock until you sign in again.",
+  "settingsSignOutConfirmBody": "Your attacks go up to your account and come off this device. Premium features lock until you sign in again, and signing in brings everything back.",
   "@settingsSignOutConfirmBody": {
     "description": "Body of the sign-out confirmation dialog"
+  },
+  "accountSignOutSyncing": "Saving your data to your account…",
+  "@accountSignOutSyncing": {
+    "description": "Overlay label while sign-out pushes the records this device still owes the account"
+  },
+  "accountSignOutBlocked": "Couldn't finish saving to your account. Connect to the internet and try again — nothing has been removed.",
+  "@accountSignOutBlocked": {
+    "description": "Error shown when sign-out could not push everything, so the session and the local data were kept"
   },
   "paywallWhySignIn": "Sign in to use Premium on your other devices",
   "@paywallWhySignIn": {

@@ -53,11 +53,56 @@ class SyncController extends Notifier<SyncStatus> {
     });
   }
 
+  /// Everything the device still owes, with the answer sign-out needs: did it all reach the server?
+  ///
+  /// [pushPending] is fire-and-forget and says nothing, which is right for a
+  /// write — the next write or the next pass retries it. Sign-out has no next
+  /// time: it wipes the device's copy, so a record that did not make it up is a
+  /// record that is gone. False is therefore "do not wipe", and the caller
+  /// stops there.
+  ///
+  /// Not collapsed like [pushPending]: two callers each need their own answer,
+  /// and a queued one cannot give a second caller a result it never waited for.
+  Future<bool> flushPending() async {
+    final AuthUser? user = _currentUser();
+
+    if (user == null || !user.isSignedIn) return false;
+
+    bool flushed = false;
+
+    await _enqueue(() async {
+      try {
+        final int pushed = await ref
+            .read(syncServiceProvider)
+            .pushPending(user.uid);
+
+        SdLogger.info(LogTagConstant.sync, 'Pending changes flushed', {
+          'pushed': pushed,
+        });
+        flushed = true;
+      } catch (error, stackTrace) {
+        SdLogger.error(
+          LogTagConstant.sync,
+          'Flushing pending changes failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    });
+    return flushed;
+  }
+
   /// Neither task throws — both catch their own — so the chain cannot be poisoned by one failure.
   Future<void> _enqueue(Future<void> Function() task) =>
       _queue = _queue.then((_) => task());
 
-  /// Clears the account's sync state on sign-out. Local attacks stay — they are the source of truth, and signing out is not a delete.
+  /// Clears the account's sync state on sign-out: the cached key and every cursor.
+  ///
+  /// It does not touch the records — `AccountController.signOut` has already
+  /// wiped them, after pushing what was still owed. Dropping the cursors is
+  /// what makes that wipe recoverable: they point past everything just
+  /// removed, so signing back in with them in place would pull only what
+  /// changed since and the history would never come home.
   Future<void> onSignedOut() async {
     state = const SyncStatus();
     try {

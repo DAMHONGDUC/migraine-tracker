@@ -86,6 +86,9 @@ class DataWipeService {
   /// How many awaits [wipeAll] reports against.
   static const int steps = 14;
 
+  /// The device-only half of [steps] — what [wipeLocal] reports against.
+  static const int localSteps = 12;
+
   /// [onProgress] fires after each step with how many are done out of [steps].
   ///
   /// Every step also logs, because this runs behind a spinner with nothing else
@@ -107,6 +110,39 @@ class DataWipeService {
     await _alerts.forgetRegistration().timeout(remoteTimeout);
     step('alert registration');
 
+    await _wipeLocalData(step);
+  }
+
+  /// The device's copy alone — the account's server copy is left where it is.
+  ///
+  /// What signing out takes with it. The records are being handed back to the
+  /// account rather than deleted, so this must never reach [_wipeRemote]: the
+  /// next sign-in pulls the whole history down again, and a sign-out that
+  /// emptied the server would make that a one-way trip.
+  ///
+  /// It takes the exports and the share images too. They are copies of the
+  /// account's health data sitting in the app's own storage with nothing
+  /// naming who they belong to, and the next person to use this device is not
+  /// necessarily the one who made them. A file the user saved out to Files is
+  /// theirs and is not touched.
+  Future<void> wipeLocal({WipeProgressCallback? onProgress}) async {
+    int done = 0;
+
+    void step(String what) {
+      onProgress?.call(++done, localSteps);
+      SdLogger.info(
+        LogTagConstant.settings,
+        'Local wipe $done/$localSteps',
+        what,
+      );
+    }
+
+    onProgress?.call(0, localSteps);
+    await _wipeLocalData(step);
+  }
+
+  /// The twelve device-side steps both wipes share, counted by the caller's [step].
+  Future<void> _wipeLocalData(void Function(String what) step) async {
     await _attacks.deleteAll();
     step('attacks');
     // DB cascade drops reminder rows but never reaches the OS — cancel or a notification keeps firing.

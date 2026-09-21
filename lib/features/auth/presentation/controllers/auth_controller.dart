@@ -6,6 +6,7 @@ import '../../../../core/constants/log_tag_constant.dart';
 import '../../../../core/logging/crash_reporter.dart';
 import '../../../medications/providers.dart';
 import '../../../settings/providers.dart';
+import '../../../sync/providers.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/enums/auth_error.dart';
 import '../../domain/enums/auth_provider_kind.dart';
@@ -84,10 +85,42 @@ class AccountController {
 
   final Ref _ref;
 
-  Future<void> signOut() async {
+  /// Hands this device's records back to the account and empties the device. False when they could not all be handed back — and then nothing was touched.
+  ///
+  /// The order is the whole rule, and each step is why the one before it
+  /// exists:
+  ///
+  /// 1. **Push what is still owed.** Every other push in the app is
+  ///    fire-and-forget because a later one retries it. This is the last one
+  ///    there will ever be, so it is the only push whose answer is read.
+  /// 2. **Wipe the device's copy, never the server's.** The records are being
+  ///    handed back to the account, not deleted.
+  /// 3. **Drop the account's sync state.** The cursor points past everything
+  ///    step 2 just removed; left in place, signing back in would pull only
+  ///    what changed since, and the history would never come home.
+  /// 4. **Sign out**, which fires the listener that clears the rest.
+  Future<bool> signOut() async {
     SdLogger.action(LogTagConstant.account, 'Sign out');
+
+    final bool flushed = await _ref
+        .read(syncControllerProvider.notifier)
+        .flushPending();
+
+    if (!flushed) {
+      // Already logged with its error where it failed. This line is the decision, which that one cannot see.
+      SdLogger.warning(
+        LogTagConstant.account,
+        'Sign out stopped — records are still owed to the server',
+      );
+
+      return false;
+    }
+    await _ref.read(dataWipeServiceProvider).wipeLocal();
+    await _ref.read(syncControllerProvider.notifier).onSignedOut();
     AppAnalytics.logSignOut();
     await _ref.read(authRepositoryProvider).signOut();
+
+    return true;
   }
 
   /// Deletes the account, everything the backend held about it, and this device's copy (App Store 5.1.1(v)).

@@ -628,6 +628,7 @@ class PumpedApp {
     required this.health,
     required this.premiumRepository,
     required this.purchases,
+    required this.syncRemote,
   });
 
   final AppDatabase db;
@@ -660,6 +661,9 @@ class PumpedApp {
 
   /// The share images the GDPR wipe has to reach. `cleared` says it did.
   final RecordingShareFileStore shareFiles;
+
+  /// The server sync pushes to. `failNextPut` is how a test puts the device offline mid-flow.
+  final FakeRemoteSyncRepository syncRemote;
 }
 
 /// Boots the full app with an in-memory database, mock prefs, and stubbed weather. Uses bounded pumps — see the Drift/pumpAndSettle note below.
@@ -785,6 +789,7 @@ Future<PumpedApp> pumpApp(
   final FakePurchaseRepository purchases = FakePurchaseRepository(
     premiumRepository,
   );
+  final FakeRemoteSyncRepository syncRemote = FakeRemoteSyncRepository();
 
   await tester.pumpWidget(
     ProviderScope(
@@ -832,9 +837,7 @@ Future<PumpedApp> pumpApp(
         attackShareFileStoreProvider.overrideWithValue(shareFiles),
         // Always overridden too: the app root fires a sync on sign-in, and the real repositories reach for Firebase, which no widget test has.
         syncKeyRepositoryProvider.overrideWithValue(FakeSyncKeyRepository()),
-        remoteSyncRepositoryProvider.overrideWithValue(
-          FakeRemoteSyncRepository(),
-        ),
+        remoteSyncRepositoryProvider.overrideWithValue(syncRemote),
         // Same reason: the GDPR wipe gives up the push token, and the real repository reaches for FirebaseAuth and Firestore to do it.
         alertRegistrationRepositoryProvider.overrideWithValue(
           RecordingAlertRegistration(),
@@ -874,6 +877,7 @@ Future<PumpedApp> pumpApp(
     health: health,
     premiumRepository: premiumRepository,
     purchases: purchases,
+    syncRemote: syncRemote,
   );
 }
 

@@ -12,7 +12,7 @@ class _DeleteAccountTile extends ConsumerWidget {
     required this.onDeletingChanged,
   });
 
-  /// The screen's flag, not this row's: it also raises [_DeletingOverlay].
+  /// The screen's flag, not this row's: it also raises [_BusyOverlay].
   final bool deleting;
   final ValueChanged<bool> onDeletingChanged;
 
@@ -99,11 +99,15 @@ class _DeleteAccountTile extends ConsumerWidget {
 /// The screen, out of reach, while the server works.
 ///
 /// A scrim and a spinner rather than a disabled row: deleting an account is a
-/// Cloud Function round trip, and every control still live during it — Sign
-/// Out, edit name, the back arrow — acts on an account that may not exist by
-/// the time the tap lands.
-class _DeletingOverlay extends StatelessWidget {
-  const _DeletingOverlay();
+/// Cloud Function round trip, and signing out pushes what the device still
+/// owes before it wipes the device's copy. Every control still live during
+/// either — Sign Out, edit name, the back arrow — acts on an account that may
+/// be gone, or on data that is about to be.
+class _BusyOverlay extends StatelessWidget {
+  const _BusyOverlay({this.message});
+
+  /// Shown under the spinner when the wait needs a name. Null for the delete, where the row that started it already says "Deleting…".
+  final String? message;
 
   /// Big enough to read as the screen's own wait, not a row's.
   static double get spinnerSize => SdSpacingConstant.r28;
@@ -118,12 +122,30 @@ class _DeletingOverlay extends StatelessWidget {
           // beside it only says why.
           ModalBarrier(color: context.sdTheme.barrier, dismissible: false),
           Center(
-            child: SizedBox.square(
-              dimension: spinnerSize,
-              child: CircularProgressIndicator(
-                strokeWidth: SdSpacingConstant.w2,
-                color: context.colorScheme.primary,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox.square(
+                  dimension: spinnerSize,
+                  child: CircularProgressIndicator(
+                    strokeWidth: SdSpacingConstant.w2,
+                    color: context.colorScheme.primary,
+                  ),
+                ),
+                if (message != null) ...<Widget>[
+                  SizedBox(height: SdSpacingConstant.h16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: SdSpacingConstant.w32,
+                    ),
+                    child: Text(
+                      message!,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.bodyMedium,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
