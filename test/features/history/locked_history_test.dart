@@ -1,10 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:migraine_tracker/core/constants/premium_limit_constant.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
+import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
+import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
@@ -95,6 +100,38 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(AttackDetailScreen), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  // The seed is the only data most screens are ever developed against, so
+  // "seed then look at History" is the path that actually has to work.
+  testWidgets('the dev seed puts blurred rows on the screen', (tester) async {
+    await pumpApp(tester);
+    // The app's own seeder over the app's own tree, not a stand-in: what broke
+    // could have been in the wiring as easily as in the rows.
+    final ProviderContainer container = ProviderScope.containerOf(
+      tester.element(find.byType(DashboardScreen)),
+    );
+
+    await container.read(devSeedServiceProvider).seed();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await openHistory(tester);
+
+    // The locked rows are the OLDEST, so they are last in a newest-first list
+    // — and the list is a lazy sliver, so they are not even built until it is
+    // scrolled to them. Drag to the end the way a user would.
+    for (int i = 0; i < 20; i++) {
+      await tester.drag(find.byType(CustomScrollView).first, const Offset(0, -200));
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump();
+
+    expect(
+      find.text('Premium required'),
+      findsNWidgets(DevSeedService.lockedAttackCount),
+    );
 
     await finishTest(tester);
   });
