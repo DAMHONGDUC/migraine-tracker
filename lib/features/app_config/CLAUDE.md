@@ -143,7 +143,7 @@ granting nothing and looking like a typo nobody made.
   | `installedIsNewer` | `build_name` is older than the installed one; the name settles it outright |
   | `buildNumberUnknown` | `build_number` is 0 or unreadable on one side |
   | `upToDate` | The record is fine — this build is not older than `build_name`/`build_number`. **The usual answer when testing the switch** |
-  | `blocked` | The sheet shows |
+  | `blocked` | The sheet goes up |
 
   `enableForceUpdate: true` logged next to `publishedSection: none` is the
   mistake the pair exists to catch: the flag parsed, the section did not.
@@ -153,12 +153,35 @@ granting nothing and looking like a typo nobody made.
 - **The cron reads the same list.** Pressure alerts *are* a premium feature, so
   it takes `premium_emails` off this document rather than keeping a copy — the
   app and the cron cannot disagree about who is premium by address.
-- **`BlockedAccountGate` is a layer in the tree, not a pushed route** — which is
-  how force update does it. The block clears the moment the user signs out, and
-  a plain `if` cannot get out of step with the flag the way a route that has to
-  be popped can. It sits *inside* `ForceUpdateWrapper`, so a blocked user on an
-  unsupported build is told to update first: one of the two has to win, and the
-  store link helps either way.
+- **Every gate here is a layer in the tree, not a pushed route — force update
+  included, since 2026-09-21.** A layer clears the moment the flag does and
+  cannot get out of step with it the way a route that has to be popped can.
+  `BlockedAccountGate` sits *inside* `ForceUpdateWrapper`, so a blocked user on
+  an unsupported build is told to update first: one of the two has to win, and
+  the store link helps either way.
+  - **Force update was the exception, and it was the bug** (owner's report:
+    "it shows, then it is gone once the dashboard opens"). The sheet was pushed
+    on `rootNavigatorKeyProvider`, which is **go_router's own navigator**: it
+    appeared over the splash and was thrown away the moment the splash called
+    `context.go('/dashboard')`, because that rebuilds the stack it was sitting
+    in. The wrapper had already set `_sheetShown`, so nothing put it back and
+    the user reached the dashboard on a build the owner had blocked. The block
+    lasted exactly until the app finished launching.
+  - **It is still a sheet, not a screen** (owner's rule, 2026-09-21: it must
+    cover the app, and Update must be the only thing the user can touch). So
+    `ForceUpdateSheet` draws its own `Stack` over the app: `SdThemeV2.barrier`,
+    the `surfaceModal` panel with r22 top corners capped at
+    `SdBreakpointV2.contentMaxWidth`, and no drag handle — every part of the
+    `showSdBottomSheetV2(dismissible: false)` it replaces, minus the route.
+    The `ModalBarrier` is what makes it a block: it takes every pointer, so the
+    app stays visible underneath and entirely out of reach.
+    `force_update_test.dart` navigates to the dashboard and taps the target
+    behind the barrier; both leave the sheet up.
+  - **A failed store launch is said INSIDE the sheet, never in a snackbar.**
+    `SdSnackBarUtilsV2` draws into the root overlay, which lives inside the
+    navigator — below this layer — so a message raised here would be painted
+    behind the barrier that raised it. The sheet is the only visible surface,
+    so it is the only place a message can go.
 - **Signing out is the way out, and the screen says so.** Membership is by
   address, so an anonymous session is on no list and the app comes back — with
   every log still on the device, because none of it ever left.
