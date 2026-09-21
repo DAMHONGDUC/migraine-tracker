@@ -161,18 +161,20 @@ line in with what was sent, a line out with what came back.
   2026-09-16). `SdBootstrap.onStepFailed` hands `main` each failure, `main`
   carries them into the tree as `startupFailuresProvider`, and
   `StartupErrorGate` — the outermost gate inside `MaterialApp.builder` — draws
-  `StartupErrorView` instead of the app when one of
-  `StartupErrorGate.fatalSteps` is among them. Telling is not refusing: the app
-  still starts, which is what keeps the rule above true.
-  - **`Firebase` is the only fatal step**, and the bar for a second one is that
-    the app is equally useless without it. `initializeApp` is local work — it
-    fails on a build whose options and bundled `GoogleService-Info.plist`
-    disagree (`[core/duplicate-app]`), not on a bad connection — so this screen
-    means "this build is broken", and offline attack logging (hard rule 4)
-    never reaches it.
-  - **Outside production the screen prints what was thrown.** The person who
-    can fix a mis-built flavour is the person who built it, and `duplicate-app`
-    on screen is the whole diagnosis.
+  `StartupErrorView` instead of the app when `StartupErrorGate.isFatal` says one
+  of them is. Telling is not refusing: the app still starts, which is what keeps
+  the rule above true.
+  - **The failure's *type* decides, not which step it came from.**
+    `FlavorConfigMismatch` is the only fatal one today, and the bar for a second
+    is the same: a build that works perfectly while writing into the wrong
+    place. A backend that is merely absent or unreachable is not fatal — the
+    data is local-first, and an attack still logs offline (hard rule 4).
+  - **The screen never names the failure** (owner's rule, 2026-09-21). Title,
+    body, glyph, nothing else — not even outside production. A mismatch's detail
+    is two Firebase project ids and the command that rewrites the config, which
+    is a sentence about the owner's backend; the developer who can act on it
+    reads it in the console, where `AppBootstrap` logs it in full with the
+    flavour, both ids and the fix.
 
 ## Extraction and constants
 
