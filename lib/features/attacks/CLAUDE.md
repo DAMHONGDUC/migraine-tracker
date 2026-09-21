@@ -368,6 +368,17 @@ the same curve its neighbour continues on.
   sizes itself from the screen with a ceiling for the same reason — a constant tall
   enough to seat eleven tiles on an 852pt phone is taller than a 667pt one has to
   give.
+- **The edit sheet shows `LocationStep` itself, laid out identically — the sheet
+  around it is the only difference** (owner's rule, 2026-09-21). Correcting an
+  area and picking one are the same job, so the sheet renders the step widget
+  rather than its own arrangement of `HeadRegionPicker`. It passes
+  `contentHorizontalPadding: 0` to `SdSheetContentV2` for that: the gutter lives
+  on the picker's own pieces (see above), so the sheet's default gutter landed
+  on top of it and the tiles came out 32pt in where the flow has 16 — one widget
+  wearing two paddings, with the head 40pt in instead of 24. Only the sides are
+  handed over; the sheet still owns the bottom inset, which clears the keyboard
+  and the home indicator. `head_region_picker_test.dart` pumps the step and the
+  sheet in the same tree and compares the grid's rect.
 
 ## The rest of the flow
 
@@ -378,6 +389,15 @@ the same curve its neighbour continues on.
   falls back to `logTitle` on the saved step, which asks nothing. It is an
   `SdFittedTextV2` with `maxLines: 1`, because the bar has the back button on one
   side and Next on the other, so a long question must shrink rather than wrap.
+  - **The question is the same size on every step** (owner's rule, 2026-09-21).
+    `peers` already sized all five against the longest, and it still jumped: an
+    `AppBar` gives its title whatever the actions leave, so the two steps
+    without a Next — intensity and saved — measured against a wider box and
+    drew the shared question larger there. **Next therefore holds its slot on
+    every step**, `Visibility` with `maintainSize`, shown or not. Anything new
+    in `actions` appears on all five steps or holds its space the same way.
+    `log_flow_test.dart` compares the rendered `fontSize` across the four
+    questions; it read 10.5 on the first step against 8.0 on the rest.
 - **`MedicationPickerSheet` puts the search field first in the list, not floating
   over it** (owner's rule). It is otherwise a copy of `MedicationStep` and now
   reads in the same order. The old version pinned it at the bottom in the shell's
