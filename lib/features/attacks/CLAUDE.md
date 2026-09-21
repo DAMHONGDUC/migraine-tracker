@@ -162,14 +162,31 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
 - **The head supports rotation, zoom and direct region selection.** Owner's requirement, 2026-09-17: users need to inspect small areas without losing the point they selected. Rotation and selection never change the layout or center; intentional zoom changes magnification only. Tap, drag and pinch are mutually exclusive, and zoomed picking uses the rendered camera.
 - **Dragging the head follows the finger on screen.** Owner reported reversed, overly restricted rotation on 2026-09-18. Keep yaw unrestricted, allow pitch up to ±85° to inspect crown and underside without flipping upside down, and accumulate every pointer update even between rendered frames.
 - **The 3D picker renders across the full available width.** Owner reported clipping beside L/R on 2026-09-18. Overlay the side labels instead of reserving gutters, and do not constrain the 3D viewport to the flat drawing's aspect ratio. Rendering and picking share the expanded viewport; the flat fallback keeps its aspect ratio and inset.
-- **The zoom controls float OVER the head, and the head is centred in what is
-  left** (owner's rule, 2026-09-19). As a row of its own the controls took 44pt
-  off the one screen this step may use, to carry four targets and a line of
-  hint text; overlaid they cost nothing and what they cover is the air above
-  the crown. The tiles are pinned to the bottom of the step, so a tall screen
-  gives the leftover to the head as air either side of it rather than as a hole
-  between head and tiles. `head_region_picker_test.dart` measures that the air
-  above equals the air below.
+- **The Front/Back tabs and the camera controls share the top row, and the head
+  is centred in what is left** (owner's rule, 2026-09-21). The controls floated
+  over the head from 2026-09-19, which cost the layout nothing while the head
+  was framed with air above the crown. `fitZoom` spent that air, so the same
+  overlay now sits on the crown — a region the user has to be able to tap. The
+  tabs gave up width they were not using instead: `Expanded` tabs, then the
+  five targets at their own width. `HeadRegionPicker.topRowHeight` is the row,
+  fixed at the taller of the two so the head does not resize when the model
+  finishes loading. The tiles are pinned to the bottom of the step, so a tall
+  screen gives the leftover to the head as air either side of it rather than as
+  a hole between head and tiles. `head_region_picker_test.dart` measures that
+  the air above equals the air below — off the ROW, since the tabs' own pill is
+  2pt shorter and centred in it.
+  - **One `LayoutBuilder` over the whole picker, not one over the head.** The
+    controls read out the level measured from the head's box, so the box has to
+    be worked out before the row is built; a builder nested under the row
+    answers one frame late and opens on 100%.
+  - **The gesture hint line is gone** (owner's call, 2026-09-21). "Drag to
+    rotate · Pinch to zoom" was the widest thing in the controls and there is
+    no room for it beside the tabs; a line of its own would cost the head the
+    height that moving the controls up was meant to save. `logHeadGestureHint`
+    is retired from all seven ARB files.
+  - **The buttons get their 44pt from `constraints`, with `padding: zero`.**
+    Padded, the speed button's icon-over-readout column comes out taller than
+    the row and wider than the width the tabs can spare it.
 - **The head opens as large as its viewport can hold it, measured**
   (`HeadViewportUtils.fitZoom`, owner's rule 2026-09-21). It was a flat 150%
   picked against one phone, which is right on that phone and wrong on every
