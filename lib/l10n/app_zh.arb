@@ -857,5 +857,8 @@
   "logHeadRotationSpeed": "旋转速度 {percent}%",
   "aboutHeadModelCredit": "3D头部模型：“Infinite”，由Lee Perry-Smith / triplegangers.com创作，来自three.js示例。采用CC BY 3.0许可（creativecommons.org/licenses/by/3.0/）。BaroEase对模型进行了裁剪、疼痛区域划分和配色调整。",
   "navPanelExpand": "展开导航",
-  "navPanelCollapse": "收起导航"
+  "navPanelCollapse": "收起导航",
+  "historyLockedTag": "需要 Premium",
+  "historyLockedTitle": "早于免费历史范围",
+  "historyLockedBody": "免费方案可回看最近 {days} 天。这次发作比这更早——它仍在本机上，没有任何记录被删除。Premium 可打开你的全部记录。"
 }

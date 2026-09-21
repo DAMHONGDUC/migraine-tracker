@@ -44,11 +44,15 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
-    // Both already carry the free plan's window: `visibleAttacksProvider` owns
-    // it, and the filtered list is built from that one.
-    final AsyncValue<List<Attack>> allAttacks = ref.watch(
-      visibleAttacksProvider,
-    );
+    // Three lists, and which one a view gets is the whole premium rule here:
+    // - [allAttacks] is the WHOLE record, because the list and the calendar
+    //   draw every row and `AttackTile` blurs the ones behind the window;
+    // - [rows] is that record under the filters, for the list;
+    // - [filtered] is the readable ninety days under the same filters, for the
+    //   charts — a chart averaging numbers the user cannot see is a number
+    //   they cannot check.
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
+    final AsyncValue<List<Attack>> rows = ref.watch(historyRowsProvider);
     final AsyncValue<List<Attack>> filtered = ref.watch(
       filteredAttacksProvider,
     );
@@ -104,7 +108,12 @@ class HistoryScreen extends ConsumerWidget {
             ),
           AsyncData(value: final List<Attack> all) => Builder(
             builder: (BuildContext context) {
-              final List<Attack> list = switch (filtered) {
+              final List<Attack> list = switch (rows) {
+                AsyncData(value: final List<Attack> value) => value,
+                _ => const <Attack>[],
+              };
+              // The charts stay on the readable window.
+              final List<Attack> readable = switch (filtered) {
                 AsyncData(value: final List<Attack> value) => value,
                 _ => const <Attack>[],
               };
@@ -130,7 +139,7 @@ class HistoryScreen extends ConsumerWidget {
                     bottomInset: bottomInset,
                   ),
                   _ChartView(
-                    attacks: list,
+                    attacks: readable,
                     topInset: topInset,
                     bottomInset: bottomInset,
                   ),

@@ -857,5 +857,8 @@
   "logHeadRotationSpeed": "Tốc độ xoay {percent}%",
   "aboutHeadModelCredit": "Đầu 3D: “Infinite” của Lee Perry-Smith / triplegangers.com, từ các mẫu three.js. Giấy phép CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase đã cắt gọn, chia vùng đau và đổi màu.",
   "navPanelExpand": "Mở thanh điều hướng",
-  "navPanelCollapse": "Thu thanh điều hướng"
+  "navPanelCollapse": "Thu thanh điều hướng",
+  "historyLockedTag": "Cần Premium",
+  "historyLockedTitle": "Cũ hơn lịch sử miễn phí",
+  "historyLockedBody": "Gói miễn phí đọc lại {days} ngày gần nhất. Cơn này cũ hơn thế — nó vẫn nằm trên điện thoại này và không có gì bị xoá. Premium mở toàn bộ lịch sử của bạn."
 }

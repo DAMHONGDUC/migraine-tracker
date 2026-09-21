@@ -857,5 +857,8 @@
   "logHeadRotationSpeed": "Drehgeschwindigkeit {percent} %",
   "aboutHeadModelCredit": "3D-Kopf: „Infinite“ von Lee Perry-Smith / triplegangers.com, aus den three.js-Beispielen. Lizenz: CC BY 3.0 (creativecommons.org/licenses/by/3.0/). Von BaroEase zugeschnitten, in Schmerzbereiche unterteilt und neu eingefärbt.",
   "navPanelExpand": "Navigation einblenden",
-  "navPanelCollapse": "Navigation ausblenden"
+  "navPanelCollapse": "Navigation ausblenden",
+  "historyLockedTag": "Premium nötig",
+  "historyLockedTitle": "Älter als dein kostenloser Verlauf",
+  "historyLockedBody": "Dein kostenloser Plan zeigt die letzten {days} Tage. Diese Attacke ist älter — sie liegt weiterhin auf diesem Telefon, nichts wurde gelöscht. Premium öffnet deinen gesamten Verlauf."
 }

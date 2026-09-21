@@ -25,7 +25,8 @@ Future<void> seedAttacks(PumpedApp app, int count) async {
   }
 }
 
-/// One attack from before the free plan's 90-day window — what the banner exists for.
+/// One attack from before the free plan's 90-day window — what the banner and
+/// the blurred row both exist for.
 Future<void> seedOldAttack(PumpedApp app) async {
   await DriftAttackRepository(app.db).insert(
     Attack(
@@ -77,7 +78,7 @@ void main() {
       await finishTest(tester);
     });
 
-    testWidgets('an attack older than the window is hidden and named', (
+    testWidgets('an attack older than the window is named by the banner', (
       tester,
     ) async {
       final PumpedApp app = await pumpApp(tester);
@@ -87,6 +88,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // The banner says what Premium would open, and that nothing was deleted.
+      // The ROW behind the window is a second door onto the same offer, and
+      // is covered by `history/locked_history_test.dart`.
       expect(find.textContaining('is Premium'), findsWidgets);
       expect(find.textContaining('Nothing is deleted'), findsWidgets);
 

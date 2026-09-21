@@ -857,5 +857,8 @@
   "logHeadRotationSpeed": "回転速度 {percent}%",
   "aboutHeadModelCredit": "3D頭部：「Infinite」、Lee Perry-Smith / triplegangers.com制作、three.jsサンプルより。CC BY 3.0ライセンス（creativecommons.org/licenses/by/3.0/）。BaroEaseがトリミング、痛みの部位への分割、配色の変更を行いました。",
   "navPanelExpand": "ナビゲーションを開く",
-  "navPanelCollapse": "ナビゲーションを閉じる"
+  "navPanelCollapse": "ナビゲーションを閉じる",
+  "historyLockedTag": "Premiumが必要",
+  "historyLockedTitle": "無料の履歴より前の記録",
+  "historyLockedBody": "無料プランでは直近{days}日間を読み返せます。この発作はそれより前のものです。この端末には残っており、削除されていません。Premiumならすべての記録を開けます。"
 }

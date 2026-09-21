@@ -21,11 +21,36 @@ final historyViewModeProvider =
       HistoryViewModeController.new,
     );
 
-/// Attacks after applying every filter, newest first.
+/// Attacks after applying every filter, newest first — **the readable ones
+/// only**, which is what the charts average.
 final filteredAttacksProvider = Provider<AsyncValue<List<Attack>>>((Ref ref) {
   ref.watch(attackFiltersProvider);
   // Windowed already: a free user filters the ninety days they can read.
   final AsyncValue<List<Attack>> attacks = ref.watch(visibleAttacksProvider);
+  final AttackFiltersController controller = ref.read(
+    attackFiltersProvider.notifier,
+  );
+
+  return attacks.whenData(controller.filter);
+});
+
+/// The same filters over the WHOLE record, which is what the list draws.
+///
+/// **The list shows every attack and blurs the ones behind the free window**
+/// (owner's rule, 2026-09-21); `AttackTile` decides which, so the list and the
+/// calendar cannot disagree about one row. This exists beside
+/// [filteredAttacksProvider] rather than replacing it because the two answer
+/// different questions: a row is a row whether or not it can be read, and a
+/// chart averaging numbers the user cannot see is a number they cannot check.
+///
+/// **A locked row is filtered like any other** — it is still a row — but its
+/// medication names, symptoms and triggers stay out of
+/// [attackFilterOptionsProvider]: a chip naming a value off a blurred row
+/// would print the very text the blur is hiding.
+final historyRowsProvider = Provider<AsyncValue<List<Attack>>>((Ref ref) {
+  ref.watch(attackFiltersProvider);
+
+  final AsyncValue<List<Attack>> attacks = ref.watch(attacksStreamProvider);
   final AttackFiltersController controller = ref.read(
     attackFiltersProvider.notifier,
   );

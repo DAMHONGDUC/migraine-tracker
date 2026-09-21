@@ -857,5 +857,8 @@
   "logHeadRotationSpeed": "Vitesse de rotation {percent} %",
   "aboutHeadModelCredit": "Tête 3D : « Infinite » de Lee Perry-Smith / triplegangers.com, issue des exemples three.js. Licence CC BY 3.0 (creativecommons.org/licenses/by/3.0/). BaroEase a recadré le modèle, délimité les zones douloureuses et modifié les couleurs.",
   "navPanelExpand": "Afficher la navigation",
-  "navPanelCollapse": "Masquer la navigation"
+  "navPanelCollapse": "Masquer la navigation",
+  "historyLockedTag": "Premium requis",
+  "historyLockedTitle": "Plus ancien que votre historique gratuit",
+  "historyLockedBody": "Votre offre gratuite remonte aux {days} derniers jours. Cette crise est plus ancienne : elle reste sur ce téléphone et rien n’a été supprimé. Premium ouvre tout votre historique."
 }

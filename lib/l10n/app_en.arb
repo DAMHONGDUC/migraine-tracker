@@ -4166,5 +4166,14 @@
   "navPanelExpand": "Expand navigation",
   "@navPanelExpand": {"description": "Tooltip on the control that reopens the tablet navigation panel, shown in the app bar while it is collapsed"},
   "navPanelCollapse": "Collapse navigation",
-  "@navPanelCollapse": {"description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"}
+  "@navPanelCollapse": {"description": "Tooltip on the control that closes the tablet navigation panel, shown in the panel's own header"},
+  "historyLockedTag": "Premium required",
+  "@historyLockedTag": {"description": "Pill on a history row the free window does not reach"},
+  "historyLockedTitle": "Older than your free history",
+  "@historyLockedTitle": {"description": "Title of the sheet a locked history row opens"},
+  "historyLockedBody": "Your free plan reads back the last {days} days. This attack is older than that \u2014 it is still on this phone and nothing was deleted. Premium opens your whole record.",
+  "@historyLockedBody": {
+    "description": "Body of that sheet",
+    "placeholders": {"days": {"type": "int", "example": "90"}}
+  }
 }
