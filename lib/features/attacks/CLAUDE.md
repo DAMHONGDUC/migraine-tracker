@@ -431,6 +431,16 @@ the same curve its neighbour continues on.
   axis, so the shape survives and the extra width is air either side. The
   `Center` stays for the flat fallback, which keeps its `AspectRatio`.
   `head_scene_interaction_test.dart` measures the 361x160 band at 1.39.
+  - **Tapping it opens the Location row's sheet** (owner's rule, 2026-09-21).
+    The picker's "two doors onto one answer" carried onto this screen: the head
+    is the biggest thing above the rows and the one a user reaches for when an
+    area is wrong. The target is the whole BAND, `HitTestBehavior.opaque` —
+    `HeadGestureSurface` and the flat drawing hit-test only the head itself and
+    the loading dots hit-test nothing, so a tap in the air beside the drawing
+    would otherwise fall through. The row below keeps its `›`: that is where
+    the affordance is stated, and the head is the shortcut rather than the only
+    way in. The head stays read-only otherwise — no rotation, no per-region
+    pick — so a tap here cannot mean two things.
 - **The weather section is the shared `WeatherCard`, the same widget the dashboard
   draws** (owner: "tôi muốn đồng nhất"). It was a list of `ListTile` rows here and
   a card there, so the reading a user checked one against the other was laid out
