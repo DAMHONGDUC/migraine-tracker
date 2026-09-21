@@ -375,22 +375,28 @@ The pipeline as a diagram is `docs/release/PIPELINE.md`; every credential is
 ## The app icon
 
 `melos run gen-app-icon` — one source PNG to every icon the app ships. Reads
-`assets/images/app_icon.png` and does three things in order, each of which used
-to be typed by hand:
+`assets/images/app_icon.png` **and nothing else**: no generated intermediate
+stands between the artwork and the output, because two files that can disagree
+means the one pubspec reads is the one nobody looks at.
 
 | Step | What it writes |
 |---|---|
-| `strip_icon_marker.dart` | `assets/images/final_app_icon.png`, the source minus the generator's watermark |
-| `flutter_launcher_icons` | every iOS and Android launcher size, from that file |
+| `flutter_launcher_icons` | every iOS and Android launcher size, from `assets/images/app_icon.png` |
 | `round_icon_corners.dart` ×3 | `LaunchImage.imageset` at 112/224/336px, corners baked into the alpha |
+| `round_icon_corners.dart` ×5 | `drawable-<density>/launch_image.png` at 112/168/224/336/448px |
+
+`melos run gen-app-icon-strip-marker` — erases the image generator's watermark
+from `assets/images/app_icon.png`, in place, via a temp file. **Its own command
+on purpose**: the watermark belongs to the artwork, so it is stripped once when
+a new image arrives, while the icons are regenerated many times after. Run it
+first, check the corner at full size, then run `gen-app-icon`.
 
 - **It is a command, not a script, because it is typed on its own** — a new
   icon is a thing a person decides to do, like `prepare-env`. Nothing in a
   release reaches it.
-- **The order is the whole point.** Each step reads what the one before wrote,
-  and doing them out of order silently ships the watermark or a stale launch
-  screen. It checks the source exists before any of them run, so a missing
-  original fails at the start rather than halfway.
+- **Every step reads the same one file**, so there is no order to get wrong and
+  nothing to keep in step by hand. The source is checked before any step runs,
+  so a missing original fails at the start rather than halfway.
 - **The launch icons are rounded here and nowhere else.** A storyboard image
   view cannot clip, so the mask has to be in the alpha —
   `docs/setup/APP_ICON.md` has the reasoning and the per-file commands.

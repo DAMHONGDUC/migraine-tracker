@@ -29,21 +29,31 @@ and [Bearable](https://bearable.app/). Keep BaroEase artwork original.
 | `assets/images/app_icon_v4.png` | Minimalist head and pain mark |
 | `assets/images/app_icon_v5.png` | V4 with the bolt centered horizontally |
 | `assets/images/app_icon_v6.png` | Secondary symbols integrated inside V5 |
-| `assets/images/app_icon.png` | Original artwork, 1024×1024 |
-| `assets/images/final_app_icon.png` | Generated launcher source consumed by `pubspec.yaml` |
+| `assets/images/app_icon.png` | **The one source.** Original artwork, 1024×1024, read directly by `pubspec.yaml` and by every step of the generator |
 | iOS `AppIcon.appiconset` | Generated launcher sizes; opaque RGB |
 | Android `mipmap-*` | Generated legacy launcher sizes |
 | iOS `LaunchImage.imageset` | Rounded 112/224/336px launch images |
 | Android `drawable-*` | Rounded launch images for each density |
 
-Regenerate from the project root — the script defaults to the two paths above,
-so no environment variable is needed:
+Regenerate from the project root. No environment variable, no intermediate
+file — owner's rule is that `assets/images/app_icon.png` is the only input, so
+replacing that one file and running this is the whole procedure:
 
 ```sh
 melos run gen-app-icon
 ```
 
-The current artwork has no watermark. Leave `APP_ICON_STRIP_MARKER` disabled.
+New artwork carrying the image generator's watermark gets its own command
+first, once, before the one above:
+
+```sh
+melos run gen-app-icon-strip-marker
+```
+
+It rewrites `assets/images/app_icon.png` in place through a temp file. The
+current artwork is already clean, so it is not part of a regenerate — a
+clone-stamp re-run over an already-clean corner degrades it.
+
 Commit generated assets so a fresh clone cannot ship Flutter placeholders
 (App Store rejection 2.3.8 previously occurred for that reason).
 
@@ -59,7 +69,7 @@ Commit generated assets so a fresh clone cannot ship Flutter placeholders
 
 ```sh
 sips -g pixelWidth -g pixelHeight -g hasAlpha ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png
-sips -Z 60 assets/images/final_app_icon.png --out /tmp/baroease-icon-60.png
+sips -Z 60 assets/images/app_icon.png --out /tmp/baroease-icon-60.png
 sh packages/system_design/tool/analyze.sh
 ```
 
