@@ -85,6 +85,10 @@ class ForceUpdateController extends Notifier<ForceUpdateState> {
         'installed': '${installed.buildName}+${installed.buildNumber}',
         'published': '${section.buildName}+${section.buildNumber}',
       });
+      // Reported here rather than by the widget: the screen is a layer on a
+      // watched provider now, so this line IS the moment it goes up — there is
+      // no push that can be refused and no navigator that has to exist first.
+      AppAnalytics.logForceUpdateShown();
       state = ForceUpdateState(blockingUpdate: section);
     } catch (error, stackTrace) {
       // Swallowed on purpose: see the fail-open note above.

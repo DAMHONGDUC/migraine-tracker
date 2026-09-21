@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:migraine_tracker/core/router/app_router.dart';
 import 'package:migraine_tracker/features/app_config/domain/entities/app_update_config.dart';
 
 import '../../helpers/pump_app.dart';
@@ -62,6 +65,58 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Update required'), findsOneWidget);
+    await finishTest(tester);
+  });
+
+  // The bug this was reported as: the sheet appeared over the splash and was
+  // gone by the time the dashboard arrived. It was pushed on go_router's own
+  // navigator, and `context.go('/dashboard')` rebuilds that stack — so the
+  // block lasted exactly until the app finished launching.
+  testWidgets('navigating to the dashboard does not take the sheet away', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      appUpdate: record(),
+      installedBuildName: '1.3.0',
+      installedBuildNumber: 49,
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Update required'), findsOneWidget);
+
+    // From inside the router, not from the sheet: the sheet's own context sits
+    // ABOVE go_router now, which is the whole point — `GoRouter.of` there
+    // throws "No GoRouter found in context".
+    final BuildContext context = tester.element(find.text('Log an attack'));
+
+    context.go(AppRoutes.dashboard.path);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Update required'), findsOneWidget);
+    await finishTest(tester);
+  });
+
+  // "User không được thao tác gì ngoài trừ bấm nút update": the app is drawn
+  // behind the sheet, so every target on it has to be unreachable.
+  testWidgets('nothing behind the sheet can be tapped', (tester) async {
+    final PumpedApp app = await pumpApp(
+      tester,
+      appUpdate: record(),
+      installedBuildName: '1.3.0',
+      installedBuildNumber: 49,
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The dashboard's own call to action, visible under the barrier.
+    expect(find.text('Log an attack'), findsOneWidget);
+    await tester.tap(find.text('Log an attack'), warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Still the sheet, and the log flow never opened.
+    expect(find.text('Update required'), findsOneWidget);
+    expect(find.text('How bad is it?'), findsNothing);
+    expect(app.storeLauncher.opened, isEmpty);
     await finishTest(tester);
   });
 
