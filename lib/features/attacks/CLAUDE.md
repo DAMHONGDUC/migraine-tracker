@@ -449,9 +449,18 @@ the same curve its neighbour continues on.
     difference to the label, and the cap is still what stops the overflow. A
     bigger fraction buys the long-value case by wrapping labels that used not
     to — measured, and rejected.
+  - **Both rows pass `contentPadding` themselves**
+    (`_LabelledValue.tilePadding`, owner's rule 2026-09-21). Material 3's
+    `ListTile` default is `start: 16, end: 24` — asymmetric in the spec, and
+    measured here as 16pt from the card's left edge to the label against 24pt
+    from the chevron to its right. On a card that reads as a row whose two
+    edges do not match. One gutter, the app's own, on both sides.
+    `attack_detail_test.dart` compares the two insets. Every other `ListTile`
+    in the app still carries the Material default — see
+    `docs/rules/DESIGN_SYSTEM.md`.
   - **`_EditableRow` and `_ReadOnlyRow` differ by a chevron and a tap, never by
     how the line divides**, which is why the line is one widget rather than the
-    same `Row` written twice.
+    same `Row` written twice — edges included.
 - **The read-only head fills the band it is given** (owner's rule, 2026-09-21).
   Its 160pt band is unchanged; what changed is that the head reaches the top and
   bottom of it instead of floating in the middle. **`zoom` is null on

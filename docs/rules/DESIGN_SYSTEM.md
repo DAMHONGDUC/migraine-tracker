@@ -372,6 +372,18 @@ else.** Not `SdScaffoldV2`, not `SdAppBarV2`, not a screen: any inset another
 widget pads by is a static on that one class. Widgets keep only their own
 intrinsic size (`SdPinnedFilterBarV2.barHeight`, `SdAppBarV2.preferredSize`).
 
+- **A `ListTile` inset by Material is inset 16 on one side and 24 on the
+  other.** `_LisTileDefaultsM3.contentPadding` is
+  `EdgeInsetsDirectional.only(start: 16, end: 24)` — asymmetric in the M3 spec,
+  and on a card it reads plainly as a row whose two edges do not match: the
+  owner reported it on the attack detail's rows, measured 16pt from the card's
+  left edge to the label against 24pt from the chevron to its right. **A row
+  that has to look centred between its own edges passes
+  `contentPadding` itself**, `EdgeInsets.symmetric(horizontal:
+  SdContentPaddingV2.horizontal)`. Nothing in the app sets a
+  `listTileTheme`, so **every other `ListTile` still carries the default** —
+  the attack detail's two rows are the only ones corrected so far, and the
+  one-line theme fix is the owner's call because it moves every row in the app.
 - **One gap between list items: `SdContentPaddingV2.listItemGap` (8)** — never a
   per-screen `SdSpacingConstant.h8`. The attack list, a calendar day's attacks
   and the medications list each spelled the same 8 out separately, and three
