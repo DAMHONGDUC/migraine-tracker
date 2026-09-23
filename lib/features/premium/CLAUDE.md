@@ -72,7 +72,13 @@ the medications tab the medication budget, each from that record's one
   The modal colour is a step *darker* than `surface`, which is what lets the
   cards it holds — the benefits, the plans — read as cards rather than as more
   sheet. The close button carries no surface of its own.
-- **A plan row is an `SdCardV2`, and selection is the card's own fill and
+- **The plans sit side by side, one card each** (owner's rule, 2026-09-23):
+  title, price, then the trial or "one-time" note, centred. Monthly, yearly and
+  lifetime fit one row at phone width, and a row reads as a choice between
+  them where a stacked list reads as a menu. `IntrinsicHeight` keeps every card
+  as tall as the tallest, so a note that wraps in one locale does not leave the
+  row ragged; `_Plans.cardHeight` is the floor the skeleton reserves.
+- **A plan card is an `SdCardV2`, and selection is the card's own fill and
   edge**: `fillColor` at alpha 0.14 inside `borderColor`, both the accent.
   There is no radio glyph — the tint and the edge already say which one is
   chosen, and the circle said it a third time. Never reach for a 2px border to
