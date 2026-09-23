@@ -1,6 +1,6 @@
 part of 'paywall_screen.dart';
 
-/// The buyable plans, one selectable row each.
+/// The buyable plans, side by side, one selectable card each.
 class _Plans extends StatelessWidget {
   const _Plans({
     required this.offers,
@@ -9,12 +9,12 @@ class _Plans extends StatelessWidget {
     required this.onSelected,
   });
 
-  /// How tall a plan row comes out, so the placeholder reserves the same space
-  /// and the CTA under it does not jump when the store answers.
-  static double get rowHeight => SdSpacingConstant.h64;
+  /// The shortest a plan card comes out, so the placeholder reserves the same
+  /// space and the CTA under it does not jump when the store answers.
+  static double get cardHeight => SdSpacingConstant.h96;
 
   /// What the store offers here: monthly, yearly and lifetime.
-  static const int placeholderRows = 3;
+  static const int placeholderCards = 3;
 
   final List<PremiumOffer> offers;
 
@@ -29,12 +29,11 @@ class _Plans extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      return Row(
         children: <Widget>[
-          for (int i = 0; i < placeholderRows; i++) ...<Widget>[
-            if (i > 0) SizedBox(height: SdContentPaddingV2.listItemGap),
-            SdSkeletonV2(height: rowHeight),
+          for (int i = 0; i < placeholderCards; i++) ...<Widget>[
+            if (i > 0) SizedBox(width: SdSpacingConstant.w8),
+            Expanded(child: SdSkeletonV2(height: cardHeight)),
           ],
         ],
       );
@@ -49,23 +48,29 @@ class _Plans extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: <Widget>[
-        for (final PremiumOffer offer in offers) ...<Widget>[
-          _PlanRow(
-            offer: offer,
-            selected: offer.id == selectedId,
-            onTap: () => onSelected(offer),
-          ),
-          SizedBox(height: SdSpacingConstant.h8),
+    // IntrinsicHeight + stretch: a card whose note wraps lifts its neighbours with it, so the row stays one height.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < offers.length; i++) ...<Widget>[
+            if (i > 0) SizedBox(width: SdSpacingConstant.w8),
+            Expanded(
+              child: _PlanCard(
+                offer: offers[i],
+                selected: offers[i].id == selectedId,
+                onTap: () => onSelected(offers[i]),
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
-class _PlanRow extends StatelessWidget {
-  const _PlanRow({
+class _PlanCard extends StatelessWidget {
+  const _PlanCard({
     required this.offer,
     required this.selected,
     required this.onTap,
@@ -81,45 +86,56 @@ class _PlanRow extends StatelessWidget {
     PremiumPeriod.lifetime => l10n.paywallPlanLifetime,
   };
 
+  /// The line under the price: the trial when there is one, "one-time" for lifetime, whose price has no period after it.
+  String? _note(AppLocalizations l10n) {
+    if (offer.hasTrial) return l10n.paywallPlanTrial(offer.trialDays!);
+    if (offer.period == PremiumPeriod.lifetime) return l10n.paywallPlanOneTime;
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final Color accent = context.colorScheme.primary;
+    final String? note = _note(l10n);
 
     // - SdCardV2 rather than a Container of its own: an accent fill inside an accent hairline is what it already draws for one offer among identical ones. - The radio glyph is gone: the tint and the edge said the same thing twice.
     return SdCardV2(
       onTap: onTap,
       borderColor: selected ? accent : null,
       fillColor: selected ? accent.withValues(alpha: 0.14) : null,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: SdSpacingConstant.w16,
-          vertical: SdSpacingConstant.h12,
-        ),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(_title(l10n), style: AppTextStyle.bodyLarge.w600),
-                  if (offer.hasTrial)
-                    Text(
-                      l10n.paywallPlanTrial(offer.trialDays!),
-                      style: AppTextStyle.bodySmall.copyWith(color: accent),
-                    ),
-                  // The price has no period after it, so the row says why.
-                  if (offer.period == PremiumPeriod.lifetime)
-                    Text(
-                      l10n.paywallPlanOneTime,
-                      style: AppTextStyle.bodySmall.copyWith(color: accent),
-                    ),
-                ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: _Plans.cardHeight),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: SdSpacingConstant.w8,
+            vertical: SdSpacingConstant.h12,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                _title(l10n),
+                style: AppTextStyle.bodyMedium.w600,
+                textAlign: TextAlign.center,
               ),
-            ),
-            SizedBox(width: SdSpacingConstant.w8),
-            Text(offer.priceLabel, style: AppTextStyle.bodyLarge.w600),
-          ],
+              SizedBox(height: SdSpacingConstant.h4),
+              Text(
+                offer.priceLabel,
+                style: AppTextStyle.titleMedium.w600,
+                textAlign: TextAlign.center,
+              ),
+              if (note != null) ...<Widget>[
+                SizedBox(height: SdSpacingConstant.h4),
+                Text(
+                  note,
+                  style: AppTextStyle.bodySmall.copyWith(color: accent),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
