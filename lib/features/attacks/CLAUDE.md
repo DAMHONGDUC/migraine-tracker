@@ -146,6 +146,16 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
   - A widget test never resolves `Node.fromGlbAsset`, so a test that wants the
     flat path calls `HeadSceneStore.markUnavailable()` — otherwise it waits on
     the dots forever, and any `pumpAndSettle` under them times out.
+  - **The first load waits for the step to finish sliding in** (owner's report,
+    2026-09-23: intensity → location stuttered on the first log). Parsing the
+    `.glb` and the first draw run on the UI thread, so the log screen passes
+    `LogFlowConstant.stepTransition` as `HeadDiagram.loadAfter` and the dots
+    hold until then. A model already in memory draws at once — no delay.
+- **"Deselect all" empties the answer from both sides in one tap** (owner's
+  rule, 2026-09-23). The tiles show only the facing side, so clearing one by
+  one meant turning the head to find the rest. It overlays the head's bottom
+  corner, which is air at the fit zoom, and appears only while something is
+  picked — an overlay, so it never moves the head.
 
 - **One mesh node per region, named `region_<enum name>`, and that is what
   keeps the rule above true in 3D.** `Scene.raycast` tests the very mesh it
