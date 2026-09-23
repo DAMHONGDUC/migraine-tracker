@@ -296,12 +296,11 @@ final class AppIconConstant {
   /// What premium lifts: unlimited records.
   static const IconData unlimited = Symbols.all_inclusive_rounded;
 
-  /// The selected plan on the paywall.
-  static const IconData radioSelected = Symbols.radio_button_checked_rounded;
+  /// The chosen plan on the paywall, drawn at `fill: 1`.
+  static const IconData planSelected = Symbols.check_circle_rounded;
 
-  /// A plan not selected.
-  static const IconData radioUnselected =
-      Symbols.radio_button_unchecked_rounded;
+  /// A plan not chosen: the empty ring the check fills.
+  static const IconData planUnselected = Symbols.circle_rounded;
 
   // --- Account and sync --------------------------------------------------
 

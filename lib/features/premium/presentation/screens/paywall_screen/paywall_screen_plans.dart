@@ -86,21 +86,20 @@ class _PlanCard extends StatelessWidget {
     PremiumPeriod.lifetime => l10n.paywallPlanLifetime,
   };
 
-  /// The line under the price: the trial when there is one, "one-time" for lifetime, whose price has no period after it.
-  String? _note(AppLocalizations l10n) {
-    if (offer.hasTrial) return l10n.paywallPlanTrial(offer.trialDays!);
-    if (offer.period == PremiumPeriod.lifetime) return l10n.paywallPlanOneTime;
-
-    return null;
-  }
+  /// What the price buys: a month, a year, or everything at once.
+  String _cadence(AppLocalizations l10n) => switch (offer.period) {
+    PremiumPeriod.monthly => l10n.paywallPlanPerMonth,
+    PremiumPeriod.yearly => l10n.paywallPlanPerYear,
+    PremiumPeriod.lifetime => l10n.paywallPlanOneTime,
+  };
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final Color accent = context.colorScheme.primary;
-    final String? note = _note(l10n);
+    final Color muted = context.colorScheme.onSurfaceVariant;
 
-    // - SdCardV2 rather than a Container of its own: an accent fill inside an accent hairline is what it already draws for one offer among identical ones. - The radio glyph is gone: the tint and the edge said the same thing twice.
+    // - SdCardV2 rather than a Container of its own: an accent fill inside an accent hairline is what it already draws for one offer among identical ones. - The check says it a second way, so colour is never the only signal (hard rule 3).
     return SdCardV2(
       onTap: onTap,
       borderColor: selected ? accent : null,
@@ -113,25 +112,49 @@ class _PlanCard extends StatelessWidget {
             vertical: SdSpacingConstant.h12,
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              SdIconV2(
+                icon: selected
+                    ? AppIconConstant.planSelected
+                    : AppIconConstant.planUnselected,
+                size: AppIconSize.medium,
+                fill: selected ? 1 : 0,
+                color: selected ? accent : muted,
+              ),
+              SizedBox(height: SdSpacingConstant.h8),
               Text(
                 _title(l10n),
-                style: AppTextStyle.bodyMedium.w600,
+                style: AppTextStyle.labelLarge.copyWith(
+                  color: selected ? accent : muted,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: SdSpacingConstant.h4),
+              // FittedBox, not SdFittedTextV2: that one measures through a LayoutBuilder, which IntrinsicHeight above cannot ask.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  offer.priceLabel,
+                  style: AppTextStyle.titleLarge.w600,
+                  maxLines: 1,
+                ),
+              ),
               Text(
-                offer.priceLabel,
-                style: AppTextStyle.titleMedium.w600,
+                _cadence(l10n),
+                style: AppTextStyle.bodySmall.secondary,
                 textAlign: TextAlign.center,
               ),
-              if (note != null) ...<Widget>[
-                SizedBox(height: SdSpacingConstant.h4),
-                Text(
-                  note,
-                  style: AppTextStyle.bodySmall.copyWith(color: accent),
-                  textAlign: TextAlign.center,
+              // The trial sits at the foot, so every card's price lines up with its neighbours'.
+              if (offer.hasTrial) ...<Widget>[
+                const Spacer(),
+                SizedBox(height: SdSpacingConstant.h8),
+                // scaleDown: a locale whose trial line outruns a third of the width shrinks rather than ellipsing.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SdTagV2(
+                    label: l10n.paywallPlanTrial(offer.trialDays!),
+                    color: accent,
+                  ),
                 ),
               ],
             ],

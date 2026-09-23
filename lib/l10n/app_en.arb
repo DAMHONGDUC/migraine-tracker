@@ -1577,9 +1577,17 @@
   },
   "paywallPlanOneTime": "One-time purchase",
   "@paywallPlanOneTime": {
-    "description": "Line under the lifetime plan row title: it is paid once, not renewed"
+    "description": "Line under the lifetime plan price: it is paid once, not renewed"
   },
-  "paywallPlanTrial": "{days}-day free trial",
+  "paywallPlanPerMonth": "per month",
+  "@paywallPlanPerMonth": {
+    "description": "Line under the monthly plan price: what the price covers"
+  },
+  "paywallPlanPerYear": "per year",
+  "@paywallPlanPerYear": {
+    "description": "Line under the yearly plan price: what the price covers"
+  },
+  "paywallPlanTrial": "{days} days free",
   "@paywallPlanTrial": {
     "description": "Badge on a plan row that carries an introductory free trial",
     "placeholders": {

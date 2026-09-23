@@ -119,7 +119,7 @@ void main() {
     expect(find.text(r'$4.99'), findsOneWidget);
     expect(find.text(r'$29.99'), findsOneWidget);
     // The trial belongs to the package, not to copy in the app.
-    expect(find.text('7-day free trial'), findsOneWidget);
+    expect(find.text('7 days free'), findsOneWidget);
     expect(find.text('Lifetime'), findsOneWidget);
     expect(find.text(r'$44.99'), findsOneWidget);
     // No period follows a lifetime price, so the row says it is paid once.
