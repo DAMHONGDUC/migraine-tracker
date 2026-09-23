@@ -22,8 +22,9 @@ launch.
 | Free | $0 | Core tracking with record limits |
 | Premium monthly | $4.99/month | All premium features |
 | Premium yearly | $29.99/year | Same access, 7-day trial |
+| Premium lifetime | One-time purchase | Same access |
 
-There are no ads and no lifetime product. RevenueCat manages subscriptions.
+There are no ads. RevenueCat manages the subscriptions and the lifetime purchase.
 [`docs/PREMIUM_RULES.md`](docs/PREMIUM_RULES.md) is the authority for every
 price, limit and gate.
 

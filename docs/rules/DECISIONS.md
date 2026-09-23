@@ -120,6 +120,11 @@ is gone from `PremiumPeriod` and `_periodOf` skips `PackageType.lifetime`, so an
 offering still carrying the product renders two plans rather than three. Anyone
 who bought one keeps the entitlement: nothing reads the period to decide access.
 
+**Restored 2026-09-23 (owner's call).** The offering carries `$rc_lifetime`
+(`...premium.lifetime2`) again, and `PremiumPeriod.lifetime` puts it back as a
+third row. The cost argument above still stands; the owner chose the sale over
+it. Do not drop it again without the owner saying so.
+
 ## Premium gated on an account as well as an entitlement
 
 `hasPremiumProvider` required a signed-in user, and the paywall showed a "Sign

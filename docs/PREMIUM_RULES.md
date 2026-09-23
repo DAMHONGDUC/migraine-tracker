@@ -1,6 +1,6 @@
 # Premium rules
 
-Authority for prices, free limits and feature gates. Last updated: 2026-09-21.
+Authority for prices, free limits and feature gates. Last updated: 2026-09-23.
 
 ## Offer
 
@@ -8,16 +8,17 @@ Authority for prices, free limits and feature gates. Last updated: 2026-09-21.
 |---|---:|---:|---|
 | Premium Monthly | $4.99/month | None | All Premium features |
 | Premium Yearly | $29.99/year | 7 days | Same as monthly |
+| Premium Lifetime | One-time, store price | None | Same as monthly |
 
-Yearly saves 50% compared with twelve monthly payments. There is no lifetime
-product: app costs such as WeatherKit, alerts and Firestore recur.
+Yearly saves 50% compared with twelve monthly payments. Lifetime is back as
+of 2026-09-23 (owner's call); the history is in `docs/rules/DECISIONS.md`.
 
 | Rule | Requirement |
 |---|---|
 | Price display | Use the store-provided `PremiumOffer.priceLabel` |
 | Entitlement source | RevenueCat only |
 | Account | Not required to buy, restore or use Premium |
-| Existing lifetime buyer | Keep the entitlement; do not show a lifetime offer |
+| Lifetime package | RevenueCat `$rc_lifetime` (product `app.dd.reseller.studio.premium.lifetime2`); the row is labelled "One-time purchase" |
 
 ## Free limits
 
