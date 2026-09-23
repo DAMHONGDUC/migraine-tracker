@@ -319,6 +319,8 @@
   "paywallFreeKeeps": "発作の記録は、これからもずっと無料です。",
   "paywallPlanMonthly": "月額",
   "paywallPlanYearly": "年額",
+  "paywallPlanLifetime": "買い切り",
+  "paywallPlanOneTime": "1回のみのお支払い",
   "paywallPlanTrial": "{days}日間の無料トライアル",
   "paywallNoPlans": "現在ご利用いただけるプランがありません。しばらくしてからお試しください。",
   "paywallRestore": "購入を復元",

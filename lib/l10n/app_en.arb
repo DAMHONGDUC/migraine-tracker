@@ -1571,6 +1571,14 @@
   "@paywallPlanYearly": {
     "description": "Paywall plan row title for the annual subscription"
   },
+  "paywallPlanLifetime": "Lifetime",
+  "@paywallPlanLifetime": {
+    "description": "Paywall plan row title for the one-time lifetime purchase"
+  },
+  "paywallPlanOneTime": "One-time purchase",
+  "@paywallPlanOneTime": {
+    "description": "Line under the lifetime plan row title: it is paid once, not renewed"
+  },
   "paywallPlanTrial": "{days}-day free trial",
   "@paywallPlanTrial": {
     "description": "Badge on a plan row that carries an introductory free trial",

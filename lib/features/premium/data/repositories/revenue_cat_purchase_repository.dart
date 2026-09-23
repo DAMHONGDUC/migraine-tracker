@@ -164,7 +164,7 @@ class RevenueCatPurchaseRepository implements PurchaseRepository {
   PremiumPeriod? _periodOf(PackageType type) => switch (type) {
     PackageType.monthly => PremiumPeriod.monthly,
     PackageType.annual => PremiumPeriod.yearly,
-    // Lifetime included: the product is retired, so a dashboard that still carries it must not put a row back on the paywall.
+    PackageType.lifetime => PremiumPeriod.lifetime,
     _ => null,
   };
 

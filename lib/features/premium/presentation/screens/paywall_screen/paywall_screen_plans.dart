@@ -13,8 +13,8 @@ class _Plans extends StatelessWidget {
   /// and the CTA under it does not jump when the store answers.
   static double get rowHeight => SdSpacingConstant.h64;
 
-  /// What the store offers here, or two of them.
-  static const int placeholderRows = 2;
+  /// What the store offers here: monthly, yearly and lifetime.
+  static const int placeholderRows = 3;
 
   final List<PremiumOffer> offers;
 
@@ -78,6 +78,7 @@ class _PlanRow extends StatelessWidget {
   String _title(AppLocalizations l10n) => switch (offer.period) {
     PremiumPeriod.monthly => l10n.paywallPlanMonthly,
     PremiumPeriod.yearly => l10n.paywallPlanYearly,
+    PremiumPeriod.lifetime => l10n.paywallPlanLifetime,
   };
 
   @override
@@ -105,6 +106,12 @@ class _PlanRow extends StatelessWidget {
                   if (offer.hasTrial)
                     Text(
                       l10n.paywallPlanTrial(offer.trialDays!),
+                      style: AppTextStyle.bodySmall.copyWith(color: accent),
+                    ),
+                  // The price has no period after it, so the row says why.
+                  if (offer.period == PremiumPeriod.lifetime)
+                    Text(
+                      l10n.paywallPlanOneTime,
                       style: AppTextStyle.bodySmall.copyWith(color: accent),
                     ),
                 ],

@@ -319,6 +319,8 @@
   "paywallFreeKeeps": "Enregistrer vos crises reste gratuit, pour toujours.",
   "paywallPlanMonthly": "Mensuel",
   "paywallPlanYearly": "Annuel",
+  "paywallPlanLifetime": "À vie",
+  "paywallPlanOneTime": "Achat unique",
   "paywallPlanTrial": "{days} jours d'essai gratuit",
   "paywallNoPlans": "Aucune formule n'est disponible pour le moment. Réessayez plus tard.",
   "paywallRestore": "Restaurer les achats",

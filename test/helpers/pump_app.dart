@@ -432,7 +432,7 @@ class FakePurchaseRepository implements PurchaseRepository {
 
   final FakePremiumRepository _premium;
 
-  /// The two plans PLAN.md sells, at their listed prices.
+  /// The three plans PLAN.md sells, at their listed prices.
   List<PremiumOffer> availableOffers = const <PremiumOffer>[
     PremiumOffer(
       id: r'$rc_monthly',
@@ -444,6 +444,11 @@ class FakePurchaseRepository implements PurchaseRepository {
       period: PremiumPeriod.yearly,
       priceLabel: r'$29.99',
       trialDays: 7,
+    ),
+    PremiumOffer(
+      id: r'$rc_lifetime',
+      period: PremiumPeriod.lifetime,
+      priceLabel: r'$44.99',
     ),
   ];
 

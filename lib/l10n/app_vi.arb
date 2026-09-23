@@ -319,6 +319,8 @@
   "paywallFreeKeeps": "Ghi lại cơn đau luôn miễn phí, mãi mãi.",
   "paywallPlanMonthly": "Hàng tháng",
   "paywallPlanYearly": "Hàng năm",
+  "paywallPlanLifetime": "Trọn đời",
+  "paywallPlanOneTime": "Thanh toán một lần",
   "paywallPlanTrial": "Dùng thử miễn phí {days} ngày",
   "paywallNoPlans": "Hiện chưa có gói nào. Vui lòng thử lại sau.",
   "paywallRestore": "Khôi phục giao dịch",

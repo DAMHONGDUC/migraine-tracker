@@ -227,7 +227,7 @@ abstract final class AppAnalytics {
     <String, Object>{_pSignedIn: signedIn.toString()},
   );
 
-  /// [period] is the plan shape (`monthly`, `yearly`) — never a price or a transaction id.
+  /// [period] is the plan shape (`monthly`, `yearly`, `lifetime`) — never a price or a transaction id.
   static void logPurchaseStarted({required String period}) =>
       _log(_purchaseStarted, <String, Object>{_pPeriod: period});
 

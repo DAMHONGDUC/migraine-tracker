@@ -319,6 +319,8 @@
   "paywallFreeKeeps": "Deine Attacken zu erfassen bleibt für immer kostenlos.",
   "paywallPlanMonthly": "Monatlich",
   "paywallPlanYearly": "Jährlich",
+  "paywallPlanLifetime": "Lebenslang",
+  "paywallPlanOneTime": "Einmalkauf",
   "paywallPlanTrial": "{days} Tage gratis testen",
   "paywallNoPlans": "Zurzeit sind keine Pläne verfügbar. Bitte versuche es später erneut.",
   "paywallRestore": "Käufe wiederherstellen",

@@ -46,7 +46,7 @@ void main() {
       matching: find.byType(SingleChildScrollView),
     );
 
-    for (final String label in <String>['Monthly', 'Yearly']) {
+    for (final String label in <String>['Monthly', 'Yearly', 'Lifetime']) {
       expect(
         find.descendant(of: scroller, matching: find.text(label)),
         findsNothing,
@@ -120,6 +120,24 @@ void main() {
     expect(find.text(r'$29.99'), findsOneWidget);
     // The trial belongs to the package, not to copy in the app.
     expect(find.text('7-day free trial'), findsOneWidget);
+    expect(find.text('Lifetime'), findsOneWidget);
+    expect(find.text(r'$44.99'), findsOneWidget);
+    // No period follows a lifetime price, so the row says it is paid once.
+    expect(find.text('One-time purchase'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the lifetime plan can be picked and bought', (tester) async {
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
+    await openPaywall(tester, app);
+
+    await tapVisible(tester, find.text('Lifetime'));
+    await tapVisible(tester, paywallCta());
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(app.purchases.purchased, <String>[r'$rc_lifetime']);
+    expect(app.premiumRepository.isPremium, isTrue);
 
     await finishTest(tester);
   });
