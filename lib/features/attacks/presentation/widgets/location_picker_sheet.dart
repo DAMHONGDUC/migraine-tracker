@@ -5,6 +5,7 @@ import 'package:system_design/index.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/enums/head_region.dart';
+import 'location_clear_button.dart';
 import 'location_step.dart';
 
 /// Corrects a logged attack's head areas.
@@ -33,6 +34,9 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
     SdSpacingConstant.h200 * 2.8,
   );
 
+  void _onChanged(List<HeadRegion> regions) =>
+      setState(() => _selected = regions);
+
   @override
   Widget build(BuildContext context) {
     return SdSheetContentV2(
@@ -50,10 +54,15 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
       scrollable: false,
       child: SizedBox(
         height: _height(context),
-        child: LocationStep(
-          selected: _selected,
-          onChanged: (List<HeadRegion> regions) =>
-              setState(() => _selected = regions),
+        // Deselect all sits under the step, where the flow puts it beside
+        // Save now; the sheet's own Update is in the header.
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: LocationStep(selected: _selected, onChanged: _onChanged),
+            ),
+            LocationClearButton(selected: _selected, onChanged: _onChanged),
+          ],
         ),
       ),
     );

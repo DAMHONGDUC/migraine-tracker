@@ -118,25 +118,6 @@ void main() {
     expect(selected, <HeadRegion>[HeadRegion.nape]);
   });
 
-  testWidgets('Deselect all clears both sides and leaves the head in place', (
-    WidgetTester tester,
-  ) async {
-    await pumpPicker(
-      tester,
-      initial: <HeadRegion>[HeadRegion.values.first, HeadRegion.nape],
-    );
-    await tester.pump();
-    final Rect head = tester.getRect(find.byType(HeadDiagram));
-
-    await tester.tap(find.text('Deselect all'));
-    await tester.pump();
-
-    expect(selected, isEmpty);
-    // Nothing left to clear, so the button goes — and the head stays put.
-    expect(find.text('Deselect all'), findsNothing);
-    expect(tester.getRect(find.byType(HeadDiagram)), head);
-  });
-
   testWidgets('picker fits a short edit sheet', (WidgetTester tester) async {
     await pumpPicker(tester, height: 500);
     await tester.pump();
@@ -293,7 +274,9 @@ void main() {
             theme: AppTheme.dark,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(body: Align(alignment: Alignment.bottomCenter, child: child)),
+            home: Scaffold(
+              body: Align(alignment: Alignment.bottomCenter, child: child),
+            ),
           ),
           child: child,
         ),

@@ -498,7 +498,7 @@
   },
   "logLocationClearAll": "Deselect all",
   "@logLocationClearAll": {
-    "description": "Button over the head diagram in the log flow and the location sheet that clears every picked area, on both sides of the head."
+    "description": "Text button beside Save now on the log flow's location step, and under the head in the location sheet; clears every picked area on both sides of the head. Keep it short: it shares a line with Save now."
   },
   "historyTitle": "History",
   "@historyTitle": {

@@ -14,6 +14,7 @@ import '../../controllers/log_controller.dart' show LogStep;
 import '../../widgets/attack_start_sheet.dart';
 import '../../widgets/exertion_step.dart';
 import '../../widgets/intensity_step.dart';
+import '../../widgets/location_clear_button.dart';
 import '../../widgets/location_step.dart';
 import '../../widgets/log_step_bar.dart';
 import '../../widgets/medication_step.dart';
@@ -54,6 +55,9 @@ class LogScreen extends ConsumerWidget {
         : SdContentPaddingV2.bottom(context);
     // Medication step scrolls its grid behind the step bar (like the tab flows); the grid applies [bottomInset] as its own scroll padding.
     final isMedication = state.step == LogStep.medication;
+    final regions = state.step == LogStep.location
+        ? (state.draft as List<HeadRegion>?) ?? const <HeadRegion>[]
+        : const <HeadRegion>[];
 
     return SdScaffoldV2(
       // The question IS the title: a headline in the body under a bar saying "Log" spent the top of every step twice.
@@ -140,9 +144,7 @@ class LogScreen extends ConsumerWidget {
                       onSelected: controller.selectIntensity,
                     ),
                     LogStep.location => LocationStep(
-                      selected:
-                          (state.draft as List<HeadRegion>?) ??
-                          const <HeadRegion>[],
+                      selected: regions,
                       onChanged: controller.updateDraft,
                       // The head loads once the slide in has finished.
                       headLoadAfter: LogFlowConstant.stepTransition,
@@ -192,6 +194,29 @@ class LogScreen extends ConsumerWidget {
                 ),
               )
             // The way out for the attack that is too bad to finish answering. Under the content rather than in the app bar: the bar already carries Next, and this one belongs where the thumb is.
+            // The location step pairs it with Deselect all: two text actions
+            // on one line, each centred in its half, so neither outranks Next.
+            else if (state.step == LogStep.location)
+              Padding(
+                padding: EdgeInsets.only(top: SdSpacingConstant.h8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: LocationClearButton(
+                        selected: regions,
+                        onChanged: controller.updateDraft,
+                      ),
+                    ),
+                    Expanded(
+                      child: SdButtonV2(
+                        variant: SdButtonVariantV2.text,
+                        onPressed: () => controller.saveNow(),
+                        label: l10n.logSaveNow,
+                      ),
+                    ),
+                  ],
+                ),
+              )
             else if (question != null)
               Padding(
                 padding: EdgeInsets.only(top: SdSpacingConstant.h8),

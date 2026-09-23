@@ -297,10 +297,7 @@ void main() {
 
     // Measured to the UI either side, not to the tile: the chevron is the
     // last thing on the right, the label the first on the left.
-    expect(
-      tester.getRect(label).left - card.left,
-      card.right - chevron.right,
-    );
+    expect(tester.getRect(label).left - card.left, card.right - chevron.right);
 
     await finishTest(tester);
   });

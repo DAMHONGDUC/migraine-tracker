@@ -152,7 +152,10 @@ void main() {
       ]) {
         expect(
           HeadViewportUtils.fitZoom(bounds, size),
-          inInclusiveRange(HeadViewportUtils.minZoom, HeadViewportUtils.maxZoom),
+          inInclusiveRange(
+            HeadViewportUtils.minZoom,
+            HeadViewportUtils.maxZoom,
+          ),
         );
       }
     });

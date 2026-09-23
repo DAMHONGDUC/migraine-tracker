@@ -62,7 +62,10 @@ void main() {
     /// The size the app bar actually rendered the question at.
     double titleSize(String question) => tester
         .widget<Text>(
-          find.descendant(of: find.byType(AppBar), matching: find.text(question)),
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.text(question),
+          ),
         )
         .style!
         .fontSize!;
@@ -213,6 +216,40 @@ void main() {
 
     expect(find.text('Crown'), findsOneWidget);
     expect(find.text('4'), findsWidgets);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('Deselect all shares a line with Save now and clears the pick', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openLog(tester);
+
+    await tester.tap(find.text('7'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    SdButtonV2 clear() => tester.widget<SdButtonV2>(
+      find.ancestor(
+        of: find.text('Deselect all'),
+        matching: find.byType(SdButtonV2),
+      ),
+    );
+    // Nothing to clear yet: there, but off.
+    expect(clear().onPressed, isNull);
+    expect(
+      tester.getCenter(find.text('Deselect all')).dy,
+      tester.getCenter(find.text('Save now')).dy,
+    );
+
+    await tester.tap(find.text('Right temple'));
+    await tester.pump();
+    expect(clear().onPressed, isNotNull);
+
+    await tester.tap(find.text('Deselect all'));
+    await tester.pump();
+    expect(clear().onPressed, isNull);
 
     await finishTest(tester);
   });

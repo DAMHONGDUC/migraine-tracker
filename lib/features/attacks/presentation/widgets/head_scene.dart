@@ -153,11 +153,7 @@ class _HeadSceneState extends State<HeadScene> {
     SdLogger.action(
       LogTagConstant.attackLog,
       'Pick head surface',
-      <String, Object?>{
-        'x': position.dx,
-        'y': position.dy,
-        'zoom': _zoom,
-      },
+      <String, Object?>{'x': position.dx, 'y': position.dy, 'zoom': _zoom},
     );
     final SceneRaycastHit? hit = _scene.raycast(
       camera.screenPointToRay(position, _viewSize),
