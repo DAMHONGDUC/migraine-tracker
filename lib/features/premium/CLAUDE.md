@@ -78,11 +78,17 @@ the medications tab the medication budget, each from that record's one
   them where a stacked list reads as a menu. `IntrinsicHeight` keeps every card
   as tall as the tallest, so a note that wraps in one locale does not leave the
   row ragged; `_Plans.cardHeight` is the floor the skeleton reserves.
-- **A plan card is an `SdCardV2`, and selection is the card's own fill and
-  edge**: `fillColor` at alpha 0.14 inside `borderColor`, both the accent.
-  There is no radio glyph — the tint and the edge already say which one is
-  chosen, and the circle said it a third time. Never reach for a 2px border to
-  make it louder; `SdCardV2.borderWidth` is a hairline on purpose.
+- **A plan card is an `SdCardV2`; selection is its fill and edge plus a check**
+  (owner's rule, 2026-09-23). Fill at alpha 0.14 inside an accent border, and a
+  filled `planSelected` check where the others show an empty `planUnselected`
+  ring, so colour is never the only signal. Never reach for a 2px border to make
+  it louder; `SdCardV2.borderWidth` is a hairline on purpose.
+- **Inside a card, top to bottom: check, name, price, cadence, trial tag.** The
+  cadence ("per month", "per year", "One-time purchase") sits under every price,
+  since a price with no period says nothing. The trial `SdTagV2` goes at the
+  foot, so the prices line up across the row. The tag is in a `FittedBox`
+  because its label is short and a third of the width is narrow: a long locale
+  shrinks it rather than cutting it off.
 - **The pitch is one framed card, centred in the space above the plans**
   (owner's call). The six benefits sit in an `SdCardV2` on
   `SdCardSurfaceV2.elevated` — a step up from the panel, so what is being
