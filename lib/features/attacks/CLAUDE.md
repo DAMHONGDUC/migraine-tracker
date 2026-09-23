@@ -153,9 +153,13 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
     hold until then. A model already in memory draws at once — no delay.
 - **"Deselect all" empties the answer from both sides in one tap** (owner's
   rule, 2026-09-23). The tiles show only the facing side, so clearing one by
-  one meant turning the head to find the rest. It overlays the head's bottom
-  corner, which is air at the fit zoom, and appears only while something is
-  picked — an overlay, so it never moves the head.
+  one meant turning the head to find the rest. **It sits beside Save now, not
+  on the head** (owner's call, same day — it first overlaid the head's corner):
+  two text buttons on one line, each centred in its half, so neither outranks
+  Next. The edit sheet has no Save now and puts it under the step.
+  `LocationClearButton` is the one widget for both. It is **disabled, never
+  hidden**, while nothing is picked, so the row keeps its shape. Keep the label
+  short in every locale — it shares a line (French is "Tout décocher" for that).
 
 - **One mesh node per region, named `region_<enum name>`, and that is what
   keeps the rule above true in 3D.** `Scene.raycast` tests the very mesh it
