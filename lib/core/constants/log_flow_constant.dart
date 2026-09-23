@@ -1,5 +1,8 @@
 /// Numbers the 3-tap log flow's option grids and dials run by.
 final class LogFlowConstant {
+  /// How long one step takes to slide in over the last.
+  static const Duration stepTransition = Duration(milliseconds: 250);
+
   /// Tiles per row in the exertion and medication grids.
   static const int optionsPerRow = 2;
 

@@ -116,6 +116,7 @@
   "logLocationViewFront": "Frente",
   "logLocationViewBack": "Detrás",
   "logLocationNone": "Ninguna zona elegida",
+  "logLocationClearAll": "Desmarcar todo",
   "historyTitle": "Historial",
   "attackDetailTitle": "Detalles de la crisis",
   "attackDetailDeleted": "Esta crisis se ha eliminado.",

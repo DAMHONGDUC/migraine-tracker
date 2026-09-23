@@ -116,6 +116,7 @@
   "logLocationViewFront": "前",
   "logLocationViewBack": "後ろ",
   "logLocationNone": "部位が未選択です",
+  "logLocationClearAll": "すべて解除",
   "historyTitle": "履歴",
   "attackDetailTitle": "発作の詳細",
   "attackDetailDeleted": "この発作は削除されました。",

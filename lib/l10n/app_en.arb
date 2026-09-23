@@ -496,6 +496,10 @@
   "@logLocationNone": {
     "description": "Shown in place of the area list when nothing has been picked yet"
   },
+  "logLocationClearAll": "Deselect all",
+  "@logLocationClearAll": {
+    "description": "Button over the head diagram in the log flow and the location sheet that clears every picked area, on both sides of the head."
+  },
   "historyTitle": "History",
   "@historyTitle": {
     "description": "Title of the history screen"

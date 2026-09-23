@@ -116,6 +116,7 @@
   "logLocationViewFront": "正面",
   "logLocationViewBack": "背面",
   "logLocationNone": "尚未选择部位",
+  "logLocationClearAll": "全部取消",
   "historyTitle": "历史",
   "attackDetailTitle": "发作详情",
   "attackDetailDeleted": "这次发作已被删除。",

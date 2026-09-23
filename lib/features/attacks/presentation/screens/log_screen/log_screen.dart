@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../../core/constants/log_flow_constant.dart';
 import '../../../../../core/extensions/context_extensions.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../domain/enums/exertion_level.dart';
@@ -119,7 +120,7 @@ class LogScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
+                duration: LogFlowConstant.stepTransition,
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 transitionBuilder: (child, animation) {
@@ -143,6 +144,8 @@ class LogScreen extends ConsumerWidget {
                           (state.draft as List<HeadRegion>?) ??
                           const <HeadRegion>[],
                       onChanged: controller.updateDraft,
+                      // The head loads once the slide in has finished.
+                      headLoadAfter: LogFlowConstant.stepTransition,
                     ),
                     LogStep.medication => MedicationStep(
                       hasSelection: state.hasDraft,

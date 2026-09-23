@@ -62,11 +62,15 @@ class HeadRegionPicker extends ConsumerStatefulWidget {
   const HeadRegionPicker({
     required this.selected,
     required this.onChanged,
+    this.headLoadAfter = Duration.zero,
     super.key,
   });
 
   final List<HeadRegion> selected;
   final ValueChanged<List<HeadRegion>> onChanged;
+
+  /// See [HeadDiagram.loadAfter].
+  final Duration headLoadAfter;
 
   /// The height of the row the Front/Back tabs and the camera controls share.
   ///
@@ -161,6 +165,23 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
       LogTagConstant.attackLog,
       'Head selection updated',
       <String, Object?>{'selectedCount': next.length},
+    );
+  }
+
+  /// Empties the answer in one tap, whichever side the picks are on — the
+  /// tiles only show the facing side, so untoggling them one by one meant
+  /// turning the head to find the rest.
+  void _clearAll() {
+    SdLogger.action(
+      LogTagConstant.attackLog,
+      'Clear head regions',
+      <String, Object?>{'selectedCount': widget.selected.length},
+    );
+    widget.onChanged(const <HeadRegion>[]);
+    SdLogger.info(
+      LogTagConstant.attackLog,
+      'Head selection cleared',
+      <String, Object?>{'selectedCount': 0},
     );
   }
 
@@ -304,7 +325,8 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
       builder: (BuildContext context, BoxConstraints constraints) {
         final double gap = _headInset;
         // What is left once the top row has taken its fixed slice.
-        final double body = constraints.maxHeight - HeadRegionPicker.topRowHeight;
+        final double body =
+            constraints.maxHeight - HeadRegionPicker.topRowHeight;
         // The head is sized from its WIDTH, not from what is left over
         // (owner's rule); the `min` only guards a short column. What it does
         // not use goes to the tiles, and the rest is air around the head.
@@ -394,31 +416,54 @@ class _HeadRegionPickerState extends ConsumerState<HeadRegionPicker>
                 child: SizedBox(
                   height: head,
                   width: double.infinity,
-                  child: Semantics(
-                    label: widget.selected.isEmpty
-                        ? l10n.logLocationNone
-                        : widget.selected.label(l10n),
-                    excludeSemantics: true,
-                    child: _SideLabelled(
-                      inset: _headInset,
-                      overlay: _available,
-                      leftOnLeft:
-                          !_available || HeadPose.leftIsOnScreenLeft(_yaw),
-                      child: HeadDiagram(
-                        expandScene: true,
-                        selected: widget.selected,
-                        view: _view,
-                        yaw: _yaw,
-                        pitch: _pitch,
-                        zoom: zoom,
-                        onPoseChanged: _poseTo,
-                        onInteractionStart: _turn.stop,
-                        onAvailabilityChanged: _availabilityChanged,
-                        onRegionTapped: _toggle,
-                        onYawChanged: _dragTo,
-                        rotationSpeed: controls.rotationSpeed,
+                  child: Stack(
+                    children: <Widget>[
+                      Positioned.fill(
+                        child: Semantics(
+                          label: widget.selected.isEmpty
+                              ? l10n.logLocationNone
+                              : widget.selected.label(l10n),
+                          excludeSemantics: true,
+                          child: _SideLabelled(
+                            inset: _headInset,
+                            overlay: _available,
+                            leftOnLeft:
+                                !_available ||
+                                HeadPose.leftIsOnScreenLeft(_yaw),
+                            child: HeadDiagram(
+                              expandScene: true,
+                              selected: widget.selected,
+                              view: _view,
+                              yaw: _yaw,
+                              pitch: _pitch,
+                              zoom: zoom,
+                              onPoseChanged: _poseTo,
+                              onInteractionStart: _turn.stop,
+                              onAvailabilityChanged: _availabilityChanged,
+                              onRegionTapped: _toggle,
+                              onYawChanged: _dragTo,
+                              rotationSpeed: controls.rotationSpeed,
+                              loadAfter: widget.headLoadAfter,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      // Over the head's bottom corner, which is air at every
+                      // zoom it opens on — an overlay, so it coming and going
+                      // never moves the head (owner's rule).
+                      if (widget.selected.isNotEmpty)
+                        Positioned(
+                          right: SdContentPaddingV2.horizontal,
+                          bottom: 0,
+                          child: SdButtonV2(
+                            variant: SdButtonVariantV2.text,
+                            size: SdButtonSizeV2.small,
+                            icon: Symbols.deselect_rounded,
+                            label: l10n.logLocationClearAll,
+                            onPressed: _clearAll,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

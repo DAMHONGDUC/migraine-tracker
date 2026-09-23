@@ -116,6 +116,7 @@
   "logLocationViewFront": "Trước",
   "logLocationViewBack": "Sau",
   "logLocationNone": "Chưa chọn vùng nào",
+  "logLocationClearAll": "Bỏ chọn tất cả",
   "historyTitle": "Lịch sử",
   "attackDetailTitle": "Chi tiết cơn đau",
   "attackDetailDeleted": "Cơn đau này đã bị xóa.",

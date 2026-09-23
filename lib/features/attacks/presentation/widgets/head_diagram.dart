@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart' show Node;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -37,6 +39,7 @@ class HeadDiagram extends StatefulWidget {
     this.zoom,
     this.rotationSpeed = HeadRotationSpeed.initial,
     this.expandScene = false,
+    this.loadAfter = Duration.zero,
     this.onPoseChanged,
     this.onInteractionStart,
     this.onAvailabilityChanged,
@@ -67,6 +70,15 @@ class HeadDiagram extends StatefulWidget {
 
   /// Let the 3D picker use its whole slot; the SVG keeps its design ratio.
   final bool expandScene;
+
+  /// How long to hold the dots before the FIRST load of the model starts.
+  ///
+  /// Parsing the model and drawing it for the first time both run on the UI
+  /// thread, so starting them while the screen is still sliding in stutters
+  /// the slide (owner's report, 2026-09-23). A caller that arrives on a
+  /// transition passes its length. Ignored once the model is in memory — a
+  /// loaded head draws without that cost.
+  final Duration loadAfter;
   final ValueChanged<HeadViewport>? onPoseChanged;
   final VoidCallback? onInteractionStart;
   final ValueChanged<bool>? onAvailabilityChanged;
@@ -101,7 +113,18 @@ class _HeadDiagramState extends State<HeadDiagram> {
       if (mounted) widget.onAvailabilityChanged?.call(_template != null);
     });
     if (_template != null || _unavailable) return;
+    if (widget.loadAfter == Duration.zero) {
+      _load();
+    } else {
+      _loadTimer = Timer(widget.loadAfter, _load);
+    }
+  }
 
+  /// Cancelled on dispose: a step backed out of mid-slide must not start a
+  /// load for a head nobody will see.
+  Timer? _loadTimer;
+
+  void _load() {
     // Unawaited by shape, not by accident: nothing on this screen waits for a
     // model, and the placeholder is already on screen while it loads.
     HeadSceneStore.load().then((Node? node) {
@@ -113,6 +136,12 @@ class _HeadDiagramState extends State<HeadDiagram> {
       });
       widget.onAvailabilityChanged?.call(node != null);
     });
+  }
+
+  @override
+  void dispose() {
+    _loadTimer?.cancel();
+    super.dispose();
   }
 
   @override

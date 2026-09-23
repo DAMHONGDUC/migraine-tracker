@@ -116,6 +116,7 @@
   "logLocationViewFront": "Vorne",
   "logLocationViewBack": "Hinten",
   "logLocationNone": "Noch keine Stelle gewählt",
+  "logLocationClearAll": "Alle abwählen",
   "historyTitle": "Verlauf",
   "attackDetailTitle": "Details zur Attacke",
   "attackDetailDeleted": "Diese Attacke wurde gelöscht.",
