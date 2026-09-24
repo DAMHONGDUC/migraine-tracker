@@ -11,6 +11,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 import 'package:migraine_tracker/features/auth/providers.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_collection.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_status.dart';
+import 'package:migraine_tracker/features/sync/presentation/controllers/sync_controller.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 
 import '../../helpers/pump_app.dart';
@@ -146,5 +147,39 @@ void main() {
 
     expect(container.read(syncControllerProvider).pending, 0);
     expect(remote.of(SyncCollection.attacks), contains('a1'));
+  });
+
+  // A refusal that is not the network — the rules, a bad record — never goes
+  // away on its own, and every failed push files two Crashlytics non-fatals.
+  testWidgets('retries stop after the limit instead of running forever', (
+    tester,
+  ) async {
+    await tester.runAsync(() => attacks.insert(attack('a1')));
+    remote.failPutAfter = 0;
+    final SyncController controller = container.read(
+      syncControllerProvider.notifier,
+    );
+    int attempts = 0;
+
+    container.listen<SyncStatus>(syncControllerProvider, (
+      SyncStatus? previous,
+      SyncStatus next,
+    ) {
+      if (next.phase == SyncPhase.failed &&
+          previous?.phase != SyncPhase.failed) {
+        attempts++;
+      }
+    });
+    unawaited(controller.pushPending());
+    await settle(tester);
+
+    // Far past the whole ladder: 15s, 30s, 1m, 2m, 4m, 5m.
+    for (int i = 0; i < 12; i++) {
+      await tester.pump(SyncConstant.pushRetryMax);
+      await settle(tester);
+    }
+
+    expect(attempts, 1 + SyncConstant.pushRetryLimit);
+    expect(container.read(syncControllerProvider).pending, 1);
   });
 }

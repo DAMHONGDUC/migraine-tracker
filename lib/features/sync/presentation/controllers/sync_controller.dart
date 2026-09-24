@@ -27,6 +27,9 @@ class SyncController extends Notifier<SyncStatus> {
   /// How long the next retry waits — [SyncConstant.pushRetryFirst], doubling up to [SyncConstant.pushRetryMax].
   Duration _retryDelay = SyncConstant.pushRetryFirst;
 
+  /// Retries used since the last push that landed, or the last launch or resume. Capped at [SyncConstant.pushRetryLimit].
+  int _retries = 0;
+
   @override
   SyncStatus build() {
     ref.onDispose(() => _retry?.cancel());
@@ -38,6 +41,9 @@ class SyncController extends Notifier<SyncStatus> {
     final AuthUser? user = _currentUser();
 
     if (user == null || !user.isSignedIn || _passQueued) return;
+    // Launch, resume and sign-in are a fresh chance: the retry budget starts over.
+    _retries = 0;
+    _retryDelay = SyncConstant.pushRetryFirst;
     _passQueued = true;
     return _enqueue(() async {
       _passQueued = false;
@@ -266,6 +272,15 @@ class SyncController extends Notifier<SyncStatus> {
   /// write or launch. The card sat on "uploads when online" while online.
   void _scheduleRetry() {
     if (_retry?.isActive ?? false) return;
+    if (_retries >= SyncConstant.pushRetryLimit) {
+      SdLogger.warning(
+        LogTagConstant.sync,
+        'Push retries used up — waiting for the next launch, resume or write',
+        <String, Object?>{'pending': state.pending},
+      );
+      return;
+    }
+    _retries++;
     final Duration delay = _retryDelay;
 
     SdLogger.info(LogTagConstant.sync, 'Push retry scheduled', {
@@ -287,6 +302,7 @@ class SyncController extends Notifier<SyncStatus> {
     _retry?.cancel();
     _retry = null;
     _retryDelay = SyncConstant.pushRetryFirst;
+    _retries = 0;
   }
 
   /// Null when the count could not be read: the card keeps the last one rather than claiming nothing is owed.

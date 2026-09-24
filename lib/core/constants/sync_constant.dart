@@ -11,4 +11,7 @@ final class SyncConstant {
 
   /// Longest wait between two retries — the ceiling of the doubling.
   static const Duration pushRetryMax = Duration(minutes: 5);
+
+  /// Retries one run of failures gets before it waits for the next launch, resume or write — 15s to 5m is about 13 minutes. A refusal that is not the network (the rules, a bad record) would otherwise retry forever, and each failure files two Crashlytics non-fatals.
+  static const int pushRetryLimit = 6;
 }
