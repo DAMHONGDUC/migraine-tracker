@@ -15,11 +15,12 @@ class OwnedCollection {
   Query<Map<String, dynamic>> owned() =>
       _root().where(EncryptedRecordMapper.userId, isEqualTo: _uid);
 
-  /// Writes [data] under [id], stamping the owner. The rules reject any other value, so this is the only way the write can succeed.
-  Future<void> write(String id, Map<String, Object?> data) =>
-      _root().doc(id).set(data);
+  /// Writes [data] for record [id], stamping the owner. The rules reject any other value, so this is the only way the write can succeed.
+  Future<void> write(String id, Map<String, Object?> data) => doc(id).set(data);
 
-  DocumentReference<Map<String, dynamic>> doc(String id) => _root().doc(id);
+  /// Record [id]'s document — under this user's own id, never the bare record id.
+  DocumentReference<Map<String, dynamic>> doc(String id) =>
+      _root().doc(EncryptedRecordMapper.documentId(_uid, id));
 
   WriteBatch batch() => _firestore.batch();
 
