@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
@@ -64,6 +67,45 @@ void main() {
     expect(await app.db.select(app.db.attacks).get(), isEmpty);
     expect(app.auth.signOutCalls, 1);
 
+    await finishTest(tester);
+  });
+
+  // It sits outside the scaffold, so without a Material of its own its text
+  // came out with Flutter's yellow "no Material" underline.
+  testWidgets('the wait is a card over the screen, its text on a Material', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester, signedIn: true);
+    await logAttack(app);
+    await openAccount(tester);
+    final Completer<void> hold = Completer<void>();
+
+    app.syncRemote.holdPuts = hold;
+    // Released even when an expect below fails, or the held write hangs the teardown for the full timeout.
+    addTearDown(() {
+      if (!hold.isCompleted) hold.complete();
+    });
+
+    await tapSignOut(tester);
+
+    // The button carries the same words; the overlay's copy is the one centred over the barrier.
+    final Finder message = find.descendant(
+      of: find
+          .ancestor(of: find.byType(ModalBarrier), matching: find.byType(Stack))
+          .first,
+      matching: find.text('Saving your data to your account…'),
+    );
+
+    expect(message, findsWidgets);
+    expect(
+      find.ancestor(of: message.last, matching: find.byType(Material)),
+      findsWidgets,
+    );
+    expect(find.byType(ModalBarrier), findsWidgets);
+
+    hold.complete();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await finishTest(tester);
   });
 

@@ -78,6 +78,9 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
   /// Never answers, the way a Firestore write does while the backend is out of reach — its future waits on a server ack that never comes.
   bool hangOnDeleteAll = false;
 
+  /// Holds every write until completed — keeps a push, and a sign-out behind it, on screen. The test completes it before it ends.
+  Completer<void>? holdPuts;
+
   /// Fails once this many puts have succeeded within a single sync.
   int? failPutAfter;
 
@@ -97,6 +100,7 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
     SyncCollection collection,
     EncryptedRecord record,
   ) async {
+    if (holdPuts != null) await holdPuts!.future;
     if (failNextPut) {
       failNextPut = false;
       throw Exception('put failed');

@@ -98,7 +98,7 @@ class _DeleteAccountTile extends ConsumerWidget {
 
 /// The screen, out of reach, while the server works.
 ///
-/// A scrim and a spinner rather than a disabled row: deleting an account is a
+/// A scrim with a spinner card over it, like a dialog, rather than a disabled row: deleting an account is a
 /// Cloud Function round trip, and signing out pushes what the device still
 /// owes before it wipes the device's copy. Every control still live during
 /// either — Sign Out, edit name, the back arrow — acts on an account that may
@@ -117,35 +117,44 @@ class _BusyOverlay extends StatelessWidget {
     return Positioned.fill(
       child: Stack(
         children: <Widget>[
-          // The same barrier a dialog puts up, and for the same reason — this
-          // is one, with the card left off. It swallows the taps; the spinner
-          // beside it only says why.
+          // The same barrier a dialog puts up, and for the same reason: it swallows the taps.
           ModalBarrier(color: context.sdTheme.barrier, dismissible: false),
+          // A card of its own, like a dialog: it sits outside the scaffold, so this Material is also what gives the text its theme — without it Flutter draws the yellow "no Material" underline.
           Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox.square(
-                  dimension: spinnerSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: SdSpacingConstant.w2,
-                    color: context.colorScheme.primary,
-                  ),
+            child: Material(
+              color: context.sdTheme.surfaceModal,
+              borderRadius: BorderRadius.circular(SdCardV2.radius),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SdSpacingConstant.w24,
+                  vertical: SdSpacingConstant.h20,
                 ),
-                if (message != null) ...<Widget>[
-                  SizedBox(height: SdSpacingConstant.h16),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: SdSpacingConstant.w32,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox.square(
+                      dimension: spinnerSize,
+                      child: CircularProgressIndicator(
+                        strokeWidth: SdSpacingConstant.w2,
+                        color: context.colorScheme.primary,
+                      ),
                     ),
-                    child: Text(
-                      message!,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.bodyMedium,
-                    ),
-                  ),
-                ],
-              ],
+                    if (message != null) ...<Widget>[
+                      SizedBox(height: SdSpacingConstant.h16),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: SdSpacingConstant.w240,
+                        ),
+                        child: Text(
+                          message!,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ],
