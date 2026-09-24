@@ -95,8 +95,8 @@ actually pending.
   and resume — a cooldown the app forgets on close would let ten cold starts run
   ten passes. `clear()` drops it with the cursors, so signing into another
   account syncs at once.
-- **A skipped pass changes no state at all**, not the phase. It is neither a
-  fresh sync nor a failure.
+- **A skipped pass changes no phase.** It is neither a fresh sync nor a failure;
+  its push still recounts `pending` for the Settings card.
 - The cost is the owner's call and worth stating: a change made on **another**
   device can wait up to six hours before this one sees it.
 - **Passes and pushes run one at a time**, through `SyncController`'s queue: two
