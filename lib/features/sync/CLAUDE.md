@@ -145,7 +145,7 @@ frames and a thousand is a visible stutter.
 | Where | Reads | Shows |
 |---|---|---|
 | History, first pull on a device | `isSyncing`, `isFirstPull` | "getting your attacks" instead of "you have none" |
-| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | title over detail — "Syncing / 12/40 … 30%" over a bar · "3 changes not saved / Uploads when online" · "All saved / On your account" |
+| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | title over detail — "Syncing / 12/40 … 30%" over a bar · "3 changes not saved / Saving shortly" · "All saved / On your account" · failed: "3 changes not saved" or "Sync failed", over "It will try again on its own" |
 
 - **`pending` is recounted after every pass and push** (`SyncService.pendingCount`,
   four local queries), so an offline write shows up as owed within the 2s
@@ -154,6 +154,11 @@ frames and a thousand is a visible stutter.
 - **`total` can grow during a pass**: pending is counted up front, and each
   collection's pull adds its batch when it lands. The bar may step back a little;
   a total that pretended to know the pull size would be wrong instead.
+- **A failed phase wins over the owed count, and it never says "offline"**
+  (owner-reported bug, 2026-09-24). It read "Uploads when online" while online,
+  because the server was refusing; offline and refused look the same from
+  here, so the card says only that it will retry. A pass that failed with
+  nothing owed says "Sync failed", not "All saved" — the pull is what broke.
 - **No flow is ever gated on sync completing**, and the card has no button.
 
 ## The crypto
