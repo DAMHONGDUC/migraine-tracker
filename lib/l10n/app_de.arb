@@ -855,7 +855,7 @@
   "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein.",
   "alertsNeedsSignIn": "Warnungen brauchen zusätzlich ein Google- oder Apple-Konto — die Mitteilung geht an das Konto, nicht an dieses Gerät.",
   "freeHistoryTitle": "Verlauf gesperrt",
-  "freeHistoryBody": "Attacken vor dem {date} sind gesperrt. Nichts wird gelöscht.",
+  "freeHistoryBody": "Attacken vor dem {date} sind gesperrt. Nichts wird gelöscht — schalte Premium frei, um deinen Verlauf zu öffnen.",
   "logHeadZoomOut": "Verkleinern",
   "logHeadZoomIn": "Vergrößern",
   "logHeadResetView": "Ansicht zurücksetzen",

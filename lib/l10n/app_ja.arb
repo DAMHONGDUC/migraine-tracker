@@ -855,7 +855,7 @@
   "checkInReminderDenied": "BaroEase の通知がオフです。設定でオンにしてください。",
   "alertsNeedsSignIn": "通知には Google または Apple アカウントも必要です。プッシュは端末ではなくアカウントに送られます。",
   "freeHistoryTitle": "履歴はロック中",
-  "freeHistoryBody": "{date} より前の発作はロック中です。削除はされていません。",
+  "freeHistoryBody": "{date} より前の発作はロック中です。削除はされていません。Premium で履歴のロックを解除できます。",
   "logHeadZoomOut": "縮小",
   "logHeadZoomIn": "拡大",
   "logHeadResetView": "表示をリセット",

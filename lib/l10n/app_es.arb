@@ -855,7 +855,7 @@
   "checkInReminderDenied": "Las notificaciones de BaroEase están desactivadas. Actívalas en Ajustes.",
   "alertsNeedsSignIn": "Los avisos también necesitan una cuenta de Google o Apple: el envío va a la cuenta, no a este dispositivo.",
   "freeHistoryTitle": "Historial bloqueado",
-  "freeHistoryBody": "Las crisis antes del {date} están bloqueadas. No se borra nada.",
+  "freeHistoryBody": "Las crisis antes del {date} están bloqueadas. No se borra nada: desbloquea Premium para abrir tu historial.",
   "logHeadZoomOut": "Alejar",
   "logHeadZoomIn": "Acercar",
   "logHeadResetView": "Restablecer vista",

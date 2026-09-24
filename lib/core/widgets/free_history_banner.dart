@@ -39,8 +39,9 @@ import 'premium_gate.dart';
 /// than the rows it labels; a chevron also said "more to read" where the only
 /// thing on offer is the paywall. The button names that action outright, and
 /// the whole card still opens the paywall for a thumb that misses it. The title
-/// is one line and only says what is locked; the body, up to two lines,
-/// carries the date and that nothing was deleted (owner's call, 2026-09-24).
+/// is one line and only says what is locked; the body, up to three lines,
+/// carries the date, that nothing was deleted, and that Premium opens it
+/// (owner's call, 2026-09-24).
 ///
 /// **Absent until something is actually hidden.** A banner offering to reveal
 /// nothing is the free plan's own limit advertised as a loss.
@@ -86,7 +87,7 @@ class FreeHistoryBanner extends ConsumerWidget {
                       DateFormat.yMMMd(context.l10n.localeName).format(start),
                     ),
                     style: AppTextStyle.bodySmall.secondary,
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

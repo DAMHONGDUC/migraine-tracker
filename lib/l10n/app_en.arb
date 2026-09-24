@@ -4143,9 +4143,9 @@
   "@freeHistoryTitle": {
     "description": "Banner title on the free plan's history boundary. One line beside an Unlock button — keep it short"
   },
-  "freeHistoryBody": "Attacks before {date} are locked. Nothing is deleted.",
+  "freeHistoryBody": "Attacks before {date} are locked. Nothing is deleted — unlock Premium to open your history.",
   "@freeHistoryBody": {
-    "description": "Names the date the free plan's readable history starts at, and reassures that nothing older was deleted. At most two lines beside an Unlock button",
+    "description": "Names the date the free plan's readable history starts at, reassures that nothing older was deleted, and says Premium opens it. At most three lines beside an Unlock button",
     "placeholders": {
       "date": {
         "type": "String"
