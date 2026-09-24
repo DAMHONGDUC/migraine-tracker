@@ -38,8 +38,8 @@ import 'premium_gate.dart';
 /// On History it sits between rows, and a full `SdBannerV2` there was taller
 /// than the rows it labels; a chevron also said "more to read" where the only
 /// thing on offer is the paywall. The button names that action outright, and
-/// the whole card still opens the paywall for a thumb that misses it. Title
-/// and body are one line each, so the copy is kept short in every locale.
+/// the whole card still opens the paywall for a thumb that misses it. The title
+/// is one line and the body two, so the copy is kept short in every locale.
 ///
 /// **Absent until something is actually hidden.** A banner offering to reveal
 /// nothing is the free plan's own limit advertised as a loss.
@@ -85,7 +85,7 @@ class FreeHistoryBanner extends ConsumerWidget {
                   Text(
                     context.l10n.freeHistoryBody,
                     style: AppTextStyle.bodySmall.secondary,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

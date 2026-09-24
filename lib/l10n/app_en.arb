@@ -4150,7 +4150,7 @@
   },
   "freeHistoryBody": "Nothing is deleted, just hidden.",
   "@freeHistoryBody": {
-    "description": "Reassures the user that the hidden history still exists. One line beside an Unlock button — keep it short"
+    "description": "Reassures the user that the hidden history still exists. At most two lines beside an Unlock button — keep it short"
   },
   "logHeadZoomOut": "Zoom out",
   "@logHeadZoomOut": {
