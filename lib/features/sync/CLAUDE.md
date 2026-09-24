@@ -74,9 +74,14 @@ tombstones, debounces `SyncConstant.writeThroughDebounce` (2s) and pushes.
   every single write.
 - **A push writes state but stamps no cooldown.** The Settings card shows a
   push's progress and the count still owed, so both come from it; a push is
-  still not the pull the floor is about. A failed push waits for the
-  next write, or for the next launch or resume — a pass the cooldown holds back
-  still carries it up; it is not retried on its own.
+  still not the pull the floor is about.
+- **A failed push that leaves records owed retries on its own**, backing off
+  `SyncConstant.pushRetryFirst` (15s), doubling to `pushRetryMax` (5m), reset by
+  any push that lands and stopped on sign-out. Resume alone was not enough: it
+  fires the instant the app comes back, before Wi-Fi or cellular has, so that
+  push failed too and the card sat on "Uploads when online" while online
+  (owner-reported bug, 2026-09-24). The next write, launch or resume still
+  pushes as before.
 
 ## The cooldown
 
