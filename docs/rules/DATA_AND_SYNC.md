@@ -18,6 +18,18 @@ sync a day owned it, and every other account's push was refused for good.
 `EncryptedRecordMapper.documentId` builds it; a document written before this
 has the bare id and no `record_id`, and still reads under its document id.
 
+**`firestore.rules` refuses to *create* a synced document whose id does not
+start with the caller's own uid** (`ownsId(docId)`), so nobody can create
+`<yourUid>_2026-09-24` first and lock you out of it. Update and delete need no
+id check: `ownsStored()` already pins an existing document to its owner, which
+is also what keeps a legacy bare-id document editable.
+
+- **It refuses every build from before 2026-09-24**, which creates bare ids —
+  their new records stop syncing. **`melos run release-prod` deploys rules**,
+  so this ships with the next release whether or not old builds are gone.
+  Raise `force_update` to the first owned-id build in the same release, or
+  hold the rule back until testers have updated.
+
 **Every id is made by `SdId` (`package:system_design/common.dart`)** — owner's
 rule, 2026-09-24:
 
