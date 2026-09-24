@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "正在检查",
   "syncCardChecking": "请稍候",
   "syncCardPendingTitle": "{count, plural, other{{count} 项未保存}}",
-  "syncCardPendingBody": "联网后自动上传",
+  "syncCardPendingBody": "即将保存",
   "syncCardSavedTitle": "已全部保存",
   "syncCardSavedBody": "已在账户中",
   "settingsDevSync": "立即全部同步",
   "settingsDevSyncDone": "同步完成。",
-  "settingsDevSyncFailed": "同步失败。"
+  "settingsDevSyncFailed": "同步失败。",
+  "syncCardFailedTitle": "同步失败",
+  "syncCardFailedBody": "将自动重试"
 }

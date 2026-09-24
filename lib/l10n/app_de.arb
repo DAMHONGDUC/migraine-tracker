@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "Prüfe Sync",
   "syncCardChecking": "Einen Moment",
   "syncCardPendingTitle": "{count, plural, other{{count} nicht gespeichert}}",
-  "syncCardPendingBody": "Lädt hoch, sobald online",
+  "syncCardPendingBody": "Wird gleich gespeichert",
   "syncCardSavedTitle": "Alles gespeichert",
   "syncCardSavedBody": "In deinem Konto",
   "settingsDevSync": "Jetzt alles synchronisieren",
   "settingsDevSyncDone": "Synchronisierung abgeschlossen.",
-  "settingsDevSyncFailed": "Synchronisierung fehlgeschlagen."
+  "settingsDevSyncFailed": "Synchronisierung fehlgeschlagen.",
+  "syncCardFailedTitle": "Synchronisierung fehlgeschlagen",
+  "syncCardFailedBody": "Wird automatisch erneut versucht"
 }

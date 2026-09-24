@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "確認中",
   "syncCardChecking": "少々お待ちください",
   "syncCardPendingTitle": "{count, plural, other{未保存 {count} 件}}",
-  "syncCardPendingBody": "オンライン時に自動送信",
+  "syncCardPendingBody": "まもなく保存",
   "syncCardSavedTitle": "すべて保存済み",
   "syncCardSavedBody": "アカウント上",
   "settingsDevSync": "今すぐすべて同期",
   "settingsDevSyncDone": "同期が完了しました。",
-  "settingsDevSyncFailed": "同期に失敗しました。"
+  "settingsDevSyncFailed": "同期に失敗しました。",
+  "syncCardFailedTitle": "同期に失敗",
+  "syncCardFailedBody": "自動で再試行します"
 }

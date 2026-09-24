@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "Đang kiểm tra",
   "syncCardChecking": "Chờ chút",
   "syncCardPendingTitle": "{count, plural, other{{count} thay đổi chưa lưu}}",
-  "syncCardPendingBody": "Tự tải lên khi có mạng",
+  "syncCardPendingBody": "Sắp lưu",
   "syncCardSavedTitle": "Đã lưu hết",
   "syncCardSavedBody": "Trong tài khoản",
   "settingsDevSync": "Đồng bộ toàn bộ ngay",
   "settingsDevSyncDone": "Đồng bộ xong.",
-  "settingsDevSyncFailed": "Đồng bộ thất bại."
+  "settingsDevSyncFailed": "Đồng bộ thất bại.",
+  "syncCardFailedTitle": "Đồng bộ lỗi",
+  "syncCardFailedBody": "Sẽ tự thử lại"
 }

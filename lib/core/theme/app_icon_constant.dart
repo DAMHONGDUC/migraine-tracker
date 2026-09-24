@@ -328,6 +328,9 @@ final class AppIconConstant {
   /// Changes on this device the account does not have yet.
   static const IconData syncPending = Symbols.cloud_upload_rounded;
 
+  /// The last sync failed — offline, or the server refused it.
+  static const IconData syncFailed = Symbols.sync_problem_rounded;
+
   /// The same account on another device.
   static const IconData devices = Symbols.devices_rounded;
 

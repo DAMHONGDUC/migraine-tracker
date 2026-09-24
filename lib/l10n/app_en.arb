@@ -4240,9 +4240,9 @@
       }
     }
   },
-  "syncCardPendingBody": "Uploads when online",
+  "syncCardPendingBody": "Saving shortly",
   "@syncCardPendingBody": {
-    "description": "Settings sync card body when changes are owed; sign-out is refused until they upload"
+    "description": "Settings sync card detail when changes are owed and nothing has failed yet — the push is a couple of seconds off"
   },
   "syncCardSavedTitle": "All saved",
   "@syncCardSavedTitle": {
@@ -4263,5 +4263,13 @@
   "settingsDevSyncFailed": "Sync failed.",
   "@settingsDevSyncFailed": {
     "description": "Snack bar after the dev full sync failed"
+  },
+  "syncCardFailedTitle": "Sync failed",
+  "@syncCardFailedTitle": {
+    "description": "Settings sync card title after a sync failed and nothing is owed (the pull failed)"
+  },
+  "syncCardFailedBody": "It will try again on its own",
+  "@syncCardFailedBody": {
+    "description": "Settings sync card detail after a sync failed \u2014 offline or refused, it retries on its own"
   }
 }

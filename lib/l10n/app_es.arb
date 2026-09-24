@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "Comprobando",
   "syncCardChecking": "Un momento",
   "syncCardPendingTitle": "{count, plural, other{{count} sin guardar}}",
-  "syncCardPendingBody": "Se sube al conectarte",
+  "syncCardPendingBody": "Se guardará en breve",
   "syncCardSavedTitle": "Todo guardado",
   "syncCardSavedBody": "En tu cuenta",
   "settingsDevSync": "Sincronizar todo ahora",
   "settingsDevSyncDone": "Sincronización terminada.",
-  "settingsDevSyncFailed": "La sincronización falló."
+  "settingsDevSyncFailed": "La sincronización falló.",
+  "syncCardFailedTitle": "Error al sincronizar",
+  "syncCardFailedBody": "Se reintentará solo"
 }

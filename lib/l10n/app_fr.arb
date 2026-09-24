@@ -873,10 +873,12 @@
   "syncCardCheckingTitle": "Vérification",
   "syncCardChecking": "Un instant",
   "syncCardPendingTitle": "{count, plural, =1{1 non enregistrée} other{{count} non enregistrées}}",
-  "syncCardPendingBody": "Envoi dès la connexion",
+  "syncCardPendingBody": "Enregistrement imminent",
   "syncCardSavedTitle": "Tout est enregistré",
   "syncCardSavedBody": "Sur votre compte",
   "settingsDevSync": "Tout synchroniser maintenant",
   "settingsDevSyncDone": "Synchronisation terminée.",
-  "settingsDevSyncFailed": "La synchronisation a échoué."
+  "settingsDevSyncFailed": "La synchronisation a échoué.",
+  "syncCardFailedTitle": "Échec de la synchronisation",
+  "syncCardFailedBody": "Nouvel essai automatique"
 }

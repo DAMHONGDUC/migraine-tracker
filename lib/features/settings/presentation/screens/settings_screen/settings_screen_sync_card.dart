@@ -38,6 +38,20 @@ class _SyncCard extends ConsumerWidget {
         l10n.syncCardCheckingTitle,
         l10n.syncCardChecking,
       ),
+      // Failed with records owed: offline or refused, the card cannot tell which — only that it will try again.
+      SyncStatus(phase: SyncPhase.failed) when pending > 0 => (
+        AppIconConstant.syncFailed,
+        AppColors.error,
+        l10n.syncCardPendingTitle(pending),
+        l10n.syncCardFailedBody,
+      ),
+      // Failed with nothing owed: the pull is what broke, so "all saved" would hide it.
+      SyncStatus(phase: SyncPhase.failed) => (
+        AppIconConstant.syncFailed,
+        AppColors.error,
+        l10n.syncCardFailedTitle,
+        l10n.syncCardFailedBody,
+      ),
       _ when pending > 0 => (
         AppIconConstant.syncPending,
         AppColors.warning,
