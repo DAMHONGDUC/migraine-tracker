@@ -4139,18 +4139,18 @@
   "@alertsNeedsSignIn": {
     "description": "Line under the alert row saying an account is required before the switch is tapped"
   },
-  "freeHistoryTitle": "History before {date} is locked",
+  "freeHistoryTitle": "History locked",
   "@freeHistoryTitle": {
-    "description": "Banner naming the date the free plan's readable history starts at. One line beside an Unlock button — keep it short",
+    "description": "Banner title on the free plan's history boundary. One line beside an Unlock button — keep it short"
+  },
+  "freeHistoryBody": "Attacks before {date} are locked. Nothing is deleted.",
+  "@freeHistoryBody": {
+    "description": "Names the date the free plan's readable history starts at, and reassures that nothing older was deleted. At most two lines beside an Unlock button",
     "placeholders": {
       "date": {
         "type": "String"
       }
     }
-  },
-  "freeHistoryBody": "Nothing is deleted — your full record stays on this phone.",
-  "@freeHistoryBody": {
-    "description": "Reassures the user that the hidden history still exists. At most two lines beside an Unlock button — keep it short"
   },
   "logHeadZoomOut": "Zoom out",
   "@logHeadZoomOut": {

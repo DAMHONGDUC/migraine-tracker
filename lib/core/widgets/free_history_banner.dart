@@ -24,7 +24,7 @@ import 'premium_gate.dart';
 /// neither may import the other's `presentation/`.
 ///
 /// **On History it sits where the locked rows START, not at the top of the
-/// list** (owner's rule, 2026-09-21). Its sentence names a date and says
+/// list** (owner's rule, 2026-09-21). Its body names a date and says
 /// everything before it is Premium, which is a statement about a *boundary* —
 /// read at the top of the list it was a notice to scroll past, and read at the
 /// boundary it labels the blurred rows underneath it. The dashboard has no
@@ -39,7 +39,8 @@ import 'premium_gate.dart';
 /// than the rows it labels; a chevron also said "more to read" where the only
 /// thing on offer is the paywall. The button names that action outright, and
 /// the whole card still opens the paywall for a thumb that misses it. The title
-/// is one line and the body two, so the copy is kept short in every locale.
+/// is one line and only says what is locked; the body, up to two lines,
+/// carries the date and that nothing was deleted (owner's call, 2026-09-24).
 ///
 /// **Absent until something is actually hidden.** A banner offering to reveal
 /// nothing is the free plan's own limit advertised as a loss.
@@ -74,16 +75,16 @@ class FreeHistoryBanner extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    context.l10n.freeHistoryTitle(
-                      DateFormat.yMMMd(context.l10n.localeName).format(start),
-                    ),
+                    context.l10n.freeHistoryTitle,
                     style: AppTextStyle.titleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: SdSpacingConstant.h2),
                   Text(
-                    context.l10n.freeHistoryBody,
+                    context.l10n.freeHistoryBody(
+                      DateFormat.yMMMd(context.l10n.localeName).format(start),
+                    ),
                     style: AppTextStyle.bodySmall.secondary,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
