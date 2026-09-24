@@ -77,7 +77,11 @@ tombstones, debounces `SyncConstant.writeThroughDebounce` (2s) and pushes.
   still not the pull the floor is about.
 - **A failed push that leaves records owed retries on its own**, backing off
   `SyncConstant.pushRetryFirst` (15s), doubling to `pushRetryMax` (5m), reset by
-  any push that lands and stopped on sign-out. Resume alone was not enough: it
+  any push that lands and stopped on sign-out. **Capped at
+  `pushRetryLimit` (6, about 13 minutes)**, then it waits for the next launch,
+  resume or write, which start the budget over: a refusal that is not the
+  network never clears on its own, and each failure files two Crashlytics
+  non-fatals. Resume alone was not enough: it
   fires the instant the app comes back, before Wi-Fi or cellular has, so that
   push failed too and the card sat on "Uploads when online" while online
   (owner-reported bug, 2026-09-24). The next write, launch or resume still
