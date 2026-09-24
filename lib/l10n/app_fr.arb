@@ -854,7 +854,7 @@
   "checkInReminderTileBody": "Un rappel à l'heure choisie, uniquement les jours sans réponse.",
   "checkInReminderDenied": "Les notifications de BaroEase sont désactivées. Activez-les dans Réglages.",
   "alertsNeedsSignIn": "Les alertes exigent aussi un compte Google ou Apple : la notification part vers le compte, pas vers cet appareil.",
-  "freeHistoryTitle": "Verrouillé avant le {date}",
+  "freeHistoryTitle": "Historique avant le {date} verrouillé",
   "freeHistoryBody": "Rien n'est supprimé : tout reste sur ce téléphone.",
   "logHeadZoomOut": "Dézoomer",
   "logHeadZoomIn": "Zoomer",

@@ -854,7 +854,7 @@
   "checkInReminderTileBody": "Ein Hinweis zur gewählten Zeit, nur an einem Tag ohne Antwort.",
   "checkInReminderDenied": "Mitteilungen für BaroEase sind aus. Schalte sie in den Einstellungen ein.",
   "alertsNeedsSignIn": "Warnungen brauchen zusätzlich ein Google- oder Apple-Konto — die Mitteilung geht an das Konto, nicht an dieses Gerät.",
-  "freeHistoryTitle": "Gesperrt vor {date}",
+  "freeHistoryTitle": "Verlauf vor {date} gesperrt",
   "freeHistoryBody": "Nichts gelöscht — dein ganzer Verlauf bleibt auf dem Telefon.",
   "logHeadZoomOut": "Verkleinern",
   "logHeadZoomIn": "Vergrößern",

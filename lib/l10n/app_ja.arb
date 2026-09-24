@@ -854,7 +854,7 @@
   "checkInReminderTileBody": "指定した時刻に、未回答の日だけ通知します。",
   "checkInReminderDenied": "BaroEase の通知がオフです。設定でオンにしてください。",
   "alertsNeedsSignIn": "通知には Google または Apple アカウントも必要です。プッシュは端末ではなくアカウントに送られます。",
-  "freeHistoryTitle": "{date} より前はロック中",
+  "freeHistoryTitle": "{date} より前の履歴はロック中",
   "freeHistoryBody": "何も削除されていません。記録はすべてこの端末に残っています。",
   "logHeadZoomOut": "縮小",
   "logHeadZoomIn": "拡大",

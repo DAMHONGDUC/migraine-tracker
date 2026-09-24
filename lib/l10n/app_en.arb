@@ -4139,7 +4139,7 @@
   "@alertsNeedsSignIn": {
     "description": "Line under the alert row saying an account is required before the switch is tapped"
   },
-  "freeHistoryTitle": "Locked before {date}",
+  "freeHistoryTitle": "History before {date} is locked",
   "@freeHistoryTitle": {
     "description": "Banner naming the date the free plan's readable history starts at. One line beside an Unlock button — keep it short",
     "placeholders": {
