@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/constants/log_tag_constant.dart';
@@ -46,6 +47,7 @@ part 'settings_screen_dev_premium_tile.dart';
 part 'settings_screen_dev_push_tile.dart';
 part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
+part 'settings_screen_dev_sync_tile.dart';
 part 'settings_screen_general_section.dart';
 part 'settings_screen_monitoring_section.dart';
 part 'settings_screen_sync_card.dart';
@@ -82,6 +84,8 @@ class SettingsScreen extends ConsumerWidget {
               if (!AppEnv.isProd) const _DevPremiumTile(),
               // The push fixture still does: sendTestPush refuses an anonymous session, so the row would only ever fail.
               if (ref.watch(isSignedInProvider)) const _DevPushTile(),
+              // Beside its card: sync needs an account, so the row does too.
+              if (showSync) const _DevSyncTile(),
               // Beside the push row but outside the account gate.
               const _DevLocalNotificationTile(),
               // The in-app half of the same idea: no permission, no backend, just the card the app raises itself.

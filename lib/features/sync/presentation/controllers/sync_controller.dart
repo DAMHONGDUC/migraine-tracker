@@ -93,6 +93,37 @@ class SyncController extends Notifier<SyncStatus> {
     return flushed;
   }
 
+  /// Dev menu only: forgets every pull cursor and runs a whole pass now, cooldown or not.
+  ///
+  /// Without the cursors the pull reads the account's whole history again, so
+  /// there is real data to move and the Settings card's bar has something to
+  /// show. Safe: pulled rows go through the same last-write-wins as any pull,
+  /// and the pass restamps the cooldown when it lands.
+  Future<bool> syncEverythingNow() async {
+    final AuthUser? user = _currentUser();
+
+    if (user == null || !user.isSignedIn) return false;
+    SdLogger.action(LogTagConstant.sync, 'Dev: sync everything now');
+
+    bool synced = false;
+
+    await _enqueue(() async {
+      try {
+        await ref.read(syncCursorStoreProvider).clear();
+      } catch (error, stackTrace) {
+        SdLogger.error(
+          LogTagConstant.sync,
+          'Clearing the cursors for a full sync failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        return;
+      }
+      synced = await _run(user.uid);
+    });
+    return synced;
+  }
+
   /// Neither task throws — both catch their own — so the chain cannot be poisoned by one failure.
   Future<void> _enqueue(Future<void> Function() task) =>
       _queue = _queue.then((_) => task());
@@ -118,7 +149,8 @@ class SyncController extends Notifier<SyncStatus> {
     }
   }
 
-  Future<void> _run(String uid) async {
+  /// True when the pass landed.
+  Future<bool> _run(String uid) async {
     final bool isFirstPull = await _isFirstPull(uid);
 
     state = SyncStatus(
@@ -151,6 +183,8 @@ class SyncController extends Notifier<SyncStatus> {
       }
       await _stampSyncedAt(uid);
       await _settle();
+
+      return true;
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.sync,
@@ -160,6 +194,8 @@ class SyncController extends Notifier<SyncStatus> {
       );
       // Deliberately not rethrown: the next launch, resume or logged attack retries, and nothing on screen was waiting on this.
       await _settle(failed: true);
+
+      return false;
     }
   }
 

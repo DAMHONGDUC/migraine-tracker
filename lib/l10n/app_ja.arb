@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, other{未保存の変更が {count} 件あります}}",
   "syncCardPendingBody": "オンラインになると自動でアップロードされます。完了するまでサインアウトできません。",
   "syncCardSavedTitle": "すべて保存済み",
-  "syncCardSavedBody": "この端末のデータはすべてアカウントに保存されています。"
+  "syncCardSavedBody": "この端末のデータはすべてアカウントに保存されています。",
+  "settingsDevSync": "今すぐすべて同期",
+  "settingsDevSyncDone": "同期が完了しました。",
+  "settingsDevSyncFailed": "同期に失敗しました。"
 }

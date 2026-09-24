@@ -4251,5 +4251,17 @@
   "syncCardSavedBody": "Everything on this phone is saved to your account.",
   "@syncCardSavedBody": {
     "description": "Settings sync card body when nothing is owed"
+  },
+  "settingsDevSync": "Sync everything now",
+  "@settingsDevSync": {
+    "description": "Dev settings row: drops the pull cursors and runs a whole sync pass now, to watch the sync card's progress"
+  },
+  "settingsDevSyncDone": "Sync finished.",
+  "@settingsDevSyncDone": {
+    "description": "Snack bar after the dev full sync landed"
+  },
+  "settingsDevSyncFailed": "Sync failed.",
+  "@settingsDevSyncFailed": {
+    "description": "Snack bar after the dev full sync failed"
   }
 }

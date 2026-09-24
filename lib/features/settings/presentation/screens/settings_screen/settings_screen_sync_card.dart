@@ -13,6 +13,7 @@ class _SyncCard extends ConsumerWidget {
     final AppLocalizations l10n = context.l10n;
     final SyncStatus status = ref.watch(syncControllerProvider);
     final int? pending = status.pending;
+    final double? progress = status.progress;
     final (
       IconData icon,
       Color color,
@@ -72,7 +73,25 @@ class _SyncCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(title, style: AppTextStyle.titleSmall),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: AppTextStyle.titleSmall,
+                              ),
+                            ),
+                            if (status.isSyncing && progress != null)
+                              Text(
+                                NumberFormat.percentPattern(
+                                  l10n.localeName,
+                                ).format(progress),
+                                style: AppTextStyle.titleSmall.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                          ],
+                        ),
                         SizedBox(height: SdSpacingConstant.h2),
                         Text(body, style: AppTextStyle.bodySmall.secondary),
                       ],
@@ -84,7 +103,7 @@ class _SyncCard extends ConsumerWidget {
                 SizedBox(height: SdSpacingConstant.h12),
                 // Indeterminate until the first count lands: a pass that has not fetched yet knows nothing to measure.
                 LinearProgressIndicator(
-                  value: status.progress,
+                  value: progress,
                   minHeight: SdSpacingConstant.h6,
                   borderRadius: BorderRadius.circular(SdSpacingConstant.r3),
                 ),

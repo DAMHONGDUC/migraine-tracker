@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, other{{count} thay đổi chưa được lưu}}",
   "syncCardPendingBody": "Sẽ tự tải lên khi có mạng. Chỉ đăng xuất được sau khi tải xong.",
   "syncCardSavedTitle": "Đã lưu toàn bộ dữ liệu",
-  "syncCardSavedBody": "Mọi dữ liệu trên máy này đã được lưu vào tài khoản của bạn."
+  "syncCardSavedBody": "Mọi dữ liệu trên máy này đã được lưu vào tài khoản của bạn.",
+  "settingsDevSync": "Đồng bộ toàn bộ ngay",
+  "settingsDevSyncDone": "Đồng bộ xong.",
+  "settingsDevSyncFailed": "Đồng bộ thất bại."
 }

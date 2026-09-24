@@ -17,17 +17,20 @@ void main() {
   late AppDatabase db;
   late DriftAttackRepository attacks;
   late FakeRemoteSyncRepository remote;
+  late FakeSyncCursorStore cursor;
   late ProviderContainer container;
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
     attacks = DriftAttackRepository(db);
     remote = FakeRemoteSyncRepository();
+    cursor = FakeSyncCursorStore();
     container = ProviderContainer(
       overrides: [
         syncServiceProvider.overrideWithValue(
-          syncServiceOver(db, remote: remote),
+          syncServiceOver(db, remote: remote, cursor: cursor),
         ),
+        syncCursorStoreProvider.overrideWithValue(cursor),
         authRepositoryProvider.overrideWithValue(
           FakeAuthRepository(signedIn: true),
         ),
@@ -84,4 +87,28 @@ void main() {
     expect(status.phase, SyncPhase.failed);
     expect(status.pending, 1);
   });
+
+  test(
+    'the dev full sync re-reads the account, so its bar has work to show',
+    () async {
+      await attacks.insert(attack('a1'));
+      await attacks.insert(attack('a2'));
+      // A normal pass: both go up, and the cursor moves past them.
+      await container.read(syncControllerProvider.notifier).sync();
+      final List<SyncStatus> seen = <SyncStatus>[];
+
+      container.listen<SyncStatus>(
+        syncControllerProvider,
+        (_, SyncStatus next) => seen.add(next),
+      );
+      final bool synced = await container
+          .read(syncControllerProvider.notifier)
+          .syncEverythingNow();
+
+      expect(synced, isTrue);
+      // Nothing new anywhere, and still the two records come back through the pull.
+      expect(seen.map((SyncStatus s) => s.total), contains(2));
+      expect(container.read(syncControllerProvider).isSyncing, isFalse);
+    },
+  );
 }

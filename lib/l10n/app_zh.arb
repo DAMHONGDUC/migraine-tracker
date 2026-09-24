@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, other{{count} 项更改尚未保存}}",
   "syncCardPendingBody": "联网后会自动上传。上传完成前无法退出登录。",
   "syncCardSavedTitle": "数据已全部保存",
-  "syncCardSavedBody": "这台手机上的所有数据都已保存到你的账户。"
+  "syncCardSavedBody": "这台手机上的所有数据都已保存到你的账户。",
+  "settingsDevSync": "立即全部同步",
+  "settingsDevSyncDone": "同步完成。",
+  "settingsDevSyncFailed": "同步失败。"
 }

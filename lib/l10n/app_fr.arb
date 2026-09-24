@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, =1{1 modification non enregistrée} other{{count} modifications non enregistrées}}",
   "syncCardPendingBody": "Elles s'envoient automatiquement dès que vous êtes en ligne. La déconnexion attend qu'elles le soient.",
   "syncCardSavedTitle": "Toutes les données enregistrées",
-  "syncCardSavedBody": "Tout ce qui est sur ce téléphone est enregistré sur votre compte."
+  "syncCardSavedBody": "Tout ce qui est sur ce téléphone est enregistré sur votre compte.",
+  "settingsDevSync": "Tout synchroniser maintenant",
+  "settingsDevSyncDone": "Synchronisation terminée.",
+  "settingsDevSyncFailed": "La synchronisation a échoué."
 }

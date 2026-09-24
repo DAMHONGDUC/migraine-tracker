@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, =1{1 cambio sin guardar} other{{count} cambios sin guardar}}",
   "syncCardPendingBody": "Se suben solos cuando tengas conexión. Cerrar sesión espera a que terminen.",
   "syncCardSavedTitle": "Todos los datos guardados",
-  "syncCardSavedBody": "Todo lo de este teléfono está guardado en tu cuenta."
+  "syncCardSavedBody": "Todo lo de este teléfono está guardado en tu cuenta.",
+  "settingsDevSync": "Sincronizar todo ahora",
+  "settingsDevSyncDone": "Sincronización terminada.",
+  "settingsDevSyncFailed": "La sincronización falló."
 }

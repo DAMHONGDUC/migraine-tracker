@@ -875,5 +875,8 @@
   "syncCardPendingTitle": "{count, plural, =1{1 Änderung noch nicht gespeichert} other{{count} Änderungen noch nicht gespeichert}}",
   "syncCardPendingBody": "Sie werden automatisch hochgeladen, sobald du online bist. Abmelden geht erst danach.",
   "syncCardSavedTitle": "Alle Daten gespeichert",
-  "syncCardSavedBody": "Alles auf diesem Telefon ist in deinem Konto gespeichert."
+  "syncCardSavedBody": "Alles auf diesem Telefon ist in deinem Konto gespeichert.",
+  "settingsDevSync": "Jetzt alles synchronisieren",
+  "settingsDevSyncDone": "Synchronisierung abgeschlossen.",
+  "settingsDevSyncFailed": "Synchronisierung fehlgeschlagen."
 }
