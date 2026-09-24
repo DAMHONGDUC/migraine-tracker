@@ -17,16 +17,19 @@ class CountingSyncService implements SyncService {
   int pushes = 0;
 
   @override
-  Future<SyncOutcome> sync(String uid) async {
+  Future<SyncOutcome> sync(String uid, {SyncProgress? onProgress}) async {
     passes++;
     return const SyncOutcome(pushed: 0, pulled: 0, unreadable: 0);
   }
 
   @override
-  Future<int> pushPending(String uid) async {
+  Future<int> pushPending(String uid, {SyncProgress? onProgress}) async {
     pushes++;
     return 0;
   }
+
+  @override
+  Future<int> pendingCount() async => 0;
 
   @override
   Future<bool> isFirstPull(String uid) async => false;
@@ -164,13 +167,17 @@ class FailingSyncService implements SyncService {
   int attempts = 0;
 
   @override
-  Future<SyncOutcome> sync(String uid) async {
+  Future<SyncOutcome> sync(String uid, {SyncProgress? onProgress}) async {
     attempts++;
     throw StateError('offline');
   }
 
   @override
-  Future<int> pushPending(String uid) async => throw StateError('offline');
+  Future<int> pushPending(String uid, {SyncProgress? onProgress}) async =>
+      throw StateError('offline');
+
+  @override
+  Future<int> pendingCount() async => 0;
 
   @override
   Future<bool> isFirstPull(String uid) async => false;

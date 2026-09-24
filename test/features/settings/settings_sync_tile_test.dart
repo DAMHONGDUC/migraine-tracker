@@ -3,31 +3,37 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
-  // Hard rule 12 reversed the manual control: sync is entirely automatic, and
-  // `SyncScreen`, the `/sync` route and the eight `syncScreen*` / `settingsSync*`
-  // ARB keys are deleted. This file used to assert the row into existence; it
-  // asserts its absence now, because a row is what would come back first.
-  for (final (String state, bool signedIn) in <(String, bool)>[
-    ('signed out', false),
-    ('signed in', true),
-  ]) {
-    testWidgets('$state, Settings offers no sync control at all', (
-      tester,
-    ) async {
-      await pumpApp(tester, signedIn: signedIn);
+  // The sync card at the top of Settings (owner's rule, 2026-09-24): it shows
+  // what sync is doing, and it is still no control — sync stays automatic, and
+  // `SyncScreen`, `/sync` and the old manual row stay deleted.
+  testWidgets('signed out, Settings has no sync card', (tester) async {
+    await pumpApp(tester);
+    await openSettings(tester);
+
+    expect(find.text('All data saved'), findsNothing);
+    expect(find.text('Syncing your data'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets(
+    'signed in, the card sits above every group and says it is saved',
+    (tester) async {
+      await pumpApp(tester, signedIn: true);
       await openSettings(tester);
+      await tester.pump(const Duration(seconds: 1));
 
-      // Both halves of hard rule 12: nothing to tap, and nothing reporting on
-      // it either — an indicator is a control the user cannot use.
+      final Finder card = find.text('All data saved');
+
+      expect(card, findsOneWidget);
+      expect(
+        tester.getRect(card).top,
+        lessThan(tester.getRect(find.text('General')).top),
+      );
+      // Still nothing to tap: the old manual row is what would come back first.
       expect(find.text('Sync data to cloud'), findsNothing);
-      expect(find.text('Last synced'), findsNothing);
-
-      // The row that IS there, so a section emptied by mistake fails here
-      // rather than passing as "no sync row found".
-      await scrollIntoView(tester, find.text('Export data'));
-      expect(find.text('Export data'), findsOneWidget);
 
       await finishTest(tester);
-    });
-  }
+    },
+  );
 }

@@ -370,6 +370,42 @@ void main() {
       expect(remote.of(SyncCollection.attacks)['a1']?.isDeleted, isTrue);
     });
 
+    test(
+      'reports each record as it goes, against a total known up front',
+      () async {
+        await attacks.insert(attack('a1'));
+        await attacks.insert(attack('a2'));
+        final List<(int, int)> steps = <(int, int)>[];
+
+        await service.pushPending(
+          uid,
+          onProgress: (int done, int total) => steps.add((done, total)),
+        );
+
+        expect(steps, <(int, int)>[(0, 2), (1, 2), (2, 2)]);
+      },
+    );
+
+    test('an empty push reports nothing', () async {
+      final List<(int, int)> steps = <(int, int)>[];
+
+      await service.pushPending(
+        uid,
+        onProgress: (int done, int total) => steps.add((done, total)),
+      );
+
+      expect(steps, isEmpty);
+    });
+
+    test('the owed count drops to zero once the push lands', () async {
+      await attacks.insert(attack('a1'));
+      await attacks.insert(attack('a2'));
+
+      expect(await service.pendingCount(), 2);
+      await service.pushPending(uid);
+      expect(await service.pendingCount(), 0);
+    });
+
     test('an empty push never asks for the account key', () async {
       final FakeSyncKeyRepository keys = FakeSyncKeyRepository();
       final SyncService quiet = syncServiceOver(

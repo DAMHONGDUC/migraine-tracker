@@ -74,7 +74,7 @@ class SyncController extends Notifier<SyncStatus> {
       try {
         final int pushed = await ref
             .read(syncServiceProvider)
-            .pushPending(user.uid);
+            .pushPending(user.uid, onProgress: _showProgress);
 
         SdLogger.info(LogTagConstant.sync, 'Pending changes flushed', {
           'pushed': pushed,
@@ -88,6 +88,7 @@ class SyncController extends Notifier<SyncStatus> {
           stackTrace: stackTrace,
         );
       }
+      await _settle(failed: !flushed);
     });
     return flushed;
   }
@@ -120,9 +121,15 @@ class SyncController extends Notifier<SyncStatus> {
   Future<void> _run(String uid) async {
     final bool isFirstPull = await _isFirstPull(uid);
 
-    state = SyncStatus(phase: SyncPhase.syncing, isFirstPull: isFirstPull);
+    state = SyncStatus(
+      phase: SyncPhase.syncing,
+      isFirstPull: isFirstPull,
+      pending: state.pending,
+    );
     try {
-      final SyncOutcome outcome = await ref.read(syncServiceProvider).sync(uid);
+      final SyncOutcome outcome = await ref
+          .read(syncServiceProvider)
+          .sync(uid, onProgress: _showProgress);
 
       SdLogger.info(LogTagConstant.sync, 'Attacks synced', {
         'pushed': outcome.pushed,
@@ -143,7 +150,7 @@ class SyncController extends Notifier<SyncStatus> {
         );
       }
       await _stampSyncedAt(uid);
-      state = const SyncStatus();
+      await _settle();
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.sync,
@@ -152,27 +159,64 @@ class SyncController extends Notifier<SyncStatus> {
         stackTrace: stackTrace,
       );
       // Deliberately not rethrown: the next launch, resume or logged attack retries, and nothing on screen was waiting on this.
-      state = state.copyWith(phase: SyncPhase.failed, isFirstPull: false);
+      await _settle(failed: true);
     }
   }
 
-  /// No state and no cooldown stamp: nothing on screen shows a push, and a push is not the pull the cooldown is about. A failure waits for the next write or the next pass.
+  /// State for the Settings card, but no cooldown stamp: a push is not the pull the cooldown is about. A failure waits for the next write or the next pass.
   Future<void> _push(String uid) async {
+    bool failed = false;
+
     try {
-      final int pushed = await ref.read(syncServiceProvider).pushPending(uid);
+      final int pushed = await ref
+          .read(syncServiceProvider)
+          .pushPending(uid, onProgress: _showProgress);
 
       // Every real push schedules one more that finds nothing — marking a record synced is itself a write. Logging those would bury the ones that moved something.
-      if (pushed == 0) return;
-      SdLogger.info(LogTagConstant.sync, 'Local changes pushed', {
-        'pushed': pushed,
-      });
+      if (pushed > 0) {
+        SdLogger.info(LogTagConstant.sync, 'Local changes pushed', {
+          'pushed': pushed,
+        });
+      }
     } catch (error, stackTrace) {
+      failed = true;
       SdLogger.error(
         LogTagConstant.sync,
         'Pushing local changes failed',
         error: error,
         stackTrace: stackTrace,
       );
+    }
+    await _settle(failed: failed);
+  }
+
+  /// The service's count, straight onto the card. The first call of a push is also what shows it running — a push that finds nothing never calls, so it never flickers the card.
+  void _showProgress(int done, int total) {
+    state = state.copyWith(phase: SyncPhase.syncing, done: done, total: total);
+  }
+
+  /// Ends a pass or push: back to idle (or failed), progress cleared, and the owed count re-read — it is what the card and a coming sign-out both need.
+  Future<void> _settle({bool failed = false}) async {
+    final int? pending = await _pendingCount();
+
+    state = SyncStatus(
+      phase: failed ? SyncPhase.failed : SyncPhase.idle,
+      pending: pending ?? state.pending,
+    );
+  }
+
+  /// Null when the count could not be read: the card keeps the last one rather than claiming nothing is owed.
+  Future<int?> _pendingCount() async {
+    try {
+      return await ref.read(syncServiceProvider).pendingCount();
+    } catch (error, stackTrace) {
+      SdLogger.error(
+        LogTagConstant.sync,
+        'Counting pending changes failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
     }
   }
 

@@ -13,6 +13,29 @@ import '../repositories/sync_local_store.dart';
 import 'attack_cipher.dart';
 import 'sync_payload_codec.dart';
 
+/// Records moved so far, and records known to be moving — the Settings card's bar.
+typedef SyncProgress = void Function(int done, int total);
+
+/// Counts one pass or push for a [SyncProgress] listener. No listener, no cost beyond two ints.
+class _Progress {
+  _Progress(this._listener);
+
+  final SyncProgress? _listener;
+  int _done = 0;
+  int _total = 0;
+
+  void grow(int count) {
+    if (count == 0) return;
+    _total += count;
+    _listener?.call(_done, _total);
+  }
+
+  void tick() {
+    _done++;
+    _listener?.call(_done, _total);
+  }
+}
+
 /// One kind of record and the two things sync needs to move it: where it lives locally, and how it becomes a payload.
 class SyncBinding<T> {
   const SyncBinding(this.store, this.codec);
@@ -56,15 +79,18 @@ class SyncService {
       await _cursor.lastPulledAt(uid, SyncCollection.attacks) == null;
 
   /// The whole pass: what changed elsewhere comes down, then what is still owed goes up. Launch and resume only — a local write goes up through [pushPending].
-  Future<SyncOutcome> sync(String uid) async {
+  Future<SyncOutcome> sync(String uid, {SyncProgress? onProgress}) async {
     final String key = await _keys.keyFor(uid);
+    final _Progress progress = _Progress(onProgress)
+      // Known up front; each pull adds its batch when it lands.
+      ..grow(await pendingCount());
     int pushed = 0;
     int pulled = 0;
     int unreadable = 0;
     bool remindersArrived = false;
 
     for (final SyncBinding<dynamic> binding in _bindings) {
-      final SyncOutcome pull = await _pull(uid, binding, key);
+      final SyncOutcome pull = await _pull(uid, binding, key, progress);
 
       pulled += pull.pulled;
       unreadable += pull.unreadable;
@@ -73,6 +99,7 @@ class SyncService {
         binding,
         key,
         await binding.store.pendingChanges(),
+        progress,
       );
       if (binding.collection == SyncCollection.medicationReminders &&
           pull.pulled > 0) {
@@ -91,13 +118,21 @@ class SyncService {
   /// next push, so every real push is followed by one that finds nothing: that
   /// one has to cost four local queries and no network, or the chain would pay
   /// a `getSyncKey` call for nothing every time.
-  Future<int> pushPending(String uid) async {
+  Future<int> pushPending(String uid, {SyncProgress? onProgress}) async {
+    // All read before anything is sent, so the total is known before the first record moves.
+    final List<List<SyncRecord<dynamic>>> owed = <List<SyncRecord<dynamic>>>[
+      for (final SyncBinding<dynamic> binding in _bindings)
+        await binding.store.pendingChanges(),
+    ];
+    final _Progress progress = _Progress(onProgress)
+      ..grow(
+        owed.fold(0, (int sum, List<SyncRecord<dynamic>> p) => sum + p.length),
+      );
     String? key;
     int pushed = 0;
 
-    for (final SyncBinding<dynamic> binding in _bindings) {
-      final List<SyncRecord<dynamic>> pending = await binding.store
-          .pendingChanges();
+    for (final (int index, SyncBinding<dynamic> binding) in _bindings.indexed) {
+      final List<SyncRecord<dynamic>> pending = owed[index];
 
       if (pending.isEmpty) continue;
       pushed += await _push(
@@ -105,9 +140,20 @@ class SyncService {
         binding,
         key ??= await _keys.keyFor(uid),
         pending,
+        progress,
       );
     }
     return pushed;
+  }
+
+  /// Records still owed to the server, across every kind. Local queries only.
+  Future<int> pendingCount() async {
+    int count = 0;
+
+    for (final SyncBinding<dynamic> binding in _bindings) {
+      count += (await binding.store.pendingChanges()).length;
+    }
+    return count;
   }
 
   /// Deletes the account's whole synced history and forgets where the pull had got to (GDPR wipe, hard rule 8).
@@ -127,6 +173,7 @@ class SyncService {
     SyncBinding<dynamic> binding,
     String key,
     List<SyncRecord<dynamic>> pending,
+    _Progress progress,
   ) async {
     int pushed = 0;
 
@@ -155,6 +202,7 @@ class SyncService {
         await binding.store.markSynced(record.id, record.revision);
       }
       pushed++;
+      progress.tick();
     }
     return pushed;
   }
@@ -163,6 +211,7 @@ class SyncService {
     String uid,
     SyncBinding<dynamic> binding,
     String key,
+    _Progress progress,
   ) async {
     final SyncCollection collection = binding.collection;
     final DateTime? since = await _cursor.lastPulledAt(uid, collection);
@@ -180,6 +229,8 @@ class SyncService {
       base64Key: key,
     );
     DateTime? newest = since;
+
+    progress.grow(changes.length);
     int pulled = 0;
     int unreadable = 0;
 
@@ -203,6 +254,7 @@ class SyncService {
       if (newest == null || change.updatedAt.isAfter(newest)) {
         newest = change.updatedAt;
       }
+      progress.tick();
     }
     // - Saved only once the batch is through, so anything that threw leaves the cursor put and the next pass redoes the batch harmlessly.
     await _cursor.save(uid, collection, newest ?? since ?? _beginning);

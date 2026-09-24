@@ -867,5 +867,13 @@
   "navPanelCollapse": "Navigation ausblenden",
   "historyLockedTag": "Premium nötig",
   "historyLockedTitle": "Älter als dein kostenloser Verlauf",
-  "historyLockedBody": "Dein kostenloser Plan zeigt die letzten {days} Tage. Diese Attacke ist älter — sie liegt weiterhin auf diesem Telefon, nichts wurde gelöscht. Premium öffnet deinen gesamten Verlauf."
+  "historyLockedBody": "Dein kostenloser Plan zeigt die letzten {days} Tage. Diese Attacke ist älter — sie liegt weiterhin auf diesem Telefon, nichts wurde gelöscht. Premium öffnet deinen gesamten Verlauf.",
+  "syncCardSyncingTitle": "Daten werden synchronisiert",
+  "syncCardProgress": "{done} von {total} Einträgen",
+  "syncCardCheckingTitle": "Synchronisierung wird geprüft",
+  "syncCardChecking": "Wir prüfen, was in deinem Konto gespeichert ist…",
+  "syncCardPendingTitle": "{count, plural, =1{1 Änderung noch nicht gespeichert} other{{count} Änderungen noch nicht gespeichert}}",
+  "syncCardPendingBody": "Sie werden automatisch hochgeladen, sobald du online bist. Abmelden geht erst danach.",
+  "syncCardSavedTitle": "Alle Daten gespeichert",
+  "syncCardSavedBody": "Alles auf diesem Telefon ist in deinem Konto gespeichert."
 }

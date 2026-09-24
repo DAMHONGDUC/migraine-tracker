@@ -12,6 +12,7 @@ import '../../../../../core/router/app_router.dart';
 import '../../../../../core/router/navigation_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
+import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/premium_gate.dart';
 import '../../../../../core/widgets/sections/account_section.dart';
@@ -28,6 +29,8 @@ import '../../../../app_config/providers.dart';
 import '../../../../auth/providers.dart';
 import '../../../../medications/providers.dart';
 import '../../../../premium/providers.dart';
+import '../../../../sync/domain/entities/sync_status.dart';
+import '../../../../sync/providers.dart';
 import '../../../../weather/domain/enums/dev_location.dart';
 import '../../../../weather/providers.dart';
 import '../../../domain/enums/app_language.dart';
@@ -45,6 +48,7 @@ part 'settings_screen_dev_reset_tile.dart';
 part 'settings_screen_dev_seed_tile.dart';
 part 'settings_screen_general_section.dart';
 part 'settings_screen_monitoring_section.dart';
+part 'settings_screen_sync_card.dart';
 
 /// Five groups: "General" is the app itself, "Monitoring" is what it watches on your behalf, "Apple Health" is what it reads from elsewhere, "Your.
 class SettingsScreen extends ConsumerWidget {
@@ -55,6 +59,8 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
     // Watched once here, not read at each row: it is a Firestore document now, so the group has to appear the moment the read lands rather than only on the next rebuild.
     final bool showDev = ref.watch(showDevSettingsProvider);
+    // Sync only exists for an account, so its card does too.
+    final bool showSync = ref.watch(isSignedInProvider);
 
     return SdScaffoldV2(
       title: Text(l10n.settingsTitle, style: AppTextStyle.titleLarge),
@@ -66,9 +72,11 @@ class SettingsScreen extends ConsumerWidget {
           // Full-bleed: every row is a ListTile, which insets itself.
           padding: SdContentPaddingV2.fullBleed(context, floatingNav: true),
           children: [
+            // Above everything, Dev included: sign-out refuses while changes are owed, and this is where that shows first.
+            if (showSync) const _SyncCard(),
             // Keep non-production fixture tools at the top for quick access.
             if (showDev) ...[
-              SdSectionHeaderV2(l10n.settingsSectionDev, first: true),
+              SdSectionHeaderV2(l10n.settingsSectionDev, first: !showSync),
               // Forced premium needs no account, exactly like the real thing (App Store 5.1.1(v) — see `hasPremiumProvider`).
               // On the flavour, not on the grant: `hasPremiumProvider` ignores the override in prod, so a prod build the allow-list opened the group on would draw a switch that does nothing.
               if (!AppEnv.isProd) const _DevPremiumTile(),
@@ -87,7 +95,10 @@ class SettingsScreen extends ConsumerWidget {
               const _DevResetTile(),
             ],
             // `first` follows the section above: the dev group takes the screen's top gap whenever it is there.
-            SdSectionHeaderV2(l10n.settingsSectionGeneral, first: !showDev),
+            SdSectionHeaderV2(
+              l10n.settingsSectionGeneral,
+              first: !showDev && !showSync,
+            ),
             const _GeneralSection(),
             SdSectionHeaderV2(l10n.settingsSectionMonitoring),
             const _MonitoringSection(),

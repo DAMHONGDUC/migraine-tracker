@@ -867,5 +867,13 @@
   "navPanelCollapse": "Ocultar navegación",
   "historyLockedTag": "Requiere Premium",
   "historyLockedTitle": "Más antiguo que tu historial gratuito",
-  "historyLockedBody": "Tu plan gratuito muestra los últimos {days} días. Este ataque es anterior: sigue en este teléfono y no se ha borrado nada. Premium abre todo tu historial."
+  "historyLockedBody": "Tu plan gratuito muestra los últimos {days} días. Este ataque es anterior: sigue en este teléfono y no se ha borrado nada. Premium abre todo tu historial.",
+  "syncCardSyncingTitle": "Sincronizando tus datos",
+  "syncCardProgress": "{done} de {total} registros",
+  "syncCardCheckingTitle": "Comprobando la sincronización",
+  "syncCardChecking": "Comprobando lo guardado en tu cuenta…",
+  "syncCardPendingTitle": "{count, plural, =1{1 cambio sin guardar} other{{count} cambios sin guardar}}",
+  "syncCardPendingBody": "Se suben solos cuando tengas conexión. Cerrar sesión espera a que terminen.",
+  "syncCardSavedTitle": "Todos los datos guardados",
+  "syncCardSavedBody": "Todo lo de este teléfono está guardado en tu cuenta."
 }

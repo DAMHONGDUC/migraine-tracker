@@ -322,6 +322,12 @@ final class AppIconConstant {
   /// Everything is synced — the login pitch's promise.
   static const IconData synced = Symbols.cloud_done_rounded;
 
+  /// A sync running now — the Settings sync card.
+  static const IconData syncing = Symbols.cloud_sync_rounded;
+
+  /// Changes on this device the account does not have yet.
+  static const IconData syncPending = Symbols.cloud_upload_rounded;
+
   /// The same account on another device.
   static const IconData devices = Symbols.devices_rounded;
 

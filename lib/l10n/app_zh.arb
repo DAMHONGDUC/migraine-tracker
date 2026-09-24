@@ -867,5 +867,13 @@
   "navPanelCollapse": "收起导航",
   "historyLockedTag": "需要 Premium",
   "historyLockedTitle": "早于免费历史范围",
-  "historyLockedBody": "免费方案可回看最近 {days} 天。这次发作比这更早——它仍在本机上，没有任何记录被删除。Premium 可打开你的全部记录。"
+  "historyLockedBody": "免费方案可回看最近 {days} 天。这次发作比这更早——它仍在本机上，没有任何记录被删除。Premium 可打开你的全部记录。",
+  "syncCardSyncingTitle": "正在同步数据",
+  "syncCardProgress": "第 {done} / {total} 条",
+  "syncCardCheckingTitle": "正在检查同步",
+  "syncCardChecking": "正在检查已保存到账户的数据…",
+  "syncCardPendingTitle": "{count, plural, other{{count} 项更改尚未保存}}",
+  "syncCardPendingBody": "联网后会自动上传。上传完成前无法退出登录。",
+  "syncCardSavedTitle": "数据已全部保存",
+  "syncCardSavedBody": "这台手机上的所有数据都已保存到你的账户。"
 }

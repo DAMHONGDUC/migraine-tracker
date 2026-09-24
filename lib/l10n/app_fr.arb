@@ -867,5 +867,13 @@
   "navPanelCollapse": "Masquer la navigation",
   "historyLockedTag": "Premium requis",
   "historyLockedTitle": "Plus ancien que votre historique gratuit",
-  "historyLockedBody": "Votre offre gratuite remonte aux {days} derniers jours. Cette crise est plus ancienne : elle reste sur ce téléphone et rien n’a été supprimé. Premium ouvre tout votre historique."
+  "historyLockedBody": "Votre offre gratuite remonte aux {days} derniers jours. Cette crise est plus ancienne : elle reste sur ce téléphone et rien n’a été supprimé. Premium ouvre tout votre historique.",
+  "syncCardSyncingTitle": "Synchronisation en cours",
+  "syncCardProgress": "{done} sur {total} éléments",
+  "syncCardCheckingTitle": "Vérification de la synchronisation",
+  "syncCardChecking": "Vérification de ce qui est enregistré sur votre compte…",
+  "syncCardPendingTitle": "{count, plural, =1{1 modification non enregistrée} other{{count} modifications non enregistrées}}",
+  "syncCardPendingBody": "Elles s'envoient automatiquement dès que vous êtes en ligne. La déconnexion attend qu'elles le soient.",
+  "syncCardSavedTitle": "Toutes les données enregistrées",
+  "syncCardSavedBody": "Tout ce qui est sur ce téléphone est enregistré sur votre compte."
 }
