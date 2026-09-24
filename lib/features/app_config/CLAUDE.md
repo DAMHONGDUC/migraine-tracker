@@ -183,8 +183,15 @@ granting nothing and looking like a typo nobody made.
     behind the barrier that raised it. The sheet is the only visible surface,
     so it is the only place a message can go.
 - **Signing out is the way out, and the screen says so.** Membership is by
-  address, so an anonymous session is on no list and the app comes back — with
-  every log still on the device, because none of it ever left.
+  address, so an anonymous session is on no list and the app comes back.
+  **It is the normal sign-out** (`AccountController.signOut`, owner's rule,
+  2026-09-24): the account has been syncing, so the device's records are its
+  own — they are pushed, the device emptied, and only then signed out. A bare
+  sign-out used to leave them for whoever signed in next. A record still owed
+  keeps the session, exactly as on the Account screen.
+- **The block screen shows its messages on itself, never in a snackbar.** It
+  renders instead of the app, navigator included, so `SdSnackBarUtilsV2` had no
+  overlay to draw into: a failed sign-out or support email said nothing at all.
 - **`showDevSettingsProvider` is `!AppEnv.isProd || hasDevMode(email)`.** A dev
   flavour shows the group with nobody listed — that is what every build did
   before any flag existed, and a developer is usually not signed in. The list is
