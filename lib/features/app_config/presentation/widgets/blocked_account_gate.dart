@@ -32,12 +32,65 @@ class BlockedAccountGate extends ConsumerWidget {
 }
 
 /// The blocking screen itself.
-class BlockedAccountView extends ConsumerWidget {
+///
+/// **Its messages are drawn on it, never in a snackbar.** The gate renders
+/// instead of the app, navigator included, and `SdSnackBarUtilsV2` draws into
+/// that navigator's overlay — so a snackbar raised here went nowhere, and a
+/// failed sign-out or email said nothing at all.
+class BlockedAccountView extends ConsumerStatefulWidget {
   const BlockedAccountView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BlockedAccountView> createState() => _BlockedAccountViewState();
+}
+
+class _BlockedAccountViewState extends ConsumerState<BlockedAccountView> {
+  /// What the last action could not do, already localized. Null when there is nothing to say.
+  String? _message;
+
+  /// Sign-out saves to the account before it signs out, so it is a network round trip.
+  bool _signingOut = false;
+
+  Future<void> _signOut() async {
     final AppLocalizations l10n = context.l10n;
+
+    setState(() {
+      _signingOut = true;
+      _message = null;
+    });
+    final BlockedSignOut outcome = await ref
+        .read(blockedAccountControllerProvider)
+        .signOut();
+
+    if (!mounted) return;
+    setState(() {
+      _signingOut = false;
+      _message = switch (outcome) {
+        BlockedSignOut.done => null,
+        // The same words as the Account screen's refusal: get online, nothing was removed.
+        BlockedSignOut.owed => l10n.accountSignOutBlocked,
+        BlockedSignOut.failed => l10n.blockedAccountSignOutFailed,
+      };
+    });
+  }
+
+  Future<void> _emailSupport() async {
+    final AppLocalizations l10n = context.l10n;
+
+    setState(() => _message = null);
+    final bool opened = await ref
+        .read(blockedAccountControllerProvider)
+        .emailSupport(subject: l10n.contactSupportEmailSubject);
+
+    if (!opened && mounted) {
+      setState(() => _message = l10n.contactSupportEmailFailed);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final String? message = _message;
 
     return Material(
       color: context.colorScheme.surface,
@@ -70,60 +123,35 @@ class BlockedAccountView extends ConsumerWidget {
                   style: AppTextStyle.bodyMedium.secondary,
                 ),
                 SizedBox(height: SdSpacingConstant.h24),
-                const _SignOutButton(),
+                // The way out. Signing out drops the address the row is keyed on, so the app comes back as a fresh session — after this device's records are saved to the account and cleared.
+                SdButtonV2(
+                  variant: SdButtonVariantV2.primary,
+                  label: l10n.blockedAccountSignOut,
+                  loading: _signingOut,
+                  onPressed: _signOut,
+                ),
                 SizedBox(height: SdSpacingConstant.h8),
-                const _ContactButton(),
+                // The owner blocked the address, so the owner is the only one who can unblock it.
+                SdButtonV2(
+                  variant: SdButtonVariantV2.secondary,
+                  label: l10n.blockedAccountContact,
+                  onPressed: _signingOut ? null : _emailSupport,
+                ),
+                if (message != null) ...<Widget>[
+                  SizedBox(height: SdSpacingConstant.h16),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.labelSmall.copyWith(
+                      color: context.colorScheme.error,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-/// The way out. Signing out drops the address the row is keyed on, so the app comes back — with every log still on the device.
-class _SignOutButton extends ConsumerWidget {
-  const _SignOutButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SdButtonV2(
-      variant: SdButtonVariantV2.primary,
-      label: context.l10n.blockedAccountSignOut,
-      onPressed: () async {
-        final AppLocalizations l10n = context.l10n;
-        final bool signedOut = await ref
-            .read(blockedAccountControllerProvider)
-            .signOut();
-
-        if (!signedOut && context.mounted) {
-          SdSnackBarUtilsV2.error(context, l10n.blockedAccountSignOutFailed);
-        }
-      },
-    );
-  }
-}
-
-/// The owner blocked the address, so the owner is the only one who can unblock it.
-class _ContactButton extends ConsumerWidget {
-  const _ContactButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SdButtonV2(
-      variant: SdButtonVariantV2.secondary,
-      label: context.l10n.blockedAccountContact,
-      onPressed: () async {
-        final AppLocalizations l10n = context.l10n;
-        final bool opened = await ref
-            .read(blockedAccountControllerProvider)
-            .emailSupport(subject: l10n.contactSupportEmailSubject);
-
-        if (!opened && context.mounted) {
-          SdSnackBarUtilsV2.error(context, l10n.contactSupportEmailFailed);
-        }
-      },
     );
   }
 }

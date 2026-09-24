@@ -74,7 +74,8 @@ class RemoteErrorView extends StatelessWidget {
                 child: ConstrainedBox(
                   // Minus the padding above, or the centre sits low by it.
                   constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - SdSpacingConstant.h24 * 2,
+                    minHeight:
+                        constraints.maxHeight - SdSpacingConstant.h24 * 2,
                   ),
                   child: Center(
                     child: Column(

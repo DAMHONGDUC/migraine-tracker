@@ -6,19 +6,39 @@ import '../../../../core/env/app_env.dart';
 import '../../../auth/providers.dart';
 import '../../../settings/providers.dart';
 
+/// How a sign-out from the block screen ended.
+enum BlockedSignOut {
+  /// Signed out, the device emptied — the app comes back as a fresh anonymous session.
+  done,
+
+  /// Changes are still owed to the server, so nothing was removed and the account stays signed in.
+  owed,
+
+  /// Something else failed; logged where it happened.
+  failed,
+}
+
 /// The two things a locked-out account can still do. The gate widget calls these and shows a snackbar when one comes back false.
 class BlockedAccountController {
   const BlockedAccountController(this._ref);
 
   final Ref _ref;
 
-  /// Signs out, which is what clears the block: the row is keyed on the address, so an anonymous session matches nothing and the app is usable again. Local data is untouched — it never left the device.
-  Future<bool> signOut() async {
+  /// Signs out, which is what clears the block: the row is keyed on the address, so an anonymous session matches nothing and the app is usable again.
+  ///
+  /// The normal sign-out, not a bare one: a signed-in account has been
+  /// syncing, so this device's records are that account's and the next person
+  /// on it must not inherit them. It pushes what is still owed, empties the
+  /// device and only then signs out — and refuses, leaving everything, while a
+  /// record has not reached the server (`AccountController.signOut`).
+  Future<BlockedSignOut> signOut() async {
     SdLogger.action(LogTagConstant.appConfig, 'Blocked account: sign out');
     try {
-      await _ref.read(authRepositoryProvider).signOut();
+      final bool signedOut = await _ref
+          .read(accountControllerProvider)
+          .signOut();
 
-      return true;
+      return signedOut ? BlockedSignOut.done : BlockedSignOut.owed;
     } catch (error, stackTrace) {
       SdLogger.error(
         LogTagConstant.appConfig,
@@ -27,7 +47,7 @@ class BlockedAccountController {
         stackTrace: stackTrace,
       );
 
-      return false;
+      return BlockedSignOut.failed;
     }
   }
 
