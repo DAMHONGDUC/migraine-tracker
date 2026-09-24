@@ -10,8 +10,13 @@ Each entity gets its own, on both sides: `Attacks`, `Medications`,
 standing in for three schemas.
 
 **Firestore is flat and relational-shaped, by the owner's call.** Documents live
-at `<collection>/{docId}` with a `userId` field; the id is the record's own
-UUID. It replaced `users/{uid}/<collection>/{docId}` — equally separate, since a
+at `<collection>/{uid}_{recordId}` with a `userId` field and the record's own id
+in `record_id`. **The owner is in the document id because the collections are
+flat** (owner-reported bug, 2026-09-24): with the bare record id, a daily log —
+whose id is the day — was one document for every user, the first account to
+sync a day owned it, and every other account's push was refused for good.
+`EncryptedRecordMapper.documentId` builds it; a document written before this
+has the bare id and no `record_id`, and still reads under its document id. It replaced `users/{uid}/<collection>/{docId}` — equally separate, since a
 subcollection is an independent collection, but with ownership in the path. The
 flat shape reads like SQL and browses in the console, and costs the following.
 
@@ -91,6 +96,7 @@ own, not a cleanup — and half a rename is worse than neither half.
 | `app_config.force_update` | snake_case | `enable_force_update`, `build_number` — already was |
 | `users` | camelCase, grandfathered | `fcmToken`, `alertThreshold`, `geohash5`, `tz`, `tzOffsetMinutes`, `lastAlertAt`, `lastAlertEventId`, `lastAlertDropHpa`, `displayName`, `photoUrl`, `createdAt`, `updatedAt` |
 | `attacks`, `medications`, `medication_reminders`, `notifications` | camelCase, grandfathered | `userId`, `updatedAt`, `payload`, `nonce`, `mac` — and `userId` is named in `firestore.rules` and every index |
+| the six synced collections | snake_case, added under the rule | `record_id` |
 | `weather_cache`, `sync_keys` | camelCase, grandfathered | `cachedAt`, `createdAt` |
 
 **Collection names were already snake_case** and stay that way — the rule
