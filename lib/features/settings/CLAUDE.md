@@ -126,9 +126,18 @@ screen the user opened to change something. **The dashboard has a promo again** 
 not the offer. Premium is also sold by the Settings row, every `PremiumGate`,
 `RecordLimitDialog` and the locked cards.
 
+## The sync card
+
+**Signed in, a sync card sits at the very top — above the Dev group** (owner's
+rule, 2026-09-24). It shows a running sync's progress, how many changes are not
+saved to the account yet, or that everything is. Sign-out refuses while
+anything is owed, so this is where a user sees that coming. Detail and states:
+`lib/features/sync/CLAUDE.md`, "Where sync is visible".
+
 ## The Dev group
 
-**It is FIRST on the screen, above General** (owner's rule): it is the group a
+**It is FIRST among the groups, above General** (owner's rule; only the sync
+card sits above it): it is the group a
 developer opens Settings for, and below every real section it meant scrolling
 past the whole app to reach the tools that build the state being tested.
 

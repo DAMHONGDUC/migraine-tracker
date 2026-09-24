@@ -27,11 +27,12 @@ Hard rule 12.
     history — rows already pushed are clean, so they would never reach the new
     account either.
 
-**Do not add a sync screen, row, button or indicator back.** The manual control
-and its `SyncScreen` are deleted, `/sync` is not a route, and the eight
-`syncScreen*` / `settingsSync*` ARB keys are gone from all seven locales. A user
-who cannot make sync happen also cannot be asked to; the app is either signed in,
-in which case it is saving, or it is not.
+**No sync screen, row or button — one indicator only: the sync card at the top
+of Settings** (owner's rule, 2026-09-24, reversing "no indicator anywhere").
+Sign-out refuses while records are still owed, and a user who could not see
+what was owed met that refusal as a surprise. The card shows it before they
+reach the button. `SyncScreen`, `/sync` and the old `syncScreen*` /
+`settingsSync*` keys stay deleted; nothing on it makes sync happen.
 
 **Five kinds of record sync, in this order**: medications, then their reminders
 (a reminder points at a medication, so the other order hits a foreign key that is
@@ -67,8 +68,9 @@ tombstones, debounces `SyncConstant.writeThroughDebounce` (2s) and pushes.
   table, so every real push schedules one more; the second finds nothing, sends
   nothing, and stops. A `getSyncKey` call in that empty pass would be paid after
   every single write.
-- **A push writes no state and stamps no cooldown** — nothing on screen shows
-  one, and a push is not the pull the floor is about. A failed push waits for the
+- **A push writes state but stamps no cooldown.** The Settings card shows a
+  push's progress and the count still owed, so both come from it; a push is
+  still not the pull the floor is about. A failed push waits for the
   next write, or for the next launch or resume — a pass the cooldown holds back
   still carries it up; it is not retried on its own.
 
@@ -127,12 +129,19 @@ frames and a thousand is a visible stutter.
 
 ## Where sync is visible
 
-**In one place, and only to say the history is on its way.** The History list,
-for the very first pull after signing in on a device, says "getting your attacks"
-instead of "you have none" — `SyncStatus` carries exactly what that needs
-(`isSyncing`, `isFirstPull`) and nothing else: no progress, no last-synced time.
-**No flow is ever gated on sync completing**, nothing about sync appears in
-Settings or on the Account screen, and no row anywhere shows an indicator.
+| Where | Reads | Shows |
+|---|---|---|
+| History, first pull on a device | `isSyncing`, `isFirstPull` | "getting your attacks" instead of "you have none" |
+| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | syncing 12/40 with a bar · "3 changes not saved yet" · "all saved" |
+
+- **`pending` is recounted after every pass and push** (`SyncService.pendingCount`,
+  four local queries), so an offline write shows up as owed within the 2s
+  debounce. Null means not counted yet — the card says "checking" rather than
+  guess.
+- **`total` can grow during a pass**: pending is counted up front, and each
+  collection's pull adds its batch when it lands. The bar may step back a little;
+  a total that pretended to know the pull size would be wrong instead.
+- **No flow is ever gated on sync completing**, and the card has no button.
 
 ## The crypto
 
