@@ -1,8 +1,11 @@
-/** Collections holding a user's synced records, keyed by `userId`. */
+/** Collections holding a user's synced records, keyed by `userId`. Must name every `SyncCollection` — `sync_collection_rules_test.dart` holds it to the app's enum. */
 export const SYNCED_COLLECTIONS = [
   "attacks",
   "medications",
   "medication_reminders",
+  "daily_logs",
+  "midas",
+  "notifications",
 ] as const;
 
 /** Side-effecting parts of {@link tearDownAccount}, injected so the order and the failure handling can be tested without Firestore or Auth. */

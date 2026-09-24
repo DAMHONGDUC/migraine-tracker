@@ -7,10 +7,14 @@ import 'package:migraine_tracker/features/sync/domain/entities/sync_collection.d
 /// `SyncCollection`, `firestore.rules` and `firestore.indexes.json` are one contract split across three files, and nothing but this test holds them.
 void main() {
   late String rules;
+  late String teardown;
   late Map<String, dynamic> indexes;
 
   setUpAll(() {
     rules = File('firestore.rules').readAsStringSync();
+    teardown = File(
+      'functions/src/core/accountTeardown.ts',
+    ).readAsStringSync();
     indexes =
         jsonDecode(File('firestore.indexes.json').readAsStringSync())
             as Map<String, dynamic>;
@@ -31,6 +35,17 @@ void main() {
             'SyncCollection.${collection.name} syncs to /${collection.name}, '
             'but firestore.rules never names it — every read and write there '
             'is denied.',
+      );
+    });
+
+    // It drifted once: daily_logs, midas and notifications survived a deleted account on the server.
+    test('deleting an account on the server clears ${collection.name}', () {
+      expect(
+        teardown,
+        contains('"${collection.name}"'),
+        reason:
+            'SYNCED_COLLECTIONS in functions/src/core/accountTeardown.ts does '
+            'not name ${collection.name}, so deleteAccount leaves it behind.',
       );
     });
 
