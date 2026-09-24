@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:migraine_tracker/core/constants/sync_constant.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
 import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack_repository.dart';
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/auth/providers.dart';
+import 'package:migraine_tracker/features/sync/domain/entities/sync_collection.dart';
 import 'package:migraine_tracker/features/sync/domain/entities/sync_status.dart';
 import 'package:migraine_tracker/features/sync/providers.dart';
 
@@ -13,6 +17,16 @@ import '../../helpers/pump_app.dart';
 import '../../helpers/sync_fakes.dart';
 
 /// What the Settings sync card reads: progress while a push runs, and what is still owed once it stops.
+/// Lets Drift's work, which runs on the real clock, finish between fake-clock pumps.
+Future<void> settle(WidgetTester tester) async {
+  for (int i = 0; i < 20; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump();
+  }
+}
+
 void main() {
   late AppDatabase db;
   late DriftAttackRepository attacks;
@@ -111,4 +125,26 @@ void main() {
       expect(container.read(syncControllerProvider).isSyncing, isFalse);
     },
   );
+
+  // Resume retries the instant the app comes back, usually before the network
+  // has; without its own retry the card sat on "uploads when online" while
+  // online.
+  testWidgets('a failed push tries again on its own once the network is back', (
+    tester,
+  ) async {
+    await tester.runAsync(() => attacks.insert(attack('a1')));
+    remote.failNextPut = true;
+
+    // On the test's fake clock, so the retry timer is one pump can move past.
+    unawaited(container.read(syncControllerProvider.notifier).pushPending());
+    await settle(tester);
+    expect(container.read(syncControllerProvider).pending, 1);
+
+    // The fake fails only once: the network is back by the time the retry runs.
+    await tester.pump(SyncConstant.pushRetryFirst);
+    await settle(tester);
+
+    expect(container.read(syncControllerProvider).pending, 0);
+    expect(remote.of(SyncCollection.attacks), contains('a1'));
+  });
 }

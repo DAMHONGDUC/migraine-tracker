@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
 
@@ -19,8 +21,17 @@ class SyncController extends Notifier<SyncStatus> {
   bool _passQueued = false;
   bool _pushQueued = false;
 
+  /// The retry after a failed push, while records are still owed. Null when none is waiting.
+  Timer? _retry;
+
+  /// How long the next retry waits — [SyncConstant.pushRetryFirst], doubling up to [SyncConstant.pushRetryMax].
+  Duration _retryDelay = SyncConstant.pushRetryFirst;
+
   @override
-  SyncStatus build() => const SyncStatus();
+  SyncStatus build() {
+    ref.onDispose(() => _retry?.cancel());
+    return const SyncStatus();
+  }
 
   /// The whole pass — pull, then push — for the signed-in account, if there is one. Launch, resume and sign-in; the cooldown holds back the pull half only.
   Future<void> sync() async {
@@ -136,6 +147,7 @@ class SyncController extends Notifier<SyncStatus> {
   /// removed, so signing back in with them in place would pull only what
   /// changed since and the history would never come home.
   Future<void> onSignedOut() async {
+    _stopRetrying();
     state = const SyncStatus();
     try {
       await ref.read(syncServiceProvider).onSignedOut();
@@ -239,6 +251,42 @@ class SyncController extends Notifier<SyncStatus> {
       phase: failed ? SyncPhase.failed : SyncPhase.idle,
       pending: pending ?? state.pending,
     );
+    if (failed && (state.pending ?? 0) > 0) {
+      _scheduleRetry();
+    } else if (!failed) {
+      _stopRetrying();
+    }
+  }
+
+  /// Tries a failed push again on its own, backing off.
+  ///
+  /// Resume already retries, but it fires the instant the app comes back —
+  /// usually before Wi-Fi or cellular has reconnected — so that push fails too,
+  /// and with no connectivity listener nothing else would try until the next
+  /// write or launch. The card sat on "uploads when online" while online.
+  void _scheduleRetry() {
+    if (_retry?.isActive ?? false) return;
+    final Duration delay = _retryDelay;
+
+    SdLogger.info(LogTagConstant.sync, 'Push retry scheduled', {
+      'inSeconds': delay.inSeconds,
+      'pending': state.pending,
+    });
+    _retry = Timer(delay, () {
+      _retry = null;
+      unawaited(pushPending());
+    });
+    final Duration doubled = delay * 2;
+
+    _retryDelay = doubled > SyncConstant.pushRetryMax
+        ? SyncConstant.pushRetryMax
+        : doubled;
+  }
+
+  void _stopRetrying() {
+    _retry?.cancel();
+    _retry = null;
+    _retryDelay = SyncConstant.pushRetryFirst;
   }
 
   /// Null when the count could not be read: the card keeps the last one rather than claiming nothing is owed.
