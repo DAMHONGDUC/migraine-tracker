@@ -134,8 +134,9 @@ saved to the account yet, or that everything is. Sign-out refuses while
 anything is owed, so this is where a user sees that coming. Detail and states:
 `lib/features/sync/CLAUDE.md`, "Where sync is visible".
 
-- **While syncing it shows a percentage beside the title** (owner's rule), with
-  the record count under it and the bar below.
+- **Compact: title and detail share one line** (owner's rule, 2026-09-24) —
+  "Syncing · 12/40", the percentage at the end of that line, the bar under it.
+  The copy is kept short in every locale so the line does not ellipsize.
 - **The Dev group carries "Sync everything now"** (`_DevSyncTile`, signed in
   only) so the card can be watched on demand; see the sync doc for what it does.
 

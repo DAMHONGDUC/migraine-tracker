@@ -136,7 +136,7 @@ frames and a thousand is a visible stutter.
 | Where | Reads | Shows |
 |---|---|---|
 | History, first pull on a device | `isSyncing`, `isFirstPull` | "getting your attacks" instead of "you have none" |
-| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | syncing "30%" beside the title, "12 of 40 records" and a bar · "3 changes not saved yet" · "all saved" |
+| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | one line — "Syncing · 12/40 … 30%" over a bar · "3 changes not saved · Uploads when online" · "All saved · On your account" |
 
 - **`pending` is recounted after every pass and push** (`SyncService.pendingCount`,
   four local queries), so an offline write shows up as owed within the 2s
