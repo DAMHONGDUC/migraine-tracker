@@ -10,8 +10,8 @@ void main() {
     await pumpApp(tester);
     await openSettings(tester);
 
-    expect(find.textContaining('All saved', findRichText: true), findsNothing);
-    expect(find.textContaining('Syncing', findRichText: true), findsNothing);
+    expect(find.text('All saved'), findsNothing);
+    expect(find.text('Syncing'), findsNothing);
 
     await finishTest(tester);
   });
@@ -23,7 +23,7 @@ void main() {
       await openSettings(tester);
       await tester.pump(const Duration(seconds: 1));
 
-      final Finder card = find.textContaining('All saved', findRichText: true);
+      final Finder card = find.text('All saved');
 
       expect(card, findsOneWidget);
       expect(

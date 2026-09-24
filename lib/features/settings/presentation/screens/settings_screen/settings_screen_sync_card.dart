@@ -1,6 +1,6 @@
 part of 'settings_screen.dart';
 
-/// What sync is doing, at the top of Settings, in one line: running (with a percentage and a bar), owed, or done.
+/// What sync is doing, at the top of Settings, as a title over one line of detail: running (with a percentage and a bar), owed, or done.
 ///
 /// Sign-out refuses while anything is owed, so this is where a user sees that
 /// coming (owner's rule, 2026-09-24). No button — sync is automatic
@@ -71,21 +71,25 @@ class _SyncCard extends ConsumerWidget {
               Row(
                 children: <Widget>[
                   SdIconV2(icon: icon, size: AppIconSize.small, color: color),
-                  SizedBox(width: SdSpacingConstant.w8),
-                  // One line: the state, then its detail — "Syncing · 12/40".
+                  SizedBox(width: SdSpacingConstant.w12),
+                  // Title over detail, one line each — "Syncing" over "12/40".
                   Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: <InlineSpan>[
-                          TextSpan(text: title, style: AppTextStyle.titleSmall),
-                          TextSpan(
-                            text: ' · $body',
-                            style: AppTextStyle.bodySmall.secondary,
-                          ),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          title,
+                          style: AppTextStyle.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          body,
+                          style: AppTextStyle.bodySmall.secondary,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
                   if (status.isSyncing && progress != null) ...<Widget>[
