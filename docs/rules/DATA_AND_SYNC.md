@@ -16,7 +16,21 @@ flat** (owner-reported bug, 2026-09-24): with the bare record id, a daily log �
 whose id is the day — was one document for every user, the first account to
 sync a day owned it, and every other account's push was refused for good.
 `EncryptedRecordMapper.documentId` builds it; a document written before this
-has the bare id and no `record_id`, and still reads under its document id. It replaced `users/{uid}/<collection>/{docId}` — equally separate, since a
+has the bare id and no `record_id`, and still reads under its document id.
+
+**Every id is made by `SdId` (`package:system_design/common.dart`)** — owner's
+rule, 2026-09-24:
+
+| Id | Call | Example |
+|---|---|---|
+| a new record | `SdId.unique()` | `3f2b9c1e-…` |
+| the document a user's record lives in | `SdId.owned(uid, recordId)` | `aB3x…_2026-09-24` |
+| a user's own document (`users`, `sync_keys`) | the uid itself | `aB3x…` |
+| a shared document (`app_config`, `weather_cache`, `pressure_alert_runs`) | a fixed or derived key, never an owner | `current` |
+
+No `Uuid()` in the app — `uuid` is not even a direct dependency any more — and
+no hand-built `'${uid}_$id'`. `test/core/id_rule_test.dart` fails on a
+`package:uuid` import under `lib/`. It replaced `users/{uid}/<collection>/{docId}` — equally separate, since a
 subcollection is an independent collection, but with ownership in the path. The
 flat shape reads like SQL and browses in the console, and costs the following.
 
