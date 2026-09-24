@@ -855,7 +855,7 @@
   "checkInReminderDenied": "Les notifications de BaroEase sont désactivées. Activez-les dans Réglages.",
   "alertsNeedsSignIn": "Les alertes exigent aussi un compte Google ou Apple : la notification part vers le compte, pas vers cet appareil.",
   "freeHistoryTitle": "Verrouillé avant le {date}",
-  "freeHistoryBody": "Rien n'est supprimé, juste masqué.",
+  "freeHistoryBody": "Rien n'est supprimé : tout reste sur ce téléphone.",
   "logHeadZoomOut": "Dézoomer",
   "logHeadZoomIn": "Zoomer",
   "logHeadResetView": "Réinitialiser la vue",

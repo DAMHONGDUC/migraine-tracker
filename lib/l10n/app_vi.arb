@@ -855,7 +855,7 @@
   "checkInReminderDenied": "Thông báo đang tắt cho BaroEase. Hãy bật trong Cài đặt.",
   "alertsNeedsSignIn": "Cảnh báo cần thêm tài khoản Google hoặc Apple — thông báo gửi tới tài khoản, không gửi tới máy này.",
   "freeHistoryTitle": "Đã khoá trước {date}",
-  "freeHistoryBody": "Không mất gì, chỉ tạm ẩn.",
+  "freeHistoryBody": "Không mất gì — toàn bộ dữ liệu vẫn nằm trên máy này.",
   "logHeadZoomOut": "Thu nhỏ",
   "logHeadZoomIn": "Phóng to",
   "logHeadResetView": "Đặt lại góc nhìn",

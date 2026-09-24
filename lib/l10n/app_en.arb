@@ -4148,7 +4148,7 @@
       }
     }
   },
-  "freeHistoryBody": "Nothing is deleted, just hidden.",
+  "freeHistoryBody": "Nothing is deleted — your full record stays on this phone.",
   "@freeHistoryBody": {
     "description": "Reassures the user that the hidden history still exists. At most two lines beside an Unlock button — keep it short"
   },
