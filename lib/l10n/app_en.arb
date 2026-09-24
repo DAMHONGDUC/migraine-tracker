@@ -4204,13 +4204,13 @@
     "description": "Body of that sheet",
     "placeholders": {"days": {"type": "int", "example": "90"}}
   },
-  "syncCardSyncingTitle": "Syncing your data",
+  "syncCardSyncingTitle": "Syncing",
   "@syncCardSyncingTitle": {
     "description": "Settings sync card title while a sync runs"
   },
-  "syncCardProgress": "{done} of {total} records",
+  "syncCardProgress": "{done}/{total}",
   "@syncCardProgress": {
-    "description": "Settings sync card: records moved so far of the total known",
+    "description": "Settings sync card, after the title on the same line: records moved so far of the total known. Keep it short",
     "placeholders": {
       "done": {
         "type": "int",
@@ -4226,11 +4226,11 @@
   "@syncCardCheckingTitle": {
     "description": "Settings sync card title before the first count of unsaved changes"
   },
-  "syncCardChecking": "Checking what's saved to your account…",
+  "syncCardChecking": "One moment",
   "@syncCardChecking": {
     "description": "Settings sync card body while nothing is counted yet"
   },
-  "syncCardPendingTitle": "{count, plural, =1{1 change not saved yet} other{{count} changes not saved yet}}",
+  "syncCardPendingTitle": "{count, plural, =1{1 change not saved} other{{count} changes not saved}}",
   "@syncCardPendingTitle": {
     "description": "Settings sync card title: changes on this device the account does not have yet",
     "placeholders": {
@@ -4240,15 +4240,15 @@
       }
     }
   },
-  "syncCardPendingBody": "They upload automatically when you're online. Signing out waits until they do.",
+  "syncCardPendingBody": "Uploads when online",
   "@syncCardPendingBody": {
     "description": "Settings sync card body when changes are owed; sign-out is refused until they upload"
   },
-  "syncCardSavedTitle": "All data saved",
+  "syncCardSavedTitle": "All saved",
   "@syncCardSavedTitle": {
     "description": "Settings sync card title when nothing is owed"
   },
-  "syncCardSavedBody": "Everything on this phone is saved to your account.",
+  "syncCardSavedBody": "On your account",
   "@syncCardSavedBody": {
     "description": "Settings sync card body when nothing is owed"
   },
