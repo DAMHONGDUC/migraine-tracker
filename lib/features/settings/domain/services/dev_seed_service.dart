@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:uuid/uuid.dart';
+import 'package:system_design/common.dart';
 
 import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../attacks/domain/entities/attack.dart';
@@ -107,8 +107,6 @@ class DevSeedService {
 
   /// How far back rows are scattered, in hours.
   static const int _windowHours = 2200;
-
-  static const Uuid _uuid = Uuid();
 
   static const List<String> _medicationNames = <String>[
     'Ibuprofen',
@@ -303,7 +301,7 @@ class DevSeedService {
 
       rows.add(
         AppNotification(
-          id: AppNotification.pressureAlertId('seed-${_uuid.v4()}'),
+          id: AppNotification.pressureAlertId('seed-${SdId.unique()}'),
           type: NotificationType.pressureAlert,
           occurredAt: at,
           readAt: _maybeRead(random, at),
@@ -357,7 +355,7 @@ class DevSeedService {
 
     for (int i = 0; i < hosts.length; i++) {
       final MedicationReminder reminder = MedicationReminder(
-        id: _uuid.v4(),
+        id: SdId.unique(),
         medicationId: hosts[i].id,
         minuteOfDay: minutes[i],
         // One in five is off — exercises the disabled row style and the filter count.
@@ -399,7 +397,7 @@ class DevSeedService {
     return <Medication>[
       for (final String name in names.take(_medicationsToWrite))
         Medication(
-          id: _uuid.v4(),
+          id: SdId.unique(),
           name: name,
           createdAt: now.subtract(
             Duration(hours: random.nextInt(_windowHours)),
@@ -497,7 +495,7 @@ class DevSeedService {
     final bool annotated = random.nextInt(4) == 0;
 
     return Attack(
-      id: _uuid.v4(),
+      id: SdId.unique(),
       startedAt: startedAt,
       intensity: intensity,
       regions: _pickRegions(random),
@@ -584,7 +582,7 @@ class DevSeedService {
 
       await _exportRecords.insert(
         ExportRecord(
-          id: _uuid.v4(),
+          id: SdId.unique(),
           kind: kind,
           filename: filename,
           filePath: stored.path,

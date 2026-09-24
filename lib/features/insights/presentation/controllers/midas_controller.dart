@@ -1,6 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../../domain/entities/midas_score.dart';
@@ -25,8 +24,6 @@ class MidasDraft {
 
 /// Owns the questionnaire while it is open, and the single write that ends it.
 class MidasController extends Notifier<MidasDraft> {
-  static const Uuid _uuid = Uuid();
-
   @override
   MidasDraft build() => const MidasDraft();
 
@@ -59,7 +56,7 @@ class MidasController extends Notifier<MidasDraft> {
           .read(midasRepositoryProvider)
           .upsert(
             MidasEntry(
-              id: _uuid.v4(),
+              id: SdId.unique(),
               takenAt: DateTime.now().toUtc(),
               missedWorkDays: state.answers[0],
               reducedWorkDays: state.answers[1],

@@ -1,5 +1,4 @@
 import 'package:system_design/common.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/log_tag_constant.dart';
 import '../entities/medication.dart';
@@ -21,8 +20,6 @@ class DefaultMedicationSeeder {
   /// second device would then disagree with the first about what the row is
   /// called.
   static const String defaultName = 'Paracetamol 500mg';
-
-  static const Uuid _uuid = Uuid();
 
   final MedicationRepository _medications;
 
@@ -53,7 +50,7 @@ class DefaultMedicationSeeder {
       );
       await _medications.upsert(
         Medication(
-          id: _uuid.v4(),
+          id: SdId.unique(),
           name: defaultName,
           createdAt: DateTime.now().toUtc(),
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/index.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/premium_limit_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -57,7 +56,7 @@ class MedicationGrid extends ConsumerWidget {
         .read(medicationRepositoryProvider)
         .upsert(
           Medication(
-            id: const Uuid().v4(),
+            id: SdId.unique(),
             name: name,
             createdAt: DateTime.now().toUtc(),
           ),

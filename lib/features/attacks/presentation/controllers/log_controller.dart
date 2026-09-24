@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:system_design/common.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
@@ -59,8 +58,6 @@ class LogFlowState {
 
 /// Owns the flow's state machine and persistence. Widgets only render this state and call these methods — no business logic in the UI layer.
 class LogController extends Notifier<LogFlowState> {
-  static const _uuid = Uuid();
-
   @override
   LogFlowState build() => const LogFlowState();
 
@@ -173,7 +170,7 @@ class LogController extends Notifier<LogFlowState> {
     List<HeadRegion>? regions,
   }) async {
     final attack = Attack(
-      id: _uuid.v4(),
+      id: SdId.unique(),
       startedAt: state.startedAt ?? DateTime.now().toUtc(),
       intensity: state.intensity!,
       // Empty is a real answer from [saveNow]: the areas were never picked, and an attack with no location is better than no attack.

@@ -1,6 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:system_design/common.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
@@ -13,7 +12,6 @@ class MedicationsController {
   const MedicationsController(this._ref);
 
   final Ref _ref;
-  static const _uuid = Uuid();
 
   /// Adds a brand-new medication, stamping `createdAt` now.
   Future<void> add(String name) async {
@@ -25,7 +23,7 @@ class MedicationsController {
           .read(medicationRepositoryProvider)
           .upsert(
             Medication(
-              id: _uuid.v4(),
+              id: SdId.unique(),
               name: name,
               createdAt: DateTime.now().toUtc(),
             ),

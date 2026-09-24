@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:system_design/common.dart';
 
 import '../../domain/entities/encrypted_payload.dart';
 import '../../domain/entities/encrypted_record.dart';
@@ -26,7 +27,7 @@ final class EncryptedRecordMapper {
   /// `2026-09-24` owned `daily_logs/2026-09-24`, and every other account's push
   /// was refused by `ownsStored()` for good — 35 records owed on TestFlight,
   /// online, forever.
-  static String documentId(String uid, String id) => '${uid}_$id';
+  static String documentId(String uid, String id) => SdId.owned(uid, id);
 
   static Map<String, Object?> toDocument(EncryptedRecord record, String uid) {
     final EncryptedPayload? payload = record.payload;

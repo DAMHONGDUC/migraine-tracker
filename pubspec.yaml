@@ -72,7 +72,6 @@ dependencies:
   table_calendar: ^3.2.0
   timezone: ^0.11.1
   url_launcher: ^6.3.2
-  uuid: ^4.5.3
   # Direct because head_scene.dart names its types: flutter_scene's camera and
   # raycast speak vector_math's 32-bit Vector3/Matrix4, not the 64-bit pair
   # Flutter re-exports.

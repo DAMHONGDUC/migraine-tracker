@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:migraine_tracker/core/db/app_database.dart';
-import 'package:uuid/uuid.dart';
+import 'package:system_design/common.dart';
 
 import '../../helpers/pump_app.dart';
 
 /// Adds [count] medications straight to the database, named so their alphabetical order is predictable.
 Future<void> _seedMedications(AppDatabase db, int count) async {
-  const uuid = Uuid();
   for (var i = 0; i < count; i++) {
     await db
         .into(db.medications)
         .insert(
           MedicationsCompanion.insert(
-            id: uuid.v4(),
+            id: SdId.unique(),
             name: 'Medication ${i.toString().padLeft(2, '0')}',
           ),
         );

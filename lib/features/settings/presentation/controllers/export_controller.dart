@@ -6,7 +6,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:system_design/common.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/analytics/app_analytics.dart';
 import '../../../../core/constants/log_tag_constant.dart';
@@ -31,8 +30,6 @@ class ExportController {
 
   final Ref _ref;
 
-  static const Uuid _uuid = Uuid();
-
   /// Builds [kind], stores it, and records it in the history.
   Future<ExportRecord> create(
     ExportKind kind, {
@@ -54,7 +51,7 @@ class ExportController {
           .read(exportFileStoreProvider)
           .write(filename: filename, bytes: bytes);
       final ExportRecord record = ExportRecord(
-        id: _uuid.v4(),
+        id: SdId.unique(),
         kind: kind,
         filename: filename,
         filePath: stored.path,
