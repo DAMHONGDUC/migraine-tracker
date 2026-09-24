@@ -29,6 +29,18 @@ is also what keeps a legacy bare-id document editable.
   so this ships with the next release whether or not old builds are gone.
   Raise `force_update` to the first owned-id build in the same release, or
   hold the rule back until testers have updated.
+- **Legacy bare-id documents are moved, never deleted** — each is its owner's
+  real data. `functions/src/scripts/migrateOwnedIds.ts` writes each under
+  `<userId>_<id>` with `record_id` and deletes the old one in one batch; where
+  an owned copy is already newer it only drops the legacy one. Dry run unless
+  `--apply`, `--project` always typed, safe to rerun:
+
+  ```bash
+  cd functions && npm run build && node lib/scripts/migrateOwnedIds.js --project <project-id>
+  ```
+
+  Run it after the rule is live and old builds are gone, or an old build
+  recreates a bare id behind it.
 
 **Every id is made by `SdId` (`package:system_design/common.dart`)** — owner's
 rule, 2026-09-24:
