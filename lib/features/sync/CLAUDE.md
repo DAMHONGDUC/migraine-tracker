@@ -33,6 +33,10 @@ Sign-out refuses while records are still owed, and a user who could not see
 what was owed met that refusal as a surprise. The card shows it before they
 reach the button. `SyncScreen`, `/sync` and the old `syncScreen*` /
 `settingsSync*` keys stay deleted; nothing on it makes sync happen.
+**The one exception is the Dev group's "Sync everything now"**
+(`SyncController.syncEverythingNow`, owner's rule, 2026-09-24): it drops the
+pull cursors and runs a whole pass past the cooldown, so the card's bar has a
+real history to move and can be watched. Dev group only, never a user control.
 
 **Five kinds of record sync, in this order**: medications, then their reminders
 (a reminder points at a medication, so the other order hits a foreign key that is
@@ -132,7 +136,7 @@ frames and a thousand is a visible stutter.
 | Where | Reads | Shows |
 |---|---|---|
 | History, first pull on a device | `isSyncing`, `isFirstPull` | "getting your attacks" instead of "you have none" |
-| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | syncing 12/40 with a bar · "3 changes not saved yet" · "all saved" |
+| Settings, top card, signed in only | `phase`, `done`/`total`, `pending` | syncing "30%" beside the title, "12 of 40 records" and a bar · "3 changes not saved yet" · "all saved" |
 
 - **`pending` is recounted after every pass and push** (`SyncService.pendingCount`,
   four local queries), so an offline write shows up as owed within the 2s
