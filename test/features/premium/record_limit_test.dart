@@ -73,7 +73,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.textContaining('is Premium'), findsNothing);
+      expect(find.textContaining('Locked before'), findsNothing);
 
       await finishTest(tester);
     });
@@ -90,7 +90,7 @@ void main() {
       // The banner says what Premium would open, and that nothing was deleted.
       // The ROW behind the window is a second door onto the same offer, and
       // is covered by `history/locked_history_test.dart`.
-      expect(find.textContaining('is Premium'), findsWidgets);
+      expect(find.textContaining('Locked before'), findsWidgets);
       expect(find.textContaining('Nothing is deleted'), findsWidgets);
 
       await finishTest(tester);
@@ -105,7 +105,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.textContaining('is Premium'), findsNothing);
+      expect(find.textContaining('Locked before'), findsNothing);
 
       await finishTest(tester);
     });

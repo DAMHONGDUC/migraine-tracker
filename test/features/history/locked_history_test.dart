@@ -70,7 +70,7 @@ void main() {
     await finishTest(tester);
   });
 
-  // "History before <date> is Premium" is a statement about a boundary, so it
+  // "Locked before <date>" is a statement about a boundary, so it
   // sits AT the boundary: under the last readable row, over the first blurred
   // one. At the top of the list it was a notice to scroll past.
   testWidgets('the banner sits between the readable and the locked rows', (

@@ -4139,18 +4139,18 @@
   "@alertsNeedsSignIn": {
     "description": "Line under the alert row saying an account is required before the switch is tapped"
   },
-  "freeHistoryTitle": "History before {date} is Premium",
+  "freeHistoryTitle": "Locked before {date}",
   "@freeHistoryTitle": {
-    "description": "Banner naming the date the free plan's readable history starts at",
+    "description": "Banner naming the date the free plan's readable history starts at. One line beside an Unlock button — keep it short",
     "placeholders": {
       "date": {
         "type": "String"
       }
     }
   },
-  "freeHistoryBody": "Nothing is deleted — your whole record is on this phone, and Premium opens all of it.",
+  "freeHistoryBody": "Nothing is deleted, just hidden.",
   "@freeHistoryBody": {
-    "description": "Reassures the user that the hidden history still exists"
+    "description": "Reassures the user that the hidden history still exists. One line beside an Unlock button — keep it short"
   },
   "logHeadZoomOut": "Zoom out",
   "@logHeadZoomOut": {
