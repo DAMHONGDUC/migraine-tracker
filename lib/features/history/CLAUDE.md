@@ -59,9 +59,13 @@ that had never been written. Blurred, the row says something is there, the
   before it is Premium — that is a statement about a boundary, so it is drawn
   where the boundary is: under the last readable row, over the first blurred
   one. At the top of the list it was a notice to scroll past; there it labels
-  the rows beneath it. It is also **outlined** (`SdBannerV2.borderColor`),
+  the rows beneath it. It is also **outlined** (`SdCardV2.borderColor`),
   which is the design system's own lever for the one banner in a stack to be
   seen first, so the prominence the owner asked for costs no new look.
+  - **Compact, with `PremiumUnlockButton` trailing** (owner's rule,
+    2026-09-24): a full `SdBannerV2` between rows was taller than the rows it
+    labels, and its chevron promised more to read where the only offer is the
+    paywall. The whole card still opens the paywall too.
   - **One `SliverList` with the banner as an item**, not three slivers with
     hand-padded seams: the separator then spaces the banner from the rows
     either side of it exactly as it spaces two rows.
