@@ -9,6 +9,7 @@ import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart'
 import 'package:migraine_tracker/features/attacks/presentation/screens/attack_detail_screen/attack_detail_screen.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
+import 'package:migraine_tracker/features/history/presentation/widgets/locked_history_sheet.dart';
 import 'package:migraine_tracker/features/settings/domain/services/dev_seed_service.dart';
 import 'package:migraine_tracker/features/settings/providers.dart';
 import 'package:system_design/index.dart';
@@ -114,8 +115,14 @@ void main() {
       ),
       findsOneWidget,
     );
-    // And the way out of it.
-    expect(find.widgetWithText(SdButtonV2, 'Unlock'), findsOneWidget);
+    // And the way out of it — in the sheet: the banner behind it has its own.
+    expect(
+      find.descendant(
+        of: find.byType(LockedHistorySheet),
+        matching: find.widgetWithText(SdButtonV2, 'Unlock'),
+      ),
+      findsOneWidget,
+    );
 
     await finishTest(tester);
   });

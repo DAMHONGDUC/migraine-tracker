@@ -8,6 +8,9 @@ import '../extensions/context_extensions.dart';
 import '../router/navigation_utils.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_icon_constant.dart';
+import '../theme/app_icon_size.dart';
+import '../theme/app_text_style.dart';
+import 'premium_gate.dart';
 
 /// Where the free plan's readable history starts, and that nothing older was lost.
 ///
@@ -28,8 +31,14 @@ import '../theme/app_icon_constant.dart';
 /// list to sit inside, so there it stays where it was.
 ///
 /// **Outlined, because it is the one banner in its stack to be seen first.**
-/// `SdBannerV2.borderColor` is the design system's own lever for that, so the
+/// `SdCardV2.borderColor` is the design system's own lever for that, so the
 /// prominence costs no new look.
+///
+/// **Compact, with the app's one Unlock button** (owner's call, 2026-09-24).
+/// On History it sits between rows, and a full `SdBannerV2` there was taller
+/// than the rows it labels; a chevron also said "more to read" where the only
+/// thing on offer is the paywall. The button names that action outright, and
+/// the whole card still opens the paywall for a thumb that misses it.
 ///
 /// **Absent until something is actually hidden.** A banner offering to reveal
 /// nothing is the free plan's own limit advertised as a loss.
@@ -43,15 +52,45 @@ class FreeHistoryBanner extends ConsumerWidget {
 
     if (start == null || !hasHidden) return const SizedBox.shrink();
 
-    return SdBannerV2(
-      icon: AppIconConstant.history,
-      color: AppColors.primary,
+    return SdCardV2(
       borderColor: AppColors.primary,
-      title: context.l10n.freeHistoryTitle(
-        DateFormat.yMMMd(context.l10n.localeName).format(start),
-      ),
-      subtitle: context.l10n.freeHistoryBody,
       onTap: () => NavigationUtils.toPaywall(context, ref),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: SdSpacingConstant.w12,
+          vertical: SdSpacingConstant.h10,
+        ),
+        child: Row(
+          children: <Widget>[
+            SdIconV2(
+              icon: AppIconConstant.history,
+              size: AppIconSize.small,
+              color: AppColors.primary,
+            ),
+            SizedBox(width: SdSpacingConstant.w12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    context.l10n.freeHistoryTitle(
+                      DateFormat.yMMMd(context.l10n.localeName).format(start),
+                    ),
+                    style: AppTextStyle.titleSmall,
+                  ),
+                  SizedBox(height: SdSpacingConstant.h2),
+                  Text(
+                    context.l10n.freeHistoryBody,
+                    style: AppTextStyle.bodySmall.secondary,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: SdSpacingConstant.w8),
+            const PremiumUnlockButton(),
+          ],
+        ),
+      ),
     );
   }
 }
