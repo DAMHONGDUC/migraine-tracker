@@ -36,6 +36,34 @@ class _Progress {
   }
 }
 
+/// Lets one kind of record fail without stopping the kinds after it, then reports the first failure once all have had their turn.
+///
+/// One refused kind used to strand every kind queued behind it: `daily_logs`
+/// was refused, and the six notifications after it never got a turn. Within a
+/// kind the push still stops at the first record — a dropped connection fails
+/// every record after it too.
+class _FirstFailure {
+  Object? _error;
+  StackTrace? _stackTrace;
+
+  void note(SyncCollection collection, Object error, StackTrace stackTrace) {
+    // A warning, not an error: the repository already filed the non-fatal, and the caller logs the pass that failed.
+    SdLogger.warning(
+      LogTagConstant.sync,
+      'Syncing ${collection.name} failed — carrying on with the rest',
+      error,
+    );
+    _error ??= error;
+    _stackTrace ??= stackTrace;
+  }
+
+  void rethrowIfAny() {
+    final Object? error = _error;
+
+    if (error != null) Error.throwWithStackTrace(error, _stackTrace!);
+  }
+}
+
 /// One kind of record and the two things sync needs to move it: where it lives locally, and how it becomes a payload.
 class SyncBinding<T> {
   const SyncBinding(this.store, this.codec);
@@ -89,24 +117,31 @@ class SyncService {
     int unreadable = 0;
     bool remindersArrived = false;
 
-    for (final SyncBinding<dynamic> binding in _bindings) {
-      final SyncOutcome pull = await _pull(uid, binding, key, progress);
+    final _FirstFailure failure = _FirstFailure();
 
-      pulled += pull.pulled;
-      unreadable += pull.unreadable;
-      pushed += await _push(
-        uid,
-        binding,
-        key,
-        await binding.store.pendingChanges(),
-        progress,
-      );
-      if (binding.collection == SyncCollection.medicationReminders &&
-          pull.pulled > 0) {
-        remindersArrived = true;
+    for (final SyncBinding<dynamic> binding in _bindings) {
+      try {
+        final SyncOutcome pull = await _pull(uid, binding, key, progress);
+
+        pulled += pull.pulled;
+        unreadable += pull.unreadable;
+        pushed += await _push(
+          uid,
+          binding,
+          key,
+          await binding.store.pendingChanges(),
+          progress,
+        );
+        if (binding.collection == SyncCollection.medicationReminders &&
+            pull.pulled > 0) {
+          remindersArrived = true;
+        }
+      } catch (error, stackTrace) {
+        failure.note(binding.collection, error, stackTrace);
       }
     }
     if (remindersArrived) await _onRemindersPulled();
+    failure.rethrowIfAny();
 
     return SyncOutcome(pushed: pushed, pulled: pulled, unreadable: unreadable);
   }
@@ -128,6 +163,7 @@ class SyncService {
       ..grow(
         owed.fold(0, (int sum, List<SyncRecord<dynamic>> p) => sum + p.length),
       );
+    final _FirstFailure failure = _FirstFailure();
     String? key;
     int pushed = 0;
 
@@ -135,14 +171,17 @@ class SyncService {
       final List<SyncRecord<dynamic>> pending = owed[index];
 
       if (pending.isEmpty) continue;
-      pushed += await _push(
-        uid,
-        binding,
-        key ??= await _keys.keyFor(uid),
-        pending,
-        progress,
-      );
+      // Outside the try: every kind needs the key, so without it there is nothing to carry on with.
+      final String accountKey = key ??= await _keys.keyFor(uid);
+
+      try {
+        pushed += await _push(uid, binding, accountKey, pending, progress);
+      } catch (error, stackTrace) {
+        failure.note(binding.collection, error, stackTrace);
+      }
     }
+    failure.rethrowIfAny();
+
     return pushed;
   }
 

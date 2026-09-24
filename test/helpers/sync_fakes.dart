@@ -84,6 +84,9 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
   /// Fails once this many puts have succeeded within a single sync.
   int? failPutAfter;
 
+  /// Collections whose every write is refused, the way rules that deny them do.
+  final Set<SyncCollection> refused = <SyncCollection>{};
+
   int _putsThisRun = 0;
 
   /// Everything on the server, whatever collection it is in.
@@ -101,6 +104,9 @@ class FakeRemoteSyncRepository implements RemoteSyncRepository {
     EncryptedRecord record,
   ) async {
     if (holdPuts != null) await holdPuts!.future;
+    if (refused.contains(collection)) {
+      throw Exception('permission-denied on ${collection.name}');
+    }
     if (failNextPut) {
       failNextPut = false;
       throw Exception('put failed');

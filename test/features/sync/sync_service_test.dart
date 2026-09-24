@@ -406,6 +406,32 @@ void main() {
       expect(await service.pendingCount(), 0);
     });
 
+    // `daily_logs` was refused and the notifications queued after it never got a turn.
+    test('a refused kind does not strand the kinds after it', () async {
+      await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+      await attacks.insert(attack('a1'));
+      remote.refused.add(SyncCollection.medications);
+
+      await expectLater(service.pushPending(uid), throwsException);
+
+      expect(remote.of(SyncCollection.attacks), contains('a1'));
+      expect(
+        await service.pendingCount(),
+        1,
+        reason: 'only the medication is owed',
+      );
+    });
+
+    test('a pass carries on past a refused kind too', () async {
+      await medications.upsert(const Medication(id: 'm1', name: 'Ibuprofen'));
+      await attacks.insert(attack('a1'));
+      remote.refused.add(SyncCollection.medications);
+
+      await expectLater(service.sync(uid), throwsException);
+
+      expect(remote.of(SyncCollection.attacks), contains('a1'));
+    });
+
     test('an empty push never asks for the account key', () async {
       final FakeSyncKeyRepository keys = FakeSyncKeyRepository();
       final SyncService quiet = syncServiceOver(
