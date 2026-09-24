@@ -190,6 +190,13 @@ stop two builds in the wild reading each other.
   no cursor). A payload that will not decrypt is counted and skipped, never
   retried forever. Each collection keeps its own cursor, so a pull that failed on
   reminders cannot look finished because attacks got through.
+- **One kind failing does not stop the kinds after it** (owner's rule,
+  2026-09-24). A pass and a push each give every collection its turn, then
+  throw the first failure, so sign-out and the Settings card still see it. It
+  was `daily_logs` refused and the six notifications queued behind it never
+  sent. Two limits: no key stops everything (every kind needs it), and within a
+  kind the push still stops at the first record — a dropped connection fails
+  the rest too.
 - **Reminders sync as rows; their OS notifications do not.** A notification is
   registered with the device that made it, so a reminder pulled from another
   phone would sit in the list and never fire. A pull that brought reminders down
