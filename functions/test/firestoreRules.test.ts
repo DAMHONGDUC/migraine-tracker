@@ -26,7 +26,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 const HOST = "127.0.0.1";
 const PORT = 8080;
 
-const SYNCED = ["attacks", "medications", "medication_reminders"] as const;
+const SYNCED = [
+  "attacks",
+  "medications",
+  "medication_reminders",
+  "daily_logs",
+  "midas",
+  "notifications",
+] as const;
 
 async function emulatorRunning(): Promise<boolean> {
   try {
@@ -104,8 +111,44 @@ describe.skipIf(!available)("firestore.rules", () => {
         await assertSucceeds(
           db
             .collection(collection)
-            .doc("new")
+            .doc("alice_new")
             .set({ userId: "alice", updatedAt: new Date(), deleted: false }),
+        );
+      });
+
+      // A daily log's id is the day: under a bare id, the first account to
+      // write a day owned it and every other account was refused for good.
+      it("refuses creating a document under someone else's id", async () => {
+        const db = env.authenticatedContext("mallory").firestore();
+
+        await assertFails(
+          db
+            .collection(collection)
+            .doc("alice_2026-09-24")
+            .set({ userId: "mallory", updatedAt: new Date(), deleted: false }),
+        );
+      });
+
+      it("refuses creating a document whose id names no owner", async () => {
+        const db = env.authenticatedContext("alice").firestore();
+
+        await assertFails(
+          db
+            .collection(collection)
+            .doc("2026-09-24")
+            .set({ userId: "alice", updatedAt: new Date(), deleted: false }),
+        );
+      });
+
+      it("still lets the owner update a document from before owned ids", async () => {
+        await seed(collection, "legacy", "alice");
+        const db = env.authenticatedContext("alice").firestore();
+
+        await assertSucceeds(
+          db
+            .collection(collection)
+            .doc("legacy")
+            .set({ userId: "alice", updatedAt: new Date(), deleted: true }),
         );
       });
 

@@ -24,6 +24,16 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid;
     }
 
+    // A new synced document's id is `<uid>_<recordId>` (SdId.owned). Checked
+    // on create only: without it anyone could create `<yourUid>_2026-09-24`
+    // first, own it, and every later write of yours to it would be refused.
+    // Update needs no check — ownsStored() already pins the document to you.
+    // Written for pre-2026-09-24 builds, which create bare ids, to be refused:
+    // deploy only once none of them is left in use.
+    function ownsId(docId) {
+      return docId.matches(request.auth.uid + '_.+');
+    }
+
     function isSynced(collection) {
       return collection in ['attacks', 'medications', 'medication_reminders',
                             'daily_logs', 'midas', 'notifications'];
@@ -115,7 +125,7 @@ service cloud.firestore {
     // that on this side; nothing here can.
     match /{collection}/{docId} {
       allow read: if isSynced(collection) && ownsStored();
-      allow create: if isSynced(collection) && ownsIncoming();
+      allow create: if isSynced(collection) && ownsIncoming() && ownsId(docId);
       allow update: if isSynced(collection) && ownsStored() && ownsIncoming();
       allow delete: if isSynced(collection) && ownsStored();
     }
