@@ -3,6 +3,8 @@
 An iOS-first Flutter app for tracking migraines and barometric-pressure risk.
 It works offline, uses dark mode by default and supports seven languages.
 
+App Store: [https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362](https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362)
+
 | Document | Use it for |
 |---|---|
 | [`PLAN.md`](PLAN.md) | Product scope and architecture |
