@@ -228,7 +228,7 @@ line in with what was sent, a line out with what came back.
     date-shaped utils class — clock formatting, month arithmetic and a chart's
     time axis are one subject, and two classes is how two call sites compute
     midnight differently. `ChartAxisUtils` keeps only the numeric half of an axis.
-  - **`packages/system_design` is out of scope** — a separate repo with its own
+  - **`packages/flutter-system-design-kit` is out of scope** — a separate repo with its own
     `WIDGET_RULES.md`, and its statics are widget-intrinsic.
 
 ## Comments

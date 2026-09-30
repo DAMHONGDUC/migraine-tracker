@@ -294,7 +294,7 @@ legacy keys, and it merely warns.
 `--dart-define-from-file`, so the archive carries empty config;
 `Firebase.initializeApp` throws, `main()` swallows it, and the app dies on the
 first `FirebaseAuth.instance` with `[core/no-app] No Firebase App '[DEFAULT]' has
-been created`. Always build with `sh packages/system_design/tool/build-ipa.sh prod` (or `build-ipa-dev`),
+been created`. Always build with `make build-ipa-prod` (or `build-ipa-dev`),
 or let the Release iOS workflow do it — the fastlane lane calls the same script.
 
 The paywall still surfaces `PurchaseError.notConfigured` when a purchase runs
@@ -353,7 +353,7 @@ widget gallery has one line and the extension is not the app.
 
 That file is one of the six `prepare-env` overwrites, so **both copies in
 `env_assets/` have to carry the same string** or the next
-`melos run prepare-env-<flavor>` puts the old name back:
+`make env-<flavor>` puts the old name back:
 
 ```
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName BaroEase: Migraine Tracker" env_assets/dev-Info.plist

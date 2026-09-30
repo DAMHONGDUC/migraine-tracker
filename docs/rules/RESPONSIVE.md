@@ -8,7 +8,7 @@ Three rules, and **every one of them is a no-op on a phone**. The phone build
 is asserted at 393 in the same file that asserts the tablet one, which is what
 lets any of this change without re-verifying it by hand.
 
-**Porting this to another app?** `packages/system_design/RESPONSIVE_SPEC.md` is
+**Porting this to another app?** `packages/flutter-system-design-kit/RESPONSIVE_SPEC.md` is
 the same three rules written portably — no BaroEase names, with the traps, the
 code to copy, a test spec and a step order. This file is what *this* app does;
 that one is what any app should do.

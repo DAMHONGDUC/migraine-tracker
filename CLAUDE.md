@@ -63,8 +63,8 @@ Read the file whose trigger matches the work. Do not read them all.
 | any Dart file | `docs/rules/CODE_STYLE.md` |
 | anything with a look — widgets, spacing, colour, text | `docs/rules/DESIGN_SYSTEM.md` |
 | a tablet, a window size, landscape, iPad multitasking | `docs/rules/RESPONSIVE.md` |
-| porting the tablet rules to another app | `packages/system_design/RESPONSIVE_SPEC.md` |
-| porting the local-first data flow to another app | `packages/system_design/DATA_FLOW_SPEC.md` |
+| porting the tablet rules to another app | `packages/flutter-system-design-kit/RESPONSIVE_SPEC.md` |
+| porting the local-first data flow to another app | `packages/flutter-system-design-kit/DATA_FLOW_SPEC.md` |
 | Drift tables, schema versions, Firestore collections and field names | `docs/rules/DATA_AND_SYNC.md` |
 | user data, secrets, `env/`, the privacy policy | `docs/rules/PRIVACY_AND_SECURITY.md` |
 | Cloud Functions, the alert cron, force update | `docs/rules/BACKEND.md` |
@@ -76,7 +76,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
 | premium gates, prices, free limits | `docs/PREMIUM_RULES.md` |
 | premium/dev/blocked by address, force update | `lib/features/app_config/CLAUDE.md` |
-| adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
+| adding to the design system package | `packages/flutter-system-design-kit/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
 `lib/features/<feature>/CLAUDE.md` — access, attacks, alerts, daily_log,
@@ -85,12 +85,11 @@ premium, review, settings, sync.
 
 ## Always — these apply to every change
 
-- **`sh packages/system_design/tool/analyze.sh` must pass with zero findings**
-  before any task is done. It is what CI runs (`--fatal-infos`). It is a script
-  rather than a melos command because melos carries only the commands a human
-  types — see `docs/rules/COMMANDS.md`.
+- **`make analyze` must pass with zero findings** before any task is done. It
+  is what CI runs (`--fatal-infos`). Every command is a `make` target over a
+  script in the `packages/script-tools` submodule — see `docs/rules/COMMANDS.md`.
 - **Never run the whole test suite to verify a change**, no exception. Scope to
-  what changed: `flutter test test/features/<x>/<y>_test.dart`.
+  what changed: `make test TEST=test/features/<x>/<y>_test.dart`.
 - **Never read `env/`** — not with Read, not with `cat`/`grep`/`sed`, not "just
   one field". Live Firebase and RevenueCat keys; the harm is the copy, not the
   size. `ios/Flutter/Generated.xcconfig` is the same secret under another name.
@@ -187,7 +186,8 @@ lib/
 functions/               # firebase cloud functions (typescript)
 test/features/           # mirrors lib/features
 packages/
-  system_design/         # the design system, its own git repo (submodule)
+  flutter-system-design-kit/  # the design system (Dart package `system_design`), submodule
+  script-tools/          # shared scripts + fastlane lanes, submodule; `make` runs flutter/
 ```
 
 Features: `app_config` (the owner's `app_config` collection — premium, Dev

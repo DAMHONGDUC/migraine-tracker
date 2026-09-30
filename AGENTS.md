@@ -69,7 +69,7 @@ Read the file whose trigger matches the work. Do not read them all.
 | anything that seems unconfigured (keys, App IDs, products) | `docs/rules/PENDING_SETUP.md` |
 | why a rule is the way it is, before changing it | `docs/rules/DECISIONS.md` |
 | premium gates, prices, free limits | `docs/PREMIUM_RULES.md` |
-| adding to the design system package | `packages/system_design/WIDGET_RULES.md` |
+| adding to the design system package | `packages/flutter-system-design-kit/WIDGET_RULES.md` |
 
 And one per feature, loaded when the work is in that directory:
 `lib/features/<feature>/AGENTS.md` — attacks, alerts, dashboard, health, history,
@@ -78,10 +78,9 @@ sync.
 
 ## Always — these apply to every change
 
-- **`sh packages/system_design/tool/analyze.sh` must pass with zero findings**
-  before any task is done. It is what CI runs (`--fatal-infos`). It is a script
-  rather than a melos command because melos now carries only the eight commands
-  a human types — see `docs/rules/COMMANDS.md`.
+- **`make analyze` must pass with zero findings** before any task is done. It
+  is what CI runs (`--fatal-infos`). Every command is a `make` target over a
+  script in the `packages/script-tools` submodule — see `docs/rules/COMMANDS.md`.
 - **Never run the whole test suite to verify a change**, no exception. Scope to
   what changed: `flutter test test/features/<x>/<y>_test.dart`.
 - **Never read `env/`** — not with Read, not with `cat`/`grep`/`sed`, not "just

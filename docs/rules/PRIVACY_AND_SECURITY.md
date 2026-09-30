@@ -226,7 +226,7 @@ size.**
   answer "what keys exist" with no values. The Firebase project id is in
   `.firebaserc`, and `firebase use` prints it. Anything else, ask the owner.
 - Reading the *names* of files in `env/` is fine. Writing is fine too —
-  `melos run set-up` and `packages/system_design/tool/prepare-env.sh dev|prod` create them, and they
+  `make set-up` and `packages/script-tools/flutter/prepare_env.sh dev|prod` create them, and they
   are the only things that should.
 - **`ios/Flutter/Generated.xcconfig` is the same secret under another name.**
   Flutter writes every `--dart-define-from-file` value into its `DART_DEFINES=`

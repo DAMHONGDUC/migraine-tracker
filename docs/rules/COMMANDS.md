@@ -1,53 +1,54 @@
 # Commands, tooling and scripts
 
-Melos is the task runner (`melos.yaml`). Read this before running, building,
-seeding or deploying anything.
+`make` is the command surface: the root `Makefile` includes
+`packages/script-tools/flutter/flutter.mk`, and every target runs one script in
+`packages/script-tools/flutter/`. `make` alone lists them. Read this before
+running, building, seeding or deploying anything.
 
-**Melos carries eleven commands, and they are the ones a human types**:
-`set-up`, `deep-set-up`, `prepare-env-dev`, `prepare-env-prod`, `release-dev`,
-`release-prod`, `deploy-firebase-dev`, `deploy-firebase-prod`,
-`upload-ipa-dev`, `upload-ipa-prod`, `gen-app-icon`. Everything else a release needs — `gen`,
-`analyze`, `test`, `build-ipa` — is still a script, run by the command that
-needs it or by hand as `sh packages/system_design/tool/<name>.sh`. Owner's
-rule: the list you scroll through should be the list of things you actually
-run.
+| Target | Script |
+|---|---|
+| `set-up` / `deep-set-up` | `set_up.sh` / `set_up.sh --deep` |
+| `gen` / `analyze` | `generate_code.sh` / `analyze_code.sh` |
+| `test TEST=<path>` | `run_tests.sh <path>` |
+| `env-<flavor>` | `prepare_env.sh <flavor>` |
+| `deploy-<flavor> [ONLY=rules\|functions]` | `deploy_firebase.sh <flavor> [target]` |
+| `build-ipa-<flavor>` | `build_ipa.sh <flavor>` |
+| `release-<flavor> [NOTE="..."]` | `release_ios.sh <flavor> [note]` |
+| `upload-ipa-<flavor>` | `upload_ipa.sh <flavor>` |
+| `app-icon` / `app-icon-strip-marker` | `generate_app_icon.sh` / `strip_icon_marker.sh` |
 
-**`prepare-env` is a command because it is typed on its own** (owner's rule).
-`gen`, `analyze` and `build-ipa` are only ever reached through something else;
-switching a checkout between dev and prod is a thing a person decides to do,
-and one per environment — never one command with a flag — for the same reason
-the deploys it feeds are split.
+**Flavored targets carry the flavor in the name** (owner's rule): a prod
+release or deploy is typed, never a flag or a default. The scripts accept only
+the flavors in `FLAVORS` (`script-tools.properties`, default `dev prod`).
 
-**Every script lives in `packages/system_design/tool/`**, inside the design
-system submodule, so `git clone --recurse-submodules` is not optional: without
-it there is no `set-up.sh` to run — recover with `git submodule update --init
---recursive`.
+**The scripts live in the `packages/script-tools` submodule**, shared with
+every other app, and the widgets in `packages/flutter-system-design-kit`, so
+`git clone --recurse-submodules` is not optional — recover with
+`git submodule update --init --recursive`. App-specific behaviour never goes
+into a script: it goes into the app's own files the scripts read.
 
-Installed once per machine at the version `pubspec.yaml` pins — `dart pub global
-activate melos 6.3.3`. **The global and local versions must match exactly**, or
-melos runs one version's code against the other's asset templates and bootstrap
-dies on a missing `.tmpl`; that is why the dependency is pinned, not
-caret-ranged. **Melos 6, not 7/8, on purpose** — `melos.yaml` explains the two
-costs of the workspace-based versions.
+Melos (`melos.yaml`, pinned at 6.3.3 in `pubspec.yaml`) only bootstraps the
+packages, which CI uses; it carries no commands. **Melos 6, not 7/8, on
+purpose** — `melos.yaml` explains the two costs of the workspace-based versions.
 
 ## Setting up and everyday work
 
-### `melos run set-up`
+### `make set-up`
 
 Everything a clone needs, in order: submodules, `pub get` for both packages,
 `gen-l10n`, `build_runner`, `env/*.json` from the templates, `npm ci` in
 `functions/`. Idempotent — iOS needs no install step, Xcode resolves the Swift
 packages on the first build.
 
-- **It always wipes first** (`_clean.sh`: `flutter clean`, gradle, the iOS
-  ephemeral dirs).
+- **It always wipes first** (`flutter clean`, gradle, the iOS ephemeral
+  dirs).
   Unconditional on purpose: setup is the one answer to "it built yesterday and
-  not today". Don't reach for it when `gen.sh` would do.
+  not today". Don't reach for it when `make gen` would do.
 - **It puts each submodule on the branch named in `.gitmodules` (`main`) and
   fast-forwards it**, rather than leaving it detached at the recorded gitlink, so
   the design system is always editable in place. The price: what you build is
   whatever is on that branch, not what the parent commit pins. When the branch
-  moves ahead, `packages/system_design` shows as modified — commit that gitlink
+  moves ahead, `packages/flutter-system-design-kit` shows as modified — commit that gitlink
   deliberately, and never assume an old parent commit rebuilds byte-for-byte.
 - **CI follows the same branch** (`git submodule update --remote` after
   checkout, in both workflows), because a laptop and a runner quietly building
@@ -57,7 +58,7 @@ packages on the first build.
   does not do this by itself — plain `actions/checkout` still takes the pinned
   gitlink, and only `--remote` reads that line.
 
-### `melos run prepare-env-dev` / `prepare-env-prod`
+### `make env-dev` / `env-prod`
 
 Copy the real config from `env_assets/` into the six paths the build, the
 backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
@@ -65,7 +66,7 @@ backend and fastlane read: `env/<flavor>.json`, `ios/fastlane/.env`,
 `ios/Runner/Info.plist` and `functions/.env`. `env_assets/` holds the same live
 keys `env/` does, so it is gitignored and a clone never has it.
 
-- **Only the flavor named is installed.** Owner's rule: `prepare-env.sh dev`
+- **Only the flavor named is installed.** Owner's rule: `make env-dev`
   writes `env/dev.json` and leaves `env/prod.json` alone, so a checkout carries
   the keys of the environment it builds rather than both. Each flavored file has
   one destination — one bundle id serves both environments, so there is no
@@ -77,14 +78,14 @@ keys `env/` does, so it is gitignored and a clone never has it.
 - **`<flavor>-function.env` → `functions/.env` is the backend's half**, and the
   only destination nothing in the app reads: the Firebase CLI reads it at deploy
   time for the `defineString` params (`WEATHERKIT_*`). Copying
-  it switches nothing until `melos run deploy-firebase-<flavor>`, so the script
+  it switches nothing until `make deploy-<flavor>`, so the script
   says so on the way out.
 - **`Info.plist` is in the list because of the Google sign-in URL scheme.** It
   is the reversed client id of the Firebase project this checkout points at, so
   it has to change with `GoogleService-Info.plist` or the two disagree — which
   builds cleanly and then drops the sign-in callback at runtime. Unlike the
   other five destinations `ios/Runner/Info.plist` is **tracked**, so a
-  `prepare-env` run shows up in `git status`; that is expected. CI has no
+  `make env-<flavor>` run shows up in `git status`; that is expected. CI has no
   `env_assets/`, so it rewrites that one scheme from the
   `GoogleService-Info.plist` it wrote from a secret rather than trusting what
   was committed — the branch can only ever be right for one flavor.
@@ -96,28 +97,28 @@ keys `env/` does, so it is gitignored and a clone never has it.
   tree half one environment and half the other with nothing saying so, so a
   missing file names all of them and copies none.
 - **It never reads what it copies** (hard rule 13), and **it overwrites** — that
-  is how a checkout switches environment. `melos run set-up` still fills in
+  is how a checkout switches environment. `make set-up` still fills in
   `env/*.example.json` only when the real file is absent, so setting up
   afterwards cannot undo it.
 
 ### The rest
 
-- `sh packages/system_design/tool/gen.sh` — after editing Drift tables, Riverpod
+- `make gen` — after editing Drift tables, Riverpod
   codegen or ARB files. It is inside `set-up`, which a release no longer runs —
   so generated code being current is on whoever releases. **The codegen half is
-  skipped when `pubspec.yaml` declares no `build_runner`** (`has_dep` in `_common.sh`): these scripts are shared with
+  skipped when `pubspec.yaml` declares no `build_runner`** (`has_dep` in `flutter/lib/common.sh`): these scripts are shared with
   apps that generate nothing, and there `dart run build_runner` fails with
   "could not find package build_runner", which reads as a broken checkout
   rather than as a step that does not apply.
-- `sh packages/system_design/tool/analyze.sh` — `--fatal-infos`, exactly what CI
+- `make analyze` — `--fatal-infos`, exactly what CI
   runs. Zero findings before any task is done. **A release does not run it** —
   CI does, on the branch being released.
-- `sh packages/system_design/tool/test.sh` — the whole suite. **Never run it to
+- `make test TEST=<path>` — scoped; without `TEST` it is the whole suite. **Never run that to
   verify a change, no exception** — not for shared code (theme, spacing, the
   design system), not "just before a commit". Scope to what changed: `flutter test
   test/features/<x>/<y>_test.dart`, narrowed with `--plain-name`. The full suite
   is minutes of wall clock to re-learn what one scoped file already said.
-- `melos run deep-set-up` — setup plus **Xcode's DerivedData**. Separate because
+- `make deep-set-up` — setup plus **Xcode's DerivedData**. Separate because
   clearing that cache costs a full cold build. Reach for it when a build fails in
   a way the code cannot explain — a module Xcode refuses to reuse ("has been
   modified since the module file was built"), a header resolving to a version you
@@ -126,10 +127,9 @@ keys `env/` does, so it is gitignored and a clone never has it.
   workspace path each cache records, never on the folder name**: every Flutter
   app builds a target called `Runner`, so deleting `Runner-*` would take other
   projects' caches with it.
-- **There are exactly two entry points, `set-up` and `deep-set-up`.** The wipe
-  itself is `_clean.sh`, underscore-prefixed like `_common.sh` because it is
-  not a command. Don't add a third clean-shaped one; the choice is only ever
-  "with DerivedData or without".
+- **There are exactly two entry points, `set-up` and `deep-set-up`** — one
+  script, `set_up.sh`, with and without `--deep`. Don't add a third
+  clean-shaped one; the choice is only ever "with DerivedData or without".
 - `flutter run --dart-define-from-file=env/dev.json` — Firebase config comes from
   `env/dev.json` / `env/prod.json` (gitignored; `env/*.example.json` are the
   committed key-only templates). Read config only through `AppEnv`
@@ -140,9 +140,9 @@ keys `env/` does, so it is gitignored and a clone never has it.
 
 ## Building the IPA
 
-`sh packages/system_design/tool/build-ipa.sh <dev|prod>`. **It builds and
-nothing else** — uploading is fastlane's job. It is not a melos command because
-nobody types it: `release-<flavor>` reaches it through the lane. Anything after
+`make build-ipa-<flavor>`. **It builds and
+nothing else** — uploading is fastlane's job. A release reaches it through the
+lane; the target is for a build without an upload. Anything after
 the environment passes straight to `flutter build ipa`.
 
 - **Both export `app-store`** — both are meant for TestFlight, and that is the
@@ -167,20 +167,20 @@ the environment passes straight to `flutter build ipa`.
 
 ## Releasing to TestFlight
 
-### `melos run release-dev` / `release-prod`
+### `make release-dev` / `release-prod`
 
-Three steps, in this order — `release.sh <flavor>`:
+Three steps, in this order — `release_ios.sh <flavor>`:
 
 | # | Step | What it is |
 |---|---|---|
-| 1 | `prepare-env.sh <flavor>` | the flavor's real config into the tree |
-| 2 | `deploy-firebase.sh <flavor>` | rules, indexes, functions |
+| 1 | `prepare_env.sh <flavor>` | the flavor's real config into the tree |
+| 2 | `deploy_firebase.sh <flavor>` | rules, indexes, functions |
 | 3 | `fastlane beta flavor:<flavor> bump:true` | build, sign, upload |
 
 - **Nothing in the release pipeline names an app** (owner's rule) — not
-  `release.sh`, and since the lanes moved into the design system, not the
-  Fastfile either. The flavour is an argument and every path is one any app
-  embedding this design system already has. What the app *is* — its team, its
+  `release_ios.sh`, and not the shared Fastfile either — both live in
+  script-tools. The flavour is an argument and every path is one any Flutter
+  app already has. What the app *is* — its team, its
   targets, their bundle ids and entitlements — arrives through the single
   `sd_ios_app(...)` call in `ios/fastlane/Fastfile`, and that file holds nothing
   else.
@@ -193,7 +193,7 @@ Three steps, in this order — `release.sh <flavor>`:
 - **`set-up` is NOT inside the release** (owner's rule): a release builds the
   tree as it stands. The wipe-and-regenerate cost a cold build on every release,
   including the ones from a tree that was already good. Restoring a tree is its
-  own decision — `melos run set-up` first, then release. The consequence is
+  own decision — `make set-up` first, then release. The consequence is
   yours to carry: a release from a half-generated tree now builds that tree.
 - **One command per environment, like the deploys it wraps.** A prod release is
   typed, never a flag on a shared command.
@@ -212,7 +212,7 @@ Three steps, in this order — `release.sh <flavor>`:
   (`if bump && is_ci`), so the script says so on the way out. Commit that number
   by hand after the upload.
 
-### `melos run upload-ipa-dev` / `upload-ipa-prod`
+### `make upload-ipa-dev` / `upload-ipa-prod`
 
 The recovery path when the build succeeded and the upload did not — a dropped
 network, an expired token, a rejected binary. It takes the IPA already in
@@ -225,13 +225,13 @@ leave the one on disk still unuploaded.
   TestFlight already has that number, because then the IPA either went up
   already or needs rebuilding.
 - **The flavor is still checked against the tree** (`sd_verify_flavor_config`), so
-  an upload cannot label a prod binary `dev` after a `prepare-env` switch.
+  an upload cannot label a prod binary `dev` after a `make env-<flavor>` switch.
 
 ### The lane itself
 
 `cd ios && bundle exec fastlane beta flavor:prod` — the same build, plus signing,
 export and upload. **Fastlane never archives**: it shells out to
-`build-ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an
+`build_ipa.sh`, because `gym` cannot pass `--dart-define-from-file` and an
 archive without it is the crash above. Do not "simplify" the lane into
 `build_app`.
 
@@ -265,7 +265,7 @@ archive without it is the crash above. Do not "simplify" the lane into
 - **The flavor is checked against the config in the tree before anything else**
   (`verify_flavor_config`). `flavor:` selects `env/<flavor>.json` and nothing
   more; which Firebase project the app talks to comes from the native files
-  `prepare-env` copied in, and nothing links the two — so `prepare-env-dev`
+  `make env-<flavor>` copied in, and nothing links the two — so `make env-dev`
   followed by `beta flavor:prod` uploads an app that runs perfectly and writes
   into the wrong Firestore. The lane compares `GoogleService-Info.plist`'s
   `PROJECT_ID` against the flavor's alias in `.firebaserc` (the same file
@@ -291,7 +291,7 @@ archive without it is the crash above. Do not "simplify" the lane into
 - **The lane writes `ExportOptions.plist`, not Flutter.** `--export-method` makes
   Flutter generate one mapping the main bundle id only (multi-target is a TODO in
   its own source), so the widget extension gets no profile and `exportArchive`
-  fails after the whole build. `build-ipa.sh` drops its own `--export-method`
+  fails after the whole build. `build_ipa.sh` drops its own `--export-method`
   when a caller passes a plist; Flutter refuses both together.
 - **dSYMs go to Crashlytics best effort**, after the upload — bitcode is gone so
   nothing else sends them, but by then the build has shipped, so every failure
@@ -374,7 +374,7 @@ The pipeline as a diagram is `docs/release/PIPELINE.md`; every credential is
 
 ## The app icon
 
-`melos run gen-app-icon` — one source PNG to every icon the app ships. Reads
+`make app-icon` — one source PNG to every icon the app ships. Reads
 `assets/images/app_icon.png` **and nothing else**: no generated intermediate
 stands between the artwork and the output, because two files that can disagree
 means the one pubspec reads is the one nobody looks at.
@@ -385,14 +385,14 @@ means the one pubspec reads is the one nobody looks at.
 | `round_icon_corners.dart` ×3 | `LaunchImage.imageset` at 112/224/336px, corners baked into the alpha |
 | `round_icon_corners.dart` ×5 | `drawable-<density>/launch_image.png` at 112/168/224/336/448px |
 
-`melos run gen-app-icon-strip-marker` — erases the image generator's watermark
+`make app-icon-strip-marker` — erases the image generator's watermark
 from `assets/images/app_icon.png`, in place, via a temp file. **Its own command
 on purpose**: the watermark belongs to the artwork, so it is stripped once when
 a new image arrives, while the icons are regenerated many times after. Run it
-first, check the corner at full size, then run `gen-app-icon`.
+first, check the corner at full size, then run `make app-icon`.
 
 - **It is a command, not a script, because it is typed on its own** — a new
-  icon is a thing a person decides to do, like `prepare-env`. Nothing in a
+  icon is a thing a person decides to do, like `make env-<flavor>`. Nothing in a
   release reaches it.
 - **Every step reads the same one file**, so there is no order to get wrong and
   nothing to keep in step by hand. The source is checked before any step runs,
@@ -403,10 +403,10 @@ first, check the corner at full size, then run `gen-app-icon`.
 
 ## Firebase
 
-`melos run deploy-firebase-dev` / `deploy-firebase-prod` — firestore rules and
+`make deploy-dev` / `deploy-prod` — firestore rules and
 indexes, then the functions, after running the functions' own tests. Takes an
-optional target, `rules` or `functions`, to do half of it:
-`melos run deploy-firebase-dev rules`.
+optional `ONLY=rules` or `ONLY=functions` to do half of it:
+`make deploy-dev ONLY=rules`.
 
 - **The environment is a `.firebaserc` alias, not an `env/*.json` file.** The
   alias resolves to a project id, and the project id is what picks the
@@ -425,13 +425,13 @@ optional target, `rules` or `functions`, to do half of it:
 - **It prints the resolved project id and does NOT ask** (owner's rule). Typing
   the environment is the decision; a second question the same hand answers every
   time protects nothing and breaks every unattended run. `dev` and `prod` may
-  still be the SAME project, so `deploy-firebase-dev` can be a production deploy
+  still be the SAME project, so `make deploy-dev` can be a production deploy
   under another name — the script prints the id and warns when the two aliases
   match, which is what makes a wrong destination visible. Splitting the projects
   is `docs/setup/FIREBASE_PROJECT.md`; the warning disappears once the aliases
   differ.
 - **Both `npm run build` and `npm test` are optional** (`has_npm_script` in
-  `_common.sh`, which asks `npm pkg get`). These scripts are shared with
+  `flutter/lib/common.sh`, which asks `npm pkg get`). These scripts are shared with
   backends that define neither, where `npm test` fails with "Missing script:
   test" — a message that reads as a broken checkout rather than as a check that
   does not apply. A skipped one says so on its own line; it never passes
@@ -504,24 +504,25 @@ few of the rows it just wrote — the only way a tombstone is ever made.
 
 ## Writing a script
 
-**Every script's body lives in `packages/system_design/tool/<name>.sh`;
-`melos.yaml` only names it.** Melos echoes the whole `run:` block before and
-after each run with no flag to turn it off, so a multi-line body buries the
-output it introduces — and a file is the only version that can be linted and run
-directly.
+**Every script's body lives in `packages/script-tools/flutter/<verb>_<object>.sh`;
+`flutter.mk` only names it.** A new command is a script there plus one target in
+`flutter.mk`, committed to script-tools — never a script in this repo, and never
+a recipe longer than one line.
 
-They are **POSIX sh, not bash**: melos runs them through `/bin/sh`, which is dash
-on Linux, where `set -o pipefail`, `[[ ]]` and `local` are syntax errors. macOS
-will not catch this — its `/bin/sh` is bash under another name — so check with
-`dash -n <name>.sh`.
+They are **bash** (`#!/usr/bin/env bash`, run as `bash <script>`), like the rest
+of script-tools, so `local` and `${var// /}` are fine. `bash -n <script>` before
+committing.
 
-`_common.sh` is sourced by all of them and holds what they share:
+`flutter/lib/common.sh` is sourced by all of them and builds on
+`common/lib/project.sh` and `common/lib/log.sh`, the helpers every platform
+folder shares:
 
-- **The app root, derived rather than assumed.** `MELOS_ROOT_PATH` when melos
-  set it, otherwise three levels up from the script. The scripts sit in the
-  submodule but every path they touch — `ios/`, `functions/`, `env_assets/` —
-  is the app's, so a `cd .` would point them at the wrong repo and the failure
-  would name a missing file rather than the wrong directory.
+- **The app root, found rather than assumed.** `PROJECT_ROOT` (which
+  `flutter.mk` exports as the Makefile's directory), otherwise the nearest
+  `pubspec.yaml` above the current directory. The scripts sit in a submodule but
+  every path they touch — `ios/`, `functions/`, `env_assets/` — is the app's.
+- **The flavors**, from `FLAVORS` in `script-tools.properties` (default
+  `dev prod`); `require_flavor` refuses anything else with the usage line.
 - **The SDK**: `fvm flutter` when `.fvmrc` and fvm are both present, plain
   `flutter` otherwise — a shell alias is invisible inside a script.
 - **The output vocabulary**, and it is deliberately small (owner's rule).
@@ -564,7 +565,7 @@ will not catch this — its `/bin/sh` is bash under another name — so check wi
   the column the eye scans.
 
   **A list lines its second column up** — `pad "$text" "$WIDTH"` after a pass
-  that measures the widest entry, as `prepare-env.sh` does for its six copies.
+  that measures the widest entry, as `prepare_env.sh` does for its six copies.
   Read down the arrow, not across each line.
 
   **Nothing prints a bare `echo`.** A line without the helpers is a line

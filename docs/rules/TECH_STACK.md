@@ -63,7 +63,7 @@ again, drop the includes.
   supplies anyway.
 - **What went with it**: the `cocoapods` gem in `ios/Gemfile`, the *Pods* step
   in `.github/workflows/release-ios.yml`, the `pod install` block in
-  `tool/set-up.sh`, and `ios/Pods` from `tool/_clean.sh`. The Ruby pin and the
+  the set-up script, and `ios/Pods` from its wipe. The Ruby pin and the
   UTF-8 `LANG` stay — fastlane is Ruby and reads `pubspec.yaml`.
 - **The reverse was tried and reverted — do not re-litigate without new facts.**
   The whole app was moved to CocoaPods (`flutter: config:

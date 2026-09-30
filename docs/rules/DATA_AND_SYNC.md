@@ -25,7 +25,7 @@ id check: `ownsStored()` already pins an existing document to its owner, which
 is also what keeps a legacy bare-id document editable.
 
 - **It refuses every build from before 2026-09-24**, which creates bare ids —
-  their new records stop syncing. **`melos run release-prod` deploys rules**,
+  their new records stop syncing. **`make release-prod` deploys rules**,
   so this ships with the next release whether or not old builds are gone.
   Raise `force_update` to the first owned-id build in the same release, or
   hold the rule back until testers have updated.

@@ -1,6 +1,6 @@
 # The design system, and how the app uses it
 
-`packages/system_design` is a separate git repo checked out here as a submodule
+`packages/flutter-system-design-kit` is a separate git repo checked out here as a submodule
 and wired in as a path dependency. Its own `WIDGET_RULES.md` is the authority on
 what may go in; this file is how the app consumes it, plus every UI primitive
 rule.
@@ -47,7 +47,7 @@ import 'package:system_design/index.dart';
 - `context.l10n` stays in the app (`core/extensions/context_extensions.dart`);
   `context.theme` / `.colorScheme` / `.textTheme` / `.sdTheme` come from the
   package. A file needing both imports both — normal, not a smell.
-- Run `flutter analyze` inside `packages/system_design` too: it must pass on its
+- Run `flutter analyze` inside `packages/flutter-system-design-kit` too: it must pass on its
   own, without the app.
 
 ## Redesign mockups are reference, not authority — owner's rule
