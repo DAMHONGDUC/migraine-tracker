@@ -107,12 +107,8 @@ class _DailyCheckInCardState extends ConsumerState<DailyCheckInCard> {
           // The first question, answerable from here (2026-09-30 redesign): a tap opens the check-in with that answer already picked, so the day still saves from the screen that shows everything it will write.
           if (!done)
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                SdSpacingConstant.w16,
-                0,
-                SdSpacingConstant.w16,
-                SdSpacingConstant.h8,
-              ),
+              // No bottom inset: the row always reserves a line under the targets for the picked word, and here nothing is ever picked, so that line is the card's bottom padding.
+              padding: EdgeInsets.symmetric(horizontal: SdSpacingConstant.w16),
               child: DailyRatingRow(
                 question: l10n.dailyLogSleepQuestion,
                 labels: <String>[
