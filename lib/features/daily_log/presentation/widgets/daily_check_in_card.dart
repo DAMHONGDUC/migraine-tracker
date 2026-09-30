@@ -18,6 +18,7 @@ import '../../../medications/domain/repositories/medication_reminder_repository.
 import '../../../medications/domain/services/next_reminder_calculator.dart';
 import '../../../medications/providers.dart';
 import '../../providers.dart';
+import 'daily_rating_row.dart';
 
 /// The dashboard's one ask a day, and — when there is one — the next dose due,
 /// in one card.
@@ -103,6 +104,31 @@ class _DailyCheckInCardState extends ConsumerState<DailyCheckInCard> {
               onTap: () => context.pushNamed<void>(AppRoutes.dailyLog.name),
             ),
           ),
+          // The first question, answerable from here (2026-09-30 redesign): a tap opens the check-in with that answer already picked, so the day still saves from the screen that shows everything it will write.
+          if (!done)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                SdSpacingConstant.w16,
+                0,
+                SdSpacingConstant.w16,
+                SdSpacingConstant.h8,
+              ),
+              child: DailyRatingRow(
+                question: l10n.dailyLogSleepQuestion,
+                labels: <String>[
+                  l10n.dailyLogSleep1,
+                  l10n.dailyLogSleep2,
+                  l10n.dailyLogSleep3,
+                  l10n.dailyLogSleep4,
+                  l10n.dailyLogSleep5,
+                ],
+                selected: null,
+                onSelected: (int rating) => context.pushNamed<void>(
+                  AppRoutes.dailyLog.name,
+                  queryParameters: <String, String>{'sleep': '$rating'},
+                ),
+              ),
+            ),
           // Offered only once today is answered: two check-in prompts on one card is how both stop being read.
           if (done && missed.isNotEmpty) ...<Widget>[
             const SdDividerV2(),

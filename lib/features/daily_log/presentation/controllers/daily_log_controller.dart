@@ -67,6 +67,11 @@ class DailyLogController extends Notifier<DailyCheckInState> {
     );
   }
 
+  /// Sets the sleep answer without the toggle [pickSleepQuality] applies: the dashboard card has already said which one was tapped, and arriving on the screen must not take it back.
+  void presetSleepQuality(int rating) {
+    state = state.copyWith(sleepQuality: rating);
+  }
+
   void pickStressLevel(int rating) {
     state = DailyCheckInState(
       sleepQuality: state.sleepQuality,

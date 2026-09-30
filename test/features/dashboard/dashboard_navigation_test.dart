@@ -4,8 +4,8 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/daily_log/presentation/widgets/daily_check_in_card.dart';
-import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_severity_card.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_summary_group.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/premium_banner.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/weekly_frequency_chart.dart';
 import 'package:migraine_tracker/features/medications/data/repositories/drift_medication_reminder_repository.dart';
@@ -188,19 +188,28 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('the premium banner leads the dashboard for a free user', (
+  testWidgets('the premium banner follows the readings for a free user', (
     tester,
   ) async {
     await pumpApp(tester);
     await _settle(tester);
 
+    // Below the fold now: the top of the screen is logging and the pressure outlook (2026-09-30 redesign).
+    await tester.scrollUntilVisible(
+      find.byType(PremiumBanner),
+      200,
+      // The dashboard's own list; the cards inside it carry scrollables of their own.
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump();
+
     expect(find.byType(PremiumBanner), findsOneWidget);
-    // Above the log button, which is what "top" means here — the order of the sections list is the whole feature.
+    // After the summary group, which is what "follows the readings" means — the order of the sections list is the whole feature.
     expect(
       tester.getRect(find.byType(PremiumBanner)).top,
-      lessThan(tester.getRect(find.byType(DashboardLogButton)).top),
+      greaterThan(tester.getRect(find.byType(DashboardSummaryGroup)).top),
     );
-    // One line and one line only: the supporting sentence was dropped to keep the offer from being the tallest thing above the fold.
+    // One line and one line only: an offer is never the tallest thing in the list.
     expect(
       find.descendant(
         of: find.byType(PremiumBanner),
@@ -210,7 +219,7 @@ void main() {
     );
     expect(
       tester.getSize(find.byType(PremiumBanner)).height,
-      lessThan(tester.getSize(find.byType(DashboardLogButton)).height),
+      lessThan(tester.getSize(find.byType(DashboardSummaryGroup)).height),
     );
 
     await finishTest(tester);

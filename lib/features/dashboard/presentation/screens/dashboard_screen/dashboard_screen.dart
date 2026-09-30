@@ -40,13 +40,9 @@ class DashboardScreen extends ConsumerWidget {
 
     // Only sections that should show; gaps inserted below avoid a double gap.
     final sections = <Widget>[
-      // Above the premium banner and the log button both: while an attack is running it is the only thing on this screen that is urgent.
+      // Above the log button: while an attack is running it is the only thing on this screen that is urgent.
       if (ref.watch(attackInProgressProvider) != null)
         const AttackInProgressCard(),
-      // Top of the screen, owner's call.
-      // Never beside the history banner: that one is this same pitch with a reason attached, and two premium banners on one screen is how both stop being read.
-      if (!ref.watch(hasPremiumProvider) && !hasHiddenHistory)
-        const PremiumBanner(),
       const DashboardLogButton(),
       // Directly under the log button, and only where the 90-day window hides something: it says what Premium would open, not what the free plan refuses.
       if (hasHiddenHistory) const FreeHistoryBanner(),
@@ -61,6 +57,10 @@ class DashboardScreen extends ConsumerWidget {
       if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
       // Unconditional, owner's call: hidden until the first attack, it left a new install with a log button, a grid of links and nothing between.
       const DashboardSummaryGroup(),
+      // After the readings, owner's call (2026-09-30 redesign): the top of the screen is logging and the pressure outlook, and an offer above them pushed both down on every open.
+      // Never beside the history banner: that one is this same pitch with a reason attached, and two premium banners on one screen is how both stop being read.
+      if (!ref.watch(hasPremiumProvider) && !hasHiddenHistory)
+        const PremiumBanner(),
       const DashboardExploreSection(),
     ];
 
