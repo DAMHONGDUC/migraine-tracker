@@ -68,7 +68,7 @@ dependencies:
   # submodule — tokens, theme and string-free widgets live there, not in
   # lib/core.
   system_design:
-    path: packages/system_design
+    path: packages/flutter-system-design-kit
   table_calendar: ^3.2.0
   timezone: ^0.11.1
   url_launcher: ^6.3.2
@@ -131,7 +131,7 @@ flutter:
 # the next run puts them straight back.
 flutter_launcher_icons:
   # The artwork itself. Owner's rule: no generated intermediate
-  # between it and the icons — see packages/system_design/tool/gen-app-icon.sh.
+  # between it and the icons — see packages/script-tools/flutter/generate_app_icon.sh.
   image_path: "assets/images/app_icon.png"
 
   ios: true

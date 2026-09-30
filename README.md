@@ -28,14 +28,13 @@ App Store: [https://apps.apple.com/us/app/baroease-migraine-tracker/id6797143362
 ```bash
 git clone --recurse-submodules <url>
 cd migraine_tracker
-dart pub global activate melos 6.3.3
-melos run set-up
+make set-up
 ```
 
-`--recurse-submodules` is not optional. Every Melos script lives in
-`packages/system_design/tool/`, inside the design-system submodule, so a clone
-without it has no `set-up.sh` to run — recover with `git submodule update --init
---recursive`.
+`--recurse-submodules` is not optional. Every script lives in the
+`packages/script-tools` submodule and the widgets in
+`packages/flutter-system-design-kit`, so a clone without them has nothing to
+run — recover with `git submodule update --init --recursive`.
 
 `set-up` restores submodules, dependencies, generated code and native setup. It
 also creates missing key-only files from `env/*.example.json`.
@@ -44,9 +43,9 @@ Real configuration is gitignored. Put local source files in `env_assets/`, then
 install one environment:
 
 ```bash
-sh packages/system_design/tool/prepare-env.sh dev
+make env-dev
 # or
-sh packages/system_design/tool/prepare-env.sh prod
+make env-prod
 ```
 
 A release does this itself, so this is only for switching a checkout by hand.
@@ -56,35 +55,28 @@ Never print or commit files from `env/`, `env_assets/`,
 
 ## Commands
 
-Melos carries eight commands, and they are the ones a human types.
+`make` lists every target. Each one runs a script in
+`packages/script-tools/flutter/` (the `Makefile` includes its `flutter.mk`).
 
 | Command | Purpose |
 |---|---|
-| `melos run set-up` | Clean and restore a normal checkout |
-| `melos run deep-set-up` | Also clear Xcode DerivedData |
-| `melos run release-dev` | Full dev release: config, deploy, TestFlight |
-| `melos run release-prod` | The same against production |
-| `melos run deploy-firebase-dev` | Rules, indexes and functions to dev |
-| `melos run deploy-firebase-prod` | The same against production |
-| `melos run upload-ipa-dev` | Re-upload the built IPA when only the upload failed |
-| `melos run upload-ipa-prod` | The same against production |
-
-Everything else is a script in `packages/system_design/tool/`, run by the
-command that needs it or by hand.
-
-| Script | Purpose |
-|---|---|
-| `sh packages/system_design/tool/gen.sh` | Generate localization and Drift code |
-| `sh packages/system_design/tool/analyze.sh` | The CI analyzer, zero findings allowed |
-| `sh packages/system_design/tool/test.sh` | The full test suite |
-| `sh packages/system_design/tool/prepare-env.sh <dev\|prod>` | Install one environment's configuration |
-| `sh packages/system_design/tool/build-ipa.sh <dev\|prod>` | Build the IPA and nothing else |
+| `make set-up` | Clean and restore a normal checkout |
+| `make deep-set-up` | Also clear Xcode DerivedData |
+| `make gen` | Generate localization and Drift code |
+| `make analyze` | The CI analyzer, zero findings allowed |
+| `make test TEST=<path>` | Tests for one file or folder |
+| `make env-dev` / `env-prod` | Install one environment's configuration |
+| `make deploy-dev` / `deploy-prod` | Rules, indexes and functions; `ONLY=rules\|functions` |
+| `make build-ipa-dev` / `build-ipa-prod` | Build the IPA and nothing else |
+| `make release-dev` / `release-prod` | Full release: config, deploy, TestFlight; `NOTE="..."` |
+| `make upload-ipa-dev` / `upload-ipa-prod` | Re-upload the built IPA when only the upload failed |
+| `make app-icon` / `app-icon-strip-marker` | Regenerate icons / strip the artwork's watermark |
 | `flutter run --dart-define-from-file=env/dev.json` | Run the development app |
 
 Run only tests related to the change:
 
 ```bash
-flutter test test/features/<feature>/<test_file>_test.dart
+make test TEST=test/features/<feature>/<test_file>_test.dart
 ```
 
 Do not use the full test suite as change verification.
@@ -93,14 +85,14 @@ Do not use the full test suite as change verification.
 
 One command per environment, three steps: install that environment's
 configuration, deploy its Firebase side, then build and upload to TestFlight. It
-does not set up first — run `melos run set-up` yourself when the tree needs it.
+does not set up first — run `make set-up` yourself when the tree needs it.
 
 ```sh
-melos run release-dev
+make release-dev
 ```
 
 ```sh
-melos run release-prod
+make release-prod
 ```
 
 The Firebase deploy still names the project and asks before it runs, and the
@@ -110,7 +102,7 @@ If the build succeeded and only the upload failed, re-send the IPA already on
 disk instead of building again:
 
 ```sh
-melos run upload-ipa-dev
+make upload-ipa-dev
 ```
 
 See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
@@ -124,9 +116,9 @@ See [`docs/release/PIPELINE.md`](docs/release/PIPELINE.md) for the flow and
 | `lib/features/` | Feature-based app code |
 | `lib/l10n/` | Seven ARB localization files |
 | `functions/` | Firebase Cloud Functions |
-| `packages/system_design/` | Design-system git submodule |
+| `packages/flutter-system-design-kit/` | Design-system git submodule (Dart package `system_design`) |
+| `packages/script-tools/` | Shared scripts submodule; `flutter/` is what `make` runs |
 | `test/features/` | Tests mirroring app features |
-| `packages/system_design/tool/` | Scripts called by Melos |
 
 Dependencies inside a feature point `presentation → domain ← data`. Across
 features, import only `domain/` or `providers.dart`.

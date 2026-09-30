@@ -65,7 +65,7 @@ Project settings → Your apps.
 - **iOS**: bundle id `app.dd.migraine.tracker`. Download `GoogleService-Info.plist`.
 - **Android**: package `app.dd.migraine.tracker`. Download `google-services.json`.
 
-Put both in `env_assets/` under the `prod-` names `sh packages/system_design/tool/prepare-env.sh prod`
+Put both in `env_assets/` under the `prod-` names `make env-prod`
 expects: `prod-GoogleService-Info.plist`, `prod-google-services.json`. A third
 name goes beside them, `prod-Info.plist` — the Runner `Info.plist` carrying this
 project's Google sign-in URL scheme, which has to switch with the plist rather
@@ -95,13 +95,13 @@ quota rather than a plan.
 
 ```bash
 firebase use --add          # pick the new project, alias it `prod`
-melos run deploy-firebase-prod rules
+make deploy-prod ONLY=rules
 ```
 
 `firebase use --add` rewrites the `prod` alias in `.firebaserc`, which today
 still points at the dev project — that alias is the only thing the deploy
 commands switch on, so pointing it at the new project is what makes
-`deploy-firebase-prod` mean it. Leave `dev` where it is. **Rules and indexes
+`make deploy-prod` mean it. Leave `dev` where it is. **Rules and indexes
 always deploy together** — a missing composite index fails at runtime, not at
 build.
 
@@ -116,7 +116,7 @@ public read-only `app_config/current`.
 `functions/.env` by default and `functions/.env.<project-id>` for a specific
 one, so give the new project its own file with the same three keys
 (`docs/setup/WEATHERKIT_SETUP.md` lists them). An empty value fails the deploy
-rather than prompting, because melos pipes the script's stdout.
+rather than prompting, because the deploy runs non-interactively.
 
 **The two secrets are per project too**, and Secret Manager is per project:
 
@@ -128,7 +128,7 @@ firebase functions:secrets:set REVENUECAT_WEBHOOK_AUTH  # invent a long random s
 Then:
 
 ```bash
-melos run deploy-firebase-prod functions
+make deploy-prod ONLY=functions
 ```
 
 Six functions land, all in **europe-west1** (`FirebaseConstants.functionsRegion`
@@ -163,7 +163,7 @@ the two RevenueCat keys as they are.
 Then put everything where the build reads it:
 
 ```bash
-sh packages/system_design/tool/prepare-env.sh prod
+make env-prod
 ```
 
 **Do not open `env/*.json` to check the values** (hard rule 13). If a build

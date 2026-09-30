@@ -40,14 +40,14 @@ file — owner's rule is that `assets/images/app_icon.png` is the only input, so
 replacing that one file and running this is the whole procedure:
 
 ```sh
-melos run gen-app-icon
+make app-icon
 ```
 
 New artwork carrying the image generator's watermark gets its own command
 first, once, before the one above:
 
 ```sh
-melos run gen-app-icon-strip-marker
+make app-icon-strip-marker
 ```
 
 It rewrites `assets/images/app_icon.png` in place through a temp file. The
@@ -70,7 +70,7 @@ Commit generated assets so a fresh clone cannot ship Flutter placeholders
 ```sh
 sips -g pixelWidth -g pixelHeight -g hasAlpha ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png
 sips -Z 60 assets/images/app_icon.png --out /tmp/baroease-icon-60.png
-sh packages/system_design/tool/analyze.sh
+make analyze
 ```
 
 ## Launch screens

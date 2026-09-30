@@ -33,7 +33,7 @@
 | Runtime render failure after a successful load | Existing renderer limitation; model-load failures use the tappable SVG fallback |
 | Blender master | Not supplied; Python exports the preserved licensed scan reproducibly |
 
-Run the scoped files with `fvm flutter test`, the simulator harness with `fvm flutter drive --driver test_driver/head_scene_driver.dart --target integration_test/head_scene_test.dart -d <device-id> --no-pub`, and `sh packages/system_design/tool/analyze.sh`. Do not substitute these results for physical-device performance acceptance.
+Run the scoped files with `fvm flutter test`, the simulator harness with `fvm flutter drive --driver test_driver/head_scene_driver.dart --target integration_test/head_scene_test.dart -d <device-id> --no-pub`, and `make analyze`. Do not substitute these results for physical-device performance acceptance.
 
 ## Rotation follow-up — 2026-09-18
 

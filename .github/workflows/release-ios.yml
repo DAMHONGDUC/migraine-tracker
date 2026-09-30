@@ -47,20 +47,20 @@ jobs:
     env:
       LANG: en_US.UTF-8
     steps:
-      # The design system lives in packages/system_design as a submodule;
-      # without this the checkout is empty there and `pub get` fails.
+      # The design system (packages/flutter-system-design-kit) and the scripts
+      # (packages/script-tools) are submodules; without this both are empty.
       - uses: actions/checkout@v4
         with:
           submodules: recursive
 
       # Same as ci.yml: take the tip of the branch `.gitmodules` names rather
       # than the commit the gitlink pins, so CI builds the design system a
-      # developer's Mac has after `melos run set-up`.
+      # developer's Mac has after `make set-up`.
       #
-      # For a RELEASE that would otherwise put a system_design commit into a
+      # For a RELEASE that would otherwise put a design system commit into a
       # shipped IPA that this repo never records. The bump commit therefore
       # carries the new gitlink alongside the build number — see the Fastfile.
-      - name: Follow the design system's branch
+      - name: Follow the submodules' branches
         run: git submodule update --remote --recursive
 
       # The bump commit is authored by the Actions bot rather than by whoever
@@ -73,12 +73,13 @@ jobs:
 
       - name: Verify the submodule checked out
         run: |
-          if [ ! -f packages/system_design/pubspec.yaml ]; then
-            echo "::error::packages/system_design is empty. The gitlink this"
-            echo "::error::commit records is probably not pushed — push the"
-            echo "::error::submodule first, then the parent."
-            exit 1
-          fi
+          for f in packages/flutter-system-design-kit/pubspec.yaml packages/script-tools/flutter/lib/common.sh; do
+            if [ ! -f "$f" ]; then
+              echo "::error::$f is missing. The gitlink this commit records is"
+              echo "::error::probably not pushed — push the submodule first, then the parent."
+              exit 1
+            fi
+          done
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -188,7 +189,7 @@ jobs:
         run: melos bootstrap
 
       - name: Generate
-        run: sh packages/system_design/tool/gen.sh
+        run: bash packages/script-tools/flutter/generate_code.sh
 
       # The runner image ships its own fastlane, at whatever version the image
       # happens to carry. Pinning Ruby and installing from the Gemfile means a

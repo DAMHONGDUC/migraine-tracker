@@ -1,4 +1,8 @@
-[submodule "packages/system_design"]
-	path = packages/system_design
-	url = https://github.com/DAMHONGDUC/system_design
+[submodule "packages/flutter-system-design-kit"]
+	path = packages/flutter-system-design-kit
+	url = https://github.com/DAMHONGDUC/flutter-system-design-kit
+	branch = main
+[submodule "packages/script-tools"]
+	path = packages/script-tools
+	url = https://github.com/DAMHONGDUC/script-tools
 	branch = main

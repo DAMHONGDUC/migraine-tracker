@@ -1,7 +1,7 @@
 # What BaroEase is. Nothing else.
 #
-# Every lane — `beta`, `upload`, `preflight`, `certificates` — lives in the
-# design system and is shared with every other app embedding it. This file
+# Every lane — `beta`, `upload`, `preflight`, `certificates` — lives in
+# script-tools and is shared with every other app embedding it. This file
 # hands it the facts that cannot be shared: the team, the targets, their bundle
 # ids and the entitlements each one claims.
 #
@@ -9,7 +9,7 @@
 #
 # To override one lane for this app, define a lane of the same name below the
 # import — fastlane prefers the one in the file it was pointed at.
-import "../../packages/system_design/tool/fastlane/Fastfile"
+import "../../packages/script-tools/flutter/fastlane/Fastfile"
 
 sd_ios_app(
   team_id: "WNG5UWNJ6H",

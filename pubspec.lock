@@ -1817,7 +1817,7 @@ packages:
   system_design:
     dependency: "direct main"
     description:
-      path: "packages/system_design"
+      path: "packages/flutter-system-design-kit"
       relative: true
     source: path
     version: "0.1.0"

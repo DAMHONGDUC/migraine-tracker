@@ -47,7 +47,7 @@ env_assets/
   fastlane.env                      (one, both flavors)
 ```
 
-`packages/system_design/tool/prepare-env.sh <dev|prod>` copies them where the build reads them. Its
+`packages/script-tools/flutter/prepare_env.sh <dev|prod>` copies them where the build reads them. Its
 contract:
 
 1. **Only the flavor named is installed** (owner's rule): `dev` writes
@@ -68,7 +68,7 @@ contract:
    says so.
 4. **It copies bytes and never reads them.** Same rule as the agent's: secrets
    are not to be printed.
-5. Two thin wrappers in the task runner: `prepare-env-dev`, `prepare-env-prod`.
+5. One make target per flavor: `make env-dev`, `make env-prod`.
 
 ### A3. `AppEnv` — the only place the environment is read
 
@@ -162,7 +162,7 @@ above it.
 
 What the user sees is the existing "the app could not start" screen — one more
 fatal startup state, not a screen of its own. The detail row names both
-projects and the command (`melos run prepare-env-<flavour>`), behind
+projects and the command (`make env-<flavour>`), behind
 `AppEnv.isProd` as a `const`, so the release binary does not carry it.
 
 ---
@@ -178,7 +178,7 @@ bundle ids and entitlements. The first target is the app; the rest are
 extensions. Four apps, four of those calls, one pipeline:
 
 ```ruby
-import "../../packages/system_design/tool/fastlane/Fastfile"
+import "../../packages/script-tools/flutter/fastlane/Fastfile"
 
 sd_ios_app(
   team_id: "WNG5UWNJ6H",
@@ -202,8 +202,8 @@ to be forked to get here.
 | `ios/Gemfile` | `fastlane`, and nothing else — every iOS plugin is a Swift Package, so no pods gem. |
 | `ios/fastlane/.env` | The six local credentials, gitignored. |
 | `ios/fastlane/Fastfile` | One `import`, one `sd_ios_app(...)` — the team, the targets, their bundle ids and entitlements. No lane, no logic. |
-| `packages/system_design/tool/fastlane/Fastfile` | Every lane below and everything they need. Imported, never copied; it knows nothing about any one app. |
-| `packages/system_design/tool/build-ipa.sh` | The build, and only the build. |
+| `packages/script-tools/flutter/fastlane/Fastfile` | Every lane below and everything they need. Imported, never copied; it knows nothing about any one app. |
+| `packages/script-tools/flutter/build_ipa.sh` | The build, and only the build. |
 
 `ios/fastlane/.env`, six keys, values never printed — check its shape with
 `cut -d= -f1 ios/fastlane/.env`:
@@ -218,7 +218,7 @@ missing one turns the next appended variable into a suffix of the previous
 value — and the symptom is "the previous variable is nonsense", not "variable
 missing".
 
-### B2. `build-ipa.sh` — fastlane never archives
+### B2. `build_ipa.sh` — fastlane never archives
 
 The lane shells out to the same script a developer runs by hand. Non-negotiable,
 because the app's config arrives through `--dart-define-from-file`, a flag
@@ -252,7 +252,7 @@ flavor:dev|prod   bump:true|false   notes:"one line for testers"
    true)` → **verify every entitlement the target claims is in the profile** →
    flip the project to manual signing for this checkout → write an
    ExportOptions.plist naming **every** target's profile.
-4. **Build** via `build-ipa.sh`, passing that plist.
+4. **Build** via `build_ipa.sh`, passing that plist.
 5. **Upload** with the note as `localized_build_info`, which needs
    `skip_waiting_for_build_processing: false`. Waiting bills macOS minutes at
    10x and is paid on purpose: the note is the only thing on the build that
@@ -357,9 +357,9 @@ writes, so a token that can write grants an ability nothing uses.
 
 1. `env/` with `dev.example.json` / `prod.example.json` committed, the real
    files ignored; `AppEnv` with its required-key list and the `main()` assert.
-2. `tool/prepare-env.sh` + the two runner wrappers; create `env_assets/` on
+2. Add the `script-tools` submodule and the two-line `Makefile` (its README); create `env_assets/` on
    your machine and put the real files in it.
-3. `tool/build-ipa.sh`, and the rule that no one ever archives from Xcode
+3. `flutter/build_ipa.sh` from it, and the rule that no one ever archives from Xcode
    written into the commands doc the same day.
 4. App Store Connect API key (App Manager role, **downloadable once**), the
    private certificates repo, the fine-grained PAT.

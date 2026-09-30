@@ -16,12 +16,12 @@ then they disagree.
 ```mermaid
 flowchart TD
     trigger["You press Run workflow<br/><small>branch main, flavor prod</small>"]
-    prep["Runner builds the environment<br/><small>Flutter stable, melos 6.3.3, pods for health</small>"]
+    prep["Runner builds the environment<br/><small>Flutter 3.47.2 stable, melos 6.3.3 bootstrap, Ruby 3.3</small>"]
     check["Check the config matches the flavor<br/><small>bundle id app.dd.migraine.tracker</small>"]
     num["Settle the build number<br/><small>pubspec 30, TestFlight 34 → 35</small>"]
     certs["Install the signing identity<br/><small>match appstore, then installs</small>"]
     sign["Switch to manual signing<br/><small>Runner + BaroEaseWidgetExtension</small>"]
-    build["build-ipa.sh makes the IPA<br/><small>flutter build ipa --dart-define-from-file=env/prod.json</small>"]
+    build["build_ipa.sh makes the IPA<br/><small>flutter build ipa --dart-define-from-file=env/prod.json</small>"]
     upload["Upload to TestFlight<br/><small>build 1.1.0 (35), waits for processing to attach the note</small>"]
     dsym["Upload dSYMs to Crashlytics<br/><small>best effort, never blocks</small>"]
     commit["Commit the build number<br/><small>pubspec version: 1.1.0+35</small>"]
@@ -53,9 +53,9 @@ is why a fresh clone alone can never produce a release.
 |---|---|
 | Trigger, environment, secrets | `.github/workflows/release-ios.yml` |
 | Bundle ids, targets, entitlements — what the app *is* | `ios/fastlane/Fastfile` |
-| Build number, signing, export, upload, the note | `packages/system_design/tool/fastlane/Fastfile` |
+| Build number, signing, export, upload, the note | `packages/script-tools/flutter/fastlane/Fastfile` |
 | Which certificate and profiles | `ios/fastlane/Matchfile` |
-| The build itself | `packages/system_design/tool/build-ipa.sh` |
+| The build itself | `packages/script-tools/flutter/build_ipa.sh` |
 
 ## The orderings that are not arbitrary
 
@@ -89,6 +89,6 @@ false`) is the price of that, and it is why the note costs macOS minutes.
 The lane itself is shared — it lives in the design system and every app
 embedding it runs the same four lanes, told what the app is by one
 `sd_ios_app(...)` call in `ios/fastlane/Fastfile`. It runs the same
-`packages/system_design/tool/build-ipa.sh` a developer runs by hand. Fastlane
+`packages/script-tools/flutter/build_ipa.sh` a developer runs by hand. Fastlane
 adds signing, the export options and the upload around it — it never archives
 anything itself, and `docs/rules/COMMANDS.md` says why that is not negotiable.

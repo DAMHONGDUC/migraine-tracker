@@ -115,7 +115,7 @@ The design system is a separate repo, shared across my products, checked out as 
 **git submodule**:
 
 ```bash
-git submodule add -b main https://github.com/DAMHONGDUC/system_design packages/system_design
+git submodule add -b main https://github.com/DAMHONGDUC/flutter-system-design-kit packages/flutter-system-design-kit
 ```
 
 Wire it in as a path dependency. There is exactly one import for the whole package,
@@ -123,14 +123,14 @@ and it is the index: `import 'package:system_design/index.dart';`
 
 **This product does not render an existing generation — it gets its own.**
 
-1. List `packages/system_design/lib/` and find the highest `v<N>/` folder. As of
+1. List `packages/flutter-system-design-kit/lib/` and find the highest `v<N>/` folder. As of
    today that is `v3`, so the new one is `v4` — but check, don't assume.
 2. **Copy `v2/` into `v<N+1>/`** (v2 is the generation this rulebook was written
    against), rename every symbol's suffix, give it its own `index.dart`, and export
    that index from `lib/index.dart` alongside the existing generations.
 3. Every widget is `Sd<Name>V<N+1>` in its own folder `v<N+1>/sd_<name>_v<N+1>/`.
    Adding one is a folder, a file, and one `export` line — nothing else.
-4. **Read `packages/system_design/WIDGET_RULES.md` first.** It is the authority on
+4. **Read `packages/flutter-system-design-kit/WIDGET_RULES.md` first.** It is the authority on
    what may go in and how it must be written; sections 5–6 here only summarise it.
 
 Rules the new generation inherits:
@@ -819,16 +819,14 @@ One widget per job, and feature code never reaches past it to the raw framework 
 
 ## 18. Commands, tooling and release
 
-- **One task runner, and `docs/rules/COMMANDS.md` is the only place its commands are
-  documented.** Pin its version exactly rather than caret-ranged if it templates
-  anything — a global/local mismatch runs one version's code against the other's
-  templates.
-- **Every script's body lives in `tool/<name>.sh`; the runner config only names it.**
-  A multi-line inline body gets echoed around its own output and buries it, and a
-  file is the only version that can be linted and run directly.
-- Those scripts are **POSIX sh, not bash** if the runner uses `/bin/sh` — `pipefail`,
-  `[[ ]]` and `local` are syntax errors on dash, and macOS will not catch it because
-  its `/bin/sh` is bash under another name. Check with `dash -n`.
+- **The scripts are shared, not written per app.** Add
+  `https://github.com/DAMHONGDUC/script-tools` as a submodule at
+  `packages/script-tools` and a two-line root `Makefile`
+  (`SCRIPT_TOOLS := packages/script-tools`,
+  `include $(SCRIPT_TOOLS)/flutter/flutter.mk`); `make` lists the commands.
+  `docs/rules/COMMANDS.md` is the only place this app documents them.
+- **A missing command is added to script-tools** (a `flutter/<verb>_<object>.sh`
+  plus one line in `flutter.mk`), never as a script in the app repo.
 - **Exactly two setup entry points**: the normal one, and the one that also clears
   the native build cache (which costs a full cold build, hence separate). Setup
   **wipes first, unconditionally** — it is the one answer to "it built yesterday and

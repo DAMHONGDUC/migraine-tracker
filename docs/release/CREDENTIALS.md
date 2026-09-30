@@ -16,8 +16,8 @@ still missing.
 
 On the Mac the last two rows are laid down together — with
 `android/app/google-services.json` and `ios/Runner/Info.plist`, whose Google
-sign-in URL scheme has to match the project — by `melos run
-prepare-env-dev|prod`, from a gitignored `env_assets/` folder holding your own
+sign-in URL scheme has to match the project — by `make
+env-dev|env-prod`, from a gitignored `env_assets/` folder holding your own
 copies. CI writes them from the secrets instead; `Info.plist` is tracked, so
 the workflow rewrites its URL scheme from the plist it just wrote rather than
 trusting whatever was committed.
@@ -25,7 +25,7 @@ trusting whatever was committed.
 **And the lane checks the result before it builds.** `fastlane beta` reads the
 project id out of `ios/Runner/GoogleService-Info.plist` and refuses to go on
 unless it is the one `.firebaserc` gives for the flavor — the guard against
-`prepare-env-dev` followed by `beta flavor:prod`, which uploads a working app
+`make env-dev` followed by `beta flavor:prod`, which uploads a working app
 pointed at the wrong Firestore. Same check on `fastlane preflight flavor:dev`.
 
 ## The App Store Connect API key
@@ -99,7 +99,7 @@ Three details in that snippet, each of which has already cost a failed run:
 ## `ios/fastlane/.env`
 
 Read automatically by fastlane, gitignored by `ios/fastlane/.env*`, and laid
-down by `packages/system_design/tool/prepare-env.sh dev|prod` from `env_assets/fastlane.env` — one
+down by `packages/script-tools/flutter/prepare_env.sh dev|prod` from `env_assets/fastlane.env` — one
 copy for both flavors, because nothing in it differs between them. Six keys:
 
 ```

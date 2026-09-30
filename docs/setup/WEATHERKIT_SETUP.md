@@ -56,7 +56,7 @@ WEATHERKIT_TEAM_ID=A1B2C3D4E5
 WEATHERKIT_SERVICE_ID=app.dd.migraine.tracker.weather
 ```
 
-`melos run set-up` copies `functions/.env.example` into place; the file itself is
+`make set-up` copies `functions/.env.example` into place; the file itself is
 gitignored, because the values are per-developer.
 
 **Leaving it empty fails the deploy rather than prompting:**
@@ -64,8 +64,8 @@ gitignored, because the values are per-developer.
 > In non-interactive mode but have no value for the following environment
 > variables: WEATHERKIT_KEY_ID, WEATHERKIT_TEAM_ID, WEATHERKIT_SERVICE_ID
 
-That reads like a CLI bug and is not one — melos pipes the deploy script's
-stdout, so the CLI correctly decides it cannot ask a human. Fill the file;
+That reads like a CLI bug and is not one — the deploy script runs
+non-interactively, so the CLI correctly decides it cannot ask a human. Fill the file;
 running `firebase deploy` by hand in a real terminal is the workaround.
 
 ## Step 5 — The WeatherKit client
@@ -143,7 +143,7 @@ home screen widget.
 ## Step 10 — Deploy and verify
 
 ```bash
-melos run deploy-firebase-dev functions
+make deploy-dev ONLY=functions
 ```
 
 Verify against the cron's own path rather than a simpler one:

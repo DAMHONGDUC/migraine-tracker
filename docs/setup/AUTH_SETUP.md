@@ -61,7 +61,7 @@ added yet because the value does not exist until step 2. In
 …where the string is the `REVERSED_CLIENT_ID` value verbatim.
 
 **Edit `env_assets/<env>-Info.plist`, not the file in the tree.** Each Firebase
-project mints its own reversed client id, so `packages/system_design/tool/prepare-env.sh dev|prod`
+project mints its own reversed client id, so `packages/script-tools/flutter/prepare_env.sh dev|prod`
 installs `ios/Runner/Info.plist` alongside `GoogleService-Info.plist` and
 overwrites whatever was there — a scheme typed straight into the tree survives
 until the next environment switch and then vanishes, with the sign-in callback
