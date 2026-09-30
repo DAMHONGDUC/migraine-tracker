@@ -20,6 +20,14 @@ arrival of its own to notice. The filters are untouched — a filter is a
 question the user asked and is still asking; a view is where they happened to
 leave the screen.
 
+## What a row shows
+
+**The intensity avatar wears its band's colour, and a pressure tag stands
+before the chevron** (2026-09-30 redesign). The tag is the 24h change with an
+arrow (`↓ 6.8`): amber (`AppColors.warning`) when falling, muted otherwise, the
+direction from `AttackFilterer.pressureTrendOf` so the row and the Pressure
+filter cannot disagree. No reading, no tag — a dash would read as a zero.
+
 ## The rows the free plan cannot read
 
 **Every attack gets a row; the ones behind the 90-day window are blurred, not

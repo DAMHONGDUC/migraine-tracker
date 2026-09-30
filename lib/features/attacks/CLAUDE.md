@@ -409,6 +409,17 @@ the same curve its neighbour continues on.
     sheet and requires `NeverScrollableScrollPhysics`, and
     `attack_detail_test.dart` drags the sheet down and requires it to stay.
 
+## The intensity step and the saved step
+
+- **Intensity is a 5×2 grid of tiles, each with its band's bar, and a legend
+  naming the four bands under it** (2026-09-30 redesign). The legend makes the
+  colour a second signal rather than the only one. **The tap still advances**:
+  a select-then-Next here would add a tap to the three hard rule 5 protects.
+- **The saved step reads back what was written**: intensity, where, started,
+  and the pressure only when a reading is already attached — never a pending
+  row, since weather is backfilled (hard rule 4). "Logged." on its own asked the
+  user to trust a save they could not see.
+
 ## The rest of the flow
 
 - **The step's question is the app bar's title, not a headline in the body**
