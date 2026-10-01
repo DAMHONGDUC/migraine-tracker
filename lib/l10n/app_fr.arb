@@ -79,6 +79,7 @@
   "medicationsFilterUsageNeverUsed": "Jamais utilisé",
   "logSavedTitle": "Enregistré.",
   "logSavedSubtitle": "Bon rétablissement.",
+  "logSavedPressurePattern": "{count, plural, =1{Votre première crise ce mois-ci un jour de baisse de pression.} other{{count} crises ce mois-ci des jours de baisse de pression.}}",
   "logAddDetails": "Ajouter des détails",
   "logDone": "Terminé",
   "detailsTitle": "Détails",

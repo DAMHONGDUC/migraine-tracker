@@ -79,6 +79,7 @@
   "medicationsFilterUsageNeverUsed": "Chưa từng dùng",
   "logSavedTitle": "Đã ghi.",
   "logSavedSubtitle": "Mong bạn mau khỏe.",
+  "logSavedPressurePattern": "{count, plural, other{{count} cơn trong tháng này rơi vào ngày áp suất giảm.}}",
   "logAddDetails": "Thêm chi tiết",
   "logDone": "Xong",
   "detailsTitle": "Chi tiết",

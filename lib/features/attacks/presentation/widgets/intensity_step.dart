@@ -75,7 +75,7 @@ class IntensityStep extends StatelessWidget {
                 for (final (int low, int high) in _bands)
                   _LegendEntry(
                     color: AppColors.intensity(low),
-                    label: '${low.severityLabel(l10n)} $low–$high',
+                    label: '${low.severityTitle(l10n)} $low–$high',
                   ),
               ],
             ),

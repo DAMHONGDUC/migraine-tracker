@@ -79,6 +79,7 @@
   "medicationsFilterUsageNeverUsed": "没用过",
   "logSavedTitle": "已记录。",
   "logSavedSubtitle": "早日好起来。",
+  "logSavedPressurePattern": "{count, plural, other{本月有 {count} 次发作发生在气压下降的日子。}}",
   "logAddDetails": "添加细节",
   "logDone": "完成",
   "detailsTitle": "细节",

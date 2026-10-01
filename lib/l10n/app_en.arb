@@ -348,6 +348,16 @@
   "@logSavedSubtitle": {
     "description": "Gentle message under the saved confirmation"
   },
+  "logSavedPressurePattern": "{count, plural, =1{Your first attack this month on a day pressure fell.} other{{count} attacks this month came on a day pressure fell.}}",
+  "@logSavedPressurePattern": {
+    "description": "Line on the saved step when the attack came on a falling-pressure day: how many attacks this calendar month did, this one included.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "logAddDetails": "Add details",
   "@logAddDetails": {
     "description": "Button on the saved screen that opens the optional details sheet"

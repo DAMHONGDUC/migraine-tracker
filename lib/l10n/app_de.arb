@@ -79,6 +79,7 @@
   "medicationsFilterUsageNeverUsed": "Nie verwendet",
   "logSavedTitle": "Erfasst.",
   "logSavedSubtitle": "Gute Besserung.",
+  "logSavedPressurePattern": "{count, plural, =1{Dein erster Anfall diesen Monat an einem Tag mit fallendem Luftdruck.} other{{count} Anfälle diesen Monat an Tagen mit fallendem Luftdruck.}}",
   "logAddDetails": "Details hinzufügen",
   "logDone": "Fertig",
   "detailsTitle": "Details",

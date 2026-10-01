@@ -79,6 +79,7 @@
   "medicationsFilterUsageNeverUsed": "使用したことがない",
   "logSavedTitle": "記録しました。",
   "logSavedSubtitle": "お大事に。",
+  "logSavedPressurePattern": "{count, plural, other{今月、気圧が下がった日の発作は{count}回です。}}",
   "logAddDetails": "詳細を追加",
   "logDone": "完了",
   "detailsTitle": "詳細",

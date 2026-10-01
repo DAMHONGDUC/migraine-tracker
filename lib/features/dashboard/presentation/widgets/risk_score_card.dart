@@ -24,84 +24,98 @@ part 'risk_score_card_strip.dart';
 /// dashboard has one premium door — the banner — and a second locked card on
 /// the same screen is two pitches for one purchase (see
 /// `lib/features/dashboard/CLAUDE.md`).
+///
+/// **On the dashboard it is the weather card's footer, not a card of its own**
+/// (2026-09-30 redesign): `embedded` drops the card and keeps the tap, and
+/// [isShown] is how the screen asks whether there is anything to hang there —
+/// a footer that drew nothing would still leave its divider behind.
 class RiskScoreCard extends ConsumerWidget {
-  const RiskScoreCard({super.key});
+  const RiskScoreCard({this.embedded = false, super.key});
+
+  /// Drawn as content inside another card: no surface of its own, the same insets, the same tap.
+  final bool embedded;
+
+  /// Whether this card has anything to draw: premium, and a forecast with a today in it.
+  static bool isShown(WidgetRef ref) =>
+      ref.watch(hasPremiumProvider) &&
+      ref.watch(riskForecastProvider).value?.today != null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
 
-    if (!ref.watch(hasPremiumProvider)) return const SizedBox.shrink();
-
-    final RiskForecast? forecast = ref.watch(riskForecastProvider).value;
-    final DailyRisk? today = forecast?.today;
-
     // Nothing to draw yet, and nothing to promise either: the card appears with the score.
-    if (forecast == null || today == null) return const SizedBox.shrink();
+    if (!isShown(ref)) return const SizedBox.shrink();
 
-    return SdCardV2(
-      surface: SdCardSurfaceV2.elevated,
-      // The pressure tab is where the forecast this is built on is drawn in full.
-      onTap: () => NavigationUtils.toPressure(context, ref),
-      child: Padding(
-        padding: EdgeInsets.all(SdSpacingConstant.w16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    l10n.riskCardTitle,
-                    style: AppTextStyle.titleSmall,
-                  ),
+    final RiskForecast forecast = ref.watch(riskForecastProvider).value!;
+    final DailyRisk today = forecast.today!;
+
+    // The pressure tab is where the forecast this is built on is drawn in full.
+    void openPressure() => NavigationUtils.toPressure(context, ref);
+
+    final Widget content = Padding(
+      padding: EdgeInsets.all(SdSpacingConstant.w16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(l10n.riskCardTitle, style: AppTextStyle.titleSmall),
+              ),
+              // The same glyph, tooltip and sheet every analysis card on Insights carries — this one is an analysis too, it just lives on the dashboard.
+              SdIconButtonV2(
+                icon: SdIconV2(
+                  icon: AppIconConstant.info,
+                  size: AppIconSize.small,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
-                // The same glyph, tooltip and sheet every analysis card on Insights carries — this one is an analysis too, it just lives on the dashboard.
-                SdIconButtonV2(
-                  icon: SdIconV2(
-                    icon: AppIconConstant.info,
-                    size: AppIconSize.small,
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  tooltip: l10n.insightsExplainTooltip,
-                  onPressed: () => AnalysisInfoSheet(
-                    title: l10n.riskInfoTitle,
-                    paragraphs: <String>[
-                      l10n.riskInfoWhat,
-                      l10n.riskInfoHow,
-                      l10n.riskInfoMissing,
-                      l10n.riskInfoThresholds,
-                    ],
-                  ).show(context),
-                ),
-                const DashboardChevron(),
-              ],
+                tooltip: l10n.insightsExplainTooltip,
+                onPressed: () => AnalysisInfoSheet(
+                  title: l10n.riskInfoTitle,
+                  paragraphs: <String>[
+                    l10n.riskInfoWhat,
+                    l10n.riskInfoHow,
+                    l10n.riskInfoMissing,
+                    l10n.riskInfoThresholds,
+                  ],
+                ).show(context),
+              ),
+              const DashboardChevron(),
+            ],
+          ),
+          // Under the title rather than beside it: the window and the word "prediction" are what stop a percentage being read as a measurement.
+          Text(
+            l10n.riskCardSubtitle,
+            style: AppTextStyle.bodySmall.copyWith(
+              color: AppColors.textSecondary,
             ),
-            // Under the title rather than beside it: the window and the word "prediction" are what stop a percentage being read as a measurement.
+          ),
+          SizedBox(height: SdSpacingConstant.h12),
+          if (!forecast.isReady)
             Text(
-              l10n.riskCardSubtitle,
+              l10n.riskPending,
               style: AppTextStyle.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),
-            ),
+            )
+          else ...<Widget>[
+            _TodayScore(today: today),
             SizedBox(height: SdSpacingConstant.h12),
-            if (!forecast.isReady)
-              Text(
-                l10n.riskPending,
-                style: AppTextStyle.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              )
-            else ...<Widget>[
-              _TodayScore(today: today),
-              SizedBox(height: SdSpacingConstant.h12),
-              _WeekChart(days: forecast.days),
-              SizedBox(height: SdSpacingConstant.h12),
-              _Reasons(today: today),
-            ],
+            _WeekChart(days: forecast.days),
+            SizedBox(height: SdSpacingConstant.h12),
+            _Reasons(today: today),
           ],
-        ),
+        ],
       ),
+    );
+
+    if (embedded) return InkWell(onTap: openPressure, child: content);
+
+    return SdCardV2(
+      surface: SdCardSurfaceV2.elevated,
+      onTap: openPressure,
+      child: content,
     );
   }
 }

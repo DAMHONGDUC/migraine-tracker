@@ -19,8 +19,7 @@ class DashboardSummaryGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Asked here, not left to the card: a month card that hid itself inside the row would leave the week at half width beside nothing.
-    final bool hasMonth =
-        ref.watch(migraineDaysProvider).currentMonth != null;
+    final bool hasMonth = ref.watch(migraineDaysProvider).currentMonth != null;
 
     return SdCardV2(
       child: Padding(

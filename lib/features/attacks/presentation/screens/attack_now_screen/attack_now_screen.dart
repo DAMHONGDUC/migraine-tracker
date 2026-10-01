@@ -118,7 +118,7 @@ class AttackNowScreen extends ConsumerWidget {
                     SizedBox(height: SdSpacingConstant.h8),
                     SdTagV2(
                       label:
-                          '${attack.intensity} · ${attack.intensity.severityLabel(l10n)}',
+                          '${attack.intensity} · ${attack.intensity.severityTitle(l10n)}',
                       color: AppColors.intensity(attack.intensity),
                     ),
                   ],

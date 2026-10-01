@@ -46,13 +46,16 @@ class DashboardScreen extends ConsumerWidget {
       const DashboardLogButton(),
       // Directly under the log button, and only where the 90-day window hides something: it says what Premium would open, not what the free plan refuses.
       if (hasHiddenHistory) const FreeHistoryBanner(),
-      // Under the log button and above the shortcuts: the one thing the app asks for on a day that did not hurt.
+      // The pressure outlook, directly under the log button (owner's call, 2026-09-30 redesign): the weather with the risk forecast built on it as its footer — the app's promise, read before anything is asked of the user.
+      // The forecast is premium only, and absent rather than locked — the banner is this screen's one premium door.
+      CurrentWeatherCard(
+        footer: RiskScoreCard.isShown(ref)
+            ? const RiskScoreCard(embedded: true)
+            : null,
+      ),
+      // Under the outlook and above the shortcuts: the one thing the app asks for on a day that did not hurt.
       const DailyCheckInCard(),
       const QuickAccessSection(),
-      // Under the shortcuts, owner's call: the top of the screen is the call to action, and the readings start here.
-      const CurrentWeatherCard(),
-      // Directly under the weather it is built on. Premium only, and absent rather than locked — the banner is this screen's one premium door.
-      const RiskScoreCard(),
       // Asked here rather than left to the widget: a section that hid itself would leave the gap the list inserts before it (see the loop below).
       if (ref.watch(hasTodayReadingsProvider)) const DashboardTodaySection(),
       // Unconditional, owner's call: hidden until the first attack, it left a new install with a log button, a grid of links and nothing between.

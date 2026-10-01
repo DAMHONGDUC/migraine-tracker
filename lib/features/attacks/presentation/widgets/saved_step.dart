@@ -11,6 +11,7 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_icon_size.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../domain/entities/attack.dart';
+import '../../domain/services/falling_pressure_month_counter.dart';
 import '../../providers.dart';
 import 'attack_details_sheet.dart';
 
@@ -38,6 +39,9 @@ class SavedStep extends ConsumerWidget {
 
   /// The tint in the tick's disc and the glow around it — a halo, not a light.
   static const double _discAlpha = 0.14;
+
+  static const FallingPressureMonthCounter _counter =
+      FallingPressureMonthCounter();
   static const double _glowAlpha = 0.22;
 
   @override
@@ -106,6 +110,15 @@ class SavedStep extends ConsumerWidget {
                     if (attack != null) ...[
                       SizedBox(height: SdSpacingConstant.h32),
                       _SavedSummary(attack: attack),
+                      if (_counter.count(
+                            attack,
+                            ref.watch(attacksStreamProvider).value ??
+                                const <Attack>[],
+                          )
+                          case final int count) ...[
+                        SizedBox(height: SdSpacingConstant.h12),
+                        _PressurePatternNote(count: count),
+                      ],
                     ],
                   ],
                 ),
@@ -150,7 +163,7 @@ class _SavedSummary extends StatelessWidget {
         label: l10n.attackDetailIntensity,
         value: SdTagV2(
           label:
-              '${attack.intensity} · ${attack.intensity.severityLabel(l10n)}',
+              '${attack.intensity} · ${attack.intensity.severityTitle(l10n)}',
           color: AppColors.intensity(attack.intensity),
         ),
       ),
@@ -218,6 +231,50 @@ class _SummaryRow extends StatelessWidget {
             child: Align(alignment: Alignment.centerRight, child: value),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The one personal line after a log: how many of this month's attacks came on a falling-pressure day.
+///
+/// The peak of the flow is the save, and the app's whole promise is the
+/// pressure link — so when this attack is part of that pattern, the end of the
+/// flow says so once, in the accent's tint, with nothing to tap.
+class _PressurePatternNote extends StatelessWidget {
+  const _PressurePatternNote({required this.count});
+
+  final int count;
+
+  static const double _fillAlpha = 0.08;
+  static const double _borderAlpha = 0.16;
+
+  @override
+  Widget build(BuildContext context) {
+    return SdCardV2(
+      fillColor: AppColors.primary.withValues(alpha: _fillAlpha),
+      borderColor: AppColors.primary.withValues(alpha: _borderAlpha),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: SdContentPaddingV2.horizontal,
+          vertical: SdSpacingConstant.h12,
+        ),
+        child: Row(
+          children: [
+            SdIconV2(
+              icon: AppIconConstant.pressure,
+              size: AppIconSize.medium,
+              color: AppColors.primary,
+            ),
+            SizedBox(width: SdSpacingConstant.w12),
+            Expanded(
+              child: Text(
+                context.l10n.logSavedPressurePattern(count),
+                style: AppTextStyle.bodyMedium,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
