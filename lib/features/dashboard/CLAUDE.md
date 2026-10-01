@@ -156,7 +156,9 @@ own Unlock button — which competed with the log button under it.
 ## The weather card
 
 **The weather the user is standing in is a dashboard card, `CurrentWeatherCard`,
-directly under quick access** (owner's call). It replaced the Insights weather
+directly under the log button** (owner's call, 2026-09-30 redesign, moved up from
+under quick access: the pressure outlook is the app's promise, read before
+anything is asked of the user). It replaced the Insights weather
 tab, whose day strip, metric picker and hourly chart were a screen's worth of
 forecast reached by a tab switch — what a user wants at a glance is the conditions
 right now, and the dashboard is where a glance happens. `InsightsTab.weather`,
@@ -355,6 +357,13 @@ than a word there.
   a week behind it never comes up blank at the top.
 
 ## The risk card
+
+**It is the weather card's footer — one "pressure outlook" card** (owner's
+call, 2026-09-30 redesign). `WeatherCard.footer` draws it under an edge-to-edge
+divider; `RiskScoreCard(embedded: true)` drops its own surface and keeps its
+tap. The screen hangs it there only when `RiskScoreCard.isShown` — a footer that
+drew nothing would still leave the divider behind. Without location the prompt
+takes the weather card and the footer moves to a card of its own under it.
 
 **`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
 from `RiskScoreEngine` (weights, thresholds and the score's own rules:

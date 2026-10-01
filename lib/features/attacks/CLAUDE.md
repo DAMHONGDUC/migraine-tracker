@@ -419,6 +419,15 @@ the same curve its neighbour continues on.
   and the pressure only when a reading is already attached — never a pending
   row, since weather is backfilled (hard rule 4). "Logged." on its own asked the
   user to trust a save they could not see.
+- **One personal line when the attack came on a falling-pressure day**:
+  `logSavedPressurePattern`, counted by `FallingPressureMonthCounter` — this
+  month's falling-day attacks, the saved one included. Nothing on a steady,
+  rising or unread day: a weather number after a calm-day log reads as the app
+  insisting on a trigger. "Falling" is `HomeWidgetConstant.trendThresholdHpa`,
+  the same line History's filter and the home widget draw.
+- **Tags and the legend say the band capitalised** (`severityTitle`, over the
+  `historySeverity*` strings); `severityLabel` stays lowercase for sentences
+  and VoiceOver.
 
 ## The rest of the flow
 
