@@ -35,8 +35,8 @@ void main() {
     await seedHistory(app);
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.byType(RiskScoreCard), findsOneWidget);
-    // The widget is placed but renders nothing — no title, no band, no number.
+    // Not even placed: on the dashboard it is the weather card's footer, and the screen only hangs it there when it has something to draw.
+    expect(find.byType(RiskScoreCard), findsNothing);
     expect(find.text('Attack risk forecast'), findsNothing);
     expect(find.text('Next 7 days · a prediction'), findsNothing);
     expect(find.text('Low'), findsNothing);

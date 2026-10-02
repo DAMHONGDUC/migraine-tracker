@@ -348,6 +348,16 @@
   "@logSavedSubtitle": {
     "description": "Gentle message under the saved confirmation"
   },
+  "logSavedPressurePattern": "{count, plural, =1{Your first attack this month on a day pressure fell.} other{{count} attacks this month came on a day pressure fell.}}",
+  "@logSavedPressurePattern": {
+    "description": "Line on the saved step when the attack came on a falling-pressure day: how many attacks this calendar month did, this one included.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "logAddDetails": "Add details",
   "@logAddDetails": {
     "description": "Button on the saved screen that opens the optional details sheet"
@@ -766,6 +776,14 @@
         "type": "int"
       }
     }
+  },
+  "insightsBaselineDropDays": "Days pressure fell",
+  "@insightsBaselineDropDays": {
+    "description": "Label of the bar comparing how often an attack came on days pressure fell."
+  },
+  "insightsBaselineOtherDays": "Other days",
+  "@insightsBaselineOtherDays": {
+    "description": "Label of the bar comparing how often an attack came on all other days."
   },
   "reportBaseline": "Attack rate, drop days vs other days",
   "@reportBaseline": {
@@ -2388,6 +2406,10 @@
   "dashboardLogButton": "Log an attack",
   "@dashboardLogButton": {
     "description": "Big primary call-to-action on the dashboard that opens the 3-tap log flow"
+  },
+  "dashboardLogButtonHint": "3 taps · works offline",
+  "@dashboardLogButtonHint": {
+    "description": "Second line under the dashboard log button: how short and offline-safe the log flow is."
   },
   "dashboardThisWeek": "This week",
   "@dashboardThisWeek": {

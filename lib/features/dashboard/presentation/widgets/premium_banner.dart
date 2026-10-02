@@ -9,7 +9,7 @@ import '../../../../core/theme/app_icon_constant.dart';
 import '../../../../core/theme/app_text_style.dart';
 import '../../../../core/widgets/dashboard_chevron.dart';
 
-/// One short row at the top of the dashboard offering premium, for free users only.
+/// One short row near the end of the dashboard, above Explore, offering premium to free users only.
 class PremiumBanner extends ConsumerWidget {
   const PremiumBanner({super.key});
 

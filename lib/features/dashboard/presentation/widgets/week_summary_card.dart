@@ -73,7 +73,7 @@ class WeekSummaryCard extends ConsumerWidget {
   }
 }
 
-/// The number at display size with its unit beside it, sitting on a shared baseline so the two read as one phrase rather than two stacked lines.
+/// The number at display size with its unit under it, so half a screen of width never squeezes the number.
 class _CountRow extends StatelessWidget {
   const _CountRow({required this.count});
 
@@ -81,18 +81,14 @@ class _CountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('$count', style: AppTextStyle.displaySmall.w600),
-        SizedBox(width: SdSpacingConstant.w8),
-        // Flexible, not Expanded: Vietnamese runs longer and must be free to wrap without the number losing its baseline.
-        Flexible(
-          child: Text(
-            context.l10n.dashboardAttacksLabel(count),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        // Under the number rather than beside it: the card is half the screen wide, and a unit beside the number would wrap in most locales.
+        Text(
+          context.l10n.dashboardAttacksLabel(count),
+          style: AppTextStyle.bodyMedium.secondary,
         ),
       ],
     );
@@ -161,9 +157,12 @@ class _AvgIntensityChip extends StatelessWidget {
         children: [
           SdColorDotV2(color: color),
           SizedBox(width: SdSpacingConstant.w8),
-          Text(
-            context.l10n.dashboardAvgIntensity(value.toStringAsFixed(1)),
-            style: AppTextStyle.labelLarge,
+          // Flexible: the card is half the screen wide, and the label runs longer in several locales.
+          Flexible(
+            child: Text(
+              context.l10n.dashboardAvgIntensity(value.toStringAsFixed(1)),
+              style: AppTextStyle.labelLarge,
+            ),
           ),
         ],
       ),

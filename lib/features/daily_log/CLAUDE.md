@@ -69,6 +69,12 @@ and risk score both read these rows — see `docs/ROADMAP.md`.
   `AppColors.secondary` for a medication. The glyph carries the answered state
   (`AppIconConstant.saved`); the badge tint does not change with it, or the row
   would shift weight on save.
+- **Until today is answered, the sleep question sits on the card** (2026-09-30
+  redesign) — `DailyRatingRow`, the screen's own control. A tap opens the
+  check-in with `?sleep=<1–5>`; `DailyLogScreen.initialSleep` applies it over the
+  day's row through `presetSleepQuality`, which sets rather than toggles. **The
+  card never saves**: the write still happens on the screen that shows
+  everything it will write.
 - **The card is not tappable; each row is.** They open different screens
   (the check-in, that medication's detail), so one `onTap` over both would have
   to guess. `SdCardV2` supplies the `Material`, so a row's ink is clipped to the

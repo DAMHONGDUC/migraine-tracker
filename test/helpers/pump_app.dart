@@ -22,6 +22,7 @@ import 'package:migraine_tracker/features/app_config/domain/entities/installed_a
 import 'package:migraine_tracker/features/app_config/domain/repositories/app_config_repository.dart';
 import 'package:migraine_tracker/features/app_config/domain/services/store_launcher.dart';
 import 'package:migraine_tracker/features/app_config/providers.dart';
+import 'package:migraine_tracker/features/attacks/presentation/widgets/intensity_step.dart';
 import 'package:migraine_tracker/features/attacks/providers.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:migraine_tracker/features/auth/domain/entities/user_profile.dart';
@@ -1174,7 +1175,13 @@ Future<void> logAttack(
 }) async {
   await openLog(tester);
 
-  await tester.tap(find.text(intensity));
+  // Scoped to the step: the dashboard under the route still draws the check-in card's 1–5 sleep answers.
+  await tester.tap(
+    find.descendant(
+      of: find.byType(IntensityStep),
+      matching: find.text(intensity),
+    ),
+  );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
 

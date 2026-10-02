@@ -47,6 +47,21 @@ class _Insight extends StatelessWidget {
             style: AppTextStyle.bodyMedium,
           ),
           SizedBox(height: SdSpacingConstant.h12),
+          // The sentence's two numbers drawn side by side (2026-09-30 redesign): the comparison is the whole finding, and two bars on one track make the gap visible before a word is read.
+          _ComparisonBar(
+            label: l10n.insightsBaselineDropDays,
+            percent: baseline.dropDayAttackPercent,
+            color: AppColors.chartSeries,
+            emphasised: true,
+          ),
+          SizedBox(height: SdSpacingConstant.h8),
+          _ComparisonBar(
+            label: l10n.insightsBaselineOtherDays,
+            percent: baseline.calmDayAttackPercent,
+            color: AppColors.textSecondary,
+            emphasised: false,
+          ),
+          SizedBox(height: SdSpacingConstant.h12),
           Text(
             l10n.insightsBaselineDays(baseline.dropDays, baseline.calmDays),
             style: AppTextStyle.bodySmall.secondary,
@@ -58,6 +73,65 @@ class _Insight extends StatelessWidget {
           style: AppTextStyle.bodySmall.secondary,
         ),
         if (result.isPreliminary) const InsightSettlingNote(),
+      ],
+    );
+  }
+}
+
+/// One side of the drop-day comparison: its name and share on one line, the share as a bar under it.
+///
+/// Not `SdProgressRowV2`: that row gives its label a fixed 84pt column, and
+/// "Days pressure fell" is longer than that in every shipped locale. Here the
+/// label has the card's full width, so it never ellipses.
+class _ComparisonBar extends StatelessWidget {
+  const _ComparisonBar({
+    required this.label,
+    required this.percent,
+    required this.color,
+    required this.emphasised,
+  });
+
+  final String label;
+
+  /// 0–100.
+  final double percent;
+  final Color color;
+
+  /// The drop-day side reads first; the baseline it is measured against stays muted.
+  final bool emphasised;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle style = emphasised
+        ? AppTextStyle.bodyMedium
+        : AppTextStyle.bodyMedium.secondary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(label, style: style)),
+            SizedBox(width: SdSpacingConstant.w8),
+            Text('${percent.round()}%', style: style.w600),
+          ],
+        ),
+        SizedBox(height: SdSpacingConstant.h6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(SdSpacingConstant.r4),
+          child: Stack(
+            children: [
+              Container(
+                height: SdSpacingConstant.h8,
+                color: context.sdTheme.chartGrid,
+              ),
+              FractionallySizedBox(
+                widthFactor: (percent / 100).clamp(0, 1),
+                child: Container(height: SdSpacingConstant.h8, color: color),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
