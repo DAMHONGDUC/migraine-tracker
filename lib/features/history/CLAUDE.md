@@ -94,6 +94,16 @@ all of them). Thirteen axes: period, intensity, medication, which medication,
 whether it helped, aura, area, duration, symptom, trigger, exertion, notes,
 pressure trend.
 
+- **The strip opens with an all-filters pill** (owner's call, 2026-10-05):
+  `AllFiltersPill` (`core/widgets/`) opens `AllFiltersSheet` — every axis as an
+  `SdFilterSectionV2`, divided by `SdDividerV2`. It sits *beside* the chips,
+  not instead of them: a chip is one tap for one axis, the sheet is several
+  axes in one pass. Picks only move a highlight; Apply commits them all
+  through `AttackFiltersController.apply`, Clear all resets the draft in the
+  sheet.
+  - **Both are built from one `_Axis` list** (`_Axes.of`), so a new axis lands
+    in the strip and the sheet at once and the two cannot disagree on a label,
+    an option or its order.
 - **Each axis is ONE choice with its own "All" first**, and `_AxisChip` reads
   that first option as "not filtered" — so a chip is told neither which value
   means all nor whether it is on. `AttackFilters` is thirteen plain values, no
