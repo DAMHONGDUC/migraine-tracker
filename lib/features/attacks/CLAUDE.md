@@ -151,6 +151,10 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
     `.glb` and the first draw run on the UI thread, so the log screen passes
     `LogFlowConstant.stepTransition` as `HeadDiagram.loadAfter` and the dots
     hold until then. A model already in memory draws at once — no delay.
+    **The detail screen does the same** (owner's report, 2026-10-06: the
+    first open lagged on the head): `_LocationDiagram` passes what is left of
+    its route's own slide-in, read off `ModalRoute.animation`, so it is zero
+    when the diagram mounts after the push has settled.
 - **"Deselect all" empties the answer from both sides in one tap** (owner's
   rule, 2026-09-23). The tiles show only the facing side, so clearing one by
   one meant turning the head to find the rest. **It sits beside Save now, not
