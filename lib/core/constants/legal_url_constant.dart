@@ -4,9 +4,8 @@ import '../env/app_env.dart';
 final class LegalUrlConstant {
   const LegalUrlConstant._();
 
-  /// Apple's standard EULA.
-  static const String termsOfUse =
-      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  /// `TERMS_OF_SERVICE_URL`, or Apple's standard EULA when the build sets none.
+  static const String termsOfUse = AppEnv.termsOfServiceUrl;
 
   /// The app's own page, not the directory index that lists every app — the index is not this app's policy and reads as the wrong link.
   static const String privacyPolicy = AppEnv.privacyPolicyUrl;

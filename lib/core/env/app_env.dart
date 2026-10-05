@@ -98,6 +98,15 @@ final class AppEnv {
     defaultValue: '',
   );
 
+  static const String _termsOfServiceUrl = String.fromEnvironment(
+    'TERMS_OF_SERVICE_URL',
+  );
+
+  /// Terms of Use the paywall links to, falling back to Apple's standard EULA (accepted by App Store 3.1.2). Compared to empty, not left to `defaultValue`: the template ships the key as `""`, and a defined-but-empty key never reaches the default.
+  static const String termsOfServiceUrl = _termsOfServiceUrl == ''
+      ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
+      : _termsOfServiceUrl;
+
   // --- Boot-time validation ---
 
   /// Every config value the app cannot run without, keyed by its dart-define name.
