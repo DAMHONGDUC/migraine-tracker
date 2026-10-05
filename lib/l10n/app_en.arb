@@ -3085,9 +3085,9 @@
   "@settingsDevCrashlyticsCollectionOff": {
     "description": "First line of the Crashlytics test dialog when this build does not send reports, as in a debug build"
   },
-  "settingsDevCrashlyticsBody": "A non-fatal is sent now. A crash closes the app — open it again from the home screen and the report is sent then. A crash is not caught while Xcode's debugger is attached.",
+  "settingsDevCrashlyticsBody": "Both tests are sent the next time the app opens: open it again from the home screen. A crash is not caught while Xcode's debugger is attached, and a build without a dSYM (any debug build) may not show in the console until one is uploaded.",
   "@settingsDevCrashlyticsBody": {
-    "description": "Body of the Crashlytics test dialog: what each of the two tests does and the debugger caveat"
+    "description": "Body of the Crashlytics test dialog: when the two tests are sent, the debugger caveat and the missing-dSYM caveat"
   },
   "settingsDevCrashlyticsNonFatal": "Send non-fatal",
   "@settingsDevCrashlyticsNonFatal": {
@@ -3097,9 +3097,9 @@
   "@settingsDevCrashlyticsCrash": {
     "description": "Crashlytics test dialog button that crashes the app natively"
   },
-  "settingsDevCrashlyticsSent": "Non-fatal sent. It shows in Crashlytics within a few minutes.",
+  "settingsDevCrashlyticsSent": "Non-fatal recorded. It is sent the next time the app opens.",
   "@settingsDevCrashlyticsSent": {
-    "description": "Snackbar after the Crashlytics non-fatal test was sent"
+    "description": "Snackbar after the Crashlytics non-fatal test was recorded; it uploads on the next launch"
   },
   "settingsDevCrashlyticsFailed": "Crashlytics test failed: {reason}",
   "@settingsDevCrashlyticsFailed": {

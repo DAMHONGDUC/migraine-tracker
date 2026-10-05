@@ -68,7 +68,11 @@ abstract final class CrashReporter {
   static bool get isCollectionEnabled =>
       _crashlytics?.isCrashlyticsCollectionEnabled ?? false;
 
-  /// Dev menu: a non-fatal sent NOW, so a build is checked end to end without waiting for a real failure.
+  /// Dev menu: a non-fatal, so a build is checked end to end without waiting for a real failure.
+  ///
+  /// **Sent on the next launch, not now**: iOS Crashlytics batches recorded
+  /// errors into the session's report and uploads it when the app next opens
+  /// (seen 2026-10-05: recorded 21:38, uploaded on the 21:45 relaunch).
   ///
   /// Collection is switched on first, since a debug build starts with it off;
   /// the next launch's [init] puts it back.
@@ -81,8 +85,6 @@ abstract final class CrashReporter {
       StackTrace.current,
       reason: 'Dev menu Crashlytics test',
     );
-    // A non-fatal otherwise waits for the next launch.
-    await crashlytics.sendUnsentReports();
   }
 
   /// Dev menu: a NATIVE crash, the kind a real one is. The app closes; the report is sent on the next launch.
