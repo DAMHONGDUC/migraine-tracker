@@ -273,6 +273,7 @@
   "filtersClearAll": "Xoá tất cả",
   "filtersSheetTitle": "Bộ lọc",
   "filtersApply": "Áp dụng",
+  "filtersReset": "Đặt lại",
   "historyFilterDurationUnder4h": "Dưới 4 giờ",
   "historyFilterDuration4To72h": "4–72 giờ",
   "historyFilterDurationOver72h": "Trên 72 giờ",

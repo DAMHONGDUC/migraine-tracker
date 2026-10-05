@@ -258,6 +258,7 @@
   "filtersClearAll": "すべて解除",
   "filtersSheetTitle": "フィルター",
   "filtersApply": "適用",
+  "filtersReset": "リセット",
   "historyFilterDurationUnder4h": "4時間未満",
   "historyFilterDuration4To72h": "4〜72時間",
   "historyFilterDurationOver72h": "72時間超",

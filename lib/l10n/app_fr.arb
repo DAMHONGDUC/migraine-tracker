@@ -258,6 +258,7 @@
   "filtersClearAll": "Tout effacer",
   "filtersSheetTitle": "Filtres",
   "filtersApply": "Appliquer",
+  "filtersReset": "Réinitialiser",
   "historyFilterDurationUnder4h": "Moins de 4 h",
   "historyFilterDuration4To72h": "4–72 h",
   "historyFilterDurationOver72h": "Plus de 72 h",

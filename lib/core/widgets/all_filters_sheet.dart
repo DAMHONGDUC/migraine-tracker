@@ -23,7 +23,7 @@ class AllFiltersSheet extends StatelessWidget {
   final VoidCallback onApply;
 
   /// Puts every axis of the draft back to "all", in the sheet. Null while the
-  /// draft already is, which disables the button rather than hiding it.
+  /// draft already is, which disables Reset rather than hiding it.
   final VoidCallback? onClear;
 
   @override
@@ -33,13 +33,27 @@ class AllFiltersSheet extends StatelessWidget {
     return SdSheetContentV2(
       title: context.l10n.filtersSheetTitle,
       closeTooltip: context.l10n.commonClose,
-      confirmLabel: context.l10n.filtersApply,
-      onConfirm: onApply,
-      footer: SdButtonV2(
-        variant: SdButtonVariantV2.text,
-        label: context.l10n.filtersClearAll,
-        onPressed: onClear,
+      // No confirmLabel: Apply shares the pinned footer with Reset, halves of one row — outlined resets, primary commits (owner's rule).
+      footer: Row(
+        children: <Widget>[
+          Expanded(
+            child: SdButtonV2(
+              variant: SdButtonVariantV2.outlined,
+              label: context.l10n.filtersReset,
+              onPressed: onClear,
+            ),
+          ),
+          SizedBox(width: SdSpacingConstant.w12),
+          Expanded(
+            child: SdButtonV2(
+              variant: SdButtonVariantV2.primary,
+              label: context.l10n.filtersApply,
+              onPressed: onApply,
+            ),
+          ),
+        ],
       ),
+      footerTopPadding: SdSpacingConstant.sp16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[

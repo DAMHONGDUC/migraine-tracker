@@ -258,6 +258,7 @@
   "filtersClearAll": "全部清除",
   "filtersSheetTitle": "筛选",
   "filtersApply": "应用",
+  "filtersReset": "重置",
   "historyFilterDurationUnder4h": "不到 4 小时",
   "historyFilterDuration4To72h": "4–72 小时",
   "historyFilterDurationOver72h": "超过 72 小时",

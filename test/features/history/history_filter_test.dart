@@ -124,6 +124,18 @@ void main() {
       findsNWidgets(9),
     );
 
+    // Reset and Apply share one row: Reset outlined on the left, disabled while nothing is picked; Apply primary on the right.
+    final Finder reset = find.widgetWithText(SdButtonV2, 'Reset');
+    final Finder apply = find.widgetWithText(SdButtonV2, 'Apply');
+    expect(
+      tester.widget<SdButtonV2>(reset).variant,
+      SdButtonVariantV2.outlined,
+    );
+    expect(tester.widget<SdButtonV2>(reset).onPressed, isNull);
+    expect(tester.widget<SdButtonV2>(apply).variant, SdButtonVariantV2.primary);
+    expect(tester.getCenter(reset).dy, tester.getCenter(apply).dy);
+    expect(tester.getCenter(reset).dx, lessThan(tester.getCenter(apply).dx));
+
     // A pick only moves the highlight: the list behind is untouched.
     final Finder hasNotes = find.descendant(
       of: find.byType(SdSheetContentV2),

@@ -1283,6 +1283,10 @@
   "@filtersApply": {
     "description": "Button committing the picks made in the all-filters sheet"
   },
+  "filtersReset": "Reset",
+  "@filtersReset": {
+    "description": "Button in the all-filters sheet putting every axis of the draft back to \"all\", before Apply"
+  },
   "historyFilterDurationUnder4h": "Under 4h",
   "@historyFilterDurationUnder4h": {
     "description": "Duration filter chip: attacks shorter than the 4h a migraine is defined from"

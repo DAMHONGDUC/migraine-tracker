@@ -258,6 +258,7 @@
   "filtersClearAll": "Alle zurücksetzen",
   "filtersSheetTitle": "Filter",
   "filtersApply": "Anwenden",
+  "filtersReset": "Zurücksetzen",
   "historyFilterDurationUnder4h": "Unter 4 Std.",
   "historyFilterDuration4To72h": "4–72 Std.",
   "historyFilterDurationOver72h": "Über 72 Std.",
