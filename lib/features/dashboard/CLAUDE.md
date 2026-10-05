@@ -358,40 +358,45 @@ than a word there.
 
 ## The risk card
 
-**It is the weather card's footer — one "pressure outlook" card** (owner's
-call, 2026-09-30 redesign). `WeatherCard.footer` draws it under an edge-to-edge
-divider; `RiskScoreCard(embedded: true)` drops its own surface and keeps its
-tap. The screen hangs it there only when `RiskScoreCard.isShown` — a footer that
-drew nothing would still leave the divider behind. Without location the prompt
-takes the weather card and the footer moves to a card of its own under it.
+**A card of its own, directly under the weather card, and compact: one line
+and a mini week** (owner's call, 2026-10-06 — it was the weather card's footer
+from the 2026-09-30 redesign). The footer made the weather card the tallest
+thing on the dashboard and tied a premium analysis to a free readout.
+`WeatherCard.footer` is gone with it.
 
 **`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
 from `RiskScoreEngine` (weights, thresholds and the score's own rules:
 `lib/features/insights/CLAUDE.md`). What this file owns is how it reads.
 
+| On the card (`RiskScoreCard`) | On `RiskForecastScreen` |
+|---|---|
+| Title + "Next 7 days · a prediction", today's % and band, chevron | Today's % and band, large |
+| Seven bare mini bars, band-coloured, today emphasised — no numbers | Seven columns, each with its % above and weekday under |
+| — | Every signal that scored today, and every one that could not be read |
+| — | The info glyph (`AnalysisInfoSheet`) in the app bar |
+| — | A button to the Pressure tab, the forecast the score is built on |
+
+- **The whole card opens `RiskForecastScreen`** (`AppRoutes.riskForecast`,
+  owner's call). The card is the glance; the screen is the working. It used to
+  open the Pressure tab — that door moved onto the screen.
 - **The title says it is a forecast, and the line under it says it is a
-  prediction** (owner's rule). It used to be titled "Next 7 days", which names a
-  window and leaves the number to be read as a measurement of something. A
+  prediction** (owner's rule), on the card and the screen: `riskCardTitle` =
+  "Attack risk forecast", `riskCardSubtitle` = "Next 7 days · a prediction". A
   percentage on a health screen is taken for a fact unless the card says
-  otherwise, so it says otherwise twice: `riskCardTitle` = "Attack risk
-  forecast", `riskCardSubtitle` = "Next 7 days · a prediction".
+  otherwise.
 - **Every number carries its percent sign** (`riskPercent`). "62" beside a word
   reads as a rating out of ten as easily as a probability.
-- **The week is seven columns, each with its percentage written above its bar
-  and its weekday under it** (owner's call, 2026-09-30 redesign). The bare bars
-  before the rows could be compared and never read — the value appeared nowhere;
-  the rows that replaced them could be read but took seven lines. A column that
-  carries its own number does both. Today sits on a `surfaceModal` well so the
-  eye starts there, and the bar colour is the band's (`_bandColor`).
-- **It carries the same info glyph as every analysis card**, opening
-  `AnalysisInfoSheet` with four paragraphs: what the number is, the four signals
-  and their weights, why an unreadable signal is named rather than scored zero,
-  and that every threshold is the user's own. The card states a probability
-  about the user's health; the sheet is where "not a diagnosis" is allowed the
-  room to be said.
-- **The card still opens the Pressure tab**, where the forecast it is built on
-  is drawn in full — the glyph and the card body are two different destinations
-  on purpose, so reading the explanation does not cost the reader their place.
+- **The mini bars carry no numbers.** They are the week's shape at a glance; the
+  screen is where a day's value is read. `RiskBandStyle` is the one owner of a
+  band's colour and word, so a bar and its number cannot disagree.
+- **The info glyph lives on the screen**, opening `AnalysisInfoSheet` with four
+  paragraphs: what the number is, the four signals and their weights, why an
+  unreadable signal is named rather than scored zero, and that every threshold
+  is the user's own. A second tap target inside a card that is itself a tap is
+  the trap the weather card's chevron rule avoids.
+- **Before two weeks of history the card is its title and `riskPending`** — no
+  bars, no chevron and no tap. A score with nothing behind it would be a number
+  the user cannot check.
 
 ## The log button
 
