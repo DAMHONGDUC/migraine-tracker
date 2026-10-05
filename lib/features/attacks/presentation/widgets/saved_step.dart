@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
+import '../../../../core/constants/home_widget_constant.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/head_region_label.dart';
 import '../../../../core/extensions/intensity_severity_label.dart';
@@ -184,7 +185,7 @@ class _SavedSummary extends StatelessWidget {
           label: l10n.weatherDetailPressure,
           value: _value(
             '${l10n.weatherPressureValue(pressure.toStringAsFixed(1))} '
-            '${delta < 0 ? '↓' : '↑'} ${delta.abs().toStringAsFixed(1)}',
+            '${_arrow(delta)} ${delta.abs().toStringAsFixed(1)}',
           ),
         ),
     ];
@@ -199,6 +200,13 @@ class _SavedSummary extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// The same steady band History's row tag draws, so one attack never reads "↑ 0.3" here and "→ 0.3" there.
+  static String _arrow(double delta) {
+    if (delta <= -HomeWidgetConstant.trendThresholdHpa) return '↓';
+    if (delta >= HomeWidgetConstant.trendThresholdHpa) return '↑';
+    return '→';
   }
 
   Widget _value(String text) => Text(

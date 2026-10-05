@@ -22,9 +22,7 @@ void main() {
     final List<double> rows = <double>{
       for (int value = 1; value <= 10; value++)
         tester
-            .getCenter(
-              find.descendant(of: step, matching: find.text('$value')),
-            )
+            .getCenter(find.descendant(of: step, matching: find.text('$value')))
             .dy,
     }.toList();
     expect(rows, hasLength(2));
@@ -53,10 +51,7 @@ void main() {
     await openLog(tester);
 
     await tester.tap(
-      find.descendant(
-        of: find.byType(IntensityStep),
-        matching: find.text('7'),
-      ),
+      find.descendant(of: find.byType(IntensityStep), matching: find.text('7')),
     );
     await settle(tester);
 
@@ -127,6 +122,24 @@ void main() {
 
     expect(find.text('1015.2 hPa ↑ 2.3'), findsOneWidget);
     expect(find.textContaining('pressure fell'), findsNothing);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a move inside the steady band reads → as History does', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester);
+    app.weather.snapshot = WeatherSnapshot(
+      capturedAt: DateTime.now().toUtc(),
+      pressureHpa: 1012.0,
+      pressureDelta24hHpa: 0.3,
+    );
+
+    await logAttack(tester, finish: false);
+    await settle(tester);
+
+    expect(find.text('1012.0 hPa → 0.3'), findsOneWidget);
 
     await finishTest(tester);
   });
