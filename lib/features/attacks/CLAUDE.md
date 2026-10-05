@@ -537,6 +537,23 @@ the same curve its neighbour continues on.
     heading (owner's call, see the dashboard's rules), so on this screen the
     reading is a temperature and three glyphs until it is opened. Deliberate.
 
+## The duration sheet takes a typed answer too
+
+**Hours and minutes can be typed under the preset grid** (owner's rule,
+2026-10-05). The ten presets stop at round numbers and at 72h; "5h 40m" or a
+four-day attack had no way in.
+
+- **In `AttackDurationSheet`, not a sheet of its own or a field on the detail
+  row** (owner's call). The presets stay the fast path; typing is the fallback
+  beside them.
+- **Two whole-number boxes, hours and minutes** (owner's call) — digits only,
+  so no decimal hour needs reading. Minutes past 59 are refused with a line
+  under the boxes, not carried into hours.
+- **A preset tap still answers at once; the typed value commits from the pinned
+  button** (`SdSheetContentV2`'s rule). The button reads Save, or Update once a
+  duration is recorded, and stays disabled while the boxes add up to nothing or
+  are refused. A recorded duration prefills the boxes.
+
 ## The step count on an attack
 
 **An attack carries the day's step count, taken at the moment it was logged**
