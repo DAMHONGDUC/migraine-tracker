@@ -63,6 +63,51 @@ abstract final class CrashReporter {
 
   static void setCollectionEnabled(bool enabled) =>
       unawaited(_crashlytics?.setCrashlyticsCollectionEnabled(enabled));
+
+  /// Whether reports leave the device: off in debug builds, on in release.
+  static bool get isCollectionEnabled =>
+      _crashlytics?.isCrashlyticsCollectionEnabled ?? false;
+
+  /// Dev menu: a non-fatal sent NOW, so a build is checked end to end without waiting for a real failure.
+  ///
+  /// Collection is switched on first, since a debug build starts with it off;
+  /// the next launch's [init] puts it back.
+  static Future<void> sendTestError() async {
+    final FirebaseCrashlytics crashlytics = _requireReady();
+
+    await crashlytics.setCrashlyticsCollectionEnabled(true);
+    await crashlytics.recordError(
+      const CrashlyticsTestException('non-fatal'),
+      StackTrace.current,
+      reason: 'Dev menu Crashlytics test',
+    );
+    // A non-fatal otherwise waits for the next launch.
+    await crashlytics.sendUnsentReports();
+  }
+
+  /// Dev menu: a NATIVE crash, the kind a real one is. The app closes; the report is sent on the next launch.
+  ///
+  /// Not caught by Crashlytics while a debugger is attached — launch from the home screen.
+  static Future<void> crashForTest() async {
+    final FirebaseCrashlytics crashlytics = _requireReady();
+
+    await crashlytics.setCrashlyticsCollectionEnabled(true);
+    crashlytics.crash();
+  }
+
+  static FirebaseCrashlytics _requireReady() =>
+      _crashlytics ??
+      (throw StateError('Crashlytics did not start: the Firebase step failed'));
+}
+
+/// What the dev menu's Crashlytics test records, so it is filtered out of the real issues at a glance.
+class CrashlyticsTestException implements Exception {
+  const CrashlyticsTestException(this.kind);
+
+  final String kind;
+
+  @override
+  String toString() => 'CrashlyticsTestException: $kind (dev menu test)';
 }
 
 /// Points `SdLogger.error` at [CrashReporter].

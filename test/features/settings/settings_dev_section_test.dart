@@ -61,4 +61,39 @@ void main() {
 
     await finishTest(tester);
   });
+
+  testWidgets('the Crashlytics row says the state and offers both tests', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openSettings(tester);
+
+    await tapVisible(tester, find.text('Test Crashlytics'));
+    await tester.pumpAndSettle();
+
+    // Tests never start Firebase, so this is the debug build's answer: off, and saying so first.
+    expect(find.textContaining('Reporting is off'), findsOneWidget);
+    expect(find.text('Send non-fatal'), findsOneWidget);
+    expect(find.text('Crash the app'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('a Crashlytics test without Crashlytics says why, not nothing', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openSettings(tester);
+
+    await tapVisible(tester, find.text('Test Crashlytics'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Send non-fatal'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // A silent no-op here is the very symptom the row exists to rule out.
+    expect(find.textContaining('Crashlytics did not start'), findsOneWidget);
+
+    await finishTest(tester);
+  });
 }

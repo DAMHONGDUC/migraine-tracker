@@ -3073,6 +3073,43 @@
       }
     }
   },
+  "settingsDevCrashlytics": "Test Crashlytics",
+  "@settingsDevCrashlytics": {
+    "description": "Dev-only Settings row and dialog title that checks this build reports to Firebase Crashlytics"
+  },
+  "settingsDevCrashlyticsCollectionOn": "Reporting is on for this build.",
+  "@settingsDevCrashlyticsCollectionOn": {
+    "description": "First line of the Crashlytics test dialog when this build sends reports"
+  },
+  "settingsDevCrashlyticsCollectionOff": "Reporting is off for this build (debug). A test turns it on until the next launch.",
+  "@settingsDevCrashlyticsCollectionOff": {
+    "description": "First line of the Crashlytics test dialog when this build does not send reports, as in a debug build"
+  },
+  "settingsDevCrashlyticsBody": "A non-fatal is sent now. A crash closes the app — open it again from the home screen and the report is sent then. A crash is not caught while Xcode's debugger is attached.",
+  "@settingsDevCrashlyticsBody": {
+    "description": "Body of the Crashlytics test dialog: what each of the two tests does and the debugger caveat"
+  },
+  "settingsDevCrashlyticsNonFatal": "Send non-fatal",
+  "@settingsDevCrashlyticsNonFatal": {
+    "description": "Crashlytics test dialog button that records a non-fatal error and sends it at once"
+  },
+  "settingsDevCrashlyticsCrash": "Crash the app",
+  "@settingsDevCrashlyticsCrash": {
+    "description": "Crashlytics test dialog button that crashes the app natively"
+  },
+  "settingsDevCrashlyticsSent": "Non-fatal sent. It shows in Crashlytics within a few minutes.",
+  "@settingsDevCrashlyticsSent": {
+    "description": "Snackbar after the Crashlytics non-fatal test was sent"
+  },
+  "settingsDevCrashlyticsFailed": "Crashlytics test failed: {reason}",
+  "@settingsDevCrashlyticsFailed": {
+    "description": "Snackbar when the Crashlytics test could not run",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "freeLimitUsed": "{used} of {limit} used",
   "@freeLimitUsed": {
     "description": "Caption under the free-plan usage bar",
