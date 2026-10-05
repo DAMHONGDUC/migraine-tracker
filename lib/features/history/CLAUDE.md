@@ -99,8 +99,13 @@ pressure trend.
   `SdFilterSectionV2`, divided by `SdDividerV2`. It sits *beside* the chips,
   not instead of them: a chip is one tap for one axis, the sheet is several
   axes in one pass. Picks only move a highlight; Apply commits them all
-  through `AttackFiltersController.apply`, Clear all resets the draft in the
-  sheet.
+  through `AttackFiltersController.apply`, Reset puts the draft back to "all"
+  in the sheet.
+  - **Reset and Apply sit on one row, halves of it: Reset outlined on the
+    left, Apply primary on the right** (owner's rule, 2026-10-06). Both are
+    the sheet's answer, so they share the pinned footer rather than stacking
+    a text link over the commit; the fill says which one commits. Reset is
+    disabled, not hidden, while the draft is already "all".
   - **Both are built from one `_Axis` list** (`_Axes.of`), so a new axis lands
     in the strip and the sheet at once and the two cannot disagree on a label,
     an option or its order.
