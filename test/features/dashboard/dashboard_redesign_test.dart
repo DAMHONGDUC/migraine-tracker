@@ -6,6 +6,7 @@ import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import 'package:migraine_tracker/features/daily_log/presentation/widgets/daily_check_in_card.dart';
+import 'package:migraine_tracker/features/dashboard/presentation/screens/risk_forecast_screen/risk_forecast_screen.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/dashboard_log_button.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/month_days_card.dart';
 import 'package:migraine_tracker/features/dashboard/presentation/widgets/risk_score_card.dart';
@@ -144,7 +145,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('premium: the risk forecast is the weather card\'s footer', (
+  testWidgets('premium: the risk forecast is a compact card of its own', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester, premium: true);
@@ -155,19 +156,43 @@ void main() {
     expect(risk, findsOneWidget);
     expect(
       find.ancestor(of: risk, matching: find.byType(CurrentWeatherCard)),
-      findsOneWidget,
+      findsNothing,
     );
     expect(find.text('Attack risk forecast'), findsOneWidget);
-    // Seven columns, each carrying its own number — plus today's score above them.
+    // Today's number only — the mini week carries none.
     expect(
       find.descendant(of: risk, matching: find.textContaining('%')),
-      findsAtLeastNWidgets(8),
+      findsOneWidget,
     );
 
     await finishTest(tester);
   });
 
-  testWidgets('free: no footer and no divider hanging off the weather', (
+  testWidgets('tapping the risk card opens the forecast screen', (
+    tester,
+  ) async {
+    final PumpedApp app = await pumpApp(tester, premium: true);
+    await seedHistory(app);
+    await settle(tester);
+
+    await tapVisible(tester, find.byType(RiskScoreCard));
+    await settle(tester);
+
+    expect(find.byType(RiskForecastScreen), findsOneWidget);
+    // Seven columns, each carrying its own number — plus today's score above them.
+    expect(
+      find.descendant(
+        of: find.byType(RiskForecastScreen),
+        matching: find.textContaining('%'),
+      ),
+      findsAtLeastNWidgets(8),
+    );
+    expect(find.text('See the pressure forecast'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('free: no risk card and no divider in the weather card', (
     tester,
   ) async {
     final PumpedApp app = await pumpApp(tester);

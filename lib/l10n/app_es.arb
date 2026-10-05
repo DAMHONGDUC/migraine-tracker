@@ -787,6 +787,8 @@
   "premiumLockedFactors": "Desbloquea para ver qué días traen crisis y cuáles las mantienen lejos.",
   "riskCardTitle": "Pronóstico de riesgo de ataque",
   "riskCardSubtitle": "Próximos 7 días · una predicción",
+  "riskReasonsTitle": "Qué influyó en la puntuación de hoy",
+  "riskOpenPressure": "Ver el pronóstico de presión",
   "riskInfoTitle": "Cómo se calcula este pronóstico",
   "riskInfoWhat": "Cada porcentaje indica la probabilidad de que ese día traiga un ataque, calculada a partir de tus propios registros. Es una predicción, no un diagnóstico ni una promesa: un día alto puede pasar tranquilo y uno bajo puede doler igual.",
   "riskInfoHow": "Cuatro señales puntúan cada día: el pronóstico de caída de presión (40 %), tu ventana perimenstrual (25 %), cuánto se aleja la última noche de tu sueño habitual (20 %) y cuántos ataques hubo en los últimos siete días (15 %).",

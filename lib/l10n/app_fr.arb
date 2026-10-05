@@ -787,6 +787,8 @@
   "premiumLockedFactors": "Débloque pour voir quels jours amènent les crises et lesquels les tiennent à distance.",
   "riskCardTitle": "Prévision du risque de crise",
   "riskCardSubtitle": "7 prochains jours · une prédiction",
+  "riskReasonsTitle": "Ce qui a pesé sur le score du jour",
+  "riskOpenPressure": "Voir la prévision de pression",
   "riskInfoTitle": "Comment cette prévision est calculée",
   "riskInfoWhat": "Chaque pourcentage indique la probabilité qu'une crise survienne ce jour-là, calculée à partir de vos propres relevés. C'est une prédiction, ni un diagnostic ni une promesse : un jour élevé peut se passer sans rien, un jour bas peut quand même faire mal.",
   "riskInfoHow": "Quatre signaux notent chaque jour : la prévision de baisse de pression (40 %), votre fenêtre périmenstruelle (25 %), l'écart de la nuit dernière avec votre sommeil habituel (20 %) et le nombre de crises des sept derniers jours (15 %).",

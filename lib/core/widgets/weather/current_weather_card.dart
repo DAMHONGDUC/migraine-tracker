@@ -16,10 +16,7 @@ part 'current_weather_card_location.dart';
 
 /// The weather the user is standing in, at the position the device reports.
 class CurrentWeatherCard extends ConsumerWidget {
-  const CurrentWeatherCard({this.footer, super.key});
-
-  /// Passed through to [WeatherCard.footer]. Without a position the prompt takes the card, so the footer moves to a card of its own under it rather than disappearing with the weather.
-  final Widget? footer;
+  const CurrentWeatherCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,16 +27,6 @@ class CurrentWeatherCard extends ConsumerWidget {
 
     // Asked BEFORE the report is watched, so a device with no position never spends a callable round trip on a fetch that can only come back empty.
     if (permission != null && permission != AppPermissionStatus.granted) {
-      if (footer case final Widget below) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const _LocationPrompt(),
-            SizedBox(height: SdContentPaddingV2.sectionGap),
-            SdCardV2(child: below),
-          ],
-        );
-      }
       return const _LocationPrompt();
     }
 
@@ -58,7 +45,6 @@ class CurrentWeatherCard extends ConsumerWidget {
       emptyLabel: context.l10n.weatherUnavailable,
       isLoading: async.isLoading,
       // Both, like the permission grant does: either may already hold a null from the failed read.
-      footer: footer,
       onRetry: () {
         ref.invalidate(weatherReportProvider);
         ref.invalidate(placeNameProvider(language));

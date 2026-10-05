@@ -12,6 +12,7 @@ import '../../features/auth/providers.dart';
 import '../../features/daily_log/presentation/screens/check_in_reminder_screen/check_in_reminder_screen.dart';
 import '../../features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/risk_forecast_screen/risk_forecast_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
 import '../../features/insights/presentation/screens/midas_screen/midas_screen.dart';
@@ -97,6 +98,12 @@ final class AppRoutes {
 
   /// Every weather reading named, and the ten-day rainfall forecast.
   static const weather = AppRoute(name: 'weatherDetail', path: '/weather');
+
+  /// The working behind the dashboard's risk card: the week with its numbers and what moved today's score.
+  static const riskForecast = AppRoute(
+    name: 'riskForecast',
+    path: '/risk-forecast',
+  );
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
 
@@ -187,6 +194,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.weather.path,
         builder: (context, state) =>
             WeatherDetailScreen(args: state.extra! as WeatherDetailArgs),
+      ),
+      GoRoute(
+        name: AppRoutes.riskForecast.name,
+        path: AppRoutes.riskForecast.path,
+        builder: (context, state) => const RiskForecastScreen(),
       ),
       GoRoute(
         name: AppRoutes.medication.name,

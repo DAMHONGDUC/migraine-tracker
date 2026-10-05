@@ -787,6 +787,8 @@
   "premiumLockedFactors": "Mở khoá để xem ngày nào kéo cơn đau đến, và ngày nào giữ nó tránh xa.",
   "riskCardTitle": "Dự báo nguy cơ cơn đau",
   "riskCardSubtitle": "7 ngày tới · dự đoán",
+  "riskReasonsTitle": "Điều tác động đến điểm hôm nay",
+  "riskOpenPressure": "Xem dự báo áp suất",
   "riskInfoTitle": "Dự báo này hoạt động thế nào",
   "riskInfoWhat": "Mỗi phần trăm là khả năng ngày đó xảy ra cơn đau, tính từ chính nhật ký của bạn. Đây là dự đoán, không phải chẩn đoán và không phải lời hứa — ngày cao vẫn có thể trôi qua yên ổn, ngày thấp vẫn có thể đau.",
   "riskInfoHow": "Bốn tín hiệu chấm điểm mỗi ngày: dự báo áp suất giảm (40%), khoảng quanh kỳ kinh của bạn (25%), đêm qua ngủ ít hơn thường lệ bao nhiêu (20%), và bảy ngày qua có mấy cơn đau (15%).",

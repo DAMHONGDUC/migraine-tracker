@@ -35,7 +35,6 @@ class WeatherCard extends StatelessWidget {
     this.place,
     this.isLoading = false,
     this.onRetry,
-    this.footer,
     super.key,
   });
 
@@ -56,14 +55,6 @@ class WeatherCard extends StatelessWidget {
 
   /// Runs the read again from the empty state. Null on a stored snapshot — there is nothing to re-fetch for an attack logged offline, the backfill owns that.
   final VoidCallback? onRetry;
-
-  /// A reading that belongs with the weather, drawn under it past an edge-to-edge divider, inside the same card.
-  ///
-  /// The dashboard hangs the attack-risk forecast here: the forecast is built
-  /// on this pressure, and two cards a section apart read as two unrelated
-  /// figures. The footer pads itself and owns its own tap. Null — every stored
-  /// snapshot — leaves the card exactly as it was.
-  final Widget? footer;
 
   /// A tint of the accent across the card, top-left to bottom-right.
   static LinearGradient gradient(BuildContext context) => LinearGradient(
@@ -139,12 +130,7 @@ class WeatherCard extends StatelessWidget {
       onTap: weather == null
           ? null
           : () => unawaited(_openDetail(context, weather)),
-      child: footer == null
-          ? body
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[body, const SdDividerV2(), footer!],
-            ),
+      child: body,
     );
   }
 }

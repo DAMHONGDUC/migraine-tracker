@@ -3832,6 +3832,14 @@
   "@riskCardSubtitle": {
     "description": "Line under the risk card title: the window it covers, and that the number is predicted rather than measured."
   },
+  "riskReasonsTitle": "What moved today's score",
+  "@riskReasonsTitle": {
+    "description": "Heading over the signals that scored today on the risk forecast screen"
+  },
+  "riskOpenPressure": "See the pressure forecast",
+  "@riskOpenPressure": {
+    "description": "Button on the risk forecast screen opening the Pressure tab the score is built on"
+  },
   "riskInfoTitle": "How this forecast works",
   "@riskInfoTitle": {
     "description": "Title of the sheet the risk card's info glyph opens."

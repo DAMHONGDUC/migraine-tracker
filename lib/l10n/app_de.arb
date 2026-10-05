@@ -787,6 +787,8 @@
   "premiumLockedFactors": "Freischalten, um zu sehen, welche Tage Attacken bringen und welche sie fernhalten.",
   "riskCardTitle": "Prognose des Attackenrisikos",
   "riskCardSubtitle": "Nächste 7 Tage · eine Vorhersage",
+  "riskReasonsTitle": "Was den heutigen Wert bestimmt",
+  "riskOpenPressure": "Luftdruck-Prognose ansehen",
   "riskInfoTitle": "So entsteht diese Prognose",
   "riskInfoWhat": "Jeder Prozentwert sagt, wie wahrscheinlich an diesem Tag eine Attacke ist – berechnet aus deinen eigenen Einträgen. Es ist eine Vorhersage, keine Diagnose und kein Versprechen: Ein hoher Tag kann ruhig bleiben, ein niedriger kann trotzdem wehtun.",
   "riskInfoHow": "Vier Signale bewerten jeden Tag: die Prognose fallenden Luftdrucks (40 %), dein perimenstruelles Fenster (25 %), wie weit die letzte Nacht unter deinem üblichen Schlaf liegt (20 %) und wie viele Attacken die letzten sieben Tage brachten (15 %).",

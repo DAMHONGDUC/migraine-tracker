@@ -787,6 +787,8 @@
   "premiumLockedFactors": "解锁后即可看出哪些日子会招来发作，哪些日子能挡住它。",
   "riskCardTitle": "发作风险预报",
   "riskCardSubtitle": "未来 7 天 · 预测值",
+  "riskReasonsTitle": "影响今日评分的因素",
+  "riskOpenPressure": "查看气压预报",
   "riskInfoTitle": "这份预报是怎么算出来的",
   "riskInfoWhat": "每个百分比表示当天出现发作的可能性，依据你自己的记录算出。这是预测，不是诊断，也不是承诺——高的一天可能平安无事，低的一天也可能照样疼。",
   "riskInfoHow": "四个信号为每一天打分：气压下降预报（40%）、你的经期前后窗口（25%）、昨夜比你平时少睡多少（20%），以及过去七天发作了几次（15%）。",
