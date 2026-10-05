@@ -30,9 +30,17 @@ class MonthDaysCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              context.l10n.dashboardThisMonth,
-              style: AppTextStyle.labelSmall.secondary,
+            // The week card's caption shares its row with a chevron taller than the text. A zero-width strut of the chevron's height keeps both captions, and the counts under them, on one line — height only, so the caption keeps the full width and never wraps.
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    context.l10n.dashboardThisMonth,
+                    style: AppTextStyle.labelSmall.secondary,
+                  ),
+                ),
+                SizedBox(height: AppIconSize.small),
+              ],
             ),
             SizedBox(height: SdSpacingConstant.h8),
             _DaysRow(days: current.days),

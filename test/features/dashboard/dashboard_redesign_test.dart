@@ -58,9 +58,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('week and month sit side by side at one height', (
-    tester,
-  ) async {
+  testWidgets('week and month sit side by side at one height', (tester) async {
     await pumpApp(tester);
     await settle(tester);
     await scrollIntoView(tester, find.byType(MonthDaysCard));
@@ -71,6 +69,25 @@ void main() {
     expect(week.top, month.top);
     expect(week.height, month.height);
     expect(week.right, lessThan(month.left));
+
+    // Captions and counts on one line each, though only the week's caption carries a chevron.
+    expect(
+      tester.getRect(find.text('This week')).top,
+      tester.getRect(find.text('This month')).top,
+    );
+    final Finder counts = find.text('0');
+    expect(
+      tester
+          .getRect(
+            find.descendant(of: find.byType(WeekSummaryCard), matching: counts),
+          )
+          .top,
+      tester
+          .getRect(
+            find.descendant(of: find.byType(MonthDaysCard), matching: counts),
+          )
+          .top,
+    );
 
     await finishTest(tester);
   });
@@ -169,9 +186,7 @@ void main() {
     await finishTest(tester);
   });
 
-  testWidgets('the outlook sits directly under the log button', (
-    tester,
-  ) async {
+  testWidgets('the outlook sits directly under the log button', (tester) async {
     await pumpApp(tester);
     await settle(tester);
 
