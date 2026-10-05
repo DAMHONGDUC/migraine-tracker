@@ -586,6 +586,22 @@
   "@attackDurationEndedNow": {
     "description": "Option that ends the attack at the current time"
   },
+  "attackDurationCustomTitle": "Or type it in",
+  "@attackDurationCustomTitle": {
+    "description": "Heading over the hours and minutes boxes under the duration presets"
+  },
+  "attackDurationHoursLabel": "Hours",
+  "@attackDurationHoursLabel": {
+    "description": "Label of the box taking the whole hours an attack lasted"
+  },
+  "attackDurationMinutesLabel": "Minutes",
+  "@attackDurationMinutesLabel": {
+    "description": "Label of the box taking the minutes past the hour an attack lasted"
+  },
+  "attackDurationMinutesInvalid": "Minutes go up to 59",
+  "@attackDurationMinutesInvalid": {
+    "description": "Line under the duration boxes when the minutes box holds more than 59"
+  },
   "attackDurationHm": "{hours}h {minutes}m",
   "@attackDurationHm": {
     "description": "A duration in whole hours and minutes",
