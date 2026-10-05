@@ -493,7 +493,7 @@
   "dashboardGreetingNamed": "Hallo, {name}",
   "dashboardSignIn": "Anmelden",
   "dashboardLogButton": "Attacke erfassen",
-  "dashboardLogButtonHint": "3 Tipps · funktioniert offline",
+  "dashboardLogButtonHint": "3× tippen · funktioniert offline",
   "dashboardThisWeek": "Diese Woche",
   "dashboardAttacksLabel": "{count, plural, =1{Attacke erfasst} other{Attacken erfasst}}",
   "dashboardTrendUp": "{count, plural, =1{1 mehr als letzte Woche} other{{count} mehr als letzte Woche}}",

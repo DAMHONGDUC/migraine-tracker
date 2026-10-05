@@ -493,7 +493,7 @@
   "dashboardGreetingNamed": "Bonjour, {name}",
   "dashboardSignIn": "Se connecter",
   "dashboardLogButton": "Enregistrer une crise",
-  "dashboardLogButtonHint": "3 touches · fonctionne hors ligne",
+  "dashboardLogButtonHint": "3 appuis · fonctionne hors ligne",
   "dashboardThisWeek": "Cette semaine",
   "dashboardAttacksLabel": "{count, plural, =1{crise enregistrée} other{crises enregistrées}}",
   "dashboardTrendUp": "{count, plural, =1{1 de plus que la semaine dernière} other{{count} de plus que la semaine dernière}}",
