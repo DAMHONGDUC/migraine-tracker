@@ -31,31 +31,39 @@ class _DevCrashlyticsTileState extends State<_DevCrashlyticsTile> {
       context,
       builder: (BuildContext dialogContext) => SdDialogV2(
         title: l10n.settingsDevCrashlytics,
-        content: Text(
-          // The state first: a debug build starts with collection off, which is the first thing a "nothing arrived" asks.
-          '${CrashReporter.isCollectionEnabled ? l10n.settingsDevCrashlyticsCollectionOn : l10n.settingsDevCrashlyticsCollectionOff}\n\n'
-          '${l10n.settingsDevCrashlyticsBody}',
-          style: AppTextStyle.bodyMedium,
+        // The choices sit in the content, full width and stacked, not in `actions`: three buttons overflow the actions row, and its stacked fallback leaves each at its own label's width.
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(
+              // The state first: a debug build starts with collection off, which is the first thing a "nothing arrived" asks.
+              '${CrashReporter.isCollectionEnabled ? l10n.settingsDevCrashlyticsCollectionOn : l10n.settingsDevCrashlyticsCollectionOff}\n\n'
+              '${l10n.settingsDevCrashlyticsBody}',
+              style: AppTextStyle.bodyMedium,
+            ),
+            SizedBox(height: SdSpacingConstant.h20),
+            SdButtonV2(
+              variant: SdButtonVariantV2.secondary,
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CrashlyticsTest.nonFatal),
+              label: l10n.settingsDevCrashlyticsNonFatal,
+            ),
+            SizedBox(height: SdSpacingConstant.h8),
+            SdButtonV2(
+              variant: SdButtonVariantV2.destructive,
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CrashlyticsTest.crash),
+              label: l10n.settingsDevCrashlyticsCrash,
+            ),
+            SizedBox(height: SdSpacingConstant.h8),
+            SdButtonV2(
+              variant: SdButtonVariantV2.text,
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              label: l10n.commonCancel,
+            ),
+          ],
         ),
-        actions: <Widget>[
-          SdButtonV2(
-            variant: SdButtonVariantV2.text,
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            label: l10n.commonCancel,
-          ),
-          SdButtonV2(
-            variant: SdButtonVariantV2.secondary,
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_CrashlyticsTest.nonFatal),
-            label: l10n.settingsDevCrashlyticsNonFatal,
-          ),
-          SdButtonV2(
-            variant: SdButtonVariantV2.destructive,
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_CrashlyticsTest.crash),
-            label: l10n.settingsDevCrashlyticsCrash,
-          ),
-        ],
       ),
     );
 

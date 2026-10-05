@@ -1,4 +1,6 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -75,6 +77,23 @@ void main() {
     expect(find.textContaining('Reporting is off'), findsOneWidget);
     expect(find.text('Send non-fatal'), findsOneWidget);
     expect(find.text('Crash the app'), findsOneWidget);
+
+    // One column of equal buttons: the dialog's actions row stacked them at their own labels' widths, ragged.
+    final List<Rect> buttons =
+        <String>['Send non-fatal', 'Crash the app', 'Cancel']
+            .map(
+              (String label) => tester.getRect(
+                find.ancestor(
+                  of: find.text(label),
+                  matching: find.byType(SdButtonV2),
+                ),
+              ),
+            )
+            .toList();
+    for (final Rect button in buttons.skip(1)) {
+      expect(button.left, buttons.first.left);
+      expect(button.width, buttons.first.width);
+    }
 
     await finishTest(tester);
   });
