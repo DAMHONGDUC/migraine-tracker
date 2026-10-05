@@ -12,7 +12,7 @@
 # BaroEase — Privacy Policy
 
 **Effective date:** 7 August 2026
-**Last updated:** 26 August 2026
+**Last updated:** 5 September 2026
 **Developer / data controller:** Dam Hong Duc, Ho Chi Minh City, Viet Nam
 **Contact:** ducdam.dev@gmail.com
 
