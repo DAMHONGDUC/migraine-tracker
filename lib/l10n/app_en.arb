@@ -1259,6 +1259,14 @@
   "@filtersClearAll": {
     "description": "Action beside that line putting every filter axis back to \"all\""
   },
+  "filtersSheetTitle": "Filters",
+  "@filtersSheetTitle": {
+    "description": "Title of the sheet holding every filter axis at once, and the label of the pill that opens it"
+  },
+  "filtersApply": "Apply",
+  "@filtersApply": {
+    "description": "Button committing the picks made in the all-filters sheet"
+  },
   "historyFilterDurationUnder4h": "Under 4h",
   "@historyFilterDurationUnder4h": {
     "description": "Duration filter chip: attacks shorter than the 4h a migraine is defined from"

@@ -27,6 +27,20 @@ class MedicationFiltersController extends Notifier<MedicationFilters> {
     state = state.copyWith(reminder: value);
   }
 
+  /// Every axis at once, from the all-filters sheet's Apply.
+  void apply(MedicationFilters next) {
+    SdLogger.action(
+      LogTagConstant.medicationFilters,
+      'Medication filters applied',
+      <String, Object>{
+        'date': next.date.name,
+        'reminder': next.reminder.name,
+        'usage': next.usage.name,
+      },
+    );
+    state = next;
+  }
+
   /// Every axis back to "all", from the summary line's own action.
   void reset() {
     SdLogger.action(

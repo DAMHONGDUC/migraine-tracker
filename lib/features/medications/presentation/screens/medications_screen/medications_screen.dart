@@ -14,6 +14,8 @@ import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_icon_size.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/active_filter_summary.dart';
+import '../../../../../core/widgets/all_filters_pill.dart';
+import '../../../../../core/widgets/all_filters_sheet.dart';
 import '../../../../../core/widgets/free_limit_progress.dart';
 import '../../../../../core/widgets/medication_name_dialog.dart';
 import '../../../../../l10n/gen/app_localizations.dart';
@@ -26,6 +28,7 @@ import '../../../providers.dart';
 import '../../controllers/medication_filters_controller.dart';
 import '../../widgets/medication_overuse_banner.dart';
 
+part 'medications_screen_filter_sheet.dart';
 part 'medications_screen_medication_card.dart';
 
 /// Localized labels for the medications tab's three filter axes.
@@ -319,7 +322,19 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     );
   }
 
-  /// The row of independent filter chips (date / reminder / usage).
+  /// Opens every axis in one sheet, and applies what comes back.
+  Future<void> _openAllFilters(MedicationFilters filters) async {
+    final MedicationFilters? picked = await _MedicationFilterSheet(
+      initial: filters,
+    ).show(context);
+
+    if (!mounted) return;
+    if (picked != null && picked != ref.read(medicationFiltersProvider)) {
+      ref.read(medicationFiltersProvider.notifier).apply(picked);
+    }
+  }
+
+  /// The all-filters pill, then the row of independent filter chips (date / reminder / usage).
   Widget _filterRow(
     BuildContext context,
     MedicationFilters filters,
@@ -328,6 +343,11 @@ class _MedicationsScreenState extends ConsumerState<MedicationsScreen> {
     final l10n = context.l10n;
     return Row(
       children: [
+        AllFiltersPill(
+          count: filters.activeCount,
+          onTap: () => _openAllFilters(filters),
+        ),
+        SizedBox(width: SdSpacingConstant.w8),
         SdFilterChipV2<MedicationDateFilter>(
           // 3 chips default to "all" and would all just read "All"; axis name leads until something is actually picked.
           label: filters.date == MedicationDateFilter.all

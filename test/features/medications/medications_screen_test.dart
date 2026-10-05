@@ -134,6 +134,40 @@ void main() {
     await finishTest(tester);
   });
 
+  testWidgets('the all-filters sheet holds the three axes, divided', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openMedications(tester);
+    await addMedication(tester, 'Sumatriptan');
+
+    await tester.tap(find.text('Filters'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final Finder inSheet = find.byType(SdSheetContentV2);
+    expect(
+      find.descendant(of: inSheet, matching: find.byType(SdDividerV2)),
+      findsNWidgets(2),
+    );
+
+    await tester.tap(
+      find.descendant(of: inSheet, matching: find.text('Has reminder')),
+    );
+    await tester.pump();
+    // Picked, not applied: the card is still listed.
+    expect(find.text('Sumatriptan'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(SdButtonV2, 'Apply'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Sumatriptan'), findsNothing);
+    expect(find.text('Filters (1)'), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
   testWidgets('adding a medication shows it as a card', (tester) async {
     await pumpApp(tester);
     await openMedications(tester);
@@ -424,7 +458,9 @@ void main() {
     expect(find.text('Sumatriptan'), findsOneWidget);
     expect(find.text('Ibuprofen'), findsOneWidget);
 
-    // Open the reminder filter chip (its sheet title) and pick "Has reminder".
+    // Open the reminder filter chip (its sheet title) and pick "Has reminder". The strip scrolls sideways, so the chip is scrolled to first.
+    await tester.ensureVisible(find.text('Reminder'));
+    await tester.pump();
     await tester.tap(find.text('Reminder'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
