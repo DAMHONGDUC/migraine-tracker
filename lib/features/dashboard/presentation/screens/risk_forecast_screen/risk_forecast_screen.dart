@@ -95,7 +95,7 @@ class RiskForecastScreen extends ConsumerWidget {
         actions: <Widget>[
           // The door the card used to be: the pressure forecast the score is built on, drawn in full.
           SdButtonV2(
-            variant: SdButtonVariantV2.outlined,
+            variant: SdButtonVariantV2.primary,
             label: l10n.riskOpenPressure,
             onPressed: () => _openPressure(context, ref),
           ),
