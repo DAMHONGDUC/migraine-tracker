@@ -4,41 +4,24 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:system_design/common.dart';
 
-import '../constants/log_tag_constant.dart';
-
 /// Crash + non-fatal error reporting (Firebase Crashlytics).
 abstract final class CrashReporter {
   static FirebaseCrashlytics? _crashlytics;
 
   static bool get isReady => _crashlytics != null;
 
-  /// Installs the global handlers: uncaught Flutter framework errors and errors that escape to the platform dispatcher (async gaps, isolates).
+  /// Turns collection on or off and makes the SDK reachable.
+  ///
+  /// **Installs no error hooks.** `SdBootstrap` installs its own after every
+  /// step, this one included, and assigns over whatever was there — hooks set
+  /// here never ran. Its hooks report through `SdLogger.fatal`, which reaches
+  /// Crashlytics via [FirebaseCrashReporter.recordFatal].
   static Future<void> init({bool? collectionEnabled}) async {
     final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.instance;
     final bool enabled = collectionEnabled ?? !kDebugMode;
-    final FlutterExceptionHandler? previousOnError = FlutterError.onError;
 
     await crashlytics.setCrashlyticsCollectionEnabled(enabled);
     _crashlytics = crashlytics;
-
-    // Chains: `main`'s console handler still runs first, then this records the crash.
-    FlutterError.onError = (FlutterErrorDetails details) {
-      previousOnError?.call(details);
-      crashlytics.recordFlutterFatalError(details);
-    };
-
-    // - Anything that escapes the framework: a failed async gap, a platform channel error. - Returning true marks it handled, so the app survives.
-    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      // `recordError` below, not the one SdLogger would reach.
-      SdLogger.error(
-        LogTagConstant.bootstrap,
-        'Uncaught async error',
-        error: error,
-        stackTrace: stack,
-      );
-      unawaited(crashlytics.recordError(error, stack, fatal: true));
-      return true;
-    };
   }
 
   /// A caught failure worth knowing about in production (weather fetch, alert registration, sync). Non-fatal: the app kept running.
