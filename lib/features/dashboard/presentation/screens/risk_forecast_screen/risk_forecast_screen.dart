@@ -58,33 +58,41 @@ class RiskForecastScreen extends ConsumerWidget {
         ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      body: ListView(
-        padding: SdContentPaddingV2.screen(context),
-        children: <Widget>[
-          Text(l10n.riskCardSubtitle, style: AppTextStyle.bodySmall.secondary),
-          SizedBox(height: SdSpacingConstant.h12),
-          if (forecast == null || today == null || !forecast.isReady)
-            Text(l10n.riskPending, style: AppTextStyle.bodyMedium.secondary)
-          else ...<Widget>[
-            _TodayScore(today: today),
-            SizedBox(height: gap),
-            SdCardV2(
-              child: Padding(
-                padding: EdgeInsets.all(SdSpacingConstant.w12),
-                child: _WeekChart(days: forecast.days),
-              ),
+      // Pinned: the door to the Pressure tab holds the bottom edge however short or long the working above it is.
+      body: SdActionViewV2(
+        placement: SdActionsPlacementV2.pinned,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(
+              l10n.riskCardSubtitle,
+              style: AppTextStyle.bodySmall.secondary,
             ),
-            if (_Reasons.hasAny(today)) ...<Widget>[
+            SizedBox(height: SdSpacingConstant.h12),
+            if (forecast == null || today == null || !forecast.isReady)
+              Text(l10n.riskPending, style: AppTextStyle.bodyMedium.secondary)
+            else ...<Widget>[
+              _TodayScore(today: today),
               SizedBox(height: gap),
               SdCardV2(
                 child: Padding(
-                  padding: EdgeInsets.all(SdSpacingConstant.w16),
-                  child: _Reasons(today: today),
+                  padding: EdgeInsets.all(SdSpacingConstant.w12),
+                  child: _WeekChart(days: forecast.days),
                 ),
               ),
+              if (_Reasons.hasAny(today)) ...<Widget>[
+                SizedBox(height: gap),
+                SdCardV2(
+                  child: Padding(
+                    padding: EdgeInsets.all(SdSpacingConstant.w16),
+                    child: _Reasons(today: today),
+                  ),
+                ),
+              ],
             ],
           ],
-          SizedBox(height: gap),
+        ),
+        actions: <Widget>[
           // The door the card used to be: the pressure forecast the score is built on, drawn in full.
           SdButtonV2(
             variant: SdButtonVariantV2.outlined,
