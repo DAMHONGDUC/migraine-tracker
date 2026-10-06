@@ -55,7 +55,9 @@ class HistoryScreen extends ConsumerWidget {
     // - [filtered] is the readable ninety days under the same filters, for the
     //   charts — a chart averaging numbers the user cannot see is a number
     //   they cannot check.
-    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(
+      attacksStreamProvider,
+    );
     final AsyncValue<List<Attack>> rows = ref.watch(historyRowsProvider);
     final AsyncValue<List<Attack>> filtered = ref.watch(
       filteredAttacksProvider,
