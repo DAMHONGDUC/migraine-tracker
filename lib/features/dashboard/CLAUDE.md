@@ -374,7 +374,12 @@ from `RiskScoreEngine` (weights, thresholds and the score's own rules:
 | Seven bare mini bars, band-coloured, today emphasised — no numbers | Seven columns, each with its % above and weekday under |
 | — | Every signal that scored today, and every one that could not be read |
 | — | The info glyph (`AnalysisInfoSheet`) in the app bar |
-| — | A button to the Pressure tab, the forecast the score is built on |
+| — | A button to the Pressure tab, the forecast the score is built on, pinned to the bottom edge |
+
+- **The Pressure button holds the bottom edge** (owner's rule):
+  `SdActionViewV2` at `SdActionsPlacementV2.pinned`, so only the working above it
+  scrolls. Under the last card it floated mid-screen whenever the reasons were
+  short or the score was still pending.
 
 - **The whole card opens `RiskForecastScreen`** (`AppRoutes.riskForecast`,
   owner's call). The card is the glance; the screen is the working. It used to
