@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:system_design/index.dart';
 
 import '../../../../../core/extensions/context_extensions.dart';
+import '../../../../../core/extensions/intensity_severity_label.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/utils/date_time_utils.dart';
@@ -20,6 +21,9 @@ import '../../widgets/medication_picker_sheet.dart';
 /// photophobic (hard rule 3) — no cards, no readings, nothing to scroll past.
 class AttackNowScreen extends ConsumerWidget {
   const AttackNowScreen({super.key});
+
+  /// The clock's round well: wide enough for "12h 45m" at display size, narrow enough to leave the two answers in reach.
+  static double get _dialSize => SdSpacingConstant.w240;
 
   Future<void> _takeMedication(
     BuildContext context,
@@ -86,29 +90,46 @@ class AttackNowScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const Spacer(),
-            // The one thing on the screen, and the only reason to open it.
-            Text(
-              DateTimeUtils.elapsed(since),
-              textAlign: TextAlign.center,
-              style: AppTextStyle.displaySmall,
-            ),
-            SizedBox(height: SdSpacingConstant.h8),
-            Text(
-              l10n.attackNowSince(
-                DateFormat.Hm().format(attack.startedAt.toLocal()),
+            // The one thing on the screen, and the only reason to open it. A round well rather than bare text (2026-09-30 redesign): a clock face is what it is, in the card colour so nothing here is brighter than a card.
+            Center(
+              child: Container(
+                width: _dialSize,
+                height: _dialSize,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.surface,
+                ),
+                padding: EdgeInsets.all(SdSpacingConstant.w20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      l10n.attackNowSince(
+                        DateFormat.Hm().format(attack.startedAt.toLocal()),
+                      ),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.bodyMedium.secondary,
+                    ),
+                    SizedBox(height: SdSpacingConstant.h8),
+                    SdFittedTextV2(
+                      DateTimeUtils.elapsed(since),
+                      style: AppTextStyle.displaySmall,
+                    ),
+                    SizedBox(height: SdSpacingConstant.h8),
+                    SdTagV2(
+                      label:
+                          '${attack.intensity} · ${attack.intensity.severityTitle(l10n)}',
+                      color: AppColors.intensity(attack.intensity),
+                    ),
+                  ],
+                ),
               ),
-              textAlign: TextAlign.center,
-              style: AppTextStyle.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
             ),
-            SizedBox(height: SdSpacingConstant.h12),
+            SizedBox(height: SdSpacingConstant.h24),
             Text(
               l10n.attackNowRest,
               textAlign: TextAlign.center,
-              style: AppTextStyle.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: AppTextStyle.bodyLarge.secondary,
             ),
             const Spacer(),
             // Offered only where nothing has been taken yet: a second dose is a decision this screen must not nudge.

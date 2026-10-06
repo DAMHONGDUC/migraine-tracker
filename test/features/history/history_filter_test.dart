@@ -5,6 +5,7 @@ import 'package:migraine_tracker/features/attacks/data/repositories/drift_attack
 import 'package:migraine_tracker/features/attacks/domain/entities/attack.dart';
 import 'package:migraine_tracker/features/attacks/domain/enums/head_region.dart';
 import 'package:migraine_tracker/features/history/presentation/widgets/attack_tile.dart';
+import 'package:system_design/index.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -94,6 +95,64 @@ void main() {
     await pickFilter(tester, 'Notes', 'Has notes');
 
     expect(find.byType(AttackTile), findsOneWidget);
+
+    await finishTest(tester);
+  });
+
+  testWidgets('the all-filters sheet holds every axis and applies on Apply', (
+    tester,
+  ) async {
+    final app = await pumpApp(tester);
+    final repo = DriftAttackRepository(app.db);
+    final now = DateTime.now();
+    await repo.insert(
+      at('noted', now.subtract(const Duration(hours: 2)), notes: 'after wine'),
+    );
+    await repo.insert(at('bare', now.subtract(const Duration(hours: 3))));
+
+    await openHistory(tester);
+    await tester.tap(find.text('Filters'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Ten fixed axes, nine dividers between them (no free-text axis yet).
+    expect(
+      find.descendant(
+        of: find.byType(SdSheetContentV2),
+        matching: find.byType(SdDividerV2),
+      ),
+      findsNWidgets(9),
+    );
+
+    // Reset and Apply share one row: Reset outlined on the left, disabled while nothing is picked; Apply primary on the right.
+    final Finder reset = find.widgetWithText(SdButtonV2, 'Reset');
+    final Finder apply = find.widgetWithText(SdButtonV2, 'Apply');
+    expect(
+      tester.widget<SdButtonV2>(reset).variant,
+      SdButtonVariantV2.outlined,
+    );
+    expect(tester.widget<SdButtonV2>(reset).onPressed, isNull);
+    expect(tester.widget<SdButtonV2>(apply).variant, SdButtonVariantV2.primary);
+    expect(tester.getCenter(reset).dy, tester.getCenter(apply).dy);
+    expect(tester.getCenter(reset).dx, lessThan(tester.getCenter(apply).dx));
+
+    // A pick only moves the highlight: the list behind is untouched.
+    final Finder hasNotes = find.descendant(
+      of: find.byType(SdSheetContentV2),
+      matching: find.text('Has notes'),
+    );
+    await tester.ensureVisible(hasNotes);
+    await tester.pump();
+    await tester.tap(hasNotes);
+    await tester.pump();
+    expect(find.byType(AttackTile), findsNWidgets(2));
+
+    await tester.tap(find.widgetWithText(SdButtonV2, 'Apply'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(AttackTile), findsOneWidget);
+    expect(find.text('Filters (1)'), findsOneWidget);
 
     await finishTest(tester);
   });

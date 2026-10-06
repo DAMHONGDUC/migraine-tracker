@@ -92,10 +92,14 @@ needing a visit to each screen in turn.
 
 ## The filter strip
 
-Three chips — date added, reminder, usage — and the two rules History's
+The all-filters pill, then three chips — date added, reminder, usage — and the two rules History's
 thirteen follow, because both strips are read the same way (owner's call,
 2026-08-31):
 
+- **The all-filters pill leads the strip**, opening the three axes in one
+  `AllFiltersSheet` — the same pill and sheet History uses (owner's call,
+  2026-10-05). The chips stay; Apply commits through
+  `MedicationFiltersController.apply`.
 - **A chip that is narrowing the list is highlighted** (`SdFilterPillV2.active`),
   not merely labelled with its value. The label alone is a word among three
   words.

@@ -348,6 +348,16 @@
   "@logSavedSubtitle": {
     "description": "Gentle message under the saved confirmation"
   },
+  "logSavedPressurePattern": "{count, plural, =1{Your first attack this month on a day pressure fell.} other{{count} attacks this month came on a day pressure fell.}}",
+  "@logSavedPressurePattern": {
+    "description": "Line on the saved step when the attack came on a falling-pressure day: how many attacks this calendar month did, this one included.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "logAddDetails": "Add details",
   "@logAddDetails": {
     "description": "Button on the saved screen that opens the optional details sheet"
@@ -576,6 +586,22 @@
   "@attackDurationEndedNow": {
     "description": "Option that ends the attack at the current time"
   },
+  "attackDurationCustomTitle": "Or type it in",
+  "@attackDurationCustomTitle": {
+    "description": "Heading over the hours and minutes boxes under the duration presets"
+  },
+  "attackDurationHoursLabel": "Hours",
+  "@attackDurationHoursLabel": {
+    "description": "Label of the box taking the whole hours an attack lasted"
+  },
+  "attackDurationMinutesLabel": "Minutes",
+  "@attackDurationMinutesLabel": {
+    "description": "Label of the box taking the minutes past the hour an attack lasted"
+  },
+  "attackDurationMinutesInvalid": "Minutes go up to 59",
+  "@attackDurationMinutesInvalid": {
+    "description": "Line under the duration boxes when the minutes box holds more than 59"
+  },
   "attackDurationHm": "{hours}h {minutes}m",
   "@attackDurationHm": {
     "description": "A duration in whole hours and minutes",
@@ -766,6 +792,14 @@
         "type": "int"
       }
     }
+  },
+  "insightsBaselineDropDays": "Days pressure fell",
+  "@insightsBaselineDropDays": {
+    "description": "Label of the bar comparing how often an attack came on days pressure fell."
+  },
+  "insightsBaselineOtherDays": "Other days",
+  "@insightsBaselineOtherDays": {
+    "description": "Label of the bar comparing how often an attack came on all other days."
   },
   "reportBaseline": "Attack rate, drop days vs other days",
   "@reportBaseline": {
@@ -1240,6 +1274,18 @@
   "filtersClearAll": "Clear all",
   "@filtersClearAll": {
     "description": "Action beside that line putting every filter axis back to \"all\""
+  },
+  "filtersSheetTitle": "Filters",
+  "@filtersSheetTitle": {
+    "description": "Title of the sheet holding every filter axis at once, and the label of the pill that opens it"
+  },
+  "filtersApply": "Apply",
+  "@filtersApply": {
+    "description": "Button committing the picks made in the all-filters sheet"
+  },
+  "filtersReset": "Reset",
+  "@filtersReset": {
+    "description": "Button in the all-filters sheet putting every axis of the draft back to \"all\", before Apply"
   },
   "historyFilterDurationUnder4h": "Under 4h",
   "@historyFilterDurationUnder4h": {
@@ -2389,6 +2435,10 @@
   "@dashboardLogButton": {
     "description": "Big primary call-to-action on the dashboard that opens the 3-tap log flow"
   },
+  "dashboardLogButtonHint": "3 taps · works offline",
+  "@dashboardLogButtonHint": {
+    "description": "Second line under the dashboard log button: how short and offline-safe the log flow is."
+  },
   "dashboardThisWeek": "This week",
   "@dashboardThisWeek": {
     "description": "Title of the weekly summary card on the dashboard"
@@ -3045,6 +3095,43 @@
   "settingsDevLocalNotificationFailed": "Local notification failed: {reason}",
   "@settingsDevLocalNotificationFailed": {
     "description": "Snackbar when scheduling the local test notification failed",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDevCrashlytics": "Test Crashlytics",
+  "@settingsDevCrashlytics": {
+    "description": "Dev-only Settings row and dialog title that checks this build reports to Firebase Crashlytics"
+  },
+  "settingsDevCrashlyticsCollectionOn": "Reporting is on for this build.",
+  "@settingsDevCrashlyticsCollectionOn": {
+    "description": "First line of the Crashlytics test dialog when this build sends reports"
+  },
+  "settingsDevCrashlyticsCollectionOff": "Reporting is off for this build (debug). A test turns it on until the next launch.",
+  "@settingsDevCrashlyticsCollectionOff": {
+    "description": "First line of the Crashlytics test dialog when this build does not send reports, as in a debug build"
+  },
+  "settingsDevCrashlyticsBody": "Both tests are sent the next time the app opens: open it again from the home screen. A crash is not caught while Xcode's debugger is attached, and a build without a dSYM (any debug build) may not show in the console until one is uploaded.",
+  "@settingsDevCrashlyticsBody": {
+    "description": "Body of the Crashlytics test dialog: when the two tests are sent, the debugger caveat and the missing-dSYM caveat"
+  },
+  "settingsDevCrashlyticsNonFatal": "Send non-fatal",
+  "@settingsDevCrashlyticsNonFatal": {
+    "description": "Crashlytics test dialog button that records a non-fatal error and sends it at once"
+  },
+  "settingsDevCrashlyticsCrash": "Crash the app",
+  "@settingsDevCrashlyticsCrash": {
+    "description": "Crashlytics test dialog button that crashes the app natively"
+  },
+  "settingsDevCrashlyticsSent": "Non-fatal recorded. It is sent the next time the app opens.",
+  "@settingsDevCrashlyticsSent": {
+    "description": "Snackbar after the Crashlytics non-fatal test was recorded; it uploads on the next launch"
+  },
+  "settingsDevCrashlyticsFailed": "Crashlytics test failed: {reason}",
+  "@settingsDevCrashlyticsFailed": {
+    "description": "Snackbar when the Crashlytics test could not run",
     "placeholders": {
       "reason": {
         "type": "String"
@@ -3744,6 +3831,14 @@
   "riskCardSubtitle": "Next 7 days · a prediction",
   "@riskCardSubtitle": {
     "description": "Line under the risk card title: the window it covers, and that the number is predicted rather than measured."
+  },
+  "riskReasonsTitle": "What moved today's score",
+  "@riskReasonsTitle": {
+    "description": "Heading over the signals that scored today on the risk forecast screen"
+  },
+  "riskOpenPressure": "See the pressure forecast",
+  "@riskOpenPressure": {
+    "description": "Button on the risk forecast screen opening the Pressure tab the score is built on"
   },
   "riskInfoTitle": "How this forecast works",
   "@riskInfoTitle": {

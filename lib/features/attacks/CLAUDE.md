@@ -151,6 +151,10 @@ pickable**, deliberately: see `docs/rules/DECISIONS.md`.
     `.glb` and the first draw run on the UI thread, so the log screen passes
     `LogFlowConstant.stepTransition` as `HeadDiagram.loadAfter` and the dots
     hold until then. A model already in memory draws at once — no delay.
+    **The detail screen does the same** (owner's report, 2026-10-06: the
+    first open lagged on the head): `_LocationDiagram` passes what is left of
+    its route's own slide-in, read off `ModalRoute.animation`, so it is zero
+    when the diagram mounts after the push has settled.
 - **"Deselect all" empties the answer from both sides in one tap** (owner's
   rule, 2026-09-23). The tiles show only the facing side, so clearing one by
   one meant turning the head to find the rest. **It sits beside Save now, not
@@ -409,6 +413,26 @@ the same curve its neighbour continues on.
     sheet and requires `NeverScrollableScrollPhysics`, and
     `attack_detail_test.dart` drags the sheet down and requires it to stay.
 
+## The intensity step and the saved step
+
+- **Intensity is a 5×2 grid of tiles, each with its band's bar, and a legend
+  naming the four bands under it** (2026-09-30 redesign). The legend makes the
+  colour a second signal rather than the only one. **The tap still advances**:
+  a select-then-Next here would add a tap to the three hard rule 5 protects.
+- **The saved step reads back what was written**: intensity, where, started,
+  and the pressure only when a reading is already attached — never a pending
+  row, since weather is backfilled (hard rule 4). "Logged." on its own asked the
+  user to trust a save they could not see.
+- **One personal line when the attack came on a falling-pressure day**:
+  `logSavedPressurePattern`, counted by `FallingPressureMonthCounter` — this
+  month's falling-day attacks, the saved one included. Nothing on a steady,
+  rising or unread day: a weather number after a calm-day log reads as the app
+  insisting on a trigger. "Falling" is `HomeWidgetConstant.trendThresholdHpa`,
+  the same line History's filter and the home widget draw.
+- **Tags and the legend say the band capitalised** (`severityTitle`, over the
+  `historySeverity*` strings); `severityLabel` stays lowercase for sentences
+  and VoiceOver.
+
 ## The rest of the flow
 
 - **The step's question is the app bar's title, not a headline in the body**
@@ -516,6 +540,23 @@ the same curve its neighbour continues on.
   - **"Weather at the time" names the sheet, not the card.** The card carries no
     heading (owner's call, see the dashboard's rules), so on this screen the
     reading is a temperature and three glyphs until it is opened. Deliberate.
+
+## The duration sheet takes a typed answer too
+
+**Hours and minutes can be typed under the preset grid** (owner's rule,
+2026-10-05). The ten presets stop at round numbers and at 72h; "5h 40m" or a
+four-day attack had no way in.
+
+- **In `AttackDurationSheet`, not a sheet of its own or a field on the detail
+  row** (owner's call). The presets stay the fast path; typing is the fallback
+  beside them.
+- **Two whole-number boxes, hours and minutes** (owner's call) — digits only,
+  so no decimal hour needs reading. Minutes past 59 are refused with a line
+  under the boxes, not carried into hours.
+- **A preset tap still answers at once; the typed value commits from the pinned
+  button** (`SdSheetContentV2`'s rule). The button reads Save, or Update once a
+  duration is recorded, and stays disabled while the boxes add up to nothing or
+  are refused. A recorded duration prefills the boxes.
 
 ## The step count on an attack
 

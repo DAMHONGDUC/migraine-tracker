@@ -343,7 +343,7 @@ reason, in the doc comment):
   already gives more room than the floor asks for, and stacking a gap on a generous
   inset makes a detail screen look like it ends early.
 - `floatingBarHeight` (56) and `floatingBarRadius` (**derived**, half the height).
-- `floatingBarHorizontal` (24) — side margin shared by every floating bar.
+- `floatingBarHorizontal` (16) — side margin shared by every floating bar.
 - `navBarOffset(context)` — the device's bottom inset **clamped** between 16 and 20.
 - `floatingBarInset(context)` = offset + height — a bar's whole footprint.
 - `belowPinnedFilterBar(context)` = `appBarInset` + the filter strip's own height.

@@ -8,6 +8,8 @@ import '../../../../../core/extensions/symptom_tag_label.dart';
 import '../../../../../core/theme/app_icon_constant.dart';
 import '../../../../../core/theme/app_text_style.dart';
 import '../../../../../core/widgets/active_filter_summary.dart';
+import '../../../../../core/widgets/all_filters_pill.dart';
+import '../../../../../core/widgets/all_filters_sheet.dart';
 import '../../../../../core/widgets/charts/severity_breakdown_chart.dart';
 import '../../../../../core/widgets/free_history_banner.dart';
 import '../../../../../core/widgets/premium_gate.dart';
@@ -35,6 +37,7 @@ import '../../widgets/time_of_day_chart.dart';
 import '../../widgets/weekly_frequency_chart.dart';
 
 part 'history_screen_filter_row.dart';
+part 'history_screen_filter_sheet.dart';
 part 'history_screen_chart_view.dart';
 part 'history_screen_charts.dart';
 part 'history_screen_attack_list.dart';
@@ -52,7 +55,9 @@ class HistoryScreen extends ConsumerWidget {
     // - [filtered] is the readable ninety days under the same filters, for the
     //   charts — a chart averaging numbers the user cannot see is a number
     //   they cannot check.
-    final AsyncValue<List<Attack>> allAttacks = ref.watch(attacksStreamProvider);
+    final AsyncValue<List<Attack>> allAttacks = ref.watch(
+      attacksStreamProvider,
+    );
     final AsyncValue<List<Attack>> rows = ref.watch(historyRowsProvider);
     final AsyncValue<List<Attack>> filtered = ref.watch(
       filteredAttacksProvider,
@@ -78,7 +83,7 @@ class HistoryScreen extends ConsumerWidget {
         ),
         SizedBox(width: SdSpacingConstant.w12),
       ],
-      // - One chip per axis, like the medications tab (owner's call). - Pinned under the app bar and never lifted into it (owner's call): the strip is where the filters are, and a bar that takes them over moves them mid-scroll.
+      // - The all-filters pill, then one chip per axis, like the medications tab (owner's call). - Pinned under the app bar and never lifted into it (owner's call): the strip is where the filters are, and a bar that takes them over moves them mid-scroll.
       filter: showFilter ? const _FilterRow() : null,
       collapsible: false,
       // No outer top padding: each view pads INSIDE its own scrollable, so content scrolls behind the app bar.

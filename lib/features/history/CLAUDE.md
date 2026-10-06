@@ -20,6 +20,14 @@ arrival of its own to notice. The filters are untouched — a filter is a
 question the user asked and is still asking; a view is where they happened to
 leave the screen.
 
+## What a row shows
+
+**The intensity avatar wears its band's colour, and a pressure tag stands
+before the chevron** (2026-09-30 redesign). The tag is the 24h change with an
+arrow (`↓ 6.8`): amber (`AppColors.warning`) when falling, muted otherwise, the
+direction from `AttackFilterer.pressureTrendOf` so the row and the Pressure
+filter cannot disagree. No reading, no tag — a dash would read as a zero.
+
 ## The rows the free plan cannot read
 
 **Every attack gets a row; the ones behind the 90-day window are blurred, not
@@ -86,6 +94,21 @@ all of them). Thirteen axes: period, intensity, medication, which medication,
 whether it helped, aura, area, duration, symptom, trigger, exertion, notes,
 pressure trend.
 
+- **The strip opens with an all-filters pill** (owner's call, 2026-10-05):
+  `AllFiltersPill` (`core/widgets/`) opens `AllFiltersSheet` — every axis as an
+  `SdFilterSectionV2`, divided by `SdDividerV2`. It sits *beside* the chips,
+  not instead of them: a chip is one tap for one axis, the sheet is several
+  axes in one pass. Picks only move a highlight; Apply commits them all
+  through `AttackFiltersController.apply`, Reset puts the draft back to "all"
+  in the sheet.
+  - **Reset and Apply sit on one row, halves of it: Reset outlined on the
+    left, Apply primary on the right** (owner's rule, 2026-10-06). Both are
+    the sheet's answer, so they share the pinned footer rather than stacking
+    a text link over the commit; the fill says which one commits. Reset is
+    disabled, not hidden, while the draft is already "all".
+  - **Both are built from one `_Axis` list** (`_Axes.of`), so a new axis lands
+    in the strip and the sheet at once and the two cannot disagree on a label,
+    an option or its order.
 - **Each axis is ONE choice with its own "All" first**, and `_AxisChip` reads
   that first option as "not filtered" — so a chip is told neither which value
   means all nor whether it is on. `AttackFilters` is thirteen plain values, no

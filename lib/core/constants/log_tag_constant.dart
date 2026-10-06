@@ -61,6 +61,9 @@ final class LogTagConstant {
   static const String weatherCard = 'Weather Card';
 
   static const String medications = 'Medications';
+
+  /// The dashboard's risk card and the forecast screen it opens.
+  static const String riskForecast = 'Risk Forecast';
   static const String medicationFilters = 'Medication Filters';
   static const String reminders = 'Reminders';
   static const String notifications = 'Notifications';

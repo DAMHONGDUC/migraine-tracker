@@ -32,6 +32,16 @@ class _LocationDiagram extends StatelessWidget {
   /// Small enough to sit above the rows rather than take the screen, unlike the log step where the diagram is the whole question.
   static double get height => SdSpacingConstant.h160;
 
+  /// What is left of this route's slide-in — the dots hold until then, so the model's first parse and draw do not stutter the push (owner's report, 2026-10-06). Zero once the route has settled: a diagram that mounts after the slide, when the attack arrives late, loads at once.
+  Duration _loadAfter(BuildContext context) {
+    final ModalRoute<Object?>? route = ModalRoute.of(context);
+    final Animation<double>? animation = route?.animation;
+
+    if (route == null || animation == null) return Duration.zero;
+    if (animation.status == AnimationStatus.completed) return Duration.zero;
+    return route.transitionDuration * (1 - animation.value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -58,6 +68,7 @@ class _LocationDiagram extends StatelessWidget {
                 selected: regions,
                 view: HeadRegion.primaryView(regions),
                 expandScene: true,
+                loadAfter: _loadAfter(context),
               ),
             ),
           ),

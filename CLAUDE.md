@@ -94,6 +94,11 @@ premium, review, settings, sync.
   one field". Live Firebase and RevenueCat keys; the harm is the copy, not the
   size. `ios/Flutter/Generated.xcconfig` is the same secret under another name.
   Full rule in `docs/rules/PRIVACY_AND_SECURITY.md`.
+- **Never touch `ios/Runner/Info.plist`** (owner's rule) — no edit, stage,
+  commit or restore, and never list its diff as something to clean up.
+  `make env-<flavor>` writes the flavor's sign-in scheme into it, so a dirty
+  copy is the checkout working. A change it needs goes to the owner as lines to
+  paste. Detail in `docs/rules/PRIVACY_AND_SECURITY.md` §13.
 - **Every user-facing string goes through `intl` ARB files**, and a new key lands
   in **all seven** the same turn: `app_en.arb` (the template, the only one
   carrying `@` descriptions), `app_vi.arb`, `app_ja.arb`, `app_de.arb`,

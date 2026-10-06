@@ -30,9 +30,17 @@ class MonthDaysCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              context.l10n.dashboardThisMonth,
-              style: AppTextStyle.labelSmall.secondary,
+            // The week card's caption shares its row with a chevron taller than the text. A zero-width strut of the chevron's height keeps both captions, and the counts under them, on one line — height only, so the caption keeps the full width and never wraps.
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    context.l10n.dashboardThisMonth,
+                    style: AppTextStyle.labelSmall.secondary,
+                  ),
+                ),
+                SizedBox(height: AppIconSize.small),
+              ],
             ),
             SizedBox(height: SdSpacingConstant.h8),
             _DaysRow(days: current.days),
@@ -48,7 +56,7 @@ class MonthDaysCard extends ConsumerWidget {
   }
 }
 
-/// The number at display size with its unit beside it, on a shared baseline — the same shape [WeekSummaryCard] uses, so the two read as one family.
+/// The number at display size with its unit under it — the same shape [WeekSummaryCard] uses, so the pair reads as one family.
 class _DaysRow extends StatelessWidget {
   const _DaysRow({required this.days});
 
@@ -56,18 +64,14 @@ class _DaysRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: <Widget>[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Text('$days', style: AppTextStyle.displaySmall.w600),
-        SizedBox(width: SdSpacingConstant.w8),
-        // Flexible, not Expanded: the unit runs longer in several locales and must wrap without the number losing its baseline.
-        Flexible(
-          child: Text(
-            context.l10n.dashboardMigraineDaysLabel(days),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        // Under the number rather than beside it: the card is half the screen wide, and a unit beside the number would wrap in most locales.
+        Text(
+          context.l10n.dashboardMigraineDaysLabel(days),
+          style: AppTextStyle.bodyMedium.secondary,
         ),
       ],
     );

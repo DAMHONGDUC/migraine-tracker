@@ -35,6 +35,9 @@ final class AppIconConstant {
   /// Narrow a list down.
   static const IconData filter = Symbols.filter_alt_rounded;
 
+  /// Every filter axis at once, in one sheet — set apart from the per-axis chips' glyph.
+  static const IconData filtersAll = Symbols.tune_rounded;
+
   /// More actions on this row, in a menu.
   static const IconData more = Symbols.more_horiz_rounded;
 

@@ -63,8 +63,8 @@ class WeekSummaryCard extends ConsumerWidget {
                 size: SdEmptyStateSizeV2.compact,
               ),
             if (summary.averageIntensity != null) ...[
-              SizedBox(height: SdSpacingConstant.h16),
-              _AvgIntensityChip(value: summary.averageIntensity!),
+              SizedBox(height: SdSpacingConstant.h8),
+              _AvgIntensityRow(value: summary.averageIntensity!),
             ],
           ],
         ),
@@ -73,7 +73,7 @@ class WeekSummaryCard extends ConsumerWidget {
   }
 }
 
-/// The number at display size with its unit beside it, sitting on a shared baseline so the two read as one phrase rather than two stacked lines.
+/// The number at display size with its unit under it, so half a screen of width never squeezes the number.
 class _CountRow extends StatelessWidget {
   const _CountRow({required this.count});
 
@@ -81,18 +81,14 @@ class _CountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('$count', style: AppTextStyle.displaySmall.w600),
-        SizedBox(width: SdSpacingConstant.w8),
-        // Flexible, not Expanded: Vietnamese runs longer and must be free to wrap without the number losing its baseline.
-        Flexible(
-          child: Text(
-            context.l10n.dashboardAttacksLabel(count),
-            style: AppTextStyle.bodyMedium.secondary,
-          ),
+        // Under the number rather than beside it: the card is half the screen wide, and a unit beside the number would wrap in most locales.
+        Text(
+          context.l10n.dashboardAttacksLabel(count),
+          style: AppTextStyle.bodyMedium.secondary,
         ),
       ],
     );
@@ -139,34 +135,36 @@ class _TrendRow extends StatelessWidget {
   }
 }
 
-class _AvgIntensityChip extends StatelessWidget {
-  const _AvgIntensityChip({required this.value});
+/// The week's average intensity, as a line shaped like [_TrendRow] above it: the band's dot, then the words.
+///
+/// It was a tinted pill. In a half-width card the label wraps, and a pill
+/// rounded for one line reads as broken on two; a line wraps the way the
+/// trend line beside it already does. The dot keeps the band's colour, and the
+/// number says the same thing in words (hard rule 3).
+class _AvgIntensityRow extends StatelessWidget {
+  const _AvgIntensityRow({required this.value});
 
   final double value;
 
   @override
   Widget build(BuildContext context) {
-    final color = AppColors.intensity(value.round());
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SdSpacingConstant.w12,
-        vertical: SdSpacingConstant.h6,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(SdSpacingConstant.r999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SdColorDotV2(color: color),
-          SizedBox(width: SdSpacingConstant.w8),
-          Text(
-            context.l10n.dashboardAvgIntensity(value.toStringAsFixed(1)),
-            style: AppTextStyle.labelLarge,
+    return Row(
+      children: [
+        // In a box the trend glyph's width, so both lines' words start at one edge.
+        SizedBox(
+          width: AppIconSize.xSmall,
+          child: Center(
+            child: SdColorDotV2(color: AppColors.intensity(value.round())),
           ),
-        ],
-      ),
+        ),
+        SizedBox(width: SdSpacingConstant.w6),
+        Flexible(
+          child: Text(
+            context.l10n.dashboardAvgIntensity(value.toStringAsFixed(1)),
+            style: AppTextStyle.bodySmall,
+          ),
+        ),
+      ],
     );
   }
 }

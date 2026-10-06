@@ -12,6 +12,7 @@ import '../../features/auth/providers.dart';
 import '../../features/daily_log/presentation/screens/check_in_reminder_screen/check_in_reminder_screen.dart';
 import '../../features/daily_log/presentation/screens/daily_log_screen/daily_log_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen/dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/risk_forecast_screen/risk_forecast_screen.dart';
 import '../../features/history/presentation/screens/history_screen/history_screen.dart';
 import '../../features/insights/presentation/screens/insights_screen/insights_screen.dart';
 import '../../features/insights/presentation/screens/midas_screen/midas_screen.dart';
@@ -97,6 +98,12 @@ final class AppRoutes {
 
   /// Every weather reading named, and the ten-day rainfall forecast.
   static const weather = AppRoute(name: 'weatherDetail', path: '/weather');
+
+  /// The working behind the dashboard's risk card: the week with its numbers and what moved today's score.
+  static const riskForecast = AppRoute(
+    name: 'riskForecast',
+    path: '/risk-forecast',
+  );
 
   static const paywall = AppRoute(name: 'paywall', path: '/paywall');
 
@@ -189,6 +196,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             WeatherDetailScreen(args: state.extra! as WeatherDetailArgs),
       ),
       GoRoute(
+        name: AppRoutes.riskForecast.name,
+        path: AppRoutes.riskForecast.path,
+        builder: (context, state) => const RiskForecastScreen(),
+      ),
+      GoRoute(
         name: AppRoutes.medication.name,
         path: AppRoutes.medication.path,
         builder: (context, state) => MedicationDetailScreen(
@@ -210,8 +222,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.dailyLog.name,
         path: AppRoutes.dailyLog.path,
         // The day rides in the query rather than the path: the ordinary case has no day at all, and a path segment would need a placeholder for "today".
-        builder: (context, state) =>
-            DailyLogScreen(dayKey: state.uri.queryParameters['day']),
+        builder: (context, state) => DailyLogScreen(
+          dayKey: state.uri.queryParameters['day'],
+          // The answer tapped on the dashboard card; anything but 1–5 is dropped rather than trusted.
+          initialSleep: switch (int.tryParse(
+            state.uri.queryParameters['sleep'] ?? '',
+          )) {
+            final int sleep when sleep >= 1 && sleep <= 5 => sleep,
+            _ => null,
+          },
+        ),
       ),
       // - Full-screen pushed route (opened from the dashboard's log button), not a tab — no distractions, own step progress lives in the screen.
       GoRoute(

@@ -187,3 +187,20 @@ past the whole app to reach the tools that build the state being tested.
   never arrives, one says the fault is on the device and the other says it is in
   the backend. It came from the medications tab's app bar, where a `kDebugMode`
   button sat in the chrome of a screen users see.
+- **`_DevCrashlyticsTile` proves a build reports** (2026-10-05, after a prod
+  crash on a device left the console empty). Its dialog states first whether
+  collection is on, then offers two tests:
+
+  | Test | Uploaded |
+  |---|---|
+  | Send non-fatal | on the next launch — iOS batches it into the session's report |
+  | Crash the app (native) | on the next launch; never with Xcode's debugger attached |
+
+  **Debug builds emit a dSYM** (`DEBUG_INFORMATION_FORMAT = dwarf-with-dsym`,
+  2026-10-05) so a simulator test reaches the console: before it, a test
+  uploaded 73 KB and the console stayed empty. Release dSYMs from CI need the
+  `FIREBASE_APP_ID_IOS` secret.
+
+  Both switch collection on first, since a debug build starts with it off;
+  the next launch's `CrashReporter.init` puts that back. It follows the grant
+  as well as the flavour — a prod build is the one that needs proving.

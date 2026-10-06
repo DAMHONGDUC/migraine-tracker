@@ -254,6 +254,19 @@ size.**
     not read is a file it may not edit, because an edit it cannot verify is an
     edit it cannot undo. **Anything needed in `env_assets/` is handed to the
     owner as the exact lines to paste.**
+- **`ios/Runner/Info.plist` is off limits too** (owner's rule, 2026-10-05):
+  no edit, `git add`, commit or `git restore`. It is tracked, but
+  `make env-<flavor>` writes the flavor's Google reversed client id into its
+  URL scheme, so the working copy always differs from the committed `...`
+  placeholder.
+
+  | Action | Result |
+  |---|---|
+  | commit it | the flavor's client id lands in the branch, right for one flavor only |
+  | restore it | sign-in builds, then drops its callback at runtime |
+  | edit it | the next `make env-<flavor>` overwrites the edit |
+
+  A key it needs is handed to the owner as lines to paste, as for `env_assets/`.
 - `.claude/settings.json` denies the obvious paths, but `Bash` is broadly
   allowed and no pattern list can close every way a shell command could read the
   folder. **The rule is the guarantee; the deny list is only a guard rail.**

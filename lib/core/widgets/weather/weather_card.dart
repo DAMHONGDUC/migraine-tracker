@@ -87,48 +87,50 @@ class WeatherCard extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
     final WeatherCardData? weather = data?.isEmpty ?? true ? null : data;
 
+    final Widget body = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: SdSpacingConstant.w16,
+        vertical: SdSpacingConstant.h12,
+      ),
+      child: weather == null
+          ? _Placeholder(
+              label: emptyLabel,
+              isLoading: isLoading,
+              onRetry: onRetry,
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // - the place arrives after the reading, so the card grows a line once rather than reserving one it may not fill.
+                if (place case final String name) ...<Widget>[
+                  _PlaceLine(name: name),
+                  SizedBox(height: SdSpacingConstant.h4),
+                ],
+                _Headline(
+                  data: weather,
+                  // Semantics carries what the glyph cannot say; the tap belongs to the card, so this is decoration.
+                  trailing: Semantics(
+                    label: l10n.weatherA11yDetail,
+                    child: SdIconV2(
+                      icon: AppIconConstant.disclosure,
+                      size: AppIconSize.small,
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                SizedBox(height: SdSpacingConstant.h12),
+                _MetricStrip(metrics: _metrics(l10n, weather)),
+              ],
+            ),
+    );
+
     return SdCardV2(
       gradient: gradient(context),
       // **The tap and the chevron drop together where there is no reading.** A mark that promises a screen must never sit above a tap that opens an empty one.
       onTap: weather == null
           ? null
           : () => unawaited(_openDetail(context, weather)),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: SdSpacingConstant.w16,
-          vertical: SdSpacingConstant.h12,
-        ),
-        child: weather == null
-            ? _Placeholder(
-                label: emptyLabel,
-                isLoading: isLoading,
-                onRetry: onRetry,
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // - the place arrives after the reading, so the card grows a line once rather than reserving one it may not fill.
-                  if (place case final String name) ...<Widget>[
-                    _PlaceLine(name: name),
-                    SizedBox(height: SdSpacingConstant.h4),
-                  ],
-                  _Headline(
-                    data: weather,
-                    // Semantics carries what the glyph cannot say; the tap belongs to the card, so this is decoration.
-                    trailing: Semantics(
-                      label: l10n.weatherA11yDetail,
-                      child: SdIconV2(
-                        icon: AppIconConstant.disclosure,
-                        size: AppIconSize.small,
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: SdSpacingConstant.h12),
-                  _MetricStrip(metrics: _metrics(l10n, weather)),
-                ],
-              ),
-      ),
+      child: body,
     );
   }
 }

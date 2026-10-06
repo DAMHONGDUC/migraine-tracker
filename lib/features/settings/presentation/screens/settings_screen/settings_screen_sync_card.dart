@@ -74,6 +74,8 @@ class _SyncCard extends ConsumerWidget {
         0,
       ),
       child: SdCardV2(
+        // The app's one hairline, so the card reads as a framed status rather than a bare patch of surface above the rows.
+        borderColor: SdOutlineV2.color(context),
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: SdSpacingConstant.w12,

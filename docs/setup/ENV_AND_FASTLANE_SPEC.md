@@ -90,8 +90,8 @@ Three properties worth copying verbatim:
   assert per config group.
 - **Required vs defaulted is a decision, not an accident.** Firebase ids and
   the current platform's store key are required; entitlement name, offering,
-  support email, policy URL are defaulted, because empty is their normal
-  state. The other platform's store key is allowed to be empty.
+  support email, privacy and terms URLs are defaulted, because empty is their
+  normal state. The other platform's store key is allowed to be empty.
 - **Asserts are stripped from release builds**, which is exactly where the
   mistake happens. The assert is a developer convenience; Part B's checks are
   the real guard.

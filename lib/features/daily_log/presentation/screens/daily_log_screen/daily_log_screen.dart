@@ -27,10 +27,13 @@ import '../../widgets/daily_rating_row.dart';
 /// failure — an attack bad enough to cost a day is exactly the day worth
 /// having, and it used to be a permanent hole.
 class DailyLogScreen extends HookConsumerWidget {
-  const DailyLogScreen({this.dayKey, super.key});
+  const DailyLogScreen({this.dayKey, this.initialSleep, super.key});
 
   /// `yyyy-MM-dd` of the day being answered; null is today.
   final String? dayKey;
+
+  /// A 1–5 sleep answer already tapped on the dashboard card, applied over the day's row once it has loaded; null leaves the row's own answer.
+  final int? initialSleep;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +62,12 @@ class DailyLogScreen extends HookConsumerWidget {
       Future<void>.microtask(() {
         if (!context.mounted) return;
 
-        ref.read(dailyLogControllerProvider.notifier).load(row);
+        final DailyLogController controller = ref.read(
+          dailyLogControllerProvider.notifier,
+        )..load(row);
+        if (initialSleep case final int sleep) {
+          controller.presetSleepQuality(sleep);
+        }
       });
 
       return null;

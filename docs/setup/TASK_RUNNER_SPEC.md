@@ -3,7 +3,8 @@
 The commands are not this repo's code. Scripts, make targets and the iOS lanes
 live in [script-tools](https://github.com/DAMHONGDUC/script-tools) under
 `flutter/`; this repo only includes them. `docs/rules/COMMANDS.md` carries the
-reasoning per command; `packages/script-tools/README.md` is the reference.
+reasoning per command. **The full checklist for another project is
+`packages/script-tools/flutter/ADOPTION_SPEC.md`.**
 
 ## Standing it up
 

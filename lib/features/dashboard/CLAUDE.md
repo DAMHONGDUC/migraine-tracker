@@ -120,10 +120,12 @@ row but never across them, so cards of different content read as unrelated pairs
 
 ## The premium banner
 
-**The dashboard leads with `PremiumBanner`, one line offering premium, above
-everything else** (owner's call, reversing the call that moved the promo to
-Settings). What left this screen was `PremiumCountdownBanner` — a ticking discount
-panel with its own Unlock button — which competed with the log button under it.
+**`PremiumBanner`, one line offering premium, sits after the summary group and
+above Explore** (owner's call, 2026-09-30 redesign, reversing the call that put
+it above everything). The top of the screen is logging and the pressure
+outlook; an offer above them pushed both down on every open. What left this
+screen earlier was `PremiumCountdownBanner` — a ticking discount panel with its
+own Unlock button — which competed with the log button under it.
 
 - **Free users only, and never beside `AttackLimitBanner`.** That one is this same
   pitch with a reason attached, and two premium banners on one screen is how both
@@ -154,7 +156,9 @@ panel with its own Unlock button — which competed with the log button under it
 ## The weather card
 
 **The weather the user is standing in is a dashboard card, `CurrentWeatherCard`,
-directly under quick access** (owner's call). It replaced the Insights weather
+directly under the log button** (owner's call, 2026-09-30 redesign, moved up from
+under quick access: the pressure outlook is the app's promise, read before
+anything is asked of the user). It replaced the Insights weather
 tab, whose day strip, metric picker and hourly chart were a screen's worth of
 forecast reached by a tab switch — what a user wants at a glance is the conditions
 right now, and the dashboard is where a glance happens. `InsightsTab.weather`,
@@ -354,35 +358,66 @@ than a word there.
 
 ## The risk card
 
+**A card of its own, directly under the weather card, and compact: one line
+and a mini week** (owner's call, 2026-10-06 — it was the weather card's footer
+from the 2026-09-30 redesign). The footer made the weather card the tallest
+thing on the dashboard and tied a premium analysis to a free readout.
+`WeatherCard.footer` is gone with it.
+
 **`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
 from `RiskScoreEngine` (weights, thresholds and the score's own rules:
 `lib/features/insights/CLAUDE.md`). What this file owns is how it reads.
 
+| On the card (`RiskScoreCard`) | On `RiskForecastScreen` |
+|---|---|
+| Title + "Next 7 days · a prediction", today's % and band, chevron | Today's % and band, large |
+| Seven bare mini bars, band-coloured, today emphasised — no numbers | Seven columns, each with its % above and weekday under |
+| — | Every signal that scored today, and every one that could not be read |
+| — | The info glyph (`AnalysisInfoSheet`) in the app bar |
+| — | A button to the Pressure tab, the forecast the score is built on, pinned to the bottom edge |
+
+- **The Pressure button holds the bottom edge** (owner's rule):
+  `SdActionViewV2` at `SdActionsPlacementV2.pinned`, so only the working above it
+  scrolls. Under the last card it floated mid-screen whenever the reasons were
+  short or the score was still pending.
+
+- **The whole card opens `RiskForecastScreen`** (`AppRoutes.riskForecast`,
+  owner's call). The card is the glance; the screen is the working. It used to
+  open the Pressure tab — that door moved onto the screen.
 - **The title says it is a forecast, and the line under it says it is a
-  prediction** (owner's rule). It used to be titled "Next 7 days", which names a
-  window and leaves the number to be read as a measurement of something. A
+  prediction** (owner's rule), on the card and the screen: `riskCardTitle` =
+  "Attack risk forecast", `riskCardSubtitle` = "Next 7 days · a prediction". A
   percentage on a health screen is taken for a fact unless the card says
-  otherwise, so it says otherwise twice: `riskCardTitle` = "Attack risk
-  forecast", `riskCardSubtitle` = "Next 7 days · a prediction".
+  otherwise.
 - **Every number carries its percent sign** (`riskPercent`). "62" beside a word
   reads as a rating out of ten as easily as a probability.
-- **The week is seven labelled `SdProgressRowV2` rows, not seven bars**
-  (owner's call). The column of bars could be compared with itself and nothing
-  else: the value each bar stood for appeared nowhere, so "how likely is
-  Thursday" had no answer on the card. A progress row names the day, shows the
-  share and writes the percentage at the end — which is what the design system
-  built it for.
-- **It carries the same info glyph as every analysis card**, opening
-  `AnalysisInfoSheet` with four paragraphs: what the number is, the four signals
-  and their weights, why an unreadable signal is named rather than scored zero,
-  and that every threshold is the user's own. The card states a probability
-  about the user's health; the sheet is where "not a diagnosis" is allowed the
-  room to be said.
-- **The card still opens the Pressure tab**, where the forecast it is built on
-  is drawn in full — the glyph and the card body are two different destinations
-  on purpose, so reading the explanation does not cost the reader their place.
+- **The mini bars carry no numbers.** They are the week's shape at a glance; the
+  screen is where a day's value is read. `RiskBandStyle` is the one owner of a
+  band's colour and word, so a bar and its number cannot disagree.
+- **The info glyph lives on the screen**, opening `AnalysisInfoSheet` with four
+  paragraphs: what the number is, the four signals and their weights, why an
+  unreadable signal is named rather than scored zero, and that every threshold
+  is the user's own. A second tap target inside a card that is itself a tap is
+  the trap the weather card's chevron rule avoids.
+- **Before two weeks of history the card is its title and `riskPending`** — no
+  bars, no chevron and no tap. A score with nothing behind it would be a number
+  the user cannot check.
+
+## The log button
+
+**A row: glyph in a darkened disc, `dashboardLogButton` over
+`dashboardLogButtonHint` ("3 taps · works offline"), chevron** (2026-09-30
+redesign). The hint is the one fact a first-time user does not know about the
+button, and the centred single label had no room for it.
 
 ## The summary group
+
+**Week and month sit side by side, equal height, the severity ring under
+them** (2026-09-30 redesign). Stacked, the two counts read as unrelated figures;
+paired, they read as the same history at two widths. The group asks
+`migraineDaysProvider` itself whether there is a month to show, so a hidden
+month card never leaves the week at half width. Both cards put the unit under
+the number, because half the screen is too narrow for them side by side.
 
 **`DashboardSummaryGroup` shows on every launch, empty or not.** Owner's rule. It
 used to be gated on `hasAttacks`, which left a new install with a log button, a

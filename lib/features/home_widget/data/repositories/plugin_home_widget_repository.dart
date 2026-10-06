@@ -32,9 +32,10 @@ class PluginHomeWidgetRepository implements HomeWidgetRepository {
     if (!isSupported) return;
 
     await _ensureAppGroup();
-    // The key list comes from an empty content, so a key added to the payload is a key this clears — the two cannot drift apart.
-    for (final String key in HomeWidgetContent.empty.toData().keys) {
-      await HomeWidget.saveWidgetData<String>(key, null);
+    // Empty strings, never null: home_widget 0.9.4 hands null to UserDefaults as NSNull, which iOS 27 aborts the app over. The extension reads "" as absent.
+    for (final MapEntry<String, String> entry
+        in HomeWidgetContent.empty.toData().entries) {
+      await HomeWidget.saveWidgetData<String>(entry.key, entry.value);
     }
     await HomeWidget.updateWidget(iOSName: HomeWidgetConstant.iOSWidgetName);
   }

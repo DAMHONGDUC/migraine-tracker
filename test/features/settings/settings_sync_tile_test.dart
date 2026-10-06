@@ -29,9 +29,10 @@ void main() {
       final Finder card = find.text('All saved');
 
       expect(card, findsOneWidget);
+      // Against the FIRST group, Developer in tests: the Dev group is long enough to push General below the fold, and Developer above General is asserted in settings_dev_section_test.dart.
       expect(
         tester.getRect(card).top,
-        lessThan(tester.getRect(find.text('General')).top),
+        lessThan(tester.getRect(find.text('Developer')).top),
       );
       // Still nothing to tap: the old manual row is what would come back first.
       expect(find.text('Sync data to cloud'), findsNothing);

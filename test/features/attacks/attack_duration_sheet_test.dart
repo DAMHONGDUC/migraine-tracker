@@ -85,4 +85,75 @@ void main() {
 
     expect(justEnded, greaterThan(anOption * 1.8));
   });
+
+  /// Opens the sheet from a button, so what it pops can be read back.
+  Future<List<({DateTime? endedAt})?>> openSheet(
+    WidgetTester tester,
+    DateTime startedAt,
+  ) async {
+    final List<({DateTime? endedAt})?> results = <({DateTime? endedAt})?>[];
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (BuildContext context, Widget? child) => MaterialApp(
+          theme: AppTheme.dark,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (BuildContext context) => TextButton(
+              onPressed: () async => results.add(
+                await AttackDurationSheet(
+                  startedAt: startedAt,
+                  endedAt: null,
+                ).show(context),
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await settleFrames(tester);
+    return results;
+  }
+
+  SdButtonV2 saveButton(WidgetTester tester) =>
+      tester.widget<SdButtonV2>(find.widgetWithText(SdButtonV2, 'Save'));
+
+  testWidgets('typed hours and minutes save as the end time', (tester) async {
+    final DateTime startedAt = DateTime.utc(2026, 10, 1, 8);
+    final List<({DateTime? endedAt})?> results = await openSheet(
+      tester,
+      startedAt,
+    );
+
+    // Nothing typed is nothing to save.
+    expect(saveButton(tester).onPressed, isNull);
+
+    await tester.enterText(find.byType(TextField).at(0), '5');
+    await tester.enterText(find.byType(TextField).at(1), '40');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(SdButtonV2, 'Save'));
+    await settleFrames(tester);
+
+    expect(results.single?.endedAt, DateTime.utc(2026, 10, 1, 13, 40));
+  });
+
+  testWidgets('minutes past 59 are refused, and so is the save', (
+    tester,
+  ) async {
+    await openSheet(tester, DateTime.utc(2026, 10, 1, 8));
+
+    await tester.enterText(find.byType(TextField).at(0), '1');
+    await tester.enterText(find.byType(TextField).at(1), '75');
+    await tester.pump();
+
+    expect(find.text('Minutes go up to 59'), findsOneWidget);
+    expect(saveButton(tester).onPressed, isNull);
+  });
 }

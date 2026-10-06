@@ -53,6 +53,16 @@ class AttackFiltersController extends Notifier<AttackFilters> {
   void setPressure(PressureFilter value) =>
       _set('pressure', value, state.copyWith(pressure: value));
 
+  /// Every axis at once, from the all-filters sheet's Apply.
+  void apply(AttackFilters next) {
+    SdLogger.action(
+      LogTagConstant.history,
+      'History filters applied',
+      <String, Object>{'was': state.activeCount, 'now': next.activeCount},
+    );
+    state = next;
+  }
+
   /// Every axis back to "all", from the summary line's own action.
   void reset() {
     SdLogger.action(
