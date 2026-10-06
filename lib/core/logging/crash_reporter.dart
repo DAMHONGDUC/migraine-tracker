@@ -42,12 +42,22 @@ abstract final class CrashReporter {
   }
 
   /// A caught failure worth knowing about in production (weather fetch, alert registration, sync). Non-fatal: the app kept running.
+  ///
+  /// [fatal] is for a failure nothing caught, and only `SdLogger.fatal` passes it — a crash filed as non-fatal never moves the crash-free rate.
   static void recordError(
     Object error,
     StackTrace? stackTrace, {
     required String reason,
+    bool fatal = false,
   }) {
-    unawaited(_crashlytics?.recordError(error, stackTrace, reason: reason));
+    unawaited(
+      _crashlytics?.recordError(
+        error,
+        stackTrace,
+        reason: reason,
+        fatal: fatal,
+      ),
+    );
   }
 
   /// Breadcrumb attached to the next report — the trail of what the user was doing before it broke. Screen names and action labels only.
@@ -122,6 +132,20 @@ class FirebaseCrashReporter implements SdCrashReporter {
     // A log line without a thrown object still deserves a report, and Crashlytics needs *something* to title the issue.
     CrashReporter.recordError(error ?? reason, stackTrace, reason: reason);
   }
+
+  /// `SdBootstrap`'s three error hooks, through `SdLogger.fatal`.
+  @override
+  void recordFatal(String reason, {Object? error, StackTrace? stackTrace}) =>
+      CrashReporter.recordError(
+        error ?? reason,
+        stackTrace,
+        reason: reason,
+        fatal: true,
+      );
+
+  /// `SdLogger`'s breadcrumbs: tag and message only, never the data.
+  @override
+  void log(String message) => CrashReporter.log(message);
 
   @override
   void setUserId(String? uid) => CrashReporter.setUserId(uid);
