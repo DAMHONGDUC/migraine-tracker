@@ -1,6 +1,12 @@
 # Premium rules
 
-Authority for prices, free limits and feature gates. Last updated: 2026-09-23.
+Authority for prices, free limits and feature gates. Last updated: 2026-10-10.
+
+**Everything is free except two things** (owner's rule, 2026-10-10): pressure
+push alerts and the export screen. No record limits, no history window, no
+locked analysis. Those two are the ones with a cost or a deliverable behind
+them: an alert spends WeatherKit quota on every run, for every cell, forever;
+export is the file a user takes away.
 
 ## Offer
 
@@ -20,118 +26,45 @@ of 2026-09-23 (owner's call); the history is in `docs/rules/DECISIONS.md`.
 | Account | Not required to buy, restore or use Premium |
 | Lifetime package | RevenueCat `$rc_lifetime` (product `app.dd.reseller.studio.premium.lifetime2`); the row is labelled "One-time purchase" |
 
-## Free limits
-
-Code authority: `lib/core/constants/premium_limit_constant.dart`.
-
-| Record | Limit | Constant | Reason |
-|---|---:|---|---|
-| Attacks | **None** | — | Logging one is recording a health event the app calls the user's own; a wall in front of it contradicts that, and the chronic sufferer who hit the old 40 in month three left rather than paid |
-| Readable history | 90 days | `freeHistoryWindow` | What is sold is reading the record back, not writing it. Applied in the widget layer (`AttackWindow`) — never in a provider, see below |
-| Medications | 5 | `medications` | Covers a typical acute + preventive regimen |
-| Reminders | 2 total | `reminders` | Covers morning/evening preventive use |
-| Attack warning | 5 remaining | `attacksWarnAt` | Avoids surprising a user during an attack |
-
-## Limit behavior
-
-| Situation | Required behavior |
-|---|---|
-| Logging an attack | Never refused, never counted |
-| History older than the window | **Shown in History, blurred, tagged "Premium required"** — never hidden. Still on the device, and named by `FreeHistoryBanner` drawn AT the boundary, outlined |
-| Tap on a blurred history row | Open `LockedHistorySheet`, which explains the window and carries Unlock. The one exception to the row below |
-| Add beyond a limit | Explain the limit, then offer the paywall |
-| Existing records above a limit | Keep visible and editable; never hide or delete |
-| Anything behind the window | Show `FreeHistoryBanner` — the dashboard at the top, History at the boundary — and only where something IS behind it |
-| Current usage | Show `FreeLimitProgress`; hide it for Premium users |
-| New month | Do not reset lifetime limits |
-| Medication limit in attack flow | Block adding a new medication, never the attack log |
-| Reminder limit | Check before requesting OS notification permission |
-| Locked surface already labeled Premium | Open the paywall directly — except a blurred history row, whose pill has no room to say why *that* attack is unreadable |
-| Dashboard risk card without premium | Absent, never locked — the banner is that screen's one premium door |
-
-## Access matrix
+## What is paid
 
 | Capability | Free | Premium |
 |---|:---:|:---:|
-| Offline attack log | Unlimited | Unlimited |
-| Reading history back | Last 90 days, the rest blurred | All of it |
-| Weather snapshot on an attack | Yes | Yes |
-| Current weather except pressure | Yes | Yes |
-| Plain pressure reading in weather details | Yes | Yes |
-| 7-day pressure forecast, with 5 days of history behind it | No | Yes |
-| Pressure correlation and drop alerts | No | Yes |
-| Second alert as the drop begins | No | Yes |
-| Medications | Up to 5 | Unlimited |
-| Medication effectiveness | Yes | Yes |
-| Medication-overuse warning | Yes | Yes |
-| Medication reminders | Up to 2 | Unlimited |
-| Notification list | Yes | Yes |
-| Severity donut | Yes | Yes |
-| Migraine days this month | Yes | Yes |
-| Sleep and step readings | Yes | Yes |
-| Sleep, step and exertion correlations | No | Yes |
-| Daily check-in | Yes | Yes |
-| Menstrual cycle read from Apple Health | Yes | Yes |
-| Attack-in-progress screen and Live Activity | Yes | Yes |
-| Time to relief on an attack | Yes | Yes |
-| Siri shortcuts | Yes | Yes |
-| Trigger / protector map | No | Yes |
-| 7-day risk score | No | Yes |
-| Humidity and temperature-swing factors | No | Yes |
-| MIDAS questionnaire and its score | No | Yes |
-| Other charts | No | Yes |
-| JSON, CSV and PDF export screen | No | Yes |
-| Export history and preview | No | Yes |
-| Delete your account, and everything it holds | Yes | Yes |
+| Pressure-drop push alerts (and the onset push) | Only while `app_config/current.free_pressure_alerts` is `true` | Yes |
+| Export screen: JSON, CSV, PDF doctor report, export history | No | Yes |
+| Everything else in the app | Yes | Yes |
+
+Everything else includes the full history, every chart, the 7-day forecast,
+every correlation, the trigger map, the risk score, MIDAS, unlimited
+medications and unlimited reminders.
+
+## Pressure alerts — the one switch
+
+| `free_pressure_alerts` | Who can turn alerts on | Who the cron pushes to |
+|---|---|---|
+| absent, `false`, anything but the bool `true` | Premium accounts | `users.premium == true` + `premium_emails` |
+| `true` | Every **signed-in** account | Every registered account (`fcmToken` + `geohash5`) |
+
+- **Off by default because it costs.** The cron makes one WeatherKit call per
+  geohash cell every 3 hours — 240 runs a month against a 500k quota shared
+  with the app. Flip it on only while the number of cells allows it.
+- **An account is still required**, either way. The server never pushes to an
+  anonymous session (`lib/features/alerts/CLAUDE.md`).
+- **The app and the cron read the same field** off the same document, so they
+  cannot disagree about who gets alerts.
 
 ## Gate rules
 
 | Rule | Why |
 |---|---|
-| Premium data starts at the first record | Buying must unlock value immediately |
-| Small samples are graded, not withheld | A threshold must not create an empty paid screen |
-| Free widget trees use sample data behind locks | Blurring real premium data can leak it in a screenshot |
-| Pressure forecast checks access before loading | Free users must not trigger paid WeatherKit work |
-| Export entrance is gated | The whole export surface is Premium |
+| Entitlement comes from RevenueCat only | Never a client-side flag |
+| Export entrance is gated (`NavigationUtils.toExport`) | The whole export surface is Premium |
+| Alert controls are gated on `hasAlertAccessProvider` | Premium, or the switch above |
+| A gate never sits between a user and a free surface | Gate the action, not the screen that holds it |
 
 A lapsed subscriber cannot open previous exports through the app, but the files
 remain on-device and deleting the account still deletes them. Free data-access
 requests remain available through the support route in the privacy policy.
 
-## Where the window is applied, and why the shape matters
-
-| Surface | Reads | Sees |
-|---|---|---|
-| History — list, calendar, charts, filter chips | `visibleAttacksProvider` | The last 90 days, free; everything, premium |
-| The banner | `hasHiddenHistoryProvider` | Whether anything at all is behind the window |
-| Today / this week / this month, the overuse warning, the widget | `attacksStreamProvider` | Every attack — they cannot reach past the window anyway, and the overuse warning is free |
-| The Insights analyses | `attacksStreamProvider` | Every attack. Each paid one is behind `PremiumGate`, so a free user sees a lock, never a shortened answer |
-
-**`freeHistoryStartProvider` is STATE, not a computation over the entitlement.**
-The premium flag arrives asynchronously — RevenueCat in production, a stream in
-the tests — so a provider that *watches* it is recomputed while frames are
-still laying out, and Riverpod reports that as "setState called during build" on
-whatever screen was mid-transition. `BaroEaseApp` listens for the flag and calls
-`FreeHistoryStart.refresh()` after the frame; providers then watch that state
-freely.
-
-**Two shapes were tried and both threw it**, so do not "tidy" them back:
-
-| Shape | What broke |
-|---|---|
-| A sync `Provider<AsyncValue<…>>` over the table's stream | Notified its watchers while a route was popping — `attack_detail_test`, deleting an attack |
-| The Insights analyses reading the windowed stream | Their chain of derived providers recomputes when that stream is rebuilt, mid-layout on the Insights tab — `premium_gating_test` |
-
-## Named implementations
-
-| Purpose | Owner |
-|---|---|
-| Limit dialog → paywall | `NavigationUtils.toPaywallFromLimit` |
-| Free usage display | `FreeLimitProgress` |
-| The history window, and what it hides | `AttackWindow`, `freeHistoryStartProvider`, `FreeHistoryBanner` |
-| Locked content | `PremiumGate`, `PremiumChartLock` |
-| Safe preview data | `SampleChartData` |
-| Export gate | `NavigationUtils.toExport` |
-
 Read [`rules/DECISIONS.md`](rules/DECISIONS.md) before moving the free/Premium
-boundary, especially for pressure features.
+boundary.

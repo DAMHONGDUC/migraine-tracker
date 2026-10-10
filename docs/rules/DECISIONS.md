@@ -109,6 +109,13 @@ promise is now kept by the weather card; the pressure chart is the paid reading.
 **Do not flip it a fourth time without the owner saying so.**
 `docs/PREMIUM_RULES.md` is the authority.
 
+**Flipped by the owner, 2026-10-10: everything free except push alerts and
+export.** Gone with it: the 90-day history window (and its blur, banner and
+sheet), the 5-medication and 2-reminder limits, the blurred sample charts, and
+every locked insight card. What stayed paid is what costs per user (alerts,
+WeatherKit) or is a deliverable (export). Alerts got an `app_config` switch so
+they can be opened to everyone without a build.
+
 ## A lifetime purchase alongside the two subscriptions
 
 `PLAN.md` §3 sold a $44.99 non-consumable, on the reasoning that chronic-illness

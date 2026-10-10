@@ -6,6 +6,7 @@
 |---|---|---|
 | `force_update` | map | `ios` / `android` published build; read on every launch |
 | `premium_emails` | string[] | Premium in the app, and targets of the alert cron |
+| `free_pressure_alerts` | bool | `true`: every signed-in account can turn alerts on, and the cron pushes to all of them |
 | `dev_mode_emails` | string[] | Settings shows its Dev group on a **prod** build |
 | `blocked_emails` | string[] | Locked out: the block screen and nothing else |
 | `error_view` | map | The owner's notice in front of the whole app |
@@ -52,6 +53,7 @@ logs and ends would leave a cold start waiting for good.
                  "subtitle_1": "We are repairing the connection to our servers.",
                  "subtitle_2": "Everything you have logged is safe on this device.",
                  "type": "warning"},
+  "free_pressure_alerts": false,
   "premium_emails":  ["review@baroease.app", "owner@baroease.app"],
   "dev_mode_emails": ["owner@baroease.app"],
   "blocked_emails":  ["banned@example.com"]
@@ -91,6 +93,7 @@ and all three move together or the read is denied.
 | Address lists | nobody listed, **nobody blocked** | the address being on the list |
 | `force_update` | blocks nobody | `enable_force_update: true` |
 | `error_view` | shows nothing | `enable: true` **and** a non-empty `title` |
+| `free_pressure_alerts` | alerts stay premium | literally `true` |
 
 **Every field is something an address has to be put on, or a record the owner
 has to write.** An offline first launch, an install ahead of the document
@@ -109,6 +112,8 @@ granting nothing and looking like a typo nobody made.
 | Reader | Provider / function | Effect |
 |---|---|---|
 | App gates | `hasGrantedPremiumProvider` → `hasPremiumProvider` | Premium ahead of the entitlement |
+| Alert controls | `freePressureAlertsProvider` → `hasAlertAccessProvider` | Alerts for every signed-in account |
+| `pressureAlertJob` | `freePressureAlertsFrom` | Pushes to every registered account, not only premium |
 | App root | `isAccountBlockedProvider` → `BlockedAccountGate` | Replaces the whole app |
 | App root | `remoteErrorViewProvider` → `RemoteErrorGate` | Replaces the whole app |
 | Settings | `showDevSettingsProvider` | The Dev group on a **prod** build |
@@ -213,6 +218,23 @@ granting nothing and looking like a typo nobody made.
 - **A malformed field grants nothing rather than throwing.** The lists are typed
   by hand: anything that is not an array of strings reads as empty, and a
   non-string entry is dropped.
+
+## `free_pressure_alerts` — alerts for everyone
+
+Push alerts are one of the two paid features (`docs/PREMIUM_RULES.md`), and
+the only one that costs per user: every cell is a WeatherKit call every 3
+hours. This bool opens them to every signed-in account without a build, and
+closing it puts them back behind premium.
+
+- **Explicit `true` only**, on both sides. `"true"`, `1` and absent are off: a
+  typo must not be able to spend the quota.
+- **The app and the cron read the one field.** The app shows the controls;
+  the cron decides who is pushed to. If only one of them read it, the switch
+  would show a control that sends nothing, or push to people who never saw one.
+- **Not keyed on an address**, but the push chain still needs an account:
+  registration refuses an anonymous session (`lib/features/alerts/CLAUDE.md`).
+- **Closing it does not unregister anyone.** Their `fcmToken` stays; the cron
+  simply stops selecting non-premium accounts. Reopening it resumes their pushes.
 
 ## `error_view` — the owner's notice
 

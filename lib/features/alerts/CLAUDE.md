@@ -6,12 +6,16 @@ Hard rule 7. The controls themselves live on Insights' pressure card.
    drop within the 24h forecast. The threshold is user-tunable and stored
    per-user.
 
+- **Who may turn alerts on is `hasAlertAccessProvider`**: premium, or
+  `app_config/current.free_pressure_alerts == true` for everybody. Alerts are one
+  of the two paid features (`docs/PREMIUM_RULES.md`); the switch exists because
+  they are the one that costs per user. The cron reads the same field
+  (`freePressureAlertsFrom`): on, it pushes to every registered account; off,
+  only `premium == true` and the listed accounts below.
 - **The server never pushes to an anonymous session, and that is a chain, not a
-  check.** Owner's rule. Premium requires an account (`PurchaseIdentity` binds a
-  purchase only when `isSignedIn`), and alerts require premium (the cron reads
-  `users` where `premium == true`, plus the listed accounts below, which
-  only Google or Apple sign-in can produce), so an anonymous user cannot reach
-  the push path at all. Anything that pushes — the cron, `sendTestPush` — may
+  check.** Owner's rule. Registration refuses an anonymous session (below), and
+  every account the cron selects has a registration, so an anonymous user cannot
+  reach the push path at all, with the switch on or off. Anything that pushes — the cron, `sendTestPush` — may
   assume an account, and anything that appears to serve an anonymous device a
   notification is a bug.
 - **The cron targets `app_config`'s `premium_emails` as well.** `premium` is
