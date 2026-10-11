@@ -17,6 +17,7 @@ and reasoning: `lib/features/app_config/CLAUDE.md`.
    | Field | Type | Notes |
    |---|---|---|
    | `force_update` | map | An `ios` and/or `android` section, each `store_link` / `build_name` / `build_number` / `enable_force_update`. |
+   | `free_pressure_alerts` | bool | `true` = pressure alerts for every signed-in account, app and cron alike. Off by default: it spends WeatherKit quota. |
    | `premium_emails` | array of strings | Premium in the app and alert targets. |
    | `dev_mode_emails` | array of strings | The Dev group in Settings on a prod build. |
    | `blocked_emails` | array of strings | The lock-out screen; signing out clears it. |
@@ -58,6 +59,7 @@ and reasoning: `lib/features/app_config/CLAUDE.md`.
       "enable_force_update": false
     }
   },
+  "free_pressure_alerts": false,
   "premium_emails": ["review@baroease.app", "owner@baroease.app"],
   "dev_mode_emails": ["owner@baroease.app"],
   "blocked_emails": ["banned@example.com"]

@@ -41,12 +41,9 @@ of `onboarding/` and the ARB keys lost their `onboarding` prefix. Adding a
 feature is one `AppFeature` entry plus its two keys in every locale; a second
 hand-built list of the same rows is how one ends up a release behind.
 
-**The three capped features state their limit in their own row** — log,
-medications, reminders — as a `{count}` placeholder filled from
-`PremiumLimitConstant`, never a number typed into the ARB. The About screen is
-where a user goes to find out what the free plan holds, and it said nothing
-about the limits at all. The onboarding sheet's `appFeaturesBody` summary still
-names all three, which is fine now that both read the same constants.
+**No row states a limit, because there are none.** Premium's three rows —
+alerts, export, the doctor report — wear `PremiumBadge` for a free user, and the
+onboarding sheet's `appFeaturesBody` says the same in one sentence.
 
 ## Export, and the wipe that is gone
 
@@ -123,8 +120,7 @@ Settings it was a countdown on an evergreen "today only" deal, at the top of a
 screen the user opened to change something. **The dashboard has a promo again** —
 `PremiumBanner`, one line, no timer, no second button (see
 `lib/features/dashboard/CLAUDE.md`); what this rule forbids is the *countdown*,
-not the offer. Premium is also sold by the Settings row, every `PremiumGate`,
-`RecordLimitDialog` and the locked cards.
+not the offer. Premium is also sold by the Settings row and the locked alert and export rows.
 
 ## The sync card
 

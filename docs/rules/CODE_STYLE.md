@@ -194,15 +194,15 @@ line in with what was sent, a line out with what came back.
   widgets that one feature alone builds; the moment a second needs it, it moves.
   Otherwise the importer reaches into
   another feature's `presentation/` and breaks the dependency rule — how
-  `PremiumGate` and `MedicationNameDialog` ended up cross-imported before they
+  the premium gate and `MedicationNameDialog` ended up cross-imported before they
   moved. A shared widget may import a feature's `domain/` or `providers.dart`
   (core → feature is fine; feature → feature `presentation/` is not). A sheet a
   subsystem shows (`permission_settings_sheet.dart`) goes in `core/widgets/` and
   imports back into its subsystem, never the reverse.
 - **Constants live in their own class, never on a model, entity, controller or
   widget.** Owner's rule: a number a class does not itself use is not that
-  class's business. `PremiumLimitConstant` (`core/constants/`) holds the free
-  limits because the gate providers and the limit dialogs both read them. Reach
+  class's business. `PrefsKeyConstant` (`core/constants/`) holds every
+  `SecureStore` key because every feature that stores a preference reads it. Reach
   for `core/constants/` when it is cross-cutting, a feature-local `*Constant`
   class otherwise — never a `static const` bolted onto whatever was nearby.
   - **The exception is a widget's own intrinsic size** —
@@ -210,7 +210,7 @@ line in with what was sent, a line out with what came back.
     `SdBadgeV2.maxCount`, `DashboardExploreSection.cellAspectRatio`: that is what
     the widget *is*, not configuration about it. Spacing stays on
     `SdContentPaddingV2`, itself the constants class for that job.
-  - `core/constants/` now holds `PremiumLimitConstant`, `PrefsKeyConstant` (every
+  - `core/constants/` now holds `PrefsKeyConstant` (every
     `SecureStore` key, so a collision is visible rather than silent),
     `SyncConstant`, `ExportConstant` and `LogFlowConstant`. No entity, controller
     or widget in `lib/` carries a configuration constant any more.

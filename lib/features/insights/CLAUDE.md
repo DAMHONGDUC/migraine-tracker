@@ -51,17 +51,11 @@ order, and the third is the one that matters:
 - The sheet carries no commit — nothing to save, so the X is the only way out.
 - `InsightCard.onInfo` draws the glyph, quiet, in the title row: it is there for
   the reader who stops, not a call to action.
-- **Locked, a tab collapses to one card with one pitch** — pressure and activity
-  alike. Two locked cards would be two pitches for one purchase.
-
 - **The alert rides on the chart card**, not the analysis one: it fires on what
   the forecast above it draws.
 - **`PressureHistoryBody` stays with the analysis** even though it is a chart —
   it is the working behind the sentence directly above it, not a reading of its
   own.
-- **Locked, the pressure tab collapses back to one card.** One pitch for the
-  whole tab, not one per card, so the locked branch returns a single titled
-  `InsightCard` carrying the `PremiumBadge`.
 - **`InsightCard.title` is nullable** for exactly this: a card the tab strip
   above already names skips the heading row entirely rather than opening on 16pt
   of empty.
@@ -107,9 +101,9 @@ the feature dependency rule.
   tab is the same destination with neither, so `pressureAlertHighlightProvider`,
   the scroll-to-centre and the fading tint are all gone and `_AlertControls` is a
   plain `ConsumerWidget` again.
-  - **Only with premium, and that check lives in `NavigationUtils`.** Without it
-    the card renders one pitch and no controls, so a sheet over it would be
-    editing something the user cannot have.
+  - **Only with alert access (`hasAlertAccessProvider`), and that check lives in
+    `NavigationUtils`.** Without it the card draws the locked row and no
+    controls, so a sheet over it would be editing something the user cannot have.
   - **`AlertThresholdEditor.open` is the one place that opens it and applies the
     answer**, because four doors reach it: the Settings row, the dashboard
     shortcut, the alerts section and the card's own row. A sheet opened without
@@ -126,13 +120,8 @@ the feature dependency rule.
   the three `*CorrelationCard`s) went with the detail screens that were their
   only callers. `InsightCard` takes an `onTap` and draws the chevron itself —
   never add one at a call site.
-- **The forecast is premium again, and this has flipped twice — do not flip it a
-  third time without the owner saying so.** It shipped premium, was reversed to
-  free ("seeing the pressure you live in is the app's own promise"), and is
-  premium once more now that `CurrentWeatherCard` carries the free weather. The
-  promise is kept by that card; the pressure chart is the paid reading.
-  `premiumLockedForecast` is its pitch, and `PressureCard`'s `PremiumBadge` marks
-  the whole card rather than just the alert.
+- **The whole tab is free except the alert row** (owner's rule, 2026-10-10;
+  `docs/PREMIUM_RULES.md`): forecast, verdict, correlation and history chart.
 - **The alert is ONE `_AlertRow`, and `AlertThresholdSheet` behind it owns both
   answers.** It was a switch row above a threshold row: two titles saying the same
   word, a control on one and a value on the other, and the number the alert
@@ -147,26 +136,14 @@ the feature dependency rule.
   - The section heading is gone: it said "Pressure-drop alerts" directly above a
     row whose title said the same thing. The sentence under the row explains what
     the alert does while it is on, and says what it would do while it is off.
-- **Without premium, neither alert control is built — not the switch, not the
-  threshold.** Owner's call, reversing the first version, which showed both inert
-  with a lock glyph on the theory that a locked control still says what it would
-  do. It does not: a switch that will not switch and a threshold row that will not
-  open read as a broken screen rather than as an offer. Both surfaces follow this
-  — the card returns its `_AlertPitch` (the badge, one line on what the alert
-  does, one Unlock button), and `AlertsSettingsTile` returns `PremiumTileGate`'s
-  locked row.
-  - **The check comes before the settings are read**, so the locked branch never
-    touches `alertsControllerProvider` — the same shape as `PremiumGate`, where
-    the gate is the data and not the styling.
-  - This is why the tab staying open to everyone is safe: the forecast is the
-    free half, and the alert half is absent rather than half-operable.
-- **Every Unlock button in the app is `PremiumUnlockButton`, and it takes no
-  options** — filled, small, compact, no glyph. It used to take a `variant` so the
-  blurred chart cover could be louder than the prompts, which is exactly the drift
-  one widget exists to prevent. Filled because it is the one live action on a
-  surface that is otherwise inert, and because it has to read against that cover's
-  scrim; no padlock because the word is unambiguous and the glyph was a fifth of
-  the button's width.
+- **Without alert access, no alert control is built.** `_AlertControls` draws
+  the same `_AlertRow` with a `PremiumBadge` where the tag would be, the
+  off-state sentence under it, and a tap that opens the paywall. The first
+  version showed the switch inert with a lock, which read as a broken screen.
+  - **The check comes before the settings are read**, so the locked branch
+    never touches `alertsControllerProvider`.
+  - **Access is premium, or every account while `free_pressure_alerts` is on**
+    (`lib/features/app_config/CLAUDE.md`).
 
 ## The tabbed screen
 
@@ -184,10 +161,8 @@ several screens down.
 - **A tab's label is its card's name, from the same ARB key**
   (`insightsPressureTitle`, `activityCardTitle`, `sleepCardTitle`), so the segment
   and the card cannot come to disagree.
-  - **Which is why no unlocked card carries a heading of its own.** All three
-    tabs open straight onto their content: the tab above already says the word.
-    The one exception is the pressure tab while it is locked, where the title row
-    is also where its `PremiumBadge` sits.
+  - **Which is why no card carries a heading of its own.** All three tabs open
+    straight onto their content: the tab above already says the word.
 - **Each tab waits only on what it draws.** The screen used to hold every card
   behind one `switch` on both correlation providers, so a card needing neither
   stayed blank until the engines had run.
@@ -225,32 +200,20 @@ drift. **The Settings rows are doors to the tab**:
     the identification now is the switch's own title — "Apple Health sleep",
     "Apple Health steps" — plus the caption under it, on a tab in the main nav
     and behind no gate.
-- **Each tab is a free reading over a premium analysis.** Owner's spec: the first
-  card is what was measured and is free, the second is the correlation drawn from
-  it, which is premium. `docs/PREMIUM_RULES.md` is the authority on which half is
-  which.
+- **Each tab is a reading over an analysis, both free** (`docs/PREMIUM_RULES.md`).
 - **No card takes a card-level `onTap`, and so none wears a chevron.** Each owns
   an interactive control — a range selector, a switch, an alert row — and a tap on
   the card would fight the control inside it.
-- **The free half must never be gated, even when the analysis under it is.** It
-  is the answer to "did connecting Apple Health work" and "what is the pressure
-  doing"; locking it leaves a user who just flipped a switch looking at nothing.
-- **What a locked analysis blurs is a sample, never the user's own data.**
-  `PremiumChartLock` draws `sampleExertionCorrelationProvider` /
-  `sampleSleepCorrelationProvider`, both running `SampleChartData` through the
-  SAME engines as the real cards — so the preview cannot drift from what premium
-  unlocks, and a free user's tree still holds no real premium data.
-  `SleepCorrelationBody` takes an optional `result` for exactly this, and passing
-  it means the provider is never watched, so no HealthKit read is issued for a
-  free user.
+- **The reading must never be gated.** It is the answer to "did connecting
+  Apple Health work" and "what is the pressure doing".
 - **Neither Settings row is premium-gated**, and the sleep one used to be. Same
   rule as the free half above: the tab behind the row holds the Apple Health
   switch and a free reading, so a locked row hides something the user already has.
   Submission 1.0(11) was rejected under App Store 2.5.1 partly because of that
   gate — with the paywall returning no offerings, the sleep row could not be
   unlocked, and it led to the app's only surface naming Apple Health. Inside the
-  activity tab, the step half of the analysis shows `premiumLockedSteps` until
-  premium, and is absent entirely off iOS (`healthAvailableProvider`).
+  activity tab, the step half of the analysis is absent off iOS
+  (`healthAvailableProvider`).
 
 ## The health range selector
 
@@ -448,9 +411,7 @@ where the forecast it is built on is drawn in full, and the card opens it.
   their alert threshold, the sleep debt against their own median night, the
   week's attacks against their own median week. A number the app picked would
   score a calm sufferer in a stormy climate as high risk forever.
-- **It is premium and ABSENT rather than locked**, because the dashboard has one
-  premium door — the banner — and a second locked card is two pitches for one
-  purchase.
+- **It is free**, and absent only until there is a forecast to score.
 
 ## MIDAS
 

@@ -465,8 +465,8 @@ few of the rows it just wrote — the only way a tombstone is ever made.
 - **Three shapes are forced rather than rolled**, because at five rows a
   per-row chance seeds nothing: exactly one attack is weatherless (the offline
   case the backfill queue exists for), exactly
-  `DevSeedService.lockedAttackCount` (2) land behind the free plan's 90-day
-  window so History always has its blurred rows on it, and the rows the
+  `DevSeedService.lockedAttackCount` (2) land more than 90 days back so History
+  always reaches past three months, and the rows the
   tombstone step deletes are written on top of the counts above, so no list is
   left short. What the seed can no longer promise is a spread of every enum
   value — the tests assert what holds at any size, not the RNG.

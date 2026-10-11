@@ -41,7 +41,7 @@ import 'package:system_design/index.dart';
   droppable into the next project.
   - Which is why these stay in `lib/core/widgets/`: `AppTimePickerSheet`,
     `MedicationNameDialog`, `PermissionSettingsSheet` (localized copy),
-    `PremiumGate` (watches a provider), `SeverityBreakdownChart` (owns the app's
+    `PremiumTileGate` (watches a provider), `SeverityBreakdownChart` (owns the app's
     severity bands, then composes `SdDonutChartV2`) and `sections/` (settings
     rows bound to auth / alerts / health / premium).
 - `context.l10n` stays in the app (`core/extensions/context_extensions.dart`);

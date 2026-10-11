@@ -28,63 +28,17 @@ arrow (`↓ 6.8`): amber (`AppColors.warning`) when falling, muted otherwise, th
 direction from `AttackFilterer.pressureTrendOf` so the row and the Pressure
 filter cannot disagree. No reading, no tag — a dash would read as a zero.
 
-## The rows the free plan cannot read
+## The whole record is free
 
-**Every attack gets a row; the ones behind the 90-day window are blurred, not
-dropped** (owner's rule, 2026-09-21, reversing "hidden from History").
-An absence says nothing — a free user could not tell a plan limit from a record
-that had never been written. Blurred, the row says something is there, the
-`Premium required` tag says what it would take, and the tap says why.
-`docs/PREMIUM_RULES.md` is still the authority on the numbers.
+**Every attack is a readable row, however old** (owner's rule, 2026-10-10;
+`docs/PREMIUM_RULES.md`). The 90-day window, its blurred rows,
+`LockedHistorySheet` and `FreeHistoryBanner` are deleted.
 
-- **`AttackTile` decides, off `freeHistoryStartProvider`** — not off a flag its
-  callers pass. The list and the calendar both draw it, and a lock handed in
-  twice is two places that can disagree about one row.
-- **Three lists, and which one a view reads is the whole rule.**
-  `attacksStreamProvider` is the whole record (list and calendar rows);
-  `historyRowsProvider` is that under the filters (the list);
-  `filteredAttacksProvider` is the readable ninety days under the same filters
-  (the charts). **The charts stay on the readable window**: a chart averaging
-  numbers the user cannot see is a number they cannot check.
-- **A locked row is filtered like any other** — it is still a row — but
-  `attackFilterOptionsProvider` still reads only the readable set. A chip
-  naming a medication off a blurred row would print the very text the blur is
-  hiding.
-- **The blur and the veil are `PremiumChartLock`'s own numbers**
-  (`blurSigma`, `scrimOpacity`), so the app's two locked surfaces read as one
-  treatment. The row has no room for that card's centred unlock button — the
-  tag carries it, and the veil is only there to stop blurred text reading as a
-  render glitch.
-- **`ExcludeSemantics` over the blurred row is load bearing.** VoiceOver would
-  otherwise read out the intensity and the medication the blur is covering; the
-  row's only accessible name is the tag's.
-- **`LockedHistorySheet` says nothing about the attack.** The date, the
-  intensity and the medication are what the blur covers, so naming any of them
-  in the explanation would hand back what the row withholds. It names the
-  window instead.
-- **`FreeHistoryBanner` stays, AT the boundary rather than above the list**
-  (owner's rule, 2026-09-21). Its sentence names a date and says everything
-  before it is Premium — that is a statement about a boundary, so it is drawn
-  where the boundary is: under the last readable row, over the first blurred
-  one. At the top of the list it was a notice to scroll past; there it labels
-  the rows beneath it. It is also **outlined** (`SdCardV2.borderColor`),
-  which is the design system's own lever for the one banner in a stack to be
-  seen first, so the prominence the owner asked for costs no new look.
-  - **Compact, with `PremiumUnlockButton` trailing** (owner's rule,
-    2026-09-24): a full `SdBannerV2` between rows was taller than the rows it
-    labels, and its chevron promised more to read where the only offer is the
-    paywall. The whole card still opens the paywall too.
-  - **One `SliverList` with the banner as an item**, not three slivers with
-    hand-padded seams: the separator then spaces the banner from the rows
-    either side of it exactly as it spaces two rows.
-  - **`attacks.indexWhere(locks)` is enough to place it** because the list is
-    newest-first and the window cuts on time, so every locked row is
-    contiguous from that index to the end. A filter that reorders the list
-    would break this.
-  - **It is gated on THIS list, not on the whole record.** A filter that hides
-    every locked row takes the banner with it: a boundary marker with nothing
-    under it points at nothing. The dashboard's copy still reads
-    `hasHiddenHistoryProvider`, because it has no list to sit inside.
+- **One filtered list for the list and the charts**: `filteredAttacksProvider`
+  is `attacksStreamProvider` under the filters. The calendar draws
+  `attacksStreamProvider` and ignores the filters.
+- **`attackFilterOptionsProvider` reads the whole record**, never the filtered
+  list, or picking one value would hide the rest.
 
 ## The filter strip
 
@@ -125,8 +79,7 @@ pressure trend.
 - **`ActiveFilterSummary` (`core/widgets/`) says how many are on, and clears
   them.** A highlighted chip says which axis; only the line says how many, and
   the strip scrolls sideways so the two that are on can both be off screen.
-  It sits above the list and above the charts, under the free-plan meter where
-  there is one. The medications tab draws the same widget.
+  It sits above the list and above the charts. The medications tab draws the same widget.
 - **The three free-text axes offer the user's own words** — medication names,
   symptoms, triggers, deduped case-insensitively by
   `AttackFilterer.textOptions` and matched the same way, since "Nausea" and

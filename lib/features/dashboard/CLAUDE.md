@@ -25,11 +25,7 @@ row whose reading has no value is left out rather than printed as a dash, and
 - **There is no weather row.** `CurrentWeatherCard` sits on the same screen and
   says the temperature in full, so the row was the same reading printed twice —
   and `InsightsTab.weather`, which it opened, no longer exists.
-- **Each row follows the gating of the reading it shows, not the section's.**
-  Steps and sleep are free readings (hard rule 1, `docs/PREMIUM_RULES.md`), so a
-  free user gets those two; pressure is the one that is sold, so only that row is
-  withheld — and `hasTodayReadingsProvider` discounts it for a free user too, or
-  the section would be placed and then come up a row short.
+- **All three readings are free**, pressure included (`docs/PREMIUM_RULES.md`).
 
 ## Quick access
 
@@ -80,7 +76,7 @@ row but never across them, so cards of different content read as unrelated pairs
   columns divide into it evenly — at three, the last row carried one card and half
   a row of nothing.
 - **The About card opens the same `/about` the Settings row does**, which is the
-  feature list and the free plan's limits. Someone asking "what is this app" wants
+  feature list, free and Premium. Someone asking "what is this app" wants
   that, not a marketing page.
 - **Sleep and steps are no longer in it** (owner's call). They say what Today now
   says in one line each, and they were the only cells carrying a reading and a
@@ -102,8 +98,7 @@ row but never across them, so cards of different content read as unrelated pairs
     the moment the glyph went to `AppIconSize.medium`.
 - **The export cell is badged and gated.** Export is premium in full, so the cell
   says so before it is tapped and goes through `NavigationUtils.toExport` — a
-  paywall out of a card that looked free reads as a bug rather than an offer, the
-  same rule `RecordLimitDialog` exists for elsewhere.
+  paywall out of a card that looked free reads as a bug rather than an offer.
 - **Every cell clips inside its own box rather than overflowing the grid.** The
   cost of a fixed cell is real and was why this was not a grid before: it cannot
   grow for a long Vietnamese subtitle or a large accessibility text size. So
@@ -127,9 +122,7 @@ outlook; an offer above them pushed both down on every open. What left this
 screen earlier was `PremiumCountdownBanner` — a ticking discount panel with its
 own Unlock button — which competed with the log button under it.
 
-- **Free users only, and never beside `AttackLimitBanner`.** That one is this same
-  pitch with a reason attached, and two premium banners on one screen is how both
-  stop being read. Quick access still carries no Premium tile — the banner is the
+- **Free users only.** Quick access carries no Premium tile — the banner is the
   dashboard's one premium door.
 - **It is the one tinted card on the screen** (owner's call): `SdCardV2`'s
   `fillColor` at `AppColors.primary` **and 0.12 alpha**, inside a `borderColor` of
@@ -361,7 +354,8 @@ than a word there.
 **A card of its own, directly under the weather card, and compact: one line
 and a mini week** (owner's call, 2026-10-06 — it was the weather card's footer
 from the 2026-09-30 redesign). The footer made the weather card the tallest
-thing on the dashboard and tied a premium analysis to a free readout.
+thing on the dashboard and tied an analysis to a readout. Free, like every
+analysis (`docs/PREMIUM_RULES.md`); absent only until there is a forecast to score.
 `WeatherCard.footer` is gone with it.
 
 **`RiskScoreCard` is the one forward-looking number on the dashboard**, drawn
